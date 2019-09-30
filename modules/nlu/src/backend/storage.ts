@@ -267,7 +267,7 @@ export default class Storage {
     const modelName = `${model.meta.context}__${model.meta.created_on}__${model.meta.hash}__${model.meta.type}.bin`
     const modelDir = `${this.modelsDir}/${lang}`
 
-    return this.botGhost.upsertFile(modelDir, modelName, model.model)
+    return this.botGhost.upsertFile(modelDir, modelName, model.model, { ignoreLock: true })
   }
 
   private async _cleanupModels(lang: string): Promise<void> {

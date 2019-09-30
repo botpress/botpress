@@ -5,7 +5,7 @@ title: Licensing
 
 ## Obtaining a License
 
-Please contact sales@botpress.io to obtain a license.
+Please contact us through our [webform](https://botpress.typeform.com/to/QaznSq).
 
 ## Activate your License
 

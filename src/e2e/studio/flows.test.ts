@@ -23,7 +23,7 @@ describe('Studio - Flows', () => {
     await clickOnTreeNode('test_flow', 'right')
     await clickOn('#btn-rename')
 
-    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'PUT')
+    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'POST')
   })
 
   it('Delete flow', async () => {
@@ -31,7 +31,7 @@ describe('Studio - Flows', () => {
     await clickOnTreeNode('test_flow_renamed', 'right')
     await clickOn('#btn-delete')
 
-    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'DELETE')
+    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json/delete', 'POST')
   })
 
   it('Duplicate flow', async () => {

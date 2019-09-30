@@ -18,6 +18,7 @@ import { FlowService, MutexError } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
+import { getSocketTransports } from 'core/services/realtime'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Express, RequestHandler, Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -31,7 +32,7 @@ import { URL } from 'url'
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { NotFoundError } from '../errors'
-import { checkTokenHeader, needPermissions } from '../util'
+import { checkMethodPermissions, checkTokenHeader, needPermissions } from '../util'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = '10mb'
@@ -48,6 +49,7 @@ export class BotsRouter extends CustomRouter {
   private ghostService: GhostService
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
+  private checkMethodPermissions: (resource: string) => RequestHandler
   private machineId: string | undefined
   private botpressConfig: BotpressConfig | undefined
   private workspaceService: WorkspaceService
@@ -78,6 +80,7 @@ export class BotsRouter extends CustomRouter {
     this.ghostService = args.ghostService
     this.workspaceService = args.workspaceService
     this.needPermissions = needPermissions(this.workspaceService)
+    this.checkMethodPermissions = checkMethodPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
   }
@@ -129,7 +132,12 @@ export class BotsRouter extends CustomRouter {
     const router = Router({ mergeParams: true })
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
-      router.use(this.needPermissions('write', identity))
+
+      if (options && options.checkMethodPermissions) {
+        router.use(this.checkMethodPermissions(identity))
+      } else {
+        router.use(this.needPermissions('write', identity))
+      }
     }
 
     if (!_.get(options, 'enableJsonBodyParser', true)) {
@@ -189,6 +197,7 @@ export class BotsRouter extends CustomRouter {
         }
 
         const config = await this.configProvider.getBotpressConfig()
+        const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
 
         const data = this.studioParams(botId)
         const liteEnv = `
@@ -204,6 +213,7 @@ export class BotsRouter extends CustomRouter {
         const totalEnv = `
           (function(window) {
               // Common
+              window.SEND_USAGE_STATS = ${data.sendUsageStats};
               window.UUID = "${data.uuid}"
               window.ANALYTICS_ID = "${data.gaId}";
               window.API_PATH = "${process.ROOT_PATH}/api/v1";
@@ -214,6 +224,9 @@ export class BotsRouter extends CustomRouter {
               window.BOTPRESS_VERSION = "${data.botpress.version}";
               window.APP_NAME = "${data.botpress.name}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
+              window.BOT_LOCKED = ${!!bot.locked};
+              window.WORKSPACE_ID = "${workspaceId}";
+              window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
               // End
@@ -269,7 +282,10 @@ export class BotsRouter extends CustomRouter {
       this.checkTokenHeader,
       this.needPermissions('read', 'bot.information'),
       this.asyncMiddleware(async (req, res) => {
-        return res.send(await this.workspaceService.getBotRefs(req.workspace))
+        const botsRefs = await this.workspaceService.getBotRefs(req.workspace)
+        const bots = await this.botService.findBotsByIds(botsRefs)
+
+        return res.send(bots && bots.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
       })
     )
 
@@ -299,7 +315,7 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.put(
+    this.router.post(
       '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
@@ -324,8 +340,8 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.delete(
-      '/flow/:flowName',
+    this.router.post(
+      '/flow/:flowName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {

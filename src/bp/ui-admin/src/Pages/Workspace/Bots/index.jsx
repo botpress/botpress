@@ -31,7 +31,8 @@ import {
   Intent,
   Callout
 } from '@blueprintjs/core'
-import ms from 'ms'
+
+import { Downloader } from '~/Pages/Components/Downloader'
 
 class Bots extends Component {
   state = {
@@ -62,24 +63,15 @@ class Bots extends Component {
   }
 
   async exportBot(botId) {
-    const { data } = await api.getSecured({ timeout: ms('2m') })({
-      method: 'get',
-      url: `/admin/bots/${botId}/export`,
-      responseType: 'blob'
+    this.setState({
+      archiveUrl: `/admin/bots/${botId}/export`,
+      archiveName: `bot_${botId}_${Date.now()}.tgz`
     })
-
-    this.setState(
-      {
-        downloadLinkHref: window.URL.createObjectURL(new Blob([data])),
-        downloadLinkFileName: `bot_${botId}_${Date.now()}.tgz`
-      },
-      () => this.downloadLink.current.click()
-    )
   }
 
   async deleteBot(botId) {
     if (window.confirm("Are you sure you want to delete this bot? This can't be undone.")) {
-      await api.getSecured().delete(`/admin/bots/${botId}`)
+      await api.getSecured().post(`/admin/bots/${botId}/delete`)
       await this.props.fetchBots()
     }
   }
@@ -235,9 +227,8 @@ class Bots extends Component {
 
     return (
       <Fragment>
-        <a ref={this.downloadLink} href={this.state.downloadLinkHref} download={this.state.downloadLinkFileName}>
-          {' '}
-        </a>
+        <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
+
         <SectionLayout
           title={`Your bots`}
           helpText="This page lists all the bots created under the default workspace."

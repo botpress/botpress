@@ -99,7 +99,7 @@ const GuideCards = () => (
       },
       {
         content: 'Find all the code references you need in this always up-to-date Botpress SDK Reference.',
-        title: '<a href="/reference/">📘 SDK Reference</a>'
+        title: '<a href="https://botpress.io/reference/">📘 SDK Reference</a>'
       },
       {
         content: 'Advanced examples for developers on how you can use Botpress.',

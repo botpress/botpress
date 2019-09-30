@@ -1,8 +1,8 @@
 import { Logger } from 'botpress/sdk'
-import { spawn } from 'child_process'
 import { ConfigProvider } from 'core/config/config-loader'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
+import { JobService } from 'core/services/job-service'
 import { MonitoringService } from 'core/services/monitoring'
 import { Router } from 'express'
 import _ from 'lodash'
@@ -11,18 +11,22 @@ import { getDebugScopes, setDebugScopes } from '../../../debug'
 import { CustomRouter } from '../customRouter'
 
 export class ServerRouter extends CustomRouter {
+  private _rebootServer!: Function
+
   constructor(
     private logger: Logger,
     private monitoringService: MonitoringService,
     private alertingService: AlertingService,
     private configProvider: ConfigProvider,
-    private ghostService: GhostService
+    private ghostService: GhostService,
+    private jobService: JobService
   ) {
     super('Server', logger, Router({ mergeParams: true }))
+    // tslint:disable-next-line: no-floating-promises
     this.setupRoutes()
   }
 
-  setupRoutes() {
+  async setupRoutes() {
     const router = this.router
 
     router.post(
@@ -84,17 +88,18 @@ export class ServerRouter extends CustomRouter {
 
         this.logger.info(`User ${user} requested a server reboot`)
 
+        await this._rebootServer()
         res.sendStatus(200)
+      })
+    )
 
-        // Timeout is only to allow the response to reach the asking user
-        setTimeout(() => {
-          spawn(process.argv[0], process.argv.slice(1), {
-            detached: true,
-            stdio: 'inherit'
-          }).unref()
-
-          process.exit()
-        }, 100)
+    router.get(
+      '/configHash',
+      this.asyncMiddleware(async (req, res) => {
+        res.send({
+          initialHash: this.configProvider.initialConfigHash,
+          currentHash: this.configProvider.currentConfigHash
+        })
       })
     )
 
@@ -120,5 +125,11 @@ export class ServerRouter extends CustomRouter {
         res.sendStatus(200)
       })
     )
+
+    this._rebootServer = await this.jobService.broadcast<void>(this.__local_rebootServer.bind(this))
+  }
+
+  private __local_rebootServer() {
+    process.send && process.send({ type: 'reboot_server' })
   }
 }

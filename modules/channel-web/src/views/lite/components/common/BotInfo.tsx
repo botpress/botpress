@@ -1,12 +1,12 @@
 import { inject, observer } from 'mobx-react'
 import * as React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
-import snarkdown from 'snarkdown'
 
 import EmailIcon from '../../icons/Email'
 import PhoneIcon from '../../icons/Phone'
 import WebsiteIcon from '../../icons/Website'
 import { RootStore, StoreDef } from '../../store'
+import { renderUnsafeHTML } from '../../utils'
 
 import Avatar from './Avatar'
 
@@ -30,10 +30,14 @@ class BotInfoPage extends React.Component<BotInfoProps> {
   }
 
   renderDescription(text) {
-    let html = snarkdown(text || '')
-    html = html.replace(/<a href/gi, `<a target="_blank" href`)
+    const html = renderUnsafeHTML(text, this.props.escapeHTML)
 
     return <div className={'bpw-botinfo-description'} dangerouslySetInnerHTML={{ __html: html }} />
+  }
+
+  changeLanguage = async (e: any) => {
+    const lang = e.target.value
+    await this.props.updatePreferredLanguage(lang)
   }
 
   render() {
@@ -98,6 +102,18 @@ class BotInfoPage extends React.Component<BotInfoProps> {
             )}
           </React.Fragment>
         )}
+        {botInfo.languages.length > 1 && (
+          <div className={'bpw-botinfo-preferred-language'}>
+            <FormattedMessage id={'botInfo.preferredLanguage'} />
+            <select value={this.props.preferredLanguage} onChange={this.changeLanguage}>
+              {botInfo.languages.map(lang => (
+                <option key={lang} value={lang}>
+                  {lang.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <button
           tabIndex={1}
           ref={el => (this.btnEl = el)}
@@ -121,7 +137,10 @@ export default inject(({ store }: { store: RootStore }) => ({
   avatarUrl: store.botAvatarUrl,
   startConversation: store.startConversation,
   toggleBotInfo: store.view.toggleBotInfo,
-  isConversationStarted: store.isConversationStarted
+  isConversationStarted: store.isConversationStarted,
+  updatePreferredLanguage: store.updatePreferredLanguage,
+  preferredLanguage: store.preferredLanguage,
+  escapeHTML: store.escapeHTML,
 }))(injectIntl(observer(BotInfoPage)))
 
 type BotInfoProps = InjectedIntlProps &
@@ -134,4 +153,7 @@ type BotInfoProps = InjectedIntlProps &
     | 'startConversation'
     | 'isConversationStarted'
     | 'enableArrowNavigation'
+    | 'updatePreferredLanguage'
+    | 'preferredLanguage'
+    | 'escapeHTML'
   >

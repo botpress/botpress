@@ -64,12 +64,12 @@ export class InputElement extends React.Component {
     return (
       <React.Fragment>
         <textarea
-          autoFocus
           className={classnames('form-control', style.inputArea, {
             [style.inputError]: this.state.error || this.props.invalid
           })}
           ref={this.elementInputRef}
           style={{ height: this.state.rowHeight }}
+          tabIndex={this.props.tabIndex}
           value={this.state.text}
           placeholder={this.props.placeholder || ''}
           onBlur={this.handleOnBlur}

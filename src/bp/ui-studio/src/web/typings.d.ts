@@ -17,7 +17,10 @@ declare global {
     BOT_ID: string
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
+    BOT_LOCKED: boolean
+    WORKSPACE_ID: string
     BOTPRESS_FLOW_EDITOR_DISABLED: boolean
+    SOCKET_TRANSPORTS: string[]
     ANALYTICS_ID: string
     UUID: string
     BP_STORAGE: BPStorage

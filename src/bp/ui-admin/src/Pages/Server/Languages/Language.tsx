@@ -43,7 +43,7 @@ const Language: FC<Props> = props => {
 
   const deleteLanguage = async () => {
     if (window.confirm(`Are you sure that you want to delete ${props.language.name} from the server?`)) {
-      await api.getSecured().delete(`/admin/languages/${props.language.code}`)
+      await api.getSecured().post(`/admin/languages/${props.language.code}/delete`)
     }
   }
 

@@ -13,7 +13,7 @@ export interface Config {
   qnaMakerKnowledgebase?: string
   /**
    * List of categories, separated by a comma
-   * @default global
+   * @deprecated use NLU intent contexts instead, this will be removed in Botpress 13
    */
   qnaCategories?: string
 }

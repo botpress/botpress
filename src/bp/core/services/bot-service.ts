@@ -257,7 +257,7 @@ export class BotService {
 
         const newConfigs = <Partial<BotConfig>>{
           id: botId,
-          name: `${originalConfig.name} (${botId})`,
+          name: botId === originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`,
           pipeline_status: {
             current_stage: {
               id: pipeline && pipeline[0].id,
@@ -269,7 +269,9 @@ export class BotService {
         if (await this.botExists(botId)) {
           await this.unmountBot(botId)
         }
-        await this.configProvider.mergeBotConfig(botId, newConfigs)
+
+        await this.configProvider.mergeBotConfig(botId, newConfigs, true)
+
         await this.workspaceService.addBotRef(botId, workspaceId)
 
         await this._migrateBotContent(botId)

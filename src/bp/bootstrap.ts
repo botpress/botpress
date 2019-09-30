@@ -6,26 +6,36 @@ import './common/polyfills'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { Botpress, Config, Logger } from 'core/app'
+import cluster from 'cluster'
+import { Botpress, Config, Db, Ghost, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
+import { setupMasterNode } from './cluster'
 import { FatalError } from './errors'
 
-async function start() {
-  const logger = await Logger('Launcher')
-  logger.info(chalk`========================================
-{bold ${center(`Botpress Server`, 40)}}
-{dim ${center(`Version ${sdk.version}`, 40)}}
-{dim ${center(`OS ${process.distro.toString()}`, 40)}}
-========================================`)
+async function setupEnv() {
+  const useDbDriver = process.BPFS_STORAGE === 'database'
+  Ghost.initialize(useDbDriver)
+
+  await Db.initialize()
+}
+
+async function getLogger(loggerName: string) {
+  const logger = await Logger(loggerName)
 
   global.printErrorDefault = err => {
     logger.attachError(err).error('Unhandled Rejection')
   }
+
+  return logger
+}
+
+async function setupDebugLogger() {
+  const logger = await Logger('')
 
   global.printBotLog = (botId, args) => {
     const message = args[0]
@@ -37,6 +47,35 @@ async function start() {
       .forBot(botId)
       .debug(message.trim(), rest)
   }
+
+  global.printLog = args => {
+    const message = args[0]
+    const rest = args.slice(1)
+
+    logger
+      .level(sdk.LogLevel.DEBUG)
+      .persist(false)
+      .noEmit() // We don't want to emit global debugs to the studio (ex: audit, configurations)
+      .debug(message.trim(), rest)
+  }
+}
+
+async function start() {
+  await setupDebugLogger()
+
+  if (cluster.isMaster) {
+    // The master process only needs getos and rewire
+    return setupMasterNode(await getLogger('Cluster'))
+  }
+
+  await setupEnv()
+
+  const logger = await getLogger('Launcher')
+  logger.info(chalk`========================================
+{bold ${center(`Botpress Server`, 40)}}
+{dim ${center(`Version ${sdk.version}`, 40)}}
+{dim ${center(`OS ${process.distro.toString()}`, 40)}}
+========================================`)
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {
     try {

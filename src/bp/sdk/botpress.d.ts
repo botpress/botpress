@@ -54,6 +54,7 @@ declare module 'botpress/sdk' {
     attachError(error: Error): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
+    noEmit(): this
 
     /**
      * Sets the level that will be required at runtime to
@@ -301,10 +302,9 @@ declare module 'botpress/sdk' {
       }
 
       export class Trainer {
-        constructor(options?: Partial<SVMOptions>)
-        train(points: DataPoint[], callback?: TrainProgressCallback): Promise<void>
+        constructor()
+        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
-        serialize(): string
       }
 
       export class Predictor {
@@ -602,6 +602,15 @@ declare module 'botpress/sdk' {
        * This includes all the flow/nodes which were traversed for the current event
        */
       __stacktrace: JumpPoint[]
+      /** Contains details about an error that occurred while processing the event */
+      __error?: EventError
+    }
+
+    export interface EventError {
+      type: string
+      stacktrace?: string
+      actionName?: string
+      actionArgs?: any
     }
 
     export interface JumpPoint {
@@ -737,22 +746,23 @@ declare module 'botpress/sdk' {
     redirectUrl?: string
   }
 
+  export interface UpsertOptions {
+    /** Whether or not to record a revision @default true */
+    recordRevision?: boolean
+    /** When enabled, files changed on the database are synced locally so they can be used locally (eg: require in actions) @default false */
+    syncDbToDisk?: boolean
+    /** This is only applicable for bot-scoped ghost. When true, the lock status of the bot is ignored. @default false */
+    ignoreLock?: boolean
+  }
+
   export interface ScopedGhostService {
     /**
      * Insert or Update the file at the specified location
      * @param rootFolder - Folder relative to the scoped parent
      * @param file - The name of the file
      * @param content - The content of the file
-     * @param recordRevision - Whether or not to record a revision @default true
-     * @param syncDbToDisk - When enabled, files changed on the database are synced locally so they can be used locally (eg: require in actions) @default false
      */
-    upsertFile(
-      rootFolder: string,
-      file: string,
-      content: string | Buffer,
-      recordRevision?: boolean,
-      syncDbToDisk?: boolean
-    ): Promise<void>
+    upsertFile(rootFolder: string, file: string, content: string | Buffer, options?: UpsertOptions): Promise<void>
     readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer>
     readFileAsString(rootFolder: string, file: string): Promise<string>
     readFileAsObject<T>(rootFolder: string, file: string): Promise<T>
@@ -890,6 +900,11 @@ declare module 'botpress/sdk' {
      * @default 5s
      */
     timeout: string
+    /**
+     * The text limitation of the converse API requests
+     * @default 360
+     */
+    maxMessageLength: number
   }
 
   /**
@@ -1131,6 +1146,13 @@ declare module 'botpress/sdk' {
     checkAuthentication: RouterCondition
 
     /**
+     * When checkAuthentication is enabled, set this to true to enforce permissions based on the method.
+     * GET/OPTIONS requests requires READ permissions, while all other requires WRITE permissions
+     * @default true
+     */
+    checkMethodPermissions?: RouterCondition
+
+    /**
      * Parse the body as JSON when possible
      * @default true
      */
@@ -1276,7 +1298,7 @@ declare module 'botpress/sdk' {
      * Send an event through the incoming or outgoing middleware chain
      * @param event - The event to send
      */
-    export function sendEvent(event: IO.Event): void
+    export function sendEvent(event: IO.Event): Promise<void>
 
     /**
      * Reply easily to any received event. It accepts an array of payloads
@@ -1384,6 +1406,14 @@ declare module 'botpress/sdk' {
      * Returns the configuration options of Botpress
      */
     export function getBotpressConfig(): Promise<any>
+
+    /**
+     * Merges and saves a bot's config
+     * @param botId
+     * @param partialConfig
+     * @param ignoreLock
+     */
+    export function mergeBotConfig(botId: string, partialConfig: _.PartialDeep<BotConfig>, ignoreLock?: boolean): Promise<any>
   }
 
   /**

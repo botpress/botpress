@@ -161,9 +161,9 @@ export class MessengerService {
         continue
       }
       if (!messages) {
-         debugMessages('incoming event without messaging entry')
-         continue
-       }
+        debugMessages('incoming event without messaging entry')
+        continue
+      }
       for (const webhookEvent of messages) {
         if (!webhookEvent.sender) {
           continue
@@ -184,7 +184,7 @@ export class MessengerService {
   }
 
   private async _sendEvent(botId: string, senderId: string, message, args: { type: string }) {
-    this.bp.events.sendEvent(
+    await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId,
         channel: 'messenger',

@@ -1,4 +1,3 @@
-import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { memoize } from 'lodash'
@@ -69,18 +68,10 @@ export default class ScopedEngine implements Engine {
     intentName: string,
     contexts: string[]
   ) => Promise<TrainingSequence>
-
   private _isSyncing: boolean
   private _isSyncingTwice: boolean
   private _autoTrainInterval: number = 0
   private _autoTrainTimer: NodeJS.Timer
-
-  private retryPolicy = {
-    interval: 100,
-    max_interval: 500,
-    timeout: 5000,
-    max_tries: 3
-  }
 
   constructor(
     protected logger: sdk.Logger,
@@ -94,7 +85,7 @@ export default class ScopedEngine implements Engine {
     private realtimePayload: typeof sdk.RealTimePayload
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, this.logger)
-    this.pipelineManager = new PipelineManager()
+    this.pipelineManager = new PipelineManager(this.logger)
     this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
     this.langIdentifier = new FastTextLanguageId(toolkit)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
@@ -156,6 +147,9 @@ export default class ScopedEngine implements Engine {
     }
 
     try {
+      const startTraining = { type: 'nlu', name: 'train', working: true, message: 'Training model' }
+      this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', startTraining))
+
       this._isSyncing = true
       const intents = await this.getIntents()
       const entities = await this.storage.getCustomEntities()
@@ -176,7 +170,7 @@ export default class ScopedEngine implements Engine {
       }
 
       if (!loaded) {
-        debugTrain('Retraining model')
+        debugTrain.forBot(this.botId, 'Retraining model')
         await this.trainModels(intents, modelHash, confusionVersion)
         await this.loadModels(intents, modelHash)
       }
@@ -192,6 +186,9 @@ export default class ScopedEngine implements Engine {
         return this.trainOrLoad() // This floating promise is voluntary
       }
     }
+
+    const trainingComplete = { type: 'nlu', name: 'done', working: false, message: 'Model is up-to-date' }
+    this.realtime.sendPayload(this.realtimePayload.forAdmins('statusbar.event', trainingComplete))
 
     return this._currentModelHash
   }
@@ -213,14 +210,14 @@ export default class ScopedEngine implements Engine {
       return this.e2.predict(input)
     } else {
       const t0 = Date.now()
-      let res: any = { errored: true }
+      let res: any = {}
 
       try {
         const runner = this.pipelineManager
           .withPipeline(this._predictPipeline)
           .initFromText(text, lastMessages, includedContexts)
 
-        const nluResults = (await retry(runner.run, this.retryPolicy)) as NLUStructure
+        const nluResults = await runner.run()
 
         res = _.pick(
           nluResults,
@@ -234,8 +231,6 @@ export default class ScopedEngine implements Engine {
           'errored',
           'includedContexts'
         )
-
-        res.errored = false
       } catch (error) {
         this.logger.attachError(error).error(`Could not extract whole NLU data, ${error}`)
       } finally {
@@ -281,16 +276,18 @@ export default class ScopedEngine implements Engine {
       )
       for (const model of e2Models) {
         this.models2ByLang[model.languageCode] = model
+        await this.e2.loadModels(e2Models, this._makeE2Tools())
       }
-      await this.e2.loadModels(e2Models, this._makeE2Tools())
     } else {
+      debugTrain.forBot(this.botId, `Restoring models '${modelHash}' from storage`)
       const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
+
       for (const lang of this.languages) {
         const trainingSet = await this.getTrainingSets(intents, lang)
         this._exactIntentMatchers[lang] = new ExactMatcher(trainingSet)
 
         if (!trainableLangs.includes(lang)) {
-          return
+          continue
         }
 
         const models = await this.storage.getModelsFromHash(modelHash, lang)
@@ -314,14 +311,14 @@ export default class ScopedEngine implements Engine {
         await this.intentClassifiers[lang].load(intentModels)
 
         if (_.isEmpty(crfModel)) {
-          debugTrain(`No slots (CRF) model found for hash ${modelHash}`)
+          debugTrain.forBot(this.botId, `No slots (CRF) model found for hash ${modelHash}`)
         } else {
           await this.slotExtractors[lang].load(trainingSet, crfModel.model)
         }
       }
-    }
 
-    debugTrain(`Done restoring models '${modelHash}' from storage`)
+      debugTrain.forBot(this.botId, `Done restoring models '${modelHash}' from storage`)
+    }
   }
 
   private _makeModel(context: string, hash: string, model: Buffer, type: string): Model {
@@ -374,7 +371,7 @@ export default class ScopedEngine implements Engine {
     modelHash: string,
     lang: string
   ): Promise<Model[]> {
-    debugTrain('Training slot tagger')
+    debugTrain.forBot(this.botId, 'Training slot tagger')
 
     try {
       let trainingSet = await this.getTrainingSets(intentDefs, lang)
@@ -420,7 +417,7 @@ export default class ScopedEngine implements Engine {
         this.intentClassifiers[lang].token2vec // TODO: compute token2vec in pipeline instead, made it a public property for now
       )
 
-      debugTrain('Done training slot tagger')
+      debugTrain.forBot(this.botId, 'Done training slot tagger')
 
       return crf ? [this._makeModel('global', modelHash, crf, MODEL_TYPES.SLOT_CRF)] : []
     } catch (err) {

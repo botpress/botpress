@@ -1,7 +1,5 @@
 import * as sdk from 'botpress/sdk'
 
-import { Transition } from './typings'
-
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
   return {
     transitions: createTransitions(),
@@ -15,7 +13,7 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
   }
 }
 
-const createTransitions = (): Transition[] => {
+const createTransitions = (): sdk.NodeTransition[] => {
   return [
     { caption: 'On extracted', condition: 'temp.extracted == "true"', node: '' },
     { caption: 'On not found', condition: 'temp.notExtracted == "true"', node: '' },
@@ -27,7 +25,9 @@ const createNodes = data => {
   const slotExtractOnReceive = [
     {
       type: sdk.NodeActionType.RunAction,
-      name: `basic-skills/slot_fill {"slotName":"${data.slotName}","entities":"${data.entities}"}`
+      name: `basic-skills/slot_fill {"slotName":"${data.slotName}","entities":"${data.entities}", "turnExpiry":${
+        data.turnExpiry
+      }}`
     }
   ]
 

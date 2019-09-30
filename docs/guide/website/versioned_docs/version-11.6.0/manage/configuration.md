@@ -112,6 +112,5 @@ Here there are:
 
 ## More Informations
 
-- Check out the [database](../tutorials/database) page for details about `DATABASE` and `DATABASE_URL`
-- Check out the [version](./versions) page for more infromations about `BP_PRODUCTION`
-- Check out the [cluster](../developers/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`
+- Check out the [database](../../tutorials/database) page for details about `DATABASE` and `DATABASE_URL`
+- Check out the [cluster](../../developers/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`

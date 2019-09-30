@@ -5,8 +5,8 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { clearErrorSaveFlows, flowEditorRedo, flowEditorUndo, setDiagramAction, switchFlow } from '~/actions'
-import { operationAllowed } from '~/components/Layout/PermissionsChecker'
 import { Container } from '~/components/Shared/Interface'
+import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
@@ -45,7 +45,7 @@ class FlowBuilder extends Component<Props, State> {
     if (this.state.initialized || !this.props.user || this.props.user.email == null) {
       return
     }
-    this.userAllowed = operationAllowed({ user: this.props.user, op: 'write', res: 'bot.flows' })
+    this.userAllowed = isOperationAllowed({ operation: 'write', resource: 'bot.flows' })
     this.setState({
       initialized: true
     })
@@ -96,6 +96,7 @@ class FlowBuilder extends Component<Props, State> {
   handleFlowFreezing() {
     if (!this.userAllowed) {
       this.freezeAll()
+      return
     }
 
     const me = this.props.user.email
@@ -169,6 +170,7 @@ class FlowBuilder extends Component<Props, State> {
     return (
       <Container keyHandlers={keyHandlers}>
         <SidePanel
+          readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
           permissions={pannelPermissions}
           flowPreview={this.state.flowPreview}

@@ -66,7 +66,7 @@ export default class MyMainView extends React.Component {
     return (
       <Container>
         <SidePanel>
-          <SearchBar onChange={this.handleSearchChanged} onClick={this.handleSearchClicked} />
+          <SearchBar onChange={this.handleSearchChanged} onButtonClick={this.handleSearchClicked} />
           <SidePanelSection label={'My Files'} actions={actions}>
             <ItemList items={items} onElementClicked={this.handleItemSelected} />
             Some other stuff here <InfoTooltip text="Hello! Some info" />

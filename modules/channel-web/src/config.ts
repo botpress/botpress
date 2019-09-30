@@ -56,4 +56,14 @@ export interface Config {
    * @default 20
    */
   maxMessagesHistory?: number
+  /**
+   * Security configurations
+   */
+  security: {
+    /**
+     * Weather or not to escape plain html payload
+     * @default false
+     */
+    escapeHTML: boolean
+  }
 }
