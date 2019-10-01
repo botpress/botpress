@@ -62,7 +62,7 @@ export function getClusterFeat(token: UtteranceToken, kmeansModel: MLToolkit.KMe
 export function getWordFeat(token: UtteranceToken, isPredict: boolean): CRFFeature | undefined {
   const boost = isPredict ? 3 : 1
 
-  if (_.isEmpty(token.slots) && _.isEmpty(token.entities)) {
+  if (_.isEmpty(token.slots) && _.isEmpty(token.entities) && token.isWord) {
     return {
       name: 'word',
       value: token.toString({ lowerCase: true }),

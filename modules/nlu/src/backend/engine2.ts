@@ -40,6 +40,7 @@ const debugIntentsTrain = debugIntents.sub('train')
 //      extract train, save and load models out of Engine1
 //      completely get rid of engine1
 // ----- cancelation token -----
+// ----- even better fuzzy entities -----
 // ----- improve performance -----
 //      retrain only for changed languages
 //      retrain only parts of pipeline that needs to be trained (cache policy in each step)
