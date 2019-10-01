@@ -1,12 +1,12 @@
 import { Button, Classes } from '@blueprintjs/core'
-import { NLUAPI } from 'api'
+import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
 import { NluItem } from 'full'
 import React, { FC, useState } from 'react'
 
 interface Props {
-  api: NLUAPI
+  api: NLUApi
   intents: NLU.IntentDefinition[]
   currentItem: NluItem
   contentLang: string

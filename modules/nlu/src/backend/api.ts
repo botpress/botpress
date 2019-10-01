@@ -143,6 +143,15 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
+  router.put('/intents/:id', async (req, res) => {
+    const { botId, id } = req.params
+    const { lang, utterances } = req.body
+    const botEngine = nlus[botId] as ScopedEngine
+    // TODO add validation : bot exists, intent exist, lang is supported by bot utterance is string[])
+
+    await botEngine.storage.updateIntent(id, { utterances: { [lang]: utterances } })
+  })
+
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
     const filepaths = await bp.ghost.forBot(botId).directoryListing('/intents', '*.json')
