@@ -282,12 +282,12 @@ export class DialogEngine {
       // Transition to the target node in the current flow
       this._logTransition(event.botId, event.target, context.currentFlow, context.currentNode, transitionTo)
 
+      event.state.__stacktrace.push({ flow: context.currentFlow, node: transitionTo })
       // When we're in a skill, we must remember the location of the main node for when we will exit
       const isInSkill = context.currentFlow && context.currentFlow.startsWith('skills/')
       if (isInSkill) {
         context = { ...context, currentNode: transitionTo }
       } else {
-        event.state.__stacktrace.push({ flow: context.currentFlow, node: transitionTo })
         context = { ...context, previousNode: context.currentNode, currentNode: transitionTo }
       }
     }
