@@ -737,8 +737,7 @@ export const trainIntentClassifer = async (input: TrainOutput, tools: TrainTools
       .value()
 
     const svm = new tools.mlToolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-    await svm.train(points, progress => debugIntentsTrain('svm progress ==>', progress))
-    svmPerCtx[ctx] = svm.serialize()
+    svmPerCtx[ctx] = await svm.train(points, progress => debugIntentsTrain('svm progress ==> %d', progress))
   }
 
   return svmPerCtx
@@ -757,9 +756,7 @@ export const trainContextClassifier = async (input: TrainOutput, tools: TrainToo
   })
 
   const svm = new tools.mlToolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-  await svm.train(points, progress => debugIntentsTrain('SVM => progress for CTX', progress))
-
-  return svm.serialize()
+  return svm.train(points, progress => debugIntentsTrain('SVM => progress for CTX %d', progress))
 }
 
 export const ProcessIntents = async (
