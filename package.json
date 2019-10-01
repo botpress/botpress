@@ -91,7 +91,8 @@
     "yn": "^2.0.0"
   },
   "resolutions": {
-    "fstream": ">=1.0.12"
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
