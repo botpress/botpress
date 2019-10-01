@@ -731,7 +731,7 @@ export const trainIntentClassifer = async (input: TrainOutput, tools: TrainTools
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
-          coordinates: [...computeSentenceEmbedding(utt), utt.tokens.length]
+          coordinates: computeSentenceEmbedding(utt)
         }))
       )
       .value()

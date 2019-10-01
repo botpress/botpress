@@ -201,9 +201,8 @@ export default class SVMClassifier {
 
           l1Points.push({
             label: intentName,
-            coordinates: [...l1Vec, utteranceTokens.length],
-            utterance: utteranceTokens.join(' ')
-          } as any)
+            coordinates: [...l1Vec, utteranceTokens.length]
+          })
         }
       }
 
@@ -395,14 +394,12 @@ export default class SVMClassifier {
 
       debugPredict('predictions done %o', { includedContexts, input, predictions })
 
-      const stuff = _.chain(predictions)
+      return _.chain(predictions)
         .flatten()
         .orderBy('confidence', 'desc')
         .uniqBy(x => x.label)
         .map(x => ({ name: x.label, context: x.context, confidence: x.confidence }))
         .value()
-
-      return stuff
     } catch (e) {
       throw new VError(e, `Error predicting intent for "${input}"`)
     }

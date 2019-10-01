@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import fs from 'fs'
 import _ from 'lodash'
 
 import { escapeRegex } from '../../tools/patterns-utils'
