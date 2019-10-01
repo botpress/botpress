@@ -131,16 +131,16 @@ export class ActionStrategy implements InstructionStrategy {
 
     debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
-    if (!hasAction) {
-      throw new Error(`Action "${actionName}" not found, `)
-    }
 
     try {
+      if (!hasAction) {
+        throw new Error(`Action "${actionName}" not found, `)
+      }
       await this.actionService.forBot(botId).runAction(actionName, event, args)
     } catch (err) {
       event.state.__error = {
         type: 'action-execution',
-        stacktrace: err.stacktrace,
+        stacktrace: err.stacktrace || err.stack,
         actionName: actionName,
         actionArgs: _.omit(args, ['event'])
       }
