@@ -138,9 +138,10 @@ const NLU: FC<Props> = props => {
             axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
           />
         )}
-        {!!entities.length && currentItem && currentItem.type === 'entity' && (
+        {(!!entities.length && currentItem && currentItem.type === 'entity' && (
           <EntityEditor entity={entities.find(ent => ent.name === currentItem.name)} onUpdate={updateEntity} />
-        )}
+        )) ||
+          null}
       </div>
     </Container>
   )

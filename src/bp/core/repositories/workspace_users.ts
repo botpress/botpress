@@ -1,15 +1,9 @@
+import { WorkspaceUser } from 'common/typings'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
-
-export interface WorkspaceUser {
-  email: string
-  strategy: string
-  workspace: string
-  role: string
-}
 
 export type WorkspaceUserAttributes = {
   attributes: any

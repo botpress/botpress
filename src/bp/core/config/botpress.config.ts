@@ -331,6 +331,10 @@ export interface AuthStrategy {
    */
   type: AuthStrategyType
   /**
+   * Set a label to display to users instead of the ID (ex: Botpress SSO)
+   */
+  label?: string
+  /**
    * Defines custom options based on the chosen authentication strategy.
    */
   options: AuthStrategySaml | AuthStrategyLdap | AuthStrategyBasic | AuthStrategyOauth2 | undefined

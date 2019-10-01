@@ -1,3 +1,5 @@
+import { BotConfig, BotTemplate } from 'botpress/sdk'
+
 import api from '../api'
 
 export const FETCH_BOTS_REQUESTED = 'bots/FETCH_BOTS_REQUESTED'
@@ -5,8 +7,17 @@ export const FETCH_BOTS_RECEIVED = 'bots/FETCH_BOTS_RECEIVED'
 export const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
 export const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
 
-const initialState = {
-  bots: null,
+export interface BotState {
+  bots?: BotConfig[]
+  loadingBots: boolean
+  botTemplates?: BotTemplate[]
+  botTemplatesFetched: boolean
+  botCategories: string[]
+  botCategoriesFetched: boolean
+}
+
+const initialState: BotState = {
+  bots: undefined,
   loadingBots: false,
   botTemplates: [],
   botTemplatesFetched: false,
@@ -75,6 +86,9 @@ export const fetchBots = () => {
     })
 
     const { data } = await api.getSecured().get('/admin/bots')
+    if (!data || !data.payload) {
+      return
+    }
 
     dispatch({
       type: FETCH_BOTS_RECEIVED,

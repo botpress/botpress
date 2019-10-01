@@ -58,6 +58,7 @@ export class AdminRouter extends CustomRouter {
     this.serverRouter = new ServerRouter(
       logger,
       monitoringService,
+      workspaceService,
       alertingService,
       configProvider,
       ghostService,

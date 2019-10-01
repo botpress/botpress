@@ -49,8 +49,8 @@ describe('Tokens generation', () => {
 describe('Token Merging', () => {
   test('Merge special Characters with numbers should merge all consecutive numbers', async () => {
     // arrange
-    const text = '1234vanillaIce4321'
-    const stringTokens = [SPACE + '1', '23', '4', 'vanilla', 'ice', '43', '2', '1']
+    const text = '1234vanillaIce#4321'
+    const stringTokens = [SPACE + '1', '23', '4', 'vanilla', 'ice', '#', '43', '2', '1']
     const tokens = makeTokens(stringTokens, text)
 
     const numbers = '0123456789'.split('')
@@ -59,7 +59,7 @@ describe('Token Merging', () => {
     const actualTokens = mergeSpecialCharactersTokens(tokens, numbers)
 
     // assert
-    const expectedTokens = [SPACE + '1234', 'vanilla', 'ice', '4321']
+    const expectedTokens = [SPACE + '1234vanillaice', '#', '4321'] // merging latin-based tokens only, merge only numbers
     expect(actualTokens.map(t => t.value)).toEqual(expectedTokens)
   })
 

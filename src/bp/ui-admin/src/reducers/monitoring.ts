@@ -1,5 +1,6 @@
-import api from '../api'
 import moment from 'moment'
+
+import api from '../api'
 
 export const FETCH_STATS_FULL_REQUESTED = 'monitoring/FETCH_STATS_FULL_REQUESTED'
 export const FETCH_STATS_FULL_RECEIVED = 'monitoring/FETCH_STATS_FULL_RECEIVED'
@@ -27,7 +28,7 @@ export default (state = initialState, action) => {
     case FETCH_STATS_PARTIAL_RECEIVED:
       return {
         ...state,
-        stats: [...state.stats, ...action.stats],
+        stats: [...(state.stats || []), ...action.stats],
         lastDate: action.toTime
       }
 
