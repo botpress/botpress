@@ -165,7 +165,7 @@ export class SlackClient {
       } catch (err) {}
     }
 
-    this.bp.events.sendEvent(
+    await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId: this.botId,
         channel: 'slack',
