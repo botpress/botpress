@@ -260,9 +260,13 @@ export const extractListEntities = (
   }
   //
   const structuralScore = (a: string[], b: string[]): number => {
-    const charset1 = _.uniq(_.flatten(a.map(x => x.toLowerCase().split(''))))
-    const charset2 = _.uniq(_.flatten(b.map(x => x.toLowerCase().split(''))))
+    const charset1 = _.uniq(_.flatten(a.map(x => x.split(''))))
+    const charset2 = _.uniq(_.flatten(b.map(x => x.split(''))))
     const charset_score = _.intersection(charset1, charset2).length / _.union(charset1, charset2).length
+    const charsetLow1 = charset1.map(c => c.toLowerCase())
+    const charsetLow2 = charset2.map(c => c.toLowerCase())
+    const charset_low_score = _.intersection(charsetLow1, charsetLow2).length / _.union(charsetLow1, charsetLow2).length
+    const final_charset_score = _.mean([charset_score, charset_low_score])
 
     const la = Math.max(1, a.filter(x => x.length > 1).length)
     const lb = Math.max(1, a.filter(x => x.length > 1).length)
@@ -272,7 +276,7 @@ export const extractListEntities = (
     const size2 = _.sumBy(b, 'length')
     const token_size_score = Math.min(size1, size2) / Math.max(size1, size2)
 
-    return Math.sqrt(charset_score * token_qty_score * token_size_score)
+    return Math.sqrt(final_charset_score * token_qty_score * token_size_score)
   }
 
   const matches: EntityExtractionResult[] = []
@@ -329,7 +333,7 @@ export const extractListEntities = (
     }
 
     candidates
-      .filter(x => !x.eliminated && x.score >= 0.6)
+      .filter(x => !x.eliminated && x.score >= 0.65)
       .forEach(match => {
         matches.push({
           confidence: match.score,
