@@ -31,6 +31,11 @@ export const Error: FC<{ error: sdk.IO.EventError }> = ({ error }) => {
           </Pre>
         </div>
       )}
+      {error.type === 'dialog-transition' && (
+        <div className={style.subSection}>
+          <H5 color={Colors.DARK_GRAY5}>Error during transition to "{error.destination}"</H5>
+        </div>
+      )}
       <br />
       {error.stacktrace && (
         <div>
