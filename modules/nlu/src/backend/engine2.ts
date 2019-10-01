@@ -306,7 +306,7 @@ export const extractListEntities = (
             canonical,
             start: i,
             end: i + workset.length - 1,
-            source: worksetAsStrings.join(''),
+            source: workset.map(t => t.toString({ lowerCase: false, realSpaces: true })).join(''),
             occurance: occurance.join(''),
             eliminated: false
           })
