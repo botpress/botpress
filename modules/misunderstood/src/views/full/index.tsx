@@ -2,7 +2,7 @@ import { AxiosStatic } from 'axios'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import React from 'react'
 
-import { FLAGGED_MESSAGE_STATUS } from '../../backend/db'
+import { FLAGGED_MESSAGE_STATUS } from '../../types'
 
 import style from './style.scss'
 import ApiClient from './ApiClient'

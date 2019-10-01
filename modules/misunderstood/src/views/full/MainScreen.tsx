@@ -1,9 +1,9 @@
 import { HTMLTable } from '@blueprintjs/core'
 import React from 'react'
 
-import { FLAGGED_MESSAGE_STATUS } from '../../backend/db'
+import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS } from '../../types'
 
-const DeletedList = ({ events }) => (
+const DeletedList = ({ events }: { events: DbFlaggedEvent[] }) => (
   <HTMLTable condensed interactive striped>
     <thead>
       <tr>
