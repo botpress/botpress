@@ -4,7 +4,7 @@ import { Button, Modal } from 'react-bootstrap'
 import nanoid from 'nanoid'
 import random from 'lodash/random'
 
-import style from './style.scss'
+import style from '../style.scss'
 
 const N_COLORS = 12
 const INITIAL_STATE = {

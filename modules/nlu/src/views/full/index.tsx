@@ -5,10 +5,10 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
+import { IntentEditor } from '../lite/intentEditor/IntentEditor'
 
 import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
-import IntentEditor from './intents/editor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
 
@@ -30,13 +30,11 @@ const NLU: FC<Props> = props => {
   const [currentItem, setCurrentItem] = useState<NluItem | undefined>()
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])
-  const [contexts, setContexts] = useState([])
 
   const loadIntents = () => api.fetchIntents().then(setIntents)
   const loadEntities = () => api.fetchEntities().then(setEntities)
 
   useEffect(() => {
-    api.fetchContexts().then(setContexts)
     loadIntents()
     loadEntities()
     setCurrentItemFromPath()
@@ -131,17 +129,16 @@ const NLU: FC<Props> = props => {
             description="Use Botpress native Natural language understanding engine to make your bot smarter."
           />
         )}
-        {(intents.length && currentItem && currentItem.type === 'intent' && (
+        {!!intents.length && currentItem && currentItem.type === 'intent' && (
           <IntentEditor
-            intent={intents.find(i => i.name == currentItem.name)}
-            contexts={contexts} // TODO fetch this within the component
-            axios={props.bp.axios} // TODO replace this with api instance
-            reloadIntents={loadIntents}
+            intent={currentItem.name}
+            api={api}
             contentLang={props.contentLang}
+            showSlotPanel
+            axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
           />
-        )) ||
-          null}
-        {(entities.length && currentItem && currentItem.type === 'entity' && (
+        )}
+        {(!!entities.length && currentItem && currentItem.type === 'entity' && (
           <EntityEditor entity={entities.find(ent => ent.name === currentItem.name)} onUpdate={updateEntity} />
         )) ||
           null}

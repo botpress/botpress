@@ -34,6 +34,7 @@ const I_like_dogs = makeSequence('I like dogs', I_LIKE_ANIMALS_INTENT, [
   {
     name: ANIMAL_I_LIKE_SLOT,
     entities: [ANIMAL_ENTITY],
+    color: 1,
     start: 7,
     end: 11,
     source: 'dogs'
@@ -44,6 +45,7 @@ const I_like_69_pretty_dogs = makeSequence('I like 69 pretty dogs', I_LIKE_ANIMA
   {
     name: 'number_of_animals',
     entities: [NUMBER_ENTITY],
+    color: 1,
     start: 7,
     end: 9,
     source: '69'
@@ -51,6 +53,7 @@ const I_like_69_pretty_dogs = makeSequence('I like 69 pretty dogs', I_LIKE_ANIMA
   {
     name: ANIMAL_I_LIKE_SLOT,
     entities: [ANIMAL_ENTITY],
+    color: 2,
     start: 17,
     end: 21,
     source: 'dogs'
