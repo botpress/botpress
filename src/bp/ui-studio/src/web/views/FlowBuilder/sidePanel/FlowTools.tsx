@@ -16,6 +16,7 @@ interface ToolItemProps {
 interface SkillDefinition {
   id: string
   name: string
+  icon: string
   moduleName: string
 }
 
@@ -47,7 +48,9 @@ const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props
           <div className={style.title}>Skills</div>
           <div className={style.section}>
             {props.skills &&
-              props.skills.map(skill => <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} />)}
+              props.skills.map(skill => (
+                <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} icon={skill.icon} />
+              ))}
           </div>
         </AccessControl>
       </div>

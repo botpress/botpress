@@ -103,7 +103,7 @@ export class UntrustedSandbox {
     }
 
     return {
-      ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'),
+      ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY', 'ROOT_PATH'),
       env: exposedEnv
     }
   }

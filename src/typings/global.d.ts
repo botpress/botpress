@@ -108,6 +108,12 @@ declare type BotpressEnvironementVariables = {
    * @default 5
    */
   readonly BP_MAX_SERVER_REBOOT?: number
+
+  /**
+   * Disable API calls to the serverConfig endpoint (which may return sensitive data - only for super admins
+   * @default false
+   */
+  readonly BP_DISABLE_SERVER_CONFIG?: boolean
 }
 
 interface IDebug {
