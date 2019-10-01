@@ -609,10 +609,11 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventError {
-      type: string
+      type: 'action-execution' | 'dialog-transition'
       stacktrace?: string
       actionName?: string
       actionArgs?: any
+      destination?: string
     }
 
     export interface JumpPoint {
@@ -1415,7 +1416,11 @@ declare module 'botpress/sdk' {
      * @param partialConfig
      * @param ignoreLock
      */
-    export function mergeBotConfig(botId: string, partialConfig: _.PartialDeep<BotConfig>, ignoreLock?: boolean): Promise<any>
+    export function mergeBotConfig(
+      botId: string,
+      partialConfig: _.PartialDeep<BotConfig>,
+      ignoreLock?: boolean
+    ): Promise<any>
   }
 
   /**
