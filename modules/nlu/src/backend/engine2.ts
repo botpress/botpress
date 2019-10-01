@@ -260,8 +260,8 @@ export const extractListEntities = (
   }
   //
   const structuralScore = (a: string[], b: string[]): number => {
-    const charset1 = _.uniq(_.flatten(a.map(x => x.split(''))))
-    const charset2 = _.uniq(_.flatten(b.map(x => x.split(''))))
+    const charset1 = _.uniq(_.flatten(a.map(x => x.toLowerCase().split(''))))
+    const charset2 = _.uniq(_.flatten(b.map(x => x.toLowerCase().split(''))))
     const charset_score = _.intersection(charset1, charset2).length / _.union(charset1, charset2).length
 
     const la = Math.max(1, a.filter(x => x.length > 1).length)
