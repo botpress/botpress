@@ -58,10 +58,6 @@ describe('Preprocessing', () => {
     )
 
     expect(trainingSeq.cannonical).toEqual('hello my name is jacob jacobson and your name is paul')
-    console.log(
-      '=====================================================================',
-      trainingSeq.tokens.filter(t => t.tag != BIO.OUT)
-    )
     expect(trainingSeq.tokens.filter(t => t.tag != BIO.OUT).length).toEqual(3)
     expect(trainingSeq.tokens[0].slot).toEqual('')
     expect(trainingSeq.tokens[0].matchedEntities).toEqual([])
