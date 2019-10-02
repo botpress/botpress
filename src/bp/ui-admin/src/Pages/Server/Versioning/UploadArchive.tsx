@@ -168,12 +168,13 @@ const UploadArchive = () => {
       <Button icon="upload" id="btn-uploadArchive" text="Upload archive" onClick={() => setDialogOpen(true)} />
 
       <Dialog
+        title="Upload Archive"
+        icon="import"
         isOpen={isDialogOpen}
         onClose={closeDialog}
         transitionDuration={0}
+        canOutsideClickClose={false}
         style={{ width: changes ? 800 : 500 }}
-        title="Upload Archive"
-        icon="import"
       >
         {!changes ? renderUpload() : renderConflict()}
       </Dialog>
