@@ -38,7 +38,7 @@ export interface AuthStrategyConfig {
   label?: string
 }
 
-export type RolloutStrategy = 'anonymous' | 'anonymous-invite' | 'authenticated' | 'authorized' | 'authorized-invite'
+export type RolloutStrategy = 'anonymous' | 'anonymous-invite' | 'authenticated' | 'authenticated-invite' | 'authorized'
 
 export interface Workspace {
   id: string
