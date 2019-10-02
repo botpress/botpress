@@ -168,9 +168,13 @@ export default class ConfigReader {
     }
   }
 
-  private async getMerged(moduleId: string, botId?: string): Promise<Config> {
+  private async getMerged(moduleId: string, botId?: string, ignoreGlobal?: boolean): Promise<Config> {
     let config = await this.loadFromDefaultValues(moduleId)
-    config = { ...config, ...(await this.loadFromGlobalConfigFile(moduleId)) }
+
+    if (!ignoreGlobal) {
+      config = { ...config, ...(await this.loadFromGlobalConfigFile(moduleId)) }
+    }
+
     config = { ...config, ...(await this.loadFromEnvVariables(moduleId)) }
     if (botId) {
       config = { ...config, ...(await this.loadFromBotConfigFile(moduleId, botId)) }
@@ -186,7 +190,7 @@ export default class ConfigReader {
 
   // Don't @Memoize() this fn. It only memoizes on the first argument
   // https://github.com/steelsojka/lodash-decorators/blob/master/src/memoize.ts#L15
-  public getForBot(moduleId: string, botId: string): Promise<Config> {
-    return this.getMerged(moduleId, botId)
+  public getForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<Config> {
+    return this.getMerged(moduleId, botId, ignoreGlobal)
   }
 }
