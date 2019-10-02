@@ -15,7 +15,6 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import React, { useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
-import { MdHelpOutline, MdInfoOutline } from 'react-icons/md'
 import SplitPane from 'react-split-pane'
 
 import style from './style.scss'
@@ -230,11 +229,7 @@ export const RightToolbarButtons = (props: ToolbarButtonsProps) => {
 }
 
 export const InfoTooltip = (props: InfoTooltipProps) => (
-  <Tooltip content={props.text} position={props.position || Position.RIGHT}>
-    {props.icon === 'help' ? (
-      <MdHelpOutline className={style.infoTooltip} />
-    ) : (
-      <MdInfoOutline className={style.infoTooltip} />
-    )}
+  <Tooltip content={props.text} position={props.position || Position.RIGHT} usePortal={false}>
+    <Icon icon={props.icon || 'info-sign'} iconSize={13} className={style.infoTooltip} />
   </Tooltip>
 )
