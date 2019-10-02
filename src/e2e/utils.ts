@@ -1,3 +1,4 @@
+import moment = require('moment')
 import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
 
 import { bpConfig } from '../../jest-puppeteer.config'
@@ -83,4 +84,18 @@ export const triggerKeyboardShortcut = async (key: string, ctrlKey?: boolean) =>
 export const clickOnTreeNode = async (searchText: string, button: MouseButtons = 'left'): Promise<void> => {
   const element = await expectMatchElement('.bp3-tree-node-content', { text: searchText })
   await clickOn('.bp3-tree-node-label', { button }, element)
+}
+
+page.on('request', req => {
+  console.log(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+})
+
+page.on('response', resp => {
+  console.log(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+})
+
+export const getTime = () => {
+  const timeFormat = 'HH:mm:ss.SSS'
+  const time = moment().format(timeFormat)
+  return time
 }

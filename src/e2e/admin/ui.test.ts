@@ -7,7 +7,7 @@ describe('Admin - UI', () => {
     await clickOn('#btn-menu')
     await clickOn('#btn-manage')
     await clickOn('a', { text: 'Server License' })
-    await expectMatch(new RegExp('Enable Botpress Professionnal|Cluster fingerprint'))
+    await expectMatch(new RegExp('Enable Botpress Professionnal|Cluster fingerprint|Unofficial Botpress Build'))
   })
 
   it('Load version control page', async () => {
@@ -41,8 +41,7 @@ describe('Admin - UI', () => {
     await fillField('#input-lastname', 'Lalancette')
     await clickOn('#btn-save')
     await expectCallSuccess(`${bpConfig.host}/api/v1/auth/me/profile`, 'POST')
-    await clickOn('#btn-menu')
-    await expectMatch('Signed in as Bob Lalancette')
+    await Promise.all([expectMatch('Signed in as Bob Lalancette'), clickOn('#btn-menu')])
     await clickOn('#btn-menu')
   })
 

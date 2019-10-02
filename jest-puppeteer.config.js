@@ -5,7 +5,7 @@ const windowSize = {
 
 module.exports = {
   launch: {
-    headless: false,
+    headless: process.env.HEADLESS === 'true',
     // +20 so it's a bit bigger than the viewport so nothing is cut
     args: [`--window-size=${windowSize.width + 20},${windowSize.height + 20}`]
     // slowMo: 40 // Set this value to slow down tests globally

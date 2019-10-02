@@ -25,9 +25,13 @@ describe('Module - QNA', () => {
 
   it('Filter by category', async () => {
     await fillField('#select-category', 'monkey')
-    await page.keyboard.press('Enter')
-    await expectBotApiCallSuccess('mod/qna/questions?question=&categories[]=monkeys', 'GET')
-    await expect(await getQnaCount()).toBe(2)
+
+    await Promise.all([
+      expectBotApiCallSuccess('mod/qna/questions?question=&categories[]=monkeys', 'GET'),
+      page.keyboard.press('Enter')
+    ])
+
+    expect(await getQnaCount()).toBe(2)
     await page.keyboard.press('Delete')
   })
 
@@ -45,9 +49,11 @@ describe('Module - QNA', () => {
 
   it('Filter by name', async () => {
     await page.waitFor(300) // Required because the create action clears the filter after it loads new qna
-    await fillField('#input-search', 'are you working')
-    await expectBotApiCallSuccess('mod/qna/questions', 'GET')
-    await expect(await getQnaCount()).toBe(1)
+    await Promise.all([
+      expectBotApiCallSuccess('mod/qna/questions', 'GET'),
+      fillField('#input-search', 'are you working')
+    ])
+    expect(await getQnaCount()).toBe(1)
   })
 
   it('Delete entry', async () => {

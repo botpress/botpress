@@ -2,7 +2,7 @@ import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect, getTime } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
@@ -61,14 +61,19 @@ describe('Admin - Bot Management', () => {
 
   it('Configure bot', async () => {
     const botRow = await expectMatchElement('.bp_table-row', { text: tempBotId })
+    console.log(`${getTime()} Configure bot: Clicking on .configBtn`)
     await clickOn('.configBtn', undefined, botRow)
 
+    console.log(`${getTime()} Configure bot: filling input-name`)
     await fillField('#input-name', `${tempBotId} - testing my fabulous bot`)
+    console.log(`${getTime()} Configure bot: clicking on select-status`)
     await clickOn('#select-status')
+    console.log(`${getTime()} Configure bot: pressing arrowdown`)
     await page.keyboard.press('ArrowDown')
+    console.log(`${getTime()} Configure bot: pressing enter`)
     await page.keyboard.press('Enter')
-    await clickOn('#btn-save')
-    await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST')
+    await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST'), clickOn('#btn-save')])
+    console.log(`${getTime()} Configure bot: gotoandexpect`)
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
   })
 
