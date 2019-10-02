@@ -1,4 +1,4 @@
-import { BotDetails, Flow, FlowNode } from 'botpress/sdk'
+import { BotDetails, Flow, FlowNode, RolloutStrategy } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -37,8 +37,6 @@ export interface AuthStrategyConfig {
   registerUrl?: string
   label?: string
 }
-
-export type RolloutStrategy = 'anonymous' | 'anonymous-invite' | 'authenticated' | 'authenticated-invite' | 'authorized'
 
 export interface Workspace {
   id: string
@@ -156,7 +154,11 @@ export interface ChatUserAuth {
 }
 
 export interface AuthPayload {
-  authorizedUntil?: Date
+  /** User is considered authenticated until that date (duration is determined per channel) */
   authenticatedUntil?: Date
+  /** An authorized user has an acces (any) to the workspace the bot is part of */
+  isAuthorized?: boolean
+  /** User must provide a valid invite code before he's added to the workspace & authorized */
+  inviteRequired?: boolean
   identity?: TokenUser
 }

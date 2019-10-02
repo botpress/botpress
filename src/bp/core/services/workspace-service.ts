@@ -1,33 +1,26 @@
-import { Logger } from 'botpress/sdk'
-import { defaultPipelines, defaultWorkspace } from 'common/defaults'
+import { AddWorkspaceUserOptions, Logger, RolloutStrategy, WorkspaceRollout } from 'botpress/sdk'
+import { CHAT_USER_ROLE, defaultPipelines, defaultWorkspace } from 'common/defaults'
 import { AuthRole, CreateWorkspace, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
+import { WorkspaceInviteCode, WorkspaceInviteCodesRepository } from 'core/repositories'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { WorkspaceUserAttributes, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
-import { ConflictError, NotFoundError } from 'core/routers/errors'
+import { BadRequestError, ConflictError, NotFoundError } from 'core/routers/errors'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import nanoid from 'nanoid/generate'
 
 import { TYPES } from '../types'
 
 import { InvalidOperationError } from './auth/errors'
 import { GhostService } from './ghost/service'
 
-// Builtin role for chat users. It can't be customized
-export const CHAT_USER_ROLE = {
-  id: 'chatuser',
-  name: 'Chat User',
-  description: 'Chat users have limited access to bots.',
-  rules: [
-    {
-      res: '*',
-      op: '-r-w'
-    },
-    {
-      res: 'user.bots',
-      op: '+r'
-    }
-  ]
-}
+export const ROLLOUT_STRATEGIES: RolloutStrategy[] = [
+  'anonymous',
+  'anonymous-invite',
+  'authenticated',
+  'authenticated-invite',
+  'authorized'
+]
 
 @injectable()
 export class WorkspaceService {
@@ -37,7 +30,8 @@ export class WorkspaceService {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository,
-    @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository
+    @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository,
+    @inject(TYPES.WorkspaceInviteCodesRepository) private inviteCodesRepo: WorkspaceInviteCodesRepository
   ) {}
 
   async initialize(): Promise<void> {
@@ -153,27 +147,72 @@ export class WorkspaceService {
     return this.save(workspaces.filter(x => x.id !== workspaceId))
   }
 
-  async addUserToWorkspace(
-    email: string,
-    strategy: string,
-    workspaceId: string,
-    role?: string,
-    options?: { asAdmin?: boolean } // Temporary, will add chat user in another pr
-  ) {
+  async addUserToWorkspace(email: string, strategy: string, workspaceId: string, options?: AddWorkspaceUserOptions) {
     if (!(await this.usersRepo.findUser(email, strategy))) {
       throw new Error(`Specified user doesn't exist`)
     }
 
-    if (!role) {
-      const workspace = await this.findWorkspace(workspaceId)
-      if (!options) {
-        role = workspace.defaultRole
-      } else {
+    const workspace = await this.findWorkspace(workspaceId)
+    let role = workspace.defaultRole
+
+    if (options) {
+      if (options.asAdmin) {
         role = workspace.adminRole
+      } else if (options.asChatUser) {
+        role = CHAT_USER_ROLE.id
       }
     }
 
     await this.workspaceRepo.createEntry({ email, strategy, workspace: workspaceId, role })
+  }
+
+  async getWorkspaceRollout(workspaceId: string): Promise<WorkspaceRollout> {
+    const { rolloutStrategy } = await this.findWorkspace(workspaceId)
+
+    if (rolloutStrategy === 'anonymous-invite' || rolloutStrategy === 'authenticated-invite') {
+      let invite = await this.inviteCodesRepo.getWorkspaceCode(workspaceId)
+
+      // Invite code can be empty if workspaces was modified manually
+      if (!invite) {
+        invite = await this.resetInviteCode(workspaceId)
+      }
+
+      return { rolloutStrategy, ...invite }
+    }
+
+    return { rolloutStrategy }
+  }
+
+  async resetInviteCode(workspaceId: string, allowedUsages?: number): Promise<WorkspaceInviteCode> {
+    const inviteCode = `INV-${nanoid('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)}`
+
+    if (!allowedUsages) {
+      allowedUsages = -1
+    }
+
+    const newEntry = { workspaceId, inviteCode, allowedUsages }
+
+    if (await this.inviteCodesRepo.getWorkspaceCode(workspaceId)) {
+      await this.inviteCodesRepo.replaceCode(newEntry)
+    } else {
+      await this.inviteCodesRepo.createEntry(newEntry)
+    }
+
+    return newEntry
+  }
+
+  async consumeInviteCode(workspaceId: string, validateCode?: string): Promise<boolean> {
+    const { allowedUsages, inviteCode } = await this.inviteCodesRepo.getWorkspaceCode(workspaceId)
+
+    if (allowedUsages === 0 || (validateCode && inviteCode !== validateCode)) {
+      return false
+    }
+
+    if (allowedUsages !== -1) {
+      await this.inviteCodesRepo.decreaseRemainingUsage(workspaceId)
+    }
+
+    return true
   }
 
   async removeUserFromAllWorkspaces(email: string, strategy: string) {

@@ -92,3 +92,20 @@ export const defaultWorkspace: Workspace = {
   pipeline: defaultPipelines['none'],
   rolloutStrategy: 'anonymous'
 }
+
+// Builtin role for chat users. It can't be customized
+export const CHAT_USER_ROLE = {
+  id: 'chatuser',
+  name: 'Chat User',
+  description: 'Chat users have limited access to bots.',
+  rules: [
+    {
+      res: '*',
+      op: '-r-w'
+    },
+    {
+      res: 'user.bots',
+      op: '+r'
+    }
+  ]
+}

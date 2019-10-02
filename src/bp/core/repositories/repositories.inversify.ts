@@ -10,7 +10,8 @@ import {
   KnexUserRepository,
   NotificationsRepository,
   SessionRepository,
-  UserRepository
+  UserRepository,
+  WorkspaceInviteCodesRepository
 } from '.'
 import { KnexLogsRepository, LogsRepository } from './logs'
 import { StrategyUsersRepository } from './strategy_users'
@@ -43,6 +44,10 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<WorkspaceUsersRepository>(TYPES.WorkspaceUsersRepository)
     .to(WorkspaceUsersRepository)
+    .inSingletonScope()
+
+  bind<WorkspaceInviteCodesRepository>(TYPES.WorkspaceInviteCodesRepository)
+    .to(WorkspaceInviteCodesRepository)
     .inSingletonScope()
 })
 

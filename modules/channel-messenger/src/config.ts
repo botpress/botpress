@@ -39,6 +39,12 @@ export interface Config {
    * @default []
    */
   persistentMenu?: PersistentMenuItem[] | null
+
+  /**
+   * The duration of the authentication session when a user authenticate through this channel.
+   * @default 24h
+   */
+  chatUserAuthDuration: string
 }
 
 export interface PersistentMenuItem {

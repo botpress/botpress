@@ -191,8 +191,8 @@ export class AuthRouter extends CustomRouter {
           throw new BadRequestError('Missing required fields')
         }
 
-        const workspaceId = await this.authService.authChatUser(req.body, req.tokenUser!)
-        res.send(workspaceId)
+        await this.authService.authChatUser(req.body, req.tokenUser!)
+        res.send(await this.workspaceService.getBotWorkspaceId(botId))
       })
     )
   }

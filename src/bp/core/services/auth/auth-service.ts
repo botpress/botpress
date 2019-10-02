@@ -1,4 +1,4 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, RolloutStrategy } from 'botpress/sdk'
 import { AuthStrategy, AuthStrategyBasic } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
@@ -20,7 +20,7 @@ import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 import { KeyValueStore } from '../kvs'
 import { EventEngine } from '../middleware/event-engine'
-import { CHAT_USER_ROLE, WorkspaceService } from '../workspace-service'
+import { WorkspaceService } from '../workspace-service'
 
 import StrategyBasic from './basic'
 import { generateUserToken } from './util'
@@ -233,9 +233,9 @@ export default class AuthService {
     }
   }
 
-  public async authChatUser(chatUserAuth: ChatUserAuth, tokenUser: TokenUser): Promise<string> {
+  public async authChatUser(chatUserAuth: ChatUserAuth, identity: TokenUser): Promise<void> {
     const { botId, sessionId, signature } = chatUserAuth
-    const { email, strategy, isSuperAdmin } = tokenUser
+    const { email, strategy, isSuperAdmin } = identity
     const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
 
     const sendEvent = async (payload: AuthPayload) => {
@@ -243,7 +243,7 @@ export default class AuthService {
         direction: 'incoming',
         type: 'auth',
         botId,
-        payload,
+        payload: { identity, ...payload },
         channel,
         target,
         threadId
@@ -258,17 +258,23 @@ export default class AuthService {
     }
 
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+    const isMember = !!(await this.workspaceService.findUser(email, strategy, workspaceId))
     const authenticatedUntil = await this._getChatAuthExpiry(channel, botId)
+    const { rolloutStrategy } = await this.workspaceService.getWorkspaceRollout(workspaceId)
 
-    // TODO: Implement other rollout strategies.
-    const isMember = await this.workspaceService.findUser(email, strategy, workspaceId)
-    if (!isMember && !isSuperAdmin) {
-      await this.workspaceService.addUserToWorkspace(email, strategy, workspaceId, CHAT_USER_ROLE.id)
+    if (rolloutStrategy.includes('anonymous')) {
+      throw new BadRequestError(`Authentication not required for anonymous strategies`)
     }
 
-    // TODO: Authorized check should be different depending on rollout strategy
-    await sendEvent({ authenticatedUntil, authorizedUntil: authenticatedUntil, identity: tokenUser })
+    if (rolloutStrategy === 'authenticated-invite' && !isMember && !isSuperAdmin) {
+      return sendEvent({ authenticatedUntil, inviteRequired: true })
+    }
 
-    return workspaceId
+    if (rolloutStrategy === 'authenticated' && !isMember && !isSuperAdmin) {
+      await this.workspaceService.addUserToWorkspace(email, strategy, workspaceId, { asChatUser: true })
+      return sendEvent({ authenticatedUntil, isAuthorized: true })
+    }
+
+    return sendEvent({ authenticatedUntil, isAuthorized: isMember || isSuperAdmin })
   }
 }
