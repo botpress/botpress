@@ -86,15 +86,14 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
     })
   }
 
+  updateEventsCounts = async (language?: string) => {
+    const eventCounts = await this.fetchEventCounts(language || this.state.language)
+    await this.setStateP({ eventCounts })
+  }
+
   setLanguage = async (language: string) => {
     await this.setStateP({ language, eventCounts: null, events: null, selectedEventIndex: null, selectedEvent: null })
-    await Promise.all([
-      this.setEventsStatus(INITIAL_STATUS),
-      (async () => {
-        const eventCounts = await this.fetchEventCounts(language)
-        await this.setStateP({ eventCounts })
-      })()
-    ])
+    await Promise.all([this.setEventsStatus(INITIAL_STATUS), this.updateEventsCounts(language)])
   }
 
   setEventsStatus = async (selectedStatus: FLAGGED_MESSAGE_STATUS) => {
@@ -105,9 +104,12 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
   }
 
   setEventIndex = async (selectedEventIndex: number) => {
-    await this.setStateP({ selectedEventIndex, selectedEvent: null })
     const { events } = this.state
-    if (events && events.length && selectedEventIndex < events.length) {
+    if (selectedEventIndex >= events.length) {
+      selectedEventIndex = events.length - 1
+    }
+    await this.setStateP({ selectedEventIndex, selectedEvent: null })
+    if (events && events.length) {
       const event = await this.fetchEvent(events[selectedEventIndex].id)
       await this.setStateP({ selectedEvent: event })
     }
@@ -124,12 +126,14 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
     }
   }
 
-  async alterNewEventsList(newStatus: FLAGGED_MESSAGE_STATUS) {
+  async alterNewEventsList(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS) {
     // do some local state patching to prevent unneeded content flash
     const { eventCounts, selectedEventIndex, events, selectedEvent } = this.state
-    const newEventCounts = { ...eventCounts }
-    newEventCounts[FLAGGED_MESSAGE_STATUS.new] -= 1
-    newEventCounts[newStatus] += 1
+    const newEventCounts = {
+      ...eventCounts,
+      [oldStatus]: eventCounts[oldStatus] - 1,
+      [newStatus]: (eventCounts[newStatus] || 0) + 1
+    }
     await this.setStateP({
       eventCounts: newEventCounts,
       selectedEvent: null,
@@ -137,26 +141,41 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
     })
 
     // advance to the next event
-    return this.setEventIndex(selectedEventIndex)
+    await this.setEventIndex(selectedEventIndex)
+
+    await this.updateEventsCounts()
   }
 
   deleteCurrentEvent = async () => {
     const { selectedEvent } = this.state
+
     if (selectedEvent) {
       await this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.deleted)
 
-      return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.deleted)
+      return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
     }
   }
 
-  amendCurrentEvent = (resolutionData: ResolutionData) => {
+  undeleteEvent = async (id: string) => {
     const { selectedEvent } = this.state
 
-    return this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.pending, resolutionData)
+    if (selectedEvent) {
+      await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
+
+      return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
+    }
+  }
+
+  amendCurrentEvent = async (resolutionData: ResolutionData) => {
+    const { selectedEvent } = this.state
+
+    await this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.pending, resolutionData)
+    return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.pending)
   }
 
   applyAllPending = async () => {
     await this.apiClient.applyAllPending()
+    await this.updateEventsCounts()
     return this.setEventsStatus(FLAGGED_MESSAGE_STATUS.applied)
   }
 
@@ -203,6 +222,7 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
               events={events}
               skipEvent={this.skipCurrentEvent}
               deleteEvent={this.deleteCurrentEvent}
+              undeleteEvent={this.undeleteEvent}
               amendEvent={this.amendCurrentEvent}
               applyAllPending={this.applyAllPending}
             />

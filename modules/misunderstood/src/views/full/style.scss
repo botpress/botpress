@@ -50,16 +50,21 @@
 .sideListItem {
   padding: 0 0 5px 10px;
   font-size: 120%;
+  display: flex;
   svg {
     width: 12px;
     height: 12px;
     position: relative;
-    top: -2px;
+    bottom: -7px;
   }
 }
 
 .sideListItemText {
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   &:hover {
     text-decoration: underline;
   }
@@ -71,4 +76,11 @@
     font-weight: bold;
     text-decoration: underline;
   }
+}
+
+.newEventPreview {
+  background-color: #e99;
+  border: 1px solid #999;
+  padding: 10px;
+  border-radius: 1px;
 }

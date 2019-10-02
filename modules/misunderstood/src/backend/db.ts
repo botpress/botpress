@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import pick from 'lodash/pick'
 
 import {
   DbFlaggedEvent,
@@ -43,6 +44,8 @@ export default class Db {
   async updateStatus(botId: string, id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
     if (status !== FLAGGED_MESSAGE_STATUS.pending) {
       resolutionData = { resolutionType: null, resolution: null, resolutionParams: null }
+    } else {
+      resolutionData = pick(resolutionData, 'resolutionType', 'resolution', 'resolutionParams')
     }
 
     await this.knex(TABLE_NAME)

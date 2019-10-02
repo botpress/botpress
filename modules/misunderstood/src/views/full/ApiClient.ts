@@ -12,8 +12,8 @@ class ApiClient {
     return res.data
   }
 
-  async post(url: string, config?: AxiosRequestConfig) {
-    const res = await this.axios.post(url, config)
+  async post(url: string, data?: any, config?: AxiosRequestConfig) {
+    const res = await this.axios.post(url, data, config)
     return res.data
   }
 
@@ -21,8 +21,8 @@ class ApiClient {
     return this.get(MODULE_URL_PREFIX + url, config)
   }
 
-  postForModule(url: string, config?: AxiosRequestConfig) {
-    return this.post(MODULE_URL_PREFIX + url, config)
+  postForModule(url: string, data?: any, config?: AxiosRequestConfig) {
+    return this.post(MODULE_URL_PREFIX + url, data, config)
   }
 
   getEventCounts(language: string) {
@@ -46,9 +46,7 @@ class ApiClient {
   }
 
   updateStatus(id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
-    return this.postForModule(`/events/${id}/status`, {
-      params: { status, ...resolutionData }
-    })
+    return this.postForModule(`/events/${id}/status`, { status, ...resolutionData })
   }
 
   applyAllPending() {

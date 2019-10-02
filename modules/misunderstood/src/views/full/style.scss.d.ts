@@ -3,6 +3,7 @@
 interface CssExports {
   'contentFixed': string;
   'contentStretch': string;
+  'newEventPreview': string;
   'padded': string;
   'sideList': string;
   'sideListItem': string;

@@ -6,12 +6,12 @@
 - [x] sidebar with the list view
 - [ ] main screen with actions
   - [ ] dialogue context
-  - [ ] Skip
-  - [ ] Ignore/Delete
+  - [x] Skip
+  - [x] Ignore/Delete
   - [ ] Amend
-- [ ] Pending list
-  - [ ] Apply all button
+- [x] Pending list
+  - [x] Apply all button
   - [ ] API to apply the changes
-- [ ] Deleted list
-  - [ ] Return action
-- [ ] Applied list
+- [x] Deleted list
+  - [x] Return action
+- [x] Applied list
