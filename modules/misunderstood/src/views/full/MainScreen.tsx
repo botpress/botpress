@@ -2,10 +2,17 @@ import { Button, ButtonGroup, HTMLTable, Intent } from '@blueprintjs/core'
 import clsx from 'clsx'
 import React from 'react'
 
-import { ApiFlaggedEvent, ContextMessage, DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, ResolutionData } from '../../types'
+import {
+  ApiFlaggedEvent,
+  ContextMessage,
+  DbFlaggedEvent,
+  FLAGGED_MESSAGE_STATUS,
+  RESOLUTION_TYPE,
+  ResolutionData
+} from '../../types'
 
 import style from './style.scss'
-import { REASONS, RESOLUTION } from './util'
+import { RESOLUTION } from './util'
 
 const DeletedList = ({
   events,
@@ -104,15 +111,6 @@ const AppliedList = ({ events, totalEventsCount }: { events: DbFlaggedEvent[]; t
   </>
 )
 
-interface NewEventViewProps {
-  event?: ApiFlaggedEvent
-  totalEventsCount: number
-  eventIndex: number
-  skipEvent: () => void
-  deleteEvent: () => void
-  amendEvent: (resolutionData: ResolutionData) => void
-}
-
 const ChatPreview = ({ messages }: { messages: ContextMessage[] }) => (
   <div className={style.chatPreview}>
     {messages.map((message, i) => (
@@ -131,9 +129,97 @@ const ChatPreview = ({ messages }: { messages: ContextMessage[] }) => (
   </div>
 )
 
-class NewEventView extends React.Component<NewEventViewProps> {
+const AmendForm = ({ mode, setMode }) => (
+  <div className={style.amendForm}>
+    <h5>What is this message type?</h5>
+
+    <ButtonGroup>
+      <Button
+        onClick={() => {
+          if (mode === RESOLUTION_TYPE.intent) {
+            return
+          }
+          setMode(RESOLUTION_TYPE.intent)
+        }}
+        intent={mode === RESOLUTION_TYPE.intent ? Intent.SUCCESS : Intent.NONE}
+      >
+        Goal
+      </Button>
+      <Button
+        onClick={() => {
+          if (mode === RESOLUTION_TYPE.qna) {
+            return
+          }
+          setMode(RESOLUTION_TYPE.qna)
+        }}
+        intent={mode === RESOLUTION_TYPE.qna ? Intent.SUCCESS : Intent.NONE}
+      >
+        Query
+      </Button>
+      {mode != null && (
+        <Button
+          onClick={() => {
+            setMode(null)
+          }}
+          icon="undo"
+        >
+          Undo
+        </Button>
+      )}
+    </ButtonGroup>
+  </div>
+)
+
+interface NewEventViewProps {
+  event: ApiFlaggedEvent
+  totalEventsCount: number
+  eventIndex: number
+  skipEvent: () => void
+  deleteEvent: () => void
+  amendEvent: (resolutionData: ResolutionData) => void
+}
+
+interface NewEventViewState {
+  isAmending: boolean
+  amendMode: RESOLUTION_TYPE | null
+}
+
+class NewEventView extends React.Component<NewEventViewProps, NewEventViewState> {
+  state = {
+    isAmending: false,
+    amendMode: null
+  }
+
+  startAmend = () => {
+    this.setState({ isAmending: true })
+  }
+
+  finishAmend = () => {
+    this.setState({ isAmending: false })
+  }
+
+  confirmAmend = () => {
+    const { amendEvent } = this.props
+    if (false) {
+      amendEvent({
+        resolutionType: RESOLUTION_TYPE.qna,
+        resolution: 'xxx'
+      })
+    }
+    this.finishAmend()
+  }
+
+  setAmendMode = (amendMode: RESOLUTION_TYPE) => {
+    this.setState({ amendMode })
+  }
+
+  componentDidMount() {
+    this.startAmend()
+  }
+
   render() {
-    const { event, totalEventsCount, eventIndex, skipEvent, deleteEvent, amendEvent } = this.props
+    const { event, totalEventsCount, eventIndex, skipEvent, deleteEvent } = this.props
+    const { isAmending, amendMode } = this.state
 
     return (
       <>
@@ -150,17 +236,28 @@ class NewEventView extends React.Component<NewEventViewProps> {
             onClick={skipEvent}
             icon="arrow-right"
             intent={Intent.WARNING}
-            disabled={eventIndex === totalEventsCount - 1}
+            disabled={isAmending || eventIndex === totalEventsCount - 1}
           >
             Skip
           </Button>
-          <Button onClick={deleteEvent} icon="trash" intent={Intent.DANGER}>
+          <Button onClick={deleteEvent} icon="trash" intent={Intent.DANGER} disabled={isAmending}>
             Ignore
           </Button>
-          <Button icon="confirm" intent={Intent.PRIMARY}>
+          <Button onClick={this.startAmend} icon="confirm" intent={Intent.PRIMARY} disabled={isAmending}>
             Amend
           </Button>
+          {isAmending && (
+            <>
+              <Button onClick={this.confirmAmend} icon="tick" intent={Intent.SUCCESS}>
+                Save
+              </Button>
+              <Button onClick={this.finishAmend} icon="cross" intent={Intent.NONE}>
+                Cancel
+              </Button>
+            </>
+          )}
         </ButtonGroup>
+        {isAmending && <AmendForm mode={amendMode} setMode={this.setAmendMode} />}
       </>
     )
   }
