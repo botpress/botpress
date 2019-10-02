@@ -5,7 +5,7 @@
 - [x] language selection
 - [x] sidebar with the list view
 - [ ] main screen with actions
-  - [ ] dialogue context
+  - [x] dialogue context
   - [x] Skip
   - [x] Ignore/Delete
   - [ ] Amend

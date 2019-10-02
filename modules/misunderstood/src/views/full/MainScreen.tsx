@@ -1,7 +1,8 @@
 import { Button, ButtonGroup, HTMLTable, Intent } from '@blueprintjs/core'
+import clsx from 'clsx'
 import React from 'react'
 
-import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, FlaggedEvent, ResolutionData } from '../../types'
+import { ApiFlaggedEvent, ContextMessage, DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, ResolutionData } from '../../types'
 
 import style from './style.scss'
 import { REASONS, RESOLUTION } from './util'
@@ -104,13 +105,31 @@ const AppliedList = ({ events, totalEventsCount }: { events: DbFlaggedEvent[]; t
 )
 
 interface NewEventViewProps {
-  event?: FlaggedEvent
+  event?: ApiFlaggedEvent
   totalEventsCount: number
   eventIndex: number
   skipEvent: () => void
   deleteEvent: () => void
   amendEvent: (resolutionData: ResolutionData) => void
 }
+
+const ChatPreview = ({ messages }: { messages: ContextMessage[] }) => (
+  <div className={style.chatPreview}>
+    {messages.map((message, i) => (
+      <div
+        key={i}
+        className={clsx(style.chatPreviewMessage, {
+          [style.chatPreviewMessage_Incoming]: message.direction === 'incoming',
+          [style.chatPreviewMessage_Outgoing]: message.direction === 'outgoing',
+          [style.chatPreviewMessage_Current]: message.isCurrent
+        })}
+      >
+        <div className={style.chatPreviewAvatar}>{message.direction === 'incoming' ? 'U' : 'B'}</div>
+        <div className={style.chatPreviewText}>{message.preview}</div>
+      </div>
+    ))}
+  </div>
+)
 
 class NewEventView extends React.Component<NewEventViewProps> {
   render() {
@@ -121,7 +140,11 @@ class NewEventView extends React.Component<NewEventViewProps> {
         <h3>
           New Misunderstood | {eventIndex + 1} of {totalEventsCount}
         </h3>
+
+        <ChatPreview messages={event.context} />
+
         <h4 className={style.newEventPreview}>{event.preview}</h4>
+
         <ButtonGroup large>
           <Button
             onClick={skipEvent}

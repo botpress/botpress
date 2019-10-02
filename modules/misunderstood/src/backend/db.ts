@@ -12,6 +12,7 @@ import {
 } from '../types'
 
 const TABLE_NAME = 'misunderstood'
+const EVENTS_TABLE_NAME = 'events'
 
 export default class Db {
   knex: any
@@ -75,11 +76,41 @@ export default class Db {
       )
   }
 
-  getEventDetails(botId: string, id: string) {
-    return this.knex(TABLE_NAME)
+  async getEventDetails(botId: string, id: string) {
+    const event = await this.knex(TABLE_NAME)
       .where({ botId, id })
       .limit(1)
       .select('*')
       .then((data: DbFlaggedEvent[]) => (data && data.length ? data[0] : null))
+
+    const { threadId, sessionId, id: messageId } = await this.knex(EVENTS_TABLE_NAME)
+      .where({ botId, incomingEventId: event.eventId, direction: 'incoming' })
+      .select('id', 'threadId', 'sessionId')
+      .limit(1)
+      .get(0)
+
+    const [messagesBefore, messagesAfter] = await Promise.all([
+      this.knex(EVENTS_TABLE_NAME)
+        .where({ botId, threadId, sessionId })
+        .andWhere('id', '<=', messageId)
+        .orderBy('id', 'desc')
+        .limit(3)
+        .select('id', 'event'),
+      this.knex(EVENTS_TABLE_NAME)
+        .where({ botId, threadId, sessionId })
+        .andWhere('id', '>', messageId)
+        .orderBy('id', 'asc')
+        .limit(3)
+        .select('id', 'event')
+    ])
+
+    const context = [...messagesBefore, ...messagesAfter]
+      .sort((e1, e2) => e1.id - e2.id)
+      .map(({ id, event }) => ({
+        ...pick(JSON.parse(event), 'preview', 'direction'),
+        isCurrent: id === messageId
+      }))
+
+    return { ...event, context }
   }
 }

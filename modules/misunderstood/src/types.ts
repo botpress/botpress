@@ -36,6 +36,16 @@ export type DbFlaggedEvent = FlaggedEvent & {
   updatedAt: string
 }
 
+export type ContextMessage = {
+  direction: 'incoming' | 'outgoing'
+  preview: string
+  isCurrent: boolean
+}
+
+export type ApiFlaggedEvent = DbFlaggedEvent & {
+  context: ContextMessage[]
+}
+
 export type ResolutionData = {
   resolutionType: RESOLUTION_TYPE
   resolution: string | null
