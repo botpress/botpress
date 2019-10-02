@@ -3,9 +3,7 @@ import { AuthRule, AuthStrategyConfig, UserProfile, WorkspaceUser } from 'common
 import api from '../api'
 import { logout, setActiveWorkspace } from '../Auth'
 
-import { fetchBots } from './bots'
 import { fetchLicensing } from './license'
-import { fetchRoles } from './roles'
 
 export const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'
 export const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
@@ -133,7 +131,7 @@ export const fetchPermissions = () => {
   }
 }
 
-export const fetchWorkspaces = () => {
+export const fetchMyWorkspaces = () => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/auth/me/workspaces')
     dispatch({ type: MY_WORKSPACES_RECEIVED, workspaces: data })
@@ -150,12 +148,10 @@ export const fetchAuthConfig = () => {
 export const switchWorkspace = (workspaceId: string) => {
   return async dispatch => {
     setActiveWorkspace(workspaceId)
-    dispatch({ type: CURRENT_WORKSPACE_CHANGED, currentWorkspace: workspaceId })
+    await dispatch(fetchProfile())
+    await dispatch(fetchPermissions())
+    await dispatch(fetchLicensing())
 
-    dispatch(fetchUsers())
-    dispatch(fetchRoles())
-    dispatch(fetchBots())
-    dispatch(fetchPermissions())
-    dispatch(fetchLicensing())
+    dispatch({ type: CURRENT_WORKSPACE_CHANGED, currentWorkspace: workspaceId })
   }
 }

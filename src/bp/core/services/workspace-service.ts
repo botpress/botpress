@@ -1,32 +1,16 @@
 import { Logger } from 'botpress/sdk'
-import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
-import { AuthRole, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
+import { defaultPipelines, defaultWorkspace } from 'common/defaults'
+import { AuthRole, CreateWorkspace, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { WorkspaceUserAttributes, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
+import { ConflictError, NotFoundError } from 'core/routers/errors'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../types'
 
+import { InvalidOperationError } from './auth/errors'
 import { GhostService } from './ghost/service'
-
-const DEFAULT_PIPELINE: Pipeline = [
-  {
-    id: 'prod',
-    label: 'Production',
-    action: 'promote_copy'
-  }
-]
-
-const DEFAULT_WORKSPACE: Workspace = {
-  id: 'default',
-  name: 'Default',
-  bots: [],
-  roles: defaultRoles,
-  defaultRole: defaultUserRole,
-  adminRole: defaultAdminRole,
-  pipeline: [...DEFAULT_PIPELINE]
-}
 
 @injectable()
 export class WorkspaceService {
@@ -41,7 +25,7 @@ export class WorkspaceService {
 
   async initialize(): Promise<void> {
     await this.getWorkspaces().catch(async () => {
-      await this.save([{ ...DEFAULT_WORKSPACE }])
+      await this.save([defaultWorkspace])
       this.logger.info('Created workspace')
     })
   }
@@ -57,6 +41,15 @@ export class WorkspaceService {
 
   async save(workspaces: Workspace[]): Promise<void> {
     return this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
+  }
+
+  async mergeWorkspaceConfig(workspaceId: string, partialData: Partial<Workspace>) {
+    const workspaces = await this.getWorkspaces()
+    if (!workspaces.find(x => x.id === workspaceId)) {
+      throw new NotFoundError(`Workspace doesn't exist`)
+    }
+
+    return this.save(workspaces.map(wks => (wks.id === workspaceId ? { ...wks, ...partialData } : wks)))
   }
 
   async addBotRef(botId: string, workspaceId: string): Promise<void> {
@@ -97,9 +90,15 @@ export class WorkspaceService {
     }
   }
 
-  async findWorkspace(workspaceId: string): Promise<Workspace | undefined> {
-    const all = await this.getWorkspaces()
-    return all.find(x => x.id === workspaceId)
+  async findWorkspace(workspaceId: string): Promise<Workspace> {
+    const workspaces = await this.getWorkspaces()
+
+    const workspace = workspaces.find(x => x.id === workspaceId)
+    if (!workspace) {
+      throw new NotFoundError(`Unknown workspace`)
+    }
+
+    return workspace
   }
 
   async findWorkspaceName(workspaceId: string): Promise<string> {
@@ -108,38 +107,56 @@ export class WorkspaceService {
     return (workspace && workspace.name) || workspaceId
   }
 
-  async createWorkspace(workspaceId: string, workspaceName: string): Promise<void> {
+  async createWorkspace(workspace: CreateWorkspace): Promise<void> {
     const workspaces = await this.getWorkspaces()
-    if (workspaces.find(x => x.id === workspaceId)) {
-      throw new Error(`Workspace with id "${workspaceId}" already exists`)
+    if (workspaces.find(x => x.id === workspace.id)) {
+      throw new ConflictError(`A workspace with that id "${workspace.id}" already exists`)
     }
 
-    workspaces.push({ ...DEFAULT_WORKSPACE, id: workspaceId, name: workspaceName })
+    if (!defaultPipelines[workspace.pipelineId]) {
+      throw new InvalidOperationError(`Invalid pipeline`)
+    }
+
+    const newWorkspace = {
+      ...defaultWorkspace,
+      ..._.pick(workspace, ['id', 'name', 'description', 'audience']),
+      pipeline: defaultPipelines[workspace.pipelineId]
+    }
+
+    workspaces.push(newWorkspace)
     return this.save(workspaces)
   }
 
-  async addWorkspaceAdmin(email: string, strategy: string, workspaceId: string) {
-    const workspace = await this.findWorkspace(workspaceId)
-    if (workspace) {
-      return this.addUserToWorkspace(email, strategy, workspace.id, workspace.adminRole)
+  async deleteWorkspace(workspaceId: string): Promise<void> {
+    const workspaces = await this.getWorkspaces()
+    if (!workspaces.find(x => x.id === workspaceId)) {
+      throw new NotFoundError(`Workspace doesn't exist`)
     }
+
+    return this.save(workspaces.filter(x => x.id !== workspaceId))
   }
 
-  async addWorkspaceUser(email: string, strategy: string, workspaceId: string) {
-    const workspace = await this.findWorkspace(workspaceId)
-    if (workspace) {
-      return this.addUserToWorkspace(email, strategy, workspace.id, workspace.defaultRole)
+  async addUserToWorkspace(
+    email: string,
+    strategy: string,
+    workspaceId: string,
+    role?: string,
+    options?: { asAdmin?: boolean } // Temporary, will add chat user in another pr
+  ) {
+    if (!(await this.usersRepo.findUser(email, strategy))) {
+      throw new Error(`Specified user doesn't exist`)
     }
-  }
 
-  async addUserToWorkspace(email: string, strategy: string, workspace: string, role: string) {
-    const user = {
-      email,
-      strategy,
-      workspace,
-      role
+    if (!role) {
+      const workspace = await this.findWorkspace(workspaceId)
+      if (!options) {
+        role = workspace.defaultRole
+      } else {
+        role = workspace.adminRole
+      }
     }
-    await this.workspaceRepo.createEntry(user)
+
+    await this.workspaceRepo.createEntry({ email, strategy, workspace: workspaceId, role })
   }
 
   async removeUserFromAllWorkspaces(email: string, strategy: string) {
@@ -204,10 +221,10 @@ export class WorkspaceService {
 
   async findRole(roleId: string, workspaceId: string): Promise<AuthRole> {
     const workspace = await this.findWorkspace(workspaceId)
-    const role = workspace && workspace.roles.find(r => r.id === roleId)
+    const role = workspace.roles.find(r => r.id === roleId)
 
     if (!role) {
-      throw new Error(`Role "${roleId}" does not exists in workspace "${workspace!.name}"`)
+      throw new NotFoundError(`Role "${roleId}" does not exists in workspace "${workspace.name}"`)
     }
     return role
   }

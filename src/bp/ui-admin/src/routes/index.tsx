@@ -10,6 +10,7 @@ import Languages from '~/Pages/Server/Languages'
 import LicenseStatus from '~/Pages/Server/LicenseStatus'
 import Monitoring from '~/Pages/Server/Monitoring'
 import Versioning from '~/Pages/Server/Versioning'
+import Workspaces from '~/Pages/Workspaces'
 
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
@@ -66,6 +67,7 @@ export const makeMainRoutes = () => {
               <Route path="/server/license" component={LicenseStatus} />
               <Route path="/server/alerting" component={Alerting} />
               <Route path="/workspace/:workspaceId?" component={Workspace} />
+              <Route path="/workspaces" component={Workspaces} />
               <Route path="/bot" component={Bot} />
               <Route path="/debug" component={Debug} />
               <Route path="/modules" component={Modules} />
