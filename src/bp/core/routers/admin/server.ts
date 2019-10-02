@@ -7,6 +7,7 @@ import { MonitoringService } from 'core/services/monitoring'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Router } from 'express'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { getDebugScopes, setDebugScopes } from '../../../debug'
 import { CustomRouter } from '../customRouter'
@@ -131,7 +132,7 @@ export class ServerRouter extends CustomRouter {
     router.get(
       '/serverConfig',
       this.asyncMiddleware(async (req, res) => {
-        if (process.core_env.BP_DISABLE_SERVER_CONFIG) {
+        if (yn(process.core_env.BP_DISABLE_SERVER_CONFIG)) {
           return res.send(undefined)
         }
 
@@ -168,13 +169,6 @@ export class ServerRouter extends CustomRouter {
         }
 
         res.sendStatus(200)
-      })
-    )
-
-    router.get(
-      '/workspaces',
-      this.asyncMiddleware(async (req, res) => {
-        res.send(await this.workspaceService.getWorkspaces())
       })
     )
 

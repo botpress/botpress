@@ -52,6 +52,7 @@ const Menu = props => {
       <ControlGroup vertical={true} fill={true}>
         <MenuItem id="btn-menu-language" text="Languages" icon="globe-network" url="/server/languages" />
         <MenuItem id="btn-menu-debug" text="Debug" icon="console" url="/server/debug" />
+        <MenuItem id="btn-menu-checklist" text="Checklist" icon="endorsed" url="/checklist" />
       </ControlGroup>
 
       <div className="bp-sa-menu-header">Health</div>

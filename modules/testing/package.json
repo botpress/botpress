@@ -22,6 +22,7 @@
     "react-icons": "^3.6.1"
   },
   "resolutions": {
-    "fstream": ">=1.0.12"
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
   }
 }

@@ -38,15 +38,23 @@ export interface AuthStrategyConfig {
   label?: string
 }
 
+export type RolloutStrategy = 'anonymous' | 'anonymous-invite' | 'authenticated' | 'authenticated-invite' | 'authorized'
+
 export interface Workspace {
   id: string
   name: string
+  description?: string
+  audience: 'internal' | 'external'
   roles: AuthRole[]
   defaultRole: string
   adminRole: string
   bots: string[]
   pipeline: Pipeline
-  authStrategy?: string
+  rolloutStrategy: RolloutStrategy
+}
+
+export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience'> & {
+  pipelineId: string
 }
 
 export interface AuthRule {

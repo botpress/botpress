@@ -393,6 +393,7 @@ declare module 'botpress/sdk' {
       name: string
       entities: string[]
       entity?: string
+      color: number
     }
 
     export interface IntentDefinition {
@@ -586,7 +587,7 @@ declare module 'botpress/sdk' {
      */
     export interface EventState {
       /** Data saved as user attributes; retention policies in Botpress global config applies  */
-      user: object
+      user: any
       /** Data is kept for the active session. Timeout configurable in the global config file */
       session: CurrentSession
       /** Data saved to this variable will be remembered until the end of the flow */
@@ -609,10 +610,11 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventError {
-      type: string
+      type: 'action-execution' | 'dialog-transition'
       stacktrace?: string
       actionName?: string
       actionArgs?: any
+      destination?: string
     }
 
     export interface JumpPoint {
@@ -1415,7 +1417,11 @@ declare module 'botpress/sdk' {
      * @param partialConfig
      * @param ignoreLock
      */
-    export function mergeBotConfig(botId: string, partialConfig: _.PartialDeep<BotConfig>, ignoreLock?: boolean): Promise<any>
+    export function mergeBotConfig(
+      botId: string,
+      partialConfig: _.PartialDeep<BotConfig>,
+      ignoreLock?: boolean
+    ): Promise<any>
   }
 
   /**

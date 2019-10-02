@@ -6,10 +6,12 @@ import { ConnectedRouter } from 'react-router-redux'
 import ChatAuthResult from '~/Pages/Account/ChatAuthResult'
 import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
 import Alerting from '~/Pages/Server/Alerting'
+import Checklist from '~/Pages/Server/Checklist'
 import Languages from '~/Pages/Server/Languages'
 import LicenseStatus from '~/Pages/Server/LicenseStatus'
 import Monitoring from '~/Pages/Server/Monitoring'
 import Versioning from '~/Pages/Server/Versioning'
+import Workspaces from '~/Pages/Workspaces'
 
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
@@ -20,7 +22,6 @@ import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
 import Bot from '../Pages/Bot'
 import Confusion from '../Pages/Confusion'
-import MyAccount from '../Pages/MyAccount'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
 import Workspace from '../Pages/Workspace'
@@ -59,7 +60,7 @@ export const makeMainRoutes = () => {
           <Route path="/chatAuthResult" component={ChatAuthResult} />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
-              <Route path="/profile" component={MyAccount} />
+              <Route path="/checklist" component={Checklist} />
               <Route path="/confusion" component={Confusion} />
               <Route path="/server/monitoring" component={Monitoring} />
               <Route path="/server/version" component={Versioning} />
@@ -68,6 +69,7 @@ export const makeMainRoutes = () => {
               <Route path="/server/license" component={LicenseStatus} />
               <Route path="/server/alerting" component={Alerting} />
               <Route path="/workspace/:workspaceId?" component={Workspace} />
+              <Route path="/workspaces" component={Workspaces} />
               <Route path="/bot" component={Bot} />
               <Route path="/debug" component={Debug} />
               <Route path="/modules" component={Modules} />

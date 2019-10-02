@@ -4,16 +4,27 @@ import { WorkspaceUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
-import { AppState } from '~/reducers'
+import { isOperationAllowed } from '~/App/AccessControl'
 import { getActiveWorkspace } from '~/Auth'
 
-import { fetchWorkspaces, switchWorkspace } from '../../reducers/user'
+import { fetchBots } from '../../reducers/bots'
+import { fetchRoles } from '../../reducers/roles'
+import { fetchMyWorkspaces, fetchUsers, switchWorkspace } from '../../reducers/user'
 
-interface Props extends RouteComponentProps<{ workspaceId: string }> {
-  workspaces?: WorkspaceUser[]
-  fetchWorkspaces: () => void
+interface DispatchProps {
+  fetchMyWorkspaces: () => void
   switchWorkspace: (workspaceId: string) => void
+  fetchUsers: () => void
+  fetchBots: () => void
+  fetchRoles: () => void
 }
+
+interface StateProps {
+  workspaces?: WorkspaceUser[]
+  currentWorkspace?: string
+}
+
+type Props = DispatchProps & StateProps & RouteComponentProps<{ workspaceId: string }>
 
 const SelectDropdown = Select.ofType<WorkspaceUser>()
 
@@ -24,12 +35,21 @@ const WorkspaceSelect: FC<Props> = props => {
 
   useEffect(() => {
     if (!props.workspaces) {
-      props.fetchWorkspaces()
+      props.fetchMyWorkspaces()
     } else {
       checkWorkspaceId()
       refreshOptions()
     }
   }, [props.workspaces, urlWorkspaceId])
+
+  useEffect(() => {
+    if (isOperationAllowed({ operation: 'read', resource: 'admin.collaborators' })) {
+      props.fetchUsers()
+    }
+
+    props.fetchBots()
+    props.fetchRoles()
+  }, [props.currentWorkspace])
 
   const getValidWorkspaceId = () => {
     if (!props.workspaces || !props.workspaces.length) {
@@ -121,11 +141,16 @@ const renderOption: ItemRenderer<WorkspaceUser> = (option, { handleClick, modifi
   )
 }
 
-const mapStateToProps = (state: AppState) => ({ workspaces: state.user.workspaces })
+const mapStateToProps = state => ({
+  workspaces: state.user.workspaces,
+  currentWorkspace: state.user.currentWorkspace
+})
+
+const mapDispatchToProps = { fetchMyWorkspaces, switchWorkspace, fetchUsers, fetchBots, fetchRoles }
 
 export default withRouter(
-  connect(
+  connect<StateProps, DispatchProps>(
     mapStateToProps,
-    { fetchWorkspaces, switchWorkspace }
+    mapDispatchToProps
   )(WorkspaceSelect)
 )

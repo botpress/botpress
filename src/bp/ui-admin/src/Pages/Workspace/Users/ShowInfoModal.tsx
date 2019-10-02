@@ -12,7 +12,14 @@ interface Props {
 
 const ShowInfoModal: FC<Props> = props => {
   return (
-    <Dialog isOpen={props.isOpen} icon="info-sign" onClose={props.toggle} transitionDuration={0} title={props.title}>
+    <Dialog
+      title={props.title}
+      icon="info-sign"
+      isOpen={props.isOpen}
+      onClose={props.toggle}
+      transitionDuration={0}
+      canOutsideClickClose={false}
+    >
       <div className={Classes.DIALOG_BODY}>
         <Pre>{props.message}</Pre>
       </div>
