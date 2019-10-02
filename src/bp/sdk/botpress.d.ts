@@ -54,6 +54,7 @@ declare module 'botpress/sdk' {
     attachError(error: Error): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
+    noEmit(): this
 
     /**
      * Sets the level that will be required at runtime to
@@ -153,6 +154,8 @@ declare module 'botpress/sdk' {
     id: string
     /** The name that will be displayed in the toolbar for the skill */
     name: string
+    /** An icon to identify the skill */
+    icon?: string | any
     /** Name of the parent module. This field is filled automatically when they are loaded */
     readonly moduleName?: string
     /**
@@ -390,6 +393,7 @@ declare module 'botpress/sdk' {
       name: string
       entities: string[]
       entity?: string
+      color: number
     }
 
     export interface IntentDefinition {
@@ -606,10 +610,11 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventError {
-      type: string
+      type: 'action-execution' | 'dialog-transition'
       stacktrace?: string
       actionName?: string
       actionArgs?: any
+      destination?: string
     }
 
     export interface JumpPoint {
@@ -899,6 +904,11 @@ declare module 'botpress/sdk' {
      * @default 5s
      */
     timeout: string
+    /**
+     * The text limitation of the converse API requests
+     * @default 360
+     */
+    maxMessageLength: number
   }
 
   /**
@@ -1400,6 +1410,18 @@ declare module 'botpress/sdk' {
      * Returns the configuration options of Botpress
      */
     export function getBotpressConfig(): Promise<any>
+
+    /**
+     * Merges and saves a bot's config
+     * @param botId
+     * @param partialConfig
+     * @param ignoreLock
+     */
+    export function mergeBotConfig(
+      botId: string,
+      partialConfig: _.PartialDeep<BotConfig>,
+      ignoreLock?: boolean
+    ): Promise<any>
   }
 
   /**

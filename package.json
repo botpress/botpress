@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.1.4",
+  "version": "12.1.5",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -91,7 +91,8 @@
     "yn": "^2.0.0"
   },
   "resolutions": {
-    "fstream": ">=1.0.12"
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",

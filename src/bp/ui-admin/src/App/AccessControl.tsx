@@ -26,7 +26,7 @@ export const isOperationAllowed = (params: PermissionAllowedProps) => {
     return false
   }
 
-  if (profile.isSuperAdmin) {
+  if (profile.isSuperAdmin || !params.operation || !params.resource) {
     return true
   }
 

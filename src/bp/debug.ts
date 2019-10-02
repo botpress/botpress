@@ -33,6 +33,6 @@ debug.log = function(...args) {
   if (botId) {
     global.printBotLog(botId, args)
   } else {
-    console.log.call(console, ...args)
+    global.printLog(args)
   }
 }

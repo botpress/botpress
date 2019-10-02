@@ -20,7 +20,6 @@ import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
 import Bot from '../Pages/Bot'
 import Confusion from '../Pages/Confusion'
-import MyAccount from '../Pages/MyAccount'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
 import Workspace from '../Pages/Workspace'
@@ -58,7 +57,6 @@ export const makeMainRoutes = () => {
           <Route path="/noAccess" component={NoAccess} />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
-              <Route path="/profile" component={MyAccount} />
               <Route path="/checklist" component={Checklist} />
               <Route path="/confusion" component={Confusion} />
               <Route path="/server/monitoring" component={Monitoring} />

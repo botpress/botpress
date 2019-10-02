@@ -11,6 +11,7 @@ declare namespace NodeJS {
     require: ExtraRequire
     rewire: (name: string) => string
     printBotLog(botId: string, args: any[]): void
+    printLog(args: any[]): void
   }
 
   export interface Process {

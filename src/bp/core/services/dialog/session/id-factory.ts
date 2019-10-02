@@ -6,15 +6,8 @@ export class SessionIdFactory {
     return `${channel}::${target}${threadId ? `::${threadId}` : ''}`
   }
 
-  static createChannelFromId(sessionId: string) {
-    return sessionId.split('::')[0]
-  }
-
-  static createTargetFromId(sessionId: string) {
-    return sessionId.split('::')[1]
-  }
-
-  static createThreadIdFromId(sessionId: string) {
-    return sessionId.split('::')[2]
+  static extractDestinationFromId(sessionId: string): Pick<IO.EventDestination, 'channel' | 'target' | 'threadId'> {
+    const [channel, target, threadId] = sessionId.split('::')
+    return { channel, target, threadId }
   }
 }

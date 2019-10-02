@@ -98,6 +98,7 @@ export function computeSentenceEmbedding(
         weight = docTfidf[closerToken] || defaultWordWeight
       }
 
+      weight = Math.min(1, weight) // we put a upper limit on TFIDF score of 1
       totalWeight += weight
       const weightedVec = scalarDivide(vec, norm / weight)
       sentenceVec = vectorAdd(sentenceVec, weightedVec)

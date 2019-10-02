@@ -86,6 +86,9 @@ export const fetchBots = () => {
     })
 
     const { data } = await api.getSecured().get('/admin/bots')
+    if (!data || !data.payload) {
+      return
+    }
 
     dispatch({
       type: FETCH_BOTS_RECEIVED,
