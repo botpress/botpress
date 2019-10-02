@@ -51,7 +51,7 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
       )
     }
 
-    return <p>Unsupported format</p>
+    return <p>Unsupported media</p>
   }
 
   renderText(text?: string) {
