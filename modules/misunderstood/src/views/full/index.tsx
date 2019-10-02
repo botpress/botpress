@@ -78,11 +78,11 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
   setLanguage = async (language: string) => {
     await this.setStateP({ language, eventCounts: null, events: null, selectedEventIndex: null, selectedEvent: null })
     await Promise.all([
-      () => this.setEventsStatus(INITIAL_STATUS),
-      async () => {
+      this.setEventsStatus(INITIAL_STATUS),
+      (async () => {
         const eventCounts = await this.fetchEventCounts(language)
-        this.setState({ eventCounts })
-      }
+        await this.setStateP({ eventCounts })
+      })()
     ])
   }
 
@@ -114,6 +114,8 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
       selectedEvent
     } = this.state
 
+    const dataLoaded = selectedStatus === FLAGGED_MESSAGE_STATUS.new ? selectedEvent : events
+
     return (
       <Container>
         <SidePanel>
@@ -132,12 +134,12 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
           )}
         </SidePanel>
 
-        {loaded ? (
+        {loaded && eventCounts && dataLoaded ? (
           <div className={style.padded}>
             <MainScreen
               selectedEvent={selectedEvent}
               selectedEventIndex={selectedEventIndex}
-              totalEventsCount={eventCounts[selectedStatus]}
+              totalEventsCount={eventCounts[selectedStatus] || 0}
               selectedStatus={selectedStatus}
               events={events}
             />

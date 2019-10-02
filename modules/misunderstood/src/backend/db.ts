@@ -83,6 +83,8 @@ export default class Db {
   getEventDetails(botId: string, id: string) {
     return this.knex(TABLE_NAME)
       .where({ botId, id })
+      .limit(1)
       .select('*')
+      .then((data: DbFlaggedEvent[]) => (data && data.length ? data[0] : null))
   }
 }

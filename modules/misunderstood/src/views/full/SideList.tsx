@@ -3,36 +3,7 @@ import clsx from 'clsx'
 import React from 'react'
 
 import style from './style.scss'
-
-const STATUSES = [
-  {
-    key: 'new',
-    label: 'New'
-  },
-  {
-    key: 'pending',
-    label: 'Pending'
-  },
-  {
-    key: 'applied',
-    label: 'Done'
-  },
-  {
-    key: 'deleted',
-    label: 'Ignored'
-  }
-]
-
-const REASONS = {
-  auto_hook: {
-    title: 'Flagged by hook',
-    icon: 'build'
-  },
-  action: {
-    title: 'Flagged by action',
-    icon: 'code'
-  }
-}
+import { REASONS, STATUSES } from './util'
 
 const SideList = ({
   eventCounts,

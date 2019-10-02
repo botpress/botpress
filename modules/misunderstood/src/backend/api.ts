@@ -54,6 +54,14 @@ export default async (bp: typeof sdk, db: Db) => {
 
     const data = await db.getEventDetails(botId, id)
 
-    res.json(data)
+    if (data) {
+      res.json(data)
+    } else {
+      res.sendStatus(404)
+    }
+  })
+
+  router.post('/apply-all-pending', async (req: Request, res: Response) => {
+    res.send('Not implemented yet')
   })
 }
