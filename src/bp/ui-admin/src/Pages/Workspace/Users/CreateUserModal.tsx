@@ -126,6 +126,7 @@ class CreateUserModal extends Component<Props, State> {
   handleStrategyChanged = selectedStrategy => this.setState({ selectedStrategy })
 
   render() {
+    const isCreating = this.state.selectedUser && this.state.selectedUser['__isNew__']
     return (
       <Dialog
         isOpen={this.props.isOpen}
@@ -178,7 +179,7 @@ class CreateUserModal extends Component<Props, State> {
                 className="float-right"
                 type="submit"
                 onClick={this.createUser}
-                text="Create account"
+                text={isCreating ? 'Create account' : 'Add to workspace'}
                 disabled={!this.isFormValid()}
               />
             </div>

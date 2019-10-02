@@ -112,9 +112,6 @@ export class WorkspacesRouter extends CustomRouter {
         const { workspaceId } = req.params
 
         const workspace = await this.workspaceService.findWorkspace(workspaceId)
-        if (!workspace) {
-          throw new NotFoundError(`Workspace doesn't exist`)
-        }
 
         await this.logger.info(`Deleting workspace ${workspaceId}`)
         await this.workspaceService.deleteWorkspace(workspaceId)

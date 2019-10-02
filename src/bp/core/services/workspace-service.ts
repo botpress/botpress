@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { defaultAdminRole, defaultPipelines, defaultRoles, defaultUserRole, defaultWorkspace } from 'common/defaults'
+import { defaultPipelines, defaultWorkspace } from 'common/defaults'
 import { AuthRole, CreateWorkspace, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { WorkspaceUserAttributes, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
@@ -90,9 +90,15 @@ export class WorkspaceService {
     }
   }
 
-  async findWorkspace(workspaceId: string): Promise<Workspace | undefined> {
-    const all = await this.getWorkspaces()
-    return all.find(x => x.id === workspaceId)
+  async findWorkspace(workspaceId: string): Promise<Workspace> {
+    const workspaces = await this.getWorkspaces()
+
+    const workspace = workspaces.find(x => x.id === workspaceId)
+    if (!workspace) {
+      throw new NotFoundError(`Unknown workspace`)
+    }
+
+    return workspace
   }
 
   async findWorkspaceName(workspaceId: string): Promise<string> {
@@ -130,28 +136,27 @@ export class WorkspaceService {
     return this.save(workspaces.filter(x => x.id !== workspaceId))
   }
 
-  async addWorkspaceAdmin(email: string, strategy: string, workspaceId: string) {
-    const workspace = await this.findWorkspace(workspaceId)
-    if (workspace) {
-      return this.addUserToWorkspace(email, strategy, workspace.id, workspace.adminRole)
+  async addUserToWorkspace(
+    email: string,
+    strategy: string,
+    workspaceId: string,
+    role?: string,
+    options?: { asAdmin?: boolean } // Temporary, will add chat user in another pr
+  ) {
+    if (!(await this.usersRepo.findUser(email, strategy))) {
+      throw new Error(`Specified user doesn't exist`)
     }
-  }
 
-  async addWorkspaceUser(email: string, strategy: string, workspaceId: string) {
-    const workspace = await this.findWorkspace(workspaceId)
-    if (workspace) {
-      return this.addUserToWorkspace(email, strategy, workspace.id, workspace.defaultRole)
+    if (!role) {
+      const workspace = await this.findWorkspace(workspaceId)
+      if (!options) {
+        role = workspace.defaultRole
+      } else {
+        role = workspace.adminRole
+      }
     }
-  }
 
-  async addUserToWorkspace(email: string, strategy: string, workspace: string, role: string) {
-    const user = {
-      email,
-      strategy,
-      workspace,
-      role
-    }
-    await this.workspaceRepo.createEntry(user)
+    await this.workspaceRepo.createEntry({ email, strategy, workspace: workspaceId, role })
   }
 
   async removeUserFromAllWorkspaces(email: string, strategy: string) {
@@ -216,10 +221,10 @@ export class WorkspaceService {
 
   async findRole(roleId: string, workspaceId: string): Promise<AuthRole> {
     const workspace = await this.findWorkspace(workspaceId)
-    const role = workspace && workspace.roles.find(r => r.id === roleId)
+    const role = workspace.roles.find(r => r.id === roleId)
 
     if (!role) {
-      throw new Error(`Role "${roleId}" does not exists in workspace "${workspace!.name}"`)
+      throw new NotFoundError(`Role "${roleId}" does not exists in workspace "${workspace.name}"`)
     }
     return role
   }

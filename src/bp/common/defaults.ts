@@ -89,5 +89,6 @@ export const defaultWorkspace: Workspace = {
   roles: defaultRoles,
   defaultRole: defaultUserRole,
   adminRole: defaultAdminRole,
-  pipeline: defaultPipelines['none']
+  pipeline: defaultPipelines['none'],
+  rolloutStrategy: 'anonymous'
 }
