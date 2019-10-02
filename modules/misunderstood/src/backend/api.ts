@@ -1,7 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import { Request, Response } from 'express'
 
-import Db, { FLAGGED_MESSAGE_STATUSES, FlaggedEvent } from './db'
+import { FLAGGED_MESSAGE_STATUSES, FlaggedEvent } from '../types'
+
+import Db from './db'
 
 export default async (bp: typeof sdk, db: Db) => {
   const router = bp.http.createRouterForBot('misunderstood')
