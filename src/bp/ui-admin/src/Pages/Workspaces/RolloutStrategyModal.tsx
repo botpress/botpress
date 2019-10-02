@@ -32,6 +32,7 @@ const RolloutStrategyModal: FC<Props> = props => {
 
     setInviteCode(data.inviteCode)
     setAllowedUsages(data.allowedUsages)
+    setStrategy(data.rolloutStrategy)
   }
 
   const submit = async () => {
