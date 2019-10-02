@@ -16,19 +16,25 @@ export const sanitizeBotId = (text: string) =>
 
 type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
 
-interface Props {
+interface OwnProps {
   isOpen: boolean
-  botCategoriesFetched: boolean
-  botTemplatesFetched: boolean
-
-  fetchBotCategories: () => void
-  fetchBotTemplates: () => void
   onCreateBotSuccess: () => void
   toggle: () => void
+}
 
+interface DispatchProps {
+  fetchBotCategories: () => void
+  fetchBotTemplates: () => void
+}
+
+interface StateProps {
+  botCategoriesFetched: boolean
+  botTemplatesFetched: boolean
   botTemplates: BotTemplate[]
   botCategories: string[]
 }
+
+type Props = DispatchProps & StateProps & OwnProps
 
 interface State {
   botId: string
@@ -141,11 +147,12 @@ class CreateBotModal extends Component<Props, State> {
   render() {
     return (
       <Dialog
-        isOpen={this.props.isOpen}
+        title="Create a new bot"
         icon="add"
+        isOpen={this.props.isOpen}
         onClose={this.toggleDialog}
         transitionDuration={0}
-        title="Create a new bot"
+        canOutsideClickClose={false}
       >
         <form ref={form => (this._form = form)}>
           <div className={Classes.DIALOG_BODY}>
@@ -238,7 +245,7 @@ const mapDispatchToProps = {
   fetchBotCategories
 }
 
-export default connect(
+export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
 )(CreateBotModal)

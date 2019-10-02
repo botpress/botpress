@@ -5,7 +5,7 @@
  * @author Botpress, Inc.
  * @param {string} data - Serialized payload you want to send
  */
-const sendPostbackToParent = data => {
+const sendPostbackToParent = async data => {
   if (event.channel != 'web') {
     return
   }
@@ -21,7 +21,7 @@ const sendPostbackToParent = data => {
     }
   })
 
-  bp.events.sendEvent(postbackEvent)
+  await bp.events.sendEvent(postbackEvent)
 }
 
 return sendPostbackToParent(args.data)

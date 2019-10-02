@@ -120,6 +120,24 @@
   & > ul {
     margin: none;
     padding-left: 5px;
+
+    li {
+      position: relative;
+
+      & > label {
+        :global(.bp3-icon) {
+          cursor: pointer;
+          position: absolute;
+          left: -5px;
+          top: 0px;
+          display: none;
+        }
+      }
+    }
+
+    label:hover :global(.bp3-icon) {
+      display: unset;
+    }
   }
 }
 

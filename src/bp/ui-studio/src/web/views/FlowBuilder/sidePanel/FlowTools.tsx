@@ -2,7 +2,7 @@ import { Icon } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { buildNewSkill } from '~/actions'
-import PermissionsChecker from '~/components/Layout/PermissionsChecker'
+import { AccessControl } from '~/components/Shared/Utils'
 
 import style from './style.scss'
 
@@ -16,10 +16,11 @@ interface ToolItemProps {
 interface SkillDefinition {
   id: string
   name: string
+  icon: string
   moduleName: string
 }
 
-const FlowTools: FC<{ skills: SkillDefinition[]; user: any; flowPreview: boolean }> = props => {
+const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props => {
   if (props.flowPreview) {
     return (
       <div className={style.toolPanel}>
@@ -28,13 +29,13 @@ const FlowTools: FC<{ skills: SkillDefinition[]; user: any; flowPreview: boolean
         <ToolItem label="Execute" type="node" id="execute" icon="code-block" />
         <ToolItem label="Listen" type="node" id="listen" icon="hand" />
         <ToolItem label="Router" type="node" id="router" icon="search-around" />
-        <PermissionsChecker user={props.user} op="write" res="bot.skills">
+        <AccessControl resource="bot.skills" operation="write">
           <div className={style.title}>Skills</div>
           <div className={style.section}>
             {props.skills &&
               props.skills.map(skill => <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} />)}
           </div>
-        </PermissionsChecker>
+        </AccessControl>
         <div className={style.title}>Chips</div>
         <ToolItem label="Transition" type="chip" id="transition" icon="flow-end" />
       </div>
@@ -43,13 +44,15 @@ const FlowTools: FC<{ skills: SkillDefinition[]; user: any; flowPreview: boolean
     return (
       <div className={style.toolPanel}>
         <ToolItem label="Node" type="node" id="standard" icon="chat" />
-        <PermissionsChecker user={props.user} op="write" res="bot.skills">
+        <AccessControl resource="bot.skills" operation="write">
           <div className={style.title}>Skills</div>
           <div className={style.section}>
             {props.skills &&
-              props.skills.map(skill => <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} />)}
+              props.skills.map(skill => (
+                <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} icon={skill.icon} />
+              ))}
           </div>
-        </PermissionsChecker>
+        </AccessControl>
       </div>
     )
   }
@@ -75,8 +78,7 @@ const ToolItem: FC<ToolItemProps> = ({ label, type, id, icon }) => {
 }
 
 const mapStateToProps = state => ({
-  skills: state.skills.installed,
-  user: state.user
+  skills: state.skills.installed
 })
 
 const mapDispatchToProps = {

@@ -34,5 +34,9 @@
     "mime": "^2.4.4",
     "moment": "^2.24.0",
     "react-audio-player": "^0.11.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
   }
 }

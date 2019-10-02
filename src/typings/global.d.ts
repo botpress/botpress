@@ -11,6 +11,7 @@ declare namespace NodeJS {
     require: ExtraRequire
     rewire: (name: string) => string
     printBotLog(botId: string, args: any[]): void
+    printLog(args: any[]): void
   }
 
   export interface Process {
@@ -61,6 +62,33 @@ declare type BotpressEnvironementVariables = {
   readonly BPFS_STORAGE?: 'database' | 'disk'
 
   /**
+   * The connection string for redis
+   * @example redis://username:password@localhost:6379
+   */
+  readonly REDIS_URL?: string
+
+  /**
+   * The database connection string. The first part indicates which database to use
+   * @example postgres://user:pass@host/db
+   */
+  readonly DATABASE_URL?: string
+
+  /** If pro features are enabled or not. When enabled, the license key must be provided */
+  readonly PRO_ENABLED?: boolean
+
+  /** When running botpress in production, some optimizations are applied*/
+  readonly BP_PRODUCTION?: boolean
+
+  /** Enable cluster mode */
+  readonly CLUSTER_ENABLED?: boolean
+
+  /** When you change the botpress executable, it will migrate data automatically if this is set */
+  readonly AUTO_MIGRATE?: boolean
+
+  /** Server license key */
+  readonly BP_LICENSE_KEY?: string
+
+  /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
    * Read more: https://expressjs.com/en/guide/behind-proxies.html
    */
@@ -101,6 +129,18 @@ declare type BotpressEnvironementVariables = {
    * @default false
    */
   readonly BP_DISABLE_AUTO_RESTART?: boolean
+
+  /**
+   * Define the maximum number of time the server will be automatically restarted.
+   * @default 5
+   */
+  readonly BP_MAX_SERVER_REBOOT?: number
+
+  /**
+   * Disable API calls to the serverConfig endpoint (which may return sensitive data - only for super admins
+   * @default false
+   */
+  readonly BP_DISABLE_SERVER_CONFIG?: boolean
 }
 
 interface IDebug {

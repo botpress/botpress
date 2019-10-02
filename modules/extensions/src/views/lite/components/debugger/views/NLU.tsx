@@ -11,6 +11,10 @@ import { Language } from './Language'
 import { Slots } from './Slots'
 
 const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluData, session }) => {
+  if (!nluData) {
+    return null
+  }
+
   return (
     <div className={style.block}>
       <div className={style.title}>
@@ -20,13 +24,15 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
             position={Position.TOP}
             content={
               <span>
-                Predicted intents are very close.<br />You can account for it checking the{' '}
-                <strong>event.nlu.ambiguous</strong> variable.
+                Predicted intents are very close.
+                <br />
+                You can account for it checking the{' '}
+                <strong style={{ color: Colors.ORANGE5 }}>event.nlu.ambiguous</strong> variable.
               </span>
             }
           >
-            <span style={{ color: Colors.GRAY1 }}>
-              <Icon icon="warning-sign" color={Colors.GRAY1} />
+            <span style={{ color: Colors.ORANGE3 }}>
+              <Icon icon="warning-sign" color={Colors.ORANGE3} />
               &nbsp;Ambiguous
             </span>
           </Tooltip>

@@ -23,4 +23,14 @@ $light-background: #f4f4f4;
   --c-background--dark-1: #353535;
   --c-background--dark-2: #1e1e1e;
   --c-background--dark-3: #000;
+
+  --header-height: 50px;
+  --statusbar-height: 30px;
+  --container-height: calc(100vh - var(--header-height) - var(--statusbar-height));
+  // Super admin page header height and standard page header height
+  --sa-page-header-height: 35px;
+  --page-header-height: 108px;
+  // Margin between header and content
+  --page-header-margin: 30px;
+  --unlicensed-height: 35px;
 }

@@ -37,5 +37,9 @@
     "multer": "^1.4.2",
     "nanoid": "^2.0.1",
     "react-select": "^1.2.1"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
   }
 }

@@ -249,11 +249,13 @@ export class ModuleLoader {
 
   public getBotTemplates(): BotTemplate[] {
     const modules = Array.from(this.entryPoints.values())
-    const templates = modules.filter(module => module.botTemplates).map(module => {
-      return module.botTemplates!.map(template => {
-        return { ...template, moduleId: module.definition.name, moduleName: module.definition.fullName }
+    const templates = modules
+      .filter(module => module.botTemplates)
+      .map(module => {
+        return module.botTemplates!.map(template => {
+          return { ...template, moduleId: module.definition.name, moduleName: module.definition.fullName }
+        })
       })
-    })
 
     return _.flatten(templates)
   }
@@ -271,11 +273,14 @@ export class ModuleLoader {
   public async getAllSkills(): Promise<Partial<Skill>[]> {
     const skills = Array.from(this.entryPoints.values())
       .filter(module => module.skills)
-      .map(module => {
-        return module.skills!.map(skill => {
-          return { id: skill.id, name: skill.name, moduleName: module.definition.name }
-        })
-      })
+      .map(module =>
+        module.skills!.map(skill => ({
+          id: skill.id,
+          name: skill.name,
+          icon: skill.icon,
+          moduleName: module.definition.name
+        }))
+      )
 
     return _.flatten(skills)
   }

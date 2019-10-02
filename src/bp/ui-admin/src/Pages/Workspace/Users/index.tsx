@@ -3,11 +3,12 @@ import { AuthStrategyConfig, WorkspaceUser } from 'common/typings'
 import Joi from 'joi-browser'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { AppState } from '~/reducers'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 import api from '../../../api'
 import { fetchRoles } from '../../../reducers/roles'
-import { fetchUsers } from '../../../reducers/user'
+import { fetchAuthConfig, fetchUsers } from '../../../reducers/user'
 import UserList from '../../Components/UserList'
 import SectionLayout from '../../Layouts/Section'
 
@@ -20,9 +21,11 @@ const UserEmailValidationSchema = Joi.string()
   .trim()
 
 interface Props {
-  fetchRoles: any
-  fetchUsers: any
+  fetchRoles: () => void
+  fetchUsers: () => void
+  fetchAuthConfig: () => void
   roles: any
+  authConfig?: AuthStrategyConfig[]
 }
 
 interface State {
@@ -30,7 +33,6 @@ interface State {
   isRenderEmailModalOpen: boolean
   isUpdateRoleModalOpen: boolean
   user: WorkspaceUser | null
-  authStrategies: AuthStrategyConfig[]
   infoTitle: string
   infoMessage: string
   email: string
@@ -44,7 +46,6 @@ class List extends Component<Props, State> {
     isRenderEmailModalOpen: false,
     isUpdateRoleModalOpen: false,
     email: '',
-    authStrategies: [],
     user: null,
     createUserError: null,
     canCreateUser: null,
@@ -53,14 +54,8 @@ class List extends Component<Props, State> {
   }
 
   componentDidMount() {
-    // tslint:disable-next-line: no-floating-promises
-    this.loadAuthStrategy()
-    this.props.fetchRoles()
-  }
-
-  loadAuthStrategy = async () => {
-    const { data } = await api.getAnonymous().get('/auth/config')
-    this.setState({ authStrategies: data.payload.strategies })
+    !this.props.roles.length && this.props.fetchRoles()
+    !this.props.authConfig && this.props.fetchAuthConfig()
   }
 
   toggleCreateUserModalOpen = () => {
@@ -114,7 +109,7 @@ Password: ${createdUser.tempPassword}`
   }
 
   async resetPassword(user: WorkspaceUser) {
-    const strategy = this.state.authStrategies.find(x => x.strategyId === user.strategy)
+    const strategy = this.props.authConfig!.find(x => x.strategyId === user.strategy)
     if (!strategy || strategy.strategyType !== 'basic') {
       toastFailure(`Only users using basic authentication can have their password reset using this tool.`)
       return
@@ -144,7 +139,7 @@ Password: ${payload.tempPassword}`
     }
 
     try {
-      await api.getSecured().delete(`/admin/users/workspace/remove/${user.strategy}/${user.email}`)
+      await api.getSecured().post(`/admin/users/workspace/remove/${user.strategy}/${user.email}/delete`)
       toastSuccess(`User ${user.email} was removed from workspace successfully`)
       this.props.fetchUsers()
     } catch (err) {
@@ -158,7 +153,7 @@ Password: ${payload.tempPassword}`
     }
 
     try {
-      await api.getSecured().delete(`/admin/users/${user.strategy}/${user.email}`)
+      await api.getSecured().post(`/admin/users/${user.strategy}/${user.email}/delete`)
       toastSuccess(`User ${user.email} was deleted successfully`)
       this.props.fetchUsers()
     } catch (err) {
@@ -251,12 +246,13 @@ Password: ${payload.tempPassword}`
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: AppState) => ({
   loading: state.user.loadingUsers,
-  roles: state.roles.roles
+  roles: state.roles.roles,
+  authConfig: state.user.authConfig
 })
 
-const mapDispatchToProps = { fetchUsers, fetchRoles }
+const mapDispatchToProps = { fetchUsers, fetchRoles, fetchAuthConfig }
 
 export default connect(
   mapStateToProps,

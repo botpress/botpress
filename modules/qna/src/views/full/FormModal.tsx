@@ -1,6 +1,7 @@
 import { Button, Checkbox, Classes, Dialog, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
 // @ts-ignore
 import ElementsList from 'botpress/elements-list'
+import { AccessControl } from 'botpress/utils'
 import classnames from 'classnames'
 import _ from 'lodash'
 import some from 'lodash/some'
@@ -159,7 +160,7 @@ export default class FormModal extends Component<Props> {
     } = this.props
 
     try {
-      const { data } = await this.props.bp.axios.put(`/mod/qna/questions/${this.props.id}`, qnaItem, {
+      const { data } = await this.props.bp.axios.post(`/mod/qna/questions/${this.props.id}`, qnaItem, {
         params: { ...page, question, categories: categories.map(({ value }) => value) }
       })
 
@@ -247,12 +248,12 @@ export default class FormModal extends Component<Props> {
 
     return (
       <Dialog
-        isOpen={showQnAModal}
-        onClose={this.closeAndClear}
-        canOutsideClickClose={false}
-        transitionDuration={0}
         title={isEdit ? 'Edit Q&A' : 'Create a new Q&A'}
         icon={isEdit ? 'edit' : 'add'}
+        isOpen={showQnAModal}
+        onClose={this.closeAndClear}
+        transitionDuration={0}
+        canOutsideClickClose={false}
         style={{ width: 700 }}
       >
         <div className={Classes.DIALOG_BODY}>
@@ -346,13 +347,14 @@ export default class FormModal extends Component<Props> {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button id="btn-cancel" text="Cancel" onClick={this.closeAndClear} />
-            <Button
-              id="btn-submit"
-              tabIndex={3}
-              text={isEdit ? 'Edit' : 'Save'}
-              intent={Intent.PRIMARY}
-              onClick={this.handleSubmit}
-            />
+            <AccessControl resource="module.qna" operation="write">
+              <Button
+                id="btn-submit"
+                text={isEdit ? 'Edit' : 'Save'}
+                intent={Intent.PRIMARY}
+                onClick={this.handleSubmit}
+              />
+            </AccessControl>
           </div>
         </div>
       </Dialog>

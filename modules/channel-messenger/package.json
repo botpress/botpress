@@ -20,5 +20,9 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "lodash": "^4.17.11"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
   }
 }

@@ -1,9 +1,9 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import 'bluebird-global'
+import { AccessControl } from 'botpress/utils'
+import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
-
-import { toastFailure, toastSuccess } from './toaster'
 
 const JSON_STATUS_POLL_INTERVAL = 1000
 const axiosConfig = { headers: { 'Content-Type': 'multipart/form-data' } }
@@ -234,14 +234,17 @@ Either the file is empty, or it doesn't match any known format.`)
 
   return (
     <Fragment>
-      <Button icon="download" id="btn-importJson" text="Import JSON" onClick={() => setDialogOpen(true)} />
+      <AccessControl resource="module.qna" operation="write">
+        <Button icon="download" id="btn-importJson" text="Import JSON" onClick={() => setDialogOpen(true)} />
+      </AccessControl>
 
       <Dialog
+        title={analysis ? 'Analysis' : 'Upload File'}
+        icon="import"
         isOpen={isDialogOpen}
         onClose={closeDialog}
         transitionDuration={0}
-        title={analysis ? 'Analysis' : 'Upload File'}
-        icon="import"
+        canOutsideClickClose={false}
       >
         {showStatus && renderStatus()}
         {!showStatus && (analysis ? renderAnalysis() : renderUpload())}

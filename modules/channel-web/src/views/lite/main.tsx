@@ -60,6 +60,7 @@ class Web extends React.Component<MainProps> {
 
     config.overrides && this.loadOverrides(config.overrides)
     config.userId && this.socket.changeUserId(config.userId)
+    config.containerWidth && window.parent.postMessage({ type: 'setWidth', value: config.containerWidth }, '*')
 
     await this.socket.waitForUserId()
     await this.props.initializeChat()

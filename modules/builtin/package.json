@@ -12,5 +12,9 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "module-builder": "../../build/module-builder"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
   }
 }

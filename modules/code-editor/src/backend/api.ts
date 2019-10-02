@@ -40,7 +40,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     }
   })
 
-  router.put('/rename', async (req, res, next) => {
+  router.post('/rename', async (req, res, next) => {
     const { file, newName } = req.body
     try {
       const permissions = await getPermissions(req)

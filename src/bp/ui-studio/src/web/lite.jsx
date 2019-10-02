@@ -30,6 +30,10 @@ class LiteView extends React.Component {
   }
 
   render() {
+    if (!this.props.modules || !this.props.modules.length) {
+      return null
+    }
+
     const modules = moduleViewNames(this.props.modules, 'plugin')
     const onNotFound = () => (
       <h1>

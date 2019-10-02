@@ -39,6 +39,11 @@ export type ConverseConfig = {
    * @default 5s
    */
   timeout: string
+  /**
+   * The text limitation of the converse API requests
+   * @default 360
+   */
+  maxMessageLength: number
 }
 
 export interface LogsConfig {
@@ -145,6 +150,11 @@ export type BotpressConfig = {
      * @default ["websocket","polling"]
      */
     socketTransports: string[]
+    /**
+     * Adds default headers to the server's responses
+     * @default {"X-Powered-By":"Botpress"}
+     */
+    headers: { [name: string]: string }
   }
   converse: ConverseConfig
   dialog: DialogConfig
@@ -257,6 +267,13 @@ export type BotpressConfig = {
    * @default true
    */
   showPoweredBy: boolean
+  /**
+   * By adding this, you'll make possible to translate a bot in more languages than those supported by your botpress language server
+   * Warning: This means that Botpress NLU won't be working properly and you'll need to handle NLU on your own with a **beforeIncoming** Hook.
+   * @example [{name: 'Swedish', code: 'sv'}]
+   * @default []
+   */
+  additionalLanguages?: { name: string; code: string }[]
 }
 
 export interface ExternalAuthConfig {
@@ -313,6 +330,10 @@ export interface AuthStrategy {
    * @default basic
    */
   type: AuthStrategyType
+  /**
+   * Set a label to display to users instead of the ID (ex: Botpress SSO)
+   */
+  label?: string
   /**
    * Defines custom options based on the chosen authentication strategy.
    */

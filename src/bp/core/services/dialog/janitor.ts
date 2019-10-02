@@ -69,11 +69,10 @@ export class DialogJanitor extends Janitor {
 
   private async _processSessionTimeout(sessionId: string, botId: string, botConfig: BotConfig) {
     dialogDebug.forBot(botId, 'Processing timeout', sessionId)
+    let resetSession = true
 
     try {
-      const channel = SessionIdFactory.createChannelFromId(sessionId)
-      const target = SessionIdFactory.createTargetFromId(sessionId)
-      const threadId = SessionIdFactory.createThreadIdFromId(sessionId)
+      const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
       const session = await this.sessionRepo.get(sessionId)
 
       // Don't process the timeout when the context is empty.
@@ -97,11 +96,15 @@ export class DialogJanitor extends Janitor {
       fakeEvent.state.context = session.context as IO.DialogContext
       fakeEvent.state.session = session.session_data as IO.CurrentSession
 
-      await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
+      const after = await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
+      if (_.get(after, 'state.context.queue.instructions.length', 0) > 0) {
+        // if after processing the timeout handling we still have instructions queued, we're not clearing the context
+        resetSession = false
+      }
     } catch (error) {
       this._handleError(error, botId)
     } finally {
-      await this._resetContext(botId, botConfig, sessionId)
+      await this._resetContext(botId, botConfig, sessionId, resetSession)
     }
   }
 
@@ -113,13 +116,16 @@ export class DialogJanitor extends Janitor {
     }
   }
 
-  private async _resetContext(botId, botConfig, sessionId) {
+  private async _resetContext(botId, botConfig, sessionId, resetContext: boolean) {
     const botpressConfig = await this.getBotpresConfig()
     const expiry = createExpiry(botConfig!, botpressConfig)
     const session = await this.sessionRepo.get(sessionId)
 
-    session.context = {}
-    session.temp_data = {}
+    if (resetContext) {
+      session.context = {}
+      session.temp_data = {}
+    }
+
     session.context_expiry = expiry.context
     session.session_expiry = expiry.session
 

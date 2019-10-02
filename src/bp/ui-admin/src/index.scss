@@ -15,6 +15,14 @@ body {
   padding: 0;
 }
 
+.homepage p {
+  &,
+  a {
+    color: #999;
+  }
+  margin-top: 1rem;
+}
+
 .form-control:disabled,
 .form-control[readonly] {
   border: none;
@@ -213,5 +221,16 @@ pre.code {
 }
 
 :global(.bp3-tooltip .bp3-popover-content) {
-  padding: 5px 8px !important;
+  padding: 3px 6px !important;
+  font-size: 85%;
+}
+
+.requirements {
+  margin: 100px auto;
+  max-width: 800px;
+  text-align: center;
+
+  strong {
+    display: block;
+  }
 }
