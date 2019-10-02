@@ -359,7 +359,7 @@ Paste the following CSS file in the `<botpress_dir>/data/assets/modules/channel-
 
 ## Step 2: Loading CSS File
 
-Now we need to instruct Botpress to use this custom CSS file for theming the webchat. For this, place the following code snippet in the `<botpress_dir>/data/global/hooks/after_bot_mount` folder. In our case, we used `01_create_shortlink.js` as the file name.
+Now, we need to instruct Botpress to use this custom CSS file for theming the webchat. For this, place the following code snippet in the `<botpress_dir>/data/global/hooks/after_bot_mount` folder. In our case, we used `01_create_shortlink.js` as the file name.
 
 ```js
 const chatOptions = {
