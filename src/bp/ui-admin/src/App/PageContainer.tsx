@@ -2,8 +2,8 @@ import { Colors, Icon, Tooltip } from '@blueprintjs/core'
 import React, { FC, Fragment } from 'react'
 
 interface Props {
-  title?: string
-  helpText?: string
+  title?: JSX.Element | string
+  helpText?: JSX.Element | string
 }
 
 const PageContainer: FC<Props> = props => {
