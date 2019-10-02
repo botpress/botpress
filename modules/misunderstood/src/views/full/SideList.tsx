@@ -1,6 +1,8 @@
-import { Icon, Tab, Tabs } from '@blueprintjs/core'
+import { Button, Icon, Intent, Tab, Tabs } from '@blueprintjs/core'
 import clsx from 'clsx'
 import React from 'react'
+
+import { FLAGGED_MESSAGE_STATUS } from '../../types'
 
 import style from './style.scss'
 import { REASONS, STATUSES } from './util'
@@ -11,7 +13,8 @@ const SideList = ({
   events,
   selectedEventIndex,
   onSelectedStatusChange,
-  onSelectedEventChange
+  onSelectedEventChange,
+  applyAllPending
 }) => {
   if (!eventCounts || selectedStatus == null) {
     return null
@@ -29,7 +32,14 @@ const SideList = ({
           <Tab id={key} key={key} title={`${label} (${eventCounts[key] || 0})`} />
         ))}
       </Tabs>
-      {selectedStatus === 'new' && events && (
+
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.pending && events && events.length > 0 && (
+        <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" className="bp3-fill">
+          Apply all pending
+        </Button>
+      )}
+
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.new && events && (
         <ul className={clsx(style.contentStretch, style.sideListList)}>
           {events.map((event, i) => (
             <li

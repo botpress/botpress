@@ -5,11 +5,13 @@
 - [x] language selection
 - [x] sidebar with the list view
 - [ ] main screen with actions
+  - [ ] dialogue context
   - [ ] Skip
   - [ ] Ignore/Delete
   - [ ] Amend
 - [ ] Pending list
   - [ ] Apply all button
+  - [ ] API to apply the changes
 - [ ] Deleted list
   - [ ] Return action
 - [ ] Applied list

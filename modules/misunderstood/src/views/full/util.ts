@@ -1,18 +1,20 @@
+import { FLAGGED_MESSAGE_STATUS } from '../../types'
+
 export const STATUSES = [
   {
-    key: 'new',
+    key: FLAGGED_MESSAGE_STATUS.new,
     label: 'New'
   },
   {
-    key: 'pending',
+    key: FLAGGED_MESSAGE_STATUS.pending,
     label: 'Pending'
   },
   {
-    key: 'applied',
+    key: FLAGGED_MESSAGE_STATUS.applied,
     label: 'Done'
   },
   {
-    key: 'deleted',
+    key: FLAGGED_MESSAGE_STATUS.deleted,
     label: 'Ignored'
   }
 ]

@@ -35,3 +35,9 @@ export type DbFlaggedEvent = FlaggedEvent & {
   createdAt: string
   updatedAt: string
 }
+
+export type ResolutionData = {
+  resolutionType: RESOLUTION_TYPE
+  resolution: string | null
+  resolutionParams?: string | object | null
+}

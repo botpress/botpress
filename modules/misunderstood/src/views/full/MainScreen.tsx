@@ -1,4 +1,4 @@
-import { HTMLTable } from '@blueprintjs/core'
+import { Button, HTMLTable, Intent } from '@blueprintjs/core'
 import React from 'react'
 
 import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS } from '../../types'
@@ -31,9 +31,24 @@ const DeletedList = ({ events, totalEventsCount }: { events: DbFlaggedEvent[]; t
   </div>
 )
 
-const PendingList = ({ events, totalEventsCount }: { events: DbFlaggedEvent[]; totalEventsCount: number }) => (
+const PendingList = ({
+  events,
+  totalEventsCount,
+  applyAllPending
+}: {
+  events: DbFlaggedEvent[]
+  totalEventsCount: number
+  applyAllPending: () => Promise<void>
+}) => (
   <div>
     <h3>Pending Misunderstood ({totalEventsCount})</h3>
+    <div>
+      {events && events.length > 0 && (
+        <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" className="bp3-fill">
+          Apply all pending
+        </Button>
+      )}
+    </div>
     {events && !!events.length && (
       <HTMLTable condensed interactive striped>
         <thead>
@@ -79,29 +94,48 @@ const AppliedList = ({ events, totalEventsCount }: { events: DbFlaggedEvent[]; t
   </div>
 )
 
-const NewEventView = ({ event, totalEventsCount, eventIndex }) => {
+const NewEventView = ({ event, totalEventsCount, eventIndex, skipEvent, deleteEvent, amendEvent }) => {
   return (
     <div>
       <h3>
         New Misunderstood | {eventIndex + 1} of {totalEventsCount}
       </h3>
-      <p>{event.preview}</p>
+      <h4>{event.preview}</h4>
     </div>
   )
 }
 
-const MainScreen = ({ selectedEvent, selectedStatus, events, selectedEventIndex, totalEventsCount }) => {
+const MainScreen = ({
+  selectedEvent,
+  selectedStatus,
+  events,
+  selectedEventIndex,
+  totalEventsCount,
+  skipEvent,
+  deleteEvent,
+  amendEvent,
+  applyAllPending
+}) => {
   if (selectedStatus === FLAGGED_MESSAGE_STATUS.deleted) {
     return <DeletedList events={events} totalEventsCount={totalEventsCount} />
   }
   if (selectedStatus === FLAGGED_MESSAGE_STATUS.pending) {
-    return <PendingList events={events} totalEventsCount={totalEventsCount} />
+    return <PendingList events={events} totalEventsCount={totalEventsCount} applyAllPending={applyAllPending} />
   }
   if (selectedStatus === FLAGGED_MESSAGE_STATUS.applied) {
     return <AppliedList events={events} totalEventsCount={totalEventsCount} />
   }
 
-  return <NewEventView event={selectedEvent} totalEventsCount={totalEventsCount} eventIndex={selectedEventIndex} />
+  return (
+    <NewEventView
+      event={selectedEvent}
+      totalEventsCount={totalEventsCount}
+      eventIndex={selectedEventIndex}
+      skipEvent={skipEvent}
+      deleteEvent={deleteEvent}
+      amendEvent={amendEvent}
+    />
+  )
 }
 
 export default MainScreen

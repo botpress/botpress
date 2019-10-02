@@ -15,7 +15,8 @@ const SidePanel = ({
   selectedEventIndex,
   onLanguageChange,
   onSelectedStatusChange,
-  onSelectedEventChange
+  onSelectedEventChange,
+  applyAllPending
 }) => (
   <div className={style.sidePanel}>
     <div className={clsx(style.sidePanelContent, style.contentFixed)}>
@@ -30,6 +31,7 @@ const SidePanel = ({
         selectedEventIndex={selectedEventIndex}
         onSelectedStatusChange={onSelectedStatusChange}
         onSelectedEventChange={onSelectedEventChange}
+        applyAllPending={applyAllPending}
       />
     </div>
   </div>

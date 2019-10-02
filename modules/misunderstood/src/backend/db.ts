@@ -6,7 +6,8 @@ import {
   FLAGGED_MESSAGE_STATUS,
   FLAGGED_MESSAGE_STATUSES,
   FlaggedEvent,
-  RESOLUTION_TYPE
+  RESOLUTION_TYPE,
+  ResolutionData
 } from '../types'
 
 const TABLE_NAME = 'misunderstood'
@@ -39,30 +40,21 @@ export default class Db {
     await this.knex(TABLE_NAME).insert(event)
   }
 
-  async updateStatus(
-    botId: string,
-    id: string,
-    status: FLAGGED_MESSAGE_STATUS,
-    resolutionData?: {
-      resolutionType: RESOLUTION_TYPE
-      resolution: string | null
-      resolutionParams?: string | object | null
-    }
-  ) {
+  async updateStatus(botId: string, id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
     if (status !== FLAGGED_MESSAGE_STATUS.pending) {
       resolutionData = { resolutionType: null, resolution: null, resolutionParams: null }
     }
 
     await this.knex(TABLE_NAME)
       .where({ botId, id })
-      .update({ status, ...resolutionData })
+      .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
   }
 
   listEvents(botId: string, language: string, status: FLAGGED_MESSAGE_STATUS): DbFlaggedEvent[] {
     return this.knex(TABLE_NAME)
       .select('*')
       .where({ botId, language, status })
-      .orderBy('id', 'desc')
+      .orderBy('updatedAt', 'desc')
       .then()
   }
 

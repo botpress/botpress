@@ -1,6 +1,6 @@
 import { AxiosRequestConfig, AxiosStatic } from 'axios'
 
-import { FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE } from '../../types'
+import { FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE, ResolutionData } from '../../types'
 
 const MODULE_URL_PREFIX = '/mod/misunderstood'
 
@@ -45,18 +45,14 @@ class ApiClient {
     return this.getForModule(`/events/${id}`)
   }
 
-  updateStatus(
-    id: string,
-    status: FLAGGED_MESSAGE_STATUS,
-    resolutionData?: {
-      resolutionType: RESOLUTION_TYPE
-      resolution: string | null
-      resolutionParams?: string | object | null
-    }
-  ) {
+  updateStatus(id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
     return this.postForModule(`/events/${id}/status`, {
       params: { status, ...resolutionData }
     })
+  }
+
+  applyAllPending() {
+    return this.postForModule(`/apply-all-pending`)
   }
 }
 

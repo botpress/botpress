@@ -2,7 +2,7 @@ import { AxiosStatic } from 'axios'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import React from 'react'
 
-import { FLAGGED_MESSAGE_STATUS } from '../../types'
+import { FLAGGED_MESSAGE_STATUS, FlaggedEvent, ResolutionData } from '../../types'
 
 import style from './style.scss'
 import ApiClient from './ApiClient'
@@ -24,7 +24,18 @@ interface MainViewProps {
   }
 }
 
-export default class MisunderstoodMainView extends React.Component<MainViewProps> {
+interface MainViewState {
+  loaded: boolean | null
+  languages: string[] | null
+  language: string | null
+  eventCounts: { [status: string]: number } | null
+  selectedStatus: FLAGGED_MESSAGE_STATUS
+  events: FlaggedEvent[] | null
+  selectedEventIndex: number | null
+  selectedEvent: FlaggedEvent | null
+}
+
+export default class MisunderstoodMainView extends React.Component<MainViewProps, MainViewState> {
   state = {
     loaded: false,
     languages: null,
@@ -67,9 +78,9 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
     await this.setLanguage(language)
   }
 
-  setStateP(updater: object | Function) {
+  setStateP<K extends keyof MainViewState>(update: Pick<MainViewState, K>) {
     return new Promise(resolve => {
-      this.setState(updater, () => {
+      this.setState(update, () => {
         resolve()
       })
     })
@@ -86,7 +97,7 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
     ])
   }
 
-  setEventsStatus = async (selectedStatus: string) => {
+  setEventsStatus = async (selectedStatus: FLAGGED_MESSAGE_STATUS) => {
     await this.setStateP({ selectedStatus, events: null, selectedEventIndex: null, selectedEvent: null })
     const events = await this.fetchEvents(this.state.language, selectedStatus)
     await this.setStateP({ events })
@@ -100,6 +111,53 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
       const event = await this.fetchEvent(events[selectedEventIndex].id)
       await this.setStateP({ selectedEvent: event })
     }
+  }
+
+  skipCurrentEvent = () => {
+    const { selectedEventIndex, eventCounts, selectedStatus } = this.state
+    if (
+      selectedStatus === FLAGGED_MESSAGE_STATUS.new &&
+      eventCounts &&
+      selectedEventIndex < eventCounts[selectedStatus]
+    ) {
+      return this.setEventIndex(selectedEventIndex + 1)
+    }
+  }
+
+  async alterNewEventsList(newStatus: FLAGGED_MESSAGE_STATUS) {
+    // do some local state patching to prevent unneeded content flash
+    const { eventCounts, selectedEventIndex, events, selectedEvent } = this.state
+    const newEventCounts = { ...eventCounts }
+    newEventCounts[FLAGGED_MESSAGE_STATUS.new] -= 1
+    newEventCounts[newStatus] += 1
+    await this.setStateP({
+      eventCounts: newEventCounts,
+      selectedEvent: null,
+      events: events.filter(event => event.id !== selectedEvent.id)
+    })
+
+    // advance to the next event
+    return this.setEventIndex(selectedEventIndex)
+  }
+
+  deleteCurrentEvent = async () => {
+    const { selectedEvent } = this.state
+    if (selectedEvent) {
+      await this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.deleted)
+
+      return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.deleted)
+    }
+  }
+
+  amendCurrentEvent = (resolutionData: ResolutionData) => {
+    const { selectedEvent } = this.state
+
+    return this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.pending, resolutionData)
+  }
+
+  applyAllPending = async () => {
+    await this.apiClient.applyAllPending()
+    return this.setEventsStatus(FLAGGED_MESSAGE_STATUS.applied)
   }
 
   render() {
@@ -130,6 +188,7 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
               onLanguageChange={this.setLanguage}
               onSelectedStatusChange={this.setEventsStatus}
               onSelectedEventChange={this.setEventIndex}
+              applyAllPending={this.applyAllPending}
             />
           )}
         </SidePanel>
@@ -142,6 +201,10 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
               totalEventsCount={eventCounts[selectedStatus] || 0}
               selectedStatus={selectedStatus}
               events={events}
+              skipEvent={this.skipCurrentEvent}
+              deleteEvent={this.deleteCurrentEvent}
+              amendEvent={this.amendCurrentEvent}
+              applyAllPending={this.applyAllPending}
             />
           </div>
         ) : (
