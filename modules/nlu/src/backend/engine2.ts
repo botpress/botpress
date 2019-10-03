@@ -18,6 +18,7 @@ import { parseUtterance } from './utterance-parser'
 
 const debugIntents = DEBUG('nlu').sub('intents')
 const debugIntentsTrain = debugIntents.sub('train')
+const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.SVM.SVMOptions
 
 // for intents, do we include predictionsReallyConfused (really close) then none?
 
@@ -113,8 +114,7 @@ export default class Engine2 {
   }
 
   async predict(input: PredictInput): Promise<PredictOutput> {
-    const results = await Predict(input, this.tools, this.predictorsByLang)
-    return results
+    return Predict(input, this.tools, this.predictorsByLang)
   }
 }
 
@@ -517,34 +517,35 @@ export class UtteranceClass implements Utterance {
 
   tagEntity(entity: ExtractedEntity, start: number, end: number) {
     const range = this.tokens.filter(x => x.offset >= start && x.offset + x.value.length <= end)
-    if (range.length) {
-      this.entities = [
-        ...this.entities,
-        {
-          ...entity,
-          startPos: start,
-          endPos: end,
-          startTokenIdx: _.first(range).index,
-          endTokenIdx: _.last(range).index
-        }
-      ]
+    if (_.isEmpty(range)) {
+      return
     }
+    const entityWithPos = {
+      ...entity,
+      startPos: start,
+      endPos: end,
+      startTokenIdx: _.first(range).index,
+      endTokenIdx: _.last(range).index
+    }
+
+    this.entities = [...this.entities, entityWithPos]
   }
 
   tagSlot(slot: ExtractedSlot, start: number, end: number) {
     const range = this.tokens.filter(x => x.offset >= start && x.offset + x.value.length <= end)
-    if (range.length) {
-      this.slots = [
-        ...this.slots,
-        {
-          ...slot,
-          startPos: start,
-          endPos: end,
-          startTokenIdx: _.first(range).index,
-          endTokenIdx: _.last(range).index
-        }
-      ]
+    if (_.isEmpty(range)) {
+      return
     }
+
+    const taggedSlot = {
+      ...slot,
+      startPos: start,
+      endPos: end,
+      startTokenIdx: _.first(range).index,
+      endTokenIdx: _.last(range).index
+    }
+
+    this.slots = [...this.slots, taggedSlot]
   }
 }
 
@@ -741,8 +742,8 @@ export const trainIntentClassifer = async (input: TrainOutput, tools: TrainTools
       )
       .value()
 
-    const svm = new tools.mlToolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-    svmPerCtx[ctx] = await svm.train(points, progress => debugIntentsTrain('svm progress ==> %d', progress))
+    const svm = new tools.mlToolkit.SVM.Trainer()
+    svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('svm progress ==> %d', p))
   }
 
   return svmPerCtx
@@ -760,8 +761,8 @@ export const trainContextClassifier = async (input: TrainOutput, tools: TrainToo
       )
   })
 
-  const svm = new tools.mlToolkit.SVM.Trainer({ kernel: 'LINEAR', classifier: 'C_SVC' })
-  return svm.train(points, progress => debugIntentsTrain('SVM => progress for CTX %d', progress))
+  const svm = new tools.mlToolkit.SVM.Trainer()
+  return svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('SVM => progress for CTX %d', p))
 }
 
 export const ProcessIntents = async (
