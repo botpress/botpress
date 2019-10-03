@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, HTMLTable, Intent } from '@blueprintjs/core'
-import clsx from 'clsx'
+import classnames from 'classnames'
 import React from 'react'
 
 import {
@@ -116,7 +116,7 @@ const ChatPreview = ({ messages }: { messages: ContextMessage[] }) => (
     {messages.map((message, i) => (
       <div
         key={i}
-        className={clsx(style.chatPreviewMessage, {
+        className={classnames(style.chatPreviewMessage, {
           [style.chatPreviewMessage_Incoming]: message.direction === 'incoming',
           [style.chatPreviewMessage_Outgoing]: message.direction === 'outgoing',
           [style.chatPreviewMessage_Current]: message.isCurrent

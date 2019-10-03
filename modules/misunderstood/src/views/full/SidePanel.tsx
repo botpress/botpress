@@ -1,5 +1,5 @@
 import { Divider } from '@blueprintjs/core'
-import clsx from 'clsx'
+import classnames from 'classnames'
 import React from 'react'
 
 import style from './style.scss'
@@ -19,11 +19,11 @@ const SidePanel = ({
   applyAllPending
 }) => (
   <div className={style.sidePanel}>
-    <div className={clsx(style.sidePanelContent, style.contentFixed)}>
+    <div className={classnames(style.sidePanelContent, style.contentFixed)}>
       <LanguageSwitch languages={languages} language={language} onChage={onLanguageChange} />
     </div>
     <Divider />
-    <div className={clsx(style.sidePanelContent, style.contentStretch, style.sidePanelContentStretch)}>
+    <div className={classnames(style.sidePanelContent, style.contentStretch, style.sidePanelContentStretch)}>
       <SideList
         eventCounts={eventCounts}
         selectedStatus={selectedStatus}

@@ -17,7 +17,7 @@
     "@types/node": "^10.11.3",
     "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
-    "clsx": "^1.0.4",
+    "classnames": "^2.2.6",
     "countries-list": "^2.4.3",
     "module-builder": "../../build/module-builder",
     "tslint": "^5.20.0"

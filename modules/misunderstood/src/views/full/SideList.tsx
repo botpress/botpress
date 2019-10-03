@@ -1,5 +1,5 @@
 import { Button, Icon, Intent, Tab, Tabs } from '@blueprintjs/core'
-import clsx from 'clsx'
+import classnames from 'classnames'
 import React from 'react'
 
 import { FLAGGED_MESSAGE_STATUS } from '../../types'
@@ -40,12 +40,12 @@ const SideList = ({
       )}
 
       {selectedStatus === FLAGGED_MESSAGE_STATUS.new && events && (
-        <ul className={clsx(style.contentStretch, style.sideListList)}>
+        <ul className={classnames(style.contentStretch, style.sideListList)}>
           {events.map((event, i) => (
             <li
               onClick={() => onSelectedEventChange(i)}
               key={event.id}
-              className={clsx(style.sideListItem, {
+              className={classnames(style.sideListItem, {
                 [style.sideListItemSelected]: i === selectedEventIndex
               })}
             >
