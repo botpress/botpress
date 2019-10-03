@@ -20,6 +20,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Import bot from archive', async () => {
+    await page.waitFor(200)
     await clickOn('#btn-create-bot')
     await page.waitFor(100)
     await clickOn('#btn-import-bot')
