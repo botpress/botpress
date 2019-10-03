@@ -15,7 +15,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   definition: {
-    name: 'misunderstood-phrases',
+    name: 'misunderstood',
     menuIcon: 'gesture',
     menuText: 'Misunderstood',
     noInterface: false,
