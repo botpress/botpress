@@ -5,7 +5,7 @@ import { WorkspaceCreationSchema } from 'common/validation'
 import { ConfigProvider } from 'core/config/config-loader'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { BotService } from 'core/services/bot-service'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { ROLLOUT_STRATEGIES, WorkspaceService } from 'core/services/workspace-service'
 import { Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -125,6 +125,38 @@ export class WorkspacesRouter extends CustomRouter {
         }
 
         res.sendStatus(200)
+      })
+    )
+
+    router.get(
+      '/:workspaceId/rollout',
+      this.asyncMiddleware(async (req, res) => {
+        const { workspaceId } = req.params
+        res.send(await this.workspaceService.getWorkspaceRollout(workspaceId))
+      })
+    )
+
+    router.post(
+      '/:workspaceId/rollout/:rolloutStrategy',
+      this.asyncMiddleware(async (req, res) => {
+        const { workspaceId, rolloutStrategy } = req.params
+
+        if (!ROLLOUT_STRATEGIES.includes(rolloutStrategy)) {
+          throw new InvalidOperationError(`Unknown strategy "${rolloutStrategy}"`)
+        }
+
+        await this.workspaceService.mergeWorkspaceConfig(workspaceId, { rolloutStrategy })
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
+      '/:workspaceId/resetInvite',
+      this.asyncMiddleware(async (req, res) => {
+        const { workspaceId } = req.params
+        const { inviteLimit } = req.body
+
+        res.send(await this.workspaceService.resetInviteCode(workspaceId, inviteLimit))
       })
     )
   }

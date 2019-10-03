@@ -4,20 +4,18 @@ import { expectAdminApiCallSuccess, expectCallSuccess } from '../utils'
 
 describe('Admin - UI', () => {
   it('Load server license page', async () => {
-    await clickOn('#btn-menu')
-    await clickOn('#btn-manage')
-    await clickOn('a', { text: 'Server License' })
+    await clickOn('#btn-menu-license')
     await expectMatch(new RegExp('Enable Botpress Professionnal|Cluster fingerprint'))
   })
 
   it('Load version control page', async () => {
-    await clickOn('a', { text: 'Version Control' })
+    await clickOn('#btn-menu-version')
     await expectMatch('pull --url http')
     await expectMatch('Push local to this server')
   })
 
   it('Load debugging page', async () => {
-    await clickOn('a', { text: 'Debug' })
+    await clickOn('#btn-menu-debug')
     await expectMatch('Configure Debug')
 
     await clickOn('#btn-refresh')
@@ -28,7 +26,7 @@ describe('Admin - UI', () => {
   })
 
   it('Load languages page', async () => {
-    await clickOn('a', { text: 'Languages' })
+    await clickOn('#btn-menu-language')
     await expectMatch('Using lang server at')
     await expectMatch('Installed Languages')
     await expectAdminApiCallSuccess('languages', 'GET')

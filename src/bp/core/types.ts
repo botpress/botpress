@@ -75,7 +75,8 @@ const TYPES = {
   EventRepository: Symbol.for('EventRepository'),
   EventCollector: Symbol.for('EventCollector'),
   StrategyUsersRepository: Symbol.for('StrategyUsersRepository'),
-  WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository')
+  WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
+  WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository')
 }
 
 export { TYPES }
