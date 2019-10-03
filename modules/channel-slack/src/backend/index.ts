@@ -21,7 +21,7 @@ const onServerReady = async (bp: typeof sdk) => {
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
-  const config = (await bp.config.getModuleConfigForBot('channel-slack', botId)) as Config
+  const config = (await bp.config.getModuleConfigForBot('channel-slack', botId, true)) as Config
 
   if (config.enabled) {
     const bot = new SlackClient(bp, botId, config, router)
