@@ -8,6 +8,7 @@ import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
 import Alerting from '~/Pages/Server/Alerting'
 import Checklist from '~/Pages/Server/Checklist'
 import Languages from '~/Pages/Server/Languages'
+import LatestReleases from '~/Pages/Server/LatestReleases'
 import LicenseStatus from '~/Pages/Server/LicenseStatus'
 import Monitoring from '~/Pages/Server/Monitoring'
 import Versioning from '~/Pages/Server/Versioning'
@@ -62,6 +63,7 @@ export const makeMainRoutes = () => {
             <Switch>
               <Route path="/checklist" component={Checklist} />
               <Route path="/confusion" component={Confusion} />
+              <Route path="/latestReleases" component={LatestReleases} />
               <Route path="/server/monitoring" component={Monitoring} />
               <Route path="/server/version" component={Versioning} />
               <Route path="/server/languages" component={Languages} />
