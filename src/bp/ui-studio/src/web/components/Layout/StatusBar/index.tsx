@@ -39,7 +39,7 @@ interface Props {
 class StatusBar extends React.Component<Props> {
   private progressContainerRef
   private progressBar: Line
-  private clearCompletedStyleTimer?: number = undefined
+  private clearCompletedStyleTimer
 
   state = {
     progress: 0,
