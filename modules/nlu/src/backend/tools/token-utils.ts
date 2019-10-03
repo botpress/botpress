@@ -2,6 +2,8 @@ import _ from 'lodash'
 
 import { Token } from '../typings'
 
+import { IsLatin } from './chars'
+
 export const SPACE = '\u2581'
 const CHARS_TO_MERGE: string[] = '"+è-_!@#$%?&*()1234567890~`/\\[]{}:;<>='.split('')
 
@@ -50,7 +52,10 @@ export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: stri
     const headHasNoSpace = !head.value.includes(SPACE)
     const headIsAllSpecialChars = tokenIsAllMadeOf(head.value, specialChars)
 
-    if (currentIsAllSpecialChars && headIsAllSpecialChars && headHasNoSpace) {
+    const shouldMergeSpecialChars = currentIsAllSpecialChars && headIsAllSpecialChars && headHasNoSpace
+    const shouldMergeLatinWords = headHasNoSpace && IsLatin(head.value) && IsLatin(current.value.replace(SPACE, ''))
+
+    if (shouldMergeSpecialChars || shouldMergeLatinWords) {
       current.value += head.value
       current.cannonical += head.cannonical
       current.end = head.end

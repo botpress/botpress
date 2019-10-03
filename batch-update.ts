@@ -66,18 +66,17 @@ function* amendFiles(yarnInstall: boolean) {
 }
 
 /**
-* Content : package.json content
-* file: file name
-* save: function to be called if you want to apply changes
-*
-* Amend the content to of the package.json as you please and call save if necessary
-*/
+ * Content : package.json content
+ * file: file name
+ * save: function to be called if you want to apply changes
+ *
+ * Amend the content to of the package.json as you please and call save if necessary
+ */
 for (const [content, file, save] of amendFiles(true)) {
   // fstream vulnerability CVE-2019-13173
-  if (!content.resolutions || !content.resolutions.fstream) {
-    content.resolutions = Object.assign({}, content.resolutions, {
-      fstream: '>=1.0.12'
-    })
-    save()
-  }
+  content.resolutions = Object.assign({}, content.resolutions, {
+    fstream: '>=1.0.12',
+    lodash: '>=4.17.12'
+  })
+  save()
 }

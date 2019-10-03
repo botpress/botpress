@@ -83,7 +83,20 @@ export class DialogEngine {
         // We reset the queue when we transition to another node.
         // This way the queue will be rebuilt from the next node.
         context.queue = undefined
-        return this._transition(sessionId, event, destination)
+
+        return this._transition(sessionId, event, destination).catch(err => {
+          event.state.__error = {
+            type: 'dialog-transition',
+            stacktrace: err.stacktrace || err.stack,
+            destination: destination
+          }
+
+          const { onErrorFlowTo } = event.state.temp
+          const errorFlow =
+            typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+
+          return this._transition(sessionId, event, errorFlow)
+        })
       }
     } catch (err) {
       this._reportProcessingError(botId, err, event, instruction)
@@ -191,6 +204,9 @@ export class DialogEngine {
 
   protected async _transition(sessionId, event, transitionTo) {
     let context: IO.DialogContext = event.state.context
+    if (!event.state.__error) {
+      this._detectInfiniteLoop(event.state.__stacktrace, event.botId)
+    }
 
     if (transitionTo.includes('.flow.json')) {
       // Transition to other flow
@@ -266,12 +282,12 @@ export class DialogEngine {
       // Transition to the target node in the current flow
       this._logTransition(event.botId, event.target, context.currentFlow, context.currentNode, transitionTo)
 
+      event.state.__stacktrace.push({ flow: context.currentFlow, node: transitionTo })
       // When we're in a skill, we must remember the location of the main node for when we will exit
       const isInSkill = context.currentFlow && context.currentFlow.startsWith('skills/')
       if (isInSkill) {
         context = { ...context, currentNode: transitionTo }
       } else {
-        event.state.__stacktrace.push({ flow: context.currentFlow, node: transitionTo })
         context = { ...context, previousNode: context.currentNode, currentNode: transitionTo }
       }
     }
@@ -308,6 +324,34 @@ export class DialogEngine {
   protected async _loadFlows(botId: string) {
     const flows = await this.flowService.loadAll(botId)
     this._flowsByBot.set(botId, flows)
+  }
+
+  private _detectInfiniteLoop(stacktrace: IO.JumpPoint[], botId: string) {
+    // find the first node that gets repeated at least 3 times
+    const loop = _.chain(stacktrace)
+      .groupBy(x => `${x.flow}|${x.node}`)
+      .values()
+      .filter(x => x.length >= 3)
+      .first()
+      .value()
+
+    if (!loop) {
+      return
+    }
+
+    // we build the flow path for showing the loop to the end-user
+    let recurringPath: string[] = []
+    const { node, flow } = loop[0]
+    for (let i = 0, r = 0; i < stacktrace.length && r < 2; i++) {
+      if (stacktrace[i].flow === flow && stacktrace[i].node === node) {
+        r++
+      }
+      if (r > 0) {
+        recurringPath.push(`${stacktrace[i].flow} (${stacktrace[i].node})`)
+      }
+    }
+
+    throw new FlowError(`Infinite loop detected. (${recurringPath.join(' --> ')})`, botId, loop[0].flow, loop[0].node)
   }
 
   private _findFlow(botId: string, flowName: string) {

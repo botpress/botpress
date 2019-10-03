@@ -594,6 +594,10 @@
           "description": "Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.",
           "default": "basic"
         },
+        "label": {
+          "description": "Set a label to display to users instead of the ID (ex: Botpress SSO)",
+          "type": "string"
+        },
         "options": {
           "description": "Defines custom options based on the chosen authentication strategy.",
           "anyOf": [

@@ -2,6 +2,7 @@ import { Button, Icon, Intent, Position, Switch, Tooltip } from '@blueprintjs/co
 import { Container } from 'botpress/ui'
 import { ElementPreview } from 'botpress/utils'
 import { Downloader } from 'botpress/utils'
+import { AccessControl } from 'botpress/utils'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { ButtonGroup, ButtonToolbar, FormControl, FormGroup, Pagination, Panel, Well } from 'react-bootstrap'
@@ -211,13 +212,15 @@ export default class QnaAdmin extends Component<Props> {
         placeholder="Search for a category"
       />
 
-      <Button
-        id="btn-create-qna"
-        text="Add new"
-        icon="add"
-        intent={Intent.PRIMARY}
-        onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
-      />
+      <AccessControl resource="module.qna" operation="write">
+        <Button
+          id="btn-create-qna"
+          text="Add new"
+          icon="add"
+          intent={Intent.PRIMARY}
+          onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
+        />
+      </AccessControl>
     </React.Fragment>
   )
 
@@ -324,8 +327,10 @@ export default class QnaAdmin extends Component<Props> {
           ) : null}
         </div>
         <div className={style.itemAction}>
-          <Button icon="trash" className={style.itemActionDelete} onClick={this.deleteItem(id)} minimal={true} />
-          <Switch checked={item.enabled} onChange={this.toggleEnableItem.bind(this, item, id)} large={true} />
+          <AccessControl resource="module.qna" operation="write">
+            <Button icon="trash" className={style.itemActionDelete} onClick={this.deleteItem(id)} minimal={true} />
+            <Switch checked={item.enabled} onChange={this.toggleEnableItem.bind(this, item, id)} large={true} />
+          </AccessControl>
         </div>
       </Well>
     )

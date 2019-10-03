@@ -6,7 +6,7 @@ const debug = DEBUG('cluster')
 
 const msgHandlers: { [messageType: string]: (message: any, worker: cluster.Worker) => void } = {}
 
-const maxReboots = process.core_env.BP_MAX_SERVER_REBOOT || 5
+const maxReboots = process.core_env.BP_MAX_SERVER_REBOOT || 2
 let rebootCount = 0
 
 /**
@@ -21,21 +21,22 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
 }
 
 export const setupMasterNode = (logger: sdk.Logger) => {
-  registerMsgHandler('reboot_server', (message, worker) => {
+  registerMsgHandler('reboot_server', (_message, worker) => {
     logger.warn(`Restarting server...`)
     worker.disconnect()
     worker.kill()
   })
 
   cluster.on('exit', (worker, code, signal) => {
-    debug(`Process exiting %o`, { workerId: worker.id, code, signal })
-    if (code === 0) {
-      process.exit(0)
-    }
+    const { exitedAfterDisconnect, id } = worker
+    debug(`Process exiting %o`, { workerId: id, code, signal, exitedAfterDisconnect })
 
     // Reset the counter when the reboot was intended
-    if (worker.exitedAfterDisconnect) {
+    if (exitedAfterDisconnect) {
       rebootCount = 0
+      // Clean exit
+    } else if (code === 0) {
+      process.exit(0)
     }
 
     if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {

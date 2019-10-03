@@ -54,6 +54,10 @@ export class EventCollector {
       return
     }
 
+    if (!event.botId || !event.channel || !event.direction) {
+      throw new Error(`Can't store event missing required fields (botId, channel, direction)`)
+    }
+
     const { id, botId, channel, threadId, target, direction } = event
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
