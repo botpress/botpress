@@ -120,7 +120,6 @@
     "@types/verror": "^1.10.3",
     "babel-jest": "^23.6.0",
     "cheerio": "^1.0.0-rc.2",
-    "clsx": "^1.0.4",
     "cross-env": "^5.2.0",
     "expect-puppeteer": "^4.3.0",
     "gulp": "^4.0.0",
