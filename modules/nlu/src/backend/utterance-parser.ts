@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\. :-]+)\)/gi
 
-interface ParsedSlot {
+export interface ParsedSlot {
   name: string
   value: string
   rawPosition: {
@@ -37,7 +37,7 @@ export const parseUtterance = (utterance: string): ParsedUtterance => {
   const parsed = slotMatches.reduce(
     (acc, { 0: fullMatch, 1: value, 2: name, index }) => {
       const clean = acc.utterance + utterance.slice(cursor, index) + value
-      cursor = index + fullMatch.length
+      cursor = index + fullMatch.length // index is stateful since its a general regex
       const parsedSlot: ParsedSlot = {
         name,
         value,

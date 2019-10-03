@@ -1,53 +1,37 @@
-import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
-import { Block, Data, MarkJSON, NodeJSON, NodeProperties, Value, ValueJSON } from 'slate'
+import { MarkJSON, NodeJSON, TextJSON, Value, ValueJSON } from 'slate'
 
-// TODO add typings for this
+import { ParsedSlot, parseUtterance } from '../../../backend/utterance-parser'
 
-const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 export const SLOT_MARK = 'slotName'
 
-// exported for testing purposes
-export const extractSlots = (utterance: string): RegExpExecArray[] => {
-  const slotMatches: RegExpExecArray[] = []
-  let matches: RegExpExecArray | null
-  while ((matches = ALL_SLOTS_REGEX.exec(utterance)) !== null) {
-    slotMatches.push(matches)
-  }
-
-  return slotMatches
-}
-
-const textNodeFromText = (text: string, from: number, to: number | undefined = undefined) => ({
+const textNode = (text: string, from: number, to: number | undefined = undefined): TextJSON => ({
   object: 'text',
   text: text.slice(from, to),
   marks: []
 })
 
-const textNodeFromSlotMatch = (match: RegExpExecArray, utteranceIdx: number) => ({
+const slotNode = (slot: ParsedSlot, uttIdx: number): TextJSON => ({
   object: 'text',
-  text: match[1],
-  marks: [makeSlotMark(match[2], utteranceIdx)]
+  text: slot.value,
+  marks: [makeSlotMark(slot.name, uttIdx)]
 })
 
-export const textNodesFromUtterance = (utterance: string, idx: number = 0) => {
-  const slotMatches = extractSlots(utterance)
-  let cursor = 0
-
-  const nodes = _.chain(slotMatches)
-    .flatMap(match => {
-      const parts = [textNodeFromText(utterance, cursor, match.index), textNodeFromSlotMatch(match, idx)]
-      cursor = match.index + match[0].length // index is stateful since its a general regex
-      return parts
+export const textNodesFromUtterance = (rawUtterance: string, idx: number = 0): TextJSON[] => {
+  const { utterance, parsedSlots } = parseUtterance(rawUtterance)
+  return _.chain(parsedSlots)
+    .flatMap((pslot, i, all) => {
+      const from = _.get(all, `${i - 1}.cleanPosition.end`, 0)
+      const to = pslot.cleanPosition.start
+      return [textNode(utterance, from, to), slotNode(pslot, idx)]
     })
-    .filter(node => node.text !== '')
-    .value()
-
-  if (cursor < utterance.length || !utterance.length) {
-    nodes.push(textNodeFromText(utterance, cursor))
-  }
-
-  return nodes
+    .thru(nodes => {
+      // append remaining
+      const start = _.get(_.last(parsedSlots), 'cleanPosition.end', 0)
+      return [...nodes, textNode(utterance, start)]
+    })
+    .filter(n => n.text)
+    .value() as TextJSON[]
 }
 
 export const utterancesToValue = (utterances: string[], selection = undefined) => {
@@ -114,7 +98,7 @@ export const renameSlotInUtterances = (utterances: string[], prevSlotName: strin
   return utterances.map(u => u.replace(regex, `[$1](${newSlotName})`))
 }
 
-export const makeSlotMark = (slotName: string, utteranceIdx: number) => ({
+export const makeSlotMark = (slotName: string, utteranceIdx: number): MarkJSON => ({
   object: 'mark',
   type: 'slot',
   data: { [SLOT_MARK]: slotName, utteranceIdx }

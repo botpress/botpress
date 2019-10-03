@@ -1,7 +1,6 @@
 import { Value, ValueJSON } from 'slate'
 
 import {
-  extractSlots,
   removeSlotFromUtterances,
   renameSlotInUtterances,
   textNodesFromUtterance,
@@ -53,19 +52,6 @@ const A_SLATE_VALUE = {
     ]
   }
 } as ValueJSON
-
-test('extract slots from utterance', () => {
-  const extracted = extractSlots('My name is [Kanye](me) and your name is [Jay](you)')
-  expect(extracted.length).toEqual(2)
-  expect(extracted[0][0]).toEqual('[Kanye](me)')
-  expect(extracted[0][1]).toEqual('Kanye')
-  expect(extracted[0][2]).toEqual('me')
-  expect(extracted[0].index).toEqual(11)
-  expect(extracted[1][0]).toEqual('[Jay](you)')
-  expect(extracted[1][1]).toEqual('Jay')
-  expect(extracted[1][2]).toEqual('you')
-  expect(extracted[1].index).toEqual(40)
-})
 
 describe('Slate nodes from utterance', () => {
   test('No slots', () => {
