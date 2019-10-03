@@ -39,6 +39,7 @@ const Menu = props => {
 
       <div className="bp-sa-menu-header">Management</div>
       <ControlGroup vertical={true} fill={true}>
+        <MenuItem text="Latest Releases" id="btn-menu-releases" icon="feed" url="/latestRelease" />
         <MenuItem id="btn-menu-version" text="Source Control" icon="changes" url="/server/version" />
         <MenuItem
           id="btn-menu-license"
