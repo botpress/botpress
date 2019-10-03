@@ -30,6 +30,7 @@ export const CHAT_USERS_AUDIENCE = 'chat_users'
 export const WORKSPACE_HEADER = 'x-bp-workspace'
 export const EXTERNAL_AUTH_HEADER = 'x-bp-externalauth'
 export const SERVER_USER = 'server::modules'
+const DEFAULT_CHAT_USER_AUTH_DURATION = '24h'
 
 @injectable()
 export default class AuthService {
@@ -224,7 +225,7 @@ export default class AuthService {
   private async _getChatAuthExpiry(channel: string, botId: string): Promise<Date | undefined> {
     try {
       const config = await this.moduleLoader.configReader.getForBot(`channel-${channel}`, botId)
-      const authDuration = ms(_.get(config, 'chatUserAuthDuration', '24h'))
+      const authDuration = ms(_.get(config, 'chatUserAuthDuration', DEFAULT_CHAT_USER_AUTH_DURATION))
       return moment()
         .add(authDuration)
         .toDate()

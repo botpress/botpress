@@ -13,7 +13,9 @@ const ChatAuthResult = props => {
     )
   }
 
-  window.close()
+  setTimeout(() => {
+    window.close()
+  }, 1000)
 
   return (
     <LoginContainer title="Authentication">

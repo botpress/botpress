@@ -22,6 +22,8 @@ export const ROLLOUT_STRATEGIES: RolloutStrategy[] = [
   'authorized'
 ]
 
+const UNLIMITED = -1
+
 @injectable()
 export class WorkspaceService {
   constructor(
@@ -183,13 +185,8 @@ export class WorkspaceService {
     return { rolloutStrategy }
   }
 
-  async resetInviteCode(workspaceId: string, allowedUsages?: number): Promise<WorkspaceInviteCode> {
+  async resetInviteCode(workspaceId: string, allowedUsages: number = UNLIMITED): Promise<WorkspaceInviteCode> {
     const inviteCode = `INV-${nanoid('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)}`
-
-    if (!allowedUsages) {
-      allowedUsages = -1
-    }
-
     const newEntry = { workspaceId, inviteCode, allowedUsages }
 
     if (await this.inviteCodesRepo.getWorkspaceCode(workspaceId)) {
