@@ -50,9 +50,9 @@ const Menu = props => {
 
       <div className="bp-sa-menu-header">Core</div>
       <ControlGroup vertical={true} fill={true}>
-        <MenuItem id="btn-menu-language" text="Languages" icon="globe-network" url="/server/languages" />
-        <MenuItem id="btn-menu-debug" text="Debug" icon="console" url="/server/debug" />
-        <MenuItem id="btn-menu-checklist" text="Checklist" icon="endorsed" url="/checklist" />
+        <MenuItem text="Production Checklist" id="btn-menu-checklist" icon="endorsed" url="/checklist" />
+        <MenuItem text="Languages" id="btn-menu-language" icon="globe-network" url="/server/languages" />
+        <MenuItem text="Debug" id="btn-menu-debug" icon="console" url="/server/debug" />
       </ControlGroup>
 
       <div className="bp-sa-menu-header">Health</div>
