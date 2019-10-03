@@ -15,3 +15,4 @@
 - [x] Deleted list
   - [x] Return action
 - [x] Applied list
+- [ ] make use of the Pro built-in lang switcher

@@ -18,13 +18,13 @@ const getDefaultLanguage = (languages: string[]) => {
 
 const INITIAL_STATUS = FLAGGED_MESSAGE_STATUS.new
 
-interface MainViewProps {
+interface Props {
   bp: {
     axios: AxiosStatic
   }
 }
 
-interface MainViewState {
+interface State {
   loaded: boolean | null
   languages: string[] | null
   language: string | null
@@ -35,7 +35,7 @@ interface MainViewState {
   selectedEvent: FlaggedEvent | null
 }
 
-export default class MisunderstoodMainView extends React.Component<MainViewProps, MainViewState> {
+export default class MisunderstoodMainView extends React.Component<Props, State> {
   state = {
     loaded: false,
     languages: null,
@@ -49,7 +49,7 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
 
   apiClient: ApiClient
 
-  constructor(props: MainViewProps) {
+  constructor(props: Props) {
     super(props)
     this.apiClient = new ApiClient(props.bp.axios)
   }
@@ -78,7 +78,7 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
     await this.setLanguage(language)
   }
 
-  setStateP<K extends keyof MainViewState>(update: Pick<MainViewState, K>) {
+  setStateP<K extends keyof State>(update: Pick<State, K>) {
     return new Promise(resolve => {
       this.setState(update, () => {
         resolve()
@@ -194,7 +194,7 @@ export default class MisunderstoodMainView extends React.Component<MainViewProps
     const dataLoaded = selectedStatus === FLAGGED_MESSAGE_STATUS.new ? selectedEvent : events
 
     return (
-      <Container>
+      <Container sidePanelWidth={320}>
         <SidePanel>
           {loaded && (
             <SidePanelContent

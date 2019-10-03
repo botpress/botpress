@@ -34,7 +34,7 @@ const SideList = ({
       </Tabs>
 
       {selectedStatus === FLAGGED_MESSAGE_STATUS.pending && events && events.length > 0 && (
-        <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" className="bp3-fill">
+        <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" fill>
           Apply all pending
         </Button>
       )}

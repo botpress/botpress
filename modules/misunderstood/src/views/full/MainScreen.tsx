@@ -14,15 +14,13 @@ import {
 import style from './style.scss'
 import { RESOLUTION } from './util'
 
-const DeletedList = ({
-  events,
-  totalEventsCount,
-  undeleteEvent
-}: {
+interface DeletedListProps {
   events: DbFlaggedEvent[]
   totalEventsCount: number
   undeleteEvent: (id: string) => void
-}) => (
+}
+
+const DeletedList = ({ events, totalEventsCount, undeleteEvent }: DeletedListProps) => (
   <>
     <h3>Ignored Misunderstood ({totalEventsCount})</h3>
     {events && !!events.length && (
@@ -52,7 +50,7 @@ const DeletedList = ({
   </>
 )
 
-const ResolvedEventsList = ({ events }) =>
+const ResolvedEventsList = ({ events }: { events: DbFlaggedEvent[] }) =>
   events &&
   !!events.length && (
     <HTMLTable condensed interactive striped>
@@ -82,20 +80,18 @@ const ResolvedEventsList = ({ events }) =>
     </HTMLTable>
   )
 
-const PendingList = ({
-  events,
-  totalEventsCount,
-  applyAllPending
-}: {
+interface PendingListProps {
   events: DbFlaggedEvent[]
   totalEventsCount: number
   applyAllPending: () => Promise<void>
-}) => (
+}
+
+const PendingList = ({ events, totalEventsCount, applyAllPending }: PendingListProps) => (
   <>
     <h3>Pending Misunderstood ({totalEventsCount})</h3>
     <div>
       {events && events.length > 0 && (
-        <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" className="bp3-fill">
+        <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" fill>
           Apply all pending
         </Button>
       )}
@@ -104,7 +100,12 @@ const PendingList = ({
   </>
 )
 
-const AppliedList = ({ events, totalEventsCount }: { events: DbFlaggedEvent[]; totalEventsCount: number }) => (
+interface AppliedListProps {
+  events: DbFlaggedEvent[]
+  totalEventsCount: number
+}
+
+const AppliedList = ({ events, totalEventsCount }: AppliedListProps) => (
   <>
     <h3>Applied Misunderstood ({totalEventsCount})</h3>
     <ResolvedEventsList events={events} />
