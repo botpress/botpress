@@ -7,15 +7,16 @@ import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect, getTime } f
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
   const importBotId = 'import-bot'
+  const workspaceId = 'default'
 
   const clickButtonForBot = async (buttonId: string, botId: string) => {
     const botRow = await expectMatchElement('.bp_table-row', { text: botId })
-    await clickOn('.more', undefined, botRow)
-    await clickOn(buttonId, undefined, botRow)
+    await clickOn('#btn-menu', undefined, botRow)
+    await clickOn(buttonId, undefined)
   }
 
   beforeAll(async () => {
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Import bot from archive', async () => {
@@ -72,9 +73,10 @@ describe('Admin - Bot Management', () => {
     await page.keyboard.press('ArrowDown')
     console.log(`${getTime()} Configure bot: pressing enter`)
     await page.keyboard.press('Enter')
+    console.log(`${getTime()} Configure bot: Waiting for API call and click on btn-save`)
     await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST'), clickOn('#btn-save')])
-    console.log(`${getTime()} Configure bot: gotoandexpect`)
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
+    console.log(`${getTime()} Configure bot: gotoandexpect ${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Create revision', async () => {

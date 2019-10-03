@@ -1,6 +1,6 @@
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatch } from '../expectPuppeteer'
-import { expectBotApiCallSuccess, gotoAndExpect, triggerKeyboardShortcut } from '../utils'
+import { expectBotApiCallSuccess, gotoAndExpect, triggerKeyboardShortcut, getTime } from '../utils'
 
 describe('Studio - UI', () => {
   it('Open Studio', async () => {
@@ -33,8 +33,11 @@ describe('Studio - UI', () => {
   }
 
   it('Load Analytics', async () => {
+    console.log(`${getTime()} Load Analytics: clicking on button`)
     await clickOn('#bp-menu_analytics')
+    console.log(`${getTime()} Load Analytics: expecting api call`)
     await expectBotApiCallSuccess('mod/analytics/graphs')
+    console.log(`${getTime()} Load Analytics: expecting token`)
     await expectMatch(/Generic Analytics|There are no analytics available yet/)
   })
 })
