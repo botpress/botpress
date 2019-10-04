@@ -86,9 +86,9 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     /** Called once the core is initialized. Usually for middlewares / database init */
-    onServerStarted: (bp: typeof import('botpress/sdk')) => void
+    onServerStarted?: (bp: typeof import('botpress/sdk')) => void
     /** This is called once all modules are initialized, usually for routing and logic */
-    onServerReady: (bp: typeof import('botpress/sdk')) => void
+    onServerReady?: (bp: typeof import('botpress/sdk')) => void
     onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => void
     onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => void
     /**

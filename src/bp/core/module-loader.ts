@@ -23,8 +23,8 @@ import { ModuleResourceLoader } from './services/module/resources-loader'
 import { TYPES } from './types'
 
 const MODULE_SCHEMA = joi.object().keys({
-  onServerStarted: joi.func().required(),
-  onServerReady: joi.func().required(),
+  onServerStarted: joi.func().optional(),
+  onServerReady: joi.func().optional(),
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
   onModuleUnmount: joi.func().optional(),
