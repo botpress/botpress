@@ -32,7 +32,10 @@ describe('Studio - Flows', () => {
     autoAnswerDialog()
     await clickOnTreeNode('test_flow_renamed', 'right')
 
-    await Promise.all([expectBotApiCallSuccess('flow/test_flow_renamed.flow.json/delete', 'POST'), clickOn('#btn-delete')])
+    await Promise.all([
+      expectBotApiCallSuccess('flow/test_flow_renamed.flow.json/delete', 'POST'),
+      clickOn('#btn-delete')
+    ])
   })
 
   it('Duplicate flow', async () => {
