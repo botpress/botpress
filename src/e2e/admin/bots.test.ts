@@ -74,8 +74,12 @@ describe('Admin - Bot Management', () => {
     await page.keyboard.press('ArrowDown')
     console.log(`${getTime()} Configure bot: pressing enter`)
     await page.keyboard.press('Enter')
-    await clickOn('#btn-save')
-    await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST')
+    console.log(`${getTime()} Configure bot: waiting for post call`)
+    await Promise.all([
+      expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST'),
+      clickOn('#btn-save')
+    ])
+    console.log(`${getTime()} Configure bot: gotoandexpect`)
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 

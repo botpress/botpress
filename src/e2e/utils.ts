@@ -30,7 +30,11 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
 }
 
 const getResponse = async (url: string, method?: HttpMethod) => {
-  return page.waitForResponse(res => res.url().includes(url) && (method ? res.request().method() === method : true))
+  return page.waitForResponse(res => {
+    const resUrl = res.url()
+    console.log(`url: ${url}, resUrl: ${resUrl}`)
+    return resUrl.includes(url) && (method ? res.request().method() === method : true)
+  })
 }
 
 export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<void> => {
