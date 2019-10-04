@@ -89,14 +89,21 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Rollback revision', async () => {
+    console.log(`${getTime()} Rollback revision: click rollback revision button`)
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
+    console.log(`${getTime()} Rollback revision: select revision`)
     await expectMatch('Select revision')
 
+    console.log(`${getTime()} Rollback revision: arrow down`)
     await page.keyboard.press('ArrowDown')
+    console.log(`${getTime()} Rollback revision: enter`)
     await page.keyboard.press('Enter')
+    console.log(`${getTime()} Rollback revision: chk-confirm`)
     await clickOn('#chk-confirm')
+    console.log(`${getTime()} Rollback revision: await promise`)
 
     await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST'), clickOn('#btn-submit')])
+    console.log(`${getTime()} Rollback revision: await 500`)
     await page.waitFor(500)
   })
 
