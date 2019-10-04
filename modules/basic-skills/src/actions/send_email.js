@@ -18,29 +18,38 @@ const getTransport = async botId => {
   return config.transportConnectionString
 }
 
-const extractTextFromPreview = text => text.replace('(missing translation) ', '').replace(/([A-Z0-9_ -]+: )/gi, '')
+const extractTextFromPayloads = payloads => {
+  const text = _.get(payloads.find(p => p.type === 'text'), 'text', '')
+  return text.replace('(missing translation) ', '').replace(/([A-Z0-9_ -]+: )/gi, '')
+}
 
 const sendEmail = async () => {
   try {
     const transport = await getTransport(event.botId)
     const transporter = nodemailer.createTransport(transport)
 
-    const language = _.get(event, 'state.user.language', undefined)
-    const defaultLanguage = (await bp.bots.getBotById(event.botId)).defaultLanguage
+    const params = {
+      event,
+      user: _.get(event, 'state.user', {}),
+      session: _.get(event, 'state.session', {}),
+      temp: _.get(event, 'state.temp', {}),
+      bot: _.get(event, 'state.bot', {})
+    }
 
-    const subjectEl = await bp.cms.getContentElement(event.botId, args.subjectElement, language)
-    const contentEl = await bp.cms.getContentElement(event.botId, args.contentElement, language)
-    const subject = subjectEl.previews[language] || subjectEl.previews[defaultLanguage]
-    const content = contentEl.previews[language] || contentEl.previews[defaultLanguage]
+    const renderedSubject = await bp.cms.renderElement('!' + args.subjectElement, params, event)
+    const renderedContent = await bp.cms.renderElement('!' + args.contentElement, params, event)
+
+    const subject = extractTextFromPayloads(renderedSubject)
+    const content = extractTextFromPayloads(renderedContent)
 
     const mailOptions = {
       from: args.fromAddress,
       to: args.toAddress,
       cc: args.ccAddress,
       bcc: args.bccAddress,
-      subject: extractTextFromPreview(subject),
-      text: extractTextFromPreview(content),
-      html: extractTextFromPreview(content)
+      subject: subject,
+      text: content,
+      html: content
     }
 
     await Promise.fromCallback(cb => transporter.sendMail(mailOptions, cb))

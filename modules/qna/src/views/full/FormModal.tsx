@@ -255,6 +255,7 @@ export default class FormModal extends Component<Props> {
         title={isEdit ? 'Edit Q&A' : 'Create a new Q&A'}
         icon={isEdit ? 'edit' : 'add'}
         style={{ width: 700 }}
+        enforceFocus={false}
       >
         <div className={Classes.DIALOG_BODY}>
           <form>
