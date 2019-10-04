@@ -5,7 +5,7 @@ import { expectAdminApiCallSuccess, expectCallSuccess, getTime } from '../utils'
 describe('Admin - UI', () => {
   it('Load server license page', async () => {
     await clickOn('#btn-menu-license')
-    await expectMatch(new RegExp('Enable Botpress Professionnal|Cluster fingerprint'))
+    await expectMatch(new RegExp('Enable Botpress Professionnal|Cluster fingerprint|Unofficial Botpress Build'))
   })
 
   it('Load version control page', async () => {
