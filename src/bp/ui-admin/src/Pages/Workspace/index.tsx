@@ -20,7 +20,7 @@ const Workspace = props => {
       route: '/workspace/:workspaceId?/bots',
       icon: <MdAndroid />,
       component: Bots,
-      res: 'admin.bots.*',
+      res: 'user.bots.*',
       op: 'read',
       size: 11
     },

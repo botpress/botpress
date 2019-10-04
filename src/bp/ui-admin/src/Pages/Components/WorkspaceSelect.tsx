@@ -47,8 +47,11 @@ const WorkspaceSelect: FC<Props> = props => {
       props.fetchUsers()
     }
 
+    if (isOperationAllowed({ operation: 'read', resource: 'admin.roles' })) {
+      props.fetchRoles()
+    }
+
     props.fetchBots()
-    props.fetchRoles()
   }, [props.currentWorkspace])
 
   const getValidWorkspaceId = () => {

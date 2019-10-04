@@ -34,6 +34,7 @@ export const Register: FC<Props> = props => {
 
   return (
     <LoginContainer
+      title="Register"
       subtitle="This is the first time you run Botpress. Please create the master admin account."
       error={error}
     >

@@ -39,21 +39,27 @@ const Menu = props => {
 
       <div className="bp-sa-menu-header">Management</div>
       <ControlGroup vertical={true} fill={true}>
+        <MenuItem text="Latest Releases" id="btn-menu-releases" icon="feed" url="/latestReleases" />
         <MenuItem id="btn-menu-version" text="Source Control" icon="changes" url="/server/version" />
-        <MenuItem id="btn-menu-license" text="Server License" icon={<MdCopyright color={Colors.GRAY1} />} url="/server/license" />
+        <MenuItem
+          id="btn-menu-license"
+          text="Server License"
+          icon={<MdCopyright color={Colors.GRAY1} />}
+          url="/server/license"
+        />
       </ControlGroup>
 
       <div className="bp-sa-menu-header">Core</div>
       <ControlGroup vertical={true} fill={true}>
-        <MenuItem id="btn-menu-language" text="Languages" icon="globe-network" url="/server/languages" />
-        <MenuItem id="btn-menu-debug" text="Debug" icon="console" url="/server/debug" />
-        <MenuItem id="btn-menu-checklist" text="Checklist" icon="endorsed" url="/checklist" />
+        <MenuItem text="Production Checklist" id="btn-menu-checklist" icon="endorsed" url="/checklist" />
+        <MenuItem text="Languages" id="btn-menu-language" icon="globe-network" url="/server/languages" />
+        <MenuItem text="Debug" id="btn-menu-debug" icon="console" url="/server/debug" />
       </ControlGroup>
 
       <div className="bp-sa-menu-header">Health</div>
       <ControlGroup vertical={true} fill={true}>
         <MenuItem id="btn-menu-monitoring" text="Monitoring" icon="timeline-line-chart" url="/server/monitoring" />
-        <MenuItem id="btn-menu-alert" text="Alerting" icon="notifications" url="/server/alerting" />
+        <MenuItem id="btn-menu-alerting" text="Alerting" icon="notifications" url="/server/alerting" />
       </ControlGroup>
     </div>
   )

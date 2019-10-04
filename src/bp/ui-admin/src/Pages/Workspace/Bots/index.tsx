@@ -131,7 +131,7 @@ class Bots extends Component<Props> {
     toastSuccess('Revisions created')
   }
 
-  toggleRollbackModal = botId => {
+  toggleRollbackModal = (botId?: string) => {
     this.setState({
       focusedBot: typeof botId === 'string' ? botId : null,
       isRollbackModalOpen: !this.state.isRollbackModalOpen

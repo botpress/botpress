@@ -1,8 +1,8 @@
-import { Logger } from 'botpress/sdk'
-import { RequestWithUser, UserProfile } from 'common/typings'
+import * as sdk from 'botpress/sdk'
+import { ChatUserAuth, RequestWithUser, UserProfile } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AuthStrategies } from 'core/services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE, WORKSPACE_HEADER } from 'core/services/auth/auth-service'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import StrategyBasic from 'core/services/auth/basic'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
@@ -11,14 +11,14 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
-import { NotFoundError } from './errors'
+import { BadRequestError, NotFoundError } from './errors'
 import { checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
 
 export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
 
   constructor(
-    private logger: Logger,
+    private logger: sdk.Logger,
     private authService: AuthService,
     private configProvider: ConfigProvider,
     private workspaceService: WorkspaceService,
@@ -155,8 +155,12 @@ export class AuthRouter extends CustomRouter {
 
         const role = await this.workspaceService.getRoleForUser(email, strategy, req.workspace!)
         if (!role) {
-          throw new NotFoundError(`Role for user "${email}" doesn't exist`)
+          const message = `Role not found for user ${email} (${strategy}) in workspace ${req.workspace}`
+          const noPermissions = [{ res: '*', op: '-r-w' }]
+
+          return sendSuccess(res, message, noPermissions)
         }
+
         return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
       })
     )
@@ -174,6 +178,21 @@ export class AuthRouter extends CustomRouter {
           const [, token] = req.headers.authorization!.split(' ')
           sendSuccess(res, 'Token not refreshed, sending back original', { newToken: token })
         }
+      })
+    )
+
+    router.post(
+      '/me/chatAuth',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { botId, sessionId, signature } = req.body as ChatUserAuth
+
+        if (!botId || !sessionId || !signature) {
+          throw new BadRequestError('Missing required fields')
+        }
+
+        await this.authService.authChatUser(req.body, req.tokenUser!)
+        res.send(await this.workspaceService.getBotWorkspaceId(botId))
       })
     )
   }

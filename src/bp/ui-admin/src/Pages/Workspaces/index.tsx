@@ -13,6 +13,7 @@ import ChangePipelineModal from './ChangePipelineModal'
 import CreateWorkspaceModal from './CreateWorkspaceModal'
 import DeleteWorkspaceModal from './DeleteWorkspaceModal'
 import EditWorkspaceModal from './EditWorkspaceModal'
+import RolloutStrategyModal from './RolloutStrategyModal'
 
 interface Props {
   workspaces: Workspace[]
@@ -24,6 +25,7 @@ const Workspaces: FC<Props> = props => {
   const [workspace, setWorkspace] = useState()
   const [pipelineModalOpen, setPipelineModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
+  const [rolloutModalOpen, setRolloutModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
   useEffect(() => {
@@ -33,6 +35,11 @@ const Workspaces: FC<Props> = props => {
   const editWorkspace = (workspace: Workspace) => {
     setWorkspace(workspace)
     setEditModalOpen(true)
+  }
+
+  const editRollout = (workspace: Workspace) => {
+    setWorkspace(workspace)
+    setRolloutModalOpen(true)
   }
 
   const editPipeline = (workspace: Workspace) => {
@@ -61,7 +68,7 @@ const Workspaces: FC<Props> = props => {
       <SplitPage sideMenu={<CreateWorkspaceModal refreshWorkspaces={refreshWorkspaces} />}>
         <div className="bp_table">
           {props.workspaces.map(workspace => (
-            <div className="bp_table-row">
+            <div className="bp_table-row" key={workspace.id}>
               <div className="actions">
                 <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
                   <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
@@ -71,6 +78,12 @@ const Workspaces: FC<Props> = props => {
                       icon="edit"
                       text="Edit Workspace"
                       onClick={() => editWorkspace(workspace)}
+                    />
+                    <MenuItem
+                      id="btn-rollout"
+                      icon="send-to-graph"
+                      text="Configure Rollout"
+                      onClick={() => editRollout(workspace)}
                     />
                     <MenuItem
                       id="btn-pipeline"
@@ -125,6 +138,13 @@ const Workspaces: FC<Props> = props => {
         workspace={workspace}
         isOpen={deleteModalOpen}
         toggle={() => setDeleteModalOpen(!deleteModalOpen)}
+        refreshWorkspaces={refreshWorkspaces}
+      />
+
+      <RolloutStrategyModal
+        workspace={workspace}
+        isOpen={rolloutModalOpen}
+        toggle={() => setRolloutModalOpen(!rolloutModalOpen)}
         refreshWorkspaces={refreshWorkspaces}
       />
     </PageContainer>

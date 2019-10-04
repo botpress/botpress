@@ -52,7 +52,13 @@
 
 .skill-call-node {
   .section-title {
-    background: #5353fb;
+    background: #4580e6;
+    display: flex;
+  }
+
+  .iconContainer {
+    width: 28px;
+    padding: 5px 0;
   }
 }
 

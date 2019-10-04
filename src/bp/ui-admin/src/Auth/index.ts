@@ -1,3 +1,4 @@
+import { ChatUserAuth } from 'common/typings'
 import ms from 'ms'
 
 import api from '../api'
@@ -5,6 +6,7 @@ import history from '../history'
 
 export const TOKEN_KEY = 'bp/token'
 export const WORKSPACE_KEY = 'bp/workspace'
+export const CHAT_USER_AUTH_KEY = 'bp/chat_user_auth'
 const HOME_ROUTE = '/home'
 
 export function pullToken() {
@@ -23,6 +25,18 @@ export function setActiveWorkspace(workspaceName) {
 
 export function getActiveWorkspace() {
   return localStorage.getItem(WORKSPACE_KEY)
+}
+
+export function setChatUserAuth(auth?: ChatUserAuth) {
+  auth ? localStorage.setItem(CHAT_USER_AUTH_KEY, JSON.stringify(auth)) : localStorage.removeItem(CHAT_USER_AUTH_KEY)
+}
+
+export function getChatUserAuth(): ChatUserAuth | undefined {
+  try {
+    return JSON.parse(localStorage.getItem(CHAT_USER_AUTH_KEY) || '')
+  } catch (err) {
+    return undefined
+  }
 }
 
 export function logout() {
@@ -51,10 +65,25 @@ export default class BasicAuthentication {
     const { token } = data.payload
     this.setSession({ expiresIn: 7200, idToken: token })
 
-    await this.setupWorkspace(returnTo)
+    await this.afterLoginRedirect(returnTo)
   }
 
-  setupWorkspace = async (redirectTo?: string) => {
+  afterLoginRedirect = async (redirectTo?: string) => {
+    // Chat user authentication triggers an event & auto-closes, so must be cleared from storage after.
+    const chatUserAuth = getChatUserAuth()
+    if (chatUserAuth) {
+      try {
+        const { data: workspaceId } = await api.getSecured().post('/auth/me/chatAuth', chatUserAuth)
+        setActiveWorkspace(workspaceId)
+
+        return history.replace('/chatAuthResult')
+      } catch (error) {
+        return history.replace({ pathname: '/chatAuthResult', state: { error: error.message } })
+      } finally {
+        setChatUserAuth(undefined)
+      }
+    }
+
     const { data: workspaces } = await api.getSecured().get('/auth/me/workspaces')
     if (!workspaces || !workspaces.length) {
       return history.replace('/noAccess')
@@ -77,7 +106,7 @@ export default class BasicAuthentication {
     })
 
     this.setSession({ expiresIn: 7200, idToken: data.payload.token })
-    await this.setupWorkspace()
+    await this.afterLoginRedirect()
 
     history.replace(HOME_ROUTE)
   }

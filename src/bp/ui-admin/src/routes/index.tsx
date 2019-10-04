@@ -3,10 +3,12 @@ import React from 'react'
 import { Provider } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'react-router-redux'
+import ChatAuthResult from '~/Pages/Account/ChatAuthResult'
 import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
 import Alerting from '~/Pages/Server/Alerting'
 import Checklist from '~/Pages/Server/Checklist'
 import Languages from '~/Pages/Server/Languages'
+import LatestReleases from '~/Pages/Server/LatestReleases'
 import LicenseStatus from '~/Pages/Server/LicenseStatus'
 import Monitoring from '~/Pages/Server/Monitoring'
 import Versioning from '~/Pages/Server/Versioning'
@@ -33,7 +35,7 @@ export const makeMainRoutes = () => {
   const ExtractToken = () => {
     auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
     // tslint:disable-next-line: no-floating-promises
-    auth.setupWorkspace()
+    auth.afterLoginRedirect()
 
     return null
   }
@@ -56,10 +58,12 @@ export const makeMainRoutes = () => {
           <Route path="/setToken" component={ExtractToken} />
           <Route path="/changePassword" render={props => <ChangePassword auth={auth} {...props} />} />
           <Route path="/noAccess" component={NoAccess} />
+          <Route path="/chatAuthResult" component={ChatAuthResult} />
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route path="/checklist" component={Checklist} />
               <Route path="/confusion" component={Confusion} />
+              <Route path="/latestReleases" component={LatestReleases} />
               <Route path="/server/monitoring" component={Monitoring} />
               <Route path="/server/version" component={Versioning} />
               <Route path="/server/languages" component={Languages} />

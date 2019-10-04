@@ -20,6 +20,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Import bot from archive', async () => {
+    await page.waitFor(200)
     await clickOn('#btn-create-bot')
     await page.waitFor(100)
     await clickOn('#btn-import-bot')
@@ -73,26 +74,27 @@ describe('Admin - Bot Management', () => {
     await page.keyboard.press('ArrowDown')
     console.log(`${getTime()} Configure bot: pressing enter`)
     await page.keyboard.press('Enter')
-    console.log(`${getTime()} Configure bot: Waiting for API call and click on btn-save`)
-    await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST'), clickOn('#btn-save')])
-    console.log(`${getTime()} Configure bot: gotoandexpect ${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
+    await clickOn('#btn-save')
+    await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST')
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Create revision', async () => {
     await clickButtonForBot('#btn-createRevision', tempBotId)
     await expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST')
+    await page.waitFor(500)
   })
 
   it('Rollback revision', async () => {
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
-    await expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'GET')
+
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
+    await clickOn('#chk-confirm')
+    await clickOn('#btn-submit')
 
-    autoAnswerDialog()
-    await clickOn('#btn-rollback')
     await expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST')
+    await page.waitFor(500)
   })
 
   it('Delete temporary bot', async () => {

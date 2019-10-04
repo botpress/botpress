@@ -28,6 +28,7 @@ const types = {
  * TESTMIG_BP_VERSION: Change the target version of your migration
  * TESTMIG_CONFIG_VERSION: Override the current version of the server
  * TESTMIG_IGNORE_COMPLETED: Ignore completed migrations (so they can be run again and again)
+ * TESTMIG_IGNORE_LIST: Comma separated list of migration filename part to ignore
  */
 
 @injectable()
@@ -128,6 +129,13 @@ export class MigrationService {
     await Promise.mapSeries(missingMigrations, async ({ filename }) => {
       if (completed.includes(filename)) {
         return this.logger.info(`Skipping already migrated file "${filename}"`)
+      }
+
+      if (
+        process.env.TESTMIG_IGNORE_LIST &&
+        process.env.TESTMIG_IGNORE_LIST.split(',').filter(x => filename.includes(x)).length
+      ) {
+        return this.logger.info(`Skipping ignored migration file "${filename}"`)
       }
 
       this.logger.info(`Running ${filename}`)

@@ -20,7 +20,9 @@ export const LoginContainer: FC<Props> = props => {
           <Card body>
             <CardBody className="login-box">
               <div>
-                <CardTitle>{props.title || 'Botpress Admin Panel'}</CardTitle>
+                <CardTitle>
+                  <strong>{props.title || 'Botpress'}</strong>
+                </CardTitle>
                 <CardText>{props.subtitle || ''}</CardText>
                 {props.error && <Alert color="danger">{props.error}</Alert>}
                 {props.children}

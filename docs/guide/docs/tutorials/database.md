@@ -25,6 +25,10 @@ If you want to use default postgres connection string simply set it as follow
 
 - `DATABASE_URL=postgres`.
 
+While using Postgres, you can configure the Connection Pools by using the `DATABASE_POOL` environment variable. For detailed options please refer to [tarn.js](https://github.com/vincit/tarn.js) for all configuration options. You must enter valid json. Example:
+
+`DATABASE_POOL={"min": 3, "max": 10}`
+
 Please make sure you are using Postgres 9.5 or higher.
 
 If you don't want to type those variables each time you start Botpress, we also supports `.env` files. Check out our [configuration section](../../advanced/configuration) for more informations about that
