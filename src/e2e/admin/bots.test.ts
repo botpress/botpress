@@ -1,8 +1,8 @@
 import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
-import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect, getTime } from '../utils'
+import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
+import { autoAnswerDialog, expectAdminApiCallSuccess, getTime, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
@@ -81,20 +81,22 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Create revision', async () => {
-    await clickButtonForBot('#btn-createRevision', tempBotId)
-    await expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST')
+    await Promise.all([
+      expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST'),
+      clickButtonForBot('#btn-createRevision', tempBotId)
+    ])
     await page.waitFor(500)
   })
 
   it('Rollback revision', async () => {
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
+    await expectMatch('Select revision')
 
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
     await clickOn('#chk-confirm')
-    await clickOn('#btn-submit')
 
-    await expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST')
+    await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST'), clickOn('#btn-submit')])
     await page.waitFor(500)
   })
 
