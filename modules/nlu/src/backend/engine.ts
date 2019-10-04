@@ -205,7 +205,7 @@ export default class ScopedEngine implements Engine {
         defaultLanguage: this.defaultLanguage,
         includedContexts,
         sentence: text,
-        models: this.models2ByLang
+        modelsByLang: this.models2ByLang
       }
       return this.e2.predict(input)
     } else {
@@ -274,9 +274,9 @@ export default class ScopedEngine implements Engine {
       const e2Models = (await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))).filter(
         _.identity
       )
+      await this.e2.loadModels(e2Models, this._makeE2Tools())
       for (const model of e2Models) {
         this.models2ByLang[model.languageCode] = model
-        await this.e2.loadModels(e2Models, this._makeE2Tools())
       }
     } else {
       debugTrain.forBot(this.botId, `Restoring models '${modelHash}' from storage`)
