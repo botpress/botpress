@@ -45,7 +45,7 @@ if (event.type === 'proactive-trigger') {
 
 ## Webchat events
 
-There's currently 3 events that can be catched in your page :
+There's currently 3 events that can be caught in your page :
 
 | name            | Description                                                 |
 | --------------- | ----------------------------------------------------------- |

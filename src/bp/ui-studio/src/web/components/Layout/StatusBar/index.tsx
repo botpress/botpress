@@ -1,29 +1,45 @@
 import { Icon } from '@blueprintjs/core'
-import style from './StatusBar.styl'
-import React from 'react'
-import _ from 'lodash'
+import axios from 'axios'
 import classNames from 'classnames'
-import { Glyphicon } from 'react-bootstrap'
+import _ from 'lodash'
 import { Line } from 'progressbar.js'
-import EventBus from '~/util/EventBus'
-import { keyMap } from '~/keyboardShortcuts'
+import React from 'react'
+import { Glyphicon } from 'react-bootstrap'
+import { GoMortarBoard } from 'react-icons/go'
 import { connect } from 'react-redux'
 import { updateDocumentationModal } from '~/actions'
-import LangSwitcher from './LangSwitcher'
-import BotSwitcher from './BotSwitcher'
-import ActionItem from './ActionItem'
 import NotificationHub from '~/components/Notifications/Hub'
-import { GoMortarBoard } from 'react-icons/go'
-import NluPerformanceStatus from './NluPerformanceStatus'
-
-import axios from 'axios'
 import { AccessControl } from '~/components/Shared/Utils'
+import { keyMap } from '~/keyboardShortcuts'
+import EventBus from '~/util/EventBus'
+
+import ActionItem from './ActionItem'
+import BotSwitcher from './BotSwitcher'
 import ConfigStatus from './ConfigStatus'
+import LangSwitcher from './LangSwitcher'
+import NluPerformanceStatus from './NluPerformanceStatus'
+import style from './StatusBar.styl'
 
 const COMPLETED_DURATION = 2000
 
-class StatusBar extends React.Component {
-  clearCompletedStyleTimer = undefined
+interface Props {
+  isEmulatorOpen: boolean
+  langSwitcherOpen: boolean
+  contentLang: string
+  docHints: any
+  updateDocumentationModal: any
+  botpressVersion: string
+  user: any
+  onToggleGuidedTour: () => void
+  toggleBottomPanel: () => void
+  onToggleEmulator: () => void
+  toggleLangSwitcher: () => void
+}
+
+class StatusBar extends React.Component<Props> {
+  private progressContainerRef
+  private progressBar: Line
+  private clearCompletedStyleTimer
 
   state = {
     progress: 0,
@@ -202,6 +218,7 @@ class StatusBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  user: state.user,
   botInfo: state.bot,
   docHints: state.ui.docHints,
   contentLang: state.language.contentLang

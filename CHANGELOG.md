@@ -1,3 +1,22 @@
+## [12.1.6](https://github.com/botpress/botpress/compare/v12.1.5...v12.1.6) (2019-10-04)
+
+
+### Bug Fixes
+
+* **hitl:** issue on some version of postgres ([e18f674](https://github.com/botpress/botpress/commit/e18f674))
+* **module:** enforces bot-scoped config when global is not wanted ([50bbbcf](https://github.com/botpress/botpress/commit/50bbbcf))
+* **module:** enforces bot-scoped config when global is not wanted ([fbf4c43](https://github.com/botpress/botpress/commit/fbf4c43))
+* **nlu:** added hypens to latin ([0cb19a6](https://github.com/botpress/botpress/commit/0cb19a6))
+* **nlu:** fix "isLoaded of undefined" on model load ([082c6ad](https://github.com/botpress/botpress/commit/082c6ad))
+* **qna:** issue with cms content & intent not being deleted ([7df80e6](https://github.com/botpress/botpress/commit/7df80e6))
+* **qna:** issue with cms content & intent not being deleted ([9e07c4e](https://github.com/botpress/botpress/commit/9e07c4e))
+* **skill-email:** fix element rendering & config documentation ([f0997b0](https://github.com/botpress/botpress/commit/f0997b0))
+* **skill-email:** fix element rendering & config documentation ([b13218c](https://github.com/botpress/botpress/commit/b13218c))
+* **studio:** config status not visible & bp-ui changes ([ec7fb3f](https://github.com/botpress/botpress/commit/ec7fb3f))
+* **studio:** config status not visible & bp-ui changes ([d4636d9](https://github.com/botpress/botpress/commit/d4636d9))
+
+
+
 ## [12.1.5](https://github.com/botpress/botpress/compare/v12.1.3...v12.1.5) (2019-10-01)
 
 

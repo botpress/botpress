@@ -21,6 +21,7 @@
   "devDependencies": {
     "@babel/helpers": "^7.4.3",
     "@types/node": "^10.11.0",
+    "@types/nodemailer": "^6.2.1",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {

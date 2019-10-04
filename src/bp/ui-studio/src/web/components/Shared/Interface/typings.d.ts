@@ -70,8 +70,8 @@ export interface SplashScreenProps {
 export interface InfoTooltipProps {
   /** The text displayed when the cursor is over the icon */
   text: string
-  /** The icon to display. By default it will use info */
-  icon?: 'info' | 'help'
+  /** The icon to display. By default it will use 'info-sign' */
+  icon?: IconName | MaybeElement
   /** Where the tooltip will be directed. By default, it's right */
   position?: Position
 }
