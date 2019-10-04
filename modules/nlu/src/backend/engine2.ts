@@ -23,7 +23,6 @@ const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.S
 // for intents, do we include predictionsReallyConfused (really close) then none?
 
 // ----- cleanup -----
-//      remove none intent from exactMatchIndex
 //      add user feedback for training progress
 //      add more debug
 //      in Trainer, make a pre-processing step with marked step 0
@@ -709,6 +708,7 @@ type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
 
 export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
   return _.chain(input.intents)
+    .filter(i => i.name !== NONE_INTENT)
     .flatMap(i =>
       i.utterances.map(u => ({
         utterance: u.toString(EXACT_MATCH_STR_OPTIONS),
