@@ -29,8 +29,9 @@
     "bluebird-global": "^1.0.1",
     "lodash": "^4.17.11",
     "nodemailer": "^6.3.0",
-    "react-dnd": "^7.4.5",
-    "react-tag-input": "6.1.0",
+    "react-dnd": "^8.0.3",
+    "react-dnd-html5-backend": "^8.0.3",
+    "react-tag-input": "6.4.0",
     "yn": "^3.1.0"
   },
   "resolutions": {
