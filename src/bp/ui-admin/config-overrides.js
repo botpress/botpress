@@ -19,11 +19,10 @@ module.exports = function override(config, env) {
       new HardSourceWebpackPlugin({
         info: {
           mode: 'none',
-          level: 'info'
+          level: 'debug'
         }
       })
     )
-    console.log('plugin enabled')
   }
 
   return config

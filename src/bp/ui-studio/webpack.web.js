@@ -180,8 +180,8 @@ if (!isProduction) {
   webConfig.plugins.push(
     new HardSourceWebpackPlugin({
       info: {
-        mode: 'none',
-        level: 'warn'
+        mode: 'test',
+        level: 'debug'
       }
     })
   )
