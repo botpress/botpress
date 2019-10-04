@@ -79,54 +79,54 @@ jobs:
         name: screenshots3
         path: build/tests/e2e/screenshots
 
-  e2e_4:
-    name: e2e (4)
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@master
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '10.11.0'
-    - name: Fetch Node Packages
-      run: |
-        yarn
-    - name: Build core, UI and modules
-      run: |
-        NODE_OPTIONS="--max-old-space-size=6000" yarn build
-    - name: Run Tests
-      run: |
-        yarn start &
-        HEADLESS=true JEST_TIMEOUT=30000 yarn itest
-    - name: Upload Screenshots
-      uses: actions/upload-artifact@master
-      if: failure()
-      with:
-        name: screenshots4
-        path: build/tests/e2e/screenshots
+  # e2e_4:
+  #   name: e2e (4)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@master
+  #   - uses: actions/setup-node@v1
+  #     with:
+  #       node-version: '10.11.0'
+  #   - name: Fetch Node Packages
+  #     run: |
+  #       yarn
+  #   - name: Build core, UI and modules
+  #     run: |
+  #       NODE_OPTIONS="--max-old-space-size=6000" yarn build
+  #   - name: Run Tests
+  #     run: |
+  #       yarn start &
+  #       HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+  #   - name: Upload Screenshots
+  #     uses: actions/upload-artifact@master
+  #     if: failure()
+  #     with:
+  #       name: screenshots4
+  #       path: build/tests/e2e/screenshots
 
-  e2e_5:
-    name: e2e (5)
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@master
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '10.11.0'
-    - name: Fetch Node Packages
-      run: |
-        yarn
-    - name: Build core, UI and modules
-      run: |
-        NODE_OPTIONS="--max-old-space-size=6000" yarn build
-    - name: Run Tests
-      run: |
-        yarn start &
-        HEADLESS=true JEST_TIMEOUT=30000 yarn itest
-    - name: Upload Screenshots
-      uses: actions/upload-artifact@master
-      if: failure()
-      with:
-        name: screenshots5
-        path: build/tests/e2e/screenshots
+  # e2e_5:
+  #   name: e2e (5)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@master
+  #   - uses: actions/setup-node@v1
+  #     with:
+  #       node-version: '10.11.0'
+  #   - name: Fetch Node Packages
+  #     run: |
+  #       yarn
+  #   - name: Build core, UI and modules
+  #     run: |
+  #       NODE_OPTIONS="--max-old-space-size=6000" yarn build
+  #   - name: Run Tests
+  #     run: |
+  #       yarn start &
+  #       HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+  #   - name: Upload Screenshots
+  #     uses: actions/upload-artifact@master
+  #     if: failure()
+  #     with:
+  #       name: screenshots5
+  #       path: build/tests/e2e/screenshots

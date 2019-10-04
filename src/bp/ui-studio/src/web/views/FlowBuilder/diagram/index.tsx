@@ -186,6 +186,7 @@ export default class FlowBuilder extends Component<Props> {
 
   onDiagramClick = () => {
     const selectedNode = this.manager.getSelectedNode() as BpNodeModel
+    console.log('Selected node:', selectedNode)
     const currentNode = this.props.currentFlowNode
 
     this.manager.sanitizeLinks()
