@@ -470,7 +470,8 @@ export default class ScopedEngine implements Engine {
     }
 
     const allIntents = (await this.getIntents()) || []
-    const shouldPredict = allIntents.length && this.intentClassifiers[ds.language].isLoaded
+    const shouldPredict =
+      allIntents.length && this.intentClassifiers[ds.language] && this.intentClassifiers[ds.language].isLoaded
 
     if (!shouldPredict) {
       return ds
