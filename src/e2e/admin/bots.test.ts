@@ -92,7 +92,7 @@ describe('Admin - Bot Management', () => {
     console.log(`${getTime()} Rollback revision: click rollback revision button`)
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
     console.log(`${getTime()} Rollback revision: select revision`)
-    await expectMatch('Select revision')
+    await expectMatchElement('#select-revisions')
 
     console.log(`${getTime()} Rollback revision: arrow down`)
     await page.keyboard.press('ArrowDown')
