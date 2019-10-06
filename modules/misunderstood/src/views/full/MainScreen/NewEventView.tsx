@@ -45,9 +45,7 @@ class NewEventView extends React.Component<Props, State> {
 
   confirmAmend = () => {
     const { amendEvent } = this.props
-    if (false) {
-      amendEvent(pick(this.state, 'resolutionType', 'resolution', 'resolutionParams'))
-    }
+    amendEvent(pick(this.state, 'resolutionType', 'resolution', 'resolutionParams'))
     this.setState({ isAmending: false, resolutionType: null, resolution: null, resolutionParams: null })
   }
 
@@ -55,7 +53,7 @@ class NewEventView extends React.Component<Props, State> {
     this.setState({ resolutionType })
   }
 
-  updateAmendData = (resolution: string, resolutionParams?: string | object | null) => {
+  updateAmendData = (resolution: string | null, resolutionParams?: string | object | null) => {
     this.setState({
       resolution,
       resolutionParams: resolutionParams || null
@@ -98,6 +96,7 @@ class NewEventView extends React.Component<Props, State> {
             Amend
           </Button>
         </ButtonGroup>
+
         {isAmending && (
           <AmendForm
             language={language}

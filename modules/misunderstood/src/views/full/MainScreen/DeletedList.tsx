@@ -16,9 +16,9 @@ const DeletedList = ({ events, totalEventsCount, undeleteEvent }: Props) => (
       <HTMLTable condensed interactive striped>
         <thead>
           <tr>
-            <td>Phrase</td>
-            <td>Deleted</td>
-            <td>&nbsp;</td>
+            <th>Phrase</th>
+            <th>Deleted</th>
+            <th>&nbsp;</th>
           </tr>
         </thead>
         <tbody>

@@ -14,7 +14,7 @@ interface Props {
   resolution: string | null
   resolutionParams: string | object | null
   setMode: (mode: RESOLUTION_TYPE) => void
-  onUpdate: (resolution: string, resolutionParams?: string | object | null) => void
+  onUpdate: (resolution: string | null, resolutionParams?: string | object | null) => void
   onSave: () => void
   onCancel: () => void
 }
@@ -71,7 +71,7 @@ const AmendForm = ({
 
       {mode === RESOLUTION_TYPE.qna && (
         <div className={style.amendFormPicker}>
-          <QnAPicker axios={axios} language={language} selected={resolution} onSelect={(id: string) => {
+          <QnAPicker axios={axios} language={language} selected={resolution} onSelect={(id: string | null) => {
             onUpdate(id)
           }} />
         </div>
@@ -80,10 +80,10 @@ const AmendForm = ({
       <ButtonGroup large>
         <Button onClick={onSave} icon="tick" intent={Intent.SUCCESS} disabled={!mode || !resolution}>
           Save
-      </Button>
+        </Button>
         <Button onClick={onCancel} icon="cross" intent={Intent.NONE}>
           Cancel
-      </Button>
+        </Button>
       </ButtonGroup>
     </div>
   )

@@ -40,6 +40,7 @@ class QnAApiClient {
     return {
       ...data,
       // TODO: this shouldn't be needed but the API is returning more results than requested
+      // when offset === 0
       items: data.items.slice(0, pageSize)
     }
   }
@@ -48,10 +49,7 @@ class QnAApiClient {
     const {
       data: { categories }
     } = await this.get("/categories")
-    return (
-      categories &&
-      categories.map(category => ({ label: category, value: category }))
-    )
+    return categories
   }
 }
 

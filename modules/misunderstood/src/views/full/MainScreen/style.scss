@@ -97,5 +97,14 @@
 }
 
 .selectedCard {
-  box-shadow: 0 0 5px 5px #0ff;
+  box-shadow: 0 0 5px 5px forestgreen;
+}
+
+.filter {
+  margin: 10px 0;
+}
+
+.applyAllButton {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }

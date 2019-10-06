@@ -3,6 +3,7 @@
 interface CssExports {
   'amendForm': string;
   'amendFormPicker': string;
+  'applyAllButton': string;
   'card': string;
   'chatPreview': string;
   'chatPreviewAvatar': string;
@@ -11,6 +12,7 @@ interface CssExports {
   'chatPreviewMessage_Incoming': string;
   'chatPreviewMessage_Outgoing': string;
   'chatPreviewText': string;
+  'filter': string;
   'newEventPreview': string;
   'popover': string;
   'selectedCard': string;

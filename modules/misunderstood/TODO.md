@@ -8,7 +8,9 @@
   - [x] dialogue context
   - [x] Skip
   - [x] Ignore/Delete
-  - [ ] Amend
+  - [x] Amend
+  - [x] QnA picker
+  - [ ] Intent picker
 - [x] Pending list
   - [x] Apply all button
   - [ ] API to apply the changes

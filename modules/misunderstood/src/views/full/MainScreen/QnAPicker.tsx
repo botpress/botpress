@@ -1,4 +1,5 @@
-import { Card, Popover, PopoverInteractionKind, PopoverPosition } from "@blueprintjs/core"
+import { Button, Card, ControlGroup, InputGroup, MenuItem, Popover, PopoverInteractionKind, PopoverPosition } from "@blueprintjs/core"
+import { MultiSelect } from '@blueprintjs/select'
 import { AxiosStatic } from "axios"
 import { ElementPreview } from "botpress/utils"
 import classnames from "classnames"
@@ -14,7 +15,7 @@ interface Props {
   axios: AxiosStatic
   language: string
   selected: string
-  onSelect: (id: string) => void
+  onSelect: (id: string | null) => void
 }
 
 interface QnAItem {
@@ -34,16 +35,20 @@ interface QnAItem {
 
 interface State {
   overallItemsCount: number
-  filterCategories: { label: string; value: string }[]
+  categoryOptions: string[]
+  filterCategories: string[]
   filterQuestion: string
   page: number
   items: QnAItem[],
   selectedItem: QnAItem | null
 }
 
+const StringMultiSelect = MultiSelect.ofType<string>()
+
 class QnAPicker extends React.Component<Props, State> {
   state = {
     overallItemsCount: 0,
+    categoryOptions: [],
     filterCategories: [],
     filterQuestion: "",
     page: 0,
@@ -63,6 +68,10 @@ class QnAPicker extends React.Component<Props, State> {
       this.setState({
         selectedItem: data
       })
+    } else {
+      this.setState({
+        selectedItem: null
+      })
     }
 
     const data = await this.apiClient.getQuestions({
@@ -79,6 +88,11 @@ class QnAPicker extends React.Component<Props, State> {
     })
   };
 
+  fetchCategories = async () => {
+    const categoryOptions = await this.apiClient.getCategories()
+    this.setState({ categoryOptions })
+  }
+
   renderPagination() {
     const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
 
@@ -91,8 +105,56 @@ class QnAPicker extends React.Component<Props, State> {
     )
   }
 
+  handleFilterChange = (event) => {
+    this.setState({
+      filterQuestion: event.target.value
+    }, async () => {
+      await this.fetchData()
+    })
+  }
+
+  handleCategorySelect = (category: string) => {
+    this.setState(({ filterCategories }) => {
+      if (filterCategories.includes(category)) {
+        filterCategories = filterCategories.filter(c => c !== category)
+      } else {
+        filterCategories = [...filterCategories, category].sort()
+      }
+      return { filterCategories }
+    }, async () => {
+      await this.fetchData()
+    })
+  }
+
   renderHeader() {
-    return null
+    return <ControlGroup className={style.filter}>
+      <InputGroup
+        large
+        leftIcon="filter"
+        onChange={this.handleFilterChange}
+        placeholder="Search for a question..."
+        value={this.state.filterQuestion}
+      />
+
+      {this.state.categoryOptions && !!this.state.categoryOptions.length &&
+        <StringMultiSelect
+          items={this.state.categoryOptions}
+          selectedItems={this.state.filterCategories}
+          onItemSelect={this.handleCategorySelect}
+          placeholder="Search for a category..."
+          popoverProps={{
+            minimal: true
+          }}
+          tagRenderer={category => category}
+          itemRenderer={(category, { modifiers, handleClick }) => {
+            if (!modifiers.matchesPredicate) {
+              return null
+            }
+            return <MenuItem active={modifiers.active} onClick={handleClick} key={category}>{category}</MenuItem>
+          }}
+        />
+      }
+    </ControlGroup>
   }
 
   renderVariationsOverlay = (elements: string[]) => {
@@ -140,8 +202,8 @@ class QnAPicker extends React.Component<Props, State> {
     return (
       <Card
         key={id}
-        interactive
-        onClick={() => {
+        interactive={!isSelected}
+        onClick={isSelected ? null : () => {
           this.props.onSelect(id)
         }}
         className={classnames(style.card, {
@@ -149,16 +211,26 @@ class QnAPicker extends React.Component<Props, State> {
         })}
       >
         <h5>
-          Q: {title} {this.renderVariationsOverlay(questions)}
+          Q:&nbsp;{title}&nbsp;{this.renderVariationsOverlay(questions)}
         </h5>
 
         {answers[0] && (
           <p>
-            A: {answers[0]}
+            A:&nbsp;{answers[0]}
             {this.renderVariationsOverlay(answers)}
           </p>
         )}
-      </Card>
+
+        {data.category && (
+          <p>Category:&nbsp;{data.category}</p>
+        )}
+
+        {
+          isSelected && <Button onClick={() => {
+            this.props.onSelect(null)
+          }} icon="undo">Select another</Button>
+        }
+      </Card >
     )
   };
 
@@ -173,12 +245,12 @@ class QnAPicker extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    await this.fetchData()
+    await Promise.all([this.fetchData(), this.fetchCategories()])
   }
 
   async componentDidUpdate(prevProps: Props) {
     if (prevProps.selected !== this.props.selected) {
-      await this.fetchData()
+      await this.fetchData(this.state.page)
     }
   }
 

@@ -1,18 +1,24 @@
-import { HTMLTable } from '@blueprintjs/core'
+import { Button, HTMLTable, Intent } from '@blueprintjs/core'
 import React from 'react'
 
 import { DbFlaggedEvent } from '../../../types'
 import { RESOLUTION } from '../util'
 
-const ResolvedEventsList = ({ events }: { events: DbFlaggedEvent[] }) =>
+interface Props {
+  events: DbFlaggedEvent[]
+  resetEvent: (id: string) => Promise<void>
+}
+
+const ResolvedEventsList = ({ events, resetEvent }: Props) =>
   events &&
   !!events.length && (
     <HTMLTable condensed interactive striped>
       <thead>
         <tr>
-          <td>Phrase</td>
-          <td>Resolution</td>
-          <td>Updated</td>
+          <th>Phrase</th>
+          <th>Resolution</th>
+          <th>Updated</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -20,7 +26,7 @@ const ResolvedEventsList = ({ events }: { events: DbFlaggedEvent[] }) =>
           <tr key={i}>
             <td>{event.preview}</td>
             <td>
-              {RESOLUTION[event.resolutionType]} {event.resolution}
+              {RESOLUTION[event.resolutionType]} <strong>{event.resolution}</strong>
               {event.resolutionParams && (
                 <pre>
                   <code>{JSON.stringify(event.resolutionParams, null, 2)}</code>
@@ -28,6 +34,11 @@ const ResolvedEventsList = ({ events }: { events: DbFlaggedEvent[] }) =>
               )}
             </td>
             <td>{event.updatedAt}</td>
+            <td>
+              <Button onClick={() => resetEvent('' + event.id)} small icon="refresh" intent={Intent.PRIMARY}>
+                Reset
+                </Button>
+            </td>
           </tr>
         ))}
       </tbody>

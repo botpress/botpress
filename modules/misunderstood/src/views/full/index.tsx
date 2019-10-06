@@ -158,13 +158,13 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   undeleteEvent = async (id: string) => {
-    const { selectedEvent } = this.state
+    await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
+    return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
+  }
 
-    if (selectedEvent) {
-      await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
-
-      return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
-    }
+  resetPendingEvent = async (id: string) => {
+    await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
+    return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new)
   }
 
   amendCurrentEvent = async (resolutionData: ResolutionData) => {
@@ -226,6 +226,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
               skipEvent={this.skipCurrentEvent}
               deleteEvent={this.deleteCurrentEvent}
               undeleteEvent={this.undeleteEvent}
+              resetPendingEvent={this.resetPendingEvent}
               amendEvent={this.amendCurrentEvent}
               applyAllPending={this.applyAllPending}
             />
