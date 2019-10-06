@@ -1,5 +1,6 @@
 import { AxiosStatic } from 'axios'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
+import classnames from 'classnames'
 import React from 'react'
 
 import { FLAGGED_MESSAGE_STATUS, FlaggedEvent, ResolutionData } from '../../types'
@@ -213,8 +214,10 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
         </SidePanel>
 
         {loaded && eventCounts && dataLoaded ? (
-          <div className={style.padded}>
+          <div className={classnames(style.padded, style.mainView)}>
             <MainScreen
+              axios={this.props.bp.axios}
+              language={language}
               selectedEvent={selectedEvent}
               selectedEventIndex={selectedEventIndex}
               totalEventsCount={eventCounts[selectedStatus] || 0}
@@ -228,8 +231,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             />
           </div>
         ) : (
-          <SplashScreen title="Loading..." description="Please wait while we're loading data" />
-        )}
+            <SplashScreen title="Loading..." description="Please wait while we're loading data" />
+          )}
       </Container>
     )
   }

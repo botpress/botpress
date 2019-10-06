@@ -1,4 +1,6 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
+import { AxiosStatic } from 'axios'
+import pick from 'lodash/pick'
 import React from 'react'
 
 import { ApiFlaggedEvent, RESOLUTION_TYPE, ResolutionData } from '../../../types'
@@ -8,6 +10,8 @@ import AmendForm from './AmendForm'
 import ChatPreview from './ChatPreview'
 
 interface Props {
+  axios: AxiosStatic
+  language: string
   event: ApiFlaggedEvent
   totalEventsCount: number
   eventIndex: number
@@ -18,45 +22,55 @@ interface Props {
 
 interface State {
   isAmending: boolean
-  amendMode: RESOLUTION_TYPE | null
+  resolutionType: RESOLUTION_TYPE | null
+  resolution: string | null
+  resolutionParams: string | object | null
 }
 
 class NewEventView extends React.Component<Props, State> {
   state = {
     isAmending: false,
-    amendMode: null
+    resolutionType: null,
+    resolution: null,
+    resolutionParams: null
   }
 
   startAmend = () => {
     this.setState({ isAmending: true })
   }
 
-  finishAmend = () => {
-    this.setState({ isAmending: false })
+  cancelAmend = () => {
+    this.setState({ isAmending: false, resolutionType: null, resolution: null, resolutionParams: null })
   }
 
   confirmAmend = () => {
     const { amendEvent } = this.props
     if (false) {
-      amendEvent({
-        resolutionType: RESOLUTION_TYPE.qna,
-        resolution: 'xxx'
-      })
+      amendEvent(pick(this.state, 'resolutionType', 'resolution', 'resolutionParams'))
     }
-    this.finishAmend()
+    this.setState({ isAmending: false, resolutionType: null, resolution: null, resolutionParams: null })
   }
 
-  setAmendMode = (amendMode: RESOLUTION_TYPE) => {
-    this.setState({ amendMode })
+  setAmendMode = (resolutionType: RESOLUTION_TYPE) => {
+    this.setState({ resolutionType })
+  }
+
+  updateAmendData = (resolution: string, resolutionParams?: string | object | null) => {
+    this.setState({
+      resolution,
+      resolutionParams: resolutionParams || null
+    })
   }
 
   componentDidMount() {
+    // TODO: REMOVE THIS!
     this.startAmend()
+    this.setAmendMode(RESOLUTION_TYPE.qna)
   }
 
   render() {
-    const { event, totalEventsCount, eventIndex, skipEvent, deleteEvent } = this.props
-    const { isAmending, amendMode } = this.state
+    const { axios, language, event, totalEventsCount, eventIndex, skipEvent, deleteEvent } = this.props
+    const { isAmending, resolutionType, resolution, resolutionParams } = this.state
 
     return (
       <>
@@ -83,18 +97,20 @@ class NewEventView extends React.Component<Props, State> {
           <Button onClick={this.startAmend} icon="confirm" intent={Intent.PRIMARY} disabled={isAmending}>
             Amend
           </Button>
-          {isAmending && (
-            <>
-              <Button onClick={this.confirmAmend} icon="tick" intent={Intent.SUCCESS}>
-                Save
-              </Button>
-              <Button onClick={this.finishAmend} icon="cross" intent={Intent.NONE}>
-                Cancel
-              </Button>
-            </>
-          )}
         </ButtonGroup>
-        {isAmending && <AmendForm mode={amendMode} setMode={this.setAmendMode} />}
+        {isAmending && (
+          <AmendForm
+            language={language}
+            axios={axios}
+            mode={resolutionType}
+            setMode={this.setAmendMode}
+            resolution={resolution}
+            resolutionParams={resolutionParams}
+            onUpdate={this.updateAmendData}
+            onSave={this.confirmAmend}
+            onCancel={this.cancelAmend}
+          />
+        )}
       </>
     )
   }

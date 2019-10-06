@@ -2,6 +2,8 @@
 // Please do not change this file!
 interface CssExports {
   'amendForm': string;
+  'amendFormPicker': string;
+  'card': string;
   'chatPreview': string;
   'chatPreviewAvatar': string;
   'chatPreviewMessage': string;
@@ -10,6 +12,8 @@ interface CssExports {
   'chatPreviewMessage_Outgoing': string;
   'chatPreviewText': string;
   'newEventPreview': string;
+  'popover': string;
+  'selectedCard': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

@@ -22,5 +22,12 @@
     "module-builder": "../../build/module-builder",
     "tslint": "^5.20.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "webpack": {
+    "externals": {
+      "react": "React",
+      "react-dom": "ReactDOM",
+      "botpress/utils": "BotpressUtils"
+    }
+  }
 }

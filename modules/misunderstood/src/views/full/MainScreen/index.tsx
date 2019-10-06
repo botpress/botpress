@@ -1,3 +1,4 @@
+import { AxiosStatic } from 'axios'
 import React from 'react'
 
 import { FLAGGED_MESSAGE_STATUS } from '../../../types'
@@ -8,6 +9,8 @@ import NewEventView from './NewEventView'
 import PendingList from './PendingList'
 
 const MainScreen = ({
+  axios,
+  language,
   selectedEvent,
   selectedStatus,
   events,
@@ -31,6 +34,8 @@ const MainScreen = ({
 
   return (
     <NewEventView
+      language={language}
+      axios={axios}
       event={selectedEvent}
       totalEventsCount={totalEventsCount}
       eventIndex={selectedEventIndex}
