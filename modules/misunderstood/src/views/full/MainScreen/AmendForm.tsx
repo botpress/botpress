@@ -5,6 +5,7 @@ import React from 'react'
 import { RESOLUTION_TYPE } from '../../../types'
 
 import style from './style.scss'
+import IntentPicker from './IntentPicker'
 import QnAPicker from './QnAPicker'
 
 interface Props {
@@ -72,6 +73,14 @@ const AmendForm = ({
       {mode === RESOLUTION_TYPE.qna && (
         <div className={style.amendFormPicker}>
           <QnAPicker axios={axios} language={language} selected={resolution} onSelect={(id: string | null) => {
+            onUpdate(id)
+          }} />
+        </div>
+      )}
+
+      {mode === RESOLUTION_TYPE.intent && (
+        <div className={style.amendFormPicker}>
+          <IntentPicker axios={axios} language={language} selected={resolution} params={resolutionParams} onSelect={(id: string | null, params?: string | object | null) => {
             onUpdate(id)
           }} />
         </div>

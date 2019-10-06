@@ -6,7 +6,7 @@ import { RESOLUTION } from '../util'
 
 interface Props {
   events: DbFlaggedEvent[]
-  resetEvent: (id: string) => Promise<void>
+  resetEvent?: (id: string) => Promise<void>
 }
 
 const ResolvedEventsList = ({ events, resetEvent }: Props) =>

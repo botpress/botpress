@@ -15,6 +15,7 @@ interface CssExports {
   'filter': string;
   'newEventPreview': string;
   'popover': string;
+  'selectInput': string;
   'selectedCard': string;
 }
 declare var cssExports: CssExports;

@@ -29,10 +29,7 @@ class QnAApiClient {
       limit: pageSize,
       offset: page * pageSize,
       question: question || undefined,
-      categories:
-        categories && categories.length
-          ? categories.map(({ value }) => value)
-          : undefined
+      categories: categories && categories.length ? categories : undefined
     }
 
     const data = await this.get("/questions", { params })
@@ -46,9 +43,7 @@ class QnAApiClient {
   }
 
   async getCategories() {
-    const {
-      data: { categories }
-    } = await this.get("/categories")
+    const { categories } = await this.get("/categories")
     return categories
   }
 }

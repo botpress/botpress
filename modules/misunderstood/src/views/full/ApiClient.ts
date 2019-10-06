@@ -5,7 +5,7 @@ import { FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE, ResolutionData } from '../../t
 const MODULE_URL_PREFIX = '/mod/misunderstood'
 
 class ApiClient {
-  constructor(private axios: AxiosStatic) {}
+  constructor(private axios: AxiosStatic) { }
 
   async get(url: string, config?: AxiosRequestConfig) {
     const res = await this.axios.get(url, config)
@@ -50,7 +50,7 @@ class ApiClient {
   }
 
   applyAllPending() {
-    return this.postForModule(`/apply-all-pending`)
+    return this.postForModule('/apply-all-pending')
   }
 }
 

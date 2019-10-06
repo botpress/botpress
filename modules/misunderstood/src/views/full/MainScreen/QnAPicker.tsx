@@ -9,7 +9,7 @@ import style from './style.scss'
 import Pager from "./Pager"
 import ApiClient from "./QnAApiClient"
 
-const ITEMS_PER_PAGE = 2
+const ITEMS_PER_PAGE = 5
 
 interface Props {
   axios: AxiosStatic
@@ -150,7 +150,12 @@ class QnAPicker extends React.Component<Props, State> {
             if (!modifiers.matchesPredicate) {
               return null
             }
-            return <MenuItem active={modifiers.active} onClick={handleClick} key={category}>{category}</MenuItem>
+            return <MenuItem active={modifiers.active} onClick={handleClick} key={category} text={category} />
+          }}
+          tagInputProps={{
+            onRemove: this.handleCategorySelect, large: true, inputProps: {
+              className: style.selectInput
+            }
           }}
         />
       }

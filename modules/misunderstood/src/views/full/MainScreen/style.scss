@@ -104,6 +104,12 @@
   margin: 10px 0;
 }
 
+.selectInput {
+  :global(.bp3-tag-input) &:global(.bp3-input-ghost) {
+    width: 220px;
+  }
+}
+
 .applyAllButton {
   margin-top: 1rem;
   margin-bottom: 1rem;

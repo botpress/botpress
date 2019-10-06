@@ -63,7 +63,7 @@ class NewEventView extends React.Component<Props, State> {
   componentDidMount() {
     // TODO: REMOVE THIS!
     this.startAmend()
-    this.setAmendMode(RESOLUTION_TYPE.qna)
+    this.setAmendMode(RESOLUTION_TYPE.intent)
   }
 
   render() {
