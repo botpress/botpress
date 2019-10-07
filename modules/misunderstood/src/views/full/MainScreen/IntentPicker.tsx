@@ -94,13 +94,6 @@ class IntentPicker extends React.Component<Props, State> {
 
     const utterances = intent.utterances[language] || []
 
-    const title = utterances.length
-      ? utterances[0]
-      : intent.name
-        .split("_")
-        .slice(1)
-        .join(" ")
-
     return (
       <Card
         key={intent.name}
@@ -112,9 +105,13 @@ class IntentPicker extends React.Component<Props, State> {
           [style.selectedCard]: isSelected
         })}
       >
-        <h5>
-          Q:&nbsp;{title}&nbsp;<VariationsOverlay elements={utterances} />
-        </h5>
+        <h5>{intent.name}</h5>
+
+        {
+          utterances[0] && <p>
+            U:&nbsp;{utterances[0]}&nbsp;<VariationsOverlay elements={utterances} />
+          </p>
+        }
 
         {
           isSelected && <Button onClick={() => {
