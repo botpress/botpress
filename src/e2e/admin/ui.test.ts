@@ -42,6 +42,7 @@ describe('Admin - UI', () => {
       await clickOn('#btn-submit')
     ])
     await closeToaster()
+    await clickOn('#btn-menu')
     await expectMatch('Signed in as Bob Lalancette')
   })
 
