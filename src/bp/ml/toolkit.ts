@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import cluster from 'cluster'
 import kmeans from 'ml-kmeans'
+import nanoid from 'nanoid'
 
 import { registerMsgHandler } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
@@ -34,18 +35,19 @@ if (cluster.isWorker) {
     progressCb?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): any => {
     return Promise.fromCallback(completedCb => {
+      const messageId = nanoid()
       const messageHandler = msg => {
-        if (progressCb && msg.type === 'progress') {
+        if (progressCb && msg.type === 'progress' && msg.id === messageId) {
           progressCb(msg.progress)
         }
 
-        if (msg.type === 'svm_trained') {
+        if (msg.type === 'svm_trained' && msg.id === messageId) {
           process.off('message', messageHandler)
           completedCb(undefined, msg.result)
         }
       }
 
-      process.send!({ type: 'svm_train', points, options })
+      process.send!({ type: 'svm_train', id: messageId, points, options })
       process.on('message', messageHandler)
     })
   }
@@ -56,9 +58,11 @@ if (cluster.isMaster) {
     const sendToWorker = event => worker.isConnected() && worker.send(event)
 
     const svm = new SVMTrainer()
-    const result = await svm.train(msg.points, msg.options, progress => sendToWorker({ type: 'progress', progress }))
+    const result = await svm.train(msg.points, msg.options, progress =>
+      sendToWorker({ type: 'progress', id: msg.id, progress })
+    )
 
-    sendToWorker({ type: 'svm_trained', result })
+    sendToWorker({ type: 'svm_trained', id: msg.id, result })
   })
 }
 

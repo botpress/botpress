@@ -7,7 +7,7 @@ import yn from 'yn'
 
 import { Config } from '../config'
 
-import Engine2, { Model as Model2, PredictInput, TrainInput } from './engine2'
+import Engine2, { PredictInput, TrainInput } from './engine2'
 import {
   DefaultHashAlgorithm,
   NoneHashAlgorithm,
@@ -58,7 +58,6 @@ export default class ScopedEngine implements Engine {
   private readonly slotExtractors: { [lang: string]: CRFExtractor } = {}
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager
-  private models2ByLang: _.Dictionary<Model2> = {}
   private e2: Engine2
 
   private scopedGenerateTrainingSequence: (
@@ -204,8 +203,7 @@ export default class ScopedEngine implements Engine {
       const input: PredictInput = {
         defaultLanguage: this.defaultLanguage,
         includedContexts,
-        sentence: text,
-        models: this.models2ByLang
+        sentence: text
       }
       return this.e2.predict(input)
     } else {
@@ -274,10 +272,7 @@ export default class ScopedEngine implements Engine {
       const e2Models = (await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))).filter(
         _.identity
       )
-      for (const model of e2Models) {
-        this.models2ByLang[model.languageCode] = model
-        await this.e2.loadModels(e2Models, this._makeE2Tools())
-      }
+      await this.e2.loadModels(e2Models, this._makeE2Tools())
     } else {
       debugTrain.forBot(this.botId, `Restoring models '${modelHash}' from storage`)
       const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
@@ -495,7 +490,6 @@ export default class ScopedEngine implements Engine {
 
         const model = await this.e2.train(input)
         if (model.success) {
-          this.models2ByLang[lang] = model
           await this.storage.writeE2Model(model, modelHash)
         }
       }
