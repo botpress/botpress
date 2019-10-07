@@ -26,7 +26,6 @@ const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.S
 //      add user feedback for training progress
 //      add more debug
 //      in Trainer, make a pre-processing step with marked step 0
-//      in build intent vocab add highlighted entities tokens
 //      add value in utterance slots
 //      extract kmeans in engine2 out of CRF
 //      extract MlToolkit.CRF.Tagger in e2 with loading from binary
@@ -97,7 +96,9 @@ export default class Engine2 {
 
   private async _makePredictors(model: Model, tools: Tools): Promise<Predictors> {
     const { input, output, artefacts } = model.data
-    const processedIntents = output ? output.intents : await ProcessIntents(input.intents, model.languageCode, tools)
+    const processedIntents = output
+      ? output.intents
+      : await ProcessIntents(input.intents, model.languageCode, artefacts.list_entities, tools)
 
     const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
     const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
@@ -645,7 +646,7 @@ export const Trainer: Trainer = async (
       makeListEntityModel(list, input.languageCode, tools)
     )
 
-    const intents = await ProcessIntents(input.intents, input.languageCode, tools)
+    const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
 
     let output: TrainOutput = {
       ..._.omit(input, 'list_entities', 'intents'),
@@ -684,15 +685,21 @@ export const Trainer: Trainer = async (
   }
 }
 
-export const buildIntentVocab = (utterances: Utterance[]): _.Dictionary<boolean> => {
+export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEntityModel[]): _.Dictionary<boolean> => {
+  // @ts-ignore
+  const entitiesTokens: string[] = _.chain(intentEntities)
+    .flatMapDeep(e => Object.values(e.mappingsTokens))
+    .map((t: string) => t.toLowerCase().replace(SPACE, ' '))
+    .value()
+
   return _.chain(utterances)
-    .flatMap(u => u.tokens)
-    .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok.toString({ lowerCase: true })]: true }), {})
+    .flatMap(u => u.tokens.map(t => t.toString({ lowerCase: true })))
+    .concat(entitiesTokens)
+    .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok]: true }), {})
     .value()
 }
 
 const vectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
-  // TODO add list entities tokens
   return _.chain(intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
@@ -782,6 +789,7 @@ export const trainContextClassifier = async (input: TrainOutput, tools: Tools): 
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
+  list_entities: ListEntityModel[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
@@ -789,15 +797,18 @@ export const ProcessIntents = async (
     const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
     const utterances = await Utterances(cleaned, languageCode, tools)
 
-    // make this a function ?
-    // can should we use the vector map ?
-    const vocab = buildIntentVocab(utterances)
-    const slot_entities = _.chain(intent.slot_definitions)
+    const allowedEntities = _.chain(intent.slot_definitions)
       .flatMap(s => s.entities)
       .uniq()
-      .value()
+      .value() as string[]
 
-    return { ...intent, utterances: utterances, vocab, slot_entities }
+    const entityModels = _.intersectionWith(list_entities, allowedEntities, (entity, name) => {
+      return entity.entityName === name
+    })
+
+    const vocab = buildIntentVocab(utterances, entityModels)
+
+    return { ...intent, utterances: utterances, vocab, slot_entities: allowedEntities }
   })
 }
 
@@ -963,7 +974,7 @@ const predict = {
 
     const intents = model.data.output
       ? model.data.output.intents
-      : await ProcessIntents(model.data.input.intents, model.languageCode, tools)
+      : await ProcessIntents(model.data.input.intents, model.languageCode, model.data.artefacts.list_entities, tools)
 
     return {
       ...model.data.artefacts,
