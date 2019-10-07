@@ -85,7 +85,7 @@ describe('Admin - Bot Management', () => {
       expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST'),
       clickButtonForBot('#btn-createRevision', tempBotId)
     ])
-    await page.waitFor(500)
+    await page.waitFor(2000)
   })
 
   it('Rollback revision', async () => {
