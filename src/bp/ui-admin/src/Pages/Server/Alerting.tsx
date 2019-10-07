@@ -173,7 +173,7 @@ class Alerts extends Component<Props, State> {
 
   render() {
     return (
-      <PageContainer title="Alerting & Incidents" fullWidth={true}>
+      <PageContainer title="Alerting & Incidents" fullWidth={true} superAdmin={true}>
         <CheckRequirements requirements={['redis', 'pro', 'monitoring']} feature="alerting">
           {this.renderChild()}
         </CheckRequirements>

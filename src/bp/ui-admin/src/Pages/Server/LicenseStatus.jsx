@@ -210,7 +210,7 @@ class LicenseStatus extends React.Component {
     }
 
     return (
-      <PageContainer title="Server License">
+      <PageContainer title="Server License" superAdmin={true}>
         <Row>
           <Col sm="12" lg="7">
             {this.renderLicenseStatus()}
