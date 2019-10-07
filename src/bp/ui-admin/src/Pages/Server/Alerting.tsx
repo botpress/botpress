@@ -1,16 +1,16 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { IoIosArchive } from 'react-icons/io'
-import { Label, Row, Col, Jumbotron } from 'reactstrap'
-import Select from 'react-select'
 import moment from 'moment'
 import ms from 'ms'
-
-import SectionLayout from '../Layouts/Section'
-import IncidentsTable from '../Components/Monitoring/IncidentsTable'
-import LoadingSection from '../Components/LoadingSection'
-import { fetchIncidents } from '../../reducers/monitoring'
-import CheckRequirements from '../Components/CheckRequirements'
+import React, { Component } from 'react'
+import { IoIosArchive } from 'react-icons/io'
+import { connect } from 'react-redux'
+import Select from 'react-select'
+import { Col, Jumbotron, Label, Row } from 'reactstrap'
+import { fetchIncidents } from '~/reducers/monitoring'
+import PageContainer from '~/App/PageContainer'
+import SplitPage from '~/App/SplitPage'
+import CheckRequirements from '~/Pages/Components/CheckRequirements'
+import LoadingSection from '~/Pages/Components/LoadingSection'
+import IncidentsTable from '~/Pages/Components/Monitoring/IncidentsTable'
 
 const timeFrameOptions = [
   { value: '1h', label: '1 hour' },
@@ -20,11 +20,27 @@ const timeFrameOptions = [
   { value: '24h', label: '24 hours' }
 ]
 
-class Alerts extends Component {
-  state = {
-    intervalId: null,
-    timeFrame: null,
-    timeFrameOptions
+interface Props {
+  incidents: any
+  loadingIncidents: boolean
+  fetchIncidents: (from, to) => void
+}
+
+interface State {
+  intervalId: any
+  timeFrame: any
+  autoRefresh: boolean
+  timeFrameOptions: any
+  error?: string
+}
+
+class Alerts extends Component<Props, State> {
+  state: State = {
+    intervalId: undefined,
+    timeFrame: undefined,
+    timeFrameOptions,
+    autoRefresh: false,
+    error: undefined
   }
 
   componentDidMount() {
@@ -61,7 +77,7 @@ class Alerts extends Component {
   handleTimeFrameChanged = timeFrame => this.setState({ timeFrame }, this.queryData)
   handleAutoRefreshChanged = event => {
     const autoRefresh = event.target.checked
-    let intervalId = undefined
+    let intervalId
 
     if (autoRefresh && !this.state.intervalId) {
       intervalId = setInterval(() => this.queryData(), 10000)
@@ -89,17 +105,22 @@ class Alerts extends Component {
 
   renderNoData() {
     return (
-      <Jumbotron>
-        <Row>
-          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
-            <h1>
-              <IoIosArchive />
-              &nbsp; Alerting is not enabled or there is no statistics.
-            </h1>
-            <p>Make sure that alerting is enabled in your Botpress Config.</p>
-          </Col>
-        </Row>
-      </Jumbotron>
+      <PageContainer title="Alerting & Incidents">
+        <Jumbotron>
+          <Row>
+            <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
+              <h1>
+                <IoIosArchive />
+                &nbsp; Alerting is not enabled or there is no statistics.
+              </h1>
+              <p>
+                Make sure that alerting is enabled in your Botpress Config (and that you have restarted the server if
+                you just made the change).
+              </p>
+            </Col>
+          </Row>
+        </Jumbotron>
+      </PageContainer>
     )
   }
 
@@ -112,9 +133,7 @@ class Alerts extends Component {
       return <LoadingSection />
     }
 
-    return (
-      <SectionLayout title={null} helpText={null} mainContent={this.renderTables()} sideMenu={this.renderSideMenu()} />
-    )
+    return <SplitPage sideMenu={this.renderSideMenu()}>{this.renderTables()}</SplitPage>
   }
 
   renderSideMenu() {
@@ -143,7 +162,7 @@ class Alerts extends Component {
             style={{ marginTop: 8 }}
             name="autoRefresh"
             type="checkbox"
-            value={this.state.autoRefresh}
+            checked={this.state.autoRefresh}
             onChange={this.handleAutoRefreshChanged}
           />{' '}
           <strong>Enabled</strong>
@@ -154,9 +173,11 @@ class Alerts extends Component {
 
   render() {
     return (
-      <CheckRequirements requirements={['redis', 'pro', 'monitoring']} feature="alerting">
-        {this.renderChild()}
-      </CheckRequirements>
+      <PageContainer title="Alerting & Incidents" fullWidth={true}>
+        <CheckRequirements requirements={['redis', 'pro', 'monitoring']} feature="alerting">
+          {this.renderChild()}
+        </CheckRequirements>
+      </PageContainer>
     )
   }
 }

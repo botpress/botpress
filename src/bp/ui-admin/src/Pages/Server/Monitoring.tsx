@@ -2,11 +2,11 @@ import { calculateOverviewForHost, groupEntriesByTime, mergeEntriesByTime } from
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { IoIosArchive } from 'react-icons/io'
 import { connect } from 'react-redux'
 import Select from 'react-select'
-import { Col, Container, Jumbotron, Label, Row } from 'reactstrap'
+import { Col, Jumbotron, Label, Row } from 'reactstrap'
 import {
   Bar,
   CartesianGrid,
@@ -19,6 +19,7 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
+import PageContainer from '~/App/PageContainer'
 
 import { fetchStats, refreshStats } from '../../reducers/monitoring'
 import CheckRequirements from '../Components/CheckRequirements'
@@ -270,12 +271,8 @@ class Monitoring extends Component<Props, State> {
     }
 
     return (
-      <Row style={{ fontSize: '80%' }}>
-        <Col md={6}>
-          <h3>Botpress Server Monitoring</h3>
-        </Col>
-        <Col md={1} />
-        <Col md={2}>
+      <div className="monitoring-toolbar">
+        <div className="monitoring-toolbar-item" style={{ marginLeft: 'auto' }}>
           <strong>Time Frame</strong>
           <Select
             styles={reactSelectStyle}
@@ -284,8 +281,8 @@ class Monitoring extends Component<Props, State> {
             onChange={this.handleTimeFrameChanged}
             isSearchable={false}
           />
-        </Col>
-        <Col md={2}>
+        </div>
+        <div className="monitoring-toolbar-item">
           <strong>Resolution</strong>
           <Select
             styles={reactSelectStyle}
@@ -294,8 +291,8 @@ class Monitoring extends Component<Props, State> {
             onChange={this.handleResolutionChanged}
             isSearchable={false}
           />
-        </Col>
-        <Col md={1}>
+        </div>
+        <div>
           <strong>Auto-Refresh</strong>
           <br />
           <Label>
@@ -308,8 +305,8 @@ class Monitoring extends Component<Props, State> {
             />{' '}
             <strong>Enabled</strong>
           </Label>
-        </Col>
-      </Row>
+        </div>
+      </div>
     )
   }
 
@@ -342,18 +339,20 @@ class Monitoring extends Component<Props, State> {
     }
 
     return (
-      <Container>
+      <Fragment>
         {this.renderHeader()}
         {this.renderCharts()}
-      </Container>
+      </Fragment>
     )
   }
 
   render() {
     return (
-      <CheckRequirements requirements={['redis', 'pro']} feature="monitoring">
-        {this.renderChild()}
-      </CheckRequirements>
+      <PageContainer title="Server Monitoring" fullWidth={true}>
+        <CheckRequirements requirements={['redis', 'pro']} feature="monitoring">
+          {this.renderChild()}
+        </CheckRequirements>
+      </PageContainer>
     )
   }
 }

@@ -158,7 +158,9 @@ export class WorkspaceService {
     let role = workspace.defaultRole
 
     if (options) {
-      if (options.asAdmin) {
+      if (options.role) {
+        role = options.role
+      } else if (options.asAdmin) {
         role = workspace.adminRole
       } else if (options.asChatUser) {
         role = CHAT_USER_ROLE.id
