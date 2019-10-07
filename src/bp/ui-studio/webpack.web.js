@@ -7,7 +7,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const isProduction = process.env.NODE_ENV === 'production'
+const moment = require('moment')
 
 const webConfig = {
   cache: false,
@@ -174,6 +176,17 @@ const webConfig = {
   }
 }
 
+if (!isProduction) {
+  webConfig.plugins.push(
+    new HardSourceWebpackPlugin({
+      info: {
+        mode: 'test',
+        level: 'debug'
+      }
+    })
+  )
+}
+
 const showNodeEnvWarning = () => {
   if (!isProduction) {
     console.log(
@@ -188,7 +201,8 @@ const postProcess = (err, stats) => {
   if (err) {
     throw err
   }
-  console.log(chalk.grey(stats.toString('minimal')))
+
+  console.log(`[${moment().format('HH:mm:ss')}] Studio ${chalk.grey(stats.toString('minimal'))}`)
 }
 
 if (process.argv.indexOf('--compile') !== -1) {
