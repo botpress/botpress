@@ -75,7 +75,7 @@ export class AuthRouter extends CustomRouter {
         if (!user) {
           throw new NotFoundError(`User ${email || ''} not found`)
         }
-        const { firstname, lastname } = user.attributes
+        const { firstname, lastname, picture_url } = user.attributes
 
         const userRole = await this.workspaceService.getRoleForUser(email, strategy, req.workspace!)
 
@@ -83,6 +83,7 @@ export class AuthRouter extends CustomRouter {
           firstname,
           lastname,
           email,
+          picture_url,
           strategyType: type,
           strategy,
           isSuperAdmin,
@@ -107,12 +108,12 @@ export class AuthRouter extends CustomRouter {
               .min(0)
               .max(35)
               .trim()
-              .required(),
+              .allow(''),
             lastname: Joi.string()
               .min(0)
               .max(35)
               .trim()
-              .required()
+              .allow('')
           })
         )
 
