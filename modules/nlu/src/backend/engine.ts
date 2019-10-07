@@ -205,8 +205,7 @@ export default class ScopedEngine implements Engine {
         includedContexts,
         sentence: text
       }
-      const res = await this.e2.predict(input)
-      return res
+      return this.e2.predict(input)
     } else {
       const t0 = Date.now()
       let res: any = {}
