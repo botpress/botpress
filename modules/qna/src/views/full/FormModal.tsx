@@ -255,6 +255,7 @@ export default class FormModal extends Component<Props> {
         transitionDuration={0}
         canOutsideClickClose={false}
         style={{ width: 700 }}
+        enforceFocus={false}
       >
         <div className={Classes.DIALOG_BODY}>
           <form>

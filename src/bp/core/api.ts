@@ -94,12 +94,8 @@ const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typ
 
 const config = (moduleLoader: ModuleLoader, configProvider: ConfigProvider): typeof sdk.config => {
   return {
-    getModuleConfig(moduleId: string): Promise<any> {
-      return moduleLoader.configReader.getGlobal(moduleId)
-    },
-    getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
-      return moduleLoader.configReader.getForBot(moduleId, botId)
-    },
+    getModuleConfig: moduleLoader.configReader.getGlobal.bind(moduleLoader.configReader),
+    getModuleConfigForBot: moduleLoader.configReader.getForBot.bind(moduleLoader.configReader),
     getBotpressConfig: configProvider.getBotpressConfig.bind(configProvider),
     mergeBotConfig: configProvider.mergeBotConfig.bind(configProvider)
   }

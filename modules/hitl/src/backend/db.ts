@@ -234,6 +234,7 @@ export default class HitlDb {
       .join('hitl_messages', this.knex.raw('q1.mId'), 'hitl_messages.id')
       .join('hitl_sessions', this.knex.raw('q1.session_id'), 'hitl_sessions.id')
       .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
+      .whereRaw(condition)
       .where({ botId })
 
     if (onlyPaused) {
