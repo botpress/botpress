@@ -9,6 +9,11 @@ class NLUApiClient {
     const res = await this.axios.get(MODULE_URL_PREFIX + url, config)
     return res.data
   }
+
+  async getIntents() {
+    const data = await this.get('/intents')
+    return data.filter(x => !x.name.startsWith('__qna__'))
+  }
 }
 
 export default NLUApiClient

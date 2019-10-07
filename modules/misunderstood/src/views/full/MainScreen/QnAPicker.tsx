@@ -1,13 +1,13 @@
-import { Button, Card, ControlGroup, InputGroup, MenuItem, Popover, PopoverInteractionKind, PopoverPosition } from "@blueprintjs/core"
+import { Button, Card, ControlGroup, InputGroup, MenuItem } from "@blueprintjs/core"
 import { MultiSelect } from '@blueprintjs/select'
 import { AxiosStatic } from "axios"
-import { ElementPreview } from "botpress/utils"
 import classnames from "classnames"
 import React from "react"
 
 import style from './style.scss'
 import Pager from "./Pager"
 import ApiClient from "./QnAApiClient"
+import VariationsOverlay from "./VariationsOverlay"
 
 const ITEMS_PER_PAGE = 5
 
@@ -162,29 +162,7 @@ class QnAPicker extends React.Component<Props, State> {
     </ControlGroup>
   }
 
-  renderVariationsOverlay = (elements: string[]) => {
-    return (
-      !!elements.length && (
-        <Popover interactionKind={PopoverInteractionKind.HOVER} position={PopoverPosition.RIGHT}>
-          <span>
-            &nbsp;
-            <strong>({elements.length})</strong>
-          </span>
-          <ul className={style.popover}>
-            {elements.map(variation => (
-              <li key={variation}>
-                {variation.startsWith("#!") ? (
-                  <ElementPreview itemId={variation.replace("#!", "")} />
-                ) : (
-                    variation
-                  )}
-              </li>
-            ))}
-          </ul>
-        </Popover>
-      )
-    )
-  };
+
 
   renderListItem = (item: QnAItem, isSelected?: boolean) => {
     if (!item || !item.id) {
@@ -216,13 +194,13 @@ class QnAPicker extends React.Component<Props, State> {
         })}
       >
         <h5>
-          Q:&nbsp;{title}&nbsp;{this.renderVariationsOverlay(questions)}
+          Q:&nbsp;{title}&nbsp;<VariationsOverlay elements={questions} />
         </h5>
 
         {answers[0] && (
           <p>
             A:&nbsp;{answers[0]}
-            {this.renderVariationsOverlay(answers)}
+            <VariationsOverlay elements={answers} />
           </p>
         )}
 
@@ -243,10 +221,10 @@ class QnAPicker extends React.Component<Props, State> {
     const { items } = this.state
 
     if (items.length) {
-      return this.state.items.map(item => this.renderListItem(item))
+      return items.map(item => this.renderListItem(item))
     }
 
-    return <h3>No questions have been added yet.</h3>
+    return <h3>No questions match the query.</h3>
   }
 
   async componentDidMount() {
