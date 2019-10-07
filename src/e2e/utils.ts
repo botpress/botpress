@@ -98,6 +98,10 @@ page.on('response', resp => {
   console.log(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
 })
 
+page.on('framenavigated', frame => {
+  console.log(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+})
+
 export const getTime = () => {
   const timeFormat = 'HH:mm:ss.SSS'
   const time = moment().format(timeFormat)
