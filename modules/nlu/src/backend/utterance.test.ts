@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import { ExtractedEntity, ExtractedSlot, UtteranceClass, UtteranceToStringOptions } from './engine2'
+import { ExtractedEntity, ExtractedSlot, Utterance, UtteranceToStringOptions } from './engine2'
 import { SPACE, tokenizeLatinTextForTests } from './tools/token-utils'
 
 const TOKENS = tokenizeLatinTextForTests('You might want to behave like if you are not like one of us. But you are!')
@@ -9,17 +9,17 @@ const VECTORS = TOKENS.map(() => Array.from({ length: 5 }, () => _.random(0, 1, 
 describe('UtteranceClass', () => {
   describe('tokens', () => {
     test('Array is readonly', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       expect(() => (utterance.tokens = [])).toThrow()
     })
 
     test('Token object is readonly', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       expect(() => (utterance.tokens[0].index = 25)).toThrow()
     })
 
     test('tokens & vectors are properly associated', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       utterance.tokens.forEach((tok, i) => {
         expect(tok.index).toEqual(i)
         expect(tok.value).toEqual(TOKENS[i])
@@ -28,11 +28,11 @@ describe('UtteranceClass', () => {
     })
 
     test('different tokens and vectors length throws', () => {
-      expect(() => new UtteranceClass(TOKENS.slice(0, -1), VECTORS)).toThrow()
+      expect(() => new Utterance(TOKENS.slice(0, -1), VECTORS)).toThrow()
     })
 
     test('toString', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
 
       expect(utterance.tokens[0].toString()).toEqual('You')
       expect(utterance.tokens[0].toString({ lowerCase: true })).toEqual('you')
@@ -42,7 +42,7 @@ describe('UtteranceClass', () => {
     })
 
     test('slots', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
 
       expect(utterance.tokens[0].slots).toEqual([])
       utterance.tagSlot({ name: 'person', confidence: 0.45, source: 'anything' }, 0, 3)
@@ -53,7 +53,7 @@ describe('UtteranceClass', () => {
     })
 
     test('entities', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       expect(utterance.tokens[0].entities).toEqual([])
       expect(utterance.tokens[3].entities).toEqual([])
       utterance.tagEntity({ type: 'car', confidence: 0.45, value: 'mercedes', metadata: {} }, 5, 10)
@@ -65,7 +65,7 @@ describe('UtteranceClass', () => {
     })
 
     test('tfidf', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
 
       expect(utterance.tokens[0].tfidf).toEqual(1)
       const tfidf = {
@@ -75,6 +75,24 @@ describe('UtteranceClass', () => {
       utterance.setGlobalTfidf(tfidf)
       expect(utterance.tokens[0].tfidf).toEqual(0.245)
       expect(utterance.tokens[3].tfidf).toEqual(1)
+    })
+
+    test('kmeans', () => {
+      const utterance = new Utterance(TOKENS, VECTORS)
+
+      expect(utterance.tokens[0].cluster).toEqual(1)
+      const mockedKmeans = {
+        nearest: jest
+          .fn()
+          .mockReturnValueOnce([4])
+          .mockReturnValue([2])
+      }
+
+      utterance.setKmeans(mockedKmeans)
+      expect(utterance.tokens[0].cluster).toEqual(4)
+      expect(mockedKmeans.nearest.mock.calls[0][0][0]).toEqual(VECTORS[0])
+      expect(utterance.tokens[3].cluster).toEqual(2)
+      expect(mockedKmeans.nearest.mock.calls[1][0][0]).toEqual(VECTORS[3])
     })
   })
 
@@ -86,13 +104,13 @@ describe('UtteranceClass', () => {
     }
 
     test('tagSlots out of range', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       expect(() => utterance.tagSlot(slot, 500, 800)).toThrow()
       expect(utterance.slots).toEqual([])
     })
 
     test('tagSlots single token', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       utterance.tagSlot(slot, 0, 3)
       expect(utterance.slots[0].startPos).toEqual(0)
       expect(utterance.slots[0].startTokenIdx).toEqual(0)
@@ -101,7 +119,7 @@ describe('UtteranceClass', () => {
     })
 
     test('tagSlots multiple tokens', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       utterance.tagSlot(slot, 3, 9)
 
       expect(utterance.slots[0].startPos).toEqual(3)
@@ -131,12 +149,12 @@ describe('UtteranceClass', () => {
     }
 
     test('tagEntity out of range', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       expect(() => utterance.tagEntity(entity, 500, 1300)).toThrow()
     })
 
     test('tagEntity single token', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       utterance.tagEntity(entity, 0, 3)
       expect(utterance.entities.length).toEqual(1)
       Object.entries(entity).forEach(([key, value]) => {
@@ -149,7 +167,7 @@ describe('UtteranceClass', () => {
     })
 
     test('tagEntity multiple tokens', () => {
-      const utterance = new UtteranceClass(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS)
       utterance.tagEntity(entity, 3, 9)
 
       expect(utterance.entities[0].startPos).toEqual(3)
@@ -169,7 +187,7 @@ describe('UtteranceClass', () => {
   })
 
   describe('clone', () => {
-    const utterance = new UtteranceClass(TOKENS, VECTORS)
+    const utterance = new Utterance(TOKENS, VECTORS)
     const tfidf = TOKENS.reduce((tfidf, tok) => {
       if (!tfidf[tok]) {
         tfidf[tok] = Math.random()
@@ -225,7 +243,7 @@ describe('UtteranceClass', () => {
     })
   })
 
-  describe.only('toString', () => {
+  describe('toString', () => {
     const str = 'This IS a SUPerTest withFire'
     //           0123456789012345678901234567
     const tokens = tokenizeLatinTextForTests(str)
@@ -238,7 +256,7 @@ describe('UtteranceClass', () => {
     } as UtteranceToStringOptions
 
     test('format options', () => {
-      const u = new UtteranceClass(tokens, fakeVectors)
+      const u = new Utterance(tokens, fakeVectors)
 
       expect(u.toString(defaultOptions)).toEqual(str)
       expect(u.toString({ ...defaultOptions, lowerCase: true })).toEqual(str.toLowerCase())
@@ -249,7 +267,7 @@ describe('UtteranceClass', () => {
     })
 
     test('slot options', () => {
-      const u = new UtteranceClass(tokens, fakeVectors)
+      const u = new Utterance(tokens, fakeVectors)
       const slot: ExtractedSlot = {
         name: 'Tiger',
         confidence: 1,
@@ -263,7 +281,7 @@ describe('UtteranceClass', () => {
     })
 
     test('entities options', () => {
-      const u = new UtteranceClass(tokens, fakeVectors)
+      const u = new Utterance(tokens, fakeVectors)
       const entity: ExtractedEntity = {
         type: 'Woods',
         confidence: 1,
@@ -279,7 +297,7 @@ describe('UtteranceClass', () => {
     })
 
     test('entities and slots options', () => {
-      const u = new UtteranceClass(tokens, fakeVectors)
+      const u = new Utterance(tokens, fakeVectors)
       const slot: ExtractedSlot = {
         name: 'Tiger',
         confidence: 1,

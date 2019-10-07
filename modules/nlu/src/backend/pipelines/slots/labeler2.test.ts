@@ -1,11 +1,11 @@
-import { ExtractedEntity, ExtractedSlot, UtteranceClass } from '../../engine2'
+import { ExtractedEntity, ExtractedSlot, Utterance } from '../../engine2'
 
 import { labelizeUtterance } from './labeler2'
 
 describe('CRF labels for utterance', () => {
   test('without slots', () => {
     const toks = 'My mame is Heisenberg and I am the danger'.split(/(\s)/g)
-    const utterance = new UtteranceClass(toks, new Array(toks.length).fill([0]))
+    const utterance = new Utterance(toks, new Array(toks.length).fill([0]))
 
     const labels = labelizeUtterance(utterance)
 
@@ -14,7 +14,7 @@ describe('CRF labels for utterance', () => {
 
   test('with slots', () => {
     const toks = 'Careful my friend, Alex W. is one of us'.split(/(\s)/g)
-    const utterance = new UtteranceClass(toks, new Array(toks.length).fill([0]))
+    const utterance = new Utterance(toks, new Array(toks.length).fill([0]))
     utterance.tagSlot({ name: 'listener', source: 'my friend' } as ExtractedSlot, 8, 18)
     utterance.tagEntity({ value: 'my friend', type: 'friend' } as ExtractedEntity, 8, 18)
     utterance.tagSlot({ name: 'person', source: 'Alex W.' } as ExtractedSlot, 19, 26)
