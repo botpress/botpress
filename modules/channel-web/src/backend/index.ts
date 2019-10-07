@@ -13,8 +13,6 @@ const onServerStarted = async (bp: typeof sdk) => {
   await socket(bp, db)
 }
 
-const onServerReady = async (bp: typeof sdk) => {}
-
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.removeMiddleware('web.sendMessages')
   bp.http.deleteRouterForBot('channel-web')
@@ -22,7 +20,6 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
-  onServerReady,
   onModuleUnmount,
   definition: {
     name: 'channel-web',

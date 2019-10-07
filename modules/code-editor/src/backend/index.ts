@@ -8,7 +8,6 @@ import { EditorByBot } from './typings'
 
 const editorByBot: EditorByBot = {}
 
-const onServerStarted = async (bp: typeof sdk) => {}
 const onServerReady = async (bp: typeof sdk) => {
   await api(bp, editorByBot)
 }
@@ -23,7 +22,6 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,
