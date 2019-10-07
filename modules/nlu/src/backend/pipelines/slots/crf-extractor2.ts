@@ -184,7 +184,7 @@ export default class CRFExtractor2 {
       .reduce(
         (combined, [token, tag]) => {
           const prev = _.last(combined)
-          const shouldConcatWithPrev = tag.tag === BIO.INSIDE && prev.slot.name === tag.name
+          const shouldConcatWithPrev = tag.tag === BIO.INSIDE && _.get(prev, 'slot.name') === tag.name
 
           if (shouldConcatWithPrev) {
             prev.slot.source += token.toString()
