@@ -90,6 +90,13 @@ export const clickOnTreeNode = async (searchText: string, button: MouseButtons =
   await clickOn('.bp3-tree-node-label', { button }, element)
 }
 
+export const closeToaster = async (): Promise<void> => {
+  await clickOn(".recipe-toaster svg[data-icon='cross']")
+  await page.waitForFunction(() => {
+    return document.querySelector('.bp3-overlay').childElementCount === 0
+  })
+}
+
 page.on('request', req => {
   console.log(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
 })

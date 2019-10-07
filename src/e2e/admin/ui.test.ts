@@ -1,6 +1,6 @@
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatch, fillField } from '../expectPuppeteer'
-import { expectAdminApiCallSuccess, expectCallSuccess } from '../utils'
+import { expectAdminApiCallSuccess, expectCallSuccess, closeToaster } from '../utils'
 
 describe('Admin - UI', () => {
   it('Load server license page', async () => {
@@ -41,10 +41,7 @@ describe('Admin - UI', () => {
       expectCallSuccess(`${bpConfig.host}/api/v1/auth/me/profile`, 'POST'),
       await clickOn('#btn-submit')
     ])
-    await clickOn(".recipe-toaster svg[data-icon='cross']")
-    await page.waitForFunction(() => {
-      return document.querySelector('.bp3-overlay').childElementCount === 0
-    })
+    await closeToaster()
     await expectMatch('Signed in as Bob Lalancette')
   })
 
