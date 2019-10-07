@@ -28,22 +28,19 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 // for intents, do we include predictionsReallyConfused (really close) then none?
-// TODOs
-// train kmeans in predict 1st step unil we get MLKmeans support the initialization of a model from serializable data
-// change word cluster feature in featurizer
-// remove kmeans from crf extractor 2
 
 // ----- cleanup -----
 //      add user feedback for training progress
 //      add more debug
 //      in Trainer, make a pre-processing step with marked step 0
 //      add value in utterance slots
-//      extract kmeans in engine2 out of CRF
 //      extract MlToolkit.CRF.Tagger in e2 with loading from binary
 //      add more tests for the train pipeline
-//      split e2 in different files (modules)
+//      add nlu performance (system) tests. We want to set threshold for F1 score to make sure we don't add any regressions
 //      make sure we can load kmeans from data (need to modify mlKmeans)
+//      fix: at the moment there's a double load (after train in E2 and after training all langs in E1)
 //      extract train, save and load models out of Engine1
+//      split e2 in different files (modules)
 //      completely get rid of engine1
 // ----- cancelation token -----
 // ----- even better fuzzy entities -----
@@ -62,7 +59,6 @@ const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
 type TFIDF = _.Dictionary<number>
 
 interface Predictors {
-  train_artefacts: TrainArtefacts
   ctx_classifer: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   // kmeans : KMeansModel
@@ -106,20 +102,18 @@ export default class Engine2 {
   }
 
   private async _makePredictors(model: Model, tools: Tools): Promise<Predictors> {
-    const { input, output, artefacts } = model.data
-    const processedIntents = output
-      ? output.intents
-      : await ProcessIntents(input.intents, model.languageCode, artefacts.list_entities, tools)
+    const { artefacts } = model.data
 
     const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
     const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
       {} as _.Dictionary<sdk.MLToolkit.SVM.Predictor>
     )
-    const slot_tagger = new CRFExtractor2(tools.mlToolkit)
-    slot_tagger.load(processedIntents, artefacts.slots_model)
+    const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this pour MLToolkit.CRF.Tagger
+    slot_tagger.load(artefacts.slots_model)
+    // add kmeansmodel when kmeansResults becomes persistable in artefacts
 
-    return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, train_artefacts: artefacts }
+    return { ctx_classifer, intent_classifier_per_ctx, slot_tagger }
   }
 
   async predict(input: PredictInput): Promise<PredictOutput> {
@@ -469,7 +463,7 @@ export class Utterance {
     this._kmeans = kmeans
   }
 
-  toString(options: UtteranceToStringOptions): string {
+  toString(options?: UtteranceToStringOptions): string {
     options = _.defaultsDeep({}, options, { lowerCase: false, slots: 'keep-value' })
 
     let final = ''
@@ -679,7 +673,7 @@ export const Trainer: Trainer = async (
     // step 0
 
     output = await TfidfTokens(output)
-    output = await ClusterTokens(output)
+    output = ClusterTokens(output, tools)
     output = await ExtractEntities(output, tools)
     output = await AppendNoneIntents(output, tools)
 
@@ -709,8 +703,9 @@ export const Trainer: Trainer = async (
   }
 }
 
-export const ClusterTokens = (input: TrainOutput, tools: Tools): TrainOutput => {
-  const data = _.chain(input.intents)
+export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.MLToolkit.KMeans.KmeansResult => {
+  const data = _.chain(intents)
+    .filter(i => i.name !== NONE_INTENT)
     .flatMapDeep(i => i.utterances.map(u => u.tokens))
     // @ts-ignore
     .uniqBy((t: UtteranceToken) => t.value)
@@ -723,7 +718,11 @@ export const ClusterTokens = (input: TrainOutput, tools: Tools): TrainOutput => 
 
   const k = data.length > NUM_CLUSTERS ? NUM_CLUSTERS : 2
 
-  const kmeans = tools.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
+  return tools.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
+}
+
+export const ClusterTokens = (input: TrainOutput, tools: Tools): TrainOutput => {
+  const kmeans = computeKmeans(input.intents, tools)
   const copy = { ...input, kmeans }
   copy.intents.forEach(x => x.utterances.forEach(u => u.setKmeans(kmeans)))
 
@@ -973,6 +972,7 @@ export type PredictStep = TrainArtefacts & {
   pattern_entities: PatternEntity[]
   predictors: Predictors
   tools: Tools
+  kmeans: sdk.MLToolkit.KMeans.KmeansResult // TODO move this in artefacts
   utterance?: Utterance
   ctx_predictions?: sdk.MLToolkit.SVM.Prediction[]
   intent_predictions?: {
@@ -1023,6 +1023,7 @@ const predict = {
 
     return {
       ...model.data.artefacts,
+      kmeans: computeKmeans(intents, tools), // TODO remove this when kmeans is persisted in artefacts and loaded in predictors
       pattern_entities: model.data.input.pattern_entities,
       includedContexts: input.includedContexts,
       rawText: input.sentence,
@@ -1036,7 +1037,7 @@ const predict = {
   PredictionUtterance: async (input: PredictStep): Promise<PredictStep> => {
     const [utterance] = await Utterances([input.rawText], input.languageCode, input.tools)
 
-    const { tfidf, vocabVectors } = input
+    const { tfidf, vocabVectors, kmeans } = input
     utterance.tokens.forEach(token => {
       const t = token.toString({ lowerCase: true })
       if (!tfidf[t]) {
@@ -1046,6 +1047,7 @@ const predict = {
     })
 
     utterance.setGlobalTfidf(tfidf)
+    utterance.setKmeans(kmeans)
 
     return {
       ...input,

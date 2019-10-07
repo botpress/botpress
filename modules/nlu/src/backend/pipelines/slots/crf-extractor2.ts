@@ -13,14 +13,6 @@ const debug = DEBUG('nlu').sub('slots')
 const debugTrain = debug.sub('train')
 const debugExtract = debug.sub('extract')
 
-// TODO grid search / optimization for those hyperparams
-const NUM_CLUSTERS = 8
-const KMEANS_OPTIONS = {
-  iterations: 250,
-  initialization: 'random',
-  seed: 666 // so training is consistent
-} as sdk.MLToolkit.KMeans.KMeansOptions
-
 const CRF_TRAINER_PARAMS = {
   c1: '0.0001',
   c2: '0.01',
@@ -30,20 +22,15 @@ const CRF_TRAINER_PARAMS = {
 }
 
 export default class CRFExtractor2 {
-  private _isTrained: boolean = false
   private _crfModelFn = ''
   private _crfTagger!: sdk.MLToolkit.CRF.Tagger
-  private _kmeansModel: sdk.MLToolkit.KMeans.KmeansResult
 
   constructor(private mlToolkit: typeof sdk.MLToolkit) {}
 
-  load(intents: Intent<Utterance>[], crf: Buffer) {
-    this._trainKmeans(intents) // retrain because we don't have access to KmeansResult class
-
+  load(crf: Buffer) {
     this._crfModelFn = tmp.tmpNameSync()
     fs.writeFileSync(this._crfModelFn, crf)
     this._readTagger()
-    this._isTrained = true
   }
 
   private _readTagger() {
@@ -53,41 +40,20 @@ export default class CRFExtractor2 {
   }
 
   async train(intents: Intent<Utterance>[]): Promise<void> {
-    this._isTrained = false
     if (intents.length < 2) {
       debugTrain('training set too small, skipping training')
       return
     }
     debugTrain('start training')
 
-    intents = intents.filter(i => i.name !== 'none') // none intent makes no sens for slot tagger
-    this._trainKmeans(intents)
     this._trainCrf(intents)
     this._readTagger()
-    this._isTrained = true
 
     debugTrain('done training')
   }
 
   get serialized(): Promise<Buffer> {
     return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
-  }
-
-  private _trainKmeans(intents: Intent<Utterance>[]) {
-    debugTrain('training kmeans')
-    const data = _.chain(intents)
-      .flatMapDeep(i => i.utterances.map(u => u.tokens))
-      .uniqBy((t: UtteranceToken) => t.value)
-      .map((t: UtteranceToken) => t.vectors)
-      .value() as number[][]
-
-    if (_.isEmpty(data)) {
-      return
-    }
-
-    const k = data.length > NUM_CLUSTERS ? NUM_CLUSTERS : 2
-
-    this._kmeansModel = this.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
   }
 
   private _trainCrf(intents: Intent<Utterance>[]) {
@@ -154,7 +120,7 @@ export default class CRFExtractor2 {
 
     return [
       featurizer.getTokenQuartile(utterance, token),
-      featurizer.getClusterFeat(token, this._kmeansModel),
+      featurizer.getClusterFeat(token),
       featurizer.getWordWeight(token),
       featurizer.getInVocabFeat(token, intent),
       featurizer.getSpaceFeat(token),
