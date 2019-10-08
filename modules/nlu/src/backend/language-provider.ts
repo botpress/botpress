@@ -9,7 +9,7 @@ import ms from 'ms'
 import path from 'path'
 
 import { setSimilarity, vocabNGram } from './tools/strings'
-import { isSpace, processUtteranceTokens, restoreUtteranceTokens } from './tools/token-utils'
+import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from './tools/token-utils'
 import { Gateway, LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
@@ -109,8 +109,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
           }
 
           if (this._languageDims !== data.dimentions) {
-            logger.warn('Language sources have different dimensions')
-            return
+            throw new Error('Language sources have different dimensions')
           }
           this._validProvidersCount++
           data.languages.forEach(x => this.addProvider(x.lang, source, client))
@@ -434,7 +433,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
 
     // we restore original chars and casing
-    return tokenUtterances.map((tokens, i) => restoreUtteranceTokens(tokens, utterances[i]))
+    return tokenUtterances.map((tokens, i) => restoreOriginalUtteranceCasing(tokens, utterances[i]))
   }
 }
 

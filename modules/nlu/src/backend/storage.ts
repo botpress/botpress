@@ -297,7 +297,7 @@ export default class Storage {
   }
 
   async readE2Model(modelHash: string, languageCode: string): Promise<E2Model | undefined> {
-    if (await this.botGhost.fileExists(this.modelsDir, this._makeE2Fname(modelHash, languageCode))) {
+    if (await this.modelExists(modelHash, languageCode)) {
       const strMod = await this.botGhost.readFileAsString(this.modelsDir, this._makeE2Fname(modelHash, languageCode))
       return deserializeModel(strMod)
     }

@@ -3,7 +3,7 @@ import {
   mergeSimilarTokens,
   mergeSpecialCharactersTokens,
   processUtteranceTokens,
-  restoreUtteranceTokens,
+  restoreOriginalUtteranceCasing,
   SPACE
 } from './token-utils'
 
@@ -148,7 +148,7 @@ describe('Raw token processing', () => {
     const original = 'I left NASA to work at Botpress'
     const tokens = ['i', SPACE, 'left', SPACE, 'nasa', SPACE, 'to', SPACE, 'work', SPACE, 'at', SPACE, 'bot', 'press']
 
-    expect(restoreUtteranceTokens(tokens, original)).toEqual([
+    expect(restoreOriginalUtteranceCasing(tokens, original)).toEqual([
       'I',
       SPACE,
       'left',

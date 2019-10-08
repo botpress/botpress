@@ -111,7 +111,7 @@ export const processUtteranceTokens = (tokens: string[]): string[] => {
     .value()
 }
 
-export const restoreUtteranceTokens = (utteranceTokens: string[], utterance: string): string[] => {
+export const restoreOriginalUtteranceCasing = (utteranceTokens: string[], utterance: string): string[] => {
   let offset = 0
   return utteranceTokens.map(t => {
     const original = isSpace(t) ? t : utterance.substr(offset, t.length)
