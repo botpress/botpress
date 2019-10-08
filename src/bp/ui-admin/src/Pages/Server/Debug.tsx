@@ -18,6 +18,7 @@ import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 
 import api from '../../api'
+import AccessControl from '~/App/AccessControl'
 
 export default class Debug extends React.Component<Props, State> {
   state = {
@@ -124,6 +125,7 @@ export default class Debug extends React.Component<Props, State> {
       <PageContainer
         title="Configure Debug"
         helpText="This page allows you to enable or disable some debug scopes while using Botpress. This list is populated while features are being used, so some items may be missing"
+        superAdmin={true}
       >
         <SplitPage sideMenu={this.renderSide()}>{this.renderTree()}</SplitPage>
       </PageContainer>

@@ -5,6 +5,8 @@ import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
 import { DiagramEngine, DiagramWidget, NodeModel } from 'storm-react-diagrams'
 
+import { SkillDefinition } from '../sidePanel/FlowTools'
+
 import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes } from './manager'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
@@ -26,7 +28,7 @@ export default class FlowBuilder extends Component<Props> {
 
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
@@ -372,6 +374,7 @@ interface Props {
   readOnly: boolean
   canPasteNode: boolean
   flowPreview: boolean
+  skills: SkillDefinition[]
 }
 
 interface NodeProblem {

@@ -2,6 +2,32 @@
   "name": "studio-ui",
   "version": "11.0.0",
   "author": "Botpress",
+  "engines": {
+    "node": ">=8.9"
+  },
+  "license": "AGPL-3.0-only",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": " yarn run compile-server && node ./webpack.web.js --compile",
+    "build:prod": "cross-env NODE_ENV=production node ./webpack.web.js --compile",
+    "test": "cross-env BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
+    "watch": "concurrently -k \"npm run watch-server\" \"node ./webpack.web.js --watch\"",
+    "watch-server": "babel src --source-maps --out-dir public --watch",
+    "compile-server": "babel src --source-maps --out-dir public",
+    "clear-cache": "rimraf node_modules/.cache"
+  },
+  "watch": {
+    "compile": {
+      "patterns": [
+        "src"
+      ],
+      "extensions": "js,jsx,scss,json,html"
+    }
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
+  },
   "dependencies": {
     "@blueprintjs/core": "^3.15.1",
     "anser": "^1.4.8",
@@ -46,7 +72,6 @@
     "react-table": "^6.10.0",
     "react-toastify": "^3.3.3",
     "react-treebeard": "^2.1.0",
-    "react-world-flags": "^1.3.0",
     "reactour": "^1.15.0",
     "reactstrap": "^8.0.0",
     "reduce-reducers": "^0.1.2",
@@ -87,6 +112,7 @@
     "expose-loader": "^0.7.1",
     "file-loader": "^1.1.11",
     "find-with-regex": "^1.1.3",
+    "hard-source-webpack-plugin": "^0.13.1",
     "html-webpack-plugin": "^3.2.0",
     "immutable": "^4.0.0-rc.12",
     "node-sass": "^4.8.3",
@@ -101,31 +127,7 @@
     "ts-loader": "^6.0.2",
     "uglifyjs-webpack-plugin": "^1.2.5",
     "webpack": "4.12",
+    "webpack-bundle-analyzer": "^3.5.2",
     "webpack-node-externals": "^1.7.2"
-  },
-  "engines": {
-    "node": ">=8.9"
-  },
-  "license": "AGPL-3.0-only",
-  "main": "lib/index.js",
-  "scripts": {
-    "build": " yarn run compile-server && node ./webpack.web.js --compile",
-    "build:prod": "cross-env NODE_ENV=production node ./webpack.web.js --compile",
-    "test": "cross-env BABEL_ENV=tests mocha --compilers js:babel-core/register --require tests/index.js tests/**",
-    "watch": "concurrently -k \"npm run watch-server\" \"node ./webpack.web.js --watch\"",
-    "watch-server": "babel src --source-maps --out-dir public --watch",
-    "compile-server": "babel src --source-maps --out-dir public"
-  },
-  "watch": {
-    "compile": {
-      "patterns": [
-        "src"
-      ],
-      "extensions": "js,jsx,scss,json,html"
-    }
-  },
-  "resolutions": {
-    "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
   }
 }

@@ -17,6 +17,7 @@ import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
 import Header from './Header'
 import SplashScreen from './SplashScreen'
+import Unauthorized from './Unauthorized'
 
 export const updater = { callback: undefined }
 
@@ -26,6 +27,20 @@ const RETRY_PERIOD = 500 // Delay (ms) between each call to the backend to fetch
 const RETRY_SECURITY_FACTOR = 3
 const DEBOUNCE_DELAY = 100
 
+interface Props {
+  store: any
+}
+
+interface State {
+  event: any
+  selectedTabId: string
+  visible: boolean
+  showSettings: boolean
+  showEventNotFound: boolean
+  fetching: boolean
+  unauthorized: boolean
+}
+
 export class Debugger extends React.Component<Props, State> {
   state = {
     event: undefined,
@@ -33,7 +48,8 @@ export class Debugger extends React.Component<Props, State> {
     visible: false,
     selectedTabId: 'basic',
     showSettings: false,
-    fetching: false
+    fetching: false,
+    unauthorized: false
   }
   allowedRetryCount = 0
   currentRetryCount = 0
@@ -61,18 +77,26 @@ export class Debugger extends React.Component<Props, State> {
 
     window.addEventListener('keydown', this.hotkeyListener)
 
-    const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/update-frequency')
-    const { collectionInterval } = data
-    const maxDelai = ms(collectionInterval as string) * RETRY_SECURITY_FACTOR
-    this.allowedRetryCount = Math.ceil(maxDelai / RETRY_PERIOD)
+    try {
+      const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/update-frequency')
+      const { collectionInterval } = data
+      const maxDelai = ms(collectionInterval as string) * RETRY_SECURITY_FACTOR
+      this.allowedRetryCount = Math.ceil(maxDelai / RETRY_PERIOD)
 
-    const settings = loadSettings()
-    if (settings.autoOpenDebugger) {
-      this.toggleDebugger()
-    }
+      // Only open debugger & open on new messages if user is authorized
+      const settings = loadSettings()
+      if (settings.autoOpenDebugger) {
+        this.toggleDebugger()
+      }
 
-    if (settings.updateToLastMessage) {
-      this.props.store.bp.events.on('guest.webchat.message', this.handleNewMessage)
+      if (settings.updateToLastMessage) {
+        this.props.store.bp.events.on('guest.webchat.message', this.handleNewMessage)
+      }
+    } catch (err) {
+      const errorCode = _.get(err, 'response.status')
+      if (errorCode === 403) {
+        this.setState({ unauthorized: true })
+      }
     }
   }
 
@@ -129,6 +153,10 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   loadEvent = async eventId => {
+    if (this.state.unauthorized) {
+      return
+    }
+
     clearInterval(this.retryTimer)
     const event = await this.fetchEvent(eventId)
     if (!event) {
@@ -180,6 +208,9 @@ export class Debugger extends React.Component<Props, State> {
   // check rendering
 
   renderWhenNoEvent() {
+    if (this.state.unauthorized) {
+      return <Unauthorized />
+    }
     if (this.state.fetching) {
       return <FetchingEvent />
     }
@@ -227,17 +258,4 @@ export class Debugger extends React.Component<Props, State> {
       </div>
     )
   }
-}
-
-interface Props {
-  store: any
-}
-
-interface State {
-  event: any
-  selectedTabId: string
-  visible: boolean
-  showSettings: boolean
-  showEventNotFound: boolean
-  fetching: boolean
 }

@@ -128,7 +128,7 @@ export default class AuthService {
     const createdUser = await this.users.createUser({
       email: user.email,
       strategy,
-      attributes: user.attributes || {}
+      attributes: { ...(user.attributes || {}), created_at: new Date() }
     })
 
     if (_.get(await this.getStrategy(strategy), 'type') === 'basic') {
