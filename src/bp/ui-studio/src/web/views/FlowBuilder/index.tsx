@@ -4,7 +4,7 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { clearErrorSaveFlows, flowEditorRedo, flowEditorUndo, setDiagramAction, switchFlow } from '~/actions'
+import { clearErrorSaveFlows, closeFlowNodeProps, flowEditorRedo, flowEditorUndo, setDiagramAction, switchFlow } from '~/actions'
 import { Container } from '~/components/Shared/Interface'
 import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
@@ -159,6 +159,10 @@ class FlowBuilder extends Component<Props, State> {
       save: e => {
         e.preventDefault()
         toastInfo('Pssst! Flows now save automatically, no need to save anymore.', Timeout.LONG)
+      },
+      cancel: e => {
+        e.preventDefault()
+        this.props.closeFlowNodeProps()
       }
     }
 
@@ -212,7 +216,8 @@ const mapDispatchToProps = {
   setDiagramAction,
   flowEditorUndo,
   flowEditorRedo,
-  clearErrorSaveFlows
+  clearErrorSaveFlows,
+  closeFlowNodeProps
 }
 
 export default connect(
@@ -231,7 +236,8 @@ type Props = {
   flowEditorRedo: any
   errorSavingFlows: any
   clearErrorSaveFlows: () => void
-  clearFlowsModification: () => void
+  clearFlowsModification: () => void,
+  closeFlowNodeProps: () => void,
   flowsByName: _.Dictionary<FlowView>
 } & RouteComponentProps
 
