@@ -19,6 +19,13 @@ import { parseUtterance } from './utterance-parser'
 const debugIntents = DEBUG('nlu').sub('intents')
 const debugIntentsTrain = debugIntents.sub('train')
 const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.SVM.SVMOptions
+// TODO grid search / optimization for those hyperparams
+const NUM_CLUSTERS = 8
+const KMEANS_OPTIONS = {
+  iterations: 250,
+  initialization: 'random',
+  seed: 666 // so training is consistent
+} as sdk.MLToolkit.KMeans.KMeansOptions
 
 // for intents, do we include predictionsReallyConfused (really close) then none?
 
@@ -27,12 +34,13 @@ const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.S
 //      add more debug
 //      in Trainer, make a pre-processing step with marked step 0
 //      add value in utterance slots
-//      extract kmeans in engine2 out of CRF
 //      extract MlToolkit.CRF.Tagger in e2 with loading from binary
 //      add more tests for the train pipeline
-//      split e2 in different files (modules)
-//      make sure we can load kmeans from data (need to modify mlKmeans)
+//      add nlu performance (system) tests. We want to set threshold for F1 score to make sure we don't add any regressions
+//      make sure we can load kmeans from persisted data (need to modify mlKmeans)
+//      fix: at the moment there's a double load (after train in E2 and after training all langs in E1)
 //      extract train, save and load models out of Engine1
+//      split e2 in different files (modules)
 //      completely get rid of engine1
 // ----- cancelation token -----
 // ----- even better fuzzy entities -----
@@ -51,10 +59,9 @@ const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
 type TFIDF = _.Dictionary<number>
 
 interface Predictors {
-  train_artefacts: TrainArtefacts
   ctx_classifer: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-  // kmeans : KMeansModel
+  kmeans: sdk.MLToolkit.KMeans.KmeansResult
   slot_tagger: CRFExtractor2 // TODO replace this by MlToolkit.CRF.Tagger
 }
 
@@ -96,19 +103,21 @@ export default class Engine2 {
 
   private async _makePredictors(model: Model, tools: Tools): Promise<Predictors> {
     const { input, output, artefacts } = model.data
-    const processedIntents = output
-      ? output.intents
-      : await ProcessIntents(input.intents, model.languageCode, artefacts.list_entities, tools)
 
     const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
     const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
       {} as _.Dictionary<sdk.MLToolkit.SVM.Predictor>
     )
-    const slot_tagger = new CRFExtractor2(tools.mlToolkit)
-    slot_tagger.load(processedIntents, artefacts.slots_model)
+    const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
+    slot_tagger.load(artefacts.slots_model)
 
-    return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, train_artefacts: artefacts }
+    const processedIntents = output
+      ? output.intents
+      : await ProcessIntents(input.intents, model.languageCode, artefacts.list_entities, tools)
+    const kmeans = computeKmeans(processedIntents, tools) // TODO load from artefacts when persistd
+
+    return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, kmeans }
   }
 
   async predict(input: PredictInput): Promise<PredictOutput> {
@@ -133,6 +142,7 @@ export type TrainOutput = Readonly<{
   contexts: string[]
   intents: Intent<Utterance>[]
   tfIdf?: TFIDF
+  kmeans?: sdk.MLToolkit.KMeans.KmeansResult
 }>
 
 export type PatternEntity = Readonly<{
@@ -173,16 +183,6 @@ export type ListEntityModel = Readonly<{
   sensitive: boolean
   /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
   mappingsTokens: _.Dictionary<string[][]>
-}>
-
-export type Utterance = Readonly<{
-  toString(options?: UtteranceToStringOptions): string
-  tagEntity(entity: ExtractedEntity, start: number, end: number)
-  tagSlot(slot: ExtractedSlot, start: number, end: number)
-  setGlobalTfidf(tfidf: TFIDF)
-  entities: ReadonlyArray<UtteranceRange & UtteranceEntity>
-  slots: ReadonlyArray<UtteranceRange & UtteranceSlot>
-  tokens: ReadonlyArray<UtteranceToken>
 }>
 
 export const makeListEntityModel = async (entity: ListEntity, languageCode: string, tools: Tools) => {
@@ -395,15 +395,12 @@ export const extractSystemEntities = async (
   }))
 }
 
-export class UtteranceClass implements Utterance {
+export class Utterance {
   public slots: ReadonlyArray<UtteranceRange & UtteranceSlot> = []
   public entities: ReadonlyArray<UtteranceRange & UtteranceEntity> = []
   private _tokens: ReadonlyArray<UtteranceToken> = []
   private _globalTfidf?: TFIDF
-
-  setGlobalTfidf(tfidf: TFIDF) {
-    this._globalTfidf = tfidf
-  }
+  private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
 
   constructor(tokens: string[], vectors: number[][]) {
     if (tokens.length !== vectors.length) {
@@ -421,15 +418,19 @@ export class UtteranceClass implements Utterance {
           isEOS: i === tokens.length - 1,
           isWord: isWord(value),
           offset: offset,
+          isSpace: isSpace(value),
           get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
             return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
           },
           get entities(): ReadonlyArray<UtteranceRange & ExtractedEntity> {
             return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
           },
-          isSpace: isSpace(value),
           get tfidf(): number {
             return (that._globalTfidf && that._globalTfidf[value]) || 1
+          },
+          get cluster(): number {
+            const wordVec = vectors[i]
+            return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
           },
           value: value,
           vectors: vectors[i],
@@ -447,7 +448,7 @@ export class UtteranceClass implements Utterance {
             }
             return result
           }
-        })
+        } as UtteranceToken)
       )
       offset += value.length
     }
@@ -458,7 +459,15 @@ export class UtteranceClass implements Utterance {
     return this._tokens
   }
 
-  toString(options: UtteranceToStringOptions): string {
+  setGlobalTfidf(tfidf: TFIDF) {
+    this._globalTfidf = tfidf
+  }
+
+  setKmeans(kmeans: sdk.MLToolkit.KMeans.KmeansResult) {
+    this._kmeans = kmeans
+  }
+
+  toString(options?: UtteranceToStringOptions): string {
     options = _.defaultsDeep({}, options, { lowerCase: false, slots: 'keep-value' })
 
     let final = ''
@@ -496,10 +505,10 @@ export class UtteranceClass implements Utterance {
     return final.replace(new RegExp(SPACE, 'g'), ' ')
   }
 
-  clone(copyEntities: boolean, copySlots: boolean): UtteranceClass {
+  clone(copyEntities: boolean, copySlots: boolean): Utterance {
     const tokens = this.tokens.map(x => x.value)
     const vectors = this.tokens.map(x => <number[]>x.vectors)
-    const utterance = new UtteranceClass(tokens, vectors)
+    const utterance = new Utterance(tokens, vectors)
     utterance.setGlobalTfidf({ ...this._globalTfidf })
 
     if (copyEntities) {
@@ -513,7 +522,17 @@ export class UtteranceClass implements Utterance {
     return utterance
   }
 
+  private _validateRange(start: number, end: number) {
+    const lastTok = _.last(this._tokens)
+    const maxEnd = _.get(lastTok, 'offset', 0) + _.get(lastTok, 'value.length', 0)
+
+    if (start < 0 || start > end || start > maxEnd || end > maxEnd) {
+      throw new Error('Invalid range')
+    }
+  }
+
   tagEntity(entity: ExtractedEntity, start: number, end: number) {
+    this._validateRange(start, end)
     const range = this.tokens.filter(x => x.offset >= start && x.offset + x.value.length <= end)
     if (_.isEmpty(range)) {
       return
@@ -530,6 +549,7 @@ export class UtteranceClass implements Utterance {
   }
 
   tagSlot(slot: ExtractedSlot, start: number, end: number) {
+    this._validateRange(start, end)
     const range = this.tokens.filter(x => x.offset >= start && x.offset + x.value.length <= end)
     if (_.isEmpty(range)) {
       return
@@ -574,6 +594,7 @@ export type UtteranceToken = Readonly<{
   isEOS: boolean
   vectors: ReadonlyArray<number>
   tfidf: number
+  cluster: number
   offset: number
   entities: ReadonlyArray<UtteranceRange & ExtractedEntity>
   slots: ReadonlyArray<UtteranceRange & ExtractedSlot>
@@ -656,6 +677,7 @@ export const Trainer: Trainer = async (
     // step 0
 
     output = await TfidfTokens(output)
+    output = ClusterTokens(output, tools)
     output = await ExtractEntities(output, tools)
     output = await AppendNoneIntents(output, tools)
 
@@ -672,7 +694,7 @@ export const Trainer: Trainer = async (
       slots_model,
       vocabVectors: vectorsVocab(output.intents),
       exact_match_index
-      // kmeans: {},
+      // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
 
     _.merge(model, { success: true, data: { artefacts, output } })
@@ -683,6 +705,32 @@ export const Trainer: Trainer = async (
     model.finishedAt = new Date()
     return model as Model
   }
+}
+
+export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.MLToolkit.KMeans.KmeansResult => {
+  const data = _.chain(intents)
+    .filter(i => i.name !== NONE_INTENT)
+    .flatMapDeep(i => i.utterances.map(u => u.tokens))
+    // @ts-ignore
+    .uniqBy((t: UtteranceToken) => t.value)
+    .map((t: UtteranceToken) => t.vectors)
+    .value() as number[][]
+
+  if (_.isEmpty(data)) {
+    return
+  }
+
+  const k = data.length > NUM_CLUSTERS ? NUM_CLUSTERS : 2
+
+  return tools.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
+}
+
+export const ClusterTokens = (input: TrainOutput, tools: Tools): TrainOutput => {
+  const kmeans = computeKmeans(input.intents, tools)
+  const copy = { ...input, kmeans }
+  copy.intents.forEach(x => x.utterances.forEach(u => u.setKmeans(kmeans)))
+
+  return copy
 }
 
 export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEntityModel[]): _.Dictionary<boolean> => {
@@ -890,7 +938,7 @@ const Utterances = async (raw_utterances: string[], languageCode: string, tools:
 
   return _.zip(tokens, parsed).map(([tokUtt, { parsedSlots }]) => {
     const vectors = tokUtt.map(t => vectorMap[t])
-    const utterance = new UtteranceClass(tokUtt, vectors)
+    const utterance = new Utterance(tokUtt, vectors)
     parsedSlots.forEach(s => {
       utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
     })
@@ -991,7 +1039,7 @@ const predict = {
   PredictionUtterance: async (input: PredictStep): Promise<PredictStep> => {
     const [utterance] = await Utterances([input.rawText], input.languageCode, input.tools)
 
-    const { tfidf, vocabVectors } = input
+    const { tfidf, vocabVectors, predictors } = input
     utterance.tokens.forEach(token => {
       const t = token.toString({ lowerCase: true })
       if (!tfidf[t]) {
@@ -1001,6 +1049,7 @@ const predict = {
     })
 
     utterance.setGlobalTfidf(tfidf)
+    utterance.setKmeans(predictors.kmeans)
 
     return {
       ...input,

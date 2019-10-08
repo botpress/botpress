@@ -51,11 +51,10 @@ export function getWordWeight(token: UtteranceToken): CRFFeature {
   }
 }
 
-export function getClusterFeat(token: UtteranceToken, kmeansModel: MLToolkit.KMeans.KmeansResult): CRFFeature {
-  const cluster = kmeansModel.nearest([token.vectors as number[]])[0]
+export function getClusterFeat(token: UtteranceToken): CRFFeature {
   return {
     name: 'cluster',
-    value: cluster
+    value: token.cluster
   }
 }
 

@@ -70,18 +70,11 @@ describe('CRF Featurizer 2', () => {
   })
 
   test('getClusterFeat', async () => {
-    const a_wordvec: ReadonlyArray<number> = [0, 1, 2]
     const cluster = 4
-    const token = {
-      value: 'atok',
-      vectors: a_wordvec
-    } as UtteranceToken
+    const token = { value: 'atok', cluster } as UtteranceToken
 
-    const mockedKmeans = { nearest: jest.fn(() => [cluster]) }
+    const feat = featurizer.getClusterFeat(token)
 
-    const feat = await featurizer.getClusterFeat(token, mockedKmeans)
-
-    expect(mockedKmeans.nearest.mock.calls[0][0]).toEqual([a_wordvec])
     expect(feat.name).toEqual('cluster')
     expect(feat.value).toEqual(cluster)
   })
