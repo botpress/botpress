@@ -861,7 +861,7 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const copy = {...input}
+  const copy = { ...input }
 
   for (const intent of copy.intents) {
     intent.utterances.forEach(async utterance => await extractUtteranceEntities(utterance, input, tools))
