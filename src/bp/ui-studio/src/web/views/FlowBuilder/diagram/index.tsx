@@ -88,9 +88,7 @@ export default class FlowBuilder extends Component<Props> {
   }
 
   onDiagramMouseUp = () => {
-    if (!this.moved) {
-      this.onDiagramClick()
-    }
+    this.onDiagramClick()
   }
 
   componentDidUpdate(prevProps) {
@@ -197,7 +195,11 @@ export default class FlowBuilder extends Component<Props> {
       this.props.closeFlowNodeProps()
       this.props.switchFlowNode(null) // No node selected
     } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
-      this.props.switchFlowNode(selectedNode.id) // Selected a new node
+      this.props.switchFlowNode(selectedNode.id)
+      if (!this.moved) {
+        this.props.openFlowNodeProps()
+      }
+    } else if (selectedNode && currentNode && selectedNode.id === currentNode.id && !this.moved) {
       this.props.openFlowNodeProps()
     }
 
