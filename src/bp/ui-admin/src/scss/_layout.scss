@@ -162,7 +162,7 @@
   &-tabs {
     border-bottom: 1px solid var(--c-background--light-3);
     position: relative;
-    top: 1px;
+    top: 0px;
 
     .nav-item {
       margin-bottom: -1px;
@@ -241,4 +241,10 @@
     flex-grow: 1;
     padding: 0 25px;
   }
+}
+
+.dropdown-picture {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
 }

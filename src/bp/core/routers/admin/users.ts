@@ -38,7 +38,9 @@ export class UsersRouter extends CustomRouter {
         const users = await this.workspaceService.getWorkspaceUsersAttributes(req.workspace!, [
           'last_logon',
           'firstname',
-          'lastname'
+          'lastname',
+          'picture_url',
+          'created_at'
         ])
         return sendSuccess(res, 'Retrieved users', users)
       })

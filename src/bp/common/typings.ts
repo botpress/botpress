@@ -112,6 +112,7 @@ export interface UserProfile {
   strategy: string
   firstname?: string
   lastname?: string
+  picture_url?: string
   fullName: string
   permissions: AuthRule[] | undefined
 }

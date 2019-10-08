@@ -72,8 +72,8 @@ export class AuthRouter extends CustomRouter {
         if (!user) {
           throw new NotFoundError(`User ${email || ''} not found`)
         }
+        const { firstname, lastname, picture_url } = user.attributes
         const { type } = await this.authService.getStrategy(strategy)
-        const { firstname, lastname } = user.attributes
 
         const permissions = await this.getUserPermissions(req.tokenUser!, req.workspace!)
 
@@ -81,6 +81,7 @@ export class AuthRouter extends CustomRouter {
           firstname,
           lastname,
           email,
+          picture_url,
           strategyType: type,
           strategy,
           isSuperAdmin,
@@ -105,12 +106,12 @@ export class AuthRouter extends CustomRouter {
               .min(0)
               .max(35)
               .trim()
-              .required(),
+              .allow(''),
             lastname: Joi.string()
               .min(0)
               .max(35)
               .trim()
-              .required()
+              .allow('')
           })
         )
 

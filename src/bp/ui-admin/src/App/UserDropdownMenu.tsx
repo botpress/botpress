@@ -43,18 +43,19 @@ const UserDropdownMenu: FC<Props> = props => {
   const toggleProfile = () => setProfileOpen(!isProfileOpen)
   const togglePassword = () => setPasswordOpen(!isPasswordOpen)
 
-  const { email, fullName, strategyType } = props.profile
+  const { email, fullName, strategyType, picture_url } = props.profile
   const canChangePassword = strategyType === 'basic'
+
+  const icon = picture_url ? (
+    <img src={picture_url} className="dropdown-picture" />
+  ) : (
+    <Icon icon="user" color={Colors.WHITE} />
+  )
 
   return (
     <div>
       <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-        <Button
-          id="btn-menu"
-          icon={<Icon icon="user" color={Colors.WHITE} />}
-          rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />}
-          minimal={true}
-        />
+        <Button id="btn-menu" icon={icon} rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />} minimal={true} />
         <Menu>
           <MenuDivider title={`Signed in as ${fullName || email}`} />
           <MenuItem id="btn-profile" icon="user" text="Update Profile" onClick={toggleProfile} />
