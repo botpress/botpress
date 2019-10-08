@@ -37,7 +37,7 @@ const KMEANS_OPTIONS = {
 //      extract MlToolkit.CRF.Tagger in e2 with loading from binary
 //      add more tests for the train pipeline
 //      add nlu performance (system) tests. We want to set threshold for F1 score to make sure we don't add any regressions
-//      make sure we can load kmeans from data (need to modify mlKmeans)
+//      make sure we can load kmeans from persisted data (need to modify mlKmeans)
 //      fix: at the moment there's a double load (after train in E2 and after training all langs in E1)
 //      extract train, save and load models out of Engine1
 //      split e2 in different files (modules)
@@ -61,7 +61,7 @@ type TFIDF = _.Dictionary<number>
 interface Predictors {
   ctx_classifer: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-  // kmeans : KMeansModel
+  kmeans: sdk.MLToolkit.KMeans.KmeansResult
   slot_tagger: CRFExtractor2 // TODO replace this by MlToolkit.CRF.Tagger
 }
 
@@ -102,18 +102,22 @@ export default class Engine2 {
   }
 
   private async _makePredictors(model: Model, tools: Tools): Promise<Predictors> {
-    const { artefacts } = model.data
+    const { input, output, artefacts } = model.data
 
     const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
     const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
       {} as _.Dictionary<sdk.MLToolkit.SVM.Predictor>
     )
-    const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this pour MLToolkit.CRF.Tagger
+    const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
     slot_tagger.load(artefacts.slots_model)
-    // add kmeansmodel when kmeansResults becomes persistable in artefacts
 
-    return { ctx_classifer, intent_classifier_per_ctx, slot_tagger }
+    const processedIntents = output
+      ? output.intents
+      : await ProcessIntents(input.intents, model.languageCode, artefacts.list_entities, tools)
+    const kmeans = computeKmeans(processedIntents, tools) // TODO load from artefacts when persistd
+
+    return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, kmeans }
   }
 
   async predict(input: PredictInput): Promise<PredictOutput> {
@@ -972,7 +976,6 @@ export type PredictStep = TrainArtefacts & {
   pattern_entities: PatternEntity[]
   predictors: Predictors
   tools: Tools
-  kmeans: sdk.MLToolkit.KMeans.KmeansResult // TODO move this in artefacts
   utterance?: Utterance
   ctx_predictions?: sdk.MLToolkit.SVM.Prediction[]
   intent_predictions?: {
@@ -1023,7 +1026,6 @@ const predict = {
 
     return {
       ...model.data.artefacts,
-      kmeans: computeKmeans(intents, tools), // TODO remove this when kmeans is persisted in artefacts and loaded in predictors
       pattern_entities: model.data.input.pattern_entities,
       includedContexts: input.includedContexts,
       rawText: input.sentence,
@@ -1037,7 +1039,7 @@ const predict = {
   PredictionUtterance: async (input: PredictStep): Promise<PredictStep> => {
     const [utterance] = await Utterances([input.rawText], input.languageCode, input.tools)
 
-    const { tfidf, vocabVectors, kmeans } = input
+    const { tfidf, vocabVectors, predictors } = input
     utterance.tokens.forEach(token => {
       const t = token.toString({ lowerCase: true })
       if (!tfidf[t]) {
@@ -1047,7 +1049,7 @@ const predict = {
     })
 
     utterance.setGlobalTfidf(tfidf)
-    utterance.setKmeans(kmeans)
+    utterance.setKmeans(predictors.kmeans)
 
     return {
       ...input,
