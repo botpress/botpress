@@ -267,7 +267,6 @@ export default class ScopedEngine implements Engine {
       )
       await this.e2.loadModels(e2Models, this._makeE2Tools())
     } else {
-      debugTrain.forBot(this.botId, `Restoring models '${modelHash}' from storage`)
       const trainableLangs = _.intersection(this.getTrainingLanguages(intents), this.languages)
 
       for (const lang of this.languages) {

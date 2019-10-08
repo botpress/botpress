@@ -11,6 +11,7 @@ import computeLevenshteinDistance from './homebrew/levenshtein'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 
+// those messgages are global preprend with svm_ if we ever come up with more message types
 type MsgTypeSVM = 'train' | 'progress' | 'done' | 'error'
 
 interface Message {
