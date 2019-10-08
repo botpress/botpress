@@ -26,7 +26,7 @@ const buildStudio = cb => {
 }
 
 const buildAdmin = cb => {
-  const prod = process.argv.includes('--prod') ? '--nomap' : ''
+  const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
   const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/ui-admin' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
