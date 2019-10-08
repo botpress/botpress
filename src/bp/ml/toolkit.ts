@@ -11,6 +11,14 @@ import computeLevenshteinDistance from './homebrew/levenshtein'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 
+type MsgTypeSVM = 'train' | 'progress' | 'done' | 'error'
+
+interface Message {
+  type: MsgTypeSVM
+  id: string
+  payload: any
+}
+
 const MLToolkit: typeof sdk.MLToolkit = {
   KMeans: {
     kmeans
@@ -35,34 +43,43 @@ if (cluster.isWorker) {
     progressCb?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): any => {
     return Promise.fromCallback(completedCb => {
-      const messageId = nanoid()
-      const messageHandler = msg => {
-        if (progressCb && msg.type === 'progress' && msg.id === messageId) {
-          progressCb(msg.progress)
+      const id = nanoid()
+      const messageHandler = (msg: Message) => {
+        if (progressCb && msg.type === 'progress' && msg.id === id) {
+          progressCb(msg.payload.progress)
         }
 
-        if (msg.type === 'svm_trained' && msg.id === messageId) {
+        if (msg.type === 'done' && msg.id === id) {
           process.off('message', messageHandler)
-          completedCb(undefined, msg.result)
+          completedCb(undefined, msg.payload.result)
+        }
+
+        if (msg.type === 'error' && msg.id === id) {
+          process.off('message', messageHandler)
+          completedCb(msg.payload.error)
         }
       }
 
-      process.send!({ type: 'svm_train', id: messageId, points, options })
+      process.send!({ type: 'train', id, payload: { points, options } })
       process.on('message', messageHandler)
     })
   }
 }
 
 if (cluster.isMaster) {
-  registerMsgHandler('svm_train', async (msg, worker) => {
-    const sendToWorker = event => worker.isConnected() && worker.send(event)
+  // should we retrain the whole nlu pipeline
+  registerMsgHandler('train', async (msg: Message, worker) => {
+    const sendToWorker = (msg: Message) => worker.isConnected() && worker.send(msg)
 
     const svm = new SVMTrainer()
-    const result = await svm.train(msg.points, msg.options, progress =>
-      sendToWorker({ type: 'progress', id: msg.id, progress })
-    )
-
-    sendToWorker({ type: 'svm_trained', id: msg.id, result })
+    try {
+      const result = await svm.train(msg.payload.points, msg.payload.options, progress =>
+        sendToWorker({ type: 'progress', id: msg.id, payload: { progress } })
+      )
+      sendToWorker({ type: 'done', id: msg.id, payload: { result } })
+    } catch (error) {
+      sendToWorker({ type: 'error', id: msg.id, payload: { error } })
+    }
   })
 }
 
