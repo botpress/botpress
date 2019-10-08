@@ -135,7 +135,8 @@ This is a fatal error, process will exit.`
     process.exit(1)
   })
 
-  logger.info(`Botpress is ready at http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`)
+  logger.info(`Botpress is listening at: ${process.LOCAL_URL}`)
+  logger.info(`Botpress is exposed at: ${process.EXTERNAL_URL}`)
 }
 
 start().catch(global.printErrorDefault)

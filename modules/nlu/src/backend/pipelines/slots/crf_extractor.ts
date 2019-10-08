@@ -165,8 +165,6 @@ export default class CRFExtractor {
       return
     }
 
-    // TODO use token.wordVector instead (once implemented)
-    // const data = _.chain(sequences).flatMap(s => s.tokens).map(t => t.wordVector).value()
     const data = (await this.languageProvider.vectorize(tokens, this.language)).map(wordVec => Array.from(wordVec))
     const k = data.length > NUM_CLUSTERS ? NUM_CLUSTERS : 2
 

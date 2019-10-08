@@ -67,8 +67,10 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     if (engine.modelHash) {
       return res.send(engine.modelHash)
     }
+
     const intents = await engine.storage.getIntents()
-    const modelHash = await engine.computeModelHash(intents)
+    const entities = await engine.storage.getCustomEntities()
+    const modelHash = await engine.computeModelHash(intents, entities)
     res.send(modelHash)
   })
 
