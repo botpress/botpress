@@ -8,6 +8,7 @@ import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util'
 
 import { deserializeModel, Model as E2Model, serializeModel } from './engine2'
+import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
@@ -217,31 +218,8 @@ export default class Storage {
   }
 
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
-    // TODO move this array as static method in DucklingExtractor
-    const sysEntNames = !this.config.ducklingEnabled
-      ? []
-      : [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'number',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
-    sysEntNames.unshift('any')
-
-    return sysEntNames.map(
-      e =>
-        ({
-          name: e,
-          type: 'system'
-        } as sdk.NLU.EntityDefinition)
+    return [...DucklingEntityExtractor.entityTypes, 'any'].map(
+      e => ({ name: e, type: 'system' } as sdk.NLU.EntityDefinition)
     )
   }
 

@@ -46,7 +46,6 @@ const NA_LANG = 'n/a'
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
-  public confidenceTreshold: number = 0.7
 
   private _preloaded: boolean = false
 
@@ -102,12 +101,6 @@ export default class ScopedEngine implements Engine {
   })
 
   async init(): Promise<void> {
-    this.confidenceTreshold = this.config.confidenceTreshold
-
-    if (isNaN(this.confidenceTreshold) || this.confidenceTreshold < 0 || this.confidenceTreshold > 1) {
-      this.confidenceTreshold = 0.7
-    }
-
     if (this.config.preloadModels) {
       this.trainOrLoad()
     }
