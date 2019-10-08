@@ -69,13 +69,6 @@ class SkillCallNodeWidget extends React.Component<{ node: SkillCallNodeModel; sk
   }
 }
 
-const mapStateToProps = state => ({ skills: state.skills.installed })
-export const ConnectedSkillCallNodeWidget = connect(
-  mapStateToProps,
-  undefined,
-  null
-)(SkillCallNodeWidget)
-
 export class SkillCallNodeModel extends BaseNodeModel {
   public skill?
 
@@ -129,12 +122,15 @@ export class SkillCallNodeModel extends BaseNodeModel {
 }
 
 export class SkillCallWidgetFactory extends AbstractNodeFactory {
-  constructor() {
+  private skillsDefinitions: SkillDefinition[]
+
+  constructor(skills) {
     super('skill-call')
+    this.skillsDefinitions = skills
   }
 
   generateReactWidget(diagramEngine, node) {
-    return <ConnectedSkillCallNodeWidget node={node} />
+    return <SkillCallNodeWidget node={node} skills={this.skillsDefinitions} />
   }
 
   getNewInstance() {
