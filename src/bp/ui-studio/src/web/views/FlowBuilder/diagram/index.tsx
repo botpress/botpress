@@ -23,6 +23,7 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
+import { Timeout, toastInfo } from '~/components/Shared/Utils'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
@@ -42,7 +43,7 @@ class Diagram extends Component<Props> {
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
   private manager: DiagramManager
-  private moved: boolean
+  private movingNode: boolean
 
   constructor(props) {
     super(props)
@@ -60,7 +61,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
 
-    this.moved = false
+    this.movingNode = false
 
     // @ts-ignore
     window.highlightNode = (flowName: string, nodeName: string) => {
@@ -87,28 +88,26 @@ class Diagram extends Component<Props> {
   componentDidMount() {
     this.props.fetchFlows()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousedown', this.onDiagramMouseDown)
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mouseup', this.onDiagramMouseUp)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mouseup', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousemove', this.onDiagramMouseMove)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousedown', this.onDiagramMouseDown)
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mouseup', this.onDiagramMouseUp)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mouseup', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousemove', this.onDiagramMouseMove)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
   onDiagramMouseMove = () => {
-    this.moved = true
+    this.movingNode = true
   }
 
   onDiagramMouseDown = () => {
-    this.moved = false
-  }
-
-  onDiagramMouseUp = () => {
-    this.onDiagramClick()
+    this.movingNode = false
   }
 
   componentDidUpdate(prevProps) {
@@ -204,6 +203,25 @@ class Diagram extends Component<Props> {
     this.props.createFlow(name + '.flow.json')
   }
 
+  onDiagramDoubleClick = (event?: MouseEvent) => {
+    if (event) {
+      // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
+      const target = this.diagramWidget.getMouseElement(event)
+      if (
+        target &&
+        !(
+          target.model instanceof StandardNodeModel ||
+          target.model instanceof SkillCallNodeModel ||
+          target.model instanceof RouterNodeModel
+        )
+      ) {
+        return
+      }
+    }
+
+    toastInfo('Pssst! Just click once a node to inspect it, no need to double-click anymore.', Timeout.LONG)
+  }
+
   onDiagramClick = () => {
     const selectedNode = this.manager.getSelectedNode() as BpNodeModel
     const currentNode = this.props.currentFlowNode
@@ -216,10 +234,10 @@ class Diagram extends Component<Props> {
       this.props.switchFlowNode(null) // No node selected
     } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
       this.props.switchFlowNode(selectedNode.id)
-      if (!this.moved) {
+      if (!this.movingNode) {
         this.props.openFlowNodeProps()
       }
-    } else if (selectedNode && currentNode && selectedNode.id === currentNode.id && !this.moved) {
+    } else if (selectedNode && currentNode && selectedNode.id === currentNode.id && !this.movingNode) {
       this.props.openFlowNodeProps()
     }
 
