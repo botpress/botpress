@@ -14,10 +14,10 @@ import { UserReducer } from '~/reducers/user'
 import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
 import Diagram from './diagram'
+import Inspector from './inspector'
 import { PannelPermissions } from './sidePanel'
 import { MutexInfo } from './sidePanel/Toolbar'
 import style from './style.scss'
-import Inspector from './Inspector'
 
 const toastMutex: _.Dictionary<boolean> = {}
 
