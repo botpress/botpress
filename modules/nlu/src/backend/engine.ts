@@ -162,9 +162,10 @@ export default class ScopedEngine implements Engine {
       }
 
       if (!loaded) {
-        debugTrain.forBot(this.botId, 'Retraining model')
+        this.logger.forBot(this.botId).info(`Retraining model for bot ${this.botId}...`)
         await this.trainModels(intents, modelHash, confusionVersion)
         await this.loadModels(intents, modelHash)
+        this.logger.forBot(this.botId).info(`Model training completed for bot ${this.botId}`)
       }
 
       this._currentModelHash = modelHash
@@ -259,7 +260,7 @@ export default class ScopedEngine implements Engine {
     )
 
   protected async loadModels(intents: sdk.NLU.IntentDefinition[], modelHash: string) {
-    debugTrain(`Restoring models '${modelHash}' from storage`)
+    debugTrain.forBot(this.botId, `Restoring models '${modelHash}' from storage`)
     if (USE_E2) {
       // TODO check what we do with trainable languages
       const e2Models = (await Promise.map(this.languages, lang => this.storage.readE2Model(modelHash, lang))).filter(
