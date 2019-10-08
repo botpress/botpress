@@ -3,7 +3,27 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
+import { connect } from 'react-redux'
 import { DiagramEngine, DiagramWidget, NodeModel } from 'storm-react-diagrams'
+import {
+  buildNewSkill,
+  closeFlowNodeProps,
+  copyFlowNode,
+  createFlow,
+  createFlowNode,
+  fetchFlows,
+  insertNewSkillNode,
+  openFlowNodeProps,
+  pasteFlowNode,
+  removeFlowNode,
+  setDiagramAction,
+  switchFlow,
+  switchFlowNode,
+  updateFlow,
+  updateFlowNode,
+  updateFlowProblems
+} from '~/actions'
+import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
@@ -17,7 +37,7 @@ import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
 import { SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
 import style from './style.scss'
 
-export default class FlowBuilder extends Component<Props> {
+class FlowBuilder extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
@@ -393,3 +413,38 @@ type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
   flowBuilder?: any
 } & DiagramEngine
+
+const mapStateToProps = state => ({
+  flows: state.flows,
+  currentFlow: getCurrentFlow(state),
+  currentFlowNode: getCurrentFlowNode(state),
+  currentDiagramAction: state.flows.currentDiagramAction,
+  canPasteNode: Boolean(state.flows.nodeInBuffer),
+  skills: state.skills.installed
+})
+
+const mapDispatchToProps = {
+  fetchFlows,
+  switchFlowNode,
+  openFlowNodeProps,
+  closeFlowNodeProps,
+  setDiagramAction,
+  createFlowNode,
+  removeFlowNode,
+  createFlow,
+  updateFlowNode,
+  switchFlow,
+  updateFlow,
+  copyFlowNode,
+  pasteFlowNode,
+  insertNewSkillNode,
+  updateFlowProblems,
+  buildSkill: buildNewSkill
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  null,
+  { withRef: true }
+)(FlowBuilder)
