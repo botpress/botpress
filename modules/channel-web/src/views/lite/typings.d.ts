@@ -157,6 +157,8 @@ export type Config = {
   showPoweredBy: boolean
   /** When enabled, sent messages are persisted to local storage (recall previous messages)  */
   enablePersistHistory: boolean
+  /** Experimental: expose the store to the parent frame for more control on the webchat's behavior */
+  exposeStore: boolean
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
