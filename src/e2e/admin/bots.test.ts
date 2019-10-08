@@ -9,7 +9,7 @@ describe('Admin - Bot Management', () => {
   const importBotId = 'import-bot'
   const workspaceId = 'default'
 
-  const clickButtonForBot =   async (buttonId: string, botId: string) => {
+  const clickButtonForBot = async (buttonId: string, botId: string) => {
     const botRow = await expectMatchElement('.bp_table-row', { text: botId })
     await clickOn('#btn-menu', undefined, botRow)
     await clickOn(buttonId, undefined)
