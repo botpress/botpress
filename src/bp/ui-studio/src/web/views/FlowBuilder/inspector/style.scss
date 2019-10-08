@@ -1,6 +1,11 @@
 .inspector {
   background-color: #fcfcfc;
 
+  h4 {
+    padding-top: 10px;
+    padding-left: 10px;
+  }
+
   :global(ul[role='tablist'].nav > li > a) {
     padding: 11px 8px;
     font-size: 12px;

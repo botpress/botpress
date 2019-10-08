@@ -28,9 +28,10 @@ interface Props {
 
 export default class Inspector extends Component<Props> {
   render() {
+    const node = this.props.currentFlowNode
     return (
       <div className={style.inspector}>
-        Inspector
+        <h4 className="bp3-heading">{node ? 'Node Properties' : 'Flow Properties'}</h4>
         {this.renderNodeProperties()}
       </div>
     )
