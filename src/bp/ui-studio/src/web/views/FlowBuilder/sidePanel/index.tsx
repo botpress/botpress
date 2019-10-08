@@ -1,9 +1,13 @@
 import { Icon } from '@blueprintjs/core'
 import _ from 'lodash'
 import reject from 'lodash/reject'
+import values from 'lodash/values'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { RouteComponentProps } from 'react-router'
+import { deleteFlow, duplicateFlow, renameFlow } from '~/actions'
 import { SidePanel, SidePanelSection } from '~/components/Shared/Interface'
+import { getCurrentFlow, getDirtyFlows } from '~/reducers'
 
 import Inspector from '../inspector'
 
@@ -29,7 +33,7 @@ type Props = {
   showFlowNodeProps: boolean
 } & RouteComponentProps
 
-export default class PanelContent extends Component<Props> {
+class PanelContent extends Component<Props> {
   createFlow = () => {
     let name = prompt('Enter the name of the new flow')
 
@@ -96,3 +100,23 @@ export default class PanelContent extends Component<Props> {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  currentFlow: getCurrentFlow(state),
+  flows: values(state.flows.flowsByName),
+  dirtyFlows: getDirtyFlows(state),
+  flowProblems: state.flows.flowProblems,
+  flowsNames: _.keys(state.flows.flowsByName),
+  showFlowNodeProps: state.flows.showFlowNodeProps
+})
+
+const mapDispatchToProps = {
+  deleteFlow,
+  duplicateFlow,
+  renameFlow
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PanelContent)

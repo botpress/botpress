@@ -1,4 +1,3 @@
-import { Intent, Position, Toaster } from '@blueprintjs/core'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -19,11 +18,11 @@ import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
-import SidePanel from './containers/SidePanel'
-import SkillsBuilder from './containers/SkillsBuilder'
 import Diagram from './diagram'
+import SidePanel from './sidePanel'
 import { PannelPermissions } from './sidePanel'
 import { MutexInfo } from './sidePanel/Toolbar'
+import SkillsBuilder from './skills'
 import style from './style.scss'
 
 class FlowBuilder extends Component<Props, State> {
