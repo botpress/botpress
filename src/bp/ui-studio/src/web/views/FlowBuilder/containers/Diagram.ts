@@ -1,6 +1,7 @@
 import { connect } from 'react-redux'
 import {
   buildNewSkill,
+  closeFlowNodeProps,
   copyFlowNode,
   createFlow,
   createFlowNode,
@@ -33,6 +34,7 @@ const mapDispatchToProps = {
   fetchFlows,
   switchFlowNode,
   openFlowNodeProps,
+  closeFlowNodeProps,
   setDiagramAction,
   createFlowNode,
   removeFlowNode,

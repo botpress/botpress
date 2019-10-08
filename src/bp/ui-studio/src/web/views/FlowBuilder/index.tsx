@@ -12,7 +12,7 @@ import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
 import Diagram from './containers/Diagram'
-import NodeProps from './containers/NodeProps'
+import Inspector from './containers/Inspector'
 import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
 import { PannelPermissions } from './sidePanel'
@@ -169,16 +169,20 @@ class FlowBuilder extends Component<Props, State> {
 
     return (
       <Container keyHandlers={keyHandlers}>
-        <SidePanel
-          readOnly={this.state.readOnly}
-          mutexInfo={this.state.mutexInfo}
-          permissions={pannelPermissions}
-          flowPreview={this.state.flowPreview}
-          onCreateFlow={name => {
-            this.diagram.createFlow(name)
-            this.props.switchFlow(`${name}.flow.json`)
-          }}
-        />
+        {this.props.showFlowNodeProps ? (
+          <Inspector />
+        ) : (
+          <SidePanel
+            readOnly={this.state.readOnly}
+            mutexInfo={this.state.mutexInfo}
+            permissions={pannelPermissions}
+            flowPreview={this.state.flowPreview}
+            onCreateFlow={name => {
+              this.diagram.createFlow(name)
+              this.props.switchFlow(`${name}.flow.json`)
+            }}
+          />
+        )}
         <div className={style.diagram}>
           <Diagram
             readOnly={readOnly}
@@ -194,7 +198,6 @@ class FlowBuilder extends Component<Props, State> {
 
         <DocumentationProvider file="flows" />
         <SkillsBuilder />
-        <NodeProps readOnly={readOnly} show={this.props.showFlowNodeProps} />
       </Container>
     )
   }

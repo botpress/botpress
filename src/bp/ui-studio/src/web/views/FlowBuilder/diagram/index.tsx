@@ -22,6 +22,7 @@ export default class FlowBuilder extends Component<Props> {
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
   private manager: DiagramManager
+  private moved: boolean
 
   constructor(props) {
     super(props)
@@ -38,6 +39,8 @@ export default class FlowBuilder extends Component<Props> {
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
+
+    this.moved = false
 
     // @ts-ignore
     window.highlightNode = (flowName: string, nodeName: string) => {
@@ -63,15 +66,31 @@ export default class FlowBuilder extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchFlows()
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousedown', this.onDiagramMouseDown)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mouseup', this.onDiagramMouseUp)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousemove', this.onDiagramMouseMove)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousedown', this.onDiagramMouseDown)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mouseup', this.onDiagramMouseUp)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousemove', this.onDiagramMouseMove)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
+  }
+
+  onDiagramMouseMove = () => {
+    this.moved = true
+  }
+
+  onDiagramMouseDown = () => {
+    this.moved = false
+  }
+
+  onDiagramMouseUp = () => {
+    if (!this.moved) {
+      this.onDiagramClick()
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -167,25 +186,6 @@ export default class FlowBuilder extends Component<Props> {
     this.props.createFlow(name + '.flow.json')
   }
 
-  onDiagramDoubleClick = (event?: MouseEvent) => {
-    if (event) {
-      // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
-      const target = this.diagramWidget.getMouseElement(event)
-      if (
-        target &&
-        !(
-          target.model instanceof StandardNodeModel ||
-          target.model instanceof SkillCallNodeModel ||
-          target.model instanceof RouterNodeModel
-        )
-      ) {
-        return
-      }
-    }
-
-    this.props.openFlowNodeProps()
-  }
-
   onDiagramClick = () => {
     const selectedNode = this.manager.getSelectedNode() as BpNodeModel
     const currentNode = this.props.currentFlowNode
@@ -193,10 +193,12 @@ export default class FlowBuilder extends Component<Props> {
     this.manager.sanitizeLinks()
     this.manager.cleanPortLinks()
 
-    if (!selectedNode && currentNode) {
+    if (!selectedNode) {
+      this.props.closeFlowNodeProps()
       this.props.switchFlowNode(null) // No node selected
     } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
       this.props.switchFlowNode(selectedNode.id) // Selected a new node
+      this.props.openFlowNodeProps()
     }
 
     if (selectedNode && (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y)) {
@@ -274,7 +276,7 @@ export default class FlowBuilder extends Component<Props> {
 
   handleFlowWideClicked = () => {
     this.props.switchFlowNode(null)
-    this.onDiagramDoubleClick()
+    this.props.openFlowNodeProps()
   }
 
   renderCatchAllInfo() {
@@ -358,6 +360,7 @@ interface Props {
   switchFlowNode: (nodeId: string) => any
   updateFlowProblems: (problems: NodeProblem[]) => void
   openFlowNodeProps: () => void
+  closeFlowNodeProps: () => void
   updateFlow: any
   createFlowNode: (props: any) => void
   createFlow: (name: string) => void
