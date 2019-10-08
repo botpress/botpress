@@ -6,6 +6,18 @@
   "engines": {
     "node": ">=10"
   },
+  "scripts": {
+    "build-css": "node-sass-chokidar src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
+    "start-js": "cross-env BROWSER=none react-app-rewired start",
+    "start": "cross-env PUBLIC_URL=admin npm-run-all -p watch-css start-js",
+    "start:dev": "cross-env PUBLIC_URL=admin cross-env REACT_APP_API_URL=http://localhost:3000 cross-env PORT=3001 npm-run-all -p watch-css start-js",
+    "build-js": "react-app-rewired build",
+    "build": "yarn build-css && cross-env PUBLIC_URL=admin yarn build-js",
+    "test": "react-app-rewired test --env=jsdom",
+    "eject": "react-scripts eject",
+    "clear-cache": "rimraf node_modules/.cache"
+  },
   "dependencies": {
     "@blueprintjs/core": "^3.15.1",
     "@blueprintjs/select": "^3.10.0",
@@ -37,17 +49,6 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.3.0",
     "snarkdown": "^1.2.2"
-  },
-  "scripts": {
-    "build-css": "node-sass-chokidar src/ -o src/",
-    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
-    "start-js": "cross-env BROWSER=none react-app-rewired start",
-    "start": "cross-env PUBLIC_URL=admin npm-run-all -p watch-css start-js",
-    "start:dev": "cross-env PUBLIC_URL=admin cross-env REACT_APP_API_URL=http://localhost:3000 cross-env PORT=3001 npm-run-all -p watch-css start-js",
-    "build-js": "react-app-rewired build",
-    "build": "yarn build-css && cross-env PUBLIC_URL=admin yarn build-js",
-    "test": "react-app-rewired test --env=jsdom",
-    "eject": "react-scripts eject"
   },
   "devDependencies": {
     "@types/react": "^16.8.20",
