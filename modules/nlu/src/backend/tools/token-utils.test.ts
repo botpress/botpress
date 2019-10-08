@@ -1,6 +1,7 @@
+import { LATIN_CHARSET } from './chars'
 import {
   makeTokens,
-  mergeSimilarTokens,
+  mergeSimilarCharsetTokens,
   mergeSpecialCharactersTokens,
   processUtteranceTokens,
   restoreOriginalUtteranceCasing,
@@ -88,10 +89,10 @@ describe('Token Merging', () => {
 
 describe('Raw token processing', () => {
   test('mergeSimilarTokens', () => {
-    expect(mergeSimilarTokens(['_', '__', '_', 'abc'], ['_'])).toEqual(['____', 'abc'])
-    expect(mergeSimilarTokens(['13', 'lo', '34', '56'], ['[0-9]'])).toEqual(['13', 'lo', '3456'])
-    expect(mergeSimilarTokens(['ab', '34', '4f6', '4'], ['[a-z]', '[0-9]'])).toEqual(['ab344f64'])
-    expect(mergeSimilarTokens(['gsa', '2', '3', 'he', '1', 'helko', '34', '56', '7'], ['[0-9]'])).toEqual([
+    expect(mergeSimilarCharsetTokens(['_', '__', '_', 'abc'], ['_'])).toEqual(['____', 'abc'])
+    expect(mergeSimilarCharsetTokens(['13', 'lo', '34', '56'], ['[0-9]'])).toEqual(['13', 'lo', '3456'])
+    expect(mergeSimilarCharsetTokens(['ab', '34', '4f6', '4'], ['[a-z]', '[0-9]'])).toEqual(['ab344f64'])
+    expect(mergeSimilarCharsetTokens(['gsa', '2', '3', 'he', '1', 'helko', '34', '56', '7'], ['[0-9]'])).toEqual([
       'gsa',
       '23',
       'he',
@@ -99,18 +100,24 @@ describe('Raw token processing', () => {
       'helko',
       '34567'
     ])
-    expect(mergeSimilarTokens(['#$', '^&', '!)'], '\\!,\\@,\\#,\\$,\\%,\\?,\\^,\\&,\\*,\\(,\\)'.split(','))).toEqual([
-      '#$^&!)'
-    ])
-    expect(mergeSimilarTokens(['lol', 'ha', 'ha', 'nop', 'funny'], ['lol', 'ha', 'funny'])).toEqual([
+    expect(
+      mergeSimilarCharsetTokens(['#$', '^&', '!)'], '\\!,\\@,\\#,\\$,\\%,\\?,\\^,\\&,\\*,\\(,\\)'.split(','))
+    ).toEqual(['#$^&!)'])
+    expect(mergeSimilarCharsetTokens(['lol', 'ha', 'ha', 'nop', 'funny'], ['lol', 'ha', 'funny'])).toEqual([
       'lolhaha',
       'nop',
       'funny'
     ])
+    expect(
+      mergeSimilarCharsetTokens(
+        ['ce', 'ci', 'est', 'très', SPACE, 'vanil', 'lé', '#', '12', '3', 'bås', 'Stra', 'ße'],
+        LATIN_CHARSET
+      )
+    ).toEqual(['ceciesttrès', SPACE, 'vanillé', '#', '123båsStraße'])
   })
 
   test('processUtteranceTokens', () => {
-    const res = processUtteranceTokens([
+    const toks = [
       `${SPACE}my`,
       `${SPACE}name`,
       `${SPACE}${SPACE}${SPACE}`,
@@ -120,13 +127,12 @@ describe('Raw token processing', () => {
       `${SPACE}98`,
       `${SPACE}Hei`,
       'Sen',
-      'berg!',
+      'berg',
       `!&$`,
       `!¿}{@~`
-    ])
+    ]
 
-    expect(res.length).toEqual(14)
-    expect(res).toEqual([
+    expect(processUtteranceTokens(toks)).toEqual([
       'my',
       '▁',
       'name',
@@ -137,11 +143,12 @@ describe('Raw token processing', () => {
       '▁',
       '98',
       '▁',
-      'Hei',
-      'Sen',
-      'berg!',
+      'HeiSenberg',
       '!&$!¿}{@~'
     ])
+
+    const moreToks = [`${SPACE}jag`, `${SPACE}ä`, `r`, `${SPACE}väl`, `digt`, `${SPACE}hungrig`]
+    expect(processUtteranceTokens(moreToks)).toEqual(['jag', SPACE, 'är', SPACE, 'väldigt', SPACE, 'hungrig'])
   })
 
   test('restoreUtteranceTokens', () => {

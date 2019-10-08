@@ -2,11 +2,11 @@ import _ from 'lodash'
 
 import { Token } from '../typings'
 
-import { IsLatin } from './chars'
+import { IsLatin, LATIN_CHARSET, SPECIAL_CHARSET } from './chars'
 
 export const SPACE = '\u2581'
-const CHARS_TO_MERGE: string[] = '¿÷≥≤µ˜∫√≈æ…¬˚˙©"+-_!@#$%?&*()~`/\\[]{}:;<>='.split('').map(c => `\\${c}`)
-export const isWord = (str: string) => _.every(CHARS_TO_MERGE, c => !str.includes(c)) && !isSpace(str)
+
+export const isWord = (str: string) => _.every(SPECIAL_CHARSET, c => !str.includes(c)) && !isSpace(str)
 
 export const isSpace = (str: string) => _.every(str, c => c === SPACE || c === ' ')
 
@@ -40,7 +40,7 @@ function tokenIsAllMadeOf(tok: string, chars: string[]) {
   return _.isEmpty(tokenCharsLeft)
 }
 
-export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: string[] = CHARS_TO_MERGE) => {
+export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: string[] = SPECIAL_CHARSET) => {
   let current: Token | undefined
   const final: Token[] = []
 
@@ -90,8 +90,8 @@ export function splitSpaceToken(token: string): string[] {
  * @example ['13', 'lo', '34', '56'] with a char pool of numbers ==> ['13', 'lo', '3456']
  * @example ['_', '__', '_', 'abc'] with a char pool of ['_'] ==> ['____', 'abc']
  */
-export const mergeSimilarTokens = (tokens: string[], charMatchers: string[]): string[] => {
-  const matcher = new RegExp(`^(${charMatchers.join('|')})+$`)
+export const mergeSimilarCharsetTokens = (tokens: string[], charMatchers: string[]): string[] => {
+  const matcher = new RegExp(`^(${charMatchers.join('|')})+$`, 'i')
   return tokens.reduce((mergedToks: string[], nextTok: string) => {
     if (matcher.test(_.last(mergedToks)) && matcher.test(nextTok)) {
       return [...mergedToks.slice(0, mergedToks.length - 1), `${_.last(mergedToks) || ''}${nextTok}`]
@@ -104,9 +104,10 @@ export const mergeSimilarTokens = (tokens: string[], charMatchers: string[]): st
 export const processUtteranceTokens = (tokens: string[]): string[] => {
   return _.chain(tokens)
     .flatMap(splitSpaceToken)
-    .thru(tokens => mergeSimilarTokens(tokens, [SPACE])) // merge spaces
-    .thru(tokens => mergeSimilarTokens(tokens, ['[0-9]'])) // merge numerical
-    .thru(tokens => mergeSimilarTokens(tokens, CHARS_TO_MERGE)) // merge special chars
+    .thru(tokens => mergeSimilarCharsetTokens(tokens, [SPACE])) // merge spaces
+    .thru(tokens => mergeSimilarCharsetTokens(tokens, ['[0-9]'])) // merge numeral
+    .thru(tokens => mergeSimilarCharsetTokens(tokens, SPECIAL_CHARSET)) // merge special chars
+    .thru(tokens => mergeSimilarCharsetTokens(tokens, LATIN_CHARSET)) // merge latin (handles typos)
     .thru(tokens => (tokens.length && tokens[0].startsWith(SPACE) ? tokens.slice(1) : tokens)) // remove 1st token if space
     .value()
 }
