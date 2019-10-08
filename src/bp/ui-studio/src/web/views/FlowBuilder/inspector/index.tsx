@@ -1,5 +1,17 @@
 import _ from 'lodash'
+import values from 'lodash/values'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import {
+  closeFlowNodeProps,
+  copyFlowNodeElement,
+  pasteFlowNodeElement,
+  refreshFlowsLinks,
+  requestEditSkill,
+  updateFlow,
+  updateFlowNode
+} from '~/actions'
+import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
@@ -26,7 +38,7 @@ interface Props {
   user: any
 }
 
-export default class Inspector extends Component<Props> {
+class Inspector extends Component<Props> {
   render() {
     const node = this.props.currentFlowNode
     return (
@@ -85,3 +97,26 @@ export default class Inspector extends Component<Props> {
     return <FlowInformation {...this.props} subflows={subflows} />
   }
 }
+
+const mapStateToProps = state => ({
+  flows: values(state.flows.flowsByName),
+  currentFlow: getCurrentFlow(state),
+  currentFlowNode: getCurrentFlowNode(state),
+  buffer: state.flows.buffer,
+  user: state.user
+})
+
+const mapDispatchToProps = {
+  updateFlow,
+  requestEditSkill,
+  copyFlowNodeElement,
+  pasteFlowNodeElement,
+  closeFlowNodeProps,
+  updateFlowNode,
+  refreshFlowsLinks
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Inspector)

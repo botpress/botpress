@@ -12,12 +12,12 @@ import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
 import Diagram from './containers/Diagram'
-import Inspector from './containers/Inspector'
 import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
 import { PannelPermissions } from './sidePanel'
 import { MutexInfo } from './sidePanel/Toolbar'
 import style from './style.scss'
+import Inspector from './Inspector'
 
 const toastMutex: _.Dictionary<boolean> = {}
 
