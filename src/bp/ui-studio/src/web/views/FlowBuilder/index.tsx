@@ -4,7 +4,14 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { clearErrorSaveFlows, closeFlowNodeProps, flowEditorRedo, flowEditorUndo, setDiagramAction, switchFlow } from '~/actions'
+import {
+  clearErrorSaveFlows,
+  closeFlowNodeProps,
+  flowEditorRedo,
+  flowEditorUndo,
+  setDiagramAction,
+  switchFlow
+} from '~/actions'
 import { Container } from '~/components/Shared/Interface'
 import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
@@ -15,7 +22,6 @@ import { UserReducer } from '~/reducers/user'
 import SidePanel from './containers/SidePanel'
 import SkillsBuilder from './containers/SkillsBuilder'
 import Diagram from './diagram'
-import Inspector from './inspector'
 import { PannelPermissions } from './sidePanel'
 import { MutexInfo } from './sidePanel/Toolbar'
 import style from './style.scss'
@@ -168,20 +174,16 @@ class FlowBuilder extends Component<Props, State> {
 
     return (
       <Container keyHandlers={keyHandlers}>
-        {this.props.showFlowNodeProps ? (
-          <Inspector />
-        ) : (
-          <SidePanel
-            readOnly={this.state.readOnly}
-            mutexInfo={this.state.mutexInfo}
-            permissions={pannelPermissions}
-            flowPreview={this.state.flowPreview}
-            onCreateFlow={name => {
-              this.diagram.createFlow(name)
-              this.props.switchFlow(`${name}.flow.json`)
-            }}
-          />
-        )}
+        <SidePanel
+          readOnly={this.state.readOnly}
+          mutexInfo={this.state.mutexInfo}
+          permissions={pannelPermissions}
+          flowPreview={this.state.flowPreview}
+          onCreateFlow={name => {
+            this.diagram.createFlow(name)
+            this.props.switchFlow(`${name}.flow.json`)
+          }}
+        />
         <div className={style.diagram}>
           <Diagram
             readOnly={readOnly}
@@ -236,8 +238,8 @@ type Props = {
   flowEditorRedo: any
   errorSavingFlows: any
   clearErrorSaveFlows: () => void
-  clearFlowsModification: () => void,
-  closeFlowNodeProps: () => void,
+  clearFlowsModification: () => void
+  closeFlowNodeProps: () => void
   flowsByName: _.Dictionary<FlowView>
 } & RouteComponentProps
 

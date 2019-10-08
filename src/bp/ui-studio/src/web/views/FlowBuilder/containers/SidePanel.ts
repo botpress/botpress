@@ -12,7 +12,8 @@ const mapStateToProps = (state, ownProps) => ({
   flows: values(state.flows.flowsByName),
   dirtyFlows: getDirtyFlows(state),
   flowProblems: state.flows.flowProblems,
-  flowsNames: _.keys(state.flows.flowsByName)
+  flowsNames: _.keys(state.flows.flowsByName),
+  showFlowNodeProps: state.flows.showFlowNodeProps
 })
 
 const mapDispatchToProps = {

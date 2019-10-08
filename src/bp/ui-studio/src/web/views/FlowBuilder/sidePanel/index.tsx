@@ -5,10 +5,11 @@ import React, { Component } from 'react'
 import { RouteComponentProps } from 'react-router'
 import { SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 
+import Inspector from '../inspector'
+
 import FlowsList from './FlowsList'
 import FlowTools from './FlowTools'
 import Toolbar from './Toolbar'
-
 export type PannelPermissions = 'create' | 'rename' | 'delete'
 
 type Props = {
@@ -25,6 +26,7 @@ type Props = {
   flowPreview: boolean
   mutexInfo: string
   readOnly: boolean
+  showFlowNodeProps: boolean
 } & RouteComponentProps
 
 export default class PanelContent extends Component<Props> {
@@ -66,25 +68,30 @@ export default class PanelContent extends Component<Props> {
     return (
       <SidePanel>
         <Toolbar mutexInfo={this.props.mutexInfo} />
+        {this.props.showFlowNodeProps ? (
+          <Inspector />
+        ) : (
+          <React.Fragment>
+            <SidePanelSection label={'Flows'} actions={this.props.permissions.includes('create') && [createFlowAction]}>
+              <FlowsList
+                readOnly={this.props.readOnly}
+                canDelete={this.props.permissions.includes('delete')}
+                canRename={this.props.permissions.includes('rename')}
+                flows={flowsName}
+                dirtyFlows={this.props.dirtyFlows}
+                goToFlow={this.goToFlow}
+                deleteFlow={this.props.deleteFlow}
+                duplicateFlow={this.props.duplicateFlow}
+                renameFlow={this.props.renameFlow}
+                currentFlow={this.props.currentFlow}
+              />
+            </SidePanelSection>
 
-        <SidePanelSection label={'Flows'} actions={this.props.permissions.includes('create') && [createFlowAction]}>
-          <FlowsList
-            readOnly={this.props.readOnly}
-            canDelete={this.props.permissions.includes('delete')}
-            canRename={this.props.permissions.includes('rename')}
-            flows={flowsName}
-            dirtyFlows={this.props.dirtyFlows}
-            goToFlow={this.goToFlow}
-            deleteFlow={this.props.deleteFlow}
-            duplicateFlow={this.props.duplicateFlow}
-            renameFlow={this.props.renameFlow}
-            currentFlow={this.props.currentFlow}
-          />
-        </SidePanelSection>
-
-        <SidePanelSection label="Tools">
-          <FlowTools flowPreview={this.props.flowPreview} />
-        </SidePanelSection>
+            <SidePanelSection label="Tools">
+              <FlowTools flowPreview={this.props.flowPreview} />
+            </SidePanelSection>
+          </React.Fragment>
+        )}
       </SidePanel>
     )
   }
