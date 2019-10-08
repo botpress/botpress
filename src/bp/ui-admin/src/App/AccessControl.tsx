@@ -6,9 +6,9 @@ import { fetchPermissions } from '../reducers/user'
 
 export interface PermissionAllowedProps {
   /** The resource to check permissions. Ex: module.qna */
-  resource: string
+  resource?: string
   /** The operation to check */
-  operation: 'read' | 'write'
+  operation?: 'read' | 'write'
   /** Should the user be a super admin to see this? */
   superAdmin?: boolean
 }
@@ -26,12 +26,16 @@ export const isOperationAllowed = (params: PermissionAllowedProps) => {
     return false
   }
 
-  if (profile.isSuperAdmin || !params.operation || !params.resource) {
+  if (profile.isSuperAdmin) {
     return true
   }
 
   if (params.superAdmin) {
     return false
+  }
+
+  if (!params.operation || !params.resource) {
+    return true
   }
 
   if (profile.permissions && !checkRule(profile.permissions, params.operation, params.resource)) {
