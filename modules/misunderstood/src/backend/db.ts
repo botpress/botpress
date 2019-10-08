@@ -59,6 +59,10 @@ export default class Db {
       .select('*')
       .where({ botId, language, status })
       .orderBy('updatedAt', 'desc')
+      .map((event: DbFlaggedEvent) => ({
+        ...event,
+        resolutionParams: event.resolutionParams && typeof event.resolutionParams !== 'object' ? JSON.parse(event.resolutionParams) : event.resolutionParams
+      }))
       .then()
   }
 
@@ -83,9 +87,9 @@ export default class Db {
       .select('*')
       .then((data: DbFlaggedEvent[]) => (data && data.length ? data[0] : null))
 
-    const { threadId, sessionId, id: messageId } = await this.knex(EVENTS_TABLE_NAME)
+    const { threadId, sessionId, id: messageId, event: eventDetails } = await this.knex(EVENTS_TABLE_NAME)
       .where({ botId, incomingEventId: event.eventId, direction: 'incoming' })
-      .select('id', 'threadId', 'sessionId')
+      .select('id', 'threadId', 'sessionId', 'event')
       .limit(1)
       .get(0)
 
@@ -111,6 +115,13 @@ export default class Db {
         isCurrent: id === messageId
       }))
 
-    return { ...event, context }
+    const parsedEventDetails = eventDetails && typeof eventDetails !== 'object' ? JSON.parse(eventDetails) : eventDetails
+
+    return {
+      ...event,
+      resolutionParams: event.resolutionParams && typeof event.resolutionParams !== 'object' ? JSON.parse(event.resolutionParams) : event.resolutionParams,
+      context,
+      nluContexts: parsedEventDetails && parsedEventDetails.nlu && parsedEventDetails.nlu.includedContexts || []
+    }
   }
 }

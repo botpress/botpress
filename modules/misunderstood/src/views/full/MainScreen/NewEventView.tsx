@@ -53,9 +53,14 @@ class NewEventView extends React.Component<Props, State> {
     this.setState({ resolutionType })
   }
 
-  updateAmendData = (resolution: string | null, resolutionParams?: string | object | null) => {
+  selectResolution = (resolution: string | null) => {
     this.setState({
-      resolution,
+      resolution
+    })
+  }
+
+  updateResolutionParams = (resolutionParams: string | object | null) => {
+    this.setState({
       resolutionParams: resolutionParams || null
     })
   }
@@ -101,11 +106,13 @@ class NewEventView extends React.Component<Props, State> {
           <AmendForm
             language={language}
             axios={axios}
+            event={event}
             mode={resolutionType}
             setMode={this.setAmendMode}
             resolution={resolution}
             resolutionParams={resolutionParams}
-            onUpdate={this.updateAmendData}
+            onSelect={this.selectResolution}
+            onParamsUpdate={this.updateResolutionParams}
             onSave={this.confirmAmend}
             onCancel={this.cancelAmend}
           />

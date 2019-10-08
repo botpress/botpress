@@ -2,7 +2,7 @@ import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
 import { AxiosStatic } from 'axios'
 import React from 'react'
 
-import { RESOLUTION_TYPE } from '../../../types'
+import { ApiFlaggedEvent, RESOLUTION_TYPE } from '../../../types'
 
 import style from './style.scss'
 import IntentPicker from './IntentPicker'
@@ -11,11 +11,13 @@ import QnAPicker from './QnAPicker'
 interface Props {
   axios: AxiosStatic
   language: string
+  event: ApiFlaggedEvent
   mode: RESOLUTION_TYPE
   resolution: string | null
-  resolutionParams: string | object | null
+  resolutionParams: object | null
   setMode: (mode: RESOLUTION_TYPE) => void
-  onUpdate: (resolution: string | null, resolutionParams?: string | object | null) => void
+  onSelect: (resolution: string | null) => void
+  onParamsUpdate: (resolutionParams: object | null) => void
   onSave: () => void
   onCancel: () => void
 }
@@ -23,11 +25,13 @@ interface Props {
 const AmendForm = ({
   axios,
   language,
+  event,
   mode,
   setMode,
   resolution,
   resolutionParams,
-  onUpdate,
+  onSelect,
+  onParamsUpdate,
   onSave,
   onCancel
 }: Props) => (
@@ -72,17 +76,23 @@ const AmendForm = ({
 
       {mode === RESOLUTION_TYPE.qna && (
         <div className={style.amendFormPicker}>
-          <QnAPicker axios={axios} language={language} selected={resolution} onSelect={(id: string | null) => {
-            onUpdate(id)
-          }} />
+          <QnAPicker
+            axios={axios}
+            language={language}
+            selected={resolution}
+            onSelect={onSelect} />
         </div>
       )}
 
       {mode === RESOLUTION_TYPE.intent && (
         <div className={style.amendFormPicker}>
-          <IntentPicker axios={axios} language={language} selected={resolution} params={resolutionParams} onSelect={(id: string | null, params?: string | object | null) => {
-            onUpdate(id)
-          }} />
+          <IntentPicker
+            axios={axios}
+            language={language}
+            event={event}
+            selected={resolution} params={resolutionParams}
+            onSelect={onSelect}
+            onParamsUpdate={onParamsUpdate} />
         </div>
       )}
 

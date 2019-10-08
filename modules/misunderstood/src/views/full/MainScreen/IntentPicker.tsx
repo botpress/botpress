@@ -2,7 +2,10 @@ import { Button, Card, ControlGroup, InputGroup, MenuItem } from "@blueprintjs/c
 import { MultiSelect } from '@blueprintjs/select'
 import { AxiosStatic } from "axios"
 import classnames from "classnames"
+import without from 'lodash/without'
 import React from "react"
+
+import { ApiFlaggedEvent } from '../../../types'
 
 import style from './style.scss'
 import ApiClient from "./NLUApiClient"
@@ -11,12 +14,18 @@ import VariationsOverlay from "./VariationsOverlay"
 
 const ITEMS_PER_PAGE = 5
 
+interface Params {
+  contexts?: string[]
+}
+
 interface Props {
   axios: AxiosStatic
   language: string
+  event: ApiFlaggedEvent
   selected: string
-  params: string | object | null
-  onSelect: (id: string | null, params?: string | object | null) => void
+  params: Params
+  onSelect: (id: string | null) => void
+  onParamsUpdate: (params?: object | null) => void
 }
 
 interface Intent {
@@ -39,6 +48,8 @@ interface State {
   displayIntents: Intent[],
   filteredIntentsCount: number
 }
+
+const StringMultiSelect = MultiSelect.ofType<string>()
 
 class IntentPicker extends React.Component<Props, State> {
   state = {
@@ -85,6 +96,57 @@ class IntentPicker extends React.Component<Props, State> {
     return null
   }
 
+  renderParamsForm() {
+    const { event, params, selected: selectedItemName } = this.props
+
+    const eventContexts = event.nluContexts || []
+    const selectedItem = this.state.intents.find(intent => intent.name === selectedItemName)
+    const newContexts = without(eventContexts, ...selectedItem.contexts).concat(['test1', 'test2'])
+
+    if (!newContexts.length) {
+      return null
+    }
+
+    const toggleContext = (context: string) => {
+      let contexts = params && params.contexts || []
+      if (contexts.includes(context)) {
+        contexts = contexts.filter(c => c !== context)
+      } else {
+        contexts = [...contexts, context]
+      }
+      this.props.onParamsUpdate({
+        ...params,
+        contexts
+      })
+    }
+
+    return <div className={style.paramsForm}>
+      <h5>Add extra contexts?</h5>
+      <StringMultiSelect
+        items={newContexts}
+        selectedItems={params && params.contexts || []}
+        onItemSelect={toggleContext}
+        placeholder="Search for a context..."
+        popoverProps={{
+          minimal: true
+        }}
+        tagRenderer={context => context}
+        itemRenderer={(context, { modifiers, handleClick }) => {
+          if (!modifiers.matchesPredicate) {
+            return null
+          }
+          return <MenuItem active={modifiers.active} onClick={handleClick} key={context} text={context} />
+        }}
+        tagInputProps={{
+          onRemove: toggleContext,
+          inputProps: {
+            className: style.selectInput
+          }
+        }}
+      />
+    </div>
+  }
+
   renderListItem = (intent: Intent, isSelected?: boolean) => {
     if (!intent || !intent.name) {
       return null
@@ -114,9 +176,13 @@ class IntentPicker extends React.Component<Props, State> {
         }
 
         {
-          isSelected && <Button onClick={() => {
-            this.props.onSelect(null)
-          }} icon="undo">Select another</Button>
+          isSelected && <>
+            {this.renderParamsForm()}
+            <Button onClick={() => {
+              this.props.onSelect(null)
+              this.props.onParamsUpdate(null)
+            }} icon="undo">Select another</Button>
+          </>
         }
       </Card >
     )

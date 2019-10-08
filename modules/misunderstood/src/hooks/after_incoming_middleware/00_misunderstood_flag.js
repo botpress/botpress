@@ -5,7 +5,7 @@ const flag = async () => {
     const data = {
       eventId: event.id,
       botId: event.botId,
-      language: event.nlu.language !== 'n/a' ? event.nlu.language : event.state.user.language,
+      language: [event.nlu.language, event.nlu.detectedLanguage, event.state.user.language].filter(l => l && l !== 'n/a')[0],
       preview: event.preview,
       reason: 'auto_hook'
     }

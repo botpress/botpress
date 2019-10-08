@@ -27,7 +27,7 @@ export type FlaggedEvent = {
   status: FLAGGED_MESSAGE_STATUS
   resolutionType: RESOLUTION_TYPE
   resolution: string | null
-  resolutionParams: string | object | null
+  resolutionParams: object | null
 }
 
 export type DbFlaggedEvent = FlaggedEvent & {
@@ -44,10 +44,11 @@ export type ContextMessage = {
 
 export type ApiFlaggedEvent = DbFlaggedEvent & {
   context: ContextMessage[]
+  nluContexts: string[]
 }
 
 export type ResolutionData = {
   resolutionType: RESOLUTION_TYPE
   resolution: string | null
-  resolutionParams?: string | object | null
+  resolutionParams?: object | null
 }
