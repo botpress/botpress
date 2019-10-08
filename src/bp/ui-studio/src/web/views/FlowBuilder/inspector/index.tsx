@@ -6,6 +6,8 @@ import FlowInformation from '../nodeProps/FlowInformation'
 import SkillCallNode from '../nodeProps/SkillCallNode'
 import StandardNode from '../nodeProps/StandardNode'
 
+import style from './style.scss'
+
 interface Props {
   currentFlowNode: any
   closeFlowNodeProps: any
@@ -27,7 +29,7 @@ interface Props {
 export default class Inspector extends Component<Props> {
   render() {
     return (
-      <div>
+      <div className={style.inspector}>
         Inspector
         {this.renderNodeProperties()}
       </div>
