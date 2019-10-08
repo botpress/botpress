@@ -2,8 +2,6 @@ import { checkRule } from 'common/auth'
 import { connect } from 'react-redux'
 import store from '~/store'
 
-import { fetchPermissions } from '../reducers/user'
-
 export interface PermissionAllowedProps {
   /** The resource to check permissions. Ex: module.qna */
   resource?: string
@@ -55,9 +53,9 @@ const PermissionsChecker = (props: AccessControlProps) => {
   return isOperationAllowed({ resource, operation, superAdmin }) ? children : (fallback as any)
 }
 
-const mapStateToProps = state => ({ permissions: state.user.permissions, test: state.user })
+const mapStateToProps = state => ({ permissions: state.user.permissions })
 
 export default connect(
   mapStateToProps,
-  { fetchPermissions }
+  undefined
 )(PermissionsChecker)

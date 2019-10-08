@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { ChatUserAuth, RequestWithUser, UserProfile } from 'common/typings'
+import { AuthRule, ChatUserAuth, RequestWithUser, TokenUser, UserProfile } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -68,16 +68,14 @@ export class AuthRouter extends CustomRouter {
       this.checkTokenHeader,
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
         const { email, strategy, isSuperAdmin } = req.tokenUser!
-
-        const { type } = await this.authService.getStrategy(strategy)
-
         const user = await this.authService.findUser(email, strategy)
         if (!user) {
           throw new NotFoundError(`User ${email || ''} not found`)
         }
+        const { type } = await this.authService.getStrategy(strategy)
         const { firstname, lastname } = user.attributes
 
-        const userRole = await this.workspaceService.getRoleForUser(email, strategy, req.workspace!)
+        const permissions = await this.getUserPermissions(req.tokenUser!, req.workspace!)
 
         const userProfile: UserProfile = {
           firstname,
@@ -87,7 +85,7 @@ export class AuthRouter extends CustomRouter {
           strategy,
           isSuperAdmin,
           fullName: [firstname, lastname].filter(Boolean).join(' '),
-          permissions: userRole && userRole.rules
+          permissions
         }
 
         return sendSuccess(res, 'Retrieved profile successfully', userProfile)
@@ -144,28 +142,6 @@ export class AuthRouter extends CustomRouter {
     )
 
     router.get(
-      '/me/permissions',
-      this.checkTokenHeader,
-      this.asyncMiddleware(async (req, res) => {
-        const { email, strategy, isSuperAdmin } = req.tokenUser!
-
-        if (isSuperAdmin) {
-          return sendSuccess(res, 'Returning Super Admin Permissions', [{ res: '*', op: '+r+w' }])
-        }
-
-        const role = await this.workspaceService.getRoleForUser(email, strategy, req.workspace!)
-        if (!role) {
-          const message = `Role not found for user ${email} (${strategy}) in workspace ${req.workspace}`
-          const noPermissions = [{ res: '*', op: '-r-w' }]
-
-          return sendSuccess(res, message, noPermissions)
-        }
-
-        return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
-      })
-    )
-
-    router.get(
       '/refresh',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
@@ -195,6 +171,19 @@ export class AuthRouter extends CustomRouter {
         res.send(await this.workspaceService.getBotWorkspaceId(botId))
       })
     )
+  }
+
+  getUserPermissions = async (user: TokenUser, workspaceId: string): Promise<AuthRule[]> => {
+    const { email, strategy, isSuperAdmin } = user
+    const userRole = await this.workspaceService.getRoleForUser(email, strategy, workspaceId)
+
+    if (isSuperAdmin) {
+      return [{ res: '*', op: '+r+w' }]
+    } else if (!userRole) {
+      return [{ res: '*', op: '-r-w' }]
+    } else {
+      return userRole.rules
+    }
   }
 
   sendSuccess = async (req, res) => {
