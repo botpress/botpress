@@ -37,7 +37,7 @@ import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
 import { SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
 import style from './style.scss'
 
-class FlowBuilder extends Component<Props> {
+class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
@@ -447,4 +447,4 @@ export default connect(
   mapDispatchToProps,
   null,
   { withRef: true }
-)(FlowBuilder)
+)(Diagram)
