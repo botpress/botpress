@@ -1,15 +1,30 @@
 import { Colors, ControlGroup, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
-import React from 'react'
+import React, { FC } from 'react'
 import { MdAndroid, MdCopyright } from 'react-icons/md'
-import { generatePath, withRouter } from 'react-router'
+import { connect } from 'react-redux'
+import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import { matchPath } from 'react-router-dom'
 import { getActiveWorkspace } from '~/Auth'
 
-const Menu = props => {
-  const MenuItem = ({ text, icon, url, id }) => {
+type MenuProps = { licensing: any } & RouteComponentProps
+
+interface MenuItemProps {
+  text: string
+  icon: any
+  url: string
+  id: string
+  isPro?: boolean
+}
+
+const Menu: FC<MenuProps> = props => {
+  const MenuItem = ({ text, icon, url, id, isPro }: MenuItemProps) => {
     const active = matchPath(props.location.pathname, { path: url })
     const workspaceId = getActiveWorkspace()
+
+    if (!props.licensing || (isPro && !props.licensing.isPro)) {
+      return null
+    }
 
     return (
       <div
@@ -33,8 +48,14 @@ const Menu = props => {
           icon={<MdAndroid color={Colors.GRAY1} />}
           url="/workspace/:workspaceId?/bots"
         />
-        <MenuItem id="btn-menu-users" text="Collaborators" icon="people" url="/workspace/:workspaceId?/users" />
-        <MenuItem id="btn-menu-roles" text="Roles" icon="shield" url="/workspace/:workspaceId?/roles" />
+        <MenuItem
+          id="btn-menu-users"
+          text="Collaborators"
+          icon="people"
+          url="/workspace/:workspaceId?/users"
+          isPro={true}
+        />
+        <MenuItem id="btn-menu-roles" text="Roles" icon="shield" url="/workspace/:workspaceId?/roles" isPro={true} />
       </ControlGroup>
 
       <div className="bp-sa-menu-header">Management</div>
@@ -64,4 +85,12 @@ const Menu = props => {
     </div>
   )
 }
-export default withRouter(Menu)
+
+const mapStateToProps = state => ({ licensing: state.license.licensing })
+
+export default withRouter(
+  connect(
+    mapStateToProps,
+    undefined
+  )(Menu)
+)

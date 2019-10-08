@@ -100,7 +100,7 @@ const WorkspaceSelect: FC<Props> = props => {
   }
 
   if (props.workspaces.length === 1) {
-    return <span>{props.workspaces[0].workspaceName}</span>
+    return <span>Workspace {props.workspaces[0].workspaceName}</span>
   }
 
   return (
