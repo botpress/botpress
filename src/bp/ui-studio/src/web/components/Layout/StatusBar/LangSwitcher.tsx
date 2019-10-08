@@ -1,31 +1,32 @@
-import React, { Fragment } from 'react'
-import { Dropdown, Glyphicon } from 'react-bootstrap'
 import _ from 'lodash'
+import React, { Fragment } from 'react'
+import { Dropdown } from 'react-bootstrap'
+import { keyMap } from '~/keyboardShortcuts'
 
 import withLanguage from '../../Util/withLanguage'
-import ActionItem from './ActionItem'
-import { keyMap } from '~/keyboardShortcuts'
-import style from './StatusBar.styl'
-import Flag from 'react-world-flags'
 
-const STORAGE_KEY = `bp::${window.BOT_ID}::cmsLanguage`
-const langFlagsMap = {
-  fr: 'fr',
-  en: 'gb',
-  ja: 'jp',
-  ru: 'ru',
-  ar: 'eh',
-  pt: 'pt',
-  es: 'es',
-  ko: 'kor',
-  de: 'de',
-  it: 'it',
-  nl: 'nl',
-  he: 'il',
-  pl: 'pl'
+import ActionItem from './ActionItem'
+import style from './StatusBar.styl'
+
+const requireFlag = code => {
+  try {
+    return require(`../../../img/flags/${code}.svg`)
+  } catch (err) {
+    return requireFlag('missing')
+  }
 }
 
-class LangSwitcher extends React.Component {
+interface Props {
+  contentLang: string
+  languages: any
+  changeContentLanguage: any
+  toggleLangSwitcher: any
+  langSwitcherOpen: boolean
+}
+
+const STORAGE_KEY = `bp::${window.BOT_ID}::cmsLanguage`
+
+class LangSwitcher extends React.Component<Props> {
   elems = {}
 
   componentDidMount() {
@@ -33,7 +34,7 @@ class LangSwitcher extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    let idx = this.props.languages.findIndex(l => l == this.props.contentLang)
+    const idx = this.props.languages.findIndex(l => l == this.props.contentLang)
     if (idx != -1 && !_.isEmpty(this.elems)) {
       this.elems[idx].focus()
     }
@@ -71,7 +72,7 @@ class LangSwitcher extends React.Component {
     localStorage.setItem(STORAGE_KEY, lang)
   }
 
-  //react-bootstrap warning otherwise
+  // react-bootstrap warning otherwise
   onToggle() {}
 
   render() {
@@ -88,7 +89,7 @@ class LangSwitcher extends React.Component {
           onClick={this.props.toggleLangSwitcher}
         >
           <span>
-            <Flag code={langFlagsMap[this.props.contentLang] || ''} height={10} />
+            <img src={requireFlag(this.props.contentLang)} alt={this.props.contentLang} className={style.flag} />
             &nbsp;
             {this.props.contentLang.toUpperCase()}
           </span>
@@ -105,14 +106,14 @@ class LangSwitcher extends React.Component {
           <Dropdown.Menu pullRight onClose={this.props.toggleLangSwitcher} className={style.langSwitherMenu}>
             {this.props.languages.map((l, idx) => (
               <li
-                tabIndex="-1"
+                tabIndex={-1}
                 ref={el => (this.elems[idx] = el)}
                 key={l}
                 className={style.langItem}
                 onClick={this.switchLang.bind(this, l)}
                 onKeyDown={this.handleKeyDown.bind(this, l)}
               >
-                <Flag code={langFlagsMap[l] || ''} height={14} />
+                <img src={requireFlag(l)} alt={l} className={style.flag} />
                 <span>{l.toUpperCase()}</span>
               </li>
             ))}

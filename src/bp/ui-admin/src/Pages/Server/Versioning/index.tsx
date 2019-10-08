@@ -37,7 +37,7 @@ const Versioning: FC<{ profile: any }> = props => {
   const toastCopiedClipboard = () => toastInfo('Copied to clipboard')
 
   return (
-    <PageContainer title="Source Control">
+    <PageContainer title="Source Control" superAdmin={true}>
       <Callout title="Pull remote to file system">
         <p>Use this command to copy the remote data on your local file system.</p>
         <Tooltip content="Click to copy to clipboard" position={Position.RIGHT}>

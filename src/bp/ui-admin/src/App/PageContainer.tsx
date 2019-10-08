@@ -1,10 +1,14 @@
-import { Colors, Icon, Tooltip } from '@blueprintjs/core'
+import { Callout, Colors, Icon, Intent, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
+
+import AccessControl from './AccessControl'
+
 interface Props {
   title?: JSX.Element | string
   helpText?: JSX.Element | string
   fullWidth?: boolean
+  superAdmin?: boolean
 }
 
 const PageContainer: FC<Props> = props => {
@@ -19,7 +23,14 @@ const PageContainer: FC<Props> = props => {
         )}
       </div>
       <div className="bp-sa-overflow">
-        <div className={cx('bp-sa-content', { 'bp-sa-fullwidth': props.fullWidth })}>{props.children}</div>
+        <div className={cx('bp-sa-content', { 'bp-sa-fullwidth': props.fullWidth })}>
+          <AccessControl
+            superAdmin={props.superAdmin}
+            fallback={<Callout intent={Intent.DANGER}>This page is restricted to Super Admins</Callout>}
+          >
+            {props.children}
+          </AccessControl>
+        </div>
       </div>
     </Fragment>
   )

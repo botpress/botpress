@@ -25,7 +25,8 @@ const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
-  canPasteNode: Boolean(state.flows.nodeInBuffer)
+  canPasteNode: Boolean(state.flows.nodeInBuffer),
+  skills: state.skills.installed
 })
 
 const mapDispatchToProps = {
