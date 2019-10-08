@@ -1,15 +1,15 @@
 import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
-import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { autoAnswerDialog, expectAdminApiCallSuccess, getTime, gotoAndExpect } from '../utils'
+import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
+import { autoAnswerDialog, closeToaster, expectAdminApiCallSuccess, getTime, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
   const importBotId = 'import-bot'
   const workspaceId = 'default'
 
-  const clickButtonForBot = async (buttonId: string, botId: string) => {
+  const clickButtonForBot =   async (buttonId: string, botId: string) => {
     const botRow = await expectMatchElement('.bp_table-row', { text: botId })
     await clickOn('#btn-menu', undefined, botRow)
     await clickOn(buttonId, undefined)
@@ -85,7 +85,7 @@ describe('Admin - Bot Management', () => {
       expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST'),
       clickButtonForBot('#btn-createRevision', tempBotId)
     ])
-    await page.waitFor(2000)
+    await closeToaster()
   })
 
   it('Rollback revision', async () => {
