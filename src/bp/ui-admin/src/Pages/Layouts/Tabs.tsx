@@ -7,7 +7,6 @@ import { matchPath, Route, Switch } from 'react-router-dom'
 import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap'
 
 import { fetchLicensing } from '../../reducers/license'
-import { fetchPermissions } from '../../reducers/user'
 import AccessControl, { isOperationAllowed } from '../../App/AccessControl'
 
 export interface AdminTab {
@@ -30,9 +29,7 @@ export interface AdminTab {
 }
 
 type Props = {
-  permissions: any
   licensing: any
-  fetchPermissions: () => void
   fetchLicensing: () => void
   tabs: AdminTab[]
   showHome: boolean
@@ -45,7 +42,6 @@ class TabLayout extends Component<Props> {
   }
 
   componentDidMount() {
-    !this.props.permissions && this.props.fetchPermissions()
     !this.props.licensing && this.props.fetchLicensing()
     this.setState({ activeTab: this.props.tabs[0].name })
   }
@@ -134,12 +130,10 @@ class TabLayout extends Component<Props> {
 }
 
 const mapStateToProps = state => ({
-  permissions: state.user.permissions,
   licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
-  fetchPermissions,
   fetchLicensing
 }
 

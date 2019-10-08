@@ -1,23 +1,21 @@
 import { Alignment, Icon, Navbar } from '@blueprintjs/core'
 import axios from 'axios'
-import { AuthRule } from 'common/typings'
+import { UserProfile } from 'common/typings'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { NavLink } from 'reactstrap'
 
 import logo from '../media/logo_white.png'
 import { fetchLicensing } from '../reducers/license'
-import { fetchPermissions, fetchProfile } from '../reducers/user'
+import { fetchProfile } from '../reducers/user'
 
 import Menu from './Menu'
 import UserDropdownMenu from './UserDropdownMenu'
 
 interface Props {
-  permissions?: AuthRule[]
-  profile: any
+  profile: UserProfile
   licensing: any
   fetchLicensing: () => void
-  fetchPermissions: () => void
   fetchProfile: () => void
 }
 
@@ -26,7 +24,6 @@ const App: FC<Props> = props => {
 
   useEffect(() => {
     props.fetchLicensing()
-    props.fetchPermissions()
     props.fetchProfile()
 
     // tslint:disable-next-line: no-floating-promises
@@ -38,7 +35,7 @@ const App: FC<Props> = props => {
     setVersion(data)
   }
 
-  if (!props.permissions || !props.profile) {
+  if (!props.profile) {
     return null
   }
 
@@ -109,13 +106,11 @@ const Unlicensed = () => (
 
 const mapStateToProps = state => ({
   profile: state.user.profile,
-  licensing: state.license.licensing,
-  permissions: state.user.permissions
+  licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
   fetchLicensing,
-  fetchPermissions,
   fetchProfile
 }
 
