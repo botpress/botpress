@@ -7,8 +7,6 @@ import choice from './choice'
 import email from './email'
 import slot from './slot'
 
-const onServerStarted = async (bp: typeof sdk) => {}
-
 const onServerReady = async (bp: typeof sdk) => {
   await choice.setup(bp)
 }
@@ -45,7 +43,6 @@ const skillsToRegister: sdk.Skill[] = [
 ]
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerStarted,
   onServerReady,
   onModuleUnmount,
   definition: {

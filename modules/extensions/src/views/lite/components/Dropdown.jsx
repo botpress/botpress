@@ -41,7 +41,7 @@ export class Dropdown extends React.Component {
       value = selectedOption.map(x => x.value || x.label).join(',')
     }
 
-    this.props.onSendData({ type: 'quick_reply', text: label, payload: value || label })
+    this.props.onSendData && this.props.onSendData({ type: 'quick_reply', text: label, payload: value || label })
   }
 
   renderSelect(inKeyboard) {

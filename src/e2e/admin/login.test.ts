@@ -22,7 +22,7 @@ describe('Admin - Init', () => {
   it('Load workspaces', async () => {
     await page.waitForNavigation()
     await page.waitFor(200)
-    await expect(page.url()).toMatch(`${bpConfig.host}/admin/workspace/bots`)
+    await expect(page.url()).toMatch(`${bpConfig.host}/admin/workspace/default/bots`)
   })
 
   if (bpConfig.recreateBot) {

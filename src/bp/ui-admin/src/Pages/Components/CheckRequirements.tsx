@@ -72,8 +72,8 @@ const CheckRequirements: FC<Props> = props => {
         <Callout title="Missing requirements">
           {props.messageReqMissing || 'To use this feature, these features are also required:'}
           <div style={{ padding: '20px 0' }}>
-            {missingReq.includes('redis') && <strong>Redis must be enabled and correctly configured</strong>}
             {missingReq.includes('pro') && <strong>Botpress Pro must be enabled with a valid license</strong>}
+            {missingReq.includes('redis') && <strong>Redis must be enabled and correctly configured</strong>}
             {missingReq.includes('monitoring') && <strong>Monitoring must be enabled</strong>}
           </div>
         </Callout>

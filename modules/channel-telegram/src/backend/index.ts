@@ -40,7 +40,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
-  const config = (await bp.config.getModuleConfigForBot('channel-telegram', botId)) as Config
+  const config = (await bp.config.getModuleConfigForBot('channel-telegram', botId, true)) as Config
 
   if (config.enabled) {
     const bot = new Telegraf(config.botToken)

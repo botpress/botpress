@@ -10,7 +10,7 @@ describe('Admin - Logout', () => {
   }
 
   it('Open workspaces page', async () => {
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/default/bots`)
   })
 
   it('Delete test bot', async () => {

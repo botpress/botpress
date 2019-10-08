@@ -28,6 +28,7 @@ import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
@@ -93,12 +94,8 @@ const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typ
 
 const config = (moduleLoader: ModuleLoader, configProvider: ConfigProvider): typeof sdk.config => {
   return {
-    getModuleConfig(moduleId: string): Promise<any> {
-      return moduleLoader.configReader.getGlobal(moduleId)
-    },
-    getModuleConfigForBot(moduleId: string, botId: string): Promise<any> {
-      return moduleLoader.configReader.getForBot(moduleId, botId)
-    },
+    getModuleConfig: moduleLoader.configReader.getGlobal.bind(moduleLoader.configReader),
+    getModuleConfigForBot: moduleLoader.configReader.getForBot.bind(moduleLoader.configReader),
     getBotpressConfig: configProvider.getBotpressConfig.bind(configProvider),
     mergeBotConfig: configProvider.mergeBotConfig.bind(configProvider)
   }
@@ -215,6 +212,15 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
   }
 }
 
+const workspaces = (workspaceService: WorkspaceService): typeof sdk.workspaces => {
+  return {
+    getBotWorkspaceId: workspaceService.getBotWorkspaceId.bind(workspaceService),
+    getWorkspaceRollout: workspaceService.getWorkspaceRollout.bind(workspaceService),
+    addUserToWorkspace: workspaceService.addUserToWorkspace.bind(workspaceService),
+    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService)
+  }
+}
+
 const experimental = (hookService: HookService): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
@@ -250,6 +256,7 @@ export class BotpressAPIProvider {
   mlToolkit: typeof sdk.MLToolkit
   experimental: typeof sdk.experimental
   security: typeof sdk.security
+  workspaces: typeof sdk.workspaces
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -269,7 +276,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.HookService) hookService: HookService,
-    @inject(TYPES.EventRepository) eventRepo: EventRepository
+    @inject(TYPES.EventRepository) eventRepo: EventRepository,
+    @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -286,6 +294,7 @@ export class BotpressAPIProvider {
     this.mlToolkit = MLToolkit
     this.experimental = experimental(hookService)
     this.security = security()
+    this.workspaces = workspaces(workspaceService)
   }
 
   @Memoize()
@@ -315,7 +324,8 @@ export class BotpressAPIProvider {
       bots: this.bots,
       cms: this.cms,
       security: this.security,
-      experimental: this.experimental
+      experimental: this.experimental,
+      workspaces: this.workspaces
     }
   }
 }

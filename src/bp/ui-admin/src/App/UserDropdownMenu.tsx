@@ -9,9 +9,10 @@ import {
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
-import React, { FC, useEffect } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import history from '~/history'
+import UpdatePassword from '~/Pages/MyAccount/UpdatePassword'
+import UserProfile from '~/Pages/MyAccount/UpdateUserProfile'
 
 import { fetchProfile } from '../reducers/user'
 import Auth from '../Auth/index'
@@ -23,6 +24,9 @@ interface Props {
 }
 
 const UserDropdownMenu: FC<Props> = props => {
+  const [isProfileOpen, setProfileOpen] = useState(false)
+  const [isPasswordOpen, setPasswordOpen] = useState(false)
+
   useEffect(() => {
     !props.profile && props.fetchProfile()
   }, [])
@@ -36,23 +40,44 @@ const UserDropdownMenu: FC<Props> = props => {
     return null
   }
 
-  const { email, fullName } = props.profile
+  const toggleProfile = () => setProfileOpen(!isProfileOpen)
+  const togglePassword = () => setPasswordOpen(!isPasswordOpen)
+
+  const { email, fullName, strategyType, picture_url } = props.profile
+  const canChangePassword = strategyType === 'basic'
+
+  const icon = picture_url ? (
+    <img src={picture_url} className="dropdown-picture" />
+  ) : (
+    <Icon icon="user" color={Colors.WHITE} />
+  )
 
   return (
-    <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-      <Button
-        id="btn-menu"
-        icon={<Icon icon="user" color={Colors.WHITE} />}
-        rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />}
-        minimal={true}
+    <div>
+      <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
+        <Button id="btn-menu" icon={icon} rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />} minimal={true} />
+        <Menu>
+          <MenuDivider title={`Signed in as ${fullName || email}`} />
+          <MenuItem id="btn-profile" icon="user" text="Update Profile" onClick={toggleProfile} />
+
+          {canChangePassword && (
+            <MenuItem id="btn-changepass" icon="key" text="Change Password" onClick={togglePassword} />
+          )}
+
+          <MenuDivider />
+          <MenuItem id="btn-logout" icon="log-out" text="Logout" onClick={logout} />
+        </Menu>
+      </Popover>
+
+      <UpdatePassword profile={props.profile} isOpen={isPasswordOpen} toggle={togglePassword} />
+
+      <UserProfile
+        isOpen={isProfileOpen}
+        toggle={toggleProfile}
+        profile={props.profile}
+        fetchProfile={props.fetchProfile}
       />
-      <Menu>
-        <MenuDivider title={`Signed in as ${fullName || email}`} />
-        <MenuItem id="btn-profile" icon="user" text="My account" onClick={() => history.push('/profile/me')} />
-        <MenuDivider />
-        <MenuItem id="btn-logout" icon="log-out" text="Logout" onClick={logout} />
-      </Menu>
-    </Popover>
+    </div>
   )
 }
 

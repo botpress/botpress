@@ -38,7 +38,9 @@ export class UsersRouter extends CustomRouter {
         const users = await this.workspaceService.getWorkspaceUsersAttributes(req.workspace!, [
           'last_logon',
           'firstname',
-          'lastname'
+          'lastname',
+          'picture_url',
+          'created_at'
         ])
         return sendSuccess(res, 'Retrieved users', users)
       })
@@ -70,7 +72,7 @@ export class UsersRouter extends CustomRouter {
           throw new ConflictError(`User "${email}" is already a member of this workspace`)
         }
 
-        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, role)
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, { role })
 
         res.sendStatus(200)
       })
@@ -125,7 +127,7 @@ export class UsersRouter extends CustomRouter {
         }
 
         const result = await this.authService.createUser({ email, strategy }, strategy)
-        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, role)
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, { role })
 
         return sendSuccess(res, 'User created successfully', {
           email,

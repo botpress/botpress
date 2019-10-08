@@ -1,12 +1,12 @@
-$status-bar-height: 24px;
+$status-bar-height: 30px;
 
 .container {
   position: relative;
-  height: 100%;
+  height: calc(100vh - #{$status-bar-height});
 }
 
 .fullsize {
-  height: 100%;
+  height: calc(100vh - #{$status-bar-height});
 }
 
 .container :global(.Resizer.vertical) {
@@ -107,10 +107,9 @@ $status-bar-height: 24px;
 }
 
 .infoTooltip {
-  font-size: 14px;
-  vertical-align: middle;
   opacity: 0.5;
-  cursor: pointer;
+  cursor: auto;
+
   &:hover {
     opacity: 1;
   }

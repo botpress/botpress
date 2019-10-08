@@ -86,9 +86,9 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     /** Called once the core is initialized. Usually for middlewares / database init */
-    onServerStarted: (bp: typeof import('botpress/sdk')) => void
+    onServerStarted?: (bp: typeof import('botpress/sdk')) => void
     /** This is called once all modules are initialized, usually for routing and logic */
-    onServerReady: (bp: typeof import('botpress/sdk')) => void
+    onServerReady?: (bp: typeof import('botpress/sdk')) => void
     onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => void
     onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => void
     /**
@@ -587,7 +587,7 @@ declare module 'botpress/sdk' {
      */
     export interface EventState {
       /** Data saved as user attributes; retention policies in Botpress global config applies  */
-      user: object
+      user: any
       /** Data is kept for the active session. Timeout configurable in the global config file */
       session: CurrentSession
       /** Data saved to this variable will be remembered until the end of the flow */
@@ -1122,6 +1122,38 @@ declare module 'botpress/sdk' {
     count: number
   }
 
+  /**
+   * All available rollout strategies (how users interact with bots of that workspace)
+   * An invite code is permanent, meaning that it will be consumed once and will not be necessary for that user in the future
+   *
+   * anonymous: Anyone can talk to bots
+   * anonymous-invite: Anyone with an invite code can talk to bots
+   * authenticated: Authenticated users will be automatically added to workspace as "chat user" (will then be "authorized")
+   * authenticated-invite: Authenticated users with an invite code will be added to workspace as "chat user" (will then be "authorized")
+   * authorized: Only authenticated users with an existing access to the workspace can talk to bots
+   */
+  export type RolloutStrategy =
+    | 'anonymous'
+    | 'anonymous-invite'
+    | 'authenticated'
+    | 'authenticated-invite'
+    | 'authorized'
+
+  export interface WorkspaceRollout {
+    rolloutStrategy: RolloutStrategy
+    inviteCode?: string
+    allowedUsages?: number
+  }
+
+  export interface AddWorkspaceUserOptions {
+    /** Select an existing custom role for that user. If role, asAdmin and asChatUser are undefined, then it will pick the default role */
+    role?: string
+    /** When enabled, user is added to the workspace as an admin (role is ignored) */
+    asAdmin?: boolean
+    /** When enabled, user is added as a chat user (role is ignored)  */
+    asChatUser?: boolean
+  }
+
   ////////////////
   //////// API
   ////////////////
@@ -1403,8 +1435,9 @@ declare module 'botpress/sdk' {
      * Returns the configuation values for the specified module and bot.
      * @param moduleId
      * @param botId
+     * @param ignoreGlobal Enable this when you want only bot-specific configuration to be possible
      */
-    export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
+    export function getModuleConfigForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<any>
 
     /**
      * Returns the configuration options of Botpress
@@ -1497,6 +1530,29 @@ declare module 'botpress/sdk' {
      * @param allowOverwrite? If not set, it will throw an error if the folder exists. Otherwise, it will overwrite files already present
      */
     export function importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void>
+  }
+
+  export namespace workspaces {
+    export function getBotWorkspaceId(botId: string): Promise<string>
+    export function addUserToWorkspace(
+      email: string,
+      strategy: string,
+      workspaceId: string,
+      options?: AddWorkspaceUserOptions
+    ): Promise<void>
+    /**
+     * Returns the rollout strategy of the requested workspace.
+     * If the workspace ID is unknown, it will be determined from the bot ID
+     * @param workspaceId
+     */
+    export function getWorkspaceRollout(workspaceId: string): Promise<WorkspaceRollout>
+    /**
+     * Consumes an invite code for the specified workspace.
+     * @param workspaceId
+     * @param inviteCode an invite code to compare to
+     * @returns boolean indicating if code was valid & enough usage were left
+     */
+    export function consumeInviteCode(workspaceId: string, inviteCode?: string): Promise<boolean>
   }
 
   export namespace notifications {

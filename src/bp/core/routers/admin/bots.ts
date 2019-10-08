@@ -59,10 +59,6 @@ export class BotsRouter extends CustomRouter {
         }
 
         const workspace = await this.workspaceService.findWorkspace(req.workspace!)
-        if (!workspace) {
-          throw new NotFoundError(`Unknown workspace`)
-        }
-
         const botsRefs = await this.workspaceService.getBotRefs(workspace.id)
         const bots = (await this.botService.findBotsByIds(botsRefs)).filter(Boolean)
 

@@ -8,7 +8,7 @@ const addLocationQuery = history => {
 }
 
 export type ExtendedHistory = History & {
-  location: Location & { query?: any }
+  location: Location & { query: any }
 }
 
 const history: ExtendedHistory = createBrowserHistory({ basename: `${window['ROOT_PATH']}/admin` }) as ExtendedHistory

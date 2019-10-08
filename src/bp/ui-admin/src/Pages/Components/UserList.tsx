@@ -82,6 +82,8 @@ class UserList extends Component<Props> {
 
   renderUsersForRole(users, roleId) {
     const currentUserEmail = this.props.profile && this.props.profile.email
+    const showPicture = _.some(users, u => u.attributes.picture_url)
+
     return (
       <Collapse isOpen={this.state[roleId]}>
         <div className="bp_table">
@@ -89,6 +91,11 @@ class UserList extends Component<Props> {
             return (
               <div className="bp_table-row bp_users-list" key={'user-' + user.email}>
                 <div style={{ display: 'flex' }}>
+                  {showPicture && (
+                    <div className="bp_users-picture">
+                      <img src={user.attributes.picture_url} />
+                    </div>
+                  )}
                   <div className="pullLeft details">
                     <div className="nameZone">
                       {_.get(user, 'attributes.firstname', '')}
@@ -107,13 +114,12 @@ class UserList extends Component<Props> {
                       </span>
                       <span className="field">
                         <b>Joined: </b>
-                        {moment(user.attributes.createdOn).fromNow()}
+                        {moment(user.attributes.created_at || user.attributes.createdOn).fromNow()}
                       </span>
                     </p>
                   </div>
-
-                  <div>{user.email !== currentUserEmail && this.renderActionButton(user)}</div>
                 </div>
+                <div>{user.email !== currentUserEmail && this.renderActionButton(user)}</div>
               </div>
             )
           })}
