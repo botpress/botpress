@@ -2,12 +2,12 @@ import classnames from 'classnames'
 import React, { Component, Fragment } from 'react'
 import { MdHome, MdKeyboardArrowLeft } from 'react-icons/md'
 import { connect } from 'react-redux'
-import { generatePath, RouteComponentProps } from 'react-router'
+import { generatePath, Redirect, RouteComponentProps } from 'react-router'
 import { matchPath, Route, Switch } from 'react-router-dom'
 import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap'
 
 import { fetchLicensing } from '../../reducers/license'
-import AccessControl from '../../App/AccessControl'
+import AccessControl, { isOperationAllowed } from '../../App/AccessControl'
 
 export interface AdminTab {
   id?: string
@@ -18,7 +18,7 @@ export interface AdminTab {
   /** Name of the resource in permissions */
   res?: string
   /** Type of operation: read or write */
-  op?: string
+  op?: 'read' | 'write'
   /** By default, the page size is 10 cols, but it can be overrided here */
   size?: number
   /** When true, tab is only displayed when pro is enabled in the workspace */
@@ -85,6 +85,12 @@ class TabLayout extends Component<Props> {
     const useFullWidth = currentTab && currentTab.useFullWidth
     const size = (currentTab && currentTab.size) || 10
     const offset = (currentTab && currentTab.offset) || 1
+
+    if (currentTab && currentTab.op && currentTab.res) {
+      if (!isOperationAllowed({ operation: currentTab.op, resource: currentTab.res })) {
+        return <Redirect to="/admin/workspace/bots" />
+      }
+    }
 
     return (
       <Fragment>
