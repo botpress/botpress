@@ -49,7 +49,7 @@ describe('Custom entity extraction', () => {
 
     const extractor = new PatternExtractor(Toolkit, languageProvider)
 
-    const entities = await extractor.extractPatterns(userInput, [entityDef])
+    const entities = extractor.extractPatterns(userInput, [entityDef])
 
     expect(entities.length).toEqual(3)
     expect(entities[0].name).toEqual(entityDef.name)

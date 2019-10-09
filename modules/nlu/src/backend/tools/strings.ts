@@ -99,3 +99,5 @@ export const countNum = (candidate: string): number => (candidate.replace(/\s/g,
  */
 export const countSpecial = (candidate: string): number =>
   candidate.replace(/\s/g, '').length - countAlpha(candidate) - countNum(candidate)
+
+export const replaceConsecutiveSpaces = (input: string): string => input.replace(/(\s)+/g, ' ')

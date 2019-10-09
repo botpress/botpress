@@ -1,5 +1,3 @@
-import { MLToolkit } from 'botpress/sdk'
-
 import { SPACE } from '../../tools/token-utils'
 import { Sequence, Token } from '../../typings'
 import { getClosestToken } from '../language/ft_featurizer'

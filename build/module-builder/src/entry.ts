@@ -21,7 +21,7 @@ require('yargs')
       out: {
         alias: 'o',
         describe: 'the output location of the package',
-        default: './%name%_%version%.tgz'
+        default: './%name%.tgz'
       }
     },
     argv => {
