@@ -14,6 +14,20 @@ describe('Admin - UI', () => {
     await expectMatch('Push local to this server')
   })
 
+  it('Change user profile', async () => {
+    await clickOn('#btn-menu')
+    await clickOn('#btn-profile')
+    await fillField('#input-firstname', 'Bob')
+    await fillField('#input-lastname', 'Lalancette')
+    await Promise.all([
+      expectCallSuccess(`${bpConfig.host}/api/v1/auth/me/profile`, 'POST'),
+      await clickOn('#btn-submit')
+    ])
+    await closeToaster()
+    await clickOn('#btn-menu')
+    await expectMatch('Signed in as Bob Lalancette')
+  })
+
   it('Load debugging page', async () => {
     await clickOn('#btn-menu-debug')
     await expectMatch('Configure Debug')
@@ -30,20 +44,6 @@ describe('Admin - UI', () => {
     await expectMatch('Using lang server at')
     await expectMatch('Installed Languages')
     await expectAdminApiCallSuccess('languages', 'GET')
-  })
-
-  it('Change user profile', async () => {
-    await clickOn('#btn-menu')
-    await clickOn('#btn-profile')
-    await fillField('#input-firstname', 'Bob')
-    await fillField('#input-lastname', 'Lalancette')
-    await Promise.all([
-      expectCallSuccess(`${bpConfig.host}/api/v1/auth/me/profile`, 'POST'),
-      await clickOn('#btn-submit')
-    ])
-    await closeToaster()
-    await clickOn('#btn-menu')
-    await expectMatch('Signed in as Bob Lalancette')
   })
 
   it('Update password', async () => {
