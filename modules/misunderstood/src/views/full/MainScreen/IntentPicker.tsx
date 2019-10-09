@@ -101,7 +101,7 @@ class IntentPicker extends React.Component<Props, State> {
 
     const eventContexts = event.nluContexts || []
     const selectedItem = this.state.intents.find(intent => intent.name === selectedItemName)
-    const newContexts = without(eventContexts, ...selectedItem.contexts).concat(['test1', 'test2'])
+    const newContexts = without(eventContexts, ...selectedItem.contexts)
 
     if (!newContexts.length) {
       return null
