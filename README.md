@@ -36,6 +36,9 @@ If you feel awesome and want to support us in a small way, please consider starr
 
 <img alt="Botpress" width="250" src=".github/assets/star_us.gif">
 
+## Deploy in the Cloud 🌩️
+Botpress can be easily deployed on DigitalOcean as a 1-Click App [here](https://marketplace.digitalocean.com/apps/botpress).
+
 ## Pre-built Binaries
 
 You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/index.html).
