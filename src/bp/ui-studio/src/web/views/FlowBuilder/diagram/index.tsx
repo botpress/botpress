@@ -219,6 +219,7 @@ class Diagram extends Component<Props> {
       }
     }
 
+    // TODO: delete this once 12.2.1 is out
     toastInfo('Pssst! Just click once a node to inspect it, no need to double-click anymore.', Timeout.LONG)
   }
 
