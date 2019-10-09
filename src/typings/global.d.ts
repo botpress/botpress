@@ -44,6 +44,7 @@ declare namespace NodeJS {
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
     AUTO_MIGRATE: boolean
+    IS_FAILSAFE: boolean
   }
 }
 
@@ -141,6 +142,12 @@ declare type BotpressEnvironementVariables = {
    * @default false
    */
   readonly BP_DISABLE_SERVER_CONFIG?: boolean
+
+  /**
+   * Prevents Botpress from closing cleanly when an error is encountered.
+   * This only affects fatal errors, it will not affect business rules checks (eg: licensing)
+   */
+  readonly BP_FAILSAFE?: boolean
 }
 
 interface IDebug {

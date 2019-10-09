@@ -25,7 +25,9 @@ export const initializeLangServer = async (bp: typeof sdk) => {
   } catch (e) {
     if (e.failure && e.failure.code === 'ECONNREFUSED') {
       bp.logger.error(`Language server can't be reached at adress ${e.failure.address}:${e.failure.port}`)
-      process.exit()
+      if (!process.IS_FAILSAFE) {
+        process.exit()
+      }
     }
     throw e
   }

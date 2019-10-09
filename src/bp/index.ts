@@ -43,6 +43,7 @@ if (process.env.APP_DATA_PATH) {
   process.APP_DATA_PATH = getAppDataPath()
 }
 
+process.IS_FAILSAFE = yn(process.env.BP_FAILSAFE)
 process.BOTPRESS_EVENTS = new EventEmitter()
 process.BOTPRESS_EVENTS.setMaxListeners(1000)
 
@@ -59,7 +60,9 @@ process.on('unhandledRejection', err => {
 
 process.on('uncaughtException', err => {
   global.printErrorDefault(err)
-  process.exit(1)
+  if (!process.IS_FAILSAFE) {
+    process.exit(1)
+  }
 })
 
 try {
