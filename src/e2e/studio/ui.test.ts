@@ -1,6 +1,6 @@
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatch } from '../expectPuppeteer'
-import { expectBotApiCallSuccess, getTime, gotoAndExpect, triggerKeyboardShortcut } from '../utils'
+import { expectBotApiCallSuccess, gotoAndExpect, triggerKeyboardShortcut } from '../utils'
 
 describe('Studio - UI', () => {
   it('Open Studio', async () => {
