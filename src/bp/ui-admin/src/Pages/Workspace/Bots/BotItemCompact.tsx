@@ -13,7 +13,9 @@ import {
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
 import React, { FC } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/history'
+import { toastInfo } from '~/utils/toaster'
 
 import AccessControl, { isChatUser } from '../../../App/AccessControl'
 
@@ -53,6 +55,10 @@ const BotItemCompact: FC<Props> = ({ bot, deleteBot, exportBot, createRevision, 
               {!bot.disabled && (
                 <MenuItem disabled={bot.locked} icon="edit" text="Edit in Studio" href={botStudioLink} />
               )}
+
+              <CopyToClipboard text={botShortLink} onCopy={() => toastInfo('Copied to clipboard')}>
+                <MenuItem icon="link" text="Copy link to clipboard" />
+              </CopyToClipboard>
 
               <AccessControl resource="admin.bots.*" operation="write">
                 <MenuItem text="Create Revision" icon="cloud-upload" id="btn-createRevision" onClick={createRevision} />
