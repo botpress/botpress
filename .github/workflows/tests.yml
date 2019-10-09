@@ -12,7 +12,7 @@ jobs:
         node-version: '10.11.0'
     - name: Fetch Node Packages
       run: |
-        yarn
+        yarn --verbose
     - name: Build core, UI and modules
       run: |
         NODE_OPTIONS="--max-old-space-size=6000" yarn build
@@ -38,7 +38,7 @@ jobs:
         node-version: '10.11.0'
     - name: Fetch Node Packages
       run: |
-        yarn
+        yarn --verbose
     - name: Build core, UI and modules
       run: |
         NODE_OPTIONS="--max-old-space-size=6000" yarn build
@@ -64,7 +64,7 @@ jobs:
         node-version: '10.11.0'
     - name: Fetch Node Packages
       run: |
-        yarn
+        yarn --verbose
     - name: Build core, UI and modules
       run: |
         NODE_OPTIONS="--max-old-space-size=6000" yarn build
@@ -90,7 +90,7 @@ jobs:
         node-version: '10.11.0'
     - name: Fetch Node Packages
       run: |
-        yarn
+        yarn --verbose
     - name: Build core, UI and modules
       run: |
         NODE_OPTIONS="--max-old-space-size=6000" yarn build
@@ -116,7 +116,7 @@ jobs:
         node-version: '10.11.0'
     - name: Fetch Node Packages
       run: |
-        yarn
+        yarn --verbose
     - name: Build core, UI and modules
       run: |
         NODE_OPTIONS="--max-old-space-size=6000" yarn build
