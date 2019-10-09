@@ -19,10 +19,7 @@ describe('Admin - UI', () => {
     await clickOn('#btn-profile')
     await fillField('#input-firstname', 'Bob')
     await fillField('#input-lastname', 'Lalancette')
-    await Promise.all([
-      expectCallSuccess(`${bpConfig.host}/api/v1/auth/me/profile`, 'POST'),
-      clickOn('#btn-submit')
-    ])
+    await Promise.all([expectCallSuccess(`${bpConfig.host}/api/v1/auth/me/profile`, 'POST'), clickOn('#btn-submit')])
     await closeToaster()
     await clickOn('#btn-menu')
     await expectMatch('Signed in as Bob Lalancette')
@@ -32,15 +29,9 @@ describe('Admin - UI', () => {
     await clickOn('#btn-menu-debug')
     await expectMatch('Configure Debug')
 
-    await Promise.all([
-      expectAdminApiCallSuccess('server/debug', 'GET'),
-      clickOn('#btn-refresh')
-    ])
+    await Promise.all([expectAdminApiCallSuccess('server/debug', 'GET'), clickOn('#btn-refresh')])
 
-    await Promise.all([
-      expectAdminApiCallSuccess('server/debug', 'POST'),
-      clickOn('#btn-save')
-    ])
+    await Promise.all([expectAdminApiCallSuccess('server/debug', 'POST'), clickOn('#btn-save')])
   })
 
   it('Load languages page', async () => {
