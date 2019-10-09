@@ -34,7 +34,7 @@ describe('UtteranceClass', () => {
     test('toString', () => {
       const utterance = new Utterance(TOKENS, VECTORS)
 
-      expect(utterance.tokens[0].toString()).toEqual('Youu')
+      expect(utterance.tokens[0].toString()).toEqual('You')
       expect(utterance.tokens[0].toString({ lowerCase: true })).toEqual('you')
       expect(utterance.tokens[1].toString()).toEqual(' ')
       expect(utterance.tokens[1].toString({ realSpaces: true })).toEqual(' ')
