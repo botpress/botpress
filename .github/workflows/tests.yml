@@ -1,0 +1,20 @@
+name: Tests
+on: [push]
+jobs:
+  unit_tests:
+    name: Unit
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - name: Pre Build
+      env:
+        CHILD_CONCURRENCY: 1
+      run: |
+        cp -r build/tests/* .
+        docker-compose build
+    - name: Build
+      env:
+        CHILD_CONCURRENCY: 1
+      run: |
+        docker-compose up --exit-code-from botpress
