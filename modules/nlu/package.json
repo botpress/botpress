@@ -7,6 +7,7 @@
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package",
     "postinstall": "./node_modules/.bin/rimraf **/bmp-stuff.png"
   },
   "author": "Botpress, Inc.",
@@ -46,7 +47,9 @@
     "slate-react": "^0.22.4",
     "slate-react-placeholder": "^0.2.4",
     "tmp": "^0.0.33",
-    "verror": "^1.10.0"
+    "utility-types": "^3.7.0",
+    "verror": "^1.10.0",
+    "yn": "^3.1.1"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

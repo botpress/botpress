@@ -2,14 +2,19 @@ import * as sdk from 'botpress/sdk'
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
+import yn from 'yn'
 
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util'
 
+import { deserializeModel, Model as E2Model, serializeModel } from './engine2'
+import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 25
+
+const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
 
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
@@ -213,31 +218,8 @@ export default class Storage {
   }
 
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
-    // TODO move this array as static method in DucklingExtractor
-    const sysEntNames = !this.config.ducklingEnabled
-      ? []
-      : [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'number',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
-    sysEntNames.unshift('any')
-
-    return sysEntNames.map(
-      e =>
-        ({
-          name: e,
-          type: 'system'
-        } as sdk.NLU.EntityDefinition)
+    return [...DucklingEntityExtractor.entityTypes, 'any'].map(
+      e => ({ name: e, type: 'system' } as sdk.NLU.EntityDefinition)
     )
   }
 
@@ -283,6 +265,22 @@ export default class Storage {
     }
   }
 
+  private _makeE2Fname(modelHash: string, lang: string): string {
+    return `${modelHash}.${lang}.model`
+  }
+
+  async writeE2Model(model: E2Model, modelHash: string): Promise<void> {
+    const strModel = serializeModel(model)
+    return this.botGhost.upsertFile(this.modelsDir, this._makeE2Fname(modelHash, model.languageCode), strModel)
+  }
+
+  async readE2Model(modelHash: string, languageCode: string): Promise<E2Model | undefined> {
+    if (await this.modelExists(modelHash, languageCode)) {
+      const strMod = await this.botGhost.readFileAsString(this.modelsDir, this._makeE2Fname(modelHash, languageCode))
+      return deserializeModel(strMod)
+    }
+  }
+
   async persistModels(models: Model[], lang: string) {
     await Promise.map(models, model => this._persistModel(model, lang))
     return this._cleanupModels(lang)
@@ -312,8 +310,12 @@ export default class Storage {
   }
 
   async modelExists(modelHash: string, lang: string): Promise<boolean> {
-    const models = await this._getAvailableModels(false, lang)
-    return !!_.find(models, m => m.hash === modelHash)
+    if (USE_E2) {
+      return this.botGhost.fileExists(this.modelsDir, this._makeE2Fname(modelHash, lang))
+    } else {
+      const models = await this._getAvailableModels(false, lang)
+      return !!_.find(models, m => m.hash === modelHash)
+    }
   }
 
   async getModelsFromHash(modelHash: string, lang: string): Promise<Model[]> {

@@ -1,13 +1,6 @@
-import { FastTextOverrides, LanguageSource } from './backend/typings'
+import { LanguageSource } from './backend/typings'
 
 export interface Config {
-  /**
-   * The minimum confidence required (in %) for an intent to match
-   * Set to '0' to always match
-   * @default 0.5
-   */
-  confidenceTreshold: number
-
   /**
    * If you want a fully on-prem installation, you can host
    * Facebook's Duckling on your own infrastructure and change this URL
@@ -34,23 +27,9 @@ export interface Config {
    */
   preloadModels: boolean
 
-  /** The name of the language model to use.
-   *  Language models are located in your bot's "global/models" folder and they end with `intent-lm.vec`
-   *  The name of the model to use is the prefix of the file (before the first occurence of `__`)
-   *  @default en
-   */
-  languageModel: string
-
   /**
    * The list of sources to load languages from
    * @default [{ "endpoint": "https://lang-01.botpress.io" }]
    */
   languageSources: LanguageSource[]
-
-  /**
-   * Fine-tuning of the fastText classifier parameters
-   * WARNING: For advanced users only
-   * @default {}
-   */
-  fastTextOverrides?: FastTextOverrides
 }
