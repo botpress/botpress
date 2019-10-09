@@ -1,5 +1,5 @@
 import { clickOn } from '../expectPuppeteer'
-import { autoAnswerDialog, clickOnTreeNode, expectBotApiCallSuccess, gotoStudio, getTime } from '../utils'
+import { autoAnswerDialog, clickOnTreeNode, expectBotApiCallSuccess, gotoStudio } from '../utils'
 
 describe('Studio - Flows', () => {
   beforeAll(async () => {
@@ -13,11 +13,8 @@ describe('Studio - Flows', () => {
   })
 
   it('Create new flow', async () => {
-    console.log(`${getTime()} Create new flow: answering dialog`)
     autoAnswerDialog('test_flow')
-    console.log(`${getTime()} Create new flow: clicking button`)
     await clickOn('#btn-add-flow')
-    console.log(`${getTime()} Create new flow: expecting API call`)
     await expectBotApiCallSuccess('flow')
   })
 
