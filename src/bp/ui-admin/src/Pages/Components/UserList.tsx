@@ -104,19 +104,21 @@ class UserList extends Component<Props> {
                     </div>
 
                     <p>
-                      <span className="field">
+                      <span className="emailField">
                         <b>Email: </b>
                         {user.email} ({user.strategy})
                       </span>
-                      <span className="field">
-                        <b>Last Login: </b>
-                        {user.attributes.last_logon ? moment(user.attributes.last_logon).fromNow() : 'never'}
-                      </span>
-                      <span className="field">
-                        <b>Joined: </b>
-                        {moment(user.attributes.created_at || user.attributes.createdOn).fromNow()}
-                      </span>
                     </p>
+                  </div>
+                  <div className="dates">
+                    <span className="field">
+                      <b>Created: </b>
+                      {moment(user.attributes.created_at || user.attributes.createdOn).fromNow()}
+                    </span>
+                    <span className="field">
+                      <b>Last Login: </b>
+                      {user.attributes.last_logon ? moment(user.attributes.last_logon).fromNow() : 'never'}
+                    </span>
                   </div>
                 </div>
                 <div>{user.email !== currentUserEmail && this.renderActionButton(user)}</div>
