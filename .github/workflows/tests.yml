@@ -1,16 +1,16 @@
 name: Tests
 on: [push]
 jobs:
-  unit_tests:
+  unit:
     name: Unit
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@master
-    - name: Pre Build
+    - name: Build
       run: |
         cp -r build/tests/* .
         docker-compose build
-    - name: Build
+    - name: Run tests
       run: |
         docker-compose up --exit-code-from botpress
