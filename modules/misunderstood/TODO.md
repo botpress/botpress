@@ -4,13 +4,13 @@
 - [x] get languages from the API
 - [x] language selection
 - [x] sidebar with the list view
-- [ ] main screen with actions
+- [x] main screen with actions
   - [x] dialogue context
   - [x] Skip
   - [x] Ignore/Delete
   - [x] Amend
   - [x] QnA picker
-  - [ ] Intent picker
+  - [x] Intent picker
 - [x] Pending list
   - [x] Apply all button
   - [ ] API to apply the changes

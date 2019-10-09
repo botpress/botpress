@@ -45,7 +45,8 @@ interface Intent {
 interface State {
   page: number
   intents: Intent[]
-  displayIntents: Intent[],
+  displayIntents: Intent[]
+  filterIntent: string
   filteredIntentsCount: number
 }
 
@@ -56,6 +57,7 @@ class IntentPicker extends React.Component<Props, State> {
     page: 0,
     intents: [],
     displayIntents: [],
+    filterIntent: '',
     filteredIntentsCount: 0
   }
 
@@ -67,10 +69,9 @@ class IntentPicker extends React.Component<Props, State> {
   }
 
   updateDisplayIntents = () => {
-    const { page, intents } = this.state
+    const { page, intents, filterIntent } = this.state
     const filteredIntents = intents
-      // TODO: filtering
-      .filter(x => x)
+      .filter(intent => !filterIntent || intent.name.includes(filterIntent))
     const filteredIntentsCount = filteredIntents.length
     const displayIntents = filteredIntents.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE)
     this.setState({ filteredIntentsCount, displayIntents })
@@ -92,8 +93,22 @@ class IntentPicker extends React.Component<Props, State> {
     )
   }
 
+  handleFilterChange = (event) => {
+    this.setState({
+      filterIntent: event.target.value
+    }, this.updateDisplayIntents)
+  }
+
   renderHeader() {
-    return null
+    return <ControlGroup className={style.filter}>
+      <InputGroup
+        large
+        leftIcon="filter"
+        onChange={this.handleFilterChange}
+        placeholder="Search for an intent..."
+        value={this.state.filterIntent}
+      />
+    </ControlGroup>
   }
 
   renderParamsForm() {
@@ -189,13 +204,14 @@ class IntentPicker extends React.Component<Props, State> {
   };
 
   renderList() {
-    const { displayIntents } = this.state
+    const { displayIntents, filterIntent } = this.state
 
     if (displayIntents.length) {
       return displayIntents.map(item => this.renderListItem(item))
     }
 
-    return <h3>No intents match the query.</h3>
+    return <h3>{filterIntent ?
+      'No intents match the query.' : 'No intents found'}</h3>
   }
 
   render() {

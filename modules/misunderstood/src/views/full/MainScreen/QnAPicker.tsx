@@ -162,8 +162,6 @@ class QnAPicker extends React.Component<Props, State> {
     </ControlGroup>
   }
 
-
-
   renderListItem = (item: QnAItem, isSelected?: boolean) => {
     if (!item || !item.id) {
       return null
@@ -218,13 +216,14 @@ class QnAPicker extends React.Component<Props, State> {
   };
 
   renderList() {
-    const { items } = this.state
+    const { items, filterQuestion, filterCategories } = this.state
 
     if (items.length) {
       return items.map(item => this.renderListItem(item))
     }
 
-    return <h3>No questions match the query.</h3>
+    return <h3>{(filterQuestion || filterCategories.length) ?
+      'No questions match the query.' : 'No questions found'}</h3>
   }
 
   async componentDidMount() {
