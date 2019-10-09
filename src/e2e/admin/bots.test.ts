@@ -2,7 +2,7 @@ import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { autoAnswerDialog, closeToaster, expectAdminApiCallSuccess, getTime, gotoAndExpect } from '../utils'
+import { autoAnswerDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
@@ -63,20 +63,13 @@ describe('Admin - Bot Management', () => {
 
   it('Configure bot', async () => {
     const botRow = await expectMatchElement('.bp_table-row', { text: tempBotId })
-    console.log(`${getTime()} Configure bot: Clicking on .configBtn`)
     await clickOn('.configBtn', undefined, botRow)
 
-    console.log(`${getTime()} Configure bot: filling input-name`)
     await fillField('#input-name', `${tempBotId} - testing my fabulous bot`)
-    console.log(`${getTime()} Configure bot: clicking on select-status`)
     await clickOn('#select-status')
-    console.log(`${getTime()} Configure bot: pressing arrowdown`)
     await page.keyboard.press('ArrowDown')
-    console.log(`${getTime()} Configure bot: pressing enter`)
     await page.keyboard.press('Enter')
-    console.log(`${getTime()} Configure bot: waiting for post call`)
     await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST'), clickOn('#btn-save')])
-    console.log(`${getTime()} Configure bot: gotoandexpect`)
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
@@ -89,21 +82,14 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Rollback revision', async () => {
-    console.log(`${getTime()} Rollback revision: click rollback revision button`)
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
-    console.log(`${getTime()} Rollback revision: select revision`)
     await expectMatchElement('#select-revisions')
 
-    console.log(`${getTime()} Rollback revision: arrow down`)
     await page.keyboard.press('ArrowDown')
-    console.log(`${getTime()} Rollback revision: enter`)
     await page.keyboard.press('Enter')
-    console.log(`${getTime()} Rollback revision: chk-confirm`)
     await clickOn('#chk-confirm')
-    console.log(`${getTime()} Rollback revision: await promise`)
 
     await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST'), clickOn('#btn-submit')])
-    console.log(`${getTime()} Rollback revision: await 500`)
     await page.waitFor(500)
   })
 
