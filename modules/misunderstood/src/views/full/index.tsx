@@ -127,7 +127,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     }
   }
 
-  async alterNewEventsList(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS) {
+  async alterEventsList(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS) {
     // do some local state patching to prevent unneeded content flash
     const { eventCounts, selectedEventIndex, events, selectedEvent } = this.state
     const newEventCounts = {
@@ -144,6 +144,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     // advance to the next event
     await this.setEventIndex(selectedEventIndex)
 
+    // update the real events counts from the back-end
     await this.updateEventsCounts()
   }
 
@@ -153,25 +154,25 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     if (selectedEvent) {
       await this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.deleted)
 
-      return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
+      return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
     }
   }
 
   undeleteEvent = async (id: string) => {
     await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
-    return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
   }
 
   resetPendingEvent = async (id: string) => {
     await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
-    return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new)
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new)
   }
 
   amendCurrentEvent = async (resolutionData: ResolutionData) => {
     const { selectedEvent } = this.state
 
     await this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.pending, resolutionData)
-    return this.alterNewEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.pending)
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.pending)
   }
 
   applyAllPending = async () => {
@@ -192,7 +193,10 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       selectedEvent
     } = this.state
 
-    const dataLoaded = selectedStatus === FLAGGED_MESSAGE_STATUS.new ? selectedEvent : events
+    const dataLoaded =
+      selectedStatus === FLAGGED_MESSAGE_STATUS.new
+        ? (selectedEvent || events && events.length === 0)
+        : events
 
     return (
       <Container sidePanelWidth={320}>

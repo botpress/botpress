@@ -33,6 +33,10 @@ const MainScreen = ({
     return <AppliedList events={events} totalEventsCount={totalEventsCount} />
   }
 
+  if (selectedStatus === FLAGGED_MESSAGE_STATUS.new && events && events.length === 0) {
+    return <div>No new events.</div>
+  }
+
   return (
     <NewEventView
       language={language}
