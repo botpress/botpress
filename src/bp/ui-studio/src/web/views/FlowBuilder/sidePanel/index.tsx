@@ -1,14 +1,19 @@
 import { Icon } from '@blueprintjs/core'
 import _ from 'lodash'
 import reject from 'lodash/reject'
+import values from 'lodash/values'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { RouteComponentProps } from 'react-router'
+import { deleteFlow, duplicateFlow, renameFlow } from '~/actions'
 import { SidePanel, SidePanelSection } from '~/components/Shared/Interface'
+import { getCurrentFlow, getDirtyFlows } from '~/reducers'
+
+import Inspector from '../inspector'
 
 import FlowsList from './FlowsList'
 import FlowTools from './FlowTools'
 import Toolbar from './Toolbar'
-
 export type PannelPermissions = 'create' | 'rename' | 'delete'
 
 type Props = {
@@ -25,9 +30,10 @@ type Props = {
   flowPreview: boolean
   mutexInfo: string
   readOnly: boolean
+  showFlowNodeProps: boolean
 } & RouteComponentProps
 
-export default class PanelContent extends Component<Props> {
+class PanelContent extends Component<Props> {
   createFlow = () => {
     let name = prompt('Enter the name of the new flow')
 
@@ -66,26 +72,51 @@ export default class PanelContent extends Component<Props> {
     return (
       <SidePanel>
         <Toolbar mutexInfo={this.props.mutexInfo} />
+        {this.props.showFlowNodeProps ? (
+          <Inspector />
+        ) : (
+          <React.Fragment>
+            <SidePanelSection label={'Flows'} actions={this.props.permissions.includes('create') && [createFlowAction]}>
+              <FlowsList
+                readOnly={this.props.readOnly}
+                canDelete={this.props.permissions.includes('delete')}
+                canRename={this.props.permissions.includes('rename')}
+                flows={flowsName}
+                dirtyFlows={this.props.dirtyFlows}
+                goToFlow={this.goToFlow}
+                deleteFlow={this.props.deleteFlow}
+                duplicateFlow={this.props.duplicateFlow}
+                renameFlow={this.props.renameFlow}
+                currentFlow={this.props.currentFlow}
+              />
+            </SidePanelSection>
 
-        <SidePanelSection label={'Flows'} actions={this.props.permissions.includes('create') && [createFlowAction]}>
-          <FlowsList
-            readOnly={this.props.readOnly}
-            canDelete={this.props.permissions.includes('delete')}
-            canRename={this.props.permissions.includes('rename')}
-            flows={flowsName}
-            dirtyFlows={this.props.dirtyFlows}
-            goToFlow={this.goToFlow}
-            deleteFlow={this.props.deleteFlow}
-            duplicateFlow={this.props.duplicateFlow}
-            renameFlow={this.props.renameFlow}
-            currentFlow={this.props.currentFlow}
-          />
-        </SidePanelSection>
-
-        <SidePanelSection label="Tools">
-          <FlowTools flowPreview={this.props.flowPreview} />
-        </SidePanelSection>
+            <SidePanelSection label="Tools">
+              <FlowTools flowPreview={this.props.flowPreview} />
+            </SidePanelSection>
+          </React.Fragment>
+        )}
       </SidePanel>
     )
   }
 }
+
+const mapStateToProps = state => ({
+  currentFlow: getCurrentFlow(state),
+  flows: values(state.flows.flowsByName),
+  dirtyFlows: getDirtyFlows(state),
+  flowProblems: state.flows.flowProblems,
+  flowsNames: _.keys(state.flows.flowsByName),
+  showFlowNodeProps: state.flows.showFlowNodeProps
+})
+
+const mapDispatchToProps = {
+  deleteFlow,
+  duplicateFlow,
+  renameFlow
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PanelContent)

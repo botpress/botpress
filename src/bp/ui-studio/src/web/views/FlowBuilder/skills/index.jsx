@@ -5,7 +5,9 @@ import find from 'lodash/find'
 import includes from 'lodash/includes'
 import Loader from 'react-loaders'
 import withLanguage from '../../../components/Util/withLanguage'
+import { connect } from 'react-redux'
 
+import { cancelNewSkill, insertNewSkill, updateSkill } from '~/actions'
 const style = require('./style.scss')
 
 const VALID_WINDOW_SIZES = ['normal', 'large', 'small']
@@ -187,4 +189,18 @@ class SkillsBuilder extends React.Component {
   }
 }
 
-export default withLanguage(SkillsBuilder)
+const mapStateToProps = state => ({
+  installedSkills: state.skills.installed,
+  ...state.skills.builder
+})
+
+const mapDispatchToProps = {
+  cancelNewSkill,
+  insertNewSkill,
+  updateSkill
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withLanguage(SkillsBuilder))

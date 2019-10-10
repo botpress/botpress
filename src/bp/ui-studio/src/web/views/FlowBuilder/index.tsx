@@ -1,29 +1,29 @@
-import { Intent, Position, Toaster } from '@blueprintjs/core'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
-import { clearErrorSaveFlows, flowEditorRedo, flowEditorUndo, setDiagramAction, switchFlow } from '~/actions'
+import {
+  clearErrorSaveFlows,
+  closeFlowNodeProps,
+  flowEditorRedo,
+  flowEditorUndo,
+  setDiagramAction,
+  switchFlow
+} from '~/actions'
 import { Container } from '~/components/Shared/Interface'
+import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
-import Diagram from './containers/Diagram'
-import NodeProps from './containers/NodeProps'
-import SidePanel from './containers/SidePanel'
-import SkillsBuilder from './containers/SkillsBuilder'
+import Diagram from './diagram'
+import SidePanel from './sidePanel'
 import { PannelPermissions } from './sidePanel'
 import { MutexInfo } from './sidePanel/Toolbar'
+import SkillsBuilder from './skills'
 import style from './style.scss'
-
-const toastMutex: _.Dictionary<boolean> = {}
-
-const FlowToaster = Toaster.create({
-  position: Position.TOP
-})
 
 class FlowBuilder extends Component<Props, State> {
   private diagram
@@ -83,7 +83,7 @@ class FlowBuilder extends Component<Props, State> {
         status === 403
           ? 'Unauthorized flow update. You have insufficient role privileges to modify flows.'
           : 'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition'
-      toast(message, Intent.DANGER, 0, this.props.clearErrorSaveFlows)
+      toastFailure(message, Timeout.LONG, this.props.clearErrorSaveFlows)
     }
 
     const flowsHaveChanged = !_.isEqual(prevProps.flowsByName, this.props.flowsByName)
@@ -163,7 +163,11 @@ class FlowBuilder extends Component<Props, State> {
       },
       save: e => {
         e.preventDefault()
-        toast('Pssst! Flows now save automatically, no need to save anymore.', Intent.PRIMARY, 700)
+        toastInfo('Pssst! Flows now save automatically, no need to save anymore.', Timeout.LONG)
+      },
+      cancel: e => {
+        e.preventDefault()
+        this.props.closeFlowNodeProps()
       }
     }
 
@@ -194,27 +198,9 @@ class FlowBuilder extends Component<Props, State> {
 
         <DocumentationProvider file="flows" />
         <SkillsBuilder />
-        <NodeProps readOnly={readOnly} show={this.props.showFlowNodeProps} />
       </Container>
     )
   }
-}
-
-const toast = (message: string, intent: Intent, timeout: number, onDismissCb?: () => void) => {
-  if (toastMutex[message]) {
-    return
-  }
-
-  toastMutex[message] = true
-  FlowToaster.show({
-    message,
-    intent,
-    timeout,
-    onDismiss: () => {
-      toastMutex[message] = false
-      onDismissCb && onDismissCb()
-    }
-  })
 }
 
 const mapStateToProps = (state: RootReducer) => ({
@@ -231,7 +217,8 @@ const mapDispatchToProps = {
   setDiagramAction,
   flowEditorUndo,
   flowEditorRedo,
-  clearErrorSaveFlows
+  clearErrorSaveFlows,
+  closeFlowNodeProps
 }
 
 export default connect(
@@ -251,6 +238,7 @@ type Props = {
   errorSavingFlows: any
   clearErrorSaveFlows: () => void
   clearFlowsModification: () => void
+  closeFlowNodeProps: () => void
   flowsByName: _.Dictionary<FlowView>
 } & RouteComponentProps
 

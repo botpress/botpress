@@ -3,7 +3,28 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
+import { connect } from 'react-redux'
 import { DiagramEngine, DiagramWidget, NodeModel } from 'storm-react-diagrams'
+import {
+  buildNewSkill,
+  closeFlowNodeProps,
+  copyFlowNode,
+  createFlow,
+  createFlowNode,
+  fetchFlows,
+  insertNewSkillNode,
+  openFlowNodeProps,
+  pasteFlowNode,
+  removeFlowNode,
+  setDiagramAction,
+  switchFlow,
+  switchFlowNode,
+  updateFlow,
+  updateFlowNode,
+  updateFlowProblems
+} from '~/actions'
+import { Timeout, toastInfo } from '~/components/Shared/Utils'
+import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
@@ -17,7 +38,7 @@ import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
 import { SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
 import style from './style.scss'
 
-export default class FlowBuilder extends Component<Props> {
+class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
@@ -183,20 +204,39 @@ export default class FlowBuilder extends Component<Props> {
       }
     }
 
-    this.props.openFlowNodeProps()
+    // TODO: delete this once 12.2.1 is out
+    toastInfo('Pssst! Just click once a node to inspect it, no need to double-click anymore.', Timeout.LONG)
   }
 
-  onDiagramClick = () => {
+  canTargetOpenInspector = target => {
+    if (!target) {
+      return false
+    }
+
+    const targetModel = target.model
+    return (
+      targetModel instanceof StandardNodeModel ||
+      targetModel instanceof SkillCallNodeModel ||
+      target.model instanceof RouterNodeModel
+    )
+  }
+
+  onDiagramClick = (event: MouseEvent) => {
     const selectedNode = this.manager.getSelectedNode() as BpNodeModel
     const currentNode = this.props.currentFlowNode
+    const target = this.diagramWidget.getMouseElement(event)
 
     this.manager.sanitizeLinks()
     this.manager.cleanPortLinks()
 
-    if (!selectedNode && currentNode) {
-      this.props.switchFlowNode(null) // No node selected
+    this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
+
+    if (!selectedNode) {
+      this.props.closeFlowNodeProps()
+      this.props.switchFlowNode(null)
     } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
-      this.props.switchFlowNode(selectedNode.id) // Selected a new node
+      // Different node selected
+      this.props.switchFlowNode(selectedNode.id)
     }
 
     if (selectedNode && (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y)) {
@@ -274,7 +314,7 @@ export default class FlowBuilder extends Component<Props> {
 
   handleFlowWideClicked = () => {
     this.props.switchFlowNode(null)
-    this.onDiagramDoubleClick()
+    this.props.openFlowNodeProps()
   }
 
   renderCatchAllInfo() {
@@ -358,6 +398,7 @@ interface Props {
   switchFlowNode: (nodeId: string) => any
   updateFlowProblems: (problems: NodeProblem[]) => void
   openFlowNodeProps: () => void
+  closeFlowNodeProps: () => void
   updateFlow: any
   createFlowNode: (props: any) => void
   createFlow: (name: string) => void
@@ -388,3 +429,38 @@ type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
   flowBuilder?: any
 } & DiagramEngine
+
+const mapStateToProps = state => ({
+  flows: state.flows,
+  currentFlow: getCurrentFlow(state),
+  currentFlowNode: getCurrentFlowNode(state),
+  currentDiagramAction: state.flows.currentDiagramAction,
+  canPasteNode: Boolean(state.flows.nodeInBuffer),
+  skills: state.skills.installed
+})
+
+const mapDispatchToProps = {
+  fetchFlows,
+  switchFlowNode,
+  openFlowNodeProps,
+  closeFlowNodeProps,
+  setDiagramAction,
+  createFlowNode,
+  removeFlowNode,
+  createFlow,
+  updateFlowNode,
+  switchFlow,
+  updateFlow,
+  copyFlowNode,
+  pasteFlowNode,
+  insertNewSkillNode,
+  updateFlowProblems,
+  buildSkill: buildNewSkill
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+  null,
+  { withRef: true }
+)(Diagram)

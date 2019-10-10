@@ -1,12 +1,24 @@
+import { H4 } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component } from 'react'
-import { Modal } from 'react-bootstrap'
+import { connect } from 'react-redux'
+import {
+  closeFlowNodeProps,
+  copyFlowNodeElement,
+  pasteFlowNodeElement,
+  refreshFlowsLinks,
+  requestEditSkill,
+  updateFlow,
+  updateFlowNode
+} from '~/actions'
+import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { nodeTypes } from '../diagram/manager'
+import FlowInformation from '../nodeProps/FlowInformation'
+import SkillCallNode from '../nodeProps/SkillCallNode'
+import StandardNode from '../nodeProps/StandardNode'
 
-import FlowInformation from './FlowInformation'
-import SkillCallNode from './SkillCallNode'
-import StandardNode from './StandardNode'
+import style from './style.scss'
 
 interface Props {
   currentFlowNode: any
@@ -26,27 +38,16 @@ interface Props {
   user: any
 }
 
-export default class NodePropsModal extends Component<Props> {
+class Inspector extends Component<Props> {
   render() {
     const node = this.props.currentFlowNode
     return (
-      <Modal
-        animation={false}
-        show={this.props.show}
-        onHide={this.props.closeFlowNodeProps}
-        container={document.getElementById('app')}
-        backdrop={'static'}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{node ? 'Node Properties' : 'Flow Properties'}</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>{this.renderNodeProperties()}</Modal.Body>
-      </Modal>
+      <div className={style.inspector}>
+        <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
+        {this.renderNodeProperties()}
+      </div>
     )
   }
-
-  goToFlow = flow => this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
 
   renderNodeProperties() {
     const { readOnly } = this.props
@@ -96,3 +97,26 @@ export default class NodePropsModal extends Component<Props> {
     return <FlowInformation {...this.props} subflows={subflows} />
   }
 }
+
+const mapStateToProps = state => ({
+  flows: _.values(state.flows.flowsByName),
+  currentFlow: getCurrentFlow(state),
+  currentFlowNode: getCurrentFlowNode(state),
+  buffer: state.flows.buffer,
+  user: state.user
+})
+
+const mapDispatchToProps = {
+  updateFlow,
+  requestEditSkill,
+  copyFlowNodeElement,
+  pasteFlowNodeElement,
+  closeFlowNodeProps,
+  updateFlowNode,
+  refreshFlowsLinks
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Inspector)
