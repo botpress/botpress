@@ -2,7 +2,7 @@ import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import { autoAnswerDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
@@ -69,26 +69,27 @@ describe('Admin - Bot Management', () => {
     await clickOn('#select-status')
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
-    await clickOn('#btn-save')
-    await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST')
+    await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST'), clickOn('#btn-save')])
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Create revision', async () => {
-    await clickButtonForBot('#btn-createRevision', tempBotId)
-    await expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST')
-    await page.waitFor(500)
+    await Promise.all([
+      expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST'),
+      clickButtonForBot('#btn-createRevision', tempBotId)
+    ])
+    await closeToaster()
   })
 
   it('Rollback revision', async () => {
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
+    await expectMatchElement('#select-revisions')
 
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
     await clickOn('#chk-confirm')
-    await clickOn('#btn-submit')
 
-    await expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST')
+    await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST'), clickOn('#btn-submit')])
     await page.waitFor(500)
   })
 

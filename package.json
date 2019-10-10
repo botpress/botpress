@@ -137,6 +137,7 @@
     "gulp-typescript": "^5.0.0-alpha.3",
     "husky": "^1.1.2",
     "jest": "^24.5.0",
+    "jest-circus": "^24.5.0",
     "jest-extended": "^0.10.0",
     "jest-html-reporter": "^2.4.2",
     "jest-puppeteer": "^4.3.0",
