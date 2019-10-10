@@ -3,7 +3,7 @@ const _ = require('lodash')
 
 async function processIncoming() {
   try {
-    const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId)
+    const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
     const { data } = await axios.post('/mod/testing/incomingEvent', event, axiosConfig)
 
     if (data) {

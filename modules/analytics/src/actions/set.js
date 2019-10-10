@@ -10,7 +10,7 @@ const axios = require('axios')
  * @param {Number} [count=1] The absolute value to set
  */
 const set = async (metric, group, count = 1) => {
-  const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId)
+  const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
   await axios.post(
     '/mod/analytics/custom_metrics/set',
     { name: `${metric}~${group}`, count: Number(count) },
