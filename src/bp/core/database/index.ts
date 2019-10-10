@@ -1,5 +1,4 @@
-import { Logger } from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
+import { KnexExtended, Logger } from 'botpress/sdk'
 import { TYPES } from 'core/types'
 import { mkdirpSync } from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -15,7 +14,7 @@ export type DatabaseType = 'postgres' | 'sqlite'
 
 @injectable()
 export default class Database {
-  knex!: Knex & KnexExtension
+  knex!: KnexExtended
 
   private tables: Table[] = []
 
@@ -23,7 +22,7 @@ export default class Database {
     @inject(TYPES.Logger)
     @tagged('name', 'Database')
     private logger: Logger
-  ) {}
+  ) { }
 
   async bootstrap() {
     await Promise.mapSeries(AllTables, async Tbl => {
@@ -97,7 +96,7 @@ export default class Database {
       })
     }
 
-    this.knex = patchKnex(await Knex(config))
+    this.knex = patchKnex(Knex(config))
 
     await this.bootstrap()
   }

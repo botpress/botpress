@@ -1,7 +1,5 @@
-import { Logger, LoggerEntry } from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
+import { KnexExtended, Logger, LoggerEntry } from 'botpress/sdk'
 import { injectable } from 'inversify'
-import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -13,13 +11,13 @@ export class LoggerDbPersister {
   private readonly TABLE_NAME = 'srv_logs'
   private readonly INTERVAL = ms('2s')
 
-  private knex!: Knex & KnexExtension
+  private knex!: KnexExtended
   private batch: LoggerEntry[] = []
   private intervalRef
   private currentPromise
   private logger!: Logger
 
-  constructor() {}
+  constructor() { }
 
   async initialize(database: Database, logger: Logger) {
     this.knex = database.knex
