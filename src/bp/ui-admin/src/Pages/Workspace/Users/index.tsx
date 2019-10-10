@@ -35,6 +35,7 @@ interface State {
   user: WorkspaceUser | null
   infoTitle: string
   infoMessage: string
+  infoPassword: string
   email: string
   createUserError: any
   canCreateUser: any
@@ -50,7 +51,8 @@ class List extends Component<Props, State> {
     createUserError: null,
     canCreateUser: null,
     infoTitle: '',
-    infoMessage: ''
+    infoMessage: '',
+    infoPassword: ''
   }
 
   componentDidMount() {
@@ -128,7 +130,8 @@ Password: ${payload.tempPassword}`
       this.setState({
         isRenderEmailModalOpen: true,
         infoTitle: 'Password reset',
-        infoMessage: message
+        infoMessage: message,
+        infoPassword: payload.tempPassword
       })
     }
   }
@@ -220,6 +223,7 @@ Password: ${payload.tempPassword}`
           toggle={this.toggleRenderEmailModal}
           message={this.state.infoMessage}
           title={this.state.infoTitle}
+          password={this.state.infoPassword}
         />
 
         <ChangeUserRoleModal
