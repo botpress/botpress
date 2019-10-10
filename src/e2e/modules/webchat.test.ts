@@ -33,7 +33,7 @@ describe('Module - Channel Web', () => {
 
   it('Testing Context discussion ', async () => {
     await clickOn('button', { text: 'What is a Context?' })
-    await expectMatch(`Let's talk about animals`)
+    await expectMatch(`Okay, let's use a simple example. Let's talk about animals. Pick one.`)
     await clickOn('button', { text: 'Monkey' })
     await expectMatch(`Please ask questions about that animal`)
   })

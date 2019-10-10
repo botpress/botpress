@@ -1,3 +1,4 @@
+import moment = require('moment')
 import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
 
 import { bpConfig } from '../../jest-puppeteer.config'
@@ -29,7 +30,11 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
 }
 
 const getResponse = async (url: string, method?: HttpMethod) => {
-  return page.waitForResponse(res => res.url().includes(url) && (method ? res.request().method() === method : true))
+  return page.waitForResponse(res => {
+    const resUrl = res.url()
+    console.log(`url: ${url}, resUrl: ${resUrl}`)
+    return resUrl.includes(url) && (method ? res.request().method() === method : true)
+  })
 }
 
 export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<void> => {
@@ -83,4 +88,29 @@ export const triggerKeyboardShortcut = async (key: string, ctrlKey?: boolean) =>
 export const clickOnTreeNode = async (searchText: string, button: MouseButtons = 'left'): Promise<void> => {
   const element = await expectMatchElement('.bp3-tree-node-content', { text: searchText })
   await clickOn('.bp3-tree-node-label', { button }, element)
+}
+
+export const closeToaster = async () => {
+  await clickOn(".recipe-toaster svg[data-icon='cross']")
+  await page.waitForFunction(() => {
+    return document.querySelector('.bp3-overlay').childElementCount === 0
+  })
+}
+
+page.on('request', req => {
+  console.log(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+})
+
+page.on('response', resp => {
+  console.log(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+})
+
+page.on('framenavigated', frame => {
+  console.log(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+})
+
+export const getTime = () => {
+  const timeFormat = 'HH:mm:ss.SSS'
+  const time = moment().format(timeFormat)
+  return time
 }

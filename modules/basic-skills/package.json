@@ -37,6 +37,7 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.12",
+    "react-tag-input/react-dnd": "^5.0.0"
   }
 }
