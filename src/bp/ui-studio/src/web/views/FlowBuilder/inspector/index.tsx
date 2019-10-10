@@ -1,5 +1,5 @@
+import { H4 } from '@blueprintjs/core'
 import _ from 'lodash'
-import values from 'lodash/values'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -43,7 +43,7 @@ class Inspector extends Component<Props> {
     const node = this.props.currentFlowNode
     return (
       <div className={style.inspector}>
-        <h4 className="bp3-heading">{node ? 'Node Properties' : 'Flow Properties'}</h4>
+        <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
         {this.renderNodeProperties()}
       </div>
     )
@@ -99,7 +99,7 @@ class Inspector extends Component<Props> {
 }
 
 const mapStateToProps = state => ({
-  flows: values(state.flows.flowsByName),
+  flows: _.values(state.flows.flowsByName),
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   buffer: state.flows.buffer,

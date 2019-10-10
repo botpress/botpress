@@ -214,7 +214,11 @@ class Diagram extends Component<Props> {
     }
 
     const targetModel = target.model
-    return targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel
+    return (
+      targetModel instanceof StandardNodeModel ||
+      targetModel instanceof SkillCallNodeModel ||
+      target.model instanceof RouterNodeModel
+    )
   }
 
   onDiagramClick = (event: MouseEvent) => {
@@ -228,7 +232,6 @@ class Diagram extends Component<Props> {
     this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
 
     if (!selectedNode) {
-      // No node selected
       this.props.closeFlowNodeProps()
       this.props.switchFlowNode(null)
     } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
