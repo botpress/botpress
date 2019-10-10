@@ -52,7 +52,8 @@
       "tutorials/interbot",
       "tutorials/contextual-faq",
       "tutorials/chat-3rd-party-OAuth",
-      "tutorials/listen-file-changes"
+      "tutorials/listen-file-changes",
+      "tutorials/3rd-party-NLU"
     ],
     "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac"]
   }
