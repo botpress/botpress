@@ -1,3 +1,5 @@
+const yn = require('yn')
+
 const windowSize = {
   width: 1300,
   height: 900
@@ -5,7 +7,7 @@ const windowSize = {
 
 module.exports = {
   launch: {
-    headless: process.env.HEADLESS === 'true',
+    headless: yn(process.env.HEADLESS),
     // +20 so it's a bit bigger than the viewport so nothing is cut
     args: [`--window-size=${windowSize.width + 20},${windowSize.height + 20}`],
     slowMo: 40 // Set this value to slow down tests globally
