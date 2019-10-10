@@ -205,7 +205,7 @@ class FlowBuilder extends Component<Props, State> {
     }
 
     return (
-      <Container keyHandlers={keyHandlers}>
+      <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
         <SidePanel
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
