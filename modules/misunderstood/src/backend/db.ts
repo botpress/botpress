@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import Knex from 'knex'
 import pick from 'lodash/pick'
 
 import {
@@ -11,18 +12,20 @@ import {
   ResolutionData
 } from '../types'
 
+import applyChanges from './applyChanges'
+
 const TABLE_NAME = 'misunderstood'
 const EVENTS_TABLE_NAME = 'events'
 
 export default class Db {
-  knex: any
+  knex: Knex & sdk.KnexExtension
 
-  constructor(private bp: typeof sdk) {
+  constructor(bp: typeof sdk) {
     this.knex = bp.database
   }
 
   async initialize() {
-    this.knex.createTableIfNotExists(TABLE_NAME, table => {
+    await this.knex.createTableIfNotExists(TABLE_NAME, table => {
       table.increments('id')
       table.string('eventId')
       table.string('botId')
@@ -54,30 +57,29 @@ export default class Db {
       .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
   }
 
-  listEvents(botId: string, language: string, status: FLAGGED_MESSAGE_STATUS): DbFlaggedEvent[] {
-    return this.knex(TABLE_NAME)
+  async listEvents(botId: string, language: string, status: FLAGGED_MESSAGE_STATUS): Promise<DbFlaggedEvent[]> {
+    const data: DbFlaggedEvent[] = await this.knex(TABLE_NAME)
       .select('*')
       .where({ botId, language, status })
       .orderBy('updatedAt', 'desc')
-      .map((event: DbFlaggedEvent) => ({
-        ...event,
-        resolutionParams: event.resolutionParams && typeof event.resolutionParams !== 'object' ? JSON.parse(event.resolutionParams) : event.resolutionParams
-      }))
-      .then()
+
+    return data.map((event: DbFlaggedEvent) => ({
+      ...event,
+      resolutionParams: event.resolutionParams && typeof event.resolutionParams !== 'object' ? JSON.parse(event.resolutionParams) : event.resolutionParams
+    }))
   }
 
-  countEvents(botId: string, language: string) {
-    return this.knex(TABLE_NAME)
+  async countEvents(botId: string, language: string) {
+    const data: { status: string, count: number }[] = await this.knex(TABLE_NAME)
       .where({ botId, language })
       .select('status')
       .count({ count: 'id' })
       .groupBy('status')
-      .then((data: { count: number; status: string }[]) =>
-        data.reduce((acc, row) => {
-          acc[row.status] = Number(row.count)
-          return acc
-        }, {})
-      )
+
+    return data.reduce((acc, row) => {
+      acc[row.status] = Number(row.count)
+      return acc
+    }, {})
   }
 
   async getEventDetails(botId: string, id: string) {
@@ -123,5 +125,9 @@ export default class Db {
       context,
       nluContexts: parsedEventDetails && parsedEventDetails.nlu && parsedEventDetails.nlu.includedContexts || []
     }
+  }
+
+  applyChanges(botId: string) {
+    return applyChanges(this.knex, botId)
   }
 }

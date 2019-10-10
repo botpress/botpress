@@ -17,51 +17,74 @@ export default async (bp: typeof sdk, db: Db) => {
       return
     }
 
-    await db.addEvent(event)
-
-    res.sendStatus(201)
+    try {
+      await db.addEvent(event)
+      res.sendStatus(201)
+    } catch (err) {
+      res.status(500).send(err.message)
+    }
   })
 
   router.post('/events/:id/status', async (req: Request, res: Response) => {
     const { id, botId } = req.params
     const { status, ...resolutionData } = req.body
 
-    await db.updateStatus(botId, id, status, resolutionData)
-
-    res.sendStatus(201)
+    try {
+      await db.updateStatus(botId, id, status, resolutionData)
+      res.sendStatus(200)
+    } catch (err) {
+      res.status(500).send(err.message)
+    }
   })
 
   router.get('/events/count', async (req: Request, res: Response) => {
     const { botId } = req.params
     const { language } = req.query
 
-    const data = await db.countEvents(botId, language)
-
-    res.json(data)
+    try {
+      const data = await db.countEvents(botId, language)
+      res.json(data)
+    } catch (err) {
+      res.status(500).send(err.message)
+    }
   })
 
   router.get(`/events/:status(${FLAGGED_MESSAGE_STATUSES.join('|')})`, async (req: Request, res: Response) => {
     const { botId, status } = req.params
     const { language } = req.query
 
-    const data = await db.listEvents(botId, language, status)
-
-    res.json(data)
+    try {
+      const data = await db.listEvents(botId, language, status)
+      res.json(data)
+    } catch (err) {
+      res.status(500).send(err.message)
+    }
   })
 
   router.get('/events/:id(\\d+)', async (req: Request, res: Response) => {
     const { botId, id } = req.params
 
-    const data = await db.getEventDetails(botId, id)
+    try {
+      const data = await db.getEventDetails(botId, id)
 
-    if (data) {
-      res.json(data)
-    } else {
-      res.sendStatus(404)
+      if (data) {
+        res.json(data)
+      } else {
+        res.sendStatus(404)
+      }
+    } catch (err) {
+      res.status(500).send(err.message)
     }
   })
 
   router.post('/apply-all-pending', async (req: Request, res: Response) => {
-    res.send('Not implemented yet')
+    const { botId } = req.params
+
+    try {
+      await db.applyChanges(botId)
+      res.sendStatus(200)
+    } catch (err) {
+      res.status(500).send(err.message)
+    }
   })
 }

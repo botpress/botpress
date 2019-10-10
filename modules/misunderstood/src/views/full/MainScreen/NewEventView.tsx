@@ -65,12 +65,6 @@ class NewEventView extends React.Component<Props, State> {
     })
   }
 
-  componentDidMount() {
-    // TODO: REMOVE THIS!
-    this.startAmend()
-    this.setAmendMode(RESOLUTION_TYPE.intent)
-  }
-
   render() {
     const { axios, language, event, totalEventsCount, eventIndex, skipEvent, deleteEvent } = this.props
     const { isAmending, resolutionType, resolution, resolutionParams } = this.state
