@@ -13,7 +13,9 @@ import {
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
 import React, { FC, Fragment } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/history'
+import { toastInfo } from '~/utils/toaster'
 
 import AccessControl, { isChatUser } from '../../../App/AccessControl'
 
@@ -50,9 +52,13 @@ const BotItemPipeline: FC<Props> = ({
                 <Fragment>
                   <MenuItem icon="chat" text="Open chat" href={botShortLink} />
                   <MenuItem disabled={bot.locked} icon="edit" text="Edit in Studio" href={botStudioLink} />
-                  <MenuDivider />
                 </Fragment>
               )}
+
+              <CopyToClipboard text={botShortLink} onCopy={() => toastInfo('Copied to clipboard')}>
+                <MenuItem icon="link" text="Copy link to clipboard" />
+              </CopyToClipboard>
+              <MenuDivider />
 
               {allowStageChange && (
                 <MenuItem

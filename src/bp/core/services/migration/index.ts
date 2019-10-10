@@ -69,7 +69,13 @@ export class MigrationService {
       await this.logger.error(
         `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
       )
-      process.exit(0)
+
+      // When failsafe is enabled, simply stop executing migrations
+      if (!process.IS_FAILSAFE) {
+        process.exit(0)
+      } else {
+        return
+      }
     }
 
     await this.executeMigrations(missingMigrations)
@@ -154,7 +160,10 @@ export class MigrationService {
       await this.logger.error(
         `Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.`
       )
-      process.exit(0)
+
+      if (!process.IS_FAILSAFE) {
+        process.exit(0)
+      }
     }
 
     await this.updateAllVersions()
