@@ -12,10 +12,20 @@ export const ERROR_FLOW_ICON = 'pivot'
 
 const lockedFlows = ['main.flow.json', 'error.flow.json']
 
+const traverseTree = (nodes: ITreeNode[], callback: (node: ITreeNode) => void) => {
+  if (nodes == null) {
+    return
+  }
+
+  for (const node of nodes) {
+    callback(node)
+    traverseTree(node.childNodes, callback)
+  }
+}
+
 export default class FlowsList extends Component<Props, State> {
-  state = {
-    nodes: [],
-    activeNode: null
+  state: State = {
+    nodes: []
   }
 
   componentDidMount() {
@@ -28,56 +38,28 @@ export default class FlowsList extends Component<Props, State> {
     }
 
     if (this.props.currentFlow && prevProps.currentFlow !== this.props.currentFlow) {
-      this.traverseTree(this.state.nodes, (n: ITreeNode<NodeData>) => {
+      traverseTree(this.state.nodes, (n: ITreeNode<NodeData>) => {
         return (n.isSelected = n.nodeData && n.nodeData.name === this.props.currentFlow['name'])
       })
+    }
+
+    if (this.props.filter !== prevProps.filter) {
+      this.updateFlows()
     }
   }
 
   updateFlows() {
-    this.setState({ nodes: buildFlowsTree(this.props.flows) })
-  }
+    const nodes = buildFlowsTree(this.props.flows, this.props.filter)
 
-  handleDuplicate = flow => {
-    let name = prompt('Enter the name of the new flow')
-
-    if (!name) {
-      return
+    if (this.props.filter) {
+      traverseTree(nodes, n => (n.isExpanded = true))
     }
 
-    name = name.replace(/\.flow\.json$/i, '')
-
-    if (/[^A-Z0-9-_\/]/i.test(name)) {
-      return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
-    }
-
-    if (includes(this.props.flows.map(f => f.name), name + '.flow.json')) {
-      return alert(`ERROR: The flow ${name} already exists`)
-    }
-
-    this.props.duplicateFlow({ flowNameToDuplicate: flow.name, name: `${name}.flow.json` })
-  }
-
-  handleRename = flow => {
-    const name = window.prompt('Please enter the new name for that flow', flow.name.replace(/\.flow\.json$/i, ''))
-
-    if (!name) {
-      return
-    }
-
-    if (/[^A-Z0-9-_\/]/i.test(name)) {
-      return alert('ERROR: The flow name can only contain letters, numbers, underscores and hyphens.')
-    }
-
-    if (name !== flow.name && includes(this.props.flows.map(f => f.name), name + '.flow.json')) {
-      return alert(`ERROR: The flow ${name} already exists`)
-    }
-
-    this.props.renameFlow({ targetFlow: flow.name, name: `${name}.flow.json` })
+    this.setState({ nodes })
   }
 
   handleDelete = flow => {
-    if (confirm(`Are you sure you want to delete the flow ${flow.name}?`) === true) {
+    if (confirm(`Are you sure you want to delete the flow ${flow.name}?`)) {
       this.props.deleteFlow(flow.name)
     }
   }
@@ -96,7 +78,7 @@ export default class FlowsList extends Component<Props, State> {
           disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canRename || this.props.readOnly}
           icon="edit"
           text="Rename"
-          onClick={() => this.handleRename(node.nodeData)}
+          onClick={() => this.props.renameFlow(node.nodeData.name)}
         />
         <MenuItem
           id="btn-delete"
@@ -110,7 +92,7 @@ export default class FlowsList extends Component<Props, State> {
           disabled={this.props.readOnly}
           icon="duplicate"
           text="Duplicate"
-          onClick={() => this.handleDuplicate(node.nodeData)}
+          onClick={() => this.props.duplicateFlow(node.nodeData.name)}
         />
       </Menu>,
       { left: e.clientX, top: e.clientY }
@@ -120,7 +102,7 @@ export default class FlowsList extends Component<Props, State> {
   private handleNodeClick = (node: ITreeNode<NodeData>) => {
     const originallySelected = node.isSelected
 
-    this.traverseTree(this.state.nodes, n => (n.isSelected = false))
+    traverseTree(this.state.nodes, n => (n.isSelected = false))
 
     node.isSelected = originallySelected !== null
 
@@ -143,17 +125,6 @@ export default class FlowsList extends Component<Props, State> {
     this.forceUpdate()
   }
 
-  private traverseTree(nodes: ITreeNode[], callback: (node: ITreeNode) => void) {
-    if (nodes == null) {
-      return
-    }
-
-    for (const node of nodes) {
-      callback(node)
-      this.traverseTree(node.childNodes, callback)
-    }
-  }
-
   render() {
     return (
       <Tree
@@ -169,6 +140,7 @@ export default class FlowsList extends Component<Props, State> {
 }
 
 interface Props {
+  filter: string
   readOnly: boolean
   currentFlow: any
   canRename: boolean

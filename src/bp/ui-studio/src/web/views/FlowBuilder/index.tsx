@@ -20,10 +20,35 @@ import { UserReducer } from '~/reducers/user'
 
 import Diagram from './diagram'
 import SidePanel from './sidePanel'
-import { PannelPermissions } from './sidePanel'
+import { PanelPermissions } from './sidePanel'
 import { MutexInfo } from './sidePanel/Toolbar'
 import SkillsBuilder from './skills'
 import style from './style.scss'
+
+type Props = {
+  currentFlow: string
+  showFlowNodeProps: boolean
+  dirtyFlows: string[]
+  user: UserReducer
+  setDiagramAction: (action: string) => void
+  switchFlow: (flowName: string) => void
+  flowEditorUndo: () => void
+  flowEditorRedo: () => void
+  errorSavingFlows: any
+  clearErrorSaveFlows: () => void
+  clearFlowsModification: () => void
+  closeFlowNodeProps: () => void
+  flowsByName: _.Dictionary<FlowView>
+} & RouteComponentProps
+
+interface State {
+  initialized: any
+  readOnly: boolean
+  pannelPermissions: PanelPermissions[]
+  flowPreview: boolean
+  mutexInfo: MutexInfo
+  showSearch: boolean
+}
 
 class FlowBuilder extends Component<Props, State> {
   private diagram
@@ -34,10 +59,11 @@ class FlowBuilder extends Component<Props, State> {
     readOnly: false,
     pannelPermissions: this.allPermissions,
     flowPreview: false,
-    mutexInfo: undefined
+    mutexInfo: undefined,
+    showSearch: false
   }
 
-  get allPermissions(): PannelPermissions[] {
+  get allPermissions(): PanelPermissions[] {
     return ['create', 'rename', 'delete']
   }
 
@@ -137,6 +163,8 @@ class FlowBuilder extends Component<Props, State> {
     this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
   }
 
+  hideSearch = () => this.setState({ showSearch: false })
+
   render() {
     if (!this.state.initialized) {
       return null
@@ -157,6 +185,10 @@ class FlowBuilder extends Component<Props, State> {
         e.preventDefault()
         this.props.flowEditorRedo()
       },
+      find: e => {
+        e.preventDefault()
+        this.setState({ showSearch: !this.state.showSearch })
+      },
       'preview-flow': e => {
         e.preventDefault()
         this.setState({ flowPreview: true })
@@ -168,6 +200,7 @@ class FlowBuilder extends Component<Props, State> {
       cancel: e => {
         e.preventDefault()
         this.props.closeFlowNodeProps()
+        this.hideSearch()
       }
     }
 
@@ -187,6 +220,8 @@ class FlowBuilder extends Component<Props, State> {
           <Diagram
             readOnly={readOnly}
             flowPreview={this.state.flowPreview}
+            showSearch={this.state.showSearch}
+            hideSearch={this.hideSearch}
             ref={el => {
               if (!!el) {
                 // @ts-ignore
@@ -225,27 +260,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(withRouter(FlowBuilder))
-
-type Props = {
-  currentFlow: string
-  showFlowNodeProps: boolean
-  dirtyFlows: string[]
-  user: UserReducer
-  setDiagramAction: any
-  switchFlow: any
-  flowEditorUndo: any
-  flowEditorRedo: any
-  errorSavingFlows: any
-  clearErrorSaveFlows: () => void
-  clearFlowsModification: () => void
-  closeFlowNodeProps: () => void
-  flowsByName: _.Dictionary<FlowView>
-} & RouteComponentProps
-
-interface State {
-  initialized: any
-  readOnly: boolean
-  pannelPermissions: PannelPermissions[]
-  flowPreview: boolean
-  mutexInfo: MutexInfo
-}

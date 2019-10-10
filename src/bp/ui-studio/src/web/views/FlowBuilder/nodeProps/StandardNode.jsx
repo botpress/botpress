@@ -23,19 +23,11 @@ export default class StandardNodePropertiesPanel extends Component {
   render() {
     const { node, readOnly } = this.props
 
-    const onNameMounted = input => {
-      if (input.value.startsWith('node-')) {
-        input.focus()
-        input.setSelectionRange(0, 1000)
-      }
-    }
-
     return (
       <div className={style.node}>
         <Panel>
           <EditableInput
             readOnly={readOnly}
-            onMount={onNameMounted}
             value={node.name}
             className={style.name}
             onChanged={this.renameNode}

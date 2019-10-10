@@ -44,7 +44,7 @@ export class DiagramManager {
   private diagramEngine: DiagramEngine
   private activeModel: ExtendedDiagramModel
   private diagramWidget: DiagramWidget
-  private highlightedNodeName?: string
+  private highlightedNodeNames?: string[]
   private currentFlow: FlowView
   private isReadOnly: boolean
   private diagramContainerSize: DiagramContainerSize
@@ -70,7 +70,7 @@ export class DiagramManager {
       return createNodeModel(node, {
         ...node,
         isStartNode: currentFlow.startNode === node.name,
-        isHighlighted: this.highlightedNodeName === node.name
+        isHighlighted: this.shouldHighlightNode(node.name)
       })
     })
 
@@ -82,6 +82,10 @@ export class DiagramManager {
 
     // Setting the initial links hash when changing flow
     this.getLinksRequiringUpdate()
+  }
+
+  shouldHighlightNode(nodeName): boolean {
+    return this.highlightedNodeNames && !!this.highlightedNodeNames.find(x => nodeName.includes(x))
   }
 
   // Syncs model with the store (only update changes instead of complete initialization)
@@ -114,7 +118,7 @@ export class DiagramManager {
           model.setData({
             ..._.pick(node, passThroughNodeProps),
             isStartNode: this.currentFlow.startNode === node.name,
-            isHighlighted: this.highlightedNodeName === node.name
+            isHighlighted: this.shouldHighlightNode(node.name)
           })
         }
       })
@@ -243,8 +247,8 @@ export class DiagramManager {
     this.currentFlow = currentFlow
   }
 
-  setHighlightedNodeName(nodeName: string) {
-    this.highlightedNodeName = nodeName
+  setHighlightedNodes(nodeName: string | string[]) {
+    this.highlightedNodeNames = _.isArray(nodeName) ? nodeName : [nodeName]
   }
 
   setReadOnly(readOnly: boolean) {
@@ -289,7 +293,7 @@ export class DiagramManager {
     const model = createNodeModel(node, {
       ...node,
       isStartNode: this.currentFlow.startNode === node.name,
-      isHighlighted: this.highlightedNodeName === node.name
+      isHighlighted: this.shouldHighlightNode(node.name)
     })
 
     this.activeModel.addNode(model)
@@ -308,7 +312,7 @@ export class DiagramManager {
     model.setData({
       ..._.pick(node, passThroughNodeProps),
       isStartNode: this.currentFlow.startNode === node.name,
-      isHighlighted: this.highlightedNodeName === node.name
+      isHighlighted: this.shouldHighlightNode(node.name)
     })
 
     model.setPosition(node.x, node.y)

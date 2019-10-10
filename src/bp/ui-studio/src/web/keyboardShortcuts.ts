@@ -5,6 +5,7 @@ export const keyMap = {
   add: `${controlKey}+a`,
   save: `${controlKey}+s`,
   undo: `${controlKey}+z`,
+  find: `${controlKey}+f`,
   redo: `${controlKey}+shift+z`,
   'emulator-focus': ['e', `${controlKey}+e`],
   'docs-toggle': `${controlKey}+h`,

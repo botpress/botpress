@@ -1,7 +1,18 @@
-import { ContextMenu, Menu, MenuDivider, MenuItem, Position, Toaster } from '@blueprintjs/core'
+import {
+  Button,
+  ContextMenu,
+  ControlGroup,
+  InputGroup,
+  Intent,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Position,
+  Tag,
+  Toaster
+} from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
-import { Button, Label } from 'react-bootstrap'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { DiagramEngine, DiagramWidget, NodeModel } from 'storm-react-diagrams'
@@ -44,6 +55,10 @@ class Diagram extends Component<Props> {
   private diagramContainer: HTMLDivElement
   private manager: DiagramManager
 
+  state = {
+    highlightFilter: ''
+  }
+
   constructor(props) {
     super(props)
 
@@ -62,7 +77,7 @@ class Diagram extends Component<Props> {
 
     // @ts-ignore
     window.highlightNode = (flowName: string, nodeName: string) => {
-      this.manager.setHighlightedNodeName(nodeName)
+      this.manager.setHighlightedNodes(nodeName)
 
       if (!flowName || !nodeName) {
         // Refreshing the model anyway, to remove the highlight if node is undefined
@@ -95,7 +110,7 @@ class Diagram extends Component<Props> {
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     this.manager.setCurrentFlow(this.props.currentFlow)
     this.manager.setReadOnly(this.props.readOnly)
 
@@ -117,6 +132,23 @@ class Diagram extends Component<Props> {
     } else {
       // Update the current model with the new properties
       this.manager.syncModel()
+    }
+
+    // Refresh nodes when the filter is updated
+    if (this.state.highlightFilter !== prevState.highlightFilter) {
+      this.manager.setHighlightedNodes(this.state.highlightFilter)
+      this.manager.syncModel()
+    }
+
+    // Clear nodes when search field is hidden
+    if (!this.props.showSearch && prevProps.showSearch) {
+      this.manager.setHighlightedNodes([])
+      this.manager.syncModel()
+    }
+
+    // Reset search when toggled
+    if (this.props.showSearch && !prevProps.showSearch) {
+      this.setState({ highlightFilter: '' })
     }
   }
 
@@ -317,15 +349,32 @@ class Diagram extends Component<Props> {
     this.props.openFlowNodeProps()
   }
 
+  handleFilterChanged = event => {
+    this.setState({ highlightFilter: event.target.value })
+  }
+
   renderCatchAllInfo() {
     const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
 
     return (
-      <div>
-        <Button bsStyle="link" onClick={this.handleFlowWideClicked}>
-          <Label bsStyle={nbNext > 0 ? 'primary' : 'default'}>{nbNext}</Label> flow-wide
+      <div style={{ display: 'flex', marginTop: 5 }}>
+        <Button onClick={this.handleFlowWideClicked} minimal={true}>
+          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide
           {nbNext === 1 ? ' transition' : ' transitions'}
         </Button>
+        {this.props.showSearch && (
+          <ControlGroup>
+            <InputGroup
+              id="input-highlight-name"
+              tabIndex={1}
+              placeholder="Highlight nodes by name"
+              value={this.state.highlightFilter}
+              onChange={this.handleFilterChanged}
+              autoFocus={true}
+            />
+            <Button icon="small-cross" onClick={this.props.hideSearch} />
+          </ControlGroup>
+        )}
       </div>
     )
   }
@@ -415,6 +464,8 @@ interface Props {
   readOnly: boolean
   canPasteNode: boolean
   flowPreview: boolean
+  showSearch: boolean
+  hideSearch: () => void
   skills: SkillDefinition[]
 }
 
