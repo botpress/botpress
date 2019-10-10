@@ -43,7 +43,6 @@ class Diagram extends Component<Props> {
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
   private manager: DiagramManager
-  private movingNode: boolean
 
   constructor(props) {
     super(props)
@@ -60,8 +59,6 @@ class Diagram extends Component<Props> {
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
-
-    this.movingNode = false
 
     // @ts-ignore
     window.highlightNode = (flowName: string, nodeName: string) => {
@@ -87,27 +84,15 @@ class Diagram extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchFlows()
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousedown', this.onDiagramMouseDown)
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mouseup', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousemove', this.onDiagramMouseMove)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousedown', this.onDiagramMouseDown)
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mouseup', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousemove', this.onDiagramMouseMove)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
-  }
-
-  onDiagramMouseMove = () => {
-    this.movingNode = true
-  }
-
-  onDiagramMouseDown = () => {
-    this.movingNode = false
   }
 
   componentDidUpdate(prevProps) {
@@ -223,23 +208,32 @@ class Diagram extends Component<Props> {
     toastInfo('Pssst! Just click once a node to inspect it, no need to double-click anymore.', Timeout.LONG)
   }
 
-  onDiagramClick = () => {
+  canTargetOpenInspector = target => {
+    if (!target) {
+      return false
+    }
+
+    const targetModel = target.model
+    return targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel
+  }
+
+  onDiagramClick = (event: MouseEvent) => {
     const selectedNode = this.manager.getSelectedNode() as BpNodeModel
     const currentNode = this.props.currentFlowNode
+    const target = this.diagramWidget.getMouseElement(event)
 
     this.manager.sanitizeLinks()
     this.manager.cleanPortLinks()
 
+    this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
+
     if (!selectedNode) {
+      // No node selected
       this.props.closeFlowNodeProps()
-      this.props.switchFlowNode(null) // No node selected
+      this.props.switchFlowNode(null)
     } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
+      // Different node selected
       this.props.switchFlowNode(selectedNode.id)
-      if (!this.movingNode) {
-        this.props.openFlowNodeProps()
-      }
-    } else if (selectedNode && currentNode && selectedNode.id === currentNode.id && !this.movingNode) {
-      this.props.openFlowNodeProps()
     }
 
     if (selectedNode && (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y)) {
