@@ -57,9 +57,20 @@
       font-weight: bold;
     }
 
+    .dates {
+      margin-top: 35px;
+      font-weight: normal;
+      font-size: 0.7em;
+      width: 150px;
+    }
+
     .field {
       display: inline-block;
-      min-width: 180px;
+    }
+
+    .emailField {
+      min-width: 400px;
+      display: inline-block;
     }
   }
 }

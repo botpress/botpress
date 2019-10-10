@@ -14,7 +14,7 @@ function render(data) {
     ...events,
     {
       type: 'text',
-      markdown: true,
+      markdown: data.markdown,
       text: data.text
     }
   ]
@@ -87,6 +87,11 @@ module.exports = {
           type: 'string',
           default: ''
         }
+      },
+      markdown: {
+        type: 'boolean',
+        title: 'Use markdown',
+        default: true
       },
       ...base.typingIndicators
     }
