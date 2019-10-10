@@ -173,6 +173,10 @@ export class WorkspaceService {
   async getWorkspaceRollout(workspaceId: string): Promise<WorkspaceRollout> {
     const { rolloutStrategy } = await this.findWorkspace(workspaceId)
 
+    if (!rolloutStrategy) {
+      return { rolloutStrategy: 'anonymous' }
+    }
+
     if (rolloutStrategy === 'anonymous-invite' || rolloutStrategy === 'authenticated-invite') {
       let invite = await this.inviteCodesRepo.getWorkspaceCode(workspaceId)
 
