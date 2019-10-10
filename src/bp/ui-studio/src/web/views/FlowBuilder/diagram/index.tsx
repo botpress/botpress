@@ -355,12 +355,17 @@ class Diagram extends Component<Props> {
 
   renderCatchAllInfo() {
     const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
+    const nbReceive = _.get(this.props.currentFlow, 'catchAll.onReceive.length', 0)
 
     return (
       <div style={{ display: 'flex', marginTop: 5 }}>
         <Button onClick={this.handleFlowWideClicked} minimal={true}>
           <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide
           {nbNext === 1 ? ' transition' : ' transitions'}
+        </Button>
+        <Button onClick={this.handleFlowWideClicked} minimal={true}>
+          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide
+          {nbReceive === 1 ? ' on receive' : ' on receives'}
         </Button>
         {this.props.showSearch && (
           <ControlGroup>
