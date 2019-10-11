@@ -26,17 +26,17 @@ One use case of using a 3rd party NLU is to support more languages then those ha
 }
 ```
 
-Now that this is done, you can go in your bot config page and choose the language(s) you want your bot to support. For more details on this [check the docs](../../advanced/i18n). Note that multilangual is a Botpress Pro feature.
+Now that this is done, you can go in your bot config page and choose the language(s) you want your bot to support. For more details on this [check the docs](../../advanced/i18n). Note that multilingual is a Botpress Pro feature.
 
 ### Sync NLU data to 3rd party
 
 This section is useful if you want to use the Botpress NLU user interface to define your intents, entities and slots. You can skip if this section if you don't want to use the user interface.
 
-Intents and entities are stored as JSON in BPFS (formerly ghost) which stores data either on local filesystem or in the database. The first thing we want to do is to listen on any intents/entities changes and sync the data to our 3rd party NLU (same as the [previous tutorial](../../tutorials/listen-file-changes)). This way, when one edits intent or entities in the NLU ui, we get notified. We can do this with a Botpress [after bot mount hook](../../main/code#after-bot-mount). You can use the code-editor module to create hooks easily. Here's how the code for our fileWatcher looks like.
+Intents and entities are stored as JSON in BPFS (formerly ghost) which stores data either on local filesystem or in the database. The first thing we want to do is to listen on any intents/entities changes and sync the data to our 3rd party NLU (same as the [previous tutorial](../../tutorials/listen-file-changes)). This way, when one edits intent or entities in the NLU UI, we get notified. We can do this with a Botpress [after bot mount hook](../../main/code#after-bot-mount). You can use the code editor module to create hooks easily. Here's how the code for our `fileWatcher` looks like.
 
 ```js
 async function sync(bp: typeof sdk, botId: string) {
-  // create a bpfs (ghost) instance for our bot
+  // create a BPFS (ghost) instance for our bot
   const ghost = bp.ghost.forBot(botId)
 
   // listen on file changes
@@ -58,10 +58,10 @@ async function sync(bp: typeof sdk, botId: string) {
   const ghost = bp.ghost.forBot(botId)
   ghost.onFileChanged(async f => {
     if (f.includes('intents') || f.includes('entities')) {
-      //we get all intents
+      // we get all intents
       const intentNames = await ghost.directoryListing('intents', '*.json')
       const intents = await Promise.all(intentNames.map(name => ghost.readFileAsObject('intents', name)))
-      //we get all entities
+      // we get all entities
       const entNames = await ghost.directoryListing('entities', '*.json')
       const entities = await Promise.all(entNames.map(name => ghost.readFileAsObject('entities', name)))
       // TODO process intents and entities in the format required by your NLU
@@ -76,17 +76,17 @@ async function sync(bp: typeof sdk, botId: string) {
   })
 ```
 
-Here you go, you can now still use the botpress NLU UI to define your intents/entities and push training data to your NLU engine.
+Here you go, you can now still use the Botpress NLU UI to define your intents/entities and push training data to your NLU engine.
 
 ### Use your 3rd Party NLU for classification and extraction
 
-We will use a similar strategy for prediction time, basically what we want to do is call our 3rd party NLU for each incoming user message. We will use a [before incoming hook](../../main/code#before-incoming-middleware) which is fired when a user message get's in botpress. Code is not complex, just keep in mind that Botpress works with a precise data structure, so you'll need to map the response data of your nlu provider to [Botpress NLU data format](https://botpress.io/reference/interfaces/_botpress_sdk_.io.eventunderstanding.html). Hook will look like the following:
+We will use a similar strategy for prediction time. Basically, what we want to do is call our 3rd party NLU for each incoming user message. We will use a [before incoming hook](../../main/code#before-incoming-middleware) which is fired when a user message gets in Botpress. The code is not complex, just keep in mind that Botpress works with a precise data structure, so you'll need to map the response data of your NLU provider to [Botpress NLU data format](https://botpress.io/reference/interfaces/_botpress_sdk_.io.eventunderstanding.html). The hook will look like the following:
 
 ```js
   const axios = require('axios')
   function mapPoviderDataToBotpress(data: any): sdk.IO.EventUnderstanding {
     /**
-    * Mapping code goes here, make sure return data is properly formatted
+    * Mapping code goes here, make sure returned data is properly formatted
     */
     // this is placeholder data, return properly formatted
     return {
@@ -103,18 +103,18 @@ We will use a similar strategy for prediction time, basically what we want to do
   }
 
   async function hook() {
-    //filter out unwanted events
+    // filter out unwanted events
     if (event.type === 'session_reset' || event.type === 'visit' || event.type === 'bp_dialog_timeout') {
       return
     }
-    //event is accessible within current context
+    // event is accessible within current context
     const botId = event.botId
     const text = event.preview
 
-    // up to you to pass appropriate parameters and change url according to your nlu provider
+    // it's up to you to pass appropriate parameters and change URL according to your NLU provider
     const response = await axios.post('https://NLUprovider/extract', { text: text, projectId: botId })
 
-    //we transform the data retreived from our external nlu provider to botpress EventUnderstanding schema and assign it to event.
+    // we transform the data retrieved from our external NLU provider to Botpress EventUnderstanding schema and assign it to event.
     event.nlu = mapPoviderDataToBotpress(response.data)
   }
 
@@ -123,4 +123,4 @@ We will use a similar strategy for prediction time, basically what we want to do
 
 If you want a detailed implementation of this, there's a working [**Recast AI**](https://recast.ai) example that you can enable by removing the `.` prefix to the `hooks/before_incoming_middleware/.05_recast_nlu.js` file.
 
-That's about it, you now have botpress integrated with your 3rd party NLU.
+That's about it, you now have Botpress integrated with your 3rd party NLU.
