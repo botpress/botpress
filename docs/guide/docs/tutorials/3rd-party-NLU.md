@@ -9,7 +9,7 @@ Botpress native NLU runs on premise and supports a finite set of languages. If y
 
 ### Define languages
 
-One use case of using a 3rd party NLU is to support more languages then those handled by botpress Native NLU. In order for Botpress to keep working properly (defining intents & content), you'll have to tell botpress what are the new languages you want to support. To do so, open botpress.config.json and set the `additionalLanguages` property. Let's say we want to support **Swedish** and **Norwegian**, the configuration would look like the following.
+One use case of using a 3rd party NLU is to support more languages then those handled by Botpress Native NLU. In order for Botpress to keep working properly (defining intents & content), you'll have to tell Botpress what are the new languages you want to support. To do so, open `botpress.config.json` and set the `additionalLanguages` property. Let's say we want to support **Swedish** and **Norwegian**, the configuration would look like the following:
 
 ```json
 {
