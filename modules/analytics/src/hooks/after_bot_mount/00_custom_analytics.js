@@ -9,7 +9,7 @@ Example:
 const axios = require('axios')
 
 const registerCustomAnalytics = async () => {
-  const axiosConfig = await bp.http.getAxiosConfigForBot(botId)
+  const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
   const countGraph = {
     name: 'Total Users',
     type: 'count',
