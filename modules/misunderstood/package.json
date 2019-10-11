@@ -23,7 +23,9 @@
     "module-builder": "../../build/module-builder",
     "tslint": "^5.20.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "bluebird": "^3.7.0"
+  },
   "webpack": {
     "externals": {
       "react": "React",

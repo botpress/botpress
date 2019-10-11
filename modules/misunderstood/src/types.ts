@@ -27,7 +27,7 @@ export type FlaggedEvent = {
   status: FLAGGED_MESSAGE_STATUS
   resolutionType: RESOLUTION_TYPE
   resolution: string | null
-  resolutionParams: object | null
+  resolutionParams: string | object | null
 }
 
 export type DbFlaggedEvent = FlaggedEvent & {

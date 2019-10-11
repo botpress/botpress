@@ -20,7 +20,7 @@ const EVENTS_TABLE_NAME = 'events'
 export default class Db {
   knex: Knex & sdk.KnexExtension
 
-  constructor(bp: typeof sdk) {
+  constructor(private bp: typeof sdk) {
     this.knex = bp.database
   }
 
@@ -128,6 +128,6 @@ export default class Db {
   }
 
   applyChanges(botId: string) {
-    return applyChanges(this.knex, botId)
+    return applyChanges(this.bp, botId, TABLE_NAME)
   }
 }

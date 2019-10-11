@@ -13,7 +13,7 @@
   - [x] Intent picker
 - [x] Pending list
   - [x] Apply all button
-  - [ ] API to apply the changes
+  - [x] API to apply the changes
 - [x] Deleted list
   - [x] Return action
 - [x] Applied list
