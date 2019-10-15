@@ -3,9 +3,9 @@ import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { initializeLangServer, nluHealth } from '.'
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
+import { initializeLangServer, nluHealth } from './index'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 
@@ -60,18 +60,6 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       await initializeLangServer(bp)
     }
     res.send(nluHealth)
-  })
-
-  router.get('/currentModelHash', async (req, res) => {
-    const engine = nlus[req.params.botId] as ScopedEngine
-    if (engine.modelHash) {
-      return res.send(engine.modelHash)
-    }
-
-    const intents = await engine.storage.getIntents()
-    const entities = await engine.storage.getCustomEntities()
-    const modelHash = await engine.computeModelHash(intents, entities)
-    res.send(modelHash)
   })
 
   router.get('/confusion/:modelHash/:version', async (req, res) => {
@@ -143,15 +131,6 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
-  router.put('/intents/:id', async (req, res) => {
-    const { botId, id } = req.params
-    const { lang, utterances } = req.body
-    const botEngine = nlus[botId] as ScopedEngine
-    // TODO add validation : bot exists, intent exist, lang is supported by bot utterance is string[])
-
-    await botEngine.storage.updateIntent(id, { utterances: { [lang]: utterances } })
-  })
-
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
     const filepaths = await bp.ghost.forBot(botId).directoryListing('/intents', '*.json')
@@ -175,14 +154,13 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       const entityDef = (await validate(req.body, EntityDefCreateSchema, {
         stripUnknown: true
       })) as sdk.NLU.EntityDefinition
-
       const botEngine = nlus[botId] as ScopedEngine
       await botEngine.storage.saveEntity(entityDef)
       scheduleSyncNLU(req.params.botId)
 
       res.sendStatus(200)
     } catch (err) {
-      bp.logger.attachError(err).warn('Cannot create entity, imvalid schema')
+      bp.logger.attachError(err).warn('Cannot create entity, invalid schema')
       res.status(400).send('Invalid schema')
     }
   })
