@@ -230,7 +230,6 @@ class Diagram extends Component<Props> {
     }
 
     const canAddChipToTarget = this._canAddTransitionChipToTarget(target)
-    console.log(canAddChipToTarget)
 
     const addTransitionNode = async () => {
       await this._addTransitionChipToRouter(target)
