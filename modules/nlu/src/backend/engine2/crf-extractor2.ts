@@ -3,8 +3,8 @@ import fs from 'fs'
 import _ from 'lodash'
 import tmp from 'tmp'
 
-import { ExtractedSlot, Intent, Utterance, UtteranceToken } from '../../engine2'
-import { BIO } from '../../typings'
+import { ExtractedSlot, Intent, Utterance, UtteranceToken } from './engine2'
+import { BIO } from '../typings'
 
 import * as featurizer from './featurizer2'
 import * as labeler from './labeler2'

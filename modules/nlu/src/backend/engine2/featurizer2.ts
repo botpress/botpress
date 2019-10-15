@@ -1,11 +1,11 @@
 import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Intent, Utterance, UtteranceToken } from '../../engine2'
-import { computeQuantile } from '../../tools/math'
-import { countAlpha, countNum, countSpecial } from '../../tools/strings'
-import { MAX_TFIDF, MIN_TFIDF } from '../intents/tfidf'
-import { sanitize } from '../language/sanitizer'
+import { Intent, Utterance, UtteranceToken } from './engine2'
+import { computeQuantile } from '../tools/math'
+import { countAlpha, countNum, countSpecial } from '../tools/strings'
+import { MAX_TFIDF, MIN_TFIDF } from '../pipelines/intents/tfidf'
+import { sanitize } from '../pipelines/language/sanitizer'
 
 type FeatureValue = string | number | boolean
 

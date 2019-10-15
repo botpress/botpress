@@ -1,5 +1,5 @@
-import { UtteranceToken } from '../../engine2'
-import { SPACE } from '../../tools/token-utils'
+import { UtteranceToken } from './engine2'
+import { SPACE } from '../tools/token-utils'
 
 import * as featurizer from './featurizer2'
 
