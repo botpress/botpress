@@ -29,6 +29,7 @@ const renderMenuItem = (element: SectionAction) => {
       icon={element.icon}
       disabled={element.disabled}
       onClick={e => !element.disabled && element.onClick && element.onClick(e)}
+      tagName={'button'} // Fix for https://github.com/palantir/blueprint/issues/3352#issuecomment-464111159
     >
       {element.items && buildMenuItems(element.items)}
     </MenuItem>

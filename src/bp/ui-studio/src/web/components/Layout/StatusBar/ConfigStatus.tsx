@@ -7,7 +7,7 @@ import EventBus from '~/util/EventBus'
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
 
-const adminUrl = `${window['ROOT_PATH']}${window['API_PATH']}/admin/server`
+const adminUrl = `${window['API_PATH']}/admin/server`
 
 const ConfigStatus = () => {
   const [isDifferent, setDifferent] = useState(false)

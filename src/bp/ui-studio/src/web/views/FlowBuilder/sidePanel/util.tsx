@@ -113,11 +113,13 @@ export const splitFlowPath = flow => {
   }
 }
 
-export const buildFlowsTree = flows => {
+export const buildFlowsTree = (flows, filterName) => {
   const tree = { icon: 'root', fullPath: '', label: '<root>', childNodes: [] }
   flows.forEach(flowData => {
     const { folders, flow } = splitFlowPath(flowData.name)
-    addNode(tree, folders, flow, { nodeData: flowData })
+    if (!filterName || flow.id.includes(filterName)) {
+      addNode(tree, folders, flow, { nodeData: flowData })
+    }
   })
 
   sortChildren(tree)
