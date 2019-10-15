@@ -67,6 +67,18 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     res.send(nluHealth)
   })
 
+  router.get('/currentModelHash', async (req, res) => {
+    const engine = nlus[req.params.botId] as ScopedEngine
+    if (engine.modelHash) {
+      return res.send(engine.modelHash)
+    }
+
+    const intents = await engine.storage.getIntents()
+    const entities = await engine.storage.getCustomEntities()
+    const modelHash = engine.computeModelHash(intents, entities)
+    res.send(modelHash)
+  })
+
   router.get('/confusion/:modelHash/:version', async (req, res) => {
     const engine = nlus[req.params.botId] as ConfusionEngine
     const confusionComputing = engine.confusionComputing
