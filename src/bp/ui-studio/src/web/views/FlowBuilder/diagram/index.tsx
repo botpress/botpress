@@ -152,12 +152,64 @@ class Diagram extends Component<Props> {
     }
   }
 
+  handleContextMenuNoElement = (event: React.MouseEvent) => {
+    const { x, y } = this.manager.getRealPosition(event)
+    const addFlowNode = () => {
+      this.props.createFlowNode({ x, y, type: 'standard' })
+    }
+    const addSkillNode = (id: string) => {
+      this.props.buildSkill({ location: { x, y }, id })
+    }
+    const addSayNode = () => {
+      this.props.createFlowNode({ x, y, type: 'say_something', next: [defaultTransition] })
+    }
+    const addExecuteNode = () => {
+      this.props.createFlowNode({ x, y, type: 'execute', next: [defaultTransition] })
+    }
+    const addListenNode = () => {
+      this.props.createFlowNode({ x, y, type: 'listen', onReceive: [], next: [defaultTransition] })
+    }
+    const addRouterNode = () => {
+      this.props.createFlowNode({ x, y, type: 'router' })
+    }
+    ContextMenu.show(
+      <Menu>
+        <MenuDivider title="Add Node" />
+        <MenuItem text="Standard Node" onClick={addFlowNode} />
+        {this.props.flowPreview ? (
+          <React.Fragment>
+            <MenuItem text="Say" onClick={addSayNode} />
+            <MenuItem text="Execute" onClick={addExecuteNode} />
+            <MenuItem text="Listen" onClick={addListenNode} />
+            <MenuItem text="Router" onClick={addRouterNode} />
+          </React.Fragment>
+        ) : null}
+        <MenuItem text="Skills">
+          {this.props.skills.map(skill => (
+            <MenuItem
+              text={skill.name}
+              onClick={() => {
+                addSkillNode(skill.id)
+              }}
+            />
+          ))}
+        </MenuItem>
+      </Menu>,
+      { left: event.clientX, top: event.clientY }
+    )
+  }
+
   handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault()
 
-    const element = this.diagramWidget.getMouseElement(event)
-    const target = element && element.model
-    const targetName = _.get(element, 'model.name')
+    const target = this.diagramWidget.getMouseElement(event)
+    if (!target) {
+      this.handleContextMenuNoElement(event)
+      return
+    }
+
+    const targetModel = target && target.model
+    const targetName = _.get(target, 'model.name')
     const flowPosition = this.manager.getRealPosition(event)
 
     const canMakeStartNode = () => {
@@ -167,11 +219,18 @@ class Diagram extends Component<Props> {
 
     const setAsCurrentNode = () => this.props.updateFlow({ startNode: targetName })
     const isStartNode = targetName === this.props.currentFlow.startNode
-    const isNodeTargeted = target instanceof NodeModel
+    const isNodeTargeted = targetModel instanceof NodeModel
 
-    // Prevents diisplaying an empty menu
+    // Prevents displaying an empty menu
     if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
       return
+    }
+
+    const canAddChipToTarget = this._canAddTransitionChipToTarget(target)
+    console.log(canAddChipToTarget)
+
+    const addTransitionNode = async () => {
+      await this._addTransitionChipToRouter(target)
     }
 
     ContextMenu.show(
@@ -186,7 +245,7 @@ class Diagram extends Component<Props> {
               icon="duplicate"
               text="Copy"
               onClick={() => {
-                this.props.switchFlowNode(target.id)
+                this.props.switchFlowNode(targetModel.id)
                 this.copySelectedElementToBuffer()
               }}
             />
@@ -205,6 +264,14 @@ class Diagram extends Component<Props> {
                 this.checkForLinksUpdate()
               }}
             />
+            {this.props.flowPreview && canAddChipToTarget ? (
+              <React.Fragment>
+                <MenuDivider />
+                <MenuItem text="Chips">
+                  <MenuItem text="Transition" onClick={addTransitionNode} />
+                </MenuItem>
+              </React.Fragment>
+            ) : null}
           </Fragment>
         )}
       </Menu>,
@@ -395,7 +462,10 @@ class Diagram extends Component<Props> {
     const { x, y } = this.manager.getRealPosition(event)
 
     if (data.type === 'chip') {
-      await this._addTransitionChipToRouter(event)
+      const target = this.diagramWidget.getMouseElement(event)
+      if (this._canAddTransitionChipToTarget(target)) {
+        await this._addTransitionChipToRouter(target)
+      }
     } else if (data.type === 'skill') {
       this.props.buildSkill({ location: { x, y }, id: data.id })
     } else if (data.type === 'node') {
@@ -410,16 +480,17 @@ class Diagram extends Component<Props> {
     }
   }
 
-  private async _addTransitionChipToRouter(event) {
+  private async _addTransitionChipToRouter(target) {
+    await this.props.switchFlowNode(target.model.id)
+    this.props.updateFlowNode({ next: [...this.props.currentFlowNode.next, defaultTransition] })
+  }
+
+  private _canAddTransitionChipToTarget(target): boolean {
     if (this.props.readOnly) {
-      return
+      return false
     }
 
-    const target = this.diagramWidget.getMouseElement(event)
-    if (target && target.model instanceof RouterNodeModel) {
-      await this.props.switchFlowNode(target.model.id)
-      this.props.updateFlowNode({ next: [...this.props.currentFlowNode.next, defaultTransition] })
-    }
+    return target && target.model instanceof RouterNodeModel
   }
 
   render() {
