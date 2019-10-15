@@ -93,10 +93,10 @@ export function getEntitiesFeats(token: UtteranceToken, allowedEntities: string[
     .value()
 }
 
-export function getSpaceFeat(token: UtteranceToken): CRFFeature {
+export function getSpaceFeat(token: UtteranceToken | undefined): CRFFeature {
   return {
     name: 'space',
-    value: token.isSpace
+    value: token && token.isSpace
   }
 }
 

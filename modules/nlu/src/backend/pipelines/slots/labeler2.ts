@@ -8,7 +8,9 @@ import { TagResult } from './labeler'
 const MIN_SLOT_CONFIDENCE = 0.15
 
 export function labelizeUtterance(utterance: Utterance): string[] {
-  return utterance.tokens.map(token => {
+  return utterance.tokens
+    .filter(x => !x.isSpace)
+    .map(token => {
     if (_.isEmpty(token.slots)) {
       return BIO.OUT
     }

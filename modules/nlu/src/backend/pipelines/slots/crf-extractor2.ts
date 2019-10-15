@@ -66,7 +66,9 @@ export default class CRFExtractor2 {
 
     for (const intent of intents) {
       for (const utterance of intent.utterances) {
-        const features: string[][] = utterance.tokens.map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
+        const features: string[][] = utterance.tokens
+          .filter(x => !x.isSpace)
+          .map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
         const labels = labeler.labelizeUtterance(utterance)
 
         trainer.append(features, labels)
@@ -123,7 +125,7 @@ export default class CRFExtractor2 {
       featurizer.getClusterFeat(token),
       featurizer.getWordWeight(token),
       featurizer.getInVocabFeat(token, intent),
-      featurizer.getSpaceFeat(token),
+      featurizer.getSpaceFeat(utterance.tokens[token.index - 1]),
       featurizer.getAlpha(token),
       featurizer.getNum(token),
       featurizer.getSpecialChars(token),
@@ -136,7 +138,9 @@ export default class CRFExtractor2 {
     utterance: Utterance,
     intent: Intent<Utterance>
   ): Promise<{ slot: ExtractedSlot; start: number; end: number }[]> {
-    const features: string[][] = utterance.tokens.map(this.tokenSliceFeatures.bind(this, intent, utterance, true))
+    const toks = utterance.tokens.filter(x => !x.isSpace)
+
+    const features: string[][] = toks.map(this.tokenSliceFeatures.bind(this, intent, utterance, true))
     debugExtract('vectorize', features)
 
     const predictions = this._crfTagger
@@ -145,7 +149,7 @@ export default class CRFExtractor2 {
       .map(res => labeler.swapInvalidTags(res, intent))
 
     // move this into labeler ?
-    return _.zip(utterance.tokens, predictions)
+    return _.zip(toks, predictions)
       .filter(([token, tag]) => tag.tag !== BIO.OUT)
       .reduce(
         (combined, [token, tag]) => {
