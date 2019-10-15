@@ -7,7 +7,7 @@ import yn from 'yn'
 import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util'
 
-import { deserializeModel, Model as E2Model, serializeModel } from './engine2'
+import { deserializeModel, Model as E2Model, serializeModel } from './engine2/engine2'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
@@ -24,16 +24,13 @@ export default class Storage {
   private readonly intentsDir: string = './intents'
   private readonly entitiesDir: string = './entities'
   private readonly modelsDir: string = './models'
-  private readonly config: Config
 
   constructor(
-    config: Config,
     private readonly botId: string,
     private readonly defaultLanguage: string,
     private readonly languages: string[],
     private readonly logger: sdk.Logger
   ) {
-    this.config = config
     this.botGhost = Storage.ghostProvider(this.botId)
     this.globalGhost = Storage.ghostProvider()
   }

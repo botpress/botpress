@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
+import yn from 'yn'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
@@ -10,6 +11,7 @@ import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 
 const SYNC_INTERVAL_MS = ms('5s')
+const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
 
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
@@ -17,6 +19,9 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const syncByBots: { [key: string]: NodeJS.Timer } = {}
 
   const scheduleSyncNLU = (botId: string) => {
+    if (USE_E2) {
+      return
+    }
     if (syncByBots[botId]) {
       clearTimeout(syncByBots[botId])
       delete syncByBots[botId]
@@ -133,14 +138,13 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
-    const filepaths = await bp.ghost.forBot(botId).directoryListing('/intents', '*.json')
-    const contextsArray = await Promise.map(filepaths, async filepath => {
-      const file = await bp.ghost.forBot(botId).readFileAsObject('/intents', filepath)
-      return file['contexts']
-    })
+    const intents = await (nlus[botId] as ScopedEngine).storage.getIntents()
+    const ctxs = _.chain(intents)
+      .flatMap(i => i.contexts)
+      .uniq()
+      .value()
 
-    // Contexts is an array of arrays that can contain duplicate values
-    res.send(_.uniq(_.flatten(contextsArray)))
+    res.send(ctxs)
   })
 
   router.get('/entities', async (req, res) => {
