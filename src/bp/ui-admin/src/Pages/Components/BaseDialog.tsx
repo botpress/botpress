@@ -24,9 +24,3 @@ export const DialogFooter = ({ children }) => {
     </div>
   )
 }
-
-export const BPDialog = {
-  Container: BaseDialog,
-  Body: DialogBody,
-  Footer: DialogFooter
-}
