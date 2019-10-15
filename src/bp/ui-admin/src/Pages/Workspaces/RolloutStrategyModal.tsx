@@ -1,5 +1,4 @@
 import { Button, Classes, Dialog, Radio, RadioGroup } from '@blueprintjs/core'
-import { Workspace } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
@@ -8,10 +7,10 @@ import { toastFailure, toastSuccess } from '~/utils/toaster'
 import InviteCode from './InviteCode'
 
 interface Props {
-  workspace: Workspace
+  workspaceId: string
   isOpen: boolean
   toggle: () => void
-  refreshWorkspaces: () => void
+  refreshWorkspaces?: () => void
 }
 
 const RolloutStrategyModal: FC<Props> = props => {
@@ -20,15 +19,14 @@ const RolloutStrategyModal: FC<Props> = props => {
   const [allowedUsages, setAllowedUsages] = useState(-1)
 
   useEffect(() => {
-    if (props.workspace) {
-      setStrategy(props.workspace.rolloutStrategy || 'anonymous')
+    if (props.workspaceId) {
       // tslint:disable-next-line: no-floating-promises
       loadRolloutInfo()
     }
-  }, [props.workspace, props.isOpen])
+  }, [props.workspaceId, props.isOpen])
 
   const loadRolloutInfo = async () => {
-    const { data } = await api.getSecured().get(`/admin/workspaces/${props.workspace.id}/rollout`)
+    const { data } = await api.getSecured().get(`/admin/workspaces/${props.workspaceId}/rollout`)
 
     setInviteCode(data.inviteCode)
     setAllowedUsages(data.allowedUsages)
@@ -37,8 +35,9 @@ const RolloutStrategyModal: FC<Props> = props => {
 
   const submit = async () => {
     try {
-      await api.getSecured().post(`/admin/workspaces/${props.workspace.id}/rollout/${strategy}`)
+      await api.getSecured().post(`/admin/workspaces/${props.workspaceId}/rollout/${strategy}`)
       toastSuccess(`Rollout strategy updated successfully`)
+      props.refreshWorkspaces && props.refreshWorkspaces()
     } catch (err) {
       toastFailure(err.message)
     }
@@ -94,7 +93,7 @@ const RolloutStrategyModal: FC<Props> = props => {
             inviteCode={inviteCode}
             allowedUsages={allowedUsages}
             onUpdate={loadRolloutInfo}
-            workspaceId={props.workspace.id}
+            workspaceId={props.workspaceId}
           />
         )}
       </div>

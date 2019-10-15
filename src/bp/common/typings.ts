@@ -30,6 +30,10 @@ export interface WorkspaceUser {
   workspaceName?: string
 }
 
+export type WorkspaceUserInfo = {
+  attributes: any
+} & WorkspaceUser
+
 export interface AuthStrategyConfig {
   strategyType: string
   strategyId: string

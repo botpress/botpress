@@ -8,7 +8,8 @@ import TabLayout, { AdminTab } from '../Layouts/Tabs'
 
 import Bots from './Bots'
 import Roles from './Roles'
-import Users from './Users'
+import ChatUsers from './Users/ChatUsers'
+import Collaborators from './Users/Collaborators'
 
 const Workspace = props => {
   const title = <WorkspaceSelect />
@@ -29,11 +30,21 @@ const Workspace = props => {
       name: 'Collaborators',
       route: '/workspace/:workspaceId?/users',
       icon: <MdPeople />,
-      component: Users,
+      component: Collaborators,
       res: 'admin.collaborators.*',
       op: 'read',
       proOnly: true
     },
+    // {
+    //   id: 'tab-chatusers',
+    //   name: 'Chat Users',
+    //   route: '/workspace/:workspaceId?/chatusers',
+    //   icon: <MdPeople />,
+    //   component: ChatUsers,
+    //   res: 'admin.chatusers.*',
+    //   op: 'read',
+    //   proOnly: true
+    // },
     {
       id: 'tab-roles',
       name: 'Roles',

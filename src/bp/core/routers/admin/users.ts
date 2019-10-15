@@ -35,6 +35,7 @@ export class UsersRouter extends CustomRouter {
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        const filterRoles = req.query.roles && req.query.roles.split(',')
         const users = await this.workspaceService.getWorkspaceUsersAttributes(req.workspace!, [
           'last_logon',
           'firstname',
@@ -42,7 +43,12 @@ export class UsersRouter extends CustomRouter {
           'picture_url',
           'created_at'
         ])
-        return sendSuccess(res, 'Retrieved users', users)
+
+        return sendSuccess(
+          res,
+          'Retrieved users',
+          filterRoles ? users.filter(x => filterRoles.includes(x.role)) : users
+        )
       })
     )
 
@@ -50,13 +56,16 @@ export class UsersRouter extends CustomRouter {
       '/listAvailableUsers',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        const filterRoles = req.query.roles && req.query.roles.split(',')
         const allUsers = await this.authService.getAllUsers()
         const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
+        const available = _.filter(allUsers, x => !_.find(workspaceUsers, x)) as WorkspaceUser[]
 
-        return sendSuccess(res, 'Retrieved users', _.filter(
-          allUsers,
-          x => !_.find(workspaceUsers, x)
-        ) as WorkspaceUser[])
+        return sendSuccess(
+          res,
+          'Retrieved available users',
+          filterRoles ? available.filter(x => filterRoles.includes(x.role)) : available
+        )
       })
     )
 
