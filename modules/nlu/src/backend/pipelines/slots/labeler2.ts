@@ -11,20 +11,21 @@ export function labelizeUtterance(utterance: Utterance): string[] {
   return utterance.tokens
     .filter(x => !x.isSpace)
     .map(token => {
-    if (_.isEmpty(token.slots)) {
-      return BIO.OUT
-    }
+      if (_.isEmpty(token.slots)) {
+        return BIO.OUT
+      }
 
-    const slot = token.slots[0]
-    const tag = slot.startTokenIdx === token.index ? BIO.BEGINNING : BIO.INSIDE
-    const any = _.isEmpty(token.entities) ? '/any' : ''
+      const slot = token.slots[0]
+      const tag = slot.startTokenIdx === token.index ? BIO.BEGINNING : BIO.INSIDE
+      const any = _.isEmpty(token.entities) ? '/any' : ''
 
-    return `${tag}-${slot.name}${any}`
-  })
+      return `${tag}-${slot.name}${any}`
+    })
 }
 
 export function predictionLabelToTagResult(prediction: { [label: string]: number }): TagResult {
   const [label, probability] = _.chain(prediction)
+    .mapValues((value, key) => value + (prediction[key + '/any'] || 0))
     .toPairs()
     .maxBy('1')
     .value()
