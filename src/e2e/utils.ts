@@ -97,12 +97,23 @@ export const closeToaster = async () => {
   })
 }
 
+const shouldLogRequest = (url: string) => {
+  const ignoredExt = ['.js', '.mp3', '.png', '.svg', '.css']
+  const ignoredWords = ['image/', 'google-analytics', 'css', 'public/js', 'static/js']
+
+  return !ignoredExt.find(x => url.endsWith(x)) && !ignoredWords.find(x => url.includes(x))
+}
+
 page.on('request', req => {
-  console.log(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+  if (shouldLogRequest(req.url())) {
+    console.log(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+  }
 })
 
 page.on('response', resp => {
-  console.log(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+  if (shouldLogRequest(resp.url())) {
+    console.log(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+  }
 })
 
 page.on('framenavigated', frame => {
