@@ -27,9 +27,9 @@ const RoleDropdown: FC<Props> = props => {
   const [selected, setSelected] = useState<AuthRole>()
 
   useEffect(() => {
-    if (!props.roles) {
+    if (!props.roles || !props.roles.length) {
       props.fetchRoles()
-    } else if (props.roles.length) {
+    } else {
       const defaultRole = props.defaultRole && props.roles.find(x => x.id === props.defaultRole)
       selectOption(defaultRole || props.roles[0])
     }

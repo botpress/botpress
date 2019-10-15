@@ -4,6 +4,8 @@ import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
+import { BaseDialog, DialogBody, DialogFooter } from '../Components/BaseDialog'
+
 import InviteCode from './InviteCode'
 
 interface Props {
@@ -46,14 +48,14 @@ const RolloutStrategyModal: FC<Props> = props => {
   const inviteRequired = ['anonymous-invite', 'authenticated-invite'].includes(strategy)
 
   return (
-    <Dialog
-      isOpen={props.isOpen}
-      icon="send-to-graph"
-      onClose={() => props.toggle()}
-      transitionDuration={0}
+    <BaseDialog
       title="Rollout Strategy"
+      icon="send-to-graph"
+      isOpen={props.isOpen}
+      onClose={() => props.toggle()}
+      size="sm"
     >
-      <div className={Classes.DIALOG_BODY}>
+      <DialogBody>
         <p>
           The rollout strategy is applied to all bots of the workspace when a user encounters an Auth Gate on the flow.
           Without an Auth Gate, the policy has no effect.
@@ -96,14 +98,11 @@ const RolloutStrategyModal: FC<Props> = props => {
             workspaceId={props.workspaceId}
           />
         )}
-      </div>
-
-      <div className={Classes.DIALOG_FOOTER}>
-        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button id="btn-submit" text="Submit" onClick={submit} />
-        </div>
-      </div>
-    </Dialog>
+      </DialogBody>
+      <DialogFooter>
+        <Button id="btn-submit" text="Submit" onClick={submit} />
+      </DialogFooter>
+    </BaseDialog>
   )
 }
 
