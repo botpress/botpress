@@ -938,12 +938,18 @@ const Utterances = async (raw_utterances: string[], languageCode: string, tools:
   const vectors = await tools.vectorize_tokens(uniqTokens, languageCode)
   const vectorMap = _.zipObject(uniqTokens, vectors)
 
-  return _.zip(tokens, parsed).map(([tokUtt, { parsedSlots }]) => {
+  return _.zip(tokens, parsed).map(([tokUtt, { utterance: utt, parsedSlots }]) => {
     const vectors = tokUtt.map(t => vectorMap[t])
     const utterance = new Utterance(tokUtt, vectors)
-    parsedSlots.forEach(s => {
-      utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
-    })
+
+    // TODO: temporary work-around
+    // covers a corner case where tokenization returns tokens that are not identical to `parsed` utterance
+    // the corner case is when there's a trailing space inside a slot at the end of the utterance, e.g. `my name is [Sylvain ](any)`
+    if (utterance.toString().length === utt.length) {
+      parsedSlots.forEach(s => {
+        utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
+      })
+    } // else we skip the slot
 
     return utterance
   })
