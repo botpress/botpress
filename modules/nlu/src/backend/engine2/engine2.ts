@@ -79,8 +79,6 @@ export default class Engine2 {
     Engine2.tools = tools
   }
 
-  // TODO debounce this (head)
-  // TODO make this take stuff from sdk instead and parse prepare it as trainInput here instead
   async train(input: TrainInput): Promise<Model> {
     const token: CancellationToken = {
       cancel: async () => {},

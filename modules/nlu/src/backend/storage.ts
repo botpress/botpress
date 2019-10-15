@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
-import yn from 'yn'
 
 import { sanitizeFilenameNoExt } from '../util'
 
@@ -11,8 +10,6 @@ import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 25
-
-const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
 
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
