@@ -52,6 +52,10 @@ const UserList: FC<Props> = props => {
       />
 
       <div className="bp_users-container" style={{ marginTop: 10 }}>
+        {filter && !filteredUsers.length && (
+          <Callout title="No user matches your query" style={{ textAlign: 'center' }} />
+        )}
+
         {roles.map(role => {
           const users = filteredUsers.filter(user => user.role === role.id)
           return users.length ? (
