@@ -42,7 +42,8 @@ export const CreateUserModal: FC<Props> = props => {
 
   useEffect(() => {
     props.fetchAvailableUsers()
-  }, [])
+    setSelectedUser(undefined)
+  }, [props.isOpen])
 
   const isCreating = selectedUser && selectedUser.__isNew__
   const isValid = selectedUser && strategy && role

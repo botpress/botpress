@@ -60,14 +60,12 @@ const AuthStrategyDropdown: FC<Props> = props => {
   )
 }
 
-const filterOptions: ItemPredicate<AuthStrategyConfig> = (query, option, _index) => {
-  const normalizedLabel = option.label && option.label.toLowerCase()
-  const normalizedQuery = query.toLowerCase()
-
-  return `${normalizedLabel} ${option.strategyId}`.indexOf(normalizedQuery) >= 0
+const filterOptions: ItemPredicate<AuthStrategyConfig> = (query, option) => {
+  const label = option.label && option.label.toLowerCase()
+  return `${label} ${option.strategyId}`.indexOf(query.toLowerCase()) > -1
 }
 
-const renderOption: ItemRenderer<AuthStrategyConfig> = (option, { handleClick, modifiers, query }) => {
+const renderOption: ItemRenderer<AuthStrategyConfig> = (option, { handleClick, modifiers }) => {
   if (!modifiers.matchesPredicate) {
     return null
   }

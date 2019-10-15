@@ -62,14 +62,11 @@ const RoleDropdown: FC<Props> = props => {
   )
 }
 
-const filterOptions: ItemPredicate<AuthRole> = (query, option, _index) => {
-  const normalizedLabel = option.name.toLowerCase()
-  const normalizedQuery = query.toLowerCase()
-
-  return `${normalizedLabel} ${option.name}`.indexOf(normalizedQuery) >= 0
+const filterOptions: ItemPredicate<AuthRole> = (query, option) => {
+  return `${option.name.toLowerCase()} ${option.id}`.indexOf(query.toLowerCase()) > -1
 }
 
-const renderOption: ItemRenderer<AuthRole> = (option, { handleClick, modifiers, query }) => {
+const renderOption: ItemRenderer<AuthRole> = (option, { handleClick, modifiers }) => {
   if (!modifiers.matchesPredicate) {
     return null
   }
