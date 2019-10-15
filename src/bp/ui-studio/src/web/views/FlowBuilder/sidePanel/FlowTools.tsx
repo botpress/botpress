@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Icon, IconName } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { buildNewSkill } from '~/actions'
@@ -16,7 +16,7 @@ interface ToolItemProps {
 export interface SkillDefinition {
   id: string
   name: string
-  icon: string
+  icon: IconName
   moduleName: string
 }
 

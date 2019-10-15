@@ -2,6 +2,7 @@ import {
   Button,
   ContextMenu,
   ControlGroup,
+  Icon,
   InputGroup,
   Intent,
   Menu,
@@ -175,23 +176,25 @@ class Diagram extends Component<Props> {
     ContextMenu.show(
       <Menu>
         <MenuDivider title="Add Node" />
-        <MenuItem text="Standard Node" onClick={addFlowNode} />
+        <MenuItem text="Standard Node" onClick={addFlowNode} icon="chat" />
         {this.props.flowPreview ? (
           <React.Fragment>
-            <MenuItem text="Say" onClick={addSayNode} />
-            <MenuItem text="Execute" onClick={addExecuteNode} />
-            <MenuItem text="Listen" onClick={addListenNode} />
-            <MenuItem text="Router" onClick={addRouterNode} />
+            <MenuItem text="Say" onClick={addSayNode} icon="comment" />
+            <MenuItem text="Execute" onClick={addExecuteNode} icon="code-block" />
+            <MenuItem text="Listen" onClick={addListenNode} icon="hand" />
+            <MenuItem text="Router" onClick={addRouterNode} icon="search-around" />
           </React.Fragment>
         ) : null}
-        <MenuItem text="Skills">
+        <MenuItem text="Skills" icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
               text={skill.name}
               onClick={() => {
                 addSkillNode(skill.id)
               }}
-            />
+              icon={skill.icon}
+            >
+            </MenuItem>
           ))}
         </MenuItem>
       </Menu>,
@@ -268,7 +271,7 @@ class Diagram extends Component<Props> {
               <React.Fragment>
                 <MenuDivider />
                 <MenuItem text="Chips">
-                  <MenuItem text="Transition" onClick={addTransitionNode} />
+                  <MenuItem text="Transition" onClick={addTransitionNode} icon="flow-end" />
                 </MenuItem>
               </React.Fragment>
             ) : null}
