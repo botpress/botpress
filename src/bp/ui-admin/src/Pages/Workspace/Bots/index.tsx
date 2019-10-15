@@ -228,7 +228,6 @@ class Bots extends Component<Props> {
         <SectionLayout
           title="Bots"
           helpText="This page lists all the bots created under the current workspace."
-          activePage="bots"
           mainContent={this.renderBots()}
           sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}
         />

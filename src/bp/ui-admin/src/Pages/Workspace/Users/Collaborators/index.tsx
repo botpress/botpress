@@ -67,7 +67,6 @@ const List: FC<Props> = props => {
     <SectionLayout
       title="Collaborators"
       helpText="Create, delete users or update their role."
-      activePage="users"
       mainContent={<UserList onPasswordReset={onPasswordReset} onUserUpdated={reloadUsers} />}
       sideMenu={
         <div>

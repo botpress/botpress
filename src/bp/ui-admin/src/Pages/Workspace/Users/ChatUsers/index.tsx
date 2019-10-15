@@ -64,8 +64,7 @@ const List: FC<Props> = props => {
   return (
     <SectionLayout
       title="Chat Users"
-      helpText="Create, delete users or update their role."
-      activePage="users"
+      helpText="Chat users are only allowed to talk with bots. They can see a list of all the bots in the workspace"
       mainContent={
         <div>
           <RolloutOverview />

@@ -53,7 +53,7 @@ const RolloutStrategyModal: FC<Props> = props => {
       icon="send-to-graph"
       isOpen={props.isOpen}
       onClose={() => props.toggle()}
-      size="sm"
+      size="md"
     >
       <DialogBody>
         <p>

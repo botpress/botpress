@@ -1,5 +1,6 @@
+import { Icon } from '@blueprintjs/core'
 import React, { useEffect } from 'react'
-import { MdAndroid, MdPeople, MdVerifiedUser } from 'react-icons/md'
+import { MdAndroid } from 'react-icons/md'
 import { generatePath, matchPath } from 'react-router'
 import { getActiveWorkspace } from '~/Auth'
 
@@ -29,7 +30,7 @@ const Workspace = props => {
       id: 'tab-collaborators',
       name: 'Collaborators',
       route: '/workspace/:workspaceId?/users',
-      icon: <MdPeople />,
+      icon: <Icon icon="people" />,
       component: Collaborators,
       res: 'admin.collaborators.*',
       op: 'read',
@@ -39,7 +40,7 @@ const Workspace = props => {
     //   id: 'tab-chatusers',
     //   name: 'Chat Users',
     //   route: '/workspace/:workspaceId?/chatusers',
-    //   icon: <MdPeople />,
+    //   icon: <Icon icon="person" />,
     //   component: ChatUsers,
     //   res: 'admin.chatusers.*',
     //   op: 'read',
@@ -49,7 +50,7 @@ const Workspace = props => {
       id: 'tab-roles',
       name: 'Roles',
       route: '/workspace/:workspaceId?/roles',
-      icon: <MdVerifiedUser />,
+      icon: <Icon icon="shield" />,
       component: Roles,
       res: 'admin.roles.*',
       op: 'read',
