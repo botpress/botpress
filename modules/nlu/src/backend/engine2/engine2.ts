@@ -27,11 +27,8 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-//      extract train, save and load models out of Engine1
-//      fix: at the moment there's a double load (after train in E2 and after training all langs in E1)
 //      handle the case where no intent is provided both for train and predict
 //      filter out empty pattern entities
-//      load model only if not loaded
 
 // ----- cleanup -----
 //      for intents, do we include predictionsReallyConfused (really close) then none?
@@ -107,7 +104,10 @@ export default class Engine2 {
   }
 
   async loadModel(model: Model) {
-    // TODO verify if model is already loaded might include hash in model definition
+    if (_.isEqual(this.modelsByLang[model.languageCode], model) && this.predictorsByLang[model.languageCode]) {
+      return
+    }
+
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
   }
