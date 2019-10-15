@@ -14,6 +14,7 @@ import LangProvider from './language-provider'
 import { registerMiddleware } from './middleware'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import Storage from './storage'
+import { isPatternValid } from './tools/patterns-utils'
 import { EngineByBot, LanguageProvider, NLUHealth } from './typings'
 
 const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
@@ -141,7 +142,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
         })
 
       const pattern_entities = entities
-        .filter(ent => ent.type === 'pattern')
+        .filter(ent => ent.type === 'pattern' && isPatternValid(ent.pattern))
         .map(ent => ({
           name: ent.name,
           pattern: ent.pattern,
