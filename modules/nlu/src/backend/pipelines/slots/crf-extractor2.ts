@@ -84,15 +84,25 @@ export default class CRFExtractor2 {
     isPredict: boolean,
     token: UtteranceToken
   ): string[] {
-    const prevTok = utterance.tokens[token.index - 1]
-    const nexTok = utterance.tokens[token.index + 1]
+    const previous = utterance.tokens.filter(t => t.index < token.index && !t.isSpace).slice(-2)
+    const next = utterance.tokens.filter(t => t.index > token.index && !t.isSpace).slice(0, 1)
 
-    const prevFeats = this._getTokenFeatures(intent, utterance, prevTok, isPredict).filter(f => f.name !== 'quartile')
+    const prevFeats = previous.map(t =>
+      this._getTokenFeatures(intent, utterance, t, isPredict)
+        .filter(f => f.name !== 'quartile')
+        .reverse()
+    )
     const current = this._getTokenFeatures(intent, utterance, token, isPredict).filter(f => f.name !== 'cluster')
-    const nextFeats = this._getTokenFeatures(intent, utterance, nexTok, isPredict).filter(f => f.name !== 'quartile')
+    const nextFeats = next.map(t =>
+      this._getTokenFeatures(intent, utterance, t, isPredict).filter(f => f.name !== 'quartile')
+    )
 
-    const prevPairs = featurizer.getFeatPairs(prevFeats, current, ['word', 'vocab', 'weight'])
-    const nextPairs = featurizer.getFeatPairs(current, nextFeats, ['word', 'vocab', 'weight'])
+    const prevPairs = prevFeats.length
+      ? featurizer.getFeatPairs(prevFeats[0], current, ['word', 'vocab', 'weight'])
+      : []
+    const nextPairs = nextFeats.length
+      ? featurizer.getFeatPairs(current, nextFeats[0], ['word', 'vocab', 'weight'])
+      : []
 
     const intentFeat = featurizer.getIntentFeature(intent)
     const bos = token.isBOS ? ['__BOS__'] : []
@@ -101,9 +111,9 @@ export default class CRFExtractor2 {
     return [
       ...bos,
       featurizer.featToCRFsuiteAttr('', intentFeat),
-      ...prevFeats.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[-1]')),
+      ..._.flatten(prevFeats.map((feat, idx) => feat.map(featurizer.featToCRFsuiteAttr.bind(this, `w[-${idx + 1}]`)))),
       ...current.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[0]')),
-      ...nextFeats.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[1]')),
+      ..._.flatten(nextFeats.map((feat, idx) => feat.map(featurizer.featToCRFsuiteAttr.bind(this, `w[${idx + 1}]`)))),
       ...prevPairs.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[-1]|w[0]')),
       ...nextPairs.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[0]|w[1]')),
       ...eos
