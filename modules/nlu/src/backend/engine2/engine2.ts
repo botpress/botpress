@@ -27,9 +27,6 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-//      handle the case where no intent is provided both for train and predict
-//      filter out empty pattern entities
-
 // ----- cleanup -----
 //      for intents, do we include predictionsReallyConfused (really close) then none?
 //      add user feedback for training progress
@@ -52,6 +49,7 @@ const KMEANS_OPTIONS = {
 //      retrain only parts of pipeline that needs to be trained (cache policy in each step)
 
 const NONE_INTENT = 'none'
+const DEFAULT_CTX = 'global'
 const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
   onlyWords: true,
@@ -104,7 +102,10 @@ export default class Engine2 {
   }
 
   async loadModel(model: Model) {
-    if (_.isEqual(this.modelsByLang[model.languageCode], model) && this.predictorsByLang[model.languageCode]) {
+    if (
+      _.isEqual(this.modelsByLang[model.languageCode], model) &&
+      this.predictorsByLang[model.languageCode] !== undefined
+    ) {
       return
     }
 
@@ -116,20 +117,26 @@ export default class Engine2 {
     const { input, output, artefacts } = model.data
     const tools = Engine2.tools
 
-    const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
-    const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
-      (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
-      {} as _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-    )
-    const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
-    slot_tagger.load(artefacts.slots_model)
+    if (input.intents.length > 0) {
+      const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
+      const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
+        (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
+        {} as _.Dictionary<sdk.MLToolkit.SVM.Predictor>
+      )
+      const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
+      slot_tagger.load(artefacts.slots_model)
 
-    const processedIntents = output
-      ? output.intents
-      : await ProcessIntents(input.intents, model.languageCode, artefacts.list_entities, tools)
-    const kmeans = computeKmeans(processedIntents, tools) // TODO load from artefacts when persistd
+      const processedIntents = output
+        ? output.intents
+        : await ProcessIntents(input.intents, model.languageCode, artefacts.list_entities, tools)
+      const kmeans = computeKmeans(processedIntents, tools) // TODO load from artefacts when persistd
 
-    return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, kmeans }
+      return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, kmeans }
+    } else {
+      // we don't want to return undefined as extraction won't be triggered
+      // we want to make it possible to extract entities without having any intents
+      return {} as Predictors
+    }
   }
 
   async predict(sentence: string, includedContexts: string[]): Promise<PredictOutput> {
@@ -815,7 +822,13 @@ const computeSentenceEmbedding = (utterance: Utterance): number[] => {
   return scalarDivide(sentenceEmbedding, totalWeight)
 }
 
-export const trainIntentClassifer = async (input: TrainOutput, tools: Tools): Promise<_.Dictionary<string>> => {
+export const trainIntentClassifer = async (
+  input: TrainOutput,
+  tools: Tools
+): Promise<_.Dictionary<string> | undefined> => {
+  if (input.intents.length === 0) {
+    return
+  }
   const svmPerCtx: _.Dictionary<string> = {}
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
@@ -835,9 +848,9 @@ export const trainIntentClassifer = async (input: TrainOutput, tools: Tools): Pr
   return svmPerCtx
 }
 
-export const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise<string> => {
-  if (input.intents.length < 1) {
-    return input
+export const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
+  if (input.intents.length === 0) {
+    return
   }
 
   const points = _.flatMapDeep(input.contexts, ctx => {
@@ -905,8 +918,11 @@ const extractUtteranceEntities = async (utterance: Utterance, input: TrainOutput
 }
 
 export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const allUtterances = _.flatten(input.intents.map(x => x.utterances))
+  if (input.intents.length === 0) {
+    return input
+  }
 
+  const allUtterances = _.flatten(input.intents.map(x => x.utterances))
   const vocabulary = _.chain(allUtterances)
     .map(x => x.tokens.map(x => x.value))
     .flattenDeep<string>()
@@ -972,6 +988,9 @@ const Utterances = async (raw_utterances: string[], languageCode: string, tools:
 }
 
 const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer> => {
+  if (input.intents.length === 0) {
+    return Buffer.from('')
+  }
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
   await crfExtractor.train(input.intents)
 
@@ -1085,6 +1104,10 @@ const predict = {
     return { ...input }
   },
   PredictContext: async (input: PredictStep): Promise<PredictStep> => {
+    if (input.intents.length === 0) {
+      return { ...input, ctx_predictions: [{ label: DEFAULT_CTX, confidence: 1 }] }
+    }
+
     const features = computeSentenceEmbedding(input.utterance)
     const predictions = await input.predictors.ctx_classifer.predict(features)
 
@@ -1094,8 +1117,11 @@ const predict = {
     }
   },
   PredictIntent: async (input: PredictStep) => {
-    const ctxToPredict = input.ctx_predictions.map(p => p.label)
+    if (input.intents.length === 0) {
+      return { ...input, intent_predictions: { per_ctx: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } } }
+    }
 
+    const ctxToPredict = input.ctx_predictions.map(p => p.label)
     // TODO refine this and add some levinstein magic in there
     const exactMatchIndex = input.exact_match_index
     const exactMatch = exactMatchIndex[input.utterance.toString(EXACT_MATCH_STR_OPTIONS)]
