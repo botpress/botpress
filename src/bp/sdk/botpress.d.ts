@@ -1420,8 +1420,9 @@ declare module 'botpress/sdk' {
      * Returns the configuation values for the specified module and bot.
      * @param moduleId
      * @param botId
+     * @param ignoreGlobal Enable this when you want only bot-specific configuration to be possible
      */
-    export function getModuleConfigForBot(moduleId: string, botId: string): Promise<any>
+    export function getModuleConfigForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<any>
 
     /**
      * Returns the configuration options of Botpress

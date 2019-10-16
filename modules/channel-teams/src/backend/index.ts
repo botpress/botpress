@@ -27,7 +27,7 @@ const onServerReady = async (bp: typeof sdk) => {
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
-  const config = (await bp.config.getModuleConfigForBot('channel-teams', botId)) as Config
+  const config = (await bp.config.getModuleConfigForBot('channel-teams', botId, true)) as Config
 
   if (config.enabled) {
     const bot = new TeamsClient(bp, botId, config, publicPath)

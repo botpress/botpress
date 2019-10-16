@@ -32,6 +32,7 @@ class Web extends React.Component<MainProps> {
   componentDidMount() {
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
+    window.parent['webchat_store'] = this.props.store
 
     window.addEventListener('message', this.handleIframeApi)
     window.addEventListener('keydown', e => {
