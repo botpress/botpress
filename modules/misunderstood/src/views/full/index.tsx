@@ -164,8 +164,9 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   async componentDidUpdate(prevProps: Props) {
-    console.log(prevProps.contentLang, '=>', this.props.contentLang)
-    await this.setLanguage(this.props.contentLang)
+    if (prevProps.contentLang !== this.props.contentLang) {
+      await this.setLanguage(this.props.contentLang)
+    }
   }
 
   render() {
