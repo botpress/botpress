@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { CreatedUser, WorkspaceUser } from 'common/typings'
 import AuthService from 'core/services/auth/auth-service'
+import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
@@ -128,6 +129,7 @@ export class UsersRouter extends CustomRouter {
             strategy: Joi.string().required()
           })
         )
+
         const { email, strategy, role } = req.body
         const alreadyExists = await this.authService.findUser(email, strategy)
 
@@ -135,8 +137,12 @@ export class UsersRouter extends CustomRouter {
           throw new ConflictError(`User "${email}" is already taken`)
         }
 
+        if (!req.workspace) {
+          throw new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`)
+        }
+
         const result = await this.authService.createUser({ email, strategy }, strategy)
-        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, { role })
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace, { role })
 
         return sendSuccess(res, 'User created successfully', {
           email,

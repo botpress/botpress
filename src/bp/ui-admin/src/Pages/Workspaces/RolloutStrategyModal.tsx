@@ -1,4 +1,4 @@
-import { Button, Classes, Dialog, Radio, RadioGroup } from '@blueprintjs/core'
+import { Button, Radio, RadioGroup } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
@@ -13,6 +13,39 @@ interface Props {
   isOpen: boolean
   toggle: () => void
   refreshWorkspaces?: () => void
+}
+
+interface RolloutInfo {
+  [strategyId: string]: {
+    label: string
+    desc: string
+    inviteRequired?: boolean
+  }
+}
+
+export const rolloutInfo: RolloutInfo = {
+  anonymous: {
+    label: 'Anonymous',
+    desc: `Anonymous users can talk to the bots (default)`
+  },
+  authenticated: {
+    label: 'Authenticated',
+    desc: `Authenticated users will be added to the workspace automatically, then can talk to bots`
+  },
+  authorized: {
+    label: 'Authorized',
+    desc: `Authenticated users with an existing access to the workspace can talk to bots`
+  },
+  'anonymous-invite': {
+    label: 'Anonymous + Code',
+    desc: `Anonymous users with an invite code can talk to bots`,
+    inviteRequired: true
+  },
+  'authenticated-invite': {
+    label: 'Auth + Code',
+    desc: `Authenticated users with an invite code will be added to the workspace, then can talk to bots`,
+    inviteRequired: true
+  }
 }
 
 const RolloutStrategyModal: FC<Props> = props => {
@@ -62,31 +95,18 @@ const RolloutStrategyModal: FC<Props> = props => {
         </p>
 
         <RadioGroup onChange={e => setStrategy(e.currentTarget.value)} selectedValue={strategy}>
-          <Radio id="radio-anonymous" value="anonymous" label="Anonymous users can talk to the bots (default)" />
-
-          <Radio
-            id="radio-authenticated"
-            value="authenticated"
-            label="Authenticated users will be added to the workspace automatically, then can talk to bots"
-          />
-          <Radio
-            id="radio-authorized"
-            value="authorized"
-            label="Authenticated users with an existing access to the workspace can talk to bots"
-          />
+          <Radio id="radio-anonymous" value="anonymous" label={rolloutInfo.anonymous.desc} />
+          <Radio id="radio-authenticated" value="authenticated" label={rolloutInfo.authenticated.desc} />
+          <Radio id="radio-authorized" value="authorized" label={rolloutInfo.authorized.desc} />
           <p>
             <strong>Strategies requiring an invite code</strong>
           </p>
 
-          <Radio
-            id="radio-anonymous-invite"
-            value="anonymous-invite"
-            label="Anonymous users with an invite code can talk to bots"
-          />
+          <Radio id="radio-anonymous-invite" value="anonymous-invite" label={rolloutInfo['anonymous-invite'].desc} />
           <Radio
             id="radio-authenticated-invite"
             value="authenticated-invite"
-            label="Authenticated users with an invite code will be added to the workspace, then can talk to bots"
+            label={rolloutInfo['authenticated-invite'].desc}
           />
         </RadioGroup>
         <br />
