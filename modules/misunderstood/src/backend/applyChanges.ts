@@ -1,3 +1,4 @@
+import axios from 'axios'
 import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import memoize from 'lodash/memoize'
@@ -59,12 +60,15 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
 
     await Bluebird.mapSeries(nluEvents, addNLU)
 
-    // TODO: sync NLU
-
     await trx(tableName).update({
       status: FLAGGED_MESSAGE_STATUS.applied,
       updatedAt: knex.fn.now()
     }).whereIn('id', events.map(({ id }) => id))
+
+    setImmediate(async () => {
+      const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+      await axios.post('/mod/nlu/confusion', { version: 'misunderstood' }, axiosConfig)
+    })
   })
 }
 
