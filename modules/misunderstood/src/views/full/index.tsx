@@ -10,23 +10,14 @@ import ApiClient from './ApiClient'
 import MainScreen from './MainScreen'
 import SidePanelContent from './SidePanel'
 
-const getDefaultLanguage = (languages: string[]) => {
-  if (languages.includes('en')) {
-    return 'en'
-  }
-  return languages[0]
-}
-
-const INITIAL_STATUS = FLAGGED_MESSAGE_STATUS.new
-
 interface Props {
+  contentLang: string
   bp: {
     axios: AxiosStatic
   }
 }
 
 interface State {
-  loaded: boolean | null
   languages: string[] | null
   language: string | null
   eventCounts: { [status: string]: number } | null
@@ -38,11 +29,10 @@ interface State {
 
 export default class MisunderstoodMainView extends React.Component<Props, State> {
   state = {
-    loaded: false,
     languages: null,
     language: null,
     eventCounts: null,
-    selectedStatus: INITIAL_STATUS,
+    selectedStatus: FLAGGED_MESSAGE_STATUS.new,
     events: null,
     selectedEventIndex: null,
     selectedEvent: null
@@ -68,15 +58,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   async componentDidMount() {
-    const languages = await this.apiClient.get('/').then(data => data.languages)
-
-    await this.setStateP({
-      languages,
-      loaded: true
-    })
-
-    const language = getDefaultLanguage(languages)
-    await this.setLanguage(language)
+    await this.setLanguage(this.props.contentLang)
   }
 
   setStateP<K extends keyof State>(update: Pick<State, K>) {
@@ -94,7 +76,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
   setLanguage = async (language: string) => {
     await this.setStateP({ language, eventCounts: null, events: null, selectedEventIndex: null, selectedEvent: null })
-    await Promise.all([this.setEventsStatus(INITIAL_STATUS), this.updateEventsCounts(language)])
+    await Promise.all([this.setEventsStatus(FLAGGED_MESSAGE_STATUS.new), this.updateEventsCounts(language)])
   }
 
   setEventsStatus = async (selectedStatus: FLAGGED_MESSAGE_STATUS) => {
@@ -181,17 +163,21 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return this.setEventsStatus(FLAGGED_MESSAGE_STATUS.applied)
   }
 
+  async componentDidUpdate(prevProps: Props) {
+    console.log(prevProps.contentLang, '=>', this.props.contentLang)
+    await this.setLanguage(this.props.contentLang)
+  }
+
   render() {
     const {
-      loaded,
-      languages,
-      language,
       eventCounts,
       selectedStatus,
       events,
       selectedEventIndex,
       selectedEvent
     } = this.state
+
+    const { contentLang } = this.props
 
     const dataLoaded =
       selectedStatus === FLAGGED_MESSAGE_STATUS.new
@@ -201,27 +187,22 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return (
       <Container sidePanelWidth={320}>
         <SidePanel>
-          {loaded && (
-            <SidePanelContent
-              languages={languages}
-              language={language}
-              eventCounts={eventCounts}
-              selectedStatus={selectedStatus}
-              events={events}
-              selectedEventIndex={selectedEventIndex}
-              onLanguageChange={this.setLanguage}
-              onSelectedStatusChange={this.setEventsStatus}
-              onSelectedEventChange={this.setEventIndex}
-              applyAllPending={this.applyAllPending}
-            />
-          )}
+          <SidePanelContent
+            eventCounts={eventCounts}
+            selectedStatus={selectedStatus}
+            events={events}
+            selectedEventIndex={selectedEventIndex}
+            onSelectedStatusChange={this.setEventsStatus}
+            onSelectedEventChange={this.setEventIndex}
+            applyAllPending={this.applyAllPending}
+          />
         </SidePanel>
 
-        {loaded && eventCounts && dataLoaded ? (
+        {eventCounts && dataLoaded ? (
           <div className={classnames(style.padded, style.mainView)}>
             <MainScreen
               axios={this.props.bp.axios}
-              language={language}
+              language={contentLang}
               selectedEvent={selectedEvent}
               selectedEventIndex={selectedEventIndex}
               totalEventsCount={eventCounts[selectedStatus] || 0}

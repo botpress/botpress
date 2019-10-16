@@ -14,7 +14,8 @@
 - [x] Pending list
   - [x] Apply all button
   - [x] API to apply the changes
+    - [ ] sync NLU
 - [x] Deleted list
   - [x] Return action
 - [x] Applied list
-- [ ] make use of the Pro built-in lang switcher (this.props.contentLang)
+- [x] make use of the Pro built-in lang switcher (this.props.contentLang)
