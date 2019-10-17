@@ -32,6 +32,7 @@ export class UsersRouter extends CustomRouter {
   setupRoutes() {
     const router = this.router
 
+    // List of all users which are currently member of the active workspace
     router.get(
       '/',
       this.needPermissions('read', this.resource),
@@ -53,6 +54,7 @@ export class UsersRouter extends CustomRouter {
       })
     )
 
+    // Returns the list of users NOT currently member of the active workspace
     router.get(
       '/listAvailableUsers',
       this.needPermissions('read', this.resource),
