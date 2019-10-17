@@ -43,17 +43,17 @@ export const expectCallSuccess = async (url: string, method?: HttpMethod): Promi
 }
 
 export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
-  const response = await getResponse(`${bpConfig.host}/api/v1/admin/${endOfUrl}`, method)
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/admin/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
 }
 
 export const expectBotApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
-  const response = await getResponse(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
 }
 
 export const waitForBotApiResponse = async (endOfUrl: string, method?: HttpMethod): Promise<any> => {
-  const response = await getResponse(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   return response.json()
 }
 
