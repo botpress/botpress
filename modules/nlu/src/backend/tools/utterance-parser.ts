@@ -15,9 +15,15 @@ export interface ParsedSlot {
   }
 }
 
+export interface UtterancePart {
+  text: string
+  slot?: ParsedSlot
+}
+
 export interface ParsedUtterance {
   utterance: string
   parsedSlots: ParsedSlot[]
+  parts: UtterancePart[]
 }
 
 export const extractSlots = (utterance: string): RegExpExecArray[] => {
@@ -36,7 +42,8 @@ export const parseUtterance = (utterance: string): ParsedUtterance => {
 
   const parsed = slotMatches.reduce(
     (acc, { 0: fullMatch, 1: value, 2: name, index }) => {
-      const clean = acc.utterance + utterance.slice(cursor, index) + value
+      const inBetweenText = utterance.slice(cursor, index)
+      const clean = acc.utterance + inBetweenText + value
       cursor = index + fullMatch.length // index is stateful since its a general regex
       const parsedSlot: ParsedSlot = {
         name,
@@ -52,14 +59,16 @@ export const parseUtterance = (utterance: string): ParsedUtterance => {
       }
       return {
         utterance: clean,
-        parsedSlots: [...acc.parsedSlots, parsedSlot]
+        parsedSlots: [...acc.parsedSlots, parsedSlot],
+        parts: [...acc.parts, { text: inBetweenText }, { text: value, slot: parsedSlot }].filter(x => x.text.length)
       }
     },
-    { utterance: '', parsedSlots: [] } as ParsedUtterance
+    { utterance: '', parsedSlots: [], parts: [] } as ParsedUtterance
   )
 
   if (cursor < utterance.length) {
     parsed.utterance += utterance.slice(cursor)
+    parsed.parts = [...parsed.parts, { text: utterance.slice(cursor) }]
   }
   return parsed
 }

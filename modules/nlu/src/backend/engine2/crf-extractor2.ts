@@ -66,7 +66,9 @@ export default class CRFExtractor2 {
 
     for (const intent of intents) {
       for (const utterance of intent.utterances) {
-        const features: string[][] = utterance.tokens.map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
+        const features: string[][] = utterance.tokens
+          .filter(x => !x.isSpace)
+          .map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
         const labels = labeler.labelizeUtterance(utterance)
 
         trainer.append(features, labels)
@@ -82,15 +84,25 @@ export default class CRFExtractor2 {
     isPredict: boolean,
     token: UtteranceToken
   ): string[] {
-    const prevTok = utterance.tokens[token.index - 1]
-    const nexTok = utterance.tokens[token.index + 1]
+    const previous = utterance.tokens.filter(t => t.index < token.index && !t.isSpace).slice(-2)
+    const next = utterance.tokens.filter(t => t.index > token.index && !t.isSpace).slice(0, 1)
 
-    const prevFeats = this._getTokenFeatures(intent, utterance, prevTok, isPredict).filter(f => f.name !== 'quartile')
+    const prevFeats = previous.map(t =>
+      this._getTokenFeatures(intent, utterance, t, isPredict)
+        .filter(f => f.name !== 'quartile')
+        .reverse()
+    )
     const current = this._getTokenFeatures(intent, utterance, token, isPredict).filter(f => f.name !== 'cluster')
-    const nextFeats = this._getTokenFeatures(intent, utterance, nexTok, isPredict).filter(f => f.name !== 'quartile')
+    const nextFeats = next.map(t =>
+      this._getTokenFeatures(intent, utterance, t, isPredict).filter(f => f.name !== 'quartile')
+    )
 
-    const prevPairs = featurizer.getFeatPairs(prevFeats, current, ['word', 'vocab', 'weight'])
-    const nextPairs = featurizer.getFeatPairs(current, nextFeats, ['word', 'vocab', 'weight'])
+    const prevPairs = prevFeats.length
+      ? featurizer.getFeatPairs(prevFeats[0], current, ['word', 'vocab', 'weight'])
+      : []
+    const nextPairs = nextFeats.length
+      ? featurizer.getFeatPairs(current, nextFeats[0], ['word', 'vocab', 'weight'])
+      : []
 
     const intentFeat = featurizer.getIntentFeature(intent)
     const bos = token.isBOS ? ['__BOS__'] : []
@@ -99,9 +111,9 @@ export default class CRFExtractor2 {
     return [
       ...bos,
       featurizer.featToCRFsuiteAttr('', intentFeat),
-      ...prevFeats.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[-1]')),
+      ..._.flatten(prevFeats.map((feat, idx) => feat.map(featurizer.featToCRFsuiteAttr.bind(this, `w[-${idx + 1}]`)))),
       ...current.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[0]')),
-      ...nextFeats.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[1]')),
+      ..._.flatten(nextFeats.map((feat, idx) => feat.map(featurizer.featToCRFsuiteAttr.bind(this, `w[${idx + 1}]`)))),
       ...prevPairs.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[-1]|w[0]')),
       ...nextPairs.map(featurizer.featToCRFsuiteAttr.bind(this, 'w[0]|w[1]')),
       ...eos
@@ -123,7 +135,7 @@ export default class CRFExtractor2 {
       featurizer.getClusterFeat(token),
       featurizer.getWordWeight(token),
       featurizer.getInVocabFeat(token, intent),
-      featurizer.getSpaceFeat(token),
+      featurizer.getSpaceFeat(utterance.tokens[token.index - 1]),
       featurizer.getAlpha(token),
       featurizer.getNum(token),
       featurizer.getSpecialChars(token),
@@ -136,7 +148,9 @@ export default class CRFExtractor2 {
     utterance: Utterance,
     intent: Intent<Utterance>
   ): Promise<{ slot: ExtractedSlot; start: number; end: number }[]> {
-    const features: string[][] = utterance.tokens.map(this.tokenSliceFeatures.bind(this, intent, utterance, true))
+    const toks = utterance.tokens.filter(x => !x.isSpace)
+
+    const features: string[][] = toks.map(this.tokenSliceFeatures.bind(this, intent, utterance, true))
     debugExtract('vectorize', features)
 
     const predictions = this._crfTagger
@@ -145,7 +159,7 @@ export default class CRFExtractor2 {
       .map(res => labeler.swapInvalidTags(res, intent))
 
     // move this into labeler ?
-    return _.zip(utterance.tokens, predictions)
+    return _.zip(toks, predictions)
       .filter(([token, tag]) => tag.tag !== BIO.OUT)
       .reduce(
         (combined, [token, tag]) => {
