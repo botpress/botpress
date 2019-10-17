@@ -3,7 +3,7 @@ import cx from 'classnames'
 import React, { FC } from 'react'
 
 type Props = {
-  onSubmit?: (event: any) => void
+  onSubmit?: () => void
   size?: 'sm' | 'md' | 'lg'
 } & Partial<IDialogProps>
 
@@ -15,9 +15,14 @@ export const BaseDialog: FC<Props> = props => {
     width = 900
   }
 
+  const onSubmit = e => {
+    e.preventDefault()
+    props.onSubmit!()
+  }
+
   return (
     <Dialog transitionDuration={0} canOutsideClickClose={false} enforceFocus={false} style={{ width }} {...props}>
-      {props.onSubmit ? <form onSubmit={props.onSubmit}>{props.children}</form> : props.children}
+      {props.onSubmit ? <form onSubmit={onSubmit}>{props.children}</form> : props.children}
     </Dialog>
   )
 }

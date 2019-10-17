@@ -48,9 +48,7 @@ export const CreateUserModal: FC<Props> = props => {
   const isCreating = selectedUser && selectedUser.__isNew__
   const isValid = selectedUser && strategy && role
 
-  const createUser = async e => {
-    e.preventDefault()
-
+  const createUser = async () => {
     if (!selectedUser || !strategy || !role) {
       return
     }
@@ -123,7 +121,6 @@ export const CreateUserModal: FC<Props> = props => {
           id="btn-submit"
           className="float-right"
           type="submit"
-          onClick={createUser}
           text={isCreating ? 'Create account' : 'Add to workspace'}
           disabled={!isValid}
         />
