@@ -1,8 +1,8 @@
 import 'bluebird-global'
 import _ from 'lodash'
 
-import { EntityExtractionResult, extractListEntities, ListEntityModel, Utterance } from '../../engine2'
-import { parseUtterance } from '../../utterance-parser'
+import { EntityExtractionResult, extractListEntities, ListEntityModel, Utterance } from './engine2'
+import { parseUtterance } from '../tools/utterance-parser'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)
 
