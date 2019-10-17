@@ -15,7 +15,7 @@ test('extract slots from utterance', () => {
   expect(extracted[1].index).toEqual(40)
 })
 
-describe.only('parse utterance', () => {
+describe('parse utterance', () => {
   test('empty', () => {
     const res = parseUtterance('')
 
