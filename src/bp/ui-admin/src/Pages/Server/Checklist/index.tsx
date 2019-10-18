@@ -11,6 +11,7 @@ import { fetchServerConfig } from '../../../reducers/server'
 import Item from './Item'
 
 const NOT_SET = 'Not set'
+const NB_PING_FOR_STICKY_SESSIONS = 3
 
 const getDisplayValue = (val: any) => {
   if (val === undefined || val === null) {
@@ -57,6 +58,7 @@ const Container = props => {
 export const Checklist: FC<Props> = props => {
   const [langSource, setLangSource] = useState<any>()
   const [hasAuditTrail, setAuditTrail] = useState(false)
+  const [stickyEnabled, setStickyEnabled] = useState(false)
 
   useEffect(() => {
     if (!props.serverConfigLoaded) {
@@ -70,12 +72,28 @@ export const Checklist: FC<Props> = props => {
     const { data: sources } = await api.getSecured().get('/admin/languages/sources')
     setLangSource(sources.languageSources)
 
+    await checkAuditTrail()
+    await checkStickySessions()
+  }
+
+  const checkAuditTrail = async () => {
     const { data: debug } = await api.getSecured().get('/admin/server/debug')
     const audit = Object.keys(debug)
       .filter(x => x.startsWith('bp:audit'))
       .map(x => debug[x])
 
     setAuditTrail(_.some(audit, Boolean))
+  }
+
+  const checkStickySessions = async () => {
+    const results: string[] = await Promise.all(
+      _.times(NB_PING_FOR_STICKY_SESSIONS, async () => {
+        const { data } = await api.getSecured().get('/auth/ping')
+        return data.payload.serverId
+      })
+    )
+
+    setStickyEnabled(_.every(results, res => res === results[0]))
   }
 
   if (!props.serverConfig) {
@@ -220,6 +238,26 @@ export const Checklist: FC<Props> = props => {
           You can enable a special debug scope that tracks every requests sent to the server (and the corresponding
           user/ip address) and output them to the log file. You can configure those scopes by clicking on 'Debug' in the
           menu on the left
+        </Item>
+
+        <Item
+          title="Enable Sticky Sessions"
+          docs="https://botpress.io/docs/next/tutorials/cluster-digital-ocean#instructions"
+          status={stickyEnabled ? 'success' : 'warning'}
+          source={[
+            { type: 'config', key: 'httpServer.socketTransports', value: getConfig('httpServer.socketTransports') }
+          ]}
+        >
+          When running Botpress in Cluster mode with multiple servers, it is recommended to enable sticky sessions so
+          users are being served from the same server. When using "Websocket" as a primary socket transport, it is
+          mandatory to enable it, otherwise the handshake will never complete. A green check indicates that either
+          sticky is enabled, or you only have one server.
+          <br />
+          <br />
+          <strong>This setting must be enabled on your load balancer.</strong>
+          <br />
+          <br />
+          Here is your current socket transports configuration:
         </Item>
 
         <Item
