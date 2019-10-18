@@ -2,7 +2,6 @@ import React from 'react'
 
 import Select from 'react-select'
 import { Modal, FormControl } from 'react-bootstrap'
-import { sanitizeFilenameNoExt } from '../../../util'
 import { Button, Intent } from '@blueprintjs/core'
 const AVAILABLE_TYPES = [
   {
@@ -36,7 +35,7 @@ export default class CreateEntityModal extends React.Component {
 
   createEntity = e => {
     const entity = {
-      id: sanitizeFilenameNoExt(this.state.name),
+      id: this.state.name.toLowerCase().replace(/\t\s/),
       name: this.state.name,
       type: this.state.type.value,
       occurences: []
