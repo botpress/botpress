@@ -32,19 +32,10 @@ const KMEANS_OPTIONS = {
 //  2     in Trainer, make a pre-processing step with marked step 0
 
 //  3     move removeSensitiveText from middleware to predict pipeline
-
-//  5     add user feedback for training progress
-//  6     add more debug
-//  7     add nlu performance tests in terms of accuracy/f1 (system) tests. We want to set threshold for F1 score to make sure we don't add any regressions
-//  8     add nlu performance tests in terms of training time
-//       completely get rid of engine1
-
-//       extract MlToolkit.CRF.Tagger in e2 with loading from binary
 //       add value in utterance slots
-//       make sure we can load kmeans from persisted data (need to modify mlKmeans)
+
+//       completely get rid of engine1
 //       split e2 in different files (modules)
-//       use a single "vocab" structure that combines intent vocab, tfidf, vectors vocab (tok2vec) and exactMatchIndex
-//       re-implement getClosestToken to use e2 datastructures
 
 const NONE_INTENT = 'none'
 const DEFAULT_CTX = 'global'
@@ -487,6 +478,7 @@ export class Utterance {
     this._kmeans = kmeans
   }
 
+  // TODO memoize this for better perf
   toString(options?: UtteranceToStringOptions): string {
     options = _.defaultsDeep({}, options, { lowerCase: false, slots: 'keep-value' })
 
@@ -799,7 +791,6 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
 }
 
 // TODO vectorized implementation of this
-// taken as is from ft_featurizer
 // Taken from https://github.com/facebookresearch/fastText/blob/26bcbfc6b288396bd189691768b8c29086c0dab7/src/fasttext.cc#L486s
 const computeSentenceEmbedding = (utterance: Utterance): number[] => {
   let totalWeight = 0
@@ -1032,6 +1023,20 @@ export type PredictStep = TrainArtefacts & {
   // TODO slots predictions per intent
 }
 
+export function findExactIntentForCtx(
+  exactMatchIndex: ExactMatchIndex,
+  utterance: Utterance,
+  ctx: string
+): sdk.MLToolkit.SVM.Prediction | undefined {
+  // TODO add some levinstein logic here
+  const candidateKey = utterance.toString(EXACT_MATCH_STR_OPTIONS)
+
+  const maybeMatch = exactMatchIndex[candidateKey]
+  if (_.get(maybeMatch, 'contexts', []).includes(ctx)) {
+    return { label: maybeMatch.intent, confidence: 1 }
+  }
+}
+
 const predict = {
   DetectLanguage: async (
     input: PredictInput,
@@ -1124,10 +1129,6 @@ const predict = {
     }
 
     const ctxToPredict = input.ctx_predictions.map(p => p.label)
-    // TODO refine this and add some levinstein magic in there
-    const exactMatchIndex = input.exact_match_index
-    const exactMatch = exactMatchIndex[input.utterance.toString(EXACT_MATCH_STR_OPTIONS)]
-
     const predictions = (await Promise.map(ctxToPredict, async ctx => {
       const predictor = input.predictors.intent_classifier_per_ctx[ctx]
       if (!predictor) {
@@ -1135,12 +1136,9 @@ const predict = {
       }
       const features = [...computeSentenceEmbedding(input.utterance), input.utterance.tokens.length]
       const preds = await predictor.predict(features)
-      // TODO extract this in a func predictExact(utterance, ctx) return exact pred
-      if (_.get(exactMatch, 'contexts', []).includes(ctx)) {
-        preds.unshift({ label: exactMatch.intent, confidence: 1 })
-      }
+      const exactPred = [findExactIntentForCtx(input.exact_match_index, input.utterance, ctx)]
 
-      return preds
+      return [...exactPred, ...preds]
     })).filter(_.identity)
 
     return {
