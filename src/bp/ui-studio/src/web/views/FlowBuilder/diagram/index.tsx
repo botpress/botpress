@@ -175,26 +175,29 @@ class Diagram extends Component<Props> {
     }
     ContextMenu.show(
       <Menu>
+        {this.props.canPasteNode && (
+          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer({ x, y })} />
+        )}
         <MenuDivider title="Add Node" />
         <MenuItem text="Standard Node" onClick={addFlowNode} icon="chat" />
         {this.props.flowPreview ? (
-          <React.Fragment>
+          <Fragment>
             <MenuItem text="Say" onClick={addSayNode} icon="comment" />
             <MenuItem text="Execute" onClick={addExecuteNode} icon="code-block" />
             <MenuItem text="Listen" onClick={addListenNode} icon="hand" />
             <MenuItem text="Router" onClick={addRouterNode} icon="search-around" />
-          </React.Fragment>
+          </Fragment>
         ) : null}
-        <MenuItem text="Skills" icon="add">
+        <MenuItem tagName={'button'} text="Skills" icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
+              key={skill.id}
               text={skill.name}
               onClick={() => {
                 addSkillNode(skill.id)
               }}
               icon={skill.icon}
-            >
-            </MenuItem>
+            />
           ))}
         </MenuItem>
       </Menu>,
