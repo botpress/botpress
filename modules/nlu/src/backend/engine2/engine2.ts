@@ -27,26 +27,24 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-// ----- cleanup -----
-//      for intents, do we include predictionsReallyConfused (really close) then none?
-//      add user feedback for training progress
-//      add more debug
-//      in Trainer, make a pre-processing step with marked step 0
-//      split e2 in different files (modules)
-//      add value in utterance slots
-//      extract MlToolkit.CRF.Tagger in e2 with loading from binary
-//      add more tests for the train pipeline
-//      make sure we can load kmeans from persisted data (need to modify mlKmeans)
-//      move removeSensitiveText from middleware to predict pipeline
-//      add nlu performance tests in terms of accuracy/f1 (system) tests. We want to set threshold for F1 score to make sure we don't add any regressions
-//      add nlu performance tests in terms of training time
-//      completely get rid of engine1
-// ----- cancelation token -----
-// ----- even better fuzzy entities -----
-//      add fuzziness factor (low medium high)
-// ----- improve performance -----
-//      retrain only for changed languages
-//      retrain only parts of pipeline that needs to be trained (cache policy in each step)
+//  1      for intents, do we include predictionsReallyConfused (really close) then none?
+
+//  2     in Trainer, make a pre-processing step with marked step 0
+
+//  3     move removeSensitiveText from middleware to predict pipeline
+
+//  5     add user feedback for training progress
+//  6     add more debug
+//  7     add nlu performance tests in terms of accuracy/f1 (system) tests. We want to set threshold for F1 score to make sure we don't add any regressions
+//  8     add nlu performance tests in terms of training time
+//       completely get rid of engine1
+
+//       extract MlToolkit.CRF.Tagger in e2 with loading from binary
+//       add value in utterance slots
+//       make sure we can load kmeans from persisted data (need to modify mlKmeans)
+//       split e2 in different files (modules)
+//       use a single "vocab" structure that combines intent vocab, tfidf, vectors vocab (tok2vec) and exactMatchIndex
+//       re-implement getClosestToken to use e2 datastructures
 
 const NONE_INTENT = 'none'
 const DEFAULT_CTX = 'global'
@@ -763,7 +761,7 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
     .value()
 
   return _.chain(utterances)
-    .flatMap(u => u.tokens.map(t => t.toString({ lowerCase: true })))
+    .flatMap(u => u.tokens.filter(t => _.isEmpty(t.slots)).map(t => t.toString({ lowerCase: true })))
     .concat(entitiesTokens)
     .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok]: true }), {})
     .value()
