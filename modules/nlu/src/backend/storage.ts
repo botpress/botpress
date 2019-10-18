@@ -2,19 +2,14 @@ import * as sdk from 'botpress/sdk'
 import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
-import yn from 'yn'
 
-import { Config } from '../config'
 import { sanitizeFilenameNoExt } from '../util'
 
-import { deserializeModel, Model as E2Model, serializeModel } from './engine2'
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 25
-
-const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
 
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
@@ -24,16 +19,13 @@ export default class Storage {
   private readonly intentsDir: string = './intents'
   private readonly entitiesDir: string = './entities'
   private readonly modelsDir: string = './models'
-  private readonly config: Config
 
   constructor(
-    config: Config,
     private readonly botId: string,
     private readonly defaultLanguage: string,
     private readonly languages: string[],
     private readonly logger: sdk.Logger
   ) {
-    this.config = config
     this.botGhost = Storage.ghostProvider(this.botId)
     this.globalGhost = Storage.ghostProvider()
   }
@@ -265,22 +257,6 @@ export default class Storage {
     }
   }
 
-  private _makeE2Fname(modelHash: string, lang: string): string {
-    return `${modelHash}.${lang}.model`
-  }
-
-  async writeE2Model(model: E2Model, modelHash: string): Promise<void> {
-    const strModel = serializeModel(model)
-    return this.botGhost.upsertFile(this.modelsDir, this._makeE2Fname(modelHash, model.languageCode), strModel)
-  }
-
-  async readE2Model(modelHash: string, languageCode: string): Promise<E2Model | undefined> {
-    if (await this.modelExists(modelHash, languageCode)) {
-      const strMod = await this.botGhost.readFileAsString(this.modelsDir, this._makeE2Fname(modelHash, languageCode))
-      return deserializeModel(strMod)
-    }
-  }
-
   async persistModels(models: Model[], lang: string) {
     await Promise.map(models, model => this._persistModel(model, lang))
     return this._cleanupModels(lang)
@@ -310,12 +286,8 @@ export default class Storage {
   }
 
   async modelExists(modelHash: string, lang: string): Promise<boolean> {
-    if (USE_E2) {
-      return this.botGhost.fileExists(this.modelsDir, this._makeE2Fname(modelHash, lang))
-    } else {
-      const models = await this._getAvailableModels(false, lang)
-      return !!_.find(models, m => m.hash === modelHash)
-    }
+    const models = await this._getAvailableModels(false, lang)
+    return !!_.find(models, m => m.hash === modelHash)
   }
 
   async getModelsFromHash(modelHash: string, lang: string): Promise<Model[]> {

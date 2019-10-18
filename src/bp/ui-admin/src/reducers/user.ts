@@ -1,7 +1,8 @@
-import { AuthRule, AuthStrategyConfig, UserProfile, WorkspaceUser } from 'common/typings'
+import { WorkspaceRollout } from 'botpress/sdk'
+import { AuthRule, AuthStrategyConfig, UserProfile, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
 
 import api from '../api'
-import { logout, setActiveWorkspace } from '../Auth'
+import { getActiveWorkspace, logout, setActiveWorkspace } from '../Auth'
 
 import { fetchLicensing } from './license'
 
@@ -12,6 +13,8 @@ export const FETCH_USERS_RECEIVED = 'user/FETCH_USERS_RECEIVED'
 export const MY_WORKSPACES_RECEIVED = 'user/MY_WORKSPACES_RECEIVED'
 export const AUTH_CONFIG_RECEIVED = 'user/AUTH_CONFIG_RECEIVED'
 export const CURRENT_WORKSPACE_CHANGED = 'user/CURRENT_WORKSPACE_CHANGED'
+export const AVAILABLE_USERS_RECEIVED = 'user/AVAILABLE_USERS_RECEIVED'
+export const WORKSPACE_ROLLOUT_RECEIVED = 'user/WORKSPACE_ROLLOUT_RECEIVED'
 
 export interface UserState {
   loading: boolean
@@ -20,8 +23,10 @@ export interface UserState {
   permissions?: AuthRule[]
   authConfig?: AuthStrategyConfig[]
   profile?: UserProfile
-  users?: WorkspaceUser & { attributes: any }[]
+  users?: WorkspaceUserInfo[]
+  availableUsers?: WorkspaceUserInfo[]
   currentWorkspace?: string
+  workspaceRollout?: WorkspaceRollout
 }
 
 const initialState: UserState = {
@@ -82,12 +87,24 @@ export default (state = initialState, action) => {
         currentWorkspace: action.currentWorkspace
       }
 
+    case AVAILABLE_USERS_RECEIVED:
+      return {
+        ...state,
+        availableUsers: action.availableUsers
+      }
+
+    case WORKSPACE_ROLLOUT_RECEIVED:
+      return {
+        ...state,
+        workspaceRollout: action.rollout
+      }
+
     default:
       return state
   }
 }
 
-export const fetchUsers = () => {
+export const fetchUsers = (filterRoles?: string) => {
   return async (dispatch, getState) => {
     const { user: state } = getState()
 
@@ -96,7 +113,8 @@ export const fetchUsers = () => {
     }
 
     dispatch({ type: FETCH_USERS_REQUESTED })
-    const { data: users } = await api.getSecured().get('/admin/users')
+    const query = (filterRoles && `?roles=${filterRoles}`) || ''
+    const { data: users } = await api.getSecured().get(`/admin/users${query}`)
     dispatch({ type: FETCH_USERS_RECEIVED, users: users.payload })
   }
 }
@@ -128,6 +146,14 @@ export const fetchAuthConfig = () => {
   }
 }
 
+export const fetchAvailableUsers = (filterRoles?: string) => {
+  const query = (filterRoles && `?roles=${filterRoles}`) || ''
+  return async dispatch => {
+    const { data } = await api.getSecured().get(`/admin/users/listAvailableUsers${query}`)
+    dispatch({ type: AVAILABLE_USERS_RECEIVED, availableUsers: data.payload })
+  }
+}
+
 export const switchWorkspace = (workspaceId: string) => {
   return async dispatch => {
     setActiveWorkspace(workspaceId)
@@ -135,5 +161,13 @@ export const switchWorkspace = (workspaceId: string) => {
     await dispatch(fetchLicensing())
 
     dispatch({ type: CURRENT_WORKSPACE_CHANGED, currentWorkspace: workspaceId })
+  }
+}
+
+export const fetchWorkspaceRollout = () => {
+  return async dispatch => {
+    const workspaceId = getActiveWorkspace()
+    const { data } = await api.getSecured().get(`/admin/workspaces/${workspaceId}/rollout`)
+    dispatch({ type: WORKSPACE_ROLLOUT_RECEIVED, rollout: data })
   }
 }

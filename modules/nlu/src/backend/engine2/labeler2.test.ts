@@ -1,4 +1,4 @@
-import { ExtractedEntity, ExtractedSlot, Utterance } from '../../engine2'
+import { ExtractedEntity, ExtractedSlot, Utterance } from './engine2'
 
 import { labelizeUtterance } from './labeler2'
 

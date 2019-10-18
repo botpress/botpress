@@ -51,10 +51,11 @@ const Menu: FC<MenuProps> = props => {
         <MenuItem
           id="btn-menu-users"
           text="Collaborators"
-          icon="people"
+          icon="user"
           url="/workspace/:workspaceId?/users"
           isPro={true}
         />
+
         <MenuItem id="btn-menu-roles" text="Roles" icon="shield" url="/workspace/:workspaceId?/roles" isPro={true} />
       </ControlGroup>
 
