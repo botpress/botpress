@@ -209,7 +209,7 @@ class Diagram extends Component<Props> {
     event.preventDefault()
 
     const target = this.diagramWidget.getMouseElement(event)
-    if (!target) {
+    if (!target && !this.props.readOnly) {
       this.handleContextMenuNoElement(event)
       return
     }
