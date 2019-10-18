@@ -27,13 +27,10 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-//  1      for intents, do we include predictionsReallyConfused (really close) then none?
-
-//  2     in Trainer, make a pre-processing step with marked step 0
-
-//  3     move removeSensitiveText from middleware to predict pipeline
+// ----- simple improvements -----
+//       in Trainer, make a pre-processing step with marked step 0
+//       move removeSensitiveText from middleware to predict pipeline
 //       add value in utterance slots
-
 //       completely get rid of engine1
 //       split e2 in different files (modules)
 
@@ -1146,10 +1143,27 @@ const predict = {
       intent_predictions: { per_ctx: _.zipObject(ctxToPredict, predictions) }
     }
   },
-  // TODO implement this algorithm properly / improve it currently taken as is from svm classifier (engine 1)
+  // TODO implement this algorithm properly / improve it
+  // currently taken as is from svm classifier (engine 1) and does't make much sens
   ElectIntent: (input: PredictStep) => {
     const totalConfidence = Math.min(1, _.sumBy(input.ctx_predictions, 'confidence'))
     const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
+
+    // taken from svm classifier #295
+    // this means that the 3 best predictions are really close, do not change magic numbers
+    const predictionsReallyConfused = (predictions: sdk.MLToolkit.SVM.Prediction[]): boolean => {
+      const intentsPreds = predictions.filter(x => x.label !== 'none')
+      if (intentsPreds.length <= 2) {
+        return false
+      }
+      const std = math.std(intentsPreds.map(p => p.confidence))
+      const diff = (intentsPreds[0].confidence - intentsPreds[1].confidence) / std
+      if (diff >= 2.5) {
+        return false
+      }
+      const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
+      return bestOf3STD <= 0.03
+    }
 
     // taken from svm classifier #349
     const predictions = _.chain(ctxPreds)
@@ -1157,6 +1171,16 @@ const predict = {
         const intentPreds = _.orderBy(input.intent_predictions.per_ctx[ctx], 'confidence', 'desc')
         if (intentPreds.length === 1 || intentPreds[0].confidence === 1) {
           return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
+        }
+
+        if (predictionsReallyConfused(intentPreds)) {
+          const others = _.take(intentPreds, 4).map(x => ({
+            label: x.label,
+            l0Confidence: ctxConf,
+            confidence: ctxConf * x.confidence,
+            context: ctx
+          }))
+          return [{ label: 'none', l0Confidence: ctxConf, context: ctx, confidence: 1 }, ...others] // refine confidence
         }
 
         const lnstd = math.std(intentPreds.map(x => Math.log(x.confidence))) // because we want a lognormal distribution
