@@ -40,7 +40,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
-import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes } from './manager'
+import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } from './manager'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
@@ -153,39 +153,33 @@ class Diagram extends Component<Props> {
     }
   }
 
+  add = {
+    flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
+    skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
+    sayNode: (point: Point) =>
+      this.props.createFlowNode({ ...point, type: 'say_something', next: [defaultTransition] }),
+    executeNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition] }),
+    listenNode: (point: Point) =>
+      this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
+    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' })
+  }
+
   handleContextMenuNoElement = (event: React.MouseEvent) => {
-    const { x, y } = this.manager.getRealPosition(event)
-    const addFlowNode = () => {
-      this.props.createFlowNode({ x, y, type: 'standard' })
-    }
-    const addSkillNode = (id: string) => {
-      this.props.buildSkill({ location: { x, y }, id })
-    }
-    const addSayNode = () => {
-      this.props.createFlowNode({ x, y, type: 'say_something', next: [defaultTransition] })
-    }
-    const addExecuteNode = () => {
-      this.props.createFlowNode({ x, y, type: 'execute', next: [defaultTransition] })
-    }
-    const addListenNode = () => {
-      this.props.createFlowNode({ x, y, type: 'listen', onReceive: [], next: [defaultTransition] })
-    }
-    const addRouterNode = () => {
-      this.props.createFlowNode({ x, y, type: 'router' })
-    }
+    const point = this.manager.getRealPosition(event)
+
     ContextMenu.show(
       <Menu>
         {this.props.canPasteNode && (
-          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer({ x, y })} />
+          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
         )}
         <MenuDivider title="Add Node" />
-        <MenuItem text="Standard Node" onClick={addFlowNode} icon="chat" />
+        <MenuItem text="Standard Node" onClick={() => this.add.flowNode(point)} icon="chat" />
         {this.props.flowPreview ? (
           <Fragment>
-            <MenuItem text="Say" onClick={addSayNode} icon="comment" />
-            <MenuItem text="Execute" onClick={addExecuteNode} icon="code-block" />
-            <MenuItem text="Listen" onClick={addListenNode} icon="hand" />
-            <MenuItem text="Router" onClick={addRouterNode} icon="search-around" />
+            <MenuItem text="Say" onClick={() => this.add.sayNode(point)} icon="comment" />
+            <MenuItem text="Execute" onClick={() => this.add.executeNode(point)} icon="code-block" />
+            <MenuItem text="Listen" onClick={() => this.add.listenNode(point)} icon="hand" />
+            <MenuItem text="Router" onClick={() => this.add.routerNode(point)} icon="search-around" />
           </Fragment>
         ) : null}
         <MenuItem tagName={'button'} text="Skills" icon="add">
@@ -193,9 +187,7 @@ class Diagram extends Component<Props> {
             <MenuItem
               key={skill.id}
               text={skill.name}
-              onClick={() => {
-                addSkillNode(skill.id)
-              }}
+              onClick={() => this.add.skillNode(point, skill.id)}
               icon={skill.icon}
             />
           ))}
@@ -216,7 +208,7 @@ class Diagram extends Component<Props> {
 
     const targetModel = target && target.model
     const targetName = _.get(target, 'model.name')
-    const flowPosition = this.manager.getRealPosition(event)
+    const point = this.manager.getRealPosition(event)
 
     const canMakeStartNode = () => {
       const current = this.props.currentFlow && this.props.currentFlow.startNode
@@ -241,7 +233,7 @@ class Diagram extends Component<Props> {
     ContextMenu.show(
       <Menu>
         {!isNodeTargeted && this.props.canPasteNode && (
-          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(flowPosition)} />
+          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
         )}
         {isNodeTargeted && (
           <Fragment>
@@ -464,7 +456,7 @@ class Diagram extends Component<Props> {
     this.manager.unselectAllElements()
     const data = JSON.parse(event.dataTransfer.getData('diagram-node'))
 
-    const { x, y } = this.manager.getRealPosition(event)
+    const point = this.manager.getRealPosition(event)
 
     if (data.type === 'chip') {
       const target = this.diagramWidget.getMouseElement(event)
@@ -472,15 +464,24 @@ class Diagram extends Component<Props> {
         await this._addTransitionChipToRouter(target)
       }
     } else if (data.type === 'skill') {
-      this.props.buildSkill({ location: { x, y }, id: data.id })
+      this.add.skillNode(point, data.id)
     } else if (data.type === 'node') {
-      // The following nodes needs default transitions
-      if (data.id === 'say_something' || data.id === 'execute') {
-        this.props.createFlowNode({ x, y, type: data.id, next: [defaultTransition] })
-      } else if (data.id === 'listen') {
-        this.props.createFlowNode({ x, y, type: data.id, onReceive: [], next: [defaultTransition] })
-      } else {
-        this.props.createFlowNode({ x, y, type: data.id })
+      switch (data.id) {
+        case 'say_something':
+          this.add.sayNode(point)
+          break
+        case 'execute':
+          this.add.executeNode(point)
+          break
+        case 'listen':
+          this.add.listenNode(point)
+          break
+        case 'router':
+          this.add.routerNode(point)
+          break
+        default:
+          this.add.flowNode(point)
+          break
       }
     }
   }
