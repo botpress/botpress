@@ -2,7 +2,8 @@ import _ from 'lodash'
 
 import { SPACE, tokenizeLatinTextForTests } from '../tools/token-utils'
 
-import { ExtractedEntity, ExtractedSlot, Utterance, UtteranceToStringOptions } from './engine2'
+import { ExtractedEntity, ExtractedSlot } from './engine2'
+import Utterance, { UtteranceToStringOptions } from './utterance'
 
 const TOKENS = tokenizeLatinTextForTests('You might want to behave like if you are not like one of us. But you are!')
 const VECTORS = TOKENS.map(() => Array.from({ length: 5 }, () => _.random(0, 1, true)))

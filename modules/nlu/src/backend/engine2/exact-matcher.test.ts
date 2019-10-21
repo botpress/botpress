@@ -1,4 +1,5 @@
-import { buildExactMatchIndex, findExactIntentForCtx, Intent, TrainOutput, Utterance } from './engine2'
+import { buildExactMatchIndex, findExactIntentForCtx, Intent, TrainOutput } from './engine2'
+import Utterance from './utterance'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'
 const u2 = "Hi I'm Justine and I'am a smart bot with very scoped skills"

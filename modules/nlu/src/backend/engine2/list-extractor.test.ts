@@ -3,7 +3,8 @@ import _ from 'lodash'
 
 import { parseUtterance } from '../tools/utterance-parser'
 
-import { EntityExtractionResult, extractListEntities, ListEntityModel, Utterance } from './engine2'
+import { EntityExtractionResult, extractListEntities, ListEntityModel } from './engine2'
+import Utterance from './utterance'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)
 
