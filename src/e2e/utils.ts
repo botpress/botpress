@@ -95,6 +95,7 @@ export const closeToaster = async () => {
   await page.waitForFunction(() => {
     return document.querySelector('.bp3-overlay').childElementCount === 0
   })
+  await page.waitFor(500)
 }
 
 const shouldLogRequest = (url: string) => {
