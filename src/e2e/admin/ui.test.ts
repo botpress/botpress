@@ -23,6 +23,7 @@ describe('Admin - UI', () => {
     await closeToaster()
     await clickOn('#btn-menu')
     await expectMatch('Signed in as Bob Lalancette')
+    await clickOn('#btn-menu')
   })
 
   it('Load debugging page', async () => {

@@ -54,7 +54,7 @@ const UserDropdownMenu: FC<Props> = props => {
 
   return (
     <div>
-      <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
+      <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.CLICK}>
         <Button id="btn-menu" icon={icon} rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />} minimal={true} />
         <Menu>
           <MenuDivider title={`Signed in as ${fullName || email}`} />
