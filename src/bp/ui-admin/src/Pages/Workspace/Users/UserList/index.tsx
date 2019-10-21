@@ -4,10 +4,12 @@ import { AuthRole, UserProfile, WorkspaceUserInfo } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
+import { filterList } from '~/utils/util'
 import LoadingSection from '~/Pages/Components/LoadingSection'
 
-import { fetchUsers } from '../../../../reducers/user'
 import RoleSection from '../UserList/RoleSection'
+
+const userFilterFields = ['email', 'attributes.firstname', 'attributes.lastname']
 
 interface StateProps {
   profile: UserProfile
@@ -37,24 +39,22 @@ const UserList: FC<Props> = props => {
   }
 
   const currentUserEmail = props.profile && props.profile.email
-  const filteredUsers = filter ? props.users.filter(x => x.email.toLowerCase().includes(filter)) : props.users
+  const filteredUsers = filterList<WorkspaceUserInfo>(props.users, userFilterFields, filter)
   const roles = [...props.roles, CHAT_USER_ROLE]
 
   return (
     <div>
       <InputGroup
         id="input-filter"
-        placeholder="Filter users by name"
+        placeholder="Filter users"
         value={filter}
         onChange={e => setFilter(e.target.value.toLowerCase())}
-        autoFocus={true}
         autoComplete="off"
+        className="filterField"
       />
 
-      <div className="bp_users-container" style={{ marginTop: 10 }}>
-        {filter && !filteredUsers.length && (
-          <Callout title="No user matches your query" style={{ textAlign: 'center' }} />
-        )}
+      <div className="bp_users-container">
+        {filter && !filteredUsers.length && <Callout title="No user matches your query" className="filterCallout" />}
 
         {roles.map(role => {
           const users = filteredUsers.filter(user => user.role === role.id)
