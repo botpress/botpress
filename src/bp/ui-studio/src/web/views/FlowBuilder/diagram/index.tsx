@@ -182,11 +182,12 @@ class Diagram extends Component<Props> {
             <MenuItem text="Router" onClick={() => this.add.routerNode(point)} icon="search-around" />
           </Fragment>
         ) : null}
-        <MenuItem tagName={'button'} text="Skills" icon="add">
+        <MenuItem tagName="button" text="Skills" icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
               key={skill.id}
               text={skill.name}
+              tagName="button"
               onClick={() => this.add.skillNode(point, skill.id)}
               icon={skill.icon}
             />
