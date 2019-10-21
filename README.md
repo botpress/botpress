@@ -27,7 +27,7 @@ Botpress can be easily deployed on DigitalOcean as a 1-Click App [here](https://
 
 ## Deploy using Binaries
 
-You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/index.html).
+You can download the binaries [here](https://botpress.io/download).
 
 ## Building from source
 
@@ -37,11 +37,15 @@ You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/
 1. Run `yarn build` to build the core, the UI and the modules.
 1. Run `yarn start` to start the server.
 
-### Building issues
+<details><summary><strong>Building Issues</strong></summary>
+<p>
 
 If you encounter errors when building modules (timeout, random errors, etc), try the following:
 
 1. Go in each module folder and type `yarn && yarn build`
+
+</p>
+</details>
 
 ## Contributing
 
