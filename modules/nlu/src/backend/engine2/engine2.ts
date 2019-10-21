@@ -28,8 +28,6 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 // ----- simple improvements -----
-//       in Trainer, make a pre-processing step with marked step 0
-//       move removeSensitiveText from middleware to predict pipeline
 //       add value in utterance slots
 //       completely get rid of engine1
 //       split e2 in different files (modules)
@@ -134,7 +132,6 @@ export default class Engine2 {
 }
 
 export type TrainInput = Readonly<{
-  botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
   list_entities: ListEntity[]
@@ -143,7 +140,6 @@ export type TrainInput = Readonly<{
 }>
 
 export type TrainOutput = Readonly<{
-  botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
   list_entities: ListEntityModel[]
@@ -612,9 +608,7 @@ export type UtteranceToken = Readonly<{
 
 export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
-export interface Trainer {
-  (input: TrainInput, tools: Tools, cancelToken: CancellationToken): Promise<Model>
-}
+export type Trainer = (input: TrainInput, tools: Tools, cancelToken: CancellationToken) => Promise<Model>
 
 export interface TrainArtefacts {
   list_entities: ListEntityModel[]
@@ -670,21 +664,7 @@ export const Trainer: Trainer = async (
   try {
     // TODO: Cancellation token effect
 
-    // step 0 starts here
-    input = cloneDeep(input)
-    const list_entities = await Promise.map(input.list_entities, list =>
-      makeListEntityModel(list, input.languageCode, tools)
-    )
-
-    const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
-
-    let output: TrainOutput = {
-      ..._.omit(input, 'list_entities', 'intents'),
-      list_entities,
-      intents
-    }
-    // step 0
-
+    let output = await preprocessInput(input, tools)
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
     output = await ExtractEntities(output, tools)
@@ -696,7 +676,7 @@ export const Trainer: Trainer = async (
     const slots_model = await trainSlotTagger(output, tools)
 
     const artefacts: TrainArtefacts = {
-      list_entities,
+      list_entities: output.list_entities,
       tfidf: output.tfIdf,
       ctx_model,
       intent_model_by_ctx,
@@ -714,6 +694,21 @@ export const Trainer: Trainer = async (
     model.finishedAt = new Date()
     return model as Model
   }
+}
+
+const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+  input = cloneDeep(input)
+  const list_entities = await Promise.map(input.list_entities, list =>
+    makeListEntityModel(list, input.languageCode, tools)
+  )
+
+  const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
+
+  return {
+    ..._.omit(input, 'list_entities', 'intents'),
+    list_entities,
+    intents
+  } as TrainOutput
 }
 
 export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.MLToolkit.KMeans.KmeansResult => {

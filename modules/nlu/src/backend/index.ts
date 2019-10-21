@@ -162,7 +162,6 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
           await e2.loadModel(model)
         } else {
           const input: TrainInput = {
-            botId,
             languageCode,
             list_entities,
             pattern_entities,
