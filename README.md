@@ -15,33 +15,17 @@ Botpress is an open-source all-in-one bot creation platform that provides all th
 
 ---
 
-<a href='http://botpress.io'><img src='.github/assets/banner.gif'></a>
-
 ##### Learn Botpress
 
-| 📖 [v12 **Documentation**](https://botpress.io/docs) | 🍿 [**YouTube Channel**](https://www.youtube.com/c/botpress) |
-| ---------------------------------------------------- | ------------------------------------------------------------ |
+| 📖 [**Documentation**](https://botpress.io/docs) | 🍿 [**Tutorials**](https://www.youtube.com/c/botpress) | 💘 [**Community Forum**](https://help.botpress.io) |
+| ---------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 
-
-##### Follow us
-
-|💬 [**Community**](https://help.botpress.io) | 🚀 [Blog](https://botpress.io/blog) | 🐥 [Twitter](https://twitter.com/getbotpress) |
-| ---------------------------------------- | ----------------------------------- | --------------------------------------------- |
-
-## [Community / Support / Forum](https://help.botpress.io)
-
-## Support the project ⭐
-
-If you feel awesome and want to support us in a small way, please consider starring and sharing the repo! This helps us get visability and allow the community to grow. 🙏
-
-<img alt="Botpress" width="250" src=".github/assets/star_us.gif">
-
-## Deploy in the Cloud 🌩️
+## Deploy in the Cloud
 Botpress can be easily deployed on DigitalOcean as a 1-Click App [here](https://marketplace.digitalocean.com/apps/botpress).
 
 [![DigitalOcean](.github/do_button.svg)](https://marketplace.digitalocean.com/apps/botpress)
 
-## Pre-built Binaries
+## Deploy using Binaries
 
 You can download the binaries [here](https://s3.amazonaws.com/botpress-binaries/index.html).
 
@@ -59,38 +43,19 @@ If you encounter errors when building modules (timeout, random errors, etc), try
 
 1. Go in each module folder and type `yarn && yarn build`
 
-## Documentation
-
-### Developer's Guide
-
-We use [Docusaurus](https://docusaurus.io/en/) to create the Developer's Guide.
-
-- To start the development server, run `yarn start:guide`
-- To generate the static files, run `yarn build:guide`. The generated files will appear under `/docs/guide/build`
-- To deploy a new version of the documentation, run `yarn run version <version here>`
-
-### SDK Reference
-
-We use [TypeDoc](https://github.com/TypeStrong/typedoc) to generate the SDK Reference directly from the source code.
-
-- Run `yarn build:reference` to generate the documentation. The static files will appear under `/docs/reference/public`.
-
 ## Contributing
 
-Thank you for your interest in Botpress. Here are some of the many ways to contribute.
+Here are some of the many ways to contribute.
 
-- Check out our [contributing guide](/.github/CONTRIBUTING.md)
-- Check misspelling in our docs.
-- Look at our [code of conduct](/.github/CODE_OF_CONDUCT.md)
-- Engage with us on Social Media
-  - Follow us on [Twitter](https://twitter.com/getbotpress)
+- Contribute code by reading our [contributing guide](/.github/CONTRIBUTING.md)
+- Fix spelling mistakes and amend the [documentation](/docs/guide/docs)
 - Answer and ask questions on the [Forum](https://help.botpress.io/)
 
 For starters, there are some open issues with the [first good issue][starter-label] tag which are ideal for starting to contribute. They are all relatively easy to get started with.
 
 Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License. This means that all contributors need to agree to the dual-license before their contributions can be accepted.
 
-Please follow the [Conventional Commits](https://conventionalcommits.org/) specs when doing commits. **Pull requests not respecting this commit style will be rejected.**
+Please follow the [Conventional Commits](https://conventionalcommits.org/) specs when doing commits.  You should also read our [code of conduct](/.github/CODE_OF_CONDUCT.md).
 
 ## License
 
