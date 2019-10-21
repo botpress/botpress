@@ -77,14 +77,25 @@ export default class Engine2 {
 
   async loadModel(model: Model) {
     if (
-      _.isEqual(this.modelsByLang[model.languageCode], model) &&
-      this.predictorsByLang[model.languageCode] !== undefined
+      this.predictorsByLang[model.languageCode] !== undefined  &&
+      this.modelsByLang[model.languageCode] !== undefined &&
+      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input) // compare hash instead
     ) {
       return
     }
 
+    if (!model.data.output) {
+      const intents = await ProcessIntents(
+        model.data.input.intents,
+        model.languageCode,
+        model.data.artefacts.list_entities,
+        Engine2.tools
+      )
+      model.data.output = { intents } as TrainOutput // needed for prediction
+    }
+
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
-    this.modelsByLang[model.languageCode] = model // Process intents here
+    this.modelsByLang[model.languageCode] = model
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
@@ -100,10 +111,7 @@ export default class Engine2 {
       const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
       slot_tagger.load(artefacts.slots_model)
 
-      const processedIntents = output
-        ? output.intents
-        : await ProcessIntents(input.intents, model.languageCode, artefacts.list_entities, tools)
-      const kmeans = computeKmeans(processedIntents, tools) // TODO load from artefacts when persistd
+      const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persistd
 
       return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, kmeans }
     } else {

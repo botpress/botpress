@@ -13,7 +13,6 @@ import {
   extractUtteranceEntities,
   Intent,
   PatternEntity,
-  ProcessIntents,
   Tools,
   TrainArtefacts,
   Utterances
@@ -98,10 +97,7 @@ async function preprocessInput(
   const { detectedLanguage, usedLanguage } = await DetectLanguage(input, Object.keys(modelsByLang), tools)
   const model = modelsByLang[usedLanguage]
 
-  // TODO move this logic in model loading of engine2 class
-  const intents = model.data.output
-    ? model.data.output.intents
-    : await ProcessIntents(model.data.input.intents, model.languageCode, model.data.artefacts.list_entities, tools)
+  const intents = model.data.output!.intents
 
   return {
     ...model.data.artefacts,

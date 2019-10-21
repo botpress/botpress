@@ -4,7 +4,6 @@ import _ from 'lodash'
 
 import { TrainArtefacts, TrainInput, TrainOutput } from './engine2'
 
-// TODO add hash ?
 export interface Model {
   languageCode: string
   startedAt: Date
