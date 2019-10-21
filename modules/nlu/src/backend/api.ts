@@ -19,7 +19,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const syncByBots: { [key: string]: NodeJS.Timer } = {}
 
   const scheduleSyncNLU = (botId: string) => {
-    if (USE_E1) {
+    if (!USE_E1) {
       return
     }
     if (syncByBots[botId]) {
