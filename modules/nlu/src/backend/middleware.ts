@@ -8,7 +8,7 @@ import ScopedEngine from './engine'
 import Engine2, { E2ByBot } from './engine2/engine2'
 import { EngineByBot } from './typings'
 
-const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
+const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 export const registerMiddleware = async (bp: typeof sdk, e1ByBot: EngineByBot, e2byBot: E2ByBot) => {
@@ -23,7 +23,7 @@ export const registerMiddleware = async (bp: typeof sdk, e1ByBot: EngineByBot, e
         return next()
       }
 
-      const botCtx = USE_E2 ? e2byBot[event.botId] : (e1ByBot[event.botId] as ScopedEngine)
+      const botCtx = USE_E1 ? (e1ByBot[event.botId] as ScopedEngine) : e2byBot[event.botId]
 
       if (
         !botCtx ||
@@ -36,14 +36,14 @@ export const registerMiddleware = async (bp: typeof sdk, e1ByBot: EngineByBot, e
 
       try {
         let nlu = {}
-        if (USE_E2) {
-          nlu = await (botCtx as Engine2).predict(event.preview, event.nlu.includedContexts)
-        } else {
+        if (USE_E1) {
           nlu = await (botCtx as ScopedEngine).extract!(
             event.preview,
             event.state.session.lastMessages.map(message => message.incomingPreview),
             event.nlu.includedContexts
           )
+        } else {
+          nlu = await (botCtx as Engine2).predict(event.preview, event.nlu.includedContexts)
         }
 
         _.merge(event, { nlu })
