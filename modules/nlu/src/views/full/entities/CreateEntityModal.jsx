@@ -35,7 +35,7 @@ export default class CreateEntityModal extends React.Component {
 
   createEntity = e => {
     const entity = {
-      id: this.state.name.toLowerCase().replace(/\t\s/),
+      id: this.state.name.toLowerCase().replace(/\t\s/g, '-'),
       name: this.state.name,
       type: this.state.type.value,
       occurences: []
