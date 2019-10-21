@@ -3,13 +3,19 @@ import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
 
-import { sanitizeFilenameNoExt } from '../util'
-
 import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 25
+
+export const ID_REGEX = /[\t\s]/gi
+
+export const sanitizeFilenameNoExt = name =>
+  name
+    .toLowerCase()
+    .replace('.json', '')
+    .replace(ID_REGEX, '-')
 
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService

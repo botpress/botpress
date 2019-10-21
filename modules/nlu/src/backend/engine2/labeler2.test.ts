@@ -1,5 +1,4 @@
 import { ExtractedEntity, ExtractedSlot, Utterance } from './engine2'
-
 import { labelizeUtterance } from './labeler2'
 
 describe('CRF labels for utterance', () => {
@@ -9,31 +8,35 @@ describe('CRF labels for utterance', () => {
 
     const labels = labelizeUtterance(utterance)
 
+    expect(labels.length).toEqual(utterance.tokens.filter(t => !t.isSpace).length)
     labels.forEach(l => expect(l).toEqual('o'))
   })
 
   test('with slots', () => {
     const toks = 'Careful my friend, Alex W. is one of us'.split(/(\s)/g)
+    //            012345678901234567890123456789012345678
+    //            ________---------__-------___________--
     const utterance = new Utterance(toks, new Array(toks.length).fill([0]))
-    utterance.tagSlot({ name: 'listener', source: 'my friend' } as ExtractedSlot, 8, 18)
-    utterance.tagEntity({ value: 'my friend', type: 'friend' } as ExtractedEntity, 8, 18)
+    utterance.tagSlot({ name: 'listener', source: 'my friend' } as ExtractedSlot, 8, 18) // 18 because we want to include the ',' (for testing purposes) since we're not tokenizing wisely
+    utterance.tagEntity({ value: 'my friend', type: 'friend' } as ExtractedEntity, 8, 18) // 18 because we want to include the ',' (for testing purposes) since we're not tokenizing wisely
     utterance.tagSlot({ name: 'person', source: 'Alex W.' } as ExtractedSlot, 19, 26)
     utterance.tagSlot({ name: 'group', source: 'us' } as ExtractedSlot, 37, 39)
 
     const labels = labelizeUtterance(utterance)
 
-    expect(labels[2]).toEqual('B-listener')
-    expect(labels[3]).toEqual('I-listener')
-    expect(labels[4]).toEqual('I-listener')
+    expect(labels.length).toEqual(utterance.tokens.filter(t => !t.isSpace).length)
+    expect(labels[1]).toEqual('B-listener')
+    expect(labels[2]).toEqual('I-listener')
 
-    expect(labels[6]).toEqual('B-person/any')
-    expect(labels[7]).toEqual('I-person/any')
-    expect(labels[8]).toEqual('I-person/any')
+    expect(labels[3]).toEqual('B-person/any')
+    expect(labels[4]).toEqual('I-person/any')
 
-    expect(labels[16]).toEqual('B-group/any')
+    expect(labels[8]).toEqual('B-group/any')
 
-    Array.from([0, 1, 5, 9, 10, 11, 12, 13, 14, 15]).forEach(i => {
-      expect(labels[i]).toEqual('o')
-    })
+    labels
+      .filter((l, idx) => ![1, 2, 3, 4, 8].includes(idx))
+      .forEach(l => {
+        expect(l).toEqual('o')
+      })
   })
 })

@@ -1,6 +1,6 @@
-import { UtteranceToken } from './engine2'
 import { SPACE } from '../tools/token-utils'
 
+import { UtteranceToken } from './engine2'
 import * as featurizer from './featurizer2'
 
 describe('CRF Featurizer 2', () => {
@@ -105,13 +105,14 @@ describe('CRF Featurizer 2', () => {
     expect(feat).toBeUndefined()
     expect(feat1).toBeUndefined()
     expect(tokens[0].toString).not.toBeCalled()
-
-    expect(feat10).toBeUndefined()
-    expect(feat11).toBeUndefined()
-    expect(tokens[1].toString).not.toBeCalled()
+    expect(tokens[1].toString).toBeCalled()
 
     expect(feat2.value).toEqual('i')
     expect(feat2.boost).toEqual(3)
+    expect(feat10.value).toEqual('i')
+    expect(feat10.boost).toEqual(3)
+    expect(feat11.value).toEqual('i')
+    expect(feat11.boost).toEqual(1)
     expect(feat3.value).toEqual('i')
     expect(feat3.boost).toEqual(1)
     expect(tokens[2].toString).toBeCalled()
@@ -141,7 +142,7 @@ describe('CRF Featurizer 2', () => {
       }
     }
 
-    expect(featurizer.getInVocabFeat({ ...tokens[0], slots: ['lol.A.W'] }, anIntent).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat({ ...tokens[0], slots: ['lol.A.W'] }, anIntent).value).toBeTruthy()
     expect(featurizer.getInVocabFeat(tokens[0], anIntent).value).toBeTruthy()
     expect(featurizer.getInVocabFeat({ ...tokens[1], slots: ['lol.A.W'] }, anIntent).value).toBeFalsy()
     expect(featurizer.getInVocabFeat(tokens[1], anIntent).value).toBeFalsy()

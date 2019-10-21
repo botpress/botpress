@@ -21,6 +21,7 @@ describe('parse utterance', () => {
 
     expect(res.utterance).toEqual('')
     expect(res.parsedSlots).toEqual([])
+    expect(res.parts).toEqual([])
   })
 
   test('no slots', () => {
@@ -29,6 +30,8 @@ describe('parse utterance', () => {
     const res = parseUtterance(utterance)
     expect(res.utterance).toEqual(utterance)
     expect(res.parsedSlots).toEqual([])
+    expect(res.parts[0].text).toEqual('No one is safe, trust anyone but you.')
+    expect(res.parts[0].slot).not.toBeDefined()
   })
 
   test('single slot', () => {
@@ -43,6 +46,13 @@ describe('parse utterance', () => {
     expect(res.parsedSlots[0].value).toEqual('Alex')
     expect(res.parsedSlots[0].rawPosition).toEqual({ start: 15, end: 26 })
     expect(res.parsedSlots[0].cleanPosition).toEqual({ start: 15, end: 19 })
+    expect(res.parts[0].text).toEqual('Brace yourself ')
+    expect(res.parts[0].slot).not.toBeDefined()
+    expect(res.parts[1].text).toEqual('Alex')
+    expect(res.parts[1].slot).toBeDefined()
+    expect(res.parts[1].slot.name).toEqual('you')
+    expect(res.parts[2].text).toEqual(', big stuff coming.')
+    expect(res.parts[2].slot).not.toBeDefined()
   })
 
   test('multiple slots', () => {
@@ -60,5 +70,7 @@ describe('parse utterance', () => {
     expect(res.parsedSlots[1].value).toEqual('Jay')
     expect(res.parsedSlots[1].rawPosition).toEqual({ start: 40, end: 50 })
     expect(res.parsedSlots[1].cleanPosition).toEqual({ start: 34, end: 37 })
+    expect(res.parts).toHaveLength(4)
+    expect(res.parts[3].text).toEqual('Jay')
   })
 })

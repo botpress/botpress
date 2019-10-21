@@ -27,26 +27,10 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-// ----- cleanup -----
-//      for intents, do we include predictionsReallyConfused (really close) then none?
-//      add user feedback for training progress
-//      add more debug
-//      in Trainer, make a pre-processing step with marked step 0
-//      split e2 in different files (modules)
-//      add value in utterance slots
-//      extract MlToolkit.CRF.Tagger in e2 with loading from binary
-//      add more tests for the train pipeline
-//      make sure we can load kmeans from persisted data (need to modify mlKmeans)
-//      move removeSensitiveText from middleware to predict pipeline
-//      add nlu performance tests in terms of accuracy/f1 (system) tests. We want to set threshold for F1 score to make sure we don't add any regressions
-//      add nlu performance tests in terms of training time
-//      completely get rid of engine1
-// ----- cancelation token -----
-// ----- even better fuzzy entities -----
-//      add fuzziness factor (low medium high)
-// ----- improve performance -----
-//      retrain only for changed languages
-//      retrain only parts of pipeline that needs to be trained (cache policy in each step)
+// ----- simple improvements -----
+//       add value in utterance slots
+//       completely get rid of engine1
+//       split e2 in different files (modules)
 
 const NONE_INTENT = 'none'
 const DEFAULT_CTX = 'global'
@@ -148,7 +132,6 @@ export default class Engine2 {
 }
 
 export type TrainInput = Readonly<{
-  botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
   list_entities: ListEntity[]
@@ -157,7 +140,6 @@ export type TrainInput = Readonly<{
 }>
 
 export type TrainOutput = Readonly<{
-  botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
   list_entities: ListEntityModel[]
@@ -489,6 +471,7 @@ export class Utterance {
     this._kmeans = kmeans
   }
 
+  // TODO memoize this for better perf
   toString(options?: UtteranceToStringOptions): string {
     options = _.defaultsDeep({}, options, { lowerCase: false, slots: 'keep-value' })
 
@@ -625,9 +608,7 @@ export type UtteranceToken = Readonly<{
 
 export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
-export interface Trainer {
-  (input: TrainInput, tools: Tools, cancelToken: CancellationToken): Promise<Model>
-}
+export type Trainer = (input: TrainInput, tools: Tools, cancelToken: CancellationToken) => Promise<Model>
 
 export interface TrainArtefacts {
   list_entities: ListEntityModel[]
@@ -683,21 +664,7 @@ export const Trainer: Trainer = async (
   try {
     // TODO: Cancellation token effect
 
-    // step 0 starts here
-    input = cloneDeep(input)
-    const list_entities = await Promise.map(input.list_entities, list =>
-      makeListEntityModel(list, input.languageCode, tools)
-    )
-
-    const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
-
-    let output: TrainOutput = {
-      ..._.omit(input, 'list_entities', 'intents'),
-      list_entities,
-      intents
-    }
-    // step 0
-
+    let output = await preprocessInput(input, tools)
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
     output = await ExtractEntities(output, tools)
@@ -709,7 +676,7 @@ export const Trainer: Trainer = async (
     const slots_model = await trainSlotTagger(output, tools)
 
     const artefacts: TrainArtefacts = {
-      list_entities,
+      list_entities: output.list_entities,
       tfidf: output.tfIdf,
       ctx_model,
       intent_model_by_ctx,
@@ -727,6 +694,21 @@ export const Trainer: Trainer = async (
     model.finishedAt = new Date()
     return model as Model
   }
+}
+
+const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+  input = cloneDeep(input)
+  const list_entities = await Promise.map(input.list_entities, list =>
+    makeListEntityModel(list, input.languageCode, tools)
+  )
+
+  const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
+
+  return {
+    ..._.omit(input, 'list_entities', 'intents'),
+    list_entities,
+    intents
+  } as TrainOutput
 }
 
 export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.MLToolkit.KMeans.KmeansResult => {
@@ -763,7 +745,7 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
     .value()
 
   return _.chain(utterances)
-    .flatMap(u => u.tokens.map(t => t.toString({ lowerCase: true })))
+    .flatMap(u => u.tokens.filter(t => _.isEmpty(t.slots)).map(t => t.toString({ lowerCase: true })))
     .concat(entitiesTokens)
     .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok]: true }), {})
     .value()
@@ -801,7 +783,6 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
 }
 
 // TODO vectorized implementation of this
-// taken as is from ft_featurizer
 // Taken from https://github.com/facebookresearch/fastText/blob/26bcbfc6b288396bd189691768b8c29086c0dab7/src/fasttext.cc#L486s
 const computeSentenceEmbedding = (utterance: Utterance): number[] => {
   let totalWeight = 0
@@ -974,12 +955,18 @@ const Utterances = async (raw_utterances: string[], languageCode: string, tools:
   const vectors = await tools.vectorize_tokens(uniqTokens, languageCode)
   const vectorMap = _.zipObject(uniqTokens, vectors)
 
-  return _.zip(tokens, parsed).map(([tokUtt, { parsedSlots }]) => {
+  return _.zip(tokens, parsed).map(([tokUtt, { utterance: utt, parsedSlots }]) => {
     const vectors = tokUtt.map(t => vectorMap[t])
     const utterance = new Utterance(tokUtt, vectors)
-    parsedSlots.forEach(s => {
-      utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
-    })
+
+    // TODO: temporary work-around
+    // covers a corner case where tokenization returns tokens that are not identical to `parsed` utterance
+    // the corner case is when there's a trailing space inside a slot at the end of the utterance, e.g. `my name is [Sylvain ](any)`
+    if (utterance.toString().length === utt.length) {
+      parsedSlots.forEach(s => {
+        utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
+      })
+    } // else we skip the slot
 
     return utterance
   })
@@ -1026,6 +1013,20 @@ export type PredictStep = TrainArtefacts & {
     ambiguous?: boolean
   }
   // TODO slots predictions per intent
+}
+
+export function findExactIntentForCtx(
+  exactMatchIndex: ExactMatchIndex,
+  utterance: Utterance,
+  ctx: string
+): sdk.MLToolkit.SVM.Prediction | undefined {
+  // TODO add some levinstein logic here
+  const candidateKey = utterance.toString(EXACT_MATCH_STR_OPTIONS)
+
+  const maybeMatch = exactMatchIndex[candidateKey]
+  if (_.get(maybeMatch, 'contexts', []).includes(ctx)) {
+    return { label: maybeMatch.intent, confidence: 1 }
+  }
 }
 
 const predict = {
@@ -1120,10 +1121,6 @@ const predict = {
     }
 
     const ctxToPredict = input.ctx_predictions.map(p => p.label)
-    // TODO refine this and add some levinstein magic in there
-    const exactMatchIndex = input.exact_match_index
-    const exactMatch = exactMatchIndex[input.utterance.toString(EXACT_MATCH_STR_OPTIONS)]
-
     const predictions = (await Promise.map(ctxToPredict, async ctx => {
       const predictor = input.predictors.intent_classifier_per_ctx[ctx]
       if (!predictor) {
@@ -1131,12 +1128,9 @@ const predict = {
       }
       const features = [...computeSentenceEmbedding(input.utterance), input.utterance.tokens.length]
       const preds = await predictor.predict(features)
-      // TODO extract this in a func predictExact(utterance, ctx) return exact pred
-      if (_.get(exactMatch, 'contexts', []).includes(ctx)) {
-        preds.unshift({ label: exactMatch.intent, confidence: 1 })
-      }
+      const exactPred = [findExactIntentForCtx(input.exact_match_index, input.utterance, ctx)]
 
-      return preds
+      return [...exactPred, ...preds]
     })).filter(_.identity)
 
     return {
@@ -1144,10 +1138,27 @@ const predict = {
       intent_predictions: { per_ctx: _.zipObject(ctxToPredict, predictions) }
     }
   },
-  // TODO implement this algorithm properly / improve it currently taken as is from svm classifier (engine 1)
+  // TODO implement this algorithm properly / improve it
+  // currently taken as is from svm classifier (engine 1) and does't make much sens
   ElectIntent: (input: PredictStep) => {
     const totalConfidence = Math.min(1, _.sumBy(input.ctx_predictions, 'confidence'))
     const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
+
+    // taken from svm classifier #295
+    // this means that the 3 best predictions are really close, do not change magic numbers
+    const predictionsReallyConfused = (predictions: sdk.MLToolkit.SVM.Prediction[]): boolean => {
+      const intentsPreds = predictions.filter(x => x.label !== 'none')
+      if (intentsPreds.length <= 2) {
+        return false
+      }
+      const std = math.std(intentsPreds.map(p => p.confidence))
+      const diff = (intentsPreds[0].confidence - intentsPreds[1].confidence) / std
+      if (diff >= 2.5) {
+        return false
+      }
+      const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
+      return bestOf3STD <= 0.03
+    }
 
     // taken from svm classifier #349
     const predictions = _.chain(ctxPreds)
@@ -1155,6 +1166,16 @@ const predict = {
         const intentPreds = _.orderBy(input.intent_predictions.per_ctx[ctx], 'confidence', 'desc')
         if (intentPreds.length === 1 || intentPreds[0].confidence === 1) {
           return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
+        }
+
+        if (predictionsReallyConfused(intentPreds)) {
+          const others = _.take(intentPreds, 4).map(x => ({
+            label: x.label,
+            l0Confidence: ctxConf,
+            confidence: ctxConf * x.confidence,
+            context: ctx
+          }))
+          return [{ label: 'none', l0Confidence: ctxConf, context: ctx, confidence: 1 }, ...others] // refine confidence
         }
 
         const lnstd = math.std(intentPreds.map(x => Math.log(x.confidence))) // because we want a lognormal distribution
