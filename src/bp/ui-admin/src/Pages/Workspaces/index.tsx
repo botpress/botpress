@@ -142,7 +142,7 @@ const Workspaces: FC<Props> = props => {
       />
 
       <RolloutStrategyModal
-        workspace={workspace}
+        workspaceId={workspace && workspace.id}
         isOpen={rolloutModalOpen}
         toggle={() => setRolloutModalOpen(!rolloutModalOpen)}
         refreshWorkspaces={refreshWorkspaces}

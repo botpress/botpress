@@ -3,17 +3,20 @@ import {
   Button,
   ButtonGroup,
   Callout,
+  InputGroup,
   Intent,
   Popover,
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
+import { BotConfig } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 import { toastSuccess } from '~/utils/toaster'
+import { filterList } from '~/utils/util'
 import { Downloader } from '~/Pages/Components/Downloader'
 
 import api from '../../../api'
@@ -29,11 +32,13 @@ import CreateBotModal from './CreateBotModal'
 import ImportBotModal from './ImportBotModal'
 import RollbackBotModal from './RollbackBotModal'
 
+const botFilterFields = ['name', 'id', 'description']
+
 interface Props extends RouteComponentProps {
-  bots: any
+  bots: BotConfig[]
   workspace: any
-  fetchBots: any
-  fetchLicensing: any
+  fetchBots: () => void
+  fetchLicensing: () => void
   licensing: any
 }
 
@@ -44,7 +49,8 @@ class Bots extends Component<Props> {
     isImportBotModalOpen: false,
     focusedBot: null,
     archiveUrl: undefined,
-    archiveName: ''
+    archiveName: '',
+    filter: ''
   }
 
   componentDidMount() {
@@ -74,19 +80,6 @@ class Bots extends Component<Props> {
       await api.getSecured().post(`/admin/bots/${botId}/delete`)
       await this.props.fetchBots()
     }
-  }
-
-  renderEmptyBots() {
-    return (
-      <Callout title="This workspace has no bot, yet" style={{ textAlign: 'center' }}>
-        <p>
-          <br />
-          In Botpress, bots are always assigned to a workspace.
-          <br />
-          Create your first bot to start building.
-        </p>
-      </Callout>
-    )
   }
 
   renderCreateNewBotButton() {
@@ -143,13 +136,14 @@ class Bots extends Component<Props> {
     toastSuccess('Rollback success')
   }
 
-  renderCompactView() {
-    if (!this.props.bots.length) {
-      return this.renderEmptyBots()
+  renderCompactView(bots: BotConfig[]) {
+    if (!bots.length) {
+      return null
     }
+
     return (
       <div className="bp_table bot_views compact_view">
-        {this.props.bots.map(bot => (
+        {bots.map(bot => (
           <BotItemCompact
             key={bot.id}
             bot={bot}
@@ -163,9 +157,9 @@ class Bots extends Component<Props> {
     )
   }
 
-  renderPipelineView() {
+  renderPipelineView(bots: BotConfig[]) {
     const pipeline = this.props.workspace.pipeline
-    const botsByStage = _.groupBy(this.props.bots, 'pipeline_status.current_stage.id')
+    const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
 
     return (
@@ -198,9 +192,40 @@ class Bots extends Component<Props> {
   }
 
   renderBots() {
-    const botsView = this.isPipelineView ? this.renderPipelineView() : this.renderCompactView()
+    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter)
+    const hasBots = !!this.props.bots.length
+    const botsView = this.isPipelineView ? this.renderPipelineView(filteredBots) : this.renderCompactView(filteredBots)
+
     return (
       <div>
+        {hasBots && (
+          <Fragment>
+            <InputGroup
+              id="input-filter"
+              placeholder="Filter bots"
+              value={this.state.filter}
+              onChange={e => this.setState({ filter: e.target.value.toLowerCase() })}
+              autoComplete="off"
+              className="filterField"
+            />
+
+            {this.state.filter && !filteredBots.length && (
+              <Callout title="No bot matches your query" className="filterCallout" />
+            )}
+          </Fragment>
+        )}
+
+        {!hasBots && (
+          <Callout title="This workspace has no bot, yet" className="filterCallout">
+            <p>
+              <br />
+              In Botpress, bots are always assigned to a workspace.
+              <br />
+              Create your first bot to start building.
+            </p>
+          </Callout>
+        )}
+
         {this.hasUnlangedBots() && (
           <Alert color="warning">
             You have bots without specified language. Default language is mandatory since Botpress 11.8. Please set bot
@@ -228,7 +253,6 @@ class Bots extends Component<Props> {
         <SectionLayout
           title="Bots"
           helpText="This page lists all the bots created under the current workspace."
-          activePage="bots"
           mainContent={this.renderBots()}
           sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}
         />

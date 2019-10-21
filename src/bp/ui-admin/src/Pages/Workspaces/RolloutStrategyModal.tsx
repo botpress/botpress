@@ -1,17 +1,51 @@
-import { Button, Classes, Dialog, Radio, RadioGroup } from '@blueprintjs/core'
-import { Workspace } from 'common/typings'
+import { Button, Radio, RadioGroup } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
+import { BaseDialog, DialogBody, DialogFooter } from '../Components/BaseDialog'
+
 import InviteCode from './InviteCode'
 
 interface Props {
-  workspace: Workspace
+  workspaceId: string
   isOpen: boolean
   toggle: () => void
-  refreshWorkspaces: () => void
+  refreshWorkspaces?: () => void
+}
+
+interface RolloutInfo {
+  [strategyId: string]: {
+    label: string
+    desc: string
+    inviteRequired?: boolean
+  }
+}
+
+export const rolloutInfo: RolloutInfo = {
+  anonymous: {
+    label: 'Anonymous',
+    desc: `Anonymous users can talk to the bots (default)`
+  },
+  authenticated: {
+    label: 'Authenticated',
+    desc: `Authenticated users will be added to the workspace automatically, then can talk to bots`
+  },
+  authorized: {
+    label: 'Authorized',
+    desc: `Authenticated users with an existing access to the workspace can talk to bots`
+  },
+  'anonymous-invite': {
+    label: 'Anonymous + Code',
+    desc: `Anonymous users with an invite code can talk to bots`,
+    inviteRequired: true
+  },
+  'authenticated-invite': {
+    label: 'Auth + Code',
+    desc: `Authenticated users with an invite code will be added to the workspace, then can talk to bots`,
+    inviteRequired: true
+  }
 }
 
 const RolloutStrategyModal: FC<Props> = props => {
@@ -20,15 +54,14 @@ const RolloutStrategyModal: FC<Props> = props => {
   const [allowedUsages, setAllowedUsages] = useState(-1)
 
   useEffect(() => {
-    if (props.workspace) {
-      setStrategy(props.workspace.rolloutStrategy || 'anonymous')
+    if (props.workspaceId) {
       // tslint:disable-next-line: no-floating-promises
       loadRolloutInfo()
     }
-  }, [props.workspace, props.isOpen])
+  }, [props.workspaceId, props.isOpen])
 
   const loadRolloutInfo = async () => {
-    const { data } = await api.getSecured().get(`/admin/workspaces/${props.workspace.id}/rollout`)
+    const { data } = await api.getSecured().get(`/admin/workspaces/${props.workspaceId}/rollout`)
 
     setInviteCode(data.inviteCode)
     setAllowedUsages(data.allowedUsages)
@@ -37,8 +70,9 @@ const RolloutStrategyModal: FC<Props> = props => {
 
   const submit = async () => {
     try {
-      await api.getSecured().post(`/admin/workspaces/${props.workspace.id}/rollout/${strategy}`)
+      await api.getSecured().post(`/admin/workspaces/${props.workspaceId}/rollout/${strategy}`)
       toastSuccess(`Rollout strategy updated successfully`)
+      props.refreshWorkspaces && props.refreshWorkspaces()
     } catch (err) {
       toastFailure(err.message)
     }
@@ -47,45 +81,32 @@ const RolloutStrategyModal: FC<Props> = props => {
   const inviteRequired = ['anonymous-invite', 'authenticated-invite'].includes(strategy)
 
   return (
-    <Dialog
-      isOpen={props.isOpen}
-      icon="send-to-graph"
-      onClose={() => props.toggle()}
-      transitionDuration={0}
+    <BaseDialog
       title="Rollout Strategy"
+      icon="send-to-graph"
+      isOpen={props.isOpen}
+      onClose={() => props.toggle()}
+      size="md"
     >
-      <div className={Classes.DIALOG_BODY}>
+      <DialogBody>
         <p>
           The rollout strategy is applied to all bots of the workspace when a user encounters an Auth Gate on the flow.
           Without an Auth Gate, the policy has no effect.
         </p>
 
         <RadioGroup onChange={e => setStrategy(e.currentTarget.value)} selectedValue={strategy}>
-          <Radio id="radio-anonymous" value="anonymous" label="Anonymous users can talk to the bots (default)" />
-
-          <Radio
-            id="radio-authenticated"
-            value="authenticated"
-            label="Authenticated users will be added to the workspace automatically, then can talk to bots"
-          />
-          <Radio
-            id="radio-authorized"
-            value="authorized"
-            label="Authenticated users with an existing access to the workspace can talk to bots"
-          />
+          <Radio id="radio-anonymous" value="anonymous" label={rolloutInfo.anonymous.desc} />
+          <Radio id="radio-authenticated" value="authenticated" label={rolloutInfo.authenticated.desc} />
+          <Radio id="radio-authorized" value="authorized" label={rolloutInfo.authorized.desc} />
           <p>
             <strong>Strategies requiring an invite code</strong>
           </p>
 
-          <Radio
-            id="radio-anonymous-invite"
-            value="anonymous-invite"
-            label="Anonymous users with an invite code can talk to bots"
-          />
+          <Radio id="radio-anonymous-invite" value="anonymous-invite" label={rolloutInfo['anonymous-invite'].desc} />
           <Radio
             id="radio-authenticated-invite"
             value="authenticated-invite"
-            label="Authenticated users with an invite code will be added to the workspace, then can talk to bots"
+            label={rolloutInfo['authenticated-invite'].desc}
           />
         </RadioGroup>
         <br />
@@ -94,17 +115,14 @@ const RolloutStrategyModal: FC<Props> = props => {
             inviteCode={inviteCode}
             allowedUsages={allowedUsages}
             onUpdate={loadRolloutInfo}
-            workspaceId={props.workspace.id}
+            workspaceId={props.workspaceId}
           />
         )}
-      </div>
-
-      <div className={Classes.DIALOG_FOOTER}>
-        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button id="btn-submit" text="Submit" onClick={submit} />
-        </div>
-      </div>
-    </Dialog>
+      </DialogBody>
+      <DialogFooter>
+        <Button id="btn-submit" text="Submit" onClick={submit} />
+      </DialogFooter>
+    </BaseDialog>
   )
 }
 

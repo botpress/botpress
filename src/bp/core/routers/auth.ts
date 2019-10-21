@@ -61,7 +61,13 @@ export class AuthRouter extends CustomRouter {
       })
     )
 
-    router.get('/ping', this.checkTokenHeader, this.asyncMiddleware(this.sendSuccess))
+    router.get(
+      '/ping',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        sendSuccess(res, 'Pong', { serverId: process.SERVER_ID })
+      })
+    )
 
     router.get(
       '/me/profile',

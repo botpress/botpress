@@ -47,7 +47,6 @@ import { HintsService } from './services/hints'
 import { JobService } from './services/job-service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
-import { EventEngine } from './services/middleware/event-engine'
 import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
@@ -113,8 +112,7 @@ export default class HTTPServer {
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
-    @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine
+    @inject(TYPES.JobService) private jobService: JobService
   ) {
     this.app = express()
 
