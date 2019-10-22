@@ -6,17 +6,9 @@ import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_li
 import * as math from '../tools/math'
 
 import CRFExtractor2 from './crf-extractor2'
-import {
-  EXACT_MATCH_STR_OPTIONS,
-  ExactMatchIndex,
-  extractUtteranceEntities,
-  Intent,
-  PatternEntity,
-  Tools,
-  TrainArtefacts,
-  Utterances
-} from './engine2'
+import { extractUtteranceEntities, PatternEntity, Tools } from './engine2'
 import { Model } from './model-service'
+import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, Intent, TrainArtefacts, Utterances } from './training-pipeline'
 import Utterance from './utterance'
 
 export interface Predictors {
@@ -330,13 +322,13 @@ export function findExactIntentForCtx(
 
 export const Predict = async (
   input: PredictInput,
-  trainTools: Tools,
+  tools: Tools,
   modelsByLang: _.Dictionary<Model>,
   predictorsByLang: _.Dictionary<Predictors>
 ): Promise<PredictOutput> => {
   try {
     const t0 = Date.now()
-    let stepOutput = await preprocessInput(input, trainTools, modelsByLang, predictorsByLang)
+    let stepOutput = await preprocessInput(input, tools, modelsByLang, predictorsByLang)
 
     stepOutput = await makePredictionUtterance(stepOutput)
     stepOutput = await extractEntities(stepOutput)
