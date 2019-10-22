@@ -17,7 +17,7 @@ import Storage from './storage'
 import { isPatternValid } from './tools/patterns-utils'
 import { EngineByBot, LanguageProvider, NLUHealth } from './typings'
 
-const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
+const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 const nluByBot: EngineByBot = {}
 // TODO rethink this for an immutable bot state instead
 const e2ByBot: E2ByBot = {}
@@ -114,7 +114,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   await scoped.init()
   nluByBot[botId] = scoped
 
-  if (!USE_E2) {
+  if (USE_E1) {
     return
   }
 
@@ -185,7 +185,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   )
 
   if (moduleBotConfig.preloadModels) {
-    await trainOrLoad()
+    trainOrLoad() // floating promise on purpose
   }
 
   e2ByBot[botId] = e2
@@ -210,7 +210,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   delete nluByBot[botId]
-  if (!USE_E2) {
+  if (USE_E1) {
     return
   }
 
@@ -225,7 +225,7 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.removeMiddleware('nlu.incoming')
   bp.http.deleteRouterForBot('nlu')
   // if module gets deactivated but server keeps running, we want to destroy bot state
-  if (USE_E2) {
+  if (!USE_E1) {
     Object.keys(e2ByBot).forEach(botID => () => onBotUnmount(bp, botID))
   }
 }
