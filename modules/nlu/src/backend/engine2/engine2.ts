@@ -831,7 +831,6 @@ export const trainIntentClassifer = async (
 }
 
 export const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
-
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
