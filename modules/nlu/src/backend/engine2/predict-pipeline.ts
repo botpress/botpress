@@ -7,7 +7,6 @@ import * as math from '../tools/math'
 
 import CRFExtractor2 from './crf-extractor2'
 import {
-  computeSentenceEmbedding,
   EXACT_MATCH_STR_OPTIONS,
   ExactMatchIndex,
   extractUtteranceEntities,
@@ -33,13 +32,6 @@ export interface PredictInput {
   sentence: string
 }
 
-// only to comply with E1
-type E1IntentPred = {
-  name: string
-  context: string
-  confidence: number
-}
-
 export type PredictStep = TrainArtefacts & {
   readonly rawText: string
   includedContexts: string[]
@@ -61,6 +53,13 @@ export type PredictStep = TrainArtefacts & {
 }
 
 export type PredictOutput = sdk.IO.EventUnderstanding // temporary fully compliant with engine1
+
+// only to comply with E1
+type E1IntentPred = {
+  name: string
+  context: string
+  confidence: number
+}
 
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
@@ -143,7 +142,7 @@ async function predictContex(input: PredictStep): Promise<PredictStep> {
     return { ...input, ctx_predictions: [{ label: DEFAULT_CTX, confidence: 1 }] }
   }
 
-  const features = computeSentenceEmbedding(input.utterance)
+  const features = input.utterance.sentenceEmbedding
   const predictions = await input.predictors.ctx_classifer.predict(features)
 
   return {
@@ -163,7 +162,7 @@ async function predictIntent(input: PredictStep): Promise<PredictStep> {
     if (!predictor) {
       return
     }
-    const features = [...computeSentenceEmbedding(input.utterance), input.utterance.tokens.length]
+    const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
     const preds = await predictor.predict(features)
     const exactPred = [findExactIntentForCtx(input.exact_match_index, input.utterance, ctx)]
 

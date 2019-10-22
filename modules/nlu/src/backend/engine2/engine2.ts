@@ -77,7 +77,7 @@ export default class Engine2 {
 
   async loadModel(model: Model) {
     if (
-      this.predictorsByLang[model.languageCode] !== undefined  &&
+      this.predictorsByLang[model.languageCode] !== undefined &&
       this.modelsByLang[model.languageCode] !== undefined &&
       _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input) // compare hash instead
     ) {
@@ -564,26 +564,6 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
-// TODO vectorized implementation of this
-// Taken from https://github.com/facebookresearch/fastText/blob/26bcbfc6b288396bd189691768b8c29086c0dab7/src/fasttext.cc#L486s
-export const computeSentenceEmbedding = (utterance: Utterance): number[] => {
-  // TODO move this in utterance class + add some tests
-  let totalWeight = 0
-  let sentenceEmbedding = new Array(utterance.tokens[0].vectors.length).fill(0)
-
-  for (const token of utterance.tokens) {
-    const norm = computeNorm(token.vectors as number[])
-    if (norm <= 0) {
-      continue
-    }
-    totalWeight += token.tfidf
-    const weightedVec = scalarDivide(token.vectors as number[], norm / token.tfidf)
-    sentenceEmbedding = vectorAdd(sentenceEmbedding, weightedVec)
-  }
-
-  return scalarDivide(sentenceEmbedding, totalWeight)
-}
-
 export const trainIntentClassifer = async (
   input: TrainOutput,
   tools: Tools
@@ -598,7 +578,7 @@ export const trainIntentClassifer = async (
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
-          coordinates: computeSentenceEmbedding(utt)
+          coordinates: utt.sentenceEmbedding
         }))
       )
       .value()
@@ -621,7 +601,7 @@ export const trainContextClassifier = async (input: TrainOutput, tools: Tools): 
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: computeSentenceEmbedding(utt)
+          coordinates: utt.sentenceEmbedding
         }))
       )
   })

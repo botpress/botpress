@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { isSpace, isWord, SPACE } from '../tools/token-utils'
 
 import { ExtractedEntity, ExtractedSlot, TFIDF } from './engine2'
@@ -45,6 +46,7 @@ export default class Utterance {
   private _tokens: ReadonlyArray<UtteranceToken> = []
   private _globalTfidf?: TFIDF
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
+  private _sentenceEmbedding?: number[]
 
   constructor(tokens: string[], vectors: number[][]) {
     if (tokens.length !== vectors.length) {
@@ -101,6 +103,32 @@ export default class Utterance {
 
   get tokens(): ReadonlyArray<UtteranceToken> {
     return this._tokens
+  }
+
+  get sentenceEmbedding(): number[] {
+    if (this._sentenceEmbedding) {
+      return this._sentenceEmbedding
+    }
+
+    let totalWeight = 0
+    const dims = this._tokens[0].vectors.length
+    let sentenceEmbedding = new Array(dims).fill(0)
+
+    for (const token of this.tokens) {
+      const norm = computeNorm(token.vectors as number[])
+      if (norm <= 0) {
+        continue
+      }
+
+      // hard limit on TFIDF of (we don't want to over scale the features)
+      const weight = Math.min(1, token.tfidf)
+      totalWeight += weight
+      const weightedVec = scalarDivide(token.vectors as number[], norm / weight)
+      sentenceEmbedding = vectorAdd(sentenceEmbedding, weightedVec)
+    }
+
+    this._sentenceEmbedding = scalarDivide(sentenceEmbedding, totalWeight)
+    return this._sentenceEmbedding
   }
 
   setGlobalTfidf(tfidf: TFIDF) {
