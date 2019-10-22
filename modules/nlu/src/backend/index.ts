@@ -111,10 +111,9 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
     bp.RealTimePayload
   )
 
-  await scoped.init()
   nluByBot[botId] = scoped
-
   if (USE_E1) {
+    await scoped.init()
     return
   }
 
