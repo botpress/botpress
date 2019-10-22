@@ -720,7 +720,7 @@ export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.M
     .map((t: UtteranceToken) => t.vectors)
     .value() as number[][]
 
-  if (_.isEmpty(data)) {
+  if (_.isEmpty(data) || data.length < 2) {
     return
   }
 
@@ -811,7 +811,7 @@ export const trainIntentClassifer = async (
   const svmPerCtx: _.Dictionary<string> = {}
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx))
+      .filter(i => i.contexts.includes(ctx) && i.utterances.length > 3) // min utterances
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -820,6 +820,9 @@ export const trainIntentClassifer = async (
       )
       .value()
 
+    if (points.length === 0) {
+      continue
+    }
     const svm = new tools.mlToolkit.SVM.Trainer()
     svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('svm progress ==> %d', p))
   }
@@ -828,10 +831,6 @@ export const trainIntentClassifer = async (
 }
 
 export const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
-  if (input.intents.length === 0) {
-    return
-  }
-
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
@@ -843,6 +842,9 @@ export const trainContextClassifier = async (input: TrainOutput, tools: Tools): 
       )
   })
 
+  if (points.length === 0) {
+    return
+  }
   const svm = new tools.mlToolkit.SVM.Trainer()
   return svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('SVM => progress for CTX %d', p))
 }
@@ -854,7 +856,6 @@ export const ProcessIntents = async (
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    // TODO filter out non trainable intents (see engine 1 filtering conditions)
     const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
     const utterances = await Utterances(cleaned, languageCode, tools)
 
@@ -877,7 +878,7 @@ export const ProcessIntents = async (
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
   const copy = { ...input }
 
-  for (const intent of copy.intents) {
+  for (const intent of copy.intents.filter(i => (i.slot_definitions || []).length > 0)) {
     intent.utterances.forEach(async utterance => await extractUtteranceEntities(utterance, input, tools))
   }
 
