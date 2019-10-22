@@ -1,4 +1,5 @@
-import { buildExactMatchIndex, findExactIntentForCtx, Intent, TrainOutput } from './engine2'
+import { findExactIntentForCtx } from './predict-pipeline'
+import { buildExactMatchIndex, Intent } from './training-pipeline'
 import Utterance from './utterance'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'
@@ -38,7 +39,7 @@ const noneIntent: Intent<Utterance> = {
 describe('Exact match', () => {
   const input = {
     intents: [intent1, intent2, noneIntent]
-  } as TrainOutput
+  }
 
   const exactMatchIndex = buildExactMatchIndex(input)
   describe('Build exact match index', () => {

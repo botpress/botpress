@@ -8,8 +8,8 @@ import * as math from '../tools/math'
 import CRFExtractor2 from './crf-extractor2'
 import { extractUtteranceEntities, PatternEntity, Tools } from './engine2'
 import { Model } from './model-service'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, Intent, TrainArtefacts, Utterances } from './training-pipeline'
-import Utterance from './utterance'
+import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, Intent, TrainArtefacts } from './training-pipeline'
+import Utterance, { buildUtterances } from './utterance'
 
 export interface Predictors {
   ctx_classifer: sdk.MLToolkit.SVM.Predictor
@@ -104,7 +104,7 @@ async function preprocessInput(
 }
 
 async function makePredictionUtterance(input: PredictStep): Promise<PredictStep> {
-  const [utterance] = await Utterances([input.rawText], input.languageCode, input.tools)
+  const [utterance] = await buildUtterances([input.rawText], input.languageCode, input.tools)
 
   const { tfidf, vocabVectors, predictors } = input
   utterance.tokens.forEach(token => {

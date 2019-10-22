@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
 
-import { TrainArtefacts, TrainInput, TrainOutput } from './engine2'
+import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
 
 export interface Model {
   languageCode: string

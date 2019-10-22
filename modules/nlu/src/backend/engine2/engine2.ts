@@ -13,7 +13,6 @@ import { CancellationToken, computeKmeans, ProcessIntents, Trainer, TrainInput, 
 import Utterance, { UtteranceToken } from './utterance'
 
 // ----- simple improvements -----
-//       add value in utterance slots
 //       completely get rid of engine1
 
 export type TFIDF = _.Dictionary<number>
@@ -142,6 +141,7 @@ export interface Tools {
   mlToolkit: typeof sdk.MLToolkit
 }
 
+// add value in extracted slots
 export type ExtractedSlot = { confidence: number; name: string; source: any }
 export type ExtractedEntity = { confidence: number; type: string; metadata: any; value: string }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }

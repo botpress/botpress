@@ -4,13 +4,12 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { SPACE } from '../tools/token-utils'
-import { parseUtterance } from '../tools/utterance-parser'
 import { Token2Vec } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { extractUtteranceEntities, ListEntity, ListEntityModel, PatternEntity, TFIDF, Tools } from './engine2'
 import { Model } from './model-service'
-import Utterance, { UtteranceToken, UtteranceToStringOptions } from './utterance'
+import Utterance, { buildUtterances, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools, cancelToken: CancellationToken) => Promise<Model>
@@ -172,7 +171,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
     .value()
 }
 
-const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
+export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
   return _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap(i =>
@@ -241,7 +240,7 @@ export const ProcessIntents = async (
   return Promise.map(intents, async intent => {
     // TODO filter out non trainable intents (see engine 1 filtering conditions)
     const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
-    const utterances = await Utterances(cleaned, languageCode, tools)
+    const utterances = await buildUtterances(cleaned, languageCode, tools)
 
     const allowedEntities = _.chain(intent.slot_definitions)
       .flatMap(s => s.entities)
@@ -297,7 +296,7 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   const intent: Intent<Utterance> = {
     name: NONE_INTENT,
     slot_definitions: [],
-    utterances: await Utterances(noneUtterances, input.languageCode, tools),
+    utterances: await buildUtterances(noneUtterances, input.languageCode, tools),
     contexts: [...input.contexts],
     vocab: {},
     slot_entities: []
@@ -319,35 +318,6 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
   const copy = { ...input, tfIdf: avg_tfidf }
   copy.intents.forEach(x => x.utterances.forEach(u => u.setGlobalTfidf(avg_tfidf)))
   return copy
-}
-
-// Move this to utterances (make utterances)
-export const Utterances = async (
-  raw_utterances: string[],
-  languageCode: string,
-  tools: Tools
-): Promise<Utterance[]> => {
-  const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
-  const tokens = await tools.tokenize_utterances(parsed.map(p => p.utterance), languageCode)
-  const uniqTokens = _.uniq(_.flatten(tokens))
-  const vectors = await tools.vectorize_tokens(uniqTokens, languageCode)
-  const vectorMap = _.zipObject(uniqTokens, vectors)
-
-  return _.zip(tokens, parsed).map(([tokUtt, { utterance: utt, parsedSlots }]) => {
-    const vectors = tokUtt.map(t => vectorMap[t])
-    const utterance = new Utterance(tokUtt, vectors)
-
-    // TODO: temporary work-around
-    // covers a corner case where tokenization returns tokens that are not identical to `parsed` utterance
-    // the corner case is when there's a trailing space inside a slot at the end of the utterance, e.g. `my name is [Sylvain ](any)`
-    if (utterance.toString().length === utt.length) {
-      parsedSlots.forEach(s => {
-        utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
-      })
-    } // else we skip the slot
-
-    return utterance
-  })
 }
 
 const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer> => {

@@ -2,9 +2,11 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
+import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, isWord, SPACE } from '../tools/token-utils'
+import { parseUtterance } from '../tools/utterance-parser'
 
-import { ExtractedEntity, ExtractedSlot, TFIDF } from './engine2'
+import { ExtractedEntity, ExtractedSlot, TFIDF, Tools } from './engine2'
 
 export type UtteranceToStringOptions = {
   lowerCase: boolean
@@ -238,4 +240,28 @@ export default class Utterance {
 
     this.slots = [...this.slots, taggedSlot]
   }
+}
+
+export async function buildUtterances(raw_utterances: string[], language: string, tools: Tools): Promise<Utterance[]> {
+  const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
+  const tokens = await tools.tokenize_utterances(parsed.map(p => p.utterance), language)
+  const uniqTokens = _.uniq(_.flatten(tokens))
+  const vectors = await tools.vectorize_tokens(uniqTokens, language)
+  const vectorMap = _.zipObject(uniqTokens, vectors)
+
+  return _.zip(tokens, parsed).map(([tokUtt, { utterance: utt, parsedSlots }]) => {
+    const vectors = tokUtt.map(t => vectorMap[t])
+    const utterance = new Utterance(tokUtt, vectors)
+
+    // TODO: temporary work-around
+    // covers a corner case where tokenization returns tokens that are not identical to `parsed` utterance
+    // the corner case is when there's a trailing space inside a slot at the end of the utterance, e.g. `my name is [Sylvain ](any)`
+    if (utterance.toString().length === utt.length) {
+      parsedSlots.forEach(s => {
+        utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
+      })
+    } // else we skip the slot
+
+    return utterance
+  })
 }
