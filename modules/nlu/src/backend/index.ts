@@ -185,7 +185,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   )
 
   if (moduleBotConfig.preloadModels) {
-    await trainOrLoad()
+    trainOrLoad() // floating promise on purpose
   }
 
   e2ByBot[botId] = e2
