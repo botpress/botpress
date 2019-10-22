@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'react-router-redux'
 import ChatAuthResult from '~/Pages/Account/ChatAuthResult'
+import Details from '~/Pages/Bot/Details'
 import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
 import Alerting from '~/Pages/Server/Alerting'
 import Checklist from '~/Pages/Server/Checklist'
@@ -12,6 +13,9 @@ import LatestReleases from '~/Pages/Server/LatestReleases'
 import LicenseStatus from '~/Pages/Server/LicenseStatus'
 import Monitoring from '~/Pages/Server/Monitoring'
 import Versioning from '~/Pages/Server/Versioning'
+import Bots from '~/Pages/Workspace/Bots'
+import Roles from '~/Pages/Workspace/Roles'
+import Collaborators from '~/Pages/Workspace/Users/Collaborators'
 import Workspaces from '~/Pages/Workspaces'
 
 import store, { history } from '../store'
@@ -21,11 +25,9 @@ import Auth, { getActiveWorkspace } from '../Auth'
 import ChangePassword from '../Pages/Account/ChangePassword'
 import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
-import Bot from '../Pages/Bot'
 import Confusion from '../Pages/Confusion'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
-import Workspace from '../Pages/Workspace'
 
 import PrivateRoute from './PrivateRoute'
 
@@ -70,9 +72,11 @@ export const makeMainRoutes = () => {
               <Route path="/server/debug" component={Debug} />
               <Route path="/server/license" component={LicenseStatus} />
               <Route path="/server/alerting" component={Alerting} />
-              <Route path="/workspace/:workspaceId?" component={Workspace} />
+              <Route path="/workspace/:workspaceId?/bots/:botId" component={Details} />
+              <Route path="/workspace/:workspaceId?/bots" component={Bots} />
+              <Route path="/workspace/:workspaceId?/users" component={Collaborators} />
+              <Route path="/workspace/:workspaceId?/roles" component={Roles} />
               <Route path="/workspaces" component={Workspaces} />
-              <Route path="/bot" component={Bot} />
               <Route path="/debug" component={Debug} />
               <Route path="/modules" component={Modules} />
               <Route path="/" render={() => <Redirect from="/" to={`/workspace/${getActiveWorkspace()}/bots`} />} />

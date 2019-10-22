@@ -1,9 +1,9 @@
-import { Classes, Icon, MenuItem } from '@blueprintjs/core'
+import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
 import { WorkspaceUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { generatePath, RouteComponentProps, withRouter } from 'react-router'
+import { RouteComponentProps, withRouter } from 'react-router'
 import { isOperationAllowed } from '~/App/AccessControl'
 import { getActiveWorkspace } from '~/Auth'
 
@@ -29,7 +29,7 @@ type Props = DispatchProps & StateProps & RouteComponentProps<{ workspaceId: str
 const SelectDropdown = Select.ofType<WorkspaceUser>()
 
 const WorkspaceSelect: FC<Props> = props => {
-  const urlWorkspaceId = props.match.params.workspaceId
+  const [, urlSection, urlWorkspaceId, urlPage] = props.location.pathname.split('/')
   const [options, setOptions] = useState<WorkspaceUser[]>()
   const [selected, setSelected] = useState<WorkspaceUser>()
 
@@ -40,7 +40,7 @@ const WorkspaceSelect: FC<Props> = props => {
       checkWorkspaceId()
       refreshOptions()
     }
-  }, [props.workspaces, urlWorkspaceId])
+  }, [props.workspaces, props.currentWorkspace])
 
   useEffect(() => {
     if (!props.currentWorkspace) {
@@ -81,22 +81,18 @@ const WorkspaceSelect: FC<Props> = props => {
       return props.history.replace('/noAccess')
     }
 
-    if (workspaceId !== getActiveWorkspace()) {
-      props.switchWorkspace(workspaceId)
-      setUrlWorkspaceId(workspaceId)
-    }
-
     // Invalid workspace id in  url, needs to be updated
-    if (workspaceId !== urlWorkspaceId) {
+    if (workspaceId !== getActiveWorkspace() || workspaceId !== urlWorkspaceId) {
       setUrlWorkspaceId(workspaceId)
     }
   }
 
   const setUrlWorkspaceId = workspaceId => {
-    const workspacePath = generatePath(props.match.path, { workspaceId })
-    const currentPage = props.location.pathname.replace(props.match.url, '')
+    props.switchWorkspace(workspaceId)
 
-    props.history.push(workspacePath + currentPage)
+    if (urlSection === 'workspace') {
+      props.history.push(`/workspace/${workspaceId}/${urlPage}`)
+    }
   }
 
   if (!props.workspaces || !options || !selected) {
@@ -104,7 +100,14 @@ const WorkspaceSelect: FC<Props> = props => {
   }
 
   if (props.workspaces.length === 1) {
-    return <span>Workspace {props.workspaces[0].workspaceName}</span>
+    return (
+      <Button
+        minimal={true}
+        disabled={true}
+        text={`Workspace: ${props.workspaces[0].workspaceName}`}
+        className="workspaceButton"
+      />
+    )
   }
 
   return (
@@ -117,9 +120,12 @@ const WorkspaceSelect: FC<Props> = props => {
       noResults={<MenuItem disabled={true} text="No results." />}
       onItemSelect={option => setUrlWorkspaceId(option.workspace)}
     >
-      <div style={{ cursor: 'pointer' }}>
-        Workspace {selected.workspaceName} <Icon icon="caret-down" />
-      </div>
+      <Button
+        minimal={true}
+        text={`Workspace: ${selected.workspaceName}`}
+        rightIcon="caret-down"
+        className="workspaceButton"
+      />
     </SelectDropdown>
   )
 }
