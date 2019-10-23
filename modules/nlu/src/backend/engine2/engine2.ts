@@ -1,9 +1,9 @@
-import * as sdk from 'botpress/sdk'
+import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import jaroDistance from '../tools/jaro'
 import levenDistance from '../tools/levenshtein'
-import { extractPattern } from '../tools/patterns-utils'
+import { extractPattern, isPatternValid } from '../tools/patterns-utils'
 import { EntityExtractor } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
@@ -12,11 +12,7 @@ import { Predict, PredictInput, Predictors, PredictOutput, PredictStep } from '.
 import { CancellationToken, computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import Utterance, { UtteranceToken } from './utterance'
 
-// ----- simple improvements -----
-//       completely get rid of engine1
-
 export type TFIDF = _.Dictionary<number>
-
 export type E2ByBot = _.Dictionary<Engine2>
 
 export default class Engine2 {
@@ -30,13 +26,58 @@ export default class Engine2 {
     Engine2.tools = tools
   }
 
-  // TODO change this for intent def and entity defs, make TrainInput and do the mapping here
-  async train(input: TrainInput): Promise<Model> {
+  async train(
+    intentDefs: NLU.IntentDefinition[],
+    entityDefs: NLU.EntityDefinition[],
+    languageCode: string
+  ): Promise<Model> {
     const token: CancellationToken = {
       cancel: async () => {},
       uid: '',
       isCancelled: () => false,
       cancelledAt: new Date()
+    }
+
+    const list_entities = entityDefs
+      .filter(ent => ent.type === 'list')
+      .map(e => {
+        return {
+          name: e.name,
+          fuzzyMatching: e.fuzzy,
+          sensitive: e.sensitive,
+          synonyms: _.chain(e.occurences)
+            .keyBy('name')
+            .mapValues('synonyms')
+            .value()
+        }
+      })
+
+    const pattern_entities = entityDefs
+      .filter(ent => ent.type === 'pattern' && isPatternValid(ent.pattern))
+      .map(ent => ({
+        name: ent.name,
+        pattern: ent.pattern,
+        examples: [], // TODO add this to entityDef
+        ignoreCase: true, // TODO add this entityDef
+        sensitive: ent.sensitive
+      }))
+
+    const contexts = _.chain(intentDefs)
+      .flatMap(i => i.contexts)
+      .uniq()
+      .value()
+
+    const input: TrainInput = {
+      languageCode,
+      list_entities,
+      pattern_entities,
+      contexts,
+      intents: intentDefs.map(x => ({
+        name: x.name,
+        contexts: x.contexts,
+        utterances: x.utterances[languageCode],
+        slot_definitions: x.slots
+      }))
     }
 
     // Model should be build here, Trainer should not have any idea of how this is stored
@@ -82,7 +123,7 @@ export default class Engine2 {
       const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
       const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
         (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
-        {} as _.Dictionary<sdk.MLToolkit.SVM.Predictor>
+        {} as _.Dictionary<MLToolkit.SVM.Predictor>
       )
       const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
       slot_tagger.load(artefacts.slots_model)
@@ -138,7 +179,7 @@ export interface Tools {
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   ducklingExtractor: EntityExtractor
-  mlToolkit: typeof sdk.MLToolkit
+  mlToolkit: typeof MLToolkit
 }
 
 // add value in extracted slots
