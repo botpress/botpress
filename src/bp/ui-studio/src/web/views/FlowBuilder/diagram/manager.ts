@@ -23,6 +23,11 @@ export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
 // Default transition applied for new nodes 1.5
 export const defaultTransition = { condition: 'true', node: '' }
 
+export interface Point {
+  x: number
+  y: number
+}
+
 const createNodeModel = (node, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
@@ -196,7 +201,7 @@ export class DiagramManager {
     })
   }
 
-  getRealPosition(event) {
+  getRealPosition(event): Point {
     let { x, y } = this.diagramEngine.getRelativePoint(event.x || event.clientX, event.y || event.clientY)
 
     const zoomFactor = this.activeModel.getZoomLevel() / 100

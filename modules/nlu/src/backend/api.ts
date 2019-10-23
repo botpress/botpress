@@ -11,7 +11,7 @@ import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 
 const SYNC_INTERVAL_MS = ms('5s')
-const USE_E2 = yn(process.env.USE_EXPERIMENTAL_NLU_PIPELINE)
+const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
@@ -19,7 +19,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const syncByBots: { [key: string]: NodeJS.Timer } = {}
 
   const scheduleSyncNLU = (botId: string) => {
-    if (USE_E2) {
+    if (!USE_E1) {
       return
     }
     if (syncByBots[botId]) {

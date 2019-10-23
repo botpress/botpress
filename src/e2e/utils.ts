@@ -43,17 +43,17 @@ export const expectCallSuccess = async (url: string, method?: HttpMethod): Promi
 }
 
 export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
-  const response = await getResponse(`${bpConfig.host}/api/v1/admin/${endOfUrl}`, method)
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/admin/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
 }
 
 export const expectBotApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
-  const response = await getResponse(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
 }
 
 export const waitForBotApiResponse = async (endOfUrl: string, method?: HttpMethod): Promise<any> => {
-  const response = await getResponse(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   return response.json()
 }
 
@@ -95,14 +95,26 @@ export const closeToaster = async () => {
   await page.waitForFunction(() => {
     return document.querySelector('.bp3-overlay').childElementCount === 0
   })
+  await page.waitFor(500)
+}
+
+const shouldLogRequest = (url: string) => {
+  const ignoredExt = ['.js', '.mp3', '.png', '.svg', '.css']
+  const ignoredWords = ['image/', 'google-analytics', 'css', 'public/js', 'static/js']
+
+  return !ignoredExt.find(x => url.endsWith(x)) && !ignoredWords.find(x => url.includes(x))
 }
 
 page.on('request', req => {
-  console.log(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+  if (shouldLogRequest(req.url())) {
+    console.log(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+  }
 })
 
 page.on('response', resp => {
-  console.log(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+  if (shouldLogRequest(resp.url())) {
+    console.log(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+  }
 })
 
 page.on('framenavigated', frame => {

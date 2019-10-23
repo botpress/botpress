@@ -43,6 +43,10 @@ const WorkspaceSelect: FC<Props> = props => {
   }, [props.workspaces, urlWorkspaceId])
 
   useEffect(() => {
+    if (!props.currentWorkspace) {
+      return
+    }
+
     if (isOperationAllowed({ operation: 'read', resource: 'admin.collaborators' })) {
       props.fetchUsers()
     }

@@ -45,6 +45,8 @@ declare namespace NodeJS {
     BOTPRESS_EVENTS: EventEmitter
     AUTO_MIGRATE: boolean
     IS_FAILSAFE: boolean
+    /** A random ID generated on server start to identify each server in a cluster */
+    SERVER_ID: string
   }
 }
 

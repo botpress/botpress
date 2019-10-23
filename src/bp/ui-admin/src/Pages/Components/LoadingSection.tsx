@@ -1,5 +1,5 @@
 import React from 'react'
-import { Row, Col } from 'reactstrap'
+import { Col, Row } from 'reactstrap'
 
 import loadingImage from '../../media/loading-circle.svg'
 
