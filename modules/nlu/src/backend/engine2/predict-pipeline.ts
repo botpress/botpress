@@ -156,9 +156,12 @@ async function predictIntent(input: PredictStep): Promise<PredictStep> {
     }
     const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
     const preds = await predictor.predict(features)
-    const exactPred = [findExactIntentForCtx(input.exact_match_index, input.utterance, ctx)]
+    const exactPred = findExactIntentForCtx(input.exact_match_index, input.utterance, ctx)
+    if (exactPred) {
+      preds.unshift(exactPred)
+    }
 
-    return [...exactPred, ...preds]
+    return preds
   })).filter(_.identity)
 
   return {
