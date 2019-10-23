@@ -1,18 +1,32 @@
+import fromPairs from 'lodash/fromPairs'
 import { addLocaleData } from 'react-intl'
 
+import localeAr from 'react-intl/locale-data/ar'
 import localeEn from 'react-intl/locale-data/en'
+import localeEs from 'react-intl/locale-data/es'
 import localeFr from 'react-intl/locale-data/fr'
 import localePt from 'react-intl/locale-data/pt'
-import localeEs from 'react-intl/locale-data/es'
 
+import ar from './ar.json'
 import en from './en.json'
+import es from './es.json'
 import fr from './fr.json'
 import pt from './pt.json'
-import es from './es.json'
 
-const availableLocale = ['en', 'fr', 'pt', 'es']
+const availableLocale = ['en', 'fr', 'pt', 'es', 'ar']
 const defaultLocale = 'en'
-const translations = { 'en-US': en, en, fr, pt, es }
+
+const arLocales = ['ar', 'ar-SA', 'ar-IQ', 'ar-EG', 'ar-LY', 'ar-DZ', 'ar-MA', 'ar-TN', 'ar-OM', 'ar-YE',
+  'ar-SY', 'ar-JO', 'ar-LB', 'ar-KW', 'ar-AE', 'ar-BH', 'ar-QA' ]
+
+const translations = {
+  'en-US': en,
+  en,
+  fr,
+  pt,
+  es,
+  ...fromPairs(arLocales.map(locale => [locale, ar]))
+}
 
 const getUserLocale = (available?: any, defaultFallback?: string) => {
   const locale = navigator.language || navigator['userLanguage'] || ''
