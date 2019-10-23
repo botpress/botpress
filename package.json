@@ -113,6 +113,7 @@
     "@types/passport": "^1.0.0",
     "@types/puppeteer": "^1.19.1",
     "@types/redis": "^2.8.10",
+    "@types/redlock": "^4.0.0",
     "@types/socket.io": "^2.1.2",
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",

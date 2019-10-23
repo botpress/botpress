@@ -870,6 +870,13 @@
   dependencies:
     "@types/node" "*"
 
+"@types/redlock@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/redlock/-/redlock-4.0.0.tgz#d101855b090de5aeb4d0f75c4f5767a4a50efa08"
+  integrity sha512-kF8buBZkNgt9nIwTticRt6a1OR/lVUZ7uwnllW5DJN/i271Yj7BZ/eOP9MnOLV+UA+NhmP+jEgt2FNrfNcUU1A==
+  dependencies:
+    "@types/bluebird" "*"
+
 "@types/serve-static@*":
   version "1.13.2"
   resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.13.2.tgz#f5ac4d7a6420a99a6a45af4719f4dcd8cd907a48"

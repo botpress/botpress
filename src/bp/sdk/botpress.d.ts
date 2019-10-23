@@ -1245,6 +1245,13 @@ declare module 'botpress/sdk' {
     localUrl: boolean
   }
 
+  export interface RedisLock {
+    /** Free the lock so other nodes can request it */
+    unlock(): Promise<void>
+    /** Extend the duration of the lock for the node owning it */
+    extend(duration: number): Promise<void>
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -1455,6 +1462,39 @@ declare module 'botpress/sdk' {
       partialConfig: _.PartialDeep<BotConfig>,
       ignoreLock?: boolean
     ): Promise<any>
+  }
+
+  /**
+   * The distributed namespace uses Redis to distribute commands to every node
+   */
+  export namespace distributed {
+    /**
+     * When a single node must process data from a shared source, call this method to obtain an exclusive lock.
+     * You can then call lock.extend() to keep it longer, or lock.unlock() to release it
+     * @param resource Name of the resource to lock
+     * @param duration the initial duration
+     * @return undefined if another node already has obtained the lock
+     */
+    export function acquireLock(resource: string, duration: number): Promise<RedisLock | undefined>
+
+    /**
+     * Forcefully clears any trace of the lock from the redis store. It doesn't clear the lock from the node which had it.
+     * Ensure that a broadcasted job took care of cancelling it before.
+     * @param resource
+     * @return true if an existing lock was deleted
+     */
+    export function clearLock(resource: string): Promise<boolean>
+
+    /**
+     * This method returns a function that can then be called to broadcast the message to every node
+     * @param fn The job that will be executed on all nodes
+     * @param T The return type of the returned function
+     *
+     * @example const distributeToAll: Function = await bp.distributed.broadcast<void>(_localMethod)
+     * @example const _localMethod = (param1, param2): Promise<void> { }
+     * @example distributeToAll('send to all nodes', 'other info') // Every node will execute this method
+     */
+    export function broadcast<T>(fn: Function): Promise<Function>
   }
 
   /**
