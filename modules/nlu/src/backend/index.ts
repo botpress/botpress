@@ -126,7 +126,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
     return
   }
 
-  const e2 = new Engine2(bot.defaultLanguage)
+  const e2 = new Engine2(bot.defaultLanguage, bp.logger)
   const ghost = bp.ghost.forBot(botId)
 
   const trainOrLoad = _.debounce(
@@ -169,7 +169,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
         if (model) {
           await e2.loadModel(model)
         } else {
-          const trainLock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, 300000)
+          const trainLock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('5m'))
           if (!trainLock) {
             return
           }

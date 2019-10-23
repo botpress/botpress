@@ -58,14 +58,14 @@ export default class Engine2 {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string) {}
+  constructor(private defaultLanguage: string, private logger: sdk.Logger) {}
 
   static provideTools(tools: Tools) {
     Engine2.tools = tools
   }
 
   async train(input: TrainInput): Promise<Model> {
-    debugNLU('started training')
+    this.logger.info('Training started')
     const token: CancellationToken = {
       cancel: async () => {},
       uid: '',
@@ -76,7 +76,7 @@ export default class Engine2 {
     const model = await Trainer(input, Engine2.tools, token)
     // TODO handle this logic outside. i.e (distributed)job-service ?
     if (model.success) {
-      debugNLU('successfully finished training')
+      this.logger.info('Successfully finished training')
       await this.loadModel(model)
     }
     return model
@@ -96,7 +96,7 @@ export default class Engine2 {
 
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
-    debugNLU('loaded model')
+    this.logger.info('Model loaded')
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
