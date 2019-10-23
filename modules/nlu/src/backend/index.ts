@@ -22,9 +22,9 @@ const nluByBot: EngineByBot = {}
 // TODO rethink this for an immutable bot state instead
 const e2ByBot: E2ByBot = {}
 const watchersByBot = {} as _.Dictionary<sdk.ListenHandle>
-const trainIntervalByBot = {} as _.Dictionary<NodeJS.Timer>
 
 let langProvider: LanguageProvider
+let distributedLoadModel: Function
 
 export let nluHealth: NLUHealth
 
@@ -81,6 +81,15 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
+  const loadModel = async (botId: string, hash: string, language: string) => {
+    const ghost = bp.ghost.forBot(botId)
+    const model = await getModel(ghost, hash, language)
+    if (model) {
+      await e2ByBot[botId].loadModel(model)
+    }
+  }
+
+  distributedLoadModel = await bp.distributed.broadcast(loadModel)
   await api(bp, nluByBot)
 }
 
@@ -117,7 +126,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
     return
   }
 
-  const e2 = new Engine2(bot.defaultLanguage)
+  const e2 = new Engine2(bot.defaultLanguage, bp.logger)
   const ghost = bp.ghost.forBot(botId)
 
   const trainOrLoad = _.debounce(
@@ -160,6 +169,10 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
         if (model) {
           await e2.loadModel(model)
         } else {
+          const trainLock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('5m'))
+          if (!trainLock) {
+            return
+          }
           const input: TrainInput = {
             languageCode,
             list_entities,
@@ -173,8 +186,10 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
             }))
           }
           const model = await e2.train(input)
+          await trainLock.unlock()
           if (model.success) {
             await saveModel(ghost, model, hash)
+            await distributedLoadModel(botId, hash, languageCode)
           }
         }
       })
@@ -188,21 +203,9 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   }
 
   e2ByBot[botId] = e2
-  trainIntervalByBot[botId] = setInterval(
-    async () => await trainOrLoad(),
-    ms(_.get(moduleBotConfig, 'autoTrainInterval', '5000'))
-  )
-  // idealy we would register load on cache invalidated
-  // but cache is not exposed in sdk yet
-  // onCacheInvalidated  => filename
-  //    if filename includes model
-  //    load model if not already loaded
-
-  // register trainOrLoad with ghost file watcher
-  // we use local events so training occures on the same node where the request for changes enters
   watchersByBot[botId] = bp.ghost.forBot(botId).onFileChanged(async f => {
     if (f.includes('intents') || f.includes('entities')) {
-      await trainOrLoad()
+      await trainOrLoad() // train
     }
   })
 }
@@ -216,8 +219,6 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   delete e2ByBot[botId]
   watchersByBot[botId].remove()
   delete watchersByBot[botId]
-  clearInterval(trainIntervalByBot[botId])
-  delete trainIntervalByBot[botId]
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
