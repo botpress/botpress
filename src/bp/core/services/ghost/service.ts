@@ -333,6 +333,17 @@ export class ScopedGhostService {
     this.primaryDriver = useDbDriver ? dbDriver : diskDriver
   }
 
+  public onFileInvalidation(callback: (key: string) => void) {
+    const bufferKey = this.bufferCacheKey(this.baseDir.replace('./', ''))
+    const objectKey = this.objectCacheKey(this.baseDir.replace('./', ''))
+
+    this.cache.events.on('invalidation', key => {
+      if (key.startsWith(bufferKey) || key.startsWith(objectKey)) {
+        callback(key)
+      }
+    })
+  }
+
   /**
    * TODO: Refactor this on v12.1.4
    * This is a temporary workaround to lock bots marked as "locked" until modules are correctly updated.
