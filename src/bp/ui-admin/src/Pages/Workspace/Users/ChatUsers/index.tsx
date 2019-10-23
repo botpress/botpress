@@ -4,11 +4,12 @@ import { AuthStrategyConfig } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { AppState } from '~/reducers'
+import PageContainer from '~/App/PageContainer'
+import SplitPage from '~/App/SplitPage'
 import { getActiveWorkspace } from '~/Auth'
 import RolloutStrategyModal from '~/Pages/Workspaces/RolloutStrategyModal'
 
 import { fetchAuthConfig, fetchUsers } from '../../../../reducers/user'
-import SectionLayout from '../../../Layouts/Section'
 import CreateUserModal from '../CreateUserModal'
 import ShowInfoModal from '../ShowInfoModal'
 import UserList from '../UserList'
@@ -62,57 +63,59 @@ const List: FC<Props> = props => {
   const workspaceId = getActiveWorkspace() || 'default'
 
   return (
-    <SectionLayout
+    <PageContainer
       title="Chat Users"
       helpText="Chat users are only allowed to talk with bots. They can see a list of all the bots in the workspace"
-      mainContent={
+    >
+      <SplitPage
+        sideMenu={
+          <div>
+            <Button
+              id="btn-create"
+              style={{ width: 160 }}
+              text="Add chat user"
+              icon="add"
+              onClick={() => setCreateModalOpen(true)}
+            />
+            <br />
+            <br />
+            <Button
+              id="btn-rollout"
+              style={{ width: 160 }}
+              text="Configure Rollout"
+              icon="send-to-graph"
+              onClick={() => setRolloutModalOpen(true)}
+            />
+
+            <CreateUserModal
+              isOpen={createModalOpen}
+              toggleOpen={() => setCreateModalOpen(!createModalOpen)}
+              onUserCreated={onUserCreated}
+              onUserAdded={onUserAdded}
+            />
+
+            <ShowInfoModal
+              isOpen={infoModalOpen}
+              toggle={() => setInfoModalOpen(!infoModalOpen)}
+              messageId={messageId}
+              email={email}
+              password={password}
+            />
+
+            <RolloutStrategyModal
+              workspaceId={workspaceId}
+              isOpen={rolloutModalOpen}
+              toggle={() => setRolloutModalOpen(!rolloutModalOpen)}
+            />
+          </div>
+        }
+      >
         <div>
           <RolloutOverview />
           <UserList onPasswordReset={onPasswordReset} onUserUpdated={reloadUsers} />
         </div>
-      }
-      sideMenu={
-        <div>
-          <Button
-            id="btn-create"
-            style={{ width: 160 }}
-            text="Add chat user"
-            icon="add"
-            onClick={() => setCreateModalOpen(true)}
-          />
-          <br />
-          <br />
-          <Button
-            id="btn-rollout"
-            style={{ width: 160 }}
-            text="Configure Rollout"
-            icon="send-to-graph"
-            onClick={() => setRolloutModalOpen(true)}
-          />
-
-          <CreateUserModal
-            isOpen={createModalOpen}
-            toggleOpen={() => setCreateModalOpen(!createModalOpen)}
-            onUserCreated={onUserCreated}
-            onUserAdded={onUserAdded}
-          />
-
-          <ShowInfoModal
-            isOpen={infoModalOpen}
-            toggle={() => setInfoModalOpen(!infoModalOpen)}
-            messageId={messageId}
-            email={email}
-            password={password}
-          />
-
-          <RolloutStrategyModal
-            workspaceId={workspaceId}
-            isOpen={rolloutModalOpen}
-            toggle={() => setRolloutModalOpen(!rolloutModalOpen)}
-          />
-        </div>
-      }
-    />
+      </SplitPage>
+    </PageContainer>
   )
 }
 

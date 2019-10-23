@@ -4,6 +4,7 @@ import { UserProfile } from 'common/typings'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { NavLink } from 'reactstrap'
+import WorkspaceSelect from '~/Pages/Components/WorkspaceSelect'
 
 import logo from '../media/logo_white.png'
 import { fetchLicensing } from '../reducers/license'
@@ -45,22 +46,13 @@ const App: FC<Props> = props => {
     <Fragment>
       <Header />
 
-      {props.profile.isSuperAdmin && (
-        <div className="bp-sa-wrapper">
-          <Menu />
-          <div className="bp-sa-content-wrapper">
-            {!isLicensed && <Unlicensed />}
-            {props.children}
-          </div>
-        </div>
-      )}
-
-      {!props.profile.isSuperAdmin && (
-        <div className="bp-main-content">
+      <div className="bp-sa-wrapper">
+        <Menu />
+        <div className="bp-sa-content-wrapper">
           {!isLicensed && <Unlicensed />}
           {props.children}
         </div>
-      )}
+      </div>
 
       <Footer version={version} />
     </Fragment>
@@ -79,6 +71,8 @@ const Header = () => (
       </Navbar.Group>
 
       <Navbar.Group align={Alignment.RIGHT}>
+        <WorkspaceSelect />
+        <Navbar.Divider />
         <UserDropdownMenu />
       </Navbar.Group>
     </Navbar>

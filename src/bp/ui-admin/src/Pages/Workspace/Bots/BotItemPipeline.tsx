@@ -70,12 +70,7 @@ const BotItemPipeline: FC<Props> = ({
               )}
 
               <AccessControl resource="admin.bots.*" operation="write">
-                <MenuItem
-                  text="Config"
-                  icon="cog"
-                  id="btn-config"
-                  onClick={() => history.push(`/bot/${bot.id}/details`)}
-                />
+                <MenuItem text="Config" icon="cog" id="btn-config" onClick={() => history.push(`bots/${bot.id}`)} />
                 <MenuItem text="Create Revision" icon="cloud-upload" id="btn-createRevision" onClick={createRevision} />
                 <MenuItem text="Rollback" icon="undo" id="btn-rollbackRevision" onClick={rollback} />
                 <MenuItem text="Export" icon="export" id="btn-export" onClick={exportBot} />

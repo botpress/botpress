@@ -17,6 +17,8 @@ import { RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 import { toastSuccess } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
+import PageContainer from '~/App/PageContainer'
+import SplitPage from '~/App/SplitPage'
 import { Downloader } from '~/Pages/Components/Downloader'
 
 import api from '../../../api'
@@ -24,7 +26,6 @@ import { fetchBots } from '../../../reducers/bots'
 import { fetchLicensing } from '../../../reducers/license'
 import AccessControl from '../../../App/AccessControl'
 import LoadingSection from '../../Components/LoadingSection'
-import SectionLayout from '../../Layouts/Section'
 
 import BotItemCompact from './BotItemCompact'
 import BotItemPipeline from './BotItemPipeline'
@@ -247,34 +248,33 @@ class Bots extends Component<Props> {
     }
 
     return (
-      <Fragment>
-        <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
+      <PageContainer title="Bots">
+        <SplitPage sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}>
+          <Fragment>
+            <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
+            {this.renderBots()}
 
-        <SectionLayout
-          title="Bots"
-          helpText="This page lists all the bots created under the current workspace."
-          mainContent={this.renderBots()}
-          sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}
-        />
-        <AccessControl resource="admin.bots.*" operation="write">
-          <RollbackBotModal
-            botId={this.state.focusedBot}
-            isOpen={this.state.isRollbackModalOpen}
-            toggle={this.toggleRollbackModal}
-            onRollbackSuccess={this.handleRollbackSuccess}
-          />
-          <CreateBotModal
-            isOpen={this.state.isCreateBotModalOpen}
-            toggle={this.toggleCreateBotModal}
-            onCreateBotSuccess={this.props.fetchBots}
-          />
-          <ImportBotModal
-            isOpen={this.state.isImportBotModalOpen}
-            toggle={this.toggleImportBotModal}
-            onCreateBotSuccess={this.props.fetchBots}
-          />
-        </AccessControl>
-      </Fragment>
+            <AccessControl resource="admin.bots.*" operation="write">
+              <RollbackBotModal
+                botId={this.state.focusedBot}
+                isOpen={this.state.isRollbackModalOpen}
+                toggle={this.toggleRollbackModal}
+                onRollbackSuccess={this.handleRollbackSuccess}
+              />
+              <CreateBotModal
+                isOpen={this.state.isCreateBotModalOpen}
+                toggle={this.toggleCreateBotModal}
+                onCreateBotSuccess={this.props.fetchBots}
+              />
+              <ImportBotModal
+                isOpen={this.state.isImportBotModalOpen}
+                toggle={this.toggleImportBotModal}
+                onCreateBotSuccess={this.props.fetchBots}
+              />
+            </AccessControl>
+          </Fragment>
+        </SplitPage>
+      </PageContainer>
     )
   }
 }
