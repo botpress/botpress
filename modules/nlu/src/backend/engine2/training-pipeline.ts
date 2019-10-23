@@ -128,7 +128,7 @@ export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.M
     .map((t: UtteranceToken) => t.vectors)
     .value() as number[][]
 
-  if (_.isEmpty(data)) {
+  if (data.length < 2) {
     return
   }
 
@@ -189,13 +189,10 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
 }
 
 const trainIntentClassifer = async (input: TrainOutput, tools: Tools): Promise<_.Dictionary<string> | undefined> => {
-  if (input.intents.length === 0) {
-    return
-  }
   const svmPerCtx: _.Dictionary<string> = {}
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx))
+      .filter(i => i.contexts.includes(ctx) && i.utterances.length > 3) // min nb utterances
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -204,18 +201,16 @@ const trainIntentClassifer = async (input: TrainOutput, tools: Tools): Promise<_
       )
       .value()
 
-    const svm = new tools.mlToolkit.SVM.Trainer()
-    svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('svm progress ==> %d', p))
+    if (points.length > 0) {
+      const svm = new tools.mlToolkit.SVM.Trainer()
+      svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('svm progress ==> %d', p))
+    }
   }
 
   return svmPerCtx
 }
 
 const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
-  if (input.intents.length === 0) {
-    return
-  }
-
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
@@ -227,8 +222,10 @@ const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise
       )
   })
 
-  const svm = new tools.mlToolkit.SVM.Trainer()
-  return svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('SVM => progress for CTX %d', p))
+  if (points.length > 0) {
+    const svm = new tools.mlToolkit.SVM.Trainer()
+    return svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('SVM => progress for CTX %d', p))
+  }
 }
 
 export const ProcessIntents = async (
@@ -238,7 +235,6 @@ export const ProcessIntents = async (
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    // TODO filter out non trainable intents (see engine 1 filtering conditions)
     const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
     const utterances = await buildUtterances(cleaned, languageCode, tools)
 
@@ -261,7 +257,7 @@ export const ProcessIntents = async (
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
   const copy = { ...input }
 
-  for (const intent of copy.intents) {
+  for (const intent of copy.intents.filter(i => (i.slot_definitions || []).length > 0)) {
     intent.utterances.forEach(async utterance => await extractUtteranceEntities(utterance, input, tools))
   }
 
