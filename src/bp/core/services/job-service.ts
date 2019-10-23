@@ -24,6 +24,7 @@ export class CEJobService implements JobService {
     return fn
   }
 
+  // TODO: Implement this correctly so we can also lock resources on a single node (ghost writes)
   async acquireLock(resource: string, duration: number): Promise<RedisLock | undefined> {
     return {
       unlock: async () => {},
