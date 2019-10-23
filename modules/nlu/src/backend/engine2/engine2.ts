@@ -16,7 +16,8 @@ import { EntityExtractor, Token2Vec } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 
-const debugIntents = DEBUG('nlu').sub('intents')
+const debugNLU = DEBUG('nlu')
+const debugIntents = debugNLU.sub('intents')
 const debugIntentsTrain = debugIntents.sub('train')
 const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.SVM.SVMOptions
 // TODO grid search / optimization for those hyperparams
@@ -64,6 +65,7 @@ export default class Engine2 {
   }
 
   async train(input: TrainInput): Promise<Model> {
+    debugNLU('started training')
     const token: CancellationToken = {
       cancel: async () => {},
       uid: '',
@@ -74,6 +76,7 @@ export default class Engine2 {
     const model = await Trainer(input, Engine2.tools, token)
     // TODO handle this logic outside. i.e (distributed)job-service ?
     if (model.success) {
+      debugNLU('successfully finished training')
       await this.loadModel(model)
     }
     return model
@@ -93,6 +96,7 @@ export default class Engine2 {
 
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
+    debugNLU('loaded model')
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
