@@ -126,7 +126,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
     return
   }
 
-  const e2 = new Engine2(bot.defaultLanguage, bp.logger)
+  const e2 = new Engine2(bot.defaultLanguage, bp.logger.forBot(botId))
   const ghost = bp.ghost.forBot(botId)
 
   const trainOrLoad = _.debounce(
