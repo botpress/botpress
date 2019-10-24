@@ -88,15 +88,15 @@ export default class Engine2 {
 
   async loadModel(model: Model) {
     if (
-      _.isEqual(this.modelsByLang[model.languageCode], model) &&
-      this.predictorsByLang[model.languageCode] !== undefined
+      this.predictorsByLang[model.languageCode] !== undefined &&
+      this.modelsByLang[model.languageCode] !== undefined &&
+      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input) // compare hash instead
     ) {
       return
     }
 
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
-    this.logger.info('Model loaded')
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
