@@ -197,10 +197,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
     4000,
     { leading: true }
   )
-
-  if (moduleBotConfig.preloadModels) {
-    trainOrLoad() // floating promise on purpose
-  }
+  trainOrLoad() // floating promise on purpose
 
   e2ByBot[botId] = e2
   watchersByBot[botId] = bp.ghost.forBot(botId).onFileChanged(async f => {
