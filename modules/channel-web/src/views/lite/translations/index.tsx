@@ -1,4 +1,3 @@
-import fromPairs from 'lodash/fromPairs'
 import { addLocaleData } from 'react-intl'
 
 import localeAr from 'react-intl/locale-data/ar'
@@ -17,22 +16,15 @@ import pt from './pt.json'
 import ru from './ru.json'
 import uk from './uk.json'
 
-const availableLocale = ['en', 'fr', 'pt', 'es', 'ar', 'ru', 'uk']
 const defaultLocale = 'en'
+const baseTranslations = { en, fr, pt, es, ar, ru, uk }
+const availableLocale = Object.keys(baseTranslations)
 
-const arLocales = ['ar', 'ar-SA', 'ar-IQ', 'ar-EG', 'ar-LY', 'ar-DZ', 'ar-MA', 'ar-TN', 'ar-OM', 'ar-YE',
-  'ar-SY', 'ar-JO', 'ar-LB', 'ar-KW', 'ar-AE', 'ar-BH', 'ar-QA' ]
-const ruLocales = ['ru', 'ru-BY', 'ru-KG', 'ru-KZ', 'ru-MD', 'ru-MO', 'ru-RU', 'ru-UA']
-
-const translations = {
-  ...fromPairs(['en', 'en-US'].map(locale => [locale, en])),
-  fr,
-  pt,
-  es,
-  ...fromPairs(arLocales.map(locale => [locale, ar])),
-  ...fromPairs(ruLocales.map(locale => [locale, ru])),
-  ...fromPairs(['uk', 'uk-UA'].map(locale => [locale, uk])),
-}
+// Handle region language subtags like 'en-US' and 'ar-IQ'
+const isTranslationMatching = prop => key => String(prop).split('-')[0] === key
+const translations = new Proxy(baseTranslations, {
+  get: (target, prop) => target[Object.keys(target).find(isTranslationMatching(prop))]
+})
 
 const getUserLocale = (available?: any, defaultFallback?: string) => {
   const locale = navigator.language || navigator['userLanguage'] || ''
@@ -42,7 +34,7 @@ const getUserLocale = (available?: any, defaultFallback?: string) => {
 }
 
 const initializeLocale = () => {
-  addLocaleData([...localeEn, ...localeFr, ...localePt, ...localeEs])
+  addLocaleData([...localeEn, ...localeFr, ...localePt, ...localeEs, ...localeAr, ...localeRu, ...localeUk])
 }
 
 export { initializeLocale, translations, availableLocale, defaultLocale, getUserLocale }
