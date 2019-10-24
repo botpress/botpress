@@ -11,7 +11,7 @@ There's three different types of authentication:
 
 ## Authentication Overview
 
-There are 4 different type of authentication strategies currently supported: Basic, SAML, OAUTH2 and LDAP. You can also implement them multiple times (for example, you could have two different OAuth2 configurations for different workspaces).
+There are 4 different type of authentication strategies currently supported: Basic, SAML, OAuth2 and LDAP. You can also implement them multiple times (for example, you could have two different OAuth2 configurations for different workspaces).
 
 No matter what authentication strategy is used, they are all stored in the database. When you add a new strategy in the `botpress.config.json` file, upon server restart a new table called `strategy_STRATEGYID` will be created.
 
@@ -21,7 +21,7 @@ If you have more than one authentication strategy, a menu will be displayed to p
 
 Moreover, you can access a specific workspace by using `/admin/login?workspaceId=WORKSPACEID`
 
-https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts#L326
+You can find the definition for the various authentication strategies [here](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts#L326).
 
 ### Basic
 
@@ -31,7 +31,8 @@ To create more accounts, visit the `Collaborators` tab on the Admin UI. Choose t
 
 Super Admins are able to reset the password of any user using the basic authentication.
 
-Here's a basic configuration example to set it up:
+#### Configuration Example
+In your `botpress.config.json` file:
 
 ```js
 {
@@ -50,13 +51,13 @@ Here's a basic configuration example to set it up:
 
 #### Additional Security
 
-There are additional options that can be configured when using that authentication strategy. Please refer to the [configuration file for more informations](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts#L350) :
+There are additional options that can be configured when using this authentication strategy. Please refer to the [configuration file for more information](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts#L350) :
 
-- maxLoginAttempt: Max number of tries allowed before locking out the user
-- lockoutDuration: Account will be disabled for this amount of time when maxLoginAttempt is reached
-- passwordExpiryDelay: Password will expire after this specified duration
-- passwordMinLength: Minimum length for the user's password
-- requireComplexPassword: Requires at least 1 characters of 3 category of characters
+- `maxLoginAttempt`: Max number of tries allowed before locking out the user
+- `lockoutDuration`: Account will be disabled for this amount of time when `maxLoginAttempt` is reached
+- `passwordExpiryDelay`: Password will expire after this specified duration
+- `passwordMinLength`: Minimum length for the user's password
+- `requireComplexPassword`: Requires at least 1 character of 3 categories of characters
 
 #### Forgot your password?
 
