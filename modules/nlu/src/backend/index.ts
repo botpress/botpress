@@ -178,12 +178,14 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
             list_entities,
             pattern_entities,
             contexts,
-            intents: intents.map(x => ({
-              name: x.name,
-              contexts: x.contexts,
-              utterances: x.utterances[languageCode],
-              slot_definitions: x.slots
-            }))
+            intents: intents
+              .filter(x => !!x.utterances[languageCode])
+              .map(x => ({
+                name: x.name,
+                contexts: x.contexts,
+                utterances: x.utterances[languageCode],
+                slot_definitions: x.slots
+              }))
           }
           const model = await e2.train(input)
           await trainLock.unlock()
