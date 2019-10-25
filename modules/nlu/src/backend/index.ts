@@ -165,14 +165,12 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
         .value()
 
       await Promise.mapSeries(languages, async languageCode => {
-        const model = await getModel(ghost, hash, languageCode)
-        if (model) {
-          await e2.loadModel(model)
-        } else {
-          const trainLock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('5m'))
-          if (!trainLock) {
-            return
-          }
+        const lock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('3m'))
+        if (!lock) {
+          return
+        }
+        let model = await getModel(ghost, hash, languageCode)
+        if (!model) {
           const input: TrainInput = {
             languageCode,
             list_entities,
@@ -187,26 +185,29 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
                 slot_definitions: x.slots
               }))
           }
-          const model = await e2.train(input)
-          await trainLock.unlock()
+          model = await e2.train(input)
           if (model.success) {
             await saveModel(ghost, model, hash)
-            await distributedLoadModel(botId, hash, languageCode)
           }
+        }
+        await lock.unlock()
+        if (model.success) {
+          await distributedLoadModel(botId, hash, languageCode)
         }
       })
     },
     4000,
     { leading: true }
   )
-  trainOrLoad() // floating promise on purpose
 
   e2ByBot[botId] = e2
   watchersByBot[botId] = bp.ghost.forBot(botId).onFileChanged(async f => {
     if (f.includes('intents') || f.includes('entities')) {
-      await trainOrLoad() // train
+      await trainOrLoad() // train or reload old model
     }
   })
+
+  trainOrLoad() // floating promise on purpose
 }
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {
