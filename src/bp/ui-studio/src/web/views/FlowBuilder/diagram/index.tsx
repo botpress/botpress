@@ -405,6 +405,7 @@ class Diagram extends Component<Props> {
     } else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
       this.pasteElementFromBuffer()
     } else if (event.code === 'Backspace' || event.code === 'Delete') {
+      event.preventDefault()
       this.deleteSelectedElements()
     }
   }

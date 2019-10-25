@@ -28,6 +28,50 @@ const state: NLUState = {
   watchersByBot: {}
 }
 
+// let distributedLoadModel: Function
+
+// const loadModel = async (botId: string, hash: string, language: string) => {
+//   const ghost = bp.ghost.forBot(botId)
+//   const model = await getModel(ghost, hash, language)
+//   if (model) {
+//     await e2ByBot[botId].loadModel(model)
+//   }
+// }
+
+// distributedLoadModel = await bp.distributed.broadcast(loadModel)
+// await api(bp, nluByBot)
+// }
+
+// await Promise.mapSeries(languages, async languageCode => {
+//   const model = await getModel(ghost, hash, languageCode)
+//   if (model) {
+//     await e2.loadModel(model)
+//   } else {
+//     const trainLock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('5m'))
+//     if (!trainLock) {
+//       return
+//     }
+//     const input: TrainInput = {
+//       languageCode,
+//       list_entities,
+//       pattern_entities,
+//       contexts,
+//       intents: intents.map(x => ({
+//         name: x.name,
+//         contexts: x.contexts,
+//         utterances: x.utterances[languageCode],
+//         slot_definitions: x.slots
+//       }))
+//     }
+//     const model = await e2.train(input)
+//     await trainLock.unlock()
+//     if (model.success) {
+//       await saveModel(ghost, model, hash)
+//       await distributedLoadModel(botId, hash, languageCode)
+//     }
+//   }
+// })
+
 const onServerStarted = getOnSeverStarted(state)
 
 const onServerReady = async (bp: typeof sdk) => {
@@ -41,12 +85,10 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   if (USE_E1) {
     return
   }
-
-  delete state.e2ByBot[botId]
-  state.watchersByBot[botId].remove()
-  delete state.watchersByBot[botId]
-  clearInterval(state.trainIntervalByBot[botId])
-  delete state.trainIntervalByBot[botId]
+  //  TODOD use state instead
+  // delete e2ByBot[botId]
+  // watchersByBot[botId].remove()
+  // delete watchersByBot[botId]
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {

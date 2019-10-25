@@ -3,10 +3,11 @@ import { AuthRole, AuthStrategyConfig } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { AppState } from '~/reducers'
+import PageContainer from '~/App/PageContainer'
+import SplitPage from '~/App/SplitPage'
 
 import { fetchRoles } from '../../../../reducers/roles'
 import { fetchAuthConfig, fetchUsers } from '../../../../reducers/user'
-import SectionLayout from '../../../Layouts/Section'
 import CreateUserModal from '../CreateUserModal'
 import ShowInfoModal from '../ShowInfoModal'
 import UserList from '../UserList'
@@ -64,37 +65,38 @@ const List: FC<Props> = props => {
   }
 
   return (
-    <SectionLayout
-      title="Collaborators"
-      helpText="Create, delete users or update their role."
-      mainContent={<UserList onPasswordReset={onPasswordReset} onUserUpdated={reloadUsers} />}
-      sideMenu={
-        <div>
-          <Button
-            id="btn-create"
-            style={{ width: 160 }}
-            text="Add collaborator"
-            icon="add"
-            onClick={() => setCreateModalOpen(true)}
-          />
+    <PageContainer title="Collaborators" helpText="Create, delete users or update their role.">
+      <SplitPage
+        sideMenu={
+          <div>
+            <Button
+              id="btn-create"
+              style={{ width: 160 }}
+              text="Add collaborator"
+              icon="add"
+              onClick={() => setCreateModalOpen(true)}
+            />
 
-          <CreateUserModal
-            isOpen={createModalOpen}
-            toggleOpen={() => setCreateModalOpen(!createModalOpen)}
-            onUserCreated={onUserCreated}
-            onUserAdded={onUserAdded}
-          />
+            <CreateUserModal
+              isOpen={createModalOpen}
+              toggleOpen={() => setCreateModalOpen(!createModalOpen)}
+              onUserCreated={onUserCreated}
+              onUserAdded={onUserAdded}
+            />
 
-          <ShowInfoModal
-            isOpen={infoModalOpen}
-            toggle={() => setInfoModalOpen(!infoModalOpen)}
-            messageId={messageId}
-            email={email}
-            password={password}
-          />
-        </div>
-      }
-    />
+            <ShowInfoModal
+              isOpen={infoModalOpen}
+              toggle={() => setInfoModalOpen(!infoModalOpen)}
+              messageId={messageId}
+              email={email}
+              password={password}
+            />
+          </div>
+        }
+      >
+        <UserList onPasswordReset={onPasswordReset} onUserUpdated={reloadUsers} />
+      </SplitPage>
+    </PageContainer>
   )
 }
 

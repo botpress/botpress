@@ -20,7 +20,7 @@ export default class Engine2 {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string) {}
+  constructor(private defaultLanguage: string, private logger: sdk.Logger) {}
 
   static provideTools(tools: Tools) {
     Engine2.tools = tools
@@ -83,6 +83,7 @@ export default class Engine2 {
     // Model should be build here, Trainer should not have any idea of how this is stored
     const model = await Trainer(input, Engine2.tools, token)
     if (model.success) {
+      this.logger.info('Successfully finished training')
       await this.loadModel(model)
     }
     return model
@@ -113,6 +114,7 @@ export default class Engine2 {
 
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
+    this.logger.info('Model loaded')
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {

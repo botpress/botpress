@@ -23,6 +23,7 @@ import { CMSService } from './services/cms'
 import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HookService } from './services/hook/hook-service'
+import { JobService } from './services/job-service'
 import { KeyValueStore } from './services/kvs'
 import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
@@ -221,6 +222,14 @@ const workspaces = (workspaceService: WorkspaceService): typeof sdk.workspaces =
   }
 }
 
+const distributed = (jobService: JobService): typeof sdk.distributed => {
+  return {
+    broadcast: jobService.broadcast.bind(jobService),
+    acquireLock: jobService.acquireLock.bind(jobService),
+    clearLock: jobService.clearLock.bind(jobService)
+  }
+}
+
 const experimental = (hookService: HookService): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
@@ -257,6 +266,7 @@ export class BotpressAPIProvider {
   experimental: typeof sdk.experimental
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
+  distributed: typeof sdk.distributed
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -277,7 +287,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.HookService) hookService: HookService,
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
-    @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService
+    @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
+    @inject(TYPES.JobService) jobService: JobService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -295,6 +306,7 @@ export class BotpressAPIProvider {
     this.experimental = experimental(hookService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
+    this.distributed = distributed(jobService)
   }
 
   @Memoize()
@@ -325,7 +337,8 @@ export class BotpressAPIProvider {
       cms: this.cms,
       security: this.security,
       experimental: this.experimental,
-      workspaces: this.workspaces
+      workspaces: this.workspaces,
+      distributed: this.distributed
     }
   }
 }

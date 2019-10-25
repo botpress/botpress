@@ -40,7 +40,7 @@ const BotItemCompact: FC<Props> = ({ bot, deleteBot, exportBot, createRevision, 
             icon="cog"
             minimal={true}
             className="configBtn"
-            onClick={() => history.push(`/bot/${bot.id}/details`)}
+            onClick={() => history.push(`bots/${bot.id}`)}
           />
         </AccessControl>
 
