@@ -11,7 +11,7 @@ import { NLUState } from '../index'
 
 const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 
-export function registerOnBotMount(state: NLUState) {
+export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
     const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
     const bot = await bp.bots.getBotById(botId)
@@ -45,23 +45,31 @@ export function registerOnBotMount(state: NLUState) {
       return
     }
 
-    const e2 = new Engine2(bot.defaultLanguage)
+    const e2 = new Engine2(bot.defaultLanguage, bp.logger.forBot(botId))
     const ghost = bp.ghost.forBot(botId)
 
     const trainOrLoad = _.debounce(
       async () => {
-        const intents = await scoped.storage.getIntents() // todo replace this with intent service when implemented
-        const entities = await scoped.storage.getCustomEntities() // TODO: replace this wit entities service once implemented
-        const hash = ModelService.computeModelHash(intents, entities)
+        const intentDefs = await scoped.storage.getIntents() // todo replace this with intent service when implemented
+        const entityDefs = await scoped.storage.getCustomEntities() // TODO: replace this wit entities service once implemented
+        const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         await Promise.mapSeries(languages, async languageCode => {
           const model = await ModelService.getModel(ghost, hash, languageCode)
           if (model) {
             await e2.loadModel(model)
           } else {
-            const model = await e2.train(intents, entities, languageCode)
+            const trainLock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('5m'))
+            if (!trainLock) {
+              return
+            }
+
+            const model = await e2.train(intentDefs, entityDefs, languageCode)
+            await trainLock.unlock()
+
             if (model.success) {
               await ModelService.saveModel(ghost, model, hash)
+              await state.broadcastLoadModel(botId, hash, languageCode)
             }
           }
         })
@@ -70,21 +78,7 @@ export function registerOnBotMount(state: NLUState) {
       { leading: true }
     )
 
-    if (moduleBotConfig.preloadModels) {
-      trainOrLoad() // floating promise on purpose
-    }
-
     state.e2ByBot[botId] = e2
-    state.trainIntervalByBot[botId] = setInterval(
-      async () => await trainOrLoad(),
-      ms(_.get(moduleBotConfig, 'autoTrainInterval', '5000'))
-    )
-    // idealy we would register load on cache invalidated
-    // but cache is not exposed in sdk yet
-    // onCacheInvalidated  => filename
-    //    if filename includes model
-    //    load model if not already loaded
-
     // register trainOrLoad with ghost file watcher
     // we use local events so training occures on the same node where the request for changes enters
     state.watchersByBot[botId] = bp.ghost.forBot(botId).onFileChanged(async f => {
@@ -92,5 +86,6 @@ export function registerOnBotMount(state: NLUState) {
         await trainOrLoad()
       }
     })
+    trainOrLoad() // floating promise on purpose
   }
 }

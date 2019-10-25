@@ -121,8 +121,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
   }
 }
 
-// TODO use Shared NLUState once implemented
-export function registerOnServerStarted(state: NLUState) {
+export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
     await initDucklingExtractor(bp)

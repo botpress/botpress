@@ -146,6 +146,9 @@ export default class Engine2 {
       sentence,
       includedContexts
     }
+
+    // TODO throw error if no model was loaded
+
     return Predict(input, Engine2.tools, this.modelsByLang, this.predictorsByLang)
   }
 }
