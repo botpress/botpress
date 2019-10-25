@@ -1,15 +1,21 @@
-import { Colors, ControlGroup, Icon } from '@blueprintjs/core'
+import { Colors, ControlGroup, Icon, Intent, Tag } from '@blueprintjs/core'
 import cx from 'classnames'
-import React, { FC, Fragment } from 'react'
+import _ from 'lodash'
+import React, { FC, Fragment, useEffect } from 'react'
 import { MdAndroid, MdCopyright } from 'react-icons/md'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import { matchPath } from 'react-router-dom'
 import { getActiveWorkspace } from '~/Auth'
 
+import { fetchCurrentVersion, fetchLatestVersions, VersionState } from '../reducers/versions'
+
 import AccessControl from './AccessControl'
 
-type MenuProps = { licensing: any } & RouteComponentProps
+type MenuProps = { licensing: any; version: VersionState } & {
+  fetchCurrentVersion: Function
+  fetchLatestVersions: Function
+} & RouteComponentProps
 
 interface MenuItemProps {
   text: string
@@ -20,10 +26,16 @@ interface MenuItemProps {
   superAdmin?: boolean
   resource?: string
   operation?: 'read' | 'write'
+  tag?: JSX.Element | undefined
 }
 
 const Menu: FC<MenuProps> = props => {
-  const MenuItem = ({ text, icon, url, id, isPro, operation, resource, superAdmin }: MenuItemProps) => {
+  useEffect(() => {
+    props.fetchCurrentVersion()
+    props.fetchLatestVersions()
+  }, [])
+
+  const MenuItem = ({ text, icon, url, id, isPro, operation, resource, superAdmin, tag }: MenuItemProps) => {
     const active = matchPath(props.location.pathname, { path: url })
     const workspaceId = getActiveWorkspace()
 
@@ -40,9 +52,22 @@ const Menu: FC<MenuProps> = props => {
         >
           <Icon icon={icon} />
           <span className="label">{text}</span>
+          {tag && <span style={{ float: 'right' }}>{tag}</span>}
         </div>
       </AccessControl>
     )
+  }
+
+  const renderLatestReleaseTag = () => {
+    const current = props.version.currentVersion
+    const latest = _.get(props, 'version.latestReleases.0.version', current)
+    if (latest !== current) {
+      return (
+        <Tag minimal intent={Intent.SUCCESS}>
+          new
+        </Tag>
+      )
+    }
   }
 
   return (
@@ -104,17 +129,24 @@ const Menu: FC<MenuProps> = props => {
 
       <div className="bp-sa-menu-header">Announcements</div>
       <ControlGroup vertical={true} fill={true}>
-        <MenuItem text="Latest Releases" id="btn-menu-releases" icon="feed" url="/latestReleases" />
+        <MenuItem
+          text="Latest Releases"
+          id="btn-menu-releases"
+          icon="feed"
+          url="/latestReleases"
+          tag={renderLatestReleaseTag()}
+        />
       </ControlGroup>
     </div>
   )
 }
 
-const mapStateToProps = state => ({ licensing: state.license.licensing })
+const mapStateToProps = state => ({ licensing: state.license.licensing, version: state.version })
+const mapDispatchToProps = { fetchCurrentVersion, fetchLatestVersions }
 
 export default withRouter(
   connect(
     mapStateToProps,
-    undefined
+    mapDispatchToProps
   )(Menu)
 )
