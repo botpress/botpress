@@ -15,6 +15,7 @@ import { Container } from '~/components/Shared/Interface'
 import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
+import { isInputFocused } from '~/keyboardShortcuts'
 import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
@@ -196,6 +197,13 @@ class FlowBuilder extends Component<Props, State> {
       save: e => {
         e.preventDefault()
         toastInfo('Pssst! Flows now save automatically, no need to save anymore.', Timeout.LONG)
+      },
+      delete: e => {
+        if (!isInputFocused()) {
+          e.preventDefault()
+        }
+
+        this.diagram.deleteSelectedElements()
       },
       cancel: e => {
         e.preventDefault()

@@ -7,6 +7,7 @@ export const keyMap = {
   undo: `${controlKey}+z`,
   find: `${controlKey}+f`,
   redo: `${controlKey}+shift+z`,
+  delete: ['backspace', 'del'],
   'emulator-focus': ['e', `${controlKey}+e`],
   'docs-toggle': `${controlKey}+h`,
   'lang-switcher': `${controlKey}+l`,
