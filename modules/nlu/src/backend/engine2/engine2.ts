@@ -1,4 +1,4 @@
-import { MLToolkit, NLU } from 'botpress/sdk'
+import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import jaroDistance from '../tools/jaro'
@@ -20,7 +20,7 @@ export default class Engine2 {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private logger: sdk.Logger) {}
+  constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
 
   static provideTools(tools: Tools) {
     Engine2.tools = tools
@@ -31,6 +31,7 @@ export default class Engine2 {
     entityDefs: NLU.EntityDefinition[],
     languageCode: string
   ): Promise<Model> {
+    this.logger.info(`Started ${languageCode} training for bot ${this.botId}`)
     const token: CancellationToken = {
       cancel: async () => {},
       uid: '',
@@ -72,18 +73,21 @@ export default class Engine2 {
       list_entities,
       pattern_entities,
       contexts,
-      intents: intentDefs.map(x => ({
-        name: x.name,
-        contexts: x.contexts,
-        utterances: x.utterances[languageCode],
-        slot_definitions: x.slots
-      }))
+      intents: intentDefs
+        .filter(x => !!x.utterances[languageCode])
+        .map(x => ({
+          name: x.name,
+          contexts: x.contexts,
+          utterances: x.utterances[languageCode],
+          slot_definitions: x.slots
+        }))
     }
 
     // Model should be build here, Trainer should not have any idea of how this is stored
+    // Error handling should be done here
     const model = await Trainer(input, Engine2.tools, token)
     if (model.success) {
-      this.logger.info('Successfully finished training')
+      this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
       await this.loadModel(model)
     }
     return model

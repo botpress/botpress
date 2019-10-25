@@ -249,19 +249,28 @@ export async function buildUtterances(raw_utterances: string[], language: string
   const vectors = await tools.vectorize_tokens(uniqTokens, language)
   const vectorMap = _.zipObject(uniqTokens, vectors)
 
-  return _.zip(tokens, parsed).map(([tokUtt, { utterance: utt, parsedSlots }]) => {
-    const vectors = tokUtt.map(t => vectorMap[t])
-    const utterance = new Utterance(tokUtt, vectors)
+  return _.zip(tokens, parsed)
+    .map(([tokUtt, { utterance: utt, parsedSlots }]) => {
+      if (tokUtt.length === 0) {
+        return
+      }
+      const vectors = tokUtt.map(t => vectorMap[t])
+      const utterance = new Utterance(tokUtt, vectors)
 
-    // TODO: temporary work-around
-    // covers a corner case where tokenization returns tokens that are not identical to `parsed` utterance
-    // the corner case is when there's a trailing space inside a slot at the end of the utterance, e.g. `my name is [Sylvain ](any)`
-    if (utterance.toString().length === utt.length) {
-      parsedSlots.forEach(s => {
-        utterance.tagSlot({ name: s.name, source: s.value, confidence: 1 }, s.cleanPosition.start, s.cleanPosition.end)
-      })
-    } // else we skip the slot
+      // TODO: temporary work-around
+      // covers a corner case where tokenization returns tokens that are not identical to `parsed` utterance
+      // the corner case is when there's a trailing space inside a slot at the end of the utterance, e.g. `my name is [Sylvain ](any)`
+      if (utterance.toString().length === utt.length) {
+        parsedSlots.forEach(s => {
+          utterance.tagSlot(
+            { name: s.name, source: s.value, confidence: 1 },
+            s.cleanPosition.start,
+            s.cleanPosition.end
+          )
+        })
+      } // else we skip the slot
 
-    return utterance
-  })
+      return utterance
+    })
+    .filter(Boolean)
 }

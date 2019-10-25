@@ -45,7 +45,7 @@ export function getOnBotMount(state: NLUState) {
       return
     }
 
-    const e2 = new Engine2(bot.defaultLanguage, bp.logger.forBot(botId))
+    const e2 = new Engine2(bot.defaultLanguage, bot.id, bp.logger.forBot(botId))
     const ghost = bp.ghost.forBot(botId)
 
     const trainOrLoad = _.debounce(
@@ -83,9 +83,11 @@ export function getOnBotMount(state: NLUState) {
     // we use local events so training occures on the same node where the request for changes enters
     state.watchersByBot[botId] = bp.ghost.forBot(botId).onFileChanged(async f => {
       if (f.includes('intents') || f.includes('entities')) {
+        console.log('dude really')
         await trainOrLoad()
       }
     })
+    console.log('training or loading here')
     trainOrLoad() // floating promise on purpose
   }
 }

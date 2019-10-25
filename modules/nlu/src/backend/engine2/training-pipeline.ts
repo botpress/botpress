@@ -285,7 +285,7 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   const joinChar = vocabulary.filter(x => x.startsWith(SPACE)).length >= vocabulary.length * 0.5 ? SPACE : ''
 
   const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = _.random(avgTokens / 2, avgTokens * 2, false)
+    const nbWords = Math.round(_.random(avgTokens / 2, avgTokens * 2, false))
     return _.sampleSize(junkWords, nbWords).join(joinChar)
   })
 
