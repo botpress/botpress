@@ -114,7 +114,6 @@ export default class Engine2 {
 
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
-    this.logger.info('Model loaded')
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
