@@ -5,6 +5,7 @@ import CopyToClipboard from 'react-copy-to-clipboard'
 import { connect } from 'react-redux'
 import api from '~/api'
 import { toastInfo } from '~/utils/toaster'
+import PageContainer from '~/App/PageContainer'
 import { pullToken } from '~/Auth'
 
 import DownloadArchive from './DownloadArchive'
@@ -36,7 +37,7 @@ const Versioning: FC<{ profile: any }> = props => {
   const toastCopiedClipboard = () => toastInfo('Copied to clipboard')
 
   return (
-    <div>
+    <PageContainer title="Source Control" superAdmin={true}>
       <Callout title="Pull remote to file system">
         <p>Use this command to copy the remote data on your local file system.</p>
         <Tooltip content="Click to copy to clipboard" position={Position.RIGHT}>
@@ -83,7 +84,7 @@ const Versioning: FC<{ profile: any }> = props => {
           {isSuperAdmin && <UploadArchive />}
         </Callout>
       )}
-    </div>
+    </PageContainer>
   )
 }
 

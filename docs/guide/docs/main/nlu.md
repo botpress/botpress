@@ -351,15 +351,9 @@ The language server provides additional informations about words, which allows y
 
 Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
 
-If for some reason you want to use an external provider, you can do so by using [Hooks](../code#hooks) and calling the external NLU provider via API.
+If for some reason you want to use an external provider, you can do so by using [Hooks](../code#hooks) and calling the external NLU provider via API. There's a detailed example [here](../../tutorials/3rd-party-NLU)
 
-> **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support [see why](https://github.com/botpress/botpress/pull/1170) for two-way synchronization as there were too many issues in doing (and maintaining) that.
-
-### Example
-
-You can enable **Recast AI** by removing the `.` prefix to the `hooks/before_incoming_middleware/.05_recast_nlu.js` file.
-
-> Feel free to contribute to Botpress to add new external NLU providers
+> **Note**: We have dropped support [(see why)](https://github.com/botpress/botpress/pull/1170) for two-way synchronization as there were too many issues in doing (and maintaining) that. You'll have to maintain this yourself if you go this way. We're open to contributions for both implementation and maintenance of 3rd party NLU integrations.
 
 ##### Features by Providers
 

@@ -1,4 +1,4 @@
-import { clickOn } from '../expectPuppeteer'
+import { clickOn, fillField } from '../expectPuppeteer'
 import { autoAnswerDialog, clickOnTreeNode, expectBotApiCallSuccess, gotoStudio } from '../utils'
 
 describe('Studio - Flows', () => {
@@ -13,33 +13,36 @@ describe('Studio - Flows', () => {
   })
 
   it('Create new flow', async () => {
-    autoAnswerDialog('test_flow')
     await clickOn('#btn-add-flow')
-    await expectBotApiCallSuccess('flow')
+    await fillField('#input-flow-name', 'test_flow')
+
+    await Promise.all([expectBotApiCallSuccess('flow'), clickOn('#btn-submit')])
   })
 
   it('Rename flow', async () => {
-    autoAnswerDialog('test_flow_renamed')
     await clickOnTreeNode('test_flow', 'right')
     await clickOn('#btn-rename')
+    await fillField('#input-flow-name', 'test_flow_renamed')
 
-    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'POST')
+    await Promise.all([expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'POST'), clickOn('#btn-submit')])
   })
 
   it('Delete flow', async () => {
     autoAnswerDialog()
     await clickOnTreeNode('test_flow_renamed', 'right')
-    await clickOn('#btn-delete')
 
-    await expectBotApiCallSuccess('flow/test_flow_renamed.flow.json/delete', 'POST')
+    await Promise.all([
+      expectBotApiCallSuccess('flow/test_flow_renamed.flow.json/delete', 'POST'),
+      clickOn('#btn-delete')
+    ])
   })
 
   it('Duplicate flow', async () => {
-    autoAnswerDialog('new_duplicated_flow')
     await clickOnTreeNode('memory', 'right')
     await clickOn('#btn-duplicate')
+    await fillField('#input-flow-name', 'new_duplicated_flow')
 
-    await expectBotApiCallSuccess('flow', 'POST')
+    await Promise.all([expectBotApiCallSuccess('flow', 'POST'), clickOn('#btn-submit')])
     await page.waitFor(3000)
   })
 

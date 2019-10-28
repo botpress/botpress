@@ -86,7 +86,10 @@ async function start() {
 Please make sure that Botpress has the right to access this folder or change the folder path by providing the 'APP_DATA_PATH' env variable.
 This is a fatal error, process will exit.`
       )
-      process.exit(1)
+
+      if (!process.IS_FAILSAFE) {
+        process.exit(1)
+      }
     }
   }
 
@@ -123,19 +126,19 @@ This is a fatal error, process will exit.`
   logger.info(`Using ${chalk.bold(modules.length.toString())} modules` + modulesLog)
 
   for (const err of loadingErrors) {
-    logger.attachError(err).error('Error starting Botpress')
-  }
-
-  if (loadingErrors.length) {
-    process.exit(1)
+    logger.attachError(err).error('Error while loading some modules, they will be disabled')
   }
 
   await Botpress.start({ modules }).catch(err => {
     logger.attachError(err).error('Error starting Botpress')
-    process.exit(1)
+
+    if (!process.IS_FAILSAFE) {
+      process.exit(1)
+    }
   })
 
-  logger.info(`Botpress is ready at http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`)
+  logger.info(`Botpress is listening at: ${process.LOCAL_URL}`)
+  logger.info(`Botpress is exposed at: ${process.EXTERNAL_URL}`)
 }
 
 start().catch(global.printErrorDefault)

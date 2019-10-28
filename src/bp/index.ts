@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { boolean } from 'joi'
+import nanoid from 'nanoid/generate'
 
 const yn = require('yn')
 const path = require('path')
@@ -43,6 +43,7 @@ if (process.env.APP_DATA_PATH) {
   process.APP_DATA_PATH = getAppDataPath()
 }
 
+process.IS_FAILSAFE = yn(process.env.BP_FAILSAFE)
 process.BOTPRESS_EVENTS = new EventEmitter()
 process.BOTPRESS_EVENTS.setMaxListeners(1000)
 
@@ -59,7 +60,9 @@ process.on('unhandledRejection', err => {
 
 process.on('uncaughtException', err => {
   global.printErrorDefault(err)
-  process.exit(1)
+  if (!process.IS_FAILSAFE) {
+    process.exit(1)
+  }
 })
 
 try {
@@ -100,6 +103,7 @@ try {
         process.IS_LICENSED = true
         process.ASSERT_LICENSED = () => {}
         process.BOTPRESS_VERSION = metadataContent.version
+        process.SERVER_ID = nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
 
         process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
         const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
@@ -288,7 +292,7 @@ try {
         },
         metadataLocation: {
           description: 'URL of metadata file which lists available languages',
-          default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
+          default: 'https://nyc3.digitaloceanspaces.com/botpress-public/embeddings/index.json'
         },
         offline: {
           description: 'Whether or not the language server has internet access',

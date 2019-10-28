@@ -1,4 +1,4 @@
-import { BotDetails, Flow, FlowNode } from 'botpress/sdk'
+import { BotDetails, Flow, FlowNode, RolloutStrategy } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -25,26 +25,38 @@ export interface CreatedUser {
 export interface WorkspaceUser {
   email: string
   strategy: string
-  workspace: string
   role: string
+  workspace: string
+  workspaceName?: string
 }
+
+export type WorkspaceUserInfo = {
+  attributes: any
+} & WorkspaceUser
 
 export interface AuthStrategyConfig {
   strategyType: string
   strategyId: string
   loginUrl?: string
   registerUrl?: string
+  label?: string
 }
 
 export interface Workspace {
   id: string
   name: string
+  description?: string
+  audience: 'internal' | 'external'
   roles: AuthRole[]
   defaultRole: string
   adminRole: string
   bots: string[]
   pipeline: Pipeline
-  authStrategy?: string
+  rolloutStrategy: RolloutStrategy
+}
+
+export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience'> & {
+  pipelineId: string
 }
 
 export interface AuthRule {
@@ -97,6 +109,18 @@ export interface Stage {
   action: StageAction
 }
 
+export interface UserProfile {
+  email: string
+  isSuperAdmin?: boolean
+  strategyType: string
+  strategy: string
+  firstname?: string
+  lastname?: string
+  picture_url?: string
+  fullName: string
+  permissions: AuthRule[] | undefined
+}
+
 export interface FlowMutex {
   lastModifiedBy: string
   lastModifiedAt: Date
@@ -121,3 +145,25 @@ export interface FlowPoint {
 }
 
 export type NodeView = FlowNode & FlowPoint
+
+export interface ServerConfig {
+  config: BotpressConfig
+  env: { [keyName: string]: string }
+  live: { [keyName: string]: string }
+}
+
+export interface ChatUserAuth {
+  sessionId: string
+  botId: string
+  signature: string
+}
+
+export interface AuthPayload {
+  /** User is considered authenticated until that date (duration is determined per channel) */
+  authenticatedUntil?: Date
+  /** An authorized user has an acces (any) to the workspace the bot is part of */
+  isAuthorized?: boolean
+  /** User must provide a valid invite code before he's added to the workspace & authorized */
+  inviteRequired?: boolean
+  identity?: TokenUser
+}

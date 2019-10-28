@@ -2,7 +2,7 @@ import differenceInMinutes from 'date-fns/difference_in_minutes'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
-
+import { Message } from '../../typings'
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
 import Avatar from '../common/Avatar'
@@ -78,7 +78,7 @@ class MessageList extends React.Component<MessageListProps> {
   }
 
   renderMessageGroups() {
-    const messages = this.props.currentMessages || []
+    const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMesage(m))
     const groups = []
 
     let lastSpeaker = undefined
@@ -149,6 +149,10 @@ class MessageList extends React.Component<MessageListProps> {
         })}
       </div>
     )
+  }
+
+  shouldDisplayMesage = (m: Message): boolean => {
+    return m.message_type !== 'postback'
   }
 
   render() {

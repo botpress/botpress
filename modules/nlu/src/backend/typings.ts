@@ -124,12 +124,6 @@ export interface LanguageProvider {
   getHealth(): Partial<NLUHealth>
 }
 
-export interface FastTextOverrides {
-  learningRate?: number
-  epoch?: number
-  wordNgrams?: number
-}
-
 export interface LanguageSource {
   /** The endpoint URL of the source */
   endpoint: string

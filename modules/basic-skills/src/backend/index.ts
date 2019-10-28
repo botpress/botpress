@@ -7,8 +7,6 @@ import choice from './choice'
 import email from './email'
 import slot from './slot'
 
-const onServerStarted = async (bp: typeof sdk) => {}
-
 const onServerReady = async (bp: typeof sdk) => {
   await choice.setup(bp)
 }
@@ -21,27 +19,30 @@ const skillsToRegister: sdk.Skill[] = [
   {
     id: 'choice',
     name: 'Choice',
+    icon: 'numbered-list',
     flowGenerator: choice.generateFlow
   },
   {
     id: 'CallAPI',
     name: 'Call API',
+    icon: 'code-block',
     flowGenerator: apiCall.generateFlow
   },
   {
     id: 'Slot',
-    name: 'Slot',
+    name: 'Slot Filling',
+    icon: 'comparison',
     flowGenerator: slot.generateFlow
   },
   {
     id: 'SendEmail',
     name: 'Send Email',
+    icon: 'envelope',
     flowGenerator: email.generateFlow
   }
 ]
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerStarted,
   onServerReady,
   onModuleUnmount,
   definition: {

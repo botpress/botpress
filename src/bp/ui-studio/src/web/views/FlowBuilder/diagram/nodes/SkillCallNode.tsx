@@ -1,17 +1,20 @@
+import { Icon } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
+import { connect } from 'react-redux'
 import { AbstractNodeFactory } from 'storm-react-diagrams'
 
 import ActionItem from '../../common/action'
 import ConditionItem from '../../common/condition'
+import { SkillDefinition } from '../../sidePanel/FlowTools'
 
 import { BaseNodeModel } from './BaseNodeModel'
 import { StandardIncomingPortModel, StandardOutgoingPortModel, StandardPortWidget } from './Ports'
 
 const style = require('./style.scss')
 
-export class SkillCallNodeWidget extends React.Component<{ node: SkillCallNodeModel }> {
+class SkillCallNodeWidget extends React.Component<{ node: SkillCallNodeModel; skills: SkillDefinition[] }> {
   render() {
     const node = this.props.node
     const isWaiting = node.waitOnReceive
@@ -19,6 +22,9 @@ export class SkillCallNodeWidget extends React.Component<{ node: SkillCallNodeMo
     const className = classnames(style['skill-call-node'], style['node-container'], {
       [style.highlightedNode]: node.isHighlighted
     })
+
+    const definition = this.props.skills && this.props.skills.find(x => x.id === node.skill)
+    const icon: any = definition && definition.icon
 
     return (
       <div className={className}>
@@ -28,8 +34,13 @@ export class SkillCallNodeWidget extends React.Component<{ node: SkillCallNodeMo
         <div className={style.header} />
         <div className={style.content}>
           <div className={classnames(style['section-title'], style.section, { [style.waiting]: isWaiting })}>
-            <div>{node.skill}</div>
-            <div className={style['subtitle']}>Skill | {node.name}</div>
+            <div className={style.iconContainer}>
+              <Icon icon={icon} iconSize={20} />
+            </div>
+            <div>
+              <div>{node.skill}</div>
+              <div className={style['subtitle']}>Skill | {node.name}</div>
+            </div>
           </div>
           <div className={classnames(style['section-onReceive'], style.section)}>
             {node.onReceive &&
@@ -111,12 +122,15 @@ export class SkillCallNodeModel extends BaseNodeModel {
 }
 
 export class SkillCallWidgetFactory extends AbstractNodeFactory {
-  constructor() {
+  private skillsDefinitions: SkillDefinition[]
+
+  constructor(skills) {
     super('skill-call')
+    this.skillsDefinitions = skills
   }
 
   generateReactWidget(diagramEngine, node) {
-    return <SkillCallNodeWidget node={node} />
+    return <SkillCallNodeWidget node={node} skills={this.skillsDefinitions} />
   }
 
   getNewInstance() {

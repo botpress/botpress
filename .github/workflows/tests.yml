@@ -1,0 +1,146 @@
+name: Tests
+on: [push]
+jobs:
+  unit:
+    name: Unit
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - name: Build
+      run: |
+        cp -r build/tests/* .
+        docker-compose build
+    - name: Run tests
+      run: |
+        docker-compose up --exit-code-from botpress
+
+  e2e_1:
+    name: e2e (1)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.11.0'
+    - name: Fetch Node Packages
+      run: |
+        yarn --verbose
+    - name: Build core, UI and modules
+      run: |
+        NODE_OPTIONS="--max-old-space-size=6000" yarn build
+    - name: Run Tests
+      run: |
+        yarn start &
+        HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+    - name: Upload Screenshots
+      uses: actions/upload-artifact@master
+      if: failure()
+      with:
+        name: screenshots1
+        path: build/tests/e2e/screenshots
+
+  e2e_2:
+    name: e2e (2)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.11.0'
+    - name: Fetch Node Packages
+      run: |
+        yarn --verbose
+    - name: Build core, UI and modules
+      run: |
+        NODE_OPTIONS="--max-old-space-size=6000" yarn build
+    - name: Run Tests
+      run: |
+        yarn start &
+        HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+    - name: Upload Screenshots
+      uses: actions/upload-artifact@master
+      if: failure()
+      with:
+        name: screenshots2
+        path: build/tests/e2e/screenshots
+
+  e2e_3:
+    name: e2e (3)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.11.0'
+    - name: Fetch Node Packages
+      run: |
+        yarn --verbose
+    - name: Build core, UI and modules
+      run: |
+        NODE_OPTIONS="--max-old-space-size=6000" yarn build
+    - name: Run Tests
+      run: |
+        yarn start &
+        HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+    - name: Upload Screenshots
+      uses: actions/upload-artifact@master
+      if: failure()
+      with:
+        name: screenshots3
+        path: build/tests/e2e/screenshots
+
+  e2e_4:
+    name: e2e (4)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.11.0'
+    - name: Fetch Node Packages
+      run: |
+        yarn --verbose
+    - name: Build core, UI and modules
+      run: |
+        NODE_OPTIONS="--max-old-space-size=6000" yarn build
+    - name: Run Tests
+      run: |
+        yarn start &
+        HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+    - name: Upload Screenshots
+      uses: actions/upload-artifact@master
+      if: failure()
+      with:
+        name: screenshots4
+        path: build/tests/e2e/screenshots
+
+  e2e_5:
+    name: e2e (5)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.11.0'
+    - name: Fetch Node Packages
+      run: |
+        yarn --verbose
+    - name: Build core, UI and modules
+      run: |
+        NODE_OPTIONS="--max-old-space-size=6000" yarn build
+    - name: Run Tests
+      run: |
+        yarn start &
+        HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+    - name: Upload Screenshots
+      uses: actions/upload-artifact@master
+      if: failure()
+      with:
+        name: screenshots5
+        path: build/tests/e2e/screenshots

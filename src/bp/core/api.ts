@@ -23,11 +23,13 @@ import { CMSService } from './services/cms'
 import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HookService } from './services/hook/hook-service'
+import { JobService } from './services/job-service'
 import { KeyValueStore } from './services/kvs'
 import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
@@ -211,6 +213,23 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
   }
 }
 
+const workspaces = (workspaceService: WorkspaceService): typeof sdk.workspaces => {
+  return {
+    getBotWorkspaceId: workspaceService.getBotWorkspaceId.bind(workspaceService),
+    getWorkspaceRollout: workspaceService.getWorkspaceRollout.bind(workspaceService),
+    addUserToWorkspace: workspaceService.addUserToWorkspace.bind(workspaceService),
+    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService)
+  }
+}
+
+const distributed = (jobService: JobService): typeof sdk.distributed => {
+  return {
+    broadcast: jobService.broadcast.bind(jobService),
+    acquireLock: jobService.acquireLock.bind(jobService),
+    clearLock: jobService.clearLock.bind(jobService)
+  }
+}
+
 const experimental = (hookService: HookService): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
@@ -246,6 +265,8 @@ export class BotpressAPIProvider {
   mlToolkit: typeof sdk.MLToolkit
   experimental: typeof sdk.experimental
   security: typeof sdk.security
+  workspaces: typeof sdk.workspaces
+  distributed: typeof sdk.distributed
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -265,7 +286,9 @@ export class BotpressAPIProvider {
     @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.HookService) hookService: HookService,
-    @inject(TYPES.EventRepository) eventRepo: EventRepository
+    @inject(TYPES.EventRepository) eventRepo: EventRepository,
+    @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
+    @inject(TYPES.JobService) jobService: JobService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -282,6 +305,8 @@ export class BotpressAPIProvider {
     this.mlToolkit = MLToolkit
     this.experimental = experimental(hookService)
     this.security = security()
+    this.workspaces = workspaces(workspaceService)
+    this.distributed = distributed(jobService)
   }
 
   @Memoize()
@@ -311,7 +336,9 @@ export class BotpressAPIProvider {
       bots: this.bots,
       cms: this.cms,
       security: this.security,
-      experimental: this.experimental
+      experimental: this.experimental,
+      workspaces: this.workspaces,
+      distributed: this.distributed
     }
   }
 }

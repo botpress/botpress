@@ -17,7 +17,7 @@ const axios = require('axios')
  * @param {Number} [increment=1] The optional increment of the metric
  */
 const decrement = async (metric, group, increment = 1) => {
-  const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId)
+  const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
   await axios.post(
     '/mod/analytics/custom_metrics/decrement',
     { name: `${metric}~${group}`, count: increment },

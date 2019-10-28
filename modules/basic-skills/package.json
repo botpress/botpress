@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
-    "watch": "./node_modules/.bin/module-builder watch"
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
   },
   "author": "Botpress Team",
   "license": "AGPL-3.0-only",
@@ -36,6 +37,7 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.12",
+    "react-tag-input/react-dnd": "^5.0.0"
   }
 }

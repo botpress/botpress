@@ -23,8 +23,8 @@ import { ModuleResourceLoader } from './services/module/resources-loader'
 import { TYPES } from './types'
 
 const MODULE_SCHEMA = joi.object().keys({
-  onServerStarted: joi.func().required(),
-  onServerReady: joi.func().required(),
+  onServerStarted: joi.func().optional(),
+  onServerReady: joi.func().optional(),
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
   onModuleUnmount: joi.func().optional(),
@@ -273,11 +273,14 @@ export class ModuleLoader {
   public async getAllSkills(): Promise<Partial<Skill>[]> {
     const skills = Array.from(this.entryPoints.values())
       .filter(module => module.skills)
-      .map(module => {
-        return module.skills!.map(skill => {
-          return { id: skill.id, name: skill.name, moduleName: module.definition.name }
-        })
-      })
+      .map(module =>
+        module.skills!.map(skill => ({
+          id: skill.id,
+          name: skill.name,
+          icon: skill.icon,
+          moduleName: module.definition.name
+        }))
+      )
 
     return _.flatten(skills)
   }

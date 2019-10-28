@@ -1,0 +1,12 @@
+{
+  "composer.placeholder": "Ответить {name}",
+  "composer.send": "Отправить",
+  "header.conversations": "Разговоры",
+  "conversationList.untitledConversation": "Разговор без названия",
+  "botInfo.backToConversation": "Назад к разговору",
+  "botInfo.startConversation": "Начать разговор",
+  "botInfo.privacyPolicy": "Показать Политику конфиденцеальности",
+  "botInfo.termsAndConditions": "Показать Условия использования",
+  "botInfo.preferredLanguage": "Предпочитаемый язык",
+  "store.resetSessionMessage": "Начать разговор заново"
+}

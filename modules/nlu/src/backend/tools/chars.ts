@@ -26,3 +26,5 @@ abcdefghijklmnopqrstuvwxyz
 
 const latinRegex = new RegExp(`^(${LATIN_CHARSET.join('|')})+$`, 'i')
 export const IsLatin = (text: string): boolean => latinRegex.test(text)
+
+export const SPECIAL_CHARSET = '¿÷≥≤µ˜∫√≈æ…¬˚˙©"+-_!@#$%?&*()~`/\\[]{}:;<>='.split('').map(c => `\\${c}`)

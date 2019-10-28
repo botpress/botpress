@@ -105,11 +105,12 @@ class ImportBotModal extends Component<Props, State> {
   render() {
     return (
       <Dialog
-        isOpen={this.props.isOpen}
+        title="Import bot from archive"
         icon="import"
+        isOpen={this.props.isOpen}
         onClose={this.toggleDialog}
         transitionDuration={0}
-        title="Import bot from archive"
+        canOutsideClickClose={false}
       >
         <form
           ref={form => (this._form = form)}

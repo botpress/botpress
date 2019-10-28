@@ -1,24 +1,35 @@
 import { Intent, Position, Toaster } from '@blueprintjs/core'
 import _ from 'lodash'
-import React from 'react'
 
-export const toastSuccess = message =>
+export enum Timeout {
+  SHORT = 1000,
+  MEDIUM = 3000,
+  LONG = 5000
+}
+
+export const toastSuccess = (
+  message: string,
+  timeout: Timeout = Timeout.SHORT,
+  onDismiss?: (didTimeoutExpire: boolean) => void
+) => toast(message, Intent.SUCCESS, timeout, onDismiss)
+
+export const toastFailure = (
+  message: string,
+  timeout: Timeout = Timeout.MEDIUM,
+  onDismiss?: (didTimeoutExpire: boolean) => void
+) => toast(message, Intent.DANGER, timeout, onDismiss)
+
+export const toastInfo = (
+  message: string,
+  timeout: Timeout = Timeout.MEDIUM,
+  onDismiss?: (didTimeoutExpire: boolean) => void
+) => toast(message, Intent.PRIMARY, timeout, onDismiss)
+
+const toast = (message, intent, timeout, onDismiss) => {
   Toaster.create({ className: 'recipe-toaster', position: Position.TOP_RIGHT }).show({
     message,
-    intent: Intent.SUCCESS,
-    timeout: 1000
+    intent,
+    timeout,
+    onDismiss
   })
-
-export const toastFailure = message =>
-  Toaster.create({ className: 'recipe-toaster', position: Position.TOP_RIGHT }).show({
-    message,
-    intent: Intent.DANGER,
-    timeout: 3000
-  })
-
-export const toastInfo = message =>
-  Toaster.create({ className: 'recipe-toaster', position: Position.TOP_RIGHT }).show({
-    message,
-    intent: Intent.PRIMARY,
-    timeout: 1000
-  })
+}

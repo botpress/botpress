@@ -1,5 +1,3 @@
-import { SPACE } from './token-utils'
-
 const ESCAPED_CHARS = /[.+?^${}()|[\]\\]/g
 const WILDCARD = /\*/g
 
@@ -8,18 +6,27 @@ interface ExtractedPattern {
   sourceIndex: number
 }
 
-export const escapeRegex = (pattern: string): string => {
+export function isPatternValid(pattern: string): boolean {
+  try {
+    new RegExp(pattern)
+    return pattern !== ''
+  } catch (e) {
+    return false
+  }
+}
+
+export function escapeRegex(pattern: string): string {
   return pattern.replace(ESCAPED_CHARS, '\\$&').replace(WILDCARD, '.+?')
 }
 
 // Padding is necessary due to the recursive nature of this function.
 // Every found pattern is removed from the candidate, therefor the length of the extracted value (padding) is needed to compute sourceIndex of future extractions
-export const extractPattern = (
+export function extractPattern(
   candidate: string,
   pattern: RegExp,
   extracted: ExtractedPattern[] = [],
   padding = 0
-): ExtractedPattern[] => {
+): ExtractedPattern[] {
   const res = pattern.exec(candidate)
   if (!res) return extracted
 

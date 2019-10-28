@@ -20,4 +20,10 @@ export interface Config {
    * The tenant ID (if supported account type is a specific organization)
    */
   tenantId?: string
+
+  /**
+   * The duration of the authentication session when a user authenticate through this channel.
+   * @default 24h
+   */
+  chatUserAuthDuration: string
 }

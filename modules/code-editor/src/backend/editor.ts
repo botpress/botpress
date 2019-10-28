@@ -372,7 +372,7 @@ export default class Editor {
       ..._.pickBy(process.env, (_value, name) => name.startsWith('EXPOSED_')),
       ..._.pick(process.env, 'TZ', 'LANG', 'LC_ALL', 'LC_CTYPE')
     }
-    const root = this._extractInfo(_.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'))
+    const root = this._extractInfo(_.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY', 'ROOT_PATH'))
     const exposed = this._extractInfo(exposedEnv)
 
     return `

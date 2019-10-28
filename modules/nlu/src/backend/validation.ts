@@ -1,7 +1,5 @@
 import Joi from 'joi'
 
-import { ID_REGEX } from './../util'
-
 export const SlotsCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
   // @deprecated >11
@@ -33,7 +31,7 @@ const EntityDefOccurenceSchema = Joi.object().keys({
 
 export const EntityDefCreateSchema = Joi.object().keys({
   id: Joi.string()
-    .regex(ID_REGEX, { invert: true })
+    .regex(/\t\s/gi, { invert: true })
     .required(),
   name: Joi.string().required(),
   type: Joi.string()

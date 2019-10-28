@@ -1,0 +1,18 @@
+.inspector {
+  background-color: #fcfcfc;
+  padding: 5px;
+
+  h4 {
+    padding-top: 10px;
+    padding-left: 10px;
+  }
+
+  :global(ul[role='tablist'].nav > li > a) {
+    padding: 11px 8px;
+    font-size: 12px;
+  }
+
+  :global(.tab-content) {
+    padding: 10px 10px;
+  }
+}

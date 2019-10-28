@@ -1,6 +1,7 @@
 import { Callout } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
+import PageContainer from '~/App/PageContainer'
 
 import api from '../../../api'
 
@@ -34,22 +35,25 @@ export default () => {
       await fetchLangServerInfo(source, setLangServerInfo)
     }
 
+    // tslint:disable-next-line: no-floating-promises
     init()
   }, [])
 
-  if (langSource && langServerInfo) {
-    return (
-      <div className="languages-grid">
-        <div>
-          {langServerInfo.readOnly && (
-            <Callout intent="warning">Languages cannot be edited as Language Server is read only</Callout>
-          )}
-          <LanguageManagement languageSource={langSource} readOnly={langServerInfo.readOnly} />
+  return (
+    <PageContainer title="Language Management" superAdmin={true}>
+      {langSource && langServerInfo ? (
+        <div className="languages-grid">
+          <div>
+            {langServerInfo.readOnly && (
+              <Callout intent="warning">Languages cannot be edited as Language Server is read only</Callout>
+            )}
+            <LanguageManagement languageSource={langSource} readOnly={langServerInfo.readOnly} />
+          </div>
+          <LangServer source={langSource} langServer={langServerInfo} />
         </div>
-        <LangServer source={langSource} langServer={langServerInfo} />
-      </div>
-    )
-  } else {
-    return <div>loading...</div>
-  }
+      ) : (
+        <div>loading...</div>
+      )}
+    </PageContainer>
+  )
 }

@@ -1,32 +1,28 @@
-import { Logger } from 'botpress/sdk'
-import { defaultAdminRole, defaultRoles, defaultUserRole } from 'common/default-roles'
-import { AuthRole, Pipeline, Workspace } from 'common/typings'
+import { AddWorkspaceUserOptions, Logger, RolloutStrategy, WorkspaceRollout } from 'botpress/sdk'
+import { CHAT_USER_ROLE, defaultPipelines, defaultWorkspace } from 'common/defaults'
+import { AuthRole, CreateWorkspace, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
+import { WorkspaceInviteCode, WorkspaceInviteCodesRepository } from 'core/repositories'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
-import { WorkspaceUser, WorkspaceUsersRepository, WorkspaceUserAttributes } from 'core/repositories/workspace_users'
+import { WorkspaceUserAttributes, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
+import { BadRequestError, ConflictError, NotFoundError } from 'core/routers/errors'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import nanoid from 'nanoid/generate'
 
 import { TYPES } from '../types'
 
+import { InvalidOperationError } from './auth/errors'
 import { GhostService } from './ghost/service'
 
-const DEFAULT_PIPELINE: Pipeline = [
-  {
-    id: 'prod',
-    label: 'Production',
-    action: 'promote_copy'
-  }
+export const ROLLOUT_STRATEGIES: RolloutStrategy[] = [
+  'anonymous',
+  'anonymous-invite',
+  'authenticated',
+  'authenticated-invite',
+  'authorized'
 ]
 
-const DEFAULT_WORKSPACE: Workspace = {
-  id: 'default',
-  name: 'Default',
-  bots: [],
-  roles: defaultRoles,
-  defaultRole: defaultUserRole,
-  adminRole: defaultAdminRole,
-  pipeline: [...DEFAULT_PIPELINE]
-}
+const UNLIMITED = -1
 
 @injectable()
 export class WorkspaceService {
@@ -36,12 +32,13 @@ export class WorkspaceService {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository,
-    @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository
+    @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository,
+    @inject(TYPES.WorkspaceInviteCodesRepository) private inviteCodesRepo: WorkspaceInviteCodesRepository
   ) {}
 
   async initialize(): Promise<void> {
     await this.getWorkspaces().catch(async () => {
-      await this.save([{ ...DEFAULT_WORKSPACE }])
+      await this.save([defaultWorkspace])
       this.logger.info('Created workspace')
     })
   }
@@ -57,6 +54,15 @@ export class WorkspaceService {
 
   async save(workspaces: Workspace[]): Promise<void> {
     return this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
+  }
+
+  async mergeWorkspaceConfig(workspaceId: string, partialData: Partial<Workspace>) {
+    const workspaces = await this.getWorkspaces()
+    if (!workspaces.find(x => x.id === workspaceId)) {
+      throw new NotFoundError(`Workspace doesn't exist`)
+    }
+
+    return this.save(workspaces.map(wks => (wks.id === workspaceId ? { ...wks, ...partialData } : wks)))
   }
 
   async addBotRef(botId: string, workspaceId: string): Promise<void> {
@@ -97,43 +103,119 @@ export class WorkspaceService {
     }
   }
 
-  async findWorkspace(workspaceId: string): Promise<Workspace | undefined> {
-    const all = await this.getWorkspaces()
-    return all.find(x => x.id === workspaceId)
-  }
-
-  async createWorkspace(workspaceId: string, workspaceName: string): Promise<void> {
+  async findWorkspace(workspaceId: string): Promise<Workspace> {
     const workspaces = await this.getWorkspaces()
-    if (workspaces.find(x => x.id === workspaceId)) {
-      throw new Error(`Workspace with id "${workspaceId}" already exists`)
+
+    const workspace = workspaces.find(x => x.id === workspaceId)
+    if (!workspace) {
+      throw new NotFoundError(`Unknown workspace`)
     }
 
-    workspaces.push({ ...DEFAULT_WORKSPACE, id: workspaceId, name: workspaceName })
+    return workspace
+  }
+
+  async findWorkspaceName(workspaceId: string): Promise<string> {
+    const all = await this.getWorkspaces()
+    const workspace = all.find(x => x.id === workspaceId)
+    return (workspace && workspace.name) || workspaceId
+  }
+
+  async createWorkspace(workspace: CreateWorkspace): Promise<void> {
+    const workspaces = await this.getWorkspaces()
+    if (workspaces.find(x => x.id === workspace.id)) {
+      throw new ConflictError(`A workspace with that id "${workspace.id}" already exists`)
+    }
+
+    if (!defaultPipelines[workspace.pipelineId]) {
+      throw new InvalidOperationError(`Invalid pipeline`)
+    }
+
+    const newWorkspace = {
+      ...defaultWorkspace,
+      ..._.pick(workspace, ['id', 'name', 'description', 'audience']),
+      pipeline: defaultPipelines[workspace.pipelineId]
+    }
+
+    workspaces.push(newWorkspace)
     return this.save(workspaces)
   }
 
-  async addWorkspaceAdmin(email: string, strategy: string, workspaceId: string) {
-    const workspace = await this.findWorkspace(workspaceId)
-    if (workspace) {
-      return this.addUserToWorkspace(email, strategy, workspace.id, workspace.adminRole)
+  async deleteWorkspace(workspaceId: string): Promise<void> {
+    const workspaces = await this.getWorkspaces()
+    if (!workspaces.find(x => x.id === workspaceId)) {
+      throw new NotFoundError(`Workspace doesn't exist`)
     }
+
+    return this.save(workspaces.filter(x => x.id !== workspaceId))
   }
 
-  async addWorkspaceUser(email: string, strategy: string, workspaceId: string) {
-    const workspace = await this.findWorkspace(workspaceId)
-    if (workspace) {
-      return this.addUserToWorkspace(email, strategy, workspace.id, workspace.defaultRole)
+  async addUserToWorkspace(email: string, strategy: string, workspaceId: string, options?: AddWorkspaceUserOptions) {
+    if (!(await this.usersRepo.findUser(email, strategy))) {
+      throw new Error(`Specified user doesn't exist`)
     }
+
+    const workspace = await this.findWorkspace(workspaceId)
+    let role = workspace.defaultRole
+
+    if (options) {
+      if (options.role) {
+        role = options.role
+      } else if (options.asAdmin) {
+        role = workspace.adminRole
+      } else if (options.asChatUser) {
+        role = CHAT_USER_ROLE.id
+      }
+    }
+
+    await this.workspaceRepo.createEntry({ email, strategy, workspace: workspaceId, role })
   }
 
-  async addUserToWorkspace(email: string, strategy: string, workspace: string, role: string) {
-    const user = {
-      email,
-      strategy,
-      workspace,
-      role
+  async getWorkspaceRollout(workspaceId: string): Promise<WorkspaceRollout> {
+    const { rolloutStrategy } = await this.findWorkspace(workspaceId)
+
+    if (!rolloutStrategy) {
+      return { rolloutStrategy: 'anonymous' }
     }
-    await this.workspaceRepo.createEntry(user)
+
+    if (rolloutStrategy === 'anonymous-invite' || rolloutStrategy === 'authenticated-invite') {
+      let invite = await this.inviteCodesRepo.getWorkspaceCode(workspaceId)
+
+      // Invite code can be empty if workspaces was modified manually
+      if (!invite) {
+        invite = await this.resetInviteCode(workspaceId)
+      }
+
+      return { rolloutStrategy, ...invite }
+    }
+
+    return { rolloutStrategy }
+  }
+
+  async resetInviteCode(workspaceId: string, allowedUsages: number = UNLIMITED): Promise<WorkspaceInviteCode> {
+    const inviteCode = `INV-${nanoid('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)}`
+    const newEntry = { workspaceId, inviteCode, allowedUsages }
+
+    if (await this.inviteCodesRepo.getWorkspaceCode(workspaceId)) {
+      await this.inviteCodesRepo.replaceCode(newEntry)
+    } else {
+      await this.inviteCodesRepo.createEntry(newEntry)
+    }
+
+    return newEntry
+  }
+
+  async consumeInviteCode(workspaceId: string, validateCode?: string): Promise<boolean> {
+    const { allowedUsages, inviteCode } = await this.inviteCodesRepo.getWorkspaceCode(workspaceId)
+
+    if (allowedUsages === 0 || (validateCode && inviteCode !== validateCode)) {
+      return false
+    }
+
+    if (allowedUsages !== -1) {
+      await this.inviteCodesRepo.decreaseRemainingUsage(workspaceId)
+    }
+
+    return true
   }
 
   async removeUserFromAllWorkspaces(email: string, strategy: string) {
@@ -155,7 +237,11 @@ export class WorkspaceService {
   }
 
   async getUserWorkspaces(email: string, strategy: string): Promise<WorkspaceUser[]> {
-    return this.workspaceRepo.getUserWorkspaces(email, strategy)
+    const userWorkspaces = await this.workspaceRepo.getUserWorkspaces(email, strategy)
+    return Promise.map(userWorkspaces, async userWorkspace => ({
+      ...userWorkspace,
+      workspaceName: await this.findWorkspaceName(userWorkspace.workspace)
+    }))
   }
 
   async getWorkspaceUsers(workspace: string) {
@@ -174,7 +260,7 @@ export class WorkspaceService {
   }
 
   private async _getUsersAttributes(users: WorkspaceUser[], strategies: string[], attributes: any) {
-    let attr = {}
+    const attr = {}
     const usersInfo = _.flatten(
       await Promise.map(strategies, strategy => this._getUsersInfoForStrategy(users, strategy, attributes))
     )
@@ -194,10 +280,10 @@ export class WorkspaceService {
 
   async findRole(roleId: string, workspaceId: string): Promise<AuthRole> {
     const workspace = await this.findWorkspace(workspaceId)
-    const role = workspace && workspace.roles.find(r => r.id === roleId)
+    const role = [...workspace.roles, CHAT_USER_ROLE].find(r => r.id === roleId)
 
     if (!role) {
-      throw new Error(`Role "${roleId}" does not exists in workspace "${workspace!.name}"`)
+      throw new NotFoundError(`Role "${roleId}" does not exists in workspace "${workspace.name}"`)
     }
     return role
   }

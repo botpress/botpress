@@ -2,14 +2,16 @@ import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
+import yn from 'yn'
 
-import { initializeLangServer, nluHealth } from '.'
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
+import { initializeLangServer, nluHealth } from './index'
 import { EngineByBot } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 
 const SYNC_INTERVAL_MS = ms('5s')
+const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 
 export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const router = bp.http.createRouterForBot('nlu')
@@ -17,6 +19,9 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   const syncByBots: { [key: string]: NodeJS.Timer } = {}
 
   const scheduleSyncNLU = (botId: string) => {
+    if (!USE_E1) {
+      return
+    }
     if (syncByBots[botId]) {
       clearTimeout(syncByBots[botId])
       delete syncByBots[botId]
@@ -67,8 +72,10 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     if (engine.modelHash) {
       return res.send(engine.modelHash)
     }
+
     const intents = await engine.storage.getIntents()
-    const modelHash = await engine.computeModelHash(intents)
+    const entities = await engine.storage.getCustomEntities()
+    const modelHash = engine.computeModelHash(intents, entities)
     res.send(modelHash)
   })
 
@@ -143,14 +150,13 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
-    const filepaths = await bp.ghost.forBot(botId).directoryListing('/intents', '*.json')
-    const contextsArray = await Promise.map(filepaths, async filepath => {
-      const file = await bp.ghost.forBot(botId).readFileAsObject('/intents', filepath)
-      return file['contexts']
-    })
+    const intents = await (nlus[botId] as ScopedEngine).storage.getIntents()
+    const ctxs = _.chain(intents)
+      .flatMap(i => i.contexts)
+      .uniq()
+      .value()
 
-    // Contexts is an array of arrays that can contain duplicate values
-    res.send(_.uniq(_.flatten(contextsArray)))
+    res.send(ctxs)
   })
 
   router.get('/entities', async (req, res) => {
@@ -164,14 +170,13 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       const entityDef = (await validate(req.body, EntityDefCreateSchema, {
         stripUnknown: true
       })) as sdk.NLU.EntityDefinition
-
       const botEngine = nlus[botId] as ScopedEngine
       await botEngine.storage.saveEntity(entityDef)
       scheduleSyncNLU(req.params.botId)
 
       res.sendStatus(200)
     } catch (err) {
-      bp.logger.attachError(err).warn('Cannot create entity, imvalid schema')
+      bp.logger.attachError(err).warn('Cannot create entity, invalid schema')
       res.status(400).send('Invalid schema')
     }
   })

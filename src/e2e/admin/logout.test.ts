@@ -5,12 +5,12 @@ import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect } from '../u
 describe('Admin - Logout', () => {
   const clickButtonForBot = async (buttonId: string) => {
     const botRow = await expectMatchElement('.bp_table-row', { text: bpConfig.botId })
-    await clickOn('.more', undefined, botRow)
-    await clickOn(buttonId, undefined, botRow)
+    await clickOn('#btn-menu', undefined, botRow)
+    await clickOn(buttonId, undefined)
   }
 
   it('Open workspaces page', async () => {
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/default/bots`)
   })
 
   it('Delete test bot', async () => {

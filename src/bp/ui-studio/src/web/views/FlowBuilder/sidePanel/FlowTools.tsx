@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Icon, IconName } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { buildNewSkill } from '~/actions'
@@ -13,9 +13,10 @@ interface ToolItemProps {
   label: string
 }
 
-interface SkillDefinition {
+export interface SkillDefinition {
   id: string
   name: string
+  icon: IconName
   moduleName: string
 }
 
@@ -47,7 +48,9 @@ const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props
           <div className={style.title}>Skills</div>
           <div className={style.section}>
             {props.skills &&
-              props.skills.map(skill => <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} />)}
+              props.skills.map(skill => (
+                <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} icon={skill.icon} />
+              ))}
           </div>
         </AccessControl>
       </div>

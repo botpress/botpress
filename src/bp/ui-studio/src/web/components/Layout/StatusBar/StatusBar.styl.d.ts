@@ -14,6 +14,7 @@ interface CssExports {
   'color-7': string;
   'color-8': string;
   'color-9': string;
+  'flag': string;
   'flash': string;
   'item': string;
   'langItem': string;

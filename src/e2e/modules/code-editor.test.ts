@@ -33,9 +33,11 @@ describe('Module - Code Editor', () => {
     await page.waitFor(500) // Required so the editor is correctly focused at the right place
     await page.keyboard.type(`const lol = 'hi' //`)
 
-    await triggerKeyboardShortcut('KeyS', true)
-    await expectBotApiCallSuccess('mod/code-editor/save', 'POST')
-    await expectBotApiCallSuccess('mod/code-editor/files', 'GET')
+    await Promise.all([
+      expectBotApiCallSuccess('mod/code-editor/save', 'POST'),
+      expectBotApiCallSuccess('mod/code-editor/files', 'GET'),
+      triggerKeyboardShortcut('KeyS', true)
+    ])
   })
 
   it('Duplicate action', async () => {

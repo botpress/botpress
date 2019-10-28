@@ -9,99 +9,81 @@ import {
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
-import React, { Component } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { push } from 'react-router-redux'
+import UpdatePassword from '~/Pages/MyAccount/UpdatePassword'
+import UserProfile from '~/Pages/MyAccount/UpdateUserProfile'
 
 import { fetchProfile } from '../reducers/user'
 import Auth from '../Auth/index'
 import BasicAuthentication from '../Auth/index'
-import GravatarImage from '../Pages/Components/GravatarImage'
 
-class UserDropdownMenu extends Component<Props> {
-  private auth: BasicAuthentication
+interface Props {
+  fetchProfile: () => void
+  profile: any
+}
 
-  constructor(props: Props) {
-    super(props)
+const UserDropdownMenu: FC<Props> = props => {
+  const [isProfileOpen, setProfileOpen] = useState(false)
+  const [isPasswordOpen, setPasswordOpen] = useState(false)
 
-    this.auth = new Auth()
+  useEffect(() => {
+    !props.profile && props.fetchProfile()
+  }, [])
+
+  const logout = () => {
+    const auth: BasicAuthentication = new Auth()
+    auth.logout()
   }
 
-  componentDidMount() {
-    !this.props.profile && this.props.fetchProfile()
+  if (!props.profile) {
+    return null
   }
 
-  gotoServer = () => {
-    if (this.props.licensing && this.props.licensing.isPro) {
-      this.props.push('/server/monitoring')
-    } else {
-      this.props.push('/server/license')
-    }
-  }
+  const toggleProfile = () => setProfileOpen(!isProfileOpen)
+  const togglePassword = () => setPasswordOpen(!isPasswordOpen)
 
-  renderPopover() {
-    const { email, fullName, isSuperAdmin } = this.props.profile
-    return (
-      <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-        <Button
-          id="btn-menu"
-          icon={<Icon icon="user" color={Colors.WHITE} />}
-          rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />}
-          minimal={true}
-        />
+  const { email, fullName, strategyType, picture_url } = props.profile
+  const canChangePassword = strategyType === 'basic'
+
+  const icon = picture_url ? (
+    <img src={picture_url} className="dropdown-picture" />
+  ) : (
+    <Icon icon="user" color={Colors.WHITE} />
+  )
+
+  return (
+    <div>
+      <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.CLICK}>
+        <Button id="btn-menu" icon={icon} rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />} minimal={true} />
         <Menu>
           <MenuDivider title={`Signed in as ${fullName || email}`} />
+          <MenuItem id="btn-profile" icon="user" text="Update Profile" onClick={toggleProfile} />
 
-          {isSuperAdmin && (
-            <React.Fragment>
-              <MenuDivider />
-              <MenuItem id="btn-manage" icon="dashboard" text="Manage Server" onClick={this.gotoServer} />
-              <MenuItem
-                id="btn-debug"
-                icon="console"
-                text="Configure Debug"
-                onClick={() => this.props.push('/server/debug')}
-              />
-              <MenuItem
-                id="btn-lang"
-                icon="globe-network"
-                text="Languages"
-                onClick={() => this.props.push('/server/languages')}
-              />
-            </React.Fragment>
+          {canChangePassword && (
+            <MenuItem id="btn-changepass" icon="key" text="Change Password" onClick={togglePassword} />
           )}
 
           <MenuDivider />
-          <MenuItem id="btn-profile" icon="user" text="My account" onClick={() => this.props.push('/profile/me')} />
-          <MenuItem id="btn-logout" icon="log-out" text="Logout" onClick={() => this.auth.logout()} />
+          <MenuItem id="btn-logout" icon="log-out" text="Logout" onClick={logout} />
         </Menu>
       </Popover>
-    )
-  }
 
-  render() {
-    return this.props.profile ? this.renderPopover() : null
-  }
+      <UpdatePassword profile={props.profile} isOpen={isPasswordOpen} toggle={togglePassword} />
+
+      <UserProfile
+        isOpen={isProfileOpen}
+        toggle={toggleProfile}
+        profile={props.profile}
+        fetchProfile={props.fetchProfile}
+      />
+    </div>
+  )
 }
 
-const mapStateToProps = (state: any) => ({
-  profile: state.user.profile,
-  licensing: state.license.licensing
-})
-
-const mapDispatchToProps = {
-  fetchProfile,
-  push
-}
+const mapStateToProps = (state: any) => ({ profile: state.user.profile })
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  { fetchProfile }
 )(UserDropdownMenu)
-
-interface Props {
-  fetchProfile: any
-  licensing: any
-  push: any
-  profile: any
-}

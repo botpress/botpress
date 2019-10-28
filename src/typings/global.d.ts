@@ -44,6 +44,9 @@ declare namespace NodeJS {
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
     AUTO_MIGRATE: boolean
+    IS_FAILSAFE: boolean
+    /** A random ID generated on server start to identify each server in a cluster */
+    SERVER_ID: string
   }
 }
 
@@ -60,6 +63,33 @@ declare type BotpressEnvironementVariables = {
 
   /** Change the BPFS storage mechanism ("database" or "disk"). Defaults to "disk" */
   readonly BPFS_STORAGE?: 'database' | 'disk'
+
+  /**
+   * The connection string for redis
+   * @example redis://username:password@localhost:6379
+   */
+  readonly REDIS_URL?: string
+
+  /**
+   * The database connection string. The first part indicates which database to use
+   * @example postgres://user:pass@host/db
+   */
+  readonly DATABASE_URL?: string
+
+  /** If pro features are enabled or not. When enabled, the license key must be provided */
+  readonly PRO_ENABLED?: boolean
+
+  /** When running botpress in production, some optimizations are applied*/
+  readonly BP_PRODUCTION?: boolean
+
+  /** Enable cluster mode */
+  readonly CLUSTER_ENABLED?: boolean
+
+  /** When you change the botpress executable, it will migrate data automatically if this is set */
+  readonly AUTO_MIGRATE?: boolean
+
+  /** Server license key */
+  readonly BP_LICENSE_KEY?: string
 
   /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
@@ -108,6 +138,18 @@ declare type BotpressEnvironementVariables = {
    * @default 5
    */
   readonly BP_MAX_SERVER_REBOOT?: number
+
+  /**
+   * Disable API calls to the serverConfig endpoint (which may return sensitive data - only for super admins
+   * @default false
+   */
+  readonly BP_DISABLE_SERVER_CONFIG?: boolean
+
+  /**
+   * Prevents Botpress from closing cleanly when an error is encountered.
+   * This only affects fatal errors, it will not affect business rules checks (eg: licensing)
+   */
+  readonly BP_FAILSAFE?: boolean
 }
 
 interface IDebug {

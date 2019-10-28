@@ -42,11 +42,13 @@ describe('Preprocessing', () => {
     const slotDef = [
       {
         name: 'ME',
-        entities: [AN_ENTITY]
+        entities: [AN_ENTITY],
+        color: 1
       },
       {
         name: 'YOU',
-        entities: [AN_ENTITY, OTHER_ENTITY]
+        entities: [AN_ENTITY, OTHER_ENTITY],
+        color: 2
       }
     ]
     const scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, logger)

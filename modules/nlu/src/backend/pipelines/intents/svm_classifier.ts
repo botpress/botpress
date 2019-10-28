@@ -201,9 +201,8 @@ export default class SVMClassifier {
 
           l1Points.push({
             label: intentName,
-            coordinates: [...l1Vec, utteranceTokens.length],
-            utterance: utteranceTokens.join(' ')
-          } as any)
+            coordinates: [...l1Vec, utteranceTokens.length]
+          })
         }
       }
 

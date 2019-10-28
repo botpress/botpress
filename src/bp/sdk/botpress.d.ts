@@ -86,9 +86,9 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     /** Called once the core is initialized. Usually for middlewares / database init */
-    onServerStarted: (bp: typeof import('botpress/sdk')) => void
+    onServerStarted?: (bp: typeof import('botpress/sdk')) => void
     /** This is called once all modules are initialized, usually for routing and logic */
-    onServerReady: (bp: typeof import('botpress/sdk')) => void
+    onServerReady?: (bp: typeof import('botpress/sdk')) => void
     onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => void
     onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => void
     /**
@@ -154,6 +154,8 @@ declare module 'botpress/sdk' {
     id: string
     /** The name that will be displayed in the toolbar for the skill */
     name: string
+    /** An icon to identify the skill */
+    icon?: string | any
     /** Name of the parent module. This field is filled automatically when they are loaded */
     readonly moduleName?: string
     /**
@@ -391,6 +393,7 @@ declare module 'botpress/sdk' {
       name: string
       entities: string[]
       entity?: string
+      color: number
     }
 
     export interface IntentDefinition {
@@ -584,7 +587,7 @@ declare module 'botpress/sdk' {
      */
     export interface EventState {
       /** Data saved as user attributes; retention policies in Botpress global config applies  */
-      user: object
+      user: any
       /** Data is kept for the active session. Timeout configurable in the global config file */
       session: CurrentSession
       /** Data saved to this variable will be remembered until the end of the flow */
@@ -1119,6 +1122,38 @@ declare module 'botpress/sdk' {
     count: number
   }
 
+  /**
+   * All available rollout strategies (how users interact with bots of that workspace)
+   * An invite code is permanent, meaning that it will be consumed once and will not be necessary for that user in the future
+   *
+   * anonymous: Anyone can talk to bots
+   * anonymous-invite: Anyone with an invite code can talk to bots
+   * authenticated: Authenticated users will be automatically added to workspace as "chat user" (will then be "authorized")
+   * authenticated-invite: Authenticated users with an invite code will be added to workspace as "chat user" (will then be "authorized")
+   * authorized: Only authenticated users with an existing access to the workspace can talk to bots
+   */
+  export type RolloutStrategy =
+    | 'anonymous'
+    | 'anonymous-invite'
+    | 'authenticated'
+    | 'authenticated-invite'
+    | 'authorized'
+
+  export interface WorkspaceRollout {
+    rolloutStrategy: RolloutStrategy
+    inviteCode?: string
+    allowedUsages?: number
+  }
+
+  export interface AddWorkspaceUserOptions {
+    /** Select an existing custom role for that user. If role, asAdmin and asChatUser are undefined, then it will pick the default role */
+    role?: string
+    /** When enabled, user is added to the workspace as an admin (role is ignored) */
+    asAdmin?: boolean
+    /** When enabled, user is added as a chat user (role is ignored)  */
+    asChatUser?: boolean
+  }
+
   ////////////////
   //////// API
   ////////////////
@@ -1208,6 +1243,13 @@ declare module 'botpress/sdk' {
   export interface AxiosOptions {
     /** When true, it will return the local url instead of the external url  */
     localUrl: boolean
+  }
+
+  export interface RedisLock {
+    /** Free the lock so other nodes can request it */
+    unlock(): Promise<void>
+    /** Extend the duration of the lock for the node owning it */
+    extend(duration: number): Promise<void>
   }
 
   export namespace http {
@@ -1423,6 +1465,39 @@ declare module 'botpress/sdk' {
   }
 
   /**
+   * The distributed namespace uses Redis to distribute commands to every node
+   */
+  export namespace distributed {
+    /**
+     * When a single node must process data from a shared source, call this method to obtain an exclusive lock.
+     * You can then call lock.extend() to keep it longer, or lock.unlock() to release it
+     * @param resource Name of the resource to lock
+     * @param duration the initial duration
+     * @return undefined if another node already has obtained the lock
+     */
+    export function acquireLock(resource: string, duration: number): Promise<RedisLock | undefined>
+
+    /**
+     * Forcefully clears any trace of the lock from the redis store. It doesn't clear the lock from the node which had it.
+     * Ensure that a broadcasted job took care of cancelling it before.
+     * @param resource
+     * @return true if an existing lock was deleted
+     */
+    export function clearLock(resource: string): Promise<boolean>
+
+    /**
+     * This method returns a function that can then be called to broadcast the message to every node
+     * @param fn The job that will be executed on all nodes
+     * @param T The return type of the returned function
+     *
+     * @example const distributeToAll: Function = await bp.distributed.broadcast<void>(_localMethod)
+     * @example const _localMethod = (param1, param2): Promise<void> { }
+     * @example distributeToAll('send to all nodes', 'other info') // Every node will execute this method
+     */
+    export function broadcast<T>(fn: Function): Promise<Function>
+  }
+
+  /**
    * The Key Value Store is perfect to store any type of data as JSON.
    */
   export namespace kvs {
@@ -1495,6 +1570,29 @@ declare module 'botpress/sdk' {
      * @param allowOverwrite? If not set, it will throw an error if the folder exists. Otherwise, it will overwrite files already present
      */
     export function importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void>
+  }
+
+  export namespace workspaces {
+    export function getBotWorkspaceId(botId: string): Promise<string>
+    export function addUserToWorkspace(
+      email: string,
+      strategy: string,
+      workspaceId: string,
+      options?: AddWorkspaceUserOptions
+    ): Promise<void>
+    /**
+     * Returns the rollout strategy of the requested workspace.
+     * If the workspace ID is unknown, it will be determined from the bot ID
+     * @param workspaceId
+     */
+    export function getWorkspaceRollout(workspaceId: string): Promise<WorkspaceRollout>
+    /**
+     * Consumes an invite code for the specified workspace.
+     * @param workspaceId
+     * @param inviteCode an invite code to compare to
+     * @returns boolean indicating if code was valid & enough usage were left
+     */
+    export function consumeInviteCode(workspaceId: string, inviteCode?: string): Promise<boolean>
   }
 
   export namespace notifications {

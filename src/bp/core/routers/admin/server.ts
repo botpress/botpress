@@ -4,8 +4,10 @@ import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import { JobService } from 'core/services/job-service'
 import { MonitoringService } from 'core/services/monitoring'
+import { WorkspaceService } from 'core/services/workspace-service'
 import { Router } from 'express'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { getDebugScopes, setDebugScopes } from '../../../debug'
 import { CustomRouter } from '../customRouter'
@@ -16,6 +18,7 @@ export class ServerRouter extends CustomRouter {
   constructor(
     private logger: Logger,
     private monitoringService: MonitoringService,
+    private workspaceService: WorkspaceService,
     private alertingService: AlertingService,
     private configProvider: ConfigProvider,
     private ghostService: GhostService,
@@ -122,6 +125,49 @@ export class ServerRouter extends CustomRouter {
         }
 
         setDebugScopes(debugScope)
+        res.sendStatus(200)
+      })
+    )
+
+    router.get(
+      '/serverConfig',
+      this.asyncMiddleware(async (req, res) => {
+        if (yn(process.core_env.BP_DISABLE_SERVER_CONFIG)) {
+          return res.send(undefined)
+        }
+
+        const serverConfig = {
+          config: await this.configProvider.getBotpressConfig(),
+          live: _.pick(process, ['EXTERNAL_URL', 'ROOT_PATH', 'PROXY', 'APP_DATA_PATH', 'IS_LICENSED']),
+          env: _.pick(process.core_env, [
+            'BPFS_STORAGE',
+            'PRO_ENABLED',
+            'REDIS_URL',
+            'EXTERNAL_URL',
+            'DATABASE_URL',
+            'BP_PRODUCTION',
+            'CLUSTER_ENABLED',
+            'AUTO_MIGRATE',
+            'BP_LICENSE_KEY'
+          ])
+        }
+        res.send(serverConfig)
+      })
+    )
+
+    router.post(
+      '/features/enable/:featureId',
+      this.asyncMiddleware(async (req, res) => {
+        const { featureId } = req.params
+
+        if (featureId === 'pro') {
+          await this.configProvider.mergeBotpressConfig({ pro: { enabled: true } })
+        } else if (featureId === 'monitoring') {
+          await this.configProvider.mergeBotpressConfig({ pro: { monitoring: { enabled: true } } })
+        } else if (featureId === 'alerting') {
+          await this.configProvider.mergeBotpressConfig({ pro: { alerting: { enabled: true } } })
+        }
+
         res.sendStatus(200)
       })
     )

@@ -2,13 +2,12 @@ import classnames from 'classnames'
 import React, { Component, Fragment } from 'react'
 import { MdHome, MdKeyboardArrowLeft } from 'react-icons/md'
 import { connect } from 'react-redux'
-import { RouteComponentProps } from 'react-router'
+import { generatePath, Redirect, RouteComponentProps } from 'react-router'
 import { matchPath, Route, Switch } from 'react-router-dom'
 import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap'
 
 import { fetchLicensing } from '../../reducers/license'
-import { fetchPermissions } from '../../reducers/user'
-import { AccessControl } from '../../App/AccessControl'
+import AccessControl, { isOperationAllowed } from '../../App/AccessControl'
 
 export interface AdminTab {
   id?: string
@@ -19,7 +18,7 @@ export interface AdminTab {
   /** Name of the resource in permissions */
   res?: string
   /** Type of operation: read or write */
-  op?: string
+  op?: 'read' | 'write'
   /** By default, the page size is 10 cols, but it can be overrided here */
   size?: number
   /** When true, tab is only displayed when pro is enabled in the workspace */
@@ -30,9 +29,7 @@ export interface AdminTab {
 }
 
 type Props = {
-  permissions: any
   licensing: any
-  fetchPermissions: () => void
   fetchLicensing: () => void
   tabs: AdminTab[]
   showHome: boolean
@@ -45,12 +42,11 @@ class TabLayout extends Component<Props> {
   }
 
   componentDidMount() {
-    !this.props.permissions && this.props.fetchPermissions()
     !this.props.licensing && this.props.fetchLicensing()
     this.setState({ activeTab: this.props.tabs[0].name })
   }
 
-  updateRoute = (route: string) => this.props.history.push(route)
+  updateRoute = (route: string) => this.props.history.push(generatePath(route, this.props.match.params))
   matchCurrentPath = (path: string) => matchPath(this.props.location.pathname, { path })
   getCurrentTab = () => this.props.tabs.find(tab => this.matchCurrentPath(tab.route))
 
@@ -69,7 +65,7 @@ class TabLayout extends Component<Props> {
     }
 
     return (
-      <AccessControl permissions={this.props.permissions} resource={tab.res} operation={tab.op} key={tab.name}>
+      <AccessControl resource={tab.res} operation={tab.op} key={tab.name}>
         <NavItem>
           <NavLink
             id={tab.id}
@@ -90,6 +86,12 @@ class TabLayout extends Component<Props> {
     const size = (currentTab && currentTab.size) || 10
     const offset = (currentTab && currentTab.offset) || 1
 
+    if (currentTab && currentTab.op && currentTab.res) {
+      if (!isOperationAllowed({ operation: currentTab.op, resource: currentTab.res })) {
+        return <Redirect to="/admin/workspace/bots" />
+      }
+    }
+
     return (
       <Fragment>
         <div className="bp_container-header">
@@ -109,7 +111,7 @@ class TabLayout extends Component<Props> {
             </Row>
           </Container>
         </div>
-        <div className={classnames({ 'bp_container-fullwidth': useFullWidth })}>
+        <div className={classnames('bp_container-content', { 'bp_container-fullwidth': useFullWidth })}>
           <Container>
             <Row>
               <Col xs={12} md={{ size, offset }}>
@@ -128,12 +130,10 @@ class TabLayout extends Component<Props> {
 }
 
 const mapStateToProps = state => ({
-  permissions: state.user.permissions,
   licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
-  fetchPermissions,
   fetchLicensing
 }
 
