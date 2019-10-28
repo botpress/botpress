@@ -2,8 +2,9 @@ import 'bluebird-global'
 import _ from 'lodash'
 
 import { parseUtterance } from '../tools/utterance-parser'
+import { EntityExtractionResult, ListEntityModel } from '../typings'
 
-import { EntityExtractionResult, extractListEntities, ListEntityModel } from './engine2'
+import { extractListEntities } from './entity-extractor'
 import Utterance from './utterance'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)

@@ -4,10 +4,11 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { SPACE } from '../tools/token-utils'
-import { TFIDF, Token2Vec } from '../typings'
+import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { extractUtteranceEntities, ListEntity, ListEntityModel, PatternEntity, Tools } from './engine2'
+import { Tools } from './engine2'
+import { extractUtteranceEntities } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtterances, UtteranceToken, UtteranceToStringOptions } from './utterance'
 

@@ -1,6 +1,6 @@
 import { SPACE } from '../tools/token-utils'
+import { ExtractedSlot, ListEntityModel } from '../typings'
 
-import { ExtractedSlot, ListEntityModel } from './engine2'
 import { buildIntentVocab } from './training-pipeline'
 import Utterance from './utterance'
 
