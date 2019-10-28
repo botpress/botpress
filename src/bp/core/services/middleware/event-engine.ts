@@ -53,7 +53,8 @@ const eventSchema = {
       includedContexts: joi
         .array()
         .items(joi.string())
-        .optional()
+        .optional(),
+      ms: joi.number().optional()
     })
     .optional()
     .default({})
