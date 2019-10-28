@@ -4,10 +4,10 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { SPACE } from '../tools/token-utils'
-import { Token2Vec } from '../typings'
+import { TFIDF, Token2Vec } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { extractUtteranceEntities, ListEntity, ListEntityModel, PatternEntity, TFIDF, Tools } from './engine2'
+import { extractUtteranceEntities, ListEntity, ListEntityModel, PatternEntity, Tools } from './engine2'
 import { Model } from './model-service'
 import Utterance, { buildUtterances, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
@@ -45,7 +45,7 @@ export interface TrainArtefacts {
   vocabVectors: Token2Vec
   // kmeans: KmeansResult
   ctx_model: string
-  intent_model_by_ctx: _.Dictionary<string>
+  intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
 }

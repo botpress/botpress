@@ -4,7 +4,7 @@ import _ from 'lodash'
 import jaroDistance from '../tools/jaro'
 import levenDistance from '../tools/levenshtein'
 import { extractPattern, isPatternValid } from '../tools/patterns-utils'
-import { EntityExtractor } from '../typings'
+import { Engine2, EntityExtractor } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Model } from './model-service'
@@ -12,10 +12,7 @@ import { Predict, PredictInput, Predictors, PredictOutput, PredictStep } from '.
 import { CancellationToken, computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import Utterance, { UtteranceToken } from './utterance'
 
-export type TFIDF = _.Dictionary<number>
-export type E2ByBot = _.Dictionary<Engine2>
-
-export default class Engine2 {
+export default class E2 implements Engine2 {
   private static tools: Tools
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
@@ -23,7 +20,7 @@ export default class Engine2 {
   constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
 
   static provideTools(tools: Tools) {
-    Engine2.tools = tools
+    E2.tools = tools
   }
 
   async train(
@@ -85,7 +82,7 @@ export default class Engine2 {
 
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
-    const model = await Trainer(input, Engine2.tools, token)
+    const model = await Trainer(input, E2.tools, token)
     if (model.success) {
       this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
       await this.loadModel(model)
@@ -111,7 +108,7 @@ export default class Engine2 {
         model.data.input.intents,
         model.languageCode,
         model.data.artefacts.list_entities,
-        Engine2.tools
+        E2.tools
       )
       model.data.output = { intents } as TrainOutput // needed for prediction
     }
@@ -122,7 +119,7 @@ export default class Engine2 {
 
   private async _makePredictors(model: Model): Promise<Predictors> {
     const { input, output, artefacts } = model.data
-    const tools = Engine2.tools
+    const tools = E2.tools
 
     if (input.intents.length > 0) {
       const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
@@ -152,9 +149,11 @@ export default class Engine2 {
 
     // TODO throw error if no model was loaded
 
-    return Predict(input, Engine2.tools, this.modelsByLang, this.predictorsByLang)
+    return Predict(input, E2.tools, this.modelsByLang, this.predictorsByLang)
   }
 }
+
+// EntityExtraction
 
 export type PatternEntity = Readonly<{
   name: string

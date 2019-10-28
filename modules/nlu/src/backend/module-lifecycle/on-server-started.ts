@@ -3,12 +3,11 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { Config } from '../../config'
-import ScopedEngine from '../engine'
 import Engine2, { Tools } from '../engine2/engine2'
-import { NLUState } from '../index'
 import LangProvider from '../language-provider'
 import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
 import Storage from '../storage'
+import { NLUState } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -59,7 +58,6 @@ const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
-  const { nluByBot, health, e2ByBot } = state
   bp.events.registerMiddleware({
     name: 'nlu.incoming',
     direction: 'incoming',
@@ -67,14 +65,9 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
     description:
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
-      if (!health.isEnabled) {
-        return next()
-      }
-
-      const botCtx = USE_E1 ? (nluByBot[event.botId] as ScopedEngine) : e2ByBot[event.botId]
-
       if (
-        !botCtx ||
+        !state.nluByBot[event.botId] ||
+        !state.health.isEnabled ||
         !event.preview ||
         EVENTS_TO_IGNORE.includes(event.type) ||
         event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
@@ -84,14 +77,15 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 
       try {
         let nlu = {}
+        const { engine1, engine } = state.nluByBot[event.botId]
         if (USE_E1) {
-          nlu = await (botCtx as ScopedEngine).extract!(
+          nlu = await engine1.extract!(
             event.preview,
             event.state.session.lastMessages.map(message => message.incomingPreview),
             event.nlu.includedContexts
           )
         } else {
-          nlu = await (botCtx as Engine2).predict(event.preview, event.nlu.includedContexts)
+          nlu = await engine.predict(event.preview, event.nlu.includedContexts)
         }
 
         _.merge(event, { nlu })

@@ -141,3 +141,25 @@ export interface NluMlRecommendations {
   minUtterancesForML: number
   goodUtterancesForML: number
 }
+
+export interface Engine2 {
+  loadModel: Function
+  train: Function
+  predict: Function
+}
+
+export interface NLUState {
+  nluByBot: _.Dictionary<BotState>
+  languageProvider?: LanguageProvider
+  health?: NLUHealth
+  broadcastLoadModel?: Function
+}
+
+export interface BotState {
+  botId: string
+  engine1: Engine
+  engine: Engine2
+  trainWatcher: sdk.ListenHandle
+}
+
+export type TFIDF = Dic<number>

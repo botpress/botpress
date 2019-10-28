@@ -5,8 +5,9 @@ import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, isWord, SPACE } from '../tools/token-utils'
 import { parseUtterance } from '../tools/utterance-parser'
+import { TFIDF } from '../typings'
 
-import { ExtractedEntity, ExtractedSlot, TFIDF, Tools } from './engine2'
+import { ExtractedEntity, ExtractedSlot, Tools } from './engine2'
 
 export type UtteranceToStringOptions = {
   lowerCase: boolean
