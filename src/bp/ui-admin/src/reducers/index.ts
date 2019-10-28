@@ -8,12 +8,14 @@ import monitoring from './monitoring'
 import roles, { RoleState } from './roles'
 import server from './server'
 import user, { UserState } from './user'
+import version, { VersionState } from './versions'
 
 export interface AppState {
   roles: RoleState
   modules: ModulesState
   user: UserState
   bots: BotState
+  version: VersionState
 }
 
 export default combineReducers<AppState>({
@@ -24,5 +26,6 @@ export default combineReducers<AppState>({
   roles,
   monitoring,
   modules,
-  server
+  server,
+  version
 })

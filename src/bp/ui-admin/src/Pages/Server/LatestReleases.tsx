@@ -1,13 +1,13 @@
-import axios from 'axios'
 import _ from 'lodash'
-import moment from 'moment'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect } from 'react'
+import { connect } from 'react-redux'
 import snarkdown from 'snarkdown'
 import PageContainer from '~/App/PageContainer'
 
 import linux from '../../media/linux.png'
 import mac from '../../media/mac.png'
 import window from '../../media/windows.png'
+import { fetchLatestVersions } from '../../reducers/versions'
 
 interface GithubRelease {
   version: string
@@ -44,46 +44,38 @@ const DownloadLinks: FC<{ version: string }> = props => {
   )
 }
 
-const LastRelease = () => {
-  const [releases, setReleases] = useState<GithubRelease[]>()
-
+const LastRelease: FC<{ latestReleases: GithubRelease[]; fetchLatestVersions: Function }> = props => {
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
-    axios.get('https://api.github.com/repos/botpress/botpress/releases').then(({ data }) => {
-      const releases = _.take(data, 5).map((x: any) => ({
-        version: x.name,
-        details: x.body,
-        githubUrl: x.html_url,
-        releaseDate: x.created_at,
-        daysAgo: moment(x.created_at).fromNow()
-      }))
-
-      setReleases(releases)
-    })
+    props.fetchLatestVersions()
   }, [])
 
   return (
     <PageContainer title="Latest Releases">
       <div className="releases">
-        {releases &&
-          releases.map(release => {
-            return (
-              <div>
-                <div className="version">
-                  {release.version}
-                  <span>published {release.daysAgo}</span>
-                </div>
-
-                <div className="container">
-                  <div className="content" dangerouslySetInnerHTML={{ __html: snarkdown(release.details) }} />
-                  <DownloadLinks version={release.version} />
-                </div>
+        {props.latestReleases.map(release => {
+          return (
+            <div key={release.version}>
+              <div className="version">
+                {release.version}
+                <span>published {release.daysAgo}</span>
               </div>
-            )
-          })}
+
+              <div className="container">
+                <div className="content" dangerouslySetInnerHTML={{ __html: snarkdown(release.details) }} />
+                <DownloadLinks version={release.version} />
+              </div>
+            </div>
+          )
+        })}
       </div>
     </PageContainer>
   )
 }
 
-export default LastRelease
+const mapStateToProps = state => ({ latestReleases: state.version.latestReleases })
+const mapDispatchToProps = { fetchLatestVersions }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LastRelease)

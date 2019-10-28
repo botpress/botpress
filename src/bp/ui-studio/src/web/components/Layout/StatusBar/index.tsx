@@ -201,7 +201,7 @@ class StatusBar extends React.Component<Props> {
             <GoMortarBoard />
           </ActionItem>
           <div className={style.item}>
-            <strong>v{this.props.botpressVersion}</strong>
+            <strong>{this.props.botpressVersion}</strong>
           </div>
           <BotSwitcher />
           {this.props.user && this.props.user.isSuperAdmin && <ConfigStatus />}
