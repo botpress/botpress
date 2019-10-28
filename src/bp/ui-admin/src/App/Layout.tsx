@@ -79,7 +79,7 @@ const Footer = props => (
   <footer className="statusBar">
     <div className="statusBar-list">
       <div className="statusBar-item">
-        <strong>v{props.version}</strong>
+        <strong>{props.version}</strong>
       </div>
     </div>
   </footer>
