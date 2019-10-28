@@ -55,22 +55,20 @@ export function getOnBotMount(state: NLUState) {
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         await Promise.mapSeries(languages, async languageCode => {
-          const model = await ModelService.getModel(ghost, hash, languageCode)
-          if (model) {
-            await e2.loadModel(model)
-          } else {
-            const trainLock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('5m'))
-            if (!trainLock) {
-              return
-            }
+          const lock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('5m'))
+          if (!lock) {
+            return
+          }
+          let model = await ModelService.getModel(ghost, hash, languageCode)
+          model = await e2.train(intentDefs, entityDefs, languageCode)
 
-            const model = await e2.train(intentDefs, entityDefs, languageCode)
-            await trainLock.unlock()
+          if (model.success) {
+            await ModelService.saveModel(ghost, model, hash)
+          }
 
-            if (model.success) {
-              await ModelService.saveModel(ghost, model, hash)
-              await state.broadcastLoadModel(botId, hash, languageCode)
-            }
+          await lock.unlock()
+          if (model.success) {
+            await state.broadcastLoadModel(botId, hash, languageCode)
           }
         })
       },
@@ -83,11 +81,9 @@ export function getOnBotMount(state: NLUState) {
     // we use local events so training occures on the same node where the request for changes enters
     state.watchersByBot[botId] = bp.ghost.forBot(botId).onFileChanged(async f => {
       if (f.includes('intents') || f.includes('entities')) {
-        console.log('dude really')
         await trainOrLoad()
       }
     })
-    console.log('training or loading here')
     trainOrLoad() // floating promise on purpose
   }
 }
