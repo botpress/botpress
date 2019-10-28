@@ -1,0 +1,12 @@
+{
+  "composer.placeholder": "Відповісти {name}",
+  "composer.send": "Надіслати",
+  "header.conversations": "Розмови",
+  "conversationList.untitledConversation": "Розмова без назви",
+  "botInfo.backToConversation": "Повернутись до розмови",
+  "botInfo.startConversation": "Розпочати розмову",
+  "botInfo.privacyPolicy": "Показати Політику конфіденційності",
+  "botInfo.termsAndConditions": "Показати Умови користування",
+  "botInfo.preferredLanguage": "Бажана мова",
+  "store.resetSessionMessage": "Розпочати розмову заново"
+}
