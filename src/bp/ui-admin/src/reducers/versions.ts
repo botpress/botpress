@@ -19,11 +19,7 @@ const RECEIVE_CURRENT_VERSON = 'version/RECEIVE_CURRENT_VERSON'
 const RECEIVE_LATEST_RELEASES = 'version/RECEIVE_LATEST_RELEASES'
 
 export const fetchCurrentVersion = () => {
-  return async (dispatch, getState) => {
-    if (getState().version.currentVersion) {
-      return
-    }
-
+  return async dispatch => {
     try {
       const { data } = await axios.get('/version', { baseURL: process.env.REACT_APP_API_URL })
       dispatch({

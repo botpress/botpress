@@ -12,7 +12,9 @@ import { fetchCurrentVersion, fetchLatestVersions, VersionState } from '../reduc
 
 import AccessControl from './AccessControl'
 
-type MenuProps = { licensing: any; version: VersionState } & {
+type MenuProps = {
+  licensing: any
+  version: VersionState
   fetchCurrentVersion: Function
   fetchLatestVersions: Function
 } & RouteComponentProps
@@ -31,8 +33,13 @@ interface MenuItemProps {
 
 const Menu: FC<MenuProps> = props => {
   useEffect(() => {
-    props.fetchCurrentVersion()
-    props.fetchLatestVersions()
+    if (!props.version.currentVersion) {
+      props.fetchCurrentVersion()
+    }
+
+    if (!props.version.latestReleases) {
+      props.fetchLatestVersions()
+    }
   }, [])
 
   const MenuItem = ({ text, icon, url, id, isPro, operation, resource, superAdmin, tag }: MenuItemProps) => {

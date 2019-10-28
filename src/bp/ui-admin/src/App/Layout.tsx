@@ -26,7 +26,10 @@ const App: FC<Props> = props => {
   useEffect(() => {
     props.fetchLicensing()
     props.fetchProfile()
-    props.fetchCurrentVersion()
+
+    if (!props.version) {
+      props.fetchCurrentVersion()
+    }
   }, [])
 
   if (!props.profile) {
