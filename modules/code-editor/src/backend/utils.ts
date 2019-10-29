@@ -68,7 +68,7 @@ export const validateFilePayload = async (
     throw new EditorError(`No permission`)
   }
 
-  if (def.isJSON) {
+  if (def.isJSON && content) {
     assertValidJson(content)
   }
 

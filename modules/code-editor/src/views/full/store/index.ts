@@ -152,13 +152,18 @@ class RootStore {
   }
 
   @action.bound
-  async duplicateFile(file: EditableFile, keepSameName?: boolean) {
+  async duplicateFile(file: EditableFile, forCurrentBot?: boolean) {
     const fileExt = path.extname(file.location)
 
     const duplicate = {
       ...file,
       content: await this.api.readFile(file),
-      location: keepSameName ? file.location : file.location.replace(fileExt, '_copy' + fileExt)
+      location: file.location.replace(fileExt, '_copy' + fileExt)
+    }
+
+    if (forCurrentBot) {
+      duplicate.botId = window.BOT_ID
+      duplicate.location = file.location
     }
 
     if (await this.api.fileExists(duplicate)) {

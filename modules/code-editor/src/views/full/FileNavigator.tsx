@@ -112,14 +112,13 @@ class FileNavigator extends React.Component<Props, State> {
 
     if (this.props.contextMenuType === 'moduleConfig') {
       if (!file.botId) {
-        const newFile = { ...file, botId: window.BOT_ID }
         ContextMenu.show(
           <Menu>
             <MenuItem
               id="btn-duplicateCurrent"
               icon="duplicate"
               text="Duplicate to current bot"
-              onClick={() => this.props.duplicateFile(newFile, true)}
+              onClick={() => this.props.duplicateFile(file, true)}
             />
           </Menu>,
           { left: e.clientX, top: e.clientY }
@@ -134,12 +133,7 @@ class FileNavigator extends React.Component<Props, State> {
         <MenuItem id="btn-rename" icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
         <MenuItem id="btn-delete" icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
         <MenuDivider />
-        <MenuItem
-          id="btn-duplicate"
-          icon="duplicate"
-          text="Duplicate"
-          onClick={() => this.props.duplicateFile(file, false)}
-        />
+        <MenuItem id="btn-duplicate" icon="duplicate" text="Duplicate" onClick={() => this.props.duplicateFile(file)} />
         <MenuDivider />
         <MenuItem
           id="btn-enable"

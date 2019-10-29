@@ -29,7 +29,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.post('/readFile', loadPermsMw, validateFilePayloadMw, async (req: RequestWithPerms, res, next) => {
     try {
-      res.send(await editorByBot[req.params.botId].readFileContent(req.body))
+      res.send({ fileContent: await editorByBot[req.params.botId].readFileContent(req.body) })
     } catch (err) {
       next(err)
     }

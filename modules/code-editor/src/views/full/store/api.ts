@@ -67,7 +67,7 @@ export default class CodeEditorApi {
   async readFile(file: EditableFile): Promise<string> {
     try {
       const { data } = await this.axios.post('/mod/code-editor/readFile', file)
-      return data
+      return data.fileContent
     } catch (err) {
       this.handleApiError(err, 'Could not check if file already exists')
     }
