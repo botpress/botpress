@@ -45,7 +45,9 @@ export const validateFilePayloadMw = async (req, res, next) => {
   }
 
   try {
-    await validateFilePayload(req.body as EditableFile, req.permissions, req.params.botId)
+    // When renaming, the signature is different
+    const file = req.body.file || req.body
+    await validateFilePayload(file as EditableFile, req.permissions, req.params.botId)
     next()
   } catch (err) {
     next(err)
