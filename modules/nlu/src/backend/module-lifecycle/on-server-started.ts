@@ -7,7 +7,7 @@ import Engine2, { Tools } from '../engine2/engine2'
 import LangProvider from '../language-provider'
 import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
 import Storage from '../storage'
-import { NLUState } from '../typings'
+import { NLUState, TrainingStatus } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -44,7 +44,19 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
     generateSimilarJunkWords: (vocab: string[], lang: string) =>
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
-    ducklingExtractor: new DucklingEntityExtractor(bp.logger)
+    ducklingExtractor: new DucklingEntityExtractor(bp.logger),
+    reportTrainingStatus: async (botId: string, language: string, message: string, status: TrainingStatus) => {
+      const key = `training:${language}` // todo move this in a clean training service
+      await bp.kvs.forBot(botId).set(key, status)
+      // might
+      const payload = {
+        type: 'nlu',
+        working: status.status === 'training',
+        message,
+        status
+      }
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', payload))
+    }
   }
   Engine2.provideTools(tools)
 }

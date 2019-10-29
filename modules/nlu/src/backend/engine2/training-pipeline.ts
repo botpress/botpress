@@ -4,7 +4,7 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { SPACE } from '../tools/token-utils'
-import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec } from '../typings'
+import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, TrainingStatus } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Tools } from './engine2'
@@ -16,6 +16,7 @@ import Utterance, { buildUtterances, UtteranceToken, UtteranceToStringOptions } 
 export type Trainer = (input: TrainInput, tools: Tools, cancelToken: CancellationToken) => Promise<Model>
 
 export type TrainInput = Readonly<{
+  botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
   list_entities: ListEntity[]
@@ -327,6 +328,7 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   return crfExtractor.serialized
 }
 
+const NB_STEPS = 10 // change this if the training pipeline changes
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
@@ -340,19 +342,35 @@ export const Trainer: Trainer = async (
     }
   }
 
+  let progress = 0
+  const reportTrainingProgress = () => {
+    const trainingStatus: TrainingStatus = {
+      status: 'training',
+      progress: Math.min(1, _.round((progress += 1 / NB_STEPS), 2))
+    }
+    tools.reportTrainingStatus(input.botId, input.languageCode, 'model training', trainingStatus)
+  }
   try {
     // TODO: Cancellation token effect
 
     let output = await preprocessInput(input, tools)
+    reportTrainingProgress()
     output = await TfidfTokens(output)
+    reportTrainingProgress()
     output = ClusterTokens(output, tools)
+    reportTrainingProgress()
     output = await ExtractEntities(output, tools)
+    reportTrainingProgress()
     output = await AppendNoneIntents(output, tools)
-
+    reportTrainingProgress()
     const exact_match_index = buildExactMatchIndex(output)
+    reportTrainingProgress()
     const ctx_model = await trainContextClassifier(output, tools)
+    reportTrainingProgress()
     const intent_model_by_ctx = await trainIntentClassifer(output, tools)
+    reportTrainingProgress()
     const slots_model = await trainSlotTagger(output, tools)
+    reportTrainingProgress()
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
@@ -364,6 +382,7 @@ export const Trainer: Trainer = async (
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
+    reportTrainingProgress()
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {

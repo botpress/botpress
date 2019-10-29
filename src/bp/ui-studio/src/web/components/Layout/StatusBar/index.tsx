@@ -44,23 +44,13 @@ class StatusBar extends React.Component<Props> {
   state = {
     progress: 0,
     messages: [],
-    nluSynced: true,
-    contexts: []
+    nluSynced: true
   }
 
   constructor(props) {
     super(props)
     this.progressContainerRef = React.createRef()
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
-  }
-
-  async componentDidMount() {
-    await this.fetchContexts()
-  }
-
-  fetchContexts = async () => {
-    const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/contexts`)
-    this.setState({ contexts: data || [] })
   }
 
   handleModuleEvent = async event => {
@@ -70,19 +60,20 @@ class StatusBar extends React.Component<Props> {
       this.setState({ messages: [...messages, newMessage] })
     }
 
+    if (event.type === 'nlu' && this.state.progress !== event.status.progress) {
+      this.setState({ progress: event.status.progress })
+    }
+
     if (event.name === 'train') {
-      await this.fetchContexts()
+      // not event sure this is actually called somewhere check this out
       this.setState({ nluSynced: false })
-    } else if (event.name === 'done' || event.working === false) {
+    } else if (this.state.progress !== 1 && event.working === false) {
       this.setState({ progress: 1 })
-    } else {
-      if (event.value != this.state.progress) {
-        this.setState({ progress: event.value })
-      }
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // TODO review this whole thing
     if (!this.progressBar && this.progressContainerRef.current) {
       this.initializeProgressBar()
     }
