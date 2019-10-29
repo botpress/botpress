@@ -54,17 +54,21 @@ class FileNavigator extends React.Component<Props, State> {
       childNodes: buildTree(dir.files, this.props.expandedNodes, filter, readOnlyIcon)
     }))
 
+    if (filter) {
+      this.traverseTree(nodes, n => (n.isExpanded = true))
+    }
+
     this.setState({ nodes })
   }
 
-  private handleNodeClick = (node: ITreeNode) => {
+  private handleNodeClick = async (node: ITreeNode) => {
     const originallySelected = node.isSelected
     this.traverseTree(this.state.nodes, n => (n.isSelected = false))
     node.isSelected = originallySelected !== null
 
     // If nodeData is set, it's a file, otherwise a folder
     if (node.nodeData) {
-      this.props.editor.openFile(node.nodeData as EditableFile)
+      await this.props.editor.openFile(node.nodeData as EditableFile)
       this.forceUpdate()
     } else {
       node.isExpanded ? this.handleNodeCollapse(node) : this.handleNodeExpand(node)
@@ -106,12 +110,36 @@ class FileNavigator extends React.Component<Props, State> {
     const isDisabled = node.nodeData.name.startsWith('.')
     const file = node.nodeData as EditableFile
 
+    if (this.props.contextMenuType === 'moduleConfig') {
+      if (!file.botId) {
+        const newFile = { ...file, botId: window.BOT_ID }
+        ContextMenu.show(
+          <Menu>
+            <MenuItem
+              id="btn-duplicateCurrent"
+              icon="duplicate"
+              text="Duplicate to current bot"
+              onClick={() => this.props.duplicateFile(newFile, true)}
+            />
+          </Menu>,
+          { left: e.clientX, top: e.clientY }
+        )
+      }
+
+      return
+    }
+
     ContextMenu.show(
       <Menu>
         <MenuItem id="btn-rename" icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
         <MenuItem id="btn-delete" icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
         <MenuDivider />
-        <MenuItem id="btn-duplicate" icon="duplicate" text="Duplicate" onClick={() => this.props.duplicateFile(file)} />
+        <MenuItem
+          id="btn-duplicate"
+          icon="duplicate"
+          text="Duplicate"
+          onClick={() => this.props.duplicateFile(file, false)}
+        />
         <MenuDivider />
         <MenuItem
           id="btn-enable"
@@ -196,6 +224,7 @@ type Props = {
   store?: RootStore
   editor?: EditorStore
   disableContextMenu?: boolean
+  contextMenuType?: string
   onNodeStateChanged: (id: string, isExpanded: boolean) => void
   expandedNodes: object
 } & Pick<StoreDef, 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>

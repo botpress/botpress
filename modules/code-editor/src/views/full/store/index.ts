@@ -3,7 +3,7 @@ import path from 'path'
 
 import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
 import { FileFilters } from '../typings'
-import { FILENAME_REGEX, toastSuccess } from '../utils'
+import { FILENAME_REGEX, toastFailure, toastSuccess } from '../utils'
 import { baseAction, baseHook } from '../utils/templates'
 
 import CodeEditorApi from './api'
@@ -85,7 +85,7 @@ class RootStore {
   }
 
   @action.bound
-  createFilePrompt(type: FileType, isGlobal?: boolean, hookType?: string) {
+  async createFilePrompt(type: FileType, isGlobal?: boolean, hookType?: string) {
     let name = window.prompt(`Choose the name of your ${type}. No special chars. Use camel case`)
     if (!name) {
       return
@@ -98,7 +98,7 @@ class RootStore {
 
     name = name.endsWith('.js') ? name : name + '.js'
 
-    this.editor.openFile({
+    await this.editor.openFile({
       name,
       location: name,
       content: type === 'action' ? baseAction : baseHook,
@@ -152,11 +152,18 @@ class RootStore {
   }
 
   @action.bound
-  async duplicateFile(file: EditableFile) {
+  async duplicateFile(file: EditableFile, keepSameName?: boolean) {
     const fileExt = path.extname(file.location)
+
     const duplicate = {
       ...file,
-      location: file.location.replace(fileExt, '_copy' + fileExt)
+      content: await this.api.readFile(file),
+      location: keepSameName ? file.location : file.location.replace(fileExt, '_copy' + fileExt)
+    }
+
+    if (await this.api.fileExists(duplicate)) {
+      toastFailure('A file with that name already exists')
+      return
     }
 
     if (await this.api.saveFile(duplicate)) {
