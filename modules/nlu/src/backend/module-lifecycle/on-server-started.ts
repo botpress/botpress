@@ -45,10 +45,10 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
     ducklingExtractor: new DucklingEntityExtractor(bp.logger),
-    reportTrainingStatus: async (botId: string, language: string, message: string, status: TrainingStatus) => {
-      const key = `training:${language}` // todo move this in a clean training service
+    reportTrainingStatus: async (botId: string, message: string, status: TrainingStatus) => {
+      const key = `training:${status.language}` // todo move this in a clean training service
       await bp.kvs.forBot(botId).set(key, status)
-      // might
+
       const payload = {
         type: 'nlu',
         working: status.status === 'training',

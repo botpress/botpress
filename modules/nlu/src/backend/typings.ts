@@ -198,5 +198,6 @@ export type EntityExtractionResult = ExtractedEntity & { start: number; end: num
 // rename this for training session
 export interface TrainingStatus {
   status: 'training' | 'canceled' | 'done'
+  language: string
   progress: number
 }

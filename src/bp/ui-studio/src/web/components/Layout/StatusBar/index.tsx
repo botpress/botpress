@@ -22,13 +22,18 @@ import style from './StatusBar.styl'
 
 const COMPLETED_DURATION = 2000
 
+interface TrainingStatus {
+  status: 'training' | 'canceled' | 'done'
+  language: string
+  progress: number
+}
+
 interface Props {
   isEmulatorOpen: boolean
   langSwitcherOpen: boolean
   contentLang: string
   docHints: any
   updateDocumentationModal: any
-  botpressVersion: string
   user: any
   onToggleGuidedTour: () => void
   toggleBottomPanel: () => void
@@ -36,21 +41,36 @@ interface Props {
   toggleLangSwitcher: () => void
 }
 
+// TODO fetch nlu training progress on component did mount
+
 class StatusBar extends React.Component<Props> {
-  private progressContainerRef
+  private pbRef: HTMLElement
   private progressBar: Line
   private clearCompletedStyleTimer
 
   state = {
     progress: 0,
-    messages: [],
-    nluSynced: true
+    working: false,
+    messages: []
   }
 
-  constructor(props) {
-    super(props)
-    this.progressContainerRef = React.createRef()
-    EventBus.default.on('statusbar.event', this.handleModuleEvent)
+  isNLUTrainingProgressEvent = (event): boolean => {
+    return (
+      event.type === 'nlu' &&
+      event.payload &&
+      event.status.status == 'training' &&
+      this.props.contentLang == event.status.language &&
+      this.state.progress !== event.status.progress
+    )
+  }
+
+  shouldUpdateTrainginProgress = (trainStatus: TrainingStatus | undefined): boolean => {
+    return (
+      trainStatus &&
+      trainStatus.status === 'training' &&
+      trainStatus.language === this.props.contentLang &&
+      this.state.progress !== trainStatus.progress
+    )
   }
 
   handleModuleEvent = async event => {
@@ -60,24 +80,28 @@ class StatusBar extends React.Component<Props> {
       this.setState({ messages: [...messages, newMessage] })
     }
 
-    if (event.type === 'nlu' && this.state.progress !== event.status.progress) {
-      this.setState({ progress: event.status.progress })
-    }
-
-    if (event.name === 'train') {
-      // not event sure this is actually called somewhere check this out
-      this.setState({ nluSynced: false })
+    if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.status)) {
+      console.log('updating progress')
+      this.updateProgress(event.status.progress)
+    } else if (event.working && event.value && this.state.progress !== event.value) {
+      this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
     } else if (this.state.progress !== 1 && event.working === false) {
-      this.setState({ progress: 1 })
+      this.updateProgress(1) // completed or suddenly stoped working, reset
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    // TODO review this whole thing
-    if (!this.progressBar && this.progressContainerRef.current) {
-      this.initializeProgressBar()
-    }
+  updateProgress(progress: number) {
+    this.setState({ progress })
+  }
 
+  fetchTrainingStatus = async () => {}
+
+  componentDidMount() {
+    EventBus.default.on('statusbar.event', this.handleModuleEvent)
+    this.initializeProgressBar()
+  }
+
+  componentDidUpdate(prevProps, prevState) {
     if (prevState.progress != this.state.progress && this.state.progress) {
       if (this.state.progress >= 1) {
         this.progressBar.animate(1, 300)
@@ -97,7 +121,7 @@ class StatusBar extends React.Component<Props> {
   }
 
   initializeProgressBar = () => {
-    this.progressBar = new Line(this.progressContainerRef.current, {
+    this.progressBar = new Line(this.pbRef, {
       cstrokeWidth: 10,
       easing: 'easeInOut',
       duration: 300,
@@ -115,9 +139,7 @@ class StatusBar extends React.Component<Props> {
       }
     })
 
-    // Put first in the list
-    this.progressContainerRef.current.removeChild(this.progressBar.svg)
-    this.progressContainerRef.current.prepend(this.progressBar.svg)
+    this.pbRef.prepend(this.progressBar.svg)
   }
 
   renderTaskProgress() {
@@ -151,7 +173,7 @@ class StatusBar extends React.Component<Props> {
 
   render() {
     return (
-      <footer ref={this.progressContainerRef} className={style.statusBar}>
+      <footer ref={el => (this.pbRef = el)} className={style.statusBar}>
         <div className={style.list}>
           <ActionItem
             title="Show Emulator"
@@ -166,11 +188,7 @@ class StatusBar extends React.Component<Props> {
           <ActionItem title="Notification" description="View Notifications" className={style.right}>
             <NotificationHub />
           </ActionItem>
-          <NluPerformanceStatus
-            contentLang={this.props.contentLang}
-            updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
-            synced={this.state.nluSynced}
-          />
+          <NluPerformanceStatus />
           <AccessControl resource="bot.logs" operation="read">
             <ActionItem
               id="statusbar_logs"
@@ -192,7 +210,7 @@ class StatusBar extends React.Component<Props> {
             <GoMortarBoard />
           </ActionItem>
           <div className={style.item}>
-            <strong>{this.props.botpressVersion}</strong>
+            <strong>{window.BOTPRESS_VERSION}</strong>
           </div>
           <BotSwitcher />
           {this.props.user && this.props.user.isSuperAdmin && <ConfigStatus />}

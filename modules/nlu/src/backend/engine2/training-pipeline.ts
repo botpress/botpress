@@ -346,9 +346,10 @@ export const Trainer: Trainer = async (
   const reportTrainingProgress = () => {
     const trainingStatus: TrainingStatus = {
       status: 'training',
-      progress: Math.min(1, _.round((progress += 1 / NB_STEPS), 2))
+      progress: Math.min(1, _.round((progress += 1 / NB_STEPS), 2)),
+      language: input.languageCode
     }
-    tools.reportTrainingStatus(input.botId, input.languageCode, 'model training', trainingStatus)
+    tools.reportTrainingStatus(input.botId, 'Training model', trainingStatus)
   }
   try {
     // TODO: Cancellation token effect
