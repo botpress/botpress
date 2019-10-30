@@ -45,8 +45,9 @@ const getFlowInfo = (flowId: string, flowName: string) => {
         <Tooltip
           content={
             <span>
-              When a discussion timeouts (user doesn't answer in the configured timeframe)
-              <br /> he will be redirected here.
+              When a discussion timeouts (user doesn't answer in
+              <br />
+              the configured timeframe) he will be redirected here.
             </span>
           }
           hoverOpenDelay={500}
