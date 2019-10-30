@@ -40,9 +40,14 @@ Either the file is empty, or it doesn't match any known format.`)
         setHasError(true)
       }
 
+      if (data.missingContentTypes.length) {
+        setUploadStatus(`Your bot is missing these content types: ${data.missingContentTypes.join(', ')}.`)
+        setHasError(true)
+      }
+
       setAnalysis(data)
     } catch (err) {
-      toastFailure(err.message)
+      toastFailure(_.get(err, 'response.data.message', err.message))
     } finally {
       setIsLoading(false)
     }
@@ -105,7 +110,7 @@ Either the file is empty, or it doesn't match any known format.`)
         <div className={Classes.DIALOG_BODY}>
           <FormGroup
             label={<span>Select your JSON file</span>}
-            labelFor="input-archive"
+            labelFor="input-json"
             helperText={
               <span>
                 Select a JSON file. It must be exported from the Content page. You will see a summary of modifications
@@ -116,6 +121,7 @@ Either the file is empty, or it doesn't match any known format.`)
             <FileInput
               text={filePath || 'Choose file...'}
               onChange={e => readFile((e.target as HTMLInputElement).files)}
+              inputProps={{ accept: '.json' }}
               fill={true}
             />
           </FormGroup>
@@ -147,7 +153,7 @@ Either the file is empty, or it doesn't match any known format.`)
               <strong>{cmsCount}</strong> elements.
             </p>
 
-            <p style={{ marginTop: 30 }}>
+            <div style={{ marginTop: 30 }}>
               <RadioGroup
                 label=" What would you like to do? "
                 onChange={e => setImportAction(e.target['value'])}
@@ -160,7 +166,7 @@ Either the file is empty, or it doesn't match any known format.`)
                   value="clear_insert"
                 />
               </RadioGroup>
-            </p>
+            </div>
           </div>
         </div>
         <div className={Classes.DIALOG_FOOTER}>

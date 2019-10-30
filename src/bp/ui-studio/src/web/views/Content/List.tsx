@@ -95,6 +95,11 @@ class ListView extends Component<Props, State> {
     this.debouncedHandleSearch && this.debouncedHandleSearch()
   }
 
+  onImportCompleted = () => {
+    this.props.refreshCategories()
+    this.launchSearch()
+  }
+
   launchSearch = () => {
     const searchQuery: SearchQuery = {
       from: this.state.page * this.state.pageSize,
@@ -263,7 +268,7 @@ class ListView extends Component<Props, State> {
   }
 
   downloadJson = () => {
-    this.setState({ downloadUrl: `${window.BOT_API_PATH}/content/export` })
+    this.setState({ downloadUrl: `${window.BOT_API_PATH}/content/export?${Date.now()}` })
   }
 
   render() {
@@ -309,7 +314,7 @@ class ListView extends Component<Props, State> {
             />
           </LeftToolbarButtons>
           <RightToolbarButtons>
-            <ImportModal onImportCompleted={this.debouncedHandleSearch} />
+            <ImportModal onImportCompleted={this.onImportCompleted} />
             <Button
               id="btn-export"
               icon="upload"
@@ -336,6 +341,7 @@ interface Props {
   handleClone: (ids: string[]) => void
   handleRefresh: () => void
   handleEdit: (id: string, contentType: any) => void
+  refreshCategories: () => void
 }
 
 interface State {

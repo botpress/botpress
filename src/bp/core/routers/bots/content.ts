@@ -1,9 +1,11 @@
 import { ContentElement, Logger } from 'botpress/sdk'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { DefaultSearchParams } from 'core/services/cms'
+import { InvalidOperationError } from 'core/services/auth/errors'
 import { CMSService } from 'core/services/cms'
+import { CmsImportSchema, DefaultSearchParams } from 'core/services/cms'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
+import { validate } from 'joi'
 import _ from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
@@ -139,10 +141,11 @@ export class ContentRouter extends CustomRouter {
       this._needPermissions('read', 'bot.content'),
       async (req, res) => {
         const elements = await this.cms.getAllElements(req.params.botId)
+        const filtered = elements.map(x => _.omit(x, ['createdBy', 'createdOn', 'modifiedOn']))
 
         res.setHeader('Content-Type', 'application/json')
         res.setHeader('Content-disposition', `attachment; filename=content_${moment().format('DD-MM-YYYY')}.json`)
-        res.end(JSON.stringify(elements, undefined, 2))
+        res.end(JSON.stringify(filtered, undefined, 2))
       }
     )
 
@@ -152,15 +155,23 @@ export class ContentRouter extends CustomRouter {
       this._checkTokenHeader,
       this._needPermissions('write', 'bot.content'),
       upload.single('file'),
-      async (req: any, res) => {
-        const existingElements = await this.cms.getAllElements(req.params.botId)
-        const importData = JSON.parse(req.file.buffer)
+      this.asyncMiddleware(async (req: any, res) => {
+        try {
+          const existingElements = await this.cms.getAllElements(req.params.botId)
+          const contentTypes = (await this.cms.getAllContentTypes(req.params.botId)).map(x => x.id)
 
-        res.send({
-          cmsCount: (existingElements && existingElements.length) || 0,
-          fileCmsCount: (importData && importData.length) || 0
-        })
-      }
+          const importData = (await validate(JSON.parse(req.file.buffer), CmsImportSchema)) as ContentElement[]
+          const importedContentTypes = _.uniq(importData.map(x => x.contentType))
+
+          res.send({
+            cmsCount: (existingElements && existingElements.length) || 0,
+            fileCmsCount: (importData && importData.length) || 0,
+            missingContentTypes: _.difference(importedContentTypes, contentTypes)
+          })
+        } catch (err) {
+          throw new InvalidOperationError(`Error importing your file: ${err}`)
+        }
+      })
     )
 
     this.router.post(

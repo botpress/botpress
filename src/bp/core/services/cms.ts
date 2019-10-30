@@ -4,6 +4,7 @@ import { KnexExtension } from 'common/knex'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
+import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
@@ -25,6 +26,14 @@ export const DefaultSearchParams: SearchParams = {
   from: 0,
   count: 50
 }
+
+export const CmsImportSchema = Joi.array().items(
+  Joi.object().keys({
+    id: Joi.string().required(),
+    contentType: Joi.string().required(),
+    formData: Joi.object().required()
+  })
+)
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
