@@ -81,7 +81,6 @@ class StatusBar extends React.Component<Props> {
     }
 
     if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.status)) {
-      console.log('updating progress')
       this.updateProgress(event.status.progress)
     } else if (event.working && event.value && this.state.progress !== event.value) {
       this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
@@ -94,11 +93,18 @@ class StatusBar extends React.Component<Props> {
     this.setState({ progress })
   }
 
-  fetchTrainingStatus = async () => {}
+  fetchTrainingStatus = () => {
+    axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${this.props.contentLang}`).then(({ data }) => {
+      if (data && data.status === 'training') {
+        this.updateProgress(data.progress)
+      }
+    })
+  }
 
   componentDidMount() {
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
     this.initializeProgressBar()
+    this.fetchTrainingStatus()
   }
 
   componentDidUpdate(prevProps, prevState) {
