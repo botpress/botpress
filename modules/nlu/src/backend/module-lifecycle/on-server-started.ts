@@ -59,7 +59,7 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
         botId,
         working: progress < 1,
         message,
-        payload: trainSession
+        trainSession
       }
       bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
     }

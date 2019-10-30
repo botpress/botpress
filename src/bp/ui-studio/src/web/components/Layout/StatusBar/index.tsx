@@ -56,10 +56,10 @@ class StatusBar extends React.Component<Props> {
   isNLUTrainingProgressEvent = (event): boolean => {
     return (
       event.type === 'nlu' &&
-      event.payload &&
-      event.status.status == 'training' &&
-      this.props.contentLang == event.status.language &&
-      this.state.progress !== event.status.progress
+      event.trainSession &&
+      event.trainSession.status == 'training' &&
+      this.props.contentLang == event.trainSession.language &&
+      this.state.progress !== event.trainSession.progress
     )
   }
 
@@ -80,8 +80,8 @@ class StatusBar extends React.Component<Props> {
       this.setState({ messages: [...messages, newMessage] })
     }
 
-    if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.payload, event.botId)) {
-      this.updateProgress(event.status.progress)
+    if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.trainSession, event.botId)) {
+      this.updateProgress(event.trainSession.progress)
     } else if (event.working && event.value && this.state.progress !== event.value) {
       this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
     } else if (this.state.progress !== 1 && event.working === false) {
