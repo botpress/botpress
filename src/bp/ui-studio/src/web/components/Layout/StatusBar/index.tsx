@@ -35,6 +35,7 @@ interface Props {
   docHints: any
   updateDocumentationModal: any
   user: any
+  botInfo: any
   onToggleGuidedTour: () => void
   toggleBottomPanel: () => void
   onToggleEmulator: () => void
@@ -64,9 +65,10 @@ class StatusBar extends React.Component<Props> {
     )
   }
 
-  shouldUpdateTrainginProgress = (trainStatus: TrainingStatus | undefined): boolean => {
+  shouldUpdateTrainginProgress = (trainStatus: TrainingStatus, botId: string): boolean => {
     return (
       trainStatus &&
+      botId === this.props.botInfo.id &&
       trainStatus.status === 'training' &&
       trainStatus.language === this.props.contentLang &&
       this.state.progress !== trainStatus.progress
@@ -80,7 +82,7 @@ class StatusBar extends React.Component<Props> {
       this.setState({ messages: [...messages, newMessage] })
     }
 
-    if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.status)) {
+    if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.status, event.botId)) {
       this.updateProgress(event.status.progress)
     } else if (event.working && event.value && this.state.progress !== event.value) {
       this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone

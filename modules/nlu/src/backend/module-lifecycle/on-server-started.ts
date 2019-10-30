@@ -51,6 +51,7 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
 
       const payload = {
         type: 'nlu',
+        botId,
         working: status.status === 'training',
         message,
         status
