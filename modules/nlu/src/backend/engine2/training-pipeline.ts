@@ -4,7 +4,7 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { SPACE } from '../tools/token-utils'
-import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, TrainingStatus } from '../typings'
+import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Tools } from './engine2'
@@ -342,14 +342,10 @@ export const Trainer: Trainer = async (
     }
   }
 
-  let progress = 0
+  let trainstep = 0
   const reportTrainingProgress = () => {
-    const trainingStatus: TrainingStatus = {
-      status: 'training',
-      progress: Math.min(1, _.round((progress += 1 / NB_STEPS), 2)),
-      language: input.languageCode
-    }
-    tools.reportTrainingStatus(input.botId, 'Training model', trainingStatus)
+    const progress = Math.min(1, _.round((trainstep += 1 / NB_STEPS), 2))
+    tools.reportTrainingProgress(input.botId, input.languageCode, 'Training model', progress)
   }
   try {
     // TODO: Cancellation token effect

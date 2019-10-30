@@ -4,10 +4,11 @@ import yn from 'yn'
 
 import { Config } from '../../config'
 import Engine2, { Tools } from '../engine2/engine2'
+import { setTrainingSession } from '../engine2/train-session-service'
 import LangProvider from '../language-provider'
 import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
 import Storage from '../storage'
-import { NLUState, TrainingStatus } from '../typings'
+import { NLUState, TrainingSession } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -45,18 +46,22 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
     ducklingExtractor: new DucklingEntityExtractor(bp.logger),
-    reportTrainingStatus: async (botId: string, message: string, status: TrainingStatus) => {
-      const key = `training:${status.language}` // todo move this in a clean training service
-      await bp.kvs.forBot(botId).set(key, status)
+    reportTrainingProgress: async (botId: string, language: string, message: string, progress: number) => {
+      const trainSession: TrainingSession = {
+        language,
+        progress,
+        status: progress < 1 ? 'training' : 'done'
+      }
+      await setTrainingSession(bp, botId, trainSession)
 
-      const payload = {
+      const ev = {
         type: 'nlu',
         botId,
-        working: status.status === 'training',
+        working: progress < 1,
         message,
-        status
+        payload: trainSession
       }
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', payload))
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
     }
   }
   Engine2.provideTools(tools)

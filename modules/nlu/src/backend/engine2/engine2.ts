@@ -2,7 +2,7 @@ import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { isPatternValid } from '../tools/patterns-utils'
-import { Engine2, EntityExtractor, TrainingStatus } from '../typings'
+import { Engine2, EntityExtractor } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Model } from './model-service'
@@ -13,7 +13,7 @@ export interface Tools {
   tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  reportTrainingStatus(botId: string, message: string, status: TrainingStatus): void
+  reportTrainingProgress(botId: string, language: string, message: string, progress: number): void
   ducklingExtractor: EntityExtractor
   mlToolkit: typeof MLToolkit
 }
@@ -96,11 +96,7 @@ export default class E2 implements Engine2 {
       await this.loadModel(model)
     }
 
-    E2.tools.reportTrainingStatus(this.botId, 'Training complete', {
-      status: 'done',
-      progress: 1,
-      language: languageCode
-    })
+    E2.tools.reportTrainingProgress(this.botId, languageCode, 'Training complete', 1)
     return model
   }
 

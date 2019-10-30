@@ -6,8 +6,9 @@ import yn from 'yn'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
+import { getTrainingSession } from './engine2/train-session-service'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
-import { NLUState, TrainingStatus } from './typings'
+import { NLUState } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
 
 const SYNC_INTERVAL_MS = ms('5s')
@@ -116,11 +117,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params
-    const trainingStatus: TrainingStatus = (await bp.kvs.forBot(botId).get(`training:${language}`)) || {
-      language,
-      status: 'idle'
-    }
-    res.send(trainingStatus)
+    const session = await getTrainingSession(bp, botId, language)
+    res.send(session)
   })
 
   router.get('/intents', async (req, res) => {

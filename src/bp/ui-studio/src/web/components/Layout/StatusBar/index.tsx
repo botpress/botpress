@@ -22,8 +22,8 @@ import style from './StatusBar.styl'
 
 const COMPLETED_DURATION = 2000
 
-interface TrainingStatus {
-  status: 'training' | 'canceled' | 'done'
+interface TrainSession {
+  status: 'training' | 'canceled' | 'done' | 'idle'
   language: string
   progress: number
 }
@@ -41,8 +41,6 @@ interface Props {
   onToggleEmulator: () => void
   toggleLangSwitcher: () => void
 }
-
-// TODO fetch nlu training progress on component did mount
 
 class StatusBar extends React.Component<Props> {
   private pbRef: HTMLElement
@@ -65,7 +63,7 @@ class StatusBar extends React.Component<Props> {
     )
   }
 
-  shouldUpdateTrainginProgress = (trainStatus: TrainingStatus, botId: string): boolean => {
+  shouldUpdateTrainginProgress = (trainStatus: TrainSession, botId: string): boolean => {
     return (
       trainStatus &&
       botId === this.props.botInfo.id &&
@@ -82,7 +80,7 @@ class StatusBar extends React.Component<Props> {
       this.setState({ messages: [...messages, newMessage] })
     }
 
-    if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.status, event.botId)) {
+    if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.payload, event.botId)) {
       this.updateProgress(event.status.progress)
     } else if (event.working && event.value && this.state.progress !== event.value) {
       this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
@@ -95,7 +93,7 @@ class StatusBar extends React.Component<Props> {
     this.setState({ progress })
   }
 
-  fetchTrainingStatus = () => {
+  fetchTrainingSession = () => {
     axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${this.props.contentLang}`).then(({ data }) => {
       if (data && data.status === 'training') {
         this.updateProgress(data.progress)
@@ -106,7 +104,7 @@ class StatusBar extends React.Component<Props> {
   componentDidMount() {
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
     this.initializeProgressBar()
-    this.fetchTrainingStatus()
+    this.fetchTrainingSession()
   }
 
   componentDidUpdate(prevProps, prevState) {
