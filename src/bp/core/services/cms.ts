@@ -83,7 +83,7 @@ export class CMSService implements IDisposeOnExit {
     })
   }
 
-  async loadElementsForBot(botId: string): Promise<any[]> {
+  async getAllElements(botId: string): Promise<ContentElement[]> {
     const fileNames = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '*.json')
     let contentElements: ContentElement[] = []
 
@@ -97,6 +97,12 @@ export class CMSService implements IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
+    return contentElements
+  }
+
+  async loadElementsForBot(botId: string): Promise<any[]> {
+    const contentElements = await this.getAllElements(botId)
+
     const elements = await Promise.map(contentElements, element => {
       return this.memDb(this.contentTable)
         .insert(this.transformItemApiToDb(botId, element))
@@ -109,6 +115,12 @@ export class CMSService implements IDisposeOnExit {
     await this.recomputeElementsForBot(botId)
 
     return elements
+  }
+
+  async deleteAllElements(botId: string): Promise<void> {
+    const files = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '*.json')
+    await Promise.map(files, file => this.ghost.forBot(botId).deleteFile(this.elementsDir, file))
+    await this.clearElementsFromCache(botId)
   }
 
   async clearElementsFromCache(botId: string) {
