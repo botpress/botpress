@@ -13,10 +13,11 @@ function makeTrainSessionKey(language: string): string {
 
 export async function getTrainingSession(bp: typeof sdk, botId: string, language: string): Promise<TrainingSession> {
   const key = makeTrainSessionKey(language)
-  return (await bp.kvs.forBot(botId).get(key)) || { ...DEFAULT_TRAINING_SESSION, language }
+  const trainSessionExpiry = await bp.kvs.forBot(botId).get(key)
+  return trainSessionExpiry ? trainSessionExpiry.value : { ...DEFAULT_TRAINING_SESSION, language }
 }
 
 export function setTrainingSession(bp: typeof sdk, botId: string, trainSession: TrainingSession): Promise<any> {
   const key = makeTrainSessionKey(trainSession.language)
-  return bp.kvs.forBot(botId).set(key, trainSession)
+  return bp.kvs.forBot(botId).setStorageWithExpiry(key, trainSession, '1m')
 }

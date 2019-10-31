@@ -68,6 +68,8 @@ type SlotDefinition = Readonly<{
   entities: string[]
 }>
 
+type progressCB = (p?: number) => void
+
 const debugIntents = DEBUG('nlu').sub('intents')
 const debugIntentsTrain = debugIntents.sub('train')
 const NONE_INTENT = 'none'
@@ -190,8 +192,13 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
-const trainIntentClassifer = async (input: TrainOutput, tools: Tools): Promise<_.Dictionary<string> | undefined> => {
+const trainIntentClassifer = async (
+  input: TrainOutput,
+  tools: Tools,
+  progress: progressCB
+): Promise<_.Dictionary<string> | undefined> => {
   const svmPerCtx: _.Dictionary<string> = {}
+  const n_ctx = input.contexts.length
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
       .filter(i => i.contexts.includes(ctx) && i.utterances.length > 3) // min nb utterances
@@ -205,14 +212,26 @@ const trainIntentClassifer = async (input: TrainOutput, tools: Tools): Promise<_
 
     if (points.length > 0) {
       const svm = new tools.mlToolkit.SVM.Trainer()
-      svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('svm progress ==> %d', p))
+      let progressCalls = 0
+      svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => {
+        if (++progressCalls % 5 === 0) {
+          debugIntentsTrain('svm progress ==> %d', p)
+          progress(_.round(p / n_ctx, 1))
+        }
+      })
+    } else {
+      progress(1 / n_ctx)
     }
   }
 
   return svmPerCtx
 }
 
-const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
+const trainContextClassifier = async (
+  input: TrainOutput,
+  tools: Tools,
+  progress: progressCB
+): Promise<string | undefined> => {
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
@@ -226,7 +245,13 @@ const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise
 
   if (points.length > 0) {
     const svm = new tools.mlToolkit.SVM.Trainer()
-    return svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('SVM => progress for CTX %d', p))
+    let progressCalls = 0
+    return svm.train(points, SVM_OPTIONS, p => {
+      if (++progressCalls % 5 === 0) {
+        progress(_.round(p, 1))
+        debugIntentsTrain('svm progress ==> %d', p)
+      }
+    })
   }
 }
 
@@ -328,7 +353,7 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   return crfExtractor.serialized
 }
 
-const NB_STEPS = 10 // change this if the training pipeline changes
+const NB_STEPS = 5 // change this if the training pipeline changes
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
@@ -342,32 +367,29 @@ export const Trainer: Trainer = async (
     }
   }
 
-  let trainstep = 0
-  const reportTrainingProgress = () => {
-    const progress = Math.min(1, _.round((trainstep += 1 / NB_STEPS), 2))
-    tools.reportTrainingProgress(input.botId, input.languageCode, 'Training model', progress)
+  let progress = 0
+  const reportProgress: progressCB = (stepProgress = 1) => {
+    progress = Math.floor(progress) + stepProgress
+    const scaledProgress = Math.min(1, _.round(progress / NB_STEPS, 2))
+    tools.reportTrainingProgress(input.botId, input.languageCode, 'Training', scaledProgress)
   }
   try {
     // TODO: Cancellation token effect
 
     let output = await preprocessInput(input, tools)
-    reportTrainingProgress()
     output = await TfidfTokens(output)
-    reportTrainingProgress()
     output = ClusterTokens(output, tools)
-    reportTrainingProgress()
     output = await ExtractEntities(output, tools)
-    reportTrainingProgress()
     output = await AppendNoneIntents(output, tools)
-    reportTrainingProgress()
     const exact_match_index = buildExactMatchIndex(output)
-    reportTrainingProgress()
-    const ctx_model = await trainContextClassifier(output, tools)
-    reportTrainingProgress()
-    const intent_model_by_ctx = await trainIntentClassifer(output, tools)
-    reportTrainingProgress()
+    reportProgress()
+
+    const ctx_model = await trainContextClassifier(output, tools, reportProgress)
+    reportProgress()
+    const intent_model_by_ctx = await trainIntentClassifer(output, tools, reportProgress)
+    reportProgress()
     const slots_model = await trainSlotTagger(output, tools)
-    reportTrainingProgress()
+    reportProgress()
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
@@ -379,7 +401,7 @@ export const Trainer: Trainer = async (
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
-    reportTrainingProgress()
+    reportProgress()
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
