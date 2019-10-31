@@ -20,8 +20,6 @@ import LangSwitcher from './LangSwitcher'
 import NluPerformanceStatus from './NluPerformanceStatus'
 import style from './StatusBar.styl'
 
-const COMPLETED_DURATION = 2000
-
 interface TrainSession {
   status: 'training' | 'canceled' | 'done' | 'idle'
   language: string
@@ -42,15 +40,37 @@ interface Props {
   toggleLangSwitcher: () => void
 }
 
-class StatusBar extends React.Component<Props> {
-  private pbRef: HTMLElement
-  private progressBar: Line
-  private clearCompletedStyleTimer
+const DEFAULT_STATE = {
+  progress: 0,
+  working: false,
+  message: ''
+}
 
-  state = {
-    progress: 0,
-    working: false,
-    messages: []
+class StatusBar extends React.Component<Props> {
+  pbRef: HTMLElement
+  progressBar: Line
+  state = { ...DEFAULT_STATE }
+
+  componentDidMount() {
+    EventBus.default.on('statusbar.event', this.handleModuleEvent)
+    this.initializeProgressBar()
+    this.fetchTrainingSession()
+  }
+
+  componentDidUpdate(pp, prevState) {
+    if (prevState.progress !== this.state.progress) {
+      if (this.state.progress >= 1) {
+        this.progressBar.animate(1, 300, this.taskCompleteCB)
+      } else if (this.state.progress === 0) {
+        this.progressBar.set(0)
+      } else {
+        this.progressBar.animate(this.state.progress, 200)
+      }
+    }
+  }
+
+  taskCompleteCB = () => {
+    setTimeout(() => this.setState({ ...DEFAULT_STATE }), 2000)
   }
 
   isNLUTrainingProgressEvent = (event): boolean => {
@@ -74,10 +94,8 @@ class StatusBar extends React.Component<Props> {
   }
 
   handleModuleEvent = async event => {
-    if (event.message) {
-      const messages = this.state.messages.filter(x => x.type !== event.type)
-      const newMessage = { ...event, ts: Date.now() }
-      this.setState({ messages: [...messages, newMessage] })
+    if (event.message && this.state.message !== event.message) {
+      this.setState({ message: event.message, working: event.working })
     }
 
     if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.trainSession, event.botId)) {
@@ -94,36 +112,16 @@ class StatusBar extends React.Component<Props> {
   }
 
   fetchTrainingSession = () => {
-    axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${this.props.contentLang}`).then(({ data }) => {
-      if (data && data.status === 'training') {
-        this.updateProgress(data.progress)
+    axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${this.props.contentLang}`).then(({ data: session }) => {
+      if (session && session.status === 'training') {
+        this.setState({
+          working: true,
+          progress: session.progress,
+          message: 'Training'
+        })
+        this.updateProgress(session.progress)
       }
     })
-  }
-
-  componentDidMount() {
-    EventBus.default.on('statusbar.event', this.handleModuleEvent)
-    this.initializeProgressBar()
-    this.fetchTrainingSession()
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.progress != this.state.progress && this.state.progress) {
-      if (this.state.progress >= 1) {
-        this.progressBar.animate(1, 300)
-        clearTimeout(this.clearCompletedStyleTimer)
-        this.clearCompletedStyleTimer = setTimeout(this.cleanupCompleted, COMPLETED_DURATION + 250)
-      } else {
-        this.progressBar.animate(this.state.progress, 200)
-      }
-    }
-  }
-
-  cleanupCompleted = () => {
-    const newMessages = this.state.messages.filter(x => x.ts > Date.now() - COMPLETED_DURATION)
-    this.setState({ messages: newMessages })
-    this.setState({ progress: 0 })
-    this.progressBar.set(0)
   }
 
   initializeProgressBar = () => {
@@ -148,13 +146,15 @@ class StatusBar extends React.Component<Props> {
     this.pbRef.prepend(this.progressBar.svg)
   }
 
-  renderTaskProgress() {
-    return this.state.messages.map(msg => (
-      <div key={`evt-${msg.type}`} className={classNames(style.right, style.item, { [style.worker]: msg.working })}>
-        <Glyphicon glyph={msg.working ? 'hourglass' : 'ok-circle'} />
-        {' ' + msg.message}
-      </div>
-    ))
+  renderTaskMessage() {
+    return (
+      !!this.state.progress && (
+        <div className={classNames(style.right, style.item, { [style.worker]: this.state.working })}>
+          <Glyphicon glyph={this.state.working ? 'hourglass' : 'ok-circle'} />
+          &nbsp; {this.state.message}
+        </div>
+      )
+    )
   }
 
   renderDocHints() {
@@ -221,7 +221,7 @@ class StatusBar extends React.Component<Props> {
           <BotSwitcher />
           {this.props.user && this.props.user.isSuperAdmin && <ConfigStatus />}
           {this.renderDocHints()}
-          {this.renderTaskProgress()}
+          {this.renderTaskMessage()}
           <LangSwitcher
             toggleLangSwitcher={this.props.toggleLangSwitcher}
             langSwitcherOpen={this.props.langSwitcherOpen}
