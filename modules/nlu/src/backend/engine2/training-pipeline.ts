@@ -360,12 +360,12 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
   let progress = 0
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (input.trainingSession.status === 'canceled') {
-      tools.reportTrainingProgress(input.botId, input.languageCode, 'Canceled training', 0)
+      tools.reportTrainingProgress(input.botId, 'Canceled training', input.trainingSession)
       throw new TrainingCanceledError()
     }
     progress = Math.floor(progress) + stepProgress
     const scaledProgress = Math.min(1, _.round(progress / NB_STEPS, 2))
-    tools.reportTrainingProgress(input.botId, input.languageCode, 'Training', scaledProgress)
+    tools.reportTrainingProgress(input.botId, 'Training', { ...input.trainingSession, progress: scaledProgress })
   }
   try {
     let output = await preprocessInput(input, tools)

@@ -46,20 +46,15 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
     ducklingExtractor: new DucklingEntityExtractor(bp.logger),
-    reportTrainingProgress: async (botId: string, language: string, message: string, progress: number) => {
-      const trainSession: TrainingSession = {
-        language,
-        progress,
-        status: progress < 1 ? 'training' : 'done'
-      }
+    reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
       await setTrainingSession(bp, botId, trainSession)
 
       const ev = {
         type: 'nlu',
+        working: trainSession.status === 'training',
         botId,
-        working: progress < 1,
         message,
-        trainSession
+        trainSession: _.omit(trainSession, 'lock')
       }
       bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
     }

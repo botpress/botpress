@@ -13,7 +13,7 @@ export interface Tools {
   tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  reportTrainingProgress(botId: string, language: string, message: string, progress: number): void
+  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
   ducklingExtractor: EntityExtractor
   mlToolkit: typeof MLToolkit
 }
@@ -91,7 +91,7 @@ export default class E2 implements Engine2 {
       await this.loadModel(model)
     }
 
-    E2.tools.reportTrainingProgress(this.botId, languageCode, 'Training complete', 1)
+    E2.tools.reportTrainingProgress(this.botId, 'Training complete', { ...trainingSession, progress: 1 })
     return model
   }
 
