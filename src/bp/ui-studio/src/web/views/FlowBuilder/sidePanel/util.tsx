@@ -69,7 +69,7 @@ const reorderFlows = flows => {
     flows.find(x => x.id === 'main'),
     flows.find(x => x.id === 'error'),
     flows.find(x => x.id === 'timeout'),
-    ...flows.filter(x => !['main', 'error', 'timeout'].contains(x.id))
+    ...flows.filter(x => !['main', 'error', 'timeout'].includes(x.id))
   ].filter(x => Boolean(x))
 }
 
