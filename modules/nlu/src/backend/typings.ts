@@ -194,3 +194,9 @@ export type ListEntityModel = Readonly<{
 export type ExtractedSlot = { confidence: number; name: string; source: any }
 export type ExtractedEntity = { confidence: number; type: string; metadata: any; value: string }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
+
+export interface TrainingSession {
+  status: 'training' | 'canceled' | 'done' | 'idle'
+  language: string
+  progress: number
+}

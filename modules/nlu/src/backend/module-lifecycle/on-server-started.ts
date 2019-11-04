@@ -4,10 +4,11 @@ import yn from 'yn'
 
 import { Config } from '../../config'
 import Engine2, { Tools } from '../engine2/engine2'
+import { setTrainingSession } from '../engine2/train-session-service'
 import LangProvider from '../language-provider'
 import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
 import Storage from '../storage'
-import { NLUState } from '../typings'
+import { NLUState, TrainingSession } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -44,7 +45,24 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
     generateSimilarJunkWords: (vocab: string[], lang: string) =>
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
-    ducklingExtractor: new DucklingEntityExtractor(bp.logger)
+    ducklingExtractor: new DucklingEntityExtractor(bp.logger),
+    reportTrainingProgress: async (botId: string, language: string, message: string, progress: number) => {
+      const trainSession: TrainingSession = {
+        language,
+        progress,
+        status: progress < 1 ? 'training' : 'done'
+      }
+      await setTrainingSession(bp, botId, trainSession)
+
+      const ev = {
+        type: 'nlu',
+        botId,
+        working: progress < 1,
+        message,
+        trainSession
+      }
+      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
+    }
   }
   Engine2.provideTools(tools)
 }

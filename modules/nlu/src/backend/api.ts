@@ -6,6 +6,7 @@ import yn from 'yn'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
+import { getTrainingSession } from './engine2/train-session-service'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
@@ -112,6 +113,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
     } catch (err) {
       res.status(400).send('Could not train confusion matrix')
     }
+  })
+
+  router.get('/training/:language', async (req, res) => {
+    const { language, botId } = req.params
+    const session = await getTrainingSession(bp, botId, language)
+    res.send(session)
   })
 
   router.get('/intents', async (req, res) => {
