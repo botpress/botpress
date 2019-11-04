@@ -73,20 +73,10 @@ class StatusBar extends React.Component<Props> {
     setTimeout(() => this.setState({ ...DEFAULT_STATE }), 2000)
   }
 
-  isNLUTrainingProgressEvent = (event): boolean => {
-    return (
-      event.type === 'nlu' &&
-      event.trainSession &&
-      event.trainSession.status == 'training' &&
-      this.props.contentLang == event.trainSession.language &&
-      this.state.progress !== event.trainSession.progress
-    )
-  }
-
-  shouldUpdateTrainginProgress = (trainStatus: TrainSession, botId: string): boolean => {
+  shouldUpdateTrainingProgress = (trainStatus: TrainSession, botId: string): boolean => {
     return (
       trainStatus &&
-      botId === this.props.botInfo.id &&
+      botId === window.BOT_ID &&
       trainStatus.status === 'training' &&
       trainStatus.language === this.props.contentLang &&
       this.state.progress !== trainStatus.progress
@@ -98,7 +88,7 @@ class StatusBar extends React.Component<Props> {
       this.setState({ message: event.message, working: event.working })
     }
 
-    if (event.type === 'nlu' && this.shouldUpdateTrainginProgress(event.trainSession, event.botId)) {
+    if (event.type === 'nlu' && this.shouldUpdateTrainingProgress(event.trainSession, event.botId)) {
       this.updateProgress(event.trainSession.progress)
     } else if (event.working && event.value && this.state.progress !== event.value) {
       this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
