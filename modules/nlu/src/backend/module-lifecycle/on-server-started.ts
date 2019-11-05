@@ -4,7 +4,7 @@ import yn from 'yn'
 
 import { Config } from '../../config'
 import Engine2, { Tools } from '../engine2/engine2'
-import { setTrainingSession } from '../engine2/train-session-service'
+import { removeTrainingSession, setTrainingSession } from '../engine2/train-session-service'
 import LangProvider from '../language-provider'
 import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
 import Storage from '../storage'
@@ -57,6 +57,9 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
         trainSession: _.omit(trainSession, 'lock')
       }
       bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
+      if (trainSession.status === 'done') {
+        setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
+      }
     }
   }
   Engine2.provideTools(tools)

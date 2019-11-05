@@ -19,11 +19,19 @@ export const makeTrainingSession = (language: string, lock: sdk.RedisLock): Trai
 
 export async function getTrainingSession(bp: typeof sdk, botId: string, language: string): Promise<TrainingSession> {
   const key = makeTrainSessionKey(botId, language)
-  const trainSessionWExpiry = await bp.kvs.forBot(botId).get(key)
-  return trainSessionWExpiry ? trainSessionWExpiry.value : { ...DEFAULT_TRAINING_SESSION, language }
+  const trainSession = await bp.kvs.forBot(botId).get(key)
+  return trainSession || { ...DEFAULT_TRAINING_SESSION, language }
 }
 
 export function setTrainingSession(bp: typeof sdk, botId: string, trainSession: TrainingSession): Promise<any> {
   const key = makeTrainSessionKey(botId, trainSession.language)
-  return bp.kvs.forBot(botId).setStorageWithExpiry(key, _.omit(trainSession, 'lock'), '1m')
+  return bp.kvs.forBot(botId).set(key, _.omit(trainSession, 'lock'))
+}
+
+export async function removeTrainingSession(
+  bp: typeof sdk,
+  botId: string,
+  trainSession: TrainingSession
+): Promise<void> {
+  bp.kvs.forBot(botId).removeStorageKeysStartingWith(makeTrainSessionKey(botId, trainSession.language))
 }
