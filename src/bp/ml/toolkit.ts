@@ -51,7 +51,6 @@ if (cluster.isWorker) {
             progressCb(msg.payload.progress)
           } catch (err) {
             if (err.name === 'CancelError') {
-              console.log('hey man this is canceled')
               process.off('message', messageHandler)
               // process.send!({ type: 'cancel', id })
               completedCb(undefined)

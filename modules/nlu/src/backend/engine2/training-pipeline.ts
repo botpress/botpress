@@ -360,7 +360,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
   let progress = 0
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (input.trainingSession.status === 'canceled') {
-      tools.reportTrainingProgress(input.botId, 'Canceled training', input.trainingSession)
+      tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
       throw new TrainingCanceledError()
     }
     progress = Math.floor(progress) + stepProgress
@@ -397,6 +397,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
+    // TODO use bp.logger once this is moved in Engine2
     if (err instanceof TrainingCanceledError) {
       console.log('Training aborted')
     } else {

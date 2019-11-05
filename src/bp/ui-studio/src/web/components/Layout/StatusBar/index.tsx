@@ -58,42 +58,37 @@ class StatusBar extends React.Component<Props> {
   }
 
   componentDidUpdate(pp, prevState) {
-    if (prevState.progress !== this.state.progress) {
-      if (this.state.progress >= 1) {
-        this.progressBar.animate(1, 300, this.taskCompleteCB)
-      } else if (this.state.progress === 0) {
+    if (this.state.working) {
+      this.progressBar.animate(this.state.progress, 200)
+    } else {
+      if (this.state.progress < 1) {
+        // canceled
         this.progressBar.set(0)
       } else {
-        this.progressBar.animate(this.state.progress, 200)
+        // done
+        this.resetStateTimeOut()
       }
     }
   }
 
-  taskCompleteCB = () => {
+  resetStateTimeOut = () => {
     setTimeout(() => this.setState({ ...DEFAULT_STATE }), 2000)
   }
 
   shouldUpdateTrainingProgress = (trainStatus: TrainSession, botId: string): boolean => {
-    return (
-      trainStatus &&
-      botId === window.BOT_ID &&
-      trainStatus.status === 'training' &&
-      trainStatus.language === this.props.contentLang &&
-      this.state.progress !== trainStatus.progress
-    )
+    return trainStatus && botId === window.BOT_ID && trainStatus.language === this.props.contentLang
+    // this.state.progress !== trainStatus.progress
   }
 
   handleModuleEvent = async event => {
-    if (event.message && this.state.message !== event.message) {
-      this.setState({ message: event.message, working: event.working })
-    }
-
     if (event.type === 'nlu' && this.shouldUpdateTrainingProgress(event.trainSession, event.botId)) {
-      this.updateProgress(event.trainSession.progress)
+      console.log(event.trainSession, event.message)
+      this.setState({ message: event.message, working: event.working, progress: event.trainSession.progress })
     } else if (event.working && event.value && this.state.progress !== event.value) {
       this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
-    } else if (this.state.progress !== 1 && event.working === false) {
-      this.updateProgress(1) // completed or suddenly stoped working, reset
+    }
+    if (event.message && this.state.message !== event.message) {
+      this.setState({ message: event.message, working: event.working })
     }
   }
 
@@ -138,12 +133,10 @@ class StatusBar extends React.Component<Props> {
 
   renderTaskMessage() {
     return (
-      !!this.state.progress && (
-        <div className={classNames(style.right, style.item, { [style.worker]: this.state.working })}>
-          <Glyphicon glyph={this.state.working ? 'hourglass' : 'ok-circle'} />
-          &nbsp; {this.state.message}
-        </div>
-      )
+      <div className={classNames(style.right, style.item, { [style.worker]: this.state.working })}>
+        <Glyphicon glyph={this.state.working ? 'hourglass' : 'ok-circle'} />
+        &nbsp; {this.state.message}
+      </div>
     )
   }
 
