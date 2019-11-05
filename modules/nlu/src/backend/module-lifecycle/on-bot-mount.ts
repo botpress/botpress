@@ -40,6 +40,8 @@ export function getOnBotMount(state: NLUState) {
 
     if (USE_E1) {
       await engine1.init()
+      // @ts-ignore
+      state.nluByBot[botId] = { engine1 }
       return
     }
 
