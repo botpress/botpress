@@ -27,7 +27,7 @@ The request headers can be set here and should respect the JSON format.
 
 ### Memory
 
-To save the response, we use [Memory](../../main/memory). By default the response will be saved in `temp.response`, but you can use the memory of your choice.
+To save the response, we use [Memory](../main/memory). By default the response will be saved in `temp.response`, but you can use the memory of your choice.
 
 ![Memory](assets/call-api-skill-memory.png)
 
@@ -46,6 +46,6 @@ When a response return a status code `400` and above, the request will result in
 
 ## Templating
 
-Templating is supported in the `body` and the `headers` to get access to your variables stored in [Memory](../../main/memory). All `bot`, `user`, `session`, `temp`, `event` are accessible via templating.
+Templating is supported in the `body` and the `headers` to get access to your variables stored in [Memory](../main/memory). All `bot`, `user`, `session`, `temp`, `event` are accessible via templating.
 
 ![Template](assets/call-api-skill-template.png)

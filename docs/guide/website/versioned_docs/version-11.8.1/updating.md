@@ -24,7 +24,7 @@ You can now follow the [migration guide](../migrate) if needed.
 
 > If you're not running in production or that your version is not listed in the [migration guide](../migrate), you can ignore this step
 
-In production, `/data` is directly persisted to the database because of [version control](../advanced/versions/). You need to pull `/data` to your filesystem.
+In production, `/data` is directly persisted to the database because of [version control](advanced/versions/). You need to pull `/data` to your filesystem.
 
 Luckily, we have a tool for that:
 

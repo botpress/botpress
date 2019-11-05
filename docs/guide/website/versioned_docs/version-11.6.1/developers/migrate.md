@@ -118,7 +118,7 @@ This guide will show you how to migrate your bot from Botpress X to Botpress Ser
 
 If your bot is using `bp.dialogEngine.registerActions`, this is no longer supported in the new version. Each registered actions must be in a separate `.js` file in the folder `data/global/actions`.
 
-If your bot has custom logic in `index.js`, such as in bp.hear, that concept has been changed. We replaced those with [hooks](../../build/code). They allow you to intercept events and tell Botpress how to handle them.
+If your bot has custom logic in `index.js`, such as in bp.hear, that concept has been changed. We replaced those with [hooks](../build/code). They allow you to intercept events and tell Botpress how to handle them.
 
 Content types are handled similarly, but the UI and Renderers are now bundled in a single file.
 

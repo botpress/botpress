@@ -7,8 +7,8 @@ title: Microsoft Teams
 
 - Microsoft account with access to Azure
 - Microsoft account with access to Teams
-- [Enable the `channel-teams` module](../../main/module#enabling-or-disabling-modules)
-- Configured a valid **HTTPS** external url ([configuration](../../advanced/configuration/#exposing-your-bot-on-the-internet))
+- [Enable the `channel-teams` module](../main/module#enabling-or-disabling-modules)
+- Configured a valid **HTTPS** external url ([configuration](../advanced/configuration/#exposing-your-bot-on-the-internet))
 
 ## Before getting started...
 
