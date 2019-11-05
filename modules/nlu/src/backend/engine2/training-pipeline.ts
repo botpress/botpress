@@ -4,7 +4,7 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { SPACE } from '../tools/token-utils'
-import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec } from '../typings'
+import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Tools } from './engine2'
@@ -13,7 +13,7 @@ import { Model } from './model-service'
 import Utterance, { buildUtterances, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
-export type Trainer = (input: TrainInput, tools: Tools, cancelToken: CancellationToken) => Promise<Model>
+export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
 
 export type TrainInput = Readonly<{
   botId: string
@@ -22,6 +22,7 @@ export type TrainInput = Readonly<{
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
+  trainingSession: TrainingSession
 }>
 
 export type TrainOutput = Readonly<{
@@ -33,13 +34,6 @@ export type TrainOutput = Readonly<{
   tfIdf?: TFIDF
   kmeans?: sdk.MLToolkit.KMeans.KmeansResult
 }>
-
-export interface CancellationToken {
-  readonly uid: string
-  isCancelled(): boolean
-  cancelledAt: Date
-  cancel(): Promise<void>
-}
 
 export interface TrainArtefacts {
   list_entities: ListEntityModel[]
@@ -354,11 +348,7 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
-export const Trainer: Trainer = async (
-  input: TrainInput,
-  tools: Tools,
-  cancelToken: CancellationToken
-): Promise<Model> => {
+export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<Model> => {
   const model: Partial<Model> = {
     startedAt: new Date(),
     languageCode: input.languageCode,
@@ -369,13 +359,15 @@ export const Trainer: Trainer = async (
 
   let progress = 0
   const reportProgress: progressCB = (stepProgress = 1) => {
+    if (input.trainingSession.status === 'canceled') {
+      tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+      throw new TrainingCanceledError()
+    }
     progress = Math.floor(progress) + stepProgress
     const scaledProgress = Math.min(1, _.round(progress / NB_STEPS, 2))
-    tools.reportTrainingProgress(input.botId, input.languageCode, 'Training', scaledProgress)
+    tools.reportTrainingProgress(input.botId, 'Training', { ...input.trainingSession, progress: scaledProgress })
   }
   try {
-    // TODO: Cancellation token effect
-
     let output = await preprocessInput(input, tools)
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
@@ -405,10 +397,22 @@ export const Trainer: Trainer = async (
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
-    console.log('could not train nlu model', err)
+    // TODO use bp.logger once this is moved in Engine2
+    if (err instanceof TrainingCanceledError) {
+      console.log('Training aborted')
+    } else {
+      console.log('Could not finish training NLU model', err)
+    }
     _.merge(model, { success: false })
   } finally {
     model.finishedAt = new Date()
     return model as Model
+  }
+}
+
+class TrainingCanceledError extends Error {
+  constructor() {
+    super('Training cancelled')
+    this.name = 'CancelError'
   }
 }

@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import sdk from 'botpress/sdk'
+import sdk, { RedisLock } from 'botpress/sdk'
 
 export const BIO = {
   INSIDE: 'I',
@@ -152,7 +152,8 @@ export interface NLUState {
   nluByBot: _.Dictionary<BotState>
   languageProvider?: LanguageProvider
   health?: NLUHealth
-  broadcastLoadModel?: Function
+  broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
+  broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
 }
 
 export interface BotState {
@@ -160,6 +161,7 @@ export interface BotState {
   engine1: Engine
   engine: Engine2
   trainWatcher: sdk.ListenHandle
+  trainSessions: _.Dictionary<TrainingSession>
 }
 
 export type TFIDF = _.Dictionary<number>
@@ -199,4 +201,5 @@ export interface TrainingSession {
   status: 'training' | 'canceled' | 'done' | 'idle'
   language: string
   progress: number
+  lock?: RedisLock
 }

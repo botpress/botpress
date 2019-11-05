@@ -20,12 +20,6 @@ import LangSwitcher from './LangSwitcher'
 import NluPerformanceStatus from './NluPerformanceStatus'
 import style from './StatusBar.styl'
 
-interface TrainSession {
-  status: 'training' | 'canceled' | 'done' | 'idle'
-  language: string
-  progress: number
-}
-
 interface Props {
   isEmulatorOpen: boolean
   langSwitcherOpen: boolean
@@ -58,42 +52,39 @@ class StatusBar extends React.Component<Props> {
   }
 
   componentDidUpdate(pp, prevState) {
-    if (prevState.progress !== this.state.progress) {
-      if (this.state.progress >= 1) {
-        this.progressBar.animate(1, 300, this.taskCompleteCB)
-      } else if (this.state.progress === 0) {
+    if (this.state.working) {
+      this.progressBar.animate(this.state.progress, 200)
+    } else {
+      if (this.state.progress < 1) {
+        // canceled
         this.progressBar.set(0)
       } else {
-        this.progressBar.animate(this.state.progress, 200)
+        // done
+        this.resetStateTimeOut()
       }
     }
   }
 
-  taskCompleteCB = () => {
+  resetStateTimeOut = () => {
     setTimeout(() => this.setState({ ...DEFAULT_STATE }), 2000)
   }
 
-  shouldUpdateTrainingProgress = (trainStatus: TrainSession, botId: string): boolean => {
+  shouldUpdateNLUEvent = (event): boolean => {
     return (
-      trainStatus &&
-      botId === window.BOT_ID &&
-      trainStatus.status === 'training' &&
-      trainStatus.language === this.props.contentLang &&
-      this.state.progress !== trainStatus.progress
+      event.type === 'nlu' &&
+      event.botId === window.BOT_ID &&
+      _.get(event, 'trainSession.language') === this.props.contentLang
     )
   }
 
   handleModuleEvent = async event => {
-    if (event.message && this.state.message !== event.message) {
-      this.setState({ message: event.message, working: event.working })
-    }
-
-    if (event.type === 'nlu' && this.shouldUpdateTrainingProgress(event.trainSession, event.botId)) {
-      this.updateProgress(event.trainSession.progress)
+    if (this.shouldUpdateNLUEvent(event)) {
+      this.setState({ message: event.message, working: event.working, progress: event.trainSession.progress })
     } else if (event.working && event.value && this.state.progress !== event.value) {
       this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
-    } else if (this.state.progress !== 1 && event.working === false) {
-      this.updateProgress(1) // completed or suddenly stoped working, reset
+    }
+    if (event.message && this.state.message !== event.message) {
+      this.setState({ message: event.message, working: event.working })
     }
   }
 
@@ -138,12 +129,10 @@ class StatusBar extends React.Component<Props> {
 
   renderTaskMessage() {
     return (
-      !!this.state.progress && (
-        <div className={classNames(style.right, style.item, { [style.worker]: this.state.working })}>
-          <Glyphicon glyph={this.state.working ? 'hourglass' : 'ok-circle'} />
-          &nbsp; {this.state.message}
-        </div>
-      )
+      <div className={classNames(style.right, style.item, { [style.worker]: this.state.working })}>
+        <Glyphicon glyph={this.state.working ? 'hourglass' : 'ok-circle'} />
+        &nbsp; {this.state.message}
+      </div>
     )
   }
 

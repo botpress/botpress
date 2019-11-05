@@ -2,18 +2,18 @@ import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { isPatternValid } from '../tools/patterns-utils'
-import { Engine2, EntityExtractor } from '../typings'
+import { Engine2, EntityExtractor, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
-import { CancellationToken, computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
+import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 
 export interface Tools {
   tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  reportTrainingProgress(botId: string, language: string, message: string, progress: number): void
+  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
   ducklingExtractor: EntityExtractor
   mlToolkit: typeof MLToolkit
 }
@@ -32,15 +32,10 @@ export default class E2 implements Engine2 {
   async train(
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
-    languageCode: string
+    languageCode: string,
+    trainingSession: TrainingSession
   ): Promise<Model> {
     this.logger.info(`Started ${languageCode} training for bot ${this.botId}`)
-    const token: CancellationToken = {
-      cancel: async () => {},
-      uid: '',
-      isCancelled: () => false,
-      cancelledAt: new Date()
-    }
 
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
@@ -73,7 +68,7 @@ export default class E2 implements Engine2 {
 
     const input: TrainInput = {
       botId: this.botId,
-      // TODO add TrainToken / CancelToken
+      trainingSession,
       languageCode,
       list_entities,
       pattern_entities,
@@ -90,13 +85,17 @@ export default class E2 implements Engine2 {
 
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
-    const model = await Trainer(input, E2.tools, token)
+    const model = await Trainer(input, E2.tools)
     if (model.success) {
+      E2.tools.reportTrainingProgress(this.botId, 'Training complete', {
+        ...trainingSession,
+        progress: 1,
+        status: 'done'
+      })
       this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
       await this.loadModel(model)
     }
 
-    E2.tools.reportTrainingProgress(this.botId, languageCode, 'Training complete', 1)
     return model
   }
 
