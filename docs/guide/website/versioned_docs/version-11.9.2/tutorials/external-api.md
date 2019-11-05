@@ -56,7 +56,7 @@ Here we use templating to get the description of the first repository from the l
 
 ![Content](assets/tutorial-call-api-element.png)
 
-> 📖 What is this templating thing? Take a look at the [Mustache demo](https://mustache.github.io/#demo) to understand how templating works in Botpress.
+> 📖 What is this templating thing? Take a look at the [Mustache demo](https://mustache.github.io#demo) to understand how templating works in Botpress.
 
 Once everything is done, this is what your node should looks like:
 

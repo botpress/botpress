@@ -8,7 +8,7 @@ title: Microsoft Teams
 - Microsoft account with access to Azure
 - Microsoft account with access to Teams
 - [Enable the `channel-teams` module](../main/module#enabling-or-disabling-modules)
-- Configured a valid **HTTPS** external url ([configuration](../advanced/configuration/#exposing-your-bot-on-the-internet))
+- Configured a valid **HTTPS** external url ([configuration](../advanced/configuration#exposing-your-bot-on-the-internet))
 
 ## Before getting started...
 
@@ -22,7 +22,7 @@ These instructions will guide you through any steps required to be up and runnin
 
 1. Log on to your account on [Microsoft Azure](https://azure.microsoft.com)
 
-1. In the Azure portal, open the [App registrations](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) page.
+1. In the Azure portal, open the [App registrations](https://portal.azure.com#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) page.
 
 1. Click on `New registration`, then choose a name for your application.
 

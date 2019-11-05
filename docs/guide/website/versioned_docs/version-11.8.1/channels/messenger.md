@@ -25,7 +25,7 @@ Messenger requires you to have a Facebook App and a Facebook Page to setup your 
 - Set the following properties:
   - `appSecret`. You will find this value in your Facebook App page.
   - `verifyToken`. This is a random string you need to generate and keep secret. You'll need to copy/paste this token in the Facebook App portal when setting up your webhook.
-- Make sure you have an HTTPS url pointing to your Botpress Server and set the [`EXTERNAL_URL`](../advanced/configuration/#exposing-your-bot-on-the-internet) environment variable
+- Make sure you have an HTTPS url pointing to your Botpress Server and set the [`EXTERNAL_URL`](../advanced/configuration#exposing-your-bot-on-the-internet) environment variable
 - Restart Botpress Server to reload the configuration
 - Setup your webhook (see below)
 
@@ -48,7 +48,7 @@ Head over to `data/bots/<your_bot>/config/channel-messenger.json` and create the
 
 You will need to setup the following properties:
 
-- `accessToken` has to be set to your [Page Access Token](https://developers.facebook.com/docs/messenger-platform/getting-started/app-setup). [Official Reference](https://developers.facebook.com/docs/facebook-login/access-tokens/#pagetokens)
+- `accessToken` has to be set to your [Page Access Token](https://developers.facebook.com/docs/messenger-platform/getting-started/app-setup). [Official Reference](https://developers.facebook.com/docs/facebook-login/access-tokens#pagetokens)
 - `enabled` has to be set to `true`
 
 Restart Botpress Server to reload the configuration.
