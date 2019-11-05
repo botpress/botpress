@@ -20,12 +20,6 @@ import LangSwitcher from './LangSwitcher'
 import NluPerformanceStatus from './NluPerformanceStatus'
 import style from './StatusBar.styl'
 
-interface TrainSession {
-  status: 'training' | 'canceled' | 'done' | 'idle'
-  language: string
-  progress: number
-}
-
 interface Props {
   isEmulatorOpen: boolean
   langSwitcherOpen: boolean
@@ -75,14 +69,16 @@ class StatusBar extends React.Component<Props> {
     setTimeout(() => this.setState({ ...DEFAULT_STATE }), 2000)
   }
 
-  shouldUpdateTrainingProgress = (trainStatus: TrainSession, botId: string): boolean => {
-    return trainStatus && botId === window.BOT_ID && trainStatus.language === this.props.contentLang
-    // this.state.progress !== trainStatus.progress
+  shouldUpdateNLUEvent = (event): boolean => {
+    return (
+      event.type === 'nlu' &&
+      event.botId === window.BOT_ID &&
+      _.get(event, 'trainSession.language') === this.props.contentLang
+    )
   }
 
   handleModuleEvent = async event => {
-    if (event.type === 'nlu' && this.shouldUpdateTrainingProgress(event.trainSession, event.botId)) {
-      console.log(event.trainSession, event.message)
+    if (this.shouldUpdateNLUEvent(event)) {
       this.setState({ message: event.message, working: event.working, progress: event.trainSession.progress })
     } else if (event.working && event.value && this.state.progress !== event.value) {
       this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
