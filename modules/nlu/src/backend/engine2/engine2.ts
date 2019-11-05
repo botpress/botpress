@@ -87,11 +87,15 @@ export default class E2 implements Engine2 {
     // Error handling should be done here
     const model = await Trainer(input, E2.tools)
     if (model.success) {
+      E2.tools.reportTrainingProgress(this.botId, 'Training complete', {
+        ...trainingSession,
+        progress: 1,
+        status: 'done'
+      })
       this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
       await this.loadModel(model)
     }
 
-    E2.tools.reportTrainingProgress(this.botId, 'Training complete', { ...trainingSession, progress: 1 })
     return model
   }
 
