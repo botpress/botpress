@@ -29,5 +29,7 @@ jobs:
       - name: Publish docs
         env:
           DOCS_BUCKET_NAME: ${{ secrets.DOCS_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 sync docs/guide/website/build/botpress-docs s3://$DOCS_BUCKET_NAME/ --delete
