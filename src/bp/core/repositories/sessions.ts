@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
+import Knex from 'knex'
 import _ from 'lodash'
 
 import Database from '../database'
@@ -28,7 +29,7 @@ export interface SessionRepository {
   getExpiredContextSessionIds(botId: string): Promise<string[]>
   deleteExpiredSessions(botId: string)
   delete(id: string)
-  update(session: DialogSession)
+  update(session: DialogSession, trx?: Knex.Transaction)
 }
 
 @injectable()
@@ -111,8 +112,8 @@ export class KnexSessionRepository implements SessionRepository {
       .del()
   }
 
-  async update(session: DialogSession): Promise<void> {
-    await this.database
+  async update(session: DialogSession, trx?: Knex.Transaction): Promise<void> {
+    const req = this.database
       .knex(this.tableName)
       .where('id', session.id)
       .update({
@@ -123,6 +124,12 @@ export class KnexSessionRepository implements SessionRepository {
         session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null'),
         modified_on: this.database.knex.date.now()
       })
+
+    if (trx) {
+      req.transacting(trx)
+    }
+
+    await req
   }
 
   async delete(id: string) {

@@ -1,35 +1,81 @@
 import * as sdk from 'botpress/sdk'
+import { KnexExtension } from 'common/knex'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
+import Database from 'core/database'
 import { createExpiry } from 'core/misc/expiry'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
+import { Redis } from 'ioredis'
+import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
+import ms from 'ms'
 
+import { getOrCreate as redisFactory } from '../../../pro/services/async-redis'
 import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 import { KeyValueStore } from '../kvs'
 
+const getRedisSessionKey = sessionId => `userstate_${sessionId}`
+const BATCH_SIZE = 100
+const MEMORY_PERSIST_INTERVAL = ms('3s')
+const REDIS_MEMORY_DURATION = ms('30s')
+
 @injectable()
 export class StateManager {
+  private _redisClient!: Redis
+  private batch!: { event: sdk.IO.IncomingEvent; ignoreContext?: boolean }[]
+  private knex!: Knex & KnexExtension
+  private currentPromise
+
   constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'StateManager')
+    private logger: sdk.Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.UserRepository) private userRepo: UserRepository,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
-    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
+    @inject(TYPES.Database) private database: Database
   ) {}
+
+  public initialize() {
+    if (!process.CLUSTER_ENABLED) {
+      return
+    }
+
+    this.knex = this.database.knex
+    this.batch = []
+    this._redisClient = redisFactory('commands')
+
+    setInterval(this._runTask, MEMORY_PERSIST_INTERVAL)
+  }
 
   private LAST_MESSAGES_HISTORY_COUNT = 5
   private BOT_GLOBAL_KEY = 'global'
 
   public async restore(event: sdk.IO.IncomingEvent) {
+    const sessionId = SessionIdFactory.createIdFromEvent(event)
+
+    if (process.CLUSTER_ENABLED) {
+      try {
+        const userState = await this._redisClient.get(getRedisSessionKey(sessionId))
+        if (userState) {
+          event.state = JSON.parse(userState)
+          event.state.__stacktrace = []
+          return
+        }
+      } catch (err) {
+        this.logger.attachError(err).error(`Error reading user state from Redis`)
+      }
+    }
+
     const state = event.state
 
     const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
     state.user = user.attributes
 
-    const sessionId = SessionIdFactory.createIdFromEvent(event)
     const session = await this.sessionRepo.get(sessionId)
 
     state.context = (session && session.context) || {}
@@ -40,10 +86,27 @@ export class StateManager {
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
+    const sessionId = SessionIdFactory.createIdFromEvent(event)
+
+    if (process.CLUSTER_ENABLED) {
+      await this._redisClient.set(
+        getRedisSessionKey(sessionId),
+        JSON.stringify(event.state),
+        'PX',
+        REDIS_MEMORY_DURATION
+      )
+      this.batch.push({ event, ignoreContext })
+      return
+    }
+
+    await this._saveState(event, ignoreContext)
+  }
+
+  private async _saveState(event: sdk.IO.IncomingEvent, ignoreContext?: boolean, trx?: Knex.Transaction) {
     const { user, context, session, temp } = event.state
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-    await this.userRepo.setAttributes(event.channel, event.target, _.omitBy(user, _.isNil))
+    await this.userRepo.setAttributes(event.channel, event.target, _.omitBy(user, _.isNil), trx)
 
     // Take last 5 messages only
     if (session && session.lastMessages) {
@@ -66,7 +129,26 @@ export class StateManager {
       dialogSession.temp_data = temp || {}
     }
 
-    await this.sessionRepo.update(dialogSession)
+    await this.sessionRepo.update(dialogSession, trx)
+  }
+
+  private _runTask = async () => {
+    if (this.currentPromise || !this.batch || !this.batch.length) {
+      return
+    }
+
+    const batchCount = this.batch.length >= BATCH_SIZE ? BATCH_SIZE : this.batch.length
+    const elements = this.batch.splice(0, batchCount)
+
+    this.currentPromise = this.knex
+      .transaction(async trx => {
+        for (const { event, ignoreContext } of elements) {
+          await this._saveState(event, ignoreContext, trx)
+        }
+      })
+      .finally(() => {
+        this.currentPromise = undefined
+      })
   }
 
   @Memoize()

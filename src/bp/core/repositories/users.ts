@@ -8,7 +8,7 @@ import { TYPES } from '../types'
 export interface UserRepository {
   getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
-  setAttributes(channel: string, id: string, attributes: any): Promise<void>
+  setAttributes(channel: string, id: string, attributes: any, trx?: Knex.Transaction): Promise<void>
   getAttributes(channel: string, id: string): Promise<any>
   getAllUsers(paging?: Paging): Promise<any>
   getUserCount(): Promise<any>
@@ -83,14 +83,20 @@ export class KnexUserRepository implements UserRepository {
     return this.database.knex.json.get(user.attributes)
   }
 
-  async setAttributes(channel: string, user_id: string, attributes: any): Promise<void> {
+  async setAttributes(channel: string, user_id: string, attributes: any, trx?: Knex.Transaction): Promise<void> {
     channel = channel.toLowerCase()
     await this._dataRetentionUpdate(channel, user_id, attributes)
 
-    await this.database
+    const req = this.database
       .knex(this.tableName)
       .update({ attributes: this.database.knex.json.set(attributes) })
       .where({ channel, user_id })
+
+    if (trx) {
+      req.transacting(trx)
+    }
+
+    await req
   }
 
   async updateAttributes(channel: string, user_id: string, attributes: any): Promise<void> {
