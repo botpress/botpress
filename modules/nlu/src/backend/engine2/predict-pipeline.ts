@@ -229,6 +229,10 @@ function electIntent(input: PredictStep): PredictStep {
     .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
     .value()
 
+  if (predictions[0].confidence < 0.4) {
+    predictions.unshift({ name: 'none', context: predictions[0].context, confidence: 1 })
+  }
+
   return _.merge(_.cloneDeep(input), {
     intent_predictions: { combined: predictions, elected: _.maxBy(predictions, 'confidence') }
   })
