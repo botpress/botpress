@@ -23,12 +23,18 @@ interface HookOptions {
   timeout: number
 }
 
+const debugInstances: { [hookType: string]: IDebugInstance } = {}
+
 export namespace Hooks {
   export class BaseHook {
     debug: IDebugInstance
 
     constructor(public folder: string, public args: any, public options: HookOptions = { timeout: 1000 }) {
-      this.debug = debug.sub(folder)
+      if (debugInstances[folder]) {
+        this.debug = debugInstances[folder]
+      } else {
+        this.debug = debugInstances[folder] = debug.sub(folder)
+      }
     }
   }
 
