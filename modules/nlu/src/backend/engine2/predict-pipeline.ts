@@ -196,7 +196,7 @@ function electIntent(input: PredictStep): PredictStep {
   const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
 
   // taken from svm classifier #349
-  const predictions = _.chain(ctxPreds)
+  let predictions = _.chain(ctxPreds)
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
       const intentPreds = _.orderBy(input.intent_predictions.per_ctx[ctx], 'confidence', 'desc')
       if (intentPreds.length === 1 || intentPreds[0].confidence === 1) {
@@ -226,11 +226,15 @@ function electIntent(input: PredictStep): PredictStep {
     })
     .orderBy('confidence', 'desc')
     .uniqBy(p => p.label)
+    .filter(p => input.includedContexts.includes(p.context))
     .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
     .value()
 
-  if (predictions[0].confidence < 0.4) {
-    predictions.unshift({ name: 'none', context: predictions[0].context, confidence: 1 })
+  if (predictions[0].confidence < 0.3) {
+    predictions = [
+      { name: 'none', context: predictions[0].context, confidence: 1 },
+      ...predictions.filter(p => p.name !== 'none')
+    ]
   }
 
   return _.merge(_.cloneDeep(input), {
