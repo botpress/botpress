@@ -2,6 +2,9 @@ import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 
+let requireCache = {}
+const getRequireCacheKey = (scriptPath, module) => `req-${scriptPath}_${module}`
+
 export const explodePath = (location: string): string[] => {
   const parts: string[] = location.split(path.sep)
   const paths: string[] = []
@@ -23,7 +26,13 @@ export const explodePath = (location: string): string[] => {
   return paths.reverse()
 }
 
-export const requireAtPaths = (module: string, locations: string[]) => {
+export const requireAtPaths = (module: string, locations: string[], scriptPath?: string) => {
+  const requireKey = getRequireCacheKey(scriptPath, module)
+
+  if (requireCache[requireKey]) {
+    return requireCache[requireKey]
+  }
+
   const folders = _.flatten(locations.map(explodePath))
   const lookups = _.flatten(
     folders.map(folder => {
@@ -45,7 +54,7 @@ export const requireAtPaths = (module: string, locations: string[]) => {
         if (!fs.existsSync(loc)) {
           continue
         }
-        return require(loc)
+        return (requireCache[requireKey] = require(loc))
       } else {
         // package.json
         const pkgPath = path.join(loc, 'package.json')
@@ -57,14 +66,18 @@ export const requireAtPaths = (module: string, locations: string[]) => {
           continue
         }
         const pkgEntry = path.join(loc, pkg.main)
-        return require(pkgEntry)
+        return (requireCache[requireKey] = require(pkgEntry))
       }
     } catch (err) {}
   }
 
   try {
-    return require(module)
+    return (requireCache[requireKey] = require(module))
   } catch (err) {
     throw new Error(`Module "${module}" not found. Tried these locations: "${locations.join(', ')}"`)
   }
+}
+
+export const clearRequireCache = () => {
+  requireCache = {}
 }

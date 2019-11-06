@@ -10,7 +10,7 @@ import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { createForAction } from '../../api'
-import { requireAtPaths } from '../../modules/require'
+import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { ActionExecutionError, BPError } from '../dialog/errors'
 
@@ -49,6 +49,8 @@ export default class ActionService {
     Object.keys(require.cache)
       .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
       .map(file => delete require.cache[file])
+
+    clearRequireCache()
   }
 
   forBot(botId: string): ScopedActionService {
@@ -150,7 +152,9 @@ export class ScopedActionService {
     return !!actions.find(x => x.name === actionName)
   }
 
-  private _prepareRequire(actionLocation: string) {
+  private _prepareRequire(fullPath: string) {
+    const actionLocation = path.dirname(fullPath)
+
     let parts = path.relative(process.PROJECT_LOCATION, actionLocation).split(path.sep)
     parts = parts.slice(parts.indexOf('actions') + 1) // We only keep the parts after /actions/...
 
@@ -161,7 +165,7 @@ export class ScopedActionService {
       lookups.unshift(process.LOADED_MODULES[parts[0]])
     }
 
-    return module => requireAtPaths(module, lookups)
+    return module => requireAtPaths(module, lookups, fullPath)
   }
 
   async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
@@ -176,7 +180,7 @@ export class ScopedActionService {
     const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
 
-    const _require = this._prepareRequire(path.dirname(dirPath))
+    const _require = this._prepareRequire(dirPath)
 
     const modRequire = new Proxy(
       {},
