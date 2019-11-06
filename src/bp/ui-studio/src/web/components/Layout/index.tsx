@@ -36,7 +36,6 @@ interface ILayoutProps {
 }
 
 class Layout extends React.Component<ILayoutProps> {
-  private botpressVersion: string
   private botName: string
   private botId: string
   private mainEl: HTMLElement
@@ -49,7 +48,6 @@ class Layout extends React.Component<ILayoutProps> {
   }
 
   componentDidMount() {
-    this.botpressVersion = window.BOTPRESS_VERSION
     this.botName = window.BOT_NAME
     this.botId = window.BOT_ID
 
@@ -192,7 +190,6 @@ class Layout extends React.Component<ILayoutProps> {
           <StatusBar
             botName={this.botName || this.botId}
             onToggleEmulator={this.toggleEmulator}
-            botpressVersion={this.botpressVersion}
             emitter={this.statusBarEmitter}
             langSwitcherOpen={this.state.langSwitcherOpen}
             toggleLangSwitcher={this.toggleLangSwitcher}

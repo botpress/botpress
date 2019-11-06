@@ -1,3 +1,25 @@
+## [12.2.1](https://github.com/botpress/botpress/compare/v12.2.0...v12.2.1) (2019-11-06)
+
+
+### Bug Fixes
+
+* **analytics:** fix analytics insertion of long text ([2f5ab73](https://github.com/botpress/botpress/commit/2f5ab73))
+* **analytics:** fix analytics insertion of long text ([e3c1856](https://github.com/botpress/botpress/commit/e3c1856))
+* **core:** catalina build ([35db0d6](https://github.com/botpress/botpress/commit/35db0d6))
+* **flow:** identifying timeout flow & bigger archive timeout ([80ac8e1](https://github.com/botpress/botpress/commit/80ac8e1))
+* **flow:** identifying timeout flow & bigger archive timeout ([6c62aa9](https://github.com/botpress/botpress/commit/6c62aa9))
+* **nlu:** moved fs calls to async ([0224002](https://github.com/botpress/botpress/commit/0224002))
+* **nlu:** moved fs calls to async ([1ae90e0](https://github.com/botpress/botpress/commit/1ae90e0))
+* **nlu:** progress ([54cda62](https://github.com/botpress/botpress/commit/54cda62))
+
+
+### Features
+
+* **admin:** display when a new version available ([1327eb9](https://github.com/botpress/botpress/commit/1327eb9))
+* **nlu:** cancel training ([59058c3](https://github.com/botpress/botpress/commit/59058c3))
+
+
+
 # [12.2.0](https://github.com/botpress/botpress/compare/v12.1.6...v12.2.0) (2019-10-28)
 
 

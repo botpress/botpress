@@ -1,5 +1,6 @@
-import { ExtractedEntity, ExtractedSlot, Utterance } from './engine2'
+import { ExtractedEntity, ExtractedSlot } from './engine2'
 import { labelizeUtterance } from './labeler2'
+import Utterance from './utterance'
 
 describe('CRF labels for utterance', () => {
   test('without slots', () => {

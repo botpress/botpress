@@ -20,93 +20,93 @@ import LangSwitcher from './LangSwitcher'
 import NluPerformanceStatus from './NluPerformanceStatus'
 import style from './StatusBar.styl'
 
-const COMPLETED_DURATION = 2000
-
 interface Props {
   isEmulatorOpen: boolean
   langSwitcherOpen: boolean
   contentLang: string
   docHints: any
   updateDocumentationModal: any
-  botpressVersion: string
   user: any
+  botInfo: any
   onToggleGuidedTour: () => void
   toggleBottomPanel: () => void
   onToggleEmulator: () => void
   toggleLangSwitcher: () => void
 }
 
+const DEFAULT_STATE = {
+  progress: 0,
+  working: false,
+  message: ''
+}
+
 class StatusBar extends React.Component<Props> {
-  private progressContainerRef
-  private progressBar: Line
-  private clearCompletedStyleTimer
+  pbRef: HTMLElement
+  progressBar: Line
+  state = { ...DEFAULT_STATE }
 
-  state = {
-    progress: 0,
-    messages: [],
-    nluSynced: true,
-    contexts: []
-  }
-
-  constructor(props) {
-    super(props)
-    this.progressContainerRef = React.createRef()
+  componentDidMount() {
     EventBus.default.on('statusbar.event', this.handleModuleEvent)
+    this.initializeProgressBar()
+    this.fetchTrainingSession()
   }
 
-  async componentDidMount() {
-    await this.fetchContexts()
+  componentDidUpdate(pp, prevState) {
+    if (this.state.working) {
+      this.progressBar.animate(this.state.progress, 200)
+    } else {
+      if (this.state.progress < 1) {
+        // canceled
+        this.progressBar.set(0)
+      } else {
+        // done
+        this.resetStateTimeOut()
+      }
+    }
   }
 
-  fetchContexts = async () => {
-    const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/contexts`)
-    this.setState({ contexts: data || [] })
+  resetStateTimeOut = () => {
+    setTimeout(() => this.setState({ ...DEFAULT_STATE }), 2000)
+  }
+
+  shouldUpdateNLUEvent = (event): boolean => {
+    return (
+      event.type === 'nlu' &&
+      event.botId === window.BOT_ID &&
+      _.get(event, 'trainSession.language') === this.props.contentLang
+    )
   }
 
   handleModuleEvent = async event => {
-    if (event.message) {
-      const messages = this.state.messages.filter(x => x.type !== event.type)
-      const newMessage = { ...event, ts: Date.now() }
-      this.setState({ messages: [...messages, newMessage] })
+    if (this.shouldUpdateNLUEvent(event)) {
+      this.setState({ message: event.message, working: event.working, progress: event.trainSession.progress })
+    } else if (event.working && event.value && this.state.progress !== event.value) {
+      this.updateProgress(event.value) // @deprecated remove when engine 1 is totally gone
     }
-
-    if (event.name === 'train') {
-      await this.fetchContexts()
-      this.setState({ nluSynced: false })
-    } else if (event.name === 'done' || event.working === false) {
-      this.setState({ progress: 1 })
-    } else {
-      if (event.value != this.state.progress) {
-        this.setState({ progress: event.value })
-      }
+    if (event.message && this.state.message !== event.message) {
+      this.setState({ message: event.message, working: event.working })
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.progressBar && this.progressContainerRef.current) {
-      this.initializeProgressBar()
-    }
-
-    if (prevState.progress != this.state.progress && this.state.progress) {
-      if (this.state.progress >= 1) {
-        this.progressBar.animate(1, 300)
-        clearTimeout(this.clearCompletedStyleTimer)
-        this.clearCompletedStyleTimer = setTimeout(this.cleanupCompleted, COMPLETED_DURATION + 250)
-      } else {
-        this.progressBar.animate(this.state.progress, 200)
-      }
-    }
+  updateProgress(progress: number) {
+    this.setState({ progress })
   }
 
-  cleanupCompleted = () => {
-    const newMessages = this.state.messages.filter(x => x.ts > Date.now() - COMPLETED_DURATION)
-    this.setState({ messages: newMessages })
-    this.setState({ progress: 0 })
-    this.progressBar.set(0)
+  fetchTrainingSession = () => {
+    axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${this.props.contentLang}`).then(({ data: session }) => {
+      if (session && session.status === 'training') {
+        this.setState({
+          working: true,
+          progress: session.progress,
+          message: 'Training'
+        })
+        this.updateProgress(session.progress)
+      }
+    })
   }
 
   initializeProgressBar = () => {
-    this.progressBar = new Line(this.progressContainerRef.current, {
+    this.progressBar = new Line(this.pbRef, {
       cstrokeWidth: 10,
       easing: 'easeInOut',
       duration: 300,
@@ -124,18 +124,16 @@ class StatusBar extends React.Component<Props> {
       }
     })
 
-    // Put first in the list
-    this.progressContainerRef.current.removeChild(this.progressBar.svg)
-    this.progressContainerRef.current.prepend(this.progressBar.svg)
+    this.pbRef.prepend(this.progressBar.svg)
   }
 
-  renderTaskProgress() {
-    return this.state.messages.map(msg => (
-      <div key={`evt-${msg.type}`} className={classNames(style.right, style.item, { [style.worker]: msg.working })}>
-        <Glyphicon glyph={msg.working ? 'hourglass' : 'ok-circle'} />
-        {' ' + msg.message}
+  renderTaskMessage() {
+    return (
+      <div className={classNames(style.right, style.item, { [style.worker]: this.state.working })}>
+        <Glyphicon glyph={this.state.working ? 'hourglass' : 'ok-circle'} />
+        &nbsp; {this.state.message}
       </div>
-    ))
+    )
   }
 
   renderDocHints() {
@@ -160,7 +158,7 @@ class StatusBar extends React.Component<Props> {
 
   render() {
     return (
-      <footer ref={this.progressContainerRef} className={style.statusBar}>
+      <footer ref={el => (this.pbRef = el)} className={style.statusBar}>
         <div className={style.list}>
           <ActionItem
             title="Show Emulator"
@@ -175,11 +173,7 @@ class StatusBar extends React.Component<Props> {
           <ActionItem title="Notification" description="View Notifications" className={style.right}>
             <NotificationHub />
           </ActionItem>
-          <NluPerformanceStatus
-            contentLang={this.props.contentLang}
-            updateSyncStatus={syncedStatus => this.setState({ nluSynced: syncedStatus })}
-            synced={this.state.nluSynced}
-          />
+          <NluPerformanceStatus />
           <AccessControl resource="bot.logs" operation="read">
             <ActionItem
               id="statusbar_logs"
@@ -201,12 +195,12 @@ class StatusBar extends React.Component<Props> {
             <GoMortarBoard />
           </ActionItem>
           <div className={style.item}>
-            <strong>v{this.props.botpressVersion}</strong>
+            <strong>{window.BOTPRESS_VERSION}</strong>
           </div>
           <BotSwitcher />
           {this.props.user && this.props.user.isSuperAdmin && <ConfigStatus />}
           {this.renderDocHints()}
-          {this.renderTaskProgress()}
+          {this.renderTaskMessage()}
           <LangSwitcher
             toggleLangSwitcher={this.props.toggleLangSwitcher}
             langSwitcherOpen={this.props.langSwitcherOpen}

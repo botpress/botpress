@@ -121,9 +121,9 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
 
-    this.restoreVectorsCache()
-    this.restoreJunkWordsCache()
-    this.restoreTokensCache()
+    await this.restoreVectorsCache()
+    await this.restoreJunkWordsCache()
+    await this.restoreTokensCache()
 
     return this
   }
@@ -143,28 +143,28 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private onTokensCacheChanged = debounce(() => {
+  private onTokensCacheChanged = debounce(async () => {
     if (!this._cacheDumpDisabled) {
-      this.dumpTokensCache()
+      await this.dumpTokensCache()
     }
   }, ms('5s'))
 
-  private onVectorsCacheChanged = debounce(() => {
+  private onVectorsCacheChanged = debounce(async () => {
     if (!this._cacheDumpDisabled) {
-      this.dumpVectorsCache()
+      await this.dumpVectorsCache()
     }
   }, ms('5s'))
 
-  private onJunkWordsCacheChanged = debounce(() => {
+  private onJunkWordsCacheChanged = debounce(async () => {
     if (!this._cacheDumpDisabled) {
-      this.dumpJunkWordsCache()
+      await this.dumpJunkWordsCache()
     }
   }, ms('5s'))
 
-  private dumpTokensCache() {
+  private async dumpTokensCache() {
     try {
-      fse.ensureFileSync(this._tokensCachePath)
-      fse.writeJSONSync(this._tokensCachePath, this._tokensCache.dump())
+      await fse.ensureFile(this._tokensCachePath)
+      await fse.writeJson(this._tokensCachePath, this._tokensCache.dump())
       debug('tokens cache updated at: %s', this._tokensCachePath)
     } catch (err) {
       debug('could not persist tokens cache, error: %s', err.message)
@@ -172,10 +172,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private restoreTokensCache() {
+  private async restoreTokensCache() {
     try {
-      if (fse.existsSync(this._tokensCachePath)) {
-        const dump = fse.readJSONSync(this._tokensCachePath)
+      if (await fse.pathExists(this._tokensCachePath)) {
+        const dump = await fse.readJSON(this._tokensCachePath)
         this._tokensCache.load(dump)
       }
     } catch (err) {
@@ -183,10 +183,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private dumpVectorsCache() {
+  private async dumpVectorsCache() {
     try {
-      fse.ensureFileSync(this._vectorsCachePath)
-      fse.writeJSONSync(this._vectorsCachePath, this._vectorsCache.dump())
+      await fse.ensureFile(this._vectorsCachePath)
+      await fse.writeJSON(this._vectorsCachePath, this._vectorsCache.dump())
       debug('vectors cache updated at: %s', this._vectorsCachePath)
     } catch (err) {
       debug('could not persist vectors cache, error: %s', err.message)
@@ -194,10 +194,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private restoreVectorsCache() {
+  private async restoreVectorsCache() {
     try {
-      if (fse.existsSync(this._vectorsCachePath)) {
-        const dump = fse.readJSONSync(this._vectorsCachePath)
+      if (await fse.pathExists(this._vectorsCachePath)) {
+        const dump = await fse.readJSON(this._vectorsCachePath)
         if (dump) {
           const kve = dump.map(x => ({ e: x.e, k: x.k, v: Float32Array.from(Object.values(x.v)) }))
           this._vectorsCache.load(kve)
@@ -208,10 +208,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private dumpJunkWordsCache() {
+  private async dumpJunkWordsCache() {
     try {
-      fse.ensureFileSync(this._junkwordsCachePath)
-      fse.writeJSONSync(this._junkwordsCachePath, this._junkwordsCache.dump())
+      await fse.ensureFile(this._junkwordsCachePath)
+      await fse.writeJSON(this._junkwordsCachePath, this._junkwordsCache.dump())
       debug('junk words cache updated at: %s', this._junkwordsCache)
     } catch (err) {
       debug('could not persist junk cache, error: %s', err.message)
@@ -219,10 +219,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private restoreJunkWordsCache() {
+  private async restoreJunkWordsCache() {
     try {
-      if (fse.existsSync(this._junkwordsCachePath)) {
-        const dump = fse.readJSONSync(this._junkwordsCachePath)
+      if (await fse.pathExists(this._junkwordsCachePath)) {
+        const dump = await fse.readJSON(this._junkwordsCachePath)
         this._vectorsCache.load(dump)
       }
     } catch (err) {
@@ -301,7 +301,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       result = this.generateJunkWords(subsetVocab, gramset) // randomly generated words
       await this.vectorize(result, lang) // vectorize them all in one request to cache the tokens // TODO: remove this
       this._junkwordsCache.set(gramset, result)
-      this.onJunkWordsCacheChanged()
+      await this.onJunkWordsCacheChanged()
     }
 
     return result
@@ -368,7 +368,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
         this._vectorsCache.set(getCacheKey(tokens[tokenIdx]), vectors[tokenIdx])
       })
 
-      this.onVectorsCacheChanged()
+      await this.onVectorsCacheChanged()
     }
 
     return vectors
@@ -429,7 +429,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
         this._tokensCache.set(getCacheKey(utterances[utteranceIdx]), tokenUtterances[utteranceIdx])
       })
 
-      this.onTokensCacheChanged()
+      await this.onTokensCacheChanged()
     }
 
     // we restore original chars and casing

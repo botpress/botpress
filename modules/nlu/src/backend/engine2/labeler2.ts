@@ -1,9 +1,10 @@
 import _ from 'lodash'
 
-import { Intent, Utterance } from './engine2'
+import { TagResult } from '../pipelines/slots/labeler'
 import { BIO, Tag } from '../typings'
 
-import { TagResult } from '../pipelines/slots/labeler'
+import { Intent } from './training-pipeline'
+import Utterance from './utterance'
 
 const MIN_SLOT_CONFIDENCE = 0.15
 
