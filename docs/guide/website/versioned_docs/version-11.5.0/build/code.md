@@ -69,7 +69,7 @@ When an action is invoked by the Dialogue Manager (DM), it gets passed the follo
 - `event`: The original (latest) event received from the user in the conversation.
 - `args`: The arguments that were passed to this action from the Visual Flow Builder.
 
-Check out the page [Bot Memory and Data Retention](../memory) for more details about the lifetime of these objects.
+Check out the page [Bot Memory and Data Retention](memory) for more details about the lifetime of these objects.
 
 ### Example
 

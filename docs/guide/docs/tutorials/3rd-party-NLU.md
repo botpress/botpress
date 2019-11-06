@@ -5,7 +5,7 @@ title: Using a 3rd party NLU
 
 ## Overview
 
-Botpress native NLU runs on premise and supports a finite set of languages. If you plan do develop bots in languages that are not supported by Botpress or if you simply want to use another NLU solution, then you'll need to setup a 3rd party NLU connector. To achieve this we'll use the power of Botpress [Hooks](../../main/code#hooks).
+Botpress native NLU runs on premise and supports a finite set of languages. If you plan do develop bots in languages that are not supported by Botpress or if you simply want to use another NLU solution, then you'll need to setup a 3rd party NLU connector. To achieve this we'll use the power of Botpress [Hooks](../main/code#hooks).
 
 ### Define languages
 
@@ -26,13 +26,13 @@ One use case of using a 3rd party NLU is to support more languages then those ha
 }
 ```
 
-Now that this is done, you can go in your bot config page and choose the language(s) you want your bot to support. For more details on this [check the docs](../../advanced/i18n). Note that multilingual is a Botpress Pro feature.
+Now that this is done, you can go in your bot config page and choose the language(s) you want your bot to support. For more details on this [check the docs](../advanced/i18n). Note that multilingual is a Botpress Pro feature.
 
 ### Sync NLU data to 3rd party
 
 This section is useful if you want to use the Botpress NLU user interface to define your intents, entities and slots. You can skip if this section if you don't want to use the user interface.
 
-Intents and entities are stored as JSON in BPFS (formerly ghost) which stores data either on local filesystem or in the database. The first thing we want to do is to listen on any intents/entities changes and sync the data to our 3rd party NLU (same as the [previous tutorial](../../tutorials/listen-file-changes)). This way, when one edits intent or entities in the NLU UI, we get notified. We can do this with a Botpress [after bot mount hook](../../main/code#after-bot-mount). You can use the code editor module to create hooks easily. Here's how the code for our `fileWatcher` looks like.
+Intents and entities are stored as JSON in BPFS (formerly ghost) which stores data either on local filesystem or in the database. The first thing we want to do is to listen on any intents/entities changes and sync the data to our 3rd party NLU (same as the [previous tutorial](listen-file-changes)). This way, when one edits intent or entities in the NLU UI, we get notified. We can do this with a Botpress [after bot mount hook](../main/code#after-bot-mount). You can use the code editor module to create hooks easily. Here's how the code for our `fileWatcher` looks like.
 
 ```js
 async function sync(bp: typeof sdk, botId: string) {
@@ -80,7 +80,7 @@ Here you go, you can now still use the Botpress NLU UI to define your intents/en
 
 ### Use your 3rd Party NLU for classification and extraction
 
-We will use a similar strategy for prediction time. Basically, what we want to do is call our 3rd party NLU for each incoming user message. We will use a [before incoming hook](../../main/code#before-incoming-middleware) which is fired when a user message gets in Botpress. The code is not complex, just keep in mind that Botpress works with a precise data structure, so you'll need to map the response data of your NLU provider to [Botpress NLU data format](https://botpress.io/reference/interfaces/_botpress_sdk_.io.eventunderstanding.html). The hook will look like the following:
+We will use a similar strategy for prediction time. Basically, what we want to do is call our 3rd party NLU for each incoming user message. We will use a [before incoming hook](../main/code#before-incoming-middleware) which is fired when a user message gets in Botpress. The code is not complex, just keep in mind that Botpress works with a precise data structure, so you'll need to map the response data of your NLU provider to [Botpress NLU data format](https://botpress.io/reference/interfaces/_botpress_sdk_.io.eventunderstanding.html). The hook will look like the following:
 
 ```js
   const axios = require('axios')

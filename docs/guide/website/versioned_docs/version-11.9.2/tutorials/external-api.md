@@ -12,7 +12,7 @@ In this tutorial, we're going to fetch the list of Botpress repositories on Gith
 
 ## Create an action
 
-We're going to use `axios` as http client because its already a Botpress dependency. See our [Custom Code](../../main/code/) section to learn more about how dependencies work in Actions.
+We're going to use `axios` as http client because its already a Botpress dependency. See our [Custom Code](../main/code) section to learn more about how dependencies work in Actions.
 
 Start by creating a new javascript file in `/data/global/actions/callApi.js`. Then copy the following code:
 
@@ -36,7 +36,7 @@ const callApi = async () => {
 return callApi()
 ```
 
-> 📖 What is the `session` variable? Learn how to use [Memory](../../main/memory) to store data.
+> 📖 What is the `session` variable? Learn how to use [Memory](../main/memory) to store data.
 
 ## Create a node
 
@@ -46,7 +46,7 @@ Add an `onEnter` action instruction and select the `callApi` action from the lis
 
 ![Action](assets/tutorial-call-api-action.png)
 
-> 📖 What are `onEnter` instructions? Understand how the node [Lifecycle](../../main/dialog#nodes) works.
+> 📖 What are `onEnter` instructions? Understand how the node [Lifecycle](../main/dialog#nodes) works.
 
 ### Add a text content element
 
@@ -56,7 +56,7 @@ Here we use templating to get the description of the first repository from the l
 
 ![Content](assets/tutorial-call-api-element.png)
 
-> 📖 What is this templating thing? Take a look at the [Mustache demo](https://mustache.github.io/#demo) to understand how templating works in Botpress.
+> 📖 What is this templating thing? Take a look at the [Mustache demo](https://mustache.github.io#demo) to understand how templating works in Botpress.
 
 Once everything is done, this is what your node should looks like:
 
