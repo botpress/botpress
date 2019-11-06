@@ -1,18 +1,14 @@
 import scrapy
+from urllib.parse import urlparse
 
 
 class BrokenLinksSpider(scrapy.Spider):
-    """
-    Finds broken links on your website
-    Source: https://gist.github.com/mdamien/7b71ef06f49de1189fb75f8fed91ae82
-    """
     name = 'brokenlink-checker'
 
-
-    def __init__(self, site, *args, **kwargs):
+    def __init__(self, site, domain, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.start_urls = [site]
-        self.DOMAIN = site.split('//')[1]
+        self.allowed_domains = [domain]
 
 
     def parse(self, response):
@@ -26,11 +22,12 @@ class BrokenLinksSpider(scrapy.Spider):
 
             yield item
 
-        if self.DOMAIN in response.url:
+        parseresult = urlparse(response.url)
+        if parseresult.netloc in self.allowed_domains and (parseresult.path.startswith('/docs') or parseresult.path.startswith('/versions')):
             for link in response.css('a'):
                 href = link.xpath('@href').extract()
                 text = link.xpath('text()').extract()
-                if href:
+                if href: # maybe should show an error if no href
                     yield response.follow(link, self.parse, meta={
                         'prev_link_text': text,
                         'prev_href': href,
