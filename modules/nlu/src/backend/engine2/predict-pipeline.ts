@@ -175,13 +175,12 @@ async function predictIntent(input: PredictStep): Promise<PredictStep> {
 // taken from svm classifier #295
 // this means that the 3 best predictions are really close, do not change magic numbers
 function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]): boolean {
-  const intentsPreds = predictions.filter(x => x.label !== 'none')
-  if (intentsPreds.length <= 2) {
+  if (predictions.length <= 2) {
     return false
   }
 
-  const std = math.std(intentsPreds.map(p => p.confidence))
-  const diff = (intentsPreds[0].confidence - intentsPreds[1].confidence) / std
+  const std = math.std(predictions.map(p => p.confidence))
+  const diff = (predictions[0].confidence - predictions[1].confidence) / std
   if (diff >= 2.5) {
     return false
   }

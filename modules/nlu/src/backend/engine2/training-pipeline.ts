@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { SPACE } from '../tools/token-utils'
+import { isSpace, SPACE } from '../tools/token-utils'
 import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
@@ -291,19 +291,18 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   }
 
   const allUtterances = _.flatten(input.intents.map(x => x.utterances))
-  const vocabulary = _.chain(allUtterances)
+  const vocabWithDupes = _.chain(allUtterances)
     .map(x => x.tokens.map(x => x.value))
     .flattenDeep<string>()
-    .uniq()
     .value()
 
-  const junkWords = await tools.generateSimilarJunkWords(vocabulary, input.languageCode)
+  const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
   const avgUtterances = _.meanBy(input.intents, x => x.utterances.length)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
   const nbOfNoneUtterances = Math.max(5, avgUtterances)
 
-  // If 50% of words start with a space, we know this language is probably space-separated, and so we'll join tokens using spaces
-  const joinChar = vocabulary.filter(x => x.startsWith(SPACE)).length >= vocabulary.length * 0.5 ? SPACE : ''
+  // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
+  const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
   const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => {
     const nbWords = Math.round(_.random(avgTokens / 2, avgTokens * 2, false))
