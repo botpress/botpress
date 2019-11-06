@@ -81,7 +81,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
 }
 ```
 
-You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](../dialog).
+You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](dialog).
 
 ##### Example
 
@@ -170,7 +170,7 @@ Botpress Native NLU offers a handful of system entity extraction thanks to [Face
 
 At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
 
-For instructions on how to host your own Duckling server, please check the [Deployment](../../advanced/hosting) section.
+For instructions on how to host your own Duckling server, please check the [Deployment](../advanced/hosting) section.
 
 ##### Example
 
@@ -342,13 +342,13 @@ slots : {
 
 ### Slot Filling
 
-Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../../tutorials/skill-slot) for further details.
+Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../tutorials/skill-slot) for further details.
 
 ## External NLU Providers
 
 Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
 
-If for some reason you want to use an external provider, you can do so by using [Hooks](../code#hooks) and calling the external NLU provider via API.
+If for some reason you want to use an external provider, you can do so by using [Hooks](code#hooks) and calling the external NLU provider via API.
 
 > **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support [see why](https://github.com/botpress/botpress/pull/1170) for two-way synchronization as there were too many issues in doing (and maintaining) that.
 

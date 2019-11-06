@@ -32,6 +32,7 @@ To create more accounts, visit the `Collaborators` tab on the Admin UI. Choose t
 Super Admins are able to reset the password of any user using the basic authentication.
 
 #### Configuration Example
+
 In your `botpress.config.json` file:
 
 ```js
@@ -234,7 +235,7 @@ cat jwtRS256.key.pub // Your public key
 
 ### Authenticate the user
 
-Once you have generated the JWT token, it must be passed down to the web chat. It will then be sent to Botpress with every message and events. Check out the [Connecting your bot with your existing backend](../../tutorials/existing-backend) for more details. There are two different situations:
+Once you have generated the JWT token, it must be passed down to the web chat. It will then be sent to Botpress with every message and events. Check out the [Connecting your bot with your existing backend](../tutorials/existing-backend) for more details. There are two different situations:
 
 1. The user is authenticated before the webchat is loaded.
 
