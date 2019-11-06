@@ -545,6 +545,7 @@ declare module 'botpress/sdk' {
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
+      readonly ms: number
     }
 
     export interface IncomingEvent extends Event {

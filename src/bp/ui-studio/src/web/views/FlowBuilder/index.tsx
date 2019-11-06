@@ -201,9 +201,8 @@ class FlowBuilder extends Component<Props, State> {
       delete: e => {
         if (!isInputFocused()) {
           e.preventDefault()
+          this.diagram.deleteSelectedElements()
         }
-
-        this.diagram.deleteSelectedElements()
       },
       cancel: e => {
         e.preventDefault()

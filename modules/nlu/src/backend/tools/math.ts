@@ -85,3 +85,5 @@ export function allInRange(vec: number[], lower: number, upper: number): boolean
 export function computeQuantile(quantile: number, target: number, upperBound: number, lowerBound: number = 0): number {
   return Math.min(quantile, Math.max(Math.ceil(quantile * ((target - lowerBound) / (upperBound - lowerBound))), 1))
 }
+
+export { log, std } from 'mathjs'

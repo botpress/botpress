@@ -3,6 +3,7 @@ import axios from 'axios'
 import cx from 'classnames'
 import _ from 'lodash'
 import React from 'react'
+import { connect } from 'react-redux'
 
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
@@ -13,9 +14,7 @@ interface MatrixInfo {
 }
 
 interface Props {
-  synced: boolean
   contentLang: string
-  updateSyncStatus: (synced: boolean) => void
 }
 
 interface State {
@@ -32,7 +31,7 @@ const toastError = message =>
     timeout: 0
   })
 
-export default class NluPerformanceStatus extends React.Component<Props, State> {
+class NluPerformanceStatus extends React.Component<Props, State> {
   state: State = {
     f1: undefined,
     synced: true,
@@ -47,10 +46,6 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!this.props.synced && this.state.synced) {
-      this.setState({ f1: undefined, synced: false })
-    }
-
     if (prevProps.contentLang && prevProps.contentLang != this.props.contentLang) {
       // tslint:disable-next-line: no-floating-promises
       this.fetchConfusion()
@@ -91,7 +86,6 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     const { matrix, confusionComputing } = await this.getConfusionMatrix(modelHash)
     const f1 = confusionComputing ? undefined : this.extractF1FromMatrix(matrix)
     const synced = !!matrix
-    this.props.updateSyncStatus(synced)
     this.setState({ f1, synced, computing: confusionComputing })
   }
 
@@ -192,3 +186,9 @@ export default class NluPerformanceStatus extends React.Component<Props, State> 
     )
   }
 }
+
+const mapStateToProps = state => ({
+  contentLang: state.language.contentLang
+})
+
+export default connect(mapStateToProps)(NluPerformanceStatus)
