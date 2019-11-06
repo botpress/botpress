@@ -26,5 +26,7 @@ jobs:
           yarn cmd build:guide
           cp docs/guide/website/build/botpress-docs/index.html docs/guide/website/build/botpress-docs/docs/index.html
       - name: Publish docs
+        env:
+          DOCS_BUCKET_NAME: ${{ secrets.DOCS_BUCKET_NAME }}
         run: |
           aws s3 sync docs/guide/website/build/botpress-docs s3://$DOCS_BUCKET_NAME/ --delete
