@@ -182,36 +182,25 @@ export class ScopedActionService {
 
     const _require = this._prepareRequire(dirPath)
 
-    const modRequire = new Proxy(
-      {},
-      {
-        get: (_obj, prop) => _require(prop)
-      }
-    )
-
-    const vm = new NodeVM({
-      wrapper: 'none',
-      sandbox: {
-        bp: api,
-        event: incomingEvent,
-        user: incomingEvent.state.user,
-        temp: incomingEvent.state.temp,
-        session: incomingEvent.state.session,
-        args: actionArgs,
-        printObject: printObject,
-        process: UntrustedSandbox.getSandboxProcessArgs()
-      },
-      require: {
-        external: true,
-        mock: modRequire
-      },
-      timeout: 5000
-    })
-
-    const runner = new VmRunner()
+    const args = {
+      bp: api,
+      event: incomingEvent,
+      user: incomingEvent.state.user,
+      temp: incomingEvent.state.temp,
+      session: incomingEvent.state.session,
+      args: actionArgs,
+      printObject: printObject,
+      process: UntrustedSandbox.getSandboxProcessArgs()
+    }
 
     try {
-      const result = await runner.runInVm(vm, code, dirPath)
+      let result
+      if (action.location === 'global' && !process.FORCE_CODE_SANDBOX) {
+        result = await this.runWithoutVm(code, args, _require)
+      } else {
+        result = await this.runInVm(code, dirPath, args, _require)
+      }
+
       debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
 
       return result
@@ -222,6 +211,38 @@ export class ScopedActionService {
         .error(`An error occurred while executing the action "${actionName}`)
       throw new ActionExecutionError(err.message, actionName, err.stack)
     }
+  }
+
+  private async runWithoutVm(code: string, args: any, _require: Function) {
+    args = {
+      ...args,
+      require: _require
+    }
+
+    const fn = new Function(...Object.keys(args), code)
+    return fn(...Object.values(args))
+  }
+
+  private async runInVm(code: string, dirPath: string, args: any, _require: Function) {
+    const modRequire = new Proxy(
+      {},
+      {
+        get: (_obj, prop) => _require(prop)
+      }
+    )
+
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: args,
+      require: {
+        external: true,
+        mock: modRequire
+      },
+      timeout: 5000
+    })
+
+    const runner = new VmRunner()
+    return runner.runInVm(vm, code, dirPath)
   }
 
   private async findAction(actionName: string): Promise<ActionDefinition> {
