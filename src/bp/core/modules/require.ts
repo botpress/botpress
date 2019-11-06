@@ -29,7 +29,7 @@ export const explodePath = (location: string): string[] => {
 export const requireAtPaths = (module: string, locations: string[], scriptPath?: string) => {
   const requireKey = getRequireCacheKey(scriptPath, module)
 
-  if (requireCache[requireKey]) {
+  if (requireCache[requireKey] && scriptPath) {
     return requireCache[requireKey]
   }
 
