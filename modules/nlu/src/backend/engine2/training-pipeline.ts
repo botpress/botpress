@@ -27,8 +27,8 @@ export type TrainInput = Readonly<{
 
 export type TrainOutput = Readonly<{
   languageCode: string
-  pattern_entities: PatternEntity[]
   list_entities: ListEntityModel[]
+  pattern_entities: PatternEntity[]
   contexts: string[]
   intents: Intent<Utterance>[]
   tfIdf?: TFIDF
