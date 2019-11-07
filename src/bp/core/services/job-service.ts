@@ -1,5 +1,6 @@
 import { RedisLock } from 'botpress/sdk'
 import { injectable } from 'inversify'
+import { Redis } from 'ioredis'
 
 export interface JobService {
   /**
@@ -16,6 +17,8 @@ export interface JobService {
   acquireLock(resource: string, duration: number): Promise<RedisLock | undefined>
 
   clearLock(resource: string): Promise<boolean>
+
+  getRedisClient(): Redis | undefined
 }
 
 @injectable()
@@ -34,5 +37,9 @@ export class CEJobService implements JobService {
 
   async clearLock(resource: string): Promise<boolean> {
     return true
+  }
+
+  getRedisClient(): undefined {
+    return
   }
 }

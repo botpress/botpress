@@ -11,10 +11,10 @@ import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
 
-import { getOrCreate as redisFactory } from '../../../pro/services/async-redis'
 import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
+import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
 
 const getRedisSessionKey = sessionId => `userstate_${sessionId}`
@@ -37,7 +37,8 @@ export class StateManager {
     @inject(TYPES.UserRepository) private userRepo: UserRepository,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
-    @inject(TYPES.Database) private database: Database
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {}
 
   public initialize() {
@@ -47,7 +48,11 @@ export class StateManager {
 
     this.knex = this.database.knex
     this.batch = []
-    this._redisClient = redisFactory('commands')
+
+    const client = this.jobService.getRedisClient()
+    if (client) {
+      this._redisClient = client
+    }
 
     setInterval(this._runTask, MEMORY_PERSIST_INTERVAL)
   }
