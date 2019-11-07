@@ -2,13 +2,11 @@ import { Logger } from 'botpress/sdk'
 import fs from 'fs'
 import fse from 'fs-extra'
 import _ from 'lodash'
-import { memoize } from 'lodash-decorators'
+import ms from 'ms'
 import path from 'path'
 import tmp from 'tmp'
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
-
-import { getCacheKeyInMinutes } from './utils'
 
 export type CodeFile = {
   relativePath: string
@@ -95,16 +93,27 @@ export class SafeCodeSandbox {
 }
 
 export class UntrustedSandbox {
-  @memoize(() => getCacheKeyInMinutes(5)) // cache the result of this function for 1 minute
+  static cache: any
+  static cacheExpiry: number
+
   static getSandboxProcessArgs() {
-    const exposedEnv = {
-      ..._.pickBy(process.env, (_value, name) => name.startsWith('EXPOSED_')),
-      ..._.pick(process.env, 'TZ', 'LANG', 'LC_ALL', 'LC_CTYPE')
+    if (Date.now() > this.cacheExpiry) {
+      this.cache = undefined
     }
 
-    return {
-      ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY', 'ROOT_PATH'),
-      env: exposedEnv
+    if (this.cache) {
+      return this.cache
     }
+
+    this.cacheExpiry = Date.now() + ms('2m')
+    this.cache = {
+      ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY', 'ROOT_PATH'),
+      env: {
+        ..._.pickBy(process.env, (_value, name) => name.startsWith('EXPOSED_')),
+        ..._.pick(process.env, 'TZ', 'LANG', 'LC_ALL', 'LC_CTYPE')
+      }
+    }
+
+    return this.cache
   }
 }
