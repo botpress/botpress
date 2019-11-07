@@ -100,7 +100,7 @@ try {
           process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
-        process.FORCE_CODE_SANDBOX = yn(process.env.FORCE_CODE_SANDBOX)
+        process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
         process.IS_LICENSED = true
         process.ASSERT_LICENSED = () => {}
         process.BOTPRESS_VERSION = metadataContent.version

@@ -195,7 +195,7 @@ export class ScopedActionService {
 
     try {
       let result
-      if (action.location === 'global' && !process.FORCE_CODE_SANDBOX) {
+      if (action.location === 'global' && process.DISABLE_GLOBAL_SANDBOX) {
         result = await this.runWithoutVm(code, args, _require)
       } else {
         result = await this.runInVm(code, dirPath, args, _require)

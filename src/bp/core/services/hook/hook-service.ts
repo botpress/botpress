@@ -238,7 +238,7 @@ export class HookService {
     hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
     process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
 
-    if (!process.FORCE_CODE_SANDBOX) {
+    if (process.DISABLE_GLOBAL_SANDBOX) {
       await this.runWithoutVm(hookScript, hook, botId, _require)
     } else {
       await this.runInVm(hookScript, hook, botId, _require)
