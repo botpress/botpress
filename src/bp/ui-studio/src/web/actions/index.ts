@@ -356,3 +356,19 @@ export const refreshHints = () => dispatch => {
     dispatch(hintsReceived(res.data))
   })
 }
+
+export const actionsReceived = createAction('ACTIONS/RECEIVED')
+export const refreshActions = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/actions`).then(({ data }) => {
+    dispatch(actionsReceived(_.sortBy(data.filter(action => !action.metadata.hidden), ['metadata.category', 'name'])))
+  })
+}
+
+export const intentsReceived = createAction('INTENTS/RECEIVED')
+export const refreshIntents = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/mod/nlu/intents`).then(({ data }) => {
+    dispatch(intentsReceived(data))
+  })
+}
