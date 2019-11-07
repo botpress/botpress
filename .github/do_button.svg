@@ -14,7 +14,7 @@
                     <polygon id="XMLID_46_" points="6.08695652 19.1304348 3.47826087 19.1304348 3.47826087 19.1304348 3.47826087 16.5217391 6.08695652 16.5217391"></polygon>
                     <polygon id="XMLID_45_" points="3.47826087 16.5217391 0.869565217 16.5217391 0.869565217 16.5217391 0.869565217 13.9130435 0.869565217 13.9130435 3.47826087 13.9130435 3.47826087 13.9130435"></polygon>
                 </g>
-                <text id="Create-a-Droplet-Copy" font-family="Sailec-Medium, Sailec" font-size="16" font-weight="400" fill="#FFFFFF">
+                <text id="Create-a-Droplet-Copy" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">
                     <tspan x="58" y="26">Create a Droplet</tspan>
                 </text>
             </g>
