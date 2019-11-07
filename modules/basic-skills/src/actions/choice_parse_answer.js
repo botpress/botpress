@@ -42,10 +42,10 @@ const validateChoice = async data => {
   }
 
   if (choice) {
-    temp['skill-choice-valid'] = true
-    temp['skill-choice-ret'] = choice
+    temp[`skill-choice-valid-${args.randomId}`] = true
+    temp[`skill-choice-ret-${args.randomId}`] = choice
   } else {
-    temp['skill-choice-valid'] = false
+    temp[`skill-choice-valid-${args.randomId}`] = false
   }
 }
 
