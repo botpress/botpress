@@ -171,6 +171,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
             onChange={this.handleTagChange(choice.value)}
             placeholder="Separate values with commas..."
             values={keywordsEntry}
+            tagProps={{ minimal: true }}
           />
         </div>
       )

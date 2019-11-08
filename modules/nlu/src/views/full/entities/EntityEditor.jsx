@@ -2,8 +2,8 @@ import React from 'react'
 import style from './style.scss'
 import { ListGroupItem, Glyphicon, Label, FormControl, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import _ from 'lodash'
-import { WithContext as ReactTags } from 'react-tag-input'
 import classNames from 'classnames'
+import { TagInput } from '@blueprintjs/core'
 
 const DEFAULT_STATE = {
   currentOccurence: undefined,
@@ -38,26 +38,6 @@ export default class EntityEditor extends React.Component {
     if (event.keyCode === enterKey) {
       cb()
     }
-  }
-
-  addSynonym = (occurenceIndex, synonym) => {
-    let entity = this.state.currentEntity
-
-    if (entity.occurences[occurenceIndex].synonyms.includes(synonym.text)) {
-      // TODO display something
-      return
-    }
-
-    entity.occurences[occurenceIndex].synonyms.push(synonym.text)
-
-    this.setState({ currentEntity: entity }, this.onUpdate)
-  }
-
-  removeSynonym = (occurenceIndex, synonymIndex) => {
-    let entity = this.state.currentEntity
-
-    entity.occurences[occurenceIndex].synonyms.splice(synonymIndex, 1)
-    this.setState({ currentEntity: entity }, this.onUpdate)
   }
 
   onSynonymInputChange = event => {
@@ -109,6 +89,12 @@ export default class EntityEditor extends React.Component {
     this.setState({ currentEntity: entity, currentOccurence: entity.occurences[0] }, this.onUpdate)
   }
 
+  handleTagChange = occurenceIndex => synonyms => {
+    let entity = this.state.currentEntity
+    entity.occurences[occurenceIndex].synonyms = synonyms
+    this.setState({ currentEntity: entity }, this.onUpdate)
+  }
+
   renderOccurences = () => {
     const occurences = this.state.currentEntity && this.state.currentEntity.occurences
     if (!occurences) {
@@ -128,12 +114,11 @@ export default class EntityEditor extends React.Component {
         {occurences.map((o, occIdx) => (
           <ListGroupItem className={style.occurence} key={`nlu_occurence_${o.name}`}>
             <div className={style.occurenceName}>{o.name}</div>
-            <ReactTags
-              placeholder="Enter a synonym"
-              tags={o.synonyms.map(s => ({ id: s.replace(/[^A-Z0-9_-]/gi, '_'), text: s }))}
-              handleDelete={index => this.removeSynonym(occIdx, index)}
-              handleAddition={e => this.addSynonym(occIdx, e)}
-              allowDeleteFromEmptyInput={false}
+            <TagInput
+              onChange={this.handleTagChange(occIdx)}
+              placeholder="Separate values with commas..."
+              values={o.synonyms}
+              tagProps={{ minimal: true }}
             />
             <Glyphicon glyph="trash" className={style.occurenceDelete} onClick={() => this.removeOccurence(o)} />
           </ListGroupItem>
