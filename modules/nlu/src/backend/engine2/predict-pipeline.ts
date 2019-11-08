@@ -122,7 +122,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
   return { ...input }
 }
 
-async function predictContex(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
+async function predictContext(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
   if (predictors.intents.length === 0) {
     return { ...input, ctx_predictions: [{ label: DEFAULT_CTX, confidence: 1 }] }
   }
@@ -336,7 +336,7 @@ export const Predict = async (
 
     stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-    stepOutput = await predictContex(stepOutput, predictors)
+    stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
     stepOutput = electIntent(stepOutput)
     stepOutput = detectAmbiguity(stepOutput)

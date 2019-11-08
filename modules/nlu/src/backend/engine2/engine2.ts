@@ -99,7 +99,7 @@ export default class E2 implements Engine2 {
     return model
   }
 
-  private modelAlreadyloaded(model: Model) {
+  private modelAlreadyLoaded(model: Model) {
     return (
       this.predictorsByLang[model.languageCode] !== undefined &&
       this.modelsByLang[model.languageCode] !== undefined &&
@@ -112,7 +112,7 @@ export default class E2 implements Engine2 {
   }
 
   async loadModel(model: Model) {
-    if (this.modelAlreadyloaded(model)) {
+    if (this.modelAlreadyLoaded(model)) {
       return
     }
 
