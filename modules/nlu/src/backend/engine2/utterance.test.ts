@@ -11,17 +11,17 @@ const VECTORS = TOKENS.map(() => Array.from({ length: 5 }, () => _.random(0, 1, 
 describe('UtteranceClass', () => {
   describe('tokens', () => {
     test('Array is readonly', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       expect(() => (utterance.tokens = [])).toThrow()
     })
 
     test('Token object is readonly', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       expect(() => (utterance.tokens[0].index = 25)).toThrow()
     })
 
     test('tokens & vectors are properly associated', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       utterance.tokens.forEach((tok, i) => {
         expect(tok.index).toEqual(i)
         expect(tok.value).toEqual(TOKENS[i])
@@ -30,11 +30,11 @@ describe('UtteranceClass', () => {
     })
 
     test('different tokens and vectors length throws', () => {
-      expect(() => new Utterance(TOKENS.slice(0, -1), VECTORS)).toThrow()
+      expect(() => new Utterance(TOKENS.slice(0, -1), VECTORS, 'en')).toThrow()
     })
 
     test('toString', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
 
       expect(utterance.tokens[0].toString()).toEqual('You')
       expect(utterance.tokens[0].toString({ lowerCase: true })).toEqual('you')
@@ -44,7 +44,7 @@ describe('UtteranceClass', () => {
     })
 
     test('slots', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
 
       expect(utterance.tokens[0].slots).toEqual([])
       utterance.tagSlot({ name: 'person', confidence: 0.45, source: 'anything' }, 0, 3)
@@ -55,7 +55,7 @@ describe('UtteranceClass', () => {
     })
 
     test('entities', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       expect(utterance.tokens[0].entities).toEqual([])
       expect(utterance.tokens[3].entities).toEqual([])
       utterance.tagEntity({ type: 'car', confidence: 0.45, value: 'mercedes', metadata: {} }, 5, 10)
@@ -67,7 +67,7 @@ describe('UtteranceClass', () => {
     })
 
     test('tfidf', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
 
       expect(utterance.tokens[0].tfidf).toEqual(1)
       const tfidf = {
@@ -80,7 +80,7 @@ describe('UtteranceClass', () => {
     })
 
     test('kmeans', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
 
       expect(utterance.tokens[0].cluster).toEqual(1)
       const mockedKmeans = {
@@ -106,13 +106,13 @@ describe('UtteranceClass', () => {
     }
 
     test('tagSlots out of range', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       expect(() => utterance.tagSlot(slot, 500, 800)).toThrow()
       expect(utterance.slots).toEqual([])
     })
 
     test('tagSlots single token', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       utterance.tagSlot(slot, 0, 3)
       expect(utterance.slots[0].startPos).toEqual(0)
       expect(utterance.slots[0].startTokenIdx).toEqual(0)
@@ -121,7 +121,7 @@ describe('UtteranceClass', () => {
     })
 
     test('tagSlots multiple tokens', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       utterance.tagSlot(slot, 3, 9)
 
       expect(utterance.slots[0].startPos).toEqual(3)
@@ -151,12 +151,12 @@ describe('UtteranceClass', () => {
     }
 
     test('tagEntity out of range', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       expect(() => utterance.tagEntity(entity, 500, 1300)).toThrow()
     })
 
     test('tagEntity single token', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       utterance.tagEntity(entity, 0, 3)
       expect(utterance.entities.length).toEqual(1)
       Object.entries(entity).forEach(([key, value]) => {
@@ -169,7 +169,7 @@ describe('UtteranceClass', () => {
     })
 
     test('tagEntity multiple tokens', () => {
-      const utterance = new Utterance(TOKENS, VECTORS)
+      const utterance = new Utterance(TOKENS, VECTORS, 'en')
       utterance.tagEntity(entity, 3, 9)
 
       expect(utterance.entities[0].startPos).toEqual(3)
@@ -189,7 +189,7 @@ describe('UtteranceClass', () => {
   })
 
   describe('clone', () => {
-    const utterance = new Utterance(TOKENS, VECTORS)
+    const utterance = new Utterance(TOKENS, VECTORS, 'en')
     const tfidf = TOKENS.reduce((tfidf, tok) => {
       if (!tfidf[tok]) {
         tfidf[tok] = Math.random()
@@ -258,7 +258,7 @@ describe('UtteranceClass', () => {
     } as UtteranceToStringOptions
 
     test('format options', () => {
-      const u = new Utterance(tokens, fakeVectors)
+      const u = new Utterance(tokens, fakeVectors, 'en')
 
       expect(u.toString(defaultOptions)).toEqual(str)
       expect(u.toString({ ...defaultOptions, lowerCase: true })).toEqual(str.toLowerCase())
@@ -269,7 +269,7 @@ describe('UtteranceClass', () => {
     })
 
     test('slot options', () => {
-      const u = new Utterance(tokens, fakeVectors)
+      const u = new Utterance(tokens, fakeVectors, 'en')
       const slot: ExtractedSlot = {
         name: 'Tiger',
         confidence: 1,
@@ -283,7 +283,7 @@ describe('UtteranceClass', () => {
     })
 
     test('entities options', () => {
-      const u = new Utterance(tokens, fakeVectors)
+      const u = new Utterance(tokens, fakeVectors, 'en')
       const entity: ExtractedEntity = {
         type: 'Woods',
         confidence: 1,
@@ -299,7 +299,7 @@ describe('UtteranceClass', () => {
     })
 
     test('entities and slots options', () => {
-      const u = new Utterance(tokens, fakeVectors)
+      const u = new Utterance(tokens, fakeVectors, 'en')
       const slot: ExtractedSlot = {
         name: 'Tiger',
         confidence: 1,
@@ -330,7 +330,7 @@ describe('UtteranceClass', () => {
   })
 
   test('sentence embeddeing', () => {
-    const u = new Utterance(testTokens, vecs)
+    const u = new Utterance(testTokens, vecs, 'en')
     u.setGlobalTfidf(globalTFIDF)
     u.sentenceEmbedding.forEach((actual, idx) => {
       expect(actual).toBeCloseTo(expectedEmbeddings[idx], 3)

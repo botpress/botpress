@@ -52,6 +52,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
             <TransitionSection
               readOnly={readOnly}
               items={node.next}
+              currentFlow={this.props.flow}
               header="Transitions"
               subflows={this.props.subflows}
               onItemsUpdated={items => this.props.updateNode({ next: items })}

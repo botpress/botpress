@@ -99,16 +99,20 @@ export default class E2 implements Engine2 {
     return model
   }
 
+  private modelAlreadyLoaded(model: Model) {
+    return (
+      this.predictorsByLang[model.languageCode] !== undefined &&
+      this.modelsByLang[model.languageCode] !== undefined &&
+      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input)
+    ) // compare hash instead
+  }
+
   async loadModels(models: Model[]) {
     return Promise.map(models, model => this.loadModel(model))
   }
 
   async loadModel(model: Model) {
-    if (
-      this.predictorsByLang[model.languageCode] !== undefined &&
-      this.modelsByLang[model.languageCode] !== undefined &&
-      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input) // compare hash instead
-    ) {
+    if (this.modelAlreadyLoaded(model)) {
       return
     }
 
@@ -141,11 +145,19 @@ export default class E2 implements Engine2 {
 
       const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persistd
 
-      return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, kmeans }
+      return {
+        ...artefacts,
+        ctx_classifer,
+        intent_classifier_per_ctx,
+        slot_tagger,
+        kmeans,
+        pattern_entities: input.pattern_entities,
+        intents: output.intents
+      }
     } else {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return {} as Predictors
+      return { ...artefacts } as Predictors
     }
   }
 
@@ -158,6 +170,6 @@ export default class E2 implements Engine2 {
 
     // TODO throw error if no model was loaded
 
-    return Predict(input, E2.tools, this.modelsByLang, this.predictorsByLang)
+    return Predict(input, E2.tools, this.predictorsByLang)
   }
 }

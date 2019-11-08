@@ -177,5 +177,5 @@ function assertEntity(expression: string) {
 function textToUtterance(txt: string): Utterance {
   const tokens = T(txt)
   const vectors = tokens.map(() => new Array(100).fill(0))
-  return new Utterance(tokens, vectors)
+  return new Utterance(tokens, vectors, 'en')
 }

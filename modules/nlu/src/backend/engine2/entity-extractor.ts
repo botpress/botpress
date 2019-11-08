@@ -6,19 +6,15 @@ import { extractPattern } from '../tools/patterns-utils'
 import { EntityExtractionResult, ListEntityModel, PatternEntity } from '../typings'
 
 import { Tools } from './engine2'
-import { PredictStep } from './predict-pipeline'
+import { Predictors } from './predict-pipeline'
 import { TrainOutput } from './training-pipeline'
 import Utterance, { UtteranceToken } from './utterance'
 
-export const extractUtteranceEntities = async (
-  utterance: Utterance,
-  input: TrainOutput | PredictStep,
-  tools: Tools
-) => {
+export const extractUtteranceEntities = async (utterance: Utterance, input: TrainOutput | Predictors, tools: Tools) => {
   const extractedEntities = [
     ...extractListEntities(utterance, input.list_entities),
     ...extractPatternEntities(utterance, input.pattern_entities),
-    ...(await extractSystemEntities(utterance, input.languageCode, tools))
+    ...(await extractSystemEntities(utterance, tools))
   ] as EntityExtractionResult[]
 
   extractedEntities.forEach(entityRes => {
@@ -194,12 +190,8 @@ export const extractPatternEntities = (
   })
 }
 
-export const extractSystemEntities = async (
-  utterance: Utterance,
-  languageCode: string,
-  tools: Tools
-): Promise<EntityExtractionResult[]> => {
-  const extracted = await tools.ducklingExtractor.extract(utterance.toString(), languageCode)
+export const extractSystemEntities = async (utterance: Utterance, tools: Tools): Promise<EntityExtractionResult[]> => {
+  const extracted = await tools.ducklingExtractor.extract(utterance.toString(), utterance.languageCode)
   return extracted.map(ent => ({
     confidence: ent.meta.confidence,
     start: ent.meta.start,

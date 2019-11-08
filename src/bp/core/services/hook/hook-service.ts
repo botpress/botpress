@@ -11,7 +11,7 @@ import path from 'path'
 import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
-import { requireAtPaths } from '../../modules/require'
+import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { VmRunner } from '../action/vm'
 import { Incident } from '../alerting-service'
@@ -23,12 +23,18 @@ interface HookOptions {
   timeout: number
 }
 
+const debugInstances: { [hookType: string]: IDebugInstance } = {}
+
 export namespace Hooks {
   export class BaseHook {
     debug: IDebugInstance
 
     constructor(public folder: string, public args: any, public options: HookOptions = { timeout: 1000 }) {
-      this.debug = debug.sub(folder)
+      if (debugInstances[folder]) {
+        this.debug = debugInstances[folder]
+      } else {
+        this.debug = debugInstances[folder] = debug.sub(folder)
+      }
     }
   }
 
@@ -157,6 +163,8 @@ export class HookService {
     Object.keys(require.cache)
       .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g))
       .map(file => delete require.cache[file])
+
+    clearRequireCache()
   }
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
@@ -209,7 +217,9 @@ export class HookService {
     }
   }
 
-  private _prepareRequire(hookLocation: string, hookType: string) {
+  private _prepareRequire(fullPath: string, hookType: string) {
+    const hookLocation = path.dirname(fullPath)
+
     let parts = path.relative(process.PROJECT_LOCATION, hookLocation).split(path.sep)
     parts = parts.slice(parts.indexOf(hookType) + 1) // We only keep the parts after /hooks/{type}/...
 
@@ -220,15 +230,48 @@ export class HookService {
       lookups.unshift(process.LOADED_MODULES[parts[0]])
     }
 
-    return module => requireAtPaths(module, lookups)
+    return module => requireAtPaths(module, lookups, fullPath)
   }
 
   private async runScript(hookScript: HookScript, hook: Hooks.BaseHook) {
     const hookPath = `/data/global/hooks/${hook.folder}/${hookScript.path}.js`
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, hookPath))
 
-    const _require = this._prepareRequire(path.dirname(dirPath), hook.folder)
+    const _require = this._prepareRequire(dirPath, hook.folder)
 
+    const botId = _.get(hook.args, 'event.botId')
+
+    hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
+    process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
+
+    if (process.DISABLE_GLOBAL_SANDBOX) {
+      await this.runWithoutVm(hookScript, hook, botId, _require)
+    } else {
+      await this.runInVm(hookScript, hook, botId, _require)
+    }
+
+    hook.debug.forBot(botId, 'after execute')
+  }
+
+  private async runWithoutVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
+    const args = {
+      ...hook.args,
+      process: UntrustedSandbox.getSandboxProcessArgs(),
+      printObject,
+      require: _require
+    }
+
+    try {
+      const fn = new Function(...Object.keys(args), hookScript.code)
+      await fn(...Object.values(args))
+
+      return
+    } catch (err) {
+      this.logScriptError(err, botId, hookScript.path, hook.folder)
+    }
+  }
+
+  private async runInVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
     const modRequire = new Proxy(
       {},
       {
@@ -251,15 +294,11 @@ export class HookService {
       }
     })
 
-    const botId = _.get(hook.args, 'event.botId')
     const vmRunner = new VmRunner()
 
-    hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
-    process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
     await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     })
-    hook.debug.forBot(botId, 'after execute')
   }
 
   private logScriptError(err, botId, path, folder) {

@@ -47,6 +47,11 @@ declare namespace NodeJS {
     IS_FAILSAFE: boolean
     /** A random ID generated on server start to identify each server in a cluster */
     SERVER_ID: string
+    /**
+     * When true, global hooks and actions will be executed outside of the sandbox.
+     * This gives a boost in performances for code deemed "safe", while bot-specific content is executed in the sandbox
+     */
+    DISABLE_GLOBAL_SANDBOX: boolean
   }
 }
 
