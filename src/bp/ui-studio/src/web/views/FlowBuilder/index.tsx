@@ -8,6 +8,8 @@ import {
   closeFlowNodeProps,
   flowEditorRedo,
   flowEditorUndo,
+  refreshActions,
+  refreshIntents,
   setDiagramAction,
   switchFlow
 } from '~/actions'
@@ -39,6 +41,8 @@ type Props = {
   clearErrorSaveFlows: () => void
   clearFlowsModification: () => void
   closeFlowNodeProps: () => void
+  refreshActions: () => void
+  refreshIntents: () => void
   flowsByName: _.Dictionary<FlowView>
 } & RouteComponentProps
 
@@ -90,6 +94,8 @@ class FlowBuilder extends Component<Props, State> {
 
   componentDidMount() {
     this.init()
+    this.props.refreshActions()
+    this.props.refreshIntents()
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -260,7 +266,9 @@ const mapDispatchToProps = {
   flowEditorUndo,
   flowEditorRedo,
   clearErrorSaveFlows,
-  closeFlowNodeProps
+  closeFlowNodeProps,
+  refreshActions,
+  refreshIntents
 }
 
 export default connect(
