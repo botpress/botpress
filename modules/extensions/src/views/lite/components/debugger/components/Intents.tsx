@@ -27,7 +27,7 @@ export const Intents = (props: Props) => {
       <H5 color={Colors.DARK_GRAY5}>Intents</H5>
       {intents.length > 1 && (
         <ul>
-          {intents.map(i => (
+          {_.take(intents, 4).map(i => (
             <li key={i.name}>
               <Intent name={i.name} confidence={i.confidence} elected={i.name === intent.name} />
             </li>

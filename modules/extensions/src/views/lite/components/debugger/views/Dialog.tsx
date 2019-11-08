@@ -1,5 +1,6 @@
 import { Colors, H4, H5, Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 import React, { SFC } from 'react'
 
 import { Intent, isQnaItem } from '../components/Intent'
@@ -33,7 +34,7 @@ const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
   <div className={style.subSection}>
     <H5 color={Colors.DARK_GRAY5}>Suggestions</H5>
     <ul>
-      {props.suggestions.map(sugg => (
+      {_.take(props.suggestions, 4).map(sugg => (
         <li key={sugg.sourceDetails}>
           <Intent name={sugg.sourceDetails} confidence={sugg.confidence} />
         </li>
