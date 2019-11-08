@@ -150,6 +150,12 @@ declare type BotpressEnvironementVariables = {
    * This only affects fatal errors, it will not affect business rules checks (eg: licensing)
    */
   readonly BP_FAILSAFE?: boolean
+
+  /**
+   * When true, it will not store/load the state from redis to speed up event processing
+   * Adding temporarily until the feature is battle-tested
+   */
+  readonly BP_NO_REDIS_STATE?: boolean
 }
 
 interface IDebug {

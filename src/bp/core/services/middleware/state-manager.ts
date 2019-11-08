@@ -17,9 +17,9 @@ import { SessionIdFactory } from '../dialog/session/id-factory'
 import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
 
-const getRedisSessionKey = sessionId => `userstate_${sessionId}`
+const getRedisSessionKey = sessionId => `sessionstate_${sessionId}`
 const BATCH_SIZE = 100
-const MEMORY_PERSIST_INTERVAL = ms('3s')
+const MEMORY_PERSIST_INTERVAL = ms('5s')
 const REDIS_MEMORY_DURATION = ms('30s')
 
 @injectable()
@@ -42,7 +42,7 @@ export class StateManager {
   ) {}
 
   public initialize() {
-    if (!process.CLUSTER_ENABLED) {
+    if (!process.CLUSTER_ENABLED || process.core_env.BP_NO_REDIS_STATE) {
       return
     }
 
@@ -63,7 +63,7 @@ export class StateManager {
   public async restore(event: sdk.IO.IncomingEvent) {
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-    if (process.CLUSTER_ENABLED) {
+    if (process.CLUSTER_ENABLED && !process.core_env.BP_NO_REDIS_STATE) {
       try {
         const userState = await this._redisClient.get(getRedisSessionKey(sessionId))
         if (userState) {
@@ -93,7 +93,7 @@ export class StateManager {
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-    if (process.CLUSTER_ENABLED) {
+    if (process.CLUSTER_ENABLED && !process.core_env.BP_NO_REDIS_STATE) {
       await this._redisClient.set(
         getRedisSessionKey(sessionId),
         JSON.stringify(event.state),
