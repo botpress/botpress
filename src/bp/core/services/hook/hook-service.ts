@@ -239,6 +239,39 @@ export class HookService {
 
     const _require = this._prepareRequire(dirPath, hook.folder)
 
+    const botId = _.get(hook.args, 'event.botId')
+
+    hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
+    process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
+
+    if (process.DISABLE_GLOBAL_SANDBOX) {
+      await this.runWithoutVm(hookScript, hook, botId, _require)
+    } else {
+      await this.runInVm(hookScript, hook, botId, _require)
+    }
+
+    hook.debug.forBot(botId, 'after execute')
+  }
+
+  private async runWithoutVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
+    const args = {
+      ...hook.args,
+      process: UntrustedSandbox.getSandboxProcessArgs(),
+      printObject,
+      require: _require
+    }
+
+    try {
+      const fn = new Function(...Object.keys(args), hookScript.code)
+      await fn(...Object.values(args))
+
+      return
+    } catch (err) {
+      this.logScriptError(err, botId, hookScript.path, hook.folder)
+    }
+  }
+
+  private async runInVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
     const modRequire = new Proxy(
       {},
       {
@@ -261,15 +294,11 @@ export class HookService {
       }
     })
 
-    const botId = _.get(hook.args, 'event.botId')
     const vmRunner = new VmRunner()
 
-    hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
-    process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
     await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     })
-    hook.debug.forBot(botId, 'after execute')
   }
 
   private logScriptError(err, botId, path, folder) {
