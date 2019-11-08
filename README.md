@@ -68,3 +68,16 @@ Botpress is dual-licensed under [AGPLv3](/licenses/LICENSE_AGPL3) and the [Botpr
 By default, any bot created with Botpress is licensed under AGPLv3, but you may change to the Botpress License from within your bot's web interface in a few clicks.
 
 For more information about how the dual-license works and why it works that way, please see the <a href="https://botpress.io/faq">FAQS</a>.
+
+## Botpress Partners
+
+Botpress Partners is a list of agencies who can help you build your next conversational assistant.
+
+| Agency Name | Location |
+| ------------- | ------------- |
+| [Accenture](https://www.accenture.com) | Worldwide |
+| [Okam](https://okam.ca/) | Montreal, Canada |
+| [Lampyon](https://www.lampyon.com/) | Toronto, Canada & Budapest, Hungary |
+| [Smile](https://www.smile.eu) | Asnières-sur-Seine, France |
+
+_If you are an agency and would like to be on this list, please clone the repository & add your agency to the list in the README.md. Then, you can create a pull request on the repository and we'll make sure to review and merge your PR swiftly._
