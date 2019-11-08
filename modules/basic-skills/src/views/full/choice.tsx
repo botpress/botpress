@@ -1,10 +1,20 @@
-import { Checkbox, FormGroup, InputGroup, NumericInput, TagInput } from '@blueprintjs/core'
+import {
+  Callout,
+  Checkbox,
+  FormGroup,
+  H5,
+  H6,
+  InputGroup,
+  Intent,
+  NumericInput,
+  Tab,
+  Tabs,
+  TagInput
+} from '@blueprintjs/core'
 // @ts-ignore
 import ContentPickerWidget from 'botpress/content-picker'
 import _ from 'lodash'
 import React from 'react'
-import { Alert, Tab, Tabs } from 'react-bootstrap'
-import { Input, Label } from 'reactstrap'
 
 import style from './style.scss'
 import { SkillProps } from './typings'
@@ -26,6 +36,7 @@ interface ChoiceConfig {
 }
 
 interface State {
+  tab: any
   keywords: any
   contentId: string
   invalidContentId: string
@@ -37,11 +48,12 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
   private choices: any
 
   state: State = {
+    tab: 'basic',
     keywords: {},
     contentId: '',
     invalidContentId: '',
     config: {
-      nbMaxRetries: 10,
+      nbMaxRetries: 3,
       repeatChoicesOnInvalid: false,
       contentElement: undefined
     },
@@ -77,8 +89,10 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
     }
   }
 
-  componentDidUpdate() {
-    this.updateParent()
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state !== prevState) {
+      this.updateParent()
+    }
   }
 
   updateParent = () => {
@@ -150,9 +164,9 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
 
       return (
         <div className={style.keywords} key={choice.title}>
-          <h4>
+          <H6>
             {choice.title} <small>({choice.value})</small>
-          </h4>
+          </H6>
           <TagInput
             onChange={this.handleTagChange(choice.value)}
             placeholder="Separate values with commas..."
@@ -168,7 +182,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
       this.choices && this.choices.length ? (
         this.renderMatchingSection()
       ) : (
-        <Alert bsStyle="warning">No choices available. Pick a content element that contains choices.</Alert>
+        <Callout intent={Intent.DANGER}>No choices available. Pick a content element that contains choices.</Callout>
       )
 
     const contentPickerProps: any = {}
@@ -178,8 +192,8 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
     }
 
     return (
-      <div style={{ padding: 10 }}>
-        <h4>Change the question and choices</h4>
+      <div>
+        <H5>Change the question and choices</H5>
 
         <div style={{ padding: 10 }}>
           <ContentPickerWidget
@@ -192,7 +206,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
           />
         </div>
 
-        <h4>Define how choices are matched</h4>
+        <H5>Define how choices are matched</H5>
 
         <div style={{ padding: 10 }}>{matchingSection}</div>
       </div>
@@ -223,7 +237,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
 
   renderAdvanced() {
     return (
-      <div style={{ padding: 10 }}>
+      <div>
         <FormGroup label="Max number of retries">
           <NumericInput
             id="inputMaxRetries"
@@ -233,6 +247,12 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
             value={this.getNbRetries()}
           />
         </FormGroup>
+
+        <Checkbox
+          label="Repeat choices on invalid choice"
+          checked={this.state.config.repeatChoicesOnInvalid}
+          onChange={this.onToggleRepeatChoicesOnInvalid}
+        />
 
         <FormGroup label="On invalid choice, say this before repeating question:">
           <ContentPickerWidget
@@ -244,35 +264,22 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
           />
         </FormGroup>
 
-        <Checkbox
-          label="Repeat choices on invalid?"
-          checked={this.state.config.repeatChoicesOnInvalid}
-          onChange={this.onToggleRepeatChoicesOnInvalid}
-        />
-
-        <div>
-          <Label htmlFor="contentElementType">Default choice content type:</Label>
-          <Input
+        <FormGroup label="Default choice content type">
+          <InputGroup
             id="contentElementType"
-            type="text"
-            style={{ marginLeft: '5px' }}
             value={this.getContentType()}
             onChange={this.handleConfigTextChanged('contentElement')}
           />
-        </div>
+        </FormGroup>
       </div>
     )
   }
 
   render() {
     return (
-      <Tabs defaultActiveKey={1} id="add-option-skill-tabs" animation={false}>
-        <Tab eventKey={1} title="Basic">
-          {this.renderBasic()}
-        </Tab>
-        <Tab eventKey={2} title="Advanced">
-          {this.renderAdvanced()}
-        </Tab>
+      <Tabs id="add-option-skill-tabs" onChange={tab => this.setState({ tab })}>
+        <Tab id="basic" title="Basic" panel={this.renderBasic()} />
+        <Tab id="advanced" title="Advanced" panel={this.renderAdvanced()} />
       </Tabs>
     )
   }
