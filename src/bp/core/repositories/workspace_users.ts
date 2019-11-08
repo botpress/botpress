@@ -64,7 +64,7 @@ export class WorkspaceUsersRepository {
     let query = this.database
       .knex(this.tableName)
       .groupBy(['email', 'strategy'])
-      .count('* as qty')
+      .count<Record<string, number>>('* as qty')
 
     if (strategy) {
       query = query.where({ strategy })

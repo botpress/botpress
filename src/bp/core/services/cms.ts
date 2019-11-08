@@ -205,7 +205,7 @@ export class CMSService implements IDisposeOnExit {
   async getContentElement(botId: string, id: string, language?: string): Promise<ContentElement> {
     const element = await this.memDb(this.contentTable)
       .where({ botId, id })
-      .get(0)
+      .first()
 
     const deserialized = this.transformDbItemToApi(element)
     return language ? this._translateElement(deserialized, language) : deserialized
@@ -222,7 +222,7 @@ export class CMSService implements IDisposeOnExit {
     return this.memDb(this.contentTable)
       .where({ botId })
       .count('* as count')
-      .get(0)
+      .first()
       .then(row => (row && Number(row.count)) || 0)
   }
 
@@ -231,7 +231,7 @@ export class CMSService implements IDisposeOnExit {
       .where({ botId })
       .andWhere({ contentType })
       .count('* as count')
-      .get(0)
+      .first()
       .then(row => (row && Number(row.count)) || 0)
   }
 
@@ -268,7 +268,8 @@ export class CMSService implements IDisposeOnExit {
       .where('contentType', contentTypeId)
       .orderByRaw('random()')
       .limit(1)
-      .get(0)
+      .first()
+      .then()
   }
 
   private _generateElementId(contentTypeId: string): string {
@@ -279,7 +280,7 @@ export class CMSService implements IDisposeOnExit {
   async elementIdExists(botId: string, id: string): Promise<boolean> {
     const element = await this.memDb(this.contentTable)
       .where({ botId, id })
-      .get(0)
+      .first()
 
     return !!element
   }

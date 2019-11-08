@@ -77,10 +77,10 @@ export class KnexSessionRepository implements SessionRepository {
 
   async get(id: string): Promise<DialogSession> {
     const session = <DialogSession>await this.database
-      .knex(this.tableName)
+      .knex<DialogSession>(this.tableName)
       .where({ id })
       .select('*')
-      .get(0)
+      .first()
       .then()
 
     if (session) {

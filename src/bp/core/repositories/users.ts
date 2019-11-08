@@ -132,9 +132,9 @@ export class KnexUserRepository implements UserRepository {
 
   async getUserCount() {
     return await this.database
-      .knex(this.tableName)
-      .count('user_id as qty')
+      .knex<User>(this.tableName)
+      .count<Record<string, number>>('user_id as qty')
       .first()
-      .then(result => result.qty)
+      .then(result => result!.qty)
   }
 }
