@@ -9,7 +9,7 @@
 // site configuration options.
 
 const siteConfig = {
-  title: "Botpress | Developer's Guide",
+  title: "| Developer's Guide",
   tagline: 'Guides and references for all you need to know about Botpress',
   url: 'https://botpress.io/docs',
   baseUrl: '/',
@@ -59,8 +59,9 @@ const siteConfig = {
   ogImage: 'img/docusaurus.png',
   twitterImage: 'img/docusaurus.png',
 
-  editUrl: 'https://github.com/botpress/botpress/edit/master/docs/guide/docs/'
-
+  editUrl: 'https://github.com/botpress/botpress/edit/master/docs/guide/docs/',
+  gaTrackingId: 'UA-90034220-1',
+  gaGtag: true
 }
 
 module.exports = siteConfig

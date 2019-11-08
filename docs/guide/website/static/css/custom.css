@@ -39,3 +39,11 @@
   display: inline-block;
   filter: brightness(0);
 }
+
+#footer img {
+  filter: brightness(0) invert(1);
+}
+
+.fixedHeaderContainer header .headerTitleWithLogo {
+  font-size: 16px;
+}
