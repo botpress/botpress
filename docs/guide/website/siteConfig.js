@@ -59,8 +59,9 @@ const siteConfig = {
   ogImage: 'img/docusaurus.png',
   twitterImage: 'img/docusaurus.png',
 
-  editUrl: 'https://github.com/botpress/botpress/edit/master/docs/guide/docs/'
-
+  editUrl: 'https://github.com/botpress/botpress/edit/master/docs/guide/docs/',
+  gaTrackingId: 'UA-90034220-1',
+  gaGtag: true
 }
 
 module.exports = siteConfig
