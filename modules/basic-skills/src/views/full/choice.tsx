@@ -1,28 +1,58 @@
-import React from 'react'
-import _ from 'lodash'
-
-import { Alert, Tabs, Tab } from 'react-bootstrap'
-import { Label, Input } from 'reactstrap'
-import { WithContext as ReactTags } from 'react-tag-input'
+import { Checkbox, FormGroup, InputGroup, NumericInput, TagInput } from '@blueprintjs/core'
+// @ts-ignore
 import ContentPickerWidget from 'botpress/content-picker'
+import _ from 'lodash'
+import React from 'react'
+import { Alert, Tab, Tabs } from 'react-bootstrap'
+import { Input, Label } from 'reactstrap'
 
 import style from './style.scss'
+import { SkillProps } from './typings'
 
 const MAX_RETRIES = 10
 
-export class Choice extends React.Component {
-  state = {
+interface ChoiceData {
+  contentId: string
+  invalidContentId: string
+  keywords: any
+  config: ChoiceConfig
+  randomId?: string
+}
+
+interface ChoiceConfig {
+  nbMaxRetries: number
+  repeatChoicesOnInvalid: boolean
+  contentElement: string
+}
+
+interface State {
+  keywords: any
+  contentId: string
+  invalidContentId: string
+  config: ChoiceConfig
+  defaultConfig: any
+}
+
+export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }, State> {
+  private choices: any
+
+  state: State = {
     keywords: {},
     contentId: '',
     invalidContentId: '',
-    config: {}
+    config: {
+      nbMaxRetries: 10,
+      repeatChoicesOnInvalid: false,
+      contentElement: undefined
+    },
+    defaultConfig: undefined
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.resizeBuilderWindow && this.props.resizeBuilderWindow('small')
     const getOrDefault = (propsKey, stateKey) => this.props.initialData[propsKey] || this.state[stateKey]
 
-    this.fetchDefaultConfig().then(({ data }) => {
+    await this.fetchDefaultConfig().then(({ data }) => {
       if (this.props.initialData) {
         this.setState(
           {
@@ -68,10 +98,10 @@ export class Choice extends React.Component {
     return this.props.bp.axios.get('/mod/basic-skills/choice/config')
   }
 
-  onMaxRetriesChanged = event => {
+  onMaxRetriesChanged = value => {
     const config = {
       ...this.state.config,
-      nbMaxRetries: isNaN(Number(event.target.value)) ? MAX_RETRIES : Number(event.target.value)
+      nbMaxRetries: isNaN(Number(value)) ? MAX_RETRIES : Number(value)
     }
     this.setState({ config })
   }
@@ -89,6 +119,7 @@ export class Choice extends React.Component {
       blocName = '#' + blocName
     }
 
+    // @ts-ignore
     this.setState({ [key]: blocName })
   }
 
@@ -109,34 +140,23 @@ export class Choice extends React.Component {
     }
   }
 
-  handleMatchAddition = choiceValue => tag => {
-    const newTags = [...(this.state.keywords[choiceValue] || []), tag.text]
-    const keywords = { ...this.state.keywords, [choiceValue]: newTags }
-    this.setState({ keywords: keywords })
-  }
-
-  handleMatchDeletion = choiceValue => index => {
-    const newTags = this.state.keywords[choiceValue] || []
-    _.pullAt(newTags, index)
-    const keywords = { ...this.state.keywords, [choiceValue]: newTags }
-    this.setState({ keywords: keywords })
+  handleTagChange = choiceValue => keywords => {
+    this.setState({ keywords: { ...this.state.keywords, [choiceValue]: keywords } })
   }
 
   renderMatchingSection() {
     return this.choices.map(choice => {
       const keywordsEntry = this.state.keywords[choice.value] || []
-      const tags = keywordsEntry.map(x => ({ id: x, text: x }))
+
       return (
         <div className={style.keywords} key={choice.title}>
           <h4>
             {choice.title} <small>({choice.value})</small>
           </h4>
-          <ReactTags
-            inline
-            tags={tags}
-            suggestions={[]}
-            handleDelete={this.handleMatchDeletion(choice.value)}
-            handleAddition={this.handleMatchAddition(choice.value)}
+          <TagInput
+            onChange={this.handleTagChange(choice.value)}
+            placeholder="Separate values with commas..."
+            values={keywordsEntry}
           />
         </div>
       )
@@ -151,18 +171,17 @@ export class Choice extends React.Component {
         <Alert bsStyle="warning">No choices available. Pick a content element that contains choices.</Alert>
       )
 
-    const contentPickerProps = {}
+    const contentPickerProps: any = {}
     const contentType = this.getContentType()
     if (contentType && contentType.length) {
       contentPickerProps.categoryId = contentType
     }
 
     return (
-      <div className={style.content}>
-        <p>
-          <strong>Change the question and choices</strong>
-        </p>
-        <div>
+      <div style={{ padding: 10 }}>
+        <h4>Change the question and choices</h4>
+
+        <div style={{ padding: 10 }}>
           <ContentPickerWidget
             {...contentPickerProps}
             refresh={() => this.refreshContent()}
@@ -172,10 +191,10 @@ export class Choice extends React.Component {
             placeholder="Pick content (question and choices)"
           />
         </div>
-        <p>
-          <strong>Define how choices are matched</strong>
-        </p>
-        <div>{matchingSection}</div>
+
+        <h4>Define how choices are matched</h4>
+
+        <div style={{ padding: 10 }}>{matchingSection}</div>
       </div>
     )
   }
@@ -193,10 +212,6 @@ export class Choice extends React.Component {
     )
   }
 
-  getInvalidText() {
-    return this.state.config.invalidText || ''
-  }
-
   handleConfigTextChanged = name => event => {
     const config = { ...this.state.config, [name]: event.target.value }
     this.setState({ config })
@@ -208,22 +223,18 @@ export class Choice extends React.Component {
 
   renderAdvanced() {
     return (
-      <div className={style.content}>
-        <div>
-          <Label htmlFor="inputMaxRetries">Max number of retries:</Label>
-          <Input
+      <div style={{ padding: 10 }}>
+        <FormGroup label="Max number of retries">
+          <NumericInput
             id="inputMaxRetries"
-            type="number"
-            name="quantity"
-            min="0"
-            max="10"
+            min={0}
+            max={10}
+            onValueChange={this.onMaxRetriesChanged}
             value={this.getNbRetries()}
-            onChange={this.onMaxRetriesChanged}
           />
-        </div>
+        </FormGroup>
 
-        <div>
-          <Label htmlFor="invalidText">On invalid choice, say this before repeating question:</Label>
+        <FormGroup label="On invalid choice, say this before repeating question:">
           <ContentPickerWidget
             id="invalidContent"
             name="invalidContent"
@@ -231,14 +242,13 @@ export class Choice extends React.Component {
             onChange={this.handleInvalidContentChange}
             placeholder="Pick a reply"
           />
-          <Label htmlFor="repeatChoices">Repeat choices on invalid?</Label>
-          <input
-            id="repeatChoices"
-            type="checkbox"
-            checked={this.state.config.repeatChoicesOnInvalid}
-            onChange={this.onToggleRepeatChoicesOnInvalid}
-          />
-        </div>
+        </FormGroup>
+
+        <Checkbox
+          label="Repeat choices on invalid?"
+          checked={this.state.config.repeatChoicesOnInvalid}
+          onChange={this.onToggleRepeatChoicesOnInvalid}
+        />
 
         <div>
           <Label htmlFor="contentElementType">Default choice content type:</Label>

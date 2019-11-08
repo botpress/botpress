@@ -21,8 +21,11 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@babel/helpers": "^7.4.3",
+    "@blueprintjs/core": "^3.15.1",
     "@types/node": "^10.11.0",
     "@types/nodemailer": "^6.2.1",
+    "@types/react-bootstrap": "^0.32.20",
+    "@types/reactstrap": "^8.0.6",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
@@ -31,9 +34,6 @@
     "lodash": "^4.17.11",
     "nanoid": "^2.1.6",
     "nodemailer": "^6.3.0",
-    "react-dnd": "^8.0.3",
-    "react-dnd-html5-backend": "^8.0.3",
-    "react-tag-input": "6.4.0",
     "yn": "^3.1.0"
   },
   "resolutions": {
