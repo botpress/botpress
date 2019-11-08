@@ -9,7 +9,7 @@
 // site configuration options.
 
 const siteConfig = {
-  title: "Botpress | Developer's Guide",
+  title: "| Developer's Guide",
   tagline: 'Guides and references for all you need to know about Botpress',
   url: 'https://botpress.io/docs',
   baseUrl: '/',
