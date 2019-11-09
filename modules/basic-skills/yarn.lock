@@ -4235,11 +4235,6 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-dnd@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-5.0.0.tgz#c4a17c70109e456dad8906be838e6ee8f32b06b5"
-  integrity sha1-xKF8cBCeRW2tiQa+g45u6PMrBrU=
-
 react-is@^16.8.1:
   version "16.10.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.10.1.tgz#0612786bf19df406502d935494f0450b40b8294f"
