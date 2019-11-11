@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.2.0",
+  "version": "12.2.2",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -49,7 +49,7 @@
     "joi": "^13.6.0",
     "json-schema-defaults": "^0.4.0",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^0.16.4-next1",
+    "knex": "^0.20.1",
     "ldapauth-fork": "^4.2.0",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.0",
@@ -104,7 +104,6 @@
     "@types/jest": "^24.0.11",
     "@types/jest-environment-puppeteer": "^4.3.0",
     "@types/joi": "^13.4.5",
-    "@types/knex": "^0.14.24",
     "@types/lodash": "^4.14.116",
     "@types/lru-cache": "^5.1.0",
     "@types/ms": "^0.7.30",

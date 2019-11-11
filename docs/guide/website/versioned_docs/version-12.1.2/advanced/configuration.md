@@ -70,7 +70,7 @@ Edit your `botpress.config.json` file and change your file to match the followin
 
 ## Advanced Logging
 
-In a production environment, you may want to persist additional logs such as full audit trail. You can enable more granular logs by using the [DEBUG environment variable](../debug) and saving those extra logs to a separate file:
+In a production environment, you may want to persist additional logs such as full audit trail. You can enable more granular logs by using the [DEBUG environment variable](debug) and saving those extra logs to a separate file:
 
 ```sh
 # Linux & OSX
@@ -147,5 +147,5 @@ It is also possible to use environment variables to override module configuratio
 
 ## More Informations
 
-- Check out the [database](../../tutorials/database) page for details about `DATABASE_URL`
-- Check out the [cluster](../../advanced/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`
+- Check out the [database](../tutorials/database) page for details about `DATABASE_URL`
+- Check out the [cluster](cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`

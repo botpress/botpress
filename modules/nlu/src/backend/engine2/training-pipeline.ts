@@ -3,8 +3,8 @@ import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { SPACE } from '../tools/token-utils'
-import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec } from '../typings'
+import { isSpace, SPACE } from '../tools/token-utils'
+import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Tools } from './engine2'
@@ -13,32 +13,27 @@ import { Model } from './model-service'
 import Utterance, { buildUtterances, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
-export type Trainer = (input: TrainInput, tools: Tools, cancelToken: CancellationToken) => Promise<Model>
+export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
 
 export type TrainInput = Readonly<{
+  botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
+  trainingSession: TrainingSession
 }>
 
 export type TrainOutput = Readonly<{
   languageCode: string
-  pattern_entities: PatternEntity[]
   list_entities: ListEntityModel[]
+  pattern_entities: PatternEntity[]
   contexts: string[]
   intents: Intent<Utterance>[]
   tfIdf?: TFIDF
   kmeans?: sdk.MLToolkit.KMeans.KmeansResult
 }>
-
-export interface CancellationToken {
-  readonly uid: string
-  isCancelled(): boolean
-  cancelledAt: Date
-  cancel(): Promise<void>
-}
 
 export interface TrainArtefacts {
   list_entities: ListEntityModel[]
@@ -66,6 +61,8 @@ type SlotDefinition = Readonly<{
   name: string
   entities: string[]
 }>
+
+type progressCB = (p?: number) => void
 
 const debugIntents = DEBUG('nlu').sub('intents')
 const debugIntentsTrain = debugIntents.sub('train')
@@ -189,8 +186,13 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
-const trainIntentClassifer = async (input: TrainOutput, tools: Tools): Promise<_.Dictionary<string> | undefined> => {
+const trainIntentClassifer = async (
+  input: TrainOutput,
+  tools: Tools,
+  progress: progressCB
+): Promise<_.Dictionary<string> | undefined> => {
   const svmPerCtx: _.Dictionary<string> = {}
+  const n_ctx = input.contexts.length
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
       .filter(i => i.contexts.includes(ctx) && i.utterances.length > 3) // min nb utterances
@@ -204,14 +206,26 @@ const trainIntentClassifer = async (input: TrainOutput, tools: Tools): Promise<_
 
     if (points.length > 0) {
       const svm = new tools.mlToolkit.SVM.Trainer()
-      svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('svm progress ==> %d', p))
+      let progressCalls = 0
+      svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => {
+        if (++progressCalls % 5 === 0) {
+          debugIntentsTrain('svm progress ==> %d', p)
+          progress(_.round(p / n_ctx, 1))
+        }
+      })
+    } else {
+      progress(1 / n_ctx)
     }
   }
 
   return svmPerCtx
 }
 
-const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
+const trainContextClassifier = async (
+  input: TrainOutput,
+  tools: Tools,
+  progress: progressCB
+): Promise<string | undefined> => {
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
@@ -225,7 +239,13 @@ const trainContextClassifier = async (input: TrainOutput, tools: Tools): Promise
 
   if (points.length > 0) {
     const svm = new tools.mlToolkit.SVM.Trainer()
-    return svm.train(points, SVM_OPTIONS, p => debugIntentsTrain('SVM => progress for CTX %d', p))
+    let progressCalls = 0
+    return svm.train(points, SVM_OPTIONS, p => {
+      if (++progressCalls % 5 === 0) {
+        progress(_.round(p, 1))
+        debugIntentsTrain('svm progress ==> %d', p)
+      }
+    })
   }
 }
 
@@ -271,19 +291,18 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   }
 
   const allUtterances = _.flatten(input.intents.map(x => x.utterances))
-  const vocabulary = _.chain(allUtterances)
+  const vocabWithDupes = _.chain(allUtterances)
     .map(x => x.tokens.map(x => x.value))
     .flattenDeep<string>()
-    .uniq()
     .value()
 
-  const junkWords = await tools.generateSimilarJunkWords(vocabulary, input.languageCode)
+  const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
   const avgUtterances = _.meanBy(input.intents, x => x.utterances.length)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
   const nbOfNoneUtterances = Math.max(5, avgUtterances)
 
-  // If 50% of words start with a space, we know this language is probably space-separated, and so we'll join tokens using spaces
-  const joinChar = vocabulary.filter(x => x.startsWith(SPACE)).length >= vocabulary.length * 0.5 ? SPACE : ''
+  // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
+  const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
   const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => {
     const nbWords = Math.round(_.random(avgTokens / 2, avgTokens * 2, false))
@@ -327,11 +346,8 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   return crfExtractor.serialized
 }
 
-export const Trainer: Trainer = async (
-  input: TrainInput,
-  tools: Tools,
-  cancelToken: CancellationToken
-): Promise<Model> => {
+const NB_STEPS = 5 // change this if the training pipeline changes
+export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<Model> => {
   const model: Partial<Model> = {
     startedAt: new Date(),
     languageCode: input.languageCode,
@@ -340,19 +356,31 @@ export const Trainer: Trainer = async (
     }
   }
 
+  let progress = 0
+  const reportProgress: progressCB = (stepProgress = 1) => {
+    if (input.trainingSession.status === 'canceled') {
+      tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+      throw new TrainingCanceledError()
+    }
+    progress = Math.floor(progress) + stepProgress
+    const scaledProgress = Math.min(1, _.round(progress / NB_STEPS, 2))
+    tools.reportTrainingProgress(input.botId, 'Training', { ...input.trainingSession, progress: scaledProgress })
+  }
   try {
-    // TODO: Cancellation token effect
-
     let output = await preprocessInput(input, tools)
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
     output = await ExtractEntities(output, tools)
     output = await AppendNoneIntents(output, tools)
-
     const exact_match_index = buildExactMatchIndex(output)
-    const ctx_model = await trainContextClassifier(output, tools)
-    const intent_model_by_ctx = await trainIntentClassifer(output, tools)
+    reportProgress()
+
+    const ctx_model = await trainContextClassifier(output, tools, reportProgress)
+    reportProgress()
+    const intent_model_by_ctx = await trainIntentClassifer(output, tools, reportProgress)
+    reportProgress()
     const slots_model = await trainSlotTagger(output, tools)
+    reportProgress()
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
@@ -364,13 +392,26 @@ export const Trainer: Trainer = async (
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
+    reportProgress()
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
-    console.log('could not train nlu model', err)
+    // TODO use bp.logger once this is moved in Engine2
+    if (err instanceof TrainingCanceledError) {
+      console.log('Training aborted')
+    } else {
+      console.log('Could not finish training NLU model', err)
+    }
     _.merge(model, { success: false })
   } finally {
     model.finishedAt = new Date()
     return model as Model
+  }
+}
+
+class TrainingCanceledError extends Error {
+  constructor() {
+    super('Training cancelled')
+    this.name = 'CancelError'
   }
 }

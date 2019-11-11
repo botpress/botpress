@@ -3,7 +3,7 @@ import _ from 'lodash'
 import find from 'lodash/find'
 import React from 'react'
 
-import { ERROR_FLOW_ICON, FLOW_ICON, FOLDER_ICON, MAIN_FLOW_ICON } from './FlowsList'
+import { ERROR_FLOW_ICON, FLOW_ICON, FOLDER_ICON, MAIN_FLOW_ICON, TIMEOUT_ICON } from './FlowsList'
 
 /**
  *  Returns a different display for special flows.
@@ -38,6 +38,25 @@ const getFlowInfo = (flowId: string, flowName: string) => {
         </Tooltip>
       )
     }
+  } else if (flowId === 'timeout') {
+    return {
+      icon: TIMEOUT_ICON,
+      label: (
+        <Tooltip
+          content={
+            <span>
+              When a discussion timeouts (user doesn't answer in
+              <br />
+              the configured timeframe) he will be redirected here.
+            </span>
+          }
+          hoverOpenDelay={500}
+          position={Position.BOTTOM}
+        >
+          <strong>Timeout</strong>
+        </Tooltip>
+      )
+    }
   }
   return {
     icon: FLOW_ICON,
@@ -49,7 +68,8 @@ const reorderFlows = flows => {
   return [
     flows.find(x => x.id === 'main'),
     flows.find(x => x.id === 'error'),
-    ...flows.filter(x => x.id !== 'main' && x.id !== 'error')
+    flows.find(x => x.id === 'timeout'),
+    ...flows.filter(x => !['main', 'error', 'timeout'].includes(x.id))
   ].filter(x => Boolean(x))
 }
 

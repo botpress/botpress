@@ -9,7 +9,7 @@
 // site configuration options.
 
 const siteConfig = {
-  title: "Botpress | Developer's Guide",
+  title: "| Developer's Guide",
   tagline: 'Guides and references for all you need to know about Botpress',
   url: 'https://botpress.io/docs',
   baseUrl: '/',
@@ -57,11 +57,11 @@ const siteConfig = {
 
   // Open Graph and Twitter card images.
   ogImage: 'img/docusaurus.png',
-  twitterImage: 'img/docusaurus.png'
+  twitterImage: 'img/docusaurus.png',
 
-  // You may provide arbitrary config keys to be used as needed by your
-  // template. For example, if you need your repo's URL...
-  //   repoUrl: 'https://github.com/facebook/test-site',
+  editUrl: 'https://github.com/botpress/botpress/edit/master/docs/guide/docs/',
+  gaTrackingId: 'UA-90034220-1',
+  gaGtag: true
 }
 
 module.exports = siteConfig

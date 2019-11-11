@@ -1,0 +1,35 @@
+name: Publish Reference
+on:
+  push:
+    branches:
+      - master
+jobs:
+  publish-reference:
+    name: Publish Reference
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Install python3
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+      - name: Install Tools
+        run: |
+          pip install awscli
+      - name: Build reference
+        run: |
+          yarn
+          export PACKAGE_VERSION=$(./build/docs/source_version.sh)
+          yarn cmd build:reference
+      - name: Publish docs
+        env:
+          REFERENCE_BUCKET_NAME: ${{ secrets.REFERENCE_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync docs/reference/public s3://$REFERENCE_BUCKET_NAME/
+          aws s3 sync docs/reference/public s3://$REFERENCE_BUCKET_NAME/$PACKAGE_VERSION
+          aws s3 sync .github s3://$REFERENCE_BUCKET_NAME/.github
+          aws s3 sync .github s3://$REFERENCE_BUCKET_NAME/$PACKAGE_VERSION/.github

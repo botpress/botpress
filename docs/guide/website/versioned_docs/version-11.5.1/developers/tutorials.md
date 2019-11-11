@@ -396,7 +396,7 @@ await bp.events.replyToEvent(event, payloads)
 
 In the end, calling an API in an Action works as it would in any other javascript project. The real difference is how you want to handle the data afterwards. So we just made the bot reply, but what if we wanted to return that data and use it later on in the flow?
 
-We're gonna use [Temp Memory](https://botpress.io/docs/build/memory/#temporary-memory) to store the data instead.
+We're gonna use [Temp Memory](https://botpress.io/docs/build/memory#temporary-memory) to store the data instead.
 
 ```javascript
 // Assigns the quote to the temporary memory

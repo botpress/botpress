@@ -35,4 +35,4 @@ Modules are already bundled with the server binary for the moment. They are bund
 
 ## Custom Modules
 
-Learn how to create custom modules [here](../../advanced/custom-module).
+Learn how to create custom modules [here](../advanced/custom-module).

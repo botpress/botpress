@@ -144,8 +144,8 @@ export class StrategyUsersRepository {
   async getUserCount(strategy: string): Promise<number> {
     return this.database
       .knex(this._getTableName(strategy))
-      .count('* as qty')
+      .count<Record<string, number>>('* as qty')
       .first()
-      .then(result => result.qty)
+      .then(result => result!.qty)
   }
 }

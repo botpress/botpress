@@ -51,7 +51,7 @@ export default class Utterance {
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
   private _sentenceEmbedding?: number[]
 
-  constructor(tokens: string[], vectors: number[][]) {
+  constructor(tokens: string[], vectors: number[][], public languageCode: Readonly<string>) {
     if (tokens.length !== vectors.length) {
       throw Error('Tokens and vectors must match')
     }
@@ -184,7 +184,7 @@ export default class Utterance {
   clone(copyEntities: boolean, copySlots: boolean): Utterance {
     const tokens = this.tokens.map(x => x.value)
     const vectors = this.tokens.map(x => <number[]>x.vectors)
-    const utterance = new Utterance(tokens, vectors)
+    const utterance = new Utterance(tokens, vectors, this.languageCode)
     utterance.setGlobalTfidf({ ...this._globalTfidf })
 
     if (copyEntities) {
@@ -256,7 +256,7 @@ export async function buildUtterances(raw_utterances: string[], language: string
         return
       }
       const vectors = tokUtt.map(t => vectorMap[t])
-      const utterance = new Utterance(tokUtt, vectors)
+      const utterance = new Utterance(tokUtt, vectors, language)
 
       // TODO: temporary work-around
       // covers a corner case where tokenization returns tokens that are not identical to `parsed` utterance

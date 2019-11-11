@@ -170,7 +170,7 @@ Botpress Native NLU offers a handful of system entity extraction thanks to [Face
 
 At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
 
-For instructions on how to host your own Duckling server, please check the section [Hosting & Environment](../../deploy/hosting)
+For instructions on how to host your own Duckling server, please check the section [Hosting & Environment](../deploy/hosting)
 
 ##### Example
 

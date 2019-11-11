@@ -8,6 +8,7 @@ import ConfusionEngine from '../confusion-engine'
 import ScopedEngine from '../engine'
 import Engine2 from '../engine2/engine2'
 import * as ModelService from '../engine2/model-service'
+import { makeTrainingSession, makeTrainSessionKey } from '../engine2/train-session-service'
 import { NLUState } from '../typings'
 
 const USE_E1 = yn(process.env.USE_LEGACY_NLU)
@@ -39,6 +40,8 @@ export function getOnBotMount(state: NLUState) {
 
     if (USE_E1) {
       await engine1.init()
+      // @ts-ignore
+      state.nluByBot[botId] = { engine1 }
       return
     }
 
@@ -51,19 +54,24 @@ export function getOnBotMount(state: NLUState) {
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         await Promise.mapSeries(languages, async languageCode => {
-          const lock = await bp.distributed.acquireLock(`train:${botId}:${languageCode}`, ms('5m'))
+          // shorter lock and extend in training steps
+          const lock = await bp.distributed.acquireLock(makeTrainSessionKey(botId, languageCode), ms('5m'))
           if (!lock) {
             return
           }
           let model = await ModelService.getModel(ghost, hash, languageCode)
           if (!model) {
-            model = await engine.train(intentDefs, entityDefs, languageCode)
+            const trainSession = makeTrainingSession(languageCode, lock)
+            state.nluByBot[botId].trainSessions[languageCode] = trainSession // TODO move this in setTrainingSession
+
+            model = await engine.train(intentDefs, entityDefs, languageCode, trainSession)
             if (model.success) {
               await ModelService.saveModel(ghost, model, hash)
             }
           }
 
           await lock.unlock()
+          // TODO remove training session from state, kvs will clear itself or not ?
           if (model.success) {
             await state.broadcastLoadModel(botId, hash, languageCode)
           }
@@ -76,7 +84,13 @@ export function getOnBotMount(state: NLUState) {
     // we use local events so training occures on the same node where the request for changes enters
     const trainWatcher = bp.ghost.forBot(botId).onFileChanged(async f => {
       if (f.includes('intents') || f.includes('entities')) {
-        await trainOrLoad()
+        // eventually cancel & restart training only for given language
+        await Promise.map(languages, async lang => {
+          const key = makeTrainSessionKey(botId, lang)
+          await bp.distributed.clearLock(key)
+          return state.broadcastCancelTraining(botId, lang)
+        })
+        trainOrLoad()
       }
     })
 
@@ -84,7 +98,8 @@ export function getOnBotMount(state: NLUState) {
       botId,
       engine,
       engine1,
-      trainWatcher
+      trainWatcher,
+      trainSessions: {}
     }
 
     trainOrLoad() // floating promise on purpose

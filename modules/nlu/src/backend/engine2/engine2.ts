@@ -2,17 +2,18 @@ import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { isPatternValid } from '../tools/patterns-utils'
-import { Engine2, EntityExtractor } from '../typings'
+import { Engine2, EntityExtractor, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
-import { CancellationToken, computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
+import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 
 export interface Tools {
   tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
+  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
   ducklingExtractor: EntityExtractor
   mlToolkit: typeof MLToolkit
 }
@@ -31,15 +32,10 @@ export default class E2 implements Engine2 {
   async train(
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
-    languageCode: string
+    languageCode: string,
+    trainingSession: TrainingSession
   ): Promise<Model> {
     this.logger.info(`Started ${languageCode} training for bot ${this.botId}`)
-    const token: CancellationToken = {
-      cancel: async () => {},
-      uid: '',
-      isCancelled: () => false,
-      cancelledAt: new Date()
-    }
 
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
@@ -71,6 +67,8 @@ export default class E2 implements Engine2 {
       .value()
 
     const input: TrainInput = {
+      botId: this.botId,
+      trainingSession,
       languageCode,
       list_entities,
       pattern_entities,
@@ -87,12 +85,26 @@ export default class E2 implements Engine2 {
 
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
-    const model = await Trainer(input, E2.tools, token)
+    const model = await Trainer(input, E2.tools)
     if (model.success) {
+      E2.tools.reportTrainingProgress(this.botId, 'Training complete', {
+        ...trainingSession,
+        progress: 1,
+        status: 'done'
+      })
       this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
       await this.loadModel(model)
     }
+
     return model
+  }
+
+  private modelAlreadyLoaded(model: Model) {
+    return (
+      this.predictorsByLang[model.languageCode] !== undefined &&
+      this.modelsByLang[model.languageCode] !== undefined &&
+      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input)
+    ) // compare hash instead
   }
 
   async loadModels(models: Model[]) {
@@ -100,11 +112,7 @@ export default class E2 implements Engine2 {
   }
 
   async loadModel(model: Model) {
-    if (
-      this.predictorsByLang[model.languageCode] !== undefined &&
-      this.modelsByLang[model.languageCode] !== undefined &&
-      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input) // compare hash instead
-    ) {
+    if (this.modelAlreadyLoaded(model)) {
       return
     }
 
@@ -137,11 +145,19 @@ export default class E2 implements Engine2 {
 
       const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persistd
 
-      return { ctx_classifer, intent_classifier_per_ctx, slot_tagger, kmeans }
+      return {
+        ...artefacts,
+        ctx_classifer,
+        intent_classifier_per_ctx,
+        slot_tagger,
+        kmeans,
+        pattern_entities: input.pattern_entities,
+        intents: output.intents
+      }
     } else {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return {} as Predictors
+      return { ...artefacts } as Predictors
     }
   }
 
@@ -154,6 +170,6 @@ export default class E2 implements Engine2 {
 
     // TODO throw error if no model was loaded
 
-    return Predict(input, E2.tools, this.modelsByLang, this.predictorsByLang)
+    return Predict(input, E2.tools, this.predictorsByLang)
   }
 }

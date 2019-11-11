@@ -15,7 +15,7 @@ Start the container with minimal necessary options:
 ```bash
 docker run --detach \
            --name=botpress \
-           --publish 3001:3001 \
+           --publish 3000:3000 \
            --volume botpress_data:/botpress/data \
            botpress/server:latest
 ```
