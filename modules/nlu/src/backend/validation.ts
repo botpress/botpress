@@ -38,6 +38,7 @@ export const EntityDefCreateSchema = Joi.object().keys({
     .valid(['system', 'pattern', 'list'])
     .required(),
   sensitive: Joi.boolean(),
+  matchCase: Joi.boolean(),
   occurences: Joi.array()
     .items(EntityDefOccurenceSchema)
     .default([]),

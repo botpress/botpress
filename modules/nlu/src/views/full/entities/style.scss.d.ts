@@ -2,14 +2,19 @@
 // Please do not change this file!
 interface CssExports {
   'badge': string;
+  'configPane': string;
+  'configPopover': string;
   'container': string;
+  'dataPane': string;
   'deleteEntity': string;
   'entity': string;
+  'entityEditorBody': string;
   'header': string;
   'occurence': string;
   'occurenceDelete': string;
   'occurenceInput': string;
   'occurenceName': string;
+  'regexInputDash': string;
   'removeSynonym': string;
   'selectedentity': string;
 }

@@ -1,9 +1,10 @@
 import React from 'react'
 import style from './style.scss'
-import { ListGroupItem, Glyphicon, Label, FormControl, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { ListGroupItem, Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import _ from 'lodash'
 import { WithContext as ReactTags } from 'react-tag-input'
 import classNames from 'classnames'
+import { PatternEntityEditor } from './PatternEntity'
 
 const DEFAULT_STATE = {
   currentOccurence: undefined,
@@ -230,17 +231,7 @@ export default class EntityEditor extends React.Component {
         </div>
         {currentEntity && currentEntity.type === 'list' && this.renderOccurences()}
         {currentEntity && currentEntity.type === 'pattern' && (
-          <div>
-            <FormControl
-              tabIndex="1"
-              autoFocus
-              type="text"
-              placeholder="Enter a valid pattern. Try: howdy[0-9]+"
-              value={this.state.pattern}
-              onChange={this.handlePatternChange}
-            />
-            {!this.isPatternValid(this.state.pattern) && <Label bsStyle="danger">pattern invalid</Label>}
-          </div>
+          <PatternEntityEditor entity={currentEntity} updateEntity={_.debounce(this.props.onUpdate, 2500)} />
         )}
       </div>
     )

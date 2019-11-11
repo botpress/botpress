@@ -170,7 +170,7 @@ export type PatternEntity = Readonly<{
   name: string
   pattern: string
   examples: string[]
-  ignoreCase: boolean
+  matchCase: boolean
   sensitive: boolean
 }>
 

@@ -141,3 +141,29 @@
   margin-left: 5px;
   cursor: pointer;
 }
+
+.entityEditorBody {
+  display: flex;
+  & > div {
+    padding: 20px;
+  }
+  .dataPane {
+    flex-grow: 1;
+  }
+  .regexInputDash {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    color: #e1e8ed !important; //to make sure intent doesn't override this
+    margin: 0;
+    padding: 0 10px;
+  }
+  .configPane {
+    width: 40%;
+    background-color: #fbfbfb;
+  }
+}
+
+.configPopover {
+  max-width: 250px;
+}
