@@ -38,5 +38,5 @@ jobs:
       uses: actions/upload-artifact@master
       if: failure()
       with:
-        name: screenshots1
+        name: screenshots
         path: build/tests/e2e/screenshots
