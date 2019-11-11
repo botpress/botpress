@@ -1,4 +1,16 @@
-import { Checkbox, FormGroup, H1, Icon, InputGroup, Position, Tag, TextArea, Tooltip } from '@blueprintjs/core'
+import {
+  Checkbox,
+  Colors,
+  FormGroup,
+  H1,
+  Icon,
+  InputGroup,
+  Label,
+  Position,
+  Tag,
+  TextArea,
+  Tooltip
+} from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import React, { useEffect, useState } from 'react'
 
@@ -70,6 +82,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
           </FormGroup>
         </div>
         <div className={style.configPane}>
+          <Label>Options</Label>
           <Checkbox
             checked={matchCase}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMatchCase(e.target.checked)}
@@ -80,7 +93,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
               position={Position.RIGHT}
               popoverClassName={style.configPopover}
             >
-              <Icon icon="help" />
+              <Icon icon="help" color={Colors.GRAY3} />
             </Tooltip>
           </Checkbox>
           <Checkbox
@@ -93,7 +106,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
               position={Position.RIGHT}
               popoverClassName={style.configPopover}
             >
-              <Icon icon="help" />
+              <Icon icon="help" color={Colors.GRAY3} />
             </Tooltip>
           </Checkbox>
         </div>
