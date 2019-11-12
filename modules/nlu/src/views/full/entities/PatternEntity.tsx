@@ -22,8 +22,6 @@ interface Props {
   updateEntity: (entity: NLU.EntityDefinition) => void
 }
 
-// TODO add nlu migration (entity.matchCase & examples)
-
 export const PatternEntityEditor: React.FC<Props> = props => {
   const [matchCase, setMatchCase] = useState<boolean>(props.entity.matchCase)
   const [sensitive, setSensitive] = useState<boolean>(props.entity.sensitive)

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import style from './style.scss'
-import { ListGroupItem, Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { ListGroupItem, Glyphicon } from 'react-bootstrap'
 import _ from 'lodash'
 import { WithContext as ReactTags } from 'react-tag-input'
 import classNames from 'classnames'
@@ -213,7 +213,7 @@ export default class EntityEditor extends React.Component {
             )}
           </div>
         </div> */}
-        <H1>{this.props.entity.name}</H1>
+        <H1>{currentEntity.name}</H1>
         {currentEntity && currentEntity.type === 'list' && this.renderOccurences()}
         {currentEntity && currentEntity.type === 'pattern' && (
           <PatternEntityEditor entity={currentEntity} updateEntity={_.debounce(this.props.onUpdate, 2500)} />
