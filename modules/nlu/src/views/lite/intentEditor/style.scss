@@ -13,14 +13,14 @@
   > div:first-child {
     overflow: auto;
     flex-grow: 1;
-    padding: 10px 25px 25px 25px;
+    padding: 10px;
   }
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  margin: 20px 0 10px 0;
+  margin: 10px 0;
 
   .hint {
     color: #738694;

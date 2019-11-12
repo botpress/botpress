@@ -19,7 +19,7 @@ import style from './style.scss'
 
 interface Props {
   entity: NLU.EntityDefinition
-  updateEntity: (entity: NLU.EntityDefinition) => void // promise ?
+  updateEntity: (entity: NLU.EntityDefinition) => void
 }
 
 // TODO add nlu migration (entity.matchCase & examples)
@@ -52,7 +52,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
 
   useEffect(() => {
     try {
-      new RegExp(pattern, matchCase ? '' : 'i')
+      new RegExp(pattern)
       setPatternValid(true)
       const newEntity: NLU.EntityDefinition = {
         ...props.entity,
@@ -66,88 +66,85 @@ export const PatternEntityEditor: React.FC<Props> = props => {
     } catch (e) {
       setPatternValid(false)
     }
-  }, [pattern, matchCase, sensitive, examplesStr]) // TODO add examples in watchers or maybe create a 2nd handler
+  }, [pattern, matchCase, sensitive, examplesStr])
 
   return (
-    <div>
-      <H1>{props.entity.name}</H1>
-      <div className={style.entityEditorBody}>
-        <div className={style.dataPane}>
-          <FormGroup
-            label="Regular expression"
-            labelFor="pattern"
-            labelInfo={
-              paternValid ? null : (
-                <Tag intent="danger" minimal style={{ float: 'right' }}>
-                  pattern invalid
-                </Tag>
-              )
-            }
+    <div className={style.entityEditorBody}>
+      <div className={style.dataPane}>
+        <FormGroup
+          label="Regular expression"
+          labelFor="pattern"
+          labelInfo={
+            paternValid ? null : (
+              <Tag intent="danger" minimal style={{ float: 'right' }}>
+                pattern invalid
+              </Tag>
+            )
+          }
+        >
+          <InputGroup
+            leftIcon={<Icon iconSize={20} className={style.regexInputDash} icon="slash" />}
+            rightElement={<Icon iconSize={20} className={style.regexInputDash} icon="slash" />}
+            type="text"
+            id="pattern"
+            placeholder="insert a valid pattern"
+            value={pattern}
+            intent={paternValid ? 'none' : 'danger'}
+            onChange={e => setPattern(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup
+          label="Matching examples"
+          labelFor="examples"
+          labelInfo={
+            examplesStr &&
+            paternValid && (
+              <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal style={{ float: 'right' }}>
+                {allExamplesMatch ? 'All examples match' : 'Examples non matching'}
+              </Tag>
+            )
+          }
+        >
+          <TextArea
+            id="examples"
+            fill
+            rows={6}
+            growVertically={true}
+            placeholder="Add examples that matchs your pattern. One by line."
+            value={examplesStr}
+            intent={allExamplesMatch ? 'none' : 'danger'}
+            onChange={e => setExampleStr(e.target.value)}
+          />
+        </FormGroup>
+      </div>
+      <div className={style.configPane}>
+        <Label>Options</Label>
+        <Checkbox
+          checked={matchCase}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMatchCase(e.target.checked)}
+        >
+          <span>Match case</span>&nbsp;
+          <Tooltip
+            content="Is your pattern case sensitive"
+            position={Position.RIGHT}
+            popoverClassName={style.configPopover}
           >
-            <InputGroup
-              leftIcon={<Icon iconSize={20} className={style.regexInputDash} icon="slash" />}
-              rightElement={<Icon iconSize={20} className={style.regexInputDash} icon="slash" />}
-              type="text"
-              id="pattern"
-              placeholder="insert a valid pattern"
-              value={pattern}
-              intent={paternValid ? 'none' : 'danger'}
-              onChange={e => setPattern(e.target.value)}
-            />
-          </FormGroup>
-          <FormGroup
-            label="Matching examples"
-            labelFor="examples"
-            labelInfo={
-              examplesStr &&
-              paternValid && (
-                <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal style={{ float: 'right' }}>
-                  {allExamplesMatch ? 'All examples match' : 'Examples non matching'}
-                </Tag>
-              )
-            }
+            <Icon icon="help" color={Colors.GRAY3} />
+          </Tooltip>
+        </Checkbox>
+        <Checkbox
+          checked={sensitive}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSensitive(e.target.checked)}
+        >
+          <span>Contains sensitive data</span>&nbsp;
+          <Tooltip
+            content="Sensitive information are replaced by * before being saved in the database"
+            position={Position.RIGHT}
+            popoverClassName={style.configPopover}
           >
-            <TextArea
-              id="examples"
-              fill
-              rows={6}
-              growVertically={true}
-              placeholder="Add examples that matchs your pattern. One by line."
-              value={examplesStr}
-              intent={allExamplesMatch ? 'none' : 'danger'}
-              onChange={e => setExampleStr(e.target.value)}
-            />
-          </FormGroup>
-        </div>
-        <div className={style.configPane}>
-          <Label>Options</Label>
-          <Checkbox
-            checked={matchCase}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMatchCase(e.target.checked)}
-          >
-            <span>Match case</span>&nbsp;
-            <Tooltip
-              content="Is your pattern case sensitive"
-              position={Position.RIGHT}
-              popoverClassName={style.configPopover}
-            >
-              <Icon icon="help" color={Colors.GRAY3} />
-            </Tooltip>
-          </Checkbox>
-          <Checkbox
-            checked={sensitive}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSensitive(e.target.checked)}
-          >
-            <span>Contains sensitive data</span>&nbsp;
-            <Tooltip
-              content="Sensitive information are replaced by * before being saved in the database"
-              position={Position.RIGHT}
-              popoverClassName={style.configPopover}
-            >
-              <Icon icon="help" color={Colors.GRAY3} />
-            </Tooltip>
-          </Checkbox>
-        </div>
+            <Icon icon="help" color={Colors.GRAY3} />
+          </Tooltip>
+        </Checkbox>
       </div>
     </div>
   )

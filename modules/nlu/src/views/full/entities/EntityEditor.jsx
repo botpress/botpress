@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import style from './style.scss'
 import { ListGroupItem, Glyphicon, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import _ from 'lodash'
 import { WithContext as ReactTags } from 'react-tag-input'
 import classNames from 'classnames'
 import { PatternEntityEditor } from './PatternEntity'
+import { H1 } from '@blueprintjs/core'
 
 const DEFAULT_STATE = {
   currentOccurence: undefined,
@@ -147,23 +148,6 @@ export default class EntityEditor extends React.Component {
     this.props.onUpdate({ ...this.state.currentEntity, pattern: this.state.pattern })
   }, 500)
 
-  handlePatternChange = e => {
-    const pattern = e.target.value
-
-    this.setState({ pattern }, () => {
-      if (this.isPatternValid(pattern)) this.onUpdate()
-    })
-  }
-
-  isPatternValid = pattern => {
-    try {
-      new RegExp(pattern)
-      return pattern !== ''
-    } catch (e) {
-      return false
-    }
-  }
-
   handleSensitiveChanged = () => {
     const sensitive = !this.state.currentEntity.sensitive
 
@@ -185,8 +169,8 @@ export default class EntityEditor extends React.Component {
     const { currentEntity } = this.state
 
     return (
-      <div className={style.container}>
-        <div className={style.header}>
+      <Fragment>
+        {/* <div className={style.header}>
           <div>
             <div style={{ display: 'inline-block' }}>
               {!currentEntity && <h1>No entities have been created yet</h1>}
@@ -228,12 +212,13 @@ export default class EntityEditor extends React.Component {
               </div>
             )}
           </div>
-        </div>
+        </div> */}
+        <H1>{this.props.entity.name}</H1>
         {currentEntity && currentEntity.type === 'list' && this.renderOccurences()}
         {currentEntity && currentEntity.type === 'pattern' && (
           <PatternEntityEditor entity={currentEntity} updateEntity={_.debounce(this.props.onUpdate, 2500)} />
         )}
-      </div>
+      </Fragment>
     )
   }
 }
