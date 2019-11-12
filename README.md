@@ -75,7 +75,6 @@ Botpress Partners is a list of agencies who can help you build your next convers
 
 | Agency Name | Location |
 | ------------- | ------------- |
-| [Accenture](https://www.accenture.com) | Worldwide |
 | [Okam](https://okam.ca/) | Montreal, Canada |
 | [Lampyon](https://www.lampyon.com/) | Toronto, Canada & Budapest, Hungary |
 | [Smile](https://www.smile.eu) | Asnières-sur-Seine, France |
