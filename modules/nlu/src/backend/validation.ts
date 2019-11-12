@@ -39,6 +39,9 @@ export const EntityDefCreateSchema = Joi.object().keys({
     .required(),
   sensitive: Joi.boolean(),
   matchCase: Joi.boolean(),
+  examples: Joi.array()
+    .items(Joi.string())
+    .default([]),
   occurences: Joi.array()
     .items(EntityDefOccurenceSchema)
     .default([]),

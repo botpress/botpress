@@ -12,6 +12,7 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
 import style from './style.scss'
@@ -21,28 +22,51 @@ interface Props {
   updateEntity: (entity: NLU.EntityDefinition) => void // promise ?
 }
 
+// TODO add nlu migration (entity.matchCase & examples)
+
 export const PatternEntityEditor: React.FC<Props> = props => {
-  const [matchCase, setMatchCase] = useState<boolean>(false)
+  const [matchCase, setMatchCase] = useState<boolean>(props.entity.matchCase)
   const [sensitive, setSensitive] = useState<boolean>(props.entity.sensitive)
   const [pattern, setPattern] = useState<string>(props.entity.pattern)
-  const [isValidPattern, setIsValidPattern] = useState<boolean>(true)
+  const [paternValid, setPatternValid] = useState<boolean>(true)
+  const [examplesStr, setExampleStr] = useState((props.entity.examples || []).join('\n'))
+  const [allExamplesMatch, setExamplesMatch] = useState<boolean>(true)
+
+  const validateExamples = _.debounce(() => {
+    let p = pattern
+    if (!p.startsWith('^')) {
+      p = '^' + p
+    }
+    if (!p.endsWith('$')) {
+      p = p + '$'
+    }
+    const rx = new RegExp(p, matchCase ? '' : 'i')
+    const allMatching = examplesStr
+      .split('\n')
+      .filter(ex => ex !== '')
+      .map(ex => rx.test(ex))
+      .every(Boolean)
+
+    setExamplesMatch(allMatching)
+  }, 750)
 
   useEffect(() => {
     try {
-      const re = new RegExp(pattern, matchCase ? '' : 'i')
-      setIsValidPattern(true)
+      new RegExp(pattern, matchCase ? '' : 'i')
+      setPatternValid(true)
       const newEntity: NLU.EntityDefinition = {
         ...props.entity,
         pattern,
         sensitive,
-        matchCase
+        matchCase,
+        examples: examplesStr.trim().split('\n')
       }
+      validateExamples()
       props.updateEntity(newEntity)
-      // TODO try to match on every examples with created pattern, don't forget exact start and exact end logic
     } catch (e) {
-      setIsValidPattern(false)
+      setPatternValid(false)
     }
-  }, [pattern, matchCase, sensitive]) // TODO add examples in watchers or maybe create a 2nd handler
+  }, [pattern, matchCase, sensitive, examplesStr]) // TODO add examples in watchers or maybe create a 2nd handler
 
   return (
     <div>
@@ -53,7 +77,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             label="Regular expression"
             labelFor="pattern"
             labelInfo={
-              isValidPattern ? null : (
+              paternValid ? null : (
                 <Tag intent="danger" minimal style={{ float: 'right' }}>
                   pattern invalid
                 </Tag>
@@ -67,17 +91,31 @@ export const PatternEntityEditor: React.FC<Props> = props => {
               id="pattern"
               placeholder="insert a valid pattern"
               value={pattern}
-              intent={isValidPattern ? 'none' : 'danger'}
+              intent={paternValid ? 'none' : 'danger'}
               onChange={e => setPattern(e.target.value)}
             />
           </FormGroup>
-          <FormGroup label="Matching examples" labelFor="examples">
+          <FormGroup
+            label="Matching examples"
+            labelFor="examples"
+            labelInfo={
+              examplesStr &&
+              paternValid && (
+                <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal style={{ float: 'right' }}>
+                  {allExamplesMatch ? 'All examples match' : 'Examples non matching'}
+                </Tag>
+              )
+            }
+          >
             <TextArea
               id="examples"
               fill
               rows={6}
               growVertically={true}
               placeholder="Add examples that matchs your pattern. One by line."
+              value={examplesStr}
+              intent={allExamplesMatch ? 'none' : 'danger'}
+              onChange={e => setExampleStr(e.target.value)}
             />
           </FormGroup>
         </div>
