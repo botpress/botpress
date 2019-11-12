@@ -57,6 +57,7 @@ export const FileTypes: { [type: string]: FileDefinition } = {
   main_config: {
     allowGlobal: true,
     allowScoped: false,
+    isJSON: true,
     permission: 'main_config',
     filenames: ['botpress.config.json', 'workspaces.json'],
     ghost: {
