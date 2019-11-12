@@ -37,10 +37,11 @@ export const assertValidFilename = (filename: string) => {
 export const arePermissionsValid = (
   def: FileDefinition,
   editableFile: EditableFile,
-  permissions: FilePermissions
+  permissions: FilePermissions,
+  actionType: 'read' | 'write'
 ): boolean => {
-  const hasGlobalPerm = def.allowGlobal && permissions[`global.${def.permission}`].write
-  const hasScopedPerm = def.allowScoped && permissions[`bot.${def.permission}`].write
+  const hasGlobalPerm = def.allowGlobal && permissions[`global.${def.permission}`][actionType]
+  const hasScopedPerm = def.allowScoped && permissions[`bot.${def.permission}`][actionType]
 
   const isGlobalValid = def.allowGlobal && !editableFile.botId
   const isScopedValid = def.allowScoped && !!editableFile.botId
@@ -51,7 +52,8 @@ export const arePermissionsValid = (
 export const validateFilePayload = async (
   editableFile: EditableFile,
   permissions: FilePermissions,
-  currentBotId: string
+  currentBotId: string,
+  actionType: 'read' | 'write'
 ) => {
   const { name, botId, type, content, location } = editableFile
 
@@ -64,7 +66,7 @@ export const validateFilePayload = async (
     throw new EditorError(`Can't perform modification on bot ${botId}. Please switch to the correct bot to change it.`)
   }
 
-  if (!arePermissionsValid(def, editableFile, permissions)) {
+  if (!arePermissionsValid(def, editableFile, permissions, actionType)) {
     throw new EditorError(`No permission`)
   }
 

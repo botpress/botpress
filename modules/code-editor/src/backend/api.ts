@@ -17,7 +17,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     }
   })
 
-  router.post('/save', loadPermsMw, validateFilePayloadMw, async (req: RequestWithPerms, res, next) => {
+  router.post('/save', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
       await editorByBot[req.params.botId].saveFile(req.body)
       res.sendStatus(200)
@@ -27,7 +27,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     }
   })
 
-  router.post('/readFile', loadPermsMw, validateFilePayloadMw, async (req: RequestWithPerms, res, next) => {
+  router.post('/readFile', loadPermsMw, validateFilePayloadMw('read'), async (req: RequestWithPerms, res, next) => {
     try {
       res.send({ fileContent: await editorByBot[req.params.botId].readFileContent(req.body) })
     } catch (err) {
@@ -35,7 +35,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     }
   })
 
-  router.post('/exists', loadPermsMw, validateFilePayloadMw, async (req: RequestWithPerms, res, next) => {
+  router.post('/exists', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
       res.send(await editorByBot[req.params.botId].fileExists(req.body))
     } catch (err) {
@@ -43,7 +43,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     }
   })
 
-  router.post('/rename', loadPermsMw, validateFilePayloadMw, async (req: RequestWithPerms, res, next) => {
+  router.post('/rename', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
       await editorByBot[req.params.botId].renameFile(req.body.file, req.body.newName)
       res.sendStatus(200)
@@ -53,7 +53,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     }
   })
 
-  router.post('/remove', loadPermsMw, validateFilePayloadMw, async (req: RequestWithPerms, res, next) => {
+  router.post('/remove', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
       await editorByBot[req.params.botId].deleteFile(req.body)
       res.sendStatus(200)

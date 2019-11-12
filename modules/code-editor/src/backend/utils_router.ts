@@ -39,7 +39,7 @@ export const getPermissionsMw = (bp: typeof sdk) => async (req: any, res, next):
   next()
 }
 
-export const validateFilePayloadMw = async (req, res, next) => {
+export const validateFilePayloadMw = (actionType: 'read' | 'write') => async (req, res, next) => {
   if (!req.permissions || !req.body) {
     next(new Error(`Missing parameters`))
   }
@@ -47,7 +47,7 @@ export const validateFilePayloadMw = async (req, res, next) => {
   try {
     // When renaming, the signature is different
     const file = req.body.file || req.body
-    await validateFilePayload(file as EditableFile, req.permissions, req.params.botId)
+    await validateFilePayload(file as EditableFile, req.permissions, req.params.botId, actionType)
     next()
   } catch (err) {
     next(err)
