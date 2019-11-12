@@ -1,3 +1,50 @@
+## [12.2.2](https://github.com/botpress/botpress/compare/v12.2.1...v12.2.2) (2019-11-08)
+
+
+### Bug Fixes
+
+* **core:** avoid new debug instance creation ([c602ad5](https://github.com/botpress/botpress/commit/c602ad5))
+* **core:** avoid new debug instance creation ([8aa3a77](https://github.com/botpress/botpress/commit/8aa3a77))
+* **core:** caching required files in actions and hooks ([069d013](https://github.com/botpress/botpress/commit/069d013))
+* **core:** caching required files in actions and hooks ([fd965a3](https://github.com/botpress/botpress/commit/fd965a3))
+* **core:** global actions/hooks executed outside nodevm ([2ef2e29](https://github.com/botpress/botpress/commit/2ef2e29))
+* **core:** global actions/hooks executed outside nodevm ([ed58eb5](https://github.com/botpress/botpress/commit/ed58eb5))
+* **core:** process args were not memoized correctly ([1e5c2e6](https://github.com/botpress/botpress/commit/1e5c2e6))
+* **core:** process args were not memoized correctly ([c165b26](https://github.com/botpress/botpress/commit/c165b26))
+* **flow:** minor improvements ([4543d2d](https://github.com/botpress/botpress/commit/4543d2d))
+* **flow:** minor improvements ([4d448b6](https://github.com/botpress/botpress/commit/4d448b6))
+* **nlu:** create none intent properly ([b57a610](https://github.com/botpress/botpress/commit/b57a610))
+
+
+### Features
+
+* **nlu:** filter predictions ([b460c8b](https://github.com/botpress/botpress/commit/b460c8b))
+* **nlu:** re introduced hard none threshold ([e698de9](https://github.com/botpress/botpress/commit/e698de9))
+
+
+
+## [12.2.1](https://github.com/botpress/botpress/compare/v12.2.0...v12.2.1) (2019-11-06)
+
+
+### Bug Fixes
+
+* **analytics:** fix analytics insertion of long text ([2f5ab73](https://github.com/botpress/botpress/commit/2f5ab73))
+* **analytics:** fix analytics insertion of long text ([e3c1856](https://github.com/botpress/botpress/commit/e3c1856))
+* **core:** catalina build ([35db0d6](https://github.com/botpress/botpress/commit/35db0d6))
+* **flow:** identifying timeout flow & bigger archive timeout ([80ac8e1](https://github.com/botpress/botpress/commit/80ac8e1))
+* **flow:** identifying timeout flow & bigger archive timeout ([6c62aa9](https://github.com/botpress/botpress/commit/6c62aa9))
+* **nlu:** moved fs calls to async ([0224002](https://github.com/botpress/botpress/commit/0224002))
+* **nlu:** moved fs calls to async ([1ae90e0](https://github.com/botpress/botpress/commit/1ae90e0))
+* **nlu:** progress ([54cda62](https://github.com/botpress/botpress/commit/54cda62))
+
+
+### Features
+
+* **admin:** display when a new version available ([1327eb9](https://github.com/botpress/botpress/commit/1327eb9))
+* **nlu:** cancel training ([59058c3](https://github.com/botpress/botpress/commit/59058c3))
+
+
+
 # [12.2.0](https://github.com/botpress/botpress/compare/v12.1.6...v12.2.0) (2019-10-28)
 
 

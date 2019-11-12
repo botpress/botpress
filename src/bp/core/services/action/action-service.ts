@@ -10,7 +10,7 @@ import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { createForAction } from '../../api'
-import { requireAtPaths } from '../../modules/require'
+import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { ActionExecutionError, BPError } from '../dialog/errors'
 
@@ -49,6 +49,8 @@ export default class ActionService {
     Object.keys(require.cache)
       .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
       .map(file => delete require.cache[file])
+
+    clearRequireCache()
   }
 
   forBot(botId: string): ScopedActionService {
@@ -150,7 +152,9 @@ export class ScopedActionService {
     return !!actions.find(x => x.name === actionName)
   }
 
-  private _prepareRequire(actionLocation: string) {
+  private _prepareRequire(fullPath: string) {
+    const actionLocation = path.dirname(fullPath)
+
     let parts = path.relative(process.PROJECT_LOCATION, actionLocation).split(path.sep)
     parts = parts.slice(parts.indexOf('actions') + 1) // We only keep the parts after /actions/...
 
@@ -161,7 +165,7 @@ export class ScopedActionService {
       lookups.unshift(process.LOADED_MODULES[parts[0]])
     }
 
-    return module => requireAtPaths(module, lookups)
+    return module => requireAtPaths(module, lookups, fullPath)
   }
 
   async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
@@ -176,38 +180,27 @@ export class ScopedActionService {
     const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
 
-    const _require = this._prepareRequire(path.dirname(dirPath))
+    const _require = this._prepareRequire(dirPath)
 
-    const modRequire = new Proxy(
-      {},
-      {
-        get: (_obj, prop) => _require(prop)
-      }
-    )
-
-    const vm = new NodeVM({
-      wrapper: 'none',
-      sandbox: {
-        bp: api,
-        event: incomingEvent,
-        user: incomingEvent.state.user,
-        temp: incomingEvent.state.temp,
-        session: incomingEvent.state.session,
-        args: actionArgs,
-        printObject: printObject,
-        process: UntrustedSandbox.getSandboxProcessArgs()
-      },
-      require: {
-        external: true,
-        mock: modRequire
-      },
-      timeout: 5000
-    })
-
-    const runner = new VmRunner()
+    const args = {
+      bp: api,
+      event: incomingEvent,
+      user: incomingEvent.state.user,
+      temp: incomingEvent.state.temp,
+      session: incomingEvent.state.session,
+      args: actionArgs,
+      printObject: printObject,
+      process: UntrustedSandbox.getSandboxProcessArgs()
+    }
 
     try {
-      const result = await runner.runInVm(vm, code, dirPath)
+      let result
+      if (action.location === 'global' && process.DISABLE_GLOBAL_SANDBOX) {
+        result = await this.runWithoutVm(code, args, _require)
+      } else {
+        result = await this.runInVm(code, dirPath, args, _require)
+      }
+
       debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
 
       return result
@@ -218,6 +211,38 @@ export class ScopedActionService {
         .error(`An error occurred while executing the action "${actionName}`)
       throw new ActionExecutionError(err.message, actionName, err.stack)
     }
+  }
+
+  private async runWithoutVm(code: string, args: any, _require: Function) {
+    args = {
+      ...args,
+      require: _require
+    }
+
+    const fn = new Function(...Object.keys(args), code)
+    return fn(...Object.values(args))
+  }
+
+  private async runInVm(code: string, dirPath: string, args: any, _require: Function) {
+    const modRequire = new Proxy(
+      {},
+      {
+        get: (_obj, prop) => _require(prop)
+      }
+    )
+
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: args,
+      require: {
+        external: true,
+        mock: modRequire
+      },
+      timeout: 5000
+    })
+
+    const runner = new VmRunner()
+    return runner.runInVm(vm, code, dirPath)
   }
 
   private async findAction(actionName: string): Promise<ActionDefinition> {

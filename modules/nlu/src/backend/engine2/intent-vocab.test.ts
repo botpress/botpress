@@ -1,6 +1,8 @@
 import { SPACE } from '../tools/token-utils'
+import { ExtractedSlot, ListEntityModel } from '../typings'
 
-import { buildIntentVocab, ExtractedSlot, ListEntityModel, Utterance } from './engine2'
+import { buildIntentVocab } from './training-pipeline'
+import Utterance from './utterance'
 
 const LIST_ENTITIES: ListEntityModel[] = [
   {
@@ -43,8 +45,8 @@ describe('Build intent vocab', () => {
   })
 
   test('With utterance tokens only', () => {
-    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks))
-    const u2 = new Utterance(u2Toks, genMockVectors(u2Toks))
+    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), 'en')
+    const u2 = new Utterance(u2Toks, genMockVectors(u2Toks), 'en')
 
     const intVocab = buildIntentVocab([u1, u2], [])
     const allUtoks = [...u1Toks, ...u2Toks]
@@ -64,8 +66,8 @@ describe('Build intent vocab', () => {
   })
 
   test('With list entitites and Utterance tokens', () => {
-    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks))
-    const u2 = new Utterance(u2Toks, genMockVectors(u2Toks))
+    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), 'en')
+    const u2 = new Utterance(u2Toks, genMockVectors(u2Toks), 'en')
 
     const intVocab = buildIntentVocab([u1, u2], LIST_ENTITIES)
     const allUtoks = [...u1Toks, ...u2Toks]
@@ -87,7 +89,7 @@ describe('Build intent vocab', () => {
   })
 
   test('Some tokens with tagged slots', () => {
-    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks))
+    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), 'en')
     u1.tagSlot({ name: 'person' } as ExtractedSlot, 6, 16) // slot is: "my friend"
 
     const intVocab = buildIntentVocab([u1], [])

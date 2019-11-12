@@ -1,41 +1,38 @@
 name: Validate documentation
-on: [push]
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron: '0 10 * * MON'
 jobs:
   check_404s:
     name: Check for 404 errors in docs
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@master
-    - name: Install NGINX
-      run: |
-        sudo apt-get update
-        sudo apt-get install nginx
-        mkdir -p /etc/nginx
-        sudo cp .github/workflows/code/validate-docs/nginx.conf /etc/nginx/
-    - name: Build docs
-      working-directory: docs/guide/website
-      run: | 
-        yarn
-        yarn build
-        sudo cp -a build/botpress-docs/. /usr/share/nginx/html/
-    - name: Start NGINX
-      run: |
-        sudo service nginx restart
-    - name: Install python3
-      uses: actions/setup-python@v1
-      with:
-        python-version: '3.x'
-        architecture: 'x64'
-    - name: Scrape docs for 404s
-      run: |
-        pip install scrapy
-        scrapy runspider -o errors.csv -a site="http://localhost" .github/workflows/code/validate-docs/spider.py -s HTTPERROR_ALLOW_ALL=True -s LOG_LEVEL=INFO
-    - name: Check scrape results
-      run: |
-        ERRORS_COUNT=$(cat errors.csv | wc -l)
-        echo "Found $ERRORS_COUNT errors"
-        cat errors.csv
-        if [ "$ERRORS_COUNT" != "0" ]; then
-          exit 1
-        fi
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Install python3
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+      - name: Scrape docs for 404s
+        run: |
+          pip install scrapy
+          scrapy runspider \ 
+            -o errors.csv \ 
+            -a site="https://botpress.io/docs" \ 
+            -a domain="botpress.io" \
+            .github/workflows/code/validate-docs/spider.py \
+            -s AUTOTHROTTLE_ENABLED=true \
+            -s CONCURRENT_REQUESTS_PER_DOMAIN=32 \
+            -s HTTPCACHE_ENABLED=False \
+            -s HTTPERROR_ALLOW_ALL=True \
+            -s LOG_LEVEL=INFO
+      - name: Check scrape results
+        run: |
+          ERRORS_COUNT=$(cat errors.csv | wc -l)
+          echo "Found $ERRORS_COUNT errors"
+          cat errors.csv
+          if [ "$ERRORS_COUNT" != "0" ]; then
+            exit 1
+          fi

@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events'
-import nanoid from 'nanoid/generate'
 
 const yn = require('yn')
 const path = require('path')
@@ -100,10 +99,10 @@ try {
           process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+        process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
         process.IS_LICENSED = true
         process.ASSERT_LICENSED = () => {}
         process.BOTPRESS_VERSION = metadataContent.version
-        process.SERVER_ID = nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
 
         process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
         const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')

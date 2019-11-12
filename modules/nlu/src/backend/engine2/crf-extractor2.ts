@@ -3,11 +3,13 @@ import fs from 'fs'
 import _ from 'lodash'
 import tmp from 'tmp'
 
-import { ExtractedSlot, Intent, Utterance, UtteranceToken } from './engine2'
 import { BIO } from '../typings'
 
+import { ExtractedSlot } from './engine2'
 import * as featurizer from './featurizer2'
 import * as labeler from './labeler2'
+import { Intent } from './training-pipeline'
+import Utterance, { UtteranceToken } from './utterance'
 
 const debug = DEBUG('nlu').sub('slots')
 const debugTrain = debug.sub('train')

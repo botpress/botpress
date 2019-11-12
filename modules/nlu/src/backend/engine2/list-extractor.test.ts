@@ -2,8 +2,10 @@ import 'bluebird-global'
 import _ from 'lodash'
 
 import { parseUtterance } from '../tools/utterance-parser'
+import { EntityExtractionResult, ListEntityModel } from '../typings'
 
-import { EntityExtractionResult, extractListEntities, ListEntityModel, Utterance } from './engine2'
+import { extractListEntities } from './entity-extractor'
+import Utterance from './utterance'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)
 
@@ -175,5 +177,5 @@ function assertEntity(expression: string) {
 function textToUtterance(txt: string): Utterance {
   const tokens = T(txt)
   const vectors = tokens.map(() => new Array(100).fill(0))
-  return new Utterance(tokens, vectors)
+  return new Utterance(tokens, vectors, 'en')
 }

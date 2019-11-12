@@ -53,7 +53,7 @@ Since the User ID allows BP to recognize the user and to continue a conversation
 
 ## Using Custom Components to render special content
 
-Botpress already supports multiple different type of contents, but it is also possible to add new ones. The only way to add custom components is to create a new module. There is more details about that process on the [Creating Modules](../../advanced/custom-module/#views) page.
+Botpress already supports multiple different type of contents, but it is also possible to add new ones. The only way to add custom components is to create a new module. There is more details about that process on the [Creating Modules](../advanced/custom-module#views) page.
 
 Once your component is created, you need to send a custom event to the web channel for it to render. There are two different ways to do that:
 

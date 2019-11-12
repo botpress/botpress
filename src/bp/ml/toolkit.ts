@@ -47,7 +47,15 @@ if (cluster.isWorker) {
       const id = nanoid()
       const messageHandler = (msg: Message) => {
         if (progressCb && msg.type === 'progress' && msg.id === id) {
-          progressCb(msg.payload.progress)
+          try {
+            progressCb(msg.payload.progress)
+          } catch (err) {
+            if (err.name === 'CancelError') {
+              process.off('message', messageHandler)
+              // process.send!({ type: 'cancel', id })
+              completedCb(undefined)
+            }
+          }
         }
 
         if (msg.type === 'done' && msg.id === id) {
@@ -68,7 +76,10 @@ if (cluster.isWorker) {
 }
 
 if (cluster.isMaster) {
-  // should we retrain the whole nlu pipeline
+  // cancel svm training once implemented in node binding
+  // registerMsgHandler('cancel', async (msg: Message, worder) => {
+  // })
+
   registerMsgHandler('train', async (msg: Message, worker) => {
     const sendToWorker = (msg: Message) => worker.isConnected() && worker.send(msg)
 
