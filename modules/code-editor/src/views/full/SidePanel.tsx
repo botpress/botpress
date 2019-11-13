@@ -32,8 +32,10 @@ class PanelContent extends React.Component<Props> {
   }
 
   addFiles(fileType: string, label: string, fileList: any[]) {
-    if (this.props.files[fileType]) {
-      fileList.push({ label, files: this.props.files[fileType] })
+    const files = this.props.files[fileType]
+
+    if (files && files.length) {
+      fileList.push({ label, files })
     }
   }
 
