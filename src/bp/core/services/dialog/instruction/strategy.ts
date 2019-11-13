@@ -188,7 +188,7 @@ export class TransitionStrategy implements InstructionStrategy {
     if (instruction.fn === 'true') {
       return true
     } else if (instruction.fn && instruction.fn.match(/^event\.nlu\.intent\.name === '([a-zA-Z0-9_-]+)'$/)) {
-      const fn = new Function(...Object.keys(sandbox), instruction.fn)
+      const fn = new Function(...Object.keys(sandbox), `return ${instruction.fn}`)
       return fn(...Object.values(sandbox))
     }
 
