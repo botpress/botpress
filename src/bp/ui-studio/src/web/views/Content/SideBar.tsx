@@ -63,8 +63,8 @@ export default class SidebarView extends Component<Props> {
 
 interface Props {
   categories: any
-  handleCategorySelected: any
-  selectedId: any
+  handleCategorySelected: (id: string) => void
+  selectedId: string
   readOnly: boolean
   handleAdd: any
 }

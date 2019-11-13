@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx'
+import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 import { EditableFile } from '../../../backend/typings'
@@ -45,16 +45,23 @@ class EditorStore {
   }
 
   @action.bound
-  openFile(file: EditableFile) {
-    const { content, type, hookType } = file
+  async openFile(file: EditableFile) {
+    const { type, hookType } = file
 
-    this.fileContent = content
-    this.fileContentWrapped = wrapper.add(content, type, hookType)
+    let content = file.content
+    if (!content) {
+      content = await this.rootStore.api.readFile(file)
+    }
 
-    this.currentFile = file
-    this._isFileLoaded = true
+    runInAction('-> setFileContent', () => {
+      this.fileContent = content
+      this.fileContentWrapped = wrapper.add(content, type, hookType)
 
-    this.resetOriginalHash()
+      this.currentFile = file
+      this._isFileLoaded = true
+
+      this.resetOriginalHash()
+    })
   }
 
   @action.bound

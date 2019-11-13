@@ -37,7 +37,7 @@ const Menu: FC<MenuProps> = props => {
       props.fetchCurrentVersion()
     }
 
-    if (!props.version.latestReleases) {
+    if (!props.version.latestReleases.length) {
       props.fetchLatestVersions()
     }
   }, [])
