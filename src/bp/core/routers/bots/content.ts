@@ -1,9 +1,14 @@
 import { ContentElement, Logger } from 'botpress/sdk'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { DefaultSearchParams } from 'core/services/cms'
+import { InvalidOperationError } from 'core/services/auth/errors'
 import { CMSService } from 'core/services/cms'
+import { CmsImportSchema, DefaultSearchParams } from 'core/services/cms'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
+import { validate } from 'joi'
+import _ from 'lodash'
+import moment from 'moment'
+import multer from 'multer'
 
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
@@ -13,7 +18,7 @@ export class ContentRouter extends CustomRouter {
   private _needPermissions: (operation: string, resource: string) => RequestHandler
 
   constructor(
-    logger: Logger,
+    private logger: Logger,
     private authService: AuthService,
     private cms: CMSService,
     private workspaceService: WorkspaceService
@@ -128,6 +133,71 @@ export class ContentRouter extends CustomRouter {
         await this.cms.deleteContentElements(req.params.botId, req.body)
         res.sendStatus(200)
       })
+    )
+
+    this.router.get(
+      '/export',
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.content'),
+      async (req, res) => {
+        // TODO: chunk elements if there are too many of them
+        const elements = await this.cms.getAllElements(req.params.botId)
+        const filtered = elements.map(x => _.omit(x, ['createdBy', 'createdOn', 'modifiedOn']))
+
+        res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Content-disposition', `attachment; filename=content_${moment().format('DD-MM-YYYY')}.json`)
+        res.end(JSON.stringify(filtered, undefined, 2))
+      }
+    )
+
+    const upload = multer()
+    this.router.post(
+      '/analyzeImport',
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.content'),
+      upload.single('file'),
+      this.asyncMiddleware(async (req: any, res) => {
+        try {
+          const existingElements = await this.cms.getAllElements(req.params.botId)
+          const contentTypes = (await this.cms.getAllContentTypes(req.params.botId)).map(x => x.id)
+
+          const importData = (await validate(JSON.parse(req.file.buffer), CmsImportSchema)) as ContentElement[]
+          const importedContentTypes = _.uniq(importData.map(x => x.contentType))
+
+          res.send({
+            cmsCount: (existingElements && existingElements.length) || 0,
+            fileCmsCount: (importData && importData.length) || 0,
+            missingContentTypes: _.difference(importedContentTypes, contentTypes)
+          })
+        } catch (err) {
+          throw new InvalidOperationError(`Error importing your file: ${err}`)
+        }
+      })
+    )
+
+    this.router.post(
+      '/import',
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.content'),
+      upload.single('file'),
+      async (req: any, res) => {
+        if (req.body.action === 'clear_insert') {
+          await this.cms.deleteAllElements(req.params.botId)
+        }
+
+        try {
+          const importData: ContentElement[] = await JSON.parse(req.file.buffer)
+
+          for (const { contentType, formData, id } of importData) {
+            await this.cms.createOrUpdateContentElement(req.params.botId, contentType, formData, id)
+          }
+
+          await this.cms.loadElementsForBot(req.params.botId)
+          res.sendStatus(200)
+        } catch (e) {
+          this.logger.attachError(e).error('JSON Import Failure')
+        }
+      }
     )
   }
 
