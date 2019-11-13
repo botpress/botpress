@@ -54,6 +54,9 @@ class FileNavigator extends React.Component<Props, State> {
       childNodes: buildTree(dir.files, this.props.expandedNodes, filter, readOnlyIcon)
     }))
 
+    // Examples are hidden by default so the view is not cluttered
+    this.traverseTree(nodes, n => n.id === 'Examples' && (n.isExpanded = false))
+
     if (filter) {
       this.traverseTree(nodes, n => (n.isExpanded = true))
     }
