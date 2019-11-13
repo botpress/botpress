@@ -23,10 +23,8 @@ As you can see, the bot wil first display a Carousel, then flow to a different n
 
 ### Implementing the hook
 
-From the Code Editor, create a new hook. This hook will be of **category** `after_incoming_middleware`.
-**Make sure** to name this hook so that it runs after the included `channel-web/00_dialog_engine.js`. For example, you can name your hook `01_postback.js`. More information about [hook ordering can be found here](../main/code#hooks).
-
-From the Code Editor, paste the following snippet inside `01_postback.js`:
+From the Code Editor, create a new hook. This hook will be of **category** "After Incoming Middleware". You can pick any name for you hook.
+Paste the following snippet inside your hook file:
 
 ```javascript
 async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent) {
@@ -34,9 +32,6 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent) {
 
   async function hook() {
     if (event.type === 'postback') {
-      // The SKIP_DIALOG_ENGINE flag must be set to false in order for the Postback to work
-      event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, false)
-
       const payload = event.payload.payload
       switch (payload) {
         case 'mtl':
@@ -56,7 +51,7 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent) {
 }
 ```
 
-Save the `01_postback.js` file and open the emulator.
+Save the your hook file and open the emulator.
 
 ### Testing your bot
 
