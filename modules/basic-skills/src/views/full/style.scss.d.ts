@@ -10,6 +10,7 @@ interface CssExports {
   'keywords': string;
   'modalContent': string;
   'notFoundSelect': string;
+  'padded': string;
   'slotSelect': string;
   'warning': string;
 }

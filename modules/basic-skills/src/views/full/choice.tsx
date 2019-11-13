@@ -64,20 +64,19 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
     this.props.resizeBuilderWindow && this.props.resizeBuilderWindow('small')
     const getOrDefault = (propsKey, stateKey) => this.props.initialData[propsKey] || this.state[stateKey]
 
-    await this.fetchDefaultConfig().then(({ data }) => {
-      if (this.props.initialData) {
-        this.setState(
-          {
-            contentId: getOrDefault('contentId', 'contentId'),
-            invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
-            keywords: getOrDefault('keywords', 'keywords'),
-            config: { nbMaxRetries: data.defaultMaxAttempts, ...getOrDefault('config', 'config') },
-            defaultConfig: data
-          },
-          () => this.refreshContent()
-        )
-      }
-    })
+    if (this.props.initialData) {
+      const { data } = await this.fetchDefaultConfig()
+      this.setState(
+        {
+          contentId: getOrDefault('contentId', 'contentId'),
+          invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
+          keywords: getOrDefault('keywords', 'keywords'),
+          config: { nbMaxRetries: data.defaultMaxAttempts, ...getOrDefault('config', 'config') },
+          defaultConfig: data
+        },
+        () => this.refreshContent()
+      )
+    }
   }
 
   async refreshContent() {
@@ -196,7 +195,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
       <div>
         <H5>Change the question and choices</H5>
 
-        <div style={{ padding: 10 }}>
+        <div className={style.padded}>
           <ContentPickerWidget
             {...contentPickerProps}
             refresh={() => this.refreshContent()}
@@ -209,7 +208,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
 
         <H5>Define how choices are matched</H5>
 
-        <div style={{ padding: 10 }}>{matchingSection}</div>
+        <div className={style.padded}>{matchingSection}</div>
       </div>
     )
   }
