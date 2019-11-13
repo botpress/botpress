@@ -1,7 +1,7 @@
 import { Button, Classes, Dialog, FormGroup, HTMLSelect, Intent } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 
 const AVAILABLE_TYPES = [
   {
@@ -25,12 +25,15 @@ export const CreateEntityModal: FC<Props> = props => {
   const [name, setName] = useState<string>('')
   const [type, setType] = useState<string>(AVAILABLE_TYPES[0].value)
   const [isValid, setIsValid] = useState<boolean>(false)
+  const nameInput = useRef(null)
 
   useEffect(() => {
     setIsValid(name.trim().length > 0 && type !== undefined)
   }, [name, type])
 
   const createEntity = e => {
+    e.preventDefault()
+
     const entity = {
       id: name
         .trim()
@@ -49,15 +52,23 @@ export const CreateEntityModal: FC<Props> = props => {
   }
 
   return (
-    <Dialog title="Create an entity" icon="add" isOpen={props.visible} onClose={props.hide} transitionDuration={0}>
-      <form>
+    <Dialog
+      title="Create an entity"
+      icon="add"
+      isOpen={props.visible}
+      onClose={props.hide}
+      onOpened={() => nameInput.current.focus()}
+      transitionDuration={0}
+    >
+      <form onSubmit={createEntity}>
         <div className={Classes.DIALOG_BODY}>
           <FormGroup label="Name">
             <input
               required
+              ref={nameInput}
               name="name"
               type="text"
-              tabIndex={0}
+              tabIndex={1}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               dir="auto"
               placeholder="Entity Name"
@@ -67,7 +78,7 @@ export const CreateEntityModal: FC<Props> = props => {
           </FormGroup>
           <FormGroup label="Type">
             <HTMLSelect
-              tabIndex={1}
+              tabIndex={2}
               fill
               options={AVAILABLE_TYPES}
               onChange={e => setType(e.target.value)}
@@ -77,7 +88,7 @@ export const CreateEntityModal: FC<Props> = props => {
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button tabIndex={2} intent={Intent.PRIMARY} disabled={!isValid} onClick={createEntity}>
+            <Button type="submit" tabIndex={3} intent={Intent.PRIMARY} disabled={!isValid}>
               Create Entity
             </Button>
           </div>
