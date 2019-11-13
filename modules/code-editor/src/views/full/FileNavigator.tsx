@@ -121,7 +121,7 @@ class FileNavigator extends React.Component<Props, State> {
               id="btn-duplicateCurrent"
               icon="duplicate"
               text="Duplicate to current bot"
-              onClick={() => this.props.duplicateFile(file, { forCurrentBot: true })}
+              onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
             />
           </Menu>,
           { left: e.clientX, top: e.clientY }
