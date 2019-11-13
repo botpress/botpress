@@ -170,7 +170,7 @@ class ConditionModalForm extends Component {
 
     // replace: "{{stuff}} more stuff... {{other stuff}}" by "stuff more stuff... other stuff"
     const condition = this.state.condition.replace(/({{)(.*?)(}})/g, '$2')
-    const payload = { condition }
+    const payload = { caption: this.props.item.caption, condition }
 
     if (this.state.typeOfTransition === 'subflow') {
       payload.node = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
