@@ -148,12 +148,16 @@ export default class Editor {
       'utf-8'
     )
 
+    // Required so array.includes() can be used without displaying an error
+    const es6include = fs.readFileSync(path.join(__dirname, '/../typings/es6include.txt'), 'utf-8')
+
     this._typings = {
       'process.d.ts': buildRestrictedProcessVars(),
       'node.d.ts': nodeTyping.toString(),
       'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`),
       'bot.config.schema.json': botSchema.toString(),
-      'botpress.config.schema.json': botpressConfigSchema.toString()
+      'botpress.config.schema.json': botpressConfigSchema.toString(),
+      'es6include.d.ts': es6include.toString()
     }
 
     return this._typings
