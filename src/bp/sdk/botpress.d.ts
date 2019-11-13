@@ -873,7 +873,6 @@ declare module 'botpress/sdk' {
       status: string
       requested_by: string
       id: string
-      [anyKey: string]: any
     }
   }
 
