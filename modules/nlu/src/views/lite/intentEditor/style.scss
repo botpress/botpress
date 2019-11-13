@@ -304,3 +304,12 @@ h4 {
     }
   }
 }
+
+.entitySelect {
+  width: 100%;
+}
+
+.entitySelectPopover {
+  max-height: 250px;
+  overflow: scroll;
+}

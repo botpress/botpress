@@ -99,10 +99,11 @@ const NLU: FC<Props> = props => {
     />
   )
 
+  const customEntities = entities.filter(e => e.type !== 'system')
   const entitiesPanel = (
     <EntitySidePanelSection
       api={api}
-      entities={entities}
+      entities={customEntities}
       currentItem={currentItem}
       setCurrentItem={handleSelectItem}
       reloadEntities={loadEntities}
@@ -122,7 +123,7 @@ const NLU: FC<Props> = props => {
           <Tab id="entities" panel={entitiesPanel}>
             <span>Entities</span>{' '}
             <Tag large={false} round={true} minimal={true}>
-              {entities.length}
+              {customEntities.length}
             </Tag>
           </Tab>
         </Tabs>
