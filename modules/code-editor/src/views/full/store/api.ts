@@ -55,6 +55,24 @@ export default class CodeEditorApi {
     }
   }
 
+  async fileExists(file: EditableFile): Promise<boolean> {
+    try {
+      const { data } = await this.axios.post('/mod/code-editor/exists', file)
+      return data
+    } catch (err) {
+      this.handleApiError(err, 'Could not check if file already exists')
+    }
+  }
+
+  async readFile(file: EditableFile): Promise<string> {
+    try {
+      const { data } = await this.axios.post('/mod/code-editor/readFile', file)
+      return data.fileContent
+    } catch (err) {
+      this.handleApiError(err, 'Could not check if file already exists')
+    }
+  }
+
   async saveFile(file: EditableFile): Promise<boolean> {
     try {
       await this.axios.post('/mod/code-editor/save', file)

@@ -54,17 +54,21 @@ class FileNavigator extends React.Component<Props, State> {
       childNodes: buildTree(dir.files, this.props.expandedNodes, filter, readOnlyIcon)
     }))
 
+    if (filter) {
+      this.traverseTree(nodes, n => (n.isExpanded = true))
+    }
+
     this.setState({ nodes })
   }
 
-  private handleNodeClick = (node: ITreeNode) => {
+  private handleNodeClick = async (node: ITreeNode) => {
     const originallySelected = node.isSelected
     this.traverseTree(this.state.nodes, n => (n.isSelected = false))
     node.isSelected = originallySelected !== null
 
     // If nodeData is set, it's a file, otherwise a folder
     if (node.nodeData) {
-      this.props.editor.openFile(node.nodeData as EditableFile)
+      await this.props.editor.openFile(node.nodeData as EditableFile)
       this.forceUpdate()
     } else {
       node.isExpanded ? this.handleNodeCollapse(node) : this.handleNodeExpand(node)
@@ -105,6 +109,24 @@ class FileNavigator extends React.Component<Props, State> {
 
     const isDisabled = node.nodeData.name.startsWith('.')
     const file = node.nodeData as EditableFile
+
+    if (this.props.contextMenuType === 'moduleConfig') {
+      if (!file.botId) {
+        ContextMenu.show(
+          <Menu>
+            <MenuItem
+              id="btn-duplicateCurrent"
+              icon="duplicate"
+              text="Duplicate to current bot"
+              onClick={() => this.props.duplicateFile(file, true)}
+            />
+          </Menu>,
+          { left: e.clientX, top: e.clientY }
+        )
+      }
+
+      return
+    }
 
     ContextMenu.show(
       <Menu>
@@ -196,6 +218,7 @@ type Props = {
   store?: RootStore
   editor?: EditorStore
   disableContextMenu?: boolean
+  contextMenuType?: string
   onNodeStateChanged: (id: string, isExpanded: boolean) => void
   expandedNodes: object
 } & Pick<StoreDef, 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>
