@@ -19,6 +19,7 @@ import { EditableFile } from '../../backend/typings'
 
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
+import style from './style.scss'
 import { buildTree, EXAMPLE_FOLDER_LABEL, FOLDER_EXAMPLE, FOLDER_ICON } from './utils/tree'
 import { TreeNodeRenameInput } from './TreeNodeRenameInput'
 
@@ -238,8 +239,8 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   render() {
-    if (!this.state.nodes) {
-      return null
+    if (!this.state.nodes.length) {
+      return <div className={style.padding}>No files found in this category</div>
     }
 
     return (
