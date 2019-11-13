@@ -140,6 +140,7 @@ export class ContentRouter extends CustomRouter {
       this._checkTokenHeader,
       this._needPermissions('read', 'bot.content'),
       async (req, res) => {
+        // TODO: chunk elements if there are too many of them
         const elements = await this.cms.getAllElements(req.params.botId)
         const filtered = elements.map(x => _.omit(x, ['createdBy', 'createdOn', 'modifiedOn']))
 
