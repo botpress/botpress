@@ -110,6 +110,11 @@ export default class Editor {
   }
 
   async deleteFile(file: EditableFile): Promise<void> {
+    const fileDef = FileTypes[file.type]
+    if (fileDef.canDelete && !fileDef.canDelete(file)) {
+      throw new Error('This file cannot be deleted.')
+    }
+
     const { folder, filename } = getFileLocation(file)
     await this._getGhost(file).deleteFile(folder, filename)
   }

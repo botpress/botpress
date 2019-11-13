@@ -17,6 +17,8 @@ export interface FileDefinition {
     upsertFilename?: (file: EditableFile) => string
     shouldSyncToDisk?: boolean
   }
+  /** Validation if the selected file can be deleted */
+  canDelete?: (file: EditableFile) => boolean
   /** An additional validation that must be done for that type of file. Return a string indicating the error message */
   validate?: (file: EditableFile) => Promise<string | undefined>
 }
@@ -52,7 +54,8 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     filenames: ['bot.config.json'],
     ghost: {
       baseDir: '/'
-    }
+    },
+    canDelete: () => false
   },
   main_config: {
     allowGlobal: true,
@@ -63,9 +66,8 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     ghost: {
       baseDir: '/'
     },
-    validate: async (file: EditableFile) => {
-      return !MAIN_GLOBAL_CONFIG_FILES.includes(file.location) && 'Invalid file name'
-    }
+    validate: async (file: EditableFile) => !MAIN_GLOBAL_CONFIG_FILES.includes(file.location) && 'Invalid file name',
+    canDelete: () => false
   },
   module_config: {
     allowGlobal: true,
@@ -74,6 +76,7 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     permission: 'module_config',
     ghost: {
       baseDir: '/config'
-    }
+    },
+    canDelete: (file: EditableFile) => !!file.botId
   }
 }

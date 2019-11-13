@@ -1,15 +1,4 @@
-import {
-  Classes,
-  ContextMenu,
-  Icon,
-  ITreeNode,
-  Menu,
-  MenuDivider,
-  MenuItem,
-  Position,
-  Tooltip,
-  Tree
-} from '@blueprintjs/core'
+import { Classes, Icon, ITreeNode, Position, Tooltip, Tree } from '@blueprintjs/core'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -17,6 +6,7 @@ import ReactDOM from 'react-dom'
 
 import { EditableFile } from '../../backend/typings'
 
+import { showExampleContextMenu, showModuleConfigContextMenu, showStandardContextMenu } from './components/ContextMenus'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import { buildTree, EXAMPLE_FOLDER_LABEL, FOLDER_EXAMPLE, FOLDER_ICON } from './utils/tree'
@@ -137,68 +127,17 @@ class FileNavigator extends React.Component<Props, State> {
       return null
     }
 
-    const isDisabled = node.nodeData.name.startsWith('.')
     const file = node.nodeData as EditableFile
 
     if (this.props.contextMenuType === 'moduleConfig') {
-      if (!file.botId) {
-        ContextMenu.show(
-          <Menu>
-            <MenuItem
-              id="btn-duplicateCurrent"
-              icon="duplicate"
-              text="Duplicate to current bot"
-              onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
-            />
-          </Menu>,
-          { left: e.clientX, top: e.clientY }
-        )
-      }
-
-      return
+      return showModuleConfigContextMenu(file, e)
     }
 
     if (file.isExample) {
-      ContextMenu.show(
-        <Menu>
-          <MenuItem
-            id="btn-duplicateCurrent"
-            icon="duplicate"
-            text={file.type === 'action' ? 'Copy example to my bot' : 'Copy example to global hooks'}
-            onClick={() =>
-              this.props.duplicateFile(file, { forCurrentBot: file.type === 'action', keepSameName: true })
-            }
-          />
-        </Menu>,
-        { left: e.clientX, top: e.clientY }
-      )
-      return
+      return showExampleContextMenu(file, e)
     }
 
-    ContextMenu.show(
-      <Menu>
-        <MenuItem id="btn-rename" icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
-        <MenuItem id="btn-delete" icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
-        <MenuDivider />
-        <MenuItem id="btn-duplicate" icon="duplicate" text="Duplicate" onClick={() => this.props.duplicateFile(file)} />
-        <MenuDivider />
-        <MenuItem
-          id="btn-enable"
-          icon="endorsed"
-          text="Enable"
-          disabled={!isDisabled}
-          onClick={() => this.props.enableFile(file)}
-        />
-        <MenuItem
-          id="btn-disable"
-          icon="disable"
-          text="Disable"
-          disabled={isDisabled}
-          onClick={() => this.props.disableFile(file)}
-        />
-      </Menu>,
-      { left: e.clientX, top: e.clientY }
-    )
+    return showStandardContextMenu(file, e, node)
   }
 
   renameTreeNode = async (node: ITreeNode) => {
