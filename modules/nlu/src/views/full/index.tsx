@@ -35,21 +35,19 @@ const NLU: FC<Props> = props => {
   const loadEntities = () => api.fetchEntities().then(setEntities)
 
   useEffect(() => {
-    loadIntents()
-    loadEntities()
+    intents.length === 0 && loadIntents()
+    entities.length === 0 && loadEntities()
     setCurrentItemFromPath()
   }, [window.location.href])
 
   const handleSelectItem = (item: NluItem | undefined) => {
     setCurrentItem(item)
 
-    if (!item) {
-      return
-    }
-
     const url = new URL(window.location.href)
-    url.searchParams.set(ITEM_TYPE_PARAM, item.type)
-    url.searchParams.set(ITEM_NAME_PARAM, item.name)
+    if (item) {
+      url.searchParams.set(ITEM_TYPE_PARAM, item.type)
+      url.searchParams.set(ITEM_NAME_PARAM, item.name)
+    }
     window.history.pushState(window.history.state, '', url.toString())
   }
 
@@ -64,7 +62,6 @@ const NLU: FC<Props> = props => {
 
   const setCurrentItemFromPath = () => {
     const newCurrentItem = getCurrentItemFromPath()
-
     if (!isEqual(newCurrentItem, currentItem)) {
       setCurrentItem(newCurrentItem)
     }
@@ -80,6 +77,15 @@ const NLU: FC<Props> = props => {
     api.updateEntity(entity)
     const i = entities.findIndex(ent => ent.id == entity.id)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
+  }
+
+  const currentItemExists = () => {
+    return (
+      currentItem &&
+      (currentItem.type === 'intent'
+        ? intents.find(i => i.name === currentItem.name)
+        : entities.find(e => e.name === currentItem.name))
+    )
   }
 
   const intentsPanel = (
@@ -122,7 +128,7 @@ const NLU: FC<Props> = props => {
         </Tabs>
       </SidePanel>
       <div className={style.container}>
-        {!currentItem && (
+        {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
             title="Understanding"
@@ -138,10 +144,12 @@ const NLU: FC<Props> = props => {
             axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
           />
         )}
-        {(!!entities.length && currentItem && currentItem.type === 'entity' && (
-          <EntityEditor entity={entities.find(ent => ent.name === currentItem.name)} onUpdate={updateEntity} />
-        )) ||
-          null}
+        {currentItem && currentItem.type === 'entity' && (
+          <EntityEditor
+            entity={entities.find(ent => ent.name === currentItem.name)}
+            updateEntity={_.debounce(updateEntity, 2500)}
+          />
+        )}
       </div>
     </Container>
   )
