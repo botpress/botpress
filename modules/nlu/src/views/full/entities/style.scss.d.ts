@@ -11,11 +11,8 @@ interface CssExports {
   'entityEditorBody': string;
   'header': string;
   'occurence': string;
-  'occurenceDelete': string;
-  'occurenceInput': string;
   'occurenceName': string;
   'regexInputDash': string;
-  'removeSynonym': string;
   'selectedentity': string;
 }
 declare var cssExports: CssExports;

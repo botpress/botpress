@@ -55,10 +55,6 @@
   top: 6px;
 }
 
-.removeSynonym:hover {
-  cursor: pointer;
-}
-
 .entity {
   display: flex;
 }
@@ -72,74 +68,6 @@
   .deleteEntity {
     display: inherit;
   }
-}
-.occurenceDelete {
-  display: none;
-  float: right;
-}
-
-.occurenceInput {
-  margin: 10px;
-  margin-bottom: 10px;
-  width: 98%;
-}
-
-.occurence {
-  width: 98%;
-  margin: 10px;
-
-  &:hover {
-    background-color: #ececec;
-
-    .occurenceDelete {
-      display: inherit;
-    }
-
-    :global(.ReactTags__tagInput) {
-      background-color: white;
-    }
-  }
-}
-
-.occurenceName {
-  display: inline-block;
-}
-
-:global(.ReactTags__tags) {
-  display: inline-block;
-  position: relative;
-  padding-left: 4px;
-}
-
-:global(.ReactTags__tagInput) {
-  display: inline-block;
-}
-:global(.ReactTags__tagInputField) {
-  color: grey;
-  border: none !important;
-}
-:global(.ReactTags__tagInput input.ReactTags__tagInputField, .ReactTags__tagInput
-    input.ReactTags__tagInputField:focus) {
-  height: 31px;
-  margin: 0;
-  font-size: 12px;
-  width: 100%;
-  border: 1px solid #eee;
-  padding: 0 4px;
-}
-:global(.ReactTags__selected span.ReactTags__tag) {
-  border: 1px solid #ddd;
-  background: #eee;
-  font-size: 12px;
-  display: inline-block;
-  padding: 5px;
-  margin: 0 5px;
-  border-radius: 2px;
-}
-:global(.ReactTags__selected a.ReactTags__remove) {
-  color: #aaa;
-  margin-left: 5px;
-  cursor: pointer;
 }
 
 .entityEditorBody {
@@ -166,4 +94,14 @@
 
 .configPopover {
   max-width: 250px;
+}
+
+.occurence {
+  margin-bottom: 10px;
+  .occurenceName {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    margin-right: 5px;
+  }
 }
