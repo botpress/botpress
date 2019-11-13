@@ -86,7 +86,7 @@ export async function buildBackend(modulePath: string) {
     }
   }
 
-  const copyWithoutTransform = ['actions', 'hooks', 'examples']
+  const copyWithoutTransform = ['actions', 'hooks', 'examples', 'content-types']
   const outputFiles = []
 
   for (const file of files) {
