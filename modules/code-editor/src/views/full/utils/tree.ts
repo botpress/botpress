@@ -3,9 +3,10 @@ import find from 'lodash/find'
 
 import { EditableFile } from '../../../backend/typings'
 
-const FOLDER_ICON = 'folder-close'
-const DOCUMENT_ICON = 'document'
-const EXAMPLE_ICON = 'lightbulb'
+export const EXAMPLE_FOLDER_LABEL = 'Examples'
+export const FOLDER_ICON = 'folder-close'
+export const DOCUMENT_ICON = 'document'
+export const FOLDER_EXAMPLE = 'lightbulb'
 
 const addNode = (tree: ITreeNode, folders: ITreeNode[], file, data: any, secondaryLabel?: any) => {
   for (const folderDesc of folders) {
@@ -39,7 +40,7 @@ export const splitPath = (fileData: EditableFile, expandedNodeIds: object) => {
     folders,
     file: {
       id: currentPath.join('/'),
-      icon: fileData.isExample ? EXAMPLE_ICON : DOCUMENT_ICON,
+      icon: DOCUMENT_ICON,
       label: filename
     }
   }

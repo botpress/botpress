@@ -9,7 +9,7 @@ import { Config } from '../config'
 import { FileDefinition, FileTypes } from './definitions'
 import { EditorError } from './editorError'
 import { EditableFile, FilePermissions, FilesDS, FileType, TypingDefinitions } from './typings'
-import { assertValidFilename, buildRestrictedProcessVars, filterBuiltin, getFileLocation } from './utils'
+import { assertValidFilename, buildRestrictedProcessVars, getBuiltinExclusion, getFileLocation } from './utils'
 
 export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 export const MAIN_GLOBAL_CONFIG_FILES = ['botpress.config.json', 'workspaces.json']
@@ -32,8 +32,7 @@ export default class Editor {
     await Promise.mapSeries(Object.keys(permissions), async type => {
       const userPermissions = permissions[type]
       if (userPermissions.read) {
-        const loadedFiles = await this.loadFiles(userPermissions.type, !userPermissions.isGlobal && this._botId)
-        files[type] = this._config.includeBuiltin ? loadedFiles : filterBuiltin(loadedFiles)
+        files[type] = await this.loadFiles(userPermissions.type, !userPermissions.isGlobal && this._botId)
       }
     })
 
@@ -71,17 +70,17 @@ export default class Editor {
       return []
     }
 
+    const excluded = this._config.includeBuiltin ? undefined : getBuiltinExclusion()
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
     const files = def.filenames
       ? def.filenames
-      : await ghost.directoryListing(baseDir, def.isJSON ? '*.json' : '*.js', undefined, true)
+      : await ghost.directoryListing(baseDir, def.isJSON ? '*.json' : '*.js', excluded, true)
 
     return Promise.map(files, async (filepath: string) => ({
       name: path.basename(filepath),
       type: fileTypeId as FileType,
       location: filepath,
-      // When not including builtin files, we need to read all of them to filter
-      content: !this._config.includeBuiltin ? await ghost.readFileAsString(baseDir, filepath) : undefined,
+      content: undefined,
       botId,
       ...(dirListingAddFields && dirListingAddFields(filepath))
     }))
