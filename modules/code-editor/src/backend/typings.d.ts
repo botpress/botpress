@@ -6,7 +6,14 @@ export interface TypingDefinitions {
   [file: string]: string
 }
 
-export type FileType = 'action' | 'hook' | 'bot_config' | 'main_config' | 'module_config'
+export type FileType =
+  | 'action'
+  | 'hook'
+  | 'bot_config'
+  | 'main_config'
+  | 'module_config'
+  | 'hook_example'
+  | 'action_example'
 
 export interface EditableFile {
   /** The name of the file, extracted from its location */
@@ -21,6 +28,8 @@ export interface EditableFile {
   botId?: string
   hookType?: string
   readOnly?: boolean
+  /** Example files are a special type of file that can be copied locally */
+  isExample?: boolean
 }
 
 export interface FilesDS {

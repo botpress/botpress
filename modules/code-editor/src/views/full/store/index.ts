@@ -12,6 +12,11 @@ import { EditorStore } from './editor'
 /** Includes the partial definitions of all classes */
 export type StoreDef = Partial<RootStore> & Partial<FilePermissions> & Partial<EditorStore>
 
+interface DuplicateOption {
+  forCurrentBot?: boolean
+  keepSameName?: boolean
+}
+
 class RootStore {
   public api: CodeEditorApi
   public editor: EditorStore
@@ -152,18 +157,17 @@ class RootStore {
   }
 
   @action.bound
-  async duplicateFile(file: EditableFile, forCurrentBot?: boolean) {
+  async duplicateFile(file: EditableFile, { keepSameName, forCurrentBot }: DuplicateOption = {}) {
     const fileExt = path.extname(file.location)
 
     const duplicate = {
       ...file,
-      content: await this.api.readFile(file),
-      location: file.location.replace(fileExt, '_copy' + fileExt)
+      content: file.content || (await this.api.readFile(file)),
+      location: keepSameName ? file.location : file.location.replace(fileExt, '_copy' + fileExt)
     }
 
     if (forCurrentBot) {
       duplicate.botId = window.BOT_ID
-      duplicate.location = file.location
     }
 
     if (await this.api.fileExists(duplicate)) {

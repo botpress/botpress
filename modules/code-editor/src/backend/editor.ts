@@ -37,6 +37,10 @@ export default class Editor {
       }
     })
 
+    const examples = await this._getExamples()
+    files['action_example'] = examples.filter(x => x.type === 'action')
+    files['hook_example'] = examples.filter(x => x.type === 'hook')
+
     return files
   }
 
@@ -81,6 +85,25 @@ export default class Editor {
       botId,
       ...(dirListingAddFields && dirListingAddFields(filepath))
     }))
+  }
+
+  private async _getExamples(): Promise<EditableFile[]> {
+    const files = await this.bp.ghost.forGlobal().directoryListing('/examples', '*.js')
+
+    return Promise.map(files, async (filepath: string) => {
+      const isHook = filepath.startsWith('examples/hooks')
+      const location = filepath.replace('examples/actions/', '').replace('examples/hooks/', '')
+
+      return {
+        name: path.basename(filepath),
+        type: (isHook ? 'hook' : 'action') as FileType,
+        location,
+        readOnly: true,
+        isExample: true,
+        content: await this.bp.ghost.forGlobal().readFileAsString('/examples', filepath),
+        ...(isHook && { hookType: location.substr(0, location.indexOf('/')) })
+      }
+    })
   }
 
   private _getGhost(file: EditableFile): sdk.ScopedGhostService {

@@ -86,16 +86,22 @@ export async function buildBackend(modulePath: string) {
     }
   }
 
+  const copyWithoutTransform = ['actions', 'hooks', 'examples']
   const outputFiles = []
 
   for (const file of files) {
+    const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
+    mkdirp.sync(path.dirname(dest))
+
+    if (copyWithoutTransform.find(x => file.startsWith(`src/${x}`))) {
+      fs.writeFileSync(dest, fs.readFileSync(`${modulePath}/${file}`, 'utf8'))
+      continue
+    }
+
     try {
       const dBefore = Date.now()
       const result = babel.transformFileSync(file, babelConfig)
-
-      const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
       const destMap = dest + '.map'
-      mkdirp.sync(path.dirname(dest))
 
       fs.writeFileSync(dest, result.code + os.EOL + `//# sourceMappingURL=${path.basename(destMap)}`)
       result.map.sources = [path.relative(babelConfig.sourceRoot, file)]

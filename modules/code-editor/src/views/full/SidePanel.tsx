@@ -57,6 +57,9 @@ class PanelContent extends React.Component<Props> {
     this.addFiles('bot.module_config', `Current Bot`, moduleConfigFiles)
     this.addFiles('global.module_config', `Global`, moduleConfigFiles)
 
+    this.addFiles('hook_example', 'Examples', hookFiles)
+    this.addFiles('action_example', 'Examples', actionFiles)
+
     this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles, moduleConfigFiles })
   }
 

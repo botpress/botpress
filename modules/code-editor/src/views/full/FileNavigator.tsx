@@ -118,13 +118,30 @@ class FileNavigator extends React.Component<Props, State> {
               id="btn-duplicateCurrent"
               icon="duplicate"
               text="Duplicate to current bot"
-              onClick={() => this.props.duplicateFile(file, true)}
+              onClick={() => this.props.duplicateFile(file, { forCurrentBot: true })}
             />
           </Menu>,
           { left: e.clientX, top: e.clientY }
         )
       }
 
+      return
+    }
+
+    if (file.isExample) {
+      ContextMenu.show(
+        <Menu>
+          <MenuItem
+            id="btn-duplicateCurrent"
+            icon="duplicate"
+            text={file.type === 'action' ? 'Copy example to my bot' : 'Copy example to global hooks'}
+            onClick={() =>
+              this.props.duplicateFile(file, { forCurrentBot: file.type === 'action', keepSameName: true })
+            }
+          />
+        </Menu>,
+        { left: e.clientX, top: e.clientY }
+      )
       return
     }
 
