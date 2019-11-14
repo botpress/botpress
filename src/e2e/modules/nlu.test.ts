@@ -22,18 +22,8 @@ describe('Module - NLU', () => {
   it('Create new entity', async () => {
     await clickOn('span', { text: 'Entities' })
     await clickOn('button', { text: 'New entity' })
-    await fillField('input[placeholder="Name"]', 'cars')
+    await fillField('input[placeholder="Entity name"]', 'cars')
     await clickOn('button', { text: 'Create Entity' })
     await expectBotApiCallSuccess('mod/nlu/entities', 'POST')
   })
-
-  // it('Create new slot', async () => {
-  //   await clickOn('button', { text: 'Create a slot' })
-  //   await fillField('input', 'hello')
-  //   await page.waitFor(3000)
-  //   await fillField('input[name="entity-type"]', '@system.any')
-  //   await page.waitFor(3000)
-  //   await clickOn('button')
-  //   await expectBotApiCallSuccess('mod/nlu/slots', 'POST')
-  // })
 })

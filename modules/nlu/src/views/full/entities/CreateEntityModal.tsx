@@ -71,7 +71,7 @@ export const CreateEntityModal: FC<Props> = props => {
               tabIndex={1}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               dir="auto"
-              placeholder="Entity Name"
+              placeholder="Entity name"
               value={name}
               onChange={e => setName(e.target.value)}
             />
