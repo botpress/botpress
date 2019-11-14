@@ -16,7 +16,7 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
-import { DiagramEngine, DiagramWidget, NodeModel } from 'storm-react-diagrams'
+import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
 import {
   buildNewSkill,
   closeFlowNodeProps,
@@ -55,6 +55,8 @@ class Diagram extends Component<Props> {
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
   private manager: DiagramManager
+  /** Represents the source port clicked when the user is connecting a node */
+  private dragPortSource: any
 
   state = {
     highlightFilter: ''
@@ -122,6 +124,11 @@ class Diagram extends Component<Props> {
       })
     }
 
+    if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
+      // tslint:disable-next-line: no-floating-promises
+      this.linkCreatedNode()
+    }
+
     const isDifferentFlow = _.get(prevProps, 'currentFlow.name') !== _.get(this, 'props.currentFlow.name')
 
     if (!this.props.currentFlow) {
@@ -153,6 +160,38 @@ class Diagram extends Component<Props> {
     }
   }
 
+  updateTransitionNode = async (nodeId: string, index: number, newName: string) => {
+    await this.props.switchFlowNode(nodeId)
+    const next = this.props.currentFlowNode.next
+
+    if (!next.length) {
+      this.props.updateFlowNode({ next: [{ condition: 'true', node: newName }] })
+    } else {
+      await this.props.updateFlowNode({
+        next: Object.assign([], next, { [index]: { ...next[index], node: newName } })
+      })
+    }
+
+    this.checkForLinksUpdate()
+    this.diagramWidget.forceUpdate()
+  }
+
+  linkCreatedNode = async () => {
+    const sourcePort: DefaultPortModel = _.get(this.dragPortSource, 'parent.sourcePort')
+    this.dragPortSource = undefined
+
+    if (!sourcePort || sourcePort.parent.id === this.props.currentFlowNode.id) {
+      return
+    }
+
+    if (!sourcePort.in) {
+      const sourcePortIndex = Number(sourcePort.name.replace('out', ''))
+      await this.updateTransitionNode(sourcePort.parent.id, sourcePortIndex, this.props.currentFlowNode.name)
+    } else {
+      await this.updateTransitionNode(this.props.currentFlowNode.id, 0, sourcePort.parent['name'])
+    }
+  }
+
   add = {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
@@ -167,19 +206,27 @@ class Diagram extends Component<Props> {
   handleContextMenuNoElement = (event: React.MouseEvent) => {
     const point = this.manager.getRealPosition(event)
 
+    // When no element is chosen from the context menu, we reset the start port so it doesn't impact the next selected node
+    let clearStartPortOnClose = true
+
+    const wrap = (addNodeMethod, ...args) => () => {
+      clearStartPortOnClose = false
+      addNodeMethod(...args)
+    }
+
     ContextMenu.show(
       <Menu>
         {this.props.canPasteNode && (
           <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
         )}
         <MenuDivider title="Add Node" />
-        <MenuItem text="Standard Node" onClick={() => this.add.flowNode(point)} icon="chat" />
+        <MenuItem text="Standard Node" onClick={wrap(this.add.flowNode, point)} icon="chat" />
         {this.props.flowPreview ? (
           <Fragment>
-            <MenuItem text="Say" onClick={() => this.add.sayNode(point)} icon="comment" />
-            <MenuItem text="Execute" onClick={() => this.add.executeNode(point)} icon="code-block" />
-            <MenuItem text="Listen" onClick={() => this.add.listenNode(point)} icon="hand" />
-            <MenuItem text="Router" onClick={() => this.add.routerNode(point)} icon="search-around" />
+            <MenuItem text="Say" onClick={wrap(this.add.sayNode, point)} icon="comment" />
+            <MenuItem text="Execute" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
+            <MenuItem text="Listen" onClick={wrap(this.add.listenNode, point)} icon="hand" />
+            <MenuItem text="Router" onClick={wrap(this.add.routerNode, point)} icon="search-around" />
           </Fragment>
         ) : null}
         <MenuItem tagName="button" text="Skills" icon="add">
@@ -188,13 +235,18 @@ class Diagram extends Component<Props> {
               key={skill.id}
               text={skill.name}
               tagName="button"
-              onClick={() => this.add.skillNode(point, skill.id)}
+              onClick={wrap(this.add.skillNode, point, skill.id)}
               icon={skill.icon}
             />
           ))}
         </MenuItem>
       </Menu>,
-      { left: event.clientX, top: event.clientY }
+      { left: event.clientX, top: event.clientY },
+      () => {
+        if (clearStartPortOnClose) {
+          this.dragPortSource = undefined
+        }
+      }
     )
   }
 
@@ -325,6 +377,11 @@ class Diagram extends Component<Props> {
 
     this.manager.sanitizeLinks()
     this.manager.cleanPortLinks()
+
+    if (selectedNode && selectedNode instanceof PointModel) {
+      this.dragPortSource = selectedNode
+      this.handleContextMenu(event as any)
+    }
 
     this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
 
