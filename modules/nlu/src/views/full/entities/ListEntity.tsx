@@ -1,4 +1,15 @@
-import { Button, Checkbox, Colors, FormGroup, Icon, InputGroup, Label, Position, Tooltip } from '@blueprintjs/core'
+import {
+  Button,
+  Checkbox,
+  Classes,
+  Colors,
+  FormGroup,
+  Icon,
+  InputGroup,
+  Label,
+  Position,
+  Tooltip
+} from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -23,8 +34,10 @@ export const ListEntityEditor: React.FC<Props> = props => {
     }
   }, [occurences, sensitive])
 
-  const addOccurance = () => {
-    if (newOccurence === '') {
+  const isNewOccurenceEmtpy = () => newOccurence.trim().length === 0
+
+  const addOccurence = () => {
+    if (isNewOccurenceEmtpy()) {
       return
     }
 
@@ -52,7 +65,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
                 popoverClassName={style.configPopover}
               >
                 <span>
-                  New Occurence&nbsp;
+                  New occurence&nbsp;
                   <Icon icon="help" color={Colors.GRAY3} />
                 </span>
               </Tooltip>
@@ -61,24 +74,27 @@ export const ListEntityEditor: React.FC<Props> = props => {
           labelFor="occurence"
         >
           <InputGroup
-            rightElement={<Button icon="add" minimal onClick={addOccurance} />}
+            rightElement={<Button icon="add" minimal onClick={addOccurence} disabled={isNewOccurenceEmtpy()} />}
             type="text"
             id="occurence"
-            placeholder="insert the value ex: Chicago"
+            placeholder="Insert the value ex: Chicago"
             value={newOccurence}
-            onKeyDown={e => e.keyCode === 13 && addOccurance()}
+            onKeyDown={e => e.keyCode === 13 && addOccurence()}
             onChange={e => setNewOccurence(e.target.value)}
           />
         </FormGroup>
-        {occurences.length > 0 && <Label>Occurences</Label>}
-        {occurences.map((o, i) => (
-          <Occurence
-            key={o.name}
-            occurence={o}
-            remove={removeOccurence.bind(null, i)}
-            onChange={editOccurence.bind(null, i)}
-          />
-        ))}
+        {occurences.length > 0 && (
+          <FormGroup label="Occurences">
+            {occurences.map((o, i) => (
+              <Occurence
+                key={o.name}
+                occurence={o}
+                remove={removeOccurence.bind(null, i)}
+                onChange={editOccurence.bind(null, i)}
+              />
+            ))}
+          </FormGroup>
+        )}
       </div>
       <div className={style.configPane}>
         <Label>Options</Label>
@@ -88,7 +104,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
         >
           <span>Contains sensitive data</span>&nbsp;
           <Tooltip
-            content="Sensitive information are replaced by * before being saved in the database"
+            content="Sensitive information is replaced by * before being saved in the database"
             position={Position.RIGHT}
             popoverClassName={style.configPopover}
           >

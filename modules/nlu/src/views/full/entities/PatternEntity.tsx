@@ -74,8 +74,8 @@ export const PatternEntityEditor: React.FC<Props> = props => {
           labelFor="pattern"
           labelInfo={
             paternValid ? null : (
-              <Tag intent="danger" minimal style={{ float: 'right' }}>
-                pattern invalid
+              <Tag intent="danger" minimal className={style.validationTag}>
+                Invalid pattern
               </Tag>
             )
           }
@@ -85,7 +85,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             rightElement={<Icon iconSize={20} className={style.regexInputDash} icon="slash" />}
             type="text"
             id="pattern"
-            placeholder="insert a valid pattern"
+            placeholder="Insert a valid pattern"
             value={pattern}
             intent={paternValid ? 'none' : 'danger'}
             onChange={e => setPattern(e.target.value)}
@@ -97,8 +97,8 @@ export const PatternEntityEditor: React.FC<Props> = props => {
           labelInfo={
             examplesStr &&
             paternValid && (
-              <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal style={{ float: 'right' }}>
-                {allExamplesMatch ? 'All examples match' : 'Examples non matching'}
+              <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal className={style.validationTag}>
+                {allExamplesMatch ? 'All examples match' : "Some examples don't matching"}
               </Tag>
             )
           }
@@ -108,7 +108,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             fill
             rows={6}
             growVertically={true}
-            placeholder="Add examples that matchs your pattern. One by line."
+            placeholder="Add examples that match your pattern, one by line."
             value={examplesStr}
             intent={allExamplesMatch ? 'none' : 'danger'}
             onChange={e => setExampleStr(e.target.value)}
@@ -123,7 +123,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
         >
           <span>Match case</span>&nbsp;
           <Tooltip
-            content="Is your pattern case sensitive"
+            content="Whether your pattern is case sensitive"
             position={Position.RIGHT}
             popoverClassName={style.configPopover}
           >

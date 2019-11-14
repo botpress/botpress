@@ -1,75 +1,3 @@
-.container {
-  padding-left: 10px;
-  overflow-y: auto;
-  height: 100%;
-  width: 100%;
-}
-
-.badge {
-  float: right;
-  margin: 3px 10px 0 5px;
-}
-
-.header {
-  height: 50px;
-  padding: 0 15px;
-  border-bottom: 1px solid #e8e8e8;
-
-  h1,
-  div {
-    line-height: 50px;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 24px;
-    color: #666;
-
-    span {
-      color: black;
-    }
-
-    :global(.badge) {
-      font-weight: bold;
-      margin-left: 10px;
-      padding: 5px 10px;
-      background-color: #73d8b7;
-      color: white;
-    }
-  }
-
-  button {
-    line-height: 20px;
-  }
-
-  button + button {
-    margin-left: 10px;
-  }
-}
-
-.deleteEntity {
-  float: right;
-  display: none;
-  position: absolute;
-  right: 5px;
-  top: 6px;
-}
-
-.entity {
-  display: flex;
-}
-
-.selectedentity {
-  background: whitesmoke;
-}
-
-.entity:hover {
-  background-color: #ececec;
-  .deleteEntity {
-    display: inherit;
-  }
-}
-
 .entityEditorBody {
   display: flex;
   & > div {
@@ -90,6 +18,10 @@
     width: 40%;
     background-color: #fbfbfb;
   }
+}
+
+.validationTag {
+  float: right;
 }
 
 .configPopover {

@@ -21,7 +21,7 @@ export const Occurence: FC<Props> = props => {
           </Tag>
         </div>
       }
-      placeholder="Type a synonym and hit enter"
+      placeholder="Type a synonym (or more, comma seperated) and hit enter"
       rightElement={<Button icon="delete" minimal onClick={props.remove} />}
       onChange={(synonyms: string[]) => props.onChange({ ...props.occurence, synonyms })}
       values={props.occurence.synonyms}
