@@ -1,15 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Classes,
-  Colors,
-  FormGroup,
-  Icon,
-  InputGroup,
-  Label,
-  Position,
-  Tooltip
-} from '@blueprintjs/core'
+import { Button, Checkbox, Colors, FormGroup, Icon, InputGroup, Label, Position, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -23,16 +12,16 @@ interface Props {
 }
 
 export const ListEntityEditor: React.FC<Props> = props => {
-  const [sensitive, setSensitive] = useState<boolean>(props.entity.sensitive)
+  const [fuzzy, setFuzzy] = useState<boolean>(props.entity.fuzzy)
   const [newOccurence, setNewOccurence] = useState<string>('')
   const [occurences, setOccurences] = useState<NLU.EntityDefOccurence[]>(props.entity.occurences)
 
   useEffect(() => {
-    const newEntity = { ...props.entity, sensitive, occurences }
+    const newEntity = { ...props.entity, fuzzy, occurences }
     if (!_.isEqual(newEntity, props.entity)) {
       props.updateEntity(newEntity)
     }
-  }, [occurences, sensitive])
+  }, [occurences, fuzzy])
 
   const isNewOccurenceEmtpy = () => newOccurence.trim().length === 0
 
@@ -98,13 +87,10 @@ export const ListEntityEditor: React.FC<Props> = props => {
       </div>
       <div className={style.configPane}>
         <Label>Options</Label>
-        <Checkbox
-          checked={sensitive}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSensitive(e.target.checked)}
-        >
-          <span>Contains sensitive data</span>&nbsp;
+        <Checkbox checked={fuzzy} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFuzzy(e.target.checked)}>
+          <span>Fuzzy matching</span>&nbsp;
           <Tooltip
-            content="Sensitive information is replaced by * before being saved in the database"
+            content="Fuzziness will tolerate slight errors in extraction, typos for instance."
             position={Position.RIGHT}
             popoverClassName={style.configPopover}
           >

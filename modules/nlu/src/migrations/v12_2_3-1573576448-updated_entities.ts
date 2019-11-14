@@ -21,13 +21,14 @@ const migration: sdk.ModuleMigration = {
           }
         }
 
-        if (entityDef.type === 'list' && typeof entityDef.fuzzy === 'boolean') {
-          if (entityDef.fuzzy === true) {
-            entityDef.fuzzy = 'medium'
-          } else {
-            entityDef.fuzzy = 'strict'
-          }
-        }
+        // TODO uncomment this once fuzzy mathing level is implemented
+        // if (entityDef.type === 'list' && typeof entityDef.fuzzy === 'boolean') {
+        //   if (entityDef.fuzzy === true) {
+        //     entityDef.fuzzy = 'medium'
+        //   } else {
+        //     entityDef.fuzzy = 'strict'
+        //   }
+        // }
 
         await bpfs.upsertFile('./entities', fileName, JSON.stringify(entityDef, undefined, 2))
       }
