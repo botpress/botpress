@@ -18,7 +18,7 @@ interface GithubRelease {
 }
 
 const DownloadLinks: FC<{ version: string }> = props => {
-  const version = props.version.replace(/\./g, '_')
+  const version = `v${props.version.replace(/\./g, '_')}`
 
   return (
     <div className="downloads">
@@ -39,7 +39,9 @@ const DownloadLinks: FC<{ version: string }> = props => {
       <br />
       Docker Image
       <hr />
-      <code>botpress/server:{version}</code>
+      <a href="https://hub.docker.com/r/botpress/server" target="_blank">
+        <code>botpress/server:{version}</code>
+      </a>
     </div>
   )
 }
