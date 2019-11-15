@@ -8,5 +8,6 @@
   "botInfo.privacyPolicy": "Показати Політику конфіденційності",
   "botInfo.termsAndConditions": "Показати Умови користування",
   "botInfo.preferredLanguage": "Бажана мова",
-  "store.resetSessionMessage": "Розпочати розмову заново"
+  "store.resetSessionMessage": "Розпочати розмову заново",
+  "messages.newMessage": "Нове повідомлення"
 }
