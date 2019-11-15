@@ -44,9 +44,6 @@ class MessageList extends React.Component<MessageListProps, State> {
       () => {
         try {
           this.messagesDiv.scrollTop = this.messagesDiv.scrollHeight
-          if (this.state.showNewMessageIndicator) {
-            this.setState({ showNewMessageIndicator: false })
-          }
         } catch (err) {
           // Discard the error
         }
@@ -175,8 +172,11 @@ class MessageList extends React.Component<MessageListProps, State> {
 
   handleScroll = debounce(e => {
     const scroll = this.messagesDiv.scrollHeight - this.messagesDiv.scrollTop - this.messagesDiv.clientHeight
-    this.setState({ manualScroll: scroll > 150 })
-  }, 300)
+    const manualScroll = scroll >= 150
+    const showNewMessageIndicator = this.state.showNewMessageIndicator && manualScroll
+
+    this.setState({ manualScroll, showNewMessageIndicator })
+  }, 50)
 
   render() {
     return (
