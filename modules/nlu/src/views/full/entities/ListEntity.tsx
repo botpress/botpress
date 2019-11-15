@@ -66,7 +66,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
             rightElement={<Button icon="add" minimal onClick={addOccurence} disabled={isNewOccurenceEmtpy()} />}
             type="text"
             id="occurence"
-            placeholder="Insert the value ex: Chicago"
+            placeholder="Type a value (ex: Chicago)"
             value={newOccurence}
             onKeyDown={e => e.keyCode === 13 && addOccurence()}
             onChange={e => setNewOccurence(e.target.value)}
