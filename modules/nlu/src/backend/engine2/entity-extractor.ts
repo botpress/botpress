@@ -174,7 +174,7 @@ export const extractPatternEntities = (
   const input = utterance.toString()
   // taken from pattern_extractor
   return _.flatMap(pattern_entities, ent => {
-    const regex = new RegExp(ent.pattern!, 'i')
+    const regex = new RegExp(ent.pattern!, ent.matchCase ? '' : 'i')
 
     return extractPattern(input, regex, []).map(res => ({
       confidence: 1,

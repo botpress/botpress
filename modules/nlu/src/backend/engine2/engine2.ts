@@ -57,7 +57,7 @@ export default class E2 implements Engine2 {
         name: ent.name,
         pattern: ent.pattern,
         examples: [], // TODO add this to entityDef
-        ignoreCase: true, // TODO add this entityDef
+        matchCase: ent.matchCase,
         sensitive: ent.sensitive
       }))
 

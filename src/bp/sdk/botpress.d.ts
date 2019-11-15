@@ -384,6 +384,8 @@ declare module 'botpress/sdk' {
       name: string
       type: EntityType
       sensitive?: boolean
+      matchCase?: boolean
+      examples?: string[]
       fuzzy?: boolean
       occurences?: EntityDefOccurence[]
       pattern?: string
