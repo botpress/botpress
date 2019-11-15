@@ -98,7 +98,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             examplesStr &&
             paternValid && (
               <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal className={style.validationTag}>
-                {allExamplesMatch ? 'All examples match' : "Some examples don't matching"}
+                {allExamplesMatch ? 'All examples match' : "Some examples don't match"}
               </Tag>
             )
           }
@@ -108,7 +108,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             fill
             rows={6}
             growVertically={true}
-            placeholder="Add examples that match your pattern, one by line."
+            placeholder="Add examples that match your pattern (one per line)"
             value={examplesStr}
             intent={allExamplesMatch ? 'none' : 'danger'}
             onChange={e => setExampleStr(e.target.value)}
