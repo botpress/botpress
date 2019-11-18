@@ -95,7 +95,7 @@ describe('list entity extractor', () => {
     describe('missing characters', () => {
       assertEntity('[Bluebrries](qty:1 value:Blueberry) are berries that are blue')
       assertEntity('[Blueberies](qty:1 value:Blueberry) are berries that are blue')
-      assertEntity('[Bluberies](qty:1) are berries that are blue')
+      assertEntity('[Bluberies](qty:1 value:Blueberry) are berries that are blue')
       assertEntity('that is a [poisonous bleberry](qty:1 value:Blueberry confidence:0.9)') // the longer the word, the more we tolerate mistakes
       assertEntity('that is a [poisonus bleberry](qty:1 value:Blueberry confidence:0.8)') // prefer 'poisonous blueberry' to 'blueberry'
       assertEntity('[aple](qty:1)') // Apple the company has a capital 'A'
@@ -125,8 +125,8 @@ describe('list entity extractor', () => {
       assertEntity('[poisoneouss blurberry](qty:1 value:Blueberry confidence:0.8) are berries that are blue')
       // major
       assertEntity('[vluqberries](qty:0) are berries that are blue')
-      // assertEntity('[blumbeerries](qty:0) are berries that are blue') //this needs keyboard distance computation
-      // assertEntity('[bluabarrias](qty:0) are berries that are blue') //this needs keyboard distance computation
+      // assertEntity('[blumbeerries](qty:0) are berries that are blue') // this needs keyboard distance computation
+      // assertEntity('[bluabarrias](qty:0) are berries that are blue') // this needs keyboard distance computation
       // minor letter reversal
       assertEntity('[blueebrries](qty:1 value:Blueberry) are berries that are blue')
       // letter reversal + missing char
