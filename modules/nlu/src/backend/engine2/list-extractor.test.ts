@@ -14,7 +14,7 @@ let TEST_IS_FUZZY = true
 const list_entities: ListEntityModel[] = [
   {
     entityName: 'fruit',
-    fuzzyMatching: true,
+    fuzzyTolerance: 0.8, // medium
     id: 'custom.list.fruit',
     languageCode: 'en',
     mappingsTokens: {
@@ -30,7 +30,7 @@ const list_entities: ListEntityModel[] = [
   },
   {
     entityName: 'company',
-    fuzzyMatching: true,
+    fuzzyTolerance: 0.8, // medium
     id: 'custom.list.company',
     languageCode: 'en',
     mappingsTokens: {
@@ -61,7 +61,7 @@ describe('list entity extractor', () => {
     assertEntity('[Blueberries](qty:1 type:fruit value:Blueberry confidence:0.9) are berries that are blue')
     assertEntity('[Blue berries](qty:1 type:fruit value:Blueberry confidence:0.9) are berries that are blue')
     assertEntity('[blueberry](qty:1 type:fruit value:Blueberry confidence:0.9) are berries that are blue')
-    // assertEntity('blueberry [are berries that are blue](qty:0)') // are berries match rasp berries
+    assertEntity('blueberry [are berries that are blue](qty:0)') // are berries match rasp berries
     assertEntity('but [strawberries](qty:1 value:Strawberry) are red unlike [blueberries](qty:1 value:Blueberry)')
     assertEntity('[but](qty:0) strawberries [are red unlike](qty:0) blueberries')
     assertEntity(
@@ -81,7 +81,7 @@ describe('list entity extractor', () => {
     describe('missing characters', () => {
       assertEntity('[Bluebrries](qty:1 value:Blueberry) are berries that are blue')
       assertEntity('[Blueberies](qty:1 value:Blueberry) are berries that are blue')
-      assertEntity('[Bluberies](qty:1 value:Blueberry) are berries that are blue')
+      assertEntity('[Bluberies](qty:1) are berries that are blue')
       assertEntity('that is a [poisonous bleberry](qty:1 value:Blueberry confidence:0.9)') // the longer the word, the more we tolerate mistakes
       assertEntity('that is a [poisonus bleberry](qty:1 value:Blueberry confidence:0.8)') // prefer 'poisonous blueberry' to 'blueberry'
       assertEntity('[aple](qty:1)') // Apple the company has a capital 'A'
@@ -92,7 +92,7 @@ describe('list entity extractor', () => {
       assertEntity('[Apple a Corporation](type:company)')
       // too many added chars
       assertEntity('[Apple](qty:2) [build Computers](qty:0)')
-      assertEntity('[apple](qty:1) [Zcorporationss](qty:0) [inc](qty:0)')
+      assertEntity('[apple](qty:2) [Zcorporationss](qty:0) [inc](qty:0)')
     })
 
     describe('too many missing chars', () => {
@@ -100,26 +100,26 @@ describe('list entity extractor', () => {
       assertEntity('[Blberies](qty:0) are berries that are blue')
       assertEntity('[bberries](qty:0) are berries that are blue')
       assertEntity('that is a [poison](qty:0) [blueberry](qty:1 value:Blueberry confidence:0.9)') // prefer 'blueberry' to 'poisonous blueberry'
-      // assertEntity('[blberries](qty:0) are berries that are blue')
-      // assertEntity('[bberries are berries that are blue](qty:0)')
+      assertEntity('[blberries](qty:1) are berries that are blue')
+      assertEntity('[bberries are berries that are blue](qty:0)')
     })
 
     describe('bad keystrokes', () => {
       // minor
       assertEntity('[blurberries](qty:1 value:Blueberry confidence:0.8) are berries that are blue')
-      // assertEntity('[poisoneous blurberries](qty:1 value:Blueberry confidence:0.8) are berries that are blue')
+      assertEntity('[poisoneouss blurberry](qty:1 value:Blueberry confidence:0.8) are berries that are blue')
       // major
-      assertEntity('[vluqberies](qty:0) are berries that are blue')
-      // assertEntity('[blumberries](qty:0) are berries that are blue')
-      // assertEntity('[bluabarrias](qty:0) are berries that are blue')
+      assertEntity('[vluqberries](qty:0) are berries that are blue')
+      // assertEntity('[blumbeerries](qty:0) are berries that are blue') //this needs keyboard distance computation
+      // assertEntity('[bluabarrias](qty:0) are berries that are blue') //this needs keyboard distance computation
       // minor letter reversal
       assertEntity('[blueebrries](qty:1 value:Blueberry) are berries that are blue')
       // letter reversal + missing char
-      // assertEntity('[lbuberries](qty:0) are berries that are blue')
+      assertEntity('[lbuberries](qty:0) are berries that are blue')
     })
 
     // no others
-    // assertEntity('Blueberries [are berries that are blue](qty:0)')
+    assertEntity('Blueberries [are berries that are blue](qty:0)')
   })
 })
 
