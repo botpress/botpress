@@ -1,10 +1,11 @@
 import 'bluebird-global'
 import _ from 'lodash'
 
+import { FuzzyTolerance } from '../entities'
 import { parseUtterance } from '../tools/utterance-parser'
 import { EntityExtractionResult, ListEntityModel } from '../typings'
 
-import { extractListEntities, FuzzyTolerance } from './entity-extractor'
+import { extractListEntities } from './entity-extractor'
 import Utterance from './utterance'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)

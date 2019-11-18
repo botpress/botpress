@@ -12,12 +12,6 @@ import Utterance, { UtteranceToken } from './utterance'
 
 const ENTITY_SCORE_THRESHOLD = 0.6
 
-export enum FuzzyTolerance {
-  Loose = 0.65,
-  Medium = 0.8,
-  Strict = 1
-}
-
 export const extractUtteranceEntities = async (utterance: Utterance, input: TrainOutput | Predictors, tools: Tools) => {
   const extractedEntities = [
     ...extractListEntities(utterance, input.list_entities),

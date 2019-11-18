@@ -3,14 +3,18 @@ import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
-import { FuzzyTolerance } from '../../../backend/engine2/entity-extractor'
-
 import style from './style.scss'
 import { Occurence } from './ListEntityOccurence'
 
 interface Props {
   entity: NLU.EntityDefinition
   updateEntity: (entity: NLU.EntityDefinition) => void
+}
+
+const FuzzyTolerance = {
+  Strict: 1,
+  Medium: 0.8,
+  Loose: 0.65
 }
 
 export const ListEntityEditor: React.FC<Props> = props => {
@@ -107,9 +111,9 @@ export const ListEntityEditor: React.FC<Props> = props => {
           }
         />
         <RadioGroup onChange={handleFuzzyChange} selectedValue={fuzzy} inline>
-          <Radio label="Strict" value={1} />
+          <Radio label="Strict" value={FuzzyTolerance.Strict} />
           <Radio label="Medium" value={FuzzyTolerance.Medium} />
-          <Radio label="Loose" value={0.65} />
+          <Radio label="Loose" value={FuzzyTolerance.Loose} />
         </RadioGroup>
       </div>
     </div>
