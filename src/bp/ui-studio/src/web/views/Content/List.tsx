@@ -313,6 +313,8 @@ class ListView extends Component<Props, State> {
               onChange={this.handleSearchChanged}
             />
           </LeftToolbarButtons>
+          {/*
+          Disabled for now, it still needs a little bit more testing with additional scenarios.
           <RightToolbarButtons>
             <ImportModal onImportCompleted={this.onImportCompleted} />
             <Button
@@ -322,7 +324,7 @@ class ListView extends Component<Props, State> {
               onClick={this.downloadJson}
               style={{ marginLeft: 5 }}
             />
-          </RightToolbarButtons>
+          </RightToolbarButtons> */}
         </Toolbar>
         <div style={{ padding: 5 }}>{this.renderTable()}</div>
       </div>

@@ -135,6 +135,7 @@ export class ContentRouter extends CustomRouter {
       })
     )
 
+    /*
     this.router.get(
       '/export',
       this._checkTokenHeader,
@@ -198,7 +199,7 @@ export class ContentRouter extends CustomRouter {
           this.logger.attachError(e).error('JSON Import Failure')
         }
       }
-    )
+    )*/
   }
 
   private _augmentElement = async (element: ContentElement) => {
