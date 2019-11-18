@@ -441,7 +441,7 @@ sudo dokku plugin:install https://github.com/dokku/dokku-postgres.git
 
 # Creates a new database and link it to your application
 dokku postgres:create botpress-db
-dokku postgres:link botpress-server botpress-db
+dokku postgres:link botpress-db botpress-server
 
 # Tell Botpress what kind of database to use
 dokku config:set DATABASE=postgres --app botpress-server
