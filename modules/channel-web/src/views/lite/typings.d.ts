@@ -152,6 +152,8 @@ export type Config = {
   enableResetSessionShortcut: boolean
   recentConversationLifetime: string
   startNewConvoOnTimeout: boolean
+  /** Use sessionStorage instead of localStorage, which means the session expires when tab is closed */
+  useSessionStorage: boolean
   containerWidth?: string | number
   layoutWidth?: string | number
   showPoweredBy: boolean
