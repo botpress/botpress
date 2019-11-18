@@ -28,6 +28,7 @@ export class StateManager {
   private batch!: { event: sdk.IO.IncomingEvent; ignoreContext?: boolean }[]
   private knex!: Knex & KnexExtension
   private currentPromise
+  private useRedis
 
   constructor(
     @inject(TYPES.Logger)
@@ -39,10 +40,12 @@ export class StateManager {
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.JobService) private jobService: JobService
-  ) {}
+  ) {
+    this.useRedis = process.CLUSTER_ENABLED && !process.core_env.BP_NO_REDIS_STATE
+  }
 
   public initialize() {
-    if (!process.CLUSTER_ENABLED || process.core_env.BP_NO_REDIS_STATE) {
+    if (!this.useRedis) {
       return
     }
 
@@ -63,7 +66,7 @@ export class StateManager {
   public async restore(event: sdk.IO.IncomingEvent) {
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-    if (process.CLUSTER_ENABLED && !process.core_env.BP_NO_REDIS_STATE) {
+    if (this.useRedis) {
       try {
         const userState = await this._redisClient.get(getRedisSessionKey(sessionId))
         if (userState) {
@@ -93,10 +96,10 @@ export class StateManager {
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-    if (process.CLUSTER_ENABLED && !process.core_env.BP_NO_REDIS_STATE) {
+    if (this.useRedis) {
       await this._redisClient.set(
         getRedisSessionKey(sessionId),
-        JSON.stringify(event.state),
+        JSON.stringify(_.omit(event.state, ['__stacktrace', '__error'])),
         'PX',
         REDIS_MEMORY_DURATION
       )
@@ -105,6 +108,14 @@ export class StateManager {
     }
 
     await this._saveState(event, ignoreContext)
+  }
+
+  public async deleteDialogSession(sessionId: string) {
+    await this.sessionRepo.delete(sessionId)
+
+    if (this.useRedis) {
+      await this._redisClient.del(getRedisSessionKey(sessionId))
+    }
   }
 
   private async _saveState(event: sdk.IO.IncomingEvent, ignoreContext?: boolean, trx?: Knex.Transaction) {

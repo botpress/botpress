@@ -1437,7 +1437,12 @@ declare module 'botpress/sdk' {
      * @param nodeName The name of the optionnal node to jump to.
      * The node will default to the starting node of the flow if this value is omitted.
      */
-    export function jumpTo(sessionId: string, event: IO.Event, flowName: string, nodeName?: string): Promise<void>
+    export function jumpTo(
+      sessionId: string,
+      event: IO.IncomingEvent,
+      flowName: string,
+      nodeName?: string
+    ): Promise<void>
   }
 
   export namespace config {
