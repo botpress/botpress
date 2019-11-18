@@ -14,6 +14,7 @@ declare global {
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
     SHOW_POWERED_BY: boolean
+    USE_SESSION_STORAGE: boolean
     BP_STORAGE: any
     botpress: {
       [moduleName: string]: any

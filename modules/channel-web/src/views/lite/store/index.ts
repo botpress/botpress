@@ -303,9 +303,9 @@ class RootStore {
     this.config.showPoweredBy ? this.view.showPoweredBy() : this.view.hidePoweredBy()
 
     try {
-      window['USE_SESSION_STORAGE'] = this.config.useSessionStorage
+      window.USE_SESSION_STORAGE = this.config.useSessionStorage
     } catch {
-      console.log('Could not set USE_SESSION_STORAGE')
+      console.error('Could not set USE_SESSION_STORAGE')
     }
 
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
