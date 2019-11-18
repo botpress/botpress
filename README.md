@@ -78,5 +78,6 @@ Botpress Partners is a list of agencies who can help you build your next convers
 | [Okam](https://okam.ca/) | Montreal, Canada |
 | [Lampyon](https://www.lampyon.com/) | Toronto, Canada & Budapest, Hungary |
 | [Smile](https://www.smile.eu) | Asnières-sur-Seine, France |
+|[Tasqat](https://www.tasqat.com)| Dubai, United Arab Emirates |
 
 _If you are an agency and would like to be on this list, please clone the repository & add your agency to the list in the README.md. Then, you can create a pull request on the repository and we'll make sure to review and merge your PR swiftly._
