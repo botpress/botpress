@@ -1,5 +1,4 @@
 import { addLocaleData } from 'react-intl'
-
 import localeAr from 'react-intl/locale-data/ar'
 import localeEn from 'react-intl/locale-data/en'
 import localeEs from 'react-intl/locale-data/es'
@@ -17,24 +16,17 @@ import ru from './ru.json'
 import uk from './uk.json'
 
 const defaultLocale = 'en'
-const baseTranslations = { en, fr, pt, es, ar, ru, uk }
-const availableLocale = Object.keys(baseTranslations)
+const translations = { en, fr, pt, es, ar, ru, uk }
 
-// Handle region language subtags like 'en-US' and 'ar-IQ'
-const isTranslationMatching = prop => key => String(prop).split('-')[0] === key
-const translations = new Proxy(baseTranslations, {
-  get: (target, prop) => target[Object.keys(target).find(isTranslationMatching(prop))]
-})
-
-const getUserLocale = (available?: any, defaultFallback?: string) => {
+const getUserLocale = () => {
   const locale = navigator.language || navigator['userLanguage'] || ''
   const langCode = locale.split('-')[0]
 
-  return available && !available.includes(langCode) ? defaultFallback : langCode
+  return translations[langCode] ? langCode  || defaultLocale
 }
 
 const initializeLocale = () => {
   addLocaleData([...localeEn, ...localeFr, ...localePt, ...localeEs, ...localeAr, ...localeRu, ...localeUk])
 }
 
-export { initializeLocale, translations, availableLocale, defaultLocale, getUserLocale }
+export { initializeLocale, translations, defaultLocale, getUserLocale }
