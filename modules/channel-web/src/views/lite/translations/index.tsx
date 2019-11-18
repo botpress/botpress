@@ -22,7 +22,7 @@ const getUserLocale = () => {
   const locale = navigator.language || navigator['userLanguage'] || ''
   const langCode = locale.split('-')[0]
 
-  return translations[langCode] ? langCode  || defaultLocale
+  return translations[langCode] ? langCode : defaultLocale
 }
 
 const initializeLocale = () => {
