@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
+import { FuzzyTolerance } from '../backend/engine2/entity-extractor'
+
 const migration: sdk.ModuleMigration = {
   info: {
     description: 'Added missing fields in custom entities',
@@ -23,9 +25,9 @@ const migration: sdk.ModuleMigration = {
 
         if (entityDef.type === 'list') {
           if (entityDef.fuzzy) {
-            entityDef.fuzzy = 0.8 // medium
+            entityDef.fuzzy = FuzzyTolerance.Medium
           } else {
-            entityDef.fuzzy = 1
+            entityDef.fuzzy = FuzzyTolerance.Strict
           }
         }
 

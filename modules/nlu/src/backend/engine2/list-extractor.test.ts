@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { parseUtterance } from '../tools/utterance-parser'
 import { EntityExtractionResult, ListEntityModel } from '../typings'
 
-import { extractListEntities } from './entity-extractor'
+import { extractListEntities, FuzzyTolerance } from './entity-extractor'
 import Utterance from './utterance'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)
@@ -12,7 +12,7 @@ const T = (utterance: string): string[] => utterance.split(/( )/g)
 const list_entities: ListEntityModel[] = [
   {
     entityName: 'fruit',
-    fuzzyTolerance: 0.8, // medium
+    fuzzyTolerance: FuzzyTolerance.Medium,
     id: 'custom.list.fruit',
     languageCode: 'en',
     mappingsTokens: {
@@ -26,7 +26,7 @@ const list_entities: ListEntityModel[] = [
   },
   {
     entityName: 'company',
-    fuzzyTolerance: 0.8, // medium
+    fuzzyTolerance: FuzzyTolerance.Medium,
     id: 'custom.list.company',
     languageCode: 'en',
     mappingsTokens: {
@@ -37,7 +37,7 @@ const list_entities: ListEntityModel[] = [
   },
   {
     entityName: 'airport',
-    fuzzyTolerance: 0.65, // loose
+    fuzzyTolerance: FuzzyTolerance.Loose,
     id: 'custom.list.city',
     languageCode: 'en',
     mappingsTokens: {

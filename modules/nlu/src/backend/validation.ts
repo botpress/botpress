@@ -1,5 +1,7 @@
 import Joi from 'joi'
 
+import { FuzzyTolerance } from './engine2/entity-extractor'
+
 export const SlotsCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
   // @deprecated >11
@@ -38,7 +40,7 @@ export const EntityDefCreateSchema = Joi.object().keys({
     .valid(['system', 'pattern', 'list'])
     .required(),
   sensitive: Joi.boolean(),
-  fuzzy: Joi.number().default(0.8),
+  fuzzy: Joi.number().default(FuzzyTolerance.Medium),
   matchCase: Joi.boolean(),
   examples: Joi.array()
     .items(Joi.string())
