@@ -650,6 +650,8 @@ declare module 'botpress/sdk' {
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
+      // Prevent warnings when using the code editor with custom properties
+      [anyKey: string]: any
     }
 
     export type StoredEvent = {

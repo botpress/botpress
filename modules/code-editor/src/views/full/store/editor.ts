@@ -82,7 +82,7 @@ class EditorStore {
 
   @action.bound
   async saveChanges() {
-    if (!this.fileContent) {
+    if (!this.fileContent || this.currentFile.readOnly || this.currentFile.isExample) {
       return
     }
 

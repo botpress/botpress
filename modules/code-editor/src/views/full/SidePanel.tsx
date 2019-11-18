@@ -3,12 +3,12 @@ import { SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
-import { FilePermissions } from '../../backend/typings'
 import { HOOK_SIGNATURES } from '../../typings/hooks'
 
 import FileStatus from './components/FileStatus'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
+import { EXAMPLE_FOLDER_LABEL } from './utils/tree'
 import FileNavigator from './FileNavigator'
 
 class PanelContent extends React.Component<Props> {
@@ -32,8 +32,10 @@ class PanelContent extends React.Component<Props> {
   }
 
   addFiles(fileType: string, label: string, fileList: any[]) {
-    if (this.props.files[fileType]) {
-      fileList.push({ label, files: this.props.files[fileType] })
+    const files = this.props.files[fileType]
+
+    if (files && files.length) {
+      fileList.push({ label, files })
     }
   }
 
@@ -56,6 +58,9 @@ class PanelContent extends React.Component<Props> {
     const moduleConfigFiles = []
     this.addFiles('bot.module_config', `Current Bot`, moduleConfigFiles)
     this.addFiles('global.module_config', `Global`, moduleConfigFiles)
+
+    this.addFiles('hook_example', EXAMPLE_FOLDER_LABEL, hookFiles)
+    this.addFiles('action_example', EXAMPLE_FOLDER_LABEL, actionFiles)
 
     this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles, moduleConfigFiles })
   }

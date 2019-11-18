@@ -1,4 +1,15 @@
-import { Classes, ContextMenu, Icon, ITreeNode, Menu, MenuDivider, MenuItem, Tooltip, Tree } from '@blueprintjs/core'
+import {
+  Classes,
+  ContextMenu,
+  Icon,
+  ITreeNode,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Position,
+  Tooltip,
+  Tree
+} from '@blueprintjs/core'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -8,7 +19,8 @@ import { EditableFile } from '../../backend/typings'
 
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
-import { buildTree } from './utils/tree'
+import style from './style.scss'
+import { buildTree, EXAMPLE_FOLDER_LABEL, FOLDER_EXAMPLE, FOLDER_ICON } from './utils/tree'
 import { TreeNodeRenameInput } from './TreeNodeRenameInput'
 
 class FileNavigator extends React.Component<Props, State> {
@@ -44,15 +56,34 @@ class FileNavigator extends React.Component<Props, State> {
       </Tooltip>
     )
 
+    const exampleLabel = (
+      <Tooltip
+        content={
+          <span>
+            Those are code samples that you can copy
+            <br /> to add new features to your bots.
+            <br /> <br /> They cannot be edited directly
+          </span>
+        }
+        hoverOpenDelay={500}
+        position={Position.BOTTOM}
+      >
+        <strong>{EXAMPLE_FOLDER_LABEL}</strong>
+      </Tooltip>
+    )
+
     const filter = this.props.filters && this.props.filters.filename.toLowerCase()
     const nodes: ITreeNode[] = this.props.files.map(dir => ({
       id: dir.label,
-      label: dir.label,
-      icon: 'folder-close',
+      label: dir.label === EXAMPLE_FOLDER_LABEL ? exampleLabel : dir.label,
+      icon: dir.label === EXAMPLE_FOLDER_LABEL ? FOLDER_EXAMPLE : FOLDER_ICON,
       hasCaret: true,
       isExpanded: true,
       childNodes: buildTree(dir.files, this.props.expandedNodes, filter, readOnlyIcon)
     }))
+
+    // Examples are hidden by default so the view is not cluttered
+    this.traverseTree(nodes, n => n.id === EXAMPLE_FOLDER_LABEL && (n.isExpanded = false))
 
     if (filter) {
       this.traverseTree(nodes, n => (n.isExpanded = true))
@@ -107,7 +138,6 @@ class FileNavigator extends React.Component<Props, State> {
       return null
     }
 
-    const isDisabled = node.nodeData.name.startsWith('.')
     const file = node.nodeData as EditableFile
 
     if (this.props.contextMenuType === 'moduleConfig') {
@@ -118,8 +148,15 @@ class FileNavigator extends React.Component<Props, State> {
               id="btn-duplicateCurrent"
               icon="duplicate"
               text="Duplicate to current bot"
-              onClick={() => this.props.duplicateFile(file, true)}
+              onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
             />
+          </Menu>,
+          { left: e.clientX, top: e.clientY }
+        )
+      } else {
+        ContextMenu.show(
+          <Menu>
+            <MenuItem id="btn-delete" icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
           </Menu>,
           { left: e.clientX, top: e.clientY }
         )
@@ -128,6 +165,24 @@ class FileNavigator extends React.Component<Props, State> {
       return
     }
 
+    if (file.isExample) {
+      ContextMenu.show(
+        <Menu>
+          <MenuItem
+            id="btn-duplicateCurrent"
+            icon="duplicate"
+            text={file.type === 'action' ? 'Copy example to my bot' : 'Copy example to global hooks'}
+            onClick={() =>
+              this.props.duplicateFile(file, { forCurrentBot: file.type === 'action', keepSameName: true })
+            }
+          />
+        </Menu>,
+        { left: e.clientX, top: e.clientY }
+      )
+      return
+    }
+
+    const isDisabled = file.name.startsWith('.')
     ContextMenu.show(
       <Menu>
         <MenuItem id="btn-rename" icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
@@ -184,8 +239,8 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   render() {
-    if (!this.state.nodes) {
-      return null
+    if (!this.state.nodes.length) {
+      return <div className={style.padding}>No files found in this category</div>
     }
 
     return (

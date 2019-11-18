@@ -4,6 +4,7 @@ interface CssExports {
   'btn': string;
   'editor': string;
   'editorContainer': string;
+  'padding': string;
   'sidePanel': string;
   'status': string;
   'tab': string;

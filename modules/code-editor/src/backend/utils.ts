@@ -5,8 +5,28 @@ import { FILENAME_REGEX } from './editor'
 import { EditorError } from './editorError'
 import { EditableFile, FilePermissions } from './typings'
 
-export const filterBuiltin = (files: EditableFile[]) => {
-  return files.filter(x => !x.content.includes('//CHECKSUM:'))
+export const BUILTIN_MODULES = [
+  'analytics',
+  'basic-skills',
+  'builtin',
+  'builtin',
+  'channel-messenger',
+  'channel-slack',
+  'channel-teams',
+  'channel-telegram',
+  'channel-web',
+  'code-editor',
+  'examples',
+  'extensions',
+  'history',
+  'hitl',
+  'nlu',
+  'qna',
+  'testing'
+]
+
+export const getBuiltinExclusion = () => {
+  return _.flatMap(BUILTIN_MODULES, mod => [`${mod}/*`, `*/${mod}/*`])
 }
 
 export const getFileLocation = (file: EditableFile): { folder: string; filename: string } => {
