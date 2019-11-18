@@ -59,21 +59,24 @@ export class StrategyUsersRepository {
   async updateUser(email: string, strategy: string, updated: any): Promise<void> {
     await this.database
       .knex(this._getTableName(strategy))
-      .where({ email, strategy })
+      .where({ strategy })
+      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
       .update(updated)
   }
 
   async deleteUser(email: string, strategy: string): Promise<void> {
     return this.database
       .knex(this._getTableName(strategy))
-      .where({ email, strategy })
+      .where({ strategy })
+      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
       .del()
   }
 
   async getAttributes(email: string, strategy: string): Promise<any> {
     const user = await this.database
       .knex(this._getTableName(strategy))
-      .where({ email, strategy })
+      .where({ strategy })
+      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
       .limit(1)
       .select('attributes')
       .first()
@@ -103,7 +106,8 @@ export class StrategyUsersRepository {
 
     return this.database
       .knex(this._getTableName(strategy))
-      .where({ email, strategy })
+      .where({ strategy })
+      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
       .update({ attributes: this.database.knex.json.set({ ...originalAttributes, ...attributes }) })
   }
 
@@ -115,7 +119,8 @@ export class StrategyUsersRepository {
     return this.database
       .knex(this._getTableName(strategy))
       .select('*')
-      .where({ email, strategy })
+      .where({ strategy })
+      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
       .limit(1)
       .first()
       .then(res => {
