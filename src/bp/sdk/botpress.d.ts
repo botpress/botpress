@@ -386,7 +386,7 @@ declare module 'botpress/sdk' {
       sensitive?: boolean
       matchCase?: boolean
       examples?: string[]
-      fuzzy?: boolean
+      fuzzy?: number
       occurences?: EntityDefOccurence[]
       pattern?: string
     }

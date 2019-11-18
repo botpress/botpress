@@ -1,4 +1,4 @@
-import { Button, Checkbox, Colors, FormGroup, Icon, InputGroup, Label, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -11,10 +11,16 @@ interface Props {
   updateEntity: (entity: NLU.EntityDefinition) => void
 }
 
+const FuzzyTolerance = {
+  Strict: 1,
+  Medium: 0.8,
+  Loose: 0.65
+}
+
 export const ListEntityEditor: React.FC<Props> = props => {
-  const [fuzzy, setFuzzy] = useState<boolean>(props.entity.fuzzy)
-  const [newOccurence, setNewOccurence] = useState<string>('')
-  const [occurences, setOccurences] = useState<NLU.EntityDefOccurence[]>(props.entity.occurences)
+  const [fuzzy, setFuzzy] = useState(props.entity.fuzzy)
+  const [newOccurence, setNewOccurence] = useState('')
+  const [occurences, setOccurences] = useState(props.entity.occurences)
 
   useEffect(() => {
     const newEntity = { ...props.entity, fuzzy, occurences }
@@ -40,6 +46,10 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   const removeOccurence = (idx: number) => {
     setOccurences([...occurences.slice(0, idx), ...occurences.slice(idx + 1)])
+  }
+
+  const handleFuzzyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFuzzy(parseFloat(e.target.value))
   }
 
   return (
@@ -86,17 +96,25 @@ export const ListEntityEditor: React.FC<Props> = props => {
         )}
       </div>
       <div className={style.configPane}>
-        <Label>Options</Label>
-        <Checkbox checked={fuzzy} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFuzzy(e.target.checked)}>
-          <span>Fuzzy matching</span>&nbsp;
-          <Tooltip
-            content="Fuzziness will tolerate slight errors in extraction, typos for instance."
-            position={Position.RIGHT}
-            popoverClassName={style.configPopover}
-          >
-            <Icon icon="help" color={Colors.GRAY3} />
-          </Tooltip>
-        </Checkbox>
+        <FormGroup
+          label={
+            <Tooltip
+              content="Fuzziness will tolerate slight errors in extraction, typos for instance. Strict means no errors allowed."
+              position={Position.LEFT}
+              popoverClassName={style.configPopover}
+            >
+              <span>
+                Fuzzy matching options&nbsp;
+                <Icon icon="help" color={Colors.GRAY3} />
+              </span>
+            </Tooltip>
+          }
+        />
+        <RadioGroup onChange={handleFuzzyChange} selectedValue={fuzzy} inline>
+          <Radio label="Strict" value={FuzzyTolerance.Strict} />
+          <Radio label="Medium" value={FuzzyTolerance.Medium} />
+          <Radio label="Loose" value={FuzzyTolerance.Loose} />
+        </RadioGroup>
       </div>
     </div>
   )

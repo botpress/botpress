@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
+import { FuzzyTolerance } from '../backend/entities'
+
 const migration: sdk.ModuleMigration = {
   info: {
     description: 'Added missing fields in custom entities',
@@ -21,14 +23,13 @@ const migration: sdk.ModuleMigration = {
           }
         }
 
-        // TODO uncomment this once fuzzy mathing level is implemented
-        // if (entityDef.type === 'list' && typeof entityDef.fuzzy === 'boolean') {
-        //   if (entityDef.fuzzy === true) {
-        //     entityDef.fuzzy = 'medium'
-        //   } else {
-        //     entityDef.fuzzy = 'strict'
-        //   }
-        // }
+        if (entityDef.type === 'list') {
+          if (entityDef.fuzzy) {
+            entityDef.fuzzy = FuzzyTolerance.Medium
+          } else {
+            entityDef.fuzzy = FuzzyTolerance.Strict
+          }
+        }
 
         await bpfs.upsertFile('./entities', fileName, JSON.stringify(entityDef, undefined, 2))
       }
