@@ -8,5 +8,6 @@
   "botInfo.privacyPolicy": "عرض سياسة الخصوصية",
   "botInfo.termsAndConditions": "عرض شروط الخدمة",
   "botInfo.preferredLanguage": "اللغة المفضلة",
-  "store.resetSessionMessage": "إعادة بدء المحادثة"
+  "store.resetSessionMessage": "إعادة بدء المحادثة",
+  "messages.newMessage": "رسالة جديدة"
 }
