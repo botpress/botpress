@@ -117,11 +117,14 @@ export const extractListEntities = (
           const exact_score = exactScore(worksetAsStrings, occurance) === 1 ? 1 : 0
           const fuzzy_score = fuzzyScore(worksetAsStrings, occurance)
           const fuzzy_factor = fuzzy_score >= list.fuzzyTolerance ? fuzzy_score : 0
-          const structural_score = structuralScore(worksetAsStrings, occurance)
+          const structural_score = structuralScore(
+            workset.map(x => x.toString({ lowerCase: false, realSpaces: true, trim: false })),
+            occurance
+          )
           const finalScore = fuzzy ? fuzzy_factor * structural_score : exact_score * structural_score
 
           candidates.push({
-            score: _.round(finalScore, 1),
+            score: _.round(finalScore, 2),
             canonical,
             start: i,
             end: i + workset.length - 1,
@@ -148,7 +151,7 @@ export const extractListEntities = (
     }
 
     candidates
-      .filter(x => !x.eliminated && x.score >= 0.65)
+      .filter(x => !x.eliminated && x.score >= 0.6)
       .forEach(match => {
         matches.push({
           confidence: match.score,

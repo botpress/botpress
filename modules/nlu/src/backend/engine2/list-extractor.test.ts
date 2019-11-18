@@ -9,8 +9,6 @@ import Utterance from './utterance'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)
 
-let TEST_IS_FUZZY = true
-
 const list_entities: ListEntityModel[] = [
   {
     entityName: 'fruit',
@@ -23,9 +21,7 @@ const list_entities: ListEntityModel[] = [
       Raspberry: ['raspberries', 'raspberry', 'rasp berries', 'rasp berry'].map(T),
       Apple: ['apple', 'apples', 'red apple', 'yellow apple'].map(T)
     },
-    get sensitive(): boolean {
-      return TEST_IS_FUZZY
-    },
+    sensitive: false,
     type: 'custom.list'
   },
   {
@@ -38,15 +34,27 @@ const list_entities: ListEntityModel[] = [
     },
     sensitive: false,
     type: 'custom.list'
+  },
+  {
+    entityName: 'airport',
+    fuzzyTolerance: 0.65, // loose
+    id: 'custom.list.city',
+    languageCode: 'en',
+    mappingsTokens: {
+      JFK: ['JFK', 'New-York', 'NYC'].map(T),
+      SFO: ['SFO', 'SF', 'San-Francisco'].map(T),
+      YQB: ['YQB', 'Quebec', 'Quebec city'].map(T)
+    },
+    sensitive: false,
+    type: 'custom.list'
   }
 ]
 describe('list entity extractor', () => {
   test('Data structure test', async () => {
-    TEST_IS_FUZZY = true
     const utterance = textToUtterance('Blueberries are berries that are blue')
     const results = extractListEntities(utterance, list_entities)
 
-    // expect(results).toHaveLength(1) // need to fix the fuzzy matching to not match: are berries => rasp berries
+    expect(results).toHaveLength(1)
     expect(results[0].value).toBe('Blueberry')
     expect(results[0].start).toBe(0)
     expect(results[0].end).toBe(11)
@@ -57,7 +65,6 @@ describe('list entity extractor', () => {
   })
 
   describe('exact match', () => {
-    TEST_IS_FUZZY = false
     assertEntity('[Blueberries](qty:1 type:fruit value:Blueberry confidence:0.9) are berries that are blue')
     assertEntity('[Blue berries](qty:1 type:fruit value:Blueberry confidence:0.9) are berries that are blue')
     assertEntity('[blueberry](qty:1 type:fruit value:Blueberry confidence:0.9) are berries that are blue')
@@ -76,7 +83,14 @@ describe('list entity extractor', () => {
   })
 
   describe('fuzzy match', () => {
-    TEST_IS_FUZZY = true
+    describe('loose fuzzy', () => {
+      assertEntity('[Qebec citty](qty:1 value:YQB) is a city within QC, a provice.')
+      assertEntity('A quaterback is also called a [QB](qty:0) and [sn francisco](qty:1 value:SFO) used to have one')
+      assertEntity('A quaterback is also called a [QB](qty:0) and [sn francisco](qty:1 value:SFO) used to have one')
+      assertEntity('[sn frncisco](qty:0) is nice but for [New-Yorkers](qty:0) [new-yrk](qty:1 value:JFK) is better')
+      assertEntity("I never been to [kbec city](qty:0) but I've been to [kebec city](qty:1 value:YQB)")
+      assertEntity("Let's go to [Nova-York](qty:0)")
+    })
 
     describe('missing characters', () => {
       assertEntity('[Bluebrries](qty:1 value:Blueberry) are berries that are blue')
@@ -90,9 +104,10 @@ describe('list entity extractor', () => {
     describe('added chars', () => {
       assertEntity('[apple](qty:2) [corporations](qty:1) [inc](qty:0)') // corporation with a S
       assertEntity('[Apple a Corporation](type:company)')
+      assertEntity('[apple](qty:2) [coroporations](qty:1) [inc](qty:0)')
       // too many added chars
       assertEntity('[Apple](qty:2) [build Computers](qty:0)')
-      assertEntity('[apple](qty:2) [Zcorporationss](qty:0) [inc](qty:0)')
+      assertEntity('[apple](qty:2) [Zcoroporationss](qty:0) [inc](qty:0)')
     })
 
     describe('too many missing chars', () => {
