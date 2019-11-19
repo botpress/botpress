@@ -5,6 +5,7 @@ import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable, postConstruct } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -33,7 +34,9 @@ export class ConverseService {
   ) {}
 
   @postConstruct()
-  init() {
+  async init() {
+    await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
+
     this.eventEngine.register({
       name: 'converse.capture.payload',
       description: 'Captures the response payload for the Converse API',

@@ -8,5 +8,11 @@
   "botInfo.privacyPolicy": "عرض سياسة الخصوصية",
   "botInfo.termsAndConditions": "عرض شروط الخدمة",
   "botInfo.preferredLanguage": "اللغة المفضلة",
-  "store.resetSessionMessage": "إعادة بدء المحادثة"
+  "store.resetSessionMessage": "إعادة بدء المحادثة",
+  "loginForm.userName": "اسم المستخدم",
+  "loginForm.password": "كلمة المرور",
+  "loginForm.submit": "تقديم",
+  "loginForm.formTitle": "نموذج تسجيل الدخول",
+  "loginForm.providedCredentials": "قدمت أوراق اعتماد",
+  "messages.newMessage": "رسالة جديدة"
 }

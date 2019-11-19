@@ -4,6 +4,7 @@ import { KnexExtension } from 'common/knex'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
+import Joi from 'joi'
 import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
@@ -25,6 +26,14 @@ export const DefaultSearchParams: SearchParams = {
   from: 0,
   count: 50
 }
+
+export const CmsImportSchema = Joi.array().items(
+  Joi.object().keys({
+    id: Joi.string().required(),
+    contentType: Joi.string().required(),
+    formData: Joi.object().required()
+  })
+)
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
@@ -83,7 +92,7 @@ export class CMSService implements IDisposeOnExit {
     })
   }
 
-  async loadElementsForBot(botId: string): Promise<any[]> {
+  async getAllElements(botId: string): Promise<ContentElement[]> {
     const fileNames = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '*.json')
     let contentElements: ContentElement[] = []
 
@@ -97,6 +106,12 @@ export class CMSService implements IDisposeOnExit {
       contentElements = _.concat(contentElements, fileContentElements)
     }
 
+    return contentElements
+  }
+
+  async loadElementsForBot(botId: string): Promise<any[]> {
+    const contentElements = await this.getAllElements(botId)
+
     const elements = await Promise.map(contentElements, element => {
       return this.memDb(this.contentTable)
         .insert(this.transformItemApiToDb(botId, element))
@@ -109,6 +124,12 @@ export class CMSService implements IDisposeOnExit {
     await this.recomputeElementsForBot(botId)
 
     return elements
+  }
+
+  async deleteAllElements(botId: string): Promise<void> {
+    const files = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '*.json')
+    await Promise.map(files, file => this.ghost.forBot(botId).deleteFile(this.elementsDir, file))
+    await this.clearElementsFromCache(botId)
   }
 
   async clearElementsFromCache(botId: string) {
@@ -205,7 +226,7 @@ export class CMSService implements IDisposeOnExit {
   async getContentElement(botId: string, id: string, language?: string): Promise<ContentElement> {
     const element = await this.memDb(this.contentTable)
       .where({ botId, id })
-      .get(0)
+      .first()
 
     const deserialized = this.transformDbItemToApi(element)
     return language ? this._translateElement(deserialized, language) : deserialized
@@ -222,7 +243,7 @@ export class CMSService implements IDisposeOnExit {
     return this.memDb(this.contentTable)
       .where({ botId })
       .count('* as count')
-      .get(0)
+      .first()
       .then(row => (row && Number(row.count)) || 0)
   }
 
@@ -231,7 +252,7 @@ export class CMSService implements IDisposeOnExit {
       .where({ botId })
       .andWhere({ contentType })
       .count('* as count')
-      .get(0)
+      .first()
       .then(row => (row && Number(row.count)) || 0)
   }
 
@@ -268,7 +289,8 @@ export class CMSService implements IDisposeOnExit {
       .where('contentType', contentTypeId)
       .orderByRaw('random()')
       .limit(1)
-      .get(0)
+      .first()
+      .then()
   }
 
   private _generateElementId(contentTypeId: string): string {
@@ -279,7 +301,7 @@ export class CMSService implements IDisposeOnExit {
   async elementIdExists(botId: string, id: string): Promise<boolean> {
     const element = await this.memDb(this.contentTable)
       .where({ botId, id })
-      .get(0)
+      .first()
 
     return !!element
   }

@@ -1,16 +1,24 @@
 import differenceInMinutes from 'date-fns/difference_in_minutes'
+import { debounce } from 'lodash'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
-import { Message } from '../../typings'
+
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
+import { Message } from '../../typings'
 import Avatar from '../common/Avatar'
 
 import MessageGroup from './MessageGroup'
 
-class MessageList extends React.Component<MessageListProps> {
+interface State {
+  manualScroll: boolean
+  showNewMessageIndicator: boolean
+}
+
+class MessageList extends React.Component<MessageListProps, State> {
   private messagesDiv: HTMLElement
+  state: State = { showNewMessageIndicator: false, manualScroll: false }
 
   componentDidMount() {
     this.tryScrollToBottom(true)
@@ -18,10 +26,17 @@ class MessageList extends React.Component<MessageListProps> {
     observe(this.props.focusedArea, focus => {
       focus.newValue === 'convo' && this.messagesDiv.focus()
     })
-  }
 
-  componentDidUpdate() {
-    this.tryScrollToBottom()
+    observe(this.props.currentMessages, messages => {
+      if (this.state.manualScroll) {
+        if (!this.state.showNewMessageIndicator) {
+          this.setState({ showNewMessageIndicator: true })
+        }
+        return
+      }
+      this.tryScrollToBottom()
+      this.tryScrollToBottom(true) // twice because some browsers scrolls before rendering the keyboad
+    })
   }
 
   tryScrollToBottom(delayed?: boolean) {
@@ -33,7 +48,7 @@ class MessageList extends React.Component<MessageListProps> {
           // Discard the error
         }
       },
-      delayed ? 200 : 0
+      delayed ? 250 : 0
     )
   }
 
@@ -155,6 +170,14 @@ class MessageList extends React.Component<MessageListProps> {
     return m.message_type !== 'postback'
   }
 
+  handleScroll = debounce(e => {
+    const scroll = this.messagesDiv.scrollHeight - this.messagesDiv.scrollTop - this.messagesDiv.clientHeight
+    const manualScroll = scroll >= 150
+    const showNewMessageIndicator = this.state.showNewMessageIndicator && manualScroll
+
+    this.setState({ manualScroll, showNewMessageIndicator })
+  }, 50)
+
   render() {
     return (
       <div
@@ -164,7 +187,13 @@ class MessageList extends React.Component<MessageListProps> {
         ref={m => {
           this.messagesDiv = m
         }}
+        onScroll={this.handleScroll}
       >
+        {this.state.showNewMessageIndicator && (
+          <div className="bpw-new-messages-indicator" onClick={e => this.tryScrollToBottom()}>
+            <span>{this.props.intl.formatMessage({ id: 'messages.newMessage' })}</span>
+          </div>
+        )}
         {this.renderMessageGroups()}
       </div>
     )

@@ -74,7 +74,9 @@ export const IntentEditor: FC<Props> = props => {
           slots={intent.slots}
         />
       </div>
-      {props.showSlotPanel && <Slots slots={intent.slots} axios={props.axios} onSlotsChanged={handleSlotsChange} />}
+      {props.showSlotPanel && (
+        <Slots slots={intent.slots} api={props.api} axios={props.axios} onSlotsChanged={handleSlotsChange} />
+      )}
     </div>
   )
 }

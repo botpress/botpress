@@ -14,6 +14,7 @@ declare global {
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
     SHOW_POWERED_BY: boolean
+    USE_SESSION_STORAGE: boolean
     BP_STORAGE: any
     botpress: {
       [moduleName: string]: any
@@ -152,6 +153,8 @@ export type Config = {
   enableResetSessionShortcut: boolean
   recentConversationLifetime: string
   startNewConvoOnTimeout: boolean
+  /** Use sessionStorage instead of localStorage, which means the session expires when tab is closed */
+  useSessionStorage: boolean
   containerWidth?: string | number
   layoutWidth?: string | number
   showPoweredBy: boolean
