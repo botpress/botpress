@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
@@ -26,7 +25,7 @@ const REDIS_MEMORY_DURATION = ms('30s')
 export class StateManager {
   private _redisClient!: Redis
   private batch!: { event: sdk.IO.IncomingEvent; ignoreContext?: boolean }[]
-  private knex!: Knex & KnexExtension
+  private knex!: sdk.KnexExtended
   private currentPromise
   private useRedis
 
