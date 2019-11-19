@@ -170,14 +170,14 @@ export type PatternEntity = Readonly<{
   name: string
   pattern: string
   examples: string[]
-  ignoreCase: boolean
+  matchCase: boolean
   sensitive: boolean
 }>
 
 export type ListEntity = Readonly<{
   name: string
   synonyms: { [canonical: string]: string[] }
-  fuzzyMatching: boolean
+  fuzzyTolerance: number
   sensitive: boolean
 }>
 
@@ -186,7 +186,7 @@ export type ListEntityModel = Readonly<{
   id: string
   languageCode: string
   entityName: string
-  fuzzyMatching: boolean
+  fuzzyTolerance: number
   sensitive: boolean
   /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
   mappingsTokens: _.Dictionary<string[][]>

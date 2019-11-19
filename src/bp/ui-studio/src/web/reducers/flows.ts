@@ -536,7 +536,10 @@ reducer = reduceReducers(
           return {
             ...node,
             next: payload.transitions.map(transition => {
-              const prevTransition = node.next.find(({ condition }) => condition === transition.condition)
+              const prevTransition = node.next.find(
+                ({ condition, caption }) => condition === transition.condition || caption === transition.caption
+              )
+
               return { ...transition, node: (prevTransition || {}).node || '' }
             })
           }

@@ -13,5 +13,6 @@
   "loginForm.password": "كلمة المرور",
   "loginForm.submit": "تقديم",
   "loginForm.formTitle": "نموذج تسجيل الدخول",
-  "loginForm.providedCredentials": "قدمت أوراق اعتماد"
+  "loginForm.providedCredentials": "قدمت أوراق اعتماد",
+  "messages.newMessage": "رسالة جديدة"
 }

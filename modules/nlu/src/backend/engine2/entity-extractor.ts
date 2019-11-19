@@ -10,6 +10,8 @@ import { Predictors } from './predict-pipeline'
 import { TrainOutput } from './training-pipeline'
 import Utterance, { UtteranceToken } from './utterance'
 
+const ENTITY_SCORE_THRESHOLD = 0.6
+
 export const extractUtteranceEntities = async (utterance: Utterance, input: TrainOutput | Predictors, tools: Tools) => {
   const extractedEntities = [
     ...extractListEntities(utterance, input.list_entities),
@@ -113,14 +115,18 @@ export const extractListEntities = (
             longestCandidate = candidateAsString.length
           }
 
-          const fuzzy = list.fuzzyMatching && worksetAsStrings.join('').length >= 4
+          const fuzzy = list.fuzzyTolerance < 1 && worksetAsStrings.join('').length >= 4
           const exact_score = exactScore(worksetAsStrings, occurance) === 1 ? 1 : 0
           const fuzzy_score = fuzzyScore(worksetAsStrings, occurance)
-          const structural_score = structuralScore(worksetAsStrings, occurance)
-          const finalScore = fuzzy ? fuzzy_score * structural_score : exact_score * structural_score
+          const fuzzy_factor = fuzzy_score >= list.fuzzyTolerance ? fuzzy_score : 0
+          const structural_score = structuralScore(
+            workset.map(x => x.toString({ lowerCase: false, realSpaces: true, trim: false })),
+            occurance
+          )
+          const finalScore = fuzzy ? fuzzy_factor * structural_score : exact_score * structural_score
 
           candidates.push({
-            score: Math.round(finalScore * 1000) / 1000,
+            score: _.round(finalScore, 2),
             canonical,
             start: i,
             end: i + workset.length - 1,
@@ -147,7 +153,7 @@ export const extractListEntities = (
     }
 
     candidates
-      .filter(x => !x.eliminated && x.score >= 0.65)
+      .filter(x => !x.eliminated && x.score >= ENTITY_SCORE_THRESHOLD)
       .forEach(match => {
         matches.push({
           confidence: match.score,
@@ -174,7 +180,7 @@ export const extractPatternEntities = (
   const input = utterance.toString()
   // taken from pattern_extractor
   return _.flatMap(pattern_entities, ent => {
-    const regex = new RegExp(ent.pattern!, 'i')
+    const regex = new RegExp(ent.pattern!, ent.matchCase ? '' : 'i')
 
     return extractPattern(input, regex, []).map(res => ({
       confidence: 1,

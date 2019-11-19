@@ -68,6 +68,9 @@ async function start() {
     return setupMasterNode(await getLogger('Cluster'))
   }
 
+  // Server ID is provided by the master node
+  process.SERVER_ID = process.env.SERVER_ID!
+
   await setupEnv()
 
   const logger = await getLogger('Launcher')

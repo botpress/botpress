@@ -117,8 +117,7 @@ export class KvsService implements sdk.KvsService {
       .knex(TABLE_NAME)
       .where({ botId })
       .andWhere({ key })
-      .limit(1)
-      .get(0)
+      .first()
       .then(row => {
         if (!row) {
           return undefined

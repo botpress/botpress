@@ -1,5 +1,6 @@
 import sdk from 'botpress/sdk'
 import cluster from 'cluster'
+import nanoid from 'nanoid/generate'
 import yn from 'yn'
 
 const debug = DEBUG('cluster')
@@ -21,6 +22,8 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
 }
 
 export const setupMasterNode = (logger: sdk.Logger) => {
+  process.SERVER_ID = process.env.SERVER_ID || nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
+
   registerMsgHandler('reboot_server', (_message, worker) => {
     logger.warn(`Restarting server...`)
     worker.disconnect()
@@ -47,7 +50,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
         process.exit(0)
       }
 
-      cluster.fork()
+      cluster.fork({ SERVER_ID: process.SERVER_ID })
       rebootCount++
     }
   })
@@ -65,5 +68,5 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     }
   })
 
-  cluster.fork()
+  cluster.fork({ SERVER_ID: process.SERVER_ID })
 }

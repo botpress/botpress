@@ -13,5 +13,6 @@
   "loginForm.password": "Пароль",
   "loginForm.submit": "Отправить",
   "loginForm.formTitle": "Форма для входа",
-  "loginForm.providedCredentials": "Введенные данные"
+  "loginForm.providedCredentials": "Введенные данные",
+  "messages.newMessage": "Новое сообщение"
 }

@@ -89,6 +89,7 @@ class ContentView extends Component<Props, State> {
     const contentType = this.currentContentType()
     this.props
       .upsertContentItem({ contentType, formData: this.state.contentToEdit, modifyId: this.state.modifyId })
+      .then(() => this.props.fetchContentCategories())
       .then(() => this.fetchCategoryItems(this.state.selectedId))
       .then(() => this.setState({ showModal: false }))
   }
@@ -171,6 +172,7 @@ class ContentView extends Component<Props, State> {
           handleDeleteSelected={this.handleDeleteSelected}
           handleClone={this.handleClone}
           handleSearch={this.handleSearch}
+          refreshCategories={this.props.fetchContentCategories}
         />
         {this.canEdit && (
           <CreateOrEditModal
