@@ -9,5 +9,10 @@
   "botInfo.termsAndConditions": "Показать Условия использования",
   "botInfo.preferredLanguage": "Предпочитаемый язык",
   "store.resetSessionMessage": "Начать разговор заново",
+  "loginForm.userName": "Логин",
+  "loginForm.password": "Пароль",
+  "loginForm.submit": "Отправить",
+  "loginForm.formTitle": "Форма для входа",
+  "loginForm.providedCredentials": "Введенные данные",
   "messages.newMessage": "Новое сообщение"
 }
