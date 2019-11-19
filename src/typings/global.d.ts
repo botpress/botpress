@@ -161,6 +161,11 @@ declare type BotpressEnvironementVariables = {
    * Adding temporarily until the feature is battle-tested
    */
   readonly BP_NO_REDIS_STATE?: boolean
+
+  /**
+   * Experimental feature which will try to load actions locally, then from the ghost
+   */
+  readonly BP_EXPERIMENTAL_REQUIRE_BPFS?: boolean
 }
 
 interface IDebug {
