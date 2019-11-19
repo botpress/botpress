@@ -1,3 +1,56 @@
+## [12.2.3](https://github.com/botpress/botpress/compare/v12.2.2...v12.2.3) (2019-11-19)
+
+
+### Bug Fixes
+
+* **admin:** comparing email lower case ([75801e9](https://github.com/botpress/botpress/commit/75801e9))
+* **admin:** comparing email lower case ([cba3e07](https://github.com/botpress/botpress/commit/cba3e07))
+* **admin:** create user button grayed out ([ae1ba0f](https://github.com/botpress/botpress/commit/ae1ba0f))
+* **admin:** create user button grayed out ([053ad77](https://github.com/botpress/botpress/commit/053ad77))
+* **admin:** releases not fetched automatically ([0347b94](https://github.com/botpress/botpress/commit/0347b94))
+* **admin:** releases not fetched automatically ([399766f](https://github.com/botpress/botpress/commit/399766f))
+* **channel-web:** issue on ie11 with proxy ([b0cbc67](https://github.com/botpress/botpress/commit/b0cbc67))
+* **channel-web:** issue on ie11 with proxy ([af90149](https://github.com/botpress/botpress/commit/af90149))
+* **cms:** using default lang when current is not set ([0697ac9](https://github.com/botpress/botpress/commit/0697ac9))
+* **cms:** using default lang when current is not set ([c1eb6b5](https://github.com/botpress/botpress/commit/c1eb6b5))
+* **code-editor:** refactor & improvements ([22ef2de](https://github.com/botpress/botpress/commit/22ef2de))
+* **code-editor:** refactor & improvements ([50e7a7a](https://github.com/botpress/botpress/commit/50e7a7a))
+* **core:** clearing state from redis when reset session ([34ecaed](https://github.com/botpress/botpress/commit/34ecaed))
+* **core:** clearing state from redis when reset session ([0b6bf7f](https://github.com/botpress/botpress/commit/0b6bf7f))
+* **core:** email case insensitive ([7629a79](https://github.com/botpress/botpress/commit/7629a79))
+* **core:** email case insensitive ([37707f6](https://github.com/botpress/botpress/commit/37707f6))
+* **core:** fix transition with intent is ([9a3ea12](https://github.com/botpress/botpress/commit/9a3ea12))
+* **core:** fix transition with intent is ([4914873](https://github.com/botpress/botpress/commit/4914873))
+* **core:** minor adjustments ([ed04f7d](https://github.com/botpress/botpress/commit/ed04f7d))
+* **core:** minor adjustments ([1477e91](https://github.com/botpress/botpress/commit/1477e91))
+* **core:** startup error with all debug enabled ([a2d2f57](https://github.com/botpress/botpress/commit/a2d2f57))
+* **core:** startup error with all debug enabled ([f04a530](https://github.com/botpress/botpress/commit/f04a530))
+* **core:** using redis for better io with user state ([bf1f0bf](https://github.com/botpress/botpress/commit/bf1f0bf))
+* **core:** using redis for better io with user state ([17d1cc9](https://github.com/botpress/botpress/commit/17d1cc9))
+* **skill-choice:** prevent collision between choice nodes ([c7805c3](https://github.com/botpress/botpress/commit/c7805c3))
+* **skill-choice:** prevent collision between choice nodes ([16dde16](https://github.com/botpress/botpress/commit/16dde16))
+* **studio:** bot status is a bit more clear ([a069706](https://github.com/botpress/botpress/commit/a069706))
+* **studio:** bot status is a bit more clear ([1b30237](https://github.com/botpress/botpress/commit/1b30237))
+* **webchat:** correctly scroll down when necessary ([ac909aa](https://github.com/botpress/botpress/commit/ac909aa))
+* **webchat:** option to swap localStorage to sessionStorage ([3436030](https://github.com/botpress/botpress/commit/3436030))
+* **webchat:** option to swap localStorage to sessionStorage ([ef29728](https://github.com/botpress/botpress/commit/ef29728))
+
+
+### Features
+
+* **cms:** import/export of content ([4ae2514](https://github.com/botpress/botpress/commit/4ae2514))
+* **cms:** import/export of content ([840dcb8](https://github.com/botpress/botpress/commit/840dcb8))
+* **code-editor:** added code samples that can be easily copied ([86e289e](https://github.com/botpress/botpress/commit/86e289e))
+* **code-editor:** added static examples ([7212856](https://github.com/botpress/botpress/commit/7212856))
+* **flow:** quick node linking on the flow editor ([b776285](https://github.com/botpress/botpress/commit/b776285))
+* **flow:** quick node linking on the flow editor ([fc09061](https://github.com/botpress/botpress/commit/fc09061))
+* **nlu:** added case sensitivity for entities ([409acf3](https://github.com/botpress/botpress/commit/409acf3))
+* **nlu:** added pattern entity examples ([ba60a96](https://github.com/botpress/botpress/commit/ba60a96))
+* **nlu:** fuzzy tolerance ([a25a1c4](https://github.com/botpress/botpress/commit/a25a1c4))
+* **nlu:** new list entities ui ([18dfaa1](https://github.com/botpress/botpress/commit/18dfaa1))
+
+
+
 ## [12.2.2](https://github.com/botpress/botpress/compare/v12.2.1...v12.2.2) (2019-11-08)
 
 
