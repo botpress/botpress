@@ -41,8 +41,8 @@ export class StateManager {
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.JobService) private jobService: JobService
   ) {
-    // Disabling temporarily
-    this.useRedis = false // process.CLUSTER_ENABLED && !process.core_env.BP_NO_REDIS_STATE
+    // Temporarily opt-in until thoroughly tested
+    this.useRedis = process.CLUSTER_ENABLED && process.env.USE_REDIS_STATE
   }
 
   public initialize() {
