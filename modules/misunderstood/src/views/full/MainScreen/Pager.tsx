@@ -1,15 +1,11 @@
-import { Button, ButtonGroup, Intent } from "@blueprintjs/core"
-import range from "lodash/range"
-import uniq from "lodash/uniq"
-import React from "react"
+import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
+import range from 'lodash/range'
+import uniq from 'lodash/uniq'
+import React from 'react'
 
 const buildPager = ({ pagesCount, currentPage, depth = 5 }) => {
   const pageNumbers = uniq(
-    [
-      0,
-      pagesCount - 1,
-      ...range(currentPage - depth, currentPage + depth + 1)
-    ].filter(n => n >= 0 && n < pagesCount)
+    [0, pagesCount - 1, ...range(currentPage - depth, currentPage + depth + 1)].filter(n => n >= 0 && n < pagesCount)
   ).sort((a, b) => a - b)
 
   const pager = []
@@ -38,10 +34,7 @@ const Pager = ({ pagesCount, currentPage, depth = 5, goTo }) => {
   return (
     <div>
       <ButtonGroup>
-        <Button
-          disabled={currentPage === 0}
-          onClick={() => goTo(currentPage - 1)}
-        >
+        <Button disabled={currentPage === 0} onClick={() => goTo(currentPage - 1)}>
           &lt;
         </Button>
         {pager.map((el, i) => (
@@ -54,10 +47,7 @@ const Pager = ({ pagesCount, currentPage, depth = 5, goTo }) => {
             {el.ellipsis ? <>&hellip;</> : el.displayIndex}
           </Button>
         ))}
-        <Button
-          disabled={currentPage === pagesCount - 1}
-          onClick={() => goTo(currentPage + 1)}
-        >
+        <Button disabled={currentPage === pagesCount - 1} onClick={() => goTo(currentPage + 1)}>
           &gt;
         </Button>
       </ButtonGroup>

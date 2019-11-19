@@ -22,7 +22,7 @@ export default class Database {
     @inject(TYPES.Logger)
     @tagged('name', 'Database')
     private logger: Logger
-  ) { }
+  ) {}
 
   async bootstrap() {
     await Promise.mapSeries(AllTables, async Tbl => {

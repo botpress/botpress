@@ -27,7 +27,14 @@ const MainScreen = ({
     return <DeletedList events={events} totalEventsCount={totalEventsCount} undeleteEvent={undeleteEvent} />
   }
   if (selectedStatus === FLAGGED_MESSAGE_STATUS.pending) {
-    return <PendingList events={events} totalEventsCount={totalEventsCount} resetPendingEvent={resetPendingEvent} applyAllPending={applyAllPending} />
+    return (
+      <PendingList
+        events={events}
+        totalEventsCount={totalEventsCount}
+        resetPendingEvent={resetPendingEvent}
+        applyAllPending={applyAllPending}
+      />
+    )
   }
   if (selectedStatus === FLAGGED_MESSAGE_STATUS.applied) {
     return <AppliedList events={events} totalEventsCount={totalEventsCount} />

@@ -18,7 +18,7 @@ const ResolvedEventsList = ({ events, resetEvent }: Props) =>
           <th>Phrase</th>
           <th>Resolution</th>
           <th>Updated</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -37,7 +37,7 @@ const ResolvedEventsList = ({ events, resetEvent }: Props) =>
             <td>
               <Button onClick={() => resetEvent('' + event.id)} small icon="refresh" intent={Intent.PRIMARY}>
                 Reset
-                </Button>
+              </Button>
             </td>
           </tr>
         ))}

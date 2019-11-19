@@ -1,13 +1,13 @@
-import { Button, Card, ControlGroup, InputGroup, MenuItem } from "@blueprintjs/core"
+import { Button, Card, ControlGroup, InputGroup, MenuItem } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
-import { AxiosStatic } from "axios"
-import classnames from "classnames"
-import React from "react"
+import { AxiosStatic } from 'axios'
+import classnames from 'classnames'
+import React from 'react'
 
 import style from './style.scss'
-import Pager from "./Pager"
-import ApiClient from "./QnAApiClient"
-import VariationsOverlay from "./VariationsOverlay"
+import Pager from './Pager'
+import ApiClient from './QnAApiClient'
+import VariationsOverlay from './VariationsOverlay'
 
 const ITEMS_PER_PAGE = 5
 
@@ -21,15 +21,15 @@ interface Props {
 interface QnAItem {
   id: string
   data: {
-    action: string;
+    action: string
     answers: {
-      [lang: string]: string[];
-    };
-    category: string;
-    enabled: boolean;
+      [lang: string]: string[]
+    }
+    category: string
+    enabled: boolean
     questions: {
-      [lang: string]: string[];
-    };
+      [lang: string]: string[]
+    }
   }
 }
 
@@ -39,7 +39,7 @@ interface State {
   filterCategories: string[]
   filterQuestion: string
   page: number
-  items: QnAItem[],
+  items: QnAItem[]
   selectedItem: QnAItem | null
 }
 
@@ -50,7 +50,7 @@ class QnAPicker extends React.Component<Props, State> {
     overallItemsCount: 0,
     categoryOptions: [],
     filterCategories: [],
-    filterQuestion: "",
+    filterQuestion: '',
     page: 0,
     items: [],
     selectedItem: null
@@ -86,7 +86,7 @@ class QnAPicker extends React.Component<Props, State> {
       overallItemsCount: data.count,
       page
     })
-  };
+  }
 
   fetchCategories = async () => {
     const categoryOptions = await this.apiClient.getCategories()
@@ -96,70 +96,74 @@ class QnAPicker extends React.Component<Props, State> {
   renderPagination() {
     const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
 
-    return (
-      <Pager
-        pagesCount={pagesCount}
-        currentPage={this.state.page}
-        goTo={this.fetchData}
-      />
+    return <Pager pagesCount={pagesCount} currentPage={this.state.page} goTo={this.fetchData} />
+  }
+
+  handleFilterChange = event => {
+    this.setState(
+      {
+        filterQuestion: event.target.value
+      },
+      async () => {
+        await this.fetchData()
+      }
     )
   }
 
-  handleFilterChange = (event) => {
-    this.setState({
-      filterQuestion: event.target.value
-    }, async () => {
-      await this.fetchData()
-    })
-  }
-
   handleCategorySelect = (category: string) => {
-    this.setState(({ filterCategories }) => {
-      if (filterCategories.includes(category)) {
-        filterCategories = filterCategories.filter(c => c !== category)
-      } else {
-        filterCategories = [...filterCategories, category].sort()
+    this.setState(
+      ({ filterCategories }) => {
+        if (filterCategories.includes(category)) {
+          filterCategories = filterCategories.filter(c => c !== category)
+        } else {
+          filterCategories = [...filterCategories, category].sort()
+        }
+        return { filterCategories }
+      },
+      async () => {
+        await this.fetchData()
       }
-      return { filterCategories }
-    }, async () => {
-      await this.fetchData()
-    })
+    )
   }
 
   renderHeader() {
-    return <ControlGroup className={style.filter}>
-      <InputGroup
-        large
-        leftIcon="filter"
-        onChange={this.handleFilterChange}
-        placeholder="Search for a question..."
-        value={this.state.filterQuestion}
-      />
-
-      {this.state.categoryOptions && !!this.state.categoryOptions.length &&
-        <StringMultiSelect
-          items={this.state.categoryOptions}
-          selectedItems={this.state.filterCategories}
-          onItemSelect={this.handleCategorySelect}
-          placeholder="Search for a category..."
-          popoverProps={{
-            minimal: true
-          }}
-          tagRenderer={category => category}
-          itemRenderer={(category, { modifiers, handleClick }) => {
-            if (!modifiers.matchesPredicate) {
-              return null
-            }
-            return <MenuItem active={modifiers.active} onClick={handleClick} key={category} text={category} />
-          }}
-          tagInputProps={{
-            onRemove: this.handleCategorySelect, large: true, inputProps: {
-              className: style.selectInput
-            }
-          }}
+    return (
+      <ControlGroup className={style.filter}>
+        <InputGroup
+          large
+          leftIcon="filter"
+          onChange={this.handleFilterChange}
+          placeholder="Search for a question..."
+          value={this.state.filterQuestion}
         />
-      }
-    </ControlGroup>
+
+        {this.state.categoryOptions && !!this.state.categoryOptions.length && (
+          <StringMultiSelect
+            items={this.state.categoryOptions}
+            selectedItems={this.state.filterCategories}
+            onItemSelect={this.handleCategorySelect}
+            placeholder="Search for a category..."
+            popoverProps={{
+              minimal: true
+            }}
+            tagRenderer={category => category}
+            itemRenderer={(category, { modifiers, handleClick }) => {
+              if (!modifiers.matchesPredicate) {
+                return null
+              }
+              return <MenuItem active={modifiers.active} onClick={handleClick} key={category} text={category} />
+            }}
+            tagInputProps={{
+              onRemove: this.handleCategorySelect,
+              large: true,
+              inputProps: {
+                className: style.selectInput
+              }
+            }}
+          />
+        )}
+      </ControlGroup>
+    )
   }
 
   renderListItem = (item: QnAItem, isSelected?: boolean) => {
@@ -176,23 +180,28 @@ class QnAPicker extends React.Component<Props, State> {
     const title = questions.length
       ? questions[0]
       : id
-        .split("_")
-        .slice(1)
-        .join(" ")
+          .split('_')
+          .slice(1)
+          .join(' ')
 
     return (
       <Card
         key={id}
         interactive={!isSelected}
-        onClick={isSelected ? null : () => {
-          this.props.onSelect(id)
-        }}
+        onClick={
+          isSelected
+            ? null
+            : () => {
+                this.props.onSelect(id)
+              }
+        }
         className={classnames(style.card, {
           [style.selectedCard]: isSelected
         })}
       >
         <h5>
-          Q:&nbsp;{title}&nbsp;<VariationsOverlay elements={questions} />
+          Q:&nbsp;{title}&nbsp;
+          <VariationsOverlay elements={questions} />
         </h5>
 
         {answers[0] && (
@@ -202,18 +211,21 @@ class QnAPicker extends React.Component<Props, State> {
           </p>
         )}
 
-        {data.category && (
-          <p>Category:&nbsp;{data.category}</p>
-        )}
+        {data.category && <p>Category:&nbsp;{data.category}</p>}
 
-        {
-          isSelected && <Button onClick={() => {
-            this.props.onSelect(null)
-          }} icon="undo">Select another</Button>
-        }
-      </Card >
+        {isSelected && (
+          <Button
+            onClick={() => {
+              this.props.onSelect(null)
+            }}
+            icon="undo"
+          >
+            Select another
+          </Button>
+        )}
+      </Card>
     )
-  };
+  }
 
   renderList() {
     const { items, filterQuestion, filterCategories } = this.state
@@ -222,8 +234,7 @@ class QnAPicker extends React.Component<Props, State> {
       return items.map(item => this.renderListItem(item))
     }
 
-    return <h3>{(filterQuestion || filterCategories.length) ?
-      'No questions match the query.' : 'No questions found'}</h3>
+    return <h3>{filterQuestion || filterCategories.length ? 'No questions match the query.' : 'No questions found'}</h3>
   }
 
   async componentDidMount() {

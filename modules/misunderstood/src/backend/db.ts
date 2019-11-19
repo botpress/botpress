@@ -65,12 +65,15 @@ export default class Db {
 
     return data.map((event: DbFlaggedEvent) => ({
       ...event,
-      resolutionParams: event.resolutionParams && typeof event.resolutionParams !== 'object' ? JSON.parse(event.resolutionParams) : event.resolutionParams
+      resolutionParams:
+        event.resolutionParams && typeof event.resolutionParams !== 'object'
+          ? JSON.parse(event.resolutionParams)
+          : event.resolutionParams
     }))
   }
 
   async countEvents(botId: string, language: string) {
-    const data: { status: string, count: number }[] = await this.knex(TABLE_NAME)
+    const data: { status: string; count: number }[] = await this.knex(TABLE_NAME)
       .where({ botId, language })
       .select('status')
       .count({ count: 'id' })
@@ -93,7 +96,7 @@ export default class Db {
       .where({ botId, incomingEventId: event.eventId, direction: 'incoming' })
       .select('id', 'threadId', 'sessionId', 'event')
       .limit(1)
-      .get(0)
+      .first()
 
     const [messagesBefore, messagesAfter] = await Promise.all([
       this.knex(EVENTS_TABLE_NAME)
@@ -117,13 +120,17 @@ export default class Db {
         isCurrent: id === messageId
       }))
 
-    const parsedEventDetails = eventDetails && typeof eventDetails !== 'object' ? JSON.parse(eventDetails) : eventDetails
+    const parsedEventDetails =
+      eventDetails && typeof eventDetails !== 'object' ? JSON.parse(eventDetails) : eventDetails
 
     return {
       ...event,
-      resolutionParams: event.resolutionParams && typeof event.resolutionParams !== 'object' ? JSON.parse(event.resolutionParams) : event.resolutionParams,
+      resolutionParams:
+        event.resolutionParams && typeof event.resolutionParams !== 'object'
+          ? JSON.parse(event.resolutionParams)
+          : event.resolutionParams,
       context,
-      nluContexts: parsedEventDetails && parsedEventDetails.nlu && parsedEventDetails.nlu.includedContexts || []
+      nluContexts: (parsedEventDetails && parsedEventDetails.nlu && parsedEventDetails.nlu.includedContexts) || []
     }
   }
 

@@ -18,18 +18,14 @@
     "@types/node": "^10.11.3",
     "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
-    "classnames": "^2.2.6",
-    "module-builder": "../../build/module-builder",
-    "tslint": "^5.20.0"
+    "module-builder": "../../build/module-builder"
   },
   "dependencies": {
-    "bluebird": "^3.7.0"
+    "bluebird": "^3.7.0",
+    "classnames": "^2.2.6"
   },
-  "webpack": {
-    "externals": {
-      "react": "React",
-      "react-dom": "ReactDOM",
-      "botpress/utils": "BotpressUtils"
-    }
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
   }
 }
