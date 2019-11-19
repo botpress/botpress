@@ -3,7 +3,7 @@ import { WellKnownFlags } from 'core/sdk/enums'
 import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
-import _, { PartialDeep } from 'lodash'
+import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 
@@ -234,7 +234,7 @@ const experimental = (hookService: HookService): typeof sdk.experimental => {
  * Socket.IO API to emit payloads to front-end clients
  */
 export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) {}
+  constructor(private realtimeService: RealtimeService) { }
 
   sendPayload(payload: RealTimePayload) {
     this.realtimeService.sendToSocket(payload)
@@ -248,7 +248,7 @@ export class BotpressAPIProvider {
   dialog: typeof sdk.dialog
   config: typeof sdk.config
   realtime: RealTimeAPI
-  database: Knex
+  database: Knex & sdk.KnexExtension
   users: typeof sdk.users
   kvs: typeof sdk.kvs
   notifications: typeof sdk.notifications

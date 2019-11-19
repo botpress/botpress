@@ -44,12 +44,12 @@ export default class Storage {
     this.config = config
     this.botId = botId
 
-    if (config.qnaCategories && config.qnaCategories.length > 0) {
-      this.categories = config.qnaCategories
+    this.categories = config.qnaCategories && config.qnaCategories.length > 0
+      ? config.qnaCategories
         .split(',')
         .map(x => x.trim())
         .filter(x => x.length)
-    }
+      : []
   }
 
   private async getAxiosConfig() {
@@ -258,8 +258,8 @@ export default class Storage {
 
     if (!(question || categories.length)) {
       items = await this.fetchQNAs({
-        start: offset ? parseInt(offset) : undefined,
-        count: limit ? parseInt(limit) : undefined
+        start: offset != undefined ? parseInt(offset, 10) : undefined,
+        count: limit ? parseInt(limit, 10) : undefined
       })
       count = await this.count()
     } else {
@@ -299,6 +299,6 @@ export default class Storage {
   async getCategories() {
     const axiosConfig = await this.getAxiosConfig()
     const { data: contexts } = await axios.get(`/mod/nlu/contexts`, axiosConfig)
-    return _.uniq([...contexts, ...this.categories])
+    return _.uniq([...(contexts || []), ...(this.categories || [])])
   }
 }
