@@ -26,7 +26,7 @@ const buildStudio = cb => {
 }
 
 const buildAdmin = cb => {
-  const prod = process.argv.includes('--prod') ? '--nomap' : ''
+  const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
   const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/ui-admin' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
@@ -59,21 +59,21 @@ const watchAdmin = cb => {
   admin.stderr.pipe(process.stderr)
 }
 
-const watchStudio = cb => {
-  const studio = exec('yarn && yarn watch', { cwd: 'src/bp/ui-studio' }, err => cb(err))
-  studio.stdout.pipe(process.stdout)
-  studio.stderr.pipe(process.stderr)
-}
+const watchStudio = gulp.series([
+  cleanStudioAssets,
+  createStudioSymlink,
+  cb => {
+    const studio = exec('yarn && yarn watch', { cwd: 'src/bp/ui-studio' }, err => cb(err))
+    studio.stdout.pipe(process.stdout)
+    studio.stderr.pipe(process.stderr)
+  }
+])
 
-const watchAll = () => {
-  return gulp.parallel([watchStudio, watchAdmin])
-}
+const watchAll = gulp.parallel([watchStudio, watchAdmin])
 
 module.exports = {
   build,
   watchAll,
   watchStudio,
-  watchAdmin,
-  createStudioSymlink,
-  cleanStudioAssets
+  watchAdmin
 }

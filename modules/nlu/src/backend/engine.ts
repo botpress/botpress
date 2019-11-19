@@ -42,10 +42,8 @@ const NA_LANG = 'n/a'
 
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
-  public confidenceTreshold: number = 0.7
 
   private _preloaded: boolean = false
-
   private _currentModelHash: string
   private _exactIntentMatchers: { [lang: string]: ExactMatcher } = {}
   private readonly intentClassifiers: { [lang: string]: SVMClassifier } = {}
@@ -54,6 +52,7 @@ export default class ScopedEngine implements Engine {
   private readonly slotExtractors: { [lang: string]: CRFExtractor } = {}
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager
+
   private scopedGenerateTrainingSequence: (
     input: string,
     lang: string,
@@ -79,8 +78,8 @@ export default class ScopedEngine implements Engine {
   ) {
     this.scopedGenerateTrainingSequence = generateTrainingSequence(languageProvider, this.logger)
     this.pipelineManager = new PipelineManager(this.logger)
-    this.storage = new Storage(config, this.botId, defaultLanguage, languages, this.logger)
-    this.langIdentifier = new FastTextLanguageId(toolkit, this.logger)
+    this.storage = new Storage(this.botId, defaultLanguage, languages, this.logger)
+    this.langIdentifier = new FastTextLanguageId(toolkit)
     this.systemEntityExtractor = new DucklingEntityExtractor(this.logger)
     this.entityExtractor = new PatternExtractor(toolkit, languageProvider)
     this._autoTrainInterval = ms(config.autoTrainInterval || '0')
@@ -95,12 +94,6 @@ export default class ScopedEngine implements Engine {
   })
 
   async init(): Promise<void> {
-    this.confidenceTreshold = this.config.confidenceTreshold
-
-    if (isNaN(this.confidenceTreshold) || this.confidenceTreshold < 0 || this.confidenceTreshold > 1) {
-      this.confidenceTreshold = 0.7
-    }
-
     if (this.config.preloadModels) {
       this.trainOrLoad()
     }
@@ -144,12 +137,13 @@ export default class ScopedEngine implements Engine {
 
       this._isSyncing = true
       const intents = await this.getIntents()
-      const modelHash = this.computeModelHash(intents)
+      const entities = await this.storage.getCustomEntities()
+      const modelHash = this.computeModelHash(intents, entities)
       let loaded = false
 
-      const modelsExists = (await Promise.all(
-        this.languages.map(async lang => await this.storage.modelExists(modelHash, lang))
-      )).every(_.identity)
+      const modelsExists = (await Promise.map(this.languages, lang => this.storage.modelExists(modelHash, lang))).every(
+        _.identity
+      )
 
       if (!forceRetrain && modelsExists) {
         try {
@@ -161,9 +155,10 @@ export default class ScopedEngine implements Engine {
       }
 
       if (!loaded) {
-        debugTrain.forBot(this.botId, 'Retraining model')
+        this.logger.forBot(this.botId).info(`Retraining model for bot ${this.botId}...`)
         await this.trainModels(intents, modelHash, confusionVersion)
         await this.loadModels(intents, modelHash)
+        this.logger.forBot(this.botId).info(`Model training completed for bot ${this.botId}`)
       }
 
       this._currentModelHash = modelHash
@@ -223,7 +218,8 @@ export default class ScopedEngine implements Engine {
 
   async checkSyncNeeded(): Promise<boolean> {
     const intents = await this.storage.getIntents()
-    const modelHash = this.computeModelHash(intents)
+    const entities = await this.storage.getCustomEntities()
+    const modelHash = this.computeModelHash(intents, entities)
 
     return intents.length && this._currentModelHash !== modelHash && !this._isSyncing
   }
@@ -395,13 +391,9 @@ export default class ScopedEngine implements Engine {
   }
 
   protected async trainModels(intentDefs: sdk.NLU.IntentDefinition[], modelHash: string, confusionVersion = undefined) {
-    // TODO: use the same data structure to train intent and slot models
-    // TODO: generate single training set here and filter
-
     for (const lang of this.languages) {
       try {
         const trainableIntents = intentDefs.filter(i => (i.utterances[lang] || []).length >= MIN_NB_UTTERANCES)
-
         if (trainableIntents.length) {
           const ctx_intent_models = await this.intentClassifiers[lang].train(trainableIntents, modelHash)
           const slotTaggerModels = await this._trainSlotTagger(
@@ -421,10 +413,11 @@ export default class ScopedEngine implements Engine {
     return this._currentModelHash
   }
 
-  public computeModelHash(intents: sdk.NLU.IntentDefinition[]) {
+  public computeModelHash(intents: sdk.NLU.IntentDefinition[], entities: sdk.NLU.EntityDefinition[]) {
+    const modelData = JSON.stringify({ intents, entities })
     return crypto
       .createHash('md5')
-      .update(JSON.stringify(intents))
+      .update(modelData)
       .digest('hex')
   }
 

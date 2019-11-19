@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import sdk from 'botpress/sdk'
+import sdk, { RedisLock } from 'botpress/sdk'
 
 export const BIO = {
   INSIDE: 'I',
@@ -124,12 +124,6 @@ export interface LanguageProvider {
   getHealth(): Partial<NLUHealth>
 }
 
-export interface FastTextOverrides {
-  learningRate?: number
-  epoch?: number
-  wordNgrams?: number
-}
-
 export interface LanguageSource {
   /** The endpoint URL of the source */
   endpoint: string
@@ -146,4 +140,66 @@ export interface NLUHealth {
 export interface NluMlRecommendations {
   minUtterancesForML: number
   goodUtterancesForML: number
+}
+
+export interface Engine2 {
+  loadModel: Function
+  train: Function
+  predict: Function
+}
+
+export interface NLUState {
+  nluByBot: _.Dictionary<BotState>
+  languageProvider?: LanguageProvider
+  health?: NLUHealth
+  broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
+  broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
+}
+
+export interface BotState {
+  botId: string
+  engine1: Engine
+  engine: Engine2
+  trainWatcher: sdk.ListenHandle
+  trainSessions: _.Dictionary<TrainingSession>
+}
+
+export type TFIDF = _.Dictionary<number>
+
+export type PatternEntity = Readonly<{
+  name: string
+  pattern: string
+  examples: string[]
+  matchCase: boolean
+  sensitive: boolean
+}>
+
+export type ListEntity = Readonly<{
+  name: string
+  synonyms: { [canonical: string]: string[] }
+  fuzzyTolerance: number
+  sensitive: boolean
+}>
+
+export type ListEntityModel = Readonly<{
+  type: 'custom.list'
+  id: string
+  languageCode: string
+  entityName: string
+  fuzzyTolerance: number
+  sensitive: boolean
+  /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
+  mappingsTokens: _.Dictionary<string[][]>
+}>
+
+// add value in extracted slots
+export type ExtractedSlot = { confidence: number; name: string; source: any }
+export type ExtractedEntity = { confidence: number; type: string; metadata: any; value: string }
+export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
+
+export interface TrainingSession {
+  status: 'training' | 'canceled' | 'done' | 'idle'
+  language: string
+  progress: number
+  lock?: RedisLock
 }

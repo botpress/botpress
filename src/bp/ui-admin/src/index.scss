@@ -44,9 +44,8 @@ body {
 }
 
 .section-title-help {
-  margin-left: 5px;
+  margin: 0 0 5px 5px;
   opacity: 0.5;
-  font-size: 80%;
 
   &:hover {
     opacity: 0.8;
@@ -121,7 +120,7 @@ body {
   .inner {
     margin-left: auto;
     margin-right: auto;
-    width: 300px;
+    width: 350px;
     text-align: center;
   }
 
@@ -221,5 +220,69 @@ pre.code {
 }
 
 :global(.bp3-tooltip .bp3-popover-content) {
-  padding: 5px 8px !important;
+  padding: 3px 6px !important;
+  font-size: 85%;
+}
+
+.requirements {
+  margin: 100px auto;
+  max-width: 800px;
+  text-align: center;
+
+  strong {
+    display: block;
+  }
+}
+
+.releases {
+  h1 {
+    font-size: 1.5em;
+  }
+
+  h2 {
+    font-size: 1em;
+  }
+
+  h1,
+  h2 {
+    border-bottom: 1px solid #eaecef;
+    padding: 0.7em 0px;
+  }
+
+  ul {
+    margin: 0px;
+    li {
+      padding: 0px;
+    }
+  }
+
+  .version {
+    font-weight: bold;
+    font-size: 2em;
+    margin-top: 15px;
+    text-align: center;
+
+    span {
+      font-weight: normal;
+      font-size: 0.8rem;
+      display: block;
+    }
+  }
+
+  .container {
+    display: flex;
+    justify-content: space-between;
+
+    .content {
+      width: 700px;
+    }
+
+    .downloads {
+      width: 200px;
+
+      img {
+        width: 30px;
+      }
+    }
+  }
 }

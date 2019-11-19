@@ -22,7 +22,7 @@ describe('Admin - Init', () => {
   it('Load workspaces', async () => {
     await page.waitForNavigation()
     await page.waitFor(200)
-    await expect(page.url()).toMatch(`${bpConfig.host}/admin/workspace/bots`)
+    await expect(page.url()).toMatch(`${bpConfig.host}/admin/workspace/default/bots`)
   })
 
   if (bpConfig.recreateBot) {
@@ -34,8 +34,7 @@ describe('Admin - Init', () => {
       await fillField('#select-bot-templates', 'Welcome Bot')
       await page.keyboard.press('Enter')
 
-      await clickOn('#btn-modal-create-bot')
-      await expectAdminApiCallSuccess('bots', 'POST')
+      await Promise.all([expectAdminApiCallSuccess('bots', 'POST'), clickOn('#btn-modal-create-bot')])
     })
   }
 })

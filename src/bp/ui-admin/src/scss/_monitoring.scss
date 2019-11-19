@@ -39,3 +39,16 @@
     text-align: center;
   }
 }
+
+.monitoring {
+  &-toolbar {
+    font-size: 80%;
+    width: 100%;
+    display: flex;
+
+    &-item {
+      width: 200px;
+      margin-right: 20px;
+    }
+  }
+}

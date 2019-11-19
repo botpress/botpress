@@ -39,3 +39,34 @@
   display: inline-block;
   filter: brightness(0);
 }
+
+#footer img {
+  filter: brightness(0) invert(1);
+}
+
+.fixedHeaderContainer header .headerTitleWithLogo {
+  font-size: 16px;
+}
+
+.error {
+  color: black;
+  background-color: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.error .robot {
+  font-size: 20vh;
+}
+
+.error .message {
+  font-size: 2rem;
+}

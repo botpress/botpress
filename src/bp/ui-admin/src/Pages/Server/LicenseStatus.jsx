@@ -11,6 +11,8 @@ import EditLicense from '../Components/EditLicense'
 import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
+import PageContainer from '~/App/PageContainer'
+
 class LicenseStatus extends React.Component {
   state = {
     waitingForReboot: false
@@ -143,51 +145,54 @@ class LicenseStatus extends React.Component {
 
   renderProDisabled = () => {
     return (
-      <Jumbotron>
-        <Row>
-          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
-            <h4>Enable Botpress Professionnal</h4>
-            <p>
-              Make you use an <strong>official botpress binary or docker image</strong>, you won't be able to activate
-              pro otherwise.
-            </p>
-            <p>
-              <u>Method 1</u>
-              <br />
-              You can enable Botpress Pro by manually editing the file <strong>
-                data/global/botpress.config.json
-              </strong>{' '}
-              and setting the value <strong>pro.enabled</strong> to true.
-            </p>
-            <p>
-              <u>Method 2</u>
-              <br /> Click on the button below. This will enable the required configuration and will automatically
-              reboot the server. Please note: Rebooting the server this way will prevent you from reading the logs on
-              screen (except if you output logs to the file system).
-              <br />
-              <br />
-              <Button onClick={this.enableProEdition}>Enable Pro & Reboot Server</Button>
-            </p>
-          </Col>
-        </Row>
-      </Jumbotron>
+      <PageContainer title="Server License">
+        <Jumbotron>
+          <Row>
+            <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
+              <h4>Enable Botpress Professionnal</h4>
+              <p>
+                Make you use an <strong>official botpress binary or docker image</strong>, you won't be able to activate
+                pro otherwise.
+              </p>
+              <p>
+                <u>Method 1</u>
+                <br />
+                You can enable Botpress Pro by manually editing the file{' '}
+                <strong>data/global/botpress.config.json</strong> and setting the value <strong>pro.enabled</strong> to
+                true.
+              </p>
+              <p>
+                <u>Method 2</u>
+                <br /> Click on the button below. This will enable the required configuration and will automatically
+                reboot the server. Please note: Rebooting the server this way will prevent you from reading the logs on
+                screen (except if you output logs to the file system).
+                <br />
+                <br />
+                <Button onClick={this.enableProEdition}>Enable Pro & Reboot Server</Button>
+              </p>
+            </Col>
+          </Row>
+        </Jumbotron>
+      </PageContainer>
     )
   }
 
   renderUnofficialBuild = () => {
     return (
-      <Jumbotron>
-        <Row>
-          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
-            <h4>Unofficial Botpress Build</h4>
-            <p>
-              We noticed that you are running a custom build of Botpress, which doesn't contain the Botpress
-              Professional extensions. Make you use an <strong>official botpress binary or docker image</strong>. You
-              won't be able to activate <strong>Pro</strong> otherwise.
-            </p>
-          </Col>
-        </Row>
-      </Jumbotron>
+      <PageContainer title="Server License">
+        <Jumbotron>
+          <Row>
+            <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
+              <h4>Unofficial Botpress Build</h4>
+              <p>
+                We noticed that you are running a custom build of Botpress, which doesn't contain the Botpress
+                Professional extensions. Make you use an <strong>official botpress binary or docker image</strong>. You
+                won't be able to activate <strong>Pro</strong> otherwise.
+              </p>
+            </Col>
+          </Row>
+        </Jumbotron>
+      </PageContainer>
     )
   }
 
@@ -205,7 +210,7 @@ class LicenseStatus extends React.Component {
     }
 
     return (
-      <Fragment>
+      <PageContainer title="Server License" superAdmin={true}>
         <Row>
           <Col sm="12" lg="7">
             {this.renderLicenseStatus()}
@@ -256,7 +261,7 @@ class LicenseStatus extends React.Component {
             )}
           </Col>
         </Row>
-      </Fragment>
+      </PageContainer>
     )
   }
 

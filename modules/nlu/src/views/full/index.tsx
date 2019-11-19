@@ -5,10 +5,10 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
+import { IntentEditor } from '../lite/intentEditor/IntentEditor'
 
 import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
-import IntentEditor from './intents/editor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
 
@@ -30,28 +30,24 @@ const NLU: FC<Props> = props => {
   const [currentItem, setCurrentItem] = useState<NluItem | undefined>()
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])
-  const [contexts, setContexts] = useState([])
 
   const loadIntents = () => api.fetchIntents().then(setIntents)
   const loadEntities = () => api.fetchEntities().then(setEntities)
 
   useEffect(() => {
-    api.fetchContexts().then(setContexts)
-    loadIntents()
-    loadEntities()
+    intents.length === 0 && loadIntents()
+    entities.length === 0 && loadEntities()
     setCurrentItemFromPath()
   }, [window.location.href])
 
   const handleSelectItem = (item: NluItem | undefined) => {
     setCurrentItem(item)
 
-    if (!item) {
-      return
-    }
-
     const url = new URL(window.location.href)
-    url.searchParams.set(ITEM_TYPE_PARAM, item.type)
-    url.searchParams.set(ITEM_NAME_PARAM, item.name)
+    if (item) {
+      url.searchParams.set(ITEM_TYPE_PARAM, item.type)
+      url.searchParams.set(ITEM_NAME_PARAM, item.name)
+    }
     window.history.pushState(window.history.state, '', url.toString())
   }
 
@@ -66,7 +62,6 @@ const NLU: FC<Props> = props => {
 
   const setCurrentItemFromPath = () => {
     const newCurrentItem = getCurrentItemFromPath()
-
     if (!isEqual(newCurrentItem, currentItem)) {
       setCurrentItem(newCurrentItem)
     }
@@ -84,6 +79,15 @@ const NLU: FC<Props> = props => {
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }
 
+  const currentItemExists = () => {
+    return (
+      currentItem &&
+      (currentItem.type === 'intent'
+        ? intents.find(i => i.name === currentItem.name)
+        : entities.find(e => e.name === currentItem.name))
+    )
+  }
+
   const intentsPanel = (
     <IntentSidePanelSection
       api={api}
@@ -95,10 +99,11 @@ const NLU: FC<Props> = props => {
     />
   )
 
+  const customEntities = entities.filter(e => e.type !== 'system')
   const entitiesPanel = (
     <EntitySidePanelSection
       api={api}
-      entities={entities}
+      entities={customEntities}
       currentItem={currentItem}
       setCurrentItem={handleSelectItem}
       reloadEntities={loadEntities}
@@ -118,33 +123,34 @@ const NLU: FC<Props> = props => {
           <Tab id="entities" panel={entitiesPanel}>
             <span>Entities</span>{' '}
             <Tag large={false} round={true} minimal={true}>
-              {entities.length}
+              {customEntities.length}
             </Tag>
           </Tab>
         </Tabs>
       </SidePanel>
       <div className={style.container}>
-        {!currentItem && (
+        {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
             title="Understanding"
             description="Use Botpress native Natural language understanding engine to make your bot smarter."
           />
         )}
-        {(intents.length && currentItem && currentItem.type === 'intent' && (
+        {!!intents.length && currentItem && currentItem.type === 'intent' && (
           <IntentEditor
-            intent={intents.find(i => i.name == currentItem.name)}
-            contexts={contexts} // TODO fetch this within the component
-            axios={props.bp.axios} // TODO replace this with api instance
-            reloadIntents={loadIntents}
+            intent={currentItem.name}
+            api={api}
             contentLang={props.contentLang}
+            showSlotPanel
+            axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
           />
-        )) ||
-          null}
-        {(entities.length && currentItem && currentItem.type === 'entity' && (
-          <EntityEditor entity={entities.find(ent => ent.name === currentItem.name)} onUpdate={updateEntity} />
-        )) ||
-          null}
+        )}
+        {currentItem && currentItem.type === 'entity' && (
+          <EntityEditor
+            entity={entities.find(ent => ent.name === currentItem.name)}
+            updateEntity={_.debounce(updateEntity, 2500)}
+          />
+        )}
       </div>
     </Container>
   )

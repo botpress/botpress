@@ -32,7 +32,43 @@
       "name": "Debug Jest Tests",
       "cwd": "${workspaceFolder}",
       "env": { "NATIVE_EXTENSIONS_DIR": "./build/native-extensions" },
-      "args": ["--inspect-brk", "${workspaceFolder}/node_modules/.bin/jest", "--runInBand"],
+      "args": [
+        "--inspect-brk",
+        "${workspaceFolder}/node_modules/.bin/jest",
+        "--runInBand",
+        "--rootDir=${workspaceFolder}",
+        "-c=${workspaceFolder}/jest.config.js"
+      ],
+      "windows": {
+        "args": [
+          "--inspect-brk",
+          "${workspaceRoot}/node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--rootDir=${workspaceFolder}",
+          "-c=${workspaceFolder}/jest.config.js"
+        ]
+      },
+      "outFiles": ["${workspaceFolder}/out/"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest Integration Tests",
+      "cwd": "${workspaceFolder}",
+      "env": { "NATIVE_EXTENSIONS_DIR": "./build/native-extensions", "JEST_TIMEOUT": "30000" },
+      "args": [
+        "--inspect-brk",
+        "${workspaceFolder}/node_modules/.bin/jest",
+        "--runInBand",
+        "--detectOpenHandles",
+        "-c",
+        "jest.e2e.config.js",
+        "all"
+      ],
       "windows": {
         "args": ["--inspect-brk", "${workspaceRoot}/node_modules/jest/bin/jest.js", "--runInBand"]
       },

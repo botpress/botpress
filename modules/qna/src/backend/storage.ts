@@ -37,7 +37,7 @@ export default class Storage {
   private bp: typeof sdk
   private config
   public botId: string
-  private categories: string[]
+  private categories: string[] = []
 
   constructor(bp: typeof sdk, config, botId) {
     this.bp = bp

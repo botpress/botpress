@@ -23,6 +23,7 @@ import { RolesRouter } from './roles'
 import { ServerRouter } from './server'
 import { UsersRouter } from './users'
 import { VersioningRouter } from './versioning'
+import { WorkspacesRouter } from './workspaces'
 
 export class AdminRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
@@ -33,6 +34,7 @@ export class AdminRouter extends CustomRouter {
   private rolesRouter!: RolesRouter
   private serverRouter!: ServerRouter
   private languagesRouter!: LanguagesRouter
+  private workspacesRouter!: WorkspacesRouter
   private loadUser!: RequestHandler
 
   constructor(
@@ -51,6 +53,7 @@ export class AdminRouter extends CustomRouter {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.botsRouter = new BotsRouter(logger, this.workspaceService, this.botService, configProvider)
+    this.workspacesRouter = new WorkspacesRouter(logger, workspaceService, botService, configProvider)
     this.usersRouter = new UsersRouter(logger, this.authService, this.workspaceService)
     this.licenseRouter = new LicenseRouter(logger, this.licenseService, configProvider)
     this.versioningRouter = new VersioningRouter(logger, this.ghostService, this.botService)
@@ -58,6 +61,7 @@ export class AdminRouter extends CustomRouter {
     this.serverRouter = new ServerRouter(
       logger,
       monitoringService,
+      workspaceService,
       alertingService,
       configProvider,
       ghostService,
@@ -108,6 +112,7 @@ export class AdminRouter extends CustomRouter {
     router.use('/license', this.checkTokenHeader, this.licenseRouter.router)
     router.use('/languages', this.checkTokenHeader, this.languagesRouter.router)
     router.use('/server', this.checkTokenHeader, assertSuperAdmin, this.serverRouter.router)
+    router.use('/workspaces', this.checkTokenHeader, assertSuperAdmin, this.workspacesRouter.router)
 
     // TODO: Add versioning per workspace.
     // This way admins could use these routes to push / pull independently of other workspaces.

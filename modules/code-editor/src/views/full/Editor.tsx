@@ -3,6 +3,8 @@ import _ from 'lodash'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import babylon from 'prettier/parser-babylon'
+import prettier from 'prettier/standalone'
 import React from 'react'
 
 import SplashScreen from './components/SplashScreen'
@@ -33,6 +35,28 @@ class Editor extends React.Component<Props> {
       moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
       allowJs: true,
       typeRoots: ['types']
+    })
+
+    monaco.languages.registerDocumentFormattingEditProvider('typescript', {
+      async provideDocumentFormattingEdits(model, options, token) {
+        const text = prettier.format(model.getValue(), {
+          parser: 'babel',
+          plugins: [babylon],
+          singleQuote: true,
+          printWidth: 120,
+          trailingComma: 'none',
+          semi: false,
+          bracketSpacing: true,
+          requirePragma: false
+        })
+
+        return [
+          {
+            range: model.getFullModelRange(),
+            text
+          }
+        ]
+      }
     })
 
     this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-light', automaticLayout: true })

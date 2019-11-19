@@ -3,55 +3,121 @@ id: authentication
 title: Authentication Methods
 ---
 
-There's two different types of authentication, and different methods for each:
+There's three different types of authentication:
 
-1. **Admin**: Allow a user to access the Admin UI and manage bots
-2. **User**: Identify a user which is chatting with your bot
+1. **Collaborators**: These users are able to access the Admin UI and will have access to manage and edit bots based on their roles.
+2. **Chat Users**: These users are only able to speak with bots, and they can see the list of bots if they log on the Admin UI
+3. **External User**: This method of authentication expects that you handle user authentication yourself and provide a JWT token to identify the user.
 
-We support Basic, SAML and LDAP for the Admin authentication.
+## Authentication Overview
 
-User Authentication is managed using JWT tokens
+There are 4 different type of authentication strategies currently supported: Basic, SAML, OAuth2 and LDAP. You can also implement them multiple times (for example, you could have two different OAuth2 configurations for different workspaces).
 
-## Admin Authentication
+No matter what authentication strategy is used, they are all stored in the database. When you add a new strategy in the `botpress.config.json` file, upon server restart a new table called `strategy_STRATEGYID` will be created.
 
-There are 3 different type of authentication methods. By default, the `basic` method is used.
+When you give access to a user for a specific workspace, an entry is created in the table `workspace_users` with his role.
+
+If you have more than one authentication strategy, a menu will be displayed to pick a strategy. You can skip the menu and bookmark a specific strategy by changing the page URL: `/admin/login/STRATEGYID`.
+
+Moreover, you can access a specific workspace by using `/admin/login?workspaceId=WORKSPACEID`
+
+You can find the definition for the various authentication strategies [here](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts#L326).
 
 ### Basic
 
-Users logs in with an Email / Password combination. Information is saved in the file `data/global/workspaces.json`, and they are salted for added security.
+Basic Authentication allows a user to log in with a simple username / password. The password is salted for added security.
 
 To create more accounts, visit the `Collaborators` tab on the Admin UI. Choose the role and enter the E-mail of your collaborator, then you will receive a random password. The user will need to pick a password after the first login.
 
-To enable this authentication method, set `pro.auth.strategy = 'basic'` in your `botpresss.config.json` file.
+Super Admins are able to reset the password of any user using the basic authentication.
+
+#### Configuration Example
+
+In your `botpress.config.json` file:
+
+```js
+{
+ "pro": {
+    "collaboratorsAuthStrategies": ["default"],
+  },
+  "authStrategies": {
+    "default": {
+      "type": "basic",
+      "label": "Default Auth",
+      "options": {}
+    }
+  }
+}
+```
+
+#### Additional Security
+
+There are additional options that can be configured when using this authentication strategy. Please refer to the [configuration file for more information](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts#L350) :
+
+- `maxLoginAttempt`: Max number of tries allowed before locking out the user
+- `lockoutDuration`: Account will be disabled for this amount of time when `maxLoginAttempt` is reached
+- `passwordExpiryDelay`: Password will expire after this specified duration
+- `passwordMinLength`: Minimum length for the user's password
+- `requireComplexPassword`: Requires at least 1 character of 3 categories of characters
 
 #### Forgot your password?
 
-If you forget your password and cannot access your bot, open the `workspaces.json` file and delete the user account. You will be prompted to create an account the next time you access the Admin UI.
+Only the first user is allowed to register a new account. If you forgot your password and can't access your account, you will need to clear the list of users, then you will be able to re-create your account.
 
-Replace the following content with `"users": []`
+You can clear the list of users by emptying (or deleting) the table `strategy_default` (if you are using the default strategy)
+
+### OAuth2
+
+Some OAuth2 implementations returns a JWT token containing all the user's informations, while some other returns a special token, which must then be used to query the user's informations.
 
 ```js
-"users": [
-  {
-    "email": "admin@botpress.io",
-    "password": "713f2a9c8382c8bec72dced71c787adf4ba3d0aa635a8201b0ee78700758919b4eb042ac4f2c8848bbdde05a734185f85903426b6fbc0fe8c76493e28bbcc7b3",
-    "salt": "2af382287ebef39d",
-    "firstname": "",
-    "lastname": "sdf"
+{
+ "pro": {
+    "collaboratorsAuthStrategies": ["default"],
+  },
+  "authStrategies": {
+    "botpress": {
+      "type": "oauth2",
+      "options": {
+        "authorizationURL": "https://example.auth0.com/authorize",
+        "tokenURL": "https://example.auth0.com/oauth/token",
+        "clientID": "your-client-id",
+        "clientSecret": "your-client-secret",
+        "callbackURL": "http://localhost:3000/api/v1/auth/login-callback/oauth2/botpress",
+        /**
+         * If the token doesn't contain user informations, set the userInfoURL
+         */
+        "userInfoURL": "https://example.auth0.com/userinfo",
+        /**
+         * If the token already includes all user information,
+         * */
+        "jwtToken": {
+          "audience": "my-audience",
+          "issuer": "some-issuer",
+          "algorithms": ["HS256"],
+          // Either set the certificate, or save it in a file: data/global/oauth2_YOUR_STRATEGY_ID.pub
+          "publicKey": ""
+        }
+        "scope": "openid profile email"
+      },
+      "fieldMapping": {
+        "email": "email"
+      }
+    }
   }
-]
+}
 ```
 
 ### SAML
 
 You can link your SAML Identity Provider seamlessly with Botpress. When it is enabled, Admins will be greeted with a `Sign in with SSO` button on the Admin UI. The first user to ever login to Botpress using the SSO provider will automatically have an account created and will be a Super Admin.
 
-When a user successfully log on the Admin UI, Botpress will create an internal account for that user. These will be listed in the `workspaces.json` file.
+When a user successfully log on the Admin UI, Botpress will create an internal account for that user. They will be added to the table `strategy_STRATEGYID`
 
 There are two possible behaviors. You can either:
 
-- Allow any user that successfully logs on using your SAML IdP to create an account. Set `pro.auth.allowSelfSignup` to `true`
-- Manage users manually (you need to add their emails in the Collaborators page). Set `pro.auth.allowSelfSignup` to `false`
+- Allow any user that successfully logs on using your SAML IdP to create an account. Set `allowSelfSignup` to `true`
+- Manage users manually (you need to add their emails in the Collaborators page). Set `allowSelfSignup` to `false`
 
 #### Prerequisite
 
@@ -169,7 +235,7 @@ cat jwtRS256.key.pub // Your public key
 
 ### Authenticate the user
 
-Once you have generated the JWT token, it must be passed down to the web chat. It will then be sent to Botpress with every message and events. Check out the [Connecting your bot with your existing backend](../../tutorials/existing-backend) for more details. There are two different situations:
+Once you have generated the JWT token, it must be passed down to the web chat. It will then be sent to Botpress with every message and events. Check out the [Connecting your bot with your existing backend](../tutorials/existing-backend) for more details. There are two different situations:
 
 1. The user is authenticated before the webchat is loaded.
 

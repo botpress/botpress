@@ -33,9 +33,11 @@ describe('Module - Code Editor', () => {
     await page.waitFor(500) // Required so the editor is correctly focused at the right place
     await page.keyboard.type(`const lol = 'hi' //`)
 
-    await triggerKeyboardShortcut('KeyS', true)
-    await expectBotApiCallSuccess('mod/code-editor/save', 'POST')
-    await expectBotApiCallSuccess('mod/code-editor/files', 'GET')
+    await Promise.all([
+      expectBotApiCallSuccess('mod/code-editor/save', 'POST'),
+      expectBotApiCallSuccess('mod/code-editor/files', 'GET'),
+      triggerKeyboardShortcut('KeyS', true)
+    ])
   })
 
   it('Duplicate action', async () => {
@@ -53,7 +55,7 @@ describe('Module - Code Editor', () => {
 
     await expectBotApiCallSuccess('mod/code-editor/rename', 'POST')
     const response = await waitForBotApiResponse('mod/code-editor/files')
-    const disabledFile = response.actionsBot.find(x => x.name === '.hello_copy.js')
+    const disabledFile = response['bot.actions'].find(x => x.name === '.hello_copy.js')
     expect(disabledFile).toBeDefined()
   })
 
@@ -65,6 +67,6 @@ describe('Module - Code Editor', () => {
 
     await expectBotApiCallSuccess('mod/code-editor/remove', 'POST')
     const response = await waitForBotApiResponse('mod/code-editor/files')
-    expect(response.actionsBot.find(x => x.name === '.hello_copy.js')).toBeUndefined()
+    expect(response['bot.actions'].find(x => x.name === '.hello_copy.js')).toBeUndefined()
   })
 })

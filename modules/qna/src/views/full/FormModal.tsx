@@ -248,12 +248,12 @@ export default class FormModal extends Component<Props> {
 
     return (
       <Dialog
-        isOpen={showQnAModal}
-        onClose={this.closeAndClear}
-        canOutsideClickClose={false}
-        transitionDuration={0}
         title={isEdit ? 'Edit Q&A' : 'Create a new Q&A'}
         icon={isEdit ? 'edit' : 'add'}
+        isOpen={showQnAModal}
+        onClose={this.closeAndClear}
+        transitionDuration={0}
+        canOutsideClickClose={false}
         style={{ width: 700 }}
         enforceFocus={false}
       >

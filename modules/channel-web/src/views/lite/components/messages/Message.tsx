@@ -102,10 +102,6 @@ class Message extends Component<MessageProps> {
     return null
   }
 
-  render_postback() {
-    return this.render_text()
-  }
-
   render_unsupported() {
     return '*Unsupported message type*'
   }

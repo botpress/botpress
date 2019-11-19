@@ -1,4 +1,6 @@
+import { RedisLock } from 'botpress/sdk'
 import { injectable } from 'inversify'
+import { Redis } from 'ioredis'
 
 export interface JobService {
   /**
@@ -11,11 +13,33 @@ export interface JobService {
    * @param T The return type of the returned function
    */
   broadcast<T>(fn: Function): Promise<Function>
+
+  acquireLock(resource: string, duration: number): Promise<RedisLock | undefined>
+
+  clearLock(resource: string): Promise<boolean>
+
+  getRedisClient(): Redis | undefined
 }
 
 @injectable()
 export class CEJobService implements JobService {
   async broadcast<T>(fn: Function): Promise<Function> {
     return fn
+  }
+
+  // TODO: Implement this correctly so we can also lock resources on a single node (ghost writes)
+  async acquireLock(resource: string, duration: number): Promise<RedisLock | undefined> {
+    return {
+      unlock: async () => {},
+      extend: async (duration: number) => {}
+    }
+  }
+
+  async clearLock(resource: string): Promise<boolean> {
+    return true
+  }
+
+  getRedisClient(): undefined {
+    return
   }
 }

@@ -2,21 +2,28 @@ import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
+import yn from 'yn'
 
-import { initializeLangServer, nluHealth } from '.'
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
-import { EngineByBot } from './typings'
-import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
+import { getTrainingSession } from './engine2/train-session-service'
+import { EntityDefCreateSchema } from './entities'
+import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
+import { NLUState } from './typings'
+import { IntentDefCreateSchema } from './validation'
 
 const SYNC_INTERVAL_MS = ms('5s')
+const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 
-export default async (bp: typeof sdk, nlus: EngineByBot) => {
+export default async (bp: typeof sdk, state: NLUState) => {
   const router = bp.http.createRouterForBot('nlu')
 
   const syncByBots: { [key: string]: NodeJS.Timer } = {}
 
   const scheduleSyncNLU = (botId: string) => {
+    if (!USE_E1) {
+      return
+    }
     if (syncByBots[botId]) {
       clearTimeout(syncByBots[botId])
       delete syncByBots[botId]
@@ -24,7 +31,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
     syncByBots[botId] = setTimeout(() => {
       delete syncByBots[botId]
-      const botEngine = nlus[botId] as ScopedEngine
+      const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
       syncNLU(botEngine, false)
     }, SYNC_INTERVAL_MS)
   }
@@ -56,24 +63,26 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    if (!nluHealth.isEnabled) {
-      await initializeLangServer(bp)
+    if (!state.health.isEnabled) {
+      await initializeLanguageProvider(bp, state)
     }
-    res.send(nluHealth)
+    res.send(state.health)
   })
 
   router.get('/currentModelHash', async (req, res) => {
-    const engine = nlus[req.params.botId] as ScopedEngine
+    const engine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
     if (engine.modelHash) {
       return res.send(engine.modelHash)
     }
+
     const intents = await engine.storage.getIntents()
-    const modelHash = await engine.computeModelHash(intents)
+    const entities = await engine.storage.getCustomEntities()
+    const modelHash = engine.computeModelHash(intents, entities)
     res.send(modelHash)
   })
 
   router.get('/confusion/:modelHash/:version', async (req, res) => {
-    const engine = nlus[req.params.botId] as ConfusionEngine
+    const engine = state.nluByBot[req.params.botId].engine1 as ConfusionEngine
     const confusionComputing = engine.confusionComputing
     const lang = req.query.lang || (await sdk.bots.getBotById(req.params.botId)).defaultLanguage
 
@@ -89,7 +98,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   router.get('/confusion', async (req, res) => {
     try {
       const botId = req.params.botId
-      const confusions = await (nlus[botId] as ScopedEngine).storage.getAllConfusionMatrix()
+      const confusions = await (state.nluByBot[botId].engine1 as ScopedEngine).storage.getAllConfusionMatrix()
       res.send({ botId, confusions })
     } catch (err) {
       res.sendStatus(500)
@@ -98,7 +107,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.post('/confusion', async (req, res) => {
     try {
-      const botEngine = nlus[req.params.botId] as ScopedEngine
+      const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
       const { version } = req.body
       const modelHash = await syncNLU(botEngine, true, version)
       res.send({ modelHash })
@@ -107,16 +116,22 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
   })
 
+  router.get('/training/:language', async (req, res) => {
+    const { language, botId } = req.params
+    const session = await getTrainingSession(bp, botId, language)
+    res.send(session)
+  })
+
   router.get('/intents', async (req, res) => {
-    res.send(await (nlus[req.params.botId] as ScopedEngine).storage.getIntents())
+    res.send(await (state.nluByBot[req.params.botId].engine1 as ScopedEngine).storage.getIntents())
   })
 
   router.get('/intents/:intent', async (req, res) => {
-    res.send(await (nlus[req.params.botId] as ScopedEngine).storage.getIntent(req.params.intent))
+    res.send(await (state.nluByBot[req.params.botId].engine1 as ScopedEngine).storage.getIntent(req.params.intent))
   })
 
   router.post('/intents/:intent/delete', async (req, res) => {
-    const botEngine = nlus[req.params.botId] as ScopedEngine
+    const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
 
     await botEngine.storage.deleteIntent(req.params.intent)
     scheduleSyncNLU(req.params.botId)
@@ -130,7 +145,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
         stripUnknown: true
       })
 
-      const botEngine = nlus[req.params.botId] as ScopedEngine
+      const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
       await botEngine.storage.saveIntent(intentDef.name, intentDef)
       scheduleSyncNLU(req.params.botId)
 
@@ -143,18 +158,17 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
-    const filepaths = await bp.ghost.forBot(botId).directoryListing('/intents', '*.json')
-    const contextsArray = await Promise.map(filepaths, async filepath => {
-      const file = await bp.ghost.forBot(botId).readFileAsObject('/intents', filepath)
-      return file['contexts']
-    })
+    const intents = await (state.nluByBot[botId].engine1 as ScopedEngine).storage.getIntents()
+    const ctxs = _.chain(intents)
+      .flatMap(i => i.contexts)
+      .uniq()
+      .value()
 
-    // Contexts is an array of arrays that can contain duplicate values
-    res.send(_.uniq(_.flatten(contextsArray)))
+    res.send(ctxs)
   })
 
   router.get('/entities', async (req, res) => {
-    const entities = await (nlus[req.params.botId] as ScopedEngine).storage.getAvailableEntities()
+    const entities = await (state.nluByBot[req.params.botId].engine1 as ScopedEngine).storage.getAvailableEntities()
     res.json(entities)
   })
 
@@ -164,14 +178,13 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
       const entityDef = (await validate(req.body, EntityDefCreateSchema, {
         stripUnknown: true
       })) as sdk.NLU.EntityDefinition
-
-      const botEngine = nlus[botId] as ScopedEngine
+      const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
       await botEngine.storage.saveEntity(entityDef)
       scheduleSyncNLU(req.params.botId)
 
       res.sendStatus(200)
     } catch (err) {
-      bp.logger.attachError(err).warn('Cannot create entity, imvalid schema')
+      bp.logger.attachError(err).warn('Cannot create entity, invalid schema')
       res.status(400).send('Invalid schema')
     }
   })
@@ -181,7 +194,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     const { botId, id } = req.params
     const updatedEntity = content as sdk.NLU.EntityDefinition
 
-    const botEngine = nlus[botId] as ScopedEngine
+    const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
     await botEngine.storage.saveEntity({ ...updatedEntity, id })
     scheduleSyncNLU(req.params.botId)
 
@@ -190,7 +203,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
 
   router.post('/entities/:id/delete', async (req, res) => {
     const { botId, id } = req.params
-    const botEngine = nlus[botId] as ScopedEngine
+    const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
     await botEngine.storage.deleteEntity(id)
     scheduleSyncNLU(req.params.botId)
 
@@ -206,7 +219,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
     }
 
     try {
-      const result = await nlus[req.params.botId].extract(eventText.preview, [], [])
+      const result = await state.nluByBot[req.params.botId].engine1.extract(eventText.preview, [], [])
       res.send(result)
     } catch (err) {
       res.status(500).send(`Error extracting NLU data from event: ${err}`)
@@ -214,7 +227,7 @@ export default async (bp: typeof sdk, nlus: EngineByBot) => {
   })
 
   router.get('/ml-recommendations', async (req, res) => {
-    const engine = nlus[req.params.botId] as ScopedEngine
+    const engine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
     res.send(engine.getMLRecommendations())
   })
 }

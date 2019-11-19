@@ -70,8 +70,7 @@ const UploadArchive = () => {
     }
   }
 
-  const readArchive = event => {
-    const files = (event.target as HTMLInputElement).files
+  const readArchive = (files: FileList | null) => {
     if (!files) {
       return
     }
@@ -93,34 +92,46 @@ const UploadArchive = () => {
 
   const renderUpload = () => {
     return (
-      <Fragment>
-        <div className={Classes.DIALOG_BODY}>
-          <FormGroup
-            label={<span>Server Archive</span>}
-            labelFor="input-archive"
-            helperText={
-              <span>
-                Select an archive exported from another server. If there are conflicts, you will be able to review them
-                before pushing.
-              </span>
-            }
-          >
-            <FileInput text={filePath || 'Choose file...'} onChange={readArchive} fill={true} />
-          </FormGroup>
-        </div>
-        <div className={Classes.DIALOG_FOOTER}>
-          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button
-              id="btn-push"
-              text={isLoading ? 'Please wait...' : 'Push changes'}
-              disabled={!filePath || !fileContent || isLoading}
-              onClick={uploadArchive}
-              intent={Intent.PRIMARY}
-              style={{ height: 20, marginLeft: 5 }}
-            />
+      <div
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => {
+          e.preventDefault()
+          readArchive(e.dataTransfer.files)
+        }}
+      >
+        <Fragment>
+          <div className={Classes.DIALOG_BODY}>
+            <FormGroup
+              label={<span>Server Archive</span>}
+              labelFor="input-archive"
+              helperText={
+                <span>
+                  Select an archive exported from another server. If there are conflicts, you will be able to review
+                  them before pushing.
+                </span>
+              }
+            >
+              <FileInput
+                text={filePath || 'Choose file...'}
+                onChange={e => readArchive((e.target as HTMLInputElement).files)}
+                fill={true}
+              />
+            </FormGroup>
           </div>
-        </div>
-      </Fragment>
+          <div className={Classes.DIALOG_FOOTER}>
+            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+              <Button
+                id="btn-push"
+                text={isLoading ? 'Please wait...' : 'Push changes'}
+                disabled={!filePath || !fileContent || isLoading}
+                onClick={uploadArchive}
+                intent={Intent.PRIMARY}
+                style={{ height: 20, marginLeft: 5 }}
+              />
+            </div>
+          </div>
+        </Fragment>
+      </div>
     )
   }
 
@@ -168,12 +179,13 @@ const UploadArchive = () => {
       <Button icon="upload" id="btn-uploadArchive" text="Upload archive" onClick={() => setDialogOpen(true)} />
 
       <Dialog
+        title="Upload Archive"
+        icon="import"
         isOpen={isDialogOpen}
         onClose={closeDialog}
         transitionDuration={0}
+        canOutsideClickClose={false}
         style={{ width: changes ? 800 : 500 }}
-        title="Upload Archive"
-        icon="import"
       >
         {!changes ? renderUpload() : renderConflict()}
       </Dialog>

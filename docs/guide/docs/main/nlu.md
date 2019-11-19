@@ -80,7 +80,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
 }
 ```
 
-You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](../dialog).
+You can use that metadata in your flows to create transitions when a specific intent is understood inside a specific flow. You can learn more about flows and transitions [here](dialog).
 
 ##### Example
 
@@ -169,7 +169,7 @@ Botpress Native NLU offers a handful of system entity extraction thanks to [Face
 
 At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
 
-For instructions on how to host your own Duckling server, please check the [Deployment](../../advanced/hosting) section.
+For instructions on how to host your own Duckling server, please check the [Deployment](../advanced/hosting) section.
 
 ##### Example
 
@@ -341,25 +341,19 @@ slots : {
 
 ### Slot Filling
 
-Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../../tutorials/skill-slot) for further details.
+Slot filling is the process of gathering information required by an intent. This information is defined as _slots_ as we mentioned in the above section. Previously, slot filling was made manually and would result in a lot of manipulation. Since 11.8 you can use the Slot skill to help with slot filling. Please refer to the [Slot Skill tutorial](../tutorials/skill-slot) for further details.
 
 ## Language Server
 
-The language server provides additional informations about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../../advanced/hosting#running-your-own-language-server) page for more details.
+The language server provides additional informations about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../advanced/hosting#running-your-own-language-server) page for more details.
 
 ## External NLU Providers
 
 Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't hit the cloud), predictable (you can write unit tests, the model resides on your computer) and free.
 
-If for some reason you want to use an external provider, you can do so by using [Hooks](../code#hooks) and calling the external NLU provider via API.
+If for some reason you want to use an external provider, you can do so by using [Hooks](code#hooks) and calling the external NLU provider via API. There's a detailed example [here](../tutorials/3rd-party-NLU)
 
-> **Note**: External providers don't work with the Botpress NLU graphical interface. We have dropped support [see why](https://github.com/botpress/botpress/pull/1170) for two-way synchronization as there were too many issues in doing (and maintaining) that.
-
-### Example
-
-You can enable **Recast AI** by removing the `.` prefix to the `hooks/before_incoming_middleware/.05_recast_nlu.js` file.
-
-> Feel free to contribute to Botpress to add new external NLU providers
+> **Note**: We have dropped support [(see why)](https://github.com/botpress/botpress/pull/1170) for two-way synchronization as there were too many issues in doing (and maintaining) that. You'll have to maintain this yourself if you go this way. We're open to contributions for both implementation and maintenance of 3rd party NLU integrations.
 
 ##### Features by Providers
 

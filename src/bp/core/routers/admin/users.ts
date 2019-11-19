@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { CreatedUser, WorkspaceUser } from 'common/typings'
 import AuthService from 'core/services/auth/auth-service'
+import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
@@ -31,30 +32,43 @@ export class UsersRouter extends CustomRouter {
   setupRoutes() {
     const router = this.router
 
+    // List of all users which are currently member of the active workspace
     router.get(
       '/',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        const filterRoles = req.query.roles && req.query.roles.split(',')
         const users = await this.workspaceService.getWorkspaceUsersAttributes(req.workspace!, [
           'last_logon',
           'firstname',
-          'lastname'
+          'lastname',
+          'picture_url',
+          'created_at'
         ])
-        return sendSuccess(res, 'Retrieved users', users)
+
+        return sendSuccess(
+          res,
+          'Retrieved users',
+          filterRoles ? users.filter(x => filterRoles.includes(x.role)) : users
+        )
       })
     )
 
+    // Returns the list of users NOT currently member of the active workspace
     router.get(
       '/listAvailableUsers',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        const filterRoles = req.query.roles && req.query.roles.split(',')
         const allUsers = await this.authService.getAllUsers()
         const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
+        const available = _.filter(allUsers, x => !_.find(workspaceUsers, x)) as WorkspaceUser[]
 
-        return sendSuccess(res, 'Retrieved users', _.filter(
-          allUsers,
-          x => !_.find(workspaceUsers, x)
-        ) as WorkspaceUser[])
+        return sendSuccess(
+          res,
+          'Retrieved available users',
+          filterRoles ? available.filter(x => filterRoles.includes(x.role)) : available
+        )
       })
     )
 
@@ -66,11 +80,11 @@ export class UsersRouter extends CustomRouter {
         const { email, strategy, role } = req.body
 
         const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
-        if (workspaceUsers.find(x => x.email === email && x.strategy === strategy)) {
+        if (workspaceUsers.find(x => x.email.toLowerCase() === email.toLowerCase() && x.strategy === strategy)) {
           throw new ConflictError(`User "${email}" is already a member of this workspace`)
         }
 
-        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, role)
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, { role })
 
         res.sendStatus(200)
       })
@@ -82,7 +96,7 @@ export class UsersRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
 
-        if (req.authUser!.email === email) {
+        if (req.authUser!.email.toLowerCase() === email.toLowerCase()) {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
         }
 
@@ -117,6 +131,7 @@ export class UsersRouter extends CustomRouter {
             strategy: Joi.string().required()
           })
         )
+
         const { email, strategy, role } = req.body
         const alreadyExists = await this.authService.findUser(email, strategy)
 
@@ -124,8 +139,12 @@ export class UsersRouter extends CustomRouter {
           throw new ConflictError(`User "${email}" is already taken`)
         }
 
+        if (!req.workspace) {
+          throw new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`)
+        }
+
         const result = await this.authService.createUser({ email, strategy }, strategy)
-        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, role)
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace, { role })
 
         return sendSuccess(res, 'User created successfully', {
           email,
@@ -141,7 +160,7 @@ export class UsersRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
 
-        if (req.authUser!.email === email) {
+        if (req.authUser!.email.toLowerCase() === email.toLowerCase()) {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
         }
 

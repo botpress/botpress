@@ -6,14 +6,14 @@ import { IntlProvider } from 'react-intl'
 
 import Chat from './main'
 import { RootStore } from './store'
-import { availableLocale, defaultLocale, getUserLocale, initializeLocale, translations } from './translations'
+import { defaultLocale, getUserLocale, initializeLocale, translations } from './translations'
 configure({ enforceActions: 'observed' })
 
 export const Embedded = props => WebChat(props, false)
 export const Fullscreen = props => WebChat(props, true)
 
 initializeLocale()
-const locale = getUserLocale(availableLocale, defaultLocale)
+const locale = getUserLocale()
 
 const WebChat = (props, fullscreen) => (
   <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>

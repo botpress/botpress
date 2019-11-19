@@ -24,7 +24,7 @@ You can now follow the [migration guide](https://botpress.io/docs/developers/mig
 
 > If you're not running in production or that your version is not listed in the [migration guide](https://botpress.io/docs/developers/migrate), you can ignore this step
 
-In production, `/data` is directly persisted to the database because of [version control](https://botpress.io/docs/manage/versions/). You need to pull `/data` to your filesystem.
+In production, `/data` is directly persisted to the database because of [version control](https://botpress.io/docs/manage/versions). You need to pull `/data` to your filesystem.
 
 Luckily, we have a tool for that:
 

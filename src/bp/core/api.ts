@@ -23,11 +23,14 @@ import { CMSService } from './services/cms'
 import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HookService } from './services/hook/hook-service'
+import { JobService } from './services/job-service'
 import { KeyValueStore } from './services/kvs'
 import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
+import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
 const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
@@ -74,20 +77,12 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
   }
 }
 
-const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typeof sdk.dialog => {
+const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof sdk.dialog => {
   return {
-    createId(eventDestination: sdk.IO.EventDestination) {
-      return SessionIdFactory.createIdFromEvent(eventDestination)
-    },
-    async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<sdk.IO.IncomingEvent> {
-      return dialogEngine.processEvent(sessionId, event)
-    },
-    async deleteSession(userId: string): Promise<void> {
-      await sessionRepo.delete(userId)
-    },
-    async jumpTo(sessionId: string, event: any, flowName: string, nodeName?: string): Promise<void> {
-      await dialogEngine.jumpTo(sessionId, event, flowName, nodeName)
-    }
+    createId: SessionIdFactory.createIdFromEvent.bind(SessionIdFactory),
+    processEvent: dialogEngine.processEvent.bind(dialogEngine),
+    deleteSession: stateManager.deleteDialogSession.bind(stateManager),
+    jumpTo: dialogEngine.jumpTo.bind(dialogEngine)
   }
 }
 
@@ -211,6 +206,23 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
   }
 }
 
+const workspaces = (workspaceService: WorkspaceService): typeof sdk.workspaces => {
+  return {
+    getBotWorkspaceId: workspaceService.getBotWorkspaceId.bind(workspaceService),
+    getWorkspaceRollout: workspaceService.getWorkspaceRollout.bind(workspaceService),
+    addUserToWorkspace: workspaceService.addUserToWorkspace.bind(workspaceService),
+    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService)
+  }
+}
+
+const distributed = (jobService: JobService): typeof sdk.distributed => {
+  return {
+    broadcast: jobService.broadcast.bind(jobService),
+    acquireLock: jobService.acquireLock.bind(jobService),
+    clearLock: jobService.clearLock.bind(jobService)
+  }
+}
+
 const experimental = (hookService: HookService): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
@@ -246,6 +258,8 @@ export class BotpressAPIProvider {
   mlToolkit: typeof sdk.MLToolkit
   experimental: typeof sdk.experimental
   security: typeof sdk.security
+  workspaces: typeof sdk.workspaces
+  distributed: typeof sdk.distributed
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -256,7 +270,6 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionRepository) sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotService) botService: BotService,
@@ -265,11 +278,14 @@ export class BotpressAPIProvider {
     @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
     @inject(TYPES.MediaService) mediaService: MediaService,
     @inject(TYPES.HookService) hookService: HookService,
-    @inject(TYPES.EventRepository) eventRepo: EventRepository
+    @inject(TYPES.EventRepository) eventRepo: EventRepository,
+    @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
+    @inject(TYPES.JobService) jobService: JobService,
+    @inject(TYPES.StateManager) stateManager: StateManager
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
-    this.dialog = dialog(dialogEngine, sessionRepo)
+    this.dialog = dialog(dialogEngine, stateManager)
     this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
@@ -282,6 +298,8 @@ export class BotpressAPIProvider {
     this.mlToolkit = MLToolkit
     this.experimental = experimental(hookService)
     this.security = security()
+    this.workspaces = workspaces(workspaceService)
+    this.distributed = distributed(jobService)
   }
 
   @Memoize()
@@ -311,7 +329,9 @@ export class BotpressAPIProvider {
       bots: this.bots,
       cms: this.cms,
       security: this.security,
-      experimental: this.experimental
+      experimental: this.experimental,
+      workspaces: this.workspaces,
+      distributed: this.distributed
     }
   }
 }

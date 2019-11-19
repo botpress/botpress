@@ -1,15 +1,9 @@
+import { WorkspaceUser } from 'common/typings'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
-
-export interface WorkspaceUser {
-  email: string
-  strategy: string
-  workspace: string
-  role: string
-}
 
 export type WorkspaceUserAttributes = {
   attributes: any
@@ -37,14 +31,16 @@ export class WorkspaceUsersRepository {
 
     await this.database
       .knex(this.tableName)
-      .where({ email, strategy, workspace })
+      .where({ strategy, workspace })
+      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
       .update({ role })
   }
 
   async removeUserFromWorkspace(email: string, strategy: string, workspace: string) {
     return this.database
       .knex(this.tableName)
-      .where({ email, strategy, workspace })
+      .where({ strategy, workspace })
+      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
       .del()
   }
 
@@ -56,7 +52,8 @@ export class WorkspaceUsersRepository {
     return this.database
       .knex(this.tableName)
       .select('*')
-      .where({ email, strategy })
+      .where({ strategy })
+      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
   }
 
   async getWorkspaceUsers(workspace: string): Promise<WorkspaceUser[]> {
@@ -70,7 +67,7 @@ export class WorkspaceUsersRepository {
     let query = this.database
       .knex(this.tableName)
       .groupBy(['email', 'strategy'])
-      .count('* as qty')
+      .count<Record<string, number>>('* as qty')
 
     if (strategy) {
       query = query.where({ strategy })

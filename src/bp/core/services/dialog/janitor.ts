@@ -1,6 +1,6 @@
 import { BotConfig, IO, Logger } from 'botpress/sdk'
 import { createExpiry } from 'core/misc/expiry'
-import { SessionRepository } from 'core/repositories'
+import { SessionRepository, UserRepository } from 'core/repositories'
 import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -28,7 +28,8 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository
+    @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
+    @inject(TYPES.UserRepository) private userRepo: UserRepository
   ) {
     super(logger)
   }
@@ -72,9 +73,7 @@ export class DialogJanitor extends Janitor {
     let resetSession = true
 
     try {
-      const channel = SessionIdFactory.createChannelFromId(sessionId)
-      const target = SessionIdFactory.createTargetFromId(sessionId)
-      const threadId = SessionIdFactory.createThreadIdFromId(sessionId)
+      const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
       const session = await this.sessionRepo.get(sessionId)
 
       // Don't process the timeout when the context is empty.
@@ -95,8 +94,12 @@ export class DialogJanitor extends Janitor {
         botId: botId
       }) as IO.IncomingEvent
 
+      const { result: user } = await this.userRepo.getOrCreate(channel, target)
+
       fakeEvent.state.context = session.context as IO.DialogContext
       fakeEvent.state.session = session.session_data as IO.CurrentSession
+      fakeEvent.state.user = user.attributes
+      fakeEvent.state.temp = session.temp_data
 
       const after = await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
       if (_.get(after, 'state.context.queue.instructions.length', 0) > 0) {

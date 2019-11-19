@@ -28,7 +28,7 @@ The property `type: 'proactive-trigger'` is used to identify the event so we can
 
 This event will be dispatched to the bot so you need to add a handler for it. If this event is not handled, it will be interpreted as a user message.
 
-This snippet should be added to the [before_incoming_middleware hook](../../main/code#before-incoming-middleware):
+This snippet should be added to the [before_incoming_middleware hook](../main/code#before-incoming-middleware):
 
 ```js
 // Catch the event sent from the webpage

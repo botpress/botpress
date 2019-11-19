@@ -3,13 +3,19 @@ import { ScopedGhostService } from 'botpress/sdk'
 import _ from 'lodash'
 import path from 'path'
 
-import { Config } from '../config'
-import { sanitizeFilenameNoExt } from '../util'
-
+import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
 import { Result } from './tools/five-fold'
 import { Model, ModelMeta } from './typings'
 
 const N_KEEP_MODELS = 25
+
+export const ID_REGEX = /[\t\s]/gi
+
+export const sanitizeFilenameNoExt = name =>
+  name
+    .toLowerCase()
+    .replace('.json', '')
+    .replace(ID_REGEX, '-')
 
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
@@ -19,16 +25,13 @@ export default class Storage {
   private readonly intentsDir: string = './intents'
   private readonly entitiesDir: string = './entities'
   private readonly modelsDir: string = './models'
-  private readonly config: Config
 
   constructor(
-    config: Config,
     private readonly botId: string,
     private readonly defaultLanguage: string,
     private readonly languages: string[],
     private readonly logger: sdk.Logger
   ) {
-    this.config = config
     this.botGhost = Storage.ghostProvider(this.botId)
     this.globalGhost = Storage.ghostProvider()
   }
@@ -213,31 +216,8 @@ export default class Storage {
   }
 
   getSystemEntities(): sdk.NLU.EntityDefinition[] {
-    // TODO move this array as static method in DucklingExtractor
-    const sysEntNames = !this.config.ducklingEnabled
-      ? []
-      : [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'number',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
-    sysEntNames.unshift('any')
-
-    return sysEntNames.map(
-      e =>
-        ({
-          name: e,
-          type: 'system'
-        } as sdk.NLU.EntityDefinition)
+    return [...DucklingEntityExtractor.entityTypes, 'any'].map(
+      e => ({ name: e, type: 'system' } as sdk.NLU.EntityDefinition)
     )
   }
 

@@ -36,7 +36,7 @@ const exec = async (bots = '', minConfidence = '0.5') => {
   const matches = []
 
   for (let botId of botIds) {
-    const axiosConfig = await bp.http.getAxiosConfigForBot(botId)
+    const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
     const { data } = await axios
       .post(
         `/converse/${uniqueUserId}/secured`,

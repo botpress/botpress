@@ -4,7 +4,7 @@ import Select from 'react-select'
 import _ from 'lodash'
 import axios from 'axios'
 import style from './style.scss'
-
+import { connect } from 'react-redux'
 import SmartInput from '~/components/SmartInput'
 
 const availableProps = [
@@ -13,7 +13,7 @@ const availableProps = [
   { label: 'Temporary Dialog Context', value: 'temp' }
 ]
 
-export default class ConditionModalForm extends Component {
+class ConditionModalForm extends Component {
   state = {
     typeOfTransition: 'end',
     flowToSubflow: null,
@@ -27,8 +27,6 @@ export default class ConditionModalForm extends Component {
   }
 
   componentDidMount() {
-    this.fetchIntents()
-
     const subflowOptions = this.props.subflows
       .filter(flow => !flow.startsWith('skills/'))
       .map(flow => ({
@@ -118,12 +116,6 @@ export default class ConditionModalForm extends Component {
     }
   }
 
-  fetchIntents() {
-    return axios.get(`${window.BOT_API_PATH}/mod/nlu/intents`).then(({ data }) => {
-      this.setState({ intents: data })
-    })
-  }
-
   changeTransitionType(type) {
     this.setState({
       typeOfTransition: type,
@@ -178,7 +170,7 @@ export default class ConditionModalForm extends Component {
 
     // replace: "{{stuff}} more stuff... {{other stuff}}" by "stuff more stuff... other stuff"
     const condition = this.state.condition.replace(/({{)(.*?)(}})/g, '$2')
-    const payload = { condition }
+    const payload = { caption: this.props.item && this.props.item.caption, condition }
 
     if (this.state.typeOfTransition === 'subflow') {
       payload.node = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
@@ -289,11 +281,11 @@ export default class ConditionModalForm extends Component {
   }
 
   renderIntentPicker() {
-    if (!this.state.intents) {
+    if (!this.props.intents) {
       return null
     }
 
-    const intents = this.state.intents
+    const intents = this.props.intents
       .filter(i => !i.name.startsWith('__qna__'))
       .map(({ name }) => ({ label: name, value: name }))
       .concat([{ label: 'none', value: 'none' }])
@@ -420,3 +412,12 @@ export default class ConditionModalForm extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  intents: state.skills.intents
+})
+
+export default connect(
+  mapStateToProps,
+  undefined
+)(ConditionModalForm)

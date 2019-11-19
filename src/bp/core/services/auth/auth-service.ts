@@ -1,17 +1,26 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, RolloutStrategy } from 'botpress/sdk'
 import { AuthStrategy, AuthStrategyBasic } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { StrategyUserTable } from 'core/database/tables/server-wide/strategy_users'
+import { getMessageSignature } from 'core/misc/security'
+import { ModuleLoader } from 'core/module-loader'
 import { StrategyUser, StrategyUsersRepository } from 'core/repositories/strategy_users'
+import { BadRequestError } from 'core/routers/errors'
+import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
+import moment from 'moment'
+import ms from 'ms'
 
-import { AuthStrategyConfig, TokenUser } from '../../../common/typings'
+import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser } from '../../../common/typings'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
+import { SessionIdFactory } from '../dialog/session/id-factory'
 import { KeyValueStore } from '../kvs'
+import { EventEngine } from '../middleware/event-engine'
+import { WorkspaceService } from '../workspace-service'
 
 import StrategyBasic from './basic'
 import { generateUserToken } from './util'
@@ -21,6 +30,7 @@ export const CHAT_USERS_AUDIENCE = 'chat_users'
 export const WORKSPACE_HEADER = 'x-bp-workspace'
 export const EXTERNAL_AUTH_HEADER = 'x-bp-externalauth'
 export const SERVER_USER = 'server::modules'
+const DEFAULT_CHAT_USER_AUTH_DURATION = '24h'
 
 @injectable()
 export default class AuthService {
@@ -33,7 +43,10 @@ export default class AuthService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.StrategyUsersRepository) private users: StrategyUsersRepository,
-    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {}
 
   async initialize() {
@@ -68,12 +81,12 @@ export default class AuthService {
       throw new Error(`There must be at least one global strategy configured.`)
     }
 
-    const strategies = await Promise.mapSeries(config.pro.collaboratorsAuthStrategies, async strategyName => {
+    const strategies = await Promise.mapSeries(_.uniq(config.pro.collaboratorsAuthStrategies), async strategyName => {
       const strategy = (await this.getStrategy(strategyName)) as AuthStrategy
       return strategy && this._getStrategyConfig(strategy, strategyName)
     })
 
-    return { strategies, isFirstUser: await this.isFirstUser() }
+    return { strategies: strategies.filter(Boolean), isFirstUser: await this.isFirstUser() }
   }
 
   async generateSecureToken(email: string, strategy: string) {
@@ -84,7 +97,8 @@ export default class AuthService {
     const audience = isGlobalStrategy ? TOKEN_AUDIENCE : CHAT_USERS_AUDIENCE
 
     const isSuperAdmin =
-      audience === TOKEN_AUDIENCE && !!config.superAdmins.find(x => x.strategy === strategy && x.email === email)
+      audience === TOKEN_AUDIENCE &&
+      !!config.superAdmins.find(x => x.strategy === strategy && x.email.toLowerCase() === email.toLowerCase())
 
     return generateUserToken(email, strategy, isSuperAdmin, duration, audience)
   }
@@ -115,7 +129,7 @@ export default class AuthService {
     const createdUser = await this.users.createUser({
       email: user.email,
       strategy,
-      attributes: user.attributes || {}
+      attributes: { ...(user.attributes || {}), created_at: new Date() }
     })
 
     if (_.get(await this.getStrategy(strategy), 'type') === 'basic') {
@@ -197,7 +211,8 @@ export default class AuthService {
   private _getStrategyConfig(strategy: AuthStrategy, id: string): AuthStrategyConfig {
     const config: AuthStrategyConfig = {
       strategyType: strategy.type,
-      strategyId: id
+      strategyId: id,
+      label: strategy.label
     }
 
     if (strategy.type !== 'saml') {
@@ -206,5 +221,62 @@ export default class AuthService {
     }
 
     return config
+  }
+
+  private async _getChatAuthExpiry(channel: string, botId: string): Promise<Date | undefined> {
+    try {
+      const config = await this.moduleLoader.configReader.getForBot(`channel-${channel}`, botId)
+      const authDuration = ms(_.get(config, 'chatUserAuthDuration', DEFAULT_CHAT_USER_AUTH_DURATION))
+      return moment()
+        .add(authDuration)
+        .toDate()
+    } catch (err) {
+      this.logger.attachError(err).error(`Could not get auth duration for channel ${channel} and bot ${botId}`)
+    }
+  }
+
+  public async authChatUser(chatUserAuth: ChatUserAuth, identity: TokenUser): Promise<void> {
+    const { botId, sessionId, signature } = chatUserAuth
+    const { email, strategy, isSuperAdmin } = identity
+    const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
+
+    const sendEvent = async (payload: AuthPayload) => {
+      const incomingEvent = Event({
+        direction: 'incoming',
+        type: 'auth',
+        botId,
+        payload: { identity, ...payload },
+        channel,
+        target,
+        threadId
+      })
+
+      await this.eventEngine.sendEvent(incomingEvent)
+    }
+
+    if (signature !== (await getMessageSignature(JSON.stringify({ botId, sessionId })))) {
+      await sendEvent({ authenticatedUntil: undefined })
+      throw new BadRequestError('Payload signature is invalid')
+    }
+
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+    const isMember = !!(await this.workspaceService.findUser(email, strategy, workspaceId))
+    const authenticatedUntil = await this._getChatAuthExpiry(channel, botId)
+    const { rolloutStrategy } = await this.workspaceService.getWorkspaceRollout(workspaceId)
+
+    if (rolloutStrategy.includes('anonymous')) {
+      throw new BadRequestError(`Authentication not required for anonymous strategies`)
+    }
+
+    if (rolloutStrategy === 'authenticated-invite' && !isMember && !isSuperAdmin) {
+      return sendEvent({ authenticatedUntil, inviteRequired: true })
+    }
+
+    if (rolloutStrategy === 'authenticated' && !isMember && !isSuperAdmin) {
+      await this.workspaceService.addUserToWorkspace(email, strategy, workspaceId, { asChatUser: true })
+      return sendEvent({ authenticatedUntil, isAuthorized: true })
+    }
+
+    return sendEvent({ authenticatedUntil, isAuthorized: isMember || isSuperAdmin })
   }
 }

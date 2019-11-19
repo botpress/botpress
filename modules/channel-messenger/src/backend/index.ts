@@ -14,8 +14,6 @@ const onServerStarted = async (bp: typeof sdk) => {
   }
 }
 
-const onServerReady = (bp: typeof sdk) => {}
-
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   await service.mountBot(botId)
 }
@@ -30,7 +28,6 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerReady,
   onServerStarted,
   onBotMount,
   onBotUnmount,

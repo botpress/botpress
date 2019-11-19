@@ -3,6 +3,20 @@
     border: 1px solid #efefef;
   }
 
+  &-picture {
+    img {
+      width: 65px;
+      height: 65px;
+    }
+
+    border: 2px solid #efefef;
+  }
+
+  &-user {
+    display: flex;
+    justify-content: space-between;
+  }
+
   &-role_header {
     height: 35px;
     border-bottom: 1px solid #efefef;
@@ -27,6 +41,9 @@
   }
 
   &-list {
+    display: flex;
+    justify-content: space-between;
+
     .btn-group {
       float: right;
     }
@@ -40,9 +57,25 @@
       font-weight: bold;
     }
 
+    .dates {
+      margin-top: 35px;
+      font-weight: normal;
+      font-size: 0.7em;
+      width: 150px;
+    }
+
     .field {
       display: inline-block;
-      min-width: 215px;
+    }
+
+    .emailField {
+      min-width: 400px;
+      display: inline-block;
     }
   }
+}
+
+.infosquare {
+  width: 200px;
+  text-align: center;
 }

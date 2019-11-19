@@ -1,14 +1,17 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { nluHealth } from '.'
 import ScopedEngine from './engine'
+import Engine2, { E2ByBot } from './engine2/engine2'
 import { EngineByBot } from './typings'
 
+const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
-export const registerMiddleware = async (bp: typeof sdk, botScopedNlu: EngineByBot) => {
+export const registerMiddleware = async (bp: typeof sdk, e1ByBot: EngineByBot, e2byBot: E2ByBot) => {
   bp.events.registerMiddleware({
     name: 'nlu.incoming',
     direction: 'incoming',
@@ -20,7 +23,7 @@ export const registerMiddleware = async (bp: typeof sdk, botScopedNlu: EngineByB
         return next()
       }
 
-      const botCtx = botScopedNlu[event.botId] as ScopedEngine
+      const botCtx = USE_E1 ? (e1ByBot[event.botId] as ScopedEngine) : e2byBot[event.botId]
 
       if (
         !botCtx ||
@@ -32,14 +35,18 @@ export const registerMiddleware = async (bp: typeof sdk, botScopedNlu: EngineByB
       }
 
       try {
-        const metadata = await botCtx.extract(
-          event.preview,
-          event.state.session.lastMessages.map(message => message.incomingPreview),
-          event.nlu.includedContexts
-        )
+        let nlu = {}
+        if (USE_E1) {
+          nlu = await (botCtx as ScopedEngine).extract!(
+            event.preview,
+            event.state.session.lastMessages.map(message => message.incomingPreview),
+            event.nlu.includedContexts
+          )
+        } else {
+          nlu = await (botCtx as Engine2).predict(event.preview, event.nlu.includedContexts)
+        }
 
-        _.merge(event, { nlu: metadata })
-
+        _.merge(event, { nlu })
         removeSensitiveText(event)
       } catch (err) {
         bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)

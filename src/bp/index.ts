@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events'
-import { boolean } from 'joi'
 
 const yn = require('yn')
 const path = require('path')
@@ -43,6 +42,7 @@ if (process.env.APP_DATA_PATH) {
   process.APP_DATA_PATH = getAppDataPath()
 }
 
+process.IS_FAILSAFE = yn(process.env.BP_FAILSAFE)
 process.BOTPRESS_EVENTS = new EventEmitter()
 process.BOTPRESS_EVENTS.setMaxListeners(1000)
 
@@ -59,7 +59,9 @@ process.on('unhandledRejection', err => {
 
 process.on('uncaughtException', err => {
   global.printErrorDefault(err)
-  process.exit(1)
+  if (!process.IS_FAILSAFE) {
+    process.exit(1)
+  }
 })
 
 try {
@@ -97,6 +99,7 @@ try {
           process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+        process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
         process.IS_LICENSED = true
         process.ASSERT_LICENSED = () => {}
         process.BOTPRESS_VERSION = metadataContent.version
@@ -288,7 +291,7 @@ try {
         },
         metadataLocation: {
           description: 'URL of metadata file which lists available languages',
-          default: 'http://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json'
+          default: 'https://nyc3.digitaloceanspaces.com/botpress-public/embeddings/index.json'
         },
         offline: {
           description: 'Whether or not the language server has internet access',

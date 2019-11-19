@@ -27,9 +27,9 @@ class KeyboardElements extends React.Component<KeyboardElementsProps> {
 
   componentWillUnmount() {
     if (this.props.append) {
-      Default.appendRef.current.removeChild(this.container)
+      Default.appendRef.current && Default.appendRef.current.removeChild(this.container)
     } else {
-      Default.prependRef.current.removeChild(this.container)
+      Default.prependRef.current && Default.prependRef.current.removeChild(this.container)
     }
   }
 

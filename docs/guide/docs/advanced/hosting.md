@@ -5,7 +5,7 @@ title: Hosting
 
 ## Overview
 
-When you are ready to open your bot to the world, you should deploy it in production mode. When the bot is started in production, the botpress file system (BPFS) is enabled [click here for more details](../versions) and debug logs are no longer displayed. We also **strongly** recommend using PostgreSQL instead of the embedded SQLite.
+When you are ready to open your bot to the world, you should deploy it in production mode. When the bot is started in production, the botpress file system (BPFS) is enabled [click here for more details](versions) and debug logs are no longer displayed. We also **strongly** recommend using PostgreSQL instead of the embedded SQLite.
 
 ## Offline Servers
 
@@ -441,10 +441,10 @@ sudo dokku plugin:install https://github.com/dokku/dokku-postgres.git
 
 # Creates a new database and link it to your application
 dokku postgres:create botpress-db
-dokku postgres:link botpress-server botpress-db
+dokku postgres:link botpress-db botpress-server
 
 # Tell Botpress what kind of database to use
-dokku config:set DATABASE=postgres --app botpress-server
+dokku config:set botpress-server DATABASE=postgres
 ```
 
 As with Heroku, the `DATABASE_URL` environment variable will already be set.

@@ -1,94 +1,29 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import yn from 'yn'
 
-import { Config } from '../config'
+import { getOnBotMount } from './module-lifecycle/on-bot-mount'
+import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
+import { getOnServerReady } from './module-lifecycle/on-server-ready'
+import { getOnSeverStarted } from './module-lifecycle/on-server-started'
+import { NLUState } from './typings'
 
-import api from './api'
-import ConfusionEngine from './confusion-engine'
-import LangProvider from './language-provider'
-import { registerMiddleware } from './middleware'
-import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
-import Storage from './storage'
-import { EngineByBot, LanguageProvider, NLUHealth } from './typings'
+const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 
-const nluByBot: EngineByBot = {}
-let langProvider: LanguageProvider
+const state: NLUState = { nluByBot: {} }
 
-export let nluHealth: NLUHealth
-
-export const initializeLangServer = async (bp: typeof sdk) => {
-  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-
-  try {
-    langProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger)
-  } catch (e) {
-    if (e.failure && e.failure.code === 'ECONNREFUSED') {
-      bp.logger.error(`Language server can't be reached at adress ${e.failure.address}:${e.failure.port}`)
-      process.exit()
-    }
-    throw e
-  }
-
-  const { validProvidersCount, validLanguages } = langProvider.getHealth()
-
-  nluHealth = {
-    isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
-    validProvidersCount,
-    validLanguages
-  } as NLUHealth
-}
-
-const onServerStarted = async (bp: typeof sdk) => {
-  Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
-  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-  await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
-  await initializeLangServer(bp)
-  await registerMiddleware(bp, nluByBot)
-}
-
-const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, nluByBot)
-}
-
-const onBotMount = async (bp: typeof sdk, botId: string) => {
-  const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
-  const bot = await bp.bots.getBotById(botId)
-
-  const languages = _.intersection(bot.languages, langProvider.languages)
-  if (bot.languages.length !== languages.length) {
-    const diff = _.difference(bot.languages, languages)
-    bp.logger.warn(
-      `Bot ${
-        bot.id
-      } has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`,
-      { notSupported: diff }
-    )
-  }
-
-  const scoped = new ConfusionEngine(
-    bp.logger,
-    botId,
-    moduleBotConfig,
-    bp.MLToolkit,
-    languages,
-    bot.defaultLanguage,
-    langProvider,
-    bp.realtime,
-    bp.RealTimePayload
-  )
-
-  await scoped.init()
-  nluByBot[botId] = scoped
-}
-
-const onBotUnmount = async (bp: typeof sdk, botId: string) => {
-  delete nluByBot[botId]
-}
-
+const onServerStarted = getOnSeverStarted(state)
+const onServerReady = getOnServerReady(state)
+const onBotMount = getOnBotMount(state)
+const onBotUnmount = getOnBotUnmount(state)
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.removeMiddleware('nlu.incoming')
   bp.http.deleteRouterForBot('nlu')
+  // if module gets deactivated but server keeps running, we want to destroy bot state
+  if (!USE_E1) {
+    Object.keys(state.nluByBot).forEach(botID => () => onBotUnmount(bp, botID))
+  }
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

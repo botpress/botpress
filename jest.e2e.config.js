@@ -7,7 +7,7 @@ module.exports = {
     }
   },
   globalSetup: 'jest-environment-puppeteer/setup',
-  setupFilesAfterEnv: ['expect-puppeteer'],
+  setupFilesAfterEnv: ['expect-puppeteer', './jest.setup.js'],
   collectCoverage: false,
   resetModules: true,
   modulePaths: ['<rootDir>/src/bp/'],
@@ -17,7 +17,8 @@ module.exports = {
   },
   testMatch: ['**/src/e2e/**/*.test.(ts|js)'],
   testPathIgnorePatterns: ['out', 'build', 'node_modules', 'src/bp'],
-  testEnvironment: 'jest-environment-puppeteer',
+  testEnvironment: '<rootDir>/src/e2e/customEnvironment.js',
   rootDir: '.',
-  testResultsProcessor: './node_modules/jest-html-reporter'
+  testResultsProcessor: './node_modules/jest-html-reporter',
+  testRunner: "jest-circus/runner",
 }

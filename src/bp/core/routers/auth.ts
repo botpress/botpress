@@ -1,8 +1,8 @@
-import { Logger } from 'botpress/sdk'
-import { RequestWithUser } from 'common/typings'
+import * as sdk from 'botpress/sdk'
+import { AuthRule, ChatUserAuth, RequestWithUser, TokenUser, UserProfile } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AuthStrategies } from 'core/services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE, WORKSPACE_HEADER } from 'core/services/auth/auth-service'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import StrategyBasic from 'core/services/auth/basic'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
@@ -11,14 +11,14 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
-import { NotFoundError } from './errors'
+import { BadRequestError, NotFoundError } from './errors'
 import { checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
 
 export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
 
   constructor(
-    private logger: Logger,
+    private logger: sdk.Logger,
     private authService: AuthService,
     private configProvider: ConfigProvider,
     private workspaceService: WorkspaceService,
@@ -61,33 +61,38 @@ export class AuthRouter extends CustomRouter {
       })
     )
 
-    router.get('/ping', this.checkTokenHeader, this.asyncMiddleware(this.sendSuccess))
+    router.get(
+      '/ping',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        sendSuccess(res, 'Pong', { serverId: process.SERVER_ID })
+      })
+    )
 
     router.get(
       '/me/profile',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
         const { email, strategy, isSuperAdmin } = req.tokenUser!
-
-        const { type } = await this.authService.getStrategy(strategy)
-
         const user = await this.authService.findUser(email, strategy)
         if (!user) {
           throw new NotFoundError(`User ${email || ''} not found`)
         }
-        const { firstname, lastname } = user.attributes
+        const { firstname, lastname, picture_url } = user.attributes
+        const { type } = await this.authService.getStrategy(strategy)
 
-        const userRole = await this.workspaceService.getRoleForUser(email, strategy, req.workspace!)
+        const permissions = await this.getUserPermissions(req.tokenUser!, req.workspace!)
 
-        const userProfile = {
+        const userProfile: UserProfile = {
           firstname,
           lastname,
           email,
+          picture_url,
           strategyType: type,
           strategy,
           isSuperAdmin,
           fullName: [firstname, lastname].filter(Boolean).join(' '),
-          permissions: userRole && userRole.rules
+          permissions
         }
 
         return sendSuccess(res, 'Retrieved profile successfully', userProfile)
@@ -107,12 +112,12 @@ export class AuthRouter extends CustomRouter {
               .min(0)
               .max(35)
               .trim()
-              .required(),
+              .allow(''),
             lastname: Joi.string()
               .min(0)
               .max(35)
               .trim()
-              .required()
+              .allow('')
           })
         )
 
@@ -136,28 +141,10 @@ export class AuthRouter extends CustomRouter {
         }
 
         res.send(
-          await Promise.map(this.workspaceService.getWorkspaces(), workspace => {
-            return { email, strategy, workspace: workspace.id, role: workspace.adminRole }
+          await Promise.map(this.workspaceService.getWorkspaces(), w => {
+            return { email, strategy, workspace: w.id, role: w.adminRole, workspaceName: w.name }
           })
         )
-      })
-    )
-
-    router.get(
-      '/me/permissions',
-      this.checkTokenHeader,
-      this.asyncMiddleware(async (req, res) => {
-        const { email, strategy, isSuperAdmin } = req.tokenUser!
-
-        if (isSuperAdmin) {
-          return sendSuccess(res, 'Returning Super Admin Permissions', [{ res: '*', op: '+r+w' }])
-        }
-
-        const role = await this.workspaceService.getRoleForUser(email, strategy, req.workspace!)
-        if (!role) {
-          throw new NotFoundError(`Role for user "${email}" doesn't exist`)
-        }
-        return sendSuccess(res, "Retrieved user's permissions successfully", role.rules)
       })
     )
 
@@ -176,6 +163,34 @@ export class AuthRouter extends CustomRouter {
         }
       })
     )
+
+    router.post(
+      '/me/chatAuth',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { botId, sessionId, signature } = req.body as ChatUserAuth
+
+        if (!botId || !sessionId || !signature) {
+          throw new BadRequestError('Missing required fields')
+        }
+
+        await this.authService.authChatUser(req.body, req.tokenUser!)
+        res.send(await this.workspaceService.getBotWorkspaceId(botId))
+      })
+    )
+  }
+
+  getUserPermissions = async (user: TokenUser, workspaceId: string): Promise<AuthRule[]> => {
+    const { email, strategy, isSuperAdmin } = user
+    const userRole = await this.workspaceService.getRoleForUser(email, strategy, workspaceId)
+
+    if (isSuperAdmin) {
+      return [{ res: '*', op: '+r+w' }]
+    } else if (!userRole) {
+      return [{ res: '*', op: '-r-w' }]
+    } else {
+      return userRole.rules
+    }
   }
 
   sendSuccess = async (req, res) => {

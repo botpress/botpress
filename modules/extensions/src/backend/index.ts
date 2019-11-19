@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 
-const onServerStarted = async (bp: typeof sdk) => {}
 const onServerReady = async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('extensions')
   const config = (await bp.config.getBotpressConfig()).eventCollector
@@ -24,7 +23,6 @@ const onServerReady = async (bp: typeof sdk) => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerStarted,
   onServerReady,
   definition: {
     name: 'extensions',

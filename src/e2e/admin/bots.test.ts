@@ -2,23 +2,25 @@ import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { autoAnswerDialog, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import { autoAnswerDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
   const importBotId = 'import-bot'
+  const workspaceId = 'default'
 
   const clickButtonForBot = async (buttonId: string, botId: string) => {
     const botRow = await expectMatchElement('.bp_table-row', { text: botId })
-    await clickOn('.more', undefined, botRow)
-    await clickOn(buttonId, undefined, botRow)
+    await clickOn('#btn-menu', undefined, botRow)
+    await clickOn(buttonId, undefined)
   }
 
   beforeAll(async () => {
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Import bot from archive', async () => {
+    await page.waitFor(200)
     await clickOn('#btn-create-bot')
     await page.waitFor(100)
     await clickOn('#btn-import-bot')
@@ -45,8 +47,7 @@ describe('Admin - Bot Management', () => {
     await fillField('#select-bot-templates', 'Welcome Bot') // Using fill instead of select because options are created dynamically
     await page.keyboard.press('Enter')
 
-    await clickOn('#btn-modal-create-bot')
-    await expectAdminApiCallSuccess('bots', 'POST')
+    await Promise.all([expectAdminApiCallSuccess('bots', 'POST'), clickOn('#btn-modal-create-bot')])
   })
 
   it('Export bot', async () => {
@@ -67,25 +68,28 @@ describe('Admin - Bot Management', () => {
     await clickOn('#select-status')
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
-    await clickOn('#btn-save')
-    await expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST')
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/bots`)
+    await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST'), clickOn('#btn-save')])
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Create revision', async () => {
-    await clickButtonForBot('#btn-createRevision', tempBotId)
-    await expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST')
+    await Promise.all([
+      expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST'),
+      clickButtonForBot('#btn-createRevision', tempBotId)
+    ])
+    await closeToaster()
   })
 
   it('Rollback revision', async () => {
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
-    await expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'GET')
+    await expectMatchElement('#select-revisions')
+
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
+    await clickOn('#chk-confirm')
 
-    autoAnswerDialog()
-    await clickOn('#btn-rollback')
-    await expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST')
+    await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}/rollback`, 'POST'), clickOn('#btn-submit')])
+    await page.waitFor(500)
   })
 
   it('Delete temporary bot', async () => {

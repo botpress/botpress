@@ -5,14 +5,14 @@ import axios from 'axios'
 import _ from 'lodash'
 
 import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
-
+import { connect } from 'react-redux'
 import SelectActionDropdown from './SelectActionDropdown'
 import ParametersTable from './ParametersTable'
 import ContentPickerWidget from '~/components/Content/Select/Widget'
 
 const style = require('./style.scss')
 
-export default class ActionModalForm extends Component {
+class ActionModalForm extends Component {
   state = {
     actionType: 'message',
     avActions: [],
@@ -49,17 +49,10 @@ export default class ActionModalForm extends Component {
     if (this.props.layoutv2) {
       this.setState({ actionType: 'code' })
     }
-    this.fetchAvailableFunctions()
-  }
 
-  fetchAvailableFunctions() {
-    return axios.get(`${window.BOT_API_PATH}/actions`).then(({ data }) => {
-      this.setState({
-        avActions: data
-          .filter(action => !action.metadata.hidden)
-          .map(x => {
-            return { label: x.name, value: x.name, metadata: x.metadata }
-          })
+    this.setState({
+      avActions: this.props.actions.map(x => {
+        return { label: x.name, value: x.name, metadata: x.metadata }
       })
     })
   }
@@ -241,3 +234,12 @@ export default class ActionModalForm extends Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  actions: state.skills.actions
+})
+
+export default connect(
+  mapStateToProps,
+  undefined
+)(ActionModalForm)

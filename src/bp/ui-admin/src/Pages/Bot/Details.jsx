@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import Select from 'react-select'
-import { Row, Col, Button, FormGroup, Label, Input, Form, Alert, UncontrolledTooltip, Collapse } from 'reactstrap'
+import { Row, Col, FormGroup, Label, Input, Form, Alert, UncontrolledTooltip, Collapse } from 'reactstrap'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
 import _ from 'lodash'
 
@@ -14,14 +14,15 @@ import { fetchBots, fetchBotCategories } from '../../reducers/bots'
 import { fetchLicensing } from '../../reducers/license'
 import { fetchLanguages } from '../../reducers/server'
 
-import SectionLayout from '../Layouts/Section'
-
 import api from '../../api'
+import PageContainer from '~/App/PageContainer'
+import SplitPage from '~/App/SplitPage'
+import { Button, Intent } from '@blueprintjs/core'
 
 const statusList = [
-  { label: 'Public', value: 'public' },
-  { label: 'Private', value: 'private' },
-  { label: 'Disabled', value: 'disabled' }
+  { label: 'Published', value: 'public' },
+  { label: 'Collaborators Only', value: 'private' },
+  { label: 'Unmounted', value: 'disabled' }
 ]
 
 class Bots extends Component {
@@ -531,18 +532,24 @@ class Bots extends Component {
 
   render() {
     return (
-      <SectionLayout
-        title={this.state.name || this.state.botId}
+      <PageContainer
+        title={`Bot - ${this.state.name || this.state.botId}`}
         helpText="This page shows the details you can configure for a desired bot."
-        activePage="bots"
-        currentTeam={this.props.team}
-        mainContent={this.renderDetails()}
-        sideMenu={
-          <Button id="btn-save" color="primary" onClick={this.saveChanges}>
-            Save Details
-          </Button>
-        }
-      />
+      >
+        <SplitPage
+          sideMenu={
+            <Button
+              id="btn-save"
+              intent={Intent.PRIMARY}
+              icon="floppy-disk"
+              text="Save changes"
+              onClick={this.saveChanges}
+            />
+          }
+        >
+          {this.renderDetails()}
+        </SplitPage>
+      </PageContainer>
     )
   }
 }

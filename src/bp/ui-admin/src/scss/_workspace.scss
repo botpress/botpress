@@ -15,9 +15,6 @@
     display: flex;
     align-items: center;
     font-weight: bold;
-    span {
-      margin-right: 5px;
-    }
   }
 }
 
@@ -48,6 +45,7 @@
 
     .botbadge {
       margin-right: 5px;
+      padding: 2px;
       font-size: 70%;
     }
   }
@@ -56,9 +54,18 @@
 .compact_view {
   .botbadge {
     margin-left: 10px;
-    font-size: 60%;
+    font-size: 65%;
   }
   .actions button {
     margin-right: 10px;
   }
+}
+
+.filterField {
+  margin-bottom: 10px;
+}
+
+.filterCallout {
+  text-align: center;
+  margin-bottom: 10px;
 }

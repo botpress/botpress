@@ -18,13 +18,13 @@ To open the Admin Dashboard, visit [`http://localhost:3000`](http://localhost:30
 
 In Botpress, bots are assigned to a workspace. When you start Botpress for the first time, you'll have a default workspace created automatically for you.
 
-Let's create a new bot by first navigating to your workspace, then clicking the "Create Bot" button.
+Let's create a new bot by first navigating to your workspace, then click the "Create Bot" button.
 
 ![Create Bot](assets/workspace_bot.png)
 
 All you have to do is pick a name for your bot and a unique `Bot ID` will be generated for you.
 
-> The **Bot ID** can't be changed in the future so it's important to pick a meaningful name. Also bear in mind that this ID will be visible to the users of your bots.
+> The **Bot ID** can't be changed in the future so it's important to pick a meaningful name. Also, bear in mind that this ID will be visible to the users of your bots.
 
 Once created, click on the bot to open the Studio interface and edit your bot.
 
@@ -40,7 +40,7 @@ You will notice on the left there are a couple of sections available. Some of th
 
 ### Test your bot
 
-To test your bot, there are two different kind of emulators. You can use the built-in chat emulator located in the bottom right corner, which is exactly what your visitors will face when they speak with your bot. You can also start a new conversation with your bot by clicking the reset button.
+To test your bot, there are two different kinds of emulators. You can use the built-in chat emulator located in the bottom right corner, which is exactly what your visitors will face when they speak with your bot. You can also start a new conversation with your bot by clicking the reset button.
 
 ![Toolbar Chat](assets/studio-toolbar.jpg)
 
@@ -48,7 +48,7 @@ Open the chat window and say "_Hello_". The bot should greet you with something 
 
 ![Hello from the bot](assets/flow_page.png)
 
-There is another emulator, which is specifically designed for you (the bot owner) to understand quickly why the bot gives you a specific answer. That emulator is only available for authenticated users. It includes all sort of useful informations: list of suggested answers by module, nlu intents, and the elected suggestion.
+There is another emulator, which is specifically designed for you (the bot owner) to understand quickly why the bot gives you a specific answer. That emulator is only available for authenticated users. It includes all sorts of useful information: a list of suggested answers by module, nlu intents, and the elected suggestion.
 
 ![Emulator Hello](assets/emulator_ng.png)
 
@@ -60,7 +60,7 @@ One of the modules shipped by default with Botpress is the QnA (Question and Ans
 
 1. Click the **QnA** panel on the left
 2. Click the "**Add New**" button
-3. Type in the "Questions" textbox a question, for example "How old are you?". Then add as many different ways of asking the same question as you want.
+3. Type in the "Questions" textbox a question, for example, "How old are you?". Then add as many different ways of asking the same question as you want.
 4. In the "Reply With", type the answer you want your bot to provide
 5. Click "**Save**"
 

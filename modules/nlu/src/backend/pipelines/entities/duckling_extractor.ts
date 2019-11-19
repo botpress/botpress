@@ -11,6 +11,25 @@ export class DucklingEntityExtractor implements EntityExtractor {
 
   constructor(private readonly logger?: sdk.Logger) {}
 
+  public static get entityTypes(): string[] {
+    return DucklingEntityExtractor.enabled
+      ? [
+          'amountOfMoney',
+          'distance',
+          'duration',
+          'email',
+          'number',
+          'ordinal',
+          'phoneNumber',
+          'quantity',
+          'temperature',
+          'time',
+          'url',
+          'volume'
+        ]
+      : []
+  }
+
   static async configure(enabled: boolean, url: string, logger: sdk.Logger) {
     if (enabled) {
       const proxyConfig = process['PROXY'] ? { httpsAgent: new httpsProxyAgent(process['PROXY']) } : {}

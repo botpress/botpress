@@ -41,11 +41,12 @@ const validateChoice = async data => {
     )
   }
 
+  const keySuffix = args.randomId ? `-${args.randomId}` : ''
   if (choice) {
-    temp['skill-choice-valid'] = true
-    temp['skill-choice-ret'] = choice
+    temp[`skill-choice-valid${keySuffix}`] = true
+    temp[`skill-choice-ret${keySuffix}`] = choice
   } else {
-    temp['skill-choice-valid'] = false
+    temp[`skill-choice-valid${keySuffix}`] = false
   }
 }
 

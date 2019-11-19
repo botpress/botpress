@@ -1,203 +1,147 @@
-import { Button, Classes, Dialog, FormGroup } from '@blueprintjs/core'
-import { CreatedUser, WorkspaceUser } from 'common/typings'
-import React, { Component } from 'react'
+import { Button, FormGroup } from '@blueprintjs/core'
+import { AuthRole, AuthStrategyConfig, CreatedUser, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
+import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import Select from 'react-select'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
-import { AppState } from 'src/reducers'
+import { BaseDialog, DialogBody, DialogFooter } from '~/Pages/Components/BaseDialog'
+import RoleDropdown from '~/Pages/Workspace/Users/RoleDropdown'
 
 import api from '../../../api'
-import { fetchRoles } from '../../../reducers/roles'
+import { fetchAvailableUsers } from '../../../reducers/user'
 
-type Props = {
+import AuthStrategyDropdown from './AuthStrategyDropdown'
+
+interface OwnProps {
   isOpen?: boolean
   toggleOpen?: () => void
   onUserAdded?: () => void
   onUserCreated?: (newUser: CreatedUser) => void
-} & ReturnType<typeof mapStateToProps> & { fetchRoles }
-
-type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
-
-interface State {
-  users: WorkspaceUser[]
-  roles: SelectOption<string>[]
-  strategies: SelectOption<string>[]
-
-  selectedUser?: SelectOption<WorkspaceUser>
-  selectedOption?: SelectOption<string>
-  selectedStrategy?: SelectOption<string>
-  selectedRole?: SelectOption<string>
-
-  displayStrategy: boolean
+  forcedRoleId?: string
 }
 
-class CreateUserModal extends Component<Props, State> {
-  private formEl: any
+interface DispatchProps {
+  fetchAvailableUsers: (roleId?: string) => void
+}
 
-  readonly state: State = {
-    roles: [],
-    users: [],
-    strategies: [],
-    displayStrategy: false
-  }
+interface StateProps {
+  availableUsers: WorkspaceUserInfo[]
+}
 
-  componentDidMount() {
-    // tslint:disable-next-line: no-floating-promises
-    this.loadStrategies()
-    // tslint:disable-next-line: no-floating-promises
-    this.loadUsers()
-    this.loadRoles()
-  }
+type Props = DispatchProps & StateProps & OwnProps
 
-  componentDidUpdate(prevProps: Props) {
-    if (!prevProps.roles.length && this.props.roles.length) {
-      this.loadRoles()
-    }
-  }
+interface UserOption {
+  label: string
+  value: WorkspaceUser
+  __isNew__?: boolean
+}
 
-  private loadRoles() {
-    if (!this.props.roles.length) {
-      return this.props.fetchRoles()
-    }
+export const CreateUserModal: FC<Props> = props => {
+  const [role, setRole] = useState<AuthRole>()
+  const [strategy, setStrategy] = useState<AuthStrategyConfig>()
+  const [selectedUser, setSelectedUser] = useState<UserOption>()
 
-    const roles = this.props.roles.map(x => ({ value: x.id, label: x.name }))
-    this.setState({ roles, selectedRole: roles[0] })
-  }
+  useEffect(() => {
+    props.fetchAvailableUsers()
+    setSelectedUser(undefined)
+  }, [props.isOpen])
 
-  async loadStrategies() {
-    const { data } = await api.getAnonymous().get('/auth/config')
-    this.setState({ strategies: data.payload.strategies.map(x => ({ label: x.strategyId, value: x.strategyId })) })
-  }
+  const isCreating = selectedUser && selectedUser.__isNew__
+  const isValid = selectedUser && role && (!isCreating || (isCreating && strategy))
 
-  async loadUsers() {
-    const { data } = await api.getSecured().get('/admin/users/listAvailableUsers')
-    this.setState({ users: data.payload })
-  }
-
-  createUser = async e => {
-    e.preventDefault()
-
-    const { selectedUser, selectedStrategy, selectedRole } = this.state
-    if (!selectedUser || !selectedStrategy || !selectedRole || !this.isFormValid()) {
+  const createUser = async () => {
+    if (!selectedUser || !role) {
       return
     }
 
-    if (selectedUser!['__isNew__']) {
+    if (isCreating) {
+      if (!strategy) {
+        return
+      }
+
       const { data } = await api.getSecured().post('/admin/users', {
         email: selectedUser.value,
-        strategy: selectedStrategy.value,
-        role: selectedRole.value
+        strategy: strategy.strategyId,
+        role: role.id
       })
 
-      this.props.onUserCreated && this.props.onUserCreated(data.payload)
+      props.onUserCreated && props.onUserCreated(data.payload)
     } else {
       const { email, strategy } = selectedUser.value
-      await api.getSecured().post('/admin/users/workspace/add', { email, strategy, role: selectedRole.value })
-      this.props.onUserAdded && this.props.onUserAdded()
+      await api.getSecured().post('/admin/users/workspace/add', { email, strategy, role: role.id })
+      props.onUserAdded && props.onUserAdded()
     }
   }
 
-  isFormValid = () => this.formEl && this.formEl.checkValidity()
-
-  findUsers = async (inputValue: string) => {
-    if (!inputValue.length || !this.state.users) {
+  const loadOptions = async (inputValue: string) => {
+    if (!inputValue.length || !props.availableUsers) {
       return
     }
 
     const searchString = inputValue.toLowerCase()
-    return this.state.users
+    return props.availableUsers
       .filter(x => x.email.toLowerCase().includes(searchString))
       .map((user: any) => {
         return { label: `${user.email} (${user.strategy})`, value: user }
       })
   }
 
-  handleUserChanged = selectedUser => {
-    if (!this.state.strategies) {
-      return
-    }
-    this.setState({
-      selectedUser,
-      displayStrategy: selectedUser && selectedUser['__isNew__'],
-      selectedStrategy: this.state.strategies[0]
-    })
-  }
+  return (
+    <BaseDialog
+      title="Add Collaborator"
+      icon="add"
+      isOpen={props.isOpen}
+      onClose={props.toggleOpen}
+      onSubmit={createUser}
+    >
+      <DialogBody>
+        <FormGroup
+          label="Email"
+          labelFor="select-email"
+          helperText="Invite an existing user, or type his e-mail address and press Enter"
+        >
+          <AsyncSelect
+            id="select-email"
+            cacheOptions
+            defaultOptions
+            value={selectedUser}
+            loadOptions={loadOptions}
+            onChange={option => setSelectedUser(option as any)}
+            autoFocus={true}
+          />
+        </FormGroup>
 
-  handleStrategyChanged = selectedStrategy => this.setState({ selectedStrategy })
+        {isCreating && (
+          <FormGroup label="Authentication Strategy" labelFor="select-strategy">
+            <AuthStrategyDropdown onChange={strategy => setStrategy(strategy)} />
+          </FormGroup>
+        )}
 
-  render() {
-    return (
-      <Dialog
-        isOpen={this.props.isOpen}
-        icon="add"
-        onClose={this.props.toggleOpen}
-        transitionDuration={0}
-        title={'Add Collaborator'}
-      >
-        <form ref={form => (this.formEl = form)}>
-          <div className={Classes.DIALOG_BODY}>
-            <FormGroup
-              label="Email"
-              labelFor="select-email"
-              helperText="Invite an existing user, or type his e-mail address and press Enter"
-            >
-              <AsyncSelect
-                id="select-email"
-                cacheOptions
-                defaultOptions
-                value={this.state.selectedOption}
-                loadOptions={this.findUsers}
-                onChange={this.handleUserChanged}
-                autoFocus={true}
-              />
-            </FormGroup>
-
-            {this.state.displayStrategy && (
-              <FormGroup label="Authentication Strategy" labelFor="select-strategy">
-                <Select
-                  id="select-strategy"
-                  options={this.state.strategies}
-                  onChange={this.handleStrategyChanged}
-                  value={this.state.selectedStrategy}
-                />
-              </FormGroup>
-            )}
-            <FormGroup label="Role" labelFor="select-role">
-              <Select
-                id="select-role"
-                options={this.state.roles}
-                onChange={selectedRole => this.setState({ selectedRole })}
-                value={this.state.selectedRole}
-              />
-            </FormGroup>
-          </div>
-          <div className={Classes.DIALOG_FOOTER}>
-            <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-              <Button
-                id="btn-submit"
-                className="float-right"
-                type="submit"
-                onClick={this.createUser}
-                text="Create account"
-                disabled={!this.isFormValid()}
-              />
-            </div>
-          </div>
-        </form>
-      </Dialog>
-    )
-  }
+        <FormGroup label="Choose a role for that user" labelFor="select-role">
+          <RoleDropdown onChange={role => setRole(role)} />
+        </FormGroup>
+      </DialogBody>
+      <DialogFooter>
+        <Button
+          id="btn-submit"
+          className="float-right"
+          type="submit"
+          text={isCreating ? 'Create account' : 'Add to workspace'}
+          disabled={!isValid}
+        />
+      </DialogFooter>
+    </BaseDialog>
+  )
 }
 
-const mapStateToProps = (state: AppState) => ({
-  roles: state.roles.roles
+const mapStateToProps = state => ({
+  availableUsers: state.user.availableUsers
 })
 
 const mapDispatchToProps = {
-  fetchRoles
+  fetchAvailableUsers
 }
 
-export default connect(
+export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
 )(CreateUserModal)

@@ -1,8 +1,17 @@
 import Bluebird from 'bluebird'
-import _ from 'lodash'
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 
 import { SDK } from '.'
+import { HitlSession, HitlSessionOverview, Message, SessionIdentity } from './typings'
+
+const toBool = s => this.knex.bool.parse(s)
+
+// trims SQL queries from objects
+const toPlainObject = object =>
+  _.mapValues(object, v => {
+    return v && v.sql ? v.sql : v
+  })
 
 export default class HitlDb {
   knex: any
@@ -59,9 +68,9 @@ export default class HitlDb {
       )
   }
 
-  createUserSession = async (event: sdk.IO.IncomingEvent) => {
+  createUserSession = async (event: sdk.IO.Event) => {
     let profileUrl = undefined
-    let full_name =
+    let displayName =
       '#' +
       Math.random()
         .toString()
@@ -69,9 +78,11 @@ export default class HitlDb {
 
     const user: sdk.User = (await this.bp.users.getOrCreateUser(event.channel, event.target)).result
 
-    if (user && user.attributes && user.attributes.first_name && user.attributes.last_name) {
-      profileUrl = user.attributes.profile_pic || user.attributes.picture_url
-      full_name = user.attributes.first_name + ' ' + user.attributes.last_name
+    if (user && user.attributes) {
+      const { first_name, last_name, full_name, profile_pic, picture_url } = user.attributes
+
+      profileUrl = profile_pic || picture_url
+      displayName = full_name || (first_name && last_name && first_name + ' ' + last_name) || displayName
     }
 
     const session = {
@@ -82,7 +93,7 @@ export default class HitlDb {
       last_event_on: this.knex.date.now(),
       last_heard_on: this.knex.date.now(),
       paused: 0,
-      full_name: full_name,
+      full_name: displayName,
       paused_trigger: undefined
     }
 
@@ -91,7 +102,7 @@ export default class HitlDb {
     return { is_new_session: true, ...dbSession }
   }
 
-  async getOrCreateUserSession(event) {
+  async getOrCreateUserSession(event: sdk.IO.Event) {
     if (!event.target) {
       return undefined
     }
@@ -109,25 +120,26 @@ export default class HitlDb {
       })
   }
 
-  getSessionById(sessionId) {
+  async getSessionById(sessionId: string): Promise<HitlSession | undefined> {
     return this.knex('hitl_sessions')
       .where({ id: sessionId })
       .select('*')
-      .limit(1)
-      .then(users => {
-        if (!users || users.length === 0) {
-          return undefined
-        } else {
-          return users[0]
-        }
-      })
-  }
-
-  toPlainObject(object) {
-    // trims SQL queries from objects
-    return _.mapValues(object, v => {
-      return v && v.sql ? v.sql : v
-    })
+      .get(0)
+      .then(
+        res =>
+          res && {
+            id: res.id,
+            botId: res.botId,
+            channel: res.channel,
+            userId: res.userId,
+            fullName: res.full_name,
+            profileUrl: res.user_image_url,
+            lastEventOn: res.last_event_on,
+            lastHeardOn: res.last_heard_on,
+            isPaused: res.paused,
+            pausedBy: res.paused_trigger
+          }
+      )
   }
 
   buildUpdate = direction => {
@@ -140,40 +152,50 @@ export default class HitlDb {
         }
   }
 
-  appendMessageToSession(event, sessionId, direction) {
-    const text = event.type === 'custom' ? event.payload.wrapped.text : event.payload.text
-    const source = direction == 'in' ? 'user' : event.payload.agent ? 'agent' : 'bot'
+  async appendMessageToSession(event: sdk.IO.Event, sessionId: string, direction: string) {
+    const payload = event.payload || {}
+    const text = event.preview || payload.text || (payload.wrapped && payload.wrapped.text)
+
+    let source = 'user'
+    if (direction === 'out') {
+      source = event.payload.agent ? 'agent' : 'bot'
+    }
+
     const message = {
       session_id: sessionId,
       type: event.type,
-      text: text,
-      source: source,
       raw_message: event.payload,
-      direction: direction,
-      ts: this.knex.date.now()
+      text,
+      source,
+      direction,
+      ts: new Date()
     }
 
     return Bluebird.join(
-      this.knex('hitl_messages').insert(message),
+      this.knex('hitl_messages').insert({
+        ...message,
+        raw_message: this.knex.json.set(message.raw_message || {}),
+        ts: this.knex.date.now()
+      }),
       this.knex('hitl_sessions')
         .where({ id: sessionId })
         .update(this.buildUpdate(direction)),
-      () => this.toPlainObject(message)
+      () => toPlainObject(message)
     )
   }
 
-  setSessionPaused(paused, session, trigger) {
-    const { botId = undefined, channel = undefined, userId = undefined, sessionId = undefined } = session
+  async setSessionPauseState(isPaused: boolean, session: SessionIdentity, trigger: string): Promise<number> {
+    const { botId, channel, userId, sessionId } = session
 
     if (sessionId) {
       return this.knex('hitl_sessions')
         .where({ id: sessionId })
-        .update({ paused: paused ? 1 : 0, paused_trigger: trigger })
+        .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => parseInt(sessionId))
     } else {
       return this.knex('hitl_sessions')
         .where({ botId, channel, userId })
-        .update({ paused: paused ? 1 : 0, paused_trigger: trigger })
+        .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => {
           return this.knex('hitl_sessions')
             .where({ botId, channel, userId })
@@ -183,35 +205,25 @@ export default class HitlDb {
     }
   }
 
-  isSessionPaused(session) {
-    const { botId = undefined, channel = undefined, userId = undefined, sessionId = undefined } = session
-    const toBool = s => this.knex.bool.parse(s)
+  async isSessionPaused(session: SessionIdentity): Promise<boolean> {
+    const { botId, channel, userId, sessionId } = session
 
-    if (sessionId) {
-      return this.knex('hitl_sessions')
-        .where({ id: sessionId })
-        .select('paused')
-        .then()
-        .get(0)
-        .then(s => s && toBool(s.paused))
-    } else {
-      return this.knex('hitl_sessions')
-        .where({ botId, channel, userId })
-        .select('paused')
-        .then()
-        .get(0)
-        .then(s => s && toBool(s.paused))
-    }
+    return this.knex('hitl_sessions')
+      .where(sessionId ? { id: sessionId } : { botId, channel, userId })
+      .select('paused')
+      .then()
+      .get(0)
+      .then(s => s && toBool(s.paused))
   }
 
-  getAllSessions(onlyPaused, botId) {
-    let condition = ''
+  getAllSessions(
+    onlyPaused: boolean,
+    botId: string,
+    sessionIds?: string[]
+  ): { total: number; sessions: HitlSessionOverview[] } {
     const knex2 = this.knex
-    if (onlyPaused === true) {
-      condition = 'hitl_sessions.paused = ' + this.knex.bool.true()
-    }
 
-    return this.knex
+    let query = this.knex
       .select('*')
       .from(function() {
         this.select([knex2.raw('max(id) as mId'), 'session_id', knex2.raw('count(*) as count')])
@@ -222,34 +234,80 @@ export default class HitlDb {
       .join('hitl_messages', this.knex.raw('q1.mId'), 'hitl_messages.id')
       .join('hitl_sessions', this.knex.raw('q1.session_id'), 'hitl_sessions.id')
       .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
-      .whereRaw(condition)
       .where({ botId })
+
+    if (onlyPaused) {
+      query = query.whereRaw('hitl_sessions.paused = ' + this.knex.bool.true())
+    }
+
+    if (sessionIds) {
+      query = query.whereIn('hitl_sessions.id', sessionIds)
+    }
+
+    return query
       .orderBy('hitl_sessions.last_event_on', 'desc')
       .limit(100)
-      .then(results => ({
-        total: 0,
-        sessions: results
-      }))
+      .then(results =>
+        results.map(res => ({
+          id: res.session_id,
+          botId: res.botId,
+          channel: res.channel,
+          lastEventOn: res.last_event_on,
+          lastHeardOn: res.last_heard_on,
+          isPaused: res.paused,
+          pausedBy: res.paused_trigger,
+          lastMessage: {
+            id: res.mId,
+            type: res.type,
+            source: res.source,
+            text: res.text,
+            raw_message: res.raw_message,
+            direction: res.direction,
+            ts: res.ts
+          },
+          user: {
+            id: res.userId,
+            fullName: res.full_name,
+            avatarUrl: res.user_image_url,
+            attributes: this.knex.json.get(res.attributes)
+          }
+        }))
+      )
   }
 
-  getSessionData(sessionId) {
-    return this.knex('hitl_sessions')
+  async getSessionMessages(sessionId: string): Promise<Message[]> {
+    return this.knex('hitl_messages')
       .where({ session_id: sessionId })
-      .join('hitl_messages', 'hitl_messages.session_id', 'hitl_sessions.id')
-      .orderBy('hitl_messages.id', 'desc')
+      .orderBy('id', 'asc')
       .limit(100)
       .select('*')
-      .then(messages => _.orderBy(messages, ['id'], ['asc']))
+      .then(messages =>
+        messages.map(msg => ({
+          ...msg,
+          raw_message: this.knex.json.get(msg.raw_message)
+        }))
+      )
   }
 
-  searchMessages(search_term) {
-    return this.knex('hitl_sessions')
-      .where('full_name', 'like', `%${search_term}%`)
+  async searchSessions(searchTerm: string): Promise<string[]> {
+    const query = this.knex('hitl_sessions')
+      .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
+      .where('full_name', 'like', `%${searchTerm}%`)
+      .orWhere('srv_channel_users.user_id', 'like', `%${searchTerm}%`)
+
+    if (this.knex.isLite) {
+      query.orWhere('attr_fullName', 'like', `%${searchTerm}%`)
+      query.select(
+        this.knex.raw(`hitl_sessions.id, json_extract(srv_channel_users.attributes, '$.full_name') as attr_fullName`)
+      )
+    } else {
+      query.orWhereRaw(`srv_channel_users.attributes ->>'full_name' like '%${searchTerm}%'`)
+      query.select(this.knex.raw(`hitl_sessions.id`))
+    }
+
+    return query
       .orderBy('last_heard_on')
       .limit(100)
-      .select('*')
-      .then(results => ({
-        sessions: results
-      }))
+      .then(results => results.map(r => r.id))
   }
 }

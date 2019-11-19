@@ -14,9 +14,11 @@ import {
   FaSquare
 } from 'react-icons/fa'
 import { toastSuccess } from '~/utils/toaster'
+import PageContainer from '~/App/PageContainer'
+import SplitPage from '~/App/SplitPage'
 
 import api from '../../api'
-import SectionLayout from '../Layouts/Section'
+import AccessControl from '~/App/AccessControl'
 
 export default class Debug extends React.Component<Props, State> {
   state = {
@@ -120,13 +122,13 @@ export default class Debug extends React.Component<Props, State> {
 
   render() {
     return (
-      <SectionLayout
-        title={`Configure Debug`}
+      <PageContainer
+        title="Configure Debug"
         helpText="This page allows you to enable or disable some debug scopes while using Botpress. This list is populated while features are being used, so some items may be missing"
-        activePage="bots"
-        mainContent={this.renderTree()}
-        sideMenu={this.renderSide()}
-      />
+        superAdmin={true}
+      >
+        <SplitPage sideMenu={this.renderSide()}>{this.renderTree()}</SplitPage>
+      </PageContainer>
     )
   }
 }

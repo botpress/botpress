@@ -14,6 +14,7 @@ declare global {
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
     SHOW_POWERED_BY: boolean
+    USE_SESSION_STORAGE: boolean
     BP_STORAGE: any
     botpress: {
       [moduleName: string]: any
@@ -152,11 +153,15 @@ export type Config = {
   enableResetSessionShortcut: boolean
   recentConversationLifetime: string
   startNewConvoOnTimeout: boolean
+  /** Use sessionStorage instead of localStorage, which means the session expires when tab is closed */
+  useSessionStorage: boolean
   containerWidth?: string | number
   layoutWidth?: string | number
   showPoweredBy: boolean
   /** When enabled, sent messages are persisted to local storage (recall previous messages)  */
   enablePersistHistory: boolean
+  /** Experimental: expose the store to the parent frame for more control on the webchat's behavior */
+  exposeStore: boolean
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'

@@ -20,6 +20,12 @@
     display: block;
   }
 
+  .spaced {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .actions {
     float: right;
     color: #dfdfdf !important;
