@@ -5,7 +5,7 @@ import { FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE, ResolutionData } from '../../t
 const MODULE_URL_PREFIX = '/mod/misunderstood'
 
 class ApiClient {
-  constructor(private axios: AxiosStatic) { }
+  constructor(private axios: AxiosStatic) {}
 
   async get(url: string, config?: AxiosRequestConfig) {
     const res = await this.axios.get(url, config)
@@ -47,8 +47,10 @@ class ApiClient {
 
   updateStatus(id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
     return this.postForModule(`/events/${id}/status`, {
-      status, ...resolutionData,
-      resolutionParams: resolutionData && resolutionData.resolutionParams ? JSON.stringify(resolutionData.resolutionParams) : undefined
+      status,
+      ...resolutionData,
+      resolutionParams:
+        resolutionData && resolutionData.resolutionParams ? JSON.stringify(resolutionData.resolutionParams) : undefined
     })
   }
 

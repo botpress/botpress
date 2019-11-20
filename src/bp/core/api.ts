@@ -234,7 +234,7 @@ const experimental = (hookService: HookService): typeof sdk.experimental => {
  * Socket.IO API to emit payloads to front-end clients
  */
 export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) { }
+  constructor(private realtimeService: RealtimeService) {}
 
   sendPayload(payload: RealTimePayload) {
     this.realtimeService.sendToSocket(payload)

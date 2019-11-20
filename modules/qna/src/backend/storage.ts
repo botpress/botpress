@@ -44,12 +44,13 @@ export default class Storage {
     this.config = config
     this.botId = botId
 
-    this.categories = config.qnaCategories && config.qnaCategories.length > 0
-      ? config.qnaCategories
-        .split(',')
-        .map(x => x.trim())
-        .filter(x => x.length)
-      : []
+    this.categories =
+      config.qnaCategories && config.qnaCategories.length > 0
+        ? config.qnaCategories
+            .split(',')
+            .map(x => x.trim())
+            .filter(x => x.length)
+        : []
   }
 
   private async getAxiosConfig() {

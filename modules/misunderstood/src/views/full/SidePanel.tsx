@@ -13,19 +13,19 @@ const SidePanel = ({
   onSelectedEventChange,
   applyAllPending
 }) => (
-    <div className={style.sidePanel}>
-      <div className={classnames(style.sidePanelContent, style.contentStretch, style.sidePanelContentStretch)}>
-        <SideList
-          eventCounts={eventCounts}
-          selectedStatus={selectedStatus}
-          events={events}
-          selectedEventIndex={selectedEventIndex}
-          onSelectedStatusChange={onSelectedStatusChange}
-          onSelectedEventChange={onSelectedEventChange}
-          applyAllPending={applyAllPending}
-        />
-      </div>
+  <div className={style.sidePanel}>
+    <div className={classnames(style.sidePanelContent, style.contentStretch, style.sidePanelContentStretch)}>
+      <SideList
+        eventCounts={eventCounts}
+        selectedStatus={selectedStatus}
+        events={events}
+        selectedEventIndex={selectedEventIndex}
+        onSelectedStatusChange={onSelectedStatusChange}
+        onSelectedEventChange={onSelectedEventChange}
+        applyAllPending={applyAllPending}
+      />
     </div>
-  )
+  </div>
+)
 
 export default SidePanel

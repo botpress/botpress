@@ -1,4 +1,4 @@
-import { FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE, FLAG_REASON } from '../../types'
+import { FLAG_REASON, FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE } from '../../types'
 
 export const STATUSES = [
   {

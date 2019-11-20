@@ -1,9 +1,9 @@
-import { AxiosRequestConfig, AxiosStatic } from "axios"
+import { AxiosRequestConfig, AxiosStatic } from 'axios'
 
-const MODULE_URL_PREFIX = "/mod/qna"
+const MODULE_URL_PREFIX = '/mod/qna'
 
 class QnAApiClient {
-  constructor(private axios: AxiosStatic) { }
+  constructor(private axios: AxiosStatic) {}
 
   async get(url: string, config?: AxiosRequestConfig) {
     const res = await this.axios.get(MODULE_URL_PREFIX + url, config)
@@ -20,10 +20,10 @@ class QnAApiClient {
     question,
     categories
   }: {
-    page: number;
-    pageSize: number;
-    question?: string;
-    categories?: { label: string; value: string }[];
+    page: number
+    pageSize: number
+    question?: string
+    categories?: { label: string; value: string }[]
   }) {
     const params = {
       limit: pageSize,
@@ -32,7 +32,7 @@ class QnAApiClient {
       categories: categories && categories.length ? categories : undefined
     }
 
-    const data = await this.get("/questions", { params })
+    const data = await this.get('/questions', { params })
 
     return {
       ...data,
@@ -43,7 +43,7 @@ class QnAApiClient {
   }
 
   async getCategories() {
-    const { categories } = await this.get("/categories")
+    const { categories } = await this.get('/categories')
     return categories
   }
 }

@@ -58,7 +58,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
-  ) { }
+  ) {}
 
   disposeOnExit() {
     this.sandbox && this.sandbox.dispose()

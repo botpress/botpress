@@ -17,7 +17,7 @@ export class LoggerDbPersister {
   private currentPromise
   private logger!: Logger
 
-  constructor() { }
+  constructor() {}
 
   async initialize(database: Database, logger: Logger) {
     this.knex = database.knex

@@ -171,20 +171,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   render() {
-    const {
-      eventCounts,
-      selectedStatus,
-      events,
-      selectedEventIndex,
-      selectedEvent
-    } = this.state
+    const { eventCounts, selectedStatus, events, selectedEventIndex, selectedEvent } = this.state
 
     const { contentLang } = this.props
 
     const dataLoaded =
-      selectedStatus === FLAGGED_MESSAGE_STATUS.new
-        ? (selectedEvent || events && events.length === 0)
-        : events
+      selectedStatus === FLAGGED_MESSAGE_STATUS.new ? selectedEvent || (events && events.length === 0) : events
 
     return (
       <Container sidePanelWidth={320}>
@@ -219,8 +211,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             />
           </div>
         ) : (
-            <SplashScreen title="Loading..." description="Please wait while we're loading data" />
-          )}
+          <SplashScreen title="Loading..." description="Please wait while we're loading data" />
+        )}
       </Container>
     )
   }

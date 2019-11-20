@@ -35,76 +35,74 @@ const AmendForm = ({
   onSave,
   onCancel
 }: Props) => (
-    <div className={style.amendForm}>
-      <h4>
-        What is this message type?&nbsp;
+  <div className={style.amendForm}>
+    <h4>
+      What is this message type?&nbsp;
       <ButtonGroup>
+        <Button
+          onClick={() => {
+            if (mode === RESOLUTION_TYPE.intent) {
+              return
+            }
+            setMode(RESOLUTION_TYPE.intent)
+          }}
+          intent={mode === RESOLUTION_TYPE.intent ? Intent.SUCCESS : Intent.NONE}
+        >
+          Goal
+        </Button>
+        <Button
+          onClick={() => {
+            if (mode === RESOLUTION_TYPE.qna) {
+              return
+            }
+            setMode(RESOLUTION_TYPE.qna)
+          }}
+          intent={mode === RESOLUTION_TYPE.qna ? Intent.SUCCESS : Intent.NONE}
+        >
+          Query
+        </Button>
+        {mode != null && (
           <Button
             onClick={() => {
-              if (mode === RESOLUTION_TYPE.intent) {
-                return
-              }
-              setMode(RESOLUTION_TYPE.intent)
+              setMode(null)
             }}
-            intent={mode === RESOLUTION_TYPE.intent ? Intent.SUCCESS : Intent.NONE}
+            icon="undo"
           >
-            Goal
-        </Button>
-          <Button
-            onClick={() => {
-              if (mode === RESOLUTION_TYPE.qna) {
-                return
-              }
-              setMode(RESOLUTION_TYPE.qna)
-            }}
-            intent={mode === RESOLUTION_TYPE.qna ? Intent.SUCCESS : Intent.NONE}
-          >
-            Query
-        </Button>
-          {mode != null && (
-            <Button
-              onClick={() => {
-                setMode(null)
-              }}
-              icon="undo"
-            >
-              Undo
+            Undo
           </Button>
-          )}
-        </ButtonGroup>
-      </h4>
-
-      {mode === RESOLUTION_TYPE.qna && (
-        <div className={style.amendFormPicker}>
-          <QnAPicker
-            axios={axios}
-            language={language}
-            selected={resolution}
-            onSelect={onSelect} />
-        </div>
-      )}
-
-      {mode === RESOLUTION_TYPE.intent && (
-        <div className={style.amendFormPicker}>
-          <IntentPicker
-            axios={axios}
-            language={language}
-            event={event}
-            selected={resolution} params={resolutionParams}
-            onSelect={onSelect}
-            onParamsUpdate={onParamsUpdate} />
-        </div>
-      )}
-
-      <ButtonGroup large>
-        <Button onClick={onSave} icon="tick" intent={Intent.SUCCESS} disabled={!mode || !resolution}>
-          Save
-        </Button>
-        <Button onClick={onCancel} icon="cross" intent={Intent.NONE}>
-          Cancel
-        </Button>
+        )}
       </ButtonGroup>
-    </div>
-  )
+    </h4>
+
+    {mode === RESOLUTION_TYPE.qna && (
+      <div className={style.amendFormPicker}>
+        <QnAPicker axios={axios} language={language} selected={resolution} onSelect={onSelect} />
+      </div>
+    )}
+
+    {mode === RESOLUTION_TYPE.intent && (
+      <div className={style.amendFormPicker}>
+        <IntentPicker
+          axios={axios}
+          language={language}
+          event={event}
+          selected={resolution}
+          params={resolutionParams}
+          onSelect={onSelect}
+          onParamsUpdate={onParamsUpdate}
+        />
+      </div>
+    )}
+
+    <ButtonGroup large>
+      <Button onClick={onSave} icon="tick" intent={Intent.SUCCESS} disabled={!mode || !resolution}>
+        Save
+      </Button>
+      <Button onClick={onCancel} icon="cross" intent={Intent.NONE}>
+        Cancel
+      </Button>
+    </ButtonGroup>
+  </div>
+)
 
 export default AmendForm

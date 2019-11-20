@@ -32,7 +32,7 @@ export class EventCollector {
     private logger: sdk.Logger,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
-  ) { }
+  ) {}
 
   async initialize(database: Database) {
     const config = (await this.configProvider.getBotpressConfig()).eventCollector

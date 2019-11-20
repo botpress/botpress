@@ -23,7 +23,10 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
     const addQnA = async (event: DbFlaggedEvent) => {
       const qnaId = event.resolution
       const qnaEntry: { data: QnaEntry } = await botGhost.readFileAsObject('qna', `${qnaId}.json`)
-      qnaEntry.data.questions[event.language] = uniq([...(qnaEntry.data.questions[event.language] || []), event.preview])
+      qnaEntry.data.questions[event.language] = uniq([
+        ...(qnaEntry.data.questions[event.language] || []),
+        event.preview
+      ])
       await botGhost.upsertFile('qna', `${qnaId}.json`, JSON.stringify(qnaEntry, null, 2))
     }
 
@@ -32,7 +35,9 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
     const removeNLU = (language: string, utterance: string) => async (fileName: string) => {
       const nluEntry: sdk.NLU.IntentDefinition = await botGhost.readFileAsObject('intents', fileName)
       if (nluEntry.utterances[language]) {
-        nluEntry.utterances[language] = nluEntry.utterances[language].filter(u => normalizeUtterance(u) !== normalizeUtterance(utterance))
+        nluEntry.utterances[language] = nluEntry.utterances[language].filter(
+          u => normalizeUtterance(u) !== normalizeUtterance(utterance)
+        )
       }
       await botGhost.upsertFile('intents', fileName, JSON.stringify(nluEntry, null, 2))
     }
@@ -40,15 +45,16 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
     const addNLU = async (event: DbFlaggedEvent) => {
       const intentName = event.resolution
 
-      const nluFiles = (await botGhost.directoryListing('intents', '*.json', '__qna__*'))
-        .filter(fileName => fileName !== `${intentName}.json`)
+      const nluFiles = (await botGhost.directoryListing('intents', '*.json', '__qna__*')).filter(
+        fileName => fileName !== `${intentName}.json`
+      )
       await Bluebird.mapSeries(nluFiles, removeNLU(event.language, event.preview))
 
       const nluEntry: sdk.NLU.IntentDefinition = await botGhost.readFileAsObject('intents', `${intentName}.json`)
       nluEntry.utterances[event.language] = uniq([...(nluEntry.utterances[event.language] || []), event.preview])
 
-      const params = event.resolutionParams && typeof event.resolutionParams !== 'object'
-        ? JSON.parse(event.resolutionParams) : {}
+      const params =
+        event.resolutionParams && typeof event.resolutionParams !== 'object' ? JSON.parse(event.resolutionParams) : {}
       if (params.contexts) {
         nluEntry.contexts = uniq([...(nluEntry.contexts || []), ...params.contexts])
       }
@@ -60,10 +66,12 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
 
     await Bluebird.mapSeries(nluEvents, addNLU)
 
-    await trx(tableName).update({
-      status: FLAGGED_MESSAGE_STATUS.applied,
-      updatedAt: knex.fn.now()
-    }).whereIn('id', events.map(({ id }) => id))
+    await trx(tableName)
+      .update({
+        status: FLAGGED_MESSAGE_STATUS.applied,
+        updatedAt: knex.fn.now()
+      })
+      .whereIn('id', events.map(({ id }) => id))
 
     setImmediate(async () => {
       const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
