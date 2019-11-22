@@ -9,6 +9,23 @@ function injectDOMElement(tagName, targetSelector, options) {
   return element
 }
 
+function fixPositionIe() {
+  const widget = document.querySelector('#bp-web-widget > #bp-widget')
+
+  if (!widget.classList.contains('bp-widget-side')) {
+    widget.style.position = 'fixed'
+    widget.style.top = 'auto'
+  } else {
+    widget.style.position = 'absolute'
+    widget.style.top = document.documentElement.scrollTop
+  }
+}
+
+const isIe = /MSIE|Trident/.test(window.navigator.userAgent)
+if (isIe) {
+  window.addEventListener('scroll', fixPositionIe)
+}
+
 window.addEventListener('message', function(payload) {
   const data = payload.data
   if (!data || !data.type) {
@@ -17,6 +34,9 @@ window.addEventListener('message', function(payload) {
 
   if (data.type === 'setClass') {
     document.querySelector('#bp-widget').setAttribute('class', data.value)
+    if (isIe) {
+      fixPositionIe()
+    }
   } else if (data.type === 'setWidth') {
     document.querySelector('#bp-widget').style.width = data.value
   }
