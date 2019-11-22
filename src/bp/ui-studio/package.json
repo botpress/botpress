@@ -31,7 +31,7 @@
   "dependencies": {
     "@blueprintjs/core": "^3.15.1",
     "anser": "^1.4.8",
-    "axios": "^0.18.1",
+    "axios": "^0.19.0",
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.5.5",
     "bootstrap": "3.4.1",
