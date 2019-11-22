@@ -116,7 +116,7 @@ export default class Db {
     const context = [...messagesBefore, ...messagesAfter]
       .sort((e1, e2) => e1.id - e2.id)
       .map(({ id, event }) => ({
-        ...pick(JSON.parse(event), 'preview', 'direction'),
+        ...pick(typeof event === 'string' ? JSON.parse(event) : event, 'preview', 'direction'),
         isCurrent: id === messageId
       }))
 
