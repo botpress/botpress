@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { InjectedIntlProps, injectIntl } from 'react-intl'
+import { InjectedIntlProps } from 'react-intl'
+import { injectIntl } from 'react-intl'
 
 import { Renderer } from '../../../typings'
 
-export class LoginPrompt extends Component<Renderer.Message> {
+class LoginPromptClass extends Component<Renderer.Message & InjectedIntlProps> {
   state = {
     username: '',
     password: ''
@@ -25,82 +26,71 @@ export class LoginPrompt extends Component<Renderer.Message> {
   }
 
   render_bot_active() {
-    const TranslatedBlock = injectIntl(({ intl }: InjectedIntlProps) => {
-      const userName = intl.formatMessage({
-        id: 'loginForm.userName',
-        defaultMessage: 'Username'
-      })
-      const password = intl.formatMessage({
-        id: 'loginForm.password',
-        defaultMessage: 'Password'
-      })
-      const submit = intl.formatMessage({
-        id: 'loginForm.submit',
-        defaultMessage: 'Submit'
-      })
-
-      return (
-        <form className={'bpw-form-container'} onSubmit={this.handleFormSubmit}>
-          <label>
-            <input
-              id="login_username"
-              type="input"
-              name="username"
-              placeholder={userName}
-              className="bpw-input"
-              onChange={this.handleInputChanged}
-            />
-          </label>
-          <label>
-            <input
-              id="login_password"
-              type="password"
-              name="password"
-              placeholder={password}
-              className="bpw-input"
-              onChange={this.handleInputChanged}
-            />
-          </label>
-          <input id="login_submit" className={'bpw-button-alt'} type="submit" value={submit} />
-        </form>
-      )
+    const userName = this.props.intl.formatMessage({
+      id: 'loginForm.userName',
+      defaultMessage: 'Username'
     })
 
-    return <TranslatedBlock />
+    const password = this.props.intl.formatMessage({
+      id: 'loginForm.password',
+      defaultMessage: 'Password'
+    })
+
+    const submit = this.props.intl.formatMessage({
+      id: 'loginForm.submit',
+      defaultMessage: 'Submit'
+    })
+    return (
+      <form className={'bpw-form-container'} onSubmit={this.handleFormSubmit}>
+        <label>
+          <input
+            id="login_username"
+            type="input"
+            name="username"
+            placeholder={userName}
+            className="bpw-input"
+            onChange={this.handleInputChanged}
+          />
+        </label>
+        <label>
+          <input
+            id="login_password"
+            type="password"
+            name="password"
+            placeholder={password}
+            className="bpw-input"
+            onChange={this.handleInputChanged}
+          />
+        </label>
+        <input id="login_submit" className={'bpw-button-alt'} type="submit" value={submit} />
+      </form>
+    )
   }
 
   render_bot_past() {
-    const TranslatedBlock = injectIntl(({ intl }: InjectedIntlProps) => {
-      const formTitle = intl.formatMessage({
-        id: 'loginForm.formTitle',
-        defaultMessage: 'Login form'
-      })
-
-      return (
-        <div className={'bpw-special-action'}>
-          <p>* {formTitle} *</p>
-        </div>
-      )
+    const formTitle = this.props.intl.formatMessage({
+      id: 'loginForm.formTitle',
+      defaultMessage: 'Login form'
     })
 
-    return <TranslatedBlock />
+    return (
+      <div className={'bpw-special-action'}>
+        <p>* {formTitle} *</p>
+      </div>
+    )
   }
 
   render_user() {
-    const TranslatedBlock = injectIntl(({ intl }: InjectedIntlProps) => {
-      const providedCredentials = intl.formatMessage({
-        id: 'loginForm.providedCredentials',
-        defaultMessage: 'Login form'
-      })
-
-      return (
-        <div className={'bpw-special-action'}>
-          <p>* {providedCredentials} *</p>
-        </div>
-      )
+    const providedCredentials = this.props.intl.formatMessage({
+      id: 'loginForm.providedCredentials',
+      defaultMessage: 'Login form'
     })
 
-    return <TranslatedBlock />
+    return (
+      <div className={'bpw-special-action'}>
+        <p>* {providedCredentials} *</p>
+      </div>
+    )
   }
 
   render() {
@@ -115,3 +105,5 @@ export class LoginPrompt extends Component<Renderer.Message> {
     return this.render_bot_past()
   }
 }
+
+export const LoginPrompt = injectIntl(LoginPromptClass)
