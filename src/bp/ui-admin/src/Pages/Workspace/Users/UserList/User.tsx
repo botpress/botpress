@@ -49,7 +49,7 @@ const User: FC<Props> = ({ user, showPicture, currentUserEmail, onUserUpdated, o
         </div>
       </div>
       <div>
-        {user.email !== currentUserEmail && (
+        {user.email.toLowerCase() !== currentUserEmail && (
           <UserActions user={user} onUserUpdated={onUserUpdated} onPasswordReset={onPasswordReset} />
         )}
       </div>
