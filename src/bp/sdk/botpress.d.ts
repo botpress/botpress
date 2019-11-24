@@ -5,6 +5,26 @@
  * Please let us know in our official Github Repo!
  */
 declare module 'botpress/sdk' {
+  import Knex from 'knex'
+
+  export interface KnexExtension {
+    isLite: boolean
+    location: string
+    createTableIfNotExists(tableName: string, cb: Knex.KnexCallback): Promise<boolean>
+    date: Knex.Date
+    bool: Knex.Bool
+    json: Knex.Json
+    binary: Knex.Binary
+    insertAndRetrieve<T>(
+      tableName: string,
+      data: {},
+      returnColumns?: string | string[],
+      idColumnName?: string
+    ): Promise<T>
+  }
+
+  export type KnexExtended = Knex & KnexExtension
+
   /**
    * Returns the current version of Botpress
    */
@@ -15,7 +35,7 @@ declare module 'botpress/sdk' {
    * When developing modules, you can use this to create tables and manage data
    * @example bp.database('srv_channel_users').insert()
    */
-  export const database: any
+  export const database: KnexExtended
 
   /**
    * The logger instance is automatically scoped to the calling module
@@ -236,8 +256,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new (): Model
-        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new(): Model
+        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor

@@ -1,0 +1,249 @@
+import { Button, Card, ControlGroup, InputGroup, MenuItem } from '@blueprintjs/core'
+import { MultiSelect } from '@blueprintjs/select'
+import { AxiosStatic } from 'axios'
+import classnames from 'classnames'
+import without from 'lodash/without'
+import React from 'react'
+
+import { ApiFlaggedEvent } from '../../../types'
+
+import style from './style.scss'
+import ApiClient from './NLUApiClient'
+import Pager from './Pager'
+import VariationsOverlay from './VariationsOverlay'
+
+const ITEMS_PER_PAGE = 5
+
+interface Params {
+  contexts?: string[]
+}
+
+interface Props {
+  axios: AxiosStatic
+  language: string
+  event: ApiFlaggedEvent
+  selected: string
+  params: Params
+  onSelect: (id: string | null) => void
+  onParamsUpdate: (params?: object | null) => void
+}
+
+interface Intent {
+  name: string
+  slots: {
+    id: string
+    color: number
+    name: string
+    entities: string[]
+  }
+  utterances: {
+    [lang: string]: string[]
+  }
+  contexts: string[]
+}
+
+interface State {
+  page: number
+  intents: Intent[]
+  displayIntents: Intent[]
+  filterIntent: string
+  filteredIntentsCount: number
+}
+
+const StringMultiSelect = MultiSelect.ofType<string>()
+
+class IntentPicker extends React.Component<Props, State> {
+  state = {
+    page: 0,
+    intents: [],
+    displayIntents: [],
+    filterIntent: '',
+    filteredIntentsCount: 0
+  }
+
+  apiClient = new ApiClient(this.props.axios)
+
+  async fetchData() {
+    const intents = await this.apiClient.getIntents()
+    this.setState({ intents, filteredIntentsCount: intents.length }, this.updateDisplayIntents)
+  }
+
+  updateDisplayIntents = () => {
+    const { page, intents, filterIntent } = this.state
+    const filteredIntents = intents.filter(intent => !filterIntent || intent.name.includes(filterIntent))
+    const filteredIntentsCount = filteredIntents.length
+    const displayIntents = filteredIntents.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE)
+    this.setState({ filteredIntentsCount, displayIntents })
+  }
+
+  async componentDidMount() {
+    await this.fetchData()
+  }
+
+  renderPagination() {
+    const pagesCount = Math.ceil(this.state.filteredIntentsCount / ITEMS_PER_PAGE)
+
+    return <Pager pagesCount={pagesCount} currentPage={this.state.page} goTo={this.updateDisplayIntents} />
+  }
+
+  handleFilterChange = event => {
+    this.setState(
+      {
+        filterIntent: event.target.value
+      },
+      this.updateDisplayIntents
+    )
+  }
+
+  renderHeader() {
+    return (
+      <ControlGroup className={style.filter}>
+        <InputGroup
+          large
+          leftIcon="filter"
+          onChange={this.handleFilterChange}
+          placeholder="Search for an intent..."
+          value={this.state.filterIntent}
+        />
+      </ControlGroup>
+    )
+  }
+
+  renderParamsForm() {
+    const { event, params, selected: selectedItemName } = this.props
+
+    const eventContexts = event.nluContexts || []
+    const selectedItem = this.state.intents.find(intent => intent.name === selectedItemName)
+    const newContexts = without(eventContexts, ...selectedItem.contexts)
+
+    if (!newContexts.length) {
+      return null
+    }
+
+    const toggleContext = (context: string) => {
+      let contexts = (params && params.contexts) || []
+      if (contexts.includes(context)) {
+        contexts = contexts.filter(c => c !== context)
+      } else {
+        contexts = [...contexts, context]
+      }
+      this.props.onParamsUpdate({
+        ...params,
+        contexts
+      })
+    }
+
+    return (
+      <div className={style.paramsForm}>
+        <h5>Add extra contexts?</h5>
+        <StringMultiSelect
+          items={newContexts}
+          selectedItems={(params && params.contexts) || []}
+          onItemSelect={toggleContext}
+          placeholder="Search for a context..."
+          popoverProps={{
+            minimal: true
+          }}
+          tagRenderer={context => context}
+          itemRenderer={(context, { modifiers, handleClick }) => {
+            if (!modifiers.matchesPredicate) {
+              return null
+            }
+            return <MenuItem active={modifiers.active} onClick={handleClick} key={context} text={context} />
+          }}
+          tagInputProps={{
+            onRemove: toggleContext,
+            inputProps: {
+              className: style.selectInput
+            }
+          }}
+        />
+      </div>
+    )
+  }
+
+  renderListItem = (intent: Intent, isSelected?: boolean) => {
+    if (!intent || !intent.name) {
+      return null
+    }
+
+    const { language } = this.props
+
+    const utterances = intent.utterances[language] || []
+
+    return (
+      <Card
+        key={intent.name}
+        interactive={!isSelected}
+        onClick={
+          isSelected
+            ? null
+            : () => {
+                this.props.onSelect(intent.name)
+              }
+        }
+        className={classnames(style.card, {
+          [style.selectedCard]: isSelected
+        })}
+      >
+        <h5>{intent.name}</h5>
+
+        {utterances[0] && (
+          <p>
+            U:&nbsp;{utterances[0]}&nbsp;
+            <VariationsOverlay elements={utterances} />
+          </p>
+        )}
+
+        {isSelected && (
+          <>
+            {this.renderParamsForm()}
+            <Button
+              onClick={() => {
+                this.props.onSelect(null)
+                this.props.onParamsUpdate(null)
+              }}
+              icon="undo"
+            >
+              Select another
+            </Button>
+          </>
+        )}
+      </Card>
+    )
+  }
+
+  renderList() {
+    const { displayIntents, filterIntent } = this.state
+
+    if (displayIntents.length) {
+      return displayIntents.map(item => this.renderListItem(item))
+    }
+
+    return <h3>{filterIntent ? 'No intents match the query.' : 'No intents found'}</h3>
+  }
+
+  render() {
+    const { selected: selectedItemName } = this.props
+    const selectedItem = this.state.intents.find(intent => intent.name === selectedItemName)
+
+    if (selectedItemName && !selectedItem) {
+      return null
+    }
+
+    if (selectedItem) {
+      return this.renderListItem(selectedItem, true)
+    }
+
+    return (
+      <>
+        {this.renderHeader()}
+        {this.renderPagination()}
+        {this.renderList()}
+        {this.renderPagination()}
+      </>
+    )
+  }
+}
+
+export default IntentPicker
