@@ -19,13 +19,17 @@ export default class WebchatDb {
   async getUserInfo(userId) {
     const { result: user } = await this.users.getOrCreateUser('web', userId)
 
-    const fullName = `${user.attributes['first_name']} ${user.attributes['last_name']}`
-    const avatar = (user && user.attributes['picture_url']) || undefined
+    let fullName = 'User'
 
-    return {
-      fullName,
-      avatar_url: avatar
+    if (user && user.attributes) {
+      const { first_name, last_name } = user.attributes
+
+      if (first_name || last_name) {
+        fullName = `${first_name || ''} ${last_name || ''}`
+      }
     }
+
+    return { fullName, avatar_url: _.get(user, 'attributes.picture_url') }
   }
 
   async initialize() {
