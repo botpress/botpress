@@ -3,7 +3,7 @@ import fs from 'fs'
 import _ from 'lodash'
 import tmp from 'tmp'
 
-import { BIO } from '../typings'
+import { BIO, ExtractedSlot } from '../typings'
 
 import * as featurizer from './featurizer2'
 import * as labeler from './labeler2'
@@ -99,10 +99,10 @@ export default class CRFExtractor2 {
     )
 
     const prevPairs = prevFeats.length
-      ? featurizer.getFeatPairs(prevFeats[0], current, ['word', 'vocab', 'weight'])
+      ? featurizer.getFeatPairs(prevFeats[0], current, ['word', 'vocab', 'weight', 'POS'])
       : []
     const nextPairs = nextFeats.length
-      ? featurizer.getFeatPairs(current, nextFeats[0], ['word', 'vocab', 'weight'])
+      ? featurizer.getFeatPairs(current, nextFeats[0], ['word', 'vocab', 'weight', 'POS'])
       : []
 
     const intentFeat = featurizer.getIntentFeature(intent)
@@ -141,6 +141,7 @@ export default class CRFExtractor2 {
       featurizer.getNum(token),
       featurizer.getSpecialChars(token),
       featurizer.getWordFeat(token, isPredict),
+      featurizer.getPOSFeat(token),
       ...featurizer.getEntitiesFeats(token, intent.slot_entities, isPredict)
     ].filter(_.identity) // some features can be undefined
   }
