@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import sdk, { RedisLock } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 
 export const BIO = {
   INSIDE: 'I',
@@ -201,5 +201,15 @@ export interface TrainingSession {
   status: 'training' | 'canceled' | 'done' | 'idle'
   language: string
   progress: number
-  lock?: RedisLock
+  lock?: sdk.RedisLock
+}
+
+export interface Tools {
+  tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
+  vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
+  partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
+  generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
+  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
+  ducklingExtractor: EntityExtractor
+  mlToolkit: typeof sdk.MLToolkit
 }
