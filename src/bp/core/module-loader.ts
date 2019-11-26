@@ -131,13 +131,15 @@ export class ModuleLoader {
     const resolver = new ModuleResolver(this.logger)
     const absoluteLocation = await resolver.resolve(moduleLocation)
 
-    await this._unloadModule(absoluteLocation, moduleName)
+    await this.unloadModule(absoluteLocation, moduleName)
 
     const entryPoint = resolver.requireModule(absoluteLocation)
     const isModuleLoaded = await this._loadModule(entryPoint, moduleName)
 
     // Module loaded successfully, we will process its regular lifecycle
     if (isModuleLoaded) {
+      process.LOADED_MODULES[moduleName] = absoluteLocation
+
       const api = await createForModule(moduleName)
       await (entryPoint.onServerReady && entryPoint.onServerReady(api))
 
@@ -167,7 +169,7 @@ export class ModuleLoader {
     return true
   }
 
-  private async _unloadModule(moduleLocation: string, moduleName: string) {
+  public async unloadModule(moduleLocation: string, moduleName: string) {
     const loadedModule = this.entryPoints.get(moduleName)
     if (!loadedModule) {
       return
@@ -183,6 +185,7 @@ export class ModuleLoader {
 
     this.entryPoints.delete(moduleName)
     delete require.cache[require.resolve(moduleLocation)]
+    delete process.LOADED_MODULES[moduleName]
   }
 
   public async unloadModulesForBot(botId: string) {

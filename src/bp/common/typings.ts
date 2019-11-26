@@ -167,3 +167,16 @@ export interface AuthPayload {
   inviteRequired?: boolean
   identity?: TokenUser
 }
+
+export interface ModuleInfo {
+  name: string
+  fullName?: string
+  description?: string
+  /** Archived modules must be unpacked before information is available */
+  archived?: boolean
+  /** The location of the module as listed in botpress config */
+  location: string
+  /** The complete location of the module */
+  fullPath: string
+  enabled: boolean
+}
