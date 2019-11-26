@@ -51,7 +51,8 @@ export default class Utterance {
   private _sentenceEmbedding?: number[]
 
   constructor(tokens: string[], vectors: number[][], posTags: string[], public languageCode: Readonly<string>) {
-    if (tokens.length !== vectors.length) {
+    const allSameLength = [tokens, vectors, posTags].every(arr => arr.length === tokens.length)
+    if (!allSameLength) {
       throw Error('Tokens and vectors must match')
     }
 
