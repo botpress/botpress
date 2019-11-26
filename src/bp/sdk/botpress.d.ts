@@ -1,6 +1,6 @@
 /**
  * This is the official Botpress SDK, designed to help our fellow developers to create wonderful modules and
- * extend the world's best chatbot functionnality to make it even better! Your module will receives an instance of
+ * extend the world's best chatbot functionality to make it even better! Your module will receives an instance of
  * this SDK (Yes, all those beautiful features!) to kick start your development. Missing something important?
  * Please let us know in our official Github Repo!
  */
