@@ -25,7 +25,7 @@ export default class WebchatDb {
       const { first_name, last_name } = user.attributes
 
       if (first_name || last_name) {
-        fullName = `${first_name || ''} ${last_name || ''}`
+        fullName = `${first_name || ''} ${last_name || ''}`.trim()
       }
     }
 
