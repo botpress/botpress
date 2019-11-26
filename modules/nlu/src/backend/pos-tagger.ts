@@ -54,7 +54,7 @@ function wordFeatures(seq: string[], idx: number): string[] {
     })
 }
 
-const fallbackTagger: sdk.MLToolkit.CRF.Tagger = {
+export const fallbackTagger: sdk.MLToolkit.CRF.Tagger = {
   tag: seq => ({ probability: 1, result: new Array(seq.length).fill('N/A') }),
   open: f => false,
   marginal: seq => new Array(seq.length).fill({ 'N/A': 1 })
@@ -64,7 +64,7 @@ const fallbackTagger: sdk.MLToolkit.CRF.Tagger = {
 // as POS tagging will reside language server once we support more than english
 const taggersByLang: { [lang: string]: sdk.MLToolkit.CRF.Tagger } = {}
 
-export function getTagger(languageCode: string, toolkit: typeof sdk.MLToolkit): sdk.MLToolkit.CRF.Tagger {
+export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit): sdk.MLToolkit.CRF.Tagger {
   // TODO check if we have the model on FS once we support more than english
   if (languageCode !== 'en') {
     return fallbackTagger
