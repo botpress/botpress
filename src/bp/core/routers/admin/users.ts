@@ -77,8 +77,14 @@ export class UsersRouter extends CustomRouter {
       this.assertBotpressPro,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const { email, strategy, role } = req.body
+        const { strategy, role } = req.body
 
+        const existingUser = await this.authService.findUser(req.body.email, strategy)
+        if (!existingUser) {
+          throw new InvalidOperationError(`User doesn't exist`)
+        }
+
+        const email = existingUser.email
         const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
         if (workspaceUsers.find(x => x.email.toLowerCase() === email.toLowerCase() && x.strategy === strategy)) {
           throw new ConflictError(`User "${email}" is already a member of this workspace`)
