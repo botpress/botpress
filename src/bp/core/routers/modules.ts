@@ -15,9 +15,9 @@ import { CustomRouter } from './customRouter'
 import { NotFoundError } from './errors'
 import { assertSuperAdmin, checkTokenHeader } from './util'
 
-const extractModuleInfo = ({ location, enabled }, resolver: ModuleResolver): ModuleInfo | undefined => {
+const extractModuleInfo = async ({ location, enabled }, resolver: ModuleResolver): Promise<ModuleInfo | undefined> => {
   try {
-    const status = resolver.getModuleInfo(location)
+    const status = await resolver.getModuleInfo(location)
     if (!status || !status.valid) {
       return
     }

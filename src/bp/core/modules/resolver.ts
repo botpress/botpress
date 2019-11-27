@@ -71,7 +71,7 @@ export default class ModuleResolver {
    * Returns the list of all detected modules on the file system and their current status
    * @param modulePath
    */
-  getModuleInfo(modulePath: string): { path: string; archived?: boolean; valid: boolean } | undefined {
+  async getModuleInfo(modulePath: string): Promise<{ path: string; archived?: boolean; valid: boolean } | undefined> {
     const paths = lookupPaths.reduce((arr: string[], lp?: string) => {
       const item = modulePath.replace('MODULES_ROOT', lp!)
       arr.push(path.resolve(fixPathForOS(item)))
@@ -95,6 +95,12 @@ export default class ModuleResolver {
         return { path: p, archived: true, valid: false }
       }
 
+      const { finalDestination } = await this.unpacker.getUnpackPaths(p)
+
+      if (fs.existsSync(finalDestination)) {
+        return { path: finalDestination, valid: true }
+      }
+
       return { path: p, archived: true, valid: true }
     }
   }
@@ -105,7 +111,7 @@ export default class ModuleResolver {
    * @param modulePath The module path to load, which may be pointing to a TGZ file or a folder and may also contain variables like {{MODULES_ROOT}}
    */
   async resolve(modulePath: string) {
-    const moduleInfo = this.getModuleInfo(modulePath)
+    const moduleInfo = await this.getModuleInfo(modulePath)
 
     if (!moduleInfo) {
       throw new ConfigurationError(`Could not find module at path "${modulePath}"`)

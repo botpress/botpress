@@ -130,16 +130,18 @@ export class ModuleLoader {
   public async reloadModule(moduleLocation: string, moduleName: string) {
     const resolver = new ModuleResolver(this.logger)
     const absoluteLocation = await resolver.resolve(moduleLocation)
-
     await this.unloadModule(absoluteLocation, moduleName)
+
+    // Adds the global config file if missing. Must be done before loading in case config is referenced in onServerStarted
+    process.LOADED_MODULES[moduleName] = absoluteLocation
+
+    await this.configReader.loadModuleGlobalConfigFile(moduleName)
 
     const entryPoint = resolver.requireModule(absoluteLocation)
     const isModuleLoaded = await this._loadModule(entryPoint, moduleName)
 
     // Module loaded successfully, we will process its regular lifecycle
     if (isModuleLoaded) {
-      process.LOADED_MODULES[moduleName] = absoluteLocation
-
       const api = await createForModule(moduleName)
       await (entryPoint.onServerReady && entryPoint.onServerReady(api))
 
@@ -182,6 +184,9 @@ export class ModuleLoader {
     }
 
     await (loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api))
+
+    const resourceLoader = new ModuleResourceLoader(this.logger, moduleName, this.ghost)
+    await resourceLoader.disableResources()
 
     this.entryPoints.delete(moduleName)
     delete require.cache[require.resolve(moduleLocation)]
