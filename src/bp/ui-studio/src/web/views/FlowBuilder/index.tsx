@@ -22,11 +22,11 @@ import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
 import Diagram from './diagram'
-import SidePanel from './sidePanel'
-import { PanelPermissions } from './sidePanel'
-import { MutexInfo } from './sidePanel/Toolbar'
 import SkillsBuilder from './skills'
 import style from './style.scss'
+import SidePanel from './SidePanel'
+import { PanelPermissions } from './SidePanel'
+import { MutexInfo } from './SidePanel/Toolbar'
 
 type Props = {
   currentFlow: string
