@@ -1,7 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import path from 'path'
+import yn from 'yn'
 
 import { isSpace, SPACE } from './tools/token-utils'
+
+const USE_POS = yn(process.env.EXPERIMENTAL_POS)
 
 function n_alpha(word: string): number {
   // TODO support more alphabets
@@ -61,18 +64,18 @@ export const fallbackTagger: sdk.MLToolkit.CRF.Tagger = {
 }
 
 // eventually this will be moved in language provider
-// as POS tagging will reside language server once we support more than english
+// POS tagging will reside language server once we support more than english
 const taggersByLang: { [lang: string]: sdk.MLToolkit.CRF.Tagger } = {}
 
 export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit): sdk.MLToolkit.CRF.Tagger {
-  // TODO check if we have the model on FS once we support more than english
-  if (languageCode !== 'en') {
+  // TODO check that language is part of supported languages once we support more
+  if (!USE_POS || languageCode !== 'en') {
     return fallbackTagger
   }
 
   if (!taggersByLang[languageCode]) {
     const tagger = toolkit.CRF.createTagger()
-    const filepath = path.join(__dirname, 'tools/pretrained/pos.en.model')
+    const filepath = path.join(__dirname, `tools/pretrained/pos.${languageCode}.model`)
     tagger.open(filepath)
     taggersByLang[languageCode] = tagger
   }
