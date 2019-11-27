@@ -256,7 +256,7 @@ export class WorkspaceService {
     const uniqStrategies = _.uniq(_.map(workspaceUsers, 'strategy'))
     const usersInfo = await this._getUsersAttributes(workspaceUsers, uniqStrategies, filteredAttributes)
 
-    return workspaceUsers.map(u => ({ ...u, attributes: usersInfo[u.email] }))
+    return workspaceUsers.map(u => ({ ...u, attributes: usersInfo[u.email.toLowerCase()] }))
   }
 
   private async _getUsersAttributes(users: WorkspaceUser[], strategies: string[], attributes: any) {
