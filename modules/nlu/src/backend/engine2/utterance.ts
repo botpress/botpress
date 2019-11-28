@@ -53,7 +53,7 @@ export default class Utterance {
   constructor(tokens: string[], vectors: number[][], posTags: string[], public languageCode: Readonly<string>) {
     const allSameLength = [tokens, vectors, posTags].every(arr => arr.length === tokens.length)
     if (!allSameLength) {
-      throw Error('Tokens and vectors must match')
+      throw Error(`Tokens, vectors and postTags dimensions must match`)
     }
 
     const arr = []

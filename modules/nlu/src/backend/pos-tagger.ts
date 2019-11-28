@@ -4,7 +4,7 @@ import yn from 'yn'
 
 import { isSpace, SPACE } from './tools/token-utils'
 
-const USE_POS = yn(process.env.EXPERIMENTAL_POS)
+const USE_POS = yn(process.env.BP_EXPERIMENTAL_NLU_POS)
 
 function n_alpha(word: string): number {
   // TODO support more alphabets
