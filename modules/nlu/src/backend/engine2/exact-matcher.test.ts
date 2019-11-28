@@ -11,7 +11,8 @@ const makeTestUtterances = (textUtterances: string[]): Utterance[] => {
     const toks = u.split(/(\s)/)
     const vecs = new Array(toks.length)
     vecs.fill([0])
-    return new Utterance(toks, vecs, 'en')
+    const posTags = toks.map(_ => '_')
+    return new Utterance(toks, vecs, posTags, 'en')
   })
 }
 
