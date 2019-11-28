@@ -106,7 +106,7 @@ In the context of this tutorial, this means that a state is created just before 
 ## Session Timeout
 
 When the Dialog Engine is waiting for the input of an inactive user, after a while the session will **Timeout**.
-Timeout allows you to end the conversation gracefully, if need be. It can also be useful to do some processing before deleting the session. For instance, you could save the user contact information to an external database, or tell the user how to contact you, or tell simply inform the user his session has timed out.
+Timeout allows you to end the conversation gracefully, if need be. It can also be useful to do some processing before deleting the session. For instance, you could save the user contact information to an external database, or tell the user how to contact you, or inform the user his session has timed out.
 
 ### Timeout Flow
 
