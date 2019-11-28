@@ -1,5 +1,6 @@
 import fs from 'fs'
 import _ from 'lodash'
+import Module from 'module'
 import path from 'path'
 
 let requireCache = {}
@@ -26,6 +27,17 @@ export const explodePath = (location: string): string[] => {
   return paths.reverse()
 }
 
+export const requireFromString = (code: string, moduleName: string, parentScript: string, _require: any) => {
+  const requireKey = getRequireCacheKey(parentScript, moduleName)
+
+  const mod = new Module(moduleName, undefined)
+  mod.require = _require
+  // @ts-ignore
+  mod._compile(code, moduleName)
+
+  return (requireCache[requireKey] = mod.exports)
+}
+
 export const requireAtPaths = (module: string, locations: string[], scriptPath?: string) => {
   const requireKey = getRequireCacheKey(scriptPath, module)
 
@@ -33,20 +45,7 @@ export const requireAtPaths = (module: string, locations: string[], scriptPath?:
     return requireCache[requireKey]
   }
 
-  const folders = _.flatten(locations.map(explodePath))
-  const lookups = _.flatten(
-    folders.map(folder => {
-      const paths = [
-        path.join(folder, module + '.js'),
-        path.join(folder, module),
-        path.join(folder, module, 'index.js')
-      ]
-      if (path.basename(folder) === module) {
-        paths.unshift(path.join(folder, 'index.js'))
-      }
-      return paths
-    })
-  )
+  const lookups = buildLookupPaths(module, locations)
 
   for (const loc of lookups) {
     try {
@@ -80,4 +79,22 @@ export const requireAtPaths = (module: string, locations: string[], scriptPath?:
 
 export const clearRequireCache = () => {
   requireCache = {}
+}
+
+export const buildLookupPaths = (module: string, locations: string[]) => {
+  const folders = _.flatten(locations.map(explodePath))
+
+  return _.flatten(
+    folders.map(folder => {
+      const paths = [
+        path.join(folder, module + '.js'),
+        path.join(folder, module),
+        path.join(folder, module, 'index.js')
+      ]
+      if (path.basename(folder) === module) {
+        paths.unshift(path.join(folder, 'index.js'))
+      }
+      return paths
+    })
+  )
 }
