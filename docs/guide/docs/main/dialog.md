@@ -124,7 +124,7 @@ Another option that requires some coding is to add the property `timeoutNode` to
 
 ## Actions
 
-An **Action** is JavaScript code that is executed in a Node.js VM. It can be anything you want. Call an API, store something in the database or store something in the Key-value Store. Actions are called by onEnter and onReceive instructions. There is two types of Actions:
+An **Action** is JavaScript code that is executed in a Node.js VM. It can be anything you want. Call an API, store something in the database or store something in the Key-value Store. Actions are called by onEnter and onReceive instructions. There are two types of Actions:
 
 - **Script**: A user defined Action that is used to run custom code.
 - **Output**: An output Action that is used to make a bot output something.
