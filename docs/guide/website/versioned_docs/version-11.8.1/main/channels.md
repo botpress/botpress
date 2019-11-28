@@ -89,7 +89,7 @@ Messenger requires you to have a Facebook App and a Facebook Page to setup your 
 - [Create a Facebook App](https://developers.facebook.com/docs/apps/)
 - [Create a Facebook Page](https://www.facebook.com/pages/creation/)
 - An HTTPS Endpoint to your bot
-  - Create an HTTPS tunnel to your marchine using Ngrok. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
+  - Create an HTTPS tunnel to your machine using Ngrok. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
   - Using Nginx and Let's Encrypt. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
 
 ### Setup
