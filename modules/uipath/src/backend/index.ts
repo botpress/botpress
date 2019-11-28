@@ -7,11 +7,11 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   definition: {
-    name: 'basic-module',
+    name: 'uipath',
     menuIcon: 'none',
-    menuText: 'BasicExample',
-    noInterface: false,
-    fullName: 'BasicExample',
+    menuText: 'UiPath',
+    noInterface: true,
+    fullName: 'UiPath',
     homepage: 'https://botpress.io'
   }
 }
