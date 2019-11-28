@@ -75,7 +75,7 @@ To define new _Flow-wide On Receive Actions_, navigate to the relevant flow, the
 > **Special cases**: If no condition is defined, the default behavior is that the conversation ends.
 > If there are conditions defined but none match, nothing happens, i.e., the current node stays active, and it will flow when a condition is matched. By default, the `onNext` will only be retried after `onReceive` is re-invoked.
 
-**Destination**: A Transition always have a target that we call a Destination. It can be:
+**Destination**: A Transition always has a target that we call a Destination. It can be:
 
 - A different Node
 - A different Flow
