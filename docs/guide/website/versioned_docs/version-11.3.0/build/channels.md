@@ -23,7 +23,7 @@ The JSON Channel is an easy way to integrate Botpress with any application or an
 }
 ```
 
-#### Optionnal Data
+#### Optional Data
 
 You can include more data to your response by using the `?include=nlu,state` query params.
 

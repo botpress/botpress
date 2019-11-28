@@ -4,7 +4,7 @@ title: About
 original_id: about-pro
 ---
 
-## Additionnal Features
+## Additional Features
 
 | Feature                    | Community | Pro |
 | -------------------------- | --------- | --- |
