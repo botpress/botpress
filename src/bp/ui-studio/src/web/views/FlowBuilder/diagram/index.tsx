@@ -2,7 +2,6 @@ import {
   Button,
   ContextMenu,
   ControlGroup,
-  Icon,
   InputGroup,
   Intent,
   Menu,
