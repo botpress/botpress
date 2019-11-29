@@ -5,7 +5,7 @@ title: NLU
 
 ## How it works
 
-The Botpress NLU module will process every incoming messages and will perform Intent Classification, Language Identification, Entity Extraction and Slot Tagging. The structure data that these tasks provide is added to the message metadata directly (under `event.nlu`), ready to be consumed by the other modules and components.
+The Botpress NLU module will process every incoming messages and will perform Intent Classification, Language Identification, Entity Extraction and Slot Tagging. The structured data that these tasks provide is added to the message metadata directly (under `event.nlu`), ready to be consumed by the other modules and components.
 
 > **QnA**: A simple use-case for bots is to understand a question and to provide an answer automatically. Doing that manually for all the questions and answers using the NLU module and the flow editor would be a tedious task, which is why we recommend using the QnA module for that instead.
 
