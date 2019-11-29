@@ -8,10 +8,10 @@ import { parseUtterance } from '../tools/utterance-parser'
 import { ExtractedEntity, ExtractedSlot, TFIDF, Tools } from '../typings'
 
 export type UtteranceToStringOptions = {
-  lowerCase: boolean
-  onlyWords: boolean
-  slots: 'keep-value' | 'keep-name' | 'ignore'
-  entities: 'keep-default' | 'keep-value' | 'keep-name' | 'ignore'
+  lowerCase?: boolean
+  onlyWords?: boolean
+  slots?: 'keep-value' | 'keep-name' | 'ignore'
+  entities?: 'keep-default' | 'keep-value' | 'keep-name' | 'ignore'
 }
 
 export type TokenToStringOptions = {
@@ -281,4 +281,15 @@ export async function buildUtteranceBatch(
       return utterance
     })
     .filter(Boolean)
+}
+
+/**
+ * @description Utility function that returns an utterance using a space tokenizer
+ * @param str sentence as a textual value
+ */
+export function makeTestUtterance(str: string): Utterance {
+  const toks = str.split(/(\s)/g)
+  const vecs = new Array(toks.length).fill([0])
+  const pos = new Array(toks.length).fill('N/A')
+  return new Utterance(toks, vecs, pos, 'en')
 }

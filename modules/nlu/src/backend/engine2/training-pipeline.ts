@@ -4,7 +4,16 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, SPACE } from '../tools/token-utils'
-import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, Tools, TrainingSession } from '../typings'
+import {
+  Intent,
+  ListEntity,
+  ListEntityModel,
+  PatternEntity,
+  TFIDF,
+  Token2Vec,
+  Tools,
+  TrainingSession
+} from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { extractUtteranceEntities } from './entity-extractor'
@@ -45,21 +54,7 @@ export interface TrainArtefacts {
   exact_match_index: ExactMatchIndex
 }
 
-export type Intent<T> = Readonly<{
-  name: string
-  contexts: string[]
-  slot_definitions: SlotDefinition[]
-  utterances: T[]
-  vocab?: _.Dictionary<boolean>
-  slot_entities?: string[]
-}>
-
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
-
-type SlotDefinition = Readonly<{
-  name: string
-  entities: string[]
-}>
 
 type progressCB = (p?: number) => void
 
