@@ -11,9 +11,9 @@ Fine, now what if you have a more complex deployment pipeline with a(or multiple
 
 ## Development Pipelines
 
-In this section, we will use Git to sync changes between 2 enviroments and promote an enviroment (i.e. promote staging to production).
+In this section, we will use Git to sync changes between 2 environments and promote an environment (i.e. promote staging to production).
 
-Given a pipeline with 3 enviroments, **development**, **staging** and **production**. Let's say there are some changes both on production and staging and you want to promote staging to production. What we want to do is the following:
+Given a pipeline with 3 environments, **development**, **staging** and **production**. Let's say there are some changes both on production and staging and you want to promote staging to production. What we want to do is the following:
 
 1. Create a merge conflict so we can choose what we want in a merge conflict tool.
 1. Resolve conflicts (i.e merge staging into production)
