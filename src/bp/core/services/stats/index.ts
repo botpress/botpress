@@ -6,5 +6,11 @@ export class StatsService {
 
   public start() {
     console.log('Stats Service Started!')
+
+    setInterval(this.run, 1000)
+  }
+
+  private run() {
+    console.log('running')
   }
 }
