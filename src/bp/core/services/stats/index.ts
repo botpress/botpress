@@ -32,7 +32,9 @@ export class StatsService {
 
   private async getStats() {
     return {
-      botCount: (await this.botService.getBotsIds()).length
+      timestamp: new Date().toISOString(),
+      botCount: (await this.botService.getBotsIds()).length,
+      serverExternalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
     }
   }
 }
