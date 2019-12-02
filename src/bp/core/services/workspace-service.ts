@@ -34,7 +34,7 @@ export class WorkspaceService {
     @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository,
     @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository,
     @inject(TYPES.WorkspaceInviteCodesRepository) private inviteCodesRepo: WorkspaceInviteCodesRepository
-  ) {}
+  ) { }
 
   async initialize(): Promise<void> {
     await this.getWorkspaces().catch(async () => {
@@ -70,7 +70,7 @@ export class WorkspaceService {
     const workspace = workspaces.find(x => x.id === workspaceId)
 
     if (!workspace) {
-      throw new Error(`Specified workspace "${workspaceId}" doesn't exists`)
+      throw new Error(`Specified workspace "${workspaceId}" doesn't exist`)
     }
 
     workspace.bots.push(botId)
@@ -84,7 +84,7 @@ export class WorkspaceService {
     const workspace = workspaces.find(x => x.id === botWorkspaceId)
 
     if (!workspace) {
-      throw new Error(`Specified workspace "${botWorkspaceId}" doesn't exists`)
+      throw new Error(`Specified workspace "${botWorkspaceId}" doesn't exist`)
     }
 
     const index = workspace.bots.findIndex(x => x === botId)
@@ -283,7 +283,7 @@ export class WorkspaceService {
     const role = [...workspace.roles, CHAT_USER_ROLE].find(r => r.id === roleId)
 
     if (!role) {
-      throw new NotFoundError(`Role "${roleId}" does not exists in workspace "${workspace.name}"`)
+      throw new NotFoundError(`Role "${roleId}" does not exist in workspace "${workspace.name}"`)
     }
     return role
   }

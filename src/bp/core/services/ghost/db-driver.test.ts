@@ -7,7 +7,7 @@ import { asBytes, expectAsync } from '../../misc/utils'
 
 import DBStorageDriver from './db-driver'
 
-createDatabaseSuite('GhostDB Driver', function(database: Database) {
+createDatabaseSuite('GhostDB Driver', function (database: Database) {
   const driver = new DBStorageDriver(database)
 
   const F_A_NAME = 'a.txt'
@@ -15,7 +15,7 @@ createDatabaseSuite('GhostDB Driver', function(database: Database) {
   const F_A_CONTENT = 'content'
 
   describe('upsertFile', () => {
-    it('creates if doesnt exist', async () => {
+    it('creates if doesn\'t exist', async () => {
       await expectAsync(driver.readFile(F_A_PATH), m => m.toThrow(F_A_NAME))
       await driver.upsertFile(F_A_PATH, F_A_CONTENT)
       await expectAsync(driver.readFile(F_A_PATH), m => m.not.toThrow(F_A_NAME))
