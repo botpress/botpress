@@ -2,6 +2,7 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 
 import { BotService } from '../bot-service'
+import { FlowService } from '../dialog/flow/service'
 import { JobService } from '../job-service'
 
 const LOCK_RESOURCE = 'botpress:statsService'
@@ -9,7 +10,8 @@ const LOCK_RESOURCE = 'botpress:statsService'
 export class StatsService {
   constructor(
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.FlowService) private flowService: FlowService
   ) {}
 
   public start() {
@@ -31,10 +33,21 @@ export class StatsService {
   }
 
   private async getStats() {
+    const botIds = await this.botService.getBotsIds()
+
     return {
+      schema: '1.0.0',
       timestamp: new Date().toISOString(),
-      botCount: (await this.botService.getBotsIds()).length,
+      botCount: botIds.length,
+      flowCount: await this.getFlowCount(botIds),
       serverExternalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
     }
+  }
+
+  private async getFlowCount(botIds: string[]): Promise<number> {
+    const flowsByBot = await Promise.all(botIds.map(botId => this.flowService.loadAll(botId)))
+    return flowsByBot.reduce((totalFlowsCount, flows) => {
+      return totalFlowsCount + flows.length
+    }, 0)
   }
 }
