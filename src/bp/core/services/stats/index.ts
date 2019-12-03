@@ -5,6 +5,7 @@ import { GhostService } from '..'
 import { BotService } from '../bot-service'
 import { FlowService } from '../dialog/flow/service'
 import { JobService } from '../job-service'
+import path from 'path'
 
 const LOCK_RESOURCE = 'botpress:statsService'
 @injectable()
@@ -49,6 +50,9 @@ export class StatsService {
       intents: {
         count: await this.getIntentsCount()
       },
+      contentElements: {
+        count: await this.getContentElementsCount()
+      },
       server: {
         externalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
       }
@@ -63,5 +67,19 @@ export class StatsService {
   private async getIntentsCount(): Promise<number> {
     const intents = await this.ghostService.bots().directoryListing('/', '*/intents/*')
     return intents.length
+  }
+
+  private async getContentElementsCount(): Promise<number> {
+    const contentElementFiles = await this.ghostService.bots().directoryListing('/', '*/content-elements/*')
+    const contentElements = await Promise.all(
+      contentElementFiles.map(filename => {
+        const obj = path.parse(filename)
+        return this.ghostService.bots().readFileAsObject<any[]>(obj.dir, obj.base)
+      })
+    )
+
+    return contentElements.reduce((acc, contentElementsArray) => {
+      return acc + contentElementsArray.length
+    }, 0)
   }
 }
