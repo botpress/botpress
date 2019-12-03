@@ -41,17 +41,15 @@ export class StatsService {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
       botCount: botIds.length,
-      flowCount: await this.getFlowCount(botIds),
+      flowCount: await this.getFlowCount(),
       intentsCount: await this.getIntentsCount(),
       serverExternalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
     }
   }
 
-  private async getFlowCount(botIds: string[]): Promise<number> {
-    const flowsByBot = await Promise.all(botIds.map(botId => this.flowService.loadAll(botId)))
-    return flowsByBot.reduce((totalFlowsCount, flows) => {
-      return totalFlowsCount + flows.length
-    }, 0)
+  private async getFlowCount(): Promise<number> {
+    const flows = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json', '*/flows/error.flow.json')
+    return flows.length
   }
 
   private async getIntentsCount(): Promise<number> {
