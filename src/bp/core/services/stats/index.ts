@@ -36,13 +36,11 @@ export class StatsService {
   }
 
   private async getStats() {
-    const botIds = await this.botService.getBotsIds()
-
     return {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
       bots: {
-        count: botIds.length
+        count: this.getBotsCount()
       },
       flows: {
         count: await this.getFlowCount()
@@ -55,8 +53,16 @@ export class StatsService {
       },
       server: {
         externalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
+      },
+      license: {
+        type: this.getLicenseType()
       }
     }
+  }
+
+  private async getBotsCount(): Promise<number> {
+    const botIds = await this.botService.getBotsIds()
+    return botIds.length
   }
 
   private async getFlowCount(): Promise<number> {
@@ -81,5 +87,9 @@ export class StatsService {
     return contentElements.reduce((acc, contentElementsArray) => {
       return acc + contentElementsArray.length
     }, 0)
+  }
+
+  private getLicenseType(): string {
+    return process.IS_PRO_ENABLED ? 'pro' : 'ce'
   }
 }
