@@ -133,7 +133,10 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
-    await this.startStatsService()
+
+    if (this.config.sendUsageStats) {
+      await this.startStatsService()
+    }
 
     await AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
 
