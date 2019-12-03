@@ -1,6 +1,7 @@
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 
+import { GhostService } from '..'
 import { BotService } from '../bot-service'
 import { FlowService } from '../dialog/flow/service'
 import { JobService } from '../job-service'
@@ -11,7 +12,8 @@ export class StatsService {
   constructor(
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.FlowService) private flowService: FlowService
+    @inject(TYPES.FlowService) private flowService: FlowService,
+    @inject(TYPES.GhostService) private ghostService: GhostService
   ) {}
 
   public start() {
@@ -40,6 +42,7 @@ export class StatsService {
       timestamp: new Date().toISOString(),
       botCount: botIds.length,
       flowCount: await this.getFlowCount(botIds),
+      intentsCount: await this.getIntentsCount(),
       serverExternalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
     }
   }
@@ -49,5 +52,10 @@ export class StatsService {
     return flowsByBot.reduce((totalFlowsCount, flows) => {
       return totalFlowsCount + flows.length
     }, 0)
+  }
+
+  private async getIntentsCount(): Promise<number> {
+    const intents = await this.ghostService.bots().directoryListing('/', '*/intents/*')
+    return intents.length
   }
 }
