@@ -1,0 +1,5 @@
+/bin
+/node_modules
+/dist
+botpress.d.ts
+global.d.ts

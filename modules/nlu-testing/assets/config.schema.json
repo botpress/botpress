@@ -1,0 +1,64 @@
+{
+  "type": "object",
+  "properties": {
+    "paused": {
+      "default": false,
+      "type": "boolean"
+    },
+    "sessionExpiry": {
+      "default": "3 days",
+      "type": "string"
+    },
+    "attributes": {
+      "default": [
+        {
+          "label": "Language",
+          "attributePath": "language"
+        }
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Attribute"
+      }
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "attributes",
+    "paused",
+    "sessionExpiry"
+  ],
+  "definitions": {
+    "Attribute": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "description": "The label displayed next to the value",
+          "type": "string"
+        },
+        "attributePath": {
+          "description": "The path to access that value in the user's attribute. For example, if you save an attribute like\n\"profile\": { \"age\": 18 }, you can set the path \"profile.age\" to access the value.",
+          "type": "string"
+        },
+        "defaultValue": {
+          "description": "The default value to display if the attribute is not set for the user. The value will then be displayed by the formatter.\nExample, you could display N/A instead of an empty value",
+          "type": "string"
+        },
+        "formatter": {
+          "description": "The formatter to use to display the value. (none = displays the value as-is). Some options:\n\n- \"moment:CUSTOM_FORMAT\": Display the date in the format specified after moment:, ex: moment:MMMM Do YYYY, h:mm a\n- \"date\": Display the current date in format YYYY-MM-DD\n- \"datetime\": Display the date in format YYYY-MM-DD HH:mm:ss\n- \"fromNow\": Display the difference between now and the date (ex: 18 hours ago)",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "attributePath",
+        "label"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+
