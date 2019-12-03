@@ -135,7 +135,7 @@ export class Botpress {
     await this.discoverBots()
 
     if (this.config.sendUsageStats) {
-      await this.startStatsService()
+      this.statsService.start()
     }
 
     await AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
@@ -440,9 +440,5 @@ Node: ${err.nodeName}`
         )
       }
     }, ms('2m'))
-  }
-
-  private startStatsService() {
-    this.statsService.start()
   }
 }

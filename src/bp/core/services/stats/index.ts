@@ -21,11 +21,13 @@ export class StatsService {
   ) {}
 
   public start() {
-    setInterval(this.run.bind(this), ms('1 minute'))
+    // tslint:disable-next-line: no-floating-promises
+    this.run()
+    setInterval(this.run.bind(this), ms('6 hours'))
   }
 
   private async run() {
-    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms('6 hours'))
+    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms('1 minute'))
     if (lock) {
       await this.sendStats()
     }
