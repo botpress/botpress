@@ -20,7 +20,9 @@ const siteConfig = {
   algolia: {
     apiKey: '570227d66d130d069630e7226c740158',
     indexName: 'botpress',
-    facetFilters: ['version:VERSION']
+    algoliaOptions: {
+      facetFilters: ['version:VERSION']
+    }
   },
 
   docsSideNavCollapsible: true,
@@ -48,7 +50,7 @@ const siteConfig = {
   },
 
   // Add custom scripts here that would be placed in <script> tags.
-  scripts: ['https://buttons.github.io/buttons.js'],
+  scripts: ['https://buttons.github.io/buttons.js', '/js/hotjar.js'],
 
   // On page navigation for the current documentation page.
   onPageNav: 'separate',

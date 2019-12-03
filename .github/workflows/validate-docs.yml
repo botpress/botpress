@@ -18,16 +18,16 @@ jobs:
       - name: Scrape docs for 404s
         run: |
           pip install scrapy
-          scrapy runspider \ 
-            -o errors.csv \ 
-            -a site="https://botpress.io/docs" \ 
-            -a domain="botpress.io" \
-            .github/workflows/code/validate-docs/spider.py \
-            -s AUTOTHROTTLE_ENABLED=true \
-            -s CONCURRENT_REQUESTS_PER_DOMAIN=32 \
-            -s HTTPCACHE_ENABLED=False \
-            -s HTTPERROR_ALLOW_ALL=True \
-            -s LOG_LEVEL=INFO
+          scrapy runspider \
+          -o errors.csv \
+          -a site="https://botpress.io/docs" \
+          -a domain="botpress.io" \
+          .github/workflows/code/validate-docs/spider.py \
+          -s AUTOTHROTTLE_ENABLED=true \
+          -s CONCURRENT_REQUESTS_PER_DOMAIN=32 \
+          -s HTTPCACHE_ENABLED=False \
+          -s HTTPERROR_ALLOW_ALL=True \
+          -s LOG_LEVEL=INFO
       - name: Check scrape results
         run: |
           ERRORS_COUNT=$(cat errors.csv | wc -l)

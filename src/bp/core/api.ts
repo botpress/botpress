@@ -27,6 +27,7 @@ import { JobService } from './services/job-service'
 import { KeyValueStore } from './services/kvs'
 import MediaService from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
+import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { WorkspaceService } from './services/workspace-service'
@@ -76,20 +77,12 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
   }
 }
 
-const dialog = (dialogEngine: DialogEngine, sessionRepo: SessionRepository): typeof sdk.dialog => {
+const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof sdk.dialog => {
   return {
-    createId(eventDestination: sdk.IO.EventDestination) {
-      return SessionIdFactory.createIdFromEvent(eventDestination)
-    },
-    async processEvent(sessionId: string, event: sdk.IO.IncomingEvent): Promise<sdk.IO.IncomingEvent> {
-      return dialogEngine.processEvent(sessionId, event)
-    },
-    async deleteSession(userId: string): Promise<void> {
-      await sessionRepo.delete(userId)
-    },
-    async jumpTo(sessionId: string, event: any, flowName: string, nodeName?: string): Promise<void> {
-      await dialogEngine.jumpTo(sessionId, event, flowName, nodeName)
-    }
+    createId: SessionIdFactory.createIdFromEvent.bind(SessionIdFactory),
+    processEvent: dialogEngine.processEvent.bind(dialogEngine),
+    deleteSession: stateManager.deleteDialogSession.bind(stateManager),
+    jumpTo: dialogEngine.jumpTo.bind(dialogEngine)
   }
 }
 
@@ -277,7 +270,6 @@ export class BotpressAPIProvider {
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
     @inject(TYPES.UserRepository) userRepo: UserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.SessionRepository) sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotService) botService: BotService,
@@ -288,11 +280,12 @@ export class BotpressAPIProvider {
     @inject(TYPES.HookService) hookService: HookService,
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
-    @inject(TYPES.JobService) jobService: JobService
+    @inject(TYPES.JobService) jobService: JobService,
+    @inject(TYPES.StateManager) stateManager: StateManager
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
-    this.dialog = dialog(dialogEngine, sessionRepo)
+    this.dialog = dialog(dialogEngine, stateManager)
     this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex

@@ -12,6 +12,8 @@ interface CssExports {
   'entityItem': string;
   'entityLabel': string;
   'entityNameInput': string;
+  'entitySelect': string;
+  'entitySelectPopover': string;
   'header': string;
   'hint': string;
   'index': string;

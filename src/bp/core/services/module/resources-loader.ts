@@ -2,6 +2,7 @@ import { Logger } from 'botpress/sdk'
 import crypto from 'crypto'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
+import glob from 'glob'
 import os from 'os'
 import path from 'path'
 
@@ -32,6 +33,10 @@ interface ResourceExportPath {
   /** Copy files without checking their original checksum */
   ignoreChecksum?: boolean
   ghosted?: boolean
+  /** Copy all files without editing them at all */
+  copyAll?: boolean
+  /** Clear destination folder before copying files (in case we rename them, for example) */
+  clearDestination?: boolean
 }
 
 export class ModuleResourceLoader {
@@ -71,6 +76,13 @@ export class ModuleResourceLoader {
         src: `${this.modulePath}/dist/content-types`,
         dest: `/content-types/${this.moduleName}`,
         ghosted: true
+      },
+      {
+        src: `${this.modulePath}/dist/examples`,
+        dest: `/examples/${this.moduleName}`,
+        ghosted: true,
+        copyAll: true,
+        clearDestination: true
       },
       ...(await this._getHooksPaths())
     ]
@@ -152,10 +164,25 @@ export class ModuleResourceLoader {
   }
 
   private async _upsertModuleResources(rootPath: ResourceExportPath): Promise<void> {
+    if (rootPath.clearDestination) {
+      const fileList = await this.ghost.global().directoryListing(rootPath.dest)
+      await Promise.map(fileList, file => this.ghost.global().deleteFile(rootPath.dest, file))
+    }
+
     if (rootPath.ignoreChecksum || !rootPath.ghosted) {
       fse.copySync(rootPath.src, process.PROJECT_LOCATION + rootPath.dest)
+    } else if (rootPath.copyAll) {
+      await this._copyFiles(rootPath.src, rootPath.dest)
     } else {
       await this._updateOutdatedFiles(rootPath.src, rootPath.dest)
+    }
+  }
+
+  private async _copyFiles(src, dest) {
+    const files = await Promise.fromCallback<string[]>(cb => glob('**/*', { cwd: src, nodir: true }, cb))
+    for (const file of files) {
+      const ressourceContent = await fse.readFileSync(path.join(src, file), 'utf8')
+      await this.ghost.global().upsertFile('/', path.join(dest, file), ressourceContent, { recordRevision: false })
     }
   }
 

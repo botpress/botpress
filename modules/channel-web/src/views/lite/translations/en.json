@@ -8,5 +8,11 @@
   "botInfo.privacyPolicy": "View Privacy Policy",
   "botInfo.termsAndConditions": "View Terms of Service",
   "botInfo.preferredLanguage": "Preferred Language",
-  "store.resetSessionMessage": "Reset the conversation"
+  "store.resetSessionMessage": "Reset the conversation",
+  "loginForm.userName": "Username",
+  "loginForm.password": "Password",
+  "loginForm.submit": "Submit",
+  "loginForm.formTitle": "Login form",
+  "loginForm.providedCredentials": "Provided credentials",
+  "messages.newMessage": "New message(s)"
 }

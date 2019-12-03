@@ -1,6 +1,6 @@
 /**
  * This is the official Botpress SDK, designed to help our fellow developers to create wonderful modules and
- * extend the world's best chatbot functionnality to make it even better! Your module will receives an instance of
+ * extend the world's best chatbot functionality to make it even better! Your module will receives an instance of
  * this SDK (Yes, all those beautiful features!) to kick start your development. Missing something important?
  * Please let us know in our official Github Repo!
  */
@@ -384,7 +384,9 @@ declare module 'botpress/sdk' {
       name: string
       type: EntityType
       sensitive?: boolean
-      fuzzy?: boolean
+      matchCase?: boolean
+      examples?: string[]
+      fuzzy?: number
       occurences?: EntityDefOccurence[]
       pattern?: string
     }
@@ -552,7 +554,7 @@ declare module 'botpress/sdk' {
       /** Array of possible suggestions that the Decision Engine can take  */
       readonly suggestions?: Suggestion[]
       /** Contains data related to the state of the event */
-      readonly state: EventState
+      state: EventState
       /** Holds NLU extraction results (when the event is natural language) */
       readonly nlu?: EventUnderstanding
       /** The final decision that the Decision Engine took */
@@ -648,6 +650,8 @@ declare module 'botpress/sdk' {
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
+      // Prevent warnings when using the code editor with custom properties
+      [anyKey: string]: any
     }
 
     export type StoredEvent = {
@@ -1433,7 +1437,12 @@ declare module 'botpress/sdk' {
      * @param nodeName The name of the optionnal node to jump to.
      * The node will default to the starting node of the flow if this value is omitted.
      */
-    export function jumpTo(sessionId: string, event: IO.Event, flowName: string, nodeName?: string): Promise<void>
+    export function jumpTo(
+      sessionId: string,
+      event: IO.IncomingEvent,
+      flowName: string,
+      nodeName?: string
+    ): Promise<void>
   }
 
   export namespace config {
