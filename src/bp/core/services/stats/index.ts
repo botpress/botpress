@@ -1,11 +1,11 @@
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import path from 'path'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
 import { FlowService } from '../dialog/flow/service'
 import { JobService } from '../job-service'
-import path from 'path'
 
 const LOCK_RESOURCE = 'botpress:statsService'
 @injectable()
