@@ -1,10 +1,10 @@
+import LicensingService from 'common/licensing-service'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import path from 'path'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
-import { FlowService } from '../dialog/flow/service'
 import { JobService } from '../job-service'
 
 const LOCK_RESOURCE = 'botpress:statsService'
@@ -13,8 +13,8 @@ export class StatsService {
   constructor(
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.GhostService) private ghostService: GhostService
+    @inject(TYPES.GhostService) private ghostService: GhostService,
+    @inject(TYPES.LicensingService) private licenseService: LicensingService
   ) {}
 
   public start() {
@@ -33,6 +33,7 @@ export class StatsService {
     console.log('Sending stats')
     const stats = await this.getStats()
     console.log('Stats:', stats)
+    console.log('Stats (serialized):', JSON.stringify(stats))
   }
 
   private async getStats() {
@@ -53,10 +54,13 @@ export class StatsService {
       },
       server: {
         externalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`,
-        botpressVersion: process.BOTPRESS_VERSION
+        botpressVersion: process.BOTPRESS_VERSION,
+        fingerprint: await this.getServerFingerprint(),
+        clusterEnabled: !(process.CLUSTER_ENABLED === null)
       },
       license: {
-        type: this.getLicenseType()
+        type: this.getLicenseType(),
+        status: await this.getLicenseStatus()
       }
     }
   }
@@ -92,5 +96,22 @@ export class StatsService {
 
   private getLicenseType(): string {
     return process.IS_PRO_ENABLED ? 'pro' : 'ce'
+  }
+
+  private async getServerFingerprint(): Promise<string | null> {
+    try {
+      return await this.licenseService.getFingerprint('cluster_url')
+    } catch (err) {
+      if (err.message && err.message === 'Not implemented') {
+        // tslint:disable-next-line: no-null-keyword
+        return null
+      }
+
+      throw err
+    }
+  }
+
+  private async getLicenseStatus(): Promise<string> {
+    return (await this.licenseService.getLicenseStatus()).status
   }
 }
