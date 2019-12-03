@@ -40,7 +40,7 @@ export class StatsService {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
       bots: {
-        count: this.getBotsCount()
+        count: await this.getBotsCount()
       },
       flows: {
         count: await this.getFlowCount()
@@ -52,7 +52,8 @@ export class StatsService {
         count: await this.getContentElementsCount()
       },
       server: {
-        externalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
+        externalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`,
+        botpressVersion: process.BOTPRESS_VERSION
       },
       license: {
         type: this.getLicenseType()
