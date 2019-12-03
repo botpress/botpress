@@ -1,7 +1,9 @@
+import axios from 'axios'
 import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import ms from 'ms'
 import path from 'path'
 
 import { GhostService } from '..'
@@ -19,22 +21,24 @@ export class StatsService {
   ) {}
 
   public start() {
-    setInterval(this.run.bind(this), 5000)
+    setInterval(this.run.bind(this), ms('1 minute'))
   }
 
   private async run() {
-    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, 20000)
+    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms('6 hours'))
     if (lock) {
+      console.log('acquired lock')
       await this.sendStats()
-      await lock.unlock()
     }
   }
 
   private async sendStats() {
-    console.log('Sending stats')
     const stats = await this.getStats()
-    console.log('Stats:', stats)
-    console.log('Stats (serialized):', JSON.stringify(stats))
+    try {
+      await axios.post('https://data.botpress.io/ingest', stats)
+    } catch (err) {
+      // silently fail
+    }
   }
 
   private async getStats() {
