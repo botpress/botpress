@@ -1,4 +1,5 @@
-import { Button, Callout, Colors, HTMLTable, Icon } from '@blueprintjs/core'
+import { Button, Callout, HTMLTable, Icon, Position, Tooltip } from '@blueprintjs/core'
+import P from 'bluebird'
 import { Container, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React from 'react'
@@ -6,21 +7,22 @@ import React from 'react'
 import { makeApi, Test, TestResult } from './api'
 import style from './style.scss'
 import { CreateTestModal } from './CreateTestModal'
-import { RunTestsModal } from './RunTestsModal'
 
 interface State {
   loading: boolean
   createModalVisible: boolean
   tests: Test[]
+  testResults: _.Dictionary<TestResult>
 }
 
-export default class HitlModule extends React.Component<{ bp: any }, State> {
+export default class NLUTests extends React.Component<{ bp: any }, State> {
   private api = makeApi(this.props.bp)
 
   state: State = {
     loading: true,
     createModalVisible: false,
-    tests: []
+    tests: [],
+    testResults: {}
   }
 
   hideModal() {
@@ -37,28 +39,34 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
 
   refreshSessions = async () => {
     this.setState({ loading: true }, () => {
-      // tslint:disable-next-line: no-floating-promises
       this.api.fetchTests().then(tests => this.setState({ loading: false, tests }))
     })
   }
 
-  renderResult = (result: TestResult) => {
-    if (result === 'running') {
-      return <span style={{ color: Colors.BLUE5 }}>Running</span>
-    } else if (result === 'success') {
+  renderDetails = (res: TestResult) => (
+    <div>
+      {res.details
+        .filter(r => !r.success)
+        .map(r => (
+          <p>{r.reason}</p>
+        ))}
+    </div>
+  )
+
+  renderResult = testId => {
+    const result = this.state.testResults[testId]
+    if (result === undefined) {
+      return <span>-</span>
+    }
+    if (result.success) {
+      return <Icon icon="tick-circle" intent="success" />
+    } else {
       return (
-        <span style={{ color: Colors.GREEN3 }}>
-          <strong>Success</strong>
-        </span>
-      )
-    } else if (result === 'failed') {
-      return (
-        <span style={{ color: Colors.RED3 }}>
-          <strong>Failed</strong>
-        </span>
+        <Tooltip position={Position.LEFT} content={this.renderDetails(result)}>
+          <Icon icon="warning-sign" intent="danger" />
+        </Tooltip>
       )
     }
-    return <span>–</span>
   }
 
   renderEmpty() {
@@ -85,13 +93,21 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
           {this.state.tests.map(test => (
             <tr>
               <td>{test.utterance}</td>
-              <td>{test.condition}</td>
-              <td>{this.renderResult(test.result)}</td>
+              <td>{test.conditions.map(c => c.join('-')).join(' | ')}</td>
+              <td>{this.renderResult(test.id)}</td>
             </tr>
           ))}
         </tbody>
       </HTMLTable>
     )
+  }
+
+  runTests = async () => {
+    const testResults = (await P.mapSeries(this.state.tests, this.api.runTest)).reduce((resultsMap, result) => {
+      return { ...resultsMap, [result.id]: result }
+    }, {})
+    console.log(testResults)
+    this.setState({ testResults })
   }
 
   render() {
@@ -104,18 +120,6 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
         <div />
         <div className="bph-layout-main">
           <div className="bph-layout-middle">
-            <div style={{ width: '100%', background: 'white', margin: 0, padding: 0 }}>
-              <Button
-                type="button"
-                large={true}
-                intent="primary"
-                minimal={false}
-                icon="add"
-                onClick={() => this.showModal()}
-              >
-                Create your first test
-              </Button>
-            </div>
             <div className={style.container}>
               {!this.state.tests.length && this.renderEmpty()}
               {!!this.state.tests.length && this.renderTable()}
@@ -125,12 +129,14 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
                 visible={this.state.createModalVisible}
                 onTestCreated={() => this.refreshSessions()}
               />
-              <RunTestsModal
-                api={this.api}
-                hide={() => this.hideModal()}
-                visible={this.state.createModalVisible}
-                onUpdate={() => this.refreshSessions()}
-              />
+              <div>
+                <Button type="button" intent="primary" minimal icon="add" onClick={() => this.showModal()}>
+                  Create a test
+                </Button>
+                <Button type="button" intent="success" icon="play" onClick={this.runTests}>
+                  Run tests
+                </Button>
+              </div>
             </div>
           </div>
         </div>
