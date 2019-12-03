@@ -1,4 +1,5 @@
 import LicensingService from 'common/licensing-service'
+import { machineUUID } from 'common/stats'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import path from 'path'
@@ -56,7 +57,9 @@ export class StatsService {
         externalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`,
         botpressVersion: process.BOTPRESS_VERSION,
         fingerprint: await this.getServerFingerprint(),
-        clusterEnabled: !(process.CLUSTER_ENABLED === null)
+        clusterEnabled: !(process.CLUSTER_ENABLED === null),
+        machineUUID: await machineUUID(),
+        nodesCount: await this.jobService.getNumberOfSubscribers()
       },
       license: {
         type: this.getLicenseType(),
