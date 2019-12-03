@@ -1,8 +1,8 @@
-# Introduction to contributing
+# Introduction to Contributing
 
-:oncoming_police_car:[Ground Rules](#ground-rules)
-:baby:[First-time contributors](#your-first-contribution)
-:chequered_flag: [Getting Started](#getting-started)
+:oncoming_police_car:[Ground Rules](#ground-rules)  
+:baby:[First-time contributors](#your-first-contribution-in-botpress)  
+🏁[Getting Started](#getting-started)
 
 If you are reading this, you must really like what we are doing and thank you for that. Giving time to a community is the most meaningful way to contribute. In that sense, we want to make sure contributors, maintainers and everyone else working on this project can make the biggest impact possible with the time they have to give.
 
