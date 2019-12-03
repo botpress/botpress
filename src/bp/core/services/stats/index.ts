@@ -34,7 +34,7 @@ export class StatsService {
   private async sendStats() {
     const stats = await this.getStats()
     try {
-      await axios.post('https://data.botpress.io/ingest', stats)
+      await axios.post('https://telemetry.botpress.io/ingest', stats)
     } catch (err) {
       // silently fail
     }
