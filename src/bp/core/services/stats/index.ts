@@ -27,7 +27,6 @@ export class StatsService {
   private async run() {
     const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms('6 hours'))
     if (lock) {
-      console.log('acquired lock')
       await this.sendStats()
     }
   }
