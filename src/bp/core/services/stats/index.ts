@@ -40,10 +40,18 @@ export class StatsService {
     return {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
-      botCount: botIds.length,
-      flowCount: await this.getFlowCount(),
-      intentsCount: await this.getIntentsCount(),
-      serverExternalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
+      bots: {
+        count: botIds.length
+      },
+      flows: {
+        count: await this.getFlowCount()
+      },
+      intents: {
+        count: await this.getIntentsCount()
+      },
+      server: {
+        externalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`
+      }
     }
   }
 
