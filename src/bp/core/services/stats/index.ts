@@ -1,6 +1,7 @@
 import axios from 'axios'
 import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
+import { ConfigProvider } from 'core/config/config-loader'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
@@ -18,6 +19,7 @@ const debug = DEBUG('stats')
 @injectable()
 export class StatsService {
   constructor(
+    @inject(TYPES.ConfigProvider) private config: ConfigProvider,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
@@ -51,6 +53,8 @@ export class StatsService {
   }
 
   private async getStats() {
+    const config = await this.config.getBotpressConfig()
+
     return {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
@@ -90,7 +94,8 @@ export class StatsService {
       license: {
         type: this.getLicenseType(),
         status: await this.getLicenseStatus(),
-        isProAvailable: process.IS_PRO_AVAILABLE
+        isProAvailable: process.IS_PRO_AVAILABLE,
+        showPoweredBy: config.showPoweredBy
       }
     }
   }
