@@ -114,7 +114,7 @@ export class StatsService {
   }
 
   private async getQnaCount(): Promise<number> {
-    const qnas = await this.ghostService.bots().directoryListing('/', '*/entities/*')
+    const qnas = await this.ghostService.bots().directoryListing('/', '*/qna/*')
     return qnas.length
   }
 
