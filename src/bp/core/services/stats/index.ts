@@ -80,6 +80,19 @@ export class StatsService {
       qna: {
         count: await this.getQnaCount()
       },
+      hooks: {
+        global: {
+          count: await this.getGlobalHooksCount()
+        }
+      },
+      actions: {
+        global: {
+          count: await this.getGlobalActionsCount()
+        },
+        bot: {
+          count: await this.getBotActionsCount()
+        }
+      },
       contentElements: {
         count: await this.getContentElementsCount()
       },
@@ -164,5 +177,20 @@ export class StatsService {
 
   private async getLicenseStatus(): Promise<string> {
     return (await this.licenseService.getLicenseStatus()).status
+  }
+
+  private async getGlobalHooksCount(): Promise<number> {
+    const hooks = await this.ghostService.global().directoryListing('hooks', '*.js')
+    return hooks.length
+  }
+
+  private async getGlobalActionsCount(): Promise<number> {
+    const actions = await this.ghostService.global().directoryListing('actions', '*.js')
+    return actions.length
+  }
+
+  private async getBotActionsCount(): Promise<number> {
+    const actions = await this.ghostService.bots().directoryListing('actions', '*.js')
+    return actions.length
   }
 }
