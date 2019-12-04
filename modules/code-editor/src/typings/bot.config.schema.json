@@ -53,9 +53,15 @@
           "description": "The timeout of the converse API requests",
           "default": "5s",
           "type": "string"
+        },
+        "maxMessageLength": {
+          "description": "The text limitation of the converse API requests",
+          "default": 360,
+          "type": "number"
         }
       },
       "required": [
+        "maxMessageLength",
         "timeout"
       ]
     },
@@ -183,6 +189,12 @@
             },
             "id": {
               "type": "string"
+            },
+            "approvers": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/StageRequestApprovers"
+              }
             }
           },
           "required": [
@@ -194,6 +206,25 @@
       },
       "required": [
         "current_stage"
+      ]
+    },
+    "StageRequestApprovers": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "approved": {
+          "type": "boolean"
+        },
+        "strategy": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "approved",
+        "email",
+        "strategy"
       ]
     }
   },

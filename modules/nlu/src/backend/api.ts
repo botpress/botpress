@@ -7,9 +7,10 @@ import yn from 'yn'
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
 import { getTrainingSession } from './engine2/train-session-service'
+import { EntityDefCreateSchema } from './entities'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
-import { EntityDefCreateSchema, IntentDefCreateSchema } from './validation'
+import { IntentDefCreateSchema } from './validation'
 
 const SYNC_INTERVAL_MS = ms('5s')
 const USE_E1 = yn(process.env.USE_LEGACY_NLU)

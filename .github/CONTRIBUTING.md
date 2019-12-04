@@ -85,7 +85,7 @@ Try to keep the commit message short. Use the notes section if there is any extr
 Pull requests are reviewed as and when the maintainers have the time, however we may have feedback. Try not to take this as a personal criticism but just an attempt to maintain the quality of the project.
 
 # Community
-The maintainers can be found on [Slack](https://slack.botpress.io/) and will try to reply to most messages.
+The maintainers can be found on [Forum](https://help.botpress.io/) and will try to reply to most messages.
 
 # Setting up Your Local Dev Environment
 If you are interested in contributing to Botpress, you will need to create a local development environment. These instructions were tested on OSX using iTerm for CLI.

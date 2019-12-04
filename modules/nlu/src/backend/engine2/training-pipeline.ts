@@ -106,7 +106,7 @@ const makeListEntityModel = async (entity: ListEntity, languageCode: string, too
     id: `custom.list.${entity.name}`,
     languageCode: languageCode,
     entityName: entity.name,
-    fuzzyMatching: entity.fuzzyMatching,
+    fuzzyTolerance: entity.fuzzyTolerance,
     sensitive: entity.sensitive,
     mappingsTokens: _.mapValues(entity.synonyms, (synonyms, name) =>
       [...synonyms, name].map(syn => {

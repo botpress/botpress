@@ -5,10 +5,12 @@ import moment from 'moment'
 import React, { Component } from 'react'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
-import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
+import { LeftToolbarButtons, RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
+import { Downloader } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 
 import style from './style.scss'
+import { ImportModal } from './ImportModal'
 
 class ListView extends Component<Props, State> {
   private debouncedHandleSearch
@@ -22,7 +24,8 @@ class ListView extends Component<Props, State> {
     page: 0,
     filters: [],
     sortOrder: [],
-    tableHeight: 0
+    tableHeight: 0,
+    downloadUrl: undefined
   }
 
   componentDidMount() {
@@ -90,6 +93,11 @@ class ListView extends Component<Props, State> {
   handleSearchChanged = event => {
     this.setState({ searchTerm: event.target.value })
     this.debouncedHandleSearch && this.debouncedHandleSearch()
+  }
+
+  onImportCompleted = () => {
+    this.props.refreshCategories()
+    this.launchSearch()
   }
 
   launchSearch = () => {
@@ -259,9 +267,14 @@ class ListView extends Component<Props, State> {
     )
   }
 
+  downloadJson = () => {
+    this.setState({ downloadUrl: `${window.BOT_API_PATH}/content/export?${Date.now()}` })
+  }
+
   render() {
     return (
       <div>
+        <Downloader url={this.state.downloadUrl} />
         <Toolbar>
           <LeftToolbarButtons>
             <Tooltip content="Refresh" position={Position.BOTTOM}>
@@ -300,6 +313,18 @@ class ListView extends Component<Props, State> {
               onChange={this.handleSearchChanged}
             />
           </LeftToolbarButtons>
+          {/*
+          Disabled for now, it still needs a little bit more testing with additional scenarios.
+          <RightToolbarButtons>
+            <ImportModal onImportCompleted={this.onImportCompleted} />
+            <Button
+              id="btn-export"
+              icon="upload"
+              text="Export to JSON"
+              onClick={this.downloadJson}
+              style={{ marginLeft: 5 }}
+            />
+          </RightToolbarButtons> */}
         </Toolbar>
         <div style={{ padding: 5 }}>{this.renderTable()}</div>
       </div>
@@ -318,6 +343,7 @@ interface Props {
   handleClone: (ids: string[]) => void
   handleRefresh: () => void
   handleEdit: (id: string, contentType: any) => void
+  refreshCategories: () => void
 }
 
 interface State {
@@ -329,6 +355,7 @@ interface State {
   sortOrder: any
   filters: any
   tableHeight: number
+  downloadUrl: string | undefined
 }
 
 interface SearchQuery {

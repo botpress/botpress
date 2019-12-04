@@ -250,6 +250,21 @@ body {
   margin-top: 5px;
 }
 
+.bpw-new-messages-indicator {
+  position: absolute;
+  width: 100%;
+  background: whitesmoke;
+  height: 40px;
+  display: flex;
+  flex-grow: 1;
+  margin-left: -8px;
+  align-items: center;
+  justify-content: center;
+  text-decoration: underline;
+  color: #106ba3;
+  cursor: pointer;
+}
+
 /**
 * Chat Bubble configuration. You can add other classes to match different renderers,
 *  for example .bpw-bubble-text or .bpw-bubble-carousel

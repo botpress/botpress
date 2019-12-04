@@ -55,7 +55,7 @@ describe('Module - Code Editor', () => {
 
     await expectBotApiCallSuccess('mod/code-editor/rename', 'POST')
     const response = await waitForBotApiResponse('mod/code-editor/files')
-    const disabledFile = response.actionsBot.find(x => x.name === '.hello_copy.js')
+    const disabledFile = response['bot.actions'].find(x => x.name === '.hello_copy.js')
     expect(disabledFile).toBeDefined()
   })
 
@@ -67,6 +67,6 @@ describe('Module - Code Editor', () => {
 
     await expectBotApiCallSuccess('mod/code-editor/remove', 'POST')
     const response = await waitForBotApiResponse('mod/code-editor/files')
-    expect(response.actionsBot.find(x => x.name === '.hello_copy.js')).toBeUndefined()
+    expect(response['bot.actions'].find(x => x.name === '.hello_copy.js')).toBeUndefined()
   })
 })

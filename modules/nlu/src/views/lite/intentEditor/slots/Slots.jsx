@@ -86,6 +86,7 @@ export default class Slots extends React.Component {
     return (
       <div className={style.slotSidePanel}>
         <SlotModal
+          api={this.props.api}
           axios={this.props.axios}
           show={this.state.slotModalVisible}
           slot={this.props.slots[this.state.editingSlotIdx]}

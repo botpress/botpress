@@ -46,14 +46,18 @@ export const CreateUserModal: FC<Props> = props => {
   }, [props.isOpen])
 
   const isCreating = selectedUser && selectedUser.__isNew__
-  const isValid = selectedUser && strategy && role
+  const isValid = selectedUser && role && (!isCreating || (isCreating && strategy))
 
   const createUser = async () => {
-    if (!selectedUser || !strategy || !role) {
+    if (!selectedUser || !role) {
       return
     }
 
     if (isCreating) {
+      if (!strategy) {
+        return
+      }
+
       const { data } = await api.getSecured().post('/admin/users', {
         email: selectedUser.value,
         strategy: strategy.strategyId,

@@ -38,7 +38,7 @@ const UserList: FC<Props> = props => {
     return <Callout title="This workspace has no collaborators, yet" style={{ textAlign: 'center' }} />
   }
 
-  const currentUserEmail = props.profile && props.profile.email
+  const currentUserEmail = _.get(props.profile, 'email', '').toLowerCase()
   const filteredUsers = filterList<WorkspaceUserInfo>(props.users, userFilterFields, filter)
   const roles = [...props.roles, CHAT_USER_ROLE]
 
