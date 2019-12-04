@@ -98,6 +98,11 @@ export class StatsService {
         status: await this.getLicenseStatus(),
         isProAvailable: process.IS_PRO_AVAILABLE,
         showPoweredBy: config.showPoweredBy
+      },
+      users: {
+        superAdmins: {
+          count: config.superAdmins.length
+        }
       }
     }
   }
