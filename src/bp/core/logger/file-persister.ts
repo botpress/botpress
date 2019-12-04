@@ -19,7 +19,7 @@ export class LoggerFilePersister {
   private outputFolder!: string
   private logger!: Logger
 
-  constructor() {}
+  constructor() { }
 
   async initialize(botpressConfig: BotpressConfig, logger: Logger) {
     const logsConfig = _.get(botpressConfig, 'logs.fileOutput', {})
@@ -65,7 +65,7 @@ export class LoggerFilePersister {
         fs.accessSync(fullPath, fs.constants.W_OK)
         return true
       }
-      throw new Error(`Specified folder doesn't exists ("${fullPath}").`)
+      throw new Error(`Specified folder doesn't exist ("${fullPath}").`)
     } catch (err) {
       throw new Error(
         `Unable to write in the specified folder ("${fullPath}"). Please check configuration or disable log file output`

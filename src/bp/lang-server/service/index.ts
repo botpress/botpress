@@ -248,7 +248,7 @@ export default class LanguageService {
 
   private _getModels(): Dic<ModelSet> {
     if (!fs.existsSync(this.langDir)) {
-      throw new Error(`The language directory (${this.langDir}) doesn't exists.`)
+      throw new Error(`The language directory (${this.langDir}) doesn't exist.`)
     }
 
     const files = fs.readdirSync(this.langDir)
