@@ -81,12 +81,12 @@ describe('list entity extractor', () => {
     assertEntity('the [red](qty:1) apple [corporation](qty:1)')
     assertEntity('[apple](qty:2)')
     assertEntity('[apple inc](qty:2)')
+    assertEntity('[SF](qty:1 type:airport) is where I was born, I now live in [Quebec](qty:1 type:airport) the city')
   })
 
   describe('fuzzy match', () => {
     describe('loose fuzzy', () => {
-      assertEntity('[Qebec citty](qty:1 value:YQB) is a city within QC, a provice.')
-      assertEntity('A quaterback is also called a [QB](qty:0) and [sn francisco](qty:1 value:SFO) used to have one')
+      assertEntity('[Qebec citty](qty:1 value:YQB) is a city within [QC](qty:0), a provice.')
       assertEntity('A quaterback is also called a [QB](qty:0) and [sn francisco](qty:1 value:SFO) used to have one')
       assertEntity('[sn frncisco](qty:0) is nice but for [New-Yorkers](qty:0) [new-yrk](qty:1 value:JFK) is better')
       assertEntity("I never been to [kbec city](qty:0) but I've been to [kebec city](qty:1 value:YQB)")

@@ -107,21 +107,19 @@ export const extractListEntities = (
             continue
           }
           const workset = takeUntil(utterance.tokens, i, _.sumBy(occurance, 'length'))
-          const worksetAsStrings = workset.map(x => x.toString({ lowerCase: true, realSpaces: true, trim: false }))
+          const worksetStrLow = workset.map(x => x.toString({ lowerCase: true, realSpaces: true, trim: false }))
+          const worksetStrWCase = workset.map(x => x.toString({ lowerCase: false, realSpaces: true, trim: false }))
           const candidateAsString = occurance.join('')
 
           if (candidateAsString.length > longestCandidate) {
             longestCandidate = candidateAsString.length
           }
 
-          const fuzzy = list.fuzzyTolerance < 1 && worksetAsStrings.join('').length >= 4
-          const exact_score = exactScore(worksetAsStrings, occurance) === 1 ? 1 : 0
-          const fuzzy_score = fuzzyScore(worksetAsStrings, occurance)
+          const exact_score = exactScore(worksetStrWCase, occurance) === 1 ? 1 : 0
+          const fuzzy = list.fuzzyTolerance < 1 && worksetStrLow.join('').length >= 4
+          const fuzzy_score = fuzzyScore(worksetStrLow, occurance)
           const fuzzy_factor = fuzzy_score >= list.fuzzyTolerance ? fuzzy_score : 0
-          const structural_score = structuralScore(
-            workset.map(x => x.toString({ lowerCase: false, realSpaces: true, trim: false })),
-            occurance
-          )
+          const structural_score = structuralScore(worksetStrWCase, occurance)
           const finalScore = fuzzy ? fuzzy_factor * structural_score : exact_score * structural_score
 
           candidates.push({
