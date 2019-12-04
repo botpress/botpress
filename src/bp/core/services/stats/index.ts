@@ -147,8 +147,7 @@ export class StatsService {
   }
 
   private async getBotsCount(): Promise<number> {
-    const botIds = await this.botService.getBotsIds()
-    return botIds.length
+    return (await this.botService.getBotsIds()).length
   }
 
   private async getWorkspacesCount(): Promise<number> {
@@ -163,23 +162,20 @@ export class StatsService {
   }
 
   private async getFlowCount(): Promise<number> {
-    const flows = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json', '*/flows/error.flow.json')
-    return flows.length
+    return (await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json', '*/flows/error.flow.json'))
+      .length
   }
 
   private async getIntentsCount(): Promise<number> {
-    const intents = await this.ghostService.bots().directoryListing('/', '*/intents/*')
-    return intents.length
+    return (await this.ghostService.bots().directoryListing('/', '*/intents/*')).length
   }
 
   private async getEntitiesCount(): Promise<number> {
-    const entities = await this.ghostService.bots().directoryListing('/', '*/entities/*')
-    return entities.length
+    return (await this.ghostService.bots().directoryListing('/', '*/entities/*')).length
   }
 
   private async getQnaCount(): Promise<number> {
-    const qnas = await this.ghostService.bots().directoryListing('/', '*/qna/*')
-    return qnas.length
+    return (await this.ghostService.bots().directoryListing('/', '*/qna/*')).length
   }
 
   private async getContentElementsCount(): Promise<number> {
@@ -208,18 +204,15 @@ export class StatsService {
   }
 
   private async getGlobalHooksCount(): Promise<number> {
-    const hooks = await this.ghostService.global().directoryListing('hooks', '*.js')
-    return hooks.length
+    return (await this.ghostService.global().directoryListing('hooks', '*.js')).length
   }
 
   private async getGlobalActionsCount(): Promise<number> {
-    const actions = await this.ghostService.global().directoryListing('actions', '*.js')
-    return actions.length
+    return (await this.ghostService.global().directoryListing('actions', '*.js')).length
   }
 
   private async getBotActionsCount(): Promise<number> {
-    const actions = await this.ghostService.bots().directoryListing('/', '*/actions/*')
-    return actions.length
+    return (await this.ghostService.bots().directoryListing('/', '*/actions/*')).length
   }
 
   private async getCollaboratorsCount(): Promise<number> {
