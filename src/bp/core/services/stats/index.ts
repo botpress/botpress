@@ -103,6 +103,11 @@ export class StatsService {
         superAdmins: {
           count: config.superAdmins.length
         }
+      },
+      auth: {
+        strategies: {
+          count: Object.keys(config.authStrategies).length
+        }
       }
     }
   }
