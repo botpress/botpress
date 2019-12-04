@@ -104,7 +104,8 @@ export class StatsService {
         machineUUID: await machineUUID(),
         nodesCount: await this.jobService.getNumberOfSubscribers(),
         os: process.platform,
-        totalMemoryBytes: os.totalmem()
+        totalMemoryBytes: os.totalmem(),
+        uptime: Math.round(process.uptime())
       },
       license: {
         type: this.getLicenseType(),
