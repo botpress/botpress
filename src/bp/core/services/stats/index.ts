@@ -13,6 +13,7 @@ import { JobService } from '../job-service'
 import { WorkspaceService } from '../workspace-service'
 
 const LOCK_RESOURCE = 'botpress:statsService'
+
 @injectable()
 export class StatsService {
   constructor(
