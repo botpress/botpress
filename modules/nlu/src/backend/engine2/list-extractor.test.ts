@@ -44,7 +44,7 @@ const list_entities: ListEntityModel[] = [
     mappingsTokens: {
       JFK: ['JFK', 'New-York', 'NYC'].map(T),
       SFO: ['SFO', 'SF', 'San-Francisco'].map(T),
-      YQB: ['YQB', 'Quebec', 'Quebec city'].map(T)
+      YQB: ['YQB', 'Quebec', 'Quebec city', 'QUEB'].map(T)
     },
     sensitive: false,
     type: 'custom.list'
@@ -81,7 +81,9 @@ describe('list entity extractor', () => {
     assertEntity('the [red](qty:1) apple [corporation](qty:1)')
     assertEntity('[apple](qty:2)')
     assertEntity('[apple inc](qty:2)')
-    assertEntity('[SF](qty:1 type:airport) is where I was born, I now live in [Quebec](qty:1 type:airport) the city')
+    assertEntity(
+      '[SF](qty:1 type:airport) is where I was born, I now live in [Quebec](qty:1 type:airport) [the city](qty:0)'
+    )
   })
 
   describe('fuzzy match', () => {
@@ -99,7 +101,6 @@ describe('list entity extractor', () => {
       assertEntity('[Bluberies](qty:1 value:Blueberry) are berries that are blue')
       assertEntity('that is a [poisonous bleberry](qty:1 value:Blueberry confidence:0.9)') // the longer the word, the more we tolerate mistakes
       assertEntity('that is a [poisonus bleberry](qty:1 value:Blueberry confidence:0.8)') // prefer 'poisonous blueberry' to 'blueberry'
-      assertEntity('[aple](qty:1)') // Apple the company has a capital 'A'
     })
 
     describe('added chars', () => {
@@ -118,6 +119,20 @@ describe('list entity extractor', () => {
       assertEntity('that is a [poison](qty:0) [blueberry](qty:1 value:Blueberry confidence:0.9)') // prefer 'blueberry' to 'poisonous blueberry'
       assertEntity('[blberries](qty:1) are berries that are blue')
       assertEntity('[bberries are berries that are blue](qty:0)')
+    })
+
+    describe('casing issues', () => {
+      assertEntity('[queb](qty:1 value:YQB confidence:0.7) is the place')
+      assertEntity('[Queb](qty:1 value:YQB confidence:0.75) is the place')
+      assertEntity('[QUeb](qty:1 value:YQB confidence:0.8) is the place')
+      assertEntity('[QUEb](qty:1 value:YQB confidence:0.85) is the place')
+      assertEntity('[QUEB](qty:1 value:YQB confidence:0.9) is the place')
+      assertEntity('[yqb](qty:0) is the place') // less than 4 chars
+
+      // casing + typos
+      // this will need better structural scoring
+      // assertEntity('[AppLe](qty:1 type:company) is a company, not a fruit')
+      // assertEntity('[aple](qty:1)') // Apple the company has a capital 'A'
     })
 
     describe('bad keystrokes', () => {
