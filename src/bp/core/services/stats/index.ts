@@ -6,6 +6,7 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import os from 'os'
+import uuid from 'uuid'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
@@ -58,6 +59,7 @@ export class StatsService {
     return {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
+      uuid: uuid.v4(),
       bots: {
         count: await this.getBotsCount()
       },
