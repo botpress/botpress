@@ -11,7 +11,13 @@ const style = require('./style.scss')
 
 export default class StandardNodePropertiesPanel extends Component {
   renameNode = text => {
-    if (text && text !== this.props.node.name) {
+    if (text) {
+      let nodes = this.props.flow.nodes;
+      for (let i = 0; i < nodes.length; i++) {
+        if (text === nodes[i].name) {
+          return;
+        }
+      }
       this.props.updateNode({ name: text })
     }
   }
