@@ -1,9 +1,5 @@
 name: Codestyle
-on:
-  pull_request
-  push:
-      branches:
-        - master
+on: [pull_request]
 jobs:
   run_prettier:
     name: Run Prettier on codebase
