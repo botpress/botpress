@@ -13,6 +13,7 @@ import { JobService } from '../job-service'
 import { WorkspaceService } from '../workspace-service'
 
 const LOCK_RESOURCE = 'botpress:statsService'
+const debug = DEBUG('stats')
 
 @injectable()
 export class StatsService {
@@ -34,12 +35,14 @@ export class StatsService {
   private async run() {
     const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms('6 hours') - ms('1 minute'))
     if (lock) {
+      debug('Acquired lock')
       await this.sendStats()
     }
   }
 
   private async sendStats() {
     const stats = await this.getStats()
+    debug('Sending stats: ', stats)
     try {
       await axios.post('https://telemetry.botpress.io/ingest', stats)
     } catch (err) {
