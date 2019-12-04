@@ -64,7 +64,8 @@ export class StatsService {
         fingerprint: await this.getServerFingerprint(),
         clusterEnabled: !(process.CLUSTER_ENABLED === null),
         machineUUID: await machineUUID(),
-        nodesCount: await this.jobService.getNumberOfSubscribers()
+        nodesCount: await this.jobService.getNumberOfSubscribers(),
+        os: process.platform
       },
       license: {
         type: this.getLicenseType(),
