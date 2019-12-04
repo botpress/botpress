@@ -3,7 +3,7 @@ id: about-pro
 title: About
 ---
 
-## Additionnal Features
+## Additional Features
 
 | Feature                    | Community | Pro |
 | -------------------------- | --------- | --- |

@@ -35,12 +35,12 @@ export class DialogJanitor extends Janitor {
   }
 
   @Memoize()
-  private async getBotpresConfig(): Promise<BotpressConfig> {
+  private async getBotpressConfig(): Promise<BotpressConfig> {
     return this.configProvider.getBotpressConfig()
   }
 
   protected async getInterval(): Promise<string> {
-    const config = await this.getBotpresConfig()
+    const config = await this.getBotpressConfig()
     return config.dialog.janitorInterval
   }
 
@@ -122,7 +122,7 @@ export class DialogJanitor extends Janitor {
   }
 
   private async _resetContext(botId, botConfig, sessionId, resetContext: boolean) {
-    const botpressConfig = await this.getBotpresConfig()
+    const botpressConfig = await this.getBotpressConfig()
     const expiry = createExpiry(botConfig!, botpressConfig)
     const session = await this.sessionRepo.get(sessionId)
 

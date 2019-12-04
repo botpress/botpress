@@ -25,7 +25,7 @@ Head to the admin interface and create three bots names `master`, `sub1` and `su
 - In the `sub1` bot, create some QnA entries that are related to the same domain (pick the default `global` category/context).
 - In the `sub2` bot, do the same thing for an other domain.
 
-For example, `sub1` could answer questions about Human Ressources, while `sub2` could answer questions related to IT Operations.
+For example, `sub1` could answer questions about Human Resources, while `sub2` could answer questions related to IT Operations.
 
 At this point, you should have three bots. Master doesn't do anything, while sub1 and sub2 can answer questions about HR and IT Operations respectively when you talk to them individually.
 

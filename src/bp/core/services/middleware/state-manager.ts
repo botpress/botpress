@@ -130,7 +130,7 @@ export class StateManager {
     }
 
     const botConfig = await this.configProvider.getBotConfig(event.botId)
-    const botpressConfig = await this.getBotpresConfig()
+    const botpressConfig = await this.getBotpressConfig()
 
     const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
     const expiry = createExpiry(botConfig, botpressConfig)
@@ -168,7 +168,7 @@ export class StateManager {
   }
 
   @Memoize()
-  private async getBotpresConfig(): Promise<BotpressConfig> {
+  private async getBotpressConfig(): Promise<BotpressConfig> {
     return this.configProvider.getBotpressConfig()
   }
 }
