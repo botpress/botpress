@@ -2,6 +2,7 @@ import axios from 'axios'
 import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
 import { ConfigProvider } from 'core/config/config-loader'
+import Database from 'core/database'
 import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
@@ -30,7 +31,8 @@ export class StatsService {
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository
+    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.Database) private database: Database
   ) {}
 
   public start() {
@@ -114,7 +116,9 @@ export class StatsService {
         nodesCount: await this.jobService.getNumberOfSubscribers(),
         os: process.platform,
         totalMemoryBytes: os.totalmem(),
-        uptime: Math.round(process.uptime())
+        uptime: Math.round(process.uptime()),
+        bpfsStorage: process.BPFS_STORAGE,
+        dbType: this.database.knex.isLite ? 'sqlite' : 'postgresql'
       },
       license: {
         type: this.getLicenseType(),
