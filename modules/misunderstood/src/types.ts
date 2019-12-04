@@ -39,6 +39,7 @@ export type DbFlaggedEvent = FlaggedEvent & {
 export type ContextMessage = {
   direction: 'incoming' | 'outgoing'
   preview: string
+  payloadMessage: string
   isCurrent: boolean
 }
 
