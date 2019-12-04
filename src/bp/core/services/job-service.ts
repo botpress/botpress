@@ -45,7 +45,7 @@ export class CEJobService implements JobService {
     return
   }
 
-  getNumberOfSubscribers(): Promise<number> {
-    return new Promise((resolve, reject) => resolve(1))
+  async getNumberOfSubscribers(): Promise<number> {
+    return 1
   }
 }
