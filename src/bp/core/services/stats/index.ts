@@ -30,7 +30,7 @@ export class StatsService {
   }
 
   private async run() {
-    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms('1 minute'))
+    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms('6 hours') - ms('1 minute'))
     if (lock) {
       await this.sendStats()
     }
