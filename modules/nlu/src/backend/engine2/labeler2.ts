@@ -91,9 +91,14 @@ export function makeExtractedSlots(
       }
     }, [])
     .map((extracted: SlotExtractionResult) => {
-      const entityInRange = utterance.entities.find(e => e.startPos >= extracted.start && e.endPos <= extracted.end)
-      if (entityInRange && _.includes(intent.slot_entities, entityInRange.type)) {
-        extracted.slot.value = entityInRange.value
+      const associatedEntityInRange = utterance.entities.find(
+        e =>
+          ((e.startPos <= extracted.start && e.endPos >= extracted.end) || // entity is fully within the tagged slot
+            (e.startPos >= extracted.start && e.endPos <= extracted.end)) && // slot is fully contained by an entity
+          _.includes(intent.slot_entities, e.type) // entity is part of the possible entities
+      )
+      if (associatedEntityInRange) {
+        extracted.slot.value = associatedEntityInRange.value
       }
       return extracted
     })
