@@ -47,6 +47,16 @@ module.exports = {
               url: {
                 type: 'string',
                 title: 'Enter a valid URL'
+              },
+              webview_height_ratio: {
+                type: 'string',
+                enum: ['compact', 'tall', 'full'],
+                title: 'Enter the Webview height ratio',
+                default: 'full'
+              },
+              messenger_extensions: {
+                type: 'boolean',
+                default: true
               }
             },
             required: ['url']

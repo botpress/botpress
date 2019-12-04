@@ -62,7 +62,9 @@ function renderMessenger(data) {
           return {
             type: 'web_url',
             url: a.url,
-            title: a.title
+            title: a.title,
+            webview_height_ratio: a.webview_height_ratio,
+            messenger_extensions: a.messenger_extensions
           }
         } else if (a.action === 'Postback') {
           return {
