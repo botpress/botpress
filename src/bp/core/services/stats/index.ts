@@ -10,6 +10,7 @@ import path from 'path'
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
 import { JobService } from '../job-service'
+import { WorkspaceService } from '../workspace-service'
 
 const LOCK_RESOURCE = 'botpress:statsService'
 @injectable()
@@ -18,7 +19,8 @@ export class StatsService {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.LicensingService) private licenseService: LicensingService
+    @inject(TYPES.LicensingService) private licenseService: LicensingService,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {}
 
   public start() {
@@ -49,6 +51,9 @@ export class StatsService {
       timestamp: new Date().toISOString(),
       bots: {
         count: await this.getBotsCount()
+      },
+      workspaces: {
+        count: await this.getWorkspacesCount()
       },
       flows: {
         count: await this.getFlowCount()
@@ -87,6 +92,10 @@ export class StatsService {
   private async getBotsCount(): Promise<number> {
     const botIds = await this.botService.getBotsIds()
     return botIds.length
+  }
+
+  private async getWorkspacesCount(): Promise<number> {
+    return (await this.workspaceService.getWorkspaces()).length
   }
 
   private async getFlowCount(): Promise<number> {
