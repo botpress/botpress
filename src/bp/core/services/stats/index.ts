@@ -2,6 +2,7 @@ import axios from 'axios'
 import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
 import { ConfigProvider } from 'core/config/config-loader'
+import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
@@ -28,7 +29,8 @@ export class StatsService {
     @inject(TYPES.LicensingService) private licenseService: LicensingService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.CMSService) private cmsService: CMSService,
-    @inject(TYPES.AuthService) private authService: AuthService
+    @inject(TYPES.AuthService) private authService: AuthService,
+    @inject(TYPES.UserRepository) private userRepository: UserRepository
   ) {}
 
   public start() {
@@ -126,6 +128,9 @@ export class StatsService {
         },
         collaborators: {
           count: await this.getCollaboratorsCount()
+        },
+        chat: {
+          count: await this.userRepository.getUserCount()
         }
       },
       auth: {
