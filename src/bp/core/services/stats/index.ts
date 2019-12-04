@@ -9,6 +9,7 @@ import os from 'os'
 import uuid from 'uuid'
 
 import { GhostService } from '..'
+import AuthService from '../auth/auth-service'
 import { BotService } from '../bot-service'
 import { CMSService } from '../cms'
 import { JobService } from '../job-service'
@@ -26,7 +27,8 @@ export class StatsService {
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.LicensingService) private licenseService: LicensingService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.CMSService) private cmsService: CMSService
+    @inject(TYPES.CMSService) private cmsService: CMSService,
+    @inject(TYPES.AuthService) private authService: AuthService
   ) {}
 
   public start() {
@@ -116,6 +118,9 @@ export class StatsService {
       users: {
         superAdmins: {
           count: config.superAdmins.length
+        },
+        collaborators: {
+          count: await this.getCollaboratorsCount()
         }
       },
       auth: {
@@ -193,5 +198,9 @@ export class StatsService {
   private async getBotActionsCount(): Promise<number> {
     const actions = await this.ghostService.bots().directoryListing('actions', '*.js')
     return actions.length
+  }
+
+  private async getCollaboratorsCount(): Promise<number> {
+    return (await this.authService.getAllUsers()).length
   }
 }
