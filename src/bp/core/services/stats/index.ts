@@ -122,7 +122,7 @@ export class StatsService {
         dbType: this.database.knex.isLite ? 'sqlite' : 'postgresql'
       },
       license: {
-        type: this.getLicenseType(),
+        type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
         status: await this.getLicenseStatus(),
         isProAvailable: process.IS_PRO_AVAILABLE,
         showPoweredBy: config.showPoweredBy
@@ -180,10 +180,6 @@ export class StatsService {
 
   private async getContentElementsCount(): Promise<number> {
     return this.cmsService.countContentElements()
-  }
-
-  private getLicenseType(): string {
-    return process.IS_PRO_ENABLED ? 'pro' : 'ce'
   }
 
   private async getServerFingerprint(): Promise<string | null> {
