@@ -61,6 +61,9 @@ export class StatsService {
           count: await this.getEntitiesCount()
         }
       },
+      qna: {
+        count: await this.getQnaCount()
+      },
       contentElements: {
         count: await this.getContentElementsCount()
       },
@@ -99,6 +102,11 @@ export class StatsService {
   private async getEntitiesCount(): Promise<number> {
     const entities = await this.ghostService.bots().directoryListing('/', '*/entities/*')
     return entities.length
+  }
+
+  private async getQnaCount(): Promise<number> {
+    const qnas = await this.ghostService.bots().directoryListing('/', '*/entities/*')
+    return qnas.length
   }
 
   private async getContentElementsCount(): Promise<number> {
