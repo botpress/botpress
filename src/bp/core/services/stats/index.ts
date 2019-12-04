@@ -49,7 +49,7 @@ export class StatsService {
 
   private async sendStats() {
     const stats = await this.getStats()
-    debug('Sending stats: ', stats)
+    debug('Sending stats: ', JSON.stringify(stats))
     try {
       await axios.post('https://telemetry.botpress.io/ingest', stats)
     } catch (err) {
