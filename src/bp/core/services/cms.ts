@@ -237,9 +237,14 @@ export class CMSService implements IDisposeOnExit {
     return Promise.map(apiElements, el => (language ? this._translateElement(el, language) : el))
   }
 
-  async countContentElements(botId: string): Promise<number> {
-    return this.memDb(this.contentTable)
-      .where({ botId })
+  async countContentElements(botId?: string): Promise<number> {
+    let query = this.memDb(this.contentTable)
+
+    if (botId) {
+      query = query.where({ botId })
+    }
+
+    return query
       .count('* as count')
       .first()
       .then(row => (row && Number(row.count)) || 0)

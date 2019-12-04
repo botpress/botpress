@@ -5,10 +5,10 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import os from 'os'
-import path from 'path'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
+import { CMSService } from '../cms'
 import { JobService } from '../job-service'
 import { WorkspaceService } from '../workspace-service'
 
@@ -20,7 +20,8 @@ export class StatsService {
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.LicensingService) private licenseService: LicensingService,
-    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.CMSService) private cmsService: CMSService
   ) {}
 
   public start() {
@@ -119,17 +120,7 @@ export class StatsService {
   }
 
   private async getContentElementsCount(): Promise<number> {
-    const contentElementFiles = await this.ghostService.bots().directoryListing('/', '*/content-elements/*')
-    const contentElements = await Promise.all(
-      contentElementFiles.map(filename => {
-        const obj = path.parse(filename)
-        return this.ghostService.bots().readFileAsObject<any[]>(obj.dir, obj.base)
-      })
-    )
-
-    return contentElements.reduce((acc, contentElementsArray) => {
-      return acc + contentElementsArray.length
-    }, 0)
+    return this.cmsService.countContentElements()
   }
 
   private getLicenseType(): string {
