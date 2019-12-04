@@ -42,7 +42,7 @@ export class StatsService {
     try {
       await axios.post('https://telemetry.botpress.io/ingest', stats)
     } catch (err) {
-      // silently fail
+      // silently fail (only while the telemetry endpoint is under construction)
     }
   }
 
