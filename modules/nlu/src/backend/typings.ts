@@ -2,9 +2,9 @@ import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 
 export const BIO = {
-  INSIDE: 'I',
-  BEGINNING: 'B',
-  OUT: 'o'
+  INSIDE: 'I' as Tag,
+  BEGINNING: 'B' as Tag,
+  OUT: 'o' as Tag
 }
 
 export type Tag = 'o' | 'B' | 'I'
@@ -192,10 +192,10 @@ export type ListEntityModel = Readonly<{
   mappingsTokens: _.Dictionary<string[][]>
 }>
 
-// add value in extracted slots
-export type ExtractedSlot = { confidence: number; name: string; source: any }
+export type ExtractedSlot = { confidence: number; name: string; source: string; value: any }
 export type ExtractedEntity = { confidence: number; type: string; metadata: any; value: string }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
+export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
 
 export interface TrainingSession {
   status: 'training' | 'canceled' | 'done' | 'idle'
@@ -213,3 +213,17 @@ export interface Tools {
   ducklingExtractor: EntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
+
+export type Intent<T> = Readonly<{
+  name: string
+  contexts: string[]
+  slot_definitions: SlotDefinition[]
+  utterances: T[]
+  vocab?: _.Dictionary<boolean>
+  slot_entities?: string[]
+}>
+
+type SlotDefinition = Readonly<{
+  name: string
+  entities: string[]
+}>

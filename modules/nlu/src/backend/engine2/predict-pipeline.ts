@@ -287,8 +287,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
           confidence: s.confidence,
           name: s.name,
           source: s.source,
-          value: s.source // TODO replace by value once added in the slot
-          // TODO add entity ?
+          value: s.value
         } as sdk.NLU.Slot
       }
     },
