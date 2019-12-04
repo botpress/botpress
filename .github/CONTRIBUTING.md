@@ -6,17 +6,17 @@
 
 If you are reading this, you must really like what we are doing and thank you for that. Giving time to a community is the most meaningful way to contribute. In that sense, we want to make sure contributors, maintainers and everyone else working on this project can make the biggest impact possible with the time they have to give.
 
-The following information are here to walk you through your first and future contributions. Following these guidelines also helps to communicate that you respect the time of the developers managing and developing this open source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
+The following information is here to walk you through your first and future contributions. Following these guidelines also helps to communicate that you respect the time of the developers managing and developing this open-source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
 
 ### Ground Rules
-As contributors you should be respectful and considerate of others - both contributors and non-contributors alike. Please refer to the [code of conduct](./CODE_OF_CONDUCT.md) for our and your responsibilities to the rest of the community.
+As contributors, you should be respectful and considerate of others - both contributors and non-contributors alike. Please refer to the [code of conduct](./CODE_OF_CONDUCT.md) for our and your responsibilities to the rest of the community.
 
 ### New to contributing to open-source?
 Working on your first Pull Request? You can learn how from this *free* series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
 
 At this point, you're ready to make your changes! Feel free to ask for help; everyone is a beginner at first :smile_cat:
 
-If a maintainer asks you to "rebase" your PR, they're saying that a lot of code has changed, and that you need to update your branch so it's easier to merge. Git can be confusing at times, but essentially this means the project history ends up being cleaner - there's an overview of why we might ask you to rebase [here](https://www.atlassian.com/git/tutorials/merging-vs-rebasing).
+If a maintainer asks you to "rebase" your PR, they're saying that a lot of code has changed and that you need to update your branch so it's easier to merge. Git can be confusing at times, but essentially this means the project history ends up being cleaner - there's an overview of why we might ask you to rebase [here](https://www.atlassian.com/git/tutorials/merging-vs-rebasing).
 
 ### Why become a contributor :robot:?
 
@@ -26,13 +26,13 @@ What's your motivation?
 * You are looking for experience before finding a job
 * You are using the product and you have some idea for improvements.
 * You believe in the mission.
-* You want to be part of a community of like-minded individual.
+* You want to be part of a community of like-minded individuals.
 
 Let us know what motivates you!
 
 ### How you can contribute?
 
-Botpress is an open source project and we welcome any contributions from the community! There are more ways to contribute than fixing bugs and writing features.
+Botpress is an open-source project and we welcome any contributions from the community! There are more ways to contribute than fixing bugs and writing features.
 * Improving the documentation
 * Submitting bug reports
 * Writing tutorials
@@ -42,9 +42,9 @@ Botpress is an open source project and we welcome any contributions from the com
 Those are all great contributions and will be welcomed as much as any other.
 
 # Your First Contribution in Botpress
-If you're not sure where to start issues we've labelled some issues with [#for-new-contributors](https://github.com/botpress/botpress/issues?q=is%3Aissue+is%3Aopen+label%3Afor-new-contributors) so these are a great place to start!
+If you're not sure where to start issues we've labeled some issues with [#for-new-contributors](https://github.com/botpress/botpress/issues?q=is%3Aissue+is%3Aopen+label%3Afor-new-contributors) so these are a great place to start!
 
-Forum, documentation and tutorials can also be great starting point and needless to say that they are as essential to the community as any other feature or bug fix.
+Forum, documentation and tutorials can also be a great starting point and needless to say that they are as essential to the community as any other feature or bug fix.
 
 Side note: There's a *What are you working on?* topic on our [Forum](https://help.botpress.io/t/welcome-what-are-you-working-on/2689) so maybe :wave: here and get settled in!
 
@@ -110,7 +110,7 @@ If you are interested in contributing to Botpress, you will need to create a loc
 
 These instructions assume a parent directory `bar` and we will be adding two child directories: `botpress` and `foobot`.
 
-1. Fork the [botpress repo](https://github.com/botpress/botpress) & copy the link. (If you are new to open source, GitHub, or Git, check out the excellent egghead.io link in 'New to contributing to open-source?' for additional important Git commands, such as checking out a branch, setting your upstream repo, keeping your local copy in sync, and making your pull request).
+1. Fork the [botpress repo](https://github.com/botpress/botpress) & copy the link. (If you are new to open-source, GitHub, or Git, check out the excellent egghead.io link in 'New to contributing to open-source?' for additional important Git commands, such as checking out a branch, setting your upstream repo, keeping your local copy in sync, and making your pull request).
 2. Open a new terminal/CLI tab, and run commands
     ```shell
     # botpress terminal window
