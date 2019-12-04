@@ -73,7 +73,7 @@ export class StatsService {
         count: await this.getContentElementsCount()
       },
       server: {
-        externalUrl: process.EXTERNAL_URL || `http://${process.HOST}:${process.PORT}`,
+        externalUrl: process.EXTERNAL_URL,
         botpressVersion: process.BOTPRESS_VERSION,
         fingerprint: await this.getServerFingerprint(),
         clusterEnabled: !(process.CLUSTER_ENABLED === null),
