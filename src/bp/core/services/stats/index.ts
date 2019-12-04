@@ -89,7 +89,8 @@ export class StatsService {
       },
       license: {
         type: this.getLicenseType(),
-        status: await this.getLicenseStatus()
+        status: await this.getLicenseStatus(),
+        isProAvailable: process.IS_PRO_AVAILABLE
       }
     }
   }
