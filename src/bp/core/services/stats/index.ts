@@ -9,6 +9,7 @@ import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import os from 'os'
 import uuid from 'uuid'
+import yn from 'yn'
 
 import { GhostService } from '..'
 import AuthService from '../auth/auth-service'
@@ -111,7 +112,7 @@ export class StatsService {
         externalUrl: process.EXTERNAL_URL,
         botpressVersion: process.BOTPRESS_VERSION,
         fingerprint: await this.getServerFingerprint(),
-        clusterEnabled: !(process.CLUSTER_ENABLED === null),
+        clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
         machineUUID: await machineUUID(),
         nodesCount: await this.jobService.getNumberOfSubscribers(),
         os: process.platform,
