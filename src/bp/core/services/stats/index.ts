@@ -190,8 +190,6 @@ export class StatsService {
         // tslint:disable-next-line: no-null-keyword
         return null
       }
-
-      throw err
     }
   }
 
