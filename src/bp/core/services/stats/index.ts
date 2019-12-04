@@ -213,7 +213,7 @@ export class StatsService {
   }
 
   private async getBotActionsCount(): Promise<number> {
-    const actions = await this.ghostService.bots().directoryListing('actions', '*.js')
+    const actions = await this.ghostService.bots().directoryListing('/', '*/actions/*')
     return actions.length
   }
 
