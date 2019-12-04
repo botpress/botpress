@@ -4,6 +4,7 @@ import { machineUUID } from 'common/stats'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
+import os from 'os'
 import path from 'path'
 
 import { GhostService } from '..'
@@ -65,7 +66,8 @@ export class StatsService {
         clusterEnabled: !(process.CLUSTER_ENABLED === null),
         machineUUID: await machineUUID(),
         nodesCount: await this.jobService.getNumberOfSubscribers(),
-        os: process.platform
+        os: process.platform,
+        totalMemoryBytes: os.totalmem()
       },
       license: {
         type: this.getLicenseType(),
