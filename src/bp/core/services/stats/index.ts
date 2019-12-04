@@ -53,8 +53,13 @@ export class StatsService {
       flows: {
         count: await this.getFlowCount()
       },
-      intents: {
-        count: await this.getIntentsCount()
+      nlu: {
+        intents: {
+          count: await this.getIntentsCount()
+        },
+        entities: {
+          count: await this.getEntitiesCount()
+        }
       },
       contentElements: {
         count: await this.getContentElementsCount()
@@ -89,6 +94,11 @@ export class StatsService {
   private async getIntentsCount(): Promise<number> {
     const intents = await this.ghostService.bots().directoryListing('/', '*/intents/*')
     return intents.length
+  }
+
+  private async getEntitiesCount(): Promise<number> {
+    const entities = await this.ghostService.bots().directoryListing('/', '*/entities/*')
+    return entities.length
   }
 
   private async getContentElementsCount(): Promise<number> {
