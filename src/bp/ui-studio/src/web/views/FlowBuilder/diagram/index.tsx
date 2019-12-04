@@ -2,7 +2,6 @@ import {
   Button,
   ContextMenu,
   ControlGroup,
-  Icon,
   InputGroup,
   Intent,
   Menu,
@@ -38,7 +37,7 @@ import {
 import { Timeout, toastInfo } from '~/components/Shared/Utils'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
-import { SkillDefinition } from '../SidePanel/FlowTools'
+import { SkillDefinition } from '../sidePanel/FlowTools'
 
 import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } from './manager'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
