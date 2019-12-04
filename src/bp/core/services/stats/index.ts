@@ -66,7 +66,12 @@ export class StatsService {
         count: await this.getBotsCount()
       },
       workspaces: {
-        count: await this.getWorkspacesCount()
+        count: await this.getWorkspacesCount(),
+        pipelines: {
+          stages: {
+            count: await this.getPipelineStagesCount()
+          }
+        }
       },
       flows: {
         count: await this.getFlowCount()
@@ -138,6 +143,13 @@ export class StatsService {
 
   private async getWorkspacesCount(): Promise<number> {
     return (await this.workspaceService.getWorkspaces()).length
+  }
+
+  private async getPipelineStagesCount(): Promise<number> {
+    const workspaces = await this.workspaceService.getWorkspaces()
+    return workspaces.reduce((acc, workspace) => {
+      return acc + workspace.pipeline.length
+    }, 0)
   }
 
   private async getFlowCount(): Promise<number> {
