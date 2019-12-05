@@ -273,21 +273,6 @@ export class Botpress {
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
   }
 
-  @WrapErrorsWith('Error initializing Ghost Service')
-  async initializeGhost(): Promise<void> {
-    const useDbDriver = process.BPFS_STORAGE === 'database'
-    this.ghostService.initialize(useDbDriver)
-    const global = await this.ghostService.global().directoryListing('/')
-
-    if (useDbDriver && _.isEmpty(global)) {
-      this.logger.info('Syncing data/global/ to database')
-      await this.ghostService.global().sync()
-
-      this.logger.info('Syncing data/bots/ to database')
-      await this.ghostService.bots().sync()
-    }
-  }
-
   private async initializeServices() {
     await this.loggerDbPersister.initialize(this.database, await this.loggerProvider('LogDbPersister'))
     this.loggerDbPersister.start()
