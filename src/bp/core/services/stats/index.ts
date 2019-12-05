@@ -120,7 +120,7 @@ export class StatsService {
         totalMemoryBytes: os.totalmem(),
         uptime: Math.round(process.uptime()),
         bpfsStorage: process.BPFS_STORAGE,
-        dbType: this.database.knex.isLite ? 'sqlite' : 'postgresql'
+        dbType: this.database.knex.isLite ? 'sqlite' : 'postgres'
       },
       license: {
         type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
