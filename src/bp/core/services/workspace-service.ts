@@ -34,7 +34,7 @@ export class WorkspaceService {
     @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository,
     @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository,
     @inject(TYPES.WorkspaceInviteCodesRepository) private inviteCodesRepo: WorkspaceInviteCodesRepository
-  ) { }
+  ) {}
 
   async initialize(): Promise<void> {
     await this.getWorkspaces().catch(async () => {
