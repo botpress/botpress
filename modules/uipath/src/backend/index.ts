@@ -7,16 +7,16 @@ const onServerStarted = async (bp: typeof sdk) => {
 
   router.post('/message', async (req, res) => {
     try {
-      const body = req.body
+      const { channel, target, botId, threadId, message } = req.body
 
       await bp.events.replyToEvent(
         {
-          channel: body.channel,
-          target: body.target,
-          botId: body.botId,
-          threadId: body.threadId
+          channel,
+          target,
+          botId,
+          threadId
         },
-        [body.message]
+        [message]
       )
 
       res.sendStatus(200)
