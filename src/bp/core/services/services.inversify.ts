@@ -27,7 +27,7 @@ import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
-import { StatsService } from './stats'
+import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CMSService>(TYPES.CMSService)

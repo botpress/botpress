@@ -11,12 +11,12 @@ import os from 'os'
 import uuid from 'uuid'
 import yn from 'yn'
 
-import { GhostService } from '..'
-import AuthService from '../auth/auth-service'
-import { BotService } from '../bot-service'
-import { CMSService } from '../cms'
-import { JobService } from '../job-service'
-import { WorkspaceService } from '../workspace-service'
+import { GhostService } from './'
+import AuthService from './auth/auth-service'
+import { BotService } from './bot-service'
+import { CMSService } from './cms'
+import { JobService } from './job-service'
+import { WorkspaceService } from './workspace-service'
 
 const LOCK_RESOURCE = 'botpress:statsService'
 const debug = DEBUG('stats')
