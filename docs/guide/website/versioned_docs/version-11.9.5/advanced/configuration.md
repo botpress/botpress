@@ -98,7 +98,7 @@ The string `MODULE_ROOT` is a special string that is replaced when your configur
 
 Every bot that you create will have its own configuration file. It is located at `data/bots/NAME_OF_BOT/bot.config.json`. Most of the available options can be edited by clicking on the `Config` link next to the bot name on the administration panel.
 
-If you enable additionnal modules that adds other
+If you enable additional modules that adds other
 
 # Module Configuration
 

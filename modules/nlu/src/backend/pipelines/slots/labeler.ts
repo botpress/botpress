@@ -5,7 +5,7 @@ import { SPACE } from '../../tools/token-utils'
 import { BIO, Sequence, Tag, Token } from '../../typings'
 
 export interface TagResult {
-  tag: Tag
+  tag: Tag | string
   name: string
   probability: number
 }

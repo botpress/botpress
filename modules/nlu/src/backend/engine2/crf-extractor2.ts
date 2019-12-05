@@ -3,11 +3,10 @@ import fs from 'fs'
 import _ from 'lodash'
 import tmp from 'tmp'
 
-import { BIO, ExtractedSlot } from '../typings'
+import { Intent, SlotExtractionResult } from '../typings'
 
 import * as featurizer from './featurizer2'
 import * as labeler from './labeler2'
-import { Intent } from './training-pipeline'
 import Utterance, { UtteranceToken } from './utterance'
 
 const debug = DEBUG('nlu').sub('slots')
@@ -146,49 +145,24 @@ export default class CRFExtractor2 {
     ].filter(_.identity) // some features can be undefined
   }
 
-  async extract(
-    utterance: Utterance,
-    intent: Intent<Utterance>
-  ): Promise<{ slot: ExtractedSlot; start: number; end: number }[]> {
-    const toks = utterance.tokens.filter(x => !x.isSpace)
+  getSequenceFeatures(intent: Intent<Utterance>, utterance: Utterance, isPredict: boolean): string[][] {
+    return _.chain(utterance.tokens)
+      .filter(t => !t.isSpace)
+      .map(t => this.tokenSliceFeatures(intent, utterance, isPredict, t))
+      .value()
+  }
 
-    const features: string[][] = toks.map(this.tokenSliceFeatures.bind(this, intent, utterance, true))
+  async extract(utterance: Utterance, intent: Intent<Utterance>): Promise<SlotExtractionResult[]> {
+    const features = this.getSequenceFeatures(intent, utterance, true)
     debugExtract('vectorize', features)
 
-    const predictions = this._crfTagger
-      .marginal(features)
+    const predictions = this._crfTagger.marginal(features)
+    debugExtract('slot crf predictions', predictions)
+
+    return _.chain(predictions)
       .map(labeler.predictionLabelToTagResult)
-      .map(res => labeler.swapInvalidTags(res, intent))
-
-    // move this into labeler ?
-    return _.zip(toks, predictions)
-      .filter(([token, tag]) => tag.tag !== BIO.OUT)
-      .reduce(
-        (combined, [token, tag]) => {
-          const prev = _.last(combined)
-          const shouldConcatWithPrev = tag.tag === BIO.INSIDE && _.get(prev, 'slot.name') === tag.name
-
-          if (shouldConcatWithPrev) {
-            prev.slot.source += token.toString()
-            prev.end += token.value.length
-
-            return [...combined.slice(0, -1), prev]
-          } else {
-            return [
-              ...combined,
-              {
-                slot: {
-                  name: tag.name,
-                  confidence: tag.probability,
-                  source: token.toString()
-                },
-                start: token.offset,
-                end: token.offset + token.value.length
-              }
-            ]
-          }
-        },
-        [] as { slot: ExtractedSlot; start: number; end: number }[]
-      )
+      .map(tagRes => labeler.removeInvalidTagsForIntent(intent, tagRes))
+      .thru(tagRess => labeler.makeExtractedSlots(intent, utterance, tagRess))
+      .value() as SlotExtractionResult[]
   }
 }

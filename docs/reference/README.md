@@ -1,6 +1,6 @@
 # Botpress SDK
 
-Botpress SDK allows you to create _Botpress Modules_ that extends the functionnalities of the plateform. Botpress SDK exposes all the major methods that a Module needs to interact with the core.
+Botpress SDK allows you to create _Botpress Modules_ that extends the functionalities of the plateform. Botpress SDK exposes all the major methods that a Module needs to interact with the core.
 
 We made sure that the SDK is always up-to-date with the latest version of Botpress. It will always match the current version of your Botpress installation.
 

@@ -8,7 +8,7 @@ Following these guidelines helps to communicate that you respect the time of the
 
 Botpress is an open source project and we welcome any contributions from our community! There are more ways to contribute that just fixing bugs and writing features - improving the documentation, submitting bug reports and writing tutorials are all great contributions and will be welcomed as much as any other.
 
-However as a reminder we do have a [Slack channel](https://slack.botpress.io/) and a [website](https://botpress.io/) so please use these as places to find support rather than using the issue tracker which should be reserved for feature requests and bug reports.
+However as a reminder we do have a [Community Forum](https://help.botpress.io/) and a [website](https://botpress.io/) so please use these as places to find support rather than using the issue tracker which should be reserved for feature requests and bug reports.
 
 # Ground Rules
 As contributors you should be respectful and considerate of others - both contributors and non-contributors alike. Please refer to the [code of conduct](./CODE_OF_CONDUCT.md) for our and your responsibilities to the rest of the community.
@@ -48,8 +48,6 @@ As contributors you should be respectful and considerate of others - both contri
 # Your First Contribution
 If you're not sure where to start issues we've labelled some issues with [#for-new-contributors](https://github.com/botpress/botpress/issues?q=is%3Aissue+is%3Aopen+label%3Afor-new-contributors) so these are a great place to start!
 
-There's an *#introduce-yourself* channel on our [Slack channel](https://slack.botpress.io/) so maybe :wave: here and get settled in! We might even :wave: back!
-
 Start by checking out the [README](./README.md) and check out the introductory videos and get familiar with what Botpress does.
 
 If you do decide to work on an issue comment saying you intend to pick it up and we'll assign it to you. If you decide it's too much however do tell us and we can try to help out or unassign it so it's free for someone else to pick up.
@@ -85,7 +83,7 @@ Try to keep the commit message short. Use the notes section if there is any extr
 Pull requests are reviewed as and when the maintainers have the time, however we may have feedback. Try not to take this as a personal criticism but just an attempt to maintain the quality of the project.
 
 # Community
-The maintainers can be found on [Slack](https://slack.botpress.io/) and will try to reply to most messages.
+The maintainers can be found on [Forum](https://help.botpress.io/) and will try to reply to most messages.
 
 # Setting up Your Local Dev Environment
 If you are interested in contributing to Botpress, you will need to create a local development environment. These instructions were tested on OSX using iTerm for CLI.

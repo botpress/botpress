@@ -4,7 +4,16 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, SPACE } from '../tools/token-utils'
-import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, Tools, TrainingSession } from '../typings'
+import {
+  Intent,
+  ListEntity,
+  ListEntityModel,
+  PatternEntity,
+  TFIDF,
+  Token2Vec,
+  Tools,
+  TrainingSession
+} from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { extractUtteranceEntities } from './entity-extractor'
@@ -45,21 +54,7 @@ export interface TrainArtefacts {
   exact_match_index: ExactMatchIndex
 }
 
-export type Intent<T> = Readonly<{
-  name: string
-  contexts: string[]
-  slot_definitions: SlotDefinition[]
-  utterances: T[]
-  vocab?: _.Dictionary<boolean>
-  slot_entities?: string[]
-}>
-
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
-
-type SlotDefinition = Readonly<{
-  name: string
-  entities: string[]
-}>
 
 type progressCB = (p?: number) => void
 
@@ -165,7 +160,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
       (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vectors }),
       {} as Token2Vec
     )
-    .value()
+    .value() as Token2Vec
 }
 
 export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
@@ -194,7 +189,7 @@ const trainIntentClassifer = async (
   const n_ctx = input.contexts.length
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx) && i.utterances.length > 3) // min nb utterances
+      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= 3) // min nb utterances
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -275,13 +270,10 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const copy = { ...input }
+  const utts = _.flatMap(input.intents, i => i.utterances)
+  await Promise.mapSeries(utts, u => extractUtteranceEntities(u, input, tools))
 
-  for (const intent of copy.intents.filter(i => (i.slot_definitions || []).length > 0)) {
-    intent.utterances.forEach(async utterance => await extractUtteranceEntities(utterance, input, tools))
-  }
-
-  return copy
+  return input
 }
 
 export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {

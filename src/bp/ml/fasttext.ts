@@ -86,7 +86,7 @@ export class FastTextModel implements sdk.MLToolkit.FastText.Model {
 
   async predict(str: string, nbLabels: number): Promise<sdk.MLToolkit.FastText.PredictResult[]> {
     if (this.queryOnly) {
-      throw new Error('This model is marked as Query Only, which doesnt support Prediction')
+      throw new Error("This model is marked as Query Only, which doesn't support Prediction")
     }
 
     const model = await this._getModel()
