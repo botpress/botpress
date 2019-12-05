@@ -3,17 +3,17 @@ import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { Config } from '../config'
-
 export interface Test {
   id: string
   utterance: string
+  context: string
   conditions: ['intent' | 'slot', 'is', string][]
 }
 
 const TestsSchema = Joi.array().items(
   Joi.object({
     id: Joi.string().required(),
+    context: Joi.string().required(),
     utterance: Joi.string().required(),
     conditions: Joi.array().items(
       Joi.array()
@@ -97,7 +97,7 @@ export default async (bp: typeof sdk) => {
       data: { nlu }
     } = await Axios.post(
       '/converse/nlutesting/secured?include=nlu',
-      { type: 'text', text: test.utterance },
+      { type: 'text', text: test.utterance, includedContexts: [test.context] },
       axiosConfig
     )
 

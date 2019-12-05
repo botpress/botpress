@@ -6,7 +6,11 @@ import api from './api'
 
 export type SDK = typeof sdk
 
-const onServerStarted = async (bp: SDK) => {}
+const onServerStarted = async (bp: SDK) => {
+  bp.logger.warn(
+    'You are using Botpress NLU Regression Testing module which meant to be used only by the botpress team.'
+  )
+}
 
 const onServerReady = async (bp: SDK) => {
   await api(bp)
@@ -24,8 +28,9 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'nlu-testing',
     menuIcon: 'done_outline',
     menuText: 'NLU Testing',
-    fullName: 'NLU Testing',
-    homepage: 'https://botpress.io'
+    fullName: 'NLU Regression Testing',
+    homepage: 'https://botpress.io',
+    experimental: true
   }
 }
 

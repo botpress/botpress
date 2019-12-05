@@ -3,6 +3,7 @@ import { AxiosInstance } from 'axios'
 export interface Test {
   id: string
   utterance: string
+  context: string
   conditions: [string, string, string][]
 }
 
