@@ -61,7 +61,7 @@ export interface ContainerProps {
 
 export interface SplashScreenProps {
   title: string
-  description?: string | Element
+  description?: string
   /** The name of the icon to use. Can also be a JSX element */
   icon?: IconName | MaybeElement
   readonly children?: React.ReactNode
