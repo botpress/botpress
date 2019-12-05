@@ -107,7 +107,7 @@ export class StatsService {
         }
       },
       contentElements: {
-        count: await this.getContentElementsCount()
+        count: await this.cmsService.countContentElements()
       },
       server: {
         externalUrl: process.EXTERNAL_URL,
@@ -177,10 +177,6 @@ export class StatsService {
 
   private async getQnaCount(): Promise<number> {
     return (await this.ghostService.bots().directoryListing('/', '*/qna/*')).length
-  }
-
-  private async getContentElementsCount(): Promise<number> {
-    return this.cmsService.countContentElements()
   }
 
   private async getServerFingerprint(): Promise<string | null> {
