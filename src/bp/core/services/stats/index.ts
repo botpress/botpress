@@ -181,7 +181,7 @@ export class StatsService {
 
   private async getServerFingerprint(): Promise<string | null> {
     try {
-      return await this.licenseService.getFingerprint('cluster_url')
+      return this.licenseService.getFingerprint('cluster_url')
     } catch (err) {
       // tslint:disable-next-line: no-null-keyword
       return null
