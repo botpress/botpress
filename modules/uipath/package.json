@@ -1,7 +1,7 @@
 {
   "name": "uipath",
   "version": "1.0.0",
-  "description": "",
+  "description": "UiPath integration for Botpress",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",
