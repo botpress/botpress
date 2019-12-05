@@ -77,7 +77,7 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
 
   renderTable() {
     return (
-      <HTMLTable bordered={true} interactive={false} striped={true} style={{ width: '100%' }}>
+      <HTMLTable bordered striped>
         <thead>
           <tr>
             <th>Utterance</th>
@@ -131,7 +131,7 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
               {this.state.tests.length > 0 && (
                 <div>
                   <Button type="button" intent="success" icon="play" onClick={this.runTests}>
-                    Run tests
+                    Run all tests
                   </Button>
                 </div>
               )}
