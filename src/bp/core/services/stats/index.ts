@@ -20,6 +20,7 @@ import { WorkspaceService } from '../workspace-service'
 
 const LOCK_RESOURCE = 'botpress:statsService'
 const debug = DEBUG('stats')
+const JOB_INTERVAL = '6 hours'
 
 @injectable()
 export class StatsService {
@@ -39,11 +40,11 @@ export class StatsService {
   public start() {
     // tslint:disable-next-line: no-floating-promises
     this.run()
-    setInterval(this.run.bind(this), ms('6 hours'))
+    setInterval(this.run.bind(this), ms(JOB_INTERVAL))
   }
 
   private async run() {
-    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms('6 hours') - ms('1 minute'))
+    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms(JOB_INTERVAL) - ms('1 minute'))
     if (lock) {
       debug('Acquired lock')
       await this.sendStats()
