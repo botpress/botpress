@@ -53,7 +53,7 @@ export class StatsService {
 
   private async sendStats() {
     const stats = await this.getStats()
-    debug('Sending stats: ', JSON.stringify(stats))
+    debug('Sending stats: %o', stats)
     try {
       await axios.post('https://telemetry.botpress.io/ingest', stats)
     } catch (err) {
@@ -68,6 +68,25 @@ export class StatsService {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
       uuid: uuid.v4(),
+      server: {
+        externalUrl: process.EXTERNAL_URL,
+        botpressVersion: process.BOTPRESS_VERSION,
+        fingerprint: await this.getServerFingerprint(),
+        clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
+        machineUUID: await machineUUID(),
+        nodesCount: await this.jobService.getNumberOfSubscribers(),
+        os: process.platform,
+        totalMemoryBytes: os.totalmem(),
+        uptime: Math.round(process.uptime()),
+        bpfsStorage: process.BPFS_STORAGE,
+        dbType: this.database.knex.isLite ? 'sqlite' : 'postgres'
+      },
+      license: {
+        type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
+        status: await this.getLicenseStatus(),
+        isProAvailable: process.IS_PRO_AVAILABLE,
+        showPoweredBy: config.showPoweredBy
+      },
       bots: {
         count: await this.getBotsCount()
       },
@@ -108,25 +127,6 @@ export class StatsService {
       },
       contentElements: {
         count: await this.cmsService.countContentElements()
-      },
-      server: {
-        externalUrl: process.EXTERNAL_URL,
-        botpressVersion: process.BOTPRESS_VERSION,
-        fingerprint: await this.getServerFingerprint(),
-        clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
-        machineUUID: await machineUUID(),
-        nodesCount: await this.jobService.getNumberOfSubscribers(),
-        os: process.platform,
-        totalMemoryBytes: os.totalmem(),
-        uptime: Math.round(process.uptime()),
-        bpfsStorage: process.BPFS_STORAGE,
-        dbType: this.database.knex.isLite ? 'sqlite' : 'postgres'
-      },
-      license: {
-        type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
-        status: await this.getLicenseStatus(),
-        isProAvailable: process.IS_PRO_AVAILABLE,
-        showPoweredBy: config.showPoweredBy
       },
       users: {
         superAdmins: {
