@@ -110,7 +110,7 @@ export class UntrustedSandbox {
       ..._.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY', 'ROOT_PATH'),
       env: {
         ..._.pickBy(process.env, (_value, name) => name.startsWith('EXPOSED_')),
-        ..._.pick(process.env, 'TZ', 'LANG', 'LC_ALL', 'LC_CTYPE')
+        ..._.pick(process.env, 'TZ', 'LANG', 'LC_ALL', 'LC_CTYPE', 'HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY')
       }
     }
 
