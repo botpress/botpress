@@ -61,9 +61,19 @@ export class GhostService {
     this.cache.events.on && this.cache.events.on('syncDbFilesToDisk', this._onSyncReceived)
   }
 
-  initialize(enabled: boolean) {
-    this.enabled = enabled
+  async initialize(useDbDriver: boolean) {
+    this.enabled = useDbDriver
     this._scopedGhosts.clear()
+
+    const global = await this.global().directoryListing('/')
+
+    if (useDbDriver && _.isEmpty(global)) {
+      this.logger.info('Syncing data/global/ to database')
+      await this.global().sync()
+
+      this.logger.info('Syncing data/bots/ to database')
+      await this.bots().sync()
+    }
   }
 
   // Not caching this scope since it's rarely used
