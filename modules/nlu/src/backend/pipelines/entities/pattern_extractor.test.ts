@@ -359,7 +359,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
         ]
       } as sdk.NLU.EntityDefinition
 
-      const userInput = `Can I have access to this ressource`
+      const userInput = `Can I have access to this resource`
 
       const extractor = new PatternExtractor(Toolkit, languageProvider)
       const sanitized = userInput.replace('\n', '')

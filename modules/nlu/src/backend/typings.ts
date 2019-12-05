@@ -1,10 +1,10 @@
 import { AxiosInstance } from 'axios'
-import sdk, { RedisLock } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 
 export const BIO = {
-  INSIDE: 'I',
-  BEGINNING: 'B',
-  OUT: 'o'
+  INSIDE: 'I' as Tag,
+  BEGINNING: 'B' as Tag,
+  OUT: 'o' as Tag
 }
 
 export type Tag = 'o' | 'B' | 'I'
@@ -192,14 +192,38 @@ export type ListEntityModel = Readonly<{
   mappingsTokens: _.Dictionary<string[][]>
 }>
 
-// add value in extracted slots
-export type ExtractedSlot = { confidence: number; name: string; source: any }
+export type ExtractedSlot = { confidence: number; name: string; source: string; value: any }
 export type ExtractedEntity = { confidence: number; type: string; metadata: any; value: string }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
+export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
 
 export interface TrainingSession {
   status: 'training' | 'canceled' | 'done' | 'idle'
   language: string
   progress: number
-  lock?: RedisLock
+  lock?: sdk.RedisLock
 }
+
+export interface Tools {
+  tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
+  vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
+  partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
+  generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
+  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
+  ducklingExtractor: EntityExtractor
+  mlToolkit: typeof sdk.MLToolkit
+}
+
+export type Intent<T> = Readonly<{
+  name: string
+  contexts: string[]
+  slot_definitions: SlotDefinition[]
+  utterances: T[]
+  vocab?: _.Dictionary<boolean>
+  slot_entities?: string[]
+}>
+
+type SlotDefinition = Readonly<{
+  name: string
+  entities: string[]
+}>

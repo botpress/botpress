@@ -8,7 +8,7 @@ const LIST_ENTITIES: ListEntityModel[] = [
   {
     entityName: 'flights',
     type: 'custom.list',
-    fuzzyMatching: false,
+    fuzzyTolerance: 0.8,
     id: 'entId',
     mappingsTokens: { 'Air Canada': [['Air', SPACE, 'Canada'], ['air', 'can']] },
     languageCode: 'en',
@@ -19,10 +19,8 @@ const LIST_ENTITIES: ListEntityModel[] = [
 const u1Toks = 'Hello my friend my name is Carl'.split(/(\s)/)
 const u2Toks = 'hello Anthony you look different. Anything new?'.split(/(\s)/)
 
-const genMockVectors = (toks: string[]): number[][] => {
-  const ar = new Array(toks.length)
-  return ar.fill([0, 0])
-}
+const genMockVectors = (toks: string[]): number[][] => new Array(toks.length).fill([0, 0])
+const genMockPOS = (toks: string[]): string[] => new Array(toks.length).fill('N/A')
 
 describe('Build intent vocab', () => {
   test('Empty vocab', () => {
@@ -45,8 +43,8 @@ describe('Build intent vocab', () => {
   })
 
   test('With utterance tokens only', () => {
-    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), 'en')
-    const u2 = new Utterance(u2Toks, genMockVectors(u2Toks), 'en')
+    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), genMockPOS(u1Toks), 'en')
+    const u2 = new Utterance(u2Toks, genMockVectors(u2Toks), genMockPOS(u2Toks), 'en')
 
     const intVocab = buildIntentVocab([u1, u2], [])
     const allUtoks = [...u1Toks, ...u2Toks]
@@ -66,8 +64,8 @@ describe('Build intent vocab', () => {
   })
 
   test('With list entitites and Utterance tokens', () => {
-    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), 'en')
-    const u2 = new Utterance(u2Toks, genMockVectors(u2Toks), 'en')
+    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), genMockPOS(u1Toks), 'en')
+    const u2 = new Utterance(u2Toks, genMockVectors(u2Toks), genMockPOS(u2Toks), 'en')
 
     const intVocab = buildIntentVocab([u1, u2], LIST_ENTITIES)
     const allUtoks = [...u1Toks, ...u2Toks]
@@ -89,7 +87,7 @@ describe('Build intent vocab', () => {
   })
 
   test('Some tokens with tagged slots', () => {
-    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), 'en')
+    const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), genMockPOS(u1Toks), 'en')
     u1.tagSlot({ name: 'person' } as ExtractedSlot, 6, 16) // slot is: "my friend"
 
     const intVocab = buildIntentVocab([u1], [])

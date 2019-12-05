@@ -73,7 +73,7 @@
 //       expect(sessionService.updateSessionEvent).toHaveBeenCalledWith(SESSION_ID, EVENT)
 //     })
 
-//     it('create a session if it doesnt exists', async () => {
+//     it('create a session if it doesn\'t exist', async () => {
 //       sessionService.getSession.mockResolvedValue(undefined)
 
 //       const newContext = {
@@ -149,7 +149,7 @@
 //       expect(flowService.loadAll).toHaveBeenCalledWith(BOT_ID)
 //     })
 
-//     it('creates a session if it doesnt exists', async () => {
+//     it('creates a session if it doesn\'t exist', async () => {
 //       flowService.loadAll.mockResolvedValue(flowsStub)
 //       sessionService.getSession
 //         .mockResolvedValue(undefined) // default after successive calls
@@ -169,8 +169,8 @@
 //       expect(sessionService.updateSession.mock.calls[0][0]).toHaveProperty('context.currentFlowName', 'other.flow.json')
 //     })
 
-//     it('throws when the flow doesnt exists', async () => {
-//       expectAsync(dialogEngine.jumpTo(SESSION_ID, EVENT, 'doest exists'), x => x.toThrow())
+//     it('throws when the flow doesn\'t exist', async () => {
+//       expectAsync(dialogEngine.jumpTo(SESSION_ID, EVENT, 'doesn\'t exist'), x => x.toThrow())
 //     })
 //   })
 

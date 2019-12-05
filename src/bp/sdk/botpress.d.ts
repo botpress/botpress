@@ -159,7 +159,7 @@ declare module 'botpress/sdk' {
     menuIcon?: string
     /** The name displayed on the menu */
     menuText?: string
-    /** Optionnaly specify a link to your page or github repo */
+    /** Optionally specify a link to your page or github repo */
     homepage?: string
     /** Whether or not the module is likely to change */
     experimental?: boolean
@@ -527,7 +527,7 @@ declare module 'botpress/sdk' {
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
-       * @returns Return wheter or not the event has the flag
+       * @returns Return whether or not the event has the flag
        * @example event.hasFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE)
        */
       hasFlag(flag: symbol): boolean
@@ -597,7 +597,7 @@ declare module 'botpress/sdk' {
       source: string
       /** More specific details from the source of the suggestion, e.g. the name of the QnA */
       sourceDetails?: string
-      /** The Decision Engine's decison about this suggestion */
+      /** The Decision Engine's decision about this suggestion */
       decision: {
         status: 'dropped' | 'elected'
         reason: string
@@ -1060,7 +1060,7 @@ declare module 'botpress/sdk' {
   export interface NodeTransition {
     /** The text to display instead of the condition in the flow editor */
     caption?: string
-    /** A JS expression thas is evaluated to determine if it should send the user to the specified node */
+    /** A JS expression that is evaluated to determine if it should send the user to the specified node */
     condition: string
     /** The destination node */
     node: string
@@ -1430,7 +1430,7 @@ declare module 'botpress/sdk' {
   export type State = any
 
   /**
-   * The dialog engine is what processes conversations. It orchestrates the conversationnal flow logic.
+   * The dialog engine is what processes conversations. It orchestrates the conversational flow logic.
    */
   export namespace dialog {
     /**
@@ -1450,11 +1450,11 @@ declare module 'botpress/sdk' {
     export function deleteSession(sessionId: string): Promise<void>
 
     /**
-     * Jumps to a specific flow and optionaly a specific node. This is useful when the default flow behaviour needs to be bypassed.
+     * Jumps to a specific flow and optionally a specific node. This is useful when the default flow behaviour needs to be bypassed.
      * @param sessionId The Id of the the current Dialog Session. If the session doesn't exists, it will be created with this Id.
      * @param event The event to be processed
      * @param flowName The name of the flow to jump to
-     * @param nodeName The name of the optionnal node to jump to.
+     * @param nodeName The name of the optional node to jump to.
      * The node will default to the starting node of the flow if this value is omitted.
      */
     export function jumpTo(
