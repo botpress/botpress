@@ -1,36 +1,20 @@
 {
   "name": "nlu-testing",
-  "version": "10.43.0",
+  "version": "1.0.0",
   "description": "Utility module used by the Botpress team to perform regression testing on native NLU",
   "private": true,
   "main": "dist/backend/index.js",
-  "botpress": {
-    "src": "src",
-    "webBundle": "bin/web.bundle.js"
-  },
-  "keywords": [
-    "nlu",
-    "testing",
-    "botpress"
-  ],
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch",
     "package": "./node_modules/.bin/module-builder package"
   },
-  "author": "Botpress",
-  "license": "AGPL-3.0-only",
-  "webpack": {
-    "externals": {
-      "react": "React",
-      "react-dom": "ReactDOM"
-    }
-  },
   "devDependencies": {
     "@blueprintjs/core": "^3.15.1",
-    "@types/node": "^10.11.3",
+    "@types/node": "^10.11.7",
     "@types/react": "^16.8.17",
-    "@types/react-bootstrap": "^0.32.19",
     "@types/react-dom": "^16.8.4",
     "module-builder": "../../build/module-builder"
   },

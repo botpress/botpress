@@ -20,7 +20,17 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('nlu-testing')
 }
 
+const botTemplates: sdk.BotTemplate[] = [
+  {
+    id: 'bp-nlu-regression-testing',
+    name: 'BPDS - NLU regression testing ',
+    desc:
+      'BPDS are handcrafted datasets. Intents in each contexts are built with a specific distribution in mind, making intent classification hard to achieve.'
+  }
+]
+
 const entryPoint: sdk.ModuleEntryPoint = {
+  botTemplates,
   onServerStarted,
   onServerReady,
   onModuleUnmount,
