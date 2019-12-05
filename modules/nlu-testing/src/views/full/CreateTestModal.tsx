@@ -1,5 +1,7 @@
-import { Button, Classes, Dialog, FormGroup, HTMLSelect, Intent } from '@blueprintjs/core'
-import React, { FC, useEffect, useRef, useState } from 'react'
+import { Button, Classes, Dialog, FormGroup, HTMLSelect, InputGroup, Intent } from '@blueprintjs/core'
+import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
+import React, { FC, useEffect, useState } from 'react'
 
 import { Test, TestingAPI } from './api'
 
@@ -11,27 +13,29 @@ interface Props {
   onTestCreated: (test: any) => void
 }
 
+const noneIntent = {
+  name: 'none',
+  slots: []
+} as sdk.NLU.IntentDefinition
+
 export const CreateTestModal: FC<Props> = props => {
   const [utterance, setUtterance] = useState<string>((props.test && props.test.utterance) || '')
-  const [equals, setEquals] = useState<string>('none')
-  const [intents, setIntents] = useState<string[]>([])
-  const [isValid, setIsValid] = useState<boolean>(false)
-  const utteranceInput = useRef(null)
-
-  const fetchIntents = () => {
-    return props.api.fetchIntents().then(intents => {
-      setIntents([...intents.map(x => x.name), 'none'])
-      setEquals('none')
-    })
-  }
-
-  if (!intents.length) {
-    fetchIntents()
-  }
+  const [targetIntent, setEquals] = useState<sdk.NLU.IntentDefinition>(noneIntent)
+  const [intents, setIntents] = useState<sdk.NLU.IntentDefinition[]>([])
+  const [availableCtx, setAvailableCtxs] = useState([])
+  const [selectedCtx, setSelectedCtx] = useState('global')
+  const [slotConditions, setSlotConditions] = useState<_.Dictionary<string>>({})
 
   useEffect(() => {
-    setIsValid(utterance.trim().length > 0)
-  }, [utterance, equals])
+    props.api.fetchIntents().then(intents => {
+      setIntents([...intents, noneIntent])
+      const ctxs = _.chain(intents)
+        .flatMap(i => i.contexts)
+        .uniq()
+        .value()
+      setAvailableCtxs(ctxs)
+    })
+  }, [])
 
   const createTest = async e => {
     e.preventDefault()
@@ -39,31 +43,45 @@ export const CreateTestModal: FC<Props> = props => {
     const test: Test = {
       id: (props.test && props.test.id) || Date.now().toString(),
       utterance: utterance,
-      condition: ['intent', 'is', equals]
+      context: selectedCtx,
+      conditions: [
+        ['intent', 'is', targetIntent.name],
+        ..._.toPairs(slotConditions).map(([slotName, value]) => [`slot:${slotName}`, 'is', value])
+      ] as [string, string, string][]
     }
 
     await props.api.updateTest(test)
     setUtterance('')
-    setEquals('')
+    setEquals(noneIntent)
+    setSelectedCtx('global')
     props.onTestCreated(test)
     props.hide()
   }
 
+  const targetIntentChanged = e => {
+    const intent = intents.find(i => i.name === e.target.value)
+    setEquals(intent)
+  }
+
+  const selectedCtxChanged = e => {
+    setSelectedCtx(e.target.value)
+    setEquals(noneIntent)
+  }
+
+  const slotConditionChanged = (slotName, e) => {
+    setSlotConditions({
+      ...slotConditions,
+      [slotName]: e.target.value
+    })
+  }
+
   return (
-    <Dialog
-      title="NLU Tests > New"
-      icon="add"
-      isOpen={props.visible}
-      onClose={props.hide}
-      onOpened={() => utteranceInput.current.focus()}
-      transitionDuration={0}
-    >
+    <Dialog title="NLU Tests > New" icon="add" isOpen={props.visible} onClose={props.hide} transitionDuration={0}>
       <form onSubmit={createTest}>
         <div className={Classes.DIALOG_BODY}>
           <FormGroup label="Utterance">
             <input
               required
-              ref={utteranceInput}
               name="utterance"
               type="text"
               tabIndex={1}
@@ -74,19 +92,41 @@ export const CreateTestModal: FC<Props> = props => {
               onChange={e => setUtterance(e.target.value)}
             />
           </FormGroup>
-          <FormGroup label="Intent">
+          <FormGroup label="Context" helperText="The context you're currently testing">
             <HTMLSelect
               tabIndex={2}
               fill
-              options={intents.map(x => ({ value: x, label: x }))}
-              onChange={e => setEquals(e.target.value)}
-              value={equals}
+              disabled={availableCtx.length < 2}
+              options={availableCtx.map(ctx => ({ label: ctx, value: ctx }))}
+              onChange={selectedCtxChanged}
+              value={selectedCtx}
             />
           </FormGroup>
+          <FormGroup label="Intent">
+            <HTMLSelect
+              tabIndex={3}
+              fill
+              options={intents
+                .filter(i => i.name === 'none' || i.contexts.includes(selectedCtx))
+                .map(x => ({ value: x.name, label: x.name }))}
+              onChange={targetIntentChanged}
+              value={targetIntent.name}
+            />
+          </FormGroup>
+          {targetIntent.slots.map((slot, idx) => (
+            <FormGroup key={slot.name} label={`Slot: ${slot.name}`}>
+              <InputGroup
+                tabIndex={4 + idx}
+                placeholder="enter slot source leave empty if absent"
+                value={slotConditions[slot.name] || ''}
+                onChange={slotConditionChanged.bind(this, slot.name)}
+              />
+            </FormGroup>
+          ))}
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button type="submit" tabIndex={3} intent={Intent.PRIMARY} disabled={!isValid}>
+            <Button type="submit" tabIndex={3} intent={Intent.PRIMARY}>
               Create Test
             </Button>
           </div>

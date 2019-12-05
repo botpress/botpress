@@ -1,15 +1,21 @@
 import { AxiosInstance } from 'axios'
 
-export type TestResult = 'pending' | 'success' | 'failed' | 'running'
 export interface Test {
   id: string
   utterance: string
-  condition: [string, string, string]
-  result?: TestResult
-  failure?: TestFailure
+  context: string
+  conditions: [string, string, string][]
 }
-export interface TestFailure {
-  reason: string
+
+export interface TestResult {
+  id: number
+  success: boolean
+  details: {
+    success: boolean
+    reason: string
+    expected: string
+    received: string
+  }[]
 }
 
 export interface TestingAPI {
@@ -17,7 +23,7 @@ export interface TestingAPI {
   fetchIntents: () => Promise<any[]>
   updateTest: (x: Test) => Promise<void>
   deleteTest: (x: Test) => Promise<void>
-  runTest: (x: Test) => Promise<TestFailure | undefined>
+  runTest: (x: Test) => Promise<TestResult>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
@@ -40,10 +46,9 @@ export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
       await bp.axios.post(`/mod/nlu-testing/tests/${test.id}`, test)
     },
 
-    runTest: async (test: Test): Promise<TestFailure | undefined> => {
+    runTest: async (test: Test): Promise<TestResult> => {
       const { data } = await bp.axios.post(`/mod/nlu-testing/tests/${test.id}/run`)
-
-      return // TODO:
+      return data
     }
   }
 }
