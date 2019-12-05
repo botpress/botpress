@@ -13,7 +13,7 @@ export const Downloader: FC<DownloadProps> = props => {
   const [content, setContent] = useState('')
   const [filename, setFilename] = useState('')
 
-  const startDownload = async (url: string, filename: string, method: string = 'get') => {
+  const startDownload = async (url: string, filename: string, method: any = 'get') => {
     const { data } = await api.getSecured({ timeout: ms('10m') })({
       method,
       url,
