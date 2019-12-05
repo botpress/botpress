@@ -276,13 +276,14 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const copy = { ...input }
+  const utts = _.chain(input.intents)
+    .filter(i => (i.slot_definitions || []).length > 0)
+    .flatMap(i => i.utterances)
+    .value()
 
-  for (const intent of copy.intents.filter(i => (i.slot_definitions || []).length > 0)) {
-    intent.utterances.forEach(async utterance => await extractUtteranceEntities(utterance, input, tools))
-  }
+  await Promise.mapSeries(utts, u => extractUtteranceEntities(u, input, tools))
 
-  return copy
+  return input
 }
 
 export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
