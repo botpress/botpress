@@ -61,13 +61,13 @@ export class GhostService {
     this.cache.events.on && this.cache.events.on('syncDbFilesToDisk', this._onSyncReceived)
   }
 
-  async initialize(useDbDriver: boolean) {
+  async initialize(useDbDriver: boolean, ignoreSync?: boolean) {
     this.useDbDriver = useDbDriver
     this._scopedGhosts.clear()
 
     const global = await this.global().directoryListing('/')
 
-    if (useDbDriver && _.isEmpty(global)) {
+    if (useDbDriver && !ignoreSync && _.isEmpty(global)) {
       this.logger.info('Syncing data/global/ to database')
       await this.global().sync()
 
