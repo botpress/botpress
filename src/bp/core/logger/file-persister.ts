@@ -19,7 +19,7 @@ export class LoggerFilePersister {
   private outputFolder!: string
   private logger!: Logger
 
-  constructor() { }
+  constructor() {}
 
   async initialize(botpressConfig: BotpressConfig, logger: Logger) {
     const logsConfig = _.get(botpressConfig, 'logs.fileOutput', {})
