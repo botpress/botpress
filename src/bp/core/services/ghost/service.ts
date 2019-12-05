@@ -48,7 +48,7 @@ const BOTS_GHOST_KEY = '__bots__'
 @injectable()
 export class GhostService {
   private _scopedGhosts: Map<string, ScopedGhostService> = new Map()
-  public enabled: boolean = false
+  public useDbDriver: boolean = false
 
   constructor(
     @inject(TYPES.DiskStorageDriver) private diskDriver: DiskStorageDriver,
@@ -62,7 +62,7 @@ export class GhostService {
   }
 
   async initialize(useDbDriver: boolean) {
-    this.enabled = useDbDriver
+    this.useDbDriver = useDbDriver
     this._scopedGhosts.clear()
 
     const global = await this.global().directoryListing('/')
@@ -78,7 +78,7 @@ export class GhostService {
 
   // Not caching this scope since it's rarely used
   root(): ScopedGhostService {
-    return new ScopedGhostService(`./data`, this.diskDriver, this.dbDriver, this.enabled, this.cache, this.logger)
+    return new ScopedGhostService(`./data`, this.diskDriver, this.dbDriver, this.useDbDriver, this.cache, this.logger)
   }
 
   global(): ScopedGhostService {
@@ -90,7 +90,7 @@ export class GhostService {
       `./data/global`,
       this.diskDriver,
       this.dbDriver,
-      this.enabled,
+      this.useDbDriver,
       this.cache,
       this.logger
     )
@@ -221,7 +221,7 @@ export class GhostService {
       `./data/bots`,
       this.diskDriver,
       this.dbDriver,
-      this.enabled,
+      this.useDbDriver,
       this.cache,
       this.logger
     )
@@ -243,7 +243,7 @@ export class GhostService {
       `./data/bots/${botId}`,
       this.diskDriver,
       this.dbDriver,
-      this.enabled,
+      this.useDbDriver,
       this.cache,
       this.logger,
       botId
@@ -290,7 +290,7 @@ export class GhostService {
   }
 
   public async getPending(botIds: string[]): Promise<ServerWidePendingRevisions | {}> {
-    if (!this.enabled) {
+    if (!this.useDbDriver) {
       return {}
     }
 
