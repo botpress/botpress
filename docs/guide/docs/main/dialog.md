@@ -75,7 +75,7 @@ To define new _Flow-wide On Receive Actions_, navigate to the relevant flow, the
 > **Special cases**: If no condition is defined, the default behavior is that the conversation ends.
 > If there are conditions defined but none match, nothing happens, i.e., the current node stays active, and it will flow when a condition is matched. By default, the `onNext` will only be retried after `onReceive` is re-invoked.
 
-**Destination**: A Transition always have a target that we call a Destination. It can be:
+**Destination**: A Transition always has a target that we call a Destination. It can be:
 
 - A different Node
 - A different Flow
@@ -106,7 +106,7 @@ In the context of this tutorial, this means that a state is created just before 
 ## Session Timeout
 
 When the Dialog Engine is waiting for the input of an inactive user, after a while the session will **Timeout**.
-Timeout allows you to end the conversation gracefully, if need be. It can also be useful to do some processing before deleting the session. For instance, you could save the user contact information to an external database, or tell the user how to contact you, or tell simply inform the user his session has timed out.
+Timeout allows you to end the conversation gracefully, if need be. It can also be useful to do some processing before deleting the session. For instance, you could save the user contact information to an external database, or tell the user how to contact you, or inform the user his session has timed out.
 
 ### Timeout Flow
 
@@ -124,7 +124,7 @@ Another option that requires some coding is to add the property `timeoutNode` to
 
 ## Actions
 
-An **Action** is JavaScript code that is executed in a Node.js VM. It can be anything you want. Call an API, store something in the database or store something in the Key-value Store. Actions are called by onEnter and onReceive instructions. There is two types of Actions:
+An **Action** is JavaScript code that is executed in a Node.js VM. It can be anything you want. Call an API, store something in the database or store something in the Key-value Store. Actions are called by onEnter and onReceive instructions. There are two types of Actions:
 
 - **Script**: A user defined Action that is used to run custom code.
 - **Output**: An output Action that is used to make a bot output something.

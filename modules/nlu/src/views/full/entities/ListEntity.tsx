@@ -1,4 +1,16 @@
-import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
+import {
+  Button,
+  Classes,
+  Colors,
+  FormGroup,
+  Icon,
+  InputGroup,
+  Position,
+  Radio,
+  RadioGroup,
+  Text,
+  Tooltip
+} from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -99,7 +111,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
         <FormGroup
           label={
             <Tooltip
-              content="Fuzziness will tolerate slight errors in extraction, typos for instance. Strict means no errors allowed."
+              content="Fuzziness will tolerate slight errors (e.g: typos) in words of 4 characters or more. Strict means no errors allowed."
               position={Position.LEFT}
               popoverClassName={style.configPopover}
             >

@@ -68,12 +68,13 @@ class IntentPicker extends React.Component<Props, State> {
     this.setState({ intents, filteredIntentsCount: intents.length }, this.updateDisplayIntents)
   }
 
-  updateDisplayIntents = () => {
+  updateDisplayIntents = (pageToNavigate = 0) => {
     const { page, intents, filterIntent } = this.state
+    const usedPage = typeof pageToNavigate !== 'undefined' ? pageToNavigate : page
     const filteredIntents = intents.filter(intent => !filterIntent || intent.name.includes(filterIntent))
     const filteredIntentsCount = filteredIntents.length
-    const displayIntents = filteredIntents.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE)
-    this.setState({ filteredIntentsCount, displayIntents })
+    const displayIntents = filteredIntents.slice(usedPage * ITEMS_PER_PAGE, (usedPage + 1) * ITEMS_PER_PAGE)
+    this.setState({ filteredIntentsCount, displayIntents, page: usedPage })
   }
 
   async componentDidMount() {

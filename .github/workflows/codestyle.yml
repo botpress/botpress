@@ -1,15 +1,15 @@
 name: Codestyle
-on: [push]
+on: [pull_request]
 jobs:
   run_prettier:
     name: Run Prettier on codebase
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@master
-    - name: Install Dependencies
-      run: |
-        yarn
-    - name: Run Prettier
-      run: |
-        ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.ts' '!**/*.d.ts'
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Install Dependencies
+        run: |
+          yarn
+      - name: Run Prettier
+        run: |
+          ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.ts' '!**/*.d.ts'

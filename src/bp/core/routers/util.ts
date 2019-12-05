@@ -282,7 +282,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (operation: str
       userRole: role && role.id,
       ip: req.ip
     })
-    return new ForbiddenError(`user does not have sufficient permissions to "${operation}" on ressource "${resource}"`)
+    return new ForbiddenError(`user does not have sufficient permissions to "${operation}" on resource "${resource}"`)
   }
 
   debugSuccess(`${req.originalUrl} %o`, {

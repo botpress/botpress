@@ -15,7 +15,7 @@ export class DialogSession {
     public session_data?: sdk.IO.CurrentSession
   ) {}
 
-  // Timestamps are optionnal because they have default values in the database
+  // Timestamps are optional because they have default values in the database
   created_on?: Date
   modified_on?: Date
   context_expiry?: Date

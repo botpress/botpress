@@ -64,7 +64,7 @@ The alerting service will trigger an alarm when your configured threshold are ex
 
 ### Incident Rules
 
-This is where you will define your thresholdS
+This is where you will define your thresholds
 
 Let's see an example of a rule, then we will break it apart
 

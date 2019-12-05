@@ -6,9 +6,7 @@ This module has been build to facilitate the views of your users information.
 
 ### Community
 
-There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
-
-Get an invite and join us now! 👉 [https://slack.botpress.io](https://slack.botpress.io)
+There's a [Community Forum](https://help.botpress.io) where you are welcome to join us, ask any question and even help others.
 
 ### License
 
