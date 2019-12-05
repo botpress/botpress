@@ -187,10 +187,8 @@ export class StatsService {
     try {
       return await this.licenseService.getFingerprint('cluster_url')
     } catch (err) {
-      if (err.message && err.message === 'Not implemented') {
-        // tslint:disable-next-line: no-null-keyword
-        return null
-      }
+      // tslint:disable-next-line: no-null-keyword
+      return null
     }
   }
 
