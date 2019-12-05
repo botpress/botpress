@@ -149,7 +149,7 @@ class LicenseStatus extends React.Component {
         <Jumbotron>
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
-              <h4>Enable Botpress Professionnal</h4>
+              <h4>Enable Botpress Professional</h4>
               <p>
                 Make you use an <strong>official botpress binary or docker image</strong>, you won't be able to activate
                 pro otherwise.

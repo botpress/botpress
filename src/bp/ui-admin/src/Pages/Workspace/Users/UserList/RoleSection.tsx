@@ -17,7 +17,7 @@ const RoleSection: FC<Props> = props => {
   const [isOpen, setOpen] = useState(false)
   const { users, role } = props
 
-  const showPicture = _.some(users, u => u.attributes.picture_url)
+  const showPicture = _.some(users, u => u.attributes && u.attributes.picture_url)
 
   return (
     <div key={'role-' + role.id}>

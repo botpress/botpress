@@ -8,7 +8,7 @@ Following these guidelines helps to communicate that you respect the time of the
 
 Botpress is an open source project and we welcome any contributions from our community! There are more ways to contribute that just fixing bugs and writing features - improving the documentation, submitting bug reports and writing tutorials are all great contributions and will be welcomed as much as any other.
 
-However as a reminder we do have a [Slack channel](https://slack.botpress.io/) and a [website](https://botpress.io/) so please use these as places to find support rather than using the issue tracker which should be reserved for feature requests and bug reports.
+However as a reminder we do have a [Community Forum](https://help.botpress.io/) and a [website](https://botpress.io/) so please use these as places to find support rather than using the issue tracker which should be reserved for feature requests and bug reports.
 
 # Ground Rules
 As contributors you should be respectful and considerate of others - both contributors and non-contributors alike. Please refer to the [code of conduct](./CODE_OF_CONDUCT.md) for our and your responsibilities to the rest of the community.
@@ -47,8 +47,6 @@ As contributors you should be respectful and considerate of others - both contri
 
 # Your First Contribution
 If you're not sure where to start issues we've labelled some issues with [#for-new-contributors](https://github.com/botpress/botpress/issues?q=is%3Aissue+is%3Aopen+label%3Afor-new-contributors) so these are a great place to start!
-
-There's an *#introduce-yourself* channel on our [Slack channel](https://slack.botpress.io/) so maybe :wave: here and get settled in! We might even :wave: back!
 
 Start by checking out the [README](./README.md) and check out the introductory videos and get familiar with what Botpress does.
 

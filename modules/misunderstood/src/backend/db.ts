@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
-import pick from 'lodash/pick'
+import get from 'lodash/get'
 
 import {
   DbFlaggedEvent,
@@ -115,10 +115,15 @@ export default class Db {
 
     const context = [...messagesBefore, ...messagesAfter]
       .sort((e1, e2) => e1.id - e2.id)
-      .map(({ id, event }) => ({
-        ...pick(JSON.parse(event), 'preview', 'direction'),
-        isCurrent: id === messageId
-      }))
+      .map(({ id, event }) => {
+        const eventObj = typeof event === 'string' ? JSON.parse(event) : event
+        return {
+          direction: eventObj.direction,
+          preview: (eventObj.preview || '').replace(/<[^>]*>?/gm, ''),
+          payloadMessage: get(eventObj, 'payload.message'),
+          isCurrent: id === messageId
+        }
+      })
 
     const parsedEventDetails =
       eventDetails && typeof eventDetails !== 'object' ? JSON.parse(eventDetails) : eventDetails

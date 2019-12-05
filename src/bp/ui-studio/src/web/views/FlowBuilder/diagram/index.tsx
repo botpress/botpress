@@ -2,7 +2,6 @@ import {
   Button,
   ContextMenu,
   ControlGroup,
-  Icon,
   InputGroup,
   Intent,
   Menu,
@@ -310,7 +309,7 @@ class Diagram extends Component<Props> {
               icon="minimize"
               text="Disconnect Node"
               onClick={() => {
-                this.manager.disconnectPorts(target)
+                this.manager.disconnectPorts(targetModel)
                 this.checkForLinksUpdate()
               }}
             />

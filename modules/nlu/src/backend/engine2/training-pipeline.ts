@@ -4,13 +4,21 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, SPACE } from '../tools/token-utils'
-import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, TrainingSession } from '../typings'
+import {
+  Intent,
+  ListEntity,
+  ListEntityModel,
+  PatternEntity,
+  TFIDF,
+  Token2Vec,
+  Tools,
+  TrainingSession
+} from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { Tools } from './engine2'
 import { extractUtteranceEntities } from './entity-extractor'
 import { Model } from './model-service'
-import Utterance, { buildUtterances, UtteranceToken, UtteranceToStringOptions } from './utterance'
+import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -46,21 +54,7 @@ export interface TrainArtefacts {
   exact_match_index: ExactMatchIndex
 }
 
-export type Intent<T> = Readonly<{
-  name: string
-  contexts: string[]
-  slot_definitions: SlotDefinition[]
-  utterances: T[]
-  vocab?: _.Dictionary<boolean>
-  slot_entities?: string[]
-}>
-
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
-
-type SlotDefinition = Readonly<{
-  name: string
-  entities: string[]
-}>
 
 type progressCB = (p?: number) => void
 
@@ -166,7 +160,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
       (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vectors }),
       {} as Token2Vec
     )
-    .value()
+    .value() as Token2Vec
 }
 
 export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
@@ -195,7 +189,7 @@ const trainIntentClassifer = async (
   const n_ctx = input.contexts.length
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx) && i.utterances.length > 3) // min nb utterances
+      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= 3) // min nb utterances
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -257,7 +251,7 @@ export const ProcessIntents = async (
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
     const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
-    const utterances = await buildUtterances(cleaned, languageCode, tools)
+    const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
 
     const allowedEntities = _.chain(intent.slot_definitions)
       .flatMap(s => s.entities)
@@ -313,7 +307,7 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   const intent: Intent<Utterance> = {
     name: NONE_INTENT,
     slot_definitions: [],
-    utterances: await buildUtterances(noneUtterances, input.languageCode, tools),
+    utterances: await buildUtteranceBatch(noneUtterances, input.languageCode, tools),
     contexts: [...input.contexts],
     vocab: {},
     slot_entities: []
