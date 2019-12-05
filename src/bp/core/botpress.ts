@@ -43,6 +43,7 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
+import { StatsService } from './services/stats-service'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
@@ -92,7 +93,8 @@ export class Botpress {
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
     @inject(TYPES.EventCollector) private eventCollector: EventCollector,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.MigrationService) private migrationService: MigrationService
+    @inject(TYPES.MigrationService) private migrationService: MigrationService,
+    @inject(TYPES.StatsService) private statsService: StatsService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -131,6 +133,10 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
+
+    if (this.config.sendUsageStats) {
+      this.statsService.start()
+    }
 
     await AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
 
