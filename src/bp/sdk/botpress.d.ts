@@ -256,8 +256,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new(): Model
-        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new (): Model
+        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -1597,9 +1597,15 @@ declare module 'botpress/sdk' {
      * Allows to import directly an archive (tar.gz) in a new bot.
      * @param botId The ID of the new bot (or an existing one)
      * @param archive The buffer of the archive file
+     * @param workspaceId The workspace where the bot will be imported
      * @param allowOverwrite? If not set, it will throw an error if the folder exists. Otherwise, it will overwrite files already present
      */
-    export function importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void>
+    export function importBot(
+      botId: string,
+      archive: Buffer,
+      workspaceId: string,
+      allowOverwrite?: boolean
+    ): Promise<void>
   }
 
   export namespace workspaces {
