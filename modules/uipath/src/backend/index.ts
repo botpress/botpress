@@ -25,11 +25,9 @@ const onServerStarted = async (bp: typeof sdk) => {
     }
   })
 }
-const onServerReady = async (bp: typeof sdk) => {}
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
-  onServerReady,
   definition: {
     name: 'uipath',
     menuIcon: 'none',
