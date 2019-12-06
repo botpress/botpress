@@ -270,7 +270,11 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const utts = _.flatMap(input.intents, i => i.utterances)
+  const utts = _.chain(input.intents)
+    .filter(i => (i.slot_definitions || []).length > 0)
+    .flatMap(i => i.utterances)
+    .value()
+
   await Promise.mapSeries(utts, u => extractUtteranceEntities(u, input, tools))
 
   return input
