@@ -18,6 +18,7 @@ title: About
 | High-Availability          |           | ✔️  |
 | Increased Performances     |           | ✔️  |
 | Standard Support           |           | ✔️  |
+| Multiple Languages         |           | ✔️  |
 
 For more details, visit our [pricing page](https://botpress.io/pricing/).
 
