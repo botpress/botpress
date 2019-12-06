@@ -33,10 +33,10 @@ const onServerStarted = async (bp: typeof sdk) => {
   })
 
   authRouter.get('/token', async (req, res) => {
-    console.log('token called')
+    const expiresIn = req.query.expiresIn || '1m'
 
     try {
-      const token = jsonwebtoken.sign('something', process.APP_SECRET)
+      const token = jsonwebtoken.sign({ text: 'something' }, process.APP_SECRET, { expiresIn })
       res.status(200).send({ token })
     } catch (err) {
       res.status(400).send(err)
