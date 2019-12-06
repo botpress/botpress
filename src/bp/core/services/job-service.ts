@@ -19,6 +19,8 @@ export interface JobService {
   clearLock(resource: string): Promise<boolean>
 
   getRedisClient(): Redis | undefined
+
+  getNumberOfSubscribers(): Promise<number>
 }
 
 @injectable()
@@ -41,5 +43,9 @@ export class CEJobService implements JobService {
 
   getRedisClient(): undefined {
     return
+  }
+
+  async getNumberOfSubscribers(): Promise<number> {
+    return 1
   }
 }
