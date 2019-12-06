@@ -145,7 +145,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
       const initialKeywords = element.id === this.state.contentId ? this.state.keywords : {}
       const keywords = this.choices.reduce((acc, v) => {
         if (!acc[v.value]) {
-            acc[v.value] = initialKeywords[v.value] ? initialKeywords[v.value] : _.uniq([v.value, v.title])
+          acc[v.value] = initialKeywords[v.value] ? initialKeywords[v.value] : _.uniq([v.value, v.title])
         }
         return acc
       }, {})
