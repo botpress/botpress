@@ -19,10 +19,10 @@ You must enable the `uipath` module in order to get started. See [here](../main/
 
 You can start UiPath jobs from Botpress by leveraging the Botpress SDK and the `axios` library.
 
-Calling UiPath is done in 3 steps:
+Starting a UiPath job is done in 3 steps:
 
 1. Generate an access token to call UiPath
-2. Generate a Botpress Token that UiPath will send back to Botpress
+2. Generate a Botpress Token that UiPath will send back to Botpress. This Token is necessary in order to authenticate calls to send messages back into Botpress.
 3. Start a UiPath Job
 
 Here is an example of starting a UiPath job using a Botpress Action:
