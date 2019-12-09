@@ -1,3 +1,4 @@
+import { Method } from 'axios'
 import ms from 'ms'
 import React, { FC, useEffect, useRef, useState } from 'react'
 import api from '~/api'
@@ -13,7 +14,7 @@ export const Downloader: FC<DownloadProps> = props => {
   const [content, setContent] = useState('')
   const [filename, setFilename] = useState('')
 
-  const startDownload = async (url: string, filename: string, method: any = 'get') => {
+  const startDownload = async (url: string, filename: string, method: Method = 'get') => {
     const { data } = await api.getSecured({ timeout: ms('10m') })({
       method,
       url,
