@@ -7,9 +7,7 @@ title: Using the UiPath integration for Botpress
 
 ## About
 
-The UiPath module for Botpress allows you to receive messages
-
-https://github.com/botpress/BotpressUiPath
+The UiPath module for Botpress allows you to send messages from your UiPath workflows back to your Botpress instance.
 
 ## Installation
 
