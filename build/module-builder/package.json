@@ -23,7 +23,7 @@
     "babel-loader": "^8.0.2",
     "chalk": "^2.4.1",
     "chokidar": "^2.0.4",
-    "copy-webpack-plugin": "^4.5.2",
+    "copy-webpack-plugin": "^5.1.0",
     "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
     "css-modules-typescript-loader": "^2.0.2",
