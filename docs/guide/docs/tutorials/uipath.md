@@ -148,7 +148,6 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
 
     if (status !== 201) {
       throw `Error from UiPath (${status})`
-      console.log(data)
     }
   }
 
