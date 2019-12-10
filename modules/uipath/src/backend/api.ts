@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import jsonwebtoken from 'jsonwebtoken'
 
-import { UnauthorizedError } from './error'
+import { jwtAuthorizerMiddleware } from './auth'
 
 export default async (bp: typeof sdk) => {
   const authRouter = bp.http.createRouterForBot('uipath/auth', {
@@ -23,48 +23,24 @@ export default async (bp: typeof sdk) => {
     }
   })
 
-  rootRouter.post(
-    '/message',
-    async (req, res, next) => {
-      if (!req.headers.authorization) {
-        return next(new UnauthorizedError('Authorization header is missing'))
-      }
+  rootRouter.use(jwtAuthorizerMiddleware)
+  rootRouter.post('/message', async (req, res) => {
+    try {
+      const { channel, target, botId, threadId, message } = req.body
 
-      const [scheme, token] = req.headers.authorization.split(' ')
-      if (scheme.toLowerCase() !== 'bearer') {
-        return next(new UnauthorizedError(`Unknown scheme "${scheme}"`))
-      }
+      await bp.events.replyToEvent(
+        {
+          channel,
+          target,
+          botId,
+          threadId
+        },
+        [message]
+      )
 
-      if (!token) {
-        return next(new UnauthorizedError('Authentication token is missing'))
-      }
-
-      try {
-        jsonwebtoken.verify(token, process.APP_SECRET)
-      } catch (err) {
-        return next(new UnauthorizedError('Invalid authentication token'))
-      }
-
-      next()
-    },
-    async (req, res) => {
-      try {
-        const { channel, target, botId, threadId, message } = req.body
-
-        await bp.events.replyToEvent(
-          {
-            channel,
-            target,
-            botId,
-            threadId
-          },
-          [message]
-        )
-
-        res.sendStatus(200)
-      } catch (err) {
-        res.status(400).send(err)
-      }
+      res.sendStatus(200)
+    } catch (err) {
+      res.status(400).send(err)
     }
-  )
+  })
 }
