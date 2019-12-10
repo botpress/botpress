@@ -104,12 +104,12 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
    * @author Botpress
    */
   const myAction = async () => {
-    const clientId = '6v7PmPJL6FOGu6RB8I1Y4adLXhIwovQN'
-    const refreshToken = 'N1GNVn4sIqWz4wDMTLUlTdXyMZtYmpBZG_7zN5IYcXhC6'
-    const accountLogicalName = 'botprgaoyxrd'
-    const serviceLogicalName = 'BotpressDefmqn8231188'
-    const processKey = 'MyProcess'
-    const processVersion = '1.0.18'
+    const clientId = '6v7PmPJL6FOGu6RB8I1Y4adLXhIwovQN' // PLACHOLDER. Replace with your own Client ID
+    const refreshToken = 'N1GNVn4sIqWz4wDMTLUlTdXyMZtYmpBZG_7zN5IYcXhC6' // PLACHOLDER. Replace with your own Refresh Token
+    const accountLogicalName = 'botprgaoyxrd' // PLACHOLDER. Replace with your own Account Logical Name
+    const serviceLogicalName = 'BotpressDefmqn8231188' // PLACHOLDER. Replace with your own Service Logical Name
+    const processKey = 'MyProcess' // PLACHOLDER. Replace with your own Process Key
+    const processVersion = '1.0.18' // PLACHOLDER. Replace with your own Process Version
 
     const accessToken = await getAccessToken(clientId, refreshToken)
     const botpressToken = await getBotpressToken()
