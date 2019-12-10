@@ -172,9 +172,7 @@ The Botpress UiPath component contains the `Callback` UiPath Activity. The `Call
 
 The following properties can be configured for the `Callback` Activity:
 
-- (REQUIRED) `Host`: The host name for your Botpress instance. Examples: `"192.168.1.8"`, `"botpress.yourdomain.com"`
-- (REQUIRED) `Port`: The TCP port on which your Botpress instance is listening. Examples: `443`, `80`, `3000`
-- (REQUIRED) `Protocol`: The protocol used to communicate with your Botpress instance. Examples: `"https"`, `"http"`
+- (REQUIRED) `ExternalURL`: The external URL for your Botpress instance. Examples: `"https://botpress.yourdomain.com"`, `"http://192.168.1.8:3000"`
 - (REQUIRED) `Message`: An object representing the message you are sending back to your Botpress instance. Example: `New With {Key .type = "text", Key .text = "Hello, this is a response from UiPath!"}`
 - (REQUIRED) `BotId`: The ID for your Botpress Bot which will handle the message. Examples: `"mybot"`, `"hrbot"`
 - (REQUIRED) `BotpressToken`: The Botpress Token required in order to send back a message to your Botpress instance
