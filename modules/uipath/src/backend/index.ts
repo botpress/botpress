@@ -97,7 +97,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuText: 'UiPath',
     noInterface: true,
     fullName: 'UiPath',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.io',
+    experimental: true
   }
 }
 
