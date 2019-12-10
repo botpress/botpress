@@ -13,6 +13,7 @@ interface CssExports {
   'flash': string;
   'headerTabs': string;
   'in': string;
+  'langServerAlert': string;
   'list': string;
   'main': string;
   'navigationBar': string;

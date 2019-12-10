@@ -11,6 +11,7 @@ import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
+import { LangServerHealth } from './LangServerHealth'
 
 export interface NluItem {
   name: string
@@ -151,6 +152,7 @@ const NLU: FC<Props> = props => {
             updateEntity={_.debounce(updateEntity, 2500)}
           />
         )}
+        <LangServerHealth api={api} />
       </div>
     </Container>
   )
