@@ -36,7 +36,7 @@ const onServerStarted = async (bp: typeof sdk) => {
     const expiresIn = req.query.expiresIn || '1m'
 
     try {
-      const token = jsonwebtoken.sign({ text: 'something' }, process.APP_SECRET, { expiresIn })
+      const token = jsonwebtoken.sign({}, process.APP_SECRET, { expiresIn })
       res.status(200).send({ token })
     } catch (err) {
       res.status(400).send(err)
