@@ -11,7 +11,6 @@ export interface NLUApi {
   createEntity: (x: NLU.EntityDefinition) => Promise<any>
   updateEntity: (x: NLU.EntityDefinition) => Promise<any>
   deleteEntity: (x: string) => Promise<any>
-  fetchHealth: () => Promise<any>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
@@ -26,6 +25,5 @@ export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   fetchEntities: () => bp.axios.get('/mod/nlu/entities').then(res => res.data),
   createEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/`, entity),
   updateEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/${entity.id}`, entity),
-  deleteEntity: (entityId: string) => bp.axios.post(`/mod/nlu/entities/${entityId}/delete`),
-  fetchHealth: () => bp.axios.get(`/mod/nlu/health`).then(res => res.data)
+  deleteEntity: (entityId: string) => bp.axios.post(`/mod/nlu/entities/${entityId}/delete`)
 })
