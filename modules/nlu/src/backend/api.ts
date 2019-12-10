@@ -2,13 +2,17 @@ import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
+import seedrandom from 'seedrandom'
 import yn from 'yn'
 
 import ConfusionEngine from './confusion-engine'
 import ScopedEngine from './engine'
+import E2 from './engine2/engine2'
 import { getTrainingSession } from './engine2/train-session-service'
 import { EntityDefCreateSchema } from './entities'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
+import MultiClassF1Scorer, { Scorer } from './tools/f1-scorer'
+import { parseUtterance } from './tools/utterance-parser'
 import { NLUState } from './typings'
 import { IntentDefCreateSchema } from './validation'
 
@@ -106,6 +110,54 @@ export default async (bp: typeof sdk, state: NLUState) => {
   })
 
   router.post('/confusion', async (req, res) => {
+    const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
+    const intentDefs = await botEngine.storage.getIntents()
+    const entityDefs = await botEngine.storage.getCustomEntities()
+
+    // TODO move this part of code somewhere else
+    const lang = 'en' // todo use req
+    const trainSetSize = 0.8
+
+    seedrandom('confusion', { global: true })
+    const lo = _.runInContext()
+
+    let testSet: { example: string; expected: string }[] = [] // TODO add ctx in test example
+    const trainSet = intentDefs // split the data & preserve distribution
+      .map(i => {
+        const nTrain = Math.ceil(trainSetSize * i.utterances[lang].length)
+        if (nTrain < 3) {
+          return
+        }
+
+        const utterances = lo.shuffle(i.utterances[lang])
+        const trainUtts = utterances.slice(0, nTrain)
+        testSet = [
+          ...testSet,
+          ...utterances.slice(nTrain).map(u => ({ example: parseUtterance(u).utterance, expected: i.name }))
+        ]
+
+        return {
+          ...i,
+          utterances: { [lang]: trainUtts }
+        }
+      })
+      .filter(Boolean)
+
+    const F1Engine = new E2('en', req.botId, bp.logger)
+    await F1Engine.train(trainSet, entityDefs, lang)
+
+    const f1Scorer = new MultiClassF1Scorer()
+
+    for (const { example, expected } of testSet) {
+      const res = await F1Engine.predict(example, ['global'])
+      f1Scorer.record(res.intent.name, expected)
+    }
+
+    // for intent only, we should do the same for ctx and for slots
+    const results = f1Scorer.getResults()
+
+    // TODO after all, reset seed using seedrandom()
+
     try {
       const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
       const { version } = req.body

@@ -353,6 +353,9 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
   let progress = 0
   const reportProgress: progressCB = (stepProgress = 1) => {
+    if (!input.trainingSession) {
+      return
+    }
     if (input.trainingSession.status === 'canceled') {
       tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
       throw new TrainingCanceledError()
