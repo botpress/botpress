@@ -39,7 +39,7 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
    * @return The UiPath Access Token
    */
   const getAccessToken = async (clientId, refreshToken) => {
-    const tokenResponse = await axios.post(
+    const { data } = await axios.post(
       'https://account.uipath.com/oauth/token',
       JSON.stringify({
         grant_type: 'refresh_token',
@@ -52,7 +52,7 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
         }
       }
     )
-    return tokenResponse.data.access_token
+    return data.access_token
   }
 
   /**
@@ -65,9 +65,8 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
     axiosConfig.params = {
       expiresIn: '1h' // expiresIn is optional. Increase it for longer running jobs. See here for examples https://github.com/zeit/ms#examples
     }
-    const resp = await axios.get('/mod/uipath/auth/token', axiosConfig)
-    const { token } = resp.data
-    return token
+    const { data } = await axios.get('/mod/uipath/auth/token', axiosConfig)
+    return data.token
   }
 
   /**
@@ -81,7 +80,7 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
    * @return The Release Key for the given UiPath Process
    */
   const getReleaseKey = async (accountLogicalName, serviceLogicalName, accessToken, processKey, processVersion) => {
-    const resp = await axios.get(
+    const { data } = await axios.get(
       `https://platform.uipath.com/${accountLogicalName}/${serviceLogicalName}/odata/Releases`,
       {
         headers: {
@@ -91,7 +90,7 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
       }
     )
 
-    const release = resp.data.value.find(
+    const release = data.value.find(
       release => release.ProcessKey === processKey && release.ProcessVersion === processVersion
     )
     return release.Key
@@ -121,22 +120,24 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
       processVersion
     )
 
+    // See https://docs.uipath.com/orchestrator/reference#section-starting-a-job for API reference
+    const body = {
+      startInfo: {
+        ReleaseKey: releaseKey,
+        Strategy: 'All',
+        RobotIds: [],
+        NoOfRobots: 0,
+        InputArguments: JSON.stringify({
+          channel: event.channel,
+          target: event.target,
+          botId: event.botId,
+          botpressToken
+        })
+      }
+    }
     const { data, status } = await axios.post(
       `https://platform.uipath.com/${accountLogicalName}/${serviceLogicalName}/odata/Jobs/UiPath.Server.Configuration.OData.StartJobs`,
-      JSON.stringify({
-        startInfo: {
-          ReleaseKey: releaseKey,
-          Strategy: 'All',
-          RobotIds: [],
-          NoOfRobots: 0,
-          InputArguments: JSON.stringify({
-            channel: event.channel,
-            target: event.target,
-            botId: event.botId,
-            botpressToken
-          })
-        }
-      }),
+      JSON.stringify(body),
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -147,6 +148,7 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
     )
 
     if (status !== 201) {
+      bp.logger.error(status)
       throw `Error from UiPath (${status})`
     }
   }
