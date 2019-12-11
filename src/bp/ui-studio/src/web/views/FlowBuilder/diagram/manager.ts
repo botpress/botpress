@@ -372,8 +372,6 @@ export class DiagramManager {
         link.setSourcePort(sourcePort)
         link.setTargetPort(targetPort)
 
-        // console.log('existing', existingLink, node.id, targetNode.id, 'PORT', sourcePort, targetPort)
-
         if (existingLink) {
           link.setPoints(
             existingLink.points.map(pt => {
