@@ -118,6 +118,9 @@ export class DiagramManager {
         } else if (model.lastModified !== node.lastModified) {
           // Node has been modified
           this._syncNode(node, model, snapshot())
+          // TODO: Implement this correctly.
+          // Fixes an issue where links are at position 0,0 after adding a transition)
+          this.diagramEngine['flowBuilder'].checkForLinksUpdate()
         } else {
           // @ts-ignore
           model.setData({
@@ -368,6 +371,8 @@ export class DiagramManager {
         const link = new DefaultLinkModel()
         link.setSourcePort(sourcePort)
         link.setTargetPort(targetPort)
+
+        // console.log('existing', existingLink, node.id, targetNode.id, 'PORT', sourcePort, targetPort)
 
         if (existingLink) {
           link.setPoints(
