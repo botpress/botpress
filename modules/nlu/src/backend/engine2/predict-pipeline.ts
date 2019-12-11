@@ -4,11 +4,11 @@ import _ from 'lodash'
 import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
 import * as math from '../tools/math'
-import { PatternEntity, Tools } from '../typings'
+import { Intent, PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { extractUtteranceEntities } from './entity-extractor'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, Intent, TrainArtefacts } from './training-pipeline'
+import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch } from './utterance'
 
 export type Predictors = TrainArtefacts & {
