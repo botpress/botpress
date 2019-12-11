@@ -136,7 +136,7 @@ export class StatsService {
           count: await this.getCollaboratorsCount()
         },
         chat: {
-          count: parseInt(await this.userRepository.getUserCount())
+          count: await this.userRepository.getUserCount()
         }
       },
       auth: {
