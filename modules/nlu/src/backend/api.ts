@@ -11,7 +11,7 @@ import E2 from './engine2/engine2'
 import { getTrainingSession } from './engine2/train-session-service'
 import { EntityDefCreateSchema } from './entities'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
-import MultiClassF1Scorer, { Scorer } from './tools/f1-scorer'
+import MultiClassF1Scorer, { F1, Scorer } from './tools/f1-scorer'
 import { parseUtterance } from './tools/utterance-parser'
 import { NLUState } from './typings'
 import { IntentDefCreateSchema } from './validation'
@@ -111,6 +111,16 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.post('/confusion', async (req, res) => {
     const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
+    if (USE_E1) {
+      try {
+        const { version } = req.body
+        const modelHash = await syncNLU(botEngine, true, version)
+        return res.send({ modelHash })
+      } catch (err) {
+        return res.status(400).send('Could not train confusion matrix')
+      }
+    }
+
     const intentDefs = await botEngine.storage.getIntents()
     const entityDefs = await botEngine.storage.getCustomEntities()
 
@@ -121,10 +131,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
     seedrandom('confusion', { global: true })
     const lo = _.runInContext()
 
-    let testSet: { example: string; expected: string }[] = [] // TODO add ctx in test example
-    const trainSet = intentDefs // split the data & preserve distribution
+    let testSet: { example: { input: string; ctxs: string[] }; expected: string }[] = []
+    const trainSet = intentDefs // split data & preserve distribution
       .map(i => {
-        const nTrain = Math.ceil(trainSetSize * i.utterances[lang].length)
+        const nTrain = Math.floor(trainSetSize * i.utterances[lang].length)
         if (nTrain < 3) {
           return
         }
@@ -133,7 +143,13 @@ export default async (bp: typeof sdk, state: NLUState) => {
         const trainUtts = utterances.slice(0, nTrain)
         testSet = [
           ...testSet,
-          ...utterances.slice(nTrain).map(u => ({ example: parseUtterance(u).utterance, expected: i.name }))
+          ...utterances.slice(nTrain).map(u => ({
+            example: {
+              input: parseUtterance(u).utterance,
+              ctxs: i.contexts
+            },
+            expected: i.name
+          }))
         ]
 
         return {
@@ -143,29 +159,35 @@ export default async (bp: typeof sdk, state: NLUState) => {
       })
       .filter(Boolean)
 
-    const F1Engine = new E2('en', req.botId, bp.logger)
-    await F1Engine.train(trainSet, entityDefs, lang)
+    const engine = new E2('en', req.botId, bp.logger)
+    await engine.train(trainSet, entityDefs, lang)
 
-    const f1Scorer = new MultiClassF1Scorer()
+    // TODO refactor this
+    const allCtx = _.chain(intentDefs)
+      .flatMap(i => i.contexts)
+      .uniq()
+      .value()
+
+    const f1ScorersByCtx: Dic<Scorer<F1>> = _.chain(allCtx)
+      .thru(ctxs => (ctxs.length > 1 ? ['all', ...ctxs] : ctxs))
+      .reduce((byCtx, ctx) => ({ ...byCtx, [ctx]: new MultiClassF1Scorer() }), {})
+      .value()
 
     for (const { example, expected } of testSet) {
-      const res = await F1Engine.predict(example, ['global'])
-      f1Scorer.record(res.intent.name, expected)
+      for (const ctx of example.ctxs) {
+        const res = await engine.predict(example.input, [ctx])
+        f1ScorersByCtx[ctx].record(res.intent.name, expected)
+      }
+
+      if (allCtx.length > 1) {
+        const res = await engine.predict(example.input, allCtx)
+        f1ScorersByCtx['all'].record(res.intent.name, expected)
+      }
     }
 
-    // for intent only, we should do the same for ctx and for slots
-    const results = f1Scorer.getResults()
-
-    // TODO after all, reset seed using seedrandom()
-
-    try {
-      const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
-      const { version } = req.body
-      const modelHash = await syncNLU(botEngine, true, version)
-      res.send({ modelHash })
-    } catch (err) {
-      res.status(400).send('Could not train confusion matrix')
-    }
+    seedrandom()
+    const scoreMap = _.fromPairs(_.toPairs(f1ScorersByCtx).map(([ctx, scorer]) => [ctx, scorer.getResults()]))
+    res.send(scoreMap)
   })
 
   router.get('/training/:language', async (req, res) => {
