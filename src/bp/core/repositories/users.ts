@@ -137,13 +137,14 @@ export class KnexUserRepository implements UserRepository {
   }
 
   async getUserCount() {
-    const result = (await this.database
+    const result = await this.database
       .knex<User>(this.tableName)
       .count<Record<string, number>>('user_id as qty')
       .first()
-      .then(result => result!.qty)) as string
+      .then(result => result!.qty)
 
     // depending on the DB type (sqlite, postgres), the returned type can be string or int. We force int.
+    // @ts-ignore
     return parseInt(result)
   }
 }
