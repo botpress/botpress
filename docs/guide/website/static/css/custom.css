@@ -46,6 +46,7 @@
 
 .fixedHeaderContainer header .headerTitleWithLogo {
   font-size: 16px;
+  white-space: nowrap;
 }
 
 .error {
