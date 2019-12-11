@@ -541,7 +541,8 @@ reducer = reduceReducers(
               )
 
               return { ...transition, node: (prevTransition || {}).node || '' }
-            })
+            }),
+            lastModified: new Date()
           }
         })
 
