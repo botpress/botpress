@@ -143,6 +143,7 @@ export class KnexUserRepository implements UserRepository {
       .first()
       .then(result => result!.qty)) as string
 
+    // depending on the DB type (sqlite, postgres), the returned type can be string or int. We force int.
     return parseInt(result)
   }
 }
