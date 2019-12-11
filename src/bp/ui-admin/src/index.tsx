@@ -1,8 +1,5 @@
 import '@blueprintjs/core/lib/css/blueprint.css'
-import 'element-closest-polyfill'
-import 'es6-shim'
-import 'es6-symbol/implement'
-import 'polyfill-array-includes'
+import 'babel-polyfill'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
