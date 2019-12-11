@@ -46,7 +46,9 @@ export const CreateTestModal: FC<Props> = props => {
       context: selectedCtx,
       conditions: [
         ['intent', 'is', targetIntent.name],
-        ..._.toPairs(slotConditions).map(([slotName, value]) => [`slot:${slotName}`, 'is', value])
+        ..._.toPairs(slotConditions)
+          .filter(([_, value]) => !!value)
+          .map(([slotName, value]) => [`slot:${slotName}`, 'is', value])
       ] as [string, string, string][]
     }
 
