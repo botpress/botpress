@@ -1,104 +1,55 @@
-import { Button, HTMLTable, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
+import { AxiosInstance } from 'axios'
 import P from 'bluebird'
 import { Container, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React from 'react'
 
-import { makeApi, Test, TestResult } from './api'
+import { F1Metrics, makeApi, Test, TestResult } from './api'
 import style from './style.scss'
 import { CreateTestModal } from './CreateTestModal'
+import { F1s } from './F1Metrics'
+import { TestTable } from './TestTable'
 
 interface State {
   createModalVisible: boolean
   tests: Test[]
   testResults: _.Dictionary<TestResult>
+  loading: boolean
+  f1Metrics: F1Metrics
 }
 
-export default class NLUTests extends React.Component<{ bp: any }, State> {
+interface Props {
+  bp: { axios: AxiosInstance }
+  contentLang: string
+}
+
+// TODO use ctx & useReducer instead of state
+export default class NLUTests extends React.Component<Props, State> {
   private api = makeApi(this.props.bp)
 
   state: State = {
     createModalVisible: false,
     tests: [],
-    testResults: {}
+    testResults: {},
+    loading: true,
+    f1Metrics: {
+      all: { precision: 0.76, recall: 0.79, f1: 0.75 },
+      'e-ticket': { precision: 1, recall: 1, f1: 1 },
+      global: { precision: 0.67, recall: 0.7, f1: 0.65 }
+    }
   }
 
-  hideModal() {
-    this.setState({ createModalVisible: false })
-  }
-
-  showModal() {
-    this.setState({ createModalVisible: true })
+  setModalVisible(createModalVisible: boolean) {
+    this.setState({ createModalVisible })
   }
 
   async componentDidMount() {
-    await this.refreshSessions()
+    await this.refreshTests()
   }
 
-  refreshSessions = async () => {
-    this.api.fetchTests().then(tests => this.setState({ tests }))
-  }
-
-  renderDetails = (res: TestResult) => (
-    <div>
-      {res.details
-        .filter(r => !r.success)
-        .map(r => (
-          <p>{r.reason}</p>
-        ))}
-    </div>
-  )
-
-  renderResult = testId => {
-    const result = this.state.testResults[testId]
-    if (result === undefined) {
-      return <span>-</span>
-    }
-    if (result.success) {
-      return <Icon icon="tick-circle" intent="success" />
-    } else {
-      return (
-        <Tooltip position={Position.LEFT} content={this.renderDetails(result)}>
-          <Icon icon="warning-sign" intent="danger" />
-        </Tooltip>
-      )
-    }
-  }
-
-  renderEmpty() {
-    return (
-      <SplashScreen
-        icon={<Icon iconSize={100} icon="predictive-analysis" style={{ marginBottom: '3em' }} />}
-        title="NLU Regression Testing"
-        description="Utility module used by the Botpress team to perform regression testing on native NLU"
-      />
-    )
-  }
-
-  renderTable() {
-    return (
-      <HTMLTable bordered striped>
-        <thead>
-          <tr>
-            <th>Utterance</th>
-            <th>Context</th>
-            <th>Conditions</th>
-            <th>Result</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.state.tests.map(test => (
-            <tr>
-              {/* TODO edit utterance in place */}
-              <td>{test.utterance}</td>
-              <td>{test.context}</td>
-              <td>{test.conditions.map(c => c.join('-')).join(' | ')}</td>
-              <td>{this.renderResult(test.id)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </HTMLTable>
-    )
+  refreshTests = async () => {
+    this.api.fetchTests().then(tests => this.setState({ tests, loading: false }))
   }
 
   runTests = async () => {
@@ -108,6 +59,11 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
     this.setState({ testResults })
   }
 
+  computeF1 = async () => {
+    const f1Results = await this.api.runF1Analysis('en')
+    this.setState({ f1Metrics: f1Results })
+  }
+
   render() {
     return (
       <Container sidePanelHidden={true}>
@@ -115,26 +71,37 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
         <div className="bph-layout-main">
           <div className="bph-layout-middle">
             <div>
-              <Button type="button" intent="primary" minimal icon="add" onClick={() => this.showModal()}>
-                Create a test
-              </Button>
+              <Button intent="primary" minimal icon="play" text="Run tests" onClick={() => this.runTests()} />
+              <Button
+                intent="primary"
+                minimal
+                icon="function"
+                onClick={() => this.computeF1()}
+                text="Compute F1 analysis"
+              />
             </div>
             <div className={style.container}>
-              {!this.state.tests.length && this.renderEmpty()}
-              {!!this.state.tests.length && this.renderTable()}
+              {!this.state.loading && !this.state.tests.length && (
+                <SplashScreen
+                  icon={<Icon iconSize={100} icon="predictive-analysis" style={{ marginBottom: '3em' }} />}
+                  title="NLU Regression Testing"
+                  description="Utility module used by the Botpress team to perform regression testing on native NLU"
+                />
+              )}
+              {!!this.state.tests.length && (
+                <TestTable
+                  tests={this.state.tests}
+                  testResults={this.state.testResults}
+                  createTest={this.setModalVisible.bind(this, true)}
+                />
+              )}
+              {!_.isEmpty(this.state.f1Metrics) && <F1s f1Metrics={this.state.f1Metrics} />}
               <CreateTestModal
                 api={this.api}
-                hide={() => this.hideModal()}
+                hide={this.setModalVisible.bind(this, false)}
                 visible={this.state.createModalVisible}
-                onTestCreated={() => this.refreshSessions()}
+                onTestCreated={() => this.refreshTests()}
               />
-              {this.state.tests.length > 0 && (
-                <div>
-                  <Button type="button" intent="success" icon="play" onClick={this.runTests}>
-                    Run all tests
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         </div>

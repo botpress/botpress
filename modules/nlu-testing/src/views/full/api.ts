@@ -18,12 +18,21 @@ export interface TestResult {
   }[]
 }
 
+export interface F1 {
+  precision: number
+  recall: number
+  f1: number
+}
+
+export type F1Metrics = _.Dictionary<F1>
+
 export interface TestingAPI {
   fetchTests: () => Promise<Test[]>
   fetchIntents: () => Promise<any[]>
   updateTest: (x: Test) => Promise<void>
   deleteTest: (x: Test) => Promise<void>
   runTest: (x: Test) => Promise<TestResult>
+  runF1Analysis: (lang: string) => Promise<F1Metrics>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
@@ -48,6 +57,12 @@ export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
 
     runTest: async (test: Test): Promise<TestResult> => {
       const { data } = await bp.axios.post(`/mod/nlu-testing/tests/${test.id}/run`)
+      return data
+    },
+
+    runF1Analysis: async (lang: string) => {
+      // TODO add lang as req params
+      const { data } = await bp.axios.post(`/mod/nlu/confusion`)
       return data
     }
   }
