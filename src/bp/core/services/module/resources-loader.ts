@@ -181,12 +181,12 @@ export class ModuleResourceLoader {
   private async _copyFiles(src, dest) {
     const files = await Promise.fromCallback<string[]>(cb => glob('**/*', { cwd: src, nodir: true }, cb))
     for (const file of files) {
-      const ressourceContent = await fse.readFileSync(path.join(src, file), 'utf8')
-      await this.ghost.global().upsertFile('/', path.join(dest, file), ressourceContent, { recordRevision: false })
+      const resourceContent = await fse.readFileSync(path.join(src, file), 'utf8')
+      await this.ghost.global().upsertFile('/', path.join(dest, file), resourceContent, { recordRevision: false })
     }
   }
 
-  @WrapErrorsWith('Error copying module ressources')
+  @WrapErrorsWith('Error copying module resources')
   private async _updateOutdatedFiles(src, dest): Promise<void> {
     const files = fse.readdirSync(src)
 
@@ -224,11 +224,11 @@ export class ModuleResourceLoader {
       to = matched || to
 
       const isNewFile = !(await this.ghost.global().fileExists('/', to))
-      const ressourceHasChanged = await this.ressourceHasChanged(from, to)
+      const resourceHasChanged = await this.resourceHasChanged(from, to)
       const fileHasBeenManuallyUpdated = isNewFile || (await this.userHasManuallyChangedFile(to))
-      if (isNewFile || (ressourceHasChanged && !fileHasBeenManuallyUpdated)) {
+      if (isNewFile || (resourceHasChanged && !fileHasBeenManuallyUpdated)) {
         debug('adding missing file "%s"', file)
-        const contentWithHash = await this._getRessourceContentWithHash(from)
+        const contentWithHash = await this._getResourceContentWithHash(from)
         await this.ghost.global().upsertFile('/', to, contentWithHash, { recordRevision: false })
       } else if (fileHasBeenManuallyUpdated) {
         debug('not copying file "%s" because it has been changed manually', file)
@@ -245,15 +245,15 @@ export class ModuleResourceLoader {
       .digest('hex')
   }
 
-  private ressourceHasChanged = async (ressourceFilePath: string, destinationFilePath: string) => {
+  private resourceHasChanged = async (resourceFilePath: string, destinationFilePath: string) => {
     try {
-      const ressourceContent = await fse.readFileSync(ressourceFilePath, 'utf8')
+      const resourceContent = await fse.readFileSync(resourceFilePath, 'utf8')
       const destinationContent = await this.ghost.global().readFileAsString('/', destinationFilePath)
       const lines = destinationContent.split(os.EOL)
       const firstLine = lines[0]
 
       if (firstLine.indexOf(CHECKSUM) === 0) {
-        return this._calculateHash(ressourceContent) !== firstLine.substring(CHECKSUM.length)
+        return this._calculateHash(resourceContent) !== firstLine.substring(CHECKSUM.length)
       }
     } catch (err) {
       return true
@@ -283,10 +283,10 @@ export class ModuleResourceLoader {
    * Calculates the hash for the file's content, then adds a comment on the first line with the result
    * @param filename
    */
-  private _getRessourceContentWithHash = async ressourceFilePath => {
-    const ressourceContent = await fse.readFileSync(ressourceFilePath, 'utf8')
-    const hash = this._calculateHash(ressourceContent)
-    return `${CHECKSUM}${hash}${os.EOL}${ressourceContent}`
+  private _getResourceContentWithHash = async resourceFilePath => {
+    const resourceContent = await fse.readFileSync(resourceFilePath, 'utf8')
+    const hash = this._calculateHash(resourceContent)
+    return `${CHECKSUM}${hash}${os.EOL}${resourceContent}`
   }
 
   @WrapErrorsWith(args => `Error in migration script "${args[0]}".`)

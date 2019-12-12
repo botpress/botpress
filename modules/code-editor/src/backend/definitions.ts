@@ -29,7 +29,8 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     allowScoped: true,
     permission: 'actions',
     ghost: {
-      baseDir: '/actions'
+      baseDir: '/actions',
+      shouldSyncToDisk: true
     }
   },
   hook: {
@@ -40,7 +41,8 @@ export const FileTypes: { [type: string]: FileDefinition } = {
       baseDir: '/hooks',
       dirListingAddFields: (filepath: string) => ({ hookType: filepath.substr(0, filepath.indexOf('/')) }),
       upsertLocation: (file: EditableFile) => `/hooks/${file.hookType}`,
-      upsertFilename: (file: EditableFile) => file.location.replace(file.hookType, '')
+      upsertFilename: (file: EditableFile) => file.location.replace(file.hookType, ''),
+      shouldSyncToDisk: true
     },
     validate: async (file: EditableFile) => {
       return HOOK_SIGNATURES[file.hookType] === undefined && `Invalid hook type "${file.hookType}"`

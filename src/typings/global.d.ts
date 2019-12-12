@@ -102,7 +102,7 @@ declare type BotpressEnvironementVariables = {
    */
   readonly REVERSE_PROXY?: string
 
-  /** Use this proxy connexion string to access external services, like Duckling and Licensing
+  /** Use this proxy connection string to access external services, like Duckling and Licensing
    *  This values overwrites the value defined in the global Botpress configuration
    * @example http://username:password@hostname:port
    */
@@ -161,6 +161,11 @@ declare type BotpressEnvironementVariables = {
    * Adding temporarily until the feature is battle-tested
    */
   readonly BP_NO_REDIS_STATE?: boolean
+
+  /**
+   * Experimental feature which will try to load actions locally, then from the ghost
+   */
+  readonly BP_EXPERIMENTAL_REQUIRE_BPFS?: boolean
 }
 
 interface IDebug {

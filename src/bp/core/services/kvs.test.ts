@@ -31,7 +31,7 @@ createDatabaseSuite('KVS', (database: Database) => {
   })
 
   describe('Get', () => {
-    it('Returns undefined if key doesnt exists', async () => {
+    it("Returns undefined if key doesn't exist", async () => {
       const value = await kvs.get(BOTID, 'does-not-exist')
       expect(value).toBeUndefined()
     })
@@ -48,7 +48,7 @@ createDatabaseSuite('KVS', (database: Database) => {
   })
 
   describe('Set', () => {
-    it('Sets value if key doesnt exists', async () => {
+    it("Sets value if key doesn't exist", async () => {
       const key = 'otherKey'
       const expected = 'value'
       await kvs.set(BOTID, key, expected)

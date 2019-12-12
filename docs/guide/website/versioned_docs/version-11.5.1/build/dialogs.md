@@ -8,7 +8,7 @@ Botpress use what we call the **Dialog Engine** to handle conversations. The Dia
 
 ## Overview
 
-The Dialog Engine use [Flows](#flows) that represents the overall conversationnal logic of a bot. A Flow is then composed of [Nodes](#nodes) which execute a series of [Instructions](#node-lifecycle). Instructions are part of a Node lifecycle and can execute [Actions](#actions). An Action is code, usually code that you have written yourself, code provided by Botpress or by others (more on that later).
+The Dialog Engine use [Flows](#flows) that represents the overall conversational logic of a bot. A Flow is then composed of [Nodes](#nodes) which execute a series of [Instructions](#node-lifecycle). Instructions are part of a Node lifecycle and can execute [Actions](#actions). An Action is code, usually code that you have written yourself, code provided by Botpress or by others (more on that later).
 
 ## Flows
 

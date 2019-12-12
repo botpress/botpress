@@ -10,11 +10,12 @@ import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
 import { createForAction } from '../../api'
-import { clearRequireCache, requireAtPaths } from '../../modules/require'
+import { clearRequireCache, requireFromString } from '../../modules/require'
 import { TYPES } from '../../types'
-import { ActionExecutionError, BPError } from '../dialog/errors'
+import { ActionExecutionError } from '../dialog/errors'
 
 import { ActionMetadata, extractMetadata } from './metadata'
+import { extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
@@ -76,18 +77,27 @@ export type ActionDefinition = {
 export class ScopedActionService {
   private _actionsCache: ActionDefinition[] | undefined
   private _scriptsCache: Map<string, string> = new Map()
+  // Keeps a quick index of files which have already been required
+  private _validScripts: { [filename: string]: boolean } = {}
 
   constructor(private ghost: GhostService, private logger: Logger, private botId: string, private cache: ObjectCache) {
     this._listenForCacheInvalidation()
   }
 
   private _listenForCacheInvalidation() {
+    const clearDebounce = _.debounce(this._clearCache.bind(this), DEBOUNCE_DELAY, { leading: true, trailing: false })
+
     this.cache.events.on('invalidation', key => {
       if (key.toLowerCase().indexOf(`/actions`) > -1) {
-        this._scriptsCache.clear()
-        this._actionsCache = undefined
+        clearDebounce()
       }
     })
+  }
+
+  private _clearCache() {
+    this._scriptsCache.clear()
+    this._actionsCache = undefined
+    this._validScripts = {}
   }
 
   async listActions(): Promise<ActionDefinition[]> {
@@ -152,35 +162,66 @@ export class ScopedActionService {
     return !!actions.find(x => x.name === actionName)
   }
 
-  private _prepareRequire(fullPath: string) {
-    const actionLocation = path.dirname(fullPath)
+  async getActionDetails(actionName: string) {
+    const action = await this.findAction(actionName)
+    const code = await this.getActionScript(action)
 
-    let parts = path.relative(process.PROJECT_LOCATION, actionLocation).split(path.sep)
-    parts = parts.slice(parts.indexOf('actions') + 1) // We only keep the parts after /actions/...
+    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
+    const lookups = getBaseLookupPaths(dirPath)
 
-    const lookups: string[] = [actionLocation]
+    return { code, dirPath, lookups, action }
+  }
 
-    if (parts[0] in process.LOADED_MODULES) {
-      // the action is in a directory by the same name as a module
-      lookups.unshift(process.LOADED_MODULES[parts[0]])
+  // This method tries to load require() files from the FS and fallback on BPFS
+  async checkActionRequires(actionName: string): Promise<boolean> {
+    if (this._validScripts[actionName]) {
+      return true
     }
 
-    return module => requireAtPaths(module, lookups, fullPath)
+    const { code, dirPath: parentScript, lookups } = await this.getActionDetails(actionName)
+
+    const isRequireValid = prepareRequireTester(parentScript, lookups)
+    const files = extractRequiredFiles(code)
+
+    for (const file of files) {
+      if (isRequireValid(file)) {
+        continue
+      }
+
+      try {
+        // Ensures the required files are available before compiling the action
+        await this.checkActionRequires(file)
+
+        const { code, dirPath, lookups } = await this.getActionDetails(file)
+        const exports = requireFromString(code, file, parentScript, prepareRequire(dirPath, lookups))
+
+        if (_.isEmpty(exports)) {
+          this.logger.warn(`Your required file (${file}) looks empty. Missing module.exports ? `)
+        }
+      } catch (err) {
+        this.logger.attachError(err).error(`There is an issue with required file ${file}.js in action ${actionName}.js`)
+        return false
+      }
+    }
+
+    this._validScripts[actionName] = true
+    return true
   }
 
   async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
     process.ASSERT_LICENSED()
 
+    if (process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS) {
+      await this.checkActionRequires(actionName)
+    }
+
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 
-    const action = await this.findAction(actionName)
-    const code = await this.getActionScript(action)
+    const { action, code, dirPath, lookups } = await this.getActionDetails(actionName)
+    const _require = prepareRequire(dirPath, lookups)
+
     const api = await createForAction()
-
-    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
-    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
-
-    const _require = this._prepareRequire(dirPath)
 
     const args = {
       bp: api,

@@ -54,7 +54,8 @@
       "tutorials/contextual-faq",
       "tutorials/chat-3rd-party-OAuth",
       "tutorials/listen-file-changes",
-      "tutorials/3rd-party-NLU"
+      "tutorials/3rd-party-NLU",
+      "tutorials/uipath"
     ],
     "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac"]
   }

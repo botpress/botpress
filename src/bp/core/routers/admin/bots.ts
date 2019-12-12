@@ -203,7 +203,7 @@ export class BotsRouter extends CustomRouter {
         req.on('data', chunk => buffers.push(chunk))
         await Promise.fromCallback(cb => req.on('end', cb))
 
-        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), false)
+        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), req.workspace!, false)
         res.sendStatus(200)
       })
     )
