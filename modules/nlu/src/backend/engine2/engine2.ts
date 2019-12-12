@@ -1,4 +1,4 @@
-import { Logger, MLToolkit, NLU } from 'botpress/sdk'
+import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { isPatternValid } from '../tools/patterns-utils'
@@ -9,12 +9,14 @@ import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 
+const trainDebug = DEBUG('nlu').sub('training')
+
 export default class E2 implements Engine2 {
   private static tools: Tools
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
+  constructor(private defaultLanguage: string, private botId: string) {}
 
   static provideTools(tools: Tools) {
     E2.tools = tools
@@ -26,7 +28,7 @@ export default class E2 implements Engine2 {
     languageCode: string,
     trainingSession?: TrainingSession
   ): Promise<Model> {
-    this.logger.info(`Started ${languageCode} training for bot ${this.botId}`)
+    trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
@@ -84,7 +86,8 @@ export default class E2 implements Engine2 {
           progress: 1,
           status: 'done'
         })
-      this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
+
+      trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
       await this.loadModel(model)
     }
 
