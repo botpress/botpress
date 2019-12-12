@@ -12,7 +12,7 @@ export default class DismissableAlert extends React.Component {
       return (
         <Alert bsStyle="danger" onDismiss={dismiss}>
           <h4>An error occured sending a broadcast</h4>
-          <p>Have a look at the logs to see what hapenned</p>
+          <p>Have a look at the logs to see what happened</p>
           <p>
             <Button onClick={dismiss}>Hide Alert</Button>
           </p>

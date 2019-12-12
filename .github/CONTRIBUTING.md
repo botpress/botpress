@@ -11,6 +11,8 @@ The following information is here to walk you through your first and future cont
 ### Ground Rules
 As contributors, you should be respectful and considerate of others - both contributors and non-contributors alike. Please refer to the [code of conduct](./CODE_OF_CONDUCT.md) for our and your responsibilities to the rest of the community.
 
+However as a reminder we do have a [Community Forum](https://help.botpress.io/) and a [website](https://botpress.io/) so please use these as places to find support rather than using the issue tracker which should be reserved for feature requests and bug reports.
+
 ### New to contributing to open-source?
 Working on your first Pull Request? You can learn how from this *free* series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
 
@@ -84,6 +86,23 @@ Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Pr
   ```
 
 * If you do find any issues or think of a feature please [create a Github issue](https://help.github.com/articles/creating-an-issue/) for this first. Discuss things transparently and get community feedback.
+
+# Your First Contribution
+If you're not sure where to start issues we've labelled some issues with [#for-new-contributors](https://github.com/botpress/botpress/issues?q=is%3Aissue+is%3Aopen+label%3Afor-new-contributors) so these are a great place to start!
+
+Start by checking out the [README](./README.md) and check out the introductory videos and get familiar with what Botpress does.
+
+If you do decide to work on an issue comment saying you intend to pick it up and we'll assign it to you. If you decide it's too much however do tell us and we can try to help out or unassign it so it's free for someone else to pick up.
+
+### New to contributing to open-source?
+Working on your first Pull Request? You can learn how from this *free* series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
+
+At this point, you're ready to make your changes! Feel free to ask for help; everyone is a beginner at first :smile_cat:
+
+If a maintainer asks you to "rebase" your PR, they're saying that a lot of code has changed, and that you need to update your branch so it's easier to merge. Git can be confusing at times, but essentially this means the project history ends up being cleaner - there's an overview of why we might ask you to rebase [here](https://www.atlassian.com/git/tutorials/merging-vs-rebasing).
+
+# Getting started
+Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License. This means that all contributors need to agree to the dual-license before their contributions can be accepted. This is an automatic process when creating the pull-request.
 
 ## How to report a bug
 When filing an issue, make sure to answer these five questions:

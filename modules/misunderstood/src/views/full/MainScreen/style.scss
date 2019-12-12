@@ -1,0 +1,123 @@
+.newEventPreview {
+  background-color: #e99;
+  border: 1px solid #999;
+  padding: 10px;
+  border-radius: 1px;
+}
+
+.chatPreview {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  padding-bottom: 0;
+  margin: 10px 0;
+  border-radius: 1px;
+  border: 1px solid #999;
+  background: white;
+}
+
+.chatPreviewMessage {
+  display: flex;
+  flex-direction: row;
+  max-width: 80%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.chatPreviewAvatar {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #999;
+  color: white;
+  font-size: 26px;
+  text-align: center;
+  line-height: 36px;
+}
+
+.chatPreviewText {
+  padding: 5px;
+  border-radius: 1px;
+  border: 1px solid #ccc;
+}
+
+.chatPreviewMessage_Incoming {
+  align-self: flex-end;
+  .chatPreviewAvatar {
+    order: 2;
+    margin-left: 5px;
+  }
+  .chatPreviewText {
+    order: 1;
+    background: #333;
+    color: white;
+  }
+}
+
+.chatPreviewMessage_Outgoing {
+  align-self: flex-start;
+  .chatPreviewAvatar {
+    order: 1;
+    margin-right: 5px;
+  }
+  .chatPreviewText {
+    order: 2;
+    background: white;
+    color: black;
+  }
+}
+
+.chatPreviewMessage_Current {
+  .chatPreviewText {
+    background: orange;
+    border: 2px solid orangered;
+  }
+}
+
+.amendForm {
+  margin-top: 10px;
+}
+
+.amendFormPicker {
+  margin: 10px 0;
+  border: 1px solid #666;
+  padding: 10px;
+  border-radius: 1px;
+}
+
+.popover {
+  padding: 10px 5px 5px 20px;
+  margin-left: 5px;
+}
+
+.card {
+  margin: 10px 0;
+}
+
+.selectedCard {
+  box-shadow: 0 0 5px 5px forestgreen;
+}
+
+.filter {
+  margin: 10px 0;
+}
+
+.selectInput {
+  :global(.bp3-tag-input) &:global(.bp3-input-ghost) {
+    width: 220px;
+  }
+}
+
+.applyAllButton {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.paramsForm {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #666;
+  border-radius: 1px;
+}

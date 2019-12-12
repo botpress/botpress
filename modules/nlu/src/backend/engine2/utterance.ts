@@ -5,15 +5,13 @@ import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, isWord, SPACE } from '../tools/token-utils'
 import { parseUtterance } from '../tools/utterance-parser'
-import { TFIDF } from '../typings'
-
-import { ExtractedEntity, ExtractedSlot, Tools } from './engine2'
+import { ExtractedEntity, ExtractedSlot, TFIDF, Tools } from '../typings'
 
 export type UtteranceToStringOptions = {
-  lowerCase: boolean
-  onlyWords: boolean
-  slots: 'keep-value' | 'keep-name' | 'ignore'
-  entities: 'keep-default' | 'keep-value' | 'keep-name' | 'ignore'
+  lowerCase?: boolean
+  onlyWords?: boolean
+  slots?: 'keep-value' | 'keep-name' | 'ignore'
+  entities?: 'keep-default' | 'keep-value' | 'keep-name' | 'ignore'
 }
 
 export type TokenToStringOptions = {
@@ -32,6 +30,7 @@ export type UtteranceToken = Readonly<{
   isSpace: boolean
   isBOS: boolean
   isEOS: boolean
+  POS: string
   vectors: ReadonlyArray<number>
   tfidf: number
   cluster: number
@@ -51,9 +50,10 @@ export default class Utterance {
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
   private _sentenceEmbedding?: number[]
 
-  constructor(tokens: string[], vectors: number[][], public languageCode: Readonly<string>) {
-    if (tokens.length !== vectors.length) {
-      throw Error('Tokens and vectors must match')
+  constructor(tokens: string[], vectors: number[][], posTags: string[], public languageCode: Readonly<string>) {
+    const allSameLength = [tokens, vectors, posTags].every(arr => arr.length === tokens.length)
+    if (!allSameLength) {
+      throw Error(`Tokens, vectors and postTags dimensions must match`)
     }
 
     const arr = []
@@ -83,6 +83,7 @@ export default class Utterance {
           },
           value: value,
           vectors: vectors[i],
+          POS: posTags[i],
           toString: (opts: TokenToStringOptions) => {
             const options = { ...DefaultTokenToStringOptions, ...opts }
             let result = value
@@ -184,7 +185,8 @@ export default class Utterance {
   clone(copyEntities: boolean, copySlots: boolean): Utterance {
     const tokens = this.tokens.map(x => x.value)
     const vectors = this.tokens.map(x => <number[]>x.vectors)
-    const utterance = new Utterance(tokens, vectors, this.languageCode)
+    const POStags = this.tokens.map(x => x.POS)
+    const utterance = new Utterance(tokens, vectors, POStags, this.languageCode)
     utterance.setGlobalTfidf({ ...this._globalTfidf })
 
     if (copyEntities) {
@@ -243,20 +245,25 @@ export default class Utterance {
   }
 }
 
-export async function buildUtterances(raw_utterances: string[], language: string, tools: Tools): Promise<Utterance[]> {
+export async function buildUtteranceBatch(
+  raw_utterances: string[],
+  language: string,
+  tools: Tools
+): Promise<Utterance[]> {
   const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
-  const tokens = await tools.tokenize_utterances(parsed.map(p => p.utterance), language)
-  const uniqTokens = _.uniq(_.flatten(tokens))
+  const tokenUtterances = await tools.tokenize_utterances(parsed.map(p => p.utterance), language)
+  const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language)
+  const uniqTokens = _.uniq(_.flatten(tokenUtterances))
   const vectors = await tools.vectorize_tokens(uniqTokens, language)
   const vectorMap = _.zipObject(uniqTokens, vectors)
 
-  return _.zip(tokens, parsed)
-    .map(([tokUtt, { utterance: utt, parsedSlots }]) => {
+  return _.zip(tokenUtterances, POSUtterances, parsed)
+    .map(([tokUtt, POSUtt, { utterance: utt, parsedSlots }]) => {
       if (tokUtt.length === 0) {
         return
       }
       const vectors = tokUtt.map(t => vectorMap[t])
-      const utterance = new Utterance(tokUtt, vectors, language)
+      const utterance = new Utterance(tokUtt, vectors, POSUtt, language)
 
       // TODO: temporary work-around
       // covers a corner case where tokenization returns tokens that are not identical to `parsed` utterance
@@ -274,4 +281,15 @@ export async function buildUtterances(raw_utterances: string[], language: string
       return utterance
     })
     .filter(Boolean)
+}
+
+/**
+ * @description Utility function that returns an utterance using a space tokenizer
+ * @param str sentence as a textual value
+ */
+export function makeTestUtterance(str: string): Utterance {
+  const toks = str.split(/(\s)/g)
+  const vecs = new Array(toks.length).fill([0])
+  const pos = new Array(toks.length).fill('N/A')
+  return new Utterance(toks, vecs, pos, 'en')
 }

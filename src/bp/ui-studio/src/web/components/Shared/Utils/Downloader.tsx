@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { Method } from 'axios'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
 import { DownloaderProps } from './typings'
@@ -8,7 +8,7 @@ export const Downloader: FC<DownloaderProps> = props => {
   const [content, setContent] = useState<string>()
   const [filename, setFilename] = useState<string>()
 
-  const startDownload = async (url: string, filename?: string, method: string = 'get') => {
+  const startDownload = async (url: string, filename?: string, method: Method = 'get') => {
     const { data, headers } = await axios({ method, url, responseType: 'blob' })
 
     if (!filename) {

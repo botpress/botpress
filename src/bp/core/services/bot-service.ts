@@ -214,7 +214,7 @@ export class BotService {
     return this.ghostService.forBot(botId).exportToArchiveBuffer('models/**/*', replaceContent)
   }
 
-  async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+  async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
     if (!isValidBotId(botId)) {
       throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
     }
@@ -242,7 +242,6 @@ export class BotService {
       await this.hookService.executeHook(new Hooks.BeforeBotImport(api, botId, tmpFolder, hookResult))
 
       if (hookResult.allowImport) {
-        const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
         const pipeline = await this.workspaceService.getPipeline(workspaceId)
 
         await replace({
