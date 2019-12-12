@@ -21,7 +21,7 @@ Integrate Botpress to your current application with the API Channel. When you cr
 }
 ```
 
-### Optionnal Data
+### Optional Data
 
 You can include more data to your response by using the `?include=nlu,state` query params.
 

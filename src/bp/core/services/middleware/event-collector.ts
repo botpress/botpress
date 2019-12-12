@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { EventRepository } from 'core/repositories'
@@ -16,7 +15,7 @@ import { SessionIdFactory } from '../dialog/session/id-factory'
 export class EventCollector {
   private readonly BATCH_SIZE = 100
   private readonly TABLE_NAME = 'events'
-  private knex!: Knex & KnexExtension
+  private knex!: Knex & sdk.KnexExtension
   private intervalRef
   private currentPromise
 

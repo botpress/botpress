@@ -1,9 +1,9 @@
-import { KnexExtension } from 'common/knex'
+import { KnexExtended, KnexExtension } from 'botpress/sdk'
 import Knex from 'knex'
 import moment from 'moment'
 import { VError } from 'verror'
 
-export const patchKnex = (knex: Knex): Knex & KnexExtension => {
+export const patchKnex = (knex: Knex): KnexExtended => {
   const isLite = knex.client.config.client === 'sqlite3'
   const location = isLite ? knex.client.connectionSettings.filename : undefined
 

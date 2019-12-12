@@ -50,7 +50,7 @@ body {
 }
 
 .bpw-layout {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   right: 0;
   width: 100%;
@@ -871,13 +871,11 @@ body {
 }
 
 /* IE10+ CSS styles go here */
-/*@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-  .typingGroup {
-    .typingBubble {
-      animation: initial;
-    }
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .bpw-typing-bubble {
+    animation: none;
   }
-}*/
+}
 
 /**ANIMATIONS */
 

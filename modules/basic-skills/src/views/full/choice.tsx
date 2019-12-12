@@ -145,10 +145,10 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
       const initialKeywords = element.id === this.state.contentId ? this.state.keywords : {}
       const keywords = this.choices.reduce((acc, v) => {
         if (!acc[v.value]) {
-          acc[v.value] = _.uniq([v.value, v.title])
+          acc[v.value] = initialKeywords[v.value] ? initialKeywords[v.value] : _.uniq([v.value, v.title])
         }
         return acc
-      }, initialKeywords)
+      }, {})
       this.setState({ contentId: element.id, keywords: keywords })
     }
   }
@@ -182,8 +182,8 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
       this.choices && this.choices.length ? (
         this.renderMatchingSection()
       ) : (
-        <Callout intent={Intent.DANGER}>No choices available. Pick a content element that contains choices.</Callout>
-      )
+          <Callout intent={Intent.DANGER}>No choices available. Pick a content element that contains choices.</Callout>
+        )
 
     const contentPickerProps: any = {}
     const contentType = this.getContentType()

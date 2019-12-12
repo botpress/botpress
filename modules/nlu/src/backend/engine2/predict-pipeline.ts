@@ -4,13 +4,12 @@ import _ from 'lodash'
 import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
 import * as math from '../tools/math'
-import { PatternEntity } from '../typings'
+import { PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { Tools } from './engine2'
 import { extractUtteranceEntities } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, Intent, TrainArtefacts } from './training-pipeline'
-import Utterance, { buildUtterances } from './utterance'
+import Utterance, { buildUtteranceBatch } from './utterance'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifer: sdk.MLToolkit.SVM.Predictor
@@ -97,7 +96,7 @@ async function preprocessInput(
 }
 
 async function makePredictionUtterance(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  const [utterance] = await buildUtterances([input.rawText], input.languageCode, tools)
+  const [utterance] = await buildUtteranceBatch([input.rawText], input.languageCode, tools)
 
   const { tfidf, vocabVectors, kmeans } = predictors
   utterance.tokens.forEach(token => {
@@ -288,8 +287,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
           confidence: s.confidence,
           name: s.name,
           source: s.source,
-          value: s.source // TODO replace by value once added in the slot
-          // TODO add entity ?
+          value: s.value
         } as sdk.NLU.Slot
       }
     },
