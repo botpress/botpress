@@ -24,7 +24,10 @@ export interface F1 {
   f1: number
 }
 
-export type F1Metrics = _.Dictionary<F1>
+export type XValidationResults = {
+  intents: _.Dictionary<F1>
+  slots: _.Dictionary<F1>
+}
 
 export interface TestingAPI {
   fetchTests: () => Promise<Test[]>
@@ -32,7 +35,7 @@ export interface TestingAPI {
   updateTest: (x: Test) => Promise<void>
   deleteTest: (x: Test) => Promise<void>
   runTest: (x: Test) => Promise<TestResult>
-  runF1Analysis: (lang: string) => Promise<F1Metrics>
+  runF1Analysis: (lang: string) => Promise<XValidationResults>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {

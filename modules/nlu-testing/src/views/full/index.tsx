@@ -5,10 +5,10 @@ import { Container, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React from 'react'
 
-import { F1Metrics, makeApi, Test, TestResult } from './api'
+import { makeApi, Test, TestResult, XValidationResults } from './api'
 import style from './style.scss'
 import { CreateTestModal } from './CreateTestModal'
-import { F1s } from './F1Metrics'
+import { CrossValidationResults } from './F1Metrics'
 import { TestTable } from './TestTable'
 
 interface State {
@@ -16,7 +16,7 @@ interface State {
   tests: Test[]
   testResults: _.Dictionary<TestResult>
   loading: boolean
-  f1Metrics: F1Metrics
+  f1Metrics: XValidationResults
 }
 
 interface Props {
@@ -33,11 +33,7 @@ export default class NLUTests extends React.Component<Props, State> {
     tests: [],
     testResults: {},
     loading: true,
-    f1Metrics: {
-      all: { precision: 0.76, recall: 0.79, f1: 0.75 },
-      'e-ticket': { precision: 1, recall: 1, f1: 1 },
-      global: { precision: 0.67, recall: 0.7, f1: 0.65 }
-    }
+    f1Metrics: { intents: {}, slots: {} }
   }
 
   setModalVisible(createModalVisible: boolean) {
@@ -59,7 +55,7 @@ export default class NLUTests extends React.Component<Props, State> {
     this.setState({ testResults })
   }
 
-  computeF1 = async () => {
+  computeXValidation = async () => {
     const f1Results = await this.api.runF1Analysis('en')
     this.setState({ f1Metrics: f1Results })
   }
@@ -76,8 +72,8 @@ export default class NLUTests extends React.Component<Props, State> {
                 intent="primary"
                 minimal
                 icon="function"
-                onClick={() => this.computeF1()}
-                text="Compute F1 analysis"
+                onClick={() => this.computeXValidation()}
+                text="Run Cross Validation"
               />
             </div>
             <div className={style.container}>
@@ -95,7 +91,7 @@ export default class NLUTests extends React.Component<Props, State> {
                   createTest={this.setModalVisible.bind(this, true)}
                 />
               )}
-              {!_.isEmpty(this.state.f1Metrics) && <F1s f1Metrics={this.state.f1Metrics} />}
+              {!_.isEmpty(this.state.f1Metrics.intents) && <CrossValidationResults f1Metrics={this.state.f1Metrics} />}
               <CreateTestModal
                 api={this.api}
                 hide={this.setModalVisible.bind(this, false)}
