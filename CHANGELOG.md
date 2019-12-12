@@ -1,3 +1,48 @@
+# [12.3.0](https://github.com/botpress/botpress/compare/v12.2.3...v12.3.0) (2019-12-12)
+
+
+### Bug Fixes
+
+* **admin:** fix admin for users running on IE ([80872bd](https://github.com/botpress/botpress/commit/80872bd))
+* **admin:** fix admin for users running on IE ([141a664](https://github.com/botpress/botpress/commit/141a664))
+* **admin:** import bot in the current workspace ([876329c](https://github.com/botpress/botpress/commit/876329c))
+* **admin:** import bot in the current workspace ([c36ad89](https://github.com/botpress/botpress/commit/c36ad89))
+* **admin:** lowercase check ([f229469](https://github.com/botpress/botpress/commit/f229469))
+* **admin:** lowercase check ([12ead43](https://github.com/botpress/botpress/commit/12ead43))
+* **channel-web:** disable typing animations to prevent flicker ([73ecf76](https://github.com/botpress/botpress/commit/73ecf76))
+* **channel-web:** disable typing animations to prevent flicker ([8c0de6d](https://github.com/botpress/botpress/commit/8c0de6d))
+* **channel-web:** prevent user name from being undefined ([5261948](https://github.com/botpress/botpress/commit/5261948))
+* **channel-web:** prevent user name from being undefined ([5c7632b](https://github.com/botpress/botpress/commit/5c7632b))
+* **code-editor:** missing sync actions locally ([c3c50a2](https://github.com/botpress/botpress/commit/c3c50a2))
+* **code-editor:** missing sync actions locally ([49de731](https://github.com/botpress/botpress/commit/49de731))
+* **core:** requiring actions directly from bpfs ([16a2841](https://github.com/botpress/botpress/commit/16a2841))
+* **core:** requiring actions directly from bpfs ([840b0ab](https://github.com/botpress/botpress/commit/840b0ab))
+* **core:** respect env http_proxy and no_proxy ([ef50d5e](https://github.com/botpress/botpress/commit/ef50d5e))
+* **core:** sync is done correctly when enabling bpfs first time ([20c8fba](https://github.com/botpress/botpress/commit/20c8fba))
+* **core:** sync is done correctly when enabling bpfs first time ([47c58e2](https://github.com/botpress/botpress/commit/47c58e2))
+* **flow:** fix part 2 for the choice skill transitions ([c49ebdb](https://github.com/botpress/botpress/commit/c49ebdb))
+* **flow:** fix part 2 for the choice skill transitions ([a1c16e6](https://github.com/botpress/botpress/commit/a1c16e6))
+* **misunderstood:** eslint styling issues ([4081df5](https://github.com/botpress/botpress/commit/4081df5))
+* **module:** ran prettier & some ajustments ([9419360](https://github.com/botpress/botpress/commit/9419360))
+* **module:** ran prettier & some ajustments ([5b8c09b](https://github.com/botpress/botpress/commit/5b8c09b))
+* **nlu:** eact matching ([678f247](https://github.com/botpress/botpress/commit/678f247))
+* **nlu:** fix circular issue when redis enabled ([7a4da94](https://github.com/botpress/botpress/commit/7a4da94))
+* **nlu:** fix circular issue when redis enabled ([f4847cb](https://github.com/botpress/botpress/commit/f4847cb))
+* **nlu:** original case in entity exact score ([7827e91](https://github.com/botpress/botpress/commit/7827e91))
+* **nlu:** original case in entity exact score ([48b7f10](https://github.com/botpress/botpress/commit/48b7f10))
+* **nlu:** update form fields on entity Id change ([b754037](https://github.com/botpress/botpress/commit/b754037))
+* **nlu-testing:** filter slots conditions ([fd8e356](https://github.com/botpress/botpress/commit/fd8e356))
+* **skill-choice:** consider only selected options ([1fead4a](https://github.com/botpress/botpress/commit/1fead4a))
+* **skill-choice:** consider only selected options ([e69a911](https://github.com/botpress/botpress/commit/e69a911))
+
+
+### Features
+
+* **nlu:** added POS tagger as experimental feature for English ([86c62ed](https://github.com/botpress/botpress/commit/86c62ed))
+* **nlu:** added value to slot ([68e8c7f](https://github.com/botpress/botpress/commit/68e8c7f))
+
+
+
 ## [12.2.3](https://github.com/botpress/botpress/compare/v12.2.2...v12.2.3) (2019-11-19)
 
 
