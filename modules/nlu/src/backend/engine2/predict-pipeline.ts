@@ -284,6 +284,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       return {
         ...slots,
         [s.name]: {
+          start: s.startPos,
+          end: s.endPos,
           confidence: s.confidence,
           name: s.name,
           source: s.source,

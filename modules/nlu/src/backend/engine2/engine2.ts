@@ -12,7 +12,8 @@ import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from 
 const trainDebug = DEBUG('nlu').sub('training')
 
 export default class E2 implements Engine2 {
-  private static tools: Tools
+  // NOTE: removed private in order to prevent important refactor (which will be done later)
+  static tools: Tools
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 

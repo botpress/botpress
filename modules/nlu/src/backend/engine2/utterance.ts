@@ -271,7 +271,7 @@ export async function buildUtteranceBatch(
       if (utterance.toString().length === utt.length) {
         parsedSlots.forEach(s => {
           utterance.tagSlot(
-            { name: s.name, source: s.value, confidence: 1 },
+            { name: s.name, source: s.value, value: s.value, confidence: 1 },
             s.cleanPosition.start,
             s.cleanPosition.end
           )
