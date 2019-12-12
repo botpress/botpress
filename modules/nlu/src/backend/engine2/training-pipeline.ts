@@ -180,7 +180,7 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
-const trainIntentClassifer = async (
+const trainIntentClassifier = async (
   input: TrainOutput,
   tools: Tools,
   progress: progressCB
@@ -372,7 +372,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
     reportProgress()
-    const intent_model_by_ctx = await trainIntentClassifer(output, tools, reportProgress)
+    const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
     reportProgress()
     const slots_model = await trainSlotTagger(output, tools)
     reportProgress()

@@ -5,26 +5,26 @@ import React, { FC } from 'react'
 import style from './style.scss'
 
 interface Props {
-  occurence: NLU.EntityDefOccurence
-  onChange: (o: NLU.EntityDefOccurence) => void
+  occurrence: NLU.EntityDefOccurrence
+  onChange: (o: NLU.EntityDefOccurrence) => void
   remove: () => void
 }
 
-export const Occurence: FC<Props> = props => {
+export const Occurrence: FC<Props> = props => {
   return (
     <TagInput
-      className={style.occurence}
+      className={style.occurrence}
       leftIcon={
-        <div className={style.occurenceName}>
+        <div className={style.occurrenceName}>
           <Tag minimal intent={Intent.PRIMARY}>
-            <strong>{props.occurence.name}</strong>
+            <strong>{props.occurrence.name}</strong>
           </Tag>
         </div>
       }
       placeholder="Type a synonym (or more, comma separated) and hit enter"
       rightElement={<Button icon="delete" minimal onClick={props.remove} />}
-      onChange={(synonyms: string[]) => props.onChange({ ...props.occurence, synonyms })}
-      values={props.occurence.synonyms}
+      onChange={(synonyms: string[]) => props.onChange({ ...props.occurrence, synonyms })}
+      values={props.occurrence.synonyms}
       tagProps={{ minimal: true }}
     />
   )

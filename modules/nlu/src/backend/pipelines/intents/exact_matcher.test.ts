@@ -20,7 +20,7 @@ function makeSequence(text: string, intent: string, knownSlots?: KnownSlot[], co
   contexts = contexts || []
   knownSlots = knownSlots || []
   return {
-    cannonical: text,
+    canonical: text,
     contexts,
     intent,
     knownSlots,
