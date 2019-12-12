@@ -44,6 +44,7 @@ interface CssExports {
   'questionCategoryTitle': string;
   'questionToolbar': string;
   'searchBar': string;
+  'searchBarLite': string;
   'searchField': string;
   'strong': string;
   'tooltip': string;
