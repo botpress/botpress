@@ -125,7 +125,7 @@
     "stylus-loader": "^3.0.2",
     "thread-loader": "^1.1.5",
     "ts-loader": "^6.0.2",
-    "uglifyjs-webpack-plugin": "^1.2.5",
+    "terser-webpack-plugin": "^2.2.2",
     "webpack": "4.12",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-node-externals": "^1.7.2"

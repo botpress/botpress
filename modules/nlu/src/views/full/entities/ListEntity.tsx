@@ -35,6 +35,11 @@ export const ListEntityEditor: React.FC<Props> = props => {
   const [occurences, setOccurences] = useState(props.entity.occurences)
 
   useEffect(() => {
+    setOccurences(props.entity.occurences)
+    setFuzzy(props.entity.fuzzy)
+  }, [props.entity.id])
+
+  useEffect(() => {
     const newEntity = { ...props.entity, fuzzy, occurences }
     if (!_.isEqual(newEntity, props.entity)) {
       props.updateEntity(newEntity)

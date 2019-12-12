@@ -6,7 +6,7 @@ const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const isProduction = process.env.NODE_ENV === 'production'
@@ -37,9 +37,8 @@ const webConfig = {
   },
   optimization: {
     minimizer: [
-      new UglifyJSPlugin({
-        sourceMap: true,
-        cache: true
+      new TerserPlugin({
+        sourceMap: true
       })
     ],
     splitChunks: {

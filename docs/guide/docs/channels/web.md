@@ -131,6 +131,18 @@ const payload = {
 // This is the information that will be persisted: { type: 'login_prompt', username: 'someuser' }
 ```
 
+### Changing avatar for messages
+
+If you need to display different bot's avatar for some of the messages (like imitating changing author) you can achieve that by setting `botAvatarUrl` like this:
+
+```js
+const payload = {
+  type: 'text',
+  botAvatarUrl: 'http://some.url'
+  text: 'Lorem ipsum'
+}
+```
+
 ## Creating a Custom Component
 
 We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them, so we will just make a quick recap here. The Debugger is also implemented entirely as a custom component in the [extensions module](https://github.com/botpress/botpress/tree/master/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look on how it was implemented.

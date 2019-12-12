@@ -18,6 +18,7 @@ import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 
 import GuidedTour from './GuidedTour'
+import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.styl'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
@@ -197,6 +198,7 @@ class Layout extends React.Component<ILayoutProps> {
             toggleBottomPanel={this.props.toggleBottomPanel}
           />
           <GuidedTour isDisplayed={this.state.guidedTourOpen} onToggle={this.toggleGuidedTour} />
+          <LanguageServerHealth />
         </div>
       </HotKeys>
     )
