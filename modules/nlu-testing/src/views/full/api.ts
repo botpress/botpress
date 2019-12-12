@@ -35,7 +35,7 @@ export interface TestingAPI {
   updateTest: (x: Test) => Promise<void>
   deleteTest: (x: Test) => Promise<void>
   runTest: (x: Test) => Promise<TestResult>
-  runF1Analysis: (lang: string) => Promise<XValidationResults>
+  computeCrossValidation: (lang: string) => Promise<XValidationResults>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
@@ -63,9 +63,8 @@ export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
       return data
     },
 
-    runF1Analysis: async (lang: string) => {
-      // TODO add lang as req params
-      const { data } = await bp.axios.post(`/mod/nlu/confusion`)
+    computeCrossValidation: async (lang: string) => {
+      const { data } = await bp.axios.post(`/mod/nlu/cross-validation/${lang}`)
       return data
     }
   }

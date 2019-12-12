@@ -56,8 +56,8 @@ export default class NLUTests extends React.Component<Props, State> {
   }
 
   computeXValidation = async () => {
-    const f1Results = await this.api.runF1Analysis('en')
-    this.setState({ f1Metrics: f1Results })
+    const f1Metrics = await this.api.computeCrossValidation(this.props.contentLang)
+    this.setState({ f1Metrics })
   }
 
   render() {
