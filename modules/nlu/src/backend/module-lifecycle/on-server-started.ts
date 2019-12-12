@@ -3,12 +3,13 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { Config } from '../../config'
-import Engine2, { Tools } from '../engine2/engine2'
+import Engine2 from '../engine2/engine2'
 import { removeTrainingSession, setTrainingSession } from '../engine2/train-session-service'
 import LangProvider from '../language-provider'
 import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
+import { getPOSTagger, tagSentence } from '../pos-tagger'
 import Storage from '../storage'
-import { NLUState, TrainingSession } from '../typings'
+import { NLUState, Tools, TrainingSession } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -37,7 +38,11 @@ export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState
 
 function initializeEngine2(bp: typeof sdk, state: NLUState) {
   const tools: Tools = {
-    tokenize_utterances: (utterances, lang) => state.languageProvider.tokenize(utterances, lang),
+    partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
+      const tagger = getPOSTagger(lang, bp.MLToolkit)
+      return tokenUtterances.map(tagSentence.bind(this, tagger))
+    },
+    tokenize_utterances: (utterances: string[], lang: string) => state.languageProvider.tokenize(utterances, lang),
     vectorize_tokens: async (tokens, lang) => {
       const a = await state.languageProvider.vectorize(tokens, lang)
       return a.map(x => Array.from(x.values()))

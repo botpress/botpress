@@ -2,21 +2,12 @@ import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { isPatternValid } from '../tools/patterns-utils'
-import { Engine2, EntityExtractor, ListEntity, TrainingSession } from '../typings'
+import { Engine2, ListEntity, Tools, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-
-export interface Tools {
-  tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
-  vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
-  generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
-  ducklingExtractor: EntityExtractor
-  mlToolkit: typeof MLToolkit
-}
 
 export default class E2 implements Engine2 {
   private static tools: Tools

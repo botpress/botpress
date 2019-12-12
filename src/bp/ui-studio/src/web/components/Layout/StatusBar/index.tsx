@@ -17,7 +17,6 @@ import ActionItem from './ActionItem'
 import BotSwitcher from './BotSwitcher'
 import ConfigStatus from './ConfigStatus'
 import LangSwitcher from './LangSwitcher'
-import NluPerformanceStatus from './NluPerformanceStatus'
 import style from './StatusBar.styl'
 
 interface Props {
@@ -173,7 +172,6 @@ class StatusBar extends React.Component<Props> {
           <ActionItem title="Notification" description="View Notifications" className={style.right}>
             <NotificationHub />
           </ActionItem>
-          <NluPerformanceStatus />
           <AccessControl resource="bot.logs" operation="read">
             <ActionItem
               id="statusbar_logs"

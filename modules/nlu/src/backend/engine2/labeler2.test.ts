@@ -1,31 +1,31 @@
-import { ExtractedEntity, ExtractedSlot } from './engine2'
-import { labelizeUtterance } from './labeler2'
-import Utterance from './utterance'
+import { TagResult } from '../pipelines/slots/labeler'
+import { BIO, ExtractedEntity, ExtractedSlot, Intent } from '../typings'
 
-describe('CRF labels for utterance', () => {
+import { labelizeUtterance, makeExtractedSlots } from './labeler2'
+import Utterance, { makeTestUtterance } from './utterance'
+
+describe('Slot tagger labels for utterance', () => {
   test('without slots', () => {
-    const toks = 'My mame is Heisenberg and I am the danger'.split(/(\s)/g)
-    const utterance = new Utterance(toks, new Array(toks.length).fill([0]), 'en')
+    const u = makeTestUtterance('My mame is Heisenberg and I am the danger')
+    const labels = labelizeUtterance(u)
 
-    const labels = labelizeUtterance(utterance)
-
-    expect(labels.length).toEqual(utterance.tokens.filter(t => !t.isSpace).length)
+    expect(labels.length).toEqual(u.tokens.filter(t => !t.isSpace).length)
     labels.forEach(l => expect(l).toEqual('o'))
   })
 
   test('with slots', () => {
-    const toks = 'Careful my friend, Alex W. is one of us'.split(/(\s)/g)
-    //            012345678901234567890123456789012345678
-    //            ________---------__-------___________--
-    const utterance = new Utterance(toks, new Array(toks.length).fill([0]), 'en')
-    utterance.tagSlot({ name: 'listener', source: 'my friend' } as ExtractedSlot, 8, 18) // 18 because we want to include the ',' (for testing purposes) since we're not tokenizing wisely
-    utterance.tagEntity({ value: 'my friend', type: 'friend' } as ExtractedEntity, 8, 18) // 18 because we want to include the ',' (for testing purposes) since we're not tokenizing wisely
-    utterance.tagSlot({ name: 'person', source: 'Alex W.' } as ExtractedSlot, 19, 26)
-    utterance.tagSlot({ name: 'group', source: 'us' } as ExtractedSlot, 37, 39)
+    const u = makeTestUtterance('Careful my friend, Alex W. is one of us')
+    //                           012345678901234567890123456789012345678
+    //                           ________---------__-------___________--
 
-    const labels = labelizeUtterance(utterance)
+    u.tagSlot({ name: 'listener', source: 'my friend' } as ExtractedSlot, 8, 18) // 18 because we want to include the ',' (for testing purposes) since we're not tokenizing wisely
+    u.tagEntity({ value: 'my friend', type: 'friend' } as ExtractedEntity, 8, 18) // 18 because we want to include the ',' (for testing purposes) since we're not tokenizing wisely
+    u.tagSlot({ name: 'person', source: 'Alex W.' } as ExtractedSlot, 19, 26)
+    u.tagSlot({ name: 'group', source: 'us' } as ExtractedSlot, 37, 39)
 
-    expect(labels.length).toEqual(utterance.tokens.filter(t => !t.isSpace).length)
+    const labels = labelizeUtterance(u)
+
+    expect(labels.length).toEqual(u.tokens.filter(t => !t.isSpace).length)
     expect(labels[1]).toEqual('B-listener')
     expect(labels[2]).toEqual('I-listener')
 
@@ -39,5 +39,93 @@ describe('CRF labels for utterance', () => {
       .forEach(l => {
         expect(l).toEqual('o')
       })
+  })
+})
+
+describe('makeExtractedSlots', () => {
+  let u: Utterance
+  const out: TagResult = { name: '', tag: BIO.OUT, probability: 1 }
+  let tagResults: TagResult[]
+  const testIntent = {
+    slot_entities: ['CS_Field']
+  } as Intent<Utterance>
+
+  beforeEach(() => {
+    u = makeTestUtterance('No one is safe, big AI is watching')
+    //                     0123456789012345678901234567890123
+    tagResults = new Array(u.tokens.filter(t => !t.isSpace).length).fill(out)
+  })
+
+  test('consecutives slots token combined properly', () => {
+    tagResults.splice(
+      4,
+      2,
+      { name: 'threath', probability: 1, tag: BIO.BEGINNING },
+      { name: 'threath', probability: 1, tag: BIO.INSIDE }
+    )
+
+    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+
+    expect(extractedSlots.length).toEqual(1)
+    expect(extractedSlots[0].slot.source).toEqual('big AI')
+    expect(extractedSlots[0].slot.value).toEqual('big AI')
+    expect(extractedSlots[0].start).toEqual(16)
+    expect(extractedSlots[0].end).toEqual(22)
+  })
+
+  test('consecutives different slots are not combined', () => {
+    tagResults.splice(
+      4,
+      4,
+      { name: 'threath', probability: 1, tag: BIO.BEGINNING },
+      { name: 'threath', probability: 1, tag: BIO.INSIDE },
+      { name: 'action', probability: 1, tag: BIO.BEGINNING },
+      { name: 'action', probability: 1, tag: BIO.INSIDE }
+    )
+
+    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+
+    expect(extractedSlots.length).toEqual(2)
+    expect(extractedSlots[0].slot.source).toEqual('big AI')
+    expect(extractedSlots[0].slot.value).toEqual('big AI')
+    expect(extractedSlots[0].start).toEqual(16)
+    expect(extractedSlots[0].end).toEqual(22)
+    expect(extractedSlots[1].slot.source).toEqual('is watching')
+    expect(extractedSlots[1].slot.value).toEqual('is watching')
+    expect(extractedSlots[1].start).toEqual(23)
+    expect(extractedSlots[1].end).toEqual(34)
+  })
+
+  test('slot with associated entites adds proper value', () => {
+    tagResults.splice(
+      4,
+      2,
+      { name: 'threath', probability: 1, tag: BIO.BEGINNING },
+      { name: 'threath', probability: 1, tag: BIO.INSIDE }
+    )
+    const value = 'Artificial Intelligence'
+    u.tagEntity({ type: 'CS_Field', value } as ExtractedEntity, 20, 22)
+
+    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+
+    expect(extractedSlots.length).toEqual(1)
+    expect(extractedSlots[0].slot.source).toEqual('big AI')
+    expect(extractedSlots[0].slot.value).toEqual(value)
+  })
+
+  test('slot with entites but not set in intent def keeps source as value', () => {
+    tagResults.splice(
+      6,
+      2,
+      { name: 'action', probability: 1, tag: BIO.BEGINNING },
+      { name: 'action', probability: 1, tag: BIO.INSIDE }
+    )
+    u.tagEntity({ type: 'verb', value: 'to watch' } as ExtractedEntity, 26, 34)
+
+    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+
+    expect(extractedSlots.length).toEqual(1)
+    expect(extractedSlots[0].slot.source).toEqual('is watching')
+    expect(extractedSlots[0].slot.value).toEqual('is watching')
   })
 })

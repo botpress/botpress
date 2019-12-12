@@ -138,7 +138,7 @@ export class FlowService {
     const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToCreate = flowFiles.find(f => f === flow.name)
     if (fileToCreate) {
-      throw new Error(`Can not create an already existant flow : ${flow.name}`)
+      throw new Error(`Can not create an already existent flow : ${flow.name}`)
     }
 
     await this._upsertFlow(botId, flow)
