@@ -2,17 +2,14 @@ import * as sdk from 'botpress/sdk'
 import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
-import seedrandom from 'seedrandom'
 import yn from 'yn'
 
 import ConfusionEngine from './confusion-engine'
+import { crossValidate } from './cross-validation'
 import ScopedEngine from './engine'
-import E2 from './engine2/engine2'
 import { getTrainingSession } from './engine2/train-session-service'
 import { EntityDefCreateSchema } from './entities'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
-import MultiClassF1Scorer, { F1, Scorer } from './tools/f1-scorer'
-import { parseUtterance } from './tools/utterance-parser'
 import { NLUState } from './typings'
 import { IntentDefCreateSchema } from './validation'
 
@@ -123,71 +120,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
     const intentDefs = await botEngine.storage.getIntents()
     const entityDefs = await botEngine.storage.getCustomEntities()
-
-    // TODO move this part of code somewhere else
     const lang = 'en' // todo use req
-    const trainSetSize = 0.8
+    const xValidationRes = await crossValidate(req.botId, intentDefs, entityDefs, lang)
 
-    seedrandom('confusion', { global: true })
-    const lo = _.runInContext()
-
-    let testSet: { example: { input: string; ctxs: string[] }; expected: string }[] = []
-    const trainSet = intentDefs // split data & preserve distribution
-      .map(i => {
-        const nTrain = Math.floor(trainSetSize * i.utterances[lang].length)
-        if (nTrain < 3) {
-          return
-        }
-
-        const utterances = lo.shuffle(i.utterances[lang])
-        const trainUtts = utterances.slice(0, nTrain)
-        testSet = [
-          ...testSet,
-          ...utterances.slice(nTrain).map(u => ({
-            example: {
-              input: parseUtterance(u).utterance,
-              ctxs: i.contexts
-            },
-            expected: i.name
-          }))
-        ]
-
-        return {
-          ...i,
-          utterances: { [lang]: trainUtts }
-        }
-      })
-      .filter(Boolean)
-
-    const engine = new E2('en', req.botId, bp.logger)
-    await engine.train(trainSet, entityDefs, lang)
-
-    // TODO refactor this
-    const allCtx = _.chain(intentDefs)
-      .flatMap(i => i.contexts)
-      .uniq()
-      .value()
-
-    const f1ScorersByCtx: Dic<Scorer<F1>> = _.chain(allCtx)
-      .thru(ctxs => (ctxs.length > 1 ? ['all', ...ctxs] : ctxs))
-      .reduce((byCtx, ctx) => ({ ...byCtx, [ctx]: new MultiClassF1Scorer() }), {})
-      .value()
-
-    for (const { example, expected } of testSet) {
-      for (const ctx of example.ctxs) {
-        const res = await engine.predict(example.input, [ctx])
-        f1ScorersByCtx[ctx].record(res.intent.name, expected)
-      }
-
-      if (allCtx.length > 1) {
-        const res = await engine.predict(example.input, allCtx)
-        f1ScorersByCtx['all'].record(res.intent.name, expected)
-      }
-    }
-
-    seedrandom()
-    const scoreMap = _.fromPairs(_.toPairs(f1ScorersByCtx).map(([ctx, scorer]) => [ctx, scorer.getResults()]))
-    res.send(scoreMap)
+    res.send(xValidationRes)
   })
 
   router.get('/training/:language', async (req, res) => {
