@@ -147,7 +147,7 @@ const onServerReady = async (bp: SDK) => {
 
 ### onBotMount && onBotUnmount
 
-These methods are called everytime a bot is started or stopped (either when starting Botpress or when creating or deleting a bot).
+These methods are called every time a bot is started or stopped (either when starting Botpress or when creating or deleting a bot).
 
 Example:
 
@@ -487,7 +487,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
 
 ## Register Actions
 
-Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](build/code) section for more informations about Actions.
+Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](build/code) section for more information about Actions.
 Those actions must be deployed to the `data/global/actions` folder to be recognized by Botpress. Here is how to do that:
 
 1. Create a folder named `actions` in `src`

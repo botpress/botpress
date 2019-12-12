@@ -28,14 +28,14 @@ There is an example included in the default botpress installation at `http://loc
 
 ## Bot Information page
 
-The information page displays informations like the website url, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
+The information page displays information like the website url, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
 
 ![Bot Info Page](assets/webchat-bot-info.png)
 
 How to set up the information page:
 
 1. On the Admin UI, click on the link `Config` next to the name of the bot you want to change.
-2. Edit your bot informations in the `More details` and `Pictures` sections.
+2. Edit your bot information in the `More details` and `Pictures` sections.
 3. Edit the file `data/global/config/channel-web.json` and set `showBotInfoPage` to `true` **\*\***
 4. Refresh your browser.
 
@@ -96,7 +96,7 @@ The method `window.botpressWebChat.configure` allows you to change the configura
 
 ## Advanced Customization
 
-Every message sent by the bot to a user consist of a `payload`. That payload has a `type` property, that tells the webchat how the other informations included on that payload should be rendered on screen.
+Every message sent by the bot to a user consist of a `payload`. That payload has a `type` property, that tells the webchat how the other information included on that payload should be rendered on screen.
 
 There are different ways to send that payload to the user:
 
@@ -105,7 +105,7 @@ There are different ways to send that payload to the user:
 
 There are multiple types already built in Botpress (they are listed at the bottom of this page), but if you require more advanced components, you can create them easily.
 
-### Prevent storing sensitive informations
+### Prevent storing sensitive information
 
 By default, the complete payload is stored in the database, so the information is not lost when the user refreshes the page. On some occasion, however, we may want to hide some properties deemed "sensitive" (ex: password, credit card, etc..).
 
@@ -146,7 +146,7 @@ payload: {
 
 ### What can I do in my component ?
 
-There are a couple of properties that are passed down to your custom component. These can be used to customize the displayed informations, and/or to pursue interactions.
+There are a couple of properties that are passed down to your custom component. These can be used to customize the displayed information, and/or to pursue interactions.
 
 | Property      | Description                                                                    |
 | ------------- | ------------------------------------------------------------------------------ |

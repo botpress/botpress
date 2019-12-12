@@ -471,7 +471,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
 
 ## Register Actions
 
-Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](build/code) section for more informations about Actions.
+Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](build/code) section for more information about Actions.
 Those actions must be deployed to the `data/global/actions` folder to be recognized by Botpress. Here is how to do that:
 
 1. Create a folder named `actions` in `src`

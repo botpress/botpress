@@ -56,7 +56,7 @@ describe('makeExtractedSlots', () => {
     tagResults = new Array(u.tokens.filter(t => !t.isSpace).length).fill(out)
   })
 
-  test('consecutives slots token combined properly', () => {
+  test('consecutive slots token combined properly', () => {
     tagResults.splice(
       4,
       2,
@@ -73,7 +73,7 @@ describe('makeExtractedSlots', () => {
     expect(extractedSlots[0].end).toEqual(22)
   })
 
-  test('consecutives different slots are not combined', () => {
+  test('consecutive different slots are not combined', () => {
     tagResults.splice(
       4,
       4,
@@ -96,7 +96,7 @@ describe('makeExtractedSlots', () => {
     expect(extractedSlots[1].end).toEqual(34)
   })
 
-  test('slot with associated entites adds proper value', () => {
+  test('slot with associated entities adds proper value', () => {
     tagResults.splice(
       4,
       2,
@@ -113,7 +113,7 @@ describe('makeExtractedSlots', () => {
     expect(extractedSlots[0].slot.value).toEqual(value)
   })
 
-  test('slot with entites but not set in intent def keeps source as value', () => {
+  test('slot with entities but not set in intent def keeps source as value', () => {
     tagResults.splice(
       6,
       2,

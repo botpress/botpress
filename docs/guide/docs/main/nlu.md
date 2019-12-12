@@ -251,7 +251,7 @@ Extraction will go like:
 
 #### List extraction
 
-List extraction will behave in a similar way. The major addition is that for your entity definition, you'll be able to add different **occurences** of your entity with corresponding synonyms.
+List extraction will behave in a similar way. The major addition is that for your entity definition, you'll be able to add different **occurrences** of your entity with corresponding synonyms.
 
 Let's take **Airport Codes** as an example:
 

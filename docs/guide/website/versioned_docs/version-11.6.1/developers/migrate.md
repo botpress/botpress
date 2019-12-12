@@ -24,7 +24,7 @@ my-module/views/lite/index.jsx
 
 This change implied modifications on how modules are packaged. Please clear the `node_modules` folder of every module, then run `yarn build`
 
-More informations: http://localhost:3001/docs/next/developers/create-module#views
+More information: http://localhost:3001/docs/next/developers/create-module#views
 
 ## Migration from 11.3 to 11.4
 

@@ -6,7 +6,7 @@ original_id: webchat-extending
 
 ## The Basics
 
-Every message sent by the bot to a user consist of a `payload`. That payload has a `type` property, that tells the webchat how the other informations included on that payload should be rendered on screen.
+Every message sent by the bot to a user consist of a `payload`. That payload has a `type` property, that tells the webchat how the other information included on that payload should be rendered on screen.
 
 There are different ways to send that payload to the user:
 
@@ -56,7 +56,7 @@ payload: {
 
 ### What can I do in my component ?
 
-There are a couple of properties that are passed down to your custom component. These can be used to customize the displayed informations, and/or to pursue interactions.
+There are a couple of properties that are passed down to your custom component. These can be used to customize the displayed information, and/or to pursue interactions.
 
 | Property      | Description                                                                    |
 | ------------- | ------------------------------------------------------------------------------ |
