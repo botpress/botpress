@@ -11,7 +11,7 @@ On this page, you will learn about the Botpress global configuration, individual
 
 This is the main file used to configure the Botpress server. It will be created automatically when it is missing. Default values should be good when discovering Botpress, but in this page you will learn about the most common configuration you may need to change.
 
-To get more informations about each individual options, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
+To get more information about each individual options, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
 
 ## HTTP Server Configuration
 
@@ -39,7 +39,7 @@ When you start Botpress from the binary (or using the Docker image), the bot is 
 
 There are 4 different levels of logs:
 
-- Debug: display very detailed informations about the bot operations
+- Debug: display very detailed information about the bot operations
 - Info: gives general information or "good to know" stuff
 - Warn: means that something didn't go as expected, but the bot was able to recover
 - Error: there was an error that should be addressed
@@ -115,7 +115,7 @@ Each module has a different set of possible configuration, so we won't go throug
 
 Most of these variables can be set in the configuration file `data/global/botpress.config.json`. Infrastructure configuration (like the database, cluster mode, etc) aren't available in the configuration file, since they are required before the config is loaded.
 
-Botpress supports `.env` files, so you don't have to set them everytime you start the app. Just add the file in the same folder as the executable.
+Botpress supports `.env` files, so you don't have to set them every time you start the app. Just add the file in the same folder as the executable.
 
 ### Common
 
@@ -142,9 +142,9 @@ Botpress supports `.env` files, so you don't have to set them everytime you star
 | FAST_TEXT_CLEANUP_MS      | The model will be kept in memory until it receives no messages to process for that duration | 60000   |
 | REVERSE_PROXY             | When enabled, it uses "x-forwarded-for" to fetch the user IP instead of remoteAddress       | false   |
 
-It is also possible to use environment variables to override module configuration. The pattern is `BP_%MODULE_NAME%_%OPTION_PATH%`, all in upper cases. For example, to define the `confidenceTreshold` option of the module `nlu`, you would use `BP_NLU_CONFIDENCETRESHOLD`. You can list the available environment variales for each modules by enabling the `DEBUG=bp:configuration:modules:*` flag.
+It is also possible to use environment variables to override module configuration. The pattern is `BP_%MODULE_NAME%_%OPTION_PATH%`, all in upper cases. For example, to define the `confidenceTreshold` option of the module `nlu`, you would use `BP_NLU_CONFIDENCETRESHOLD`. You can list the available environment variables for each modules by enabling the `DEBUG=bp:configuration:modules:*` flag.
 
-## More Informations
+## More Information
 
 - Check out the [database](../tutorials/database) page for details about `DATABASE_URL`
 - Check out the [cluster](cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`

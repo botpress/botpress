@@ -24,8 +24,8 @@
       <input id="cryptic-field" type="text" placeholder="Enter something here" />
       <br />
 
-      <label for="plateform">What is your preferred chatbot plateform?</label>
-      <select id="plateform">
+      <label for="platform">What is your preferred chatbot platform?</label>
+      <select id="platform">
         <option selected value="botpress">Botpress</option>
       </select>
       <br />
@@ -45,7 +45,7 @@
         const payload = {
           name: document.getElementById('name').value,
           email: document.getElementById('email').value,
-          plateform: document.getElementById('plateform').value
+          platform: document.getElementById('platform').value
         }
         window.botpressWebChat.sendEvent({ type: 'show' })
         window.botpressWebChat.sendEvent({ type: 'contact-form', payload })

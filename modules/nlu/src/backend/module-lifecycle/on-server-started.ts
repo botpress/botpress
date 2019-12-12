@@ -27,7 +27,7 @@ export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState
     state.health = health
   } catch (e) {
     if (e.failure && e.failure.code === 'ECONNREFUSED') {
-      bp.logger.error(`Language server can't be reached at adress ${e.failure.address}:${e.failure.port}`)
+      bp.logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
       if (!process.IS_FAILSAFE) {
         process.exit()
       }
@@ -131,7 +131,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         event.payload.text = event.payload.text.replace(entity.data.value, stars)
       }
     } catch (err) {
-      bp.logger.warn('Error removing sensitive informations: ' + err.message)
+      bp.logger.warn('Error removing sensitive information: ' + err.message)
     }
   }
 }

@@ -109,7 +109,7 @@ There are multiple types already built in Botpress (they are listed at the botto
 
 By default, the complete payload is stored in the database, so the information is not lost when the user refreshes the page. On some occasion, however, we may want to hide some properties deemed "sensitive" (ex: password, credit card, etc..).
 
-To remove those informations, there is a special property that you need to set: `sensitive`. Here's an example:
+To remove this information, there is a special property that you need to set: `sensitive`. Here's an example:
 
 ```js
 const payload = {

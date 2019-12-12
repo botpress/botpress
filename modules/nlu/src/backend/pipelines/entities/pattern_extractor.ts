@@ -88,7 +88,7 @@ export default class PatternExtractor {
       const end = currentLastToken.end
 
       // prevent adding substrings of an already matched, longer entity
-      // prioretize longer matches with confidence * its length higher
+      // prioritize longer matches with confidence * its length higher
 
       const hasBiggerMatch = findings.find(
         x =>
@@ -110,7 +110,7 @@ export default class PatternExtractor {
           name: entityDef.name,
           type: 'list',
           meta: {
-            confidence: highest, // extrated with synonyme as patterns
+            confidence: highest, // extracted with synonym as patterns
             provider: 'native',
             source: source,
             start,

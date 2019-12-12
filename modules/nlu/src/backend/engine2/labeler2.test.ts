@@ -6,7 +6,7 @@ import Utterance, { makeTestUtterance } from './utterance'
 
 describe('Slot tagger labels for utterance', () => {
   test('without slots', () => {
-    const u = makeTestUtterance('My mame is Heisenberg and I am the danger')
+    const u = makeTestUtterance('My name is Heisenberg and I am the danger')
     const labels = labelizeUtterance(u)
 
     expect(labels.length).toEqual(u.tokens.filter(t => !t.isSpace).length)

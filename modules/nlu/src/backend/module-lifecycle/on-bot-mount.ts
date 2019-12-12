@@ -49,8 +49,8 @@ export function getOnBotMount(state: NLUState) {
     const trainOrLoad = _.debounce(
       async () => {
         const ghost = bp.ghost.forBot(botId)
-        const intentDefs = await (engine1 as ScopedEngine).storage.getIntents() // todo replace this with intent service when implemented
-        const entityDefs = await (engine1 as ScopedEngine).storage.getCustomEntities() // TODO: replace this wit entities service once implemented
+        const intentDefs = await (engine1 as ScopedEngine).storage.getIntents() // TODO replace this with intent service when implemented
+        const entityDefs = await (engine1 as ScopedEngine).storage.getCustomEntities() // TODO: replace this with entities service once implemented
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         await Promise.mapSeries(languages, async languageCode => {
@@ -81,7 +81,7 @@ export function getOnBotMount(state: NLUState) {
       { leading: true }
     )
     // register trainOrLoad with ghost file watcher
-    // we use local events so training occures on the same node where the request for changes enters
+    // we use local events so training occurs on the same node where the request for changes enters
     const trainWatcher = bp.ghost.forBot(botId).onFileChanged(async f => {
       if (f.includes('intents') || f.includes('entities')) {
         // eventually cancel & restart training only for given language

@@ -15,11 +15,11 @@ There are different ways to send that payload to the user:
 
 There are multiple types already built in Botpress (they are listed at the bottom of this page), but if you require more advanced components, you can create them easily.
 
-### Prevent storing sensitive informations
+### Prevent storing sensitive information
 
 By default, the complete payload is stored in the database, so the information is not lost when the user refreshes the page. On some occasion, however, we may want to hide some properties deemed "sensitive" (ex: password, credit card, etc..).
 
-To remove those informations, there is a special property that you need to set: `sensitive`. Here's an example:
+To remove this information, there is a special property that you need to set: `sensitive`. Here's an example:
 
 ```js
 const payload = {

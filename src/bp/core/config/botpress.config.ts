@@ -102,7 +102,7 @@ export type BotpressConfig = {
     port: number
     /**
      * There are two external URL that Botpress calls: https://license.botpress.io and https://duckling.botpress.io
-     * If you are behind a corporare proxy, you can configure it below.
+     * If you are behind a corporate proxy, you can configure it below.
      * It is also possible to self-host Duckling, please check the documentation
      *
      * @example http://username:password@hostname:port
@@ -277,7 +277,7 @@ export type BotpressConfig = {
 }
 
 export interface ExternalAuthConfig {
-  /** Set to true to enable external authentification
+  /** Set to true to enable external authentication
    * @default false
    */
   enabled: boolean
@@ -437,7 +437,7 @@ export interface AuthStrategyOauth2 {
    */
   callbackURL: string
   /*
-   * Set this URL if your access token doesn't include user data. Botpress will query that URL to fetch user informations
+   * Set this URL if your access token doesn't include user data. Botpress will query that URL to fetch user information
    * @example https://botpress.io/userinfo
    */
   userInfoURL?: string
@@ -558,7 +558,7 @@ export interface EventCollectorConfig {
   retentionPeriod: string
   /**
    * Specify an array of event types that won't be persisted to the database. For example, typing events and visits
-   * may not provide you with useful informations
+   * may not provide you with useful information
    * @default ["visit","typing"]
    */
   ignoredEventTypes: string[]

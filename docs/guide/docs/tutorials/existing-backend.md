@@ -18,7 +18,7 @@ You can either define the token when the chat is initialized: `window.botpressWe
 
 ## Persisting the user's profile
 
-Once the user is authenticated, you may want to extract some informations out of the credentials to save them in the `user` state, like the First name, Last name, etc. All you need to do is set up a hook listening for a certain type of event, for example `update_profile`. Then, just select the required fields
+Once the user is authenticated, you may want to extract some information out of the credentials to save them in the `user` state, like the First name, Last name, etc. All you need to do is set up a hook listening for a certain type of event, for example `update_profile`. Then, just select the required fields
 
 Example:
 

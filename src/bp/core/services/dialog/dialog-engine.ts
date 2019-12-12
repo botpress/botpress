@@ -130,7 +130,7 @@ export class DialogEngine {
 
     await this._loadFlows(botId)
 
-    // This is the only place we dont want to catch node or flow not found errors
+    // This is the only place we don't want to catch node or flow not found errors
     const findNodeWithoutError = (flow, nodeName) => {
       try {
         return this._findNode(botId, flow, nodeName)
@@ -301,8 +301,8 @@ export class DialogEngine {
     const subflow = this._findFlow(botId, subflowName)
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
-    // We only update previousNodeName and previousFlowName when we transition to a subblow.
-    // When the sublow ends, we will transition back to previousNodeName / previousFlowName.
+    // We only update previousNodeName and previousFlowName when we transition to a subflow.
+    // When the subflow ends, we will transition back to previousNodeName / previousFlowName.
 
     event.state.context = {
       currentFlow: subflow.name,
