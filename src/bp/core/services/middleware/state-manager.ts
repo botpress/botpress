@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
@@ -26,7 +25,7 @@ const REDIS_MEMORY_DURATION = ms('30s')
 export class StateManager {
   private _redisClient!: Redis
   private batch!: { event: sdk.IO.IncomingEvent; ignoreContext?: boolean }[]
-  private knex!: Knex & KnexExtension
+  private knex!: sdk.KnexExtended
   private currentPromise
   private useRedis
 
@@ -131,7 +130,7 @@ export class StateManager {
     }
 
     const botConfig = await this.configProvider.getBotConfig(event.botId)
-    const botpressConfig = await this.getBotpresConfig()
+    const botpressConfig = await this.getBotpressConfig()
 
     const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
     const expiry = createExpiry(botConfig, botpressConfig)
@@ -169,7 +168,7 @@ export class StateManager {
   }
 
   @Memoize()
-  private async getBotpresConfig(): Promise<BotpressConfig> {
+  private async getBotpressConfig(): Promise<BotpressConfig> {
     return this.configProvider.getBotpressConfig()
   }
 }

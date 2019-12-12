@@ -111,7 +111,7 @@ export const validateFilePayload = async (
 export const buildRestrictedProcessVars = () => {
   const exposedEnv = {
     ..._.pickBy(process.env, (_value, name) => name.startsWith('EXPOSED_')),
-    ..._.pick(process.env, 'TZ', 'LANG', 'LC_ALL', 'LC_CTYPE')
+    ..._.pick(process.env, 'TZ', 'LANG', 'LC_ALL', 'LC_CTYPE', 'HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY')
   }
   const root = extractInfo(_.pick(process, 'HOST', 'PORT', 'EXTERNAL_URL', 'PROXY'))
   const exposed = extractInfo(exposedEnv)

@@ -32,7 +32,7 @@ export function computeModelHash(intents: any, entities: any): string {
 
 export function serializeModel(model: Model): string {
   // TODO use messagePack here
-  return JSON.stringify({ ...model, data: _.omit(model.data, 'output') })
+  return JSON.stringify(_.omit(model, ['data.output', 'data.input.trainingSession']))
 }
 
 export function deserializeModel(str: string): Model {

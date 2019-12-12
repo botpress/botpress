@@ -59,9 +59,9 @@ export default class FullView extends React.Component {
   }
 
   getMessagesOfConversation = async (sessionId, filters) => {
-    const ressourceUrl = `/mod/history/messages/${sessionId}`
+    const resourceUrl = `/mod/history/messages/${sessionId}`
     const flag = filters && filters.flag
-    const { data } = await this.props.bp.axios.get(ressourceUrl, { params: { flag } })
+    const { data } = await this.props.bp.axios.get(resourceUrl, { params: { flag } })
 
     const conversationsInfoCopy = [...this.state.conversationsInfo]
     const desiredConvInfo = conversationsInfoCopy.find(c => c.id === sessionId)
@@ -83,11 +83,11 @@ export default class FullView extends React.Component {
   }
 
   fetchMoreMessages = async filters => {
-    const ressourceUrl = `/mod/history/more-messages/${this.state.currentConversation}`
+    const resourceUrl = `/mod/history/more-messages/${this.state.currentConversation}`
     const offset = this.state.currentConversationMessageGroupsOffset
     const clientCount = this.state.currentConversationMessageGroupsCount
     const flag = filters && filters.flag
-    const { data } = await this.props.bp.axios.get(ressourceUrl, { params: { offset, clientCount, flag } })
+    const { data } = await this.props.bp.axios.get(resourceUrl, { params: { offset, clientCount, flag } })
 
     let messageGroupsCopy = [...this.state.messageGroups]
     messageGroupsCopy = messageGroupsCopy.concat(data)

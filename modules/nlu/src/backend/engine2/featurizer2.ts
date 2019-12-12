@@ -136,3 +136,10 @@ export function getTokenQuartile(utterance: Utterance, token: UtteranceToken): C
     value: computeQuantile(4, token.index + 1, utterance.tokens.length)
   }
 }
+
+export function getPOSFeat(token: UtteranceToken): CRFFeature {
+  return {
+    name: 'POS',
+    value: token.POS
+  }
+}

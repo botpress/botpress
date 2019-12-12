@@ -18,10 +18,10 @@ import { setupMasterNode } from './cluster'
 import { FatalError } from './errors'
 
 async function setupEnv() {
-  const useDbDriver = process.BPFS_STORAGE === 'database'
-  Ghost.initialize(useDbDriver)
-
   await Db.initialize()
+
+  const useDbDriver = process.BPFS_STORAGE === 'database'
+  await Ghost.initialize(useDbDriver)
 }
 
 async function getLogger(loggerName: string) {
