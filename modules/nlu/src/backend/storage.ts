@@ -17,6 +17,7 @@ export const sanitizeFilenameNoExt = name =>
     .replace('.json', '')
     .replace(ID_REGEX, '-')
 
+// DEPRECATED
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
 

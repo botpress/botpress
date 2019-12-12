@@ -21,6 +21,7 @@ const getPayloadForInnerSVMProgress = total => index => progress => ({
   value: 0.25 + Math.floor((progress * index) / (2 * total))
 })
 
+// DEPRECATED
 export default class SVMClassifier {
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}

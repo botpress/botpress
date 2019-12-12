@@ -7,6 +7,7 @@ import { NLUStructure } from './typings'
 
 export type PipelineStep = (ds: NLUStructure) => Promise<NLUStructure>
 
+// DEPRECATED
 export class PipelineManager {
   private _nluds!: NLUStructure
   private _pipeline!: PipelineStep[]
