@@ -1,11 +1,9 @@
 import { IO, Logger } from 'botpress/sdk'
-import { ContentElement, ContentType, SearchParams } from 'botpress/sdk'
-import { KnexExtension } from 'common/knex'
+import { ContentElement, ContentType, KnexExtended, SearchParams } from 'botpress/sdk'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
-import Knex from 'knex'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
@@ -57,7 +55,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.InMemoryDatabase) private memDb: Knex & KnexExtension,
+    @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
@@ -239,9 +237,14 @@ export class CMSService implements IDisposeOnExit {
     return Promise.map(apiElements, el => (language ? this._translateElement(el, language) : el))
   }
 
-  async countContentElements(botId: string): Promise<number> {
-    return this.memDb(this.contentTable)
-      .where({ botId })
+  async countContentElements(botId?: string): Promise<number> {
+    let query = this.memDb(this.contentTable)
+
+    if (botId) {
+      query = query.where({ botId })
+    }
+
+    return query
       .count('* as count')
       .first()
       .then(row => (row && Number(row.count)) || 0)
@@ -602,9 +605,9 @@ export class CMSService implements IDisposeOnExit {
       }
     }
 
-    const additionnalData = { BOT_URL: process.EXTERNAL_URL }
+    const additionalData = { BOT_URL: process.EXTERNAL_URL }
 
-    let payloads = await contentTypeRenderer.renderElement({ ...additionnalData, ...args }, channel)
+    let payloads = await contentTypeRenderer.renderElement({ ...additionalData, ...args }, channel)
     if (!_.isArray(payloads)) {
       payloads = [payloads]
     }

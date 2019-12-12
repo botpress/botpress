@@ -113,7 +113,7 @@ export class Slot extends React.Component {
 
     const exists = this.state.intents.find(x => x.name === intentName)
     if (!exists) {
-      this.setState({ error: 'Missing intent: This intent does not exists anymore!' })
+      this.setState({ error: 'Missing intent: This intent does not exist anymore!' })
     }
   }
 

@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 const isMigrationAlreadyDone = (rules: any[]) => {
-  const ressources: string[] = rules.map(r => r.res)
-  const alreadySpecifiedPermission = ressources.find(r => r.startsWith('module.code-editor.global'))
+  const resources: string[] = rules.map(r => r.res)
+  const alreadySpecifiedPermission = resources.find(r => r.startsWith('module.code-editor.global'))
   return !!alreadySpecifiedPermission
 }
 

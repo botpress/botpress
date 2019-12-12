@@ -47,7 +47,7 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
 
         for (const item of updatedItems) {
           await qnaStorage.update(item.data, item.id)
-          bp.logger.debug(`References to node "${oldNode.name}" has been updated to "${newNode.name}"`)
+          bp.logger.debug(`References to node "${oldNode.name}" have been updated to "${newNode.name}"`)
         }
       }
     }

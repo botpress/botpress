@@ -1,8 +1,7 @@
-import { KnexExtension } from 'common/knex'
-import Knex from 'knex'
+import { KnexExtended } from 'botpress/sdk'
 
 export abstract class Table {
-  constructor(public knex: Knex & KnexExtension) {}
+  constructor(public knex: KnexExtended) {}
   abstract bootstrap(): Promise<boolean>
   abstract get name(): string
 }
