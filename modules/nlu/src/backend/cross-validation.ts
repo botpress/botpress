@@ -15,10 +15,7 @@ interface CrossValidationResults {
 interface TestSetExample {
   utterance: Utterance
   ctxs: string[]
-  labels: {
-    intent: string
-    slots: string[] // one tag for each tokens
-  }
+  intent: string
 }
 
 type TestSet = TestSetExample[]
@@ -31,10 +28,7 @@ async function makeIntentTestSet(rawUtts: string[], ctxs: string[], intent: stri
   return utterances.map(utterance => ({
     utterance,
     ctxs,
-    labels: {
-      intent,
-      slots: utterance.tokens.map(t => _.get(t, 'slots.0.name', BIO.OUT) as string)
-    }
+    intent
   }))
 }
 
@@ -62,6 +56,20 @@ async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet,
   return [trainSet, testSet]
 }
 
+function recordSlots(testU: Utterance, extractedSlots: NLU.SlotCollection, f1Scorer: MultiClassF1Scorer) {
+  const slotList = _.values(extractedSlots)
+
+  for (const tok of testU.tokens) {
+    const actual = _.get(
+      slotList.find(s => s.start <= tok.offset && s.end >= tok.offset + tok.value.length),
+      'name',
+      BIO.OUT
+    ) as string
+    const expected = _.get(tok, 'slots.0.name', BIO.OUT) as string
+    f1Scorer.record(actual, expected)
+  }
+}
+
 // pass k for k-fold is results are not significant
 export async function crossValidate(
   botId: string,
@@ -87,26 +95,20 @@ export async function crossValidate(
     .value()
 
   const slotsF1Scorer = new MultiClassF1Scorer()
+  const intentMap: Dic<NLU.IntentDefinition> = intents.reduce((map, i) => ({ ...map, [i.name]: i }), {})
 
   for (const ex of testSet) {
     for (const ctx of ex.ctxs) {
       const res = await engine.predict(ex.utterance.toString(), [ctx])
-      intentF1Scorers[ctx].record(res.intent.name, ex.labels.intent)
+      intentF1Scorers[ctx].record(res.intent.name, ex.intent)
+      const intentHasSlots = !!intentMap[ex.intent].slots.length
+      if (intentHasSlots) {
+        recordSlots(ex.utterance, res.slots, slotsF1Scorer)
+      }
     }
-
-    const res = await engine.predict(ex.utterance.toString(), allCtx)
     if (allCtx.length > 1) {
-      intentF1Scorers['all'].record(res.intent.name, ex.labels.intent)
-    }
-    const extractedSlots = _.values(res.slots)
-    for (const tok of ex.utterance.tokens) {
-      const actual = _.get(
-        extractedSlots.find(s => s.start <= tok.offset && s.end >= tok.offset + tok.value.length),
-        'name',
-        BIO.OUT
-      ) as string
-      const expected = _.get(tok, 'slots.0.name', BIO.OUT) as string
-      slotsF1Scorer.record(actual, expected)
+      const res = await engine.predict(ex.utterance.toString(), allCtx)
+      intentF1Scorers['all'].record(res.intent.name, ex.intent)
     }
   }
 
