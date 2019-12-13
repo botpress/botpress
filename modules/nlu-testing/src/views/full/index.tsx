@@ -1,4 +1,4 @@
-import { Button, Icon } from '@blueprintjs/core'
+import { Button, Icon, Spinner } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import P from 'bluebird'
 import { Container, SplashScreen } from 'botpress/ui'
@@ -16,6 +16,7 @@ interface State {
   tests: Test[]
   testResults: _.Dictionary<TestResult>
   loading: boolean
+  working: boolean
   f1Metrics: XValidationResults
 }
 
@@ -33,7 +34,8 @@ export default class NLUTests extends React.Component<Props, State> {
     tests: [],
     testResults: {},
     loading: true,
-    f1Metrics: { intents: {}, slots: null }
+    working: false,
+    f1Metrics: null
   }
 
   setModalVisible(createModalVisible: boolean) {
@@ -49,25 +51,40 @@ export default class NLUTests extends React.Component<Props, State> {
   }
 
   runTests = async () => {
+    this.setState({ working: true })
     const testResults = (await P.mapSeries(this.state.tests, this.api.runTest)).reduce((resultsMap, result) => {
       return { ...resultsMap, [result.id]: result }
     }, {})
-    this.setState({ testResults })
+    this.setState({ testResults, working: false })
   }
 
   computeXValidation = async () => {
+    this.setState({ working: true })
     const f1Metrics = await this.api.computeCrossValidation(this.props.contentLang)
-    this.setState({ f1Metrics })
+    this.setState({ f1Metrics, working: false })
   }
 
   render() {
+    const shouldRenderSplash = !this.state.loading && !this.state.tests.length && !this.state.f1Metrics
     return (
       <Container sidePanelHidden={true}>
         <div />
         <div className="bph-layout-main">
           <div className="bph-layout-middle">
-            <div>
-              <Button intent="primary" minimal icon="play" text="Run tests" onClick={() => this.runTests()} />
+            <div className={style.toolbar}>
+              {!this.state.tests.length && (
+                <Button
+                  intent="success"
+                  minimal
+                  small
+                  icon="add"
+                  text="Create your first test"
+                  onClick={this.setModalVisible.bind(this, true)}
+                />
+              )}
+              {!!this.state.tests.length && (
+                <Button intent="primary" minimal icon="play" text="Run tests" onClick={() => this.runTests()} />
+              )}
               <Button
                 intent="primary"
                 minimal
@@ -75,9 +92,15 @@ export default class NLUTests extends React.Component<Props, State> {
                 onClick={() => this.computeXValidation()}
                 text="Run Cross Validation"
               />
+              {this.state.working && (
+                <span className={style.working}>
+                  <Spinner size={20} />
+                  &nbsp; Working
+                </span>
+              )}
             </div>
             <div className={style.container}>
-              {!this.state.loading && !this.state.tests.length && (
+              {shouldRenderSplash && (
                 <SplashScreen
                   icon={<Icon iconSize={100} icon="predictive-analysis" style={{ marginBottom: '3em' }} />}
                   title="NLU Regression Testing"

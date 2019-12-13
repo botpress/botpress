@@ -30,26 +30,27 @@ const F1 = (props: { label?: string; f1: F1 }) => (
 )
 
 export const CrossValidationResults: FC<Props> = props => {
-  if (_.isEmpty(props.f1Metrics.slots) && _.isEmpty(props.f1Metrics.intents)) {
+  if (!props.f1Metrics) {
     return null
-  } else
-    return (
-      <div className={style.f1Section}>
-        <H3>Cross Validation Results</H3>
-        <H4>Intents per contexts</H4>
-        <div className={style.f1Container}>
-          {Object.entries(props.f1Metrics.intents).map(([ctx, f1]) => (
-            <F1 f1={f1} label={ctx == 'all' ? 'combined contexts' : ctx} />
-          ))}
-        </div>
-        {!_.isEmpty(props.f1Metrics.slots) && (
-          <React.Fragment>
-            <H4>Slots</H4>
-            <div className={style.f1Container}>
-              <F1 f1={props.f1Metrics.slots} />
-            </div>
-          </React.Fragment>
-        )}
+  }
+
+  return (
+    <div className={style.f1Section}>
+      <H3>Cross Validation Results</H3>
+      <H4>Intents per contexts</H4>
+      <div className={style.f1Container}>
+        {Object.entries(props.f1Metrics.intents).map(([ctx, f1]) => (
+          <F1 f1={f1} label={ctx == 'all' ? 'combined contexts' : ctx} />
+        ))}
       </div>
-    )
+      {props.f1Metrics.slots && (
+        <React.Fragment>
+          <H4>Slots</H4>
+          <div className={style.f1Container}>
+            <F1 f1={props.f1Metrics.slots} />
+          </div>
+        </React.Fragment>
+      )}
+    </div>
+  )
 }

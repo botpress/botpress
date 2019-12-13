@@ -4,6 +4,8 @@ interface CssExports {
   'container': string;
   'f1Container': string;
   'f1Section': string;
+  'toolbar': string;
+  'working': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

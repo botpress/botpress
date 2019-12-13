@@ -121,7 +121,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
     const intentDefs = await botEngine.storage.getIntents()
     const entityDefs = await botEngine.storage.getCustomEntities()
+
+    bp.logger.forBot(botId).info('started cross validation')
     const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang)
+    bp.logger.forBot(botId).info('finished cross validation')
 
     res.send(xValidationRes)
   })
