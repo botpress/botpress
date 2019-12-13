@@ -26,7 +26,7 @@ export interface F1 {
 
 export type XValidationResults = {
   intents: _.Dictionary<F1>
-  slots: _.Dictionary<F1>
+  slots: F1
 }
 
 export interface TestingAPI {

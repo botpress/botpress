@@ -33,7 +33,7 @@ export default class NLUTests extends React.Component<Props, State> {
     tests: [],
     testResults: {},
     loading: true,
-    f1Metrics: { intents: {}, slots: {} }
+    f1Metrics: { intents: {}, slots: null }
   }
 
   setModalVisible(createModalVisible: boolean) {
@@ -91,7 +91,7 @@ export default class NLUTests extends React.Component<Props, State> {
                   createTest={this.setModalVisible.bind(this, true)}
                 />
               )}
-              {!_.isEmpty(this.state.f1Metrics.intents) && <CrossValidationResults f1Metrics={this.state.f1Metrics} />}
+              <CrossValidationResults f1Metrics={this.state.f1Metrics} />
               <CreateTestModal
                 api={this.api}
                 hide={this.setModalVisible.bind(this, false)}

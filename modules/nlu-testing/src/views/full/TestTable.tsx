@@ -1,4 +1,4 @@
-import { Button, H4, HTMLTable, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button, H3, HTMLTable, Icon, Position, Tooltip } from '@blueprintjs/core'
 import React, { FC } from 'react'
 
 import { Test, TestResult } from './api'
@@ -6,6 +6,7 @@ import { Test, TestResult } from './api'
 interface TestResultProps {
   testResult?: TestResult
 }
+
 const TestResult: FC<TestResultProps> = ({ testResult }) => {
   if (testResult === undefined) {
     return <span>-</span>
@@ -38,10 +39,10 @@ interface Props {
 
 export const TestTable: FC<Props> = props => (
   <React.Fragment>
-    <H4>
+    <H3>
       NLU System Tests &nbsp;
       <Button type="button" minimal intent="success" small icon="add" onClick={props.createTest} text="New Test" />
-    </H4>
+    </H3>
     <HTMLTable bordered striped>
       <thead>
         <tr>
