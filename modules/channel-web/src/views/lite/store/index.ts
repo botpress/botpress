@@ -227,6 +227,11 @@ class RootStore {
   }
 
   @action.bound
+  async setReference(): Promise<void> {
+    return this.api.setReference(this.config.reference, this.currentConversationId)
+  }
+
+  @action.bound
   resetConversation() {
     this.currentConversation = undefined
   }

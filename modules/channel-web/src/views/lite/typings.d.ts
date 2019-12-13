@@ -162,6 +162,8 @@ export type Config = {
   enablePersistHistory: boolean
   /** Experimental: expose the store to the parent frame for more control on the webchat's behavior */
   exposeStore: boolean
+  /** Reference ensures that a specific value and its signature are valid */
+  reference: string
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
