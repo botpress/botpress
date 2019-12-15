@@ -5,6 +5,8 @@ import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botp
 import { NluItem } from 'full'
 import React, { FC, useState } from 'react'
 
+import IntentNameModal from './IntentNameModal'
+
 interface Props {
   api: NLUApi
   intents: NLU.IntentDefinition[]
@@ -15,6 +17,9 @@ interface Props {
 }
 
 export const IntentSidePanelSection: FC<Props> = props => {
+  const [modalOpen, setModalOpen] = useState(false)
+  const [intentName, setIntentName] = useState()
+  const [intentAction, setIntentAction] = useState<any>('create')
   const [intentsFilter, setIntentsFilter] = useState('')
 
   const deleteIntent = (intentName: string) => {
@@ -28,26 +33,15 @@ export const IntentSidePanelSection: FC<Props> = props => {
     }
   }
 
-  const createIntent = async () => {
-    const name = prompt('Enter the name of the new intent')
-
-    if (!name || !name.length) {
-      return
-    }
-
-    const sanitizedName = name
-      .toLowerCase()
-      .replace(/\s|\t|\n/g, '-')
-      .replace(/[^a-z0-9-_.]/g, '')
-
+  const onCreateIntent = async (name: string) => {
     const intentDef = {
-      name: sanitizedName,
+      name: name,
       utterances: { [props.contentLang]: [name] }
     }
 
     await props.api.createIntent(intentDef)
     await props.reloadIntents()
-    props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    props.setCurrentItem({ name: name, type: 'intent' })
   }
 
   const intentItems = props.intents
@@ -73,11 +67,21 @@ export const IntentSidePanelSection: FC<Props> = props => {
 
   return (
     <div>
-      <Button className={Classes.MINIMAL} icon="new-object" text="New intent" onClick={createIntent} />
+      <Button className={Classes.MINIMAL} icon="new-object" text="New intent" onClick={() => setModalOpen(true)} />
       <SearchBar icon="filter" placeholder="filter intents" onChange={setIntentsFilter} showButton={false} />
       <ItemList
         items={intentItems}
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'intent', name })}
+      />
+      <IntentNameModal
+        action={intentAction}
+        originalName={intentName}
+        intentNames={props.intents.map(i => i.name)}
+        isOpen={modalOpen}
+        toggle={() => setModalOpen(!modalOpen)}
+        onCreateIntent={onCreateIntent}
+        onRenameIntent={() => {}}
+        onDuplicateIntent={() => {}}
       />
     </div>
   )
