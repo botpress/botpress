@@ -167,13 +167,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.sendStatus(200)
   })
 
-  router.post('/intents/:intentName/duplicate', async (req, res) => {
-    const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
-    await botEngine.storage.duplicateIntent(req.params.intentName, req.body.name)
-    scheduleSyncNLU(req.params.botId)
-
-    res.sendStatus(200)
-  })
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
     const intents = await (state.nluByBot[botId].engine1 as ScopedEngine).storage.getIntents()

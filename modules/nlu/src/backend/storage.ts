@@ -76,12 +76,6 @@ export default class Storage {
     return this.saveIntent(intentName, merged)
   }
 
-  async duplicateIntent(intentName: string, name: string) {
-    const intent = await this.getIntent(intentName)
-    intent.name = name
-    this.saveIntent(name, intent)
-  }
-
   async saveConfusionMatrix({
     modelHash,
     lang,

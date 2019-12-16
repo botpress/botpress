@@ -3,6 +3,7 @@ import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
 import { NluItem } from 'full'
+import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
 import IntentNameModal from './IntentNameModal'
@@ -68,7 +69,10 @@ export const IntentSidePanelSection: FC<Props> = props => {
   }
 
   const onDuplicateIntent = async (targetIntent: string, name: string) => {
-    await props.api.duplicateIntent(targetIntent, name)
+    const intent = await props.api.fetchIntent(targetIntent)
+    const clone = _.cloneDeep(intent)
+    clone.name = name
+    await props.api.createIntent(clone)
     await props.reloadIntents()
     props.setCurrentItem({ name: name, type: 'intent' })
   }
