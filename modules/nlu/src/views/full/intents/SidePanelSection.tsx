@@ -33,6 +33,12 @@ export const IntentSidePanelSection: FC<Props> = props => {
     setModalOpen(true)
   }
 
+  const duplicateIntent = (intentName: string) => {
+    setIntentName(intentName)
+    setIntentAction('duplicate')
+    setModalOpen(true)
+  }
+
   const deleteIntent = (intentName: string) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intentName}" ?`)
     if (confirmDelete) {
@@ -61,13 +67,8 @@ export const IntentSidePanelSection: FC<Props> = props => {
     props.setCurrentItem({ name: name, type: 'intent' })
   }
 
-  const onDuplicateIntent = async (intent: { intentNameToDuplicate: string; name: string }) => {
-    const intentDef = {
-      name: name,
-      utterances: { [props.contentLang]: [name] }
-    }
-
-    await props.api.createIntent(intentDef)
+  const onDuplicateIntent = async (targetIntent: string, name: string) => {
+    await props.api.duplicateIntent(targetIntent, name)
     await props.reloadIntents()
     props.setCurrentItem({ name: name, type: 'intent' })
   }
@@ -83,7 +84,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
           selected: props.currentItem && props.currentItem.name === intent.name,
           contextMenu: [
             { label: 'Rename', icon: 'edit', onClick: () => renameIntent(intent.name) },
-            { label: 'Duplicate', icon: 'duplicate', onClick: () => {} },
+            { label: 'Duplicate', icon: 'duplicate', onClick: () => duplicateIntent(intent.name) },
             { label: 'Delete', icon: 'delete', onClick: () => deleteIntent(intent.name) }
           ]
         } as Item)
@@ -106,7 +107,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
         toggle={() => setModalOpen(!modalOpen)}
         onCreateIntent={onCreateIntent}
         onRenameIntent={onRenameIntent}
-        onDuplicateIntent={() => {}}
+        onDuplicateIntent={onDuplicateIntent}
       />
     </div>
   )
