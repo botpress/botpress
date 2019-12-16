@@ -3,7 +3,11 @@ import * as sdk from 'botpress/sdk'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 
+import { SPACE } from '../../tools/token-utils'
 import { EntityExtractor } from '../../typings'
+
+const BATCH_SIZE = 10
+const SPLIT_CHAR = `::${SPACE}::`
 
 export class DucklingEntityExtractor implements EntityExtractor {
   public static enabled: boolean
@@ -30,9 +34,9 @@ export class DucklingEntityExtractor implements EntityExtractor {
       : []
   }
 
-  static async configure(enabled: boolean, url: string, logger: sdk.Logger) {
+  public static async configure(enabled: boolean, url: string, logger: sdk.Logger) {
     if (enabled) {
-      const proxyConfig = process['PROXY'] ? { httpsAgent: new httpsProxyAgent(process['PROXY']) } : {}
+      const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
 
       this.client = Axios.create({
         baseURL: url,
@@ -57,6 +61,49 @@ https://botpress.io/docs/build/nlu/#system-entities
     }
   }
 
+  public async extractMultiple(inputs: string[], lang: string, useCache?: boolean): Promise<sdk.NLU.Entity[][]> {
+    if (!DucklingEntityExtractor.enabled) return []
+    const tz = this._getTz()
+    const refTime = Date.now()
+    const batchedTexts = _.chunk(inputs, BATCH_SIZE).map(chunk => chunk.join(SPLIT_CHAR))
+    // TODO pop cached results from batch if useCache
+    const batchRes = await Promise.mapSeries(batchedTexts, text => {
+      return this._extract(text, lang, tz, refTime)
+      // TODO alter from and to given the position of each split char
+      // TODO split res im multiple results
+    })
+    // TODO cache individual results if useCache
+    // TODO merge with cached results, make sure to keep the order (check language provider)
+
+    return batchRes
+  }
+
+  // TODO add proper retry policy here
+  private async _extract(text: string, lang: string, tz: string, refTime: number): Promise<sdk.NLU.Entity[]> {
+    try {
+      const { data } = await DucklingEntityExtractor.client.post(
+        '/parse',
+        `lang=${lang}&text=${text}&reftime=${refTime}&tz=${tz}`
+      )
+
+      if (!_.isArray(data)) {
+        throw new Error('Unexpected response from Duckling. Expected an array.')
+      }
+
+      return data.map(ent => ({
+        name: ent.dim,
+        type: 'system',
+        meta: this._mapMeta(ent),
+        data: this._mapBody(ent.dim, ent.value)
+      }))
+    } catch (err) {
+      const error = err.response ? err.response.data : err
+      this.logger && this.logger.attachError(error).warn('[Native] error extracting duckling entities')
+      return []
+    }
+  }
+
+  // TODO remove this
   public async extract(text: string, lang: string): Promise<sdk.NLU.Entity[]> {
     if (!DucklingEntityExtractor.enabled) return []
 
