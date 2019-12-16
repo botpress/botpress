@@ -156,6 +156,22 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  router.post('/intents/:intentName', async (req, res) => {
+    try {
+      const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
+      const targetName = req.params.intentName
+      const intent = await botEngine.storage.getIntent(targetName)
+      intent.name = req.body.name
+      await botEngine.storage.updateIntent(targetName, intent)
+      scheduleSyncNLU(req.params.botId)
+
+      res.sendStatus(200)
+    } catch (err) {
+      bp.logger.attachError(err).warn('Cannot update intent, invalid schema')
+      res.status(400).send('Invalid schema')
+    }
+  })
+
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
     const intents = await (state.nluByBot[botId].engine1 as ScopedEngine).storage.getIntents()

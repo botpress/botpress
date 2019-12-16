@@ -22,6 +22,17 @@ export const IntentSidePanelSection: FC<Props> = props => {
   const [intentAction, setIntentAction] = useState<any>('create')
   const [intentsFilter, setIntentsFilter] = useState('')
 
+  const createIntent = () => {
+    setIntentAction('create')
+    setModalOpen(true)
+  }
+
+  const renameIntent = (intentName: string) => {
+    setIntentName(intentName)
+    setIntentAction('rename')
+    setModalOpen(true)
+  }
+
   const deleteIntent = (intentName: string) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intentName}" ?`)
     if (confirmDelete) {
@@ -44,6 +55,23 @@ export const IntentSidePanelSection: FC<Props> = props => {
     props.setCurrentItem({ name: name, type: 'intent' })
   }
 
+  const onRenameIntent = async (targetIntent: string, name: string) => {
+    await props.api.renameIntent(targetIntent, name)
+    await props.reloadIntents()
+    props.setCurrentItem({ name: name, type: 'intent' })
+  }
+
+  const onDuplicateIntent = async (intent: { intentNameToDuplicate: string; name: string }) => {
+    const intentDef = {
+      name: name,
+      utterances: { [props.contentLang]: [name] }
+    }
+
+    await props.api.createIntent(intentDef)
+    await props.reloadIntents()
+    props.setCurrentItem({ name: name, type: 'intent' })
+  }
+
   const intentItems = props.intents
     .filter(intent => !intentsFilter || intent.name.includes(intentsFilter))
     .map(
@@ -53,26 +81,23 @@ export const IntentSidePanelSection: FC<Props> = props => {
           label: intent.name,
           value: intent.name,
           selected: props.currentItem && props.currentItem.name === intent.name,
-          actions: [
-            {
-              tooltip: 'Delete Intent',
-              icon: 'delete',
-              onClick: () => {
-                deleteIntent(intent.name)
-              }
-            }
+          contextMenu: [
+            { label: 'Rename', icon: 'edit', onClick: () => renameIntent(intent.name) },
+            { label: 'Duplicate', icon: 'duplicate', onClick: () => {} },
+            { label: 'Delete', icon: 'delete', onClick: () => deleteIntent(intent.name) }
           ]
         } as Item)
     )
 
   return (
     <div>
-      <Button className={Classes.MINIMAL} icon="new-object" text="New intent" onClick={() => setModalOpen(true)} />
+      <Button className={Classes.MINIMAL} icon="new-object" text="New intent" onClick={createIntent} />
       <SearchBar icon="filter" placeholder="filter intents" onChange={setIntentsFilter} showButton={false} />
       <ItemList
         items={intentItems}
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'intent', name })}
       />
+
       <IntentNameModal
         action={intentAction}
         originalName={intentName}
@@ -80,7 +105,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
         isOpen={modalOpen}
         toggle={() => setModalOpen(!modalOpen)}
         onCreateIntent={onCreateIntent}
-        onRenameIntent={() => {}}
+        onRenameIntent={onRenameIntent}
         onDuplicateIntent={() => {}}
       />
     </div>

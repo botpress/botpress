@@ -6,6 +6,7 @@ export interface NLUApi {
   fetchIntents: () => Promise<NLU.IntentDefinition[]>
   fetchIntent: (x: string) => Promise<NLU.IntentDefinition>
   createIntent: (x: Partial<NLU.IntentDefinition>) => Promise<any>
+  renameIntent: (targetIntent: string, name: string) => Promise<any>
   deleteIntent: (x: string) => Promise<any>
   fetchEntities: () => Promise<NLU.EntityDefinition[]>
   createEntity: (x: NLU.EntityDefinition) => Promise<any>
@@ -21,6 +22,8 @@ export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   },
   fetchIntent: (intentName: string) => bp.axios.get(`/mod/nlu/intents/${intentName}`).then(res => res.data),
   createIntent: (intent: Partial<NLU.IntentDefinition>) => bp.axios.post(`/mod/nlu/intents`, intent),
+  renameIntent: (targetIntent: string, name: string) =>
+    bp.axios.post(`/mod/nlu/intents/${targetIntent}`, { name: name }),
   deleteIntent: (name: string) => bp.axios.post(`/mod/nlu/intents/${name}/delete`),
   fetchEntities: () => bp.axios.get('/mod/nlu/entities').then(res => res.data),
   createEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/`, entity),

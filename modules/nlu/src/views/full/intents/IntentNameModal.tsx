@@ -10,8 +10,8 @@ interface Props {
   isOpen: boolean
   toggle: () => void
   onCreateIntent: (name: string) => void
-  onDuplicateIntent: (intent: { intentNameToDuplicate: string; name: string }) => void
-  onRenameIntent: (intent: { targetIntent: string; name: string }) => void
+  onRenameIntent: (targetIntent: string, name: string) => void
+  onDuplicateIntent: (intentNameToDuplicate: string, name: string) => void
 }
 
 export const sanitizeName = (text: string) =>
@@ -33,9 +33,9 @@ const IntentNameModal: FC<Props> = props => {
     if (props.action === 'create') {
       props.onCreateIntent(name)
     } else if (props.action === 'duplicate') {
-      props.onDuplicateIntent({ intentNameToDuplicate: props.originalName, name: name })
+      props.onDuplicateIntent(props.originalName, name)
     } else if (props.action === 'rename') {
-      props.onRenameIntent({ targetIntent: props.originalName, name: name })
+      props.onRenameIntent(props.originalName, name)
     }
 
     closeModal()
