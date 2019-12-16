@@ -63,7 +63,9 @@ export const IntentSidePanelSection: FC<Props> = props => {
   }
 
   const onRenameIntent = async (targetIntent: string, name: string) => {
-    await props.api.renameIntent(targetIntent, name)
+    const intent = await props.api.fetchIntent(targetIntent)
+    intent.name = name
+    await props.api.updateIntent(targetIntent, intent)
     await props.reloadIntents()
     props.setCurrentItem({ name: name, type: 'intent' })
   }

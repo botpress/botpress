@@ -158,10 +158,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.post('/intents/:intentName', async (req, res) => {
     const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
-    const targetName = req.params.intentName
-    const intent = await botEngine.storage.getIntent(targetName)
-    intent.name = req.body.name
-    await botEngine.storage.updateIntent(targetName, intent)
+    await botEngine.storage.updateIntent(req.params.intentName, req.body)
     scheduleSyncNLU(req.params.botId)
 
     res.sendStatus(200)
