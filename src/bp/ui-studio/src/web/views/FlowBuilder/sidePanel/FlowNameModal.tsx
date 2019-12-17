@@ -47,7 +47,8 @@ const FlowNameModal: FC<Props> = props => {
   }
 
   const isIdentical = props.action === 'rename' && props.originalName === `${name}.flow.json`
-  const alreadyExists = !isIdentical && _.includes(props.flowsNames, `${name}.flow.json`)
+  const alreadyExists =
+    !isIdentical && _.some(props.flowsNames, n => n.toLowerCase() === `${name}.flow.json`.toLowerCase())
 
   let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Flow' }
   if (props.action === 'duplicate') {
