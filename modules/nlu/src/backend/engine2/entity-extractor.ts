@@ -194,7 +194,7 @@ export const extractPatternEntities = (
 }
 
 export const extractSystemEntities = async (utterance: Utterance, tools: Tools): Promise<EntityExtractionResult[]> => {
-  const extracted = await tools.ducklingExtractor.extract(utterance.toString(), utterance.languageCode)
+  const extracted = await tools.duckling.extract(utterance.toString(), utterance.languageCode)
   return extracted.map(ent => ({
     confidence: ent.meta.confidence,
     start: ent.meta.start,

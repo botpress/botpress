@@ -1,6 +1,8 @@
 import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 
+// import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
+
 export const BIO = {
   INSIDE: 'I' as Tag,
   BEGINNING: 'B' as Tag,
@@ -43,10 +45,6 @@ export interface Engine {
   trainOrLoad(forceRetrain: boolean): Promise<string>
   checkSyncNeeded(): Promise<boolean>
   extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
-}
-
-export interface EntityExtractor {
-  extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
 }
 
 export interface SlotExtractor {
@@ -210,8 +208,13 @@ export interface Tools {
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
-  ducklingExtractor: EntityExtractor
+  duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
+}
+
+export interface SystemEntityExtractor {
+  extractMultiple(input: string[], lang: string): Promise<sdk.NLU.Entity[][]>
+  extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
 }
 
 export type Intent<T> = Readonly<{

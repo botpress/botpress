@@ -3,13 +3,19 @@ import * as sdk from 'botpress/sdk'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 
+import { extractPattern } from '../../tools/patterns-utils'
 import { SPACE } from '../../tools/token-utils'
-import { EntityExtractor } from '../../typings'
+
+interface DucklingParams {
+  tz: string
+  refTime: number
+  lang: string
+}
 
 const BATCH_SIZE = 10
-const SPLIT_CHAR = `::${SPACE}::`
+export const JOIN_CHAR = `::${SPACE}::`
 
-export class DucklingEntityExtractor implements EntityExtractor {
+export class DucklingEntityExtractor {
   public static enabled: boolean
   public static client: AxiosInstance
 
@@ -62,56 +68,52 @@ https://botpress.io/docs/build/nlu/#system-entities
   }
 
   public async extractMultiple(inputs: string[], lang: string, useCache?: boolean): Promise<sdk.NLU.Entity[][]> {
-    if (!DucklingEntityExtractor.enabled) return []
-    const tz = this._getTz()
-    const refTime = Date.now()
-    const batchedTexts = _.chunk(inputs, BATCH_SIZE).map(chunk => chunk.join(SPLIT_CHAR))
-    // TODO pop cached results from batch if useCache
-    const batchRes = await Promise.mapSeries(batchedTexts, text => {
-      return this._extract(text, lang, tz, refTime)
-      // TODO alter from and to given the position of each split char
-      // TODO split res im multiple results
-    })
-    // TODO cache individual results if useCache
-    // TODO merge with cached results, make sure to keep the order (check language provider)
+    if (!DucklingEntityExtractor.enabled) return Array(inputs.length).fill([])
+    const options = {
+      lang,
+      tz: this._getTz(),
+      refTime: Date.now()
+    }
 
-    return batchRes
+    // TODO (if useCache) pop cached results before chunking
+    const batchedTexts = _.chunk(inputs, BATCH_SIZE)
+    const batches = await Promise.mapSeries(batchedTexts, batch => this._extractBatch(batch, options))
+    return _.flatten(batches)
+    // TODO cache individual results if useCache
+    // TODO merge with cached results, make sure to keep the order (just like language provider)
+  }
+
+  public async extract(input: string, lang: string, useCache?: boolean): Promise<sdk.NLU.Entity[]> {
+    return (await this.extractMultiple([input], lang, useCache))[0]
+  }
+
+  private async _extractBatch(batch: string[], params: DucklingParams) {
+    // trailing JOIN_CHAR so we have n joints and n examples
+    const concatBatch = batch.join(JOIN_CHAR) + JOIN_CHAR
+    const batchRes = await this.fetchDuckling(concatBatch, params)
+    const splitLocations = extractPattern(concatBatch, new RegExp(JOIN_CHAR)).map(v => v.sourceIndex)
+    return splitLocations.map((to, idx, locs) => {
+      const from = idx === 0 ? 0 : locs[idx - 1] + JOIN_CHAR.length
+      // shift the results to make sure we dont go through the whole array n times
+      return batchRes
+        .filter(e => e.meta.start >= from && e.meta.end <= to)
+        .map(e => ({
+          ...e,
+          meta: {
+            ...e.meta,
+            start: e.meta.start - from,
+            end: e.meta.end - from
+          }
+        }))
+    })
   }
 
   // TODO add proper retry policy here
-  private async _extract(text: string, lang: string, tz: string, refTime: number): Promise<sdk.NLU.Entity[]> {
+  private async fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<sdk.NLU.Entity[]> {
     try {
       const { data } = await DucklingEntityExtractor.client.post(
         '/parse',
         `lang=${lang}&text=${text}&reftime=${refTime}&tz=${tz}`
-      )
-
-      if (!_.isArray(data)) {
-        throw new Error('Unexpected response from Duckling. Expected an array.')
-      }
-
-      return data.map(ent => ({
-        name: ent.dim,
-        type: 'system',
-        meta: this._mapMeta(ent),
-        data: this._mapBody(ent.dim, ent.value)
-      }))
-    } catch (err) {
-      const error = err.response ? err.response.data : err
-      this.logger && this.logger.attachError(error).warn('[Native] error extracting duckling entities')
-      return []
-    }
-  }
-
-  // TODO remove this
-  public async extract(text: string, lang: string): Promise<sdk.NLU.Entity[]> {
-    if (!DucklingEntityExtractor.enabled) return []
-
-    try {
-      const tz = this._getTz()
-      const { data } = await DucklingEntityExtractor.client.post(
-        '/parse',
-        `lang=${lang}&text=${text}&reftime=${Date.now()}&tz=${tz}`
       )
 
       if (!_.isArray(data)) {
