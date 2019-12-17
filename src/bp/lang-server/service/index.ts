@@ -201,14 +201,15 @@ export default class LanguageService {
     return { model, usedDelta, dtDelta }
   }
 
-  private _getQueryVectors = (fastTextModel: LoadedFastTextModel) => async (token): Promise<number[]> => {
-    const cacheKey = `${fastTextModel.name}/${fastTextModel.path}/${token}`
+  private _getQueryVectors = (fastTextModel: LoadedFastTextModel) => async (token: string): Promise<number[]> => {
+    const t = token.toLowerCase()
+    const cacheKey = `${fastTextModel.name}/${fastTextModel.path}/${t}`
 
     if (this._cache.has(cacheKey)) {
       return this._cache.get(cacheKey)
     }
 
-    const val = await fastTextModel.model.queryWordVectors(token)
+    const val = await fastTextModel.model.queryWordVectors(t)
     this._cache.set(cacheKey, val)
     return val
   }

@@ -32,7 +32,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
 
   static async configure(enabled: boolean, url: string, logger: sdk.Logger) {
     if (enabled) {
-      const proxyConfig = process['PROXY'] ? { httpsAgent: new httpsProxyAgent(process['PROXY']) } : {}
+      const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
 
       this.client = Axios.create({
         baseURL: url,

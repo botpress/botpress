@@ -140,6 +140,14 @@ export default class WebchatApi {
     }
   }
 
+  async setReference(reference: string, convoId: number): Promise<void> {
+    try {
+      return this.axios.post(`/conversations/${this.userId}/${convoId}/reference/${reference}`, {}, this.axiosConfig)
+    } catch (err) {
+      await this.handleApiError(err)
+    }
+  }
+
   handleApiError = async error => {
     // @deprecated 11.9 (replace with proper error management)
     const data = get(error, 'response.data', {})
