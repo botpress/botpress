@@ -101,8 +101,8 @@ export type BotpressConfig = {
      */
     port: number
     /**
-     * There are two external URL that Botpress calls: https://license.botpress.io and https://duckling.botpress.io
-     * If you are behind a corporate proxy, you can configure it below.
+     * There are three external URLs that Botpress calls: https://license.botpress.io, https://duckling.botpress.io and https://lang-01.botpress.io
+     * If you are behind a corporare proxy, you can configure it below.
      * It is also possible to self-host Duckling, please check the documentation
      *
      * @example http://username:password@hostname:port

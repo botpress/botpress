@@ -146,7 +146,7 @@ class MessageList extends React.Component<MessageListProps, State> {
 
           const avatar = userId
             ? this.props.showUserAvatar && this.renderAvatar(userName, avatarUrl)
-            : this.renderAvatar(this.props.botName, this.props.botAvatarUrl)
+            : this.renderAvatar(this.props.botName, avatarUrl || this.props.botAvatarUrl)
 
           return (
             <div key={i}>
