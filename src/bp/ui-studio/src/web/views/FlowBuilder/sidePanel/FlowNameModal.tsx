@@ -85,7 +85,13 @@ const FlowNameModal: FC<Props> = props => {
 
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button type="submit" id="btn-submit" text="Submit" onClick={submit} disabled={!name || alreadyExists} />
+            <Button
+              type="submit"
+              id="btn-submit"
+              text="Submit"
+              onClick={submit}
+              disabled={!name || isIdentical || alreadyExists}
+            />
           </div>
         </div>
       </form>
