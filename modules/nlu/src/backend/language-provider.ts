@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import fse from 'fs-extra'
+import httpsProxyAgent from 'https-proxy-agent'
 import _, { debounce, sumBy } from 'lodash'
 import lru from 'lru-cache'
 import moment from 'moment'
@@ -95,7 +96,13 @@ export class RemoteLanguageProvider implements LanguageProvider {
         headers['authorization'] = 'bearer ' + source.authToken
       }
 
-      const client = axios.create({ baseURL: source.endpoint, headers })
+      const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
+
+      const client = axios.create({
+        baseURL: source.endpoint,
+        headers,
+        ...proxyConfig
+      })
       try {
         await retry(async () => {
           const { data } = await client.get('/info')
