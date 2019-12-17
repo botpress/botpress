@@ -346,7 +346,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       const group = idxToFetch.splice(0, 100)
 
       // We have new tokens we haven't cached yet
-      const query = group.map(idx => tokens[idx])
+      const query = group.map(idx => tokens[idx].toLowerCase())
       // Fetch only the missing tokens
       if (!query.length) {
         break
