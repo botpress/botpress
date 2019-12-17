@@ -1,3 +1,24 @@
+## [12.3.1](https://github.com/botpress/botpress/compare/v12.3.0...v12.3.1) (2019-12-17)
+
+
+### Bug Fixes
+
+* **channel-web:** added missing reference logic on frontend ([b7939eb](https://github.com/botpress/botpress/commit/b7939eb))
+* **channel-web:** added missing reference logic on frontend ([9abc1b2](https://github.com/botpress/botpress/commit/9abc1b2))
+* **nlu:** lowecase tokens on vectorize ([2022774](https://github.com/botpress/botpress/commit/2022774))
+* **nlu:** lowecase while getting word vectors ([14c05aa](https://github.com/botpress/botpress/commit/14c05aa))
+* **studio:** rename only when flow name is changed ([459c844](https://github.com/botpress/botpress/commit/459c844))
+* **studio:** rename only when flow name is changed ([b50c4df](https://github.com/botpress/botpress/commit/b50c4df))
+* various spelling mistakes ([8b185a3](https://github.com/botpress/botpress/commit/8b185a3))
+
+
+### Features
+
+* **channel-web:** bot can have different avatars for different messages ([ab9215e](https://github.com/botpress/botpress/commit/ab9215e))
+* **channel-web:** bot can have different avatars for different messages ([f0d3468](https://github.com/botpress/botpress/commit/f0d3468))
+
+
+
 # [12.3.0](https://github.com/botpress/botpress/compare/v12.2.3...v12.3.0) (2019-12-12)
 
 
