@@ -180,7 +180,7 @@ function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]):
 }
 
 // TODO implement this algorithm properly / improve it
-// currently taken as is from svm classifier (engine 1) and does't make much sens
+// currently taken as is from svm classifier (engine 1) and doesn't make much sens
 function electIntent(input: PredictStep): PredictStep {
   const totalConfidence = Math.min(1, _.sumBy(input.ctx_predictions, 'confidence'))
   const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))

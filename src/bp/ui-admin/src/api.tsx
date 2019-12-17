@@ -16,7 +16,7 @@ export const toastError = error => {
       {errorCode && <span>[{errorCode}]</span>} {details}{' '}
       {docs && (
         <a href={docs} target="_blank">
-          More informations
+          More information
         </a>
       )}
     </span>

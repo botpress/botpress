@@ -31,7 +31,7 @@ export default class ExactMatcher {
         return {
           name: seq.intent,
           confidence: 1,
-          context: seq.contexts![0] // todo fix this
+          context: seq.contexts![0] // TODO fix this
         }
       }
     }

@@ -64,7 +64,7 @@ Open the chat window and say "_Hello_". The bot should greet you with something 
 
 ![Hello from the bot](assets/flow_page.png)
 
-There is another emulator, which is specifically designed for you (the bot owner) to understand quickly why the bot gives you a specific answer. That emulator is only available for authenticated users. It includes all sort of useful informations: list of suggested answers by module, nlu intents, and the elected suggestion.
+There is another emulator, which is specifically designed for you (the bot owner) to understand quickly why the bot gives you a specific answer. That emulator is only available for authenticated users. It includes all sort of useful information: list of suggested answers by module, nlu intents, and the elected suggestion.
 
 ![Emulator Hello](assets/emulator_ng.png)
 

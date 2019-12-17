@@ -179,7 +179,7 @@ export class BotsRouter extends CustomRouter {
   private setupRoutes() {
     /**
      * UNAUTHENTICATED ROUTES
-     * Do not return sensitive informations there. These must be accessible by unauthenticated users
+     * Do not return sensitive information there. These must be accessible by unauthenticated users
      */
     this.router.get('/studio-params', (req, res) => {
       const info = this.studioParams(req.params.botId)

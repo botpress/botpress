@@ -19,7 +19,7 @@
           "type": "number"
         },
         "proxy": {
-          "description": "There are two external URL that Botpress calls: https://license.botpress.io and https://duckling.botpress.io\nIf you are behind a corporare proxy, you can configure it below.\nIt is also possible to self-host Duckling, please check the documentation",
+          "description": "There are two external URL that Botpress calls: https://license.botpress.io and https://duckling.botpress.io\nIf you are behind a corporate proxy, you can configure it below.\nIt is also possible to self-host Duckling, please check the documentation",
           "type": "string"
         },
         "backlog": {
@@ -28,10 +28,7 @@
         },
         "bodyLimit": {
           "default": "100kb",
-          "type": [
-            "string",
-            "number"
-          ]
+          "type": ["string", "number"]
         },
         "cors": {
           "type": "object",
@@ -63,17 +60,11 @@
               "type": "string"
             }
           },
-          "required": [
-            "enabled",
-            "maxAge"
-          ]
+          "required": ["enabled", "maxAge"]
         },
         "socketTransports": {
           "description": "Configure the priority for establishing socket connections for webchat and studio users.\nIf the first method is not supported, it will fallback on the second.\nIf the first is supported but it fails with an error, it will not fallback.",
-          "default": [
-            "websocket",
-            "polling"
-          ],
+          "default": ["websocket", "polling"],
           "type": "array",
           "items": {
             "type": "string"
@@ -121,10 +112,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "enabled",
-          "location"
-        ]
+        "required": ["enabled", "location"]
       }
     },
     "pro": {
@@ -132,9 +120,7 @@
       "properties": {
         "collaboratorsAuthStrategies": {
           "description": "These strategies are allowed to log on the Admin UI.\nOnce a user is logged on, he still needs individual access to respective workspaces",
-          "default": [
-            "default"
-          ],
+          "default": ["default"],
           "type": "array",
           "items": {
             "type": "string"
@@ -162,13 +148,7 @@
           "description": "External Authentication makes it possible to authenticate end-users (chat users) from an other system\nby using JWT tokens.\n\nIn addition to authenticate the users, the JWT token can also contain arbitrary additional\ndata about the user that you would like to make Botpress aware of.\n\nThe identity of the user will be checked for every incoming message and the additional data in the JWT token\nwill be available in `event.credentials`."
         }
       },
-      "required": [
-        "alerting",
-        "collaboratorsAuthStrategies",
-        "enabled",
-        "licenseKey",
-        "monitoring"
-      ]
+      "required": ["alerting", "collaboratorsAuthStrategies", "enabled", "licenseKey", "monitoring"]
     },
     "superAdmins": {
       "description": "An array of e-mails of users which will have root access to Botpress (manage users, server settings)",
@@ -207,21 +187,14 @@
         },
         "allowedMimeTypes": {
           "description": "The list of allowed extensions for media file uploads",
-          "default": [
-            "image/jpeg",
-            "image/png",
-            "image/gif"
-          ],
+          "default": ["image/jpeg", "image/png", "image/gif"],
           "type": "array",
           "items": {
             "type": "string"
           }
         }
       },
-      "required": [
-        "allowedMimeTypes",
-        "maxFileSize"
-      ]
+      "required": ["allowedMimeTypes", "maxFileSize"]
     },
     "jwtToken": {
       "type": "object",
@@ -237,10 +210,7 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "allowRefresh",
-        "duration"
-      ]
+      "required": ["allowRefresh", "duration"]
     },
     "autoRevision": {
       "description": "When enabled, a bot revision will be stored in the revisions directory when it change or its about to change stage",
@@ -284,10 +254,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "code",
-          "name"
-        ]
+        "required": ["code", "name"]
       }
     }
   },
@@ -331,11 +298,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "janitorInterval",
-        "sessionTimeoutInterval",
-        "timeoutInterval"
-      ]
+      "required": ["janitorInterval", "sessionTimeoutInterval", "timeoutInterval"]
     },
     "LogsConfig": {
       "type": "object",
@@ -354,10 +317,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "expiration",
-            "janitorInterval"
-          ]
+          "required": ["expiration", "janitorInterval"]
         },
         "fileOutput": {
           "description": "The file output records everything that is displayed in the console logs.",
@@ -379,17 +339,10 @@
               "type": "number"
             }
           },
-          "required": [
-            "enabled",
-            "folder",
-            "maxFileSize"
-          ]
+          "required": ["enabled", "folder", "maxFileSize"]
         }
       },
-      "required": [
-        "dbOutput",
-        "fileOutput"
-      ]
+      "required": ["dbOutput", "fileOutput"]
     },
     "MonitoringConfig": {
       "type": "object",
@@ -415,12 +368,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "collectionInterval",
-        "enabled",
-        "janitorInterval",
-        "retentionPeriod"
-      ]
+      "required": ["collectionInterval", "enabled", "janitorInterval", "retentionPeriod"]
     },
     "AlertingConfig": {
       "type": "object",
@@ -451,19 +399,13 @@
           "items": {}
         }
       },
-      "required": [
-        "enabled",
-        "janitorInterval",
-        "retentionPeriod",
-        "rules",
-        "watcherInterval"
-      ]
+      "required": ["enabled", "janitorInterval", "retentionPeriod", "rules", "watcherInterval"]
     },
     "ExternalAuthConfig": {
       "type": "object",
       "properties": {
         "enabled": {
-          "description": "Set to true to enable external authentification",
+          "description": "Set to true to enable external authentication",
           "default": false,
           "type": "boolean"
         },
@@ -497,9 +439,7 @@
         },
         "algorithms": {
           "description": "The algorithms allowed to validate the JWT tokens.",
-          "default": [
-            "HS256"
-          ],
+          "default": ["HS256"],
           "type": "array",
           "items": {
             "type": "string"
@@ -511,10 +451,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "algorithms",
-        "enabled"
-      ]
+      "required": ["algorithms", "enabled"]
     },
     "DataRetentionConfig": {
       "type": "object",
@@ -532,10 +469,7 @@
           }
         }
       },
-      "required": [
-        "janitorInterval",
-        "policies"
-      ]
+      "required": ["janitorInterval", "policies"]
     },
     "EventCollectorConfig": {
       "type": "object",
@@ -556,11 +490,8 @@
           "type": "string"
         },
         "ignoredEventTypes": {
-          "description": "Specify an array of event types that won't be persisted to the database. For example, typing events and visits\nmay not provide you with useful informations",
-          "default": [
-            "visit",
-            "typing"
-          ],
+          "description": "Specify an array of event types that won't be persisted to the database. For example, typing events and visits\nmay not provide you with useful information",
+          "default": ["visit", "typing"],
           "type": "array",
           "items": {
             "type": "string"
@@ -575,13 +506,7 @@
           }
         }
       },
-      "required": [
-        "collectionInterval",
-        "enabled",
-        "ignoredEventProperties",
-        "ignoredEventTypes",
-        "retentionPeriod"
-      ]
+      "required": ["collectionInterval", "enabled", "ignoredEventProperties", "ignoredEventTypes", "retentionPeriod"]
     },
     "AuthStrategy": {
       "type": "object",
@@ -628,20 +553,10 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "allowSelfSignup",
-        "id",
-        "options",
-        "type"
-      ]
+      "required": ["allowSelfSignup", "id", "options", "type"]
     },
     "AuthStrategyType": {
-      "enum": [
-        "basic",
-        "ldap",
-        "oauth2",
-        "saml"
-      ],
+      "enum": ["basic", "ldap", "oauth2", "saml"],
       "type": "string"
     },
     "AuthStrategyBasic": {
@@ -671,9 +586,7 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "maxLoginAttempt"
-      ]
+      "required": ["maxLoginAttempt"]
     },
     "AuthStrategySaml": {
       "description": "SAML Options, identical to the \"passeport-saml\" NPM library",
@@ -709,13 +622,7 @@
           "type": "number"
         }
       },
-      "required": [
-        "acceptedClockSkewMs",
-        "callbackUrl",
-        "cert",
-        "entryPoint",
-        "issuer"
-      ]
+      "required": ["acceptedClockSkewMs", "callbackUrl", "cert", "entryPoint", "issuer"]
     },
     "AuthStrategyOauth2": {
       "type": "object",
@@ -789,9 +696,7 @@
             },
             "algorithms": {
               "description": "The algorithms allowed to validate the JWT tokens.",
-              "default": [
-                "HS256"
-              ],
+              "default": ["HS256"],
               "type": "array",
               "items": {
                 "type": "string"
@@ -802,19 +707,10 @@
               "type": "string"
             }
           },
-          "required": [
-            "algorithms"
-          ]
+          "required": ["algorithms"]
         }
       },
-      "required": [
-        "authorizationURL",
-        "callbackURL",
-        "clientID",
-        "clientSecret",
-        "scope",
-        "tokenURL"
-      ]
+      "required": ["authorizationURL", "callbackURL", "clientID", "clientSecret", "scope", "tokenURL"]
     },
     "AuthStrategyLdap": {
       "type": "object",
@@ -862,4 +758,3 @@
   },
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
-

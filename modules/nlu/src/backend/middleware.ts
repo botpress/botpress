@@ -68,7 +68,7 @@ export const registerMiddleware = async (bp: typeof sdk, e1ByBot: EngineByBot, e
         event.payload.text = event.payload.text.replace(entity.data.value, stars)
       }
     } catch (err) {
-      bp.logger.warn('Error removing sensitive informations: ' + err.message)
+      bp.logger.warn('Error removing sensitive information: ' + err.message)
     }
   }
 }

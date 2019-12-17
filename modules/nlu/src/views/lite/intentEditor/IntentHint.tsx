@@ -17,7 +17,7 @@ const fetchRecommendations = async (axios: AxiosInstance): Promise<NluMlRecommen
   return axios.get('/mod/nlu/ml-recommendations').then(({ data }) => data)
 }
 
-// At some point, recommendations will be computed in the backend and this component will simply fetch and display intents recommentations
+// At some point, recommendations will be computed in the backend and this component will simply fetch and display intents recommendations
 const IntentHint: FC<Props> = props => {
   const utterances = props.intent.utterances[props.contentLang] || []
   const slotsLength = (props.intent.slots || []).length
@@ -34,9 +34,9 @@ const IntentHint: FC<Props> = props => {
   /*
     The ideal number of utterances should not be computed for the whole intent but rather by slots.
     Meaning, we should recommend a number of utterances for each slot, what we are doing right now is only
-    valid if the're no slots. Also, we should do a density based clustering per slots and for the whole intent
+    valid if there're no slots. Also, we should do a density based clustering per slots and for the whole intent
     to see if the utterances all belong to the same class or if the are considerable different ways of saying
-    the samething. Then, we could also not only recommend number of utterances per intent & slots but by cluster also.
+    the same thing. Then, we could also not only recommend number of utterances per intent & slots but by cluster also.
   */
   const idealNumberOfUtt = Math.max(Math.pow(slotsLength * 2, 2), recommendations.goodUtterancesForML)
   let hint: JSX.Element

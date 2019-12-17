@@ -12,7 +12,7 @@
   {
     "id": "builtin_text-aJG2tU",
     "formData": {
-      "text$en": "👋 {{session.contactForm.name}}, I'm glad you prefer Botpress over all the other plateforms!",
+      "text$en": "👋 {{session.contactForm.name}}, I'm glad you prefer Botpress over all the other platforms!",
       "typing$en": true
     },
     "createdBy": "admin",
@@ -32,7 +32,7 @@
   {
     "id": "builtin_text-l37HZR",
     "formData": {
-      "text$en": "Ohh really?! \"{{session.contactForm.plateform}}\" ??  Let's add you to the \"special\" users list 😈",
+      "text$en": "Ohh really?! \"{{session.contactForm.platform}}\" ??  Let's add you to the \"special\" users list 😈",
       "typing$en": true
     },
     "createdBy": "admin",

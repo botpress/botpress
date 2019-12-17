@@ -14,7 +14,7 @@ On this page, you will learn about the Botpress global configuration, individual
 
 This is the main file used to configure the Botpress server. It will be created automatically when it is missing. Default values should be good when discovering Botpress, but in this page you will learn about the most common configuration you may need to change.
 
-To get more informations about each individual options, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
+To get more information about each individual options, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
 
 ## HTTP Server Configuration
 
@@ -36,7 +36,7 @@ When you start Botpress from the binary (or using the Docker image), the bot is 
 
 There are 4 different levels of logs:
 
-- Debug: display very detailed informations about the bot operations
+- Debug: display very detailed information about the bot operations
 - Info: gives general information or "good to know" stuff
 - Warn: means that something didn't go as expected, but the bot was able to recover
 - Error: there was an error that should be addressed
@@ -110,7 +110,7 @@ Here there are:
 | CLUSTER_ENABLED      | Enables multi-node support using Redis                                                                    | false   |
 | REDIS_URL            | The connection string to connect to your Redis instance                                                   |         |
 
-## More Informations
+## More Information
 
 - Check out the [database](../tutorials/database) page for details about `DATABASE` and `DATABASE_URL`
 - Check out the [cluster](../developers/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`
