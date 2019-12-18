@@ -113,6 +113,9 @@ class MessageList extends React.Component<MessageListProps, State> {
         groups.push(currentGroup)
       }
 
+      if (currentGroup.find(x => x.id === m.id)) {
+        return
+      }
       currentGroup.push(m)
 
       lastSpeaker = speaker

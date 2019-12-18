@@ -7,6 +7,7 @@ export default class BpSocket {
 
   public onMessage: (event: any) => void
   public onTyping: (event: any) => void
+  public onData: (event: any) => void
   public onUserIdChanged: (userId: string) => void
 
   constructor(bp, config: Config) {
@@ -24,6 +25,7 @@ export default class BpSocket {
 
     this.events.on('guest.webchat.message', this.onMessage)
     this.events.on('guest.webchat.typing', this.onTyping)
+    this.events.on('guest.webchat.data', this.onData)
 
     // firehose events to parent page
     this.events.onAny(this.postToParent)
