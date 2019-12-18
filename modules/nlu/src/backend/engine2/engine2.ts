@@ -94,7 +94,9 @@ export default class E2 implements Engine2 {
     return (
       this.predictorsByLang[model.languageCode] !== undefined &&
       this.modelsByLang[model.languageCode] !== undefined &&
-      this.modelsByLang[model.languageCode].hash === model.hash
+      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input)
+      // TODO compare hash instead (need a migration)
+      // this.modelsByLang[model.languageCode].hash === model.hash
     )
   }
 
