@@ -5,7 +5,7 @@ import { isPatternValid } from '../tools/patterns-utils'
 import { Engine2, ListEntity, Tools, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { Model } from './model-service'
+import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 
@@ -77,6 +77,7 @@ export default class E2 implements Engine2 {
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
     const model = await Trainer(input, E2.tools)
+    model.hash = computeModelHash(intentDefs, entityDefs)
     if (model.success) {
       E2.tools.reportTrainingProgress(this.botId, 'Training complete', {
         ...trainingSession,
@@ -84,7 +85,6 @@ export default class E2 implements Engine2 {
         status: 'done'
       })
       this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
-      await this.loadModel(model)
     }
 
     return model
@@ -94,19 +94,25 @@ export default class E2 implements Engine2 {
     return (
       this.predictorsByLang[model.languageCode] !== undefined &&
       this.modelsByLang[model.languageCode] !== undefined &&
-      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input)
-    ) // compare hash instead
+      this.modelsByLang[model.languageCode].hash === model.hash
+    )
   }
 
   async loadModels(models: Model[]) {
-    return Promise.map(models, model => this.loadModel(model))
+    // note the usage of mapSeries, possible race condition
+    return Promise.mapSeries(models, model => this.loadModel(model))
   }
 
   async loadModel(model: Model) {
     if (this.modelAlreadyLoaded(model)) {
       return
     }
+    // TODO if model or predictor not valid, throw and retry
+    this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
+    this.modelsByLang[model.languageCode] = model
+  }
 
+  private async _makePredictors(model: Model): Promise<Predictors> {
     if (!model.data.output) {
       const intents = await ProcessIntents(
         model.data.input.intents,
@@ -114,14 +120,9 @@ export default class E2 implements Engine2 {
         model.data.artefacts.list_entities,
         E2.tools
       )
-      model.data.output = { intents } as TrainOutput // needed for prediction
+      model.data.output = { intents } as TrainOutput
     }
 
-    this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
-    this.modelsByLang[model.languageCode] = model
-  }
-
-  private async _makePredictors(model: Model): Promise<Predictors> {
     const { input, output, artefacts } = model.data
     const tools = E2.tools
 
@@ -159,8 +160,7 @@ export default class E2 implements Engine2 {
       includedContexts
     }
 
-    // TODO throw error if no model was loaded
-
+    // error handled a level higher
     return Predict(input, E2.tools, this.predictorsByLang)
   }
 }
