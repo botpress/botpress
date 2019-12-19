@@ -8,7 +8,7 @@ describe('Extract Multiple', () => {
   let mockedFetch: jest.SpyInstance
   beforeAll(() => {
     duck = new DucklingEntityExtractor()
-    mockedFetch = jest.spyOn(duck, 'fetchDuckling')
+    mockedFetch = jest.spyOn(duck, '_fetchDuckling')
   })
 
   beforeEach(() => {
@@ -78,5 +78,5 @@ describe('Extract Multiple', () => {
     expect(res[2][0].meta.end).toEqual(3)
   })
 
-  // TODO test caching
+  // TODO implement and test caching
 })

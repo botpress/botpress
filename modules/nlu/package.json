@@ -40,6 +40,7 @@
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "nanoid": "^2.0.1",
+    "object-sizeof": "^1.5.2",
     "slate": "^0.47.4",
     "slate-react": "^0.22.4",
     "slate-react-placeholder": "^0.2.4",

@@ -1,8 +1,12 @@
 import Axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
+import { ensureFile, pathExists, readJSON, writeJson } from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
+import lru from 'lru-cache'
+import sizeof from 'object-sizeof'
+import path from 'path'
 
 import { extractPattern } from '../../tools/patterns-utils'
 import { SPACE } from '../../tools/token-utils'
@@ -35,11 +39,16 @@ const DUCKLING_ENTITIES = [
 ]
 
 const RETRY_POLICY = { backoff: 2, max_tries: 3, timeout: 500 }
+const CACHE_PATH = path.join(process.APP_DATA_PATH, 'cache', 'sys_entities.json')
+
 // TODO duckling entity interface ?
 // TODO duckling entity results mapper ?
 export class DucklingEntityExtractor {
   public static enabled: boolean
   public static client: AxiosInstance
+
+  private static _cache: lru<string, sdk.NLU.Entity[]>
+  private _cacheDumpDisabled = false
 
   constructor(private readonly logger?: sdk.Logger) {}
 
@@ -50,7 +59,6 @@ export class DucklingEntityExtractor {
   public static async configure(enabled: boolean, url: string, logger: sdk.Logger) {
     if (enabled) {
       const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
-
       this.client = Axios.create({
         baseURL: url,
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -68,6 +76,32 @@ export class DucklingEntityExtractor {
       } catch (err) {
         logger.attachError(err).warn(`Couldn't reach the Duckling server ${DISABLED_MSG}`)
       }
+
+      this._cache = new lru<string, sdk.NLU.Entity[]>({
+        length: (val: any, key: string) => sizeof(val) + sizeof(key),
+        max:
+          1000 * // approx bytes in entity
+          2 * // entities per utterance
+          10 * // n utterances per intent
+          100 * // n intents per bot
+          50 // n bots
+        // ~ 100 mb
+      })
+
+      await this._restoreCache()
+    }
+  }
+
+  private static async _restoreCache() {
+    try {
+      if (await pathExists(CACHE_PATH)) {
+        const dump = await readJSON(CACHE_PATH)
+        if (dump) {
+          this._cache.load(dump)
+        }
+      }
+    } catch (err) {
+      console.log('could not load duckling cache')
     }
   }
 
@@ -82,21 +116,37 @@ export class DucklingEntityExtractor {
     // TODO (if useCache) pop cached results before chunking
     const batchedTexts = _.chunk(inputs, BATCH_SIZE)
     const batches = await Promise.mapSeries(batchedTexts, batch => this._extractBatch(batch, options))
+    // TODO merge with cached results, make sure to keep the order
     return _.flatten(batches)
-    // TODO cache individual results if useCache
-    // TODO merge with cached results, make sure to keep the order (just like language provider)
   }
 
   public async extract(input: string, lang: string, useCache?: boolean): Promise<sdk.NLU.Entity[]> {
     return (await this.extractMultiple([input], lang, useCache))[0]
   }
 
-  private async _extractBatch(batch: string[], params: DucklingParams) {
+  private async _dumpCache() {
+    try {
+      await ensureFile(CACHE_PATH)
+      await writeJson(CACHE_PATH, DucklingEntityExtractor._cache.dump())
+    } catch (err) {
+      this.logger.error('could not persist tokens cache, error' + err.message)
+      this._cacheDumpDisabled = true
+    }
+  }
+
+  private _onCacheChanged = _.debounce(async () => {
+    if (!this._cacheDumpDisabled) {
+      return
+    }
+    await this._dumpCache()
+  }, 5000)
+
+  private async _extractBatch(batch: string[], params: DucklingParams): Promise<sdk.NLU.Entity[][]> {
     // trailing JOIN_CHAR so we have n joints and n examples
     const concatBatch = batch.join(JOIN_CHAR) + JOIN_CHAR
-    const batchRes = await this.fetchDuckling(concatBatch, params)
+    const batchRes = await this._fetchDuckling(concatBatch, params)
     const splitLocations = extractPattern(concatBatch, new RegExp(JOIN_CHAR)).map(v => v.sourceIndex)
-    return splitLocations.map((to, idx, locs) => {
+    const entities = splitLocations.map((to, idx, locs) => {
       const from = idx === 0 ? 0 : locs[idx - 1] + JOIN_CHAR.length
       // shift the results to make sure we dont go through the whole array n times
       return batchRes
@@ -110,9 +160,13 @@ export class DucklingEntityExtractor {
           }
         }))
     })
+
+    await this._cacheBatchResults(batch, entities)
+
+    return entities
   }
 
-  private async fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<sdk.NLU.Entity[]> {
+  private async _fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<sdk.NLU.Entity[]> {
     try {
       return await retry(async () => {
         const { data } = await DucklingEntityExtractor.client.post(
@@ -136,6 +190,14 @@ export class DucklingEntityExtractor {
       this.logger && this.logger.attachError(error).warn('Error extracting duckling entities')
       return []
     }
+  }
+
+  private async _cacheBatchResults(inputs: string[], results: sdk.NLU.Entity[][]) {
+    _.zip(inputs, results).forEach(([input, entities]) => {
+      DucklingEntityExtractor._cache.set(input, entities)
+    })
+
+    await this._onCacheChanged()
   }
 
   private _getTz(): string {
