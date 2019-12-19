@@ -1,4 +1,5 @@
 import Axios, { AxiosInstance } from 'axios'
+import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
@@ -18,7 +19,22 @@ const DISABLED_MSG = `, so it will be disabled.
 For more informations (or if you want to self-host it), please check the docs at
 https://botpress.io/docs/build/nlu/#system-entities
 `
+const DUCKLING_ENTITIES = [
+  'amountOfMoney',
+  'distance',
+  'duration',
+  'email',
+  'number',
+  'ordinal',
+  'phoneNumber',
+  'quantity',
+  'temperature',
+  'time',
+  'url',
+  'volume'
+]
 
+const RETRY_POLICY = { backoff: 2, max_tries: 3, timeout: 500 }
 // TODO duckling entity interface ?
 // TODO duckling entity results mapper ?
 export class DucklingEntityExtractor {
@@ -28,22 +44,7 @@ export class DucklingEntityExtractor {
   constructor(private readonly logger?: sdk.Logger) {}
 
   public static get entityTypes(): string[] {
-    return DucklingEntityExtractor.enabled
-      ? [
-          'amountOfMoney',
-          'distance',
-          'duration',
-          'email',
-          'number',
-          'ordinal',
-          'phoneNumber',
-          'quantity',
-          'temperature',
-          'time',
-          'url',
-          'volume'
-        ]
-      : []
+    return DucklingEntityExtractor.enabled ? DUCKLING_ENTITIES : []
   }
 
   public static async configure(enabled: boolean, url: string, logger: sdk.Logger) {
@@ -57,11 +58,13 @@ export class DucklingEntityExtractor {
       })
 
       try {
-        const { data } = await this.client.get('/')
-        if (data !== 'quack!') {
-          return logger.warn(`Bad response from Duckling server ${DISABLED_MSG}`)
-        }
-        this.enabled = true
+        await retry(async () => {
+          const { data } = await this.client.get('/')
+          if (data !== 'quack!') {
+            return logger.warn(`Bad response from Duckling server ${DISABLED_MSG}`)
+          }
+          this.enabled = true
+        }, RETRY_POLICY)
       } catch (err) {
         logger.attachError(err).warn(`Couldn't reach the Duckling server ${DISABLED_MSG}`)
       }
@@ -109,27 +112,28 @@ export class DucklingEntityExtractor {
     })
   }
 
-  // TODO add proper retry policy here
   private async fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<sdk.NLU.Entity[]> {
     try {
-      const { data } = await DucklingEntityExtractor.client.post(
-        '/parse',
-        `lang=${lang}&text=${text}&reftime=${refTime}&tz=${tz}`
-      )
+      return await retry(async () => {
+        const { data } = await DucklingEntityExtractor.client.post(
+          '/parse',
+          `lang=${lang}&text=${text}&reftime=${refTime}&tz=${tz}`
+        )
 
-      if (!_.isArray(data)) {
-        throw new Error('Unexpected response from Duckling. Expected an array.')
-      }
+        if (!_.isArray(data)) {
+          throw new Error('Unexpected response from Duckling. Expected an array.')
+        }
 
-      return data.map(ent => ({
-        name: ent.dim,
-        type: 'system',
-        meta: this._mapMeta(ent),
-        data: this._mapBody(ent.dim, ent.value)
-      }))
+        return data.map(ent => ({
+          name: ent.dim,
+          type: 'system',
+          meta: this._mapMeta(ent),
+          data: this._mapBody(ent.dim, ent.value)
+        }))
+      }, RETRY_POLICY)
     } catch (err) {
       const error = err.response ? err.response.data : err
-      this.logger && this.logger.attachError(error).warn('[Native] error extracting duckling entities')
+      this.logger && this.logger.attachError(error).warn('Error extracting duckling entities')
       return []
     }
   }
