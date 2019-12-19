@@ -12,9 +12,15 @@ interface DucklingParams {
   lang: string
 }
 
-const BATCH_SIZE = 10
 export const JOIN_CHAR = `::${SPACE}::`
+const BATCH_SIZE = 10
+const DISABLED_MSG = `, so it will be disabled.
+For more informations (or if you want to self-host it), please check the docs at
+https://botpress.io/docs/build/nlu/#system-entities
+`
 
+// TODO duckling entity interface ?
+// TODO duckling entity results mapper ?
 export class DucklingEntityExtractor {
   public static enabled: boolean
   public static client: AxiosInstance
@@ -50,19 +56,14 @@ export class DucklingEntityExtractor {
         ...proxyConfig
       })
 
-      const ducklingDisabledMsg = `, so it will be disabled.
-For more informations (or if you want to self-host it), please check the docs at
-https://botpress.io/docs/build/nlu/#system-entities
-`
-
       try {
         const { data } = await this.client.get('/')
         if (data !== 'quack!') {
-          return logger.warn(`Bad response from Duckling server ${ducklingDisabledMsg}`)
+          return logger.warn(`Bad response from Duckling server ${DISABLED_MSG}`)
         }
         this.enabled = true
       } catch (err) {
-        logger.attachError(err).warn(`Couldn't reach the Duckling server ${ducklingDisabledMsg}`)
+        logger.attachError(err).warn(`Couldn't reach the Duckling server ${DISABLED_MSG}`)
       }
     }
   }
