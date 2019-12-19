@@ -40,6 +40,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
 import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } from './manager'
+import { CommentNodeModel, CommentWidgetFactory} from './nodes/CommentNode'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
@@ -66,6 +67,7 @@ class Diagram extends Component<Props> {
 
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new CommentWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
@@ -190,7 +192,8 @@ class Diagram extends Component<Props> {
   }
 
   add = {
-    flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
+    standardNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
+    commentNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'comment' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
     sayNode: (point: Point) =>
       this.props.createFlowNode({ ...point, type: 'say_something', next: [defaultTransition] }),
@@ -217,7 +220,8 @@ class Diagram extends Component<Props> {
           <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
         )}
         <MenuDivider title="Add Node" />
-        <MenuItem text="Standard Node" onClick={wrap(this.add.flowNode, point)} icon="chat" />
+        <MenuItem text="Standard Node" onClick={wrap(this.add.standardNode, point)} icon="chat" />
+        <MenuItem text="Comment Node" onClick={wrap(this.add.commentNode, point)} icon="font" />
         {this.props.flowPreview ? (
           <Fragment>
             <MenuItem text="Say" onClick={wrap(this.add.sayNode, point)} icon="comment" />
@@ -296,29 +300,33 @@ class Diagram extends Component<Props> {
                 this.copySelectedElementToBuffer()
               }}
             />
-            <MenuDivider />
-            <MenuItem
-              icon="star"
-              text="Set as Start Node"
-              disabled={!canMakeStartNode()}
-              onClick={() => setAsCurrentNode()}
-            />
-            <MenuItem
-              icon="minimize"
-              text="Disconnect Node"
-              onClick={() => {
-                this.manager.disconnectPorts(targetModel)
-                this.checkForLinksUpdate()
-              }}
-            />
-            {this.props.flowPreview && canAddChipToTarget ? (
-              <React.Fragment>
+            {!(targetModel instanceof CommentNodeModel) && (
+              <div>
                 <MenuDivider />
-                <MenuItem text="Chips">
-                  <MenuItem text="Transition" onClick={addTransitionNode} icon="flow-end" />
-                </MenuItem>
-              </React.Fragment>
-            ) : null}
+                <MenuItem
+                  icon="star"
+                  text="Set as Start Node"
+                  disabled={!canMakeStartNode()}
+                  onClick={() => setAsCurrentNode()}
+                />
+                <MenuItem
+                  icon="minimize"
+                  text="Disconnect Node"
+                  onClick={() => {
+                    this.manager.disconnectPorts(targetModel)
+                    this.checkForLinksUpdate()
+                  }}
+                />
+                {this.props.flowPreview && canAddChipToTarget ? (
+                  <React.Fragment>
+                    <MenuDivider />
+                    <MenuItem text="Chips">
+                      <MenuItem text="Transition" onClick={addTransitionNode} icon="flow-end" />
+                    </MenuItem>
+                  </React.Fragment>
+                ) : null}
+              </div>
+            )}
           </Fragment>
         )}
       </Menu>,
@@ -512,8 +520,13 @@ class Diagram extends Component<Props> {
         case 'router':
           this.add.routerNode(point)
           break
+        case 'comment':
+          console.info('adding 1 at ' + point)
+          this.add.commentNode(point)
+          break
         default:
-          this.add.flowNode(point)
+          console.info('adding standard at ' + point)
+          this.add.standardNode(point)
           break
       }
     }
@@ -589,7 +602,7 @@ interface NodeProblem {
   missingPorts: any
 }
 
-type BpNodeModel = StandardNodeModel | SkillCallNodeModel
+type BpNodeModel = StandardNodeModel | CommentNodeModel| SkillCallNodeModel
 
 type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean

@@ -181,3 +181,14 @@
   right: -83px;
   top: -40px;
 }
+
+.comment {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  width: 100%;
+}
+
+[class*='srd-node--selected'] textarea> {
+  border-color: #00c0ff !important;
+}

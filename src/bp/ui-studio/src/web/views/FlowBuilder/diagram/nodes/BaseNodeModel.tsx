@@ -4,8 +4,8 @@ import { DiagramEngine, NodeModel } from 'storm-react-diagrams'
 import { StandardIncomingPortModel, StandardOutgoingPortModel } from '../nodes/Ports'
 
 export class BaseNodeModel extends NodeModel {
-  public isStartNode = false
-  public isHighlighted = false
+  public isStartNode: boolean
+  public isHighlighted: boolean
   public onEnter = undefined
   public onReceive = undefined
   public waitOnReceive = undefined

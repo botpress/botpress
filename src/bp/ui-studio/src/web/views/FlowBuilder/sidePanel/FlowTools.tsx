@@ -25,6 +25,7 @@ const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props
     return (
       <div className={style.toolPanel}>
         <ToolItem label="Node" type="node" id="standard" icon="chat" />
+        <ToolItem label="Comment" type="node" id="comment" icon="font" />
         <ToolItem label="Say" type="node" id="say_something" icon="comment" />
         <ToolItem label="Execute" type="node" id="execute" icon="code-block" />
         <ToolItem label="Listen" type="node" id="listen" icon="hand" />
@@ -44,6 +45,7 @@ const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props
     return (
       <div className={style.toolPanel}>
         <ToolItem label="Node" type="node" id="standard" icon="chat" />
+        <ToolItem label="Comment" type="node" id="comment" icon="font" />
         <AccessControl resource="bot.skills" operation="write">
           <div className={style.title}>Skills</div>
           <div className={style.section}>

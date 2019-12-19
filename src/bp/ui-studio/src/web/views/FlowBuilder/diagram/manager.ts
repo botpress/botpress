@@ -4,6 +4,7 @@ import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointMode
 import { hashCode } from '~/util'
 
 import { BaseNodeModel } from './nodes/BaseNodeModel'
+import { CommentNodeModel } from './nodes/CommentNode'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
 import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
@@ -15,7 +16,7 @@ const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = ['standard', 'skill-call', 'say_something', 'execute', 'listen', 'router']
+export const nodeTypes = ['standard', 'comment', 'skill-call', 'say_something', 'execute', 'listen', 'router']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
@@ -40,6 +41,8 @@ const createNodeModel = (node, modelProps) => {
     return new ListenNodeModel(modelProps)
   } else if (type === 'router') {
     return new RouterNodeModel(modelProps)
+  } else if (type === 'comment') {
+    return new CommentNodeModel(modelProps)
   } else {
     return new StandardNodeModel(modelProps)
   }
@@ -92,7 +95,7 @@ export class DiagramManager {
     this.getLinksRequiringUpdate()
   }
 
-  shouldHighlightNode(nodeName): boolean {
+  shouldHighlightNode(nodeName: string): boolean {
     return this.highlightedNodeNames && !!this.highlightedNodeNames.find(x => nodeName.includes(x))
   }
 
@@ -217,7 +220,7 @@ export class DiagramManager {
 
     x -= this.activeModel.getOffsetX() / zoomFactor
     y -= this.activeModel.getOffsetY() / zoomFactor
-
+   
     return { x, y }
   }
 
