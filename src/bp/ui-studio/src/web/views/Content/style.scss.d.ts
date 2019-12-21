@@ -3,6 +3,7 @@
 interface CssExports {
   'cancel': string;
   'content': string;
+  'imagePreview': string;
   'missingTranslation': string;
   'modal': string;
 }

@@ -1,7 +1,5 @@
 const base = require('./_base')
-const path = require('path')
 const url = require('url')
-const { tail } = _
 
 function render(data) {
   const events = []
@@ -164,13 +162,7 @@ module.exports = {
       return
     }
 
-    let fileName = path.basename(formData.image)
-    if (fileName.includes('-')) {
-      fileName = tail(fileName.split('-')).join('-')
-    }
-
-    const title = formData.title ? ' | ' + formData.title : ''
-    return `Image (${fileName}) ${title}`
+    return `[![${formData.title}](${formData.image})](${formData.image})`
   },
 
   renderElement: renderElement
