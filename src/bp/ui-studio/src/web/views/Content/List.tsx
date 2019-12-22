@@ -10,6 +10,7 @@ import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 import { Downloader } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 
+import { ContentUsage } from '.'
 import style from './style.scss'
 
 class ListView extends Component<Props, State> {
@@ -247,6 +248,12 @@ class ListView extends Component<Props, State> {
         Header: 'Created On',
         Cell: x => (x.original.createdOn ? moment(x.original.createdOn).format('MMM Do YYYY, h:mm') : 'Never'),
         accessor: 'createdOn',
+        filterable: false,
+        width: 150
+      },
+      {
+        Header: 'Used',
+        Cell: x => x.original.usage.reduce((acc: number, v: ContentUsage) => (acc += v.count), 0),
         filterable: false,
         width: 150
       },
