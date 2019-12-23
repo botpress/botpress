@@ -2,7 +2,7 @@ import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { isPatternValid } from '../tools/patterns-utils'
-import { Engine2, EntityExtractor, TrainingSession } from '../typings'
+import { Engine2, EntityExtractor, ListEntity, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { Model } from './model-service'
@@ -42,13 +42,13 @@ export default class E2 implements Engine2 {
       .map(e => {
         return {
           name: e.name,
-          fuzzyMatching: e.fuzzy,
+          fuzzyTolerance: e.fuzzy,
           sensitive: e.sensitive,
           synonyms: _.chain(e.occurences)
             .keyBy('name')
             .mapValues('synonyms')
             .value()
-        }
+        } as ListEntity
       })
 
     const pattern_entities = entityDefs
@@ -57,7 +57,7 @@ export default class E2 implements Engine2 {
         name: ent.name,
         pattern: ent.pattern,
         examples: [], // TODO add this to entityDef
-        ignoreCase: true, // TODO add this entityDef
+        matchCase: ent.matchCase,
         sensitive: ent.sensitive
       }))
 

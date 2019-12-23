@@ -8,5 +8,6 @@
   "botInfo.privacyPolicy": "Politique de confidentialité",
   "botInfo.termsAndConditions": "Termes et conditions",
   "botInfo.preferredLanguage": "Langue préférée",
-  "store.resetSessionMessage": "Réinitialisation de la conversation"
+  "store.resetSessionMessage": "Réinitialisation de la conversation",
+  "messages.newMessage": "Nouveau(x) message(s)"
 }

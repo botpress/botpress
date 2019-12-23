@@ -22,7 +22,7 @@ export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   fetchIntent: (intentName: string) => bp.axios.get(`/mod/nlu/intents/${intentName}`).then(res => res.data),
   createIntent: (intent: Partial<NLU.IntentDefinition>) => bp.axios.post(`/mod/nlu/intents`, intent),
   deleteIntent: (name: string) => bp.axios.post(`/mod/nlu/intents/${name}/delete`),
-  fetchEntities: () => bp.axios.get('/mod/nlu/entities').then(res => res.data.filter(r => r.type !== 'system')),
+  fetchEntities: () => bp.axios.get('/mod/nlu/entities').then(res => res.data),
   createEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/`, entity),
   updateEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/${entity.id}`, entity),
   deleteEntity: (entityId: string) => bp.axios.post(`/mod/nlu/entities/${entityId}/delete`)

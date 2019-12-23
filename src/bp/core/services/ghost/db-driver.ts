@@ -69,7 +69,7 @@ export default class DBStorageDriver implements StorageDriver {
         })
         .select('content')
         .limit(1)
-        .get(0)
+        .first()
         .then()
 
       if (!file) {

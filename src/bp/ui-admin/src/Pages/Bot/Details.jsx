@@ -20,9 +20,9 @@ import SplitPage from '~/App/SplitPage'
 import { Button, Intent } from '@blueprintjs/core'
 
 const statusList = [
-  { label: 'Public', value: 'public' },
-  { label: 'Private', value: 'private' },
-  { label: 'Disabled', value: 'disabled' }
+  { label: 'Published', value: 'public' },
+  { label: 'Collaborators Only', value: 'private' },
+  { label: 'Unmounted', value: 'disabled' }
 ]
 
 class Bots extends Component {

@@ -5,7 +5,6 @@ import tmp from 'tmp'
 
 import { BIO } from '../typings'
 
-import { ExtractedSlot } from './engine2'
 import * as featurizer from './featurizer2'
 import * as labeler from './labeler2'
 import { Intent } from './training-pipeline'

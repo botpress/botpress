@@ -80,7 +80,7 @@ export class UsersRouter extends CustomRouter {
         const { email, strategy, role } = req.body
 
         const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
-        if (workspaceUsers.find(x => x.email === email && x.strategy === strategy)) {
+        if (workspaceUsers.find(x => x.email.toLowerCase() === email.toLowerCase() && x.strategy === strategy)) {
           throw new ConflictError(`User "${email}" is already a member of this workspace`)
         }
 
@@ -96,7 +96,7 @@ export class UsersRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
 
-        if (req.authUser!.email === email) {
+        if (req.authUser!.email.toLowerCase() === email.toLowerCase()) {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
         }
 
@@ -160,7 +160,7 @@ export class UsersRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
 
-        if (req.authUser!.email === email) {
+        if (req.authUser!.email.toLowerCase() === email.toLowerCase()) {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
         }
 
