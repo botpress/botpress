@@ -12,6 +12,7 @@ import withLanguage from '~/components/Util/withLanguage'
 
 import { ContentUsage } from '.'
 import style from './style.scss'
+import UsageModal from './UsageModal'
 
 class ListView extends Component<Props, State> {
   private debouncedHandleSearch
@@ -26,7 +27,9 @@ class ListView extends Component<Props, State> {
     filters: [],
     sortOrder: [],
     tableHeight: 0,
-    downloadUrl: undefined
+    downloadUrl: undefined,
+    showUsageModal: false,
+    contentUsage: []
   }
 
   componentDidMount() {
@@ -154,9 +157,15 @@ class ListView extends Component<Props, State> {
   onRowClick = (state, rowInfo, column, instance) => {
     return {
       onClick: (e, handleOriginal) => {
-        if (column.id !== 'checkbox' && !this.props.readOnly && rowInfo) {
-          const { id, contentType } = rowInfo.original
-          this.props.handleEdit(id, contentType)
+        if (rowInfo) {
+          if (column.id === 'usage') {
+            if (rowInfo.original.usage.length > 0) {
+              this.setState({ showUsageModal: true, contentUsage: rowInfo.original.usage })
+            }
+          } else if (column.id !== 'checkbox' && !this.props.readOnly) {
+            const { id, contentType } = rowInfo.original
+            this.props.handleEdit(id, contentType)
+          }
         }
 
         if (handleOriginal) {
@@ -252,13 +261,17 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Header: 'Used',
-        Cell: x => x.original.usage.reduce((acc: number, v: ContentUsage) => (acc += v.count), 0),
+        Header: 'Usage',
+        id: 'usage',
+        Cell: x => {
+          const count = x.original.usage.reduce((acc: number, v: ContentUsage) => (acc += v.count), 0)
+          return count ? <a>{count}</a> : count
+        },
         filterable: false,
         width: 150
       },
       {
-        Cell: x => (!this.props.readOnly ? <Button small={true} icon="edit" className="icon-edit" /> : ''),
+        Cell: x => (!this.props.readOnly ? <Button small icon="edit" className="icon-edit" /> : ''),
         filterable: false,
         width: 45
       }
@@ -333,7 +346,7 @@ class ListView extends Component<Props, State> {
               id="input-search"
               style={{ marginTop: 3, width: 250 }}
               placeholder="Search content"
-              small={true}
+              small
               value={this.state.searchTerm}
               onChange={this.handleSearchChanged}
             />
@@ -352,6 +365,9 @@ class ListView extends Component<Props, State> {
           </RightToolbarButtons> */}
         </Toolbar>
         <div style={{ padding: 5 }}>{this.renderTable()}</div>
+        {this.state.showUsageModal && (
+          <UsageModal usage={this.state.contentUsage} handleClose={() => this.setState({ showUsageModal: false })} />
+        )}
       </div>
     )
   }
@@ -381,6 +397,8 @@ interface State {
   filters: any
   tableHeight: number
   downloadUrl: string | undefined
+  showUsageModal: boolean
+  contentUsage: ContentUsage[]
 }
 
 interface SearchQuery {

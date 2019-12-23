@@ -72,6 +72,9 @@ class ContentView extends Component<Props, State> {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
         const name = flow.name
+          .replace('.flow.json', '')
+          .replace(/^main$/, 'Main')
+          .replace(/^error$/, 'Error handling')
         flow.nodes.forEach((node: NodeView) => {
           const usage: ContentUsage = {
             flowName: name,
