@@ -8,7 +8,6 @@ import { BaseNodeModel } from './BaseNodeModel'
 const style = require('./style.scss')
 
 export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel; diagramEngine: DiagramEngine }> {
-
   state = {
     rows: 0,
     text: ''
@@ -41,7 +40,7 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
   render() {
     const node = this.props.node
 
-    const className = classnames(style.comment, {[style.highlightedNode]: node.isHighlighted, [style.commentSelected]: node.selected })
+    const className = classnames(style.comment, { [style.commentSelected]: node.selected })
 
     return (
       <div>
@@ -61,12 +60,11 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
 export class CommentNodeModel extends BaseNodeModel {
   public text: string
   handleTextUpdate: any
-  constructor({ id, x, y, text, isHighlighted, handleTextUpdate }) {
+  constructor({ id, x, y, text, handleTextUpdate }) {
     super('comment', id)
     this.next = []
     this.text = text
     this.handleTextUpdate = handleTextUpdate
-    this.isHighlighted = isHighlighted
     this.x = this.oldX = x
     this.y = this.oldY = y
   }
@@ -77,7 +75,7 @@ export class CommentNodeModel extends BaseNodeModel {
 
   serialize() {
     return _.merge(super.serialize(), {
-      text: this.text,
+      text: this.text
     })
   }
 
