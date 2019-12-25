@@ -26,6 +26,7 @@ class ListView extends Component<Props, State> {
     page: 0,
     filters: [],
     sortOrder: [],
+    sortOrderUsage: '',
     tableHeight: 0,
     downloadUrl: undefined,
     showUsageModal: false,
@@ -126,9 +127,18 @@ class ListView extends Component<Props, State> {
     const filters = state.filtered.map(filter => {
       return { column: filter.id, value: filter.value }
     })
-    const sortOrder = state.sorted.map(sort => {
+    let sortOrder = state.sorted.map(sort => {
       return { column: sort.id, desc: sort.desc }
     })
+
+    if (sortOrder[0].column == 'usage') {
+      // we save the sorting locally, and we don't ask the database for sorting
+      this.state.sortOrderUsage = sortOrder[0].desc ? 'desc' : 'asc'
+      sortOrder = []
+    } else {
+      this.state.sortOrderUsage = ''
+    }
+
     const hasTextChanged = !_.isEqual(this.state.filters, filters)
 
     this.setState(
@@ -264,7 +274,7 @@ class ListView extends Component<Props, State> {
         Header: 'Usage',
         id: 'usage',
         Cell: x => {
-          const count = x.original.usage.reduce((acc: number, v: ContentUsage) => (acc += v.count), 0)
+          const count = this.getCountUsage(x.original.usage)
           return count ? <a>{count}</a> : count
         },
         filterable: false,
@@ -278,11 +288,23 @@ class ListView extends Component<Props, State> {
     ]
   }
 
+  getCountUsage(usage: ContentUsage[]) {
+    return usage.reduce((acc: number, v: ContentUsage) => (acc += v.count), 0)
+  }
+
   renderTable() {
     const pageCount = Math.ceil(this.props.count / this.state.pageSize)
     const noDataMessage = this.props.readOnly
       ? "There's no content here."
       : "There's no content yet. You can create some using the 'Add' button."
+
+    if (this.state.sortOrderUsage) {
+      const desc = this.state.sortOrderUsage === 'desc'
+      this.props.contentItems.sort((a, b) => {
+        const c = this.getCountUsage(a.usage) > this.getCountUsage(b.usage) ? 1 : -1
+        return desc ? -c : c
+      })
+    }
 
     return (
       <ReactTable
