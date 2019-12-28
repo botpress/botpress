@@ -13,6 +13,6 @@
   "loginForm.password": "كلمة المرور",
   "loginForm.submit": "تقديم",
   "loginForm.formTitle": "نموذج تسجيل الدخول",
-  "loginForm.providedCredentials": "تم إدخال تفاصيل الدخول *",
+  "loginForm.providedCredentials": "تم إدخال تفاصيل الدخول",
   "messages.newMessage": "رسالة جديدة"
 }
