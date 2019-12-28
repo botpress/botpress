@@ -17,6 +17,12 @@ interface DucklingParams {
   lang: string
 }
 
+interface KeyedItem {
+  input: string
+  idx: number
+  entities?: sdk.NLU.Entity[]
+}
+
 export const JOIN_CHAR = `::${SPACE}::`
 const BATCH_SIZE = 10
 const DISABLED_MSG = `, so it will be disabled.
@@ -39,7 +45,7 @@ const DUCKLING_ENTITIES = [
 ]
 
 const RETRY_POLICY = { backoff: 2, max_tries: 3, timeout: 500 }
-const CACHE_PATH = path.join(process.APP_DATA_PATH, 'cache', 'sys_entities.json')
+const CACHE_PATH = path.join(process.APP_DATA_PATH || '', 'cache', 'sys_entities.json')
 
 // TODO duckling entity interface ?
 // TODO duckling entity results mapper ?
@@ -56,7 +62,7 @@ export class DucklingEntityExtractor {
     return DucklingEntityExtractor.enabled ? DUCKLING_ENTITIES : []
   }
 
-  public static async configure(enabled: boolean, url: string, logger: sdk.Logger) {
+  public static async configure(enabled: boolean, url: string, logger?: sdk.Logger) {
     if (enabled) {
       const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
       this.client = Axios.create({
@@ -69,18 +75,18 @@ export class DucklingEntityExtractor {
         await retry(async () => {
           const { data } = await this.client.get('/')
           if (data !== 'quack!') {
-            return logger.warn(`Bad response from Duckling server ${DISABLED_MSG}`)
+            return logger && logger.warn(`Bad response from Duckling server ${DISABLED_MSG}`)
           }
           this.enabled = true
         }, RETRY_POLICY)
       } catch (err) {
-        logger.attachError(err).warn(`Couldn't reach the Duckling server ${DISABLED_MSG}`)
+        logger && logger.attachError(err).warn(`Couldn't reach the Duckling server ${DISABLED_MSG}`)
       }
 
       this._cache = new lru<string, sdk.NLU.Entity[]>({
         length: (val: any, key: string) => sizeof(val) + sizeof(key),
         max:
-          1000 * // approx bytes in entity
+          1000 * // n bytes per entity
           2 * // entities per utterance
           10 * // n utterances per intent
           100 * // n intents per bot
@@ -113,11 +119,27 @@ export class DucklingEntityExtractor {
       refTime: Date.now()
     }
 
-    // TODO (if useCache) pop cached results before chunking
-    const batchedTexts = _.chunk(inputs, BATCH_SIZE)
-    const batches = await Promise.mapSeries(batchedTexts, batch => this._extractBatch(batch, options))
-    // TODO merge with cached results, make sure to keep the order
-    return _.flatten(batches)
+    const [cached, toFetch] = inputs.reduce(
+      ([cached, toFetch], input, idx) => {
+        if (useCache && DucklingEntityExtractor._cache.has(input)) {
+          const entities = DucklingEntityExtractor._cache.get(input)
+          return [[...cached, { input, idx, entities }], toFetch]
+        } else {
+          return [cached, [...toFetch, { input, idx }]]
+        }
+      },
+      [[], []]
+    ) as [KeyedItem[], KeyedItem[]]
+
+    const chunks = _.chunk(toFetch, BATCH_SIZE)
+    const batchedRes = await Promise.mapSeries(chunks, c => this._extractBatch(c, options))
+
+    return _.chain(batchedRes)
+      .flatten()
+      .concat(cached)
+      .orderBy('idx')
+      .map('entities')
+      .value()
   }
 
   public async extract(input: string, lang: string, useCache?: boolean): Promise<sdk.NLU.Entity[]> {
@@ -129,7 +151,7 @@ export class DucklingEntityExtractor {
       await ensureFile(CACHE_PATH)
       await writeJson(CACHE_PATH, DucklingEntityExtractor._cache.dump())
     } catch (err) {
-      this.logger.error('could not persist tokens cache, error' + err.message)
+      this.logger.error('could not persist system entities cache, error' + err.message)
       this._cacheDumpDisabled = true
     }
   }
@@ -141,15 +163,19 @@ export class DucklingEntityExtractor {
     await this._dumpCache()
   }, 5000)
 
-  private async _extractBatch(batch: string[], params: DucklingParams): Promise<sdk.NLU.Entity[][]> {
+  private async _extractBatch(batch: KeyedItem[], params: DucklingParams): Promise<KeyedItem[]> {
+    if (_.isEmpty(batch)) {
+      return []
+    }
     // trailing JOIN_CHAR so we have n joints and n examples
-    const concatBatch = batch.join(JOIN_CHAR) + JOIN_CHAR
-    const batchRes = await this._fetchDuckling(concatBatch, params)
+    const strBatch = batch.map(x => x.input)
+    const concatBatch = strBatch.join(JOIN_CHAR) + JOIN_CHAR
+    const batchEntities = await this._fetchDuckling(concatBatch, params)
     const splitLocations = extractPattern(concatBatch, new RegExp(JOIN_CHAR)).map(v => v.sourceIndex)
     const entities = splitLocations.map((to, idx, locs) => {
       const from = idx === 0 ? 0 : locs[idx - 1] + JOIN_CHAR.length
-      // shift the results to make sure we dont go through the whole array n times
-      return batchRes
+      // TODO: shift the results to make sure we dont go through the whole array n times
+      return batchEntities
         .filter(e => e.meta.start >= from && e.meta.end <= to)
         .map(e => ({
           ...e,
@@ -160,10 +186,9 @@ export class DucklingEntityExtractor {
           }
         }))
     })
+    await this._cacheBatchResults(strBatch, entities)
 
-    await this._cacheBatchResults(batch, entities)
-
-    return entities
+    return batch.map((batchItm, i) => ({ ...batchItm, entities: entities[i] }))
   }
 
   private async _fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<sdk.NLU.Entity[]> {

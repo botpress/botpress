@@ -3,6 +3,29 @@ import _ from 'lodash'
 
 import { DucklingEntityExtractor, JOIN_CHAR } from './duckling_extractor'
 
+class FakeCache {
+  private _cache = {}
+  get(key) {
+    return this._cache[key]
+  }
+  set(key, val) {
+    this._cache[key] = val
+  }
+  has(key) {
+    return !!this._cache[key]
+  }
+  load() {}
+  dump() {}
+}
+
+jest.mock(
+  'lru-cache',
+  () =>
+    function() {
+      return new FakeCache()
+    }
+)
+
 describe('Extract Multiple', () => {
   let duck: DucklingEntityExtractor
   let mockedFetch: jest.SpyInstance
@@ -11,8 +34,9 @@ describe('Extract Multiple', () => {
     mockedFetch = jest.spyOn(duck, '_fetchDuckling')
   })
 
-  beforeEach(() => {
-    DucklingEntityExtractor.enabled = true
+  beforeEach(async () => {
+    await DucklingEntityExtractor.configure(true, '') // reset mocked cache
+    DucklingEntityExtractor.enabled = true // mock axios to remove this line
   })
 
   afterEach(() => {
@@ -27,7 +51,6 @@ describe('Extract Multiple', () => {
     res.forEach(r => {
       expect(r).toEqual([])
     })
-    DucklingEntityExtractor.enabled = true
   })
 
   test('calls extract with join char', async () => {
@@ -78,5 +101,31 @@ describe('Extract Multiple', () => {
     expect(res[2][0].meta.end).toEqual(3)
   })
 
-  // TODO implement and test caching
+  test('cache is not used when useCache is false', async () => {
+    const ex = 'one two three'
+    mockedFetch.mockResolvedValue([])
+
+    await duck.extractMultiple([ex], 'en', false)
+    await duck.extractMultiple([ex], 'en', false)
+
+    expect(mockedFetch).toHaveBeenCalledTimes(2)
+    // make sure ex isnt removed from 2nd call
+    expect(mockedFetch.mock.calls[0][0]).toEqual(mockedFetch.mock.calls[1][0])
+  })
+
+  test('cached results are returned in the same order', async () => {
+    const cachedEx = 'one two three'
+    const cachedExRes = [{ meta: { start: 0, end: 3 } }]
+
+    mockedFetch.mockResolvedValueOnce(cachedExRes)
+    mockedFetch.mockResolvedValue([])
+
+    const firstCall = await duck.extractMultiple([cachedEx], 'en', true)
+    const secondCall = await duck.extractMultiple([cachedEx, 'nothing', 'nothing 2', cachedEx], 'en', true)
+
+    expect(firstCall[0]).toEqual(cachedExRes)
+    expect(firstCall[0]).toEqual(secondCall[0])
+    expect(firstCall[0]).toEqual(secondCall[secondCall.length - 1])
+    expect(mockedFetch.mock.calls[1][0]).not.toContain(cachedEx) // 2nd call removes cached items
+  })
 })
