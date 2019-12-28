@@ -275,7 +275,8 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
 
   const allSysEntities = (await tools.duckling.extractMultiple(
     utterances.map(u => u.toString()),
-    input.languageCode
+    input.languageCode,
+    true
   )).map(ents => ents.map(e12E2Entity))
 
   _.zip(utterances, allSysEntities)
