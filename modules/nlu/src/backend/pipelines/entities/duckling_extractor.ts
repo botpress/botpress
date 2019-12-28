@@ -5,6 +5,7 @@ import { ensureFile, pathExists, readJSON, writeJson } from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 import lru from 'lru-cache'
+import ms from 'ms'
 import sizeof from 'object-sizeof'
 import path from 'path'
 
@@ -54,7 +55,7 @@ export class DucklingEntityExtractor {
   public static client: AxiosInstance
 
   private static _cache: lru<string, sdk.NLU.Entity[]>
-  private _cacheDumpDisabled = false
+  private _cacheDumpEnabled = true
 
   constructor(private readonly logger?: sdk.Logger) {}
 
@@ -152,16 +153,15 @@ export class DucklingEntityExtractor {
       await writeJson(CACHE_PATH, DucklingEntityExtractor._cache.dump())
     } catch (err) {
       this.logger.error('could not persist system entities cache, error' + err.message)
-      this._cacheDumpDisabled = true
+      this._cacheDumpEnabled = false
     }
   }
 
   private _onCacheChanged = _.debounce(async () => {
-    if (!this._cacheDumpDisabled) {
-      return
+    if (this._cacheDumpEnabled) {
+      await this._dumpCache()
     }
-    await this._dumpCache()
-  }, 5000)
+  }, ms('10s'))
 
   private async _extractBatch(batch: KeyedItem[], params: DucklingParams): Promise<KeyedItem[]> {
     if (_.isEmpty(batch)) {
