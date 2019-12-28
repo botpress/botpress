@@ -1,8 +1,6 @@
 import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 
-// import { DucklingEntityExtractor } from './pipelines/entities/duckling_extractor'
-
 export const BIO = {
   INSIDE: 'I' as Tag,
   BEGINNING: 'B' as Tag,

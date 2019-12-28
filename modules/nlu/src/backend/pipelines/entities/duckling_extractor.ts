@@ -48,8 +48,11 @@ const DUCKLING_ENTITIES = [
 const RETRY_POLICY = { backoff: 2, max_tries: 3, timeout: 500 }
 const CACHE_PATH = path.join(process.APP_DATA_PATH || '', 'cache', 'sys_entities.json')
 
-// TODO duckling entity interface ?
-// TODO duckling entity results mapper ?
+// Further improvements:
+// 1 - Duckling entity interface
+// 2- duckling entity results mapper (to map as E1 entity or E2 entites)
+// 3- in _extractBatch, shift results ==> dont walk whole array n times (nlog(n) vs n2)
+
 export class DucklingEntityExtractor {
   public static enabled: boolean
   public static client: AxiosInstance
@@ -174,7 +177,6 @@ export class DucklingEntityExtractor {
     const splitLocations = extractPattern(concatBatch, new RegExp(JOIN_CHAR)).map(v => v.sourceIndex)
     const entities = splitLocations.map((to, idx, locs) => {
       const from = idx === 0 ? 0 : locs[idx - 1] + JOIN_CHAR.length
-      // TODO: shift the results to make sure we dont go through the whole array n times
       return batchEntities
         .filter(e => e.meta.start >= from && e.meta.end <= to)
         .map(e => ({
