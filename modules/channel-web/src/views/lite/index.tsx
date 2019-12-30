@@ -39,7 +39,7 @@ class ExposedWebChat extends React.Component<Props, State> {
       <Provider store={store}>
         <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>
           <React.Fragment>
-            <Chat key={locale} {...this.props} />
+            <Chat {...this.props} />
             {process.env.NODE_ENV === 'development' && <DevTools className="bpw-mobx-tools" />}
           </React.Fragment>
         </IntlProvider>
