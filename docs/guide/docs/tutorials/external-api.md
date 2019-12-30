@@ -43,7 +43,7 @@ return callApi()
 
 Add an `onEnter` action instruction and select the `callApi` action from the list:
 
-![Action](assets/tutorial-call-api-action.png)
+![Action](/docs/guide/docs/assets/tutorial-call-api-action.png)
 
 > 📖 What are `onEnter` instructions? Understand how the node [Lifecycle](../main/dialog#nodes) works.
 
@@ -53,16 +53,16 @@ Create another `onEnter` instruction to make your bot say something. Once the fi
 
 Here we use templating to get the description of the first repository from the list:
 
-![Content](assets/tutorial-call-api-element.png)
+![Content](/docs/guide/docs/assets/tutorial-call-api-element.png)
 
 > 📖 What is this templating thing? Take a look at the [Mustache demo](https://mustache.github.io#demo) to understand how templating works in Botpress.
 
 Once everything is done, this is what your node should looks like:
 
-![Node Properties](assets/tutorial-call-api-node-properties.png)
+![Node Properties](/docs/guide/docs/assets/tutorial-call-api-node-properties.png)
 
 ## Try it out!
 
 The next time you chat with the bot, it will reply with the description of the Botpress repository:
 
-![Chat](assets/tutorial-call-api-chat.png)
+![Chat](/docs/guide/docs/assets/tutorial-call-api-chat.png)
