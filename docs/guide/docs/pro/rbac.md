@@ -13,7 +13,7 @@ By default, Botpress ships with three roles (administrator, developer and conten
 
 From the Administration dashboard, navigate to the "Collaborators" tab and click the "more" arrow on any collaborator to change its role to an existing role.
 
-![RBAC](assets/rbac.png)
+![RBAC](/docs/guide/docs/assets/rbac.png)
 
 ## Adding a new role
 
