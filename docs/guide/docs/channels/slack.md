@@ -31,8 +31,8 @@ title: Slack
 
 2. Restart Botpress
 
-![botToken](assets/slack-botToken.png)
-![signingSecret](assets/slack-secret.png)
+![botToken](/docs/guide/docs/assets/slack-botToken.png)
+![signingSecret](/docs/guide/docs/assets/slack-secret.png)
 
 ### Configure Callback on Slack
 
