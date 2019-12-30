@@ -10,7 +10,6 @@ import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import ActionService from '../../action/action-service'
 import { VmRunner } from '../../action/vm'
-import { BPError } from '../errors'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
 
