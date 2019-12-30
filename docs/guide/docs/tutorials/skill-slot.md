@@ -17,7 +17,7 @@ Let's say that we have an intent to book a flight. We need the following informa
 
 > For the purpose of this tutorial, both _from_ and _to_ slots are of type `@system.any`. _departure_ is of type `@system.time`.
 
-![Skill Slot Intents](assets/slot-skill-intents.png)
+![Skill Slot Intents](/docs/guide/docs/assets/slot-skill-intents.png)
 
 ## Create your skill
 
@@ -27,7 +27,7 @@ Let's say that we have an intent to book a flight. We need the following informa
 1. Choose the content that your bot will ask. It should be a question about the information you seek e.g. "From where are you departing?", "Where do you want to go?", etc.
 1. Choose the content for your bot reply when the input is invalid. It should guide the user towards a valid answer.
 
-![Skill Slot Overview](assets/slot-skill-overview.png)
+![Skill Slot Overview](/docs/guide/docs/assets/slot-skill-overview.png)
 
 ### Validation Types
 
@@ -48,16 +48,16 @@ Three outcome are possible:
 1. `On not found` - The slot has not been extracted. This will also happen when the maximum number of retries is reached or when custom validation fail.
 1. `On already extracted` - The slot has previously been extracted. One use-case for that would be to ask for the user if the previous information is still relevant and if he would like to overwrite it.
 
-![Slot skill outcomes](assets/slot-skill-outcomes.png)
+![Slot skill outcomes](/docs/guide/docs/assets/slot-skill-outcomes.png)
 
 ## Chaining Multiple Slots
 
 You can chain multiple skills to fill all the slots for a given intent:
 
-![Skill Slot Flow](assets/slot-skill-flow.png)
+![Skill Slot Flow](/docs/guide/docs/assets/slot-skill-flow.png)
 
 This flow will result in something like this:
 
-![Skill Slot Convo](assets/slot-skill-convo.png)
+![Skill Slot Convo](/docs/guide/docs/assets/slot-skill-convo.png)
 
 Notice that in the first phrase "I want to book a flight to NYC", the intent "book-flight" is matched and NYC has been extracted as the _to_ slot. Then, the bot tries to fill the remaining slots _from_ and _when_.
