@@ -13,7 +13,7 @@ To address this issue, we added commands to the cli. In production, your changes
 
 You can also head to the versioning tab of your botpress admin panel at https://your.bp.ai/admin/server/version, the command will be properly formatted for you (including your token) any changes have been made. Just paste it to your shell and the changes will be extracted in the provided target directory. A successful output should look like the following:
 
-![versioning pull](assets/versioning-pull.png)
+![versioning pull](/docs/guide/docs/assets/versioning-pull.png)
 
 Notice that without any changes, you will see a **You're all set!** message.
 
