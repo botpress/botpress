@@ -35,4 +35,4 @@ If you happen to breach your license (e.g you try to add more nodes than allowed
 
 If you don't remember the limits of your currently activated license, you can always go to the **Server Settings** page in your user top right menu. There you'll have all information on your current license.
 
-![BP license keys active](assets/bp-server-settings.jpg)
+![BP license keys active](/docs/guide/docs/assets/bp-server-settings.jpg)
