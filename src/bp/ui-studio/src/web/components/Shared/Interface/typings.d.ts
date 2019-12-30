@@ -52,6 +52,8 @@ export interface ContainerProps {
   keyMap?: {
     [id: string]: string
   }
+  /** Makes the content scrollable vertically on overflow */
+  yOverflowScroll?: boolean
   /** Add handlers for existing combinations in keyboardShortcuts.js, or create custom ones in combination to keyMap  */
   keyHandlers?: {
     [id: string]: (keyEvent?: KeyboardEvent) => void

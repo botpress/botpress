@@ -9,6 +9,10 @@ $status-bar-height: 30px;
   height: calc(100vh - #{$status-bar-height});
 }
 
+.yOverflowScroll {
+  overflow-y: scroll;
+}
+
 .container :global(.Resizer.vertical) {
   width: 11px;
   margin: 0 -5px;
