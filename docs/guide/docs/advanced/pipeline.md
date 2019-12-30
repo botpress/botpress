@@ -100,12 +100,12 @@ This simple configuration will activate the pipeline feature.
 
 After defining your pipeline, restart your server and open your admin panel and create a bot. You should then see a pipeline like the following :
 
-![Pipeline](assets/pipeline.png)
+![Pipeline](/docs/guide/docs/assets/pipeline.png)
 Go ahead an pick the `promote to next stage` action. You'll see a **copy** of the bot appear in the Staging environment. (`promote_copy` in the stage definition)
-![Pipeline Promote](assets/pipeline_promote.png)
-![Pipeline Promote copy](assets/pipeline_promoted_copy.png)
+![Pipeline Promote](/docs/guide/docs/assets/pipeline_promote.png)
+![Pipeline Promote copy](/docs/guide/docs/assets/pipeline_promoted_copy.png)
 This time, pick the same action on the Staging bot, you'll notice the bot will **move** to Production. (`promote_move` in the stage definition)
-![Pipeline Promote move](assets/pipeline_promoted_move.png)
+![Pipeline Promote move](/docs/guide/docs/assets/pipeline_promoted_move.png)
 
 Want to lock a bot in a particular stage or change it's name along the pipeline ? You can do so using [available hooks](#available-hooks)
 
