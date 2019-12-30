@@ -142,10 +142,11 @@ export interface NluMlRecommendations {
   goodUtterancesForML: number
 }
 
+// TODOs adjust typings
 export interface Engine2 {
-  loadModel: Function
-  train: Function
-  predict: Function
+  loadModel: (m: any) => Promise<void>
+  train: (...args) => Promise<any>
+  predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
 }
 
 export interface NLUState {
