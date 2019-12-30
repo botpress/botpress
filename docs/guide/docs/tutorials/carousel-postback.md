@@ -58,4 +58,4 @@ Save the your hook file and open the emulator.
 Now, summon the bot by sending a quick hello message. The bot will display the carousel.
 Click on a button of the carousel. The bot's response will vary based on the button that was clicked:
 
-![Emulator](assets/carousel-postback-emulator.png)
+![Emulator](/docs/guide/docs/assets/carousel-postback-emulator.png)
