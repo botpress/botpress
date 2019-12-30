@@ -23,7 +23,7 @@ Then append the name of your new contexts to `qnaCategories` like so:
 
 Once you have created your contexts, you can create your QNAs and assign a context to them. From the `category` menu, choose one of your contexts:
 
-![Category](assets/faq-qna-category.png)
+![Category](/docs/guide/docs/assets/faq-qna-category.png)
 
 ## Add contexts to your flow
 
@@ -33,7 +33,7 @@ The final step is to set the desired context at the appropriate time in your flo
 
 To set a context, let's use the `appendContext` action and add our new context in the `contexts` field. You can use comma-separated values to pass multiple contexts.
 
-![Actions](assets/faq-append-context.png)
+![Actions](/docs/guide/docs/assets/faq-append-context.png)
 
 ### TTL
 
