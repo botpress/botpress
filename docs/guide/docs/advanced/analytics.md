@@ -50,7 +50,7 @@ const countGraph = {
 }
 ```
 
-![Count](assets/custom-analytics-count.png)
+![Count](/docs/guide/docs/assets/custom-analytics-count.png)
 
 #### CountUniq
 
@@ -65,7 +65,7 @@ const countUniqGraph = {
 }
 ```
 
-![CountUniq](assets/custom-analytics-countuniq.png)
+![CountUniq](/docs/guide/docs/assets/custom-analytics-countuniq.png)
 
 #### Percent
 
@@ -81,7 +81,7 @@ const percentGraph = {
 }
 ```
 
-![Percent](assets/custom-analytics-percent.png)
+![Percent](/docs/guide/docs/assets/custom-analytics-percent.png)
 
 #### Piechart
 
@@ -96,13 +96,13 @@ const pieChart = {
 }
 ```
 
-![Piechart](assets/custom-analytics-piechart.png)
+![Piechart](/docs/guide/docs/assets/custom-analytics-piechart.png)
 
 ## Metrics
 
 The analytics module provides three actions that you can use in your flows to set, increment or decrement your custom metrics.
 
-![Analytics Actions](assets/custom-analytics-actions.png)
+![Analytics Actions](/docs/guide/docs/assets/custom-analytics-actions.png)
 
 ### Set
 
