@@ -35,4 +35,4 @@ Go to `<your_url>/admin/debug` to see a complete list of the available namespace
 
 You can also enable or disable them from this screen:
 
-![Debugging](assets/debugging.png)
+![Debugging](/docs/guide/docs/assets/debugging.png)
