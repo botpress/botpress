@@ -5,11 +5,11 @@ title: Clustering
 
 ## Cluster Overview
 
-![High-Level Diagram](assets/bp-cluster.png)
+![High-Level Diagram](/docs/guide/docs/assets/bp-cluster.png)
 
 ## Interfaces Overview
 
-![HTTP Interfaces](assets/http-interfaces.png)
+![HTTP Interfaces](/docs/guide/docs/assets/http-interfaces.png)
 
 ## Requirements
 
