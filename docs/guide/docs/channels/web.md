@@ -35,7 +35,7 @@ There is an example included in the default botpress installation at `http://loc
 
 The information page displays information like the website url, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
 
-![Bot Info Page](assets/webchat-bot-info.png)
+![Bot Info Page](/docs/guide/docs/assets/webchat-bot-info.png)
 
 How to set up the information page:
 
@@ -404,4 +404,4 @@ Feel free to change the webchat config there, the important line to keep is the 
 ## Result
 
 Restart Botpress Server, and now your bot's default webchat will use your custom CSS theme! Here's our example:
-![WebChat Customization](assets/webchat-customization.png)
+![WebChat Customization](/docs/guide/docs/assets/webchat-customization.png)
