@@ -100,7 +100,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   enableArrowNavigation: store.config.enableArrowNavigation,
   enableResetSessionShortcut: store.config.enableResetSessionShortcut,
   resetSession: store.resetSession
-}))(observer(Composer))
+}))(injectIntl(observer(Composer)))
 
 type ComposerProps = {
   focused: boolean
