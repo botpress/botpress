@@ -28,5 +28,5 @@ export const EntityDefCreateSchema = Joi.object().keys({
   occurences: Joi.array()
     .items(EntityDefOccurenceSchema)
     .default([]),
-  pattern: Joi.string().default('')
+  pattern: Joi.string().default('').allow('')
 })

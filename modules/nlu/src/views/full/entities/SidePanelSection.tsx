@@ -5,7 +5,7 @@ import { Item, ItemList, SearchBar } from 'botpress/ui'
 import { NluItem } from 'full'
 import React, { FC, useState } from 'react'
 
-import { CreateEntityModal } from './CreateEntityModal'
+import { EntityNameModal } from './EntityNameModal'
 
 interface Props {
   api: NLUApi
@@ -17,9 +17,28 @@ interface Props {
 
 export const EntitySidePanelSection: FC<Props> = props => {
   const [entitiesFilter, setEntitiesFilter] = useState('')
-  const [showEntityModal, setShowEntityModal] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [entityName, setEntityName] = useState()
+  const [entityAction, setEntityAction] = useState<any>('create')
 
-  const deleteEntity = entity => {
+  const createEntity = () => {
+    setEntityAction('create')
+    setModalOpen(true)
+  }
+
+  const renameEntity = (entity: NLU.EntityDefinition) => {
+    setEntityName(entity.name)
+    setEntityAction('rename')
+    setModalOpen(true)
+  }
+
+  const duplicateEntity = (entity: NLU.EntityDefinition) => {
+    setEntityName(entity.name)
+    setEntityAction('duplicate')
+    setModalOpen(true)
+  }
+
+  const deleteEntity = (entity: NLU.EntityDefinition) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete the entity "${entity.name}" ?`)
     if (confirmDelete) {
       if (props.currentItem && props.currentItem.name === entity.name) {
@@ -39,19 +58,15 @@ export const EntitySidePanelSection: FC<Props> = props => {
           label: entity.name,
           value: entity.name,
           selected: props.currentItem && props.currentItem.name === entity.name,
-          actions: [
-            {
-              tooltip: 'Delete Entity',
-              icon: 'delete',
-              onClick: () => {
-                deleteEntity(entity)
-              }
-            }
+          contextMenu: [
+            { label: 'Rename', icon: 'edit', onClick: () => renameEntity(entity) },
+            { label: 'Duplicate', icon: 'duplicate', onClick: () => duplicateEntity(entity) },
+            { label: 'Delete', icon: 'delete', onClick: () => deleteEntity(entity) }
           ]
         } as Item)
     )
 
-  const entityCreated = entity => {
+  const onEntityModified = entity => {
     props.setCurrentItem({ type: 'entity', name: entity.name })
     props.reloadEntities()
   }
@@ -62,18 +77,21 @@ export const EntitySidePanelSection: FC<Props> = props => {
         className={Classes.MINIMAL}
         icon="new-object"
         text="New entity"
-        onClick={() => setShowEntityModal(!showEntityModal)}
+        onClick={createEntity}
       />
       <SearchBar icon="filter" placeholder="filter entities" onChange={setEntitiesFilter} showButton={false} />
       <ItemList
         items={entityItems}
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'entity', name })}
       />
-      <CreateEntityModal
+      <EntityNameModal
+        action={entityAction}
+        originalName={entityName}
+        entityIDs={props.entities.map(e => e.id)}
         api={props.api}
-        onEntityCreated={entityCreated}
-        visible={showEntityModal}
-        hide={() => setShowEntityModal(false)}
+        onEntityModified={onEntityModified}
+        isOpen={modalOpen}
+        closeModal={() => setModalOpen(false)}
       />
     </div>
   )

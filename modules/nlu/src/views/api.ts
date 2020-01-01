@@ -9,8 +9,9 @@ export interface NLUApi {
   updateIntent: (targetIntent: string, intent: Partial<NLU.IntentDefinition>) => Promise<any>
   deleteIntent: (x: string) => Promise<any>
   fetchEntities: () => Promise<NLU.EntityDefinition[]>
+  fetchEntity: (x: string) => Promise<NLU.EntityDefinition>
   createEntity: (x: NLU.EntityDefinition) => Promise<any>
-  updateEntity: (x: NLU.EntityDefinition) => Promise<any>
+  updateEntity: (targetEntityId: string, x: NLU.EntityDefinition) => Promise<any>
   deleteEntity: (x: string) => Promise<any>
 }
 
@@ -26,7 +27,8 @@ export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
     bp.axios.post(`/mod/nlu/intents/${targetIntent}`, intent),
   deleteIntent: (name: string) => bp.axios.post(`/mod/nlu/intents/${name}/delete`),
   fetchEntities: () => bp.axios.get('/mod/nlu/entities').then(res => res.data),
+  fetchEntity: (entityName: string) => bp.axios.get(`/mod/nlu/entities/${entityName}`).then(res => res.data),
   createEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/`, entity),
-  updateEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/${entity.id}`, entity),
+  updateEntity: (targetEntityId: string, entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/${targetEntityId}`, entity),
   deleteEntity: (entityId: string) => bp.axios.post(`/mod/nlu/entities/${entityId}/delete`)
 })

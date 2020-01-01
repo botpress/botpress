@@ -180,6 +180,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.json(entities)
   })
 
+  router.get('/entities/:entityName', async (req, res) => {
+    res.send(
+      await (state.nluByBot[req.params.botId].engine1 as ScopedEngine).storage.getCustomEntity(req.params.entityName)
+    )
+  })
+
   router.post('/entities', async (req, res) => {
     const { botId } = req.params
     try {
@@ -203,7 +209,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const updatedEntity = content as sdk.NLU.EntityDefinition
 
     const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
-    await botEngine.storage.saveEntity({ ...updatedEntity, id })
+    await botEngine.storage.updateEntity(id, updatedEntity)
     scheduleSyncNLU(req.params.botId)
 
     res.sendStatus(200)
