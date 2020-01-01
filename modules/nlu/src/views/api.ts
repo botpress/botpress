@@ -29,6 +29,7 @@ export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   fetchEntities: () => bp.axios.get('/mod/nlu/entities').then(res => res.data),
   fetchEntity: (entityName: string) => bp.axios.get(`/mod/nlu/entities/${entityName}`).then(res => res.data),
   createEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/`, entity),
-  updateEntity: (targetEntityId: string, entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/${targetEntityId}`, entity),
+  updateEntity: (targetEntityId: string, entity: NLU.EntityDefinition) =>
+    bp.axios.post(`/mod/nlu/entities/${targetEntityId}`, entity),
   deleteEntity: (entityId: string) => bp.axios.post(`/mod/nlu/entities/${entityId}/delete`)
 })

@@ -50,10 +50,13 @@ const IntentNameModal: FC<Props> = props => {
   const alreadyExists = !isIdentical && _.some(props.intentNames, n => n.toLowerCase() === name.toLowerCase())
 
   let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Intent' }
+  let submitText = 'Create'
   if (props.action === 'duplicate') {
     dialog = { icon: 'duplicate', title: 'Duplicate Intent' }
+    submitText = 'Duplicate'
   } else if (props.action === 'rename') {
     dialog = { icon: 'edit', title: 'Rename Intent' }
+    submitText = 'Rename'
   }
 
   return (
@@ -82,9 +85,9 @@ const IntentNameModal: FC<Props> = props => {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
+              id="intent-submit"
               type="submit"
-              id="btn-submit"
-              text="Submit"
+              text={submitText}
               onClick={submit}
               disabled={!name || isIdentical || alreadyExists}
             />

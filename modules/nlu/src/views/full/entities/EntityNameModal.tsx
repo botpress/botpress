@@ -72,7 +72,11 @@ export const EntityNameModal: FC<Props> = props => {
     props.api.updateEntity(getEntityId(props.originalName), entity).then(() => props.onEntityModified(entity))
   }
 
-  const getEntityId = (entityName: string) => entityName.trim().toLowerCase().replace(/[\t\s]/g, '-')
+  const getEntityId = (entityName: string) =>
+    entityName
+      .trim()
+      .toLowerCase()
+      .replace(/[\t\s]/g, '-')
 
   const onDuplicateEntity = async () => {
     const entity = await props.api.fetchEntity(props.originalName)
@@ -86,19 +90,17 @@ export const EntityNameModal: FC<Props> = props => {
   const alreadyExists = !isIdentical && _.some(props.entityIDs, id => id === getEntityId(name))
 
   let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Entity' }
+  let submitText = 'Create'
   if (props.action === 'duplicate') {
     dialog = { icon: 'duplicate', title: 'Duplicate Entity' }
+    submitText = 'Duplicate'
   } else if (props.action === 'rename') {
     dialog = { icon: 'edit', title: 'Rename Entity' }
+    submitText = 'Rename'
   }
 
   return (
-    <Dialog
-      isOpen={props.isOpen}
-      onClose={props.closeModal}
-      transitionDuration={0}
-      {...dialog}
-    >
+    <Dialog isOpen={props.isOpen} onClose={props.closeModal} transitionDuration={0} {...dialog}>
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
           <FormGroup label="Name">
@@ -136,10 +138,11 @@ export const EntityNameModal: FC<Props> = props => {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
+              id="entity-submit"
               type="submit"
               tabIndex={3}
               intent={Intent.PRIMARY}
-              text="Submit"
+              text={submitText}
               disabled={!isValid || isIdentical || alreadyExists}
             />
           </div>

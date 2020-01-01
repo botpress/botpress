@@ -15,8 +15,8 @@ describe('Studio - Flows', () => {
   it('Create new flow', async () => {
     await clickOn('#btn-add-flow')
     await fillField('#input-flow-name', 'test_flow')
-
-    await Promise.all([expectBotApiCallSuccess('flow'), clickOn('#btn-submit')])
+    await clickOn('button', { text: 'Create' })
+    await expectBotApiCallSuccess('flow')
   })
 
   it('Rename flow', async () => {
@@ -24,7 +24,10 @@ describe('Studio - Flows', () => {
     await clickOn('#btn-rename')
     await fillField('#input-flow-name', 'test_flow_renamed')
 
-    await Promise.all([expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'POST'), clickOn('#btn-submit')])
+    await Promise.all([
+      expectBotApiCallSuccess('flow/test_flow_renamed.flow.json', 'POST'),
+      clickOn('button', { text: 'Rename' })
+    ])
   })
 
   it('Delete flow', async () => {
@@ -42,7 +45,7 @@ describe('Studio - Flows', () => {
     await clickOn('#btn-duplicate')
     await fillField('#input-flow-name', 'new_duplicated_flow')
 
-    await Promise.all([expectBotApiCallSuccess('flow', 'POST'), clickOn('#btn-submit')])
+    await Promise.all([expectBotApiCallSuccess('flow', 'POST'), clickOn('button', { text: 'Duplicate' })])
     await page.waitFor(3000)
   })
 
