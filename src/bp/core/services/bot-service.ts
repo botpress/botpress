@@ -587,8 +587,8 @@ export class BotService {
     return revisions
       .filter(rev => rev.startsWith(`${botId}${REV_SPLIT_CHAR}`) && rev.includes(stageID))
       .sort((revA, revB) => {
-        const dateA = revA.split(REV_SPLIT_CHAR)[1].replace('.tgz', '')
-        const dateB = revB.split(REV_SPLIT_CHAR)[1].replace('.tgz', '')
+        const dateA = revA.split(REV_SPLIT_CHAR)[1].replace(/\.tgz$/i, '')
+        const dateB = revB.split(REV_SPLIT_CHAR)[1].replace(/\.tgz$/i, '')
 
         return parseInt(dateA, 10) - parseInt(dateB, 10)
       })
@@ -611,7 +611,7 @@ export class BotService {
 
   public async rollback(botId: string, revision: string): Promise<void> {
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
-    const revParts = revision.replace('.tgz', '').split(REV_SPLIT_CHAR)
+    const revParts = revision.replace(/\.tgz$/i, '').split(REV_SPLIT_CHAR)
     if (revParts.length < 2) {
       throw new VError('invalid revision')
     }

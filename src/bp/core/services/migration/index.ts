@@ -250,7 +250,7 @@ export class MigrationService {
         return {
           filename: path.basename(filepath),
           version: semver.valid(rawVersion.replace(/_/g, '.')),
-          title: (title || '').replace('.js', ''),
+          title: (title || '').replace(/\.js$/i, ''),
           date: Number(timestamp),
           location: path.join(rootPath, filepath)
         }

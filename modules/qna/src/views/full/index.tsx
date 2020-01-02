@@ -186,7 +186,13 @@ export default class QnaAdmin extends Component<Props> {
         <div className={style.searchBar}>{this.renderSearch()}</div>
         <ButtonGroup style={{ float: 'right' }}>
           <ImportModal axios={this.props.bp.axios} onImportCompleted={this.fetchData} />
-          <Button id="btn-export" icon="upload" text="Export to JSON" onClick={this.downloadJson} style={{ marginLeft: 5 }} />
+          <Button
+            id="btn-export"
+            icon="upload"
+            text="Export to JSON"
+            onClick={this.downloadJson}
+            style={{ marginLeft: 5 }}
+          />
         </ButtonGroup>
       </ButtonToolbar>
     </FormGroup>
@@ -253,7 +259,7 @@ export default class QnaAdmin extends Component<Props> {
       return null
     }
 
-    const flowName = redirectFlow.replace('.flow.json', '')
+    const flowName = redirectFlow.replace(/\.flow\.json$/i, '')
     const flowBuilderLink = `/studio/${window.BOT_ID}/flows/${flowName}/#search:${redirectNode}`
 
     return (
@@ -347,7 +353,9 @@ export default class QnaAdmin extends Component<Props> {
     }
 
     if (needDelete) {
-      this.props.bp.axios.post(`/mod/qna/questions/${id}/delete`, { params }).then(({ data }) => this.setState({ ...data }))
+      this.props.bp.axios
+        .post(`/mod/qna/questions/${id}/delete`, { params })
+        .then(({ data }) => this.setState({ ...data }))
     }
   }
 

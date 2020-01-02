@@ -14,7 +14,7 @@ export const ID_REGEX = /[\t\s]/gi
 export const sanitizeFilenameNoExt = name =>
   name
     .toLowerCase()
-    .replace('.json', '')
+    .replace(/\.json$/i, '')
     .replace(ID_REGEX, '-')
 
 export default class Storage {
