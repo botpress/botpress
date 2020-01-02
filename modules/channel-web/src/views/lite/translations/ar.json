@@ -14,5 +14,6 @@
   "loginForm.submit": "تقديم",
   "loginForm.formTitle": "نموذج تسجيل الدخول",
   "loginForm.providedCredentials": "تم إدخال تفاصيل الدخول",
-  "messages.newMessage": "رسالة جديدة"
+  "messages.newMessage": "رسالة جديدة",
+  "messages.newMessages": "رسائل جديدة"
 }
