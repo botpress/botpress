@@ -38,7 +38,7 @@ export default class FlowsList extends Component<Props, State> {
       this.updateFlows()
     }
 
-    if (this.props.currentFlow && prevProps.currentFlow !== this.props.currentFlow) {
+    if (this.props.currentFlow) {
       traverseTree(this.state.nodes, (n: ITreeNode<NodeData>) => {
         return (n.isSelected = n.nodeData && n.nodeData.name === this.props.currentFlow['name'])
       })
