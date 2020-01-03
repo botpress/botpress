@@ -17,6 +17,7 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
+import os from 'os'
 import path from 'path'
 import portFinder from 'portfinder'
 import { URL } from 'url'
@@ -79,7 +80,7 @@ export default class HTTPServer {
   private readonly botsRouter: BotsRouter
   private contentRouter!: ContentRouter
   private readonly modulesRouter: ModulesRouter
-  private readonly shortlinksRouter: ShortLinksRouter
+  private readonly shortLinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
   private _needPermissions: (
@@ -154,7 +155,7 @@ export default class HTTPServer {
       moduleLoader,
       this.jobService
     )
-    this.shortlinksRouter = new ShortLinksRouter(this.logger)
+    this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
       botService,
@@ -278,7 +279,7 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
-    this.app.use(`/s`, this.shortlinksRouter.router)
+    this.app.use(`/s`, this.shortLinksRouter.router)
 
     this.app.use(function handleErrors(err, req, res, next) {
       if (err instanceof UnlicensedError) {
@@ -309,7 +310,10 @@ export default class HTTPServer {
 
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
-    process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
+    process.EXTERNAL_URL =
+      process.env.EXTERNAL_URL ||
+      config.externalUrl ||
+      `http://${process.HOST === 'localhost' ? os.hostname() : process.HOST}:${process.PORT}`
     process.LOCAL_URL = `http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`
 
     if (process.PORT !== config.port) {
@@ -401,11 +405,11 @@ export default class HTTPServer {
   }
 
   createShortLink(name: string, destination: string, params: any) {
-    this.shortlinksRouter.createShortLink(name, destination, params)
+    this.shortLinksRouter.createShortLink(name, destination, params)
   }
 
   deleteShortLink(name: string) {
-    this.shortlinksRouter.deleteShortLink(name)
+    this.shortLinksRouter.deleteShortLink(name)
   }
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {

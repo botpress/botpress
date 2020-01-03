@@ -1,3 +1,4 @@
+import os from 'os'
 import { Page } from 'puppeteer'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
@@ -22,7 +23,10 @@ describe('Module - Channel Web', () => {
   })
 
   it('Open chat window with shortlink', async () => {
-    await gotoAndExpect(`${bpConfig.host}/s/${bpConfig.botId}`, `${bpConfig.host}/lite/${bpConfig.botId}/`)
+    await gotoAndExpect(
+      `${bpConfig.host}/s/${bpConfig.botId}`,
+      `${bpConfig.host.replace('localhost', os.hostname())}/lite/${bpConfig.botId}/`
+    )
   })
 
   it('Start conversation', async () => {
