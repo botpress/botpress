@@ -74,7 +74,13 @@ export const IntentSidePanelSection: FC<Props> = props => {
   return (
     <div>
       <Button className={Classes.MINIMAL} icon="new-object" text="New intent" onClick={createIntent} />
-      <SearchBar icon="filter" placeholder="filter intents" onChange={setIntentsFilter} showButton={false} />
+      <SearchBar
+        id="intents-filter"
+        icon="filter"
+        placeholder="filter intents"
+        onChange={setIntentsFilter}
+        showButton={false}
+      />
       <ItemList
         items={intentItems}
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'intent', name })}
