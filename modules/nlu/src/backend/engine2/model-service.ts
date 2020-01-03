@@ -5,6 +5,7 @@ import _ from 'lodash'
 import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
 
 export interface Model {
+  hash: string
   languageCode: string
   startedAt: Date
   finishedAt: Date
@@ -42,12 +43,23 @@ export function deserializeModel(str: string): Model {
   return model
 }
 
-export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | undefined> {
+export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | void> {
   const fname = makeFileName(hash, lang)
   if (await ghost.fileExists(MODELS_DIR, fname)) {
     const strMod = await ghost.readFileAsString(MODELS_DIR, fname)
     return deserializeModel(strMod)
   }
+}
+
+export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<Model | void> {
+  const endingPattern = makeFileName('*', lang)
+  const availableModels = await ghost.directoryListing(MODELS_DIR, endingPattern)
+  if (availableModels.length === 0) {
+    return
+  }
+
+  const models = await Promise.map(availableModels, fname => getModel(ghost, fname.split('.')[0], lang))
+  return _.head(_.orderBy(models, 'finishedAt', 'desc'))
 }
 
 export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void> {
