@@ -52,10 +52,10 @@ function* amendFiles(yarnInstall: boolean) {
     }
   }
 
-  console.log(chalk.bold(`Done processing ${files.length} files`))
+  console.log(chalk.bold(`Done processing ${files.length} file${files.length === 1 ? '' : 's'}`))
 
   if (count > 0) {
-    console.log(chalk.green(`Changed ${chalk.bold(count.toString())} files successfully`))
+    console.log(chalk.green(`Changed ${chalk.bold(count.toString())} file${count === 1 ? '' : 's'} successfully`))
     if (IS_DRY_RUN) {
       console.log(chalk.red.bold(`THIS WAS A DRY RUN, SO NO FILE WAS ACTUALLY CHANGED`))
       console.log(chalk.red(`Run this again with ${chalk.bold('--apply')} to execute the changes`))

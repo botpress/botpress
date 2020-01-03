@@ -79,7 +79,13 @@ class ListView extends Component<Props, State> {
   }
 
   handleDeleteSelected = () => {
-    if (window.confirm(`Do you really want to delete ${this.state.checkedIds.length} items?`)) {
+    if (
+      window.confirm(
+        `Do you really want to delete ${this.state.checkedIds.length} item${
+          this.state.checkedIds.length === 1 ? '' : 's'
+        }?`
+      )
+    ) {
       this.props.handleDeleteSelected(this.state.checkedIds)
       this.setState({ checkedIds: [], allChecked: false })
     }

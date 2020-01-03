@@ -105,7 +105,7 @@ export class LoggerFilePersister {
     }
 
     if (process.env.DEBUG_LOGGER) {
-      this.logger.debug(`Saving ${this.batch.length} logs`)
+      this.logger.debug(`Saving ${this.batch.length} log${this.batch.length === 1 ? '' : 's'}`)
     }
 
     const content = this.batch.join('')

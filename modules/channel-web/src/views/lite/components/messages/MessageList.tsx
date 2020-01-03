@@ -193,7 +193,7 @@ class MessageList extends React.Component<MessageListProps, State> {
           <div className="bpw-new-messages-indicator" onClick={e => this.tryScrollToBottom()}>
             <span>
               {this.props.intl.formatMessage({
-                id: 'messages.newMessage' + (this.props.currentMessages.length > 1 ? 's' : '')
+                id: 'messages.newMessage' + (this.props.currentMessages.length === 1 ? '' : 's')
               })}
             </span>
           </div>
