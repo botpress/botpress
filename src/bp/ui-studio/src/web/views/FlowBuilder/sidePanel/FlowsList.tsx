@@ -1,5 +1,5 @@
 import { Classes, ContextMenu, ITreeNode, Menu, MenuItem, Tree } from '@blueprintjs/core'
-import { includes, isEqual } from 'lodash'
+import { isEqual } from 'lodash'
 import React, { Component } from 'react'
 
 import { buildFlowsTree } from './util'
@@ -33,14 +33,20 @@ export default class FlowsList extends Component<Props, State> {
     this.updateFlows()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (!isEqual(prevProps.flows, this.props.flows)) {
       this.updateFlows()
     }
 
     if (this.props.currentFlow) {
+      let parentPath = this.props.currentFlow.name
+      parentPath = parentPath.substr(0, parentPath.lastIndexOf('/') + 1)
+
       traverseTree(this.state.nodes, (n: ITreeNode<NodeData>) => {
-        return (n.isSelected = n.nodeData && n.nodeData.name === this.props.currentFlow['name'])
+        if (parentPath.startsWith(n['fullPath'] + '/')) {
+          n.isExpanded = true
+        }
+        n.isSelected = n.nodeData && n.nodeData.name === this.props.currentFlow.name
       })
     }
 

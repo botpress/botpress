@@ -89,11 +89,7 @@ const compareNodes = (a, b) => {
   if (a.type === b.type) {
     return a.name < b.name ? -1 : 1
   }
-  if (a.type === 'folder') {
-    return -1
-  } else {
-    return 1
-  }
+  return a.type === 'folder' ? -1 : 1
 }
 
 const sortChildren = tree => {
