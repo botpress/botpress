@@ -7,7 +7,7 @@ title: Inter-bot Communication / Delegation
 
 In this tutorial, you will learn how a chatbot could "delegate" questions or tasks to other bots. We call this concept "inter-bot" communication.
 
-The code for this example is available in the [examples](https://github.com/botpress/botpress/tree/master/examples/interbot) directory of our GitHub repository.
+The code for this example is available in the [examples](https://github.com/botpress/botpress/tree/master/examples/interbot) directory of our GitHub repository (update `workspaces.json` with the three bots if you copied them).
 
 ![Example](assets/tutorials_interbot-example.png)
 
@@ -23,7 +23,7 @@ Head to the admin interface and create three bots names `master`, `sub1` and `su
 
 - Leave `master` bot empty for now.
 - In the `sub1` bot, create some QnA entries that are related to the same domain (pick the default `global` category/context).
-- In the `sub2` bot, do the same thing for an other domain.
+- In the `sub2` bot, do the same thing for another domain.
 
 For example, `sub1` could answer questions about Human Resources, while `sub2` could answer questions related to IT Operations.
 
