@@ -59,7 +59,7 @@ describe('Preprocessing', () => {
       slotDef
     )
 
-    expect(trainingSeq.cannonical).toEqual('hello my name is jacob jacobson and your name is paul')
+    expect(trainingSeq.canonical).toEqual('hello my name is jacob jacobson and your name is paul')
     expect(trainingSeq.tokens.filter(t => t.tag != BIO.OUT).length).toEqual(3)
     expect(trainingSeq.tokens[0].slot).toEqual('')
     expect(trainingSeq.tokens[0].matchedEntities).toEqual([])
@@ -69,7 +69,7 @@ describe('Preprocessing', () => {
     expect(trainingSeq.tokens[4].matchedEntities).toEqual(slotDef[0].entities)
     expect(trainingSeq.tokens[4].tag).toEqual(BIO.BEGINNING)
     expect(trainingSeq.tokens[4].value).toEqual(SPACE + 'jacob')
-    expect(trainingSeq.tokens[4].cannonical).toEqual('Jacob')
+    expect(trainingSeq.tokens[4].canonical).toEqual('Jacob')
     expect(trainingSeq.tokens[5].slot).toEqual(slotDef[0].name)
     expect(trainingSeq.tokens[5].matchedEntities).toEqual(slotDef[0].entities)
     expect(trainingSeq.tokens[5].tag).toEqual(BIO.INSIDE)

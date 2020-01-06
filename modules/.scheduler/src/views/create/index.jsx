@@ -55,8 +55,8 @@ export default class CreateModal extends React.Component {
     }
   }
 
-  renderNextOccurences() {
-    const occurences = []
+  renderNextOccurrences() {
+    const occurrences = []
 
     if (this.state.expressionType === '1') {
       // CRON
@@ -66,7 +66,7 @@ export default class CreateModal extends React.Component {
       later
         .schedule(sched)
         .next(3)
-        .map(o => occurences.push(o))
+        .map(o => occurrences.push(o))
     } else if (this.state.expressionType === '2') {
       // Natural
       later.date.localTime()
@@ -74,16 +74,16 @@ export default class CreateModal extends React.Component {
       later
         .schedule(sched)
         .next(4)
-        .map(o => occurences.push(o))
-      occurences.shift()
+        .map(o => occurrences.push(o))
+      occurrences.shift()
     } else {
       // ONCE
-      occurences.push(chrono.casual.parseDate(this.state.expression))
+      occurrences.push(chrono.casual.parseDate(this.state.expression))
     }
 
     return (
       <div className={style.callout}>
-        {occurences.map((o, i) => (
+        {occurrences.map((o, i) => (
           <Label key={i}>{moment(o).format('lll')}</Label>
         ))}
       </div>
@@ -158,7 +158,7 @@ export default class CreateModal extends React.Component {
               propName="text"
             />
           </div>
-          {::this.renderNextOccurences()}
+          {::this.renderNextOccurrences()}
           <div>
             <h4>Action</h4>
             <RIETextArea
