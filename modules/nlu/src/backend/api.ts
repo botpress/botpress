@@ -70,52 +70,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.send(state.health)
   })
 
-  router.get('/confusion/:modelHash/:version', async (req, res) => {
-    if (!USE_E1) {
-      return res.send('Deprecated')
-    }
-
-    const engine = state.nluByBot[req.params.botId].engine1 as ConfusionEngine
-    const confusionComputing = engine.confusionComputing
-    const lang = req.query.lang || (await sdk.bots.getBotById(req.params.botId)).defaultLanguage
-
-    try {
-      const matrix = await engine.storage.getConfusionMatrix(req.params.modelHash, req.params.version, lang)
-      res.send({ matrix, confusionComputing })
-    } catch (err) {
-      bp.logger.attachError(err).warn(`Could not get confusion matrix for ${req.params.modelHash}.`)
-      res.send({ confusionComputing })
-    }
-  })
-
-  router.get('/confusion', async (req, res) => {
-    if (!USE_E1) {
-      return res.send('Deprecated')
-    }
-
-    try {
-      const botId = req.params.botId
-      const confusions = await (state.nluByBot[botId].engine1 as ScopedEngine).storage.getAllConfusionMatrix()
-      res.send({ botId, confusions })
-    } catch (err) {
-      res.sendStatus(500)
-    }
-  })
-
-  router.post('/confusion', async (req, res) => {
-    if (!USE_E1) {
-      res.send('Deprecated')
-    }
-    try {
-      const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
-      const { version } = req.body
-      const modelHash = await syncNLU(botEngine, true, version)
-      return res.send({ modelHash })
-    } catch (err) {
-      return res.status(400).send('Could not train confusion matrix')
-    }
-  })
-
   router.post('/cross-validation/:lang', async (req, res) => {
     const { botId, lang } = req.params
     const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
@@ -229,22 +183,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
     scheduleSyncNLU(req.params.botId)
 
     res.sendStatus(204)
-  })
-
-  router.post('/extract', async (req, res) => {
-    const eventText = {
-      preview: req.body.text,
-      payload: {
-        text: req.body.text
-      }
-    }
-
-    try {
-      const result = await state.nluByBot[req.params.botId].engine1.extract(eventText.preview, [], [])
-      res.send(result)
-    } catch (err) {
-      res.status(500).send(`Error extracting NLU data from event: ${err}`)
-    }
   })
 
   router.get('/ml-recommendations', async (req, res) => {
