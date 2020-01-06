@@ -10,6 +10,7 @@ import Database from '../../database'
 import { TYPES } from '../../types'
 
 import { FileRevision, StorageDriver } from '.'
+import { BPError } from '../dialog/errors'
 
 // TODO: Create a janitor that clears deleted files
 @injectable()
@@ -73,7 +74,7 @@ export default class DBStorageDriver implements StorageDriver {
         .then()
 
       if (!file) {
-        throw new Error(`[DB Storage] File "${filePath}" not found`)
+        throw new BPError(`[DB Storage] File "${filePath}" not found`, 'ENOENT')
       }
 
       return Buffer.from((<any>file).content as Buffer)

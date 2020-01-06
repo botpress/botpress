@@ -186,7 +186,10 @@ function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]):
 // TODO implement this algorithm properly / improve it
 // currently taken as is from svm classifier (engine 1) and doesn't make much sens
 function electIntent(input: PredictStep): PredictStep {
-  const totalConfidence = Math.min(1, _.sumBy(input.ctx_predictions, 'confidence'))
+  const totalConfidence = Math.min(
+    1,
+    _.sumBy(input.ctx_predictions.filter(x => input.includedContexts.includes(x.label)), 'confidence')
+  )
   const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
 
   // taken from svm classifier #349
@@ -224,10 +227,10 @@ function electIntent(input: PredictStep): PredictStep {
     .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
     .value()
 
-  if (predictions[0].confidence < 0.3) {
+  if (!predictions.length || predictions[0].confidence < 0.3) {
     predictions = [
-      { name: 'none', context: predictions[0].context, confidence: 1 },
-      ...predictions.filter(p => p.name !== 'none')
+      { name: NONE_INTENT, context: predictions[0].context, confidence: 1 },
+      ...predictions.filter(p => p.name !== NONE_INTENT)
     ]
   }
 
