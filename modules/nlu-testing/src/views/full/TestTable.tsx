@@ -1,4 +1,4 @@
-import { Button, H3, HTMLTable, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button, H3, HTMLTable, Icon, Intent, Position, Tooltip } from '@blueprintjs/core'
 import React, { FC } from 'react'
 
 import { Test, TestResult } from './api'
@@ -12,7 +12,7 @@ const TestResult: FC<TestResultProps> = ({ testResult }) => {
     return <span>-</span>
   }
   if (testResult.success) {
-    return <Icon icon="tick-circle" intent="success" />
+    return <Icon icon="tick-circle" intent={Intent.SUCCESS} />
   } else {
     const content = (
       <div>
@@ -25,7 +25,7 @@ const TestResult: FC<TestResultProps> = ({ testResult }) => {
     )
     return (
       <Tooltip position={Position.LEFT} content={content}>
-        <Icon icon="warning-sign" intent="danger" />
+        <Icon icon="warning-sign" intent={Intent.DANGER} />
       </Tooltip>
     )
   }
@@ -41,7 +41,15 @@ export const TestTable: FC<Props> = props => (
   <React.Fragment>
     <H3>
       NLU System Tests &nbsp;
-      <Button type="button" minimal intent="success" small icon="add" onClick={props.createTest} text="New Test" />
+      <Button
+        type="button"
+        minimal
+        intent={Intent.SUCCESS}
+        small
+        icon="add"
+        onClick={props.createTest}
+        text="New Test"
+      />
     </H3>
     <HTMLTable bordered striped>
       <thead>
