@@ -101,7 +101,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     let currentGroup = undefined
 
     messages.forEach(m => {
-      const speaker = !!m.userId ? m.userId : 'bot'
+      const speaker = m.full_name
       const date = m.sent_on
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
@@ -146,7 +146,7 @@ class MessageList extends React.Component<MessageListProps, State> {
 
           const avatar = userId
             ? this.props.showUserAvatar && this.renderAvatar(userName, avatarUrl)
-            : this.renderAvatar(this.props.botName, this.props.botAvatarUrl)
+            : this.renderAvatar(this.props.botName, avatarUrl || this.props.botAvatarUrl)
 
           return (
             <div key={i}>

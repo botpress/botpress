@@ -159,7 +159,7 @@ export default class Utterance {
         toAdd = tok.value
       }
 
-      // case ignore is handled implicitely
+      // case ignore is handled implicitly
       if (tok.slots.length && options.slots === 'keep-name') {
         toAdd = tok.slots[0].name
       } else if (tok.slots.length && options.slots === 'keep-value') {

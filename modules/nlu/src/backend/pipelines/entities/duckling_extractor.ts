@@ -32,7 +32,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
 
   static async configure(enabled: boolean, url: string, logger: sdk.Logger) {
     if (enabled) {
-      const proxyConfig = process['PROXY'] ? { httpsAgent: new httpsProxyAgent(process['PROXY']) } : {}
+      const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
 
       this.client = Axios.create({
         baseURL: url,
@@ -41,7 +41,7 @@ export class DucklingEntityExtractor implements EntityExtractor {
       })
 
       const ducklingDisabledMsg = `, so it will be disabled.
-For more informations (or if you want to self-host it), please check the docs at
+For more information (or if you want to self-host it), please check the docs at
 https://botpress.io/docs/build/nlu/#system-entities
 `
 

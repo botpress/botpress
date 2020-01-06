@@ -3,7 +3,7 @@ import { buildExactMatchIndex, Intent } from './training-pipeline'
 import Utterance from './utterance'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'
-const u2 = "Hi I'm Justine and I'am a smart bot with very scoped skills"
+const u2 = "Hi I'm Justine and I'm a smart bot with very scoped skills"
 const u3 = 'Medication makes me high'
 
 const makeTestUtterances = (textUtterances: string[]): Utterance[] => {

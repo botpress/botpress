@@ -4,11 +4,11 @@ import _ from 'lodash'
 import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
 import * as math from '../tools/math'
-import { PatternEntity, Tools } from '../typings'
+import { Intent, PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { extractUtteranceEntities } from './entity-extractor'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, Intent, TrainArtefacts } from './training-pipeline'
+import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch } from './utterance'
 
 export type Predictors = TrainArtefacts & {
@@ -84,6 +84,10 @@ async function preprocessInput(
 ): Promise<{ stepOutput: PredictStep; predictors: Predictors }> {
   const { detectedLanguage, usedLanguage } = await DetectLanguage(input, Object.keys(predictorsBylang), tools)
   const predictors = predictorsBylang[usedLanguage]
+  if (_.isEmpty(predictors)) {
+    // eventually better validation than empty check
+    throw new InvalidLanguagePredictorError(usedLanguage)
+  }
 
   const stepOutput: PredictStep = {
     includedContexts: input.includedContexts,
@@ -180,7 +184,7 @@ function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]):
 }
 
 // TODO implement this algorithm properly / improve it
-// currently taken as is from svm classifier (engine 1) and does't make much sens
+// currently taken as is from svm classifier (engine 1) and doesn't make much sens
 function electIntent(input: PredictStep): PredictStep {
   const totalConfidence = Math.min(1, _.sumBy(input.ctx_predictions, 'confidence'))
   const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
@@ -322,6 +326,13 @@ export function findExactIntentForCtx(
   }
 }
 
+export class InvalidLanguagePredictorError extends Error {
+  constructor(public languageCode: string) {
+    super(`Predictor for language: ${languageCode} is not valid`)
+    this.name = 'PredictorError'
+  }
+}
+
 export const Predict = async (
   input: PredictInput,
   tools: Tools,
@@ -341,6 +352,9 @@ export const Predict = async (
     stepOutput = await extractSlots(stepOutput, predictors)
     return MapStepToOutput(stepOutput, t0)
   } catch (err) {
+    if (err instanceof InvalidLanguagePredictorError) {
+      throw err
+    }
     console.log('Could not perform predict predict data', err)
     return { errored: true } as sdk.IO.EventUnderstanding
   }

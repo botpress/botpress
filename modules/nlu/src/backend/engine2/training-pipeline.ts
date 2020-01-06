@@ -58,8 +58,8 @@ export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] 
 
 type progressCB = (p?: number) => void
 
-const debugIntents = DEBUG('nlu').sub('intents')
-const debugIntentsTrain = debugIntents.sub('train')
+const debugTraining = DEBUG('nlu').sub('training')
+const debugIntentsTrain = debugTraining.sub('intents')
 const NONE_INTENT = 'none'
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
@@ -391,10 +391,10 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
-    // TODO use bp.logger once this is moved in Engine2
     if (err instanceof TrainingCanceledError) {
-      console.log('Training aborted')
+      debugTraining('Training aborted')
     } else {
+      // TODO use bp.logger once this is moved in Engine2
       console.log('Could not finish training NLU model', err)
     }
     _.merge(model, { success: false })

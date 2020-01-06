@@ -4,7 +4,7 @@ title: Deployment
 original_id: hosting
 ---
 
-When you are ready to open your bot to the world, you should deploy it in production mode. When the bot is started in production, the botpress file system (BPFS) is enabled [click here for more details](versions) and debug logs are no longer displayed. We also strongly recomment using a Postgres database instead of the embedded SQLite.
+When you are ready to open your bot to the world, you should deploy it in production mode. When the bot is started in production, the botpress file system (BPFS) is enabled [click here for more details](versions) and debug logs are no longer displayed. We also strongly recommend using a Postgres database instead of the embedded SQLite.
 
 All you need to do is start Botpress with the `-p` flag, like this: `./bp -p`
 
@@ -20,7 +20,7 @@ Below are multiple possible ways of deploying Botpress in the cloud.
 
 ### Preparing the Docker image
 
-To create a new bot from scratch, simply create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace $VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
+To create a new bot from scratch, simply create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace \$VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
 
 ```docker
 FROM botpress/server:$VERSION
