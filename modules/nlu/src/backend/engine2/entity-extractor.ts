@@ -100,26 +100,26 @@ export const extractListEntities = (
     const candidates = []
     let longestCandidate = 0
 
-    for (const [canonical, occurences] of _.toPairs(list.mappingsTokens)) {
-      for (const occurence of occurences) {
+    for (const [canonical, occurrences] of _.toPairs(list.mappingsTokens)) {
+      for (const occurrence of occurrences) {
         for (let i = 0; i < utterance.tokens.length; i++) {
           if (utterance.tokens[i].isSpace) {
             continue
           }
-          const workset = takeUntil(utterance.tokens, i, _.sumBy(occurence, 'length'))
+          const workset = takeUntil(utterance.tokens, i, _.sumBy(occurrence, 'length'))
           const worksetStrLow = workset.map(x => x.toString({ lowerCase: true, realSpaces: true, trim: false }))
           const worksetStrWCase = workset.map(x => x.toString({ lowerCase: false, realSpaces: true, trim: false }))
-          const candidateAsString = occurence.join('')
+          const candidateAsString = occurrence.join('')
 
           if (candidateAsString.length > longestCandidate) {
             longestCandidate = candidateAsString.length
           }
 
-          const exact_score = exactScore(worksetStrWCase, occurence) === 1 ? 1 : 0
+          const exact_score = exactScore(worksetStrWCase, occurrence) === 1 ? 1 : 0
           const fuzzy = list.fuzzyTolerance < 1 && worksetStrLow.join('').length >= 4
-          const fuzzy_score = fuzzyScore(worksetStrLow, occurence.map(t => t.toLowerCase()))
+          const fuzzy_score = fuzzyScore(worksetStrLow, occurrence.map(t => t.toLowerCase()))
           const fuzzy_factor = fuzzy_score >= list.fuzzyTolerance ? fuzzy_score : 0
-          const structural_score = structuralScore(worksetStrWCase, occurence)
+          const structural_score = structuralScore(worksetStrWCase, occurrence)
           const finalScore = fuzzy ? fuzzy_factor * structural_score : exact_score * structural_score
 
           candidates.push({
@@ -128,7 +128,7 @@ export const extractListEntities = (
             start: i,
             end: i + workset.length - 1,
             source: workset.map(t => t.toString({ lowerCase: false, realSpaces: true })).join(''),
-            occurence: occurence.join(''),
+            occurrence: occurrence.join(''),
             eliminated: false
           })
         }
@@ -159,7 +159,7 @@ export const extractListEntities = (
           value: match.canonical,
           metadata: {
             source: match.source,
-            occurence: match.occurence,
+            occurrence: match.occurrence,
             entityId: list.id
           },
           type: list.entityName
