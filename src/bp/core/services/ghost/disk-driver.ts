@@ -11,7 +11,7 @@ import { FileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {
-  resolvePath = p => path.resolve(process.PROJECT_LOCATION, p)
+  resolvePath = (p: string) => path.resolve(process.PROJECT_LOCATION, p)
 
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {
@@ -56,7 +56,7 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async deleteDir(dirPath: string): Promise<void> {
     try {
-      return fse.removeSync(this.resolvePath(dirPath))
+      return fse.remove(this.resolvePath(dirPath))
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error deleting directory "${dirPath}"`)
     }
