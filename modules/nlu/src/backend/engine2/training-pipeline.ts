@@ -17,7 +17,7 @@ import {
 } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { e12E2Entity, extractListEntities, extractPatternEntities } from './entity-extractor'
+import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
@@ -277,7 +277,7 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     utterances.map(u => u.toString()),
     input.languageCode,
     true
-  )).map(ents => ents.map(e12E2Entity))
+  )).map(ents => ents.map(mapE1toE2Entity))
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {

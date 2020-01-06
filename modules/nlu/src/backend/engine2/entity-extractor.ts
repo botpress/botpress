@@ -181,7 +181,7 @@ export const extractPatternEntities = (
 }
 
 // TODO clean this later with entities and intent srvices
-export function e12E2Entity(ent: NLU.Entity): EntityExtractionResult {
+export function mapE1toE2Entity(ent: NLU.Entity): EntityExtractionResult {
   return {
     confidence: ent.meta.confidence,
     start: ent.meta.start,

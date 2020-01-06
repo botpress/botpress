@@ -7,7 +7,7 @@ import * as math from '../tools/math'
 import { Intent, PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { e12E2Entity, extractListEntities, extractPatternEntities } from './entity-extractor'
+import { mapE1toE2Entity, extractListEntities, extractPatternEntities } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch } from './utterance'
 
@@ -118,7 +118,7 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { utterance } = input
-  const sysEntities = (await tools.duckling.extract(utterance.toString(), utterance.languageCode)).map(e12E2Entity)
+  const sysEntities = (await tools.duckling.extract(utterance.toString(), utterance.languageCode)).map(mapE1toE2Entity)
 
   _.forEach(
     [
