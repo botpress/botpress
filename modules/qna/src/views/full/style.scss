@@ -306,3 +306,20 @@ $elementHeight: 40px;
     margin-left: -20px;
   }
 }
+
+.liteItemContainer {
+  width: 100%;
+  overflow-y: scroll;
+  height: 300px;
+}
+
+.liteHeader {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.liteSearch {
+  width: 250;
+  margin-bottom: 15;
+}

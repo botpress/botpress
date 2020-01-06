@@ -12,6 +12,7 @@ import {
 import { AccessControl } from 'botpress/utils'
 import React, { useEffect, useState } from 'react'
 
+import style from './style.scss'
 import Editor from './Editor'
 import { ExportButton } from './ExportButton'
 import { ImportModal } from './ImportModal'
@@ -85,8 +86,8 @@ export const LiteEditor = props => {
   return (
     <div>
       {!isEditing && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-          <div style={{ width: 250, marginBottom: 15 }}>
+        <div className={style.liteHeader}>
+          <div className={style.liteSearch}>
             <ControlGroup>
               <InputGroup
                 id="input-search"
@@ -109,7 +110,9 @@ export const LiteEditor = props => {
             </ControlGroup>
           </div>
 
-          {/* <div>
+          {/*
+          TODO: Support for import/export scoped to a category
+          <div>
             <Popover minimal position={Position.BOTTOM} captureDismiss={true}>
               <Button id="btn-menu" icon="menu" minimal={true} style={{ float: 'right' }} />
               <Menu>
@@ -134,7 +137,7 @@ export const LiteEditor = props => {
       )}
 
       {!isEditing && data && (
-        <div style={{ width: '100%', overflowY: 'scroll', height: '300px' }}>
+        <div className={style.liteItemContainer}>
           {data.map(item => (
             <Item
               key={item.id}

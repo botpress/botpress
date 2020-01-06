@@ -24,6 +24,9 @@ interface CssExports {
   'itemQuestionsTitle': string;
   'itemRedirect': string;
   'itemRedirectTitle': string;
+  'liteHeader': string;
+  'liteItemContainer': string;
+  'liteSearch': string;
   'paddedRow': string;
   'pale': string;
   'qna': string;
