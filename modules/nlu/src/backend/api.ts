@@ -122,9 +122,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const intentDefs = await botEngine.storage.getIntents()
     const entityDefs = await botEngine.storage.getCustomEntities()
 
-    bp.logger.forBot(botId).info('started cross validation')
+    bp.logger.forBot(botId).info('Started cross validation')
     const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang)
-    bp.logger.forBot(botId).info('finished cross validation')
+    bp.logger.forBot(botId).info('Finished cross validation')
 
     res.send(xValidationRes)
   })
