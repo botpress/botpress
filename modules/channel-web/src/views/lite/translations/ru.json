@@ -14,5 +14,6 @@
   "loginForm.submit": "Отправить",
   "loginForm.formTitle": "Форма для входа",
   "loginForm.providedCredentials": "Введенные данные",
-  "messages.newMessage": "Новое сообщение"
+  "messages.newMessage": "Новое сообщение",
+  "messages.newMessages": "новые сообщения"
 }

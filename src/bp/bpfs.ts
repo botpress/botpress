@@ -131,7 +131,11 @@ class BPFS {
           await this._clearRevisions(this.sourceDir)
         }
 
-        console.log(chalk.green(`Successfully pushed ${localFiles.length} local files to remote server!`))
+        console.log(
+          chalk.green(
+            `Successfully pushed ${localFiles.length} local file${localFiles.length === 1 ? '' : 's'} to remote server!`
+          )
+        )
       } else {
         this._printOutOfSync()
         this._printChangeList(changeList)

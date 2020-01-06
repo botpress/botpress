@@ -9,5 +9,6 @@
   "botInfo.termsAndConditions": "Ver términos de servicio",
   "botInfo.preferredLanguage": "Preferred Language",
   "store.resetSessionMessage": "Restablecer la conversación",
-  "messages.newMessage": "Nuevo mensaje"
+  "messages.newMessage": "Nuevo mensaje",
+  "messages.newMessages": "Nuevos mensajes"
 }

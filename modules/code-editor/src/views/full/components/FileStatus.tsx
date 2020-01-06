@@ -24,8 +24,11 @@ const FileStatus = props => {
     <SidePanelSection label={'File Information'} actions={actions}>
       <div style={{ padding: 5 }}>
         <strong>Warning</strong>
-        <p>There are {problems.length} errors in your file.</p>
-        <p>Please make sure to fix them before saving.</p>
+        <p>
+          There {problems.length === 1 ? 'is' : 'are'} {problems.length} error{problems.length === 1 ? '' : 's'} in your
+          file.
+        </p>
+        <p>Please make sure to fix {problems.length === 1 ? 'it' : 'them'} before saving.</p>
 
         <span onClick={() => setErrorDisplayed(!showErrors)} style={{ cursor: 'pointer' }}>
           {showErrors && <Icon icon="caret-down" />}

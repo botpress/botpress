@@ -46,18 +46,26 @@ const IntentHint: FC<Props> = props => {
   }
 
   if (utterances.length && utterances.length < recommendations.minUtterancesForML) {
+    const remaining = recommendations.minUtterancesForML - utterances.length
     hint = (
       <span>
         This intent will use <strong>exact match only</strong>. To enable machine learning, add at least{' '}
-        <strong>{recommendations.minUtterancesForML - utterances.length} more utterances</strong>
+        <strong>
+          {remaining} more utterance{remaining === 1 ? '' : 's'}
+        </strong>
       </span>
     )
   }
 
   if (utterances.length >= recommendations.minUtterancesForML && utterances.length < idealNumberOfUtt) {
+    const remaining = idealNumberOfUtt - utterances.length
     hint = (
       <span>
-        Add <strong>{idealNumberOfUtt - utterances.length} more utterances</strong> to make NLU more resilient.
+        Add{' '}
+        <strong>
+          {remaining} more utterance{remaining === 1 ? ' ' : 's '}
+        </strong>
+        to make NLU more resilient.
       </span>
     )
   }

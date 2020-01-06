@@ -115,7 +115,7 @@ export class MigrationService {
     const opts = await this.getMigrationOpts()
 
     this.logger.info(chalk`========================================
-{bold ${center(`Executing ${missingMigrations.length.toString()} migrations`, 40)}}
+{bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40)}}
 ========================================`)
 
     const completed = await this._getCompletedMigrations()
@@ -185,7 +185,7 @@ export class MigrationService {
     logger.warn(chalk`========================================
 {bold ${center(`Migration Required`, 40)}}
 {dim ${center(`Version ${configVersion} => ${this.currentVersion} `, 40)}}
-{dim ${center(`${migrations.length} changes`, 40)}}
+{dim ${center(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40)}}
 ========================================`)
 
     Object.keys(types).map(type => {

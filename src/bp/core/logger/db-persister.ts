@@ -55,7 +55,7 @@ export class LoggerDbPersister {
 
   private runTask = async () => {
     if (process.env.DEBUG_LOGGER) {
-      this.logger.debug(`Saving ${this.batch.length} logs`)
+      this.logger.debug(`Saving ${this.batch.length} log${this.batch.length === 1 ? '' : 's'}`)
     }
 
     if (this.currentPromise || this.batch.length === 0) {
