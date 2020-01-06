@@ -51,7 +51,9 @@ export const Container = (props: ContainerProps) => {
       <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
         <SplitPane split={'vertical'} defaultSize={width} size={sidePanelVisible ? width : 0}>
           {childs[0]}
-          <div className={style.fullsize}>{childs.slice(1)}</div>
+          <div className={classnames(style.fullsize, { [style.yOverflowScroll]: props.yOverflowScroll })}>
+            {childs.slice(1)}
+          </div>
         </SplitPane>
       </div>
     </HotKeys>
@@ -90,7 +92,7 @@ export const SearchBar = (props: SearchBarProps) => {
     <div className={style.searchBar}>
       <ControlGroup fill={true}>
         <InputGroup
-          id="input-filter"
+          id={props.id}
           leftIcon={props.icon}
           placeholder={props.placeholder || 'Search'}
           value={text}

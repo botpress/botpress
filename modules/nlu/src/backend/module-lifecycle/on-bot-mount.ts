@@ -69,12 +69,14 @@ export function getOnBotMount(state: NLUState) {
               await ModelService.saveModel(ghost, model, hash)
             }
           }
-
-          await lock.unlock()
-          // TODO remove training session from state, kvs will clear itself or not ?
-          if (model.success) {
-            await state.broadcastLoadModel(botId, hash, languageCode)
+          try {
+            if (model.success) {
+              await state.broadcastLoadModel(botId, hash, languageCode)
+            }
+          } finally {
+            await lock.unlock()
           }
+          // TODO remove training session from state, kvs will clear itself or not ?
         })
       },
       4000,

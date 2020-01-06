@@ -91,7 +91,7 @@ export class MigrationService {
 
     this.displayMigrationStatus(botVersion, missingMigrations, this.logger.forBot(botId))
     const opts = await this.getMigrationOpts({ botId })
-    let hasFailures
+    let hasFailures = false
 
     await Promise.mapSeries(missingMigrations, async ({ filename }) => {
       const result = await this.loadedMigrations[filename].up(opts)

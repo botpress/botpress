@@ -1,5 +1,4 @@
-import { Button, HTMLTable, Icon, Position, Tooltip } from '@blueprintjs/core'
-import P from 'bluebird'
+import { Button, HTMLTable, Icon, Position, Tooltip, ContextMenuTarget, Menu, MenuItem } from '@blueprintjs/core'
 import { Container, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React from 'react'
@@ -39,32 +38,6 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
     this.api.fetchTests().then(tests => this.setState({ tests }))
   }
 
-  renderDetails = (res: TestResult) => (
-    <div>
-      {res.details
-        .filter(r => !r.success)
-        .map(r => (
-          <p>{r.reason}</p>
-        ))}
-    </div>
-  )
-
-  renderResult = testId => {
-    const result = this.state.testResults[testId]
-    if (result === undefined) {
-      return <span>-</span>
-    }
-    if (result.success) {
-      return <Icon icon="tick-circle" intent="success" />
-    } else {
-      return (
-        <Tooltip position={Position.LEFT} content={this.renderDetails(result)}>
-          <Icon icon="warning-sign" intent="danger" />
-        </Tooltip>
-      )
-    }
-  }
-
   renderEmpty() {
     return (
       <SplashScreen
@@ -77,7 +50,7 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
 
   renderTable() {
     return (
-      <HTMLTable bordered striped>
+      <HTMLTable bordered striped interactive>
         <thead>
           <tr>
             <th>Utterance</th>
@@ -88,13 +61,13 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
         </thead>
         <tbody>
           {this.state.tests.map(test => (
-            <tr>
-              {/* TODO edit utterance in place */}
-              <td>{test.utterance}</td>
-              <td>{test.context}</td>
-              <td>{test.conditions.map(c => c.join('-')).join(' | ')}</td>
-              <td>{this.renderResult(test.id)}</td>
-            </tr>
+            <TableRow
+              test={test}
+              testResults={this.state.testResults}
+              onDelete={() => {
+                this.api.deleteTest(test).then(() => this.refreshSessions())
+              }}
+            />
           ))}
         </tbody>
       </HTMLTable>
@@ -102,21 +75,34 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
   }
 
   runTests = async () => {
-    const testResults = (await P.mapSeries(this.state.tests, this.api.runTest)).reduce((resultsMap, result) => {
-      return { ...resultsMap, [result.id]: result }
-    }, {})
-    this.setState({ testResults })
+    await new Promise(resolve => this.setState({ testResults: {} }, resolve))
+    for (let test of this.state.tests) {
+      const result = await this.api.runTest(test)
+      await new Promise(resolve =>
+        this.setState({ testResults: { ...this.state.testResults, [result.id]: result } }, resolve)
+      )
+    }
   }
 
   render() {
     return (
-      <Container sidePanelHidden={true}>
+      <Container sidePanelHidden={true} yOverflowScroll={true}>
         <div />
         <div className="bph-layout-main">
           <div className="bph-layout-middle">
             <div>
               <Button type="button" intent="primary" minimal icon="add" onClick={() => this.showModal()}>
                 Create a test
+              </Button>
+              <Button
+                disabled={this.state.tests.length === 0}
+                type="button"
+                intent="primary"
+                minimal
+                icon="play"
+                onClick={() => this.runTests()}
+              >
+                Run all tests
               </Button>
             </div>
             <div className={style.container}>
@@ -128,17 +114,58 @@ export default class NLUTests extends React.Component<{ bp: any }, State> {
                 visible={this.state.createModalVisible}
                 onTestCreated={() => this.refreshSessions()}
               />
-              {this.state.tests.length > 0 && (
-                <div>
-                  <Button type="button" intent="success" icon="play" onClick={this.runTests}>
-                    Run all tests
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         </div>
       </Container>
+    )
+  }
+}
+
+@ContextMenuTarget
+class TableRow extends React.Component<{ test: Test; testResults: any; onDelete: () => void }, {}> {
+  render() {
+    return (
+      <tr>
+        {/* TODO edit utterance in place */}
+        <td>{this.props.test.utterance}</td>
+        <td>{this.props.test.context}</td>
+        <td>{this.props.test.conditions.map(c => c.join('-')).join(' | ')}</td>
+        <td>{this.renderResult()}</td>
+      </tr>
+    )
+  }
+
+  renderDetails = (res: TestResult) => (
+    <div>
+      {res.details
+        .filter(r => !r.success)
+        .map(r => (
+          <p>{r.reason}</p>
+        ))}
+    </div>
+  )
+
+  renderResult = () => {
+    const result = this.props.testResults[this.props.test.id]
+    if (result === undefined) {
+      return <span>-</span>
+    } else if (result.success) {
+      return <Icon icon="tick-circle" intent="success" />
+    } else {
+      return (
+        <Tooltip position={Position.LEFT} content={this.renderDetails(result)}>
+          <Icon icon="warning-sign" intent="danger" />
+        </Tooltip>
+      )
+    }
+  }
+
+  renderContextMenu = (e: React.MouseEvent<HTMLElement>) => {
+    return (
+      <Menu>
+        <MenuItem onClick={this.props.onDelete} text="Delete" />
+      </Menu>
     )
   }
 }

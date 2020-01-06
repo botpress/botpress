@@ -19,6 +19,7 @@ interface CssExports {
   'sidePanel_section': string;
   'splashScreen': string;
   'toolbar': string;
+  'yOverflowScroll': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

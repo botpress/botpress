@@ -73,7 +73,7 @@ describe('Custom entity extraction', () => {
         name: 'Cars',
         type: 'list',
         fuzzy: true,
-        occurences: [
+        occurrences: [
           {
             name: 'Mercedes-Benz',
             synonyms: ['Benz', 'Mercedez Benz', 'Mercedez', 'Merc']
@@ -134,7 +134,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
           name: 'Oeufs',
           type: 'list',
           fuzzy: true,
-          occurences: [
+          occurrences: [
             {
               name: 'mirroirs',
               synonyms: []
@@ -216,7 +216,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
         name: 'Artists',
         type: 'list',
         fuzzy: false,
-        occurences: [
+        occurrences: [
           {
             name: 'Kanye West',
             synonyms: ['Ye']
@@ -253,7 +253,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
         name: 'People',
         type: 'list',
         fuzzy: true,
-        occurences: [
+        occurrences: [
           {
             name: 'Jon Gore',
             synonyms: ['Jon', 'Gore']
@@ -296,7 +296,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
         name: 'numbers',
         type: 'list',
         fuzzy: true,
-        occurences: [
+        occurrences: [
           {
             name: 'one',
             synonyms: ['two', 'three', 'one two', 'two three', 'one two three']
@@ -351,7 +351,7 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
         name: 'bunchOfChars',
         type: 'list',
         fuzzy: true,
-        occurences: [
+        occurrences: [
           {
             name: 'aecsp',
             synonyms: ['acspe', 'essacc', 'eascsc']

@@ -234,7 +234,7 @@ declare module 'botpress/sdk' {
   export namespace NLU {
     export type EntityType = 'system' | 'pattern' | 'list'
 
-    export interface EntityDefOccurence {
+    export interface EntityDefOccurrence {
       name: string
       synonyms: string[]
     }
@@ -243,7 +243,7 @@ declare module 'botpress/sdk' {
       id: string
       name: string
       type: EntityType
-      occurences?: EntityDefOccurence[]
+      occurrences?: EntityDefOccurrence[]
       pattern?: string
     }
 
