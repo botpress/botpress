@@ -12,7 +12,7 @@ export type Tag = 'o' | 'B' | 'I'
 export interface Token {
   tag?: Tag
   value: string
-  cannonical: string
+  canonical: string
   slot?: string
   start: number
   end: number
@@ -22,7 +22,7 @@ export interface Token {
 // TODO get rid of this and use upcoming Utterance
 export interface Sequence {
   intent: string
-  cannonical: string
+  canonical: string
   tokens: Token[]
   contexts?: string[]
 }
@@ -142,10 +142,11 @@ export interface NluMlRecommendations {
   goodUtterancesForML: number
 }
 
+// TODOs adjust typings
 export interface Engine2 {
-  loadModel: Function
-  train: Function
-  predict: Function
+  loadModel: (m: any) => Promise<void>
+  train: (...args) => Promise<any>
+  predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
 }
 
 export interface NLUState {

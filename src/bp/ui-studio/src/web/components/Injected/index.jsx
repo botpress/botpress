@@ -28,8 +28,7 @@ export default class InjectedComponent extends Component {
         </div>
         {/* TODO Put documentation / help here */}
         <div className="panel-footer">
-          Developer? <a href="https://github.com/botpress/botpress/tree/master/docs">click here</a>
-          to see why this might happen
+          Developer? <a href="https://botpress.io/docs">click here</a> to see why this might happen
         </div>
       </div>
     )

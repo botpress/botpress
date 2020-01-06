@@ -26,7 +26,7 @@ const reduceTokens = (text: string) => (currentTokens: Token[], token: string) =
 
   const newToken = {
     value: token,
-    cannonical: sanitized,
+    canonical: sanitized,
     start,
     end: start + trimedToken.length,
     matchedEntities: []
@@ -60,7 +60,7 @@ export const mergeSpecialCharactersTokens = (tokens: Token[], specialChars: stri
 
     if (shouldMergeSpecialChars || shouldMergeLatinWords) {
       current.value += head.value
-      current.cannonical += head.cannonical
+      current.canonical += head.canonical
       current.end = head.end
       current.matchedEntities = current.matchedEntities.concat(head.matchedEntities)
     } else {

@@ -34,6 +34,7 @@ export const CreateTestModal: FC<Props> = props => {
         .uniq()
         .value()
       setAvailableCtxs(ctxs)
+      setSelectedCtx(ctxs[0] || 'global')
     })
   }, [])
 
@@ -54,8 +55,6 @@ export const CreateTestModal: FC<Props> = props => {
 
     await props.api.updateTest(test)
     setUtterance('')
-    setEquals(noneIntent)
-    setSelectedCtx('global')
     props.onTestCreated(test)
     props.hide()
   }

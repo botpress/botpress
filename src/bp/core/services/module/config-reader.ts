@@ -16,7 +16,7 @@ type Config = { [key: string]: any }
  * Load configuration for a specific module in the following precedence order:
  * 1) Default Value (Least precedence)
  * 2) Global Value Override
- * 3) Environement Variable Override
+ * 3) Environment Variable Override
  * 4) Per-bot Override (Most precedence)
  */
 export default class ConfigReader {
