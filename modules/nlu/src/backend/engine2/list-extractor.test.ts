@@ -62,7 +62,7 @@ describe('list entity extractor', () => {
     expect(results[0].type).toBe('fruit')
     expect(results[0].confidence).toBeGreaterThan(0.9)
     expect(results[0].metadata.source).toBe('Blueberries')
-    expect(results[0].metadata.occurence).toBe('blueberries')
+    expect(results[0].metadata.occurrence).toBe('blueberries')
   })
 
   describe('exact match', () => {

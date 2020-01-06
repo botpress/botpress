@@ -35,7 +35,7 @@ export default class E2 implements Engine2 {
           name: e.name,
           fuzzyTolerance: e.fuzzy,
           sensitive: e.sensitive,
-          synonyms: _.chain(e.occurences)
+          synonyms: _.chain(e.occurrences)
             .keyBy('name')
             .mapValues('synonyms')
             .value()
@@ -129,7 +129,7 @@ export default class E2 implements Engine2 {
     const tools = E2.tools
 
     if (input.intents.length > 0) {
-      const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
+      const ctx_classifier = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
       const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
         (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
         {} as _.Dictionary<MLToolkit.SVM.Predictor>
@@ -141,7 +141,7 @@ export default class E2 implements Engine2 {
 
       return {
         ...artefacts,
-        ctx_classifer,
+        ctx_classifier,
         intent_classifier_per_ctx,
         slot_tagger,
         kmeans,

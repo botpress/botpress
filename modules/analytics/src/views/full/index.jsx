@@ -296,7 +296,7 @@ export default class AnalyticsModule extends React.Component {
 
   renderRetentionHeatMapChart() {
     return (
-      <Table striped bordered hover className={style.rententionHeatMap}>
+      <Table striped bordered hover className={style.retentionHeatMap}>
         {this.renderRetentionHeatMapHeader()}
         {this.renderRetentionHeatMapBody()}
       </Table>

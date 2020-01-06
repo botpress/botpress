@@ -12,7 +12,7 @@ import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './trai
 import Utterance, { buildUtteranceBatch } from './utterance'
 
 export type Predictors = TrainArtefacts & {
-  ctx_classifer: sdk.MLToolkit.SVM.Predictor
+  ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   kmeans: sdk.MLToolkit.KMeans.KmeansResult
   slot_tagger: CRFExtractor2 // TODO replace this by MlToolkit.CRF.Tagger
@@ -131,7 +131,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
   }
 
   const features = input.utterance.sentenceEmbedding
-  const predictions = await predictors.ctx_classifer.predict(features)
+  const predictions = await predictors.ctx_classifier.predict(features)
 
   return {
     ...input,

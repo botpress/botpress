@@ -92,7 +92,7 @@ export const SearchBar = (props: SearchBarProps) => {
     <div className={style.searchBar}>
       <ControlGroup fill={true}>
         <InputGroup
-          id="input-filter"
+          id={props.id}
           leftIcon={props.icon}
           placeholder={props.placeholder || 'Search'}
           value={text}

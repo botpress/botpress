@@ -23,9 +23,9 @@ class Daemon {
       return Bluebird.resolve(undefined)
     }
 
-    const nextOccurence = util.getNextOccurence(task.schedule_type, task.schedule).toDate()
+    const nextOccurrence = util.getNextOccurrence(task.schedule_type, task.schedule).toDate()
 
-    return this.db.scheduleNext(task.id, nextOccurence)
+    return this.db.scheduleNext(task.id, nextOccurrence)
   }
 
   private runSingleTask = async expired => {

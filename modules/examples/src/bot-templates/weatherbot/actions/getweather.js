@@ -13,7 +13,7 @@ const myAction = async () => {
 
   let response
   try {
-    response = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${query}&units=metric&APPID=${apiKey}`)
+    response = await axios.get(`http://api.openweathermap.org/data/2.5/weather?q=${query}&units=metric&appid=${apiKey}`)
   } catch (error) {
     if (error.response && error.response.status === 401) {
       throw new Error('Request failed with status code 401. Have you set up your OpenWeather API Key properly?')
