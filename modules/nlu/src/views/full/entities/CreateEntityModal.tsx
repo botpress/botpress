@@ -41,7 +41,7 @@ export const CreateEntityModal: FC<Props> = props => {
         .replace(/[\t\s]/g, '-'),
       name,
       type: type as NLU.EntityType,
-      occurences: []
+      occurrences: []
     }
     props.api.createEntity(entity).then(() => {
       setName('')

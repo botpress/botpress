@@ -16,7 +16,7 @@ import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
 import style from './style.scss'
-import { Occurence } from './ListEntityOccurence'
+import { Occurrence } from './ListEntityOccurrence'
 
 interface Props {
   entity: NLU.EntityDefinition
@@ -31,38 +31,38 @@ const FuzzyTolerance = {
 
 export const ListEntityEditor: React.FC<Props> = props => {
   const [fuzzy, setFuzzy] = useState(props.entity.fuzzy)
-  const [newOccurence, setNewOccurence] = useState('')
-  const [occurences, setOccurences] = useState(props.entity.occurences)
+  const [newOccurrence, setNewOccurrence] = useState('')
+  const [occurrences, setOccurrences] = useState(props.entity.occurrences)
 
   useEffect(() => {
-    setOccurences(props.entity.occurences)
+    setOccurrences(props.entity.occurrences)
     setFuzzy(props.entity.fuzzy)
   }, [props.entity.id])
 
   useEffect(() => {
-    const newEntity = { ...props.entity, fuzzy, occurences }
+    const newEntity = { ...props.entity, fuzzy, occurrences }
     if (!_.isEqual(newEntity, props.entity)) {
       props.updateEntity(newEntity)
     }
-  }, [occurences, fuzzy])
+  }, [occurrences, fuzzy])
 
-  const isNewOccurenceEmtpy = () => newOccurence.trim().length === 0
+  const isNewOccurrenceEmpty = () => newOccurrence.trim().length === 0
 
-  const addOccurence = () => {
-    if (isNewOccurenceEmtpy()) {
+  const addOccurrence = () => {
+    if (isNewOccurrenceEmpty()) {
       return
     }
 
-    setOccurences([...occurences, { name: newOccurence, synonyms: [] }])
-    setNewOccurence('')
+    setOccurrences([...occurrences, { name: newOccurrence, synonyms: [] }])
+    setNewOccurrence('')
   }
 
-  const editOccurence = (idx: number, occurence: NLU.EntityDefOccurence) => {
-    setOccurences([...occurences.slice(0, idx), occurence, ...occurences.slice(idx + 1)])
+  const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
+    setOccurrences([...occurrences.slice(0, idx), occurrence, ...occurrences.slice(idx + 1)])
   }
 
-  const removeOccurence = (idx: number) => {
-    setOccurences([...occurences.slice(0, idx), ...occurences.slice(idx + 1)])
+  const removeOccurrence = (idx: number) => {
+    setOccurrences([...occurrences.slice(0, idx), ...occurrences.slice(idx + 1)])
   }
 
   const handleFuzzyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,37 +76,37 @@ export const ListEntityEditor: React.FC<Props> = props => {
           label={
             <span>
               <Tooltip
-                content="An occurence is a value of your entity. Each occurences can have multiple synonyms."
+                content="An occurrence is a value of your entity. Each occurrence can have multiple synonyms."
                 position={Position.LEFT}
                 popoverClassName={style.configPopover}
               >
                 <span>
-                  New occurence&nbsp;
+                  New occurrence&nbsp;
                   <Icon icon="help" color={Colors.GRAY3} />
                 </span>
               </Tooltip>
             </span>
           }
-          labelFor="occurence"
+          labelFor="occurrence"
         >
           <InputGroup
-            rightElement={<Button icon="add" minimal onClick={addOccurence} disabled={isNewOccurenceEmtpy()} />}
+            rightElement={<Button icon="add" minimal onClick={addOccurrence} disabled={isNewOccurrenceEmpty()} />}
             type="text"
-            id="occurence"
+            id="occurrence"
             placeholder="Type a value (ex: Chicago)"
-            value={newOccurence}
-            onKeyDown={e => e.keyCode === 13 && addOccurence()}
-            onChange={e => setNewOccurence(e.target.value)}
+            value={newOccurrence}
+            onKeyDown={e => e.keyCode === 13 && addOccurrence()}
+            onChange={e => setNewOccurrence(e.target.value)}
           />
         </FormGroup>
-        {occurences.length > 0 && (
-          <FormGroup label="Occurences">
-            {occurences.map((o, i) => (
-              <Occurence
+        {occurrences.length > 0 && (
+          <FormGroup label="Occurrences">
+            {occurrences.map((o, i) => (
+              <Occurrence
                 key={o.name}
-                occurence={o}
-                remove={removeOccurence.bind(null, i)}
-                onChange={editOccurence.bind(null, i)}
+                occurrence={o}
+                remove={removeOccurrence.bind(null, i)}
+                onChange={editOccurrence.bind(null, i)}
               />
             ))}
           </FormGroup>

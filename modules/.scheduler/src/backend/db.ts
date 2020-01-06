@@ -45,7 +45,7 @@ export default class SchedulerDb {
 
     options.schedule_human = util.getHumanExpression(options.schedule_type, options.schedule)
 
-    const firstOccurence = util.getNextOccurence(options.schedule_type, options.schedule).toDate()
+    const firstOccurrence = util.getNextOccurrence(options.schedule_type, options.schedule).toDate()
 
     return this.knex('scheduler_schedules')
       .insert({
@@ -55,7 +55,7 @@ export default class SchedulerDb {
       })
       .then(() => {
         if (options.enabled) {
-          return this.scheduleNext(id, firstOccurence)
+          return this.scheduleNext(id, firstOccurrence)
         }
       })
       .then(() => Promise.resolve(id))
