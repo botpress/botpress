@@ -1,10 +1,9 @@
 import * as sdk from 'botpress/sdk'
-
-import { FuzzyTolerance } from '../backend/entities'
+import _ from 'lodash'
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: 'Adds missing fields in custom entities',
+    description: 'Updates misspelled property in custom entities',
     target: 'bot',
     type: 'content'
   },
@@ -14,23 +13,8 @@ const migration: sdk.ModuleMigration = {
       const entFiles = await bpfs.directoryListing('./entities', '*.json')
       for (const fileName of entFiles) {
         const entityDef = (await bpfs.readFileAsObject('./entities', fileName)) as sdk.NLU.EntityDefinition
-        if (entityDef.type === 'pattern') {
-          if (entityDef.matchCase === undefined) {
-            entityDef.matchCase = false
-          }
-          if (entityDef.examples === undefined) {
-            entityDef.examples = []
-          }
-        }
-
-        if (entityDef.type === 'list') {
-          if (entityDef.fuzzy) {
-            entityDef.fuzzy = FuzzyTolerance.Medium
-          } else {
-            entityDef.fuzzy = FuzzyTolerance.Strict
-          }
-        }
-
+        entityDef.occurrences = _.cloneDeep(entityDef['occurences'])
+        delete entityDef['occurences']
         await bpfs.upsertFile('./entities', fileName, JSON.stringify(entityDef, undefined, 2))
       }
     }
@@ -41,7 +25,7 @@ const migration: sdk.ModuleMigration = {
       await Promise.map(bots.keys(), botId => migrateBotEntities(botId))
     }
 
-    return { success: true, message: "Entities' fields updated successfully" }
+    return { success: true, message: "Entities' properties updated successfully" }
   }
 }
 

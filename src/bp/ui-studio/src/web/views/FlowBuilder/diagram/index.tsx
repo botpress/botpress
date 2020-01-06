@@ -102,13 +102,11 @@ class Diagram extends Component<Props> {
   componentDidMount() {
     this.props.fetchFlows()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
@@ -334,26 +332,6 @@ class Diagram extends Component<Props> {
 
   createFlow(name: string) {
     this.props.createFlow(name + '.flow.json')
-  }
-
-  onDiagramDoubleClick = (event?: MouseEvent) => {
-    if (event) {
-      // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
-      const target = this.diagramWidget.getMouseElement(event)
-      if (
-        target &&
-        !(
-          target.model instanceof StandardNodeModel ||
-          target.model instanceof SkillCallNodeModel ||
-          target.model instanceof RouterNodeModel
-        )
-      ) {
-        return
-      }
-    }
-
-    // TODO: delete this once 12.2.1 is out
-    toastInfo('Pssst! Just click once a node to inspect it, no need to double-click anymore.', Timeout.LONG)
   }
 
   canTargetOpenInspector = target => {

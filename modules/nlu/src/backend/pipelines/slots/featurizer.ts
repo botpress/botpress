@@ -53,7 +53,7 @@ export async function getWordWeight(
   let value: string
 
   try {
-    const strTok = token.cannonical.toLowerCase()
+    const strTok = token.canonical.toLowerCase()
     let weight = tfidf['global'][strTok]
     if (!weight) {
       // TODO use vector in token instead
@@ -80,7 +80,7 @@ export async function getClusterFeat(
   kmeansModel: MLToolkit.KMeans.KmeansResult,
   language: string
 ): Promise<CRFFeature> {
-  const data32 = await languageProvider.vectorize([token.cannonical.toLowerCase()], language) // TODO use token.wordVector instead
+  const data32 = await languageProvider.vectorize([token.canonical.toLowerCase()], language) // TODO use token.wordVector instead
   const data = data32.map(d => Array.from(d)) // usage of .map bc nearest needs an array (size 1 here)
 
   const cluster = kmeansModel.nearest(data)[0]
@@ -96,14 +96,14 @@ export function getWordFeat(token: Token, isPredict: boolean): CRFFeature | unde
   if (!token.matchedEntities.length) {
     return {
       name: 'word',
-      value: token.cannonical.toLowerCase(),
+      value: token.canonical.toLowerCase(),
       boost
     }
   }
 }
 
 export function getInVocabFeat(token: Token, vocab, intent: string): CRFFeature {
-  const inVocab = !token.slot && (_.get(vocab, token.cannonical.toLowerCase(), []).includes(intent) as boolean)
+  const inVocab = !token.slot && (_.get(vocab, token.canonical.toLowerCase(), []).includes(intent) as boolean)
   return {
     name: 'inVocab',
     value: inVocab
@@ -133,21 +133,21 @@ export function getSpaceFeat(token: Token): CRFFeature {
 export function getNum(token: Token): CRFFeature {
   return {
     name: 'num',
-    value: countNum(token.cannonical)
+    value: countNum(token.canonical)
   }
 }
 
 export function getAlpha(token: Token): CRFFeature {
   return {
     name: 'alpha',
-    value: countAlpha(token.cannonical)
+    value: countAlpha(token.canonical)
   }
 }
 
 export function getSpecialChars(token: Token): CRFFeature {
   return {
     name: 'special',
-    value: countSpecial(token.cannonical)
+    value: countSpecial(token.canonical)
   }
 }
 

@@ -93,7 +93,7 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   renderMessageGroups() {
-    const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMesage(m))
+    const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMessage(m))
     const groups = []
 
     let lastSpeaker = undefined
@@ -166,7 +166,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     )
   }
 
-  shouldDisplayMesage = (m: Message): boolean => {
+  shouldDisplayMessage = (m: Message): boolean => {
     return m.message_type !== 'postback'
   }
 

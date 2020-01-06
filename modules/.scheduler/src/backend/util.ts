@@ -4,7 +4,7 @@ import moment from 'moment'
 
 const cronstrue = require('cronstrue')
 
-const getNextOccurence = (type, exp) => {
+const getNextOccurrence = (type, exp) => {
   switch (type.toLowerCase()) {
     case 'cron':
       cronstrue.toString(exp) // Validation
@@ -27,7 +27,7 @@ const validateExpression = (type, exp) => {
     throw new Error('Invalid expression type: ' + type)
   }
 
-  getNextOccurence(type, exp)
+  getNextOccurrence(type, exp)
 }
 
 const getHumanExpression = (type, exp) => {
@@ -43,4 +43,4 @@ const getHumanExpression = (type, exp) => {
   }
 }
 
-export default { getNextOccurence, validateExpression, getHumanExpression }
+export default { getNextOccurrence, validateExpression, getHumanExpression }

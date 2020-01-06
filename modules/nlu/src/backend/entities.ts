@@ -6,7 +6,7 @@ export const FuzzyTolerance = {
   Strict: 1
 }
 
-const EntityDefOccurenceSchema = Joi.object().keys({
+const EntityDefOccurrenceSchema = Joi.object().keys({
   name: Joi.string().required(),
   synonyms: Joi.array().items(Joi.string())
 })
@@ -25,8 +25,8 @@ export const EntityDefCreateSchema = Joi.object().keys({
   examples: Joi.array()
     .items(Joi.string())
     .default([]),
-  occurences: Joi.array()
-    .items(EntityDefOccurenceSchema)
+  occurrences: Joi.array()
+    .items(EntityDefOccurrenceSchema)
     .default([]),
   pattern: Joi.string().default('')
 })
