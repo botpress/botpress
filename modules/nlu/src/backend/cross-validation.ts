@@ -3,6 +3,7 @@ import _ from 'lodash'
 const seedrandom = require('seedrandom')
 
 import Engine2 from './engine2/engine2'
+import { MIN_NB_UTTERANCES } from './engine2/training-pipeline'
 import Utterance, { buildUtteranceBatch } from './engine2/utterance'
 import MultiClassF1Scorer, { F1 } from './tools/f1-scorer'
 import { BIO } from './typings'
@@ -38,7 +39,7 @@ async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet,
   const trainSet = (await Promise.map(intents, async i => {
     // split data & preserve distribution
     const nTrain = Math.floor(TRAIN_SET_SIZE * i.utterances[language].length)
-    if (nTrain < 3) {
+    if (nTrain < MIN_NB_UTTERANCES) {
       return // filter out thouse without enough data
     }
 

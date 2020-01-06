@@ -68,6 +68,7 @@ export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   slots: 'ignore',
   entities: 'ignore'
 }
+export const MIN_NB_UTTERANCES = 3
 const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.SVM.SVMOptions
 // TODO grid search / optimization for those hyperparams
 const NUM_CLUSTERS = 8
@@ -190,7 +191,7 @@ const trainIntentClassifer = async (
   const n_ctx = input.contexts.length
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= 3) // min nb utterances
+      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
