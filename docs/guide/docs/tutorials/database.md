@@ -31,4 +31,4 @@ While using Postgres, you can configure the Connection Pools by using the `DATAB
 
 Please make sure you are using Postgres 9.5 or higher.
 
-If you don't want to type those variables each time you start Botpress, we also supports `.env` files. Check out our [configuration section](../advanced/configuration) for more informations about that
+If you don't want to type those variables each time you start Botpress, we also supports `.env` files. Check out our [configuration section](../advanced/configuration) for more information about that

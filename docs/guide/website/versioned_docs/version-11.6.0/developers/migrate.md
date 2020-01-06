@@ -22,7 +22,7 @@ my-module/views/full/index.jsx
 my-module/views/lite/index.jsx
 ```
 
-More informations: http://localhost:3001/docs/next/developers/create-module#views
+More information: http://localhost:3001/docs/next/developers/create-module#views
 
 ## Migration from 11.3 to 11.4
 

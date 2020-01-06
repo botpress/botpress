@@ -26,12 +26,12 @@ There is an example included in the default botpress installation at `http://loc
 
 ## How to display a Bot Information page
 
-The information page displays informations like the website url, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
+The information page displays information like the website url, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
 
 How to set up the information page:
 
 1. On the Admin UI, click on the link `Config` next to the name of the bot you want to change.
-2. Edit your bot informations in the `More details` and `Pictures` sections.
+2. Edit your bot information in the `More details` and `Pictures` sections.
 3. Edit the file `data/global/config/channel-web.json` and set `showBotInfoPage` to `true` \*\*
 4. Refresh your browser.
 

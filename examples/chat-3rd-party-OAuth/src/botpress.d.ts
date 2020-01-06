@@ -73,18 +73,18 @@ declare module 'botpress/sdk' {
    */
   export interface ModuleEntryPoint {
     /** Called once the core is initialized. Usually for middlewares / database init */
-    onServerStarted: ((bp: typeof import('botpress/sdk')) => void)
+    onServerStarted: (bp: typeof import('botpress/sdk')) => void
     /** This is called once all modules are initialized, usually for routing and logic */
-    onServerReady: ((bp: typeof import('botpress/sdk')) => void)
-    onBotMount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
-    onBotUnmount?: ((bp: typeof import('botpress/sdk'), botId: string) => void)
+    onServerReady: (bp: typeof import('botpress/sdk')) => void
+    onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => void
+    onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => void
     /** Additional metadata about the module */
     definition: ModuleDefinition
     /** An array of the flow generators used by skills in the module */
     skills?: Skill[]
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
-    onFlowChanged?: ((bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void)
+    onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void
   }
 
   /**
@@ -234,7 +234,7 @@ declare module 'botpress/sdk' {
   export namespace NLU {
     export type EntityType = 'system' | 'pattern' | 'list'
 
-    export interface EntityDefOccurence {
+    export interface EntityDefOccurrence {
       name: string
       synonyms: string[]
     }
@@ -243,7 +243,7 @@ declare module 'botpress/sdk' {
       id: string
       name: string
       type: EntityType
-      occurences?: EntityDefOccurence[]
+      occurrences?: EntityDefOccurrence[]
       pattern?: string
     }
 
@@ -847,7 +847,7 @@ declare module 'botpress/sdk' {
 
     /**
      * Create a new router for a module. Once created, use them to register new endpoints. Routers created
-     * with this method are accessible via the url /mod/{routernName}
+     * with this method are accessible via the url /mod/{routerName}
      *
      * @example const router = bp.http.createRouterForBot('myModule')
      * @example router.get('/list', ...)
@@ -868,13 +868,13 @@ declare module 'botpress/sdk' {
 
   /**
    * Events is the base communication channel of the bot. Messages and payloads are a part of it,
-   * and it is the only way to receive or send informations. Each event goes through the whole middleware chain (incoming or outgoing)
+   * and it is the only way to receive or send information. Each event goes through the whole middleware chain (incoming or outgoing)
    * before being received by either the bot or the user.
    */
   export namespace events {
     /**
      * Register a new middleware globally. They are sorted based on their declared order each time a new one is registered.
-     * @param midddleware - The middleware definition to register
+     * @param middleware - The middleware definition to register
      */
     export function registerMiddleware(middleware: IO.MiddlewareDefinition): void
 
@@ -941,7 +941,7 @@ declare module 'botpress/sdk' {
     export function deleteSession(sessionId: string): Promise<void>
 
     /**
-     * Jumps to a specific flow and optionally a specific node. This is useful when the default flow behaviour needs to be bypassed.
+     * Jumps to a specific flow and optionally a specific node. This is useful when the default flow behavior needs to be bypassed.
      * @param sessionId The Id of the the current Dialog Session. If the session doesn't exists, it will be created with this Id.
      * @param event The event to be processed
      * @param flowName The name of the flow to jump to

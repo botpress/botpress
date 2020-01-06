@@ -19,21 +19,21 @@ describe('Util', () => {
     })
   })
 
-  describe('Get next occurence', () => {
+  describe('Get next occurrence', () => {
     it('throws cron', () => {
-      const fn = () => util.getNextOccurence('cron')
+      const fn = () => util.getNextOccurrence('cron')
       expect(fn).to.throw()
     })
 
     it('works cron', () => {
-      const res = util.getNextOccurence('cron', '* * * * *')
+      const res = util.getNextOccurrence('cron', '* * * * *')
       expect(res).to.be.an('object')
       expect(res.toDate()).to.be.a('date')
       expect(res.fromNow()).to.contain('in ')
     })
 
     it('works natural', () => {
-      const res = util.getNextOccurence('natural', 'every 7 minutes')
+      const res = util.getNextOccurrence('natural', 'every 7 minutes')
       expect(res).to.be.an('object')
       expect(res.toDate()).to.be.a('date')
       expect(res.fromNow()).to.contain('in ')

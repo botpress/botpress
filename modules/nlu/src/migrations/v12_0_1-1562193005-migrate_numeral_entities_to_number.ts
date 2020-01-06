@@ -7,11 +7,11 @@ const migration: sdk.ModuleMigration = {
     type: 'config'
   },
   up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
-    const updateBot = async botId => {
+    const updateBot = async (botId: string) => {
       const bpfs = bp.ghost.forBot(botId)
       const intents = await bpfs.directoryListing('./intents', '*.json')
       for (const file of intents) {
-        const content = await bpfs.readFileAsObject('./intents', file)
+        const content = (await bpfs.readFileAsObject('./intents', file)) as sdk.NLU.IntentDefinition
         content.slots = content.slots.map(slot => {
           if (slot.entities && slot.entities.length) {
             slot.entities = slot.entities.map(entity => (entity === 'numeral' ? 'number' : entity))

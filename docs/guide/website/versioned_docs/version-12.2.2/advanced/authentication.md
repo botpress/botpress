@@ -69,7 +69,7 @@ You can clear the list of users by emptying (or deleting) the table `strategy_de
 
 ### OAuth2
 
-Some OAuth2 implementations returns a JWT token containing all the user's informations, while some other returns a special token, which must then be used to query the user's informations.
+Some OAuth2 implementations returns a JWT token containing all the user's information, while some other returns a special token, which must then be used to query the user's information.
 
 ```js
 {
@@ -86,7 +86,7 @@ Some OAuth2 implementations returns a JWT token containing all the user's inform
         "clientSecret": "your-client-secret",
         "callbackURL": "http://localhost:3000/api/v1/auth/login-callback/oauth2/botpress",
         /**
-         * If the token doesn't contain user informations, set the userInfoURL
+         * If the token doesn't contain user information, set the userInfoURL
          */
         "userInfoURL": "https://example.auth0.com/userinfo",
         /**
@@ -156,7 +156,7 @@ Here is a complete example
 #### Prerequisite
 
 - Botpress Pro enabled with a valid license key
-- Informations to access the LDAP server
+- Information to access the LDAP server
 
 #### Quick Start
 

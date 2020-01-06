@@ -82,18 +82,18 @@ export default class FlowsList extends Component<Props, State> {
           onClick={() => this.props.renameFlow(node.nodeData.name)}
         />
         <MenuItem
-          id="btn-delete"
-          disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canDelete || this.props.readOnly}
-          icon="delete"
-          text="Delete"
-          onClick={() => this.handleDelete(node.nodeData)}
-        />
-        <MenuItem
           id="btn-duplicate"
           disabled={this.props.readOnly}
           icon="duplicate"
           text="Duplicate"
           onClick={() => this.props.duplicateFlow(node.nodeData.name)}
+        />
+        <MenuItem
+          id="btn-delete"
+          disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canDelete || this.props.readOnly}
+          icon="delete"
+          text="Delete"
+          onClick={() => this.handleDelete(node.nodeData)}
         />
       </Menu>,
       { left: e.clientX, top: e.clientY }

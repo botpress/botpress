@@ -47,7 +47,8 @@ const FlowNameModal: FC<Props> = props => {
   }
 
   const isIdentical = props.action === 'rename' && props.originalName === `${name}.flow.json`
-  const alreadyExists = !isIdentical && _.includes(props.flowsNames, `${name}.flow.json`)
+  const alreadyExists =
+    !isIdentical && _.some(props.flowsNames, n => n.toLowerCase() === `${name}.flow.json`.toLowerCase())
 
   let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Flow' }
   if (props.action === 'duplicate') {
@@ -84,7 +85,13 @@ const FlowNameModal: FC<Props> = props => {
 
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button type="submit" id="btn-submit" text="Submit" onClick={submit} disabled={!name || alreadyExists} />
+            <Button
+              type="submit"
+              id="btn-submit"
+              text="Submit"
+              onClick={submit}
+              disabled={!name || isIdentical || alreadyExists}
+            />
           </div>
         </div>
       </form>

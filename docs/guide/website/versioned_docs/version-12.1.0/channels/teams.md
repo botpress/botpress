@@ -37,7 +37,7 @@ These instructions will guide you through any steps required to be up and runnin
 
 ### 2. Create your bot
 
-1. Navigate to the [Bot Framework Registration Page](https://dev.botframework.com/bots/new) and fill the required informations:
+1. Navigate to the [Bot Framework Registration Page](https://dev.botframework.com/bots/new) and fill the required information:
 
 - Display name
 - Bot handle
