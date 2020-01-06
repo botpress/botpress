@@ -11,7 +11,7 @@ const N_KEEP_MODELS = 25
 
 export const ID_REGEX = /[\t\s]/gi
 
-export const sanitizeFilenameNoExt = name =>
+export const sanitizeFilenameNoExt = (name: string) =>
   name
     .toLowerCase()
     .replace('.json', '')
@@ -70,7 +70,10 @@ export default class Storage {
   async updateIntent(intentName: string, content: Partial<sdk.NLU.IntentDefinition>) {
     const intentDef = await this.getIntent(intentName)
     const merged = _.merge(intentDef, content)
-
+    if (content.name && content.name !== intentName) {
+      this.botGhost.deleteFile(this.intentsDir, `${intentName}.json`)
+      intentName = content.name
+    }
     return this.saveIntent(intentName, merged)
   }
 
