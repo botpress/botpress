@@ -26,7 +26,7 @@ import Storage from './storage'
 import { allInRange } from './tools/math'
 import { makeTokens, mergeSpecialCharactersTokens } from './tools/token-utils'
 import { LanguageProvider, NluMlRecommendations, TrainingSequence } from './typings'
-import { Engine, EntityExtractor, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
+import { Engine, LanguageIdentifier, Model, MODEL_TYPES, NLUStructure } from './typings'
 
 const debug = DEBUG('nlu')
 const debugTrain = debug.sub('training')
@@ -48,7 +48,7 @@ export default class ScopedEngine implements Engine {
   private _exactIntentMatchers: { [lang: string]: ExactMatcher } = {}
   private readonly intentClassifiers: { [lang: string]: SVMClassifier } = {}
   private readonly langIdentifier: LanguageIdentifier
-  private readonly systemEntityExtractor: EntityExtractor
+  private readonly systemEntityExtractor: DucklingEntityExtractor
   private readonly slotExtractors: { [lang: string]: CRFExtractor } = {}
   private readonly entityExtractor: PatternExtractor
   private readonly pipelineManager: PipelineManager

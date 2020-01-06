@@ -45,10 +45,6 @@ export interface Engine {
   extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
 }
 
-export interface EntityExtractor {
-  extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
-}
-
 export interface SlotExtractor {
   load(trainingSet: Sequence[], language: Buffer, crf: Buffer): Promise<void>
   train(trainingSet: Sequence[]): Promise<{ language: Buffer | undefined; crf: Buffer | undefined }>
@@ -210,8 +206,13 @@ export interface Tools {
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
-  ducklingExtractor: EntityExtractor
+  duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
+}
+
+export interface SystemEntityExtractor {
+  extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<sdk.NLU.Entity[][]>
+  extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
 }
 
 export type Intent<T> = Readonly<{

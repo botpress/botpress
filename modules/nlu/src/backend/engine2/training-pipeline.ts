@@ -5,6 +5,7 @@ import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, SPACE } from '../tools/token-utils'
 import {
+  EntityExtractionResult,
   Intent,
   ListEntity,
   ListEntityModel,
@@ -16,7 +17,7 @@ import {
 } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { extractUtteranceEntities } from './entity-extractor'
+import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
@@ -270,12 +271,25 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const utts = _.chain(input.intents)
-    .filter(i => (i.slot_definitions || []).length > 0)
-    .flatMap(i => i.utterances)
-    .value()
+  const utterances = _.flatMap(input.intents.map(i => i.utterances))
 
-  await Promise.mapSeries(utts, u => extractUtteranceEntities(u, input, tools))
+  const allSysEntities = (await tools.duckling.extractMultiple(
+    utterances.map(u => u.toString()),
+    input.languageCode,
+    true
+  )).map(ents => ents.map(mapE1toE2Entity))
+
+  _.zip(utterances, allSysEntities)
+    .map(([utt, sysEntities]) => {
+      const listEntities = extractListEntities(utt, input.list_entities)
+      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
+      return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
+    })
+    .forEach(([utt, entities]) => {
+      entities.forEach(ent => {
+        utt.tagEntity(_.omit(ent, ['start, end']), ent.start, ent.end)
+      })
+    })
 
   return input
 }
