@@ -46,7 +46,7 @@ export class StandardPortWidgetDisconnected extends React.Component<Props> {
   renderSubflowNode() {
     const node = this.props.node
     const index = Number(this.props.name.replace('out', ''))
-    const subflow = node.next[index].node.replace(/\.flow\.json/, '')
+    const subflow = node.next[index].node.replace(/\.flow\.json/i, '')
 
     return (
       <div className={style.label}>

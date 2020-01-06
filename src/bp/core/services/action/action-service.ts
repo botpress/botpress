@@ -128,7 +128,7 @@ export class ScopedActionService {
     includeMetadata: boolean
   ): Promise<ActionDefinition> {
     let action: ActionDefinition = {
-      name: file.replace(/.js$/i, ''),
+      name: file.replace(/\.js$/i, ''),
       isRemote: false,
       location: location
     }

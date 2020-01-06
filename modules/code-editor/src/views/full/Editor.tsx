@@ -79,7 +79,7 @@ class Editor extends React.Component<Props> {
 
     const { location, readOnly } = this.props.editor.currentFile
     const fileType = location.endsWith('.json') ? 'json' : 'typescript'
-    const filepath = fileType === 'json' ? location : location.replace('.js', '.ts')
+    const filepath = fileType === 'json' ? location : location.replace(/\.js$/i, '.ts')
 
     const uri = monaco.Uri.parse(`bp://files/${filepath}`)
 

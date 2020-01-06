@@ -53,7 +53,7 @@ const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
     <H5 color={Colors.DARK_GRAY5}>Flow Nodes</H5>
     <ol>
       {props.stacktrace.map(({ flow, node }, idx) => {
-        const flowName = flow && flow.replace('.flow.json', '')
+        const flowName = flow && flow.replace(/\.flow\.json$/i, '')
         return (
           <li key={`${flow}:${node}:${idx}`}>
             <span>
