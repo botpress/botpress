@@ -1,7 +1,7 @@
 import { Button, Icon, Intent, Switch, Tooltip } from '@blueprintjs/core'
 import { AccessControl } from 'botpress/utils'
+import cx from 'classnames'
 import React, { FC } from 'react'
-import { Well } from 'react-bootstrap'
 
 import style from '../style.scss'
 
@@ -30,7 +30,7 @@ const Item: FC<Props> = props => {
   const answers = item.answers[contentLang] || []
 
   return (
-    <Well className={style.qnaItem} bsSize="small" key={id}>
+    <div className={cx(style.qnaItem, style.well)} key={id}>
       <div className={style.itemContainer} role="entry">
         {!questions.length && (
           <div className={style.itemQuestions}>
@@ -100,7 +100,7 @@ const Item: FC<Props> = props => {
           />
         </AccessControl>
       </div>
-    </Well>
+    </div>
   )
 }
 

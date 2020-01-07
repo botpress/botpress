@@ -1,4 +1,4 @@
-import { Button, Checkbox, Classes, Dialog, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
+import { Button, Callout, Checkbox, Classes, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
 // @ts-ignore
 import ElementsList from 'botpress/elements-list'
 import { AccessControl } from 'botpress/utils'
@@ -6,7 +6,6 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import some from 'lodash/some'
 import React, { Component } from 'react'
-import { Alert } from 'react-bootstrap'
 import Select from 'react-select'
 
 import style from '../style.scss'
@@ -176,11 +175,11 @@ export default class Editor extends Component<Props> {
 
     return (
       <div>
-        {this.state.invalidFields.checkbox && <Alert bsStyle="danger">Action checkbox is required</Alert>}
-        {hasInvalidInputs && <Alert bsStyle="danger">Inputs are required.</Alert>}
-        {this.state.hasDuplicates && <Alert bsStyle="danger">Duplicated questions aren't allowed.</Alert>}
-        {this.state.errorMessage && <Alert bsStyle="danger">{this.state.errorMessage}</Alert>}
-        {missingTranslations && <Alert bsStyle="danger">Missing translations</Alert>}
+        {this.state.invalidFields.checkbox && <Callout intent={Intent.DANGER}>Action checkbox is required</Callout>}
+        {hasInvalidInputs && <Callout intent={Intent.DANGER}>Inputs are required.</Callout>}
+        {this.state.hasDuplicates && <Callout intent={Intent.DANGER}>Duplicated questions aren't allowed.</Callout>}
+        {this.state.errorMessage && <Callout intent={Intent.DANGER}>{this.state.errorMessage}</Callout>}
+        {missingTranslations && <Callout intent={Intent.DANGER}>Missing translations</Callout>}
       </div>
     )
   }

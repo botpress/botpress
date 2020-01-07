@@ -1,9 +1,9 @@
-import { Button, Icon, Intent, Position, Switch, Tooltip } from '@blueprintjs/core'
+import { Button, ControlGroup, Intent } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
-import { AccessControl, ElementPreview } from 'botpress/utils'
+import { AccessControl } from 'botpress/utils'
 import classnames from 'classnames'
 import React, { Component } from 'react'
-import { ButtonGroup, ButtonToolbar, FormControl, FormGroup, Pagination, Panel, Well } from 'react-bootstrap'
+import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
 
@@ -172,7 +172,7 @@ export default class QnaAdmin extends Component<Props> {
     <FormGroup className={style.qnaHeader}>
       <ButtonToolbar>
         <div className={style.searchBar}>{this.renderSearch()}</div>
-        <ButtonGroup style={{ float: 'right' }}>
+        <ControlGroup style={{ float: 'right' }}>
           <AccessControl resource="module.qna" operation="write">
             <Button
               text="Import JSON"
@@ -182,7 +182,7 @@ export default class QnaAdmin extends Component<Props> {
             />
           </AccessControl>
           <ExportButton />
-        </ButtonGroup>
+        </ControlGroup>
       </ButtonToolbar>
 
       <ImportModal

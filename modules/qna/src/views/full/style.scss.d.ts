@@ -53,6 +53,7 @@ interface CssExports {
   'tooltip': string;
   'variation': string;
   'variationDelete': string;
+  'well': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
