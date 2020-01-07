@@ -43,7 +43,7 @@ const RollbackBotModal: FC<Props> = props => {
   const submit = async () => {
     try {
       setProcessing(true)
-      await api.getSecured({ timeout: 30000 }).post(`/admin/bots/${props.botId}/rollback`, { revision: selected.value })
+      await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${props.botId}/rollback`, { revision: selected.value })
 
       props.onRollbackSuccess()
       closeModal()
