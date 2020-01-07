@@ -12,6 +12,8 @@ declare module 'botpress/utils' {
   export function toastFailure(message: string): void
   export function toastSuccess(message: string): void
   export function toastInfo(message: string): void
+  export function reorderFlows(flows: any): any
+  export function getFlowLabel(flowName: string): string
 }
 
 export interface DownloaderProps {

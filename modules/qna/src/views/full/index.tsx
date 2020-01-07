@@ -1,8 +1,6 @@
 import { Button, Icon, Intent, Position, Switch, Tooltip } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
-import { ElementPreview } from 'botpress/utils'
-import { Downloader } from 'botpress/utils'
-import { AccessControl } from 'botpress/utils'
+import { AccessControl, Downloader, ElementPreview, getFlowLabel, reorderFlows } from 'botpress/utils'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { ButtonGroup, ButtonToolbar, FormControl, FormGroup, Pagination, Panel, Well } from 'react-bootstrap'
@@ -44,9 +42,8 @@ export default class QnaAdmin extends Component<Props> {
 
   fetchFlows() {
     this.props.bp.axios.get('/flows').then(({ data }) => {
-      const flowsList = data
-        .filter(flow => !flow.name.startsWith('skills/'))
-        .map(({ name }) => ({ label: name, value: name }))
+      const flows = data.filter(flow => !flow.name.startsWith('skills/'))
+      const flowsList = reorderFlows(flows).map(({ name }) => ({ label: getFlowLabel(name), value: name }))
 
       this.setState({ flows: data, flowsList })
     })
@@ -186,7 +183,13 @@ export default class QnaAdmin extends Component<Props> {
         <div className={style.searchBar}>{this.renderSearch()}</div>
         <ButtonGroup style={{ float: 'right' }}>
           <ImportModal axios={this.props.bp.axios} onImportCompleted={this.fetchData} />
-          <Button id="btn-export" icon="upload" text="Export to JSON" onClick={this.downloadJson} style={{ marginLeft: 5 }} />
+          <Button
+            id="btn-export"
+            icon="upload"
+            text="Export to JSON"
+            onClick={this.downloadJson}
+            style={{ marginLeft: 5 }}
+          />
         </ButtonGroup>
       </ButtonToolbar>
     </FormGroup>
@@ -347,7 +350,9 @@ export default class QnaAdmin extends Component<Props> {
     }
 
     if (needDelete) {
-      this.props.bp.axios.post(`/mod/qna/questions/${id}/delete`, { params }).then(({ data }) => this.setState({ ...data }))
+      this.props.bp.axios
+        .post(`/mod/qna/questions/${id}/delete`, { params })
+        .then(({ data }) => this.setState({ ...data }))
     }
   }
 
