@@ -157,3 +157,5 @@ const NLU: FC<Props> = props => {
 }
 
 export default NLU
+
+export { LiteEditor } from './LiteEditor'

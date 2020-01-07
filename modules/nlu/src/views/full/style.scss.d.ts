@@ -3,6 +3,7 @@
 interface CssExports {
   'active': string;
   'checkboxContainer': string;
+  'chooseContainer': string;
   'container': string;
   'create': string;
   'deleteEntity': string;
