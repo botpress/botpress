@@ -67,7 +67,6 @@ export const LiteEditor: FC<Props> = props => {
           intent={currentIntent}
           api={api}
           contentLang={props.contentLang}
-          showSlotPanel={false}
           axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
         />
       )}

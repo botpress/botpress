@@ -16,7 +16,7 @@ interface Props {
   intent: string
   api: NLUApi
   contentLang: string
-  showSlotPanel: boolean
+  showSlotPanel?: boolean
   axios: AxiosInstance
   liteEditor?: boolean
 }
