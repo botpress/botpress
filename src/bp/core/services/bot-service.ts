@@ -381,7 +381,7 @@ export class BotService {
     await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult))
     if (_.isArray(hookResult.actions)) {
       await Promise.map(hookResult.actions, async action => {
-        if (bpConfig.autoRevision) {
+        if (bpConfig.autoRevision && (await this.botExists(alteredBot.id))) {
           await this.createRevision(alteredBot.id)
         }
         if (action === 'promote_copy') {
