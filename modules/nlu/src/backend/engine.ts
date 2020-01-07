@@ -40,6 +40,7 @@ const GOOD_NB_UTTERANCES = 10
 const AMBIGUITY_RANGE = 0.1 // +- 10% away from perfect median leads to ambiguity
 const NA_LANG = 'n/a'
 
+// DEPRECATED
 export default class ScopedEngine implements Engine {
   public readonly storage: Storage
 

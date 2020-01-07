@@ -1,3 +1,5 @@
+@import '~@blueprintjs/core/lib/scss/variables';
+
 .container {
   background-color: white;
   display: flex;
@@ -5,4 +7,26 @@
   height: calc(100vh);
   width: 100%;
   padding: 10px 15px;
+}
+
+.f1Section {
+  background-color: $light-gray5;
+  margin-top: 25px;
+  padding: 10px;
+  border-radius: 2px;
+}
+
+.f1Container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+}
+
+.working {
+  display: flex;
+  align-items: center;
 }

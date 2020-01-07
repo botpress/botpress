@@ -45,7 +45,7 @@ export function getOnBotMount(state: NLUState) {
       return
     }
 
-    const engine = new Engine2(bot.defaultLanguage, bot.id, bp.logger.forBot(botId))
+    const engine = new Engine2(bot.defaultLanguage, bot.id)
     const trainOrLoad = _.debounce(
       async () => {
         const ghost = bp.ghost.forBot(botId)

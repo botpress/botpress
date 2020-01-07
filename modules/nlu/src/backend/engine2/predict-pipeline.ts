@@ -7,7 +7,7 @@ import * as math from '../tools/math'
 import { Intent, PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { mapE1toE2Entity, extractListEntities, extractPatternEntities } from './entity-extractor'
+import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch } from './utterance'
 
@@ -297,6 +297,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       return {
         ...slots,
         [s.name]: {
+          start: s.startPos,
+          end: s.endPos,
           confidence: s.confidence,
           name: s.name,
           source: s.source,

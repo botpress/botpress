@@ -33,6 +33,7 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_states': '1'
 }
 
+// DEPRECATED
 export default class CRFExtractor {
   private _isTrained: boolean = false
   private _crfModelFn = ''
