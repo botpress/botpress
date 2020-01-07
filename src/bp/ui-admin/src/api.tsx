@@ -70,7 +70,7 @@ export default {
     return overrideApiUrl.baseURL
   },
 
-  getSecured({ token = undefined, toastErrors = true, timeout = 6000 } = {}) {
+  getSecured({ token = undefined, toastErrors = true, timeout = 10000 } = {}) {
     if (!token) {
       const ls = pullToken()
       token = ls && ls.token
