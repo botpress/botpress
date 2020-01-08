@@ -3,7 +3,6 @@ import _ from 'lodash'
 import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
 
-import { ExtendedDiagramEngine } from '.'
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { CommentNodeModel } from './nodes/CommentNode'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
@@ -30,7 +29,7 @@ export interface Point {
   y: number
 }
 
-const createNodeModel = (engine: ExtendedDiagramEngine, node: NodeView, modelProps) => {
+const createNodeModel = (node: NodeView, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
@@ -43,9 +42,7 @@ const createNodeModel = (engine: ExtendedDiagramEngine, node: NodeView, modelPro
   } else if (type === 'router') {
     return new RouterNodeModel(modelProps)
   } else if (type === 'comment') {
-    const node = new CommentNodeModel(modelProps)
-    node.handleTextUpdate = engine.flowBuilder.updateCommentText
-    return node
+    return new CommentNodeModel(modelProps)
   } else {
     return new StandardNodeModel(modelProps)
   }
@@ -81,7 +78,7 @@ export class DiagramManager {
       node.x = _.round(node.x)
       node.y = _.round(node.y)
 
-      return createNodeModel(this.diagramEngine, node, {
+      return createNodeModel(node, {
         ...node,
         isStartNode: currentFlow.startNode === node.name,
         isHighlighted: this.shouldHighlightNode(node.name)
@@ -307,7 +304,7 @@ export class DiagramManager {
   }
 
   private _addNode(node: NodeView) {
-    const model = createNodeModel(this.diagramEngine, node, {
+    const model = createNodeModel(node, {
       ...node,
       isStartNode: this.currentFlow.startNode === node.name,
       isHighlighted: this.shouldHighlightNode(node.name)

@@ -40,7 +40,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
 import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } from './manager'
-import { CommentNodeModel, CommentWidgetFactory} from './nodes/CommentNode'
+import { CommentNodeModel, CommentWidgetFactory } from './nodes/CommentNode'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
@@ -605,9 +605,9 @@ interface NodeProblem {
   missingPorts: any
 }
 
-type BpNodeModel = StandardNodeModel | CommentNodeModel| SkillCallNodeModel
+type BpNodeModel = StandardNodeModel | CommentNodeModel | SkillCallNodeModel
 
-export type ExtendedDiagramEngine = {
+type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
   flowBuilder?: any
 } & DiagramEngine

@@ -30,7 +30,8 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
   }
 
   handleOnBlur = () => {
-    this.props.node.handleTextUpdate(this.state.text)
+    const flowBuilder = this.props.diagramEngine['flowBuilder']
+    flowBuilder.updateCommentText(this.state.text)
   }
 
   updateTextareaHeight = () => {
@@ -59,12 +60,10 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
 
 export class CommentNodeModel extends BaseNodeModel {
   public text: string
-  handleTextUpdate: any
-  constructor({ id, x, y, text, handleTextUpdate }) {
+  constructor({ id, x, y, text }) {
     super('comment', id)
     this.next = []
     this.text = text
-    this.handleTextUpdate = handleTextUpdate
     this.x = this.oldX = x
     this.y = this.oldY = y
   }
