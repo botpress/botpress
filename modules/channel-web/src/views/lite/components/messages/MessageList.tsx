@@ -2,6 +2,7 @@ import differenceInMinutes from 'date-fns/difference_in_minutes'
 import { debounce } from 'lodash'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
+import { injectIntl, InjectedIntlProps } from 'react-intl'
 import React from 'react'
 
 import constants from '../../core/constants'
@@ -214,18 +215,19 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusedArea: store.view.focusedArea,
   showUserAvatar: store.config.showUserAvatar,
   enableArrowNavigation: store.config.enableArrowNavigation
-}))(observer(MessageList))
+}))(injectIntl(observer(MessageList)))
 
-type MessageListProps = Pick<
-  StoreDef,
-  | 'intl'
-  | 'isBotTyping'
-  | 'focusedArea'
-  | 'focusPrevious'
-  | 'focusNext'
-  | 'botAvatarUrl'
-  | 'botName'
-  | 'enableArrowNavigation'
-  | 'showUserAvatar'
-  | 'currentMessages'
->
+type MessageListProps = InjectedIntlProps &
+  Pick<
+    StoreDef,
+    | 'intl'
+    | 'isBotTyping'
+    | 'focusedArea'
+    | 'focusPrevious'
+    | 'focusNext'
+    | 'botAvatarUrl'
+    | 'botName'
+    | 'enableArrowNavigation'
+    | 'showUserAvatar'
+    | 'currentMessages'
+  >
