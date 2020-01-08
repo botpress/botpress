@@ -93,20 +93,24 @@ class ActionItem extends Component<Props> {
     })
 
     if (preview && item && item.schema && item.schema.title === 'Image') {
+      const markdownRender = (
+        <Markdown
+          source={preview}
+          renderers={{
+            image: props => <img {...props} className={style.imagePreview} />,
+            link: props => (
+              <a href={props.href} target="_blank">
+                {props.children}
+              </a>
+            )
+          }}
+        />
+      )
+
       if (this.props.layoutv2) {
         return (
           <div className={classnames(this.props.className, style['action-item'])}>
-            <Markdown
-              source={preview}
-              renderers={{
-                image: props => <img {...props} className={style.imagePreview} />,
-                link: props => (
-                  <a href={props.href} target="_blank">
-                    {props.children}
-                  </a>
-                )
-              }}
-            />
+            {markdownRender}
             {this.props.children}
           </div>
         )
@@ -115,17 +119,7 @@ class ActionItem extends Component<Props> {
       return (
         <div className={classnames(this.props.className, style['action-item'], style.msg)}>
           <span className={style.icon}>💬</span>
-          <Markdown
-            source={preview}
-            renderers={{
-              image: props => <img {...props} className={style.imagePreview} />,
-              link: props => (
-                <a href={props.href} target="_blank">
-                  {props.children}
-                </a>
-              )
-            }}
-          />
+          {markdownRender}
           {this.props.children}
         </div>
       )
