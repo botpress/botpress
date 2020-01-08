@@ -5,7 +5,7 @@
     "build": "docusaurus-build",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
-    "version": "docusaurus-version",
+    "version": "yarn run docusaurus-version",
     "rename-version": "docusaurus-rename-version"
   },
   "devDependencies": {

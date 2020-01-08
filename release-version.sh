@@ -28,6 +28,7 @@ select VERSION in patch minor major "Specific Version"
         
         # Update changelog from git history
         yarn cmd changelog
+        node build/remove_changelog_dupes.js
 
         # Create commit
         git add -A
