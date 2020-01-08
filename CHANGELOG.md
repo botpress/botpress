@@ -1,3 +1,49 @@
+## [12.3.2](https://github.com/botpress/botpress/compare/v12.3.0...v12.3.2) (2020-01-08)
+
+
+### Bug Fixes
+
+* **admin:** bigger timeout for bots & stage change ([d54b4e3](https://github.com/botpress/botpress/commit/d54b4e3))
+* **bots:** issue when promoting bot with autorevision ([9db4960](https://github.com/botpress/botpress/commit/9db4960))
+* **build:** remove dupes on changelog & fix command ([081739a](https://github.com/botpress/botpress/commit/081739a))
+* **channel-web:** added missing reference logic on frontend ([b7939eb](https://github.com/botpress/botpress/commit/b7939eb))
+* **channel-web:** better text for "new messages" ([60f30d3](https://github.com/botpress/botpress/commit/60f30d3))
+* **channel-web:** better text for "new messages", and better grammar ([ecc8de7](https://github.com/botpress/botpress/commit/ecc8de7))
+* **channel-web:** group messages based on full_name ([#2718](https://github.com/botpress/botpress/issues/2718)) ([b3d964a](https://github.com/botpress/botpress/commit/b3d964a))
+* **channel-web:** login form translation ([fc7f8c4](https://github.com/botpress/botpress/commit/fc7f8c4))
+* **core:** correct checking for empty flow ([13d977b](https://github.com/botpress/botpress/commit/13d977b))
+* **core:** ghost ENOENT error code ([db3fa28](https://github.com/botpress/botpress/commit/db3fa28))
+* **core:** handle case of no previous flow ([2057a46](https://github.com/botpress/botpress/commit/2057a46))
+* **core:** remove folders in Windows ([95bbb47](https://github.com/botpress/botpress/commit/95bbb47))
+* **docs:** remove change log duplicates ([8275425](https://github.com/botpress/botpress/commit/8275425))
+* **examples:** update interbot examples ([63eb612](https://github.com/botpress/botpress/commit/63eb612))
+* **nlu:** filter inputs to have unique IDs ([cdadc75](https://github.com/botpress/botpress/commit/cdadc75))
+* **nlu:** load latest model when model is invalid at predict time ([749a751](https://github.com/botpress/botpress/commit/749a751))
+* **nlu:** lowecase tokens on vectorize ([2022774](https://github.com/botpress/botpress/commit/2022774))
+* **nlu:** lowecase while getting word vectors ([14c05aa](https://github.com/botpress/botpress/commit/14c05aa))
+* **nlu:** model loading lock ([eb2505e](https://github.com/botpress/botpress/commit/eb2505e))
+* **nlu:** predict with multiple contexts ([2d97f73](https://github.com/botpress/botpress/commit/2d97f73))
+* **nlu:** use global ctx if empty predicitons ([88d6311](https://github.com/botpress/botpress/commit/88d6311))
+* **studio:** always show selection of current flow ([19872e5](https://github.com/botpress/botpress/commit/19872e5))
+* **studio:** correct documentation URL ([73b3422](https://github.com/botpress/botpress/commit/73b3422))
+* **studio:** don't allow same name in two nodes ([be48b7e](https://github.com/botpress/botpress/commit/be48b7e))
+* **studio:** have unique IDs ([edf6bb4](https://github.com/botpress/botpress/commit/edf6bb4))
+* **studio:** remove double clicking message ([50e8f06](https://github.com/botpress/botpress/commit/50e8f06))
+* **studio:** remove double clicking on diagram ([08c4d57](https://github.com/botpress/botpress/commit/08c4d57))
+* **studio:** rename only when flow name is changed ([459c844](https://github.com/botpress/botpress/commit/459c844))
+* **webchat:** Arabic word misspelling ([da19228](https://github.com/botpress/botpress/commit/da19228))
+* **webchat:** proper login form arabic translation ([#2737](https://github.com/botpress/botpress/issues/2737)) ([96bcfa4](https://github.com/botpress/botpress/commit/96bcfa4))
+* replace only file extensions ([85c0283](https://github.com/botpress/botpress/commit/85c0283))
+* spelling mistakes in code ([cc9f950](https://github.com/botpress/botpress/commit/cc9f950))
+* various spelling mistakes ([8b185a3](https://github.com/botpress/botpress/commit/8b185a3))
+
+
+### Features
+
+* **channel-web:** bot can have different avatars for different messages ([f0d3468](https://github.com/botpress/botpress/commit/f0d3468))
+
+
+
 ## [12.3.1](https://github.com/botpress/botpress/compare/v12.3.0...v12.3.1) (2019-12-17)
 
 
