@@ -17,4 +17,4 @@ for (let i = 0; i < lines.length; i++) {
   }
 }
 
-fs.writeFileSync('CHANGELOG2.md', finalLines.join('\n'), 'UTF-8')
+fs.writeFileSync('CHANGELOG.md', finalLines.join('\n'), 'UTF-8')
