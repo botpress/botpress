@@ -2,6 +2,7 @@ import { Position, Tooltip } from '@blueprintjs/core'
 import _ from 'lodash'
 import find from 'lodash/find'
 import React from 'react'
+import { getFlowLabel, reorderFlows } from '~/components/Shared/Utils'
 
 import { ERROR_FLOW_ICON, FLOW_ICON, FOLDER_ICON, MAIN_FLOW_ICON, TIMEOUT_ICON } from './FlowsList'
 
@@ -16,7 +17,7 @@ const getFlowInfo = (flowId: string, flowName: string) => {
       icon: MAIN_FLOW_ICON,
       label: (
         <Tooltip content={<span>Every user session starts here</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-          <strong>Main</strong>
+          <strong>{getFlowLabel(flowName)}</strong>
         </Tooltip>
       )
     }
@@ -34,7 +35,7 @@ const getFlowInfo = (flowId: string, flowName: string) => {
           hoverOpenDelay={500}
           position={Position.BOTTOM}
         >
-          <strong>Error handling</strong>
+          <strong>{getFlowLabel(flowName)}</strong>
         </Tooltip>
       )
     }
@@ -53,7 +54,7 @@ const getFlowInfo = (flowId: string, flowName: string) => {
           hoverOpenDelay={500}
           position={Position.BOTTOM}
         >
-          <strong>Timeout</strong>
+          <strong>{getFlowLabel(flowName)}</strong>
         </Tooltip>
       )
     }
@@ -62,15 +63,6 @@ const getFlowInfo = (flowId: string, flowName: string) => {
     icon: FLOW_ICON,
     label: flowName
   }
-}
-
-const reorderFlows = flows => {
-  return [
-    flows.find(x => x.id === 'main'),
-    flows.find(x => x.id === 'error'),
-    flows.find(x => x.id === 'timeout'),
-    ...flows.filter(x => !['main', 'error', 'timeout'].includes(x.id))
-  ].filter(x => Boolean(x))
 }
 
 const addNode = (tree, folders, flowDesc, data) => {
