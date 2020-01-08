@@ -1,5 +1,6 @@
 {
-  "name": "f-contact-number",
+  "name": "f-contact-details",
+  "contexts": ["F"],
   "utterances": {
     "en": [
       "What is the helpline number?",
@@ -70,6 +71,5 @@
       "Que puis-je faire pour que quelqu'un m'aide?"
     ]
   },
-  "slots": [],
-  "contexts": ["BPDS-F"]
+  "slots": []
 }
