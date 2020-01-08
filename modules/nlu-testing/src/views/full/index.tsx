@@ -1,6 +1,5 @@
 import { Button, Icon, Spinner } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
-import P from 'bluebird'
 import { Container, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React from 'react'
@@ -9,10 +8,12 @@ import { makeApi, Test, TestResult, XValidationResults } from './api'
 import style from './style.scss'
 import { CreateTestModal } from './CreateTestModal'
 import { CrossValidationResults } from './F1Metrics'
+import { ImportModal } from './ImportModal'
 import { TestTable } from './TestTable'
 
 interface State {
   createModalVisible: boolean
+  importModalVisible: boolean
   tests: Test[]
   testResults: _.Dictionary<TestResult>
   loading: boolean
@@ -31,6 +32,7 @@ export default class NLUTests extends React.Component<Props, State> {
 
   state: State = {
     createModalVisible: false,
+    importModalVisible: false,
     tests: [],
     testResults: {},
     loading: true,
@@ -42,6 +44,10 @@ export default class NLUTests extends React.Component<Props, State> {
     this.setState({ createModalVisible })
   }
 
+  setImportModalVisibility(isVisible: boolean) {
+    this.setState({ importModalVisible: isVisible })
+  }
+
   async componentDidMount() {
     await this.refreshTests()
   }
@@ -50,18 +56,22 @@ export default class NLUTests extends React.Component<Props, State> {
     this.api.fetchTests().then(tests => this.setState({ tests, loading: false }))
   }
 
-  runTests = async () => {
-    this.setState({ working: true })
-    const testResults = (await P.mapSeries(this.state.tests, this.api.runTest)).reduce((resultsMap, result) => {
-      return { ...resultsMap, [result.id]: result }
-    }, {})
-    this.setState({ testResults, working: false })
-  }
-
   computeXValidation = async () => {
     this.setState({ working: true })
     const f1Metrics = await this.api.computeCrossValidation(this.props.contentLang)
     this.setState({ f1Metrics, working: false })
+  }
+
+  runTests = async () => {
+    this.setState({ working: true })
+    await new Promise(resolve => this.setState({ testResults: {} }, resolve))
+    for (const test of this.state.tests) {
+      const result = await this.api.runTest(test)
+      await new Promise(resolve =>
+        this.setState({ testResults: { ...this.state.testResults, [result.id]: result } }, resolve)
+      )
+    }
+    this.setState({ working: false })
   }
 
   render() {
@@ -82,10 +92,20 @@ export default class NLUTests extends React.Component<Props, State> {
                   onClick={this.setModalVisible.bind(this, true)}
                 />
               )}
+              <Button
+                type="button"
+                intent="success"
+                minimal
+                icon="import"
+                text="Import tests"
+                onClick={this.setImportModalVisibility.bind(this, true)}
+              />
               {!!this.state.tests.length && (
                 <Button intent="primary" minimal icon="play" text="Run tests" onClick={() => this.runTests()} />
               )}
               <Button
+                disabled={this.state.tests.length === 0}
+                type="button"
                 intent="primary"
                 minimal
                 icon="function"
@@ -119,7 +139,13 @@ export default class NLUTests extends React.Component<Props, State> {
                 api={this.api}
                 hide={this.setModalVisible.bind(this, false)}
                 visible={this.state.createModalVisible}
-                onTestCreated={() => this.refreshTests()}
+                onTestCreated={this.refreshTests}
+              />
+              <ImportModal
+                axios={this.props.bp.axios}
+                onImportCompleted={this.refreshTests}
+                isOpen={this.state.importModalVisible}
+                close={this.setImportModalVisibility.bind(this, false)}
               />
             </div>
           </div>
