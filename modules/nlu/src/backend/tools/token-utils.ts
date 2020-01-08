@@ -6,7 +6,9 @@ import { IsLatin, LATIN_CHARSET, SPECIAL_CHARSET } from './chars'
 
 export const SPACE = '\u2581'
 
-export const isWord = (str: string) => _.every(SPECIAL_CHARSET, c => !str.includes(c)) && !isSpace(str)
+export const isWord = (str: string) => _.every(SPECIAL_CHARSET, c => !RegExp(c).test(str)) && !hasSpace(str)
+
+export const hasSpace = (str: string) => _.some(str, isSpace)
 
 export const isSpace = (str: string) => _.every(str, c => c === SPACE || c === ' ')
 

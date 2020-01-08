@@ -1,5 +1,6 @@
 import { LATIN_CHARSET } from './chars'
 import {
+  isWord,
   makeTokens,
   mergeSimilarCharsetTokens,
   mergeSpecialCharactersTokens,
@@ -7,6 +8,14 @@ import {
   restoreOriginalUtteranceCasing,
   SPACE
 } from './token-utils'
+
+test('isWord', () => {
+  expect(isWord('lol123')).toBeTruthy()
+  expect(isWord('hey 123')).toBeFalsy()
+  expect(isWord('!')).toBeFalsy()
+  expect(isWord('^jo!')).toBeFalsy()
+  expect(isWord('?¿')).toBeFalsy()
+})
 
 // We might want to get rid of this once engine2 is done
 describe('Tokens generation', () => {
