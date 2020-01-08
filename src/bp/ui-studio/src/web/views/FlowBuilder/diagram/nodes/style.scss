@@ -183,12 +183,5 @@
 }
 
 .comment {
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  width: 100%;
-}
-
-.commentSelected {
-  border-color: #00c0ff !important;
+  border: 4px solid lightgrey !important;
 }

@@ -1,10 +1,10 @@
+import { TextArea } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
-import { AbstractNodeFactory, DiagramEngine, NodeModel } from 'storm-react-diagrams'
+import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 
 import { BaseNodeModel } from './BaseNodeModel'
-
 const style = require('./style.scss')
 
 export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel; diagramEngine: DiagramEngine }> {
@@ -39,21 +39,10 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
   }
 
   render() {
-    const node = this.props.node
-
-    const className = classnames(style.comment, { [style.commentSelected]: node.selected })
+    const className = classnames(style.comment)
 
     return (
-      <div>
-        <textarea
-          className={className}
-          value={this.state.text}
-          onKeyDown={this.handleKeyDown}
-          onChange={this.handleOnChange}
-          onBlur={this.handleOnBlur}
-          rows={this.state.rows}
-        />
-      </div>
+      <TextArea className={className} onChange={this.handleOnChange} value={this.state.text} rows={this.state.rows} />
     )
   }
 }
