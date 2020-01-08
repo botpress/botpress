@@ -229,7 +229,7 @@ function electIntent(input: PredictStep): PredictStep {
 
   if (!predictions.length || predictions[0].confidence < 0.3) {
     predictions = [
-      { name: NONE_INTENT, context: predictions[0].context, confidence: 1 },
+      { name: NONE_INTENT, context: _.get(predictions, '0.context', 'global'), confidence: 1 },
       ...predictions.filter(p => p.name !== NONE_INTENT)
     ]
   }
