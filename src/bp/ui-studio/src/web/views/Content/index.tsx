@@ -1,4 +1,3 @@
-import Promise from 'bluebird'
 import { ActionBuilderProps, ContentElement } from 'botpress/sdk'
 import classnames from 'classnames'
 import { FlowView, NodeView } from 'common/typings'
@@ -7,7 +6,14 @@ import React, { Component } from 'react'
 import { Alert } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import { RouteComponentProps } from 'react-router'
-import { deleteContentItems, fetchContentCategories, fetchContentItems, fetchFlows, upsertContentItem } from '~/actions'
+import {
+  deleteContentItems,
+  fetchContentCategories,
+  fetchContentItems,
+  fetchFlows,
+  getQnAContentElementUsage,
+  upsertContentItem
+} from '~/actions'
 import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
 import { Container } from '~/components/Shared/Interface'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
@@ -29,7 +35,8 @@ class ContentView extends Component<Props, State> {
     showModal: false,
     modifyId: null,
     selectedId: 'all',
-    contentToEdit: null
+    contentToEdit: null,
+    qnaUsage: {}
   }
 
   initialized = false
@@ -46,6 +53,9 @@ class ContentView extends Component<Props, State> {
       this.props.fetchContentCategories()
       this.props.fetchFlows()
       this.fetchCategoryItems(this.state.selectedId)
+      getQnAContentElementUsage().then(res => {
+        this.setState({ qnaUsage: res.data })
+      })
     }
   }
 
@@ -68,7 +78,7 @@ class ContentView extends Component<Props, State> {
   }
 
   currentContentType() {
-    this.props.contentItems.forEach((element: ContentElementUsage) => {
+    this.props.contentItems.forEach(async (element: ContentElementUsage) => {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
         const name = flow.name
@@ -77,14 +87,15 @@ class ContentView extends Component<Props, State> {
           .replace(/^error$/, 'Error handling')
         flow.nodes.forEach((node: NodeView) => {
           const usage: ContentUsage = {
-            flowName: name,
-            nodeName: node.name,
+            type: 'Flow',
+            name,
+            node: node.name,
             count: 0
           }
           node.onEnter &&
             node.onEnter.forEach((v: string | ActionBuilderProps) => {
               if (typeof v === 'string' && v.startsWith('say #!' + element.id)) {
-                if (usage.count == 0) {
+                if (!usage.count) {
                   element.usage.push(usage)
                 }
                 usage.count++
@@ -93,7 +104,7 @@ class ContentView extends Component<Props, State> {
           node.onReceive &&
             node.onReceive.forEach((v: string | ActionBuilderProps) => {
               if (typeof v === 'string' && v.startsWith('say #!' + element.id)) {
-                if (usage.count == 0) {
+                if (!usage.count) {
                   element.usage.push(usage)
                 }
                 usage.count++
@@ -101,6 +112,14 @@ class ContentView extends Component<Props, State> {
             })
         })
       })
+
+      const usage = this.state.qnaUsage['#!' + element.id]
+      usage &&
+        element.usage.push({
+          type: 'Q&A',
+          name: usage.qna,
+          count: usage.count
+        })
     })
     return this.state.modifyId
       ? _.get(_.find(this.props.contentItems, { id: this.state.modifyId }), 'contentType')
@@ -268,6 +287,7 @@ interface State {
   contentToEdit: object
   modifyId: string
   selectedId: string
+  qnaUsage: any
 }
 
 type ContentElementUsage = {
@@ -275,7 +295,8 @@ type ContentElementUsage = {
 } & ContentElement
 
 export interface ContentUsage {
-  flowName: string
-  nodeName: string
+  type: string
+  name: string
+  node?: string
   count: number
 }

@@ -273,8 +273,28 @@ export default class Storage {
 
   async getAllContentElementIds(list?: QnaItem[]): Promise<string[]> {
     const qnas = list || (await this.fetchQNAs())
-    const allAnswers = _.flatMapDeep(qnas, qna => Object.keys(qna.data.answers).map(lang => qna.data.answers[lang]))
+    const allAnswers = _.flatMapDeep(qnas, qna => Object.values(qna.data.answers))
     return _.uniq(_.filter(allAnswers as string[], x => _.isString(x) && x.startsWith('#!')))
+  }
+
+  async getContentElementUsage(): Promise<any> {
+    const qnas = await this.fetchQNAs()
+
+    const obj = {}
+    _.forEach(qnas, qna => {
+      const qnaName = qna.id.substr(qna.id.indexOf('_') + 1)
+      const answers = _.flatMap(Object.values(qna.data.answers))
+
+      _.forEach(_.filter(answers, x => x.startsWith('#!')), answer => {
+        const values = obj[answer]
+        if (values) {
+          values.count++
+        } else {
+          obj[answer] = { qna: qnaName, count: 1 }
+        }
+      })
+    })
+    return obj
   }
 
   async count() {

@@ -132,7 +132,7 @@ class ListView extends Component<Props, State> {
     })
 
     if (sortOrder[0].column == 'usage') {
-      // we save the sorting locally, and we don't ask the database for sorting
+      // we save the sorting locally, because the database doesn't have the 'usage' column
       this.state.sortOrderUsage = sortOrder[0].desc ? 'desc' : 'asc'
       sortOrder = []
     } else {
@@ -169,7 +169,7 @@ class ListView extends Component<Props, State> {
       onClick: (e, handleOriginal) => {
         if (rowInfo) {
           if (column.id === 'usage') {
-            if (rowInfo.original.usage.length > 0) {
+            if (rowInfo.original.usage.length) {
               this.setState({ showUsageModal: true, contentUsage: rowInfo.original.usage })
             }
           } else if (column.id !== 'checkbox' && !this.props.readOnly) {

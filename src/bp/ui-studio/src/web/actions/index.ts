@@ -387,3 +387,7 @@ export const refreshIntents = () => dispatch => {
     dispatch(intentsReceived(data))
   })
 }
+
+export const getQnAContentElementUsage = () => {
+  return axios.get(`${window.BOT_API_PATH}/mod/qna/contentElementUsage`)
+}

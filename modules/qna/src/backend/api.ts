@@ -99,6 +99,15 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     res.end(data)
   })
 
+  router.get('/contentElementUsage', async (req, res) => {
+    const storage = botScopedStorage.get(req.params.botId)
+    const usage = await storage.getContentElementUsage()
+    const data = JSON.stringify(usage)
+
+    res.setHeader('Content-Type', 'application/json')
+    res.end(data)
+  })
+
   const upload = multer()
   router.post('/analyzeImport', upload.single('file'), async (req, res) => {
     const storage = botScopedStorage.get(req.params.botId)

@@ -24,15 +24,21 @@ export default class UsageModal extends React.Component<Props, State> {
   getTableColumns() {
     return [
       {
-        Header: 'Flow',
+        Header: 'Type',
         filterable: false,
-        accessor: 'flowName',
+        accessor: 'type',
+        width: 150
+      },
+      {
+        Header: 'Name',
+        filterable: false,
+        accessor: 'name',
         width: 150
       },
       {
         Header: 'Node',
         filterable: false,
-        accessor: 'nodeName',
+        accessor: 'node',
         width: 150
       },
       {
