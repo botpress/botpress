@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import Markdown from 'react-markdown'
-import axios from 'axios'
 import _ from 'lodash'
 
 import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
