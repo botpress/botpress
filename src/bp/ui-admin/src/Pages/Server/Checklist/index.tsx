@@ -304,7 +304,7 @@ export const Checklist: FC<Props> = props => {
           docs="https://botpress.io/docs/advanced/hosting/#setting-up-nginx"
           status="none"
         >
-          Check the documentation for more informations
+          Check the documentation for more information
         </Item>
       </div>
     </Container>

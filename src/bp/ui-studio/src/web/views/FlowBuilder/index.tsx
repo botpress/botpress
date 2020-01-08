@@ -49,7 +49,7 @@ type Props = {
 interface State {
   initialized: any
   readOnly: boolean
-  pannelPermissions: PanelPermissions[]
+  panelPermissions: PanelPermissions[]
   flowPreview: boolean
   mutexInfo: MutexInfo
   showSearch: boolean
@@ -62,7 +62,7 @@ class FlowBuilder extends Component<Props, State> {
   state = {
     initialized: false,
     readOnly: false,
-    pannelPermissions: this.allPermissions,
+    panelPermissions: this.allPermissions,
     flowPreview: false,
     mutexInfo: undefined,
     showSearch: false
@@ -88,7 +88,7 @@ class FlowBuilder extends Component<Props, State> {
   freezeAll() {
     this.setState({
       readOnly: true,
-      pannelPermissions: []
+      panelPermissions: []
     })
   }
 
@@ -140,7 +140,7 @@ class FlowBuilder extends Component<Props, State> {
     if (currentMutex && currentMutex.lastModifiedBy !== me && currentMutex.remainingSeconds) {
       this.setState({
         readOnly: true,
-        pannelPermissions: ['create'],
+        panelPermissions: ['create'],
         mutexInfo: { currentMutex }
       })
       return
@@ -153,7 +153,7 @@ class FlowBuilder extends Component<Props, State> {
     if (someoneElseIsEditingOtherFlow) {
       this.setState({
         readOnly: false,
-        pannelPermissions: ['create'],
+        panelPermissions: ['create'],
         mutexInfo: { someoneElseIsEditingOtherFlow: true }
       })
       return
@@ -161,13 +161,13 @@ class FlowBuilder extends Component<Props, State> {
 
     this.setState({
       readOnly: false,
-      pannelPermissions: this.allPermissions,
+      panelPermissions: this.allPermissions,
       mutexInfo: undefined
     })
   }
 
   pushFlowState = flow => {
-    this.props.history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
+    this.props.history.push(`/flows/${flow.replace(/\.flow\.json/i, '')}`)
   }
 
   hideSearch = () => this.setState({ showSearch: false })
@@ -177,7 +177,7 @@ class FlowBuilder extends Component<Props, State> {
       return null
     }
 
-    const { readOnly, pannelPermissions } = this.state
+    const { readOnly, panelPermissions } = this.state
 
     const keyHandlers = {
       add: e => {
@@ -222,7 +222,7 @@ class FlowBuilder extends Component<Props, State> {
         <SidePanel
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
-          permissions={pannelPermissions}
+          permissions={panelPermissions}
           flowPreview={this.state.flowPreview}
           onCreateFlow={name => {
             this.diagram.createFlow(name)

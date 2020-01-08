@@ -57,7 +57,8 @@ class Scenario extends React.Component {
           </Panel.Title>
           <div className={style.scenarioStatus}>
             <span>
-              {scenario.status && `${scenario.completedSteps} /`} {scenario.steps.length} interactions
+              {scenario.status && `${scenario.completedSteps} /`} {scenario.steps.length} interaction
+              {scenario.steps.length === 1 ? '' : 's'}
             </span>
             {this.renderStatusLabel(scenario.status)}
           </div>

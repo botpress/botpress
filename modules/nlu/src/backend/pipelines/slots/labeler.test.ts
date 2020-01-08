@@ -7,19 +7,19 @@ import { BIO, Sequence, Token } from '../../typings'
 import { combineSlots, isTagAValidSlot, labelizeUtterance, predictionLabelToTagResult, TagResult } from './labeler'
 
 const AN_UTTERANCE: Sequence = {
-  cannonical: 'Careful my friend, Alex W. is one of us',
+  canonical: 'Careful my friend, Alex W. is one of us',
   intent: 'warn',
   tokens: [
-    { tag: 'o', cannonical: 'careful', matchedEntities: [] },
-    { tag: 'B', cannonical: 'my', slot: 'listener', matchedEntities: ['friend'] },
-    { tag: 'I', cannonical: 'friend', slot: 'listener', matchedEntities: ['friend'] },
-    { tag: 'o', cannonical: ',' }, // no matched entities is on purpose here
-    { tag: 'B', cannonical: 'Alex', slot: 'person', matchedEntities: [] },
-    { tag: 'I', cannonical: 'W.', slot: 'person', matchedEntities: [] },
-    { tag: 'o', cannonical: 'is' },
-    { tag: 'o', cannonical: 'one' },
-    { tag: 'o', cannonical: 'of' },
-    { tag: 'B', cannonical: 'us', slot: 'group' }
+    { tag: 'o', canonical: 'careful', matchedEntities: [] },
+    { tag: 'B', canonical: 'my', slot: 'listener', matchedEntities: ['friend'] },
+    { tag: 'I', canonical: 'friend', slot: 'listener', matchedEntities: ['friend'] },
+    { tag: 'o', canonical: ',' }, // no matched entities is on purpose here
+    { tag: 'B', canonical: 'Alex', slot: 'person', matchedEntities: [] },
+    { tag: 'I', canonical: 'W.', slot: 'person', matchedEntities: [] },
+    { tag: 'o', canonical: 'is' },
+    { tag: 'o', canonical: 'one' },
+    { tag: 'o', canonical: 'of' },
+    { tag: 'B', canonical: 'us', slot: 'group' }
   ] as Token[]
 }
 
@@ -37,7 +37,7 @@ test('labelizeUtterance', () => {
 })
 
 test('isTagAValidSlot', () => {
-  const token = { cannonical: 'a token' } as Token // for testing purposes
+  const token = { canonical: 'a token' } as Token // for testing purposes
   const tag = { tag: BIO.OUT, probability: 0.5, name: '' } as TagResult
   const tag1 = { tag: BIO.BEGINNING, probability: 0.5, name: 'coffee-type' } as TagResult
   const intentDef = {
@@ -57,7 +57,7 @@ test('isTagAValidSlot', () => {
 
 describe('combineSlots', () => {
   const token = {
-    cannonical: 'LeGrand',
+    canonical: 'LeGrand',
     value: `${SPACE}LeGrand`
   } as Token
 

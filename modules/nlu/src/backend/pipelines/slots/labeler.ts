@@ -54,8 +54,8 @@ export function makeSlot(
     return
   }
 
-  const value = _.get(entity, 'data.value', token.cannonical)
-  const source = _.get(entity, 'meta.source', token.cannonical)
+  const value = _.get(entity, 'data.value', token.canonical)
+  const source = _.get(entity, 'meta.source', token.canonical)
 
   const slot = {
     name: tagRes.name,
@@ -78,7 +78,7 @@ export function combineSlots(existing: NLU.Slot, token: Token, tagRes: TagResult
   } else if (tagRes.tag === BIO.INSIDE && !existing.entity && !newSlot.entity) {
     // exity extraction fills source properly
     const maybeSpace = token.value.startsWith(SPACE) ? ' ' : ''
-    const source = `${existing.source}${maybeSpace}${token.cannonical}`
+    const source = `${existing.source}${maybeSpace}${token.canonical}`
     // TODO: we might want to alter confidence with the newSlot prob as that's what a CRF technically does
     return {
       ...existing,

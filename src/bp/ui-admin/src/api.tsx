@@ -16,7 +16,7 @@ export const toastError = error => {
       {errorCode && <span>[{errorCode}]</span>} {details}{' '}
       {docs && (
         <a href={docs} target="_blank">
-          More informations
+          More information
         </a>
       )}
     </span>
@@ -70,7 +70,7 @@ export default {
     return overrideApiUrl.baseURL
   },
 
-  getSecured({ token = undefined, toastErrors = true, timeout = 6000 } = {}) {
+  getSecured({ token = undefined, toastErrors = true, timeout = 10000 } = {}) {
     if (!token) {
       const ls = pullToken()
       token = ls && ls.token

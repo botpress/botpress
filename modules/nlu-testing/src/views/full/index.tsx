@@ -1,4 +1,4 @@
-import { Button, Icon, Spinner } from '@blueprintjs/core'
+import { Button, ContextMenuTarget, Icon, Menu, MenuItem, Position, Spinner, Tooltip } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import P from 'bluebird'
 import { Container, SplashScreen } from 'botpress/ui'
@@ -67,7 +67,7 @@ export default class NLUTests extends React.Component<Props, State> {
   render() {
     const shouldRenderSplash = !this.state.loading && !this.state.tests.length && !this.state.f1Metrics
     return (
-      <Container sidePanelHidden={true}>
+      <Container sidePanelHidden={true} yOverflowScroll={true}>
         <div />
         <div className="bph-layout-main">
           <div className="bph-layout-middle">
@@ -125,6 +125,54 @@ export default class NLUTests extends React.Component<Props, State> {
           </div>
         </div>
       </Container>
+    )
+  }
+}
+
+@ContextMenuTarget
+class TableRow extends React.Component<{ test: Test; testResults: any; onDelete: () => void }, {}> {
+  render() {
+    return (
+      <tr>
+        {/* TODO edit utterance in place */}
+        <td>{this.props.test.utterance}</td>
+        <td>{this.props.test.context}</td>
+        <td>{this.props.test.conditions.map(c => c.join('-')).join(' | ')}</td>
+        <td>{this.renderResult()}</td>
+      </tr>
+    )
+  }
+
+  renderDetails = (res: TestResult) => (
+    <div>
+      {res.details
+        .filter(r => !r.success)
+        .map(r => (
+          <p>{r.reason}</p>
+        ))}
+    </div>
+  )
+
+  renderResult = () => {
+    const result = this.props.testResults[this.props.test.id]
+    if (result === undefined) {
+      return <span>-</span>
+    } else if (result.success) {
+      return <Icon icon="tick-circle" intent="success" />
+    } else {
+      return (
+        <Tooltip position={Position.LEFT} content={this.renderDetails(result)}>
+          <Icon icon="warning-sign" intent="danger" />
+        </Tooltip>
+      )
+    }
+  }
+
+  renderContextMenu = (e: React.MouseEvent<HTMLElement>) => {
+    return (
+      <Menu>
+        <MenuItem onClick={this.props.onDelete} text="Delete" />
+      </Menu>
     )
   }
 }

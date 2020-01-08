@@ -49,7 +49,7 @@ export class LanguagesRouter extends CustomRouter {
     )
 
     if (error) {
-      this.logger.warn('Additional langages are not valid')
+      this.logger.warn('Additional languages are not valid')
       return []
     }
 

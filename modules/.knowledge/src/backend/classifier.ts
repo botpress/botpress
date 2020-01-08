@@ -39,7 +39,7 @@ export class DocumentClassifier {
     if (mostRecent) {
       const index = await ghost.readFileAsObject<{ [canonical: string]: Snippet }>(
         './models',
-        mostRecent.replace('knowledge_', 'knowledge_meta_').replace('.bin', '.json')
+        mostRecent.replace('knowledge_', 'knowledge_meta_').replace(/\.bin$/i, '.json')
       )
       const buff = await ghost.readFileAsBuffer('./models', mostRecent)
       await this.loadFromBuffer(index, buff)

@@ -110,7 +110,7 @@ const Workspaces: FC<Props> = props => {
                 </div>
                 <div style={{ width: 200 }}>
                   <small>
-                    {workspace.bots.length} bots - {workspace.audience} users
+                    {workspace.bots.length} bot{workspace.bots.length === 1 ? '' : 's'} - {workspace.audience} users
                   </small>
                 </div>
               </div>

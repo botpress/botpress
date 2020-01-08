@@ -6,7 +6,7 @@ import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 const _uploadArchive = async (fileContent: any, doUpdate: boolean) => {
   const { data } = await api
-    .getSecured({ timeout: 30000 })
+    .getSecured({ timeout: 60000 })
     .post(`/admin/versioning/${doUpdate ? 'update' : 'changes'}`, fileContent, {
       headers: { 'Content-Type': 'application/tar+gzip' }
     })

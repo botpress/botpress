@@ -59,7 +59,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
   "flags": {},
   "nlu": { // <<<<------
     "language": "en", // language identified
-    "intent": { // most likely intent, assuming confidence is within config treshold
+    "intent": { // most likely intent, assuming confidence is within config threshold
       "name": "hello",
       "confidence": 1
     },
@@ -206,19 +206,19 @@ An example of placeholder entity would be : Please tell **Sarah** that **she's l
 
 ### Custom Entities
 
-As of today we provide 2 types of custom entites: [pattern](#pattern-extraction) and [list](#list-extraction) entitites. To define a custom entity, head to the **Entity section** of the Understanding Module in your botpress studio side bar. From there you'll be able to define your custom entities that will be available for any input message treated by your chatbot. Go ahead and click on **create new entity**
+As of today we provide 2 types of custom entities: [pattern](#pattern-extraction) and [list](#list-extraction) entities. To define a custom entity, head to the **Entity section** of the Understanding Module in your botpress studio side bar. From there you'll be able to define your custom entities that will be available for any input message treated by your chatbot. Go ahead and click on **create new entity**
 
 <img src="/docs/assets/nlu-create-entity.png">
 
-### Sensitive Informations
+### Sensitive Information
 
-Communication between users and bots are stored in the database, which means that sometimes personal informations (eg: credit card) may be persisted as well. To avoid that problem, it is possible to tell Botpress that certain entities are not to be persisted. When creating or editing an Entity, there is a small checkbox located in the upper right corner labeled `sensitive`.
+Communication between users and bots are stored in the database, which means that sometimes personal information (eg: credit card) may be persisted as well. To avoid that problem, it is possible to tell Botpress that certain entities are not to be persisted. When creating or editing an Entity, there is a small checkbox located in the upper right corner labeled `sensitive`.
 
 When checked, the information will still be displayed in the chat window, but the sensitive information will be replaced by `*****` before being stored. The original value is still available from `event.nlu.entities`
 
 #### Pattern extraction
 
-Once you've created a pattern entity, Botpress Native NLU will perform a regex extraction on each incomming message and add it to `event.nlu.entities`.
+Once you've created a pattern entity, Botpress Native NLU will perform a regex extraction on each incoming message and add it to `event.nlu.entities`.
 
 ##### Example :
 
@@ -252,7 +252,7 @@ Extraction will go like:
 
 #### List extraction
 
-List extraction will behave in a similar way. The major addition is that for your entity definition, you'll be able to add different **occurences** of your entity with corresponding synonyms.
+List extraction will behave in a similar way. The major addition is that for your entity definition, you'll be able to add different **occurrences** of your entity with corresponding synonyms.
 
 Let's take **Airport Codes** as an example:
 
@@ -346,7 +346,7 @@ Slot filling is the process of gathering information required by an intent. This
 
 ## Language Server
 
-The language server provides additional informations about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../advanced/hosting#running-your-own-language-server) page for more details.
+The language server provides additional information about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../advanced/hosting#running-your-own-language-server) page for more details.
 
 ## External NLU Providers
 

@@ -218,7 +218,7 @@ export default class Storage {
         questions = questions.slice(opts.start, opts.start + opts.count)
       }
 
-      return Promise.map(questions, itemName => this.getQnaItem(itemName.replace('.json', '')))
+      return Promise.map(questions, itemName => this.getQnaItem(itemName.replace(/\.json$/i, '')))
     } catch (err) {
       this.bp.logger.warn(`Error while reading questions. ${err}`)
       return []

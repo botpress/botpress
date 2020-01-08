@@ -69,16 +69,20 @@ class Web extends React.Component<MainProps> {
     await this.socket.waitForUserId()
     await this.props.initializeChat()
 
+    config.reference && this.props.setReference()
+
     this.setupObserver()
 
     this.props.setLoadingCompleted()
   }
 
   extractConfig() {
-    const { options } = queryString.parse(location.search)
+    const { options, ref } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeURIComponent(options || '{}'))
 
     const userConfig = Object.assign({}, constants.DEFAULT_CONFIG, config)
+    userConfig.reference = config.ref || ref
+
     this.props.updateConfig(userConfig, this.props.bp)
 
     return userConfig
@@ -234,6 +238,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   setUserId: store.setUserId,
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
+  setReference: store.setReference,
 
   isWebchatReady: store.view.isWebchatReady,
   showWidgetButton: store.view.showWidgetButton,
@@ -261,6 +266,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'sendData'
   | 'intl'
   | 'updateTyping'
+  | 'setReference'
   | 'hideChat'
   | 'showChat'
   | 'toggleBotInfo'

@@ -93,7 +93,7 @@ session.store = [{ id: 1, id: 2, id: 3 }]
 
 The only way to register new actions is to add your javascript code in a `.js` file and put them in the folder `data/global/actions`. There is no way to programmatically add new ones during runtime.
 
-There are already a [couple of actions](https://github.com/botpress/botpress/tree/master/modules/builtin/src/actions) that you can use to get some inspiration. We use JavaDoc comments to display meaningful informations (name, description, arguments, default values) on the dialog flow editor. It is possible to keep an action hidden in the flow editor by adding the flag `@hidden true` in the javadoc.
+There are already a [couple of actions](https://github.com/botpress/botpress/tree/master/modules/builtin/src/actions) that you can use to get some inspiration. We use JavaDoc comments to display meaningful information (name, description, arguments, default values) on the dialog flow editor. It is possible to keep an action hidden in the flow editor by adding the flag `@hidden true` in the javadoc.
 
 ## Hooks
 

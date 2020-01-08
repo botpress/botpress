@@ -62,7 +62,7 @@ const Versioning: FC<{ profile: any }> = props => {
             <a href="https://botpress.io/docs/next/advanced/versions/" target="_blank">
               <b>documentation</b>
             </a>{' '}
-            for more informations.
+            for more information.
           </p>
         </Callout>
       )}

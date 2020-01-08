@@ -12,7 +12,7 @@ On this page, you will learn about the Botpress global configuration, individual
 
 This is the main file used to configure the Botpress server. It will be created automatically when it is missing. Default values should be good when discovering Botpress, but in this page you will learn about the most common configuration you may need to change.
 
-To get more informations about each individual options, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
+To get more information about each individual options, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
 
 ## HTTP Server Configuration
 
@@ -40,7 +40,7 @@ When you start Botpress from the binary (or using the Docker image), the bot is 
 
 There are 4 different levels of logs:
 
-- Debug: display very detailed informations about the bot operations
+- Debug: display very detailed information about the bot operations
 - Info: gives general information or "good to know" stuff
 - Warn: means that something didn't go as expected, but the bot was able to recover
 - Error: there was an error that should be addressed
@@ -126,9 +126,9 @@ Here there are:
 | BPFS_STORAGE         | Storage destination used by BPFS to read and write files (global and bots)                                | disk          |
 | REDIS_URL            | The connection string to connect to your Redis instance                                                   |               |
 
-About `DATABASE_URL` : This variable will determine the type of database you're running (i.e postgres | sqlite). Anything else than a valid postgress url it will be used as a path to sqlite file. If you want to use the default postgres connection, simply use `postgres` as value. Leave this empty if you want to use the default sqlite location.
+About `DATABASE_URL` : This variable will determine the type of database you're running (i.e postgres | sqlite). Anything else than a valid postgres url it will be used as a path to sqlite file. If you want to use the default postgres connection, simply use `postgres` as value. Leave this empty if you want to use the default sqlite location.
 
-## More Informations
+## More Information
 
 - Check out the [database](../tutorials/database) page for details about `DATABASE_URL`
 - Check out the [cluster](cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`

@@ -4,7 +4,7 @@ import { FuzzyTolerance } from '../backend/entities'
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: 'Added missing fields in custom entities',
+    description: 'Adds missing fields in custom entities',
     target: 'bot',
     type: 'content'
   },
@@ -41,7 +41,7 @@ const migration: sdk.ModuleMigration = {
       await Promise.map(bots.keys(), botId => migrateBotEntities(botId))
     }
 
-    return { success: true, message: 'Entities updated successfully' }
+    return { success: true, message: "Entities' fields updated successfully" }
   }
 }
 

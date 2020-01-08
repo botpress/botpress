@@ -20,22 +20,22 @@ const AN_INTENT = 'Give-me Money!'
 const SOME_TOKENS = [
   {
     value: `${SPACE}I`,
-    cannonical: 'I',
+    canonical: 'I',
     matchedEntities: []
   },
   {
     value: `${SPACE}need`,
-    cannonical: 'need',
+    canonical: 'need',
     matchedEntities: []
   },
   {
     value: `${SPACE}five`,
-    cannonical: 'five',
+    canonical: 'five',
     matchedEntities: ['number']
   },
   {
     value: `${SPACE}bucks`,
-    cannonical: 'bucks',
+    canonical: 'bucks',
     matchedEntities: ['animal', 'money']
   }
 ] as Token[]
@@ -100,22 +100,22 @@ describe('CRF Featurizer', () => {
     const token2Vec = {}
     const tfidf = {
       global: {
-        [SOME_TOKENS[0].cannonical.toLowerCase()]: 0.5,
+        [SOME_TOKENS[0].canonical.toLowerCase()]: 0.5,
         [closest_token]: 0.5,
         [closest_token1]: 1.2,
         [closest_token2]: 1.7
       }
     }
 
-    const mockedLangageProvider = { vectorize: jest.fn(() => Promise.resolve([a_wordvec])) }
+    const mockedLanguageProvider = { vectorize: jest.fn(() => Promise.resolve([a_wordvec])) }
     getClosestToken.mockReturnValueOnce(Promise.resolve(closest_token))
     getClosestToken.mockReturnValueOnce(Promise.resolve(closest_token1))
     getClosestToken.mockReturnValueOnce(Promise.resolve(closest_token2))
 
-    const feat = await getWordWeight(SOME_TOKENS[0], tfidf, mockedLangageProvider, token2Vec, 'en')
-    const feat1 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLangageProvider, token2Vec, 'en')
-    const feat2 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLangageProvider, token2Vec, 'en')
-    const feat3 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLangageProvider, token2Vec, 'en')
+    const feat = await getWordWeight(SOME_TOKENS[0], tfidf, mockedLanguageProvider, token2Vec, 'en')
+    const feat1 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLanguageProvider, token2Vec, 'en')
+    const feat2 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLanguageProvider, token2Vec, 'en')
+    const feat3 = await getWordWeight(SOME_TOKENS[3], tfidf, mockedLanguageProvider, token2Vec, 'en')
 
     expect(feat.value).toEqual('low')
     expect(feat1.value).toEqual('low')
@@ -123,7 +123,7 @@ describe('CRF Featurizer', () => {
     expect(feat3.value).toEqual('high')
 
     expect(getClosestToken).toHaveBeenCalledTimes(3)
-    expect(getClosestToken.mock.calls[0][0]).toEqual(SOME_TOKENS[3].cannonical.toLowerCase())
+    expect(getClosestToken.mock.calls[0][0]).toEqual(SOME_TOKENS[3].canonical.toLowerCase())
   })
 
   test('getClusterFeat', async () => {
@@ -132,12 +132,12 @@ describe('CRF Featurizer', () => {
     const mockedKmeans = { nearest: jest.fn(() => [cluster]) }
     const lang = 'en'
 
-    const mockedLangageProvider = { vectorize: jest.fn(() => Promise.resolve([a_wordvec])) }
+    const mockedLanguageProvider = { vectorize: jest.fn(() => Promise.resolve([a_wordvec])) }
 
-    const feat = await getClusterFeat(SOME_TOKENS[0], mockedLangageProvider, mockedKmeans, lang)
+    const feat = await getClusterFeat(SOME_TOKENS[0], mockedLanguageProvider, mockedKmeans, lang)
 
-    expect(mockedLangageProvider.vectorize.mock.calls[0][0]).toEqual([SOME_TOKENS[0].cannonical.toLowerCase()])
-    expect(mockedLangageProvider.vectorize.mock.calls[0][1]).toEqual(lang)
+    expect(mockedLanguageProvider.vectorize.mock.calls[0][0]).toEqual([SOME_TOKENS[0].canonical.toLowerCase()])
+    expect(mockedLanguageProvider.vectorize.mock.calls[0][1]).toEqual(lang)
     expect(mockedKmeans.nearest.mock.calls[0][0]).toEqual([a_wordvec])
     expect(feat.name).toEqual('cluster')
     expect(feat.value).toEqual(cluster)
@@ -162,7 +162,7 @@ describe('CRF Featurizer', () => {
       bucks: [AN_INTENT]
     }
     const tok = {
-      cannonical: 'fly'
+      canonical: 'fly'
     } as Token
 
     const feat0 = getInVocabFeat(tok, vocab, AN_INTENT)

@@ -16,7 +16,7 @@ You can consume a memory action just like any other action from the Botpress Flo
 
 ### User Memory
 
-Variables stored inside this memory are persisted and remain available for the same user. They survive the different conversations. When a message is received from the user, his informations are automatically loaded and are available to actions and nodes without calling anything,.
+Variables stored inside this memory are persisted and remain available for the same user. They survive the different conversations. When a message is received from the user, his information is automatically loaded and is available to actions and nodes without calling anything.
 
 They never expires unless there is a data retention policy for some variables.
 

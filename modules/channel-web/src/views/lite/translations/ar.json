@@ -3,7 +3,7 @@
   "composer.send": "إرسال",
   "header.conversations": "محادثات",
   "conversationList.untitledConversation": "محادثة بلا عنوان",
-  "botInfo.backToConversation": "العوده الى المحادثة",
+  "botInfo.backToConversation": "العودة الى المحادثة",
   "botInfo.startConversation": "بداية محادثة",
   "botInfo.privacyPolicy": "عرض سياسة الخصوصية",
   "botInfo.termsAndConditions": "عرض شروط الخدمة",
@@ -13,6 +13,7 @@
   "loginForm.password": "كلمة المرور",
   "loginForm.submit": "تقديم",
   "loginForm.formTitle": "نموذج تسجيل الدخول",
-  "loginForm.providedCredentials": "قدمت أوراق اعتماد",
-  "messages.newMessage": "رسالة جديدة"
+  "loginForm.providedCredentials": "تم إدخال تفاصيل الدخول",
+  "messages.newMessage": "رسالة جديدة",
+  "messages.newMessages": "رسائل جديدة"
 }
