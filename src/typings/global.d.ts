@@ -166,6 +166,12 @@ declare type BotpressEnvironmentVariables = {
    * Experimental feature which will try to load actions locally, then from the ghost
    */
   readonly BP_EXPERIMENTAL_REQUIRE_BPFS?: boolean
+
+  /**
+   * When true, all hooks and GLOBAL actions are executed outside the sandbox.
+   * Can give a significant performance improvement but removes some protections.
+   */
+  readonly DISABLE_GLOBAL_SANDBOX?: boolean
 }
 
 interface IDebug {
