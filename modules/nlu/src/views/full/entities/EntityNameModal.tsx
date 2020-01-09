@@ -58,7 +58,7 @@ export const EntityNameModal: FC<Props> = props => {
       id: getEntityId(name),
       name: name.trim(),
       type: type as NLU.EntityType,
-      occurences: []
+      occurrences: []
     }
     props.api.createEntity(entity).then(() => {
       props.onEntityModified(entity)
