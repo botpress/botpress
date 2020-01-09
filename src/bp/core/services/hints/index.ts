@@ -37,7 +37,7 @@ const invalidationFilePrefix = 'string::data/'
 @injectable()
 export class HintsService {
   // We store hints per key because we want to:
-  // 1) do partial updates to hints when updading a single file
+  // 1) do partial updates to hints when updating a single file
   // 2) cherry-pick only the files that belong to a certain bot
   // The key always starts with "global/" or "bots/botId/"
   hints: { [key: string]: Hint[] } = {}
