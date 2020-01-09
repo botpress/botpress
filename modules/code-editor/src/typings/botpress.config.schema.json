@@ -145,7 +145,7 @@
         },
         "externalAuth": {
           "$ref": "#/definitions/ExternalAuthConfig",
-          "description": "External Authentication makes it possible to authenticate end-users (chat users) from an other system\nby using JWT tokens.\n\nIn addition to authenticate the users, the JWT token can also contain arbitrary additional\ndata about the user that you would like to make Botpress aware of.\n\nThe identity of the user will be checked for every incoming message and the additional data in the JWT token\nwill be available in `event.credentials`."
+          "description": "External Authentication makes it possible to authenticate end-users (chat users) from another system\nby using JWT tokens.\n\nIn addition to authenticate the users, the JWT token can also contain arbitrary additional\ndata about the user that you would like to make Botpress aware of.\n\nThe identity of the user will be checked for every incoming message and the additional data in the JWT token\nwill be available in `event.credentials`."
         }
       },
       "required": ["alerting", "collaboratorsAuthStrategies", "enabled", "licenseKey", "monitoring"]

@@ -7,7 +7,7 @@ import { getFlowLabel, reorderFlows } from '~/components/Shared/Utils'
 import { ERROR_FLOW_ICON, FLOW_ICON, FOLDER_ICON, MAIN_FLOW_ICON, TIMEOUT_ICON } from './FlowsList'
 
 /**
- *  Returns a different display for special flows.
+ * Returns a different display for special flows.
  * @param flowId The full path of the flow (including folders)
  * @param flowName The display name of the flow (only filename)
  */

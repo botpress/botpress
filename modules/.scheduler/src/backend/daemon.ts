@@ -83,7 +83,7 @@ class Daemon {
 
           this.bp.notifications.create(undefined, {
             botId: undefined,
-            message: 'An error occured while running task: ' + taskId + '. Please check the logs for more info.',
+            message: 'An error occurred while running task: ' + taskId + '. Please check the logs for more info.',
             level: 'error'
           })
 

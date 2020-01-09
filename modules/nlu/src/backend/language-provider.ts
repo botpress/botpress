@@ -399,7 +399,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     })
 
     // At this point, final[] contains the utterances we had cached
-    // It has somes "holes", we kept track of the indices where those wholes are in `idxToFetch`
+    // It has some "holes", we kept track of the indices where those wholes are in `idxToFetch`
 
     while (idxToFetch.length) {
       // While there's utterances we haven't tokenized yet

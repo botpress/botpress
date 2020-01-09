@@ -3,9 +3,7 @@
     "id": "16y2ki6wm1_how_many_years_does_a_monkey_live",
     "data": {
       "answers": {
-        "en": [
-          "The lifespan of a monkey is 10 to 50 years, depending on the species."
-        ]
+        "en": ["The lifespan of a monkey is 10 to 50 years, depending on the species."]
       },
       "questions": {
         "en": [
@@ -32,9 +30,7 @@
     "id": "31oi0r2lvp_where_do_giraffes_live",
     "data": {
       "answers": {
-        "en": [
-          "Most giraffes live either in East Africa or in Angola and Zambia in southwestern Africa."
-        ]
+        "en": ["Most giraffes live either in East Africa or in Angola and Zambia in southwestern Africa."]
       },
       "questions": {
         "en": [
@@ -146,9 +142,7 @@
     "id": "wh0qeyfjzv_how_many_years_does_a_giraffe_live",
     "data": {
       "answers": {
-        "en": [
-          "Healthy giraffes live about 25 years in the wild."
-        ]
+        "en": ["Healthy giraffes live about 25 years in the wild."]
       },
       "questions": {
         "en": [
@@ -180,7 +174,7 @@
       "questions": {
         "en": [
           "forget my name",
-          "dont remember me",
+          "don't remember me",
           "erase my name",
           "erase me",
           "stop remembering me",

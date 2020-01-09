@@ -133,7 +133,7 @@ export default class KnowledgeManager extends Component {
         })
         .catch(() => {
           this.setState({
-            syncMessage: `There was an eror while synchronizing. Please check the logs`,
+            syncMessage: `There was an error while synchronizing. Please check the logs`,
             isSyncError: true
           })
           this.clearWithDelay('syncMessage')

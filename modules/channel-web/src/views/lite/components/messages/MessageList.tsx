@@ -35,7 +35,7 @@ class MessageList extends React.Component<MessageListProps, State> {
         return
       }
       this.tryScrollToBottom()
-      this.tryScrollToBottom(true) // twice because some browsers scrolls before rendering the keyboad
+      this.tryScrollToBottom(true) // twice because some browsers scrolls before rendering the keyboard
     })
   }
 

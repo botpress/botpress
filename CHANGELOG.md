@@ -973,7 +973,7 @@
 ### Bug Fixes
 
 * do not create revisions for models ([4347826](https://github.com/botpress/botpress/commit/4347826))
-* dont record revisions for botpress and workspaces configs ([b60f5c1](https://github.com/botpress/botpress/commit/b60f5c1))
+* don't record revisions for botpress and workspaces configs ([b60f5c1](https://github.com/botpress/botpress/commit/b60f5c1))
 * expose getAttributes from UserRepository ([82ddeca](https://github.com/botpress/botpress/commit/82ddeca))
 * Expose getAttributes from UserRepository ([e2faeee](https://github.com/botpress/botpress/commit/e2faeee))
 * **core:** resources-loader doesn't over-create files ([b21c311](https://github.com/botpress/botpress/commit/b21c311))

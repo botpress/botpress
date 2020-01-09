@@ -463,8 +463,8 @@ export class ScopedGhostService {
     })
   }
 
-  public async exportToDirectory(directory: string, exludes?: string | string[]): Promise<string[]> {
-    const allFiles = await this.directoryListing('./', '*.*', exludes, true)
+  public async exportToDirectory(directory: string, excludes?: string | string[]): Promise<string[]> {
+    const allFiles = await this.directoryListing('./', '*.*', excludes, true)
 
     for (const file of allFiles.filter(x => x !== 'revisions.json')) {
       const content = await this.primaryDriver.readFile(this._normalizeFileName('./', file))
@@ -496,11 +496,11 @@ export class ScopedGhostService {
     await this.upsertFiles('/', files, { ignoreLock: true })
   }
 
-  public async exportToArchiveBuffer(exludes?: string | string[], replaceContent?: ReplaceContent): Promise<Buffer> {
+  public async exportToArchiveBuffer(excludes?: string | string[], replaceContent?: ReplaceContent): Promise<Buffer> {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
     try {
-      const outFiles = await this.exportToDirectory(tmpDir.name, exludes)
+      const outFiles = await this.exportToDirectory(tmpDir.name, excludes)
       if (replaceContent) {
         await replace({ files: `${tmpDir.name}/**/*.json`, from: replaceContent.from, to: replaceContent.to })
       }

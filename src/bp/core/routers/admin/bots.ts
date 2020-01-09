@@ -74,7 +74,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const categories = (await this.configProvider.getBotpressConfig()).botCategories
-        return sendSuccess(res, 'Retreived bot categories', { categories })
+        return sendSuccess(res, 'Retrieved bot categories', { categories })
       })
     )
 
@@ -107,7 +107,7 @@ export class BotsRouter extends CustomRouter {
         }
 
         if (botLinked) {
-          this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workpaces.json for more details`)
+          this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workspaces.json for more details`)
         } else {
           await this.workspaceService.addBotRef(bot.id, req.workspace!)
         }

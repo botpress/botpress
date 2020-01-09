@@ -8,7 +8,7 @@ extractIntentSlots()
 function extractIntentSlots() {
   const slots = _.flatten(_.values(event.nlu.slots)).filter(x => !!x.value) // only non-null slots
   for (let slot of slots) {
-    // BETA(11.8.4): Prevent overwrite of the slot if explicitely demanded
+    // BETA(11.8.4): Prevent overwrite of the slot if explicitly demanded
     if (event.state.session.slots[slot.name] && event.state.session.slots[slot.name].overwritable == false) {
       continue
     }

@@ -222,7 +222,7 @@ export class BotService {
     if (await this.botExists(botId)) {
       if (!allowOverwrite) {
         throw new InvalidOperationError(
-          `Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`
+          `Cannot import the bot ${botId}, it already exists, and overwriting is not allowed`
         )
       } else {
         this.logger.warn(`The bot ${botId} already exists, files in the archive will overwrite existing ones`)
@@ -290,7 +290,7 @@ export class BotService {
     if (configFile.length > 1) {
       throw new InvalidOperationError(`Bots must be imported in separate archives`)
     } else if (configFile.length !== 1) {
-      throw new InvalidOperationError(`The archive doesn't seems to contain a bot`)
+      throw new InvalidOperationError(`The archive doesn't seem to contain a bot`)
     }
 
     return path.join(directory, path.dirname(configFile[0]))
@@ -544,7 +544,7 @@ export class BotService {
     } catch (err) {
       this.logger
         .attachError(err)
-        .error(`Cannot mount bot "${botId}". Make sure it exists on the filesytem or the database.`)
+        .error(`Cannot mount bot "${botId}". Make sure it exists on the filesystem or the database.`)
     }
   }
 

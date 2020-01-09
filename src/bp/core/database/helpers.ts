@@ -39,7 +39,7 @@ export const patchKnex = (knex: Knex): KnexExtended => {
     })
   }
 
-  // only works for single insert beause of SQLite
+  // only works for single insert because of SQLite
   const insertAndRetrieve = async <T>(
     tableName: string,
     data: any,

@@ -218,7 +218,7 @@ class Bots extends Component<Props> {
         )}
 
         {!hasBots && (
-          <Callout title="This workspace has no bot, yet" className="filterCallout">
+          <Callout title="This workspace has no bots, yet" className="filterCallout">
             <p>
               <br />
               In Botpress, bots are always assigned to a workspace.

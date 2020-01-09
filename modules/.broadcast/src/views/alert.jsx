@@ -11,7 +11,7 @@ export default class DismissableAlert extends React.Component {
     if (this.state.alertVisible) {
       return (
         <Alert bsStyle="danger" onDismiss={dismiss}>
-          <h4>An error occured sending a broadcast</h4>
+          <h4>An error occurred sending a broadcast</h4>
           <p>Have a look at the logs to see what happened</p>
           <p>
             <Button onClick={dismiss}>Hide Alert</Button>

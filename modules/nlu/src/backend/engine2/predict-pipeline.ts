@@ -358,7 +358,7 @@ export const Predict = async (
     if (err instanceof InvalidLanguagePredictorError) {
       throw err
     }
-    console.log('Could not perform predict predict data', err)
+    console.log('Could not perform predict data', err)
     return { errored: true } as sdk.IO.EventUnderstanding
   }
 }

@@ -86,7 +86,7 @@ describe('Custom entity extraction', () => {
       } as sdk.NLU.EntityDefinition
 
       const userInput = `
-I'm riding my mercedes-benz to the dealership then I will take my BM to buy an other mercedes because we need merchandise for the shop BMW!` /*
+I'm riding my mercedes-benz to the dealership then I will take my BM to buy another mercedes because we need merchandise for the shop BMW!` /*
               [============]                                      ==                 [======]                                          [=]
 */
 
