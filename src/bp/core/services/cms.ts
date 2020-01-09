@@ -95,7 +95,7 @@ export class CMSService implements IDisposeOnExit {
     let contentElements: ContentElement[] = []
 
     for (const fileName of fileNames) {
-      const contentType = path.basename(fileName).replace(/.json$/i, '')
+      const contentType = path.basename(fileName).replace(/\.json$/i, '')
       const fileContentElements = await this.ghost
         .forBot(botId)
         .readFileAsObject<ContentElement[]>(this.elementsDir, fileName)

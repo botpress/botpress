@@ -14,9 +14,10 @@ export const ID_REGEX = /[\t\s]/gi
 export const sanitizeFilenameNoExt = (name: string) =>
   name
     .toLowerCase()
-    .replace('.json', '')
+    .replace(/\.json$/i, '')
     .replace(ID_REGEX, '-')
 
+// DEPRECATED
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
 
@@ -42,7 +43,7 @@ export default class Storage {
 
     if (content.slots) {
       for (const slot of content.slots) {
-        // @deprecated > 11 gracefull migration
+        // @deprecated > 11 graceful migration
         if (!slot.entities && slot.entity) {
           slot.entities = [slot.entity]
         }

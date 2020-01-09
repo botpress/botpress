@@ -42,7 +42,7 @@ class ImportBotModal extends Component<Props, State> {
     this.setState({ isProcessing: true })
 
     try {
-      await api.getSecured({ timeout: 30000 }).post(`/admin/bots/${this.state.botId}/import`, this.state.fileContent, {
+      await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${this.state.botId}/import`, this.state.fileContent, {
         headers: { 'Content-Type': 'application/tar+gzip' }
       })
 

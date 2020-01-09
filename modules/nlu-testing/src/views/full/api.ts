@@ -18,12 +18,24 @@ export interface TestResult {
   }[]
 }
 
+export interface F1 {
+  precision: number
+  recall: number
+  f1: number
+}
+
+export type XValidationResults = {
+  intents: _.Dictionary<F1>
+  slots: F1
+}
+
 export interface TestingAPI {
   fetchTests: () => Promise<Test[]>
   fetchIntents: () => Promise<any[]>
   updateTest: (x: Test) => Promise<void>
   deleteTest: (x: Test) => Promise<void>
   runTest: (x: Test) => Promise<TestResult>
+  computeCrossValidation: (lang: string) => Promise<XValidationResults>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
@@ -48,6 +60,11 @@ export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
 
     runTest: async (test: Test): Promise<TestResult> => {
       const { data } = await bp.axios.post(`/mod/nlu-testing/tests/${test.id}/run`)
+      return data
+    },
+
+    computeCrossValidation: async (lang: string) => {
+      const { data } = await bp.axios.post(`/mod/nlu/cross-validation/${lang}`)
       return data
     }
   }

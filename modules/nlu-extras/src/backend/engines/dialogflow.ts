@@ -37,7 +37,7 @@ export const createZip = async (dataset: Dataset, config: DialogflowConfig): Pro
       entities.file(
         `${entity.name}_entries_${dataset.defaultLanguage}.json`,
         Files['entities/<name>_entries_<lang>.json'](
-          entity.occurences.map(x => ({
+          entity.occurrences.map(x => ({
             value: x.name,
             synonyms: x.synonyms
           }))

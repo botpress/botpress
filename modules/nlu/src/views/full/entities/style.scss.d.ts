@@ -5,8 +5,8 @@ interface CssExports {
   'configPopover': string;
   'dataPane': string;
   'entityEditorBody': string;
-  'occurence': string;
-  'occurenceName': string;
+  'occurrence': string;
+  'occurrenceName': string;
   'regexInputDash': string;
   'validationTag': string;
 }

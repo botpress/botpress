@@ -49,7 +49,7 @@ export default async function(options: ArgV) {
 
   logger.info(chalk`========================================
 {bold ${center(`Botpress Language Server`, 40)}}
-{dim ${center(`OS ${process.distro.toString()}`, 40)}}
+{dim ${center(`OS ${process.distro}`, 40)}}
 ========================================`)
 
   if (options.authToken && options.authToken.length) {

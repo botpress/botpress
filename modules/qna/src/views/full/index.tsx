@@ -1,20 +1,22 @@
-import { Button, Icon, Intent, Position, Switch, Tooltip } from '@blueprintjs/core'
+import { Button, ControlGroup, Intent } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
-import { ElementPreview } from 'botpress/utils'
-import { Downloader } from 'botpress/utils'
 import { AccessControl } from 'botpress/utils'
 import classnames from 'classnames'
 import React, { Component } from 'react'
-import { ButtonGroup, ButtonToolbar, FormControl, FormGroup, Pagination, Panel, Well } from 'react-bootstrap'
+import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
 
 import './button.css'
 import style from './style.scss'
-import FormModal from './FormModal'
+import EditorModal from './Editor/EditorModal'
+import { ExportButton } from './ExportButton'
 import { ImportModal } from './ImportModal'
+import Item from './Item'
 
-const ITEMS_PER_PAGE = 50
+export { LiteEditor } from './LiteEditor'
+
+const ITEMS_PER_PAGE = 5
 const QNA_PARAM_NAME = 'id'
 
 interface Props {
@@ -34,12 +36,12 @@ export default class QnaAdmin extends Component<Props> {
     overallItemsCount: 0,
     showQnAModal: false,
     category: '',
-    QnAModalType: 'create',
+    isEditing: false,
+    importDialogOpen: false,
     categoryOptions: [],
     filterCategory: [],
     filterQuestion: '',
-    selectedQuestion: [],
-    downloadUrl: undefined
+    selectedQuestion: []
   }
 
   fetchFlows() {
@@ -106,6 +108,7 @@ export default class QnaAdmin extends Component<Props> {
     if (hash && hash.includes(searchCmd)) {
       this.setState({ filterQuestion: hash.replace(searchCmd, '') }, this.filterQuestions)
     } else {
+      // tslint:disable-next-line: no-floating-promises
       this.fetchData()
     }
   }
@@ -115,24 +118,9 @@ export default class QnaAdmin extends Component<Props> {
   onQuestionsFilter = event => this.setState({ filterQuestion: event.target.value }, this.filterQuestions)
 
   filterQuestions = (page = 1) => {
-    const { filterQuestion, filterCategory } = this.state
-    const question = filterQuestion
-    const categories = filterCategory.map(({ value }) => value)
-
     this.props.bp.axios
-      .get('/mod/qna/questions', {
-        params: {
-          question,
-          categories,
-          limit: ITEMS_PER_PAGE,
-          offset: (page - 1) * ITEMS_PER_PAGE
-        }
-      })
+      .get('/mod/qna/questions', { params: this.getQueryParams(page) })
       .then(({ data: { items, count } }) => this.setState({ items, overallItemsCount: count, page }))
-  }
-
-  downloadJson = () => {
-    this.setState({ downloadUrl: `${window.BOT_API_PATH}/mod/qna/export` })
   }
 
   renderPagination = () => {
@@ -184,11 +172,25 @@ export default class QnaAdmin extends Component<Props> {
     <FormGroup className={style.qnaHeader}>
       <ButtonToolbar>
         <div className={style.searchBar}>{this.renderSearch()}</div>
-        <ButtonGroup style={{ float: 'right' }}>
-          <ImportModal axios={this.props.bp.axios} onImportCompleted={this.fetchData} />
-          <Button id="btn-export" icon="upload" text="Export to JSON" onClick={this.downloadJson} style={{ marginLeft: 5 }} />
-        </ButtonGroup>
+        <ControlGroup style={{ float: 'right' }}>
+          <AccessControl resource="module.qna" operation="write">
+            <Button
+              text="Import JSON"
+              icon="download"
+              id="btn-importJson"
+              onClick={() => this.setState({ importDialogOpen: true })}
+            />
+          </AccessControl>
+          <ExportButton />
+        </ControlGroup>
       </ButtonToolbar>
+
+      <ImportModal
+        axios={this.props.bp.axios}
+        onImportCompleted={this.fetchData}
+        isOpen={this.state.importDialogOpen}
+        toggle={() => this.setState({ importDialogOpen: !this.state.importDialogOpen })}
+      />
     </FormGroup>
   )
 
@@ -218,136 +220,30 @@ export default class QnaAdmin extends Component<Props> {
           text="Add new"
           icon="add"
           intent={Intent.PRIMARY}
-          onClick={() => this.setState({ QnAModalType: 'create', currentItemId: null, showQnAModal: true })}
+          onClick={() => this.setState({ isEditing: false, currentItemId: null, showQnAModal: true })}
         />
       </AccessControl>
     </React.Fragment>
   )
 
-  renderVariationsOverlay = elements => {
-    return (
-      !!elements.length && (
-        <Tooltip
-          position={Position.RIGHT}
-          content={
-            <ul className={style.tooltip}>
-              {elements.map(variation => (
-                <li key={variation}>
-                  {variation.startsWith('#!') ? <ElementPreview itemId={variation.replace('#!', '')} /> : variation}
-                </li>
-              ))}
-            </ul>
-          }
-        >
-          <span style={{ cursor: 'default' }}>
-            &nbsp;
-            <strong>({elements.length})</strong>
-          </span>
-        </Tooltip>
-      )
-    )
-  }
-
-  renderRedirectInfo(redirectFlow, redirectNode) {
-    if (!redirectFlow || !redirectNode) {
-      return null
+  getQueryParams = (overridePage?: number) => {
+    const { filterQuestion, filterCategory, page } = this.state
+    return {
+      question: filterQuestion,
+      categories: filterCategory.map(({ value }) => value),
+      limit: ITEMS_PER_PAGE,
+      offset: ((overridePage || page) - 1) * ITEMS_PER_PAGE
     }
-
-    const flowName = redirectFlow.replace('.flow.json', '')
-    const flowBuilderLink = `/studio/${window.BOT_ID}/flows/${flowName}/#search:${redirectNode}`
-
-    return (
-      <React.Fragment>
-        <div className={style.itemRedirectTitle}>Redirect to:</div>
-        <a href={flowBuilderLink}>
-          <div className={style.itemFlow}>
-            Flow: <span className={style.itemFlowName}>{redirectFlow}</span>
-          </div>
-          <div className={style.itemNode}>
-            Node: <span className={style.itemNodeName}>{redirectNode}</span>
-          </div>
-        </a>
-      </React.Fragment>
-    )
-  }
-
-  renderItem = ({ data: item, id }) => {
-    if (!id) {
-      return null
-    }
-
-    const questions = item.questions[this.props.contentLang] || []
-    const answers = item.answers[this.props.contentLang] || []
-
-    return (
-      <Well className={style.qnaItem} bsSize="small" key={id}>
-        <div className={style.itemContainer} role="entry">
-          {!questions.length && (
-            <div className={style.itemQuestions}>
-              <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
-                <Tooltip content="Missing translation">
-                  <Icon icon="warning-sign" intent={Intent.DANGER} />
-                </Tooltip>
-                &nbsp;
-                {id
-                  .split('_')
-                  .slice(1)
-                  .join(' ')}{' '}
-                &nbsp;
-              </a>
-            </div>
-          )}
-          {questions.length > 0 && (
-            <div className={style.itemQuestions}>
-              <span className={style.itemQuestionsTitle}>Q:</span>
-              <a className={style.firstQuestionTitle} onClick={this.editItem(id)}>
-                {questions[0]}
-              </a>
-              {this.renderVariationsOverlay(questions)}
-            </div>
-          )}
-          {answers[0] && (
-            <div className={style.itemAnswerContainer}>
-              <span className={style.itemAnswerTitle}>A:</span>
-              <div className={style.itemAnswerText}>{answers[0]}</div>
-              {this.renderVariationsOverlay(answers)}
-            </div>
-          )}
-          <div>
-            <div className={style.itemRedirect}>{this.renderRedirectInfo(item.redirectFlow, item.redirectNode)}</div>
-          </div>
-          {item.category ? (
-            <div className={style.questionCategory}>
-              Category:{' '}
-              <span className={style.questionCategoryTitle}>
-                &nbsp;
-                {item.category}
-              </span>
-            </div>
-          ) : null}
-        </div>
-        <div className={style.itemAction}>
-          <AccessControl resource="module.qna" operation="write">
-            <Button icon="trash" className={style.itemActionDelete} onClick={this.deleteItem(id)} minimal={true} />
-            <Switch checked={item.enabled} onChange={this.toggleEnableItem.bind(this, item, id)} large={true} />
-          </AccessControl>
-        </div>
-      </Well>
-    )
   }
 
   deleteItem = (id: string) => () => {
     const needDelete = confirm('Do you want to delete the question?')
-    const { filterQuestion, filterCategory, page } = this.state
-    const params = {
-      question: filterQuestion,
-      categories: filterCategory.map(({ value }) => value),
-      limit: ITEMS_PER_PAGE,
-      offset: (page - 1) * ITEMS_PER_PAGE
-    }
+    const params = this.getQueryParams()
 
     if (needDelete) {
-      this.props.bp.axios.post(`/mod/qna/questions/${id}/delete`, { params }).then(({ data }) => this.setState({ ...data }))
+      this.props.bp.axios
+        .post(`/mod/qna/questions/${id}/delete`, { params })
+        .then(({ data }) => this.setState({ ...data }))
     }
   }
 
@@ -356,19 +252,13 @@ export default class QnaAdmin extends Component<Props> {
     url.searchParams.set(QNA_PARAM_NAME, id)
     window.history.pushState(window.history.state, '', url.toString())
 
-    this.setState({ QnAModalType: 'edit', currentItemId: id, showQnAModal: true })
+    this.setState({ isEditing: true, currentItemId: id, showQnAModal: true })
   }
 
-  toggleEnableItem = (item: any, id: string, event) => {
-    const { page, filterQuestion, filterCategory } = this.state
-    const params = {
-      limit: ITEMS_PER_PAGE,
-      offset: (page - 1) * ITEMS_PER_PAGE,
-      question: filterQuestion,
-      categories: filterCategory
-    }
+  toggleEnableItem = (item: any, id: string, isChecked: boolean) => {
+    const params = this.getQueryParams()
 
-    item.enabled = event.target.checked
+    item.enabled = isChecked
     this.props.bp.axios
       .post(`/mod/qna/questions/${id}`, item, { params })
       .then(({ data: { items } }) => this.setState({ items }))
@@ -383,10 +273,21 @@ export default class QnaAdmin extends Component<Props> {
   }
 
   questionsList = () => {
-    if (this.state.items.length) {
-      return this.state.items.map(this.renderItem)
+    if (!this.state.items.length) {
+      return <h3>No questions have been added yet.</h3>
     }
-    return <h3>No questions have been added yet.</h3>
+
+    return this.state.items.map(({ id, data }) => (
+      <Item
+        key={id}
+        id={id}
+        item={data}
+        contentLang={this.props.contentLang}
+        onEditItem={this.editItem(id)}
+        onToggleItem={this.toggleEnableItem.bind(this)}
+        onDeleteItem={this.deleteItem(id)}
+      />
+    ))
   }
 
   updateQuestion = ({ items }) => this.setState({ items })
@@ -394,7 +295,6 @@ export default class QnaAdmin extends Component<Props> {
   render() {
     return (
       <Container sidePanelHidden={true}>
-        <Downloader url={this.state.downloadUrl} />
         <div />
         <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
           <Panel.Body>
@@ -402,7 +302,7 @@ export default class QnaAdmin extends Component<Props> {
             {this.renderPagination()}
             {this.questionsList()}
             {this.renderPagination()}
-            <FormModal
+            <EditorModal
               contentLang={this.props.contentLang}
               flows={this.state.flows}
               flowsList={this.state.flowsList}
@@ -412,7 +312,7 @@ export default class QnaAdmin extends Component<Props> {
               categories={this.state.categoryOptions}
               fetchData={this.fetchData}
               id={this.state.currentItemId}
-              modalType={this.state.QnAModalType}
+              isEditing={this.state.isEditing}
               page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
               updateQuestion={this.updateQuestion}
               filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}

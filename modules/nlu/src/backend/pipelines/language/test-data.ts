@@ -1,3 +1,4 @@
+// DEPRECATED
 export const doc = ['i', 'have', 'an', 'it', 'issue']
 export const vecs = [
   [

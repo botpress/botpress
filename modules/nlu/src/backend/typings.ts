@@ -12,7 +12,7 @@ export type Tag = 'o' | 'B' | 'I'
 export interface Token {
   tag?: Tag
   value: string
-  cannonical: string
+  canonical: string
   slot?: string
   start: number
   end: number
@@ -22,7 +22,7 @@ export interface Token {
 // TODO get rid of this and use upcoming Utterance
 export interface Sequence {
   intent: string
-  cannonical: string
+  canonical: string
   tokens: Token[]
   contexts?: string[]
 }
@@ -43,10 +43,6 @@ export interface Engine {
   trainOrLoad(forceRetrain: boolean): Promise<string>
   checkSyncNeeded(): Promise<boolean>
   extract(text: string, lastMessages: string[], includedContexts: string[]): Promise<sdk.IO.EventUnderstanding>
-}
-
-export interface EntityExtractor {
-  extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
 }
 
 export interface SlotExtractor {
@@ -142,10 +138,11 @@ export interface NluMlRecommendations {
   goodUtterancesForML: number
 }
 
+// TODOs adjust typings
 export interface Engine2 {
-  loadModel: Function
-  train: Function
-  predict: Function
+  loadModel: (m: any) => Promise<void>
+  train: (...args) => Promise<any>
+  predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
 }
 
 export interface NLUState {
@@ -210,8 +207,13 @@ export interface Tools {
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
-  ducklingExtractor: EntityExtractor
+  duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
+}
+
+export interface SystemEntityExtractor {
+  extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<sdk.NLU.Entity[][]>
+  extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
 }
 
 export type Intent<T> = Readonly<{

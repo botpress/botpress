@@ -112,8 +112,9 @@ class Bots extends Component<Props> {
   }
 
   async requestStageChange(botId) {
-    await api.getSecured().post(`/admin/bots/${botId}/stage`)
+    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stage`)
     await this.props.fetchBots()
+    toastSuccess('Bot promoted to next stage')
   }
 
   isLicensed = () => {

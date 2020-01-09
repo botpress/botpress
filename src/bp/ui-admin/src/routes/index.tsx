@@ -25,7 +25,6 @@ import Auth, { getActiveWorkspace } from '../Auth'
 import ChangePassword from '../Pages/Account/ChangePassword'
 import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
-import Confusion from '../Pages/Confusion'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
 
@@ -64,7 +63,6 @@ export const makeMainRoutes = () => {
           <PrivateRoute path="/" auth={auth} component={App}>
             <Switch>
               <Route path="/checklist" component={Checklist} />
-              <Route path="/confusion" component={Confusion} />
               <Route path="/latestReleases" component={LatestReleases} />
               <Route path="/server/monitoring" component={Monitoring} />
               <Route path="/server/version" component={Versioning} />

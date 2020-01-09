@@ -79,7 +79,13 @@ export const EntitySidePanelSection: FC<Props> = props => {
         text="New entity"
         onClick={createEntity}
       />
-      <SearchBar icon="filter" placeholder="filter entities" onChange={setEntitiesFilter} showButton={false} />
+      <SearchBar
+        id="entities-filter"
+        icon="filter"
+        placeholder="filter entities"
+        onChange={setEntitiesFilter}
+        showButton={false}
+      />
       <ItemList
         items={entityItems}
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'entity', name })}

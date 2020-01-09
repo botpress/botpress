@@ -93,7 +93,7 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   renderMessageGroups() {
-    const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMesage(m))
+    const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMessage(m))
     const groups = []
 
     let lastSpeaker = undefined
@@ -101,7 +101,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     let currentGroup = undefined
 
     messages.forEach(m => {
-      const speaker = !!m.userId ? m.userId : 'bot'
+      const speaker = m.full_name
       const date = m.sent_on
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
@@ -166,7 +166,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     )
   }
 
-  shouldDisplayMesage = (m: Message): boolean => {
+  shouldDisplayMessage = (m: Message): boolean => {
     return m.message_type !== 'postback'
   }
 
@@ -191,7 +191,11 @@ class MessageList extends React.Component<MessageListProps, State> {
       >
         {this.state.showNewMessageIndicator && (
           <div className="bpw-new-messages-indicator" onClick={e => this.tryScrollToBottom()}>
-            <span>{this.props.intl.formatMessage({ id: 'messages.newMessage' })}</span>
+            <span>
+              {this.props.intl.formatMessage({
+                id: 'messages.newMessage' + (this.props.currentMessages.length === 1 ? '' : 's')
+              })}
+            </span>
           </div>
         )}
         {this.renderMessageGroups()}

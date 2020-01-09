@@ -6,7 +6,7 @@ original_id: webchat-extending
 
 ## The Basics
 
-Every message sent by the bot to a user consist of a `payload`. That payload has a `type` property, that tells the webchat how the other informations included on that payload should be rendered on screen.
+Every message sent by the bot to a user consist of a `payload`. That payload has a `type` property, that tells the webchat how the other information included on that payload should be rendered on screen.
 
 There are different ways to send that payload to the user:
 
@@ -15,11 +15,11 @@ There are different ways to send that payload to the user:
 
 There are multiple types already built in Botpress (they are listed at the bottom of this page), but if you require more advanced components, you can create them easily.
 
-### Prevent storing sensitive informations
+### Prevent storing sensitive information
 
 By default, the complete payload is stored in the database, so the information is not lost when the user refreshes the page. On some occasion, however, we may want to hide some properties deemed "sensitive" (ex: password, credit card, etc..).
 
-To remove those informations, there is a special property that you need to set: `sensitive`. Here's an example:
+To remove this information, there is a special property that you need to set: `sensitive`. Here's an example:
 
 ```js
 const payload = {
@@ -56,7 +56,7 @@ payload: {
 
 ### What can I do in my component ?
 
-There are a couple of properties that are passed down to your custom component. These can be used to customize the displayed informations, and/or to pursue interactions.
+There are a couple of properties that are passed down to your custom component. These can be used to customize the displayed information, and/or to pursue interactions.
 
 | Property      | Description                                                                    |
 | ------------- | ------------------------------------------------------------------------------ |

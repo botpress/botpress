@@ -63,7 +63,7 @@ describe('Build intent vocab', () => {
       })
   })
 
-  test('With list entitites and Utterance tokens', () => {
+  test('With list entities and Utterance tokens', () => {
     const u1 = new Utterance(u1Toks, genMockVectors(u1Toks), genMockPOS(u1Toks), 'en')
     const u2 = new Utterance(u2Toks, genMockVectors(u2Toks), genMockPOS(u2Toks), 'en')
 

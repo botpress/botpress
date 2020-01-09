@@ -1,4 +1,4 @@
-import { Button, Checkbox, Classes, Dialog, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
+import { Button, Callout, Checkbox, Classes, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
 // @ts-ignore
 import ElementsList from 'botpress/elements-list'
 import { AccessControl } from 'botpress/utils'
@@ -6,11 +6,10 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import some from 'lodash/some'
 import React, { Component } from 'react'
-import { Alert } from 'react-bootstrap'
 import Select from 'react-select'
 
-import style from './style.scss'
-import QnaHint from './QnaHint'
+import style from '../style.scss'
+import QnaHint from '../QnaHint'
 
 const ACTIONS = {
   TEXT: 'text',
@@ -19,22 +18,21 @@ const ACTIONS = {
 }
 
 interface Props {
-  closeQnAModal: any
-  fetchData: any
-  updateQuestion: any
+  closeQnAModal: () => void
+  fetchData: () => void
+  updateQuestion: (data: any) => void
   page: any
   filters: any
-  id: any
-  modalType: any
-  contentLang: any
-  showQnAModal: any
-  categories: any
+  id: string
+  isEditing: boolean
+  contentLang: string
+  categories?: any[]
   bp: any
-  flowsList: any
-  flows: any
+  flowsList?: any[]
+  flows?: any[]
 }
 
-export default class FormModal extends Component<Props> {
+export default class Editor extends Component<Props> {
   state = this.defaultState
 
   get defaultState() {
@@ -71,20 +69,20 @@ export default class FormModal extends Component<Props> {
   async componentDidMount() {
     const { data } = await this.props.bp.axios.get('/mod/nlu/ml-recommendations')
     this.mlRecommendations = data
-  }
 
-  async componentDidUpdate(prevProps) {
-    const { id } = this.props
-    if (prevProps.id === id) {
-      return
-    }
-    if (!id) {
-      return this.setState(this.defaultState)
+    if (!this.props.id) {
+      const defaultCategory = this.props.categories ? this.props.categories[0].value : 'global'
+
+      return this.setState(this.defaultState, () => {
+        if (defaultCategory !== 'global') {
+          this.changeItemProperty('category', defaultCategory)
+        }
+      })
     }
 
     const {
       data: { data: item }
-    } = await this.props.bp.axios.get(`/mod/qna/questions/${id}`)
+    } = await this.props.bp.axios.get(`/mod/qna/questions/${this.props.id}`)
 
     this.setState({
       item,
@@ -173,16 +171,15 @@ export default class FormModal extends Component<Props> {
 
   alertMessage() {
     const hasInvalidInputs = Object.values(this.state.invalidFields).find(Boolean)
-    const missingTranslations =
-      this.props.modalType === 'edit' && (!this.itemAnswers.length || !this.itemQuestions.length)
+    const missingTranslations = this.props.isEditing && (!this.itemAnswers.length || !this.itemQuestions.length)
 
     return (
       <div>
-        {this.state.invalidFields.checkbox && <Alert bsStyle="danger">Action checkbox is required</Alert>}
-        {hasInvalidInputs && <Alert bsStyle="danger">Inputs are required.</Alert>}
-        {this.state.hasDuplicates && <Alert bsStyle="danger">Duplicated questions aren't allowed.</Alert>}
-        {this.state.errorMessage && <Alert bsStyle="danger">{this.state.errorMessage}</Alert>}
-        {missingTranslations && <Alert bsStyle="danger">Missing translations</Alert>}
+        {this.state.invalidFields.checkbox && <Callout intent={Intent.DANGER}>Action checkbox is required</Callout>}
+        {hasInvalidInputs && <Callout intent={Intent.DANGER}>Inputs are required.</Callout>}
+        {this.state.hasDuplicates && <Callout intent={Intent.DANGER}>Duplicated questions aren't allowed.</Callout>}
+        {this.state.errorMessage && <Callout intent={Intent.DANGER}>{this.state.errorMessage}</Callout>}
+        {missingTranslations && <Callout intent={Intent.DANGER}>Missing translations</Callout>}
       </div>
     )
   }
@@ -199,7 +196,7 @@ export default class FormModal extends Component<Props> {
       ...{ [this.props.contentLang]: this.trimItemQuestions(this.itemQuestions) }
     }
 
-    this.props.modalType === 'edit' ? this.onEdit(itemToSend) : this.onCreate(itemToSend)
+    this.props.isEditing ? this.onEdit(itemToSend) : this.onCreate(itemToSend)
   }
 
   get itemAnswers() {
@@ -241,38 +238,31 @@ export default class FormModal extends Component<Props> {
       item: { redirectFlow },
       invalidFields
     } = this.state
-    const { flows, flowsList, showQnAModal, categories, modalType } = this.props
+    const { flows, flowsList, categories, isEditing } = this.props
+
     const currentFlow = flows ? flows.find(({ name }) => name === redirectFlow) || { nodes: [] } : { nodes: [] }
     const nodeList = currentFlow.nodes.map(({ name }) => ({ label: name, value: name }))
-    const isEdit = modalType === 'edit'
 
     return (
-      <Dialog
-        title={isEdit ? 'Edit Q&A' : 'Create a new Q&A'}
-        icon={isEdit ? 'edit' : 'add'}
-        isOpen={showQnAModal}
-        onClose={this.closeAndClear}
-        transitionDuration={0}
-        canOutsideClickClose={false}
-        style={{ width: 700 }}
-        enforceFocus={false}
-      >
+      <div>
         <div className={Classes.DIALOG_BODY}>
           <form>
             {this.alertMessage()}
             <QnaHint questions={this.itemQuestions} mlRecommendations={this.mlRecommendations} />
 
-            <FormGroup label="Category">
-              <Select
-                id="select-category"
-                className={classnames({ qnaCategoryError: invalidFields.category })}
-                value={this.state.item.category}
-                options={categories}
-                onChange={this.handleSelect('category')}
-                style={{ width: 250 }}
-                placeholder="Search or choose category"
-              />
-            </FormGroup>
+            {categories && !!categories.length && (
+              <FormGroup label="Category">
+                <Select
+                  id="select-category"
+                  className={classnames({ qnaCategoryError: invalidFields.category })}
+                  value={this.state.item.category}
+                  options={categories}
+                  onChange={this.handleSelect('category')}
+                  style={{ width: 250 }}
+                  placeholder="Search or choose category"
+                />
+              </FormGroup>
+            )}
 
             <FormGroup helperText="Type/Paste your questions here separated with a new line" label="Questions">
               <TextArea
@@ -292,7 +282,7 @@ export default class FormModal extends Component<Props> {
             <H6>Answers</H6>
             <Checkbox
               label={'Bot will say: '}
-              checked={this.state.isText}
+              checked={!flowsList || (flowsList && this.state.isText)}
               onChange={this.changeItemAction('isText')}
               tabIndex={-1}
             />
@@ -307,41 +297,45 @@ export default class FormModal extends Component<Props> {
               onDelete={this.deleteAnswer}
             />
 
-            <div className={style.qnaAndOr}>
-              <div className={style.qnaAndOrLine} />
-              <div className={style.qnaAndOrText}>and / or</div>
-              <div className={style.qnaAndOrLine} />
-            </div>
-            <div className={style.qnaRedirect}>
-              <div className={style.qnaRedirectToFlow}>
-                <Checkbox
-                  label="Redirect to flow"
-                  id="redirect"
-                  checked={this.state.isRedirect}
-                  onChange={this.changeItemAction('isRedirect')}
-                  tabIndex={-1}
-                />
+            {flowsList && (
+              <React.Fragment>
+                <div className={style.qnaAndOr}>
+                  <div className={style.qnaAndOrLine} />
+                  <div className={style.qnaAndOrText}>and / or</div>
+                  <div className={style.qnaAndOrLine} />
+                </div>
+                <div className={style.qnaRedirect}>
+                  <div className={style.qnaRedirectToFlow}>
+                    <Checkbox
+                      label="Redirect to flow"
+                      id="redirect"
+                      checked={this.state.isRedirect}
+                      onChange={this.changeItemAction('isRedirect')}
+                      tabIndex={-1}
+                    />
 
-                <Select
-                  className={classnames({ qnaCategoryError: invalidFields.redirectFlow })}
-                  tabIndex={-1}
-                  value={this.state.item.redirectFlow}
-                  options={flowsList}
-                  onChange={this.handleSelect('redirectFlow')}
-                />
-              </div>
-              <div className={style.qnaRedirectNode}>
-                <strong>Node</strong>
+                    <Select
+                      className={classnames({ qnaCategoryError: invalidFields.redirectFlow })}
+                      tabIndex={-1}
+                      value={this.state.item.redirectFlow}
+                      options={flowsList}
+                      onChange={this.handleSelect('redirectFlow')}
+                    />
+                  </div>
+                  <div className={style.qnaRedirectNode}>
+                    <strong>Node</strong>
 
-                <Select
-                  className={classnames({ qnaCategoryError: invalidFields.redirectNode })}
-                  tabIndex={-1}
-                  value={this.state.item.redirectNode}
-                  options={nodeList}
-                  onChange={this.handleSelect('redirectNode')}
-                />
-              </div>
-            </div>
+                    <Select
+                      className={classnames({ qnaCategoryError: invalidFields.redirectNode })}
+                      tabIndex={-1}
+                      value={this.state.item.redirectNode}
+                      options={nodeList}
+                      onChange={this.handleSelect('redirectNode')}
+                    />
+                  </div>
+                </div>
+              </React.Fragment>
+            )}
           </form>
         </div>
 
@@ -351,14 +345,14 @@ export default class FormModal extends Component<Props> {
             <AccessControl resource="module.qna" operation="write">
               <Button
                 id="btn-submit"
-                text={isEdit ? 'Edit' : 'Save'}
+                text={isEditing ? 'Edit' : 'Save'}
                 intent={Intent.PRIMARY}
                 onClick={this.handleSubmit}
               />
             </AccessControl>
           </div>
         </div>
-      </Dialog>
+      </div>
     )
   }
 }

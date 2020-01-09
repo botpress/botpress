@@ -24,6 +24,9 @@ interface CssExports {
   'itemQuestionsTitle': string;
   'itemRedirect': string;
   'itemRedirectTitle': string;
+  'liteHeader': string;
+  'liteItemContainer': string;
+  'liteSearch': string;
   'paddedRow': string;
   'pale': string;
   'qna': string;
@@ -44,11 +47,13 @@ interface CssExports {
   'questionCategoryTitle': string;
   'questionToolbar': string;
   'searchBar': string;
+  'searchBarLite': string;
   'searchField': string;
   'strong': string;
   'tooltip': string;
   'variation': string;
   'variationDelete': string;
+  'well': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

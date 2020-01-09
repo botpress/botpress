@@ -33,6 +33,7 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_states': '1'
 }
 
+// DEPRECATED
 export default class CRFExtractor {
   private _isTrained: boolean = false
   private _crfModelFn = ''
@@ -158,7 +159,7 @@ export default class CRFExtractor {
   private async _trainKmeans(sequences: Sequence[]): Promise<any> {
     const tokens = _.chain(sequences)
       .flatMap(s => s.tokens)
-      .map(t => t.cannonical.toLowerCase())
+      .map(t => t.canonical.toLowerCase())
       .value()
 
     if (_.isEmpty(tokens)) {
@@ -268,7 +269,7 @@ export default class CRFExtractor {
     token2Vec: Token2Vec,
     isPredict: boolean
   ): Promise<featurizer.CRFFeature[]> {
-    if (!token || !token.cannonical) {
+    if (!token || !token.canonical) {
       return []
     }
 

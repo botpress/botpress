@@ -59,7 +59,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
   "flags": {},
   "nlu": { // <<<<------
     "language": "en", // language identified
-    "intent": { // most likely intent, assuming confidence is within config treshold
+    "intent": { // most likely intent, assuming confidence is within config threshold
       "name": "hello",
       "confidence": 1
     },
@@ -91,11 +91,12 @@ You can use that metadata in your flows to create transitions when a specific in
 
 To enable debugging of the NLU module, make sure that `debugModeEnabled` is set to `true` in your `data/global/config/nlu.json` file.
 
-> **Tip**: In production, you can also use the `BP_NLU_DEBUGMODEENABLED` environement variable instead of modifying the configuration directly.
+> **Tip**: In production, you can also use the `BP_NLU_DEBUGMODEENABLED` environment variable instead of modifying the configuration directly.
 
 ##### Example of debugging message
 
-NLU Extraction 
+NLU Extraction
+
 ```js
 { text: 'they there bud',
   intent: 'hello',
@@ -115,6 +116,7 @@ Entity Extraction helps you extract and normalize known entities from phrases.
 Attached to NLU extraction, you will find an entities property which is an array of [System](#system-entities) and [Custom](#custom-entities) entities.
 
 #### Using entities
+
 You may access and use data by looking up the `event.nlu.entities` variable in your hooks, flow transitions or actions.
 
 ##### Example of extracted entity:
@@ -172,8 +174,8 @@ At the moment, Duckling is hosted on our remote servers. If you don't want your 
 
 ##### Example
 
-|             User said             |    Type    | Value |   Unit   |
-| :-------------------------------: | :--------: | :---: | :------: |
+|             User said             |    Type    | Value |  Unit   |
+| :-------------------------------: | :--------: | :---: | :-----: |
 | _"Add 5 lbs of sugar to my cart"_ | "quantity" |   5   | "pound" |
 
 ```js
@@ -204,13 +206,13 @@ An example of placeholder entity would be : Please tell **Sarah** that **she's l
 
 ### Custom Entities
 
-As of today we provide 2 types of custom entites: [pattern](#pattern-extraction) and [list](#list-extraction) entitites. To define a custom entity, head to the __Entity section__ of the Understanding Module in your botpress studio side bar. From there you'll be able to define your custom entities that will be available for any input message treated by your chatbot. Go ahead and click on __create new entity__
+As of today we provide 2 types of custom entities: [pattern](#pattern-extraction) and [list](#list-extraction) entities. To define a custom entity, head to the **Entity section** of the Understanding Module in your botpress studio side bar. From there you'll be able to define your custom entities that will be available for any input message treated by your chatbot. Go ahead and click on **create new entity**
 
 <img src="/docs/assets/nlu-create-entity.png">
 
 #### Pattern extraction
 
-Once you've created a pattern entity, Botpress Native NLU will perform a regex extraction on each incomming message and add it to `event.nlu.entities`.
+Once you've created a pattern entity, Botpress Native NLU will perform a regex extraction on each incoming message and add it to `event.nlu.entities`.
 
 ##### Example :
 
@@ -220,9 +222,9 @@ Given a Pattern Entity definition with `[A-Z]{3}-[0-9]{4}-[A-Z]{3}` as pattern:
 
 Extraction will go like:
 
-|             User said             |Type|Value|
-| :-------------------------------: | :---: | :-----------: |
-| _"Find product BHZ-1234-UYT"_ | "SKU" |"BHZ-1234-UYT"|
+|           User said           | Type  |     Value      |
+| :---------------------------: | :---: | :------------: |
+| _"Find product BHZ-1234-UYT"_ | "SKU" | "BHZ-1234-UYT" |
 
 ```js
 { name: 'SKU',
@@ -244,44 +246,34 @@ Extraction will go like:
 
 #### List extraction
 
-List extraction will behave in a similar way. The major addition is that for your entity definition, you'll be able to add different **occurences** of your entity with corresponding synonyms.
+List extraction will behave in a similar way. The major addition is that for your entity definition, you'll be able to add different **occurrences** of your entity with corresponding synonyms.
 
-Let's take __Airport Codes__ as an example:
+Let's take **Airport Codes** as an example:
 
 ![create slot](assets/nlu-list-entity.png)
 
 Extraction will go like:
 
-|             User said             |Type|Value|
-| :-------------------------------: | :---: | :-----------: |
-| _"Find a flight from SFO to Mumbai"_ | "Airport Codes" |["SFO", "BOM"]|
+|              User said               |      Type       |     Value      |
+| :----------------------------------: | :-------------: | :------------: |
+| _"Find a flight from SFO to Mumbai"_ | "Airport Codes" | ["SFO", "BOM"] |
 
 ```js
-[
-  { name: 'Airport Codes',
+;[
+  {
+    name: 'Airport Codes',
     type: 'list',
-    meta:
-    { confidence: 1,
-      provider: 'native',
-      source: 'SFO',
-      start: 19,
-      end: 22,
-      raw: {} },
+    meta: { confidence: 1, provider: 'native', source: 'SFO', start: 19, end: 22, raw: {} },
     data: {
       extras: {},
       value: 'SFO',
       unit: 'string'
     }
   },
-  { name: 'Airport Codes',
+  {
+    name: 'Airport Codes',
     type: 'list',
-    meta:
-    { confidence: 1,
-      provider: 'native',
-      source: 'Mumbai',
-      start: 26,
-      end: 32,
-      raw: {} },
+    meta: { confidence: 1, provider: 'native', source: 'Mumbai', start: 26, end: 32, raw: {} },
     data: {
       extras: {},
       value: 'BOM',
@@ -291,15 +283,15 @@ Extraction will go like:
 ]
 ```
 
-## Slots 
+## Slots
 
-Slots are another major concept in Botpress NLU. You can think of them as necessary __parameters__ to complete the action associated to an intent.
+Slots are another major concept in Botpress NLU. You can think of them as necessary **parameters** to complete the action associated to an intent.
 
 ### Slot Tagging
 
 Botpress Native NLU will tag each _words_ (tokens) of user input. If it's correctly identified as an intent slot it will be attached to NLU extraction event. Each identified slot will be accessible in the `event.nlu.slots` map using its name as key.
 
-To define a slot for a particular intent, head to the __Intent section__ of the Understanding Module in your Botpress Studio side bar. From there select the intent you want to add slots to, then you'll be able to define your slots. Go ahead and click on __create a slot__
+To define a slot for a particular intent, head to the **Intent section** of the Understanding Module in your Botpress Studio side bar. From there select the intent you want to add slots to, then you'll be able to define your slots. Go ahead and click on **create a slot**
 
 ![create slot](assets/nlu-create-slot.png)
 
@@ -312,6 +304,7 @@ Let's use a `find_flight` intent. In order to book a flight, we'll define 2 slot
 User said : `I would like to go to SFO from Mumbai`
 
 `event.nlu.slots` will look like
+
 ```js
 slots : {
   airport_to: {
@@ -329,10 +322,9 @@ slots : {
 
 ### Slot Filling
 
- As of now when you define an intent slot, it is considered as optional. If it's mandatory for a desired task, you'll have to handle slot filling yourself in your conversational flow design using [Botpress Flow Builder](/docs/build/dialogs). We plan to add suppport for __required slots__ with automatic slot filling.
+As of now when you define an intent slot, it is considered as optional. If it's mandatory for a desired task, you'll have to handle slot filling yourself in your conversational flow design using [Botpress Flow Builder](/docs/build/dialogs). We plan to add support for **required slots** with automatic slot filling.
 
- **TODO provide example**
-
+**TODO provide example**
 
 ## External NLU Providers
 
@@ -344,16 +336,16 @@ If for some reason you want to use an external provider, you can do so by using 
 
 ### Example
 
-You can enable **Recast AI** by removing the `.` prefix to the `hooks/before_incoming_middleware/.05_recast_nlu.js` file. 
+You can enable **Recast AI** by removing the `.` prefix to the `hooks/before_incoming_middleware/.05_recast_nlu.js` file.
 
 > Feel free to contribute to Botpress to add new external NLU providers
 
 ##### Features by Providers
 
 |  Provider  | Intent | Entity | Slot tagging | Lang | Context | Sentiment |
-| :--------: | :----: | :----: | :--: | :--: | :-----: | :--:   |
-|   Native   |   X    |   X    |  X   |  X   |         |    |
-| DialogFlow |   X    |   X    |  X   |      |    X    |    |
-|    Luis    |   X    |   X    |      |      |         |  X  |
-|   Recast   |   X    |   X    |      |  X   |         |  X |
-|   Rasa     |   X    |   X    |      |      |         |    |
+| :--------: | :----: | :----: | :----------: | :--: | :-----: | :-------: |
+|   Native   |   X    |   X    |      X       |  X   |         |           |
+| DialogFlow |   X    |   X    |      X       |      |    X    |           |
+|    Luis    |   X    |   X    |              |      |         |     X     |
+|   Recast   |   X    |   X    |              |  X   |         |     X     |
+|    Rasa    |   X    |   X    |              |      |         |           |

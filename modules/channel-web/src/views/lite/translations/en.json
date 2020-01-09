@@ -14,5 +14,6 @@
   "loginForm.submit": "Submit",
   "loginForm.formTitle": "Login form",
   "loginForm.providedCredentials": "Provided credentials",
-  "messages.newMessage": "New message(s)"
+  "messages.newMessage": "New message",
+  "messages.newMessages": "New messages"
 }

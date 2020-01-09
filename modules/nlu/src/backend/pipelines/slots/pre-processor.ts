@@ -8,18 +8,22 @@ import { BIO, Sequence, Token } from '../../typings'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\.-]+)\)/gi
 
+// DEPRECATED
 export function keepEntityTypes(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$2')
 }
 
+// DEPRECATED
 export function keepEntityValues(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '$1')
 }
 
+// DEPRECATED
 export function keepNothing(text: string): string {
   return text.replace(ALL_SLOTS_REGEX, '').trim()
 }
 
+// DEPRECATED
 export function getKnownSlots(
   text: string,
   slotDefinitions: sdk.NLU.SlotDefinition[],
@@ -49,6 +53,7 @@ export function getKnownSlots(
   return slots
 }
 
+// DEPRECATED
 const _generateTrainingTokens = languageProvider => async (
   input: string,
   lang: string,
@@ -79,6 +84,7 @@ const _generateTrainingTokens = languageProvider => async (
   return mergeSpecialCharactersTokens(toks)
 }
 
+// DEPRECATED
 export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.Entity[]): Token[] => {
   return toks.map(tok => {
     const matchedEntities = entities
@@ -91,6 +97,7 @@ export const assignMatchedEntitiesToTokens = (toks: Token[], entities: sdk.NLU.E
   })
 }
 
+// DEPRECATED
 export const generatePredictionSequence = async (
   input: string,
   intent: sdk.NLU.IntentDefinition,
@@ -107,11 +114,11 @@ export const generatePredictionSequence = async (
 
   return {
     intent: intent.name,
-    cannonical: input,
+    canonical: input,
     tokens: assignMatchedEntitiesToTokens(toks, entities)
   }
 }
-
+// DEPRECATED
 export const generateTrainingSequence = (langProvider: LanguageProvider, logger: sdk.Logger) => async (
   input: string,
   lang: string,
@@ -121,13 +128,13 @@ export const generateTrainingSequence = (langProvider: LanguageProvider, logger:
 ): Promise<TrainingSequence> => {
   let tokens: Token[] = []
   const genToken = _generateTrainingTokens(langProvider)
-  const cannonical = keepEntityValues(input).toLowerCase() // TODO: Use DS as input instead
+  const canonical = keepEntityValues(input).toLowerCase() // TODO: Use DS as input instead
   const knownSlots = getKnownSlots(input, slotDefinitions, logger)
 
   // TODO: this logic belongs near makeTokens and we should let makeTokens fill the matched entities
   for (const slot of knownSlots) {
     const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
-    const sub = cannonical.substring(start, slot.start - 1)
+    const sub = canonical.substring(start, slot.start - 1)
     const tokensBeforeSlot = await genToken(sub, lang, start)
 
     const slotTokens = await genToken(slot.source, lang, slot.start, slot.name, slotDefinitions)
@@ -137,19 +144,19 @@ export const generateTrainingSequence = (langProvider: LanguageProvider, logger:
 
   const lastSlot = _.maxBy(knownSlots, ks => ks.end)
   if (lastSlot) {
-    const textLeftAfterLastSlot: string = cannonical.substring(lastSlot!.end)
+    const textLeftAfterLastSlot: string = canonical.substring(lastSlot!.end)
     const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
     const tokensLeft = await genToken(textLeftAfterLastSlot, lang, start)
     tokens = [...tokens, ...tokensLeft]
   } else {
     const start = _.isEmpty(tokens) ? 0 : _.last(tokens)!.end
-    const tokensLeft = await genToken(cannonical, lang, start)
+    const tokensLeft = await genToken(canonical, lang, start)
     tokens = [...tokens, ...tokensLeft]
   }
 
   return {
     intent: intentName,
-    cannonical,
+    canonical,
     tokens,
     contexts,
     knownSlots

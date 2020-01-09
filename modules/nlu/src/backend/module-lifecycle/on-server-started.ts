@@ -1,9 +1,12 @@
+import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import yn from 'yn'
 
 import { Config } from '../../config'
 import Engine2 from '../engine2/engine2'
+import { getLatestModel } from '../engine2/model-service'
+import { InvalidLanguagePredictorError } from '../engine2/predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../engine2/train-session-service'
 import LangProvider from '../language-provider'
 import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
@@ -27,7 +30,7 @@ export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState
     state.health = health
   } catch (e) {
     if (e.failure && e.failure.code === 'ECONNREFUSED') {
-      bp.logger.error(`Language server can't be reached at adress ${e.failure.address}:${e.failure.port}`)
+      bp.logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
       if (!process.IS_FAILSAFE) {
         process.exit()
       }
@@ -50,7 +53,7 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
     generateSimilarJunkWords: (vocab: string[], lang: string) =>
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
-    ducklingExtractor: new DucklingEntityExtractor(bp.logger),
+    duckling: new DucklingEntityExtractor(bp.logger),
     reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
       await setTrainingSession(bp, botId, trainSession)
 
@@ -96,20 +99,41 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         return next()
       }
 
-      try {
-        let nlu = {}
-        const { engine1, engine } = state.nluByBot[event.botId]
-        if (USE_E1) {
-          nlu = await engine1.extract!(
+      let nluResults = {}
+      const { engine1, engine } = state.nluByBot[event.botId]
+      const extractEngine1 = async () => {
+        try {
+          nluResults = await engine1.extract!(
             event.preview,
             event.state.session.lastMessages.map(message => message.incomingPreview),
             event.nlu.includedContexts
           )
-        } else {
-          nlu = await engine.predict(event.preview, event.nlu.includedContexts)
+        } catch (err) {
+          bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)
         }
+      }
 
-        _.merge(event, { nlu })
+      const extractEngine2 = async () => {
+        try {
+          // eventually if model not loaded for bot languages ==> train or load
+          nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
+        } catch (err) {
+          if (err instanceof InvalidLanguagePredictorError) {
+            const model = await getLatestModel(bp.ghost.forBot(event.botId), err.languageCode)
+            await engine.loadModel(model)
+            // might throw again, thus usage of bluebird retry
+            nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
+          }
+        }
+      }
+
+      try {
+        if (USE_E1) {
+          await extractEngine1()
+        } else {
+          await retry(extractEngine2, { max_tries: 2, throw_original: true })
+        }
+        _.merge(event, { nlu: nluResults })
         removeSensitiveText(event)
       } catch (err) {
         bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)
@@ -131,7 +155,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         event.payload.text = event.payload.text.replace(entity.data.value, stars)
       }
     } catch (err) {
-      bp.logger.warn('Error removing sensitive informations: ' + err.message)
+      bp.logger.warn('Error removing sensitive information: ' + err.message)
     }
   }
 }

@@ -168,9 +168,9 @@ module.exports = {
     if (fileName.includes('-')) {
       fileName = tail(fileName.split('-')).join('-')
     }
-
     const title = formData.title ? ' | ' + formData.title : ''
-    return `Image (${fileName}) ${title}`
+
+    return `Image [![${formData.title || ''}](${formData.image})](${formData.image}) - (${fileName}) ${title}`
   },
 
   renderElement: renderElement

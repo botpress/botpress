@@ -77,7 +77,7 @@ async function start() {
   logger.info(chalk`========================================
 {bold ${center(`Botpress Server`, 40)}}
 {dim ${center(`Version ${sdk.version}`, 40)}}
-{dim ${center(`OS ${process.distro.toString()}`, 40)}}
+{dim ${center(`OS ${process.distro}`, 40)}}
 ========================================`)
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {

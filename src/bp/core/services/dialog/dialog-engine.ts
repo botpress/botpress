@@ -130,7 +130,7 @@ export class DialogEngine {
 
     await this._loadFlows(botId)
 
-    // This is the only place we dont want to catch node or flow not found errors
+    // This is the only place we don't want to catch node or flow not found errors
     const findNodeWithoutError = (flow, nodeName) => {
       try {
         return this._findNode(botId, flow, nodeName)
@@ -241,16 +241,18 @@ export class DialogEngine {
     } else if (transitionTo.indexOf('#') === 0) {
       // Return to the parent node (coming from a flow)
       const jumpPoints = event.state.context.jumpPoints
-      const prevJumpPoint = jumpPoints && jumpPoints.pop()
+      if (!jumpPoints) {
+        this._debug(
+          event.botId,
+          event.target,
+          'no previous flow found, current node is ' + event.state.context.currentNode
+        )
+        return event
+      }
+      const prevJumpPoint = jumpPoints.pop()
       const parentFlow = this._findFlow(event.botId, prevJumpPoint.flow)
       const specificNode = transitionTo.split('#')[1]
-      let parentNode
-
-      if (specificNode) {
-        parentNode = this._findNode(event.botId, parentFlow, specificNode)
-      } else {
-        parentNode = this._findNode(event.botId, parentFlow, prevJumpPoint.node)
-      }
+      const parentNode = this._findNode(event.botId, parentFlow, specificNode || prevJumpPoint.node)
 
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
       const queue = builder.onlyTransitions().build()
@@ -301,8 +303,8 @@ export class DialogEngine {
     const subflow = this._findFlow(botId, subflowName)
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
-    // We only update previousNodeName and previousFlowName when we transition to a subblow.
-    // When the sublow ends, we will transition back to previousNodeName / previousFlowName.
+    // We only update previousNodeName and previousFlowName when we transition to a subflow.
+    // When the subflow ends, we will transition back to previousNodeName / previousFlowName.
 
     event.state.context = {
       currentFlow: subflow.name,
@@ -340,7 +342,7 @@ export class DialogEngine {
     }
 
     // we build the flow path for showing the loop to the end-user
-    let recurringPath: string[] = []
+    const recurringPath: string[] = []
     const { node, flow } = loop[0]
     for (let i = 0, r = 0; i < stacktrace.length && r < 2; i++) {
       if (stacktrace[i].flow === flow && stacktrace[i].node === node) {

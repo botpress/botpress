@@ -3,14 +3,14 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
+import Markdown from 'react-markdown'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
-import { LeftToolbarButtons, RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
+import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 import { Downloader } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 
 import style from './style.scss'
-import { ImportModal } from './ImportModal'
 
 class ListView extends Component<Props, State> {
   private debouncedHandleSearch
@@ -79,7 +79,13 @@ class ListView extends Component<Props, State> {
   }
 
   handleDeleteSelected = () => {
-    if (window.confirm(`Do you really want to delete ${this.state.checkedIds.length} items?`)) {
+    if (
+      window.confirm(
+        `Do you really want to delete ${this.state.checkedIds.length} item${
+          this.state.checkedIds.length === 1 ? '' : 's'
+        }?`
+      )
+    ) {
       this.props.handleDeleteSelected(this.state.checkedIds)
       this.setState({ checkedIds: [], allChecked: false })
     }
@@ -213,7 +219,19 @@ class ListView extends Component<Props, State> {
           const className = classnames({ [style.missingTranslation]: preview.startsWith('(missing translation) ') })
           return (
             <React.Fragment>
-              <span className={className}>{preview}</span>
+              <span className={className}>
+                <Markdown
+                  source={preview}
+                  renderers={{
+                    image: props => <img {...props} className={style.imagePreview} />,
+                    link: props => (
+                      <a href={props.href} target="_blank">
+                        {props.children}
+                      </a>
+                    )
+                  }}
+                />
+              </span>
             </React.Fragment>
           )
         }

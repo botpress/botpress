@@ -31,8 +31,8 @@ export default class PatternExtractor {
     const entities = flatten(
       flatten(
         await Promise.mapSeries(entityDefs, async entityDef => {
-          return await Promise.mapSeries(entityDef.occurences || [], occurence =>
-            this._extractEntitiesFromOccurence(ds, occurence, entityDef)
+          return await Promise.mapSeries(entityDef.occurrences || [], occurrence =>
+            this._extractEntitiesFromOccurrence(ds, occurrence, entityDef)
           )
         })
       )
@@ -41,12 +41,12 @@ export default class PatternExtractor {
     return _.orderBy(entities, ['meta.confidence'], ['desc'])
   }
 
-  protected async _extractEntitiesFromOccurence(
+  protected async _extractEntitiesFromOccurrence(
     ds: NLUStructure,
-    occurence: sdk.NLU.EntityDefOccurence,
+    occurrence: sdk.NLU.EntityDefOccurrence,
     entityDef: sdk.NLU.EntityDefinition
   ): Promise<sdk.NLU.Entity[]> {
-    const texts = [occurence.name, ...occurence.synonyms]
+    const texts = [occurrence.name, ...occurrence.synonyms]
     const values = (await this.languageProvider.tokenize(texts.map(x => x.toLowerCase()), ds.language)).filter(
       x => x.length
     )
@@ -88,7 +88,7 @@ export default class PatternExtractor {
       const end = currentLastToken.end
 
       // prevent adding substrings of an already matched, longer entity
-      // prioretize longer matches with confidence * its length higher
+      // prioritize longer matches with confidence * its length higher
 
       const hasBiggerMatch = findings.find(
         x =>
@@ -99,7 +99,7 @@ export default class PatternExtractor {
       if (highest >= MIN_CONFIDENCE && !hasBiggerMatch) {
         debugLists('found list entity', {
           lang: ds.language,
-          occurence: occurence.name,
+          occurrence: occurrence.name,
           input: ds.sanitizedText,
           extracted,
           confidence: highest,
@@ -110,7 +110,7 @@ export default class PatternExtractor {
           name: entityDef.name,
           type: 'list',
           meta: {
-            confidence: highest, // extrated with synonyme as patterns
+            confidence: highest, // extracted with synonym as patterns
             provider: 'native',
             source: source,
             start,
@@ -118,8 +118,8 @@ export default class PatternExtractor {
             raw: {}
           },
           data: {
-            extras: { occurence: extracted },
-            value: occurence.name, // cannonical value,
+            extras: { occurrence: extracted },
+            value: occurrence.name, // canonical value,
             unit: 'string'
           }
         }

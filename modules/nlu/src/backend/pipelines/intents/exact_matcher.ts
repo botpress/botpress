@@ -19,19 +19,18 @@ export default class ExactMatcher {
         continue
       }
 
-      let isMatch = this._matchWithoutReplacingSlots(text, seq.cannonical)
+      let isMatch = this._matchWithoutReplacingSlots(text, seq.canonical)
 
       const firstKnownSlot = _.first(seq.knownSlots)
       isMatch =
         isMatch ||
-        (seq.knownSlots.length === 1 &&
-          this._matchIgnoringSlot(text, seq.cannonical, firstKnownSlot!, detectedEntities))
+        (seq.knownSlots.length === 1 && this._matchIgnoringSlot(text, seq.canonical, firstKnownSlot!, detectedEntities))
 
       if (isMatch) {
         return {
           name: seq.intent,
           confidence: 1,
-          context: seq.contexts![0] // todo fix this
+          context: seq.contexts![0] // TODO fix this
         }
       }
     }
@@ -52,9 +51,9 @@ export default class ExactMatcher {
     detectedEntities: sdk.NLU.Entity[]
   ): boolean {
     textInput = this._sanitizeText(textInput)
-    const cannonical = this._sanitizeText(textTraining)
+    const canonical = this._sanitizeText(textTraining)
 
-    const seqWithoutSlot = cannonical.substring(0, slot.start) + cannonical.substring(slot.end)
+    const seqWithoutSlot = canonical.substring(0, slot.start) + canonical.substring(slot.end)
 
     const match = detectedEntities.find(e => {
       const textWithoutEntity = textInput.substring(0, e.meta.start) + textInput.substring(e.meta.end)

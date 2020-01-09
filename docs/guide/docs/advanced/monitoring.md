@@ -122,7 +122,7 @@ When an incident is resolved, no other incident of the same nature (same name / 
 
 ### Incident & Hook
 
-Now that you have some incident rules, how do you get alerted when something happens? This is where hooks comes in handy. Everytime an incident is opened or resolved, Botpress will call the hook `on_incident_status_changed` with the incident as an object. When the property `endTime` is not defined, it means that the incident was opened. When it is set, the incident is resolved.
+Now that you have some incident rules, how do you get alerted when something happens? This is where hooks comes in handy. Every time an incident is opened or resolved, Botpress will call the hook `on_incident_status_changed` with the incident as an object. When the property `endTime` is not defined, it means that the incident was opened. When it is set, the incident is resolved.
 
 Here's an example of `data/global/hooks/on_incident_status_changed/alert.js`
 

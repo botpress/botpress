@@ -1,7 +1,7 @@
 ## Overview
 
 This example includes a lot of "boilerplate" to create a module with almost all features you can implement from the documentation
-Please check the [official documentation](https://botpress.io/docs/developers/create-module/) for more informations
+Please check the [official documentation](https://botpress.io/docs/developers/create-module/) for more information
 
 ## Quick Start
 
@@ -28,4 +28,4 @@ Please check the [official documentation](https://botpress.io/docs/developers/cr
 
 When you make changes to any portion of your module, you need to build it and restart Botpress.
 
-You can type `yarn watch` which will save you some time, since everytime you make a change, the source will be compiled immediately. You will only have to restart Botpress.
+You can type `yarn watch` which will save you some time, since every time you make a change, the source will be compiled immediately. You will only have to restart Botpress.
