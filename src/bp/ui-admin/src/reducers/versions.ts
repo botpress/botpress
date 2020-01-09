@@ -15,7 +15,7 @@ export interface VersionState {
   latestReleases: GithubRelease[]
 }
 
-const RECEIVE_CURRENT_VERSON = 'version/RECEIVE_CURRENT_VERSON'
+const RECEIVE_CURRENT_VERSION = 'version/RECEIVE_CURRENT_VERSION'
 const RECEIVE_LATEST_RELEASES = 'version/RECEIVE_LATEST_RELEASES'
 
 export const fetchCurrentVersion = () => {
@@ -23,7 +23,7 @@ export const fetchCurrentVersion = () => {
     try {
       const { data } = await axios.get('/version', { baseURL: process.env.REACT_APP_API_URL })
       dispatch({
-        type: RECEIVE_CURRENT_VERSON,
+        type: RECEIVE_CURRENT_VERSION,
         payload: { version: data }
       })
     } catch (err) {
@@ -67,7 +67,7 @@ export default (state: VersionState = initialState, action) => {
         ...state,
         latestReleases: action.payload.releases
       }
-    case RECEIVE_CURRENT_VERSON:
+    case RECEIVE_CURRENT_VERSION:
       return {
         ...state,
         currentVersion: action.payload.version

@@ -5,7 +5,7 @@ import { UserReducer } from '~/reducers/user'
 declare module 'botpress/utils' {
   export function ElementPreview(props: ElementPreviewProps): JSX.Element
   export function Downloader(props: DownloaderProps): JSX.Element
-  /** Small wrapper using isOperationAllowed to display childrens if the user is authorized */
+  /** Small wrapper using isOperationAllowed to display children if the user is authorized */
   export function AccessControl(props: AccessControlProps): JSX.Element
   /** Check if a user has permission to access a specific resource */
   export function isOperationAllowed(props: PermissionAllowedProps): boolean

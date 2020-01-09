@@ -6,7 +6,7 @@
   "main": "dist/backend/index.js",
   "keywords": [
     "audience",
-    "visualiaze",
+    "visualize",
     "botpress",
     "botpress-viewer"
   ],

@@ -110,7 +110,7 @@ export default class SVMClassifier {
       intentDefs.filter(x => x.name !== 'none'),
       // we're generating none intents automatically from now on
       // but some existing bots might have the 'none' intent already created
-      // so we exclude it explicitely from the dataset here
+      // so we exclude it explicitly from the dataset here
       async intent => {
         const utterances = this._getSanitizedIntentUtterances(intent)
         debugTrain('tokenizing intent ' + intent.name)

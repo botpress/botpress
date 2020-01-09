@@ -15,7 +15,7 @@ import { BotpressConfig } from './botpress.config'
 
 /**
  * These properties should not be considered when calculating the config hash
- * They are always read from the configuraiton file and can be dynamically changed
+ * They are always read from the configuration file and can be dynamically changed
  */
 const removeDynamicProps = config => _.omit(config, ['superAdmins'])
 

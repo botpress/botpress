@@ -186,7 +186,7 @@ export type BotpressConfig = {
      */
     alerting: AlertingConfig
     /**
-     * External Authentication makes it possible to authenticate end-users (chat users) from an other system
+     * External Authentication makes it possible to authenticate end-users (chat users) from another system
      * by using JWT tokens.
      *
      * In addition to authenticate the users, the JWT token can also contain arbitrary additional

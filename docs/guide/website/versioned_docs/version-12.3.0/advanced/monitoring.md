@@ -109,7 +109,7 @@ We use a simple "rolling window" method to calculate results. If your timeframe 
 - sum: Sum
 - min: Minimum
 - max: Maximum
-- last: The lastest value received from the monitoring service
+- last: The last value received from the monitoring service
 - count: The number of "ticks" in the timeframe
 
 #### Operands
@@ -123,7 +123,7 @@ When an incident is resolved, no other incident of the same nature (same name / 
 
 ### Incident & Hook
 
-Now that you have some incident rules, how do you get alerted when something happens? This is where hooks comes in handy. Everytime an incident is opened or resolved, Botpress will call the hook `on_incident_status_changed` with the incident as an object. When the property `endTime` is not defined, it means that the incident was opened. When it is set, the incident is resolved.
+Now that you have some incident rules, how do you get alerted when something happens? This is where hooks comes in handy. Every time an incident is opened or resolved, Botpress will call the hook `on_incident_status_changed` with the incident as an object. When the property `endTime` is not defined, it means that the incident was opened. When it is set, the incident is resolved.
 
 Here's an example of `data/global/hooks/on_incident_status_changed/alert.js`
 
@@ -146,7 +146,7 @@ The incident object has these properties:
 
 ```js
 {
-  id: 'An uniue ID randomly generated',
+  id: 'A unique ID randomly generated',
   ruleName: 'The name of your incident rule',
   hostName: 'The host name which hosts the Botpress instance',
   startTime: 'Date when the incident was opened',

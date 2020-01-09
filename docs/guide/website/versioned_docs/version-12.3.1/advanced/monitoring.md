@@ -109,7 +109,7 @@ We use a simple "rolling window" method to calculate results. If your timeframe 
 - sum: Sum
 - min: Minimum
 - max: Maximum
-- last: The lastest value received from the monitoring service
+- last: The last value received from the monitoring service
 - count: The number of "ticks" in the timeframe
 
 #### Operands
@@ -146,7 +146,7 @@ The incident object has these properties:
 
 ```js
 {
-  id: 'An uniue ID randomly generated',
+  id: 'A unique ID randomly generated',
   ruleName: 'The name of your incident rule',
   hostName: 'The host name which hosts the Botpress instance',
   startTime: 'Date when the incident was opened',

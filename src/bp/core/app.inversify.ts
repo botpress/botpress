@@ -29,7 +29,7 @@ container.bind<string>(TYPES.Logger_Name).toDynamicValue(ctx => {
   let loggerName = (targetName && targetName.value()) || (byProvider && byProvider.value)
 
   if (!loggerName) {
-    // Was injected in a logger, which was injected in an other class
+    // Was injected in a logger, which was injected in another class
     // And that class has a service identifier, which may be a Symbol
     const endclass = ctx.currentRequest.parentRequest && ctx.currentRequest.parentRequest.parentRequest
 

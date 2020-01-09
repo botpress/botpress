@@ -23,7 +23,7 @@ export interface Config {
   autoTrainInterval: string
 
   /**
-   * Wheather or not you want your models to be trained and loaded on bot mounts
+   * Whether or not you want your models to be trained and loaded on bot mounts
    * @default true
    * @deprecated > 12.2
    */
