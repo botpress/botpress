@@ -185,7 +185,7 @@ export default async function(
   })
 
   router.post('/:lang/delete', adminTokenMw, validateLanguageMw, async (req: RequestWithLang, res, next) => {
-    await languageService.remove(req.language!)
+    languageService.remove(req.language!)
     res.sendStatus(200)
   })
 

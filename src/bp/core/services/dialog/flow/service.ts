@@ -1,19 +1,18 @@
 import { Flow, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
-import { FlowView, NodeView, FlowMutex } from 'common/typings'
+import { FlowMutex, FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
+import { RealTimePayload } from 'core/sdk/impl'
+import { KeyValueStore } from 'core/services/kvs'
+import RealtimeService from 'core/services/realtime'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import moment = require('moment')
 import nanoid from 'nanoid/generate'
 
 import { GhostService } from '../..'
 import { TYPES } from '../../../types'
 import { validateFlowSchema } from '../validator'
-
-import { RealTimePayload } from 'core/sdk/impl'
-import RealtimeService from 'core/services/realtime'
-import { KeyValueStore } from 'core/services/kvs'
-import moment = require('moment')
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50

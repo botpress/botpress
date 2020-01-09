@@ -79,7 +79,7 @@ class Bots extends Component<Props> {
   async deleteBot(botId) {
     if (window.confirm("Are you sure you want to delete this bot? This can't be undone.")) {
       await api.getSecured().post(`/admin/bots/${botId}/delete`)
-      await this.props.fetchBots()
+      this.props.fetchBots()
     }
   }
 
@@ -113,7 +113,7 @@ class Bots extends Component<Props> {
 
   async requestStageChange(botId) {
     await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stage`)
-    await this.props.fetchBots()
+    this.props.fetchBots()
     toastSuccess('Bot promoted to next stage')
   }
 

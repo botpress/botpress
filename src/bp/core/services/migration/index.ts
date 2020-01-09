@@ -66,7 +66,7 @@ export class MigrationService {
     this.displayMigrationStatus(configVersion, missingMigrations, this.logger)
 
     if (!process.AUTO_MIGRATE) {
-      await this.logger.error(
+      this.logger.error(
         `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
       )
 
@@ -97,10 +97,10 @@ export class MigrationService {
       const result = await this.loadedMigrations[filename].up(opts)
       debug.forBot(botId, `Migration step finished`, { filename, result })
       if (result.success) {
-        await this.logger.info(`- ${result.message || 'Success'}`)
+        this.logger.info(`- ${result.message || 'Success'}`)
       } else {
         hasFailures = true
-        await this.logger.error(`- ${result.message || 'Failure'}`)
+        this.logger.error(`- ${result.message || 'Failure'}`)
       }
     })
 
@@ -149,15 +149,15 @@ export class MigrationService {
       const result = await this.loadedMigrations[filename].up(opts)
       if (result.success) {
         await this._saveCompletedMigration(filename, result)
-        await this.logger.info(`- ${result.message || 'Success'}`)
+        this.logger.info(`- ${result.message || 'Success'}`)
       } else {
         hasFailures = true
-        await this.logger.error(`- ${result.message || 'Failure'}`)
+        this.logger.error(`- ${result.message || 'Failure'}`)
       }
     })
 
     if (hasFailures) {
-      await this.logger.error(
+      this.logger.error(
         `Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.`
       )
 
