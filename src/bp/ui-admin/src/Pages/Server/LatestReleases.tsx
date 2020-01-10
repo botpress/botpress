@@ -15,9 +15,10 @@ interface GithubRelease {
   githubUrl: string
   releaseDate: Date
   daysAgo: string
+  dockerUrl: string
 }
 
-const DownloadLinks: FC<{ version: string }> = props => {
+const DownloadLinks: FC<{ version: string; dockerUrl: string }> = props => {
   const version = `v${props.version.replace(/\./g, '_')}`
 
   return (
@@ -39,7 +40,7 @@ const DownloadLinks: FC<{ version: string }> = props => {
       <br />
       Docker Image
       <hr />
-      <a href="https://hub.docker.com/r/botpress/server" target="_blank">
+      <a href={props.dockerUrl || `https://hub.docker.com/r/botpress/server`} target="_blank">
         <code>botpress/server:{version}</code>
       </a>
     </div>
@@ -64,7 +65,7 @@ const LastRelease: FC<{ latestReleases: GithubRelease[]; fetchLatestVersions: Fu
 
               <div className="container">
                 <div className="content" dangerouslySetInnerHTML={{ __html: snarkdown(release.details) }} />
-                <DownloadLinks version={release.version} />
+                <DownloadLinks version={release.version} dockerUrl={release.dockerUrl} />
               </div>
             </div>
           )
