@@ -93,7 +93,7 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
       ],
       next: [
         {
-          condition: `Number(temp['skill-choice-invalid-count-${randomId}']) >= Number(${nbMaxRetries})`,
+          condition: `Number(temp['skill-choice-invalid-count-${randomId}']) > Number(${nbMaxRetries})`,
           node: '#'
         },
         { condition: 'true', node: 'sorry' }
