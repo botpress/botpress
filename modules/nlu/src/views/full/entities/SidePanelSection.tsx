@@ -18,7 +18,7 @@ interface Props {
 export const EntitySidePanelSection: FC<Props> = props => {
   const [entitiesFilter, setEntitiesFilter] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
-  const [entityName, setEntityName] = useState()
+  const [entity, setEntity] = useState()
   const [entityAction, setEntityAction] = useState<any>('create')
 
   const createEntity = () => {
@@ -27,13 +27,13 @@ export const EntitySidePanelSection: FC<Props> = props => {
   }
 
   const renameEntity = (entity: NLU.EntityDefinition) => {
-    setEntityName(entity.name)
+    setEntity(entity)
     setEntityAction('rename')
     setModalOpen(true)
   }
 
   const duplicateEntity = (entity: NLU.EntityDefinition) => {
-    setEntityName(entity.name)
+    setEntity(entity)
     setEntityAction('duplicate')
     setModalOpen(true)
   }
@@ -66,19 +66,14 @@ export const EntitySidePanelSection: FC<Props> = props => {
         } as Item)
     )
 
-  const onEntityModified = entity => {
+  const onEntityModified = (entity: NLU.EntityDefinition) => {
     props.setCurrentItem({ type: 'entity', name: entity.name })
     props.reloadEntities()
   }
 
   return (
     <div>
-      <Button
-        className={Classes.MINIMAL}
-        icon="new-object"
-        text="New entity"
-        onClick={createEntity}
-      />
+      <Button className={Classes.MINIMAL} icon="new-object" text="New entity" onClick={createEntity} />
       <SearchBar
         id="entities-filter"
         icon="filter"
@@ -92,7 +87,7 @@ export const EntitySidePanelSection: FC<Props> = props => {
       />
       <EntityNameModal
         action={entityAction}
-        originalName={entityName}
+        originalEntity={entity}
         entityIDs={props.entities.map(e => e.id)}
         api={props.api}
         onEntityModified={onEntityModified}

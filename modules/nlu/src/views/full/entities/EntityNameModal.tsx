@@ -18,7 +18,7 @@ const AVAILABLE_TYPES = [
 interface Props {
   api: NLUApi
   // Used for actions rename and duplicate
-  originalName?: string
+  originalEntity?: NLU.EntityDefinition
   action: 'create' | 'rename' | 'duplicate'
   entityIDs: string[]
   isOpen: boolean
@@ -36,7 +36,7 @@ export const EntityNameModal: FC<Props> = props => {
   }, [name, type])
 
   useEffect(() => {
-    props.action === 'rename' ? setName(props.originalName) : setName('')
+    props.action === 'rename' ? setName(props.originalEntity.name) : setName('')
   }, [props.isOpen])
 
   const submit = async e => {
@@ -66,10 +66,10 @@ export const EntityNameModal: FC<Props> = props => {
   }
 
   const onRenameEntity = async () => {
-    const entity = await props.api.fetchEntity(props.originalName)
+    const entity = _.cloneDeep(props.originalEntity)
     entity.name = name.trim()
     entity.id = getEntityId(name)
-    props.api.updateEntity(getEntityId(props.originalName), entity).then(() => props.onEntityModified(entity))
+    props.api.updateEntity(props.originalEntity.id, entity).then(() => props.onEntityModified(entity))
   }
 
   const getEntityId = (entityName: string) =>
@@ -79,14 +79,13 @@ export const EntityNameModal: FC<Props> = props => {
       .replace(/[\t\s]/g, '-')
 
   const onDuplicateEntity = async () => {
-    const entity = await props.api.fetchEntity(props.originalName)
-    const clone = _.cloneDeep(entity)
+    const clone = _.cloneDeep(props.originalEntity)
     clone.name = name.trim()
     clone.id = getEntityId(name)
     props.api.createEntity(clone).then(() => props.onEntityModified(clone))
   }
 
-  const isIdentical = props.action === 'rename' && props.originalName === name
+  const isIdentical = props.action === 'rename' && props.originalEntity.name === name
   const alreadyExists = !isIdentical && _.some(props.entityIDs, id => id === getEntityId(name))
 
   let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Entity' }
