@@ -252,7 +252,7 @@ export const ProcessIntents = async (
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
+    const cleaned = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
     const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
 
     const allowedEntities = _.chain(intent.slot_definitions)
