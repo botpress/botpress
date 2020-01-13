@@ -143,7 +143,6 @@ class RootStore {
       await this.createConversation()
     }
 
-    await this.sendUserVisit()
     await this.fetchPreferences()
   }
 
