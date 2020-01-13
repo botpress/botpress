@@ -1,3 +1,21 @@
+## [12.3.3](https://github.com/botpress/botpress/compare/v12.3.2...v12.3.3) (2020-01-13)
+
+
+### Bug Fixes
+
+* correct spelling mistakes ([f229391](https://github.com/botpress/botpress/commit/f229391))
+* **admin:** fix docker image link ([9a8b254](https://github.com/botpress/botpress/commit/9a8b254))
+* show user-friendly flow name ([1610164](https://github.com/botpress/botpress/commit/1610164))
+* **admin:** fix docker image link ([96056b0](https://github.com/botpress/botpress/commit/96056b0))
+* **channel-web:** visit event is sent only when chat is open ([7c727de](https://github.com/botpress/botpress/commit/7c727de))
+* **code-editor:** only one of enabled or disabled ([a177992](https://github.com/botpress/botpress/commit/a177992))
+* **qna:** correct pagination on first page ([eb7f64f](https://github.com/botpress/botpress/commit/eb7f64f))
+* **qna:** react-select to be completely visible ([ca52fc2](https://github.com/botpress/botpress/commit/ca52fc2))
+* **studio:** don't show reselection of checkboxes ([23fd495](https://github.com/botpress/botpress/commit/23fd495))
+* **studio:** show user-friendly flow name ([3c76e50](https://github.com/botpress/botpress/commit/3c76e50))
+
+
+
 ## [12.3.2](https://github.com/botpress/botpress/compare/v12.3.1...v12.3.2) (2020-01-08)
 
 
