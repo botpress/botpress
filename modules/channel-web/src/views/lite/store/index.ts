@@ -47,6 +47,9 @@ class RootStore {
   @observable
   public preferredLanguage: string
 
+  @observable
+  public isInitialized: boolean
+
   public intl: InjectedIntl
 
   public isBotTyping = observable.box(false)
@@ -138,12 +141,16 @@ class RootStore {
       await this.fetchBotInfo()
       await this.fetchConversations()
       await this.fetchConversation()
+      runInAction('-> setInitialized', () => {
+        this.isInitialized = true
+      })
     } catch (err) {
       console.log('Error while fetching data, creating new convo...', err)
       await this.createConversation()
     }
 
     await this.fetchPreferences()
+    await this.sendUserVisit()
   }
 
   @action.bound
