@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
 import * as math from '../tools/math'
+import { replaceConsecutiveSpaces } from '../tools/strings'
 import { Intent, PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
@@ -100,7 +101,8 @@ async function preprocessInput(
 }
 
 async function makePredictionUtterance(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  const [utterance] = await buildUtteranceBatch([input.rawText], input.languageCode, tools)
+  const text = replaceConsecutiveSpaces(input.rawText.trim())
+  const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools)
 
   const { tfidf, vocabVectors, kmeans } = predictors
   utterance.tokens.forEach(token => {
