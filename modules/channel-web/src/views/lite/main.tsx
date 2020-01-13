@@ -17,7 +17,7 @@ const _values = obj => Object.keys(obj).map(x => obj[x])
 class Web extends React.Component<MainProps> {
   private socket: BpSocket
   private parentClass: string
-  private visitorSent: boolean = false
+  private hasBeenInitialized: boolean = false
 
   state = {
     played: false
@@ -44,7 +44,8 @@ class Web extends React.Component<MainProps> {
 
     // tslint:disable-next-line: no-floating-promises
     this.initialize()
-    this.checkVisitEvent()
+    this.initializeIfChatDisplayed()
+    this.props.setLoadingCompleted()
   }
 
   componentWillUnmount() {
@@ -52,19 +53,18 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidUpdate() {
-    this.checkVisitEvent()
+    this.initializeIfChatDisplayed()
   }
 
-  async checkVisitEvent() {
-    await this.socket.waitForUserId()
-
-    if (this.visitorSent) {
+  async initializeIfChatDisplayed() {
+    if (this.hasBeenInitialized) {
       return
     }
 
     if (this.props.activeView === 'side' || this.props.isFullscreen) {
-      this.visitorSent = true
-      this.props.store.sendUserVisit()
+      this.hasBeenInitialized = true
+      await this.socket.waitForUserId()
+      await this.props.initializeChat()
     }
   }
 
@@ -86,13 +86,10 @@ class Web extends React.Component<MainProps> {
     config.containerWidth && window.parent.postMessage({ type: 'setWidth', value: config.containerWidth }, '*')
 
     await this.socket.waitForUserId()
-    await this.props.initializeChat()
 
     config.reference && this.props.setReference()
 
     this.setupObserver()
-
-    this.props.setLoadingCompleted()
   }
 
   extractConfig() {
