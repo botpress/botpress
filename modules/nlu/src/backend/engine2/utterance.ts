@@ -120,7 +120,8 @@ export default class Utterance {
 
     for (const token of this.tokens) {
       const norm = computeNorm(token.vectors as number[])
-      if (norm <= 0) {
+      if (norm <= 0 || !token.isWord) {
+        // ignore special char tokens in sentence embeddings
         continue
       }
 
