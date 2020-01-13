@@ -45,7 +45,7 @@ export default class FormModal extends Component<Props> {
         redirectFlow: '',
         redirectNode: '',
         action: ACTIONS.TEXT,
-        category: 'global',
+        category: { label: 'global', value: 'global' },
         enabled: true
       },
       invalidFields: {
@@ -86,6 +86,7 @@ export default class FormModal extends Component<Props> {
       data: { data: item }
     } = await this.props.bp.axios.get(`/mod/qna/questions/${id}`)
 
+    item.category = { label: item.category, value: item.category }
     this.setState({
       item,
       isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -105,8 +106,7 @@ export default class FormModal extends Component<Props> {
     this.setState(item)
   }
 
-  handleSelect = key => selectedOption =>
-    this.changeItemProperty(key, selectedOption ? selectedOption.value : selectedOption)
+  handleSelect = key => selectedOption => this.changeItemProperty(key, selectedOption)
 
   changeItemAction = actionType => () => {
     this.setState({ [actionType]: !this.state[actionType] }, () => {
@@ -143,6 +143,7 @@ export default class FormModal extends Component<Props> {
   }
 
   onCreate = async qnaItem => {
+    qnaItem.category = qnaItem.category.value
     try {
       await this.props.bp.axios.post('/mod/qna/questions', qnaItem)
 
@@ -154,6 +155,7 @@ export default class FormModal extends Component<Props> {
   }
 
   onEdit = async qnaItem => {
+    qnaItem.category = qnaItem.category.value
     const {
       page,
       filters: { question, categories }
@@ -324,7 +326,7 @@ export default class FormModal extends Component<Props> {
 
                 <Select
                   className={classnames({ qnaCategoryError: invalidFields.redirectFlow })}
-                  tabIndex={-1}
+                  tabIndex="-1"
                   value={this.state.item.redirectFlow}
                   options={flowsList}
                   onChange={this.handleSelect('redirectFlow')}
@@ -335,7 +337,7 @@ export default class FormModal extends Component<Props> {
 
                 <Select
                   className={classnames({ qnaCategoryError: invalidFields.redirectNode })}
-                  tabIndex={-1}
+                  tabIndex="-1"
                   value={this.state.item.redirectNode}
                   options={nodeList}
                   onChange={this.handleSelect('redirectNode')}
