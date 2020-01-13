@@ -190,20 +190,11 @@ class FileNavigator extends React.Component<Props, State> {
         <MenuDivider />
         <MenuItem id="btn-duplicate" icon="duplicate" text="Duplicate" onClick={() => this.props.duplicateFile(file)} />
         <MenuDivider />
-        <MenuItem
-          id="btn-enable"
-          icon="endorsed"
-          text="Enable"
-          disabled={!isDisabled}
-          onClick={() => this.props.enableFile(file)}
-        />
-        <MenuItem
-          id="btn-disable"
-          icon="disable"
-          text="Disable"
-          disabled={isDisabled}
-          onClick={() => this.props.disableFile(file)}
-        />
+        {isDisabled ? (
+          <MenuItem id="btn-enable" icon="endorsed" text="Enable" onClick={() => this.props.enableFile(file)} />
+        ) : (
+          <MenuItem id="btn-disable" icon="disable" text="Disable" onClick={() => this.props.disableFile(file)} />
+        )}
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )
