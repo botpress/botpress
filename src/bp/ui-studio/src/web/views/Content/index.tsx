@@ -16,6 +16,7 @@ import {
 } from '~/actions'
 import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
 import { Container } from '~/components/Shared/Interface'
+import { getFlowLabel } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
@@ -81,10 +82,7 @@ class ContentView extends Component<Props, State> {
     this.props.contentItems.forEach(async (element: ContentElementUsage) => {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
-        const name = flow.name
-          .replace('.flow.json', '')
-          .replace(/^main$/, 'Main')
-          .replace(/^error$/, 'Error handling')
+        const name = getFlowLabel(flow.name)
         flow.nodes.forEach((node: NodeView) => {
           const usage: ContentUsage = {
             type: 'Flow',
