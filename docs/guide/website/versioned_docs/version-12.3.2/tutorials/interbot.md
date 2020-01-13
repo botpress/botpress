@@ -1,5 +1,5 @@
 ---
-id: version-11.7.1-interbot
+id: version-12.3.2-interbot
 title: Inter-bot Communication / Delegation
 original_id: interbot
 ---
@@ -8,7 +8,7 @@ original_id: interbot
 
 In this tutorial, you will learn how a chatbot could "delegate" questions or tasks to other bots. We call this concept "inter-bot" communication.
 
-The code for this example is available in the [examples](https://github.com/botpress/botpress/tree/master/examples/interbot) directory of our GitHub repository.
+The code for this example is available in the [examples](https://github.com/botpress/botpress/tree/master/examples/interbot) directory of our GitHub repository (update `workspaces.json` with the three bots if you copied them).
 
 ![Example](assets/tutorials_interbot-example.png)
 

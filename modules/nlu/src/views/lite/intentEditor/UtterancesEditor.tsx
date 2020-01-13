@@ -264,7 +264,7 @@ export class UtterancesEditor extends React.Component<Props> {
       selection.focus.path &&
       // Make sure we're in the same utterance (you can't tag cross-utterance)
       selection.anchor.path['0'] === selection.focus.path['0'] &&
-      // Make sure we're not wrapping a slot entity inside an other slot
+      // Make sure we're not wrapping a slot entity inside another slot
       selection.anchor.path['1'] === selection.focus.path['1']
     )
   }

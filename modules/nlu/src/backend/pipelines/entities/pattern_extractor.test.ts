@@ -86,7 +86,7 @@ describe('Custom entity extraction', () => {
       } as sdk.NLU.EntityDefinition
 
       const userInput = `
-I'm riding my mercedes-benz to the dealership then I will take my BM to buy an other mercedes because we need merchandise for the shop BMW!` /*
+I'm riding my mercedes-benz to the dealership then I will take my BM to buy another mercedes because we need merchandise for the shop BMW!` /*
               [============]                                      ==                 [======]                                          [=]
 */
 
@@ -111,8 +111,8 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       expect(entities[0].data.value).toEqual('Mercedes-Benz')
 
       expect(entities[1].name).toEqual(entityDef.name)
-      expect(entities[1].meta.start).toEqual(85)
-      expect(entities[1].meta.end).toEqual(93)
+      expect(entities[1].meta.start).toEqual(84)
+      expect(entities[1].meta.end).toEqual(92)
       expect(entities[1].meta.source).toEqual('mercedes')
       expect(entities[1].data.value).toEqual('Mercedes-Benz')
 
@@ -123,8 +123,8 @@ I'm riding my mercedes-benz to the dealership then I will take my BM to buy an o
       expect(entities[2].data.value).toEqual('BMW')
 
       expect(entities[3].name).toEqual(entityDef.name)
-      expect(entities[3].meta.start).toEqual(135)
-      expect(entities[3].meta.end).toEqual(139)
+      expect(entities[3].meta.start).toEqual(134)
+      expect(entities[3].meta.end).toEqual(138)
       expect(entities[3].meta.source).toEqual('BMW!')
       expect(entities[3].data.value).toEqual('BMW')
     }),

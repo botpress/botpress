@@ -302,7 +302,7 @@ export class HookService {
   }
 
   private logScriptError(err, botId, path, folder) {
-    const message = `An error occured on "${path}" on "${folder}". ${err}`
+    const message = `An error occurred on "${path}" on "${folder}". ${err}`
     if (botId) {
       this.logger
         .forBot(botId)

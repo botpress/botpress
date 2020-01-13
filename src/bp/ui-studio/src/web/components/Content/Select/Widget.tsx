@@ -60,7 +60,7 @@ class ContentPickerWidget extends Component<Props> {
     const { contentType } = contentItem
     await this.props
       .upsertContentItem({ modifyId: itemId, contentType, formData: this.state.contentToEdit })
-      .then(() => this.setState({ showItemEdit: false, contentToEdit: null }))
+      .then(() => this.setState({ showItemEdit: false }))
       .then(() => this.props.fetchContentItem(this.props.itemId, { force: true }))
       .then(this.props.refresh || (() => {}))
       .then(this.props.onUpdate || (() => {}))

@@ -2,10 +2,10 @@ import React, { Component } from 'react'
 import { Modal, Button, Radio, FormControl, Alert, Form } from 'react-bootstrap'
 import Select from 'react-select'
 import _ from 'lodash'
-import axios from 'axios'
 import style from './style.scss'
 import { connect } from 'react-redux'
 import SmartInput from '~/components/SmartInput'
+import { getFlowLabel, reorderFlows } from '~/components/Shared/Utils'
 
 const availableProps = [
   { label: 'User Data', value: 'user' },
@@ -27,12 +27,12 @@ class ConditionModalForm extends Component {
   }
 
   componentDidMount() {
-    const subflowOptions = this.props.subflows
-      .filter(flow => !flow.startsWith('skills/'))
-      .map(flow => ({
-        label: flow,
-        value: flow
-      }))
+    const subflowNames = this.props.subflows.filter(flow => !flow.startsWith('skills/'))
+
+    const subflowOptions = reorderFlows(subflowNames).map(flow => ({
+      label: getFlowLabel(flow),
+      value: flow
+    }))
 
     const { currentFlow: flow, currentNodeName } = this.props
     const nodes = (flow && flow.nodes) || []

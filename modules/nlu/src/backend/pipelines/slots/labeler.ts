@@ -76,7 +76,7 @@ export function combineSlots(existing: NLU.Slot, token: Token, tagRes: TagResult
   if (!existing) {
     return newSlot
   } else if (tagRes.tag === BIO.INSIDE && !existing.entity && !newSlot.entity) {
-    // exity extraction fills source properly
+    // entity extraction fills source properly
     const maybeSpace = token.value.startsWith(SPACE) ? ' ' : ''
     const source = `${existing.source}${maybeSpace}${token.canonical}`
     // TODO: we might want to alter confidence with the newSlot prob as that's what a CRF technically does

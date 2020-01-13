@@ -26,10 +26,10 @@ export default class ArrayMl extends I18nManager {
 
   extractChoices = () => {
     const choices = this.state.text.split('\n').map(line => {
-      const splitted = line.split('|')
+      const split = line.split('|')
 
       return this.state.propertyNames.reduce((result, prop, idx) => {
-        result[prop] = splitted[idx]
+        result[prop] = split[idx]
         return result
       }, {})
     })

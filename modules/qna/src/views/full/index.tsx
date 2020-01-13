@@ -1,6 +1,6 @@
 import { Button, ControlGroup, Intent } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
-import { AccessControl } from 'botpress/utils'
+import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
@@ -46,9 +46,8 @@ export default class QnaAdmin extends Component<Props> {
 
   fetchFlows() {
     this.props.bp.axios.get('/flows').then(({ data }) => {
-      const flowsList = data
-        .filter(flow => !flow.name.startsWith('skills/'))
-        .map(({ name }) => ({ label: name, value: name }))
+      const flows = data.filter(flow => !flow.name.startsWith('skills/'))
+      const flowsList = reorderFlows(flows).map(({ name }) => ({ label: getFlowLabel(name), value: name }))
 
       this.setState({ flows: data, flowsList })
     })

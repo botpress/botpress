@@ -137,7 +137,7 @@ export default class Storage {
 
     const intents = await Promise.mapSeries(intentsName, name =>
       this.getIntent(name).catch(err => {
-        this.logger.attachError(err).error(`An error occured while loading ${name}`)
+        this.logger.attachError(err).error(`An error occurred while loading ${name}`)
       })
     )
 
@@ -153,7 +153,7 @@ export default class Storage {
 
     const filename = `${intent}.json`
     const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename).catch(err => {
-      this.logger.attachError(err).error(`An error occured while loading ${intent}`)
+      this.logger.attachError(err).error(`An error occurred while loading ${intent}`)
     })
 
     try {

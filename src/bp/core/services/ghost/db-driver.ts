@@ -8,9 +8,9 @@ import { VError } from 'verror'
 
 import Database from '../../database'
 import { TYPES } from '../../types'
+import { BPError } from '../dialog/errors'
 
 import { FileRevision, StorageDriver } from '.'
-import { BPError } from '../dialog/errors'
 
 // TODO: Create a janitor that clears deleted files
 @injectable()

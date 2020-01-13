@@ -124,7 +124,7 @@ export default class BroadcastModule extends React.Component {
 
     this.setState({
       loading: false,
-      error: err ? err.message : 'An unknown error occured'
+      error: err ? err.message : 'An unknown error occurred'
     })
   }
 

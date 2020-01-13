@@ -1,6 +1,7 @@
 import axios from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
+import api from '~/api'
 
 interface GithubRelease {
   version: string
@@ -15,7 +16,7 @@ export interface VersionState {
   latestReleases: GithubRelease[]
 }
 
-const RECEIVE_CURRENT_VERSON = 'version/RECEIVE_CURRENT_VERSON'
+const RECEIVE_CURRENT_VERSION = 'version/RECEIVE_CURRENT_VERSION'
 const RECEIVE_LATEST_RELEASES = 'version/RECEIVE_LATEST_RELEASES'
 
 export const fetchCurrentVersion = () => {
@@ -23,7 +24,7 @@ export const fetchCurrentVersion = () => {
     try {
       const { data } = await axios.get('/version', { baseURL: process.env.REACT_APP_API_URL })
       dispatch({
-        type: RECEIVE_CURRENT_VERSON,
+        type: RECEIVE_CURRENT_VERSION,
         payload: { version: data }
       })
     } catch (err) {
@@ -45,8 +46,23 @@ export const fetchLatestVersions = () => {
         details: x.body,
         githubUrl: x.html_url,
         releaseDate: x.created_at,
-        daysAgo: moment(x.created_at).fromNow()
+        daysAgo: moment(x.created_at).fromNow(),
+        dockerUrl: ''
       }))
+      try {
+        const { data } = await api.getSecured().get('/admin/versioning/docker_images')
+        _.forEach(releases, x => {
+          _.forEach(data.results, r => {
+            const version = x.version.replace(/\./g, '_')
+            if (r.name.slice(1) === version) {
+              const digest = r.images[0].digest.replace(/\:/g, '-')
+              x.dockerUrl = `https://hub.docker.com/layers/botpress/server/v${version}/images/${digest}`
+            }
+          })
+        })
+      } catch (err) {
+        console.error('could not fetch docker image information')
+      }
 
       dispatch({
         type: RECEIVE_LATEST_RELEASES,
@@ -67,7 +83,7 @@ export default (state: VersionState = initialState, action) => {
         ...state,
         latestReleases: action.payload.releases
       }
-    case RECEIVE_CURRENT_VERSON:
+    case RECEIVE_CURRENT_VERSION:
       return {
         ...state,
         currentVersion: action.payload.version

@@ -26,7 +26,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
   const [matchCase, setMatchCase] = useState<boolean>(props.entity.matchCase)
   const [sensitive, setSensitive] = useState<boolean>(props.entity.sensitive)
   const [pattern, setPattern] = useState<string>(props.entity.pattern)
-  const [paternValid, setPatternValid] = useState<boolean>(true)
+  const [patternValid, setPatternValid] = useState<boolean>(true)
   const [examplesStr, setExampleStr] = useState((props.entity.examples || []).join('\n'))
   const [allExamplesMatch, setExamplesMatch] = useState<boolean>(true)
 
@@ -73,7 +73,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
           label="Regular expression"
           labelFor="pattern"
           labelInfo={
-            paternValid ? null : (
+            patternValid ? null : (
               <Tag intent="danger" minimal className={style.validationTag}>
                 Invalid pattern
               </Tag>
@@ -87,7 +87,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             id="pattern"
             placeholder="Insert a valid pattern"
             value={pattern}
-            intent={paternValid ? 'none' : 'danger'}
+            intent={patternValid ? 'none' : 'danger'}
             onChange={e => setPattern(e.target.value)}
           />
         </FormGroup>
@@ -96,7 +96,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
           labelFor="examples"
           labelInfo={
             examplesStr &&
-            paternValid && (
+            patternValid && (
               <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal className={style.validationTag}>
                 {allExamplesMatch ? 'All examples match' : "Some examples don't match"}
               </Tag>

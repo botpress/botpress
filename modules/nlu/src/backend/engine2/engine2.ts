@@ -143,7 +143,7 @@ export default class E2 implements Engine2 {
       const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
       slot_tagger.load(artefacts.slots_model)
 
-      const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persistd
+      const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted
 
       return {
         ...artefacts,
