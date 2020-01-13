@@ -181,7 +181,7 @@ class ConditionModalForm extends Component {
 
       if (
         earlierNode &&
-        (/^END$/i.test(earlierNode) || earlierNode.startsWith('#') || /\.flow\.json/i.test(earlierNode))
+        (/^END$/i.test(earlierNode) || earlierNode.startsWith('#') || /\.flow\.json$/i.test(earlierNode))
       ) {
         earlierNode = null
       }

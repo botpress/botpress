@@ -167,7 +167,7 @@ class FlowBuilder extends Component<Props, State> {
   }
 
   pushFlowState = flow => {
-    this.props.history.push(`/flows/${flow.replace(/\.flow\.json/i, '')}`)
+    this.props.history.push(`/flows/${flow.replace(/\.flow\.json$/i, '')}`)
   }
 
   hideSearch = () => this.setState({ showSearch: false })
