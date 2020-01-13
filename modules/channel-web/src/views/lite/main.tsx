@@ -17,6 +17,7 @@ const _values = obj => Object.keys(obj).map(x => obj[x])
 class Web extends React.Component<MainProps> {
   private socket: BpSocket
   private parentClass: string
+  private visitorSent: boolean = false
 
   state = {
     played: false
@@ -43,10 +44,28 @@ class Web extends React.Component<MainProps> {
 
     // tslint:disable-next-line: no-floating-promises
     this.initialize()
+    this.checkVisitEvent()
   }
 
   componentWillUnmount() {
     window.removeEventListener('message', this.handleIframeApi)
+  }
+
+  componentDidUpdate() {
+    this.checkVisitEvent()
+  }
+
+  async checkVisitEvent() {
+    await this.socket.waitForUserId()
+
+    if (this.visitorSent) {
+      return
+    }
+
+    if (this.props.activeView === 'side' || this.props.isFullscreen) {
+      this.visitorSent = true
+      this.props.store.sendUserVisit()
+    }
   }
 
   async initialize() {
@@ -247,6 +266,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   resetUnread: store.view.resetUnread,
   incrementUnread: store.view.incrementUnread,
   activeView: store.view.activeView,
+  isFullscreen: store.view.isFullscreen,
   showChat: store.view.showChat,
   hideChat: store.view.hideChat,
   toggleBotInfo: store.view.toggleBotInfo,
@@ -272,6 +292,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'toggleBotInfo'
   | 'widgetTransition'
   | 'activeView'
+  | 'isFullscreen'
   | 'unreadCount'
   | 'hasUnreadMessages'
   | 'showWidgetButton'
