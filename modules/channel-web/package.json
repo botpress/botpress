@@ -30,6 +30,7 @@
     "date-fns": "^2.4.1",
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.1",
+    "marked": "^0.8.0",
     "mime": "^2.4.3",
     "mobx": "4.9.4",
     "mobx-react": "^5.4.4",
@@ -44,7 +45,6 @@
     "react-linkify": "^0.2.2",
     "react-slick": "^0.24.0",
     "slick-carousel": "^1.8.1",
-    "snarkdown": "^1.2.2",
     "uuid": "^3.1.0"
   },
   "resolutions": {

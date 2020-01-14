@@ -1,5 +1,5 @@
 import ReactGA from 'react-ga'
-import snarkdown from 'snarkdown'
+import marked from 'marked'
 
 export const getOverridedComponent = (overrides, componentName) => {
   if (overrides && overrides[componentName]) {
@@ -71,6 +71,7 @@ export const renderUnsafeHTML = (message: string = '', escaped: boolean): string
     message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;')
   }
 
-  const html = snarkdown(message)
-  return html.replace(/<a href/gi, `<a target="_blank" href`)
+  const html = marked(message)
+  const deleteWrap = html.slice(3, -5)
+  return deleteWrap.replace(/<a href/gi, `<a target="_blank" href`)
 }
