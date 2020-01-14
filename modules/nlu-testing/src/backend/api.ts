@@ -1,10 +1,13 @@
 import Axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import parse from 'csv-parse'
+import stringify from 'csv-stringify/lib/sync'
+import fs from 'fs'
 import Joi from 'joi'
 import _ from 'lodash'
 import multer from 'multer'
 import nanoid from 'nanoid'
+import path from 'path'
 
 type Condition = ['intent' | 'slot', 'is', string]
 
@@ -159,6 +162,47 @@ export default async (bp: typeof sdk) => {
       }
     })
   })
+
+  router.post('/export', async (req, res) => {
+    // TODO add a little validation
+    const targetPath = isRunningFromSources()
+    if (!targetPath) {
+      return res.status(400).send('Not in a git repository`')
+    }
+
+    const tests = await getAllTests(req.params.botId)
+    const csv = results2CSV(tests, req.body.results)
+    try {
+      fs.writeFileSync(targetPath, csv)
+      res.send(200)
+    } catch (err) {
+      res.send(500)
+    }
+  })
+}
+
+function results2CSV(tests: Test[], results: Dic<TestResult>) {
+  const records = [
+    ['utterance', 'context', 'conditions', 'status'],
+    ...tests.map(t => [
+      t.utterance,
+      t.context,
+      t.conditions.reduce((c, next) => `${c}-${next}`, ''),
+      results[t.id].success ? 'pass' : 'fail'
+    ])
+  ]
+  return stringify(records, { header: true })
+}
+
+function isRunningFromSources(): string | null {
+  try {
+    const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
+    const latestResultsPath = path.resolve(sourceDirectory, './modules/nlu-testing/latest-results.csv')
+    const exists = fs.existsSync(latestResultsPath)
+    return exists ? latestResultsPath : null
+  } catch {
+    return null
+  }
 }
 
 function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]): TestResult {
