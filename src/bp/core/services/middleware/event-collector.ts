@@ -11,18 +11,22 @@ import ms from 'ms'
 
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
+type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
+
 @injectable()
 export class EventCollector {
   private readonly BATCH_SIZE = 100
+  private readonly PRUNE_INTERVAL = ms('30s')
   private readonly TABLE_NAME = 'events'
   private knex!: Knex & sdk.KnexExtension
   private intervalRef
   private currentPromise
+  private lastPruneTs: number = 0
 
   private enabled = false
   private interval!: number
   private retentionPeriod!: number
-  private batch: sdk.IO.StoredEvent[] = []
+  private batch: BatchEvent[] = []
   private ignoredTypes: string[] = []
   private ignoredProperties: string[] = []
 
@@ -97,13 +101,19 @@ export class EventCollector {
     const elements = this.batch.splice(0, batchCount)
 
     this.currentPromise = this.knex
-      .batchInsert(this.TABLE_NAME, elements, this.BATCH_SIZE)
-      .then(async () => {
-        await this.runCleanup()
+      .batchInsert(this.TABLE_NAME, elements.map(x => _.omit(x, 'retry')), this.BATCH_SIZE)
+      .then(() => {
+        if (Date.now() - this.lastPruneTs >= this.PRUNE_INTERVAL) {
+          this.lastPruneTs = Date.now()
+          return this.runCleanup().catch(err => {
+            /* swallow errors */
+          })
+        }
       })
       .catch(err => {
         this.logger.attachError(err).error(`Couldn't store events to the database. Re-queuing elements`)
-        this.batch.push(...elements)
+        const elementsToRetry = elements.map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 })).filter(x => x.retry < 3)
+        this.batch.push(...elementsToRetry)
       })
       .finally(() => {
         this.currentPromise = undefined
