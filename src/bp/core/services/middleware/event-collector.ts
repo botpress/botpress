@@ -15,6 +15,7 @@ type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
 
 @injectable()
 export class EventCollector {
+  private readonly MAX_RETRY_ATTEMPTS = 3
   private readonly BATCH_SIZE = 100
   private readonly PRUNE_INTERVAL = ms('30s')
   private readonly TABLE_NAME = 'events'
@@ -112,7 +113,9 @@ export class EventCollector {
       })
       .catch(err => {
         this.logger.attachError(err).error(`Couldn't store events to the database. Re-queuing elements`)
-        const elementsToRetry = elements.map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 })).filter(x => x.retry < 3)
+        const elementsToRetry = elements
+          .map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 }))
+          .filter(x => x.retry < this.MAX_RETRY_ATTEMPTS)
         this.batch.push(...elementsToRetry)
       })
       .finally(() => {
