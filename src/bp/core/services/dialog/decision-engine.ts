@@ -47,6 +47,7 @@ export class DecisionEngine {
       } else if (action === 'redirect') {
         await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
       }
+      // if action is 'feedback' queue up transition to feedback flow
     }
 
     const hasContinue = event.ndu.actions.find(x => x.action === 'continue')

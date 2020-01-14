@@ -15,6 +15,17 @@ const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 
+const ALLOWED_MSG_TYPES = [
+  'text',
+  'quick_reply',
+  'form',
+  'login_prompt',
+  'visit',
+  'request_start_conversation',
+  'postback',
+  'feedback'
+]
+
 export default async (bp: typeof sdk, db: Database) => {
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
 
@@ -124,11 +135,7 @@ export default async (bp: typeof sdk, db: Database) => {
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (
-        !['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'].includes(
-          payload.type
-        )
-      ) {
+      if (!ALLOWED_MSG_TYPES.includes(payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
