@@ -577,6 +577,23 @@ declare module 'botpress/sdk' {
       readonly decision?: Suggestion
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
+      readonly ndu?: DialogUnderstanding
+    }
+
+    export interface DialogUnderstanding {
+      triggers: {
+        [trigid: string]: {
+          goal: string
+          result: any
+        }
+      }
+      /** List of actions that needs to be executed by the decision engine */
+      actions: NDUActions[]
+    }
+
+    export interface NDUActions {
+      action: 'send' | 'redirect' | 'continue'
+      data: any
     }
 
     export interface OutgoingEvent extends Event {
@@ -666,8 +683,14 @@ declare module 'botpress/sdk' {
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
+      lastGoals: GoalHistory[]
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
+    }
+
+    export interface GoalHistory {
+      topicName: string
+      goalName: string
     }
 
     export type StoredEvent = {
@@ -993,6 +1016,9 @@ declare module 'botpress/sdk' {
    */
   export interface Flow {
     name: string
+    /** Friendly name to display in the flow view */
+    label?: string
+    description?: string
     location?: string
     version?: string
     /** This is the home node. The user will be directed there when he enters the flow */
@@ -1007,6 +1033,75 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
+    triggers?: FlowTrigger[]
+  }
+
+  export interface FlowTrigger {
+    id: string
+    type: 'user-event'
+    conditions: FlowCondition[]
+  }
+
+  export interface FlowCondition {
+    id: string
+    params?: { [key: string]: any }
+  }
+
+  export interface Condition {
+    id: string
+    /** String displayed in the dropdown */
+    label: string
+    /** The description holds placeholders for param values so they can be displayed in the view */
+    description?: string
+    /** The definition of all parameters used by this condition */
+    params?: ConditionParams
+    /** The editor will use the custom component to provide the requested parameters */
+    editor?: {
+      module: string
+      component: string
+    }
+    evaluate: (params: any, event: any) => number
+  }
+
+  export interface ConditionParams {
+    [paramName: string]: {
+      label: string
+      /** Each type provides a different kind of editor */
+      type: 'string' | 'number' | 'boolean' | 'list'
+      required?: boolean
+      defaultValue?: any
+      /** When type is list, this variable must be configured */
+      list?: ConditionListOptions
+    }
+  }
+
+  export interface ConditionListOptions {
+    /** List of options displayed in the dropdown menu */
+    items?: Option[]
+    /**Alternatively, set an endpoint where the list will be queried (eg: intents) */
+    endpoint?: string
+    /** The path to the list of elements (eg: language.available) */
+    path?: string
+    /** Name of the field which will be used as the value */
+    valueField?: string
+    /** Friendly name displayed in the dropdown menu */
+    labelField?: string
+  }
+
+  export interface Option {
+    value: string
+    label: string
+  }
+
+  export interface Topic {
+    name: string
+    description: string
+  }
+
+  export interface Library {
+    elementPath: string
+    goalName: string
+    elementId: string
   }
 
   /**

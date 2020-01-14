@@ -25,6 +25,7 @@ declare global {
     UUID: string
     BP_STORAGE: BPStorage
     USE_SESSION_STORAGE: boolean
+    USE_ONEFLOW: boolean
     botpress: {
       [moduleName: string]: any
     }

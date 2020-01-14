@@ -23,6 +23,7 @@ import layout from './Layout.styl'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import BottomPanel from './StatusBar/BottomPanel'
+import OneFlow from '~/views/OneFlow'
 
 interface ILayoutProps {
   viewModeChanged: any
@@ -171,9 +172,14 @@ class Layout extends React.Component<ILayoutProps> {
             <div>
               <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
                 <Switch>
-                  <Route exact path="/" render={() => <Redirect to="/flows" />} />
+                  <Route
+                    exact
+                    path="/"
+                    render={() => (window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />)}
+                  />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
+                  <Route exact path="/oneflow/:flow*" component={OneFlow} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                   <Route exact path="/notifications" component={Notifications} />
                   <Route exact path="/logs" component={Logs} />

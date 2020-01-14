@@ -372,3 +372,19 @@ export const refreshIntents = () => dispatch => {
     dispatch(intentsReceived(data))
   })
 }
+
+export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
+export const refreshConditions = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/mod/ndu/conditions`).then(({ data }) => {
+    dispatch(conditionsReceived(data))
+  })
+}
+
+export const topicsReceived = createAction('TOPICS/RECEIVED')
+export const fetchTopics = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/mod/ndu/topics`).then(({ data }) => {
+    dispatch(topicsReceived(data))
+  })
+}

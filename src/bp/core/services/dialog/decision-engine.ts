@@ -36,7 +36,41 @@ export class DecisionEngine {
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
   private readonly MIN_NO_REPEAT = ms(process.env.BP_DECISION_MIN_NO_REPEAT || '20s')
 
+  private async processEventNDU(sessionId: string, event: IO.IncomingEvent) {
+    if (!event.ndu || !event.ndu.actions) {
+      return
+    }
+
+    for (const { action, data } of event.ndu.actions) {
+      if (action === 'send') {
+        await this._sendSuggestion(data, sessionId, event)
+      } else if (action === 'redirect') {
+        await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
+      }
+    }
+
+    const hasContinue = event.ndu.actions.find(x => x.action === 'continue')
+    if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && hasContinue) {
+      const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+
+      // In case there are no unknown errors, remove skills/ flow from the stacktrace
+      processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
+      this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
+
+      await this.stateManager.persist(processedEvent, false)
+      return
+    }
+
+    if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
+      await this.stateManager.persist(event, false)
+    }
+  }
+
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
+    if (event.ndu) {
+      return this.processEventNDU(sessionId, event)
+    }
+
     const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
     if (!event.suggestions) {
       Object.assign(event, { suggestions: [] })
