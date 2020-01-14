@@ -219,17 +219,8 @@ const doDeleteFlow = ({ name, flowsByName }) => {
   return doRenameFlow({ currentName: name, newName: '', flows })
 }
 
-const doCreateNewFlow = name => ({
-  version: '0.1',
-  name: name,
-  location: name,
-  label: undefined,
-  description: '',
-  startNode: 'entry',
-  catchAll: {},
-  links: [],
-  triggers: [],
-  nodes: [
+const doCreateNewFlow = name => {
+  const nodes = [
     {
       id: prettyId(),
       name: 'entry',
@@ -238,27 +229,45 @@ const doCreateNewFlow = name => ({
       next: [],
       x: 100,
       y: 100
-    },
-    {
-      id: prettyId(),
-      name: 'success',
-      onEnter: ['endGoal {"success":"true"}'],
-      onReceive: null,
-      next: [],
-      x: 1000,
-      y: 100
-    },
-    {
-      id: prettyId(),
-      name: 'failure',
-      onEnter: ['endGoal {"success":"false"}'],
-      onReceive: null,
-      next: [],
-      x: 1000,
-      y: 200
     }
   ]
-})
+
+  if (window.USE_ONEFLOW) {
+    nodes.push(
+      {
+        id: prettyId(),
+        name: 'success',
+        onEnter: ['ndu/endGoal {"success":"true"}'],
+        onReceive: null,
+        next: [],
+        x: 1000,
+        y: 100
+      },
+      {
+        id: prettyId(),
+        name: 'failure',
+        onEnter: ['ndu/endGoal {"success":"false"}'],
+        onReceive: null,
+        next: [],
+        x: 1000,
+        y: 200
+      }
+    )
+  }
+
+  return {
+    version: '0.1',
+    name: name,
+    location: name,
+    label: undefined,
+    description: '',
+    startNode: 'entry',
+    catchAll: {},
+    links: [],
+    triggers: [],
+    nodes
+  }
+}
 
 function isActualCreate(state, modification): boolean {
   return !_.keys(state.flowsByName).includes(modification.name)

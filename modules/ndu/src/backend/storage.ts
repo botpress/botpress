@@ -10,7 +10,12 @@ export default class Storage {
   }
 
   async getTopics() {
-    return this.bp.ghost.forBot(this.botId).readFileAsObject('ndu', 'topics.json')
+    const ghost = this.bp.ghost.forBot(this.botId)
+    if (await ghost.fileExists('ndu', 'topics.json')) {
+      return ghost.readFileAsObject('ndu', 'topics.json')
+    }
+
+    return []
   }
 
   async saveTopics(topics: any) {
