@@ -238,6 +238,24 @@ const doCreateNewFlow = name => ({
       next: [],
       x: 100,
       y: 100
+    },
+    {
+      id: prettyId(),
+      name: 'success',
+      onEnter: ['endGoal {"success":"true"}'],
+      onReceive: null,
+      next: [],
+      x: 1000,
+      y: 100
+    },
+    {
+      id: prettyId(),
+      name: 'failure',
+      onEnter: ['endGoal {"success":"false"}'],
+      onReceive: null,
+      next: [],
+      x: 1000,
+      y: 200
     }
   ]
 })

@@ -46,6 +46,7 @@ export class DecisionEngine {
         await this._sendSuggestion(data, sessionId, event)
       } else if (action === 'redirect') {
         await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
+        event.state.session.currentGoalId = event.id
       }
     }
 
@@ -62,6 +63,7 @@ export class DecisionEngine {
     }
 
     if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
+      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
       await this.stateManager.persist(event, false)
     }
   }
