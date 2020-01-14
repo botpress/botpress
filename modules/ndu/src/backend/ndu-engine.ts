@@ -63,7 +63,7 @@ export class UnderstandingEngine {
     const completedTriggers = this._getGoalsWithCompletedTriggers(event)
     if (completedTriggers.length && !isInMiddleOfFlow) {
       const [topic] = completedTriggers[0].split('/')
-      event.state.session.nluContexts = [{ context: topic, ttl: 5 }]
+      event.state.session.nluContexts = [{ context: 'global', ttl: 5 }, { context: topic, ttl: 5 }]
       actions.push({ action: 'redirect', data: { flow: completedTriggers[0] } })
       actions.push({ action: 'continue' })
     }

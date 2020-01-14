@@ -29,6 +29,8 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   delete bots[botId]
 }
 
+const botTemplates: sdk.BotTemplate[] = [{ id: 'oneflow', name: 'Test bot', desc: `Test bot` }]
+
 const onFlowChanged = async (bp: typeof sdk, botId: string, flow: sdk.Flow) => {
   await nduEngine.invalidateGoals(botId)
 }
@@ -39,9 +41,10 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onFlowChanged,
+  botTemplates,
   definition: {
     name: 'ndu',
-    menuIcon: 'none',
+    menuIcon: 'diagram-tree',
     menuText: 'NDU',
     noInterface: false,
     fullName: 'NDU',
