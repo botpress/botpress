@@ -255,10 +255,6 @@ export default class Storage {
       _.each(await this.getIntents(), intent => {
         let modified = false
         _.each(intent.slots, slot => {
-          if (slot.entity === oldEntity.name) {
-            slot.entity = entity.name
-            modified = true
-          }
           _.forEach(slot.entities, (e, index, arr) => {
             if (e === oldEntity.name) {
               arr[index] = entity.name
