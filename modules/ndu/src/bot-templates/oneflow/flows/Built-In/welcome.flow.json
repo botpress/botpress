@@ -19,6 +19,14 @@
       "onReceive": null,
       "next": [],
       "type": "success"
+    },
+    {
+      "id": "fkaj82kd9k",
+      "name": "failure",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "failure"
     }
   ]
 }

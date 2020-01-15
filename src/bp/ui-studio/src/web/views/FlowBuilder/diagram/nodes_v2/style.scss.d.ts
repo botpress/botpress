@@ -8,6 +8,7 @@ interface CssExports {
   'in': string;
   'item': string;
   'nodeExecute': string;
+  'nodeFailure': string;
   'nodeListen': string;
   'nodeRouter': string;
   'nodeSaySomething': string;
