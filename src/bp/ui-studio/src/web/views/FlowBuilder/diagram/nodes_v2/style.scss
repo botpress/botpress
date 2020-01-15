@@ -83,6 +83,13 @@
   }
 }
 
+.nodeSuccess {
+  .header {
+    background: #3bcf00;
+    color: #000000;
+  }
+}
+
 .section-next .item :global(.port) {
   background: rgba(0, 0, 0, 0.2);
 
