@@ -10,6 +10,7 @@ import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
+import { SuccessNodeModel } from './nodes_v2/SuccessNode'
 
 const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill']
 export const DIAGRAM_PADDING: number = 100
@@ -40,6 +41,8 @@ const createNodeModel = (node, modelProps) => {
     return new ListenNodeModel(modelProps)
   } else if (type === 'router') {
     return new RouterNodeModel(modelProps)
+  } else if (type === 'success') {
+    return new SuccessNodeModel(modelProps)
   } else {
     return new StandardNodeModel(modelProps)
   }
