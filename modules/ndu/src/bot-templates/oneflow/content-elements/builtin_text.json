@@ -8,5 +8,15 @@
     "createdBy": "admin",
     "createdOn": "2019-09-03T18:58:10.702Z",
     "modifiedOn": "2019-09-03T18:58:10.702Z"
+  },
+  {
+    "id": "builtin_text-feedback",
+    "formData": {
+      "text$en": "Was that helpful?",
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2019-09-03T18:58:10.702Z",
+    "modifiedOn": "2019-09-03T18:58:10.702Z"
   }
 ]
