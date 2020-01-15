@@ -11,7 +11,7 @@ import { getTrainingSession } from './engine2/train-session-service'
 import { EntityDefCreateSchema } from './entities'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
-import { IntentDefCreateSchema } from './validation'
+import { IntentDefCreateSchema, PredictSchema } from './validation'
 
 const SYNC_INTERVAL_MS = ms('5s')
 const USE_E1 = yn(process.env.USE_LEGACY_NLU)
@@ -89,14 +89,35 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.send(session)
   })
 
+  router.post('/predict', async (req, res) => {
+    const { botId } = req.params
+    const { error, value } = PredictSchema.validate(req.body)
+    if (error) {
+      return res.status(400).send('Predict body is invalid')
+    }
+    if (!state.nluByBot[botId]) {
+      return res.status(404).send(`Bot ${botId} doesn't exist`)
+    }
+
+    try {
+      const nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts)
+      res.send({ nlu })
+    } catch (err) {
+      res.status(500).send('Could not extract nlu data')
+    }
+  })
+
+  // TODO move this in intent router
   router.get('/intents', async (req, res) => {
     res.send(await (state.nluByBot[req.params.botId].engine1 as ScopedEngine).storage.getIntents())
   })
 
+  // TODO move this in intent router
   router.get('/intents/:intent', async (req, res) => {
     res.send(await (state.nluByBot[req.params.botId].engine1 as ScopedEngine).storage.getIntent(req.params.intent))
   })
 
+  // TODO move this in intent router
   router.post('/intents/:intent/delete', async (req, res) => {
     const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
 
@@ -106,6 +127,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.sendStatus(204)
   })
 
+  // TODO move this in intent router
   router.post('/intents', async (req, res) => {
     try {
       const intentDef = await validate(req.body, IntentDefCreateSchema, {
@@ -123,6 +145,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  // TODO move this in intent router
   router.post('/intents/:intentName', async (req, res) => {
     const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
     await botEngine.storage.updateIntent(req.params.intentName, req.body)
@@ -185,6 +208,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.sendStatus(204)
   })
 
+  // TODO move this in intent router
   router.get('/ml-recommendations', async (req, res) => {
     const engine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
     res.send(engine.getMLRecommendations())
