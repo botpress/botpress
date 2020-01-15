@@ -131,19 +131,15 @@ export default class WebchatApi {
     }
   }
 
-  async sendFeedback(rating: number, convoId: number): Promise<void> {
+  async sendFeedback(rating: number, eventId: number): Promise<void> {
     try {
-      const authToken = undefined // Is this an authenticated route?
       const externalRouteConfig = {
-        baseURL: `${window.location.origin}${window.BOT_API_PATH}/mod/extensions`,
-        headers: {
-          ExternalAuth: `Bearer ${authToken}`,
-          'X-BP-ExternalAuth': `Bearer ${authToken}`
-        }
+        ...this.axiosConfig,
+        baseURL: `${window.location.origin}${window.BOT_API_PATH}/mod/extensions`
       }
 
       const data = { rating }
-      return this.axios.post(`/feedback/conversations/${convoId}`, data, externalRouteConfig)
+      return this.axios.post(`/events/feedback/${eventId}`, data, externalRouteConfig)
     } catch (err) {
       await this.handleApiError(err)
     }
