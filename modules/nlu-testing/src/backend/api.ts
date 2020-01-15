@@ -154,8 +154,8 @@ export default async (bp: typeof sdk) => {
     const tests = await getAllTests(req.params.botId)
     try {
       const csv = results2CSV(tests, req.body.results)
-      fs.writeFileSync(targetPath, csv)
-      // TODO prepend` summary & date1
+      const fileHeader = `# Last Run: ${new Date().toString()}\r\n`
+      fs.writeFileSync(targetPath, fileHeader + csv)
       res.sendStatus(200)
     } catch (err) {
       console.log(err)
