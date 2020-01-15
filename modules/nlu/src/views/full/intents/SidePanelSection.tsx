@@ -59,7 +59,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
     }
 
     await props.api.createIntent(intentDef)
-    await props.reloadIntents()
+    props.reloadIntents()
     props.setCurrentItem({ name: sanitizedName, type: 'intent' })
   }
 
