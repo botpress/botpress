@@ -11,6 +11,14 @@
       "onEnter": [],
       "onReceive": null,
       "next": []
+    },
+    {
+      "id": "103fskd8c0",
+      "name": "success",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "success"
     }
   ]
 }
