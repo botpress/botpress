@@ -364,7 +364,7 @@ let reducer = handleActions(
     [receiveFlows]: (state, { payload }) => {
       const flows = _.keys(payload).filter(key => !payload[key].skillData)
       const newFlow = _.keys(payload).includes('Built-In/welcome.flow.json') && 'Built-In/welcome.flow.json'
-      const defaultFlow = newFlow || _.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows)
+      const defaultFlow = newFlow || (_.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows))
 
       const newState = {
         ...state,
