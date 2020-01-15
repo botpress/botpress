@@ -49,6 +49,7 @@ import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidg
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
 import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
+import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
@@ -78,6 +79,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     // This reference allows us to update flow nodes from widgets
@@ -276,8 +278,9 @@ class Diagram extends Component<Props> {
 
     const isStartNode = targetName === this.props.currentFlow.startNode
     const isSuccessNode = targetModel instanceof SuccessNodeModel
-    const canDeleteNode = !(isStartNode || isSuccessNode)
-    const canMakeStartNode = !(isStartNode || isSuccessNode)
+    const isFailureNode = targetModel instanceof FailureNodeModel
+    const canDeleteNode = !(isStartNode || isSuccessNode || isFailureNode)
+    const canMakeStartNode = !(isStartNode || isSuccessNode || isFailureNode)
 
     // Prevents displaying an empty menu
     if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
@@ -441,6 +444,8 @@ class Diagram extends Component<Props> {
           return alert("You can't delete the start node.")
         } else if (element.type === 'success') {
           return alert("You can't delete the success node.")
+        } else if (element.type === 'failure') {
+          return alert("You can't delete the failure node.")
         } else if (
           // @ts-ignore
           _.includes(nodeTypes, element.nodeType) ||
