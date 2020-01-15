@@ -7,9 +7,9 @@ import { Document, Editor as CoreEditor, MarkJSON, Node, Range, Selection, Value
 import { Editor, EditorProps, RenderBlockProps, RenderMarkProps } from 'slate-react'
 import PlaceholderPlugin from 'slate-react-placeholder'
 
+import { TagSlotPopover } from './slots/SlotPopover'
 import style from './style.scss'
 import { makeSlotMark, utterancesToValue, valueToUtterances } from './utterances-state-utils'
-import { TagSlotPopover } from './SlotPopover'
 
 const plugins = [
   PlaceholderPlugin({
