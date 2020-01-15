@@ -1,16 +1,35 @@
 {
   "version": "0.0.1",
   "catchAll": {},
-  "startNode": "entry",
+  "startNode": "choice-b71567",
   "label": "Feedback",
   "description": "Users are redirected here at the end of a goal when they need to provide feedback",
   "nodes": [
     {
-      "id": "abcd1234",
-      "name": "entry",
-      "onEnter": ["say #!builtin_text-feedback"],
-      "onReceive": null,
-      "next": []
+      "id": "skill-b71567",
+      "type": "skill-call",
+      "skill": "choice",
+      "name": "choice-b71567",
+      "flow": "skills/choice-b71567.flow.json",
+      "next": [
+        {
+          "caption": "User picked [yes]",
+          "condition": "temp['skill-choice-ret-k0tqq3ze5d'] == \"yes\"",
+          "node": ""
+        },
+        {
+          "caption": "User picked [no]",
+          "condition": "temp['skill-choice-ret-k0tqq3ze5d'] == \"no\"",
+          "node": ""
+        },
+        {
+          "caption": "On failure",
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": null,
+      "onReceive": null
     }
   ]
 }
