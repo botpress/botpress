@@ -34,7 +34,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return next(new Error('Unsupported event type: ' + event.type))
     }
 
-    const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt', 'feedback']
+    const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt']
 
     if (!event.payload.type) {
       event.payload.type = messageType
