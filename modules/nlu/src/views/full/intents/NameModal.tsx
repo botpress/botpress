@@ -14,8 +14,8 @@ interface Props {
 
 const sanitizeName = (text: string) =>
   text
-    .toLowerCase()
     .replace(/\s|\t|\n/g, '-')
+    .toLowerCase()
     .replace(/[^a-z0-9-_.]/g, '')
 
 const NameModal: FC<Props> = props => {
@@ -50,7 +50,7 @@ const NameModal: FC<Props> = props => {
         <div className={Classes.DIALOG_BODY}>
           <FormGroup label="Intent Name">
             <InputGroup
-              id="input-name"
+              id="input-intent-name"
               tabIndex={1}
               placeholder="Choose a name for your intent"
               required={true}
