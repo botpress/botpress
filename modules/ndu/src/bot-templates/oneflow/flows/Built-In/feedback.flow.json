@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "label": "Feedback",
+  "description": "Users are redirected here at the end of a goal when they need to provide feedback",
+  "nodes": [
+    {
+      "id": "abcd1234",
+      "name": "entry",
+      "onEnter": ["say #!builtin_text-feedback"],
+      "onReceive": null,
+      "next": []
+    }
+  ]
+}
