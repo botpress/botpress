@@ -3,7 +3,7 @@ const axios = require('axios')
 async function execute() {
   const redirectAction = event.ndu.actions.find(x => x.action === 'redirect')
 
-  const { nduResult, currentGoalId } = event.state.session
+  const { goalSuccess, currentGoalId } = event.state.session
 
   const obj = {
     text: event.preview,
@@ -13,16 +13,19 @@ async function execute() {
     nextGoal: redirectAction && redirectAction.data.flow,
     triggers: event.ndu.triggers,
     // actions: event.ndu.actions,
-    result: nduResult
+    result: goalSuccess
   }
 
   const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
   await axios.post('/mod/ndu/logEvent', obj, axiosConfig)
 
-  if (nduResult) {
-    delete event.state.session.nduResult
-    delete event.state.session.currentGoalId
-  }
+  await event.state.session.lastGoals
+    .filter(x => x.ended)
+    .forEach(async goal => {
+      // Update feedback for event
+      delete goal.ended
+      delete goal.success
+    })
 }
 
 return execute()

@@ -36,8 +36,6 @@ export class DialogEngine {
     const currentFlow = this._findFlow(botId, context.currentFlow)
     const currentNode = this._findNode(botId, currentFlow, context.currentNode)
 
-    this._saveLastGoal(event, context.currentFlow)
-
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
     if (_.get(currentNode, 'type') === 'skill-call' && !this._exitingSubflow(event)) {
@@ -54,6 +52,16 @@ export class DialogEngine {
       context.hasJumped = false
     } else {
       queue = queueBuilder.build()
+    }
+
+    if (_.get(currentNode, 'type') === 'success') {
+      const goal = event.state.session.lastGoals.find(x => x.goal === context.currentFlow)
+      goal && (goal.success = true)
+
+      queue.instructions = [
+        ...queue.instructions,
+        { type: 'transition', fn: 'true', node: 'Built-In/feedback.flow.json' }
+      ]
     }
 
     const instruction = queue.dequeue()
@@ -94,8 +102,8 @@ export class DialogEngine {
           }
 
           const { onErrorFlowTo } = event.state.temp
-          const errorFlow =
-            typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+          const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
+          const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
 
           return this._transition(sessionId, event, errorFlow)
         })
@@ -211,6 +219,9 @@ export class DialogEngine {
     }
 
     if (transitionTo.includes('.flow.json')) {
+      const goal = event.state.session.lastGoals.find(x => x.goal === context.currentFlow)
+      goal && (goal.ended = true)
+
       // Transition to other flow
       const flow = this._findFlow(event.botId, transitionTo)
       const startNode = this._findNode(event.botId, flow, flow.startNode)
@@ -377,19 +388,6 @@ export class DialogEngine {
       throw new FlowError(`Node not found.`, botId, flow.name, nodeName)
     }
     return node
-  }
-
-  private _saveLastGoal(event: IO.IncomingEvent, flowName) {
-    const [topic, goal] = flowName.split('/')
-    const { lastGoals } = event.state.session
-
-    // there is a topic
-    if (goal !== undefined) {
-      const last = lastGoals[lastGoals.length - 1]
-      if (!last || last.goalName !== goal) {
-        event.state.session.lastGoals.push({ topicName: topic, goalName: goal })
-      }
-    }
   }
 
   private _reportProcessingError(botId, error, event, instruction) {

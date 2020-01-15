@@ -46,7 +46,14 @@ export class DecisionEngine {
         await this._sendSuggestion(data, sessionId, event)
       } else if (action === 'redirect') {
         await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
-        event.state.session.currentGoalId = event.id
+
+        event.state.session.lastGoals = [
+          {
+            goal: data.flow,
+            eventId: event.id
+          },
+          ...(event.state.session.lastGoals || [])
+        ]
       }
     }
 
