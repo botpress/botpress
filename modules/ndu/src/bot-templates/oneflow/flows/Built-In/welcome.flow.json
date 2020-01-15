@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "label": "Welcome",
+  "description": "Initial entry point for new users",
+  "nodes": [
+    {
+      "id": "023dd18f01",
+      "name": "entry",
+      "onEnter": [],
+      "onReceive": null,
+      "next": []
+    }
+  ]
+}

@@ -8,7 +8,7 @@ import style from '../style.scss'
 const folderLabel = (folder, actions) => {
   const createGoal = e => {
     e.stopPropagation()
-    actions.createGoal()
+    actions.createGoal(folder)
   }
 
   const editTopic = e => {

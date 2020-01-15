@@ -154,7 +154,7 @@ interface Props {
   deleteFlow: Function
   exportGoal: Function
 
-  createGoal: () => void
+  createGoal: (topicId: string) => void
   editGoal: (goalId: any, data: any) => void
   editTopic: (topicName: string) => void
 }

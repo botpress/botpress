@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "label": "Error handling",
+  "description": "Users are redirected here when they encounter errors during their discussions",
+  "nodes": [
+    {
+      "id": "3rr0r",
+      "name": "entry",
+      "onEnter": ["say #!builtin_text-error"],
+      "onReceive": null,
+      "next": []
+    }
+  ]
+}

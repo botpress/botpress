@@ -94,9 +94,10 @@ const SidePanelContent: FC<Props> = props => {
     setGoalModalOpen(!goalModalOpen)
   }
 
-  const createGoal = () => {
+  const createGoal = (topicName: string) => {
+    setSelectedTopic(topicName)
     setSelectedGoal('')
-    setGoalModalOpen(!goalModalOpen)
+    setGoalModalOpen(true)
   }
 
   const updateTopics = async (topics: Topic[]) => {
@@ -167,6 +168,7 @@ const SidePanelContent: FC<Props> = props => {
         isOpen={goalModalOpen}
         toggle={() => setGoalModalOpen(!goalModalOpen)}
         selectedGoal={selectedGoal}
+        selectedTopic={selectedTopic}
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}
       />

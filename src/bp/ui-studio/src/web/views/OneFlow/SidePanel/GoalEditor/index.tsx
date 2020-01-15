@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import { renameFlow, updateFlow } from '~/actions'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 import { getCurrentFlow } from '~/reducers'
+import { sanitizeName } from '~/util'
 
 import style from '../style.scss'
 
@@ -16,7 +17,7 @@ interface OwnProps {
   selectedGoal?: string
   readOnly: boolean
   canRename: boolean
-
+  selectedTopic?: string
   toggle: () => void
 }
 
@@ -31,12 +32,6 @@ interface DispatchProps {
 }
 
 type Props = StateProps & DispatchProps & OwnProps
-
-export const sanitizeName = (text: string) =>
-  text
-    .replace(/\s/g, '-')
-    .replace(/[^a-zA-Z0-9\/_-]/g, '')
-    .replace(/\/\//, '/')
 
 const EditGoalModal: FC<Props> = props => {
   const [tab, setTab] = useState('overview')
@@ -56,6 +51,11 @@ const EditGoalModal: FC<Props> = props => {
       setLabel(label)
       setDescription(description)
       setTriggers(triggers)
+    } else {
+      setName(props.selectedTopic ? props.selectedTopic + '/' : '')
+      setLabel('')
+      setDescription('')
+      setTriggers([])
     }
   }, [props.isOpen])
 
