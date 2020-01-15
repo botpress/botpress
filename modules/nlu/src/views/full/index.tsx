@@ -73,8 +73,8 @@ const NLU: FC<Props> = props => {
     return isSame || (areDefined && item.name === otherItem.name && item.type === otherItem.type)
   }
 
-  const updateEntity = entity => {
-    api.updateEntity(entity)
+  const updateEntity = (targetEntity: string, entity) => {
+    api.updateEntity(targetEntity, entity)
     const i = entities.findIndex(ent => ent.id == entity.id)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }

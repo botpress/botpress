@@ -233,9 +233,40 @@ export default class Storage {
     })
   }
 
+  async getCustomEntity(name: string): Promise<sdk.NLU.EntityDefinition> {
+    const entities = await this.getCustomEntities()
+    return entities.find(e => e.name === name)
+  }
+
   async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
     const obj = _.omit(entity, ['id'])
     return this.botGhost.upsertFile(this.entitiesDir, `${entity.id}.json`, JSON.stringify(obj, undefined, 2))
+  }
+
+  async updateEntity(targetEntityId: string, entity: sdk.NLU.EntityDefinition) {
+    const entities = await this.getCustomEntities()
+    const oldEntity = entities.find(e => e.id === targetEntityId)
+    const obj = _.omit(entity, ['id'])
+
+    await this.botGhost.upsertFile(this.entitiesDir, `${entity.id}.json`, JSON.stringify(obj, undefined, 2))
+
+    if (oldEntity && oldEntity.name !== entity.name) {
+      this.botGhost.deleteFile(this.entitiesDir, `${targetEntityId}.json`)
+      _.each(await this.getIntents(), intent => {
+        let modified = false
+        _.each(intent.slots, slot => {
+          _.forEach(slot.entities, (e, index, arr) => {
+            if (e === oldEntity.name) {
+              arr[index] = entity.name
+              modified = true
+            }
+          })
+        })
+        if (modified) {
+          this.updateIntent(intent.name, intent)
+        }
+      })
+    }
   }
 
   async deleteEntity(entityId: string): Promise<void> {
