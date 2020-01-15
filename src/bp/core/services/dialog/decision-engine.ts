@@ -55,7 +55,6 @@ export class DecisionEngine {
           ...(event.state.session.lastGoals || [])
         ]
       }
-      // if action is 'feedback' queue up transition to feedback flow
     }
 
     const hasContinue = event.ndu.actions.find(x => x.action === 'continue')
