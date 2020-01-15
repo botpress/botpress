@@ -41,20 +41,23 @@ const alterReference = async () => {
 
   fs.writeFileSync(path.join(__dirname, '../docs/reference/public/modules/_botpress_sdk_.html'), newFile)
 
+  const hrefsToReplace = ['../enums', '../classes', '../interfaces']
   $('a').map(function () {
     const href = $(this).attr('href')
-    if (href && href.startsWith('_botpress_sdk')) {
+    if (!href) {
+      return;
+    }
+
+    if (href.startsWith('_botpress_sdk')) {
       $(this).attr('href', 'modules/' + href)
     }
 
-
-    const hrefsToReplace = ['../enums', '../classes', '../interfaces']
-    if (href && hrefsToReplace.find(x => href.startsWith(x))) {
-      $(this).attr('href', href.replace('../', '/reference/'))
+    if (hrefsToReplace.find(x => href.startsWith(x))) {
+      $(this).attr('href', href.replace('../', ''))
     }
   })
 
-  const fixedContentPaths = $.html().replace('../assets/', 'assets/').replace('../globals.html', '/reference/globals.html')
+  const fixedContentPaths = $.html().replace('../assets/', 'assets/').replace(/\.\.\/globals.html/g, 'globals.html')
   fs.writeFileSync(path.join(__dirname, '../docs/reference/public/index.html'), fixedContentPaths)
 }
 
