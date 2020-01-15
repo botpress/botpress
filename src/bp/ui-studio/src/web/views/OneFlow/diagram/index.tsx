@@ -52,7 +52,7 @@ import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diag
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
-import { SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
+import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
 class Diagram extends Component<Props> {
@@ -269,15 +269,15 @@ class Diagram extends Component<Props> {
     const targetName = _.get(target, 'model.name')
     const point = this.manager.getRealPosition(event)
 
-    const canMakeStartNode = () => {
-      const current = this.props.currentFlow && this.props.currentFlow.startNode
-      return current && targetName && current !== targetName
-    }
-
     const setAsCurrentNode = () => this.props.updateFlow({ startNode: targetName })
-    const isStartNode = targetName === this.props.currentFlow.startNode
+
     const isNodeTargeted = targetModel instanceof NodeModel
     const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
+
+    const isStartNode = targetName === this.props.currentFlow.startNode
+    const isSuccessNode = targetModel instanceof SuccessNodeModel
+    const canDeleteNode = !(isStartNode || isSuccessNode)
+    const canMakeStartNode = !(isStartNode || isSuccessNode)
 
     // Prevents displaying an empty menu
     if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
@@ -297,7 +297,12 @@ class Diagram extends Component<Props> {
         )}
         {isNodeTargeted && (
           <Fragment>
-            <MenuItem icon="trash" text="Delete" disabled={isStartNode} onClick={() => this.deleteSelectedElements()} />
+            <MenuItem
+              icon="trash"
+              text="Delete"
+              disabled={!canDeleteNode}
+              onClick={() => this.deleteSelectedElements()}
+            />
             <MenuItem
               icon="duplicate"
               text="Copy"
@@ -310,7 +315,7 @@ class Diagram extends Component<Props> {
             <MenuItem
               icon="star"
               text="Set as Start Node"
-              disabled={!canMakeStartNode()}
+              disabled={!canMakeStartNode}
               onClick={() => setAsCurrentNode()}
             />
             <MenuItem
@@ -434,6 +439,8 @@ class Diagram extends Component<Props> {
       if (!this.diagramEngine.isModelLocked(element)) {
         if (element['isStartNode']) {
           return alert("You can't delete the start node.")
+        } else if (element.type === 'success') {
+          return alert("You can't delete the success node.")
         } else if (
           // @ts-ignore
           _.includes(nodeTypes, element.nodeType) ||
