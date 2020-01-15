@@ -114,11 +114,7 @@ export default async (bp: typeof sdk) => {
     try {
       const {
         data: { nlu }
-      } = await Axios.post(
-        '/converse/nlutesting/secured?include=nlu',
-        { type: 'text', text: test.utterance, includedContexts: [test.context] },
-        axiosConfig
-      )
+      } = await Axios.post('mod/nlu/predict', { text: test.utterance, contexts: [test.context] }, axiosConfig)
 
       const details = test.conditions.map(c => conditionMatch(nlu, c))
       const result = {
