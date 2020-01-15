@@ -18,10 +18,10 @@ interface Props {
 }
 
 export const IntentSidePanelSection: FC<Props> = props => {
+  const [intentsFilter, setIntentsFilter] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [intentName, setIntentName] = useState()
   const [intentAction, setIntentAction] = useState<any>('create')
-  const [intentsFilter, setIntentsFilter] = useState('')
 
   const createIntent = () => {
     setIntentAction('create')
