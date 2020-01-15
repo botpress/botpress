@@ -5,10 +5,10 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
-import { IntentEditor } from '../lite/intentEditor/IntentEditor'
 
 import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
+import { IntentEditor } from './intents/FullEditor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
 
@@ -158,4 +158,4 @@ const NLU: FC<Props> = props => {
 
 export default NLU
 
-export { LiteEditor } from './LiteEditor'
+export { LiteEditor } from './intents/LiteEditor'
