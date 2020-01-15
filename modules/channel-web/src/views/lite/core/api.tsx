@@ -131,6 +131,24 @@ export default class WebchatApi {
     }
   }
 
+  async sendFeedback(rating: number, convoId: number): Promise<void> {
+    try {
+      const authToken = undefined // Is this an authenticated route?
+      const externalRouteConfig = {
+        baseURL: `${window.location.origin}${window.BOT_API_PATH}/mod/extensions`,
+        headers: {
+          ExternalAuth: `Bearer ${authToken}`,
+          'X-BP-ExternalAuth': `Bearer ${authToken}`
+        }
+      }
+
+      const data = { rating }
+      return this.axios.post(`/feedback/conversations/${convoId}`, data, externalRouteConfig)
+    } catch (err) {
+      await this.handleApiError(err)
+    }
+  }
+
   async uploadFile(data: any, convoId: number): Promise<void> {
     try {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }

@@ -5,6 +5,7 @@ import React from 'react'
 import { RootStore, StoreDef } from '../../store'
 import { Message as MessageDetails } from '../../typings'
 
+import { FeedbackWrapper } from './FeedbackWrapper'
 import Message from './Message'
 
 class MessageGroup extends React.Component<Props> {
@@ -55,39 +56,41 @@ class MessageGroup extends React.Component<Props> {
     }
 
     return (
-      <div
-        className={classnames('bpw-message-big-container', {
-          'bpw-from-user': !this.props.isBot,
-          'bpw-from-bot': this.props.isBot
-        })}
-      >
-        {this.props.avatar}
-        <div className={'bpw-message-container'}>
-          {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
-          <div className={'bpw-message-group'}>
-            {this.props.messages.map((data, i) => {
-              return (
-                <Message
-                  key={`msg-${i}`}
-                  isHighlighted={
-                    this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId)
-                  }
-                  isLastOfGroup={i >= this.props.messages.length - 1}
-                  isLastGroup={this.props.isLastGroup}
-                  isBotMessage={!data.userId}
-                  incomingEventId={data.incomingEventId}
-                  payload={this.convertPayloadFromOldFormat(data)}
-                  sentOn={data.sent_on}
-                  onSendData={this.props.onSendData}
-                  onFileUpload={this.props.onFileUpload}
-                  bp={this.props.bp}
-                  store={this.props.store}
-                />
-              )
-            })}
+      <FeedbackWrapper show={this.props.isBot && this.props.isFeedback} onFeedback={this.props.onFeedback}>
+        <div
+          className={classnames('bpw-message-big-container', {
+            'bpw-from-user': !this.props.isBot,
+            'bpw-from-bot': this.props.isBot
+          })}
+        >
+          {this.props.avatar}
+          <div className={'bpw-message-container'}>
+            {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
+            <div className={'bpw-message-group'}>
+              {this.props.messages.map((data, i) => {
+                return (
+                  <Message
+                    key={`msg-${i}`}
+                    isHighlighted={
+                      this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId)
+                    }
+                    isLastOfGroup={i >= this.props.messages.length - 1}
+                    isLastGroup={this.props.isLastGroup}
+                    isBotMessage={!data.userId}
+                    incomingEventId={data.incomingEventId}
+                    payload={this.convertPayloadFromOldFormat(data)}
+                    sentOn={data.sent_on}
+                    onSendData={this.props.onSendData}
+                    onFileUpload={this.props.onFileUpload}
+                    bp={this.props.bp}
+                    store={this.props.store}
+                  />
+                )
+              })}
+            </div>
           </div>
         </div>
-      </div>
+      </FeedbackWrapper>
     )
   }
 }
@@ -95,6 +98,7 @@ class MessageGroup extends React.Component<Props> {
 export default inject(({ store }: { store: RootStore }) => ({
   store,
   bp: store.bp,
+  onFeedback: store.sendFeedback,
   onSendData: store.sendData,
   onFileUpload: store.uploadFile,
   messageWrapper: store.messageWrapper,
@@ -103,6 +107,7 @@ export default inject(({ store }: { store: RootStore }) => ({
 }))(MessageGroup)
 
 type Props = {
+  isFeedback: boolean
   isBot: boolean
   avatar: JSX.Element
   userName: string
@@ -110,6 +115,7 @@ type Props = {
   isLastGroup: boolean
   onFileUpload?: any
   onSendData?: any
+  onFeedback?: any
   store?: RootStore
   highlightedMessages?: string[]
 } & Pick<StoreDef, 'showUserName' | 'messageWrapper' | 'bp'>

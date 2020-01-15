@@ -156,6 +156,7 @@ class MessageList extends React.Component<MessageListProps, State> {
             <div key={i}>
               {isDateNeeded && this.renderDate(group[0].sent_on)}
               <MessageGroup
+                isFeedback={true}
                 isBot={!userId}
                 avatar={avatar}
                 userName={userName}
