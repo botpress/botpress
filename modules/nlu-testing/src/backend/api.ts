@@ -1,32 +1,16 @@
 import Axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import parse from 'csv-parse'
+import stringify from 'csv-stringify/lib/sync'
+import fs from 'fs'
 import Joi from 'joi'
 import _ from 'lodash'
 import multer from 'multer'
 import nanoid from 'nanoid'
+import path from 'path'
 
-type Condition = ['intent' | 'slot', 'is', string]
-
-export interface Test {
-  id: string
-  utterance: string
-  context: string
-  conditions: Condition[]
-}
-
-export interface TestResult {
-  success: boolean
-  reason?: string
-  expected: string
-  received: string | undefined
-}
-
-interface CSVTest {
-  Context: string
-  Utterance: string
-  Intent: string
-}
+import { Condition, CSVTest, Test, TestResult } from '../shared/typings'
+import { computeSummary } from '../shared/utils'
 
 const TestsSchema = Joi.array().items(
   Joi.object({
@@ -159,6 +143,49 @@ export default async (bp: typeof sdk) => {
       }
     })
   })
+
+  router.post('/export', async (req, res) => {
+    // TODO add a little validation
+    const targetPath = isRunningFromSources()
+    if (!targetPath) {
+      return res.status(400).send('Not in a git repository`')
+    }
+
+    const tests = await getAllTests(req.params.botId)
+    try {
+      const csv = results2CSV(tests, req.body.results)
+      fs.writeFileSync(targetPath, csv)
+      res.sendStatus(200)
+    } catch (err) {
+      console.log(err)
+      res.sendStatus(500)
+    }
+  })
+}
+
+function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
+  const summary = computeSummary(tests, results)
+  const records = [
+    ['utterance', 'context', 'conditions', 'status', `date: ${new Date().toLocaleDateString()}`, `summary: ${summary}`],
+    ...tests.map(t => [
+      t.utterance,
+      t.context,
+      t.conditions.reduce((c, next) => `${c}-${next}`, ''),
+      _.get(results, `${t.id}.success`) ? 'pass' : 'fail'
+    ])
+  ]
+  return stringify(records)
+}
+
+function isRunningFromSources(): string | null {
+  try {
+    const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
+    const latestResultsPath = path.resolve(sourceDirectory, `./modules/nlu-testing/latest-results.csv`)
+    const exists = fs.existsSync(latestResultsPath)
+    return exists ? latestResultsPath : null
+  } catch {
+    return null
+  }
 }
 
 function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]): TestResult {
@@ -175,6 +202,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
     const slotName = key.split(':')[1]
     const received = _.get(nlu, `slots.${slotName}.source`, 'undefined')
     const success = received === expected
+
     return {
       success,
       reason: success ? '' : `Slot ${slotName} doesn't match. expected: ${expected} received: ${received}`,
