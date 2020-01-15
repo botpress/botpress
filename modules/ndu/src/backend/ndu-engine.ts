@@ -63,15 +63,7 @@ export class UnderstandingEngine {
     const completedTriggers = this._getGoalsWithCompletedTriggers(event)
     if (completedTriggers.length && !isInMiddleOfFlow) {
       const [topic] = completedTriggers[0].split('/')
-<<<<<<< HEAD
-      event.state.session.nluContexts = [{ context: topic, ttl: 5 }]
-
-      // todo: actions.push feedback
-      // queue up a "redirect to feedback instruction" in the dialog engine
-
-=======
       event.state.session.nluContexts = [{ context: 'global', ttl: 5 }, { context: topic, ttl: 5 }]
->>>>>>> 61019eaad7b88c7135cce20cc4a9572eb8cc8802
       actions.push({ action: 'redirect', data: { flow: completedTriggers[0] } })
       actions.push({ action: 'continue' })
     }

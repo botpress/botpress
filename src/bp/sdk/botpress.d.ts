@@ -689,8 +689,10 @@ declare module 'botpress/sdk' {
     }
 
     export interface GoalHistory {
-      topicName: string
-      goalName: string
+      goal: string
+      eventId: string
+      success?: boolean
+      ended?: boolean
     }
 
     export type StoredEvent = {

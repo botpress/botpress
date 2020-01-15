@@ -49,9 +49,11 @@ import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidg
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
 import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
+import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
+import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
 class Diagram extends Component<Props> {
@@ -76,6 +78,8 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     // This reference allows us to update flow nodes from widgets
@@ -267,15 +271,16 @@ class Diagram extends Component<Props> {
     const targetName = _.get(target, 'model.name')
     const point = this.manager.getRealPosition(event)
 
-    const canMakeStartNode = () => {
-      const current = this.props.currentFlow && this.props.currentFlow.startNode
-      return current && targetName && current !== targetName
-    }
-
     const setAsCurrentNode = () => this.props.updateFlow({ startNode: targetName })
-    const isStartNode = targetName === this.props.currentFlow.startNode
+
     const isNodeTargeted = targetModel instanceof NodeModel
     const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
+
+    const isStartNode = targetName === this.props.currentFlow.startNode
+    const isSuccessNode = targetModel instanceof SuccessNodeModel
+    const isFailureNode = targetModel instanceof FailureNodeModel
+    const canDeleteNode = !(isStartNode || isSuccessNode || isFailureNode)
+    const canMakeStartNode = !(isStartNode || isSuccessNode || isFailureNode)
 
     // Prevents displaying an empty menu
     if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
@@ -295,7 +300,12 @@ class Diagram extends Component<Props> {
         )}
         {isNodeTargeted && (
           <Fragment>
-            <MenuItem icon="trash" text="Delete" disabled={isStartNode} onClick={() => this.deleteSelectedElements()} />
+            <MenuItem
+              icon="trash"
+              text="Delete"
+              disabled={!canDeleteNode}
+              onClick={() => this.deleteSelectedElements()}
+            />
             <MenuItem
               icon="duplicate"
               text="Copy"
@@ -308,7 +318,7 @@ class Diagram extends Component<Props> {
             <MenuItem
               icon="star"
               text="Set as Start Node"
-              disabled={!canMakeStartNode()}
+              disabled={!canMakeStartNode}
               onClick={() => setAsCurrentNode()}
             />
             <MenuItem
@@ -432,6 +442,10 @@ class Diagram extends Component<Props> {
       if (!this.diagramEngine.isModelLocked(element)) {
         if (element['isStartNode']) {
           return alert("You can't delete the start node.")
+        } else if (element.type === 'success') {
+          return alert("You can't delete the success node.")
+        } else if (element.type === 'failure') {
+          return alert("You can't delete the failure node.")
         } else if (
           // @ts-ignore
           _.includes(nodeTypes, element.nodeType) ||
