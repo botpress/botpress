@@ -1,4 +1,4 @@
-utterance,context,conditions,status,1579034075758
+utterance,context,conditions,status,date: 1/15/2020,summary: 0.4145854145854146
 What is the contact number?,A,"-intent,is,a-contact-details",pass
 WHAT IS THE CONTACT NUMBER?,A,"-intent,is,a-contact-details",pass
 WHAT is THE contact NUMBER,A,"-intent,is,a-contact-details",pass
