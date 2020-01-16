@@ -8,7 +8,7 @@
  */
 const getGlobalVariable = async (name, output) => {
   const key = bp.kvs.getGlobalStorageKey(name)
-  const result = await bp.kvs.getStorageWithExpiry(event.botId, key)
+  const result = await bp.kvs.forBot(event.botId).getStorageWithExpiry(key)
 
   temp[output] = result
 }

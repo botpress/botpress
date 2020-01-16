@@ -11,8 +11,8 @@
  */
 const setVariable = async (type, name, value) => {
   if (type === 'bot') {
-    const original = await bp.kvs.get(event.botId, 'global')
-    await bp.kvs.set(event.botId, 'global', { ...original, [name]: value })
+    const original = await bp.kvs.forBot(event.botId).get('global')
+    await bp.kvs.forBot(event.botId).set('global', { ...original, [name]: value })
   } else if (value === 'null' || value === '' || typeof value === 'undefined') {
     delete event.state[type][name]
   } else {
