@@ -12,6 +12,7 @@ interface CssExports {
   'nodeListen': string;
   'nodeRouter': string;
   'nodeSaySomething': string;
+  'nodeSendFeedback': string;
   'nodeSuccess': string;
   'out': string;
   'ports': string;
