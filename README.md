@@ -40,7 +40,7 @@ You can download the binaries [here](https://botpress.io/download).
 
 ## Building from source
 
-**Prerequisites**: Node 10.11 (you can use [nvm](https://github.com/creationix/nvm)) and Yarn.
+**Prerequisites**: Node 10.11.0 (you can use [nvm](https://github.com/creationix/nvm)), TypeScript 3.7.4, and latest Yarn.
 
 1. Run `yarn` to fetch node packages.
 1. Run `yarn build` to build the core, the UI and the modules.
