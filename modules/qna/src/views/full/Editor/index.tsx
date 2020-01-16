@@ -318,7 +318,7 @@ export default class Editor extends Component<Props> {
 
                     <Select
                       className={classnames({ qnaCategoryError: invalidFields.redirectFlow })}
-                      tabIndex={-1}
+                      tabIndex="-1"
                       value={this.state.item.redirectFlow}
                       options={flowsList}
                       onChange={this.handleSelect('redirectFlow')}
@@ -329,7 +329,7 @@ export default class Editor extends Component<Props> {
 
                     <Select
                       className={classnames({ qnaCategoryError: invalidFields.redirectNode })}
-                      tabIndex={-1}
+                      tabIndex="-1"
                       value={this.state.item.redirectNode}
                       options={nodeList}
                       onChange={this.handleSelect('redirectNode')}
