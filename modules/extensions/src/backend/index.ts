@@ -20,11 +20,6 @@ const onServerReady = async (bp: typeof sdk) => {
 
     res.sendStatus(404)
   })
-
-  router.get('/events/feedback/:eventId', async (req, res) => {
-    console.log('Gotcha ' + req.params.eventId)
-    // What now?
-  })
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
