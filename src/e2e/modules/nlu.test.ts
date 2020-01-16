@@ -17,7 +17,7 @@ describe('Module - NLU', () => {
     await clickOn('#btn-add-intent')
     await fillField('#input-intent-name', 'hello_there')
 
-    await Promise.all([expectBotApiCallSuccess('mod/nlu/intents', 'POST'), clickOn('#intent-submit')])
+    await Promise.all([expectBotApiCallSuccess('mod/nlu/intents', 'POST'), clickOn('#btn-submit')])
   })
 
   it('Create new entity', async () => {
