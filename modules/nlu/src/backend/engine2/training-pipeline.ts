@@ -274,11 +274,13 @@ export const ProcessIntents = async (
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
   const utterances = _.flatMap(input.intents.map(i => i.utterances))
 
-  const allSysEntities = (await tools.duckling.extractMultiple(
-    utterances.map(u => u.toString()),
-    input.languageCode,
-    true
-  )).map(ents => ents.map(mapE1toE2Entity))
+  const allSysEntities = (
+    await tools.duckling.extractMultiple(
+      utterances.map(u => u.toString()),
+      input.languageCode,
+      true
+    )
+  ).map(ents => ents.map(mapE1toE2Entity))
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
