@@ -227,6 +227,7 @@ const doCreateNewFlow = name => {
       onEnter: [],
       onReceive: null,
       next: [],
+      type: 'standard',
       x: 100,
       y: 100
     }
@@ -237,18 +238,20 @@ const doCreateNewFlow = name => {
       {
         id: prettyId(),
         name: 'success',
-        onEnter: ['ndu/endGoal {"success":"true"}'],
+        onEnter: [],
         onReceive: null,
         next: [],
+        type: 'success',
         x: 1000,
         y: 100
       },
       {
         id: prettyId(),
         name: 'failure',
-        onEnter: ['ndu/endGoal {"success":"false"}'],
+        onEnter: [],
         onReceive: null,
         next: [],
+        type: 'failure',
         x: 1000,
         y: 200
       }
