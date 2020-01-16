@@ -32,6 +32,8 @@ interface Props {
   flows?: any[]
 }
 
+const DEFAULT_CATEGORY = { label: 'global', value: 'global' }
+
 export default class Editor extends Component<Props> {
   state = this.defaultState
 
@@ -43,7 +45,7 @@ export default class Editor extends Component<Props> {
         redirectFlow: '',
         redirectNode: '',
         action: ACTIONS.TEXT,
-        category: { label: 'global', value: 'global' },
+        category: DEFAULT_CATEGORY,
         enabled: true
       },
       invalidFields: {
@@ -71,13 +73,7 @@ export default class Editor extends Component<Props> {
     this.mlRecommendations = data
 
     if (!this.props.id) {
-      const defaultCategory = this.props.categories ? this.props.categories[0].value : 'global'
-
-      return this.setState(this.defaultState, () => {
-        if (defaultCategory !== 'global') {
-          this.changeItemProperty('category', defaultCategory)
-        }
-      })
+      return this.setState(this.defaultState)
     }
 
     const {

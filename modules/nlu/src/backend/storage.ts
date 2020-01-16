@@ -71,7 +71,7 @@ export default class Storage {
     const intentDef = await this.getIntent(intentName)
     const merged = _.merge(intentDef, content)
     if (content.name && content.name !== intentName) {
-      this.botGhost.deleteFile(this.intentsDir, `${intentName}.json`)
+      await this.botGhost.deleteFile(this.intentsDir, `${intentName}.json`)
       intentName = content.name
     }
     return this.saveIntent(intentName, merged)
@@ -251,8 +251,8 @@ export default class Storage {
     await this.botGhost.upsertFile(this.entitiesDir, `${entity.id}.json`, JSON.stringify(obj, undefined, 2))
 
     if (oldEntity && oldEntity.name !== entity.name) {
-      this.botGhost.deleteFile(this.entitiesDir, `${targetEntityId}.json`)
-      _.each(await this.getIntents(), intent => {
+      await this.botGhost.deleteFile(this.entitiesDir, `${targetEntityId}.json`)
+      _.each(await this.getIntents(), async intent => {
         let modified = false
         _.each(intent.slots, slot => {
           _.forEach(slot.entities, (e, index, arr) => {
@@ -263,7 +263,7 @@ export default class Storage {
           })
         })
         if (modified) {
-          this.updateIntent(intent.name, intent)
+          await this.updateIntent(intent.name, intent)
         }
       })
     }
