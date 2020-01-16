@@ -24,7 +24,7 @@ select VERSION in patch minor major "Specific Version"
         # Bump version
         yarn version --new-version $VERSION --no-git-tag-version
         NEW_VERSION=$(node -p "require('./package.json').version")
-        cd docs/guide/website && yarn $DOCS_VERSION_COMMAND $NEW_VERSION && cd ../../..
+        cd docs/guide/website && yarn && yarn $DOCS_VERSION_COMMAND $NEW_VERSION && cd ../../..
         
         # Update changelog from git history
         yarn cmd changelog
