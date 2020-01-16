@@ -49,6 +49,7 @@ const CreateTopicModal: FC<Props> = props => {
             id="input-flow-name"
             tabIndex={1}
             value={name}
+            maxLength={50}
             onChange={e => setName(sanitizeName(e.currentTarget.value))}
           />
         </FormGroup>
@@ -61,6 +62,7 @@ const CreateTopicModal: FC<Props> = props => {
             id="input-flow-name"
             tabIndex={1}
             value={goal}
+            maxLength={100}
             onChange={e => setGoal(sanitizeName(e.currentTarget.value))}
           />
         </FormGroup>

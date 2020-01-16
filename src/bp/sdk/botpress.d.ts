@@ -691,7 +691,6 @@ declare module 'botpress/sdk' {
       goal: string
       eventId: string
       success?: boolean
-      ended?: boolean
     }
 
     export type StoredEvent = {
@@ -701,6 +700,9 @@ declare module 'botpress/sdk' {
       /** Outgoing events will have the incoming event ID, if they were triggered by one */
       incomingEventId?: string
       sessionId: string
+      goalId?: string
+      feedback?: number
+      success?: boolean
       event: IO.Event
       createdOn: any
     } & EventDestination

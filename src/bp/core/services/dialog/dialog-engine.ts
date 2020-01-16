@@ -54,7 +54,7 @@ export class DialogEngine {
       queue = queueBuilder.build()
     }
 
-    if (_.get(currentNode, 'type') === 'success') {
+    if (currentNode?.type === 'success') {
       const goal = event.state.session.lastGoals.find(x => x.goal === context.currentFlow)
       goal && (goal.success = true)
 
@@ -62,14 +62,17 @@ export class DialogEngine {
         ...queue.instructions,
         { type: 'transition', fn: 'true', node: 'Built-In/feedback.flow.json' }
       ]
+
+    } else if (currentNode?.type === 'failure') {
+      const goal = event.state.session.lastGoals.find(x => x.goal === context.currentFlow)
+      goal && (goal.success = false)
     }
 
     const instruction = queue.dequeue()
     // End session if there are no more instructions in the queue
     if (!instruction) {
       this._debug(event.botId, event.target, 'ending flow')
-      event.state.context = {}
-      event.state.temp = {}
+      this._endFlow(event)
       return event
     }
 
@@ -87,7 +90,8 @@ export class DialogEngine {
       } else if (result.followUpAction === 'transition') {
         const destination = result.options!.transitionTo!
         if (!destination || !destination.length) {
-          this._debug(event.botId, event.target, 'ending flow, because no transition destination defined? (red port)')
+          this._debug(event.botId, event.target, 'ending flow, because no transition destination defined (red port)')
+          this._endFlow(event)
           return event
         }
         // We reset the queue when we transition to another node.
@@ -199,6 +203,11 @@ export class DialogEngine {
     return this.processEvent(sessionId, event)
   }
 
+  private _endFlow(event: IO.IncomingEvent) {
+    event.state.context = {}
+    event.state.temp = {}
+  }
+
   private initializeContext(event) {
     const defaultFlow = this._findFlow(event.botId, event.ndu ? 'Built-In/welcome.flow.json' : 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
@@ -219,9 +228,6 @@ export class DialogEngine {
     }
 
     if (transitionTo.includes('.flow.json')) {
-      const goal = event.state.session.lastGoals.find(x => x.goal === context.currentFlow)
-      goal && (goal.ended = true)
-
       // Transition to other flow
       const flow = this._findFlow(event.botId, transitionTo)
       const startNode = this._findNode(event.botId, flow, flow.startNode)
