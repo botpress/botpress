@@ -74,6 +74,7 @@ const EditTopicModal: FC<Props> = props => {
                     tabIndex={1}
                     required={true}
                     value={name}
+                    maxLength={50}
                     onChange={e => setName(sanitizeName(e.currentTarget.value))}
                     autoFocus={true}
                   />
@@ -84,6 +85,7 @@ const EditTopicModal: FC<Props> = props => {
                     id="input-flow-name"
                     rows={3}
                     value={description}
+                    maxLength={250}
                     fill={true}
                     onChange={e => setDescription(e.currentTarget.value)}
                   />

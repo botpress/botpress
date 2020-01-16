@@ -1,33 +1,7 @@
 import { AxiosInstance } from 'axios'
+import _ from 'lodash'
 
-export interface Test {
-  id: string
-  utterance: string
-  context: string
-  conditions: [string, string, string][]
-}
-
-export interface TestResult {
-  id: number
-  success: boolean
-  details: {
-    success: boolean
-    reason: string
-    expected: string
-    received: string
-  }[]
-}
-
-export interface F1 {
-  precision: number
-  recall: number
-  f1: number
-}
-
-export type XValidationResults = {
-  intents: _.Dictionary<F1>
-  slots: F1
-}
+import { Test, TestResult, XValidationResults } from '../../shared/typings'
 
 export interface TestingAPI {
   fetchTests: () => Promise<Test[]>
@@ -36,6 +10,7 @@ export interface TestingAPI {
   deleteTest: (x: Test) => Promise<void>
   runTest: (x: Test) => Promise<TestResult>
   computeCrossValidation: (lang: string) => Promise<XValidationResults>
+  exportResults: (results: _.Dictionary<TestResult>) => Promise<void>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
@@ -66,6 +41,16 @@ export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
     computeCrossValidation: async (lang: string) => {
       const { data } = await bp.axios.post(`/mod/nlu/cross-validation/${lang}`)
       return data
+    },
+
+    exportResults: async (results: _.Dictionary<TestResult>) => {
+      results = _.chain(results)
+        .toPairs()
+        .map(([key, val]) => [key, _.pick(val, 'success')])
+        .fromPairs()
+        .value()
+
+      await bp.axios.post('/mod/nlu-testing/export', { results })
     }
   }
 }

@@ -214,7 +214,7 @@ export default class Storage {
   async fetchQNAs(opts?: Paging) {
     try {
       let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
-      if (opts && opts.start && opts.count) {
+      if (opts && opts.count) {
         questions = questions.slice(opts.start, opts.start + opts.count)
       }
 
@@ -259,8 +259,8 @@ export default class Storage {
 
     if (!(question || categories.length)) {
       items = await this.fetchQNAs({
-        start: offset != undefined ? parseInt(offset, 10) : undefined,
-        count: limit ? parseInt(limit, 10) : undefined
+        start: +offset,
+        count: +limit
       })
       count = await this.count()
     } else {

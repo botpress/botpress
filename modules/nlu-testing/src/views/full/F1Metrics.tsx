@@ -2,7 +2,8 @@ import { Colors, H3, H4, Label } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
-import { F1, XValidationResults } from './api'
+import { F1, XValidationResults } from '../../shared/typings'
+
 import style from './style.scss'
 
 interface Props {

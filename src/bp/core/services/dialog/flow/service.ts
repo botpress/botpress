@@ -330,6 +330,6 @@ export class FlowService {
   }
 
   private uiPath(flowPath) {
-    return flowPath.replace(/\.flow\.json/i, '.ui.json')
+    return flowPath.replace(/\.flow\.json$/i, '.ui.json')
   }
 }
