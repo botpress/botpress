@@ -152,11 +152,15 @@ class MessageList extends React.Component<MessageListProps, State> {
             ? this.props.showUserAvatar && this.renderAvatar(userName, avatarUrl)
             : this.renderAvatar(this.props.botName, avatarUrl || this.props.botAvatarUrl)
 
+          // todo: should check for a `feedback` flag in the payload when its from qna
+          // this flag does not exist yet.
+          const isFeedback = true
+
           return (
             <div key={i}>
               {isDateNeeded && this.renderDate(group[0].sent_on)}
               <MessageGroup
-                isFeedback={true}
+                isFeedback={isFeedback}
                 isBot={!userId}
                 avatar={avatar}
                 userName={userName}
