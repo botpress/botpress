@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 
 type props = {
   show: boolean
-  onFeedback: (rating: number) => Promise<void>
+  onFeedback: Function
 }
 
 export class FeedbackWrapper extends Component<props> {
@@ -12,27 +12,23 @@ export class FeedbackWrapper extends Component<props> {
   }
 
   handleSendFeedback = rating => {
-    // tslint:disable-next-line: no-floating-promises
-    this.props.onFeedback(rating).then(() => {
-      this.setState({ feedbackSent: true })
-    })
+    this.props.onFeedback(rating)
+    this.setState({ feedbackSent: true })
   }
 
   render() {
     if (this.props.show && !this.state.feedbackSent) {
       return (
-        <div>
+        <React.Fragment>
           {this.props.children}
-          <span style={{ cursor: 'pointer' }} onClick={() => this.handleSendFeedback(1)}>
-            👍
-          </span>
-          <span style={{ cursor: 'pointer' }} onClick={() => this.handleSendFeedback(-1)}>
-            👎
-          </span>
-        </div>
+          <div className="bpw-message-feedback">
+            <span onClick={() => this.handleSendFeedback(1)}>👍</span>
+            <span onClick={() => this.handleSendFeedback(-1)}>👎</span>
+          </div>
+        </React.Fragment>
       )
     }
 
-    return <div>{this.props.children}</div>
+    return <React.Fragment>{this.props.children}</React.Fragment>
   }
 }

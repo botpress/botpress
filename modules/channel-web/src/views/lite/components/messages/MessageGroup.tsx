@@ -50,25 +50,35 @@ class MessageGroup extends React.Component<Props> {
     return payload
   }
 
+  handleOnFeedback(rating, eventId) {
+    this.props.onFeedback(rating, eventId)
+  }
+
   render() {
     if (this.state.hasError) {
       return '* Cannot display message *'
     }
 
     return (
-      <FeedbackWrapper show={this.props.isBot && this.props.isFeedback} onFeedback={this.props.onFeedback}>
-        <div
-          className={classnames('bpw-message-big-container', {
-            'bpw-from-user': !this.props.isBot,
-            'bpw-from-bot': this.props.isBot
-          })}
-        >
-          {this.props.avatar}
-          <div className={'bpw-message-container'}>
-            {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
-            <div className={'bpw-message-group'}>
-              {this.props.messages.map((data, i) => {
-                return (
+      <div
+        className={classnames('bpw-message-big-container', {
+          'bpw-from-user': !this.props.isBot,
+          'bpw-from-bot': this.props.isBot
+        })}
+      >
+        {this.props.avatar}
+        <div className={'bpw-message-container'}>
+          {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
+          <div className={'bpw-message-group'}>
+            {this.props.messages.map((data, i) => {
+              const isLastMsg = i == this.props.messages.length - 1
+
+              return (
+                <FeedbackWrapper
+                  show={this.props.isBot && this.props.isFeedback && isLastMsg}
+                  onFeedback={rating => this.handleOnFeedback(rating, data.incomingEventId)}
+                  key={`feedback-${i}`}
+                >
                   <Message
                     key={`msg-${i}`}
                     isHighlighted={
@@ -85,12 +95,12 @@ class MessageGroup extends React.Component<Props> {
                     bp={this.props.bp}
                     store={this.props.store}
                   />
-                )
-              })}
-            </div>
+                </FeedbackWrapper>
+              )
+            })}
           </div>
         </div>
-      </FeedbackWrapper>
+      </div>
     )
   }
 }

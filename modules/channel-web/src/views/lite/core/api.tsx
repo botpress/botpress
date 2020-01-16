@@ -131,15 +131,10 @@ export default class WebchatApi {
     }
   }
 
-  async sendFeedback(rating: number, eventId: number): Promise<void> {
+  async sendFeedback(rating: number, eventId: string): Promise<void> {
     try {
-      const externalRouteConfig = {
-        ...this.axiosConfig,
-        baseURL: `${window.location.origin}${window.BOT_API_PATH}/mod/extensions`
-      }
-
       const data = { rating }
-      return this.axios.post(`/events/feedback/${eventId}`, data, externalRouteConfig)
+      return this.axios.post(`/events/${eventId}/feedback`, data, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)
     }

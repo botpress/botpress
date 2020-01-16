@@ -291,6 +291,21 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
+    '/events/:eventId/feedback',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const eventId = req.params.eventId
+      const rating = req.body
+      console.log('** rating and event id ', eventId, rating)
+
+      // TODO: implement sdk method in `core/sdk/impl.ts`
+      // Could be in bp.events or something else.
+      // The sdk function will be used in other channels to register the feedback
+      // await bp.events.registerFeedback(eventId, rating)
+    })
+  )
+
+  router.post(
     '/conversations/:userId/:conversationId/reset',
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {

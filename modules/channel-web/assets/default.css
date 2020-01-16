@@ -286,6 +286,18 @@ body {
   word-break: break-word;
 }
 
+.bpw-message-feedback {
+  display: inline-block;
+}
+
+.bpw-message-feedback span {
+  cursor: pointer;
+
+  border: 1px solid #f1f1f1;
+  border-radius: 8px;
+  padding: 5px 0 5px 5px;
+}
+
 .bpw-from-bot .bpw-bubble-highlight {
   background-color: rgba(255, 192, 114, 0.25);
 }
