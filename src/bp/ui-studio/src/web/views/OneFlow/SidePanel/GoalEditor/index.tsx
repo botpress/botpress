@@ -3,7 +3,7 @@ import { Condition, Flow, FlowTrigger } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { renameFlow, updateFlow } from '~/actions'
+import { createFlow, renameFlow, updateFlow } from '~/actions'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 import { getCurrentFlow } from '~/reducers'
 import { sanitizeName } from '~/util'
@@ -29,6 +29,7 @@ interface StateProps {
 interface DispatchProps {
   updateFlow: (params: any) => void
   renameFlow: (flow: { targetFlow: string; name: string }) => void
+  createFlow: (name: string) => void
 }
 
 type Props = StateProps & DispatchProps & OwnProps
@@ -62,11 +63,15 @@ const EditGoalModal: FC<Props> = props => {
   const submit = async () => {
     const fullName = `${name}.flow.json`
 
-    if (props.currentFlow.name !== fullName) {
-      props.renameFlow({ targetFlow: props.currentFlow.name, name: fullName })
+    if (isCreate) {
+      props.createFlow(fullName)
+    } else {
+      // TODO: fix flow edition
+      if (props.currentFlow.name !== fullName) {
+        props.renameFlow({ targetFlow: props.currentFlow.name, name: fullName })
+      }
+      props.updateFlow({ name: fullName, description, label })
     }
-
-    props.updateFlow({ name: fullName, description, label })
 
     closeModal()
   }
@@ -173,5 +178,5 @@ const mapStateToProps = state => ({
 
 export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
-  { updateFlow, renameFlow }
+  { updateFlow, renameFlow, createFlow }
 )(EditGoalModal)
