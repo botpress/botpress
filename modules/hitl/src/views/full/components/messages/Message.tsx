@@ -9,8 +9,6 @@ import ReactAudioPlayer from 'react-audio-player'
 import { Message as HitlMessage } from '../../../../backend/typings'
 import SVGIcon from '../SVGIcon'
 
-import { FeedbackWrap } from './FeedbackWrap'
-
 const validMessageTypes = [
   'text',
   'message',
@@ -140,20 +138,18 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
     )
 
     return (
-      <FeedbackWrap>
-        <div
-          className={classnames('bph-message', {
-            ['bph-from-agent']: messageFrom === 'agent',
-            ['bph-from-bot']: messageFrom === 'bot'
-          })}
-        >
-          {messageFrom === 'user' && avatar}
-          <div className="bph-message-container">
-            <div className="bph-chat-bubble">{this.renderContent()}</div>
-          </div>
-          {messageFrom !== 'user' && avatar}
+      <div
+        className={classnames('bph-message', {
+          ['bph-from-agent']: messageFrom === 'agent',
+          ['bph-from-bot']: messageFrom === 'bot'
+        })}
+      >
+        {messageFrom === 'user' && avatar}
+        <div className="bph-message-container">
+          <div className="bph-chat-bubble">{this.renderContent()}</div>
         </div>
-      </FeedbackWrap>
+        {messageFrom !== 'user' && avatar}
+      </div>
     )
   }
 
