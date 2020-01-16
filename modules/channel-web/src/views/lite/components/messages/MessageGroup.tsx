@@ -72,10 +72,13 @@ class MessageGroup extends React.Component<Props> {
           <div className={'bpw-message-group'}>
             {this.props.messages.map((data, i) => {
               const isLastMsg = i == this.props.messages.length - 1
+              // todo: should check for a `feedback` flag in the payload when its from qna
+              // this flag does not exist yet
+              const isFeedback = true || data.payload.feedback
 
               return (
                 <FeedbackWrapper
-                  show={this.props.isBot && this.props.isFeedback && isLastMsg}
+                  show={this.props.isBot && isFeedback && isLastMsg}
                   onFeedback={rating => this.handleOnFeedback(rating, data.incomingEventId)}
                   key={`feedback-${i}`}
                 >
@@ -117,7 +120,6 @@ export default inject(({ store }: { store: RootStore }) => ({
 }))(MessageGroup)
 
 type Props = {
-  isFeedback: boolean
   isBot: boolean
   avatar: JSX.Element
   userName: string
