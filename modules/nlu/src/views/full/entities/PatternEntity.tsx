@@ -107,7 +107,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             id="examples"
             fill
             rows={6}
-            growVertically={true}
+            growVertically
             placeholder="Add examples that match your pattern (one per line)"
             value={examplesStr}
             intent={allExamplesMatch ? 'none' : 'danger'}

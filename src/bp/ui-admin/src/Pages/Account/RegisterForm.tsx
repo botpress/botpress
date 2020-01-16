@@ -26,7 +26,7 @@ export const RegisterForm: FC<Props> = props => {
           onChange={e => setEmail(e.target.value)}
           type="text"
           id="email"
-          autoFocus={true}
+          autoFocus
         />
       </FormGroup>
 

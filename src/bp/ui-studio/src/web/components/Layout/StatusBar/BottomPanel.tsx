@@ -168,44 +168,32 @@ class BottomPanel extends React.Component<Props, State> {
         >
           <Tab id="bt-panel-logs" className={style.tab} title="Logs" panel={LogsPanel} />
           <Tabs.Expander />
-          <ButtonGroup minimal={true}>
+          <ButtonGroup minimal>
             <Tooltip content="Scroll to follow logs">
               <Button
                 id="btn-logs-follow"
                 icon={'sort'}
                 intent={this.state.followLogs ? 'primary' : 'none'}
-                small={true}
+                small
                 type="button"
                 onClick={this.handleToggleFollowLogs}
               />
             </Tooltip>
 
             <Tooltip content="Download Logs">
-              <Button
-                id="btn-logs-download"
-                icon={'import'}
-                small={true}
-                type="button"
-                onClick={this.handleDownloadLogs}
-              />
+              <Button id="btn-logs-download" icon={'import'} small type="button" onClick={this.handleDownloadLogs} />
             </Tooltip>
 
             <Divider />
 
             <Tooltip content="Clear log history">
-              <Button id="btn-logs-clear" icon={'trash'} small={true} type="button" onClick={this.handleClearLogs} />
+              <Button id="btn-logs-clear" icon={'trash'} small type="button" onClick={this.handleClearLogs} />
             </Tooltip>
 
             <Divider />
 
             <Tooltip content="Close Panel">
-              <Button
-                id="btn-logs-close"
-                icon={'cross'}
-                small={true}
-                type="button"
-                onClick={this.props.toggleBottomPanel}
-              />
+              <Button id="btn-logs-close" icon={'cross'} small type="button" onClick={this.props.toggleBottomPanel} />
             </Tooltip>
           </ButtonGroup>
         </Tabs>

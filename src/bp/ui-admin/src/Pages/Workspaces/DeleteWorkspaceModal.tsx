@@ -59,7 +59,7 @@ const DeleteWorkspaceModal: FC<Props> = props => {
             value={name}
             onChange={e => setName(e.currentTarget.value)}
             tabIndex={1}
-            autoFocus={true}
+            autoFocus
           />
         </FormGroup>
       </div>

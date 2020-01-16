@@ -54,13 +54,7 @@ This is probably a bug, please report it on https://github.com/botpress/botpress
     const title = (titleMatch && titleMatch[1]) || currentDoc
 
     return (
-      <Modal
-        bsClass={classnames(style.modal, 'modal')}
-        show={true}
-        onHide={this.handleClose}
-        animation={false}
-        bsSize="large"
-      >
+      <Modal bsClass={classnames(style.modal, 'modal')} show onHide={this.handleClose} bsSize="large">
         <Modal.Header>
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>

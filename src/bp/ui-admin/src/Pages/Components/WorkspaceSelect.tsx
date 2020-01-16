@@ -101,12 +101,7 @@ const WorkspaceSelect: FC<Props> = props => {
 
   if (props.workspaces.length === 1) {
     return (
-      <Button
-        minimal={true}
-        disabled={true}
-        text={`Workspace: ${props.workspaces[0].workspaceName}`}
-        className="workspaceButton"
-      />
+      <Button minimal disabled text={`Workspace: ${props.workspaces[0].workspaceName}`} className="workspaceButton" />
     )
   }
 
@@ -117,11 +112,11 @@ const WorkspaceSelect: FC<Props> = props => {
       itemRenderer={renderOption}
       activeItem={selected}
       popoverProps={{ minimal: true }}
-      noResults={<MenuItem disabled={true} text="No results." />}
+      noResults={<MenuItem disabled text="No results." />}
       onItemSelect={option => setUrlWorkspaceId(option.workspace)}
     >
       <Button
-        minimal={true}
+        minimal
         text={`Workspace: ${selected.workspaceName}`}
         rightIcon="caret-down"
         className="workspaceButton"

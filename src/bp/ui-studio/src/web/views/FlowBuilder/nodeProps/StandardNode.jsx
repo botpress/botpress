@@ -37,7 +37,7 @@ export default class StandardNodePropertiesPanel extends Component {
             transform={this.transformText}
           />
         </Panel>
-        <Tabs animation={false} id="node-props-modal-standard-node-tabs">
+        <Tabs id="node-props-modal-standard-node-tabs">
           {!this.props.transitionOnly && (
             <Tab
               eventKey="on_enter"
@@ -71,7 +71,7 @@ export default class StandardNodePropertiesPanel extends Component {
                 readOnly={readOnly}
                 items={node.onReceive}
                 header="On Receive"
-                waitable={true}
+                waitable
                 onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
                 copyItem={item => this.props.copyFlowNodeElement({ action: item })}
                 pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}

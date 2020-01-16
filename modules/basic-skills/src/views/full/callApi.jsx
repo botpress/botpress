@@ -132,7 +132,7 @@ export class CallAPI extends React.Component {
 
         <Row className={style.callApiSection}>
           <Col md={12}>
-            <Tabs id="requestOptionsTabs" defaultActiveKey="body" animation={false}>
+            <Tabs id="requestOptionsTabs" defaultActiveKey="body">
               <Tab eventKey="body" title="Body">
                 <Alert className={style.callApiNote} bsStyle="info">
                   Send a request body. Enter the raw payload of the request. Make sure it has proper formatting based on

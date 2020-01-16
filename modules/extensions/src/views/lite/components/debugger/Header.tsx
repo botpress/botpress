@@ -8,10 +8,10 @@ export default ({ newSession, toggleSettings }) => (
     <h4>Debugger</h4>
     <div>
       <Tooltip content="Create a new session">
-        <Button minimal={true} icon="refresh" onClick={newSession} />
+        <Button minimal icon="refresh" onClick={newSession} />
       </Tooltip>
       <Tooltip content="Configure settings">
-        <Button minimal={true} icon="cog" onClick={toggleSettings} />
+        <Button minimal icon="cog" onClick={toggleSettings} />
       </Tooltip>
     </div>
   </div>

@@ -52,7 +52,7 @@ const EditWorkspaceModal: FC<Props> = props => {
             value={name}
             onChange={e => setName(e.currentTarget.value)}
             tabIndex={1}
-            autoFocus={true}
+            autoFocus
           />
         </FormGroup>
 
@@ -63,7 +63,7 @@ const EditWorkspaceModal: FC<Props> = props => {
             value={description}
             onChange={e => setDescription(e.currentTarget.value)}
             rows={3}
-            fill={true}
+            fill
             tabIndex={2}
             maxLength={500}
           />

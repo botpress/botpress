@@ -53,10 +53,10 @@ const NameModal: FC<Props> = props => {
               id="input-intent-name"
               tabIndex={1}
               placeholder="Choose a name for your intent"
-              required={true}
+              required
               value={name}
               onChange={e => setName(e.currentTarget.value)}
-              autoFocus={true}
+              autoFocus
             />
           </FormGroup>
 

@@ -20,7 +20,7 @@ const Sidebar: FC<Props> = props => {
   return (
     <div className="bph-sidebar">
       <div className="bph-sidebar-header">
-        <ControlGroup fill={true}>
+        <ControlGroup fill>
           <Tooltip
             content={props.filterPaused ? 'Show all conversations' : 'Show only paused conversations'}
             className={Classes.FIXED}
@@ -29,7 +29,7 @@ const Sidebar: FC<Props> = props => {
               icon="bookmark"
               intent={props.filterPaused ? Intent.PRIMARY : Intent.NONE}
               onClick={props.toggleFilterPaused}
-              minimal={true}
+              minimal
               style={{ marginRight: 10 }}
             />
           </Tooltip>

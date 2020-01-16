@@ -23,8 +23,8 @@ export const Error: FC<{ error: sdk.IO.EventError }> = ({ error }) => {
               <JSONTree
                 data={error.actionArgs || {}}
                 theme={inspectorTheme}
-                invertTheme={true}
-                hideRoot={true}
+                invertTheme
+                hideRoot
                 shouldExpandNode={() => true}
               />
             </div>
@@ -44,7 +44,7 @@ export const Error: FC<{ error: sdk.IO.EventError }> = ({ error }) => {
               onClick={() => setShowStack(!showStack)}
               text="Stack trace"
               rightIcon={showStack ? 'chevron-down' : 'chevron-up'}
-              minimal={true}
+              minimal
             />
           </H5>
           <Collapse isOpen={showStack}>

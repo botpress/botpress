@@ -232,9 +232,7 @@ export class UtterancesEditor extends React.Component<Props> {
       case 'paragraph':
         const utterance = (
           <p className={elementCx} {...attributes}>
-            <span contentEditable={false} className={style.index}>
-              {utteranceIdx + 1}
-            </span>
+            <span className={style.index}>{utteranceIdx + 1}</span>
             {children}
           </p>
         )

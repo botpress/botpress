@@ -19,7 +19,7 @@ export const ChangePasswordForm: FC<Props> = props => {
     <form onSubmit={onSubmit}>
       {props.email && (
         <FormGroup label="E-mail">
-          <InputGroup tabIndex={-1} value={props.email} disabled={true} type="text" id="email" />
+          <InputGroup tabIndex={-1} value={props.email} disabled type="text" id="email" />
         </FormGroup>
       )}
 
@@ -31,7 +31,7 @@ export const ChangePasswordForm: FC<Props> = props => {
           type="password"
           name="newPassword"
           id="newPassword"
-          autoFocus={true}
+          autoFocus
         />
       </FormGroup>
 

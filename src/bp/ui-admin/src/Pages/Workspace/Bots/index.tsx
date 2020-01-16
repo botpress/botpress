@@ -88,7 +88,7 @@ class Bots extends Component<Props> {
       <AccessControl resource="admin.bots.*" operation="write">
         <Popover minimal interactionKind={PopoverInteractionKind.HOVER} position={Position.BOTTOM}>
           <Button id="btn-create-bot" intent={Intent.NONE} text="Create Bot" rightIcon="caret-down" />
-          <ButtonGroup vertical={true} minimal={true} fill={true} alignText={Alignment.LEFT}>
+          <ButtonGroup vertical minimal fill alignText={Alignment.LEFT}>
             <Button
               id="btn-new-bot"
               text="New Bot"

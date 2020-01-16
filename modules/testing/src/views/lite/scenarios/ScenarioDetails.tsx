@@ -25,7 +25,7 @@ export default props => {
           Show details
         </span>
         <Collapse isOpen={showDetails}>
-          <TextArea large={true} value={scenario} style={{ width: '100%', height: '400px' }} />
+          <TextArea large value={scenario} style={{ width: '100%', height: '400px' }} />
         </Collapse>
       </div>
     </div>

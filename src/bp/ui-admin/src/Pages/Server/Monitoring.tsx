@@ -190,7 +190,6 @@ class Monitoring extends Component<Props, State> {
             unit="%"
             stroke="#1C4E80"
             strokeWidth={2}
-            dot={false}
             activeDot={{ r: 5 }}
           />
           <Line
@@ -199,7 +198,6 @@ class Monitoring extends Component<Props, State> {
             unit="%"
             stroke="#0091D5"
             strokeWidth={2}
-            dot={false}
             activeDot={{ r: 5 }}
           />
         </LineChart>
@@ -220,15 +218,8 @@ class Monitoring extends Component<Props, State> {
           <Bar stackId="stack" yAxisId="l" name="HTTP Requests" dataKey="summary.requests.count" fill="#1C4E80" />
           <Bar stackId="stack" yAxisId="l" name="Events In" dataKey="summary.eventsIn.count" fill="#7E909A" />
           <Bar stackId="stack" yAxisId="l" name="Events Out" dataKey="summary.eventsOut.count" fill="#6AB187" />
-          <Line
-            yAxisId="r"
-            name="Warnings"
-            dataKey="summary.warnings.count"
-            stroke="#DBAE58"
-            strokeWidth={2}
-            dot={false}
-          />
-          <Line yAxisId="r" name="Errors" dataKey="summary.errors.count" stroke="#AC3E31" strokeWidth={2} dot={false} />
+          <Line yAxisId="r" name="Warnings" dataKey="summary.warnings.count" stroke="#DBAE58" strokeWidth={2} />
+          <Line yAxisId="r" name="Errors" dataKey="summary.errors.count" stroke="#AC3E31" strokeWidth={2} />
         </ComposedChart>
       </ResponsiveContainer>
     )
@@ -279,7 +270,6 @@ class Monitoring extends Component<Props, State> {
             options={timeFrameOptions}
             value={this.state.timeFrame}
             onChange={this.handleTimeFrameChanged}
-            isSearchable={false}
           />
         </div>
         <div className="monitoring-toolbar-item">
@@ -289,7 +279,6 @@ class Monitoring extends Component<Props, State> {
             options={resolutionOptions}
             value={this.state.resolution}
             onChange={this.handleResolutionChanged}
-            isSearchable={false}
           />
         </div>
         <div>
@@ -348,7 +337,7 @@ class Monitoring extends Component<Props, State> {
 
   render() {
     return (
-      <PageContainer title="Server Monitoring" fullWidth={true} superAdmin={true}>
+      <PageContainer title="Server Monitoring" fullWidth superAdmin>
         <CheckRequirements requirements={['redis', 'pro']} feature="monitoring">
           {this.renderChild()}
         </CheckRequirements>

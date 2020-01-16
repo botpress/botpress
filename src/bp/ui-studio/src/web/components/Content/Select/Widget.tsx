@@ -99,7 +99,7 @@ class ContentPickerWidget extends Component<Props> {
       return (
         <div onDoubleClick={() => window.botpress.pickContent({ contentType }, this.onChange)}>
           {contentItem ? (
-            <ActionItem text={actionText} layoutv2={true} />
+            <ActionItem text={actionText} layoutv2 />
           ) : (
             <div
               className={style.actionBtn}
@@ -116,7 +116,7 @@ class ContentPickerWidget extends Component<Props> {
     }
 
     return (
-      <ControlGroup fill={true} vertical={false}>
+      <ControlGroup fill>
         <InputGroup
           placeholder={placeholder}
           value={textContent}

@@ -50,8 +50,8 @@ export const Inspector = props => {
                 </span>
               )
             }}
-            invertTheme={true}
-            hideRoot={true}
+            invertTheme
+            hideRoot
             shouldExpandNode={shouldExpand}
           />
         </div>

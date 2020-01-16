@@ -114,7 +114,7 @@ const UploadArchive = () => {
               <FileInput
                 text={filePath || 'Choose file...'}
                 onChange={e => readArchive((e.target as HTMLInputElement).files)}
-                fill={true}
+                fill
               />
             </FormGroup>
           </div>
@@ -184,7 +184,6 @@ const UploadArchive = () => {
         isOpen={isDialogOpen}
         onClose={closeDialog}
         transitionDuration={0}
-        canOutsideClickClose={false}
         style={{ width: changes ? 800 : 500 }}
       >
         {!changes ? renderUpload() : renderConflict()}

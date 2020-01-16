@@ -521,7 +521,7 @@ export default class AnalyticsModule extends React.Component {
     }
 
     return (
-      <Container sidePanelHidden={true}>
+      <Container sidePanelHidden>
         <div />
         {this.state.loading ? <h3>Wait, we are loading graphs...</h3> : this.renderAllMetrics()}
       </Container>

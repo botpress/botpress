@@ -32,7 +32,7 @@ const CustomBaseInput = props => {
     }
   }
 
-  return <SmartInput {...props} singleLine={true} />
+  return <SmartInput {...props} singleLine />
 }
 
 const widgets = {
@@ -106,7 +106,7 @@ const ContentForm: FC<Props> = props => {
       {...props}
       formData={formData}
       formContext={context}
-      safeRenderCompletion={true}
+      safeRenderCompletion
       widgets={widgets}
       fields={fields}
       onChange={handleOnChange}

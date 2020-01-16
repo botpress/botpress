@@ -39,7 +39,7 @@ const BotSwitcher = () => {
         <span>{window.BOT_NAME}</span>
       </ActionItem>
 
-      <Dropdown dropup={true} open={isOpen} onToggle={toggle} id="bot-switcher">
+      <Dropdown dropup open={isOpen} onToggle={toggle} id="bot-switcher">
         {/* react-bootstrap warning otherwise */}
         <Dropdown.Toggle style={{ display: 'none' }} />
 

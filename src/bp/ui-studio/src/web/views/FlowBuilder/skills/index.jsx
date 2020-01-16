@@ -155,13 +155,7 @@ class SkillsBuilder extends React.Component {
     const title = this.props.action === 'new' ? 'Insert a new skill' : 'Edit a skill'
 
     return (
-      <Modal
-        dialogClassName={modalClassName}
-        animation={false}
-        show={this.props.opened}
-        onHide={this.onCancel}
-        backdrop="static"
-      >
+      <Modal dialogClassName={modalClassName} show={this.props.opened} onHide={this.onCancel} backdrop="static">
         <Modal.Header closeButton>
           <Modal.Title>
             {title} | {skill && skill.name}

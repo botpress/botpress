@@ -56,14 +56,12 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
 
   renderText(text?: string) {
     const Text = getComponent('channel-web', 'Text')
-    return Text ? <Text markdown={true} text={text || this.props.message.text} /> : <span>{text}</span>
+    return Text ? <Text markdown text={text || this.props.message.text} /> : <span>{text}</span>
   }
 
   renderDropdown() {
     const Dropdown = getComponent('extensions', 'Dropdown')
-    return Dropdown ? (
-      <Dropdown isLastGroup={true} isLastOfGroup={true} options={this.props.message.raw_message.options} />
-    ) : null
+    return Dropdown ? <Dropdown isLastGroup isLastOfGroup options={this.props.message.raw_message.options} /> : null
   }
 
   renderCarousel() {
@@ -79,7 +77,7 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
       <span>
         <div style={{ paddingBottom: 10 }}>{this.renderText()}</div>
         <Keyboard.Default />
-        <QuickReplies quick_replies={quickReplies} isLastGroup={true} isLastOfGroup={true} />
+        <QuickReplies quick_replies={quickReplies} isLastGroup isLastOfGroup />
       </span>
     ) : (
       <span>Could not display quick replies</span>

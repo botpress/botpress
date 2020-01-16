@@ -23,7 +23,7 @@ const RoleSection: FC<Props> = props => {
     <div key={'role-' + role.id}>
       <div onClick={() => setOpen(!isOpen)} id={`div-role-${role.id}`} className="bp_users-role_header">
         <div className="role float-left">
-          <Tag minimal={true}>{users.length}</Tag>
+          <Tag minimal>{users.length}</Tag>
           <span className="title">{role.name}</span>
         </div>
         {isOpen ? <Icon icon="caret-up" /> : <Icon icon="caret-down" />}

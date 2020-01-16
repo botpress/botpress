@@ -23,7 +23,7 @@ export const LoginForm: FC<Props> = props => {
           onChange={e => setEmail(e.target.value)}
           type="text"
           id="email"
-          autoFocus={true}
+          autoFocus
         />
       </FormGroup>
 

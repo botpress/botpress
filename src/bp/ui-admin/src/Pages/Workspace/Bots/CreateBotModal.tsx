@@ -152,7 +152,6 @@ class CreateBotModal extends Component<Props, State> {
         isOpen={this.props.isOpen}
         onClose={this.toggleDialog}
         transitionDuration={0}
-        canOutsideClickClose={false}
       >
         <form ref={form => (this._form = form)}>
           <div className={Classes.DIALOG_BODY}>
@@ -168,10 +167,10 @@ class CreateBotModal extends Component<Props, State> {
                 tabIndex={1}
                 placeholder="The name of your bot"
                 minLength={3}
-                required={true}
+                required
                 value={this.state.botName}
                 onChange={this.handleNameChanged}
-                autoFocus={true}
+                autoFocus
               />
             </FormGroup>
 
@@ -187,7 +186,7 @@ class CreateBotModal extends Component<Props, State> {
                 tabIndex={2}
                 placeholder="The ID of your bot (must be unique)"
                 minLength={3}
-                required={true}
+                required
                 value={this.state.botId}
                 onChange={this.handleBotIdChanged}
               />

@@ -11,7 +11,7 @@ export const MessageInspector = props => {
         <strong>Inspect Event Details</strong>
       </h5>
       <div className={style.inspector}>
-        <JSONTree theme={inspectorTheme} data={props.focusedMessage || {}} invertTheme={true} hideRoot={true} />
+        <JSONTree theme={inspectorTheme} data={props.focusedMessage || {}} invertTheme hideRoot />
       </div>
     </div>
   )

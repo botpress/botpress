@@ -16,9 +16,8 @@ function QueryOptions(props) {
         onChange={props.handleDateChange}
         value={[props.from, props.to]}
         parseDate={str => (str ? new Date(str) : new Date())}
-        shortcuts={false}
-        closeOnSelection={true}
-        allowSingleDayRange={true}
+        closeOnSelection
+        allowSingleDayRange
       />
     </div>
   )

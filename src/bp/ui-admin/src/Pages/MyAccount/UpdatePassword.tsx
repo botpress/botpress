@@ -31,14 +31,7 @@ const UpdatePassword: FC<Props> = props => {
   }
 
   return (
-    <Dialog
-      title="Change your password"
-      icon="key"
-      isOpen={props.isOpen}
-      onClose={props.toggle}
-      transitionDuration={0}
-      canOutsideClickClose={false}
-    >
+    <Dialog title="Change your password" icon="key" isOpen={props.isOpen} onClose={props.toggle} transitionDuration={0}>
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
           <FormGroup label="Current password">
@@ -48,7 +41,7 @@ const UpdatePassword: FC<Props> = props => {
               value={password}
               onChange={e => setPassword(e.target.value)}
               tabIndex={1}
-              autoFocus={true}
+              autoFocus
             />
           </FormGroup>
 

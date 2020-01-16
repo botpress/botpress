@@ -60,14 +60,7 @@ export const ImportModal: FC<Props> = props => {
   }
 
   return (
-    <Dialog
-      title={'Import tests'}
-      icon="import"
-      isOpen={props.isOpen}
-      onClose={closeDialog}
-      transitionDuration={0}
-      canOutsideClickClose={false}
-    >
+    <Dialog title={'Import tests'} icon="import" isOpen={props.isOpen} onClose={closeDialog} transitionDuration={0}>
       <div
         onDragOver={e => e.preventDefault()}
         onDrop={e => {
@@ -80,7 +73,7 @@ export const ImportModal: FC<Props> = props => {
             <FileInput
               text={filePath || 'Choose file...'}
               onChange={e => readFile((e.target as HTMLInputElement).files)}
-              fill={true}
+              fill
             />
           </FormGroup>
           {!!filePath && (

@@ -353,7 +353,6 @@ class Bots extends Component {
                   options={statusList}
                   value={this.state.status}
                   onChange={this.handleStatusChanged}
-                  isSearchable={false}
                 />
               </FormGroup>
             </Col>

@@ -251,7 +251,7 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Cell: x => (!this.props.readOnly ? <Button small={true} icon="edit" className="icon-edit" /> : ''),
+        Cell: x => (!this.props.readOnly ? <Button small icon="edit" className="icon-edit" /> : ''),
         filterable: false,
         width: 45
       }
@@ -326,7 +326,7 @@ class ListView extends Component<Props, State> {
               id="input-search"
               style={{ marginTop: 3, width: 250 }}
               placeholder="Search content"
-              small={true}
+              small
               value={this.state.searchTerm}
               onChange={this.handleSearchChanged}
             />

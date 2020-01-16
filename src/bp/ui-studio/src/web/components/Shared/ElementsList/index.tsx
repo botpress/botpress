@@ -75,7 +75,7 @@ export default class ElementsList extends React.Component<Props> {
             </div>
           )}
           <Button
-            minimal={true}
+            minimal
             icon="trash"
             onClick={() => this.props.onDelete(index)}
             className={c(style.listElementIcon, Classes.FIXED)}
@@ -112,7 +112,7 @@ export default class ElementsList extends React.Component<Props> {
               placeholder={this.props.placeholder || 'Type and press enter to create an element.' + multilineHint}
               tabIndex={1}
               onInvalid={this.props.onInvalid}
-              cleanInputAfterEnterPressed={true}
+              cleanInputAfterEnterPressed
               allowMultiline={this.props.allowMultiline}
               elements={this.props.elements}
               onElementAdd={this.props.onCreate}

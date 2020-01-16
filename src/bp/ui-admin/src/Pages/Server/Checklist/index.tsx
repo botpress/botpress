@@ -37,7 +37,7 @@ const Container = props => {
   return (
     <PageContainer
       title="Production Checklist"
-      superAdmin={true}
+      superAdmin
       helpText={
         <span>
           This is a checklist of recommended settings when running Botpress in production.

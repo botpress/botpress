@@ -400,7 +400,7 @@ When components are loaded this way, they are loaded and displayed immediately w
 const InjectedModuleView = this.props.bp.getModuleInjector()
 
 // Use is very straightforward: specify the module name, the name of the component, and if it is available on the lite or full view.
-<InjectedModuleView moduleName={moduleName} componentName={componentName} lite={true} extraProps={props} />
+<InjectedModuleView moduleName={moduleName} componentName={componentName} lite extraProps={props} />
 ```
 
 #### Load a module's components in memory

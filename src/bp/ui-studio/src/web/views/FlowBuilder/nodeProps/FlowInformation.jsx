@@ -22,7 +22,7 @@ export default class FlowPropertiesPanel extends Component {
 
     return (
       <div className={classnames(style.node)}>
-        <Tabs animation={false} id="node-props-modal-flow-tabs">
+        <Tabs id="node-props-modal-flow-tabs">
           <Tab
             eventKey="on_receive"
             title={

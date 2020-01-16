@@ -53,7 +53,7 @@ const RoleDropdown: FC<Props> = props => {
       itemRenderer={renderOption}
       activeItem={selected}
       popoverProps={{ minimal: true }}
-      noResults={<MenuItem disabled={true} text="No results." />}
+      noResults={<MenuItem disabled text="No results." />}
       onItemSelect={option => selectOption(option)}
       onActiveItemChange={option => selectOption(option)}
     >

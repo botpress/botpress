@@ -70,7 +70,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   value={name}
                   onChange={updateName}
                   tabIndex={2}
-                  autoFocus={true}
+                  autoFocus
                 />
               </FormGroup>
 
@@ -95,7 +95,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   placeholder="What is this workspace being used for? (optional)"
                   value={description}
                   onChange={e => setDescription(e.currentTarget.value)}
-                  fill={true}
+                  fill
                   rows={3}
                   tabIndex={3}
                   maxLength={500}

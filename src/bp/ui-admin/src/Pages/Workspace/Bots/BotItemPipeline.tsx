@@ -46,7 +46,7 @@ const BotItemPipeline: FC<Props> = ({
       <div className="actions">
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
               {!bot.disabled && (
                 <Fragment>

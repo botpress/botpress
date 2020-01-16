@@ -15,12 +15,7 @@ export default class Settings extends React.Component<any> {
 
   render() {
     return (
-      <Overlay
-        isOpen={this.props.isOpen}
-        onClose={this.props.toggle}
-        className={Classes.OVERLAY_SCROLL_CONTAINER}
-        usePortal={false}
-      >
+      <Overlay isOpen={this.props.isOpen} onClose={this.props.toggle} className={Classes.OVERLAY_SCROLL_CONTAINER}>
         <div className={classnames(Classes.CARD, Classes.ELEVATION_4)} style={{ width: 535, top: '20px', left: '25%' }}>
           <H4>Settings</H4>
 

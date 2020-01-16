@@ -43,12 +43,12 @@ class LiteView extends React.Component {
 
     return (
       <div>
-        <InjectedModuleView moduleName={moduleName} lite={true} componentName={v} onNotFound={onNotFound} />
+        <InjectedModuleView moduleName={moduleName} lite componentName={v} onNotFound={onNotFound} />
         {modules.map(({ moduleName, componentName }, i) => (
           <InjectedModuleView
             key={i}
             moduleName={moduleName}
-            lite={true}
+            lite
             componentName={componentName}
             onNotFound={onNotFound}
           />

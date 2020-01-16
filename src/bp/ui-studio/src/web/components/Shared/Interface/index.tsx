@@ -70,11 +70,11 @@ export const SidePanelSection = (props: SidePanelSectionProps) => {
           {!props.hideCaret && <Icon icon={isOpen ? 'caret-down' : 'caret-right'} />}
           {props.label || ''}
         </strong>
-        <ButtonGroup minimal={true} onClick={e => e.stopPropagation()}>
+        <ButtonGroup minimal onClick={e => e.stopPropagation()}>
           {props.actions && props.actions.map(action => SectionAction(action))}
         </ButtonGroup>
       </div>
-      <Collapse isOpen={isOpen} transitionDuration={50} keepChildrenMounted={true}>
+      <Collapse isOpen={isOpen} transitionDuration={50} keepChildrenMounted>
         {props.children}
       </Collapse>
     </React.Fragment>
@@ -90,7 +90,7 @@ export const SearchBar = (props: SearchBarProps) => {
 
   return (
     <div className={style.searchBar}>
-      <ControlGroup fill={true}>
+      <ControlGroup fill>
         <InputGroup
           id={props.id}
           leftIcon={props.icon}
@@ -219,19 +219,19 @@ export const Toolbar = (props: ToolbarProps) => {
 }
 
 export const LeftToolbarButtons = (props: ToolbarButtonsProps) => {
-  return <ButtonGroup minimal={true}>{props.children}</ButtonGroup>
+  return <ButtonGroup minimal>{props.children}</ButtonGroup>
 }
 
 export const RightToolbarButtons = (props: ToolbarButtonsProps) => {
   return (
-    <ButtonGroup className={style.rightButtons} minimal={true}>
+    <ButtonGroup className={style.rightButtons} minimal>
       {props.children}
     </ButtonGroup>
   )
 }
 
 export const InfoTooltip = (props: InfoTooltipProps) => (
-  <Tooltip content={props.text} position={props.position || Position.RIGHT} usePortal={false}>
+  <Tooltip content={props.text} position={props.position || Position.RIGHT}>
     <Icon icon={props.icon || 'info-sign'} iconSize={13} className={style.infoTooltip} />
   </Tooltip>
 )

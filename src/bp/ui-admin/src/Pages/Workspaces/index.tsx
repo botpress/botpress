@@ -71,7 +71,7 @@ const Workspaces: FC<Props> = props => {
             <div className="bp_table-row" key={workspace.id}>
               <div className="actions">
                 <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-                  <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+                  <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
                   <Menu>
                     <MenuItem
                       id="btn-edit"

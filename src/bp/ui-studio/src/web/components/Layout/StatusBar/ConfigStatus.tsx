@@ -70,13 +70,7 @@ const ConfigStatus = () => {
         {isDifferent && <Icon icon="cog" style={{ color: Colors.RED5 }} />}
       </ActionItem>
 
-      <Dialog
-        title="Configuration Outdated"
-        isOpen={isOpen}
-        onClose={() => setOpen(false)}
-        transitionDuration={0}
-        canOutsideClickClose={false}
-      >
+      <Dialog title="Configuration Outdated" isOpen={isOpen} onClose={() => setOpen(false)} transitionDuration={0}>
         <div className={Classes.DIALOG_BODY}>
           {!isRestarting ? (
             <div>

@@ -106,7 +106,7 @@ export const CreateUserModal: FC<Props> = props => {
             value={selectedUser}
             loadOptions={loadOptions}
             onChange={option => setSelectedUser(option as any)}
-            autoFocus={true}
+            autoFocus
           />
         </FormGroup>
 

@@ -456,11 +456,11 @@ class Diagram extends Component<Props> {
 
     return (
       <div style={{ display: 'flex', marginTop: 5 }}>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
+        <Button onClick={this.handleFlowWideClicked} minimal>
           <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide
           {nbNext === 1 ? ' transition' : ' transitions'}
         </Button>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
+        <Button onClick={this.handleFlowWideClicked} minimal>
           <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide
           {nbReceive === 1 ? ' on receive' : ' on receives'}
         </Button>
@@ -472,7 +472,7 @@ class Diagram extends Component<Props> {
               placeholder="Highlight nodes by name"
               value={this.state.highlightFilter}
               onChange={this.handleFilterChanged}
-              autoFocus={true}
+              autoFocus
             />
             <Button icon="small-cross" onClick={this.props.hideSearch} />
           </ControlGroup>
@@ -549,7 +549,7 @@ class Diagram extends Component<Props> {
           ref={w => (this.diagramWidget = w)}
           deleteKeys={[]}
           diagramEngine={this.diagramEngine}
-          inverseZoom={true}
+          inverseZoom
         />
       </div>
     )

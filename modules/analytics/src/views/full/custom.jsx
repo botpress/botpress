@@ -378,8 +378,7 @@ export default class CustomMetrics extends React.Component {
         options={options2}
         onChange={_onSelect.bind(this)}
         value={this.state.range}
-        clearable={false}
-        autoBlur={true}
+        autoBlur
         className={style.rangeDropdown}
         placeholder="Select a date range"
       />

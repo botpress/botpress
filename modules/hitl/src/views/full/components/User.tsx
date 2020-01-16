@@ -32,7 +32,7 @@ const User: FC<Props> = props => {
         <div>
           <div className="bph-user-name">{displayName}</div>
           <span>
-            <Text ellipsize={true} className="bph-user-summary">
+            <Text ellipsize className="bph-user-summary">
               <span className="bph-user-source">{textPrefix}</span>
               {lastMessage.text}
             </Text>

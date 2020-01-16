@@ -53,7 +53,7 @@ export class Append extends React.Component<Partial<KeyboardElementsProps>> {
   render() {
     return (
       <div>
-        {this.props.visible && <KeyboardElements append={true}>{this.props.keyboard}</KeyboardElements>}
+        {this.props.visible && <KeyboardElements append>{this.props.keyboard}</KeyboardElements>}
         {this.props.children}
       </div>
     )

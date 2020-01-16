@@ -78,7 +78,7 @@ const RollbackBotModal: FC<Props> = props => {
             options={revisions}
             onChange={setSelected}
             tabIndex="1"
-            autoFocus={true}
+            autoFocus
           />
         </FormGroup>
 

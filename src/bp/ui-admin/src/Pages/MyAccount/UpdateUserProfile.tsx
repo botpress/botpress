@@ -36,14 +36,7 @@ const UpdateUserProfile: FC<Props> = props => {
   }
 
   return (
-    <Dialog
-      title="Update your profile"
-      icon="user"
-      isOpen={props.isOpen}
-      onClose={props.toggle}
-      transitionDuration={0}
-      canOutsideClickClose={false}
-    >
+    <Dialog title="Update your profile" icon="user" isOpen={props.isOpen} onClose={props.toggle} transitionDuration={0}>
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
           <FormGroup label="First Name">
@@ -52,7 +45,7 @@ const UpdateUserProfile: FC<Props> = props => {
               value={firstname}
               onChange={e => setFirstname(e.target.value)}
               tabIndex={1}
-              autoFocus={true}
+              autoFocus
             />
           </FormGroup>
 

@@ -43,7 +43,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
             </AccessControl>
           </div>
         </Panel>
-        <Tabs animation={false} id="node-props-modal-skill-node-tabs">
+        <Tabs id="node-props-modal-skill-node-tabs">
           <Tab
             eventKey="transitions"
             title={

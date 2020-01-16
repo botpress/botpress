@@ -6,7 +6,7 @@ import style from './style.scss'
 import Interaction from './Interaction'
 
 export default ({ failureIdx, skipped, mismatch, previews }) => (
-  <Grid fluid={true}>
+  <Grid fluid>
     <Row>
       <h4>Failure report</h4>
       <Col md={12}>
@@ -24,13 +24,13 @@ export default ({ failureIdx, skipped, mismatch, previews }) => (
         <p className="text-center">
           <strong>Expected interaction</strong>
         </p>
-        <Interaction {...mismatch.expected} previews={previews} failure={true} mismatchIdx={mismatch.index} />
+        <Interaction {...mismatch.expected} previews={previews} failure mismatchIdx={mismatch.index} />
       </Col>
       <Col md={6}>
         <p className="text-center">
           <strong>Actual interaction</strong>
         </p>
-        <Interaction {...mismatch.received} previews={previews} failure={true} mismatchIdx={mismatch.index} />
+        <Interaction {...mismatch.received} previews={previews} failure mismatchIdx={mismatch.index} />
       </Col>
     </Row>
   </Grid>

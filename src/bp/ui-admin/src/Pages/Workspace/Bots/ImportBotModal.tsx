@@ -110,7 +110,6 @@ class ImportBotModal extends Component<Props, State> {
         isOpen={this.props.isOpen}
         onClose={this.toggleDialog}
         transitionDuration={0}
-        canOutsideClickClose={false}
       >
         <form
           ref={form => (this._form = form)}
@@ -136,7 +135,7 @@ class ImportBotModal extends Component<Props, State> {
                 minLength={3}
                 value={this.state.botId}
                 onChange={this.handleBotIdChanged}
-                autoFocus={true}
+                autoFocus
               />
             </FormGroup>
             <FormGroup

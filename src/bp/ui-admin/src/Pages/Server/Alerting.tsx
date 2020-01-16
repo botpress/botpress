@@ -153,7 +153,6 @@ class Alerts extends Component<Props, State> {
           options={timeFrameOptions}
           value={this.state.timeFrame}
           onChange={this.handleTimeFrameChanged}
-          isSearchable={false}
         />
         <strong>Auto-Refresh</strong>
         <br />
@@ -173,7 +172,7 @@ class Alerts extends Component<Props, State> {
 
   render() {
     return (
-      <PageContainer title="Alerting & Incidents" fullWidth={true} superAdmin={true}>
+      <PageContainer title="Alerting & Incidents" fullWidth superAdmin>
         <CheckRequirements requirements={['redis', 'pro', 'monitoring']} feature="alerting">
           {this.renderChild()}
         </CheckRequirements>

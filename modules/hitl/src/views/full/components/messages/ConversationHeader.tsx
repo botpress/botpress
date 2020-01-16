@@ -29,7 +29,7 @@ export const ConversationHeader: FC<Props> = props => {
         }
         className="bph-conversation-toggle"
       >
-        <Switch checked={!props.isPaused} onChange={togglePause} large={true} />
+        <Switch checked={!props.isPaused} onChange={togglePause} large />
       </Tooltip>
     </div>
   )

@@ -94,7 +94,7 @@ export default class NLUTests extends React.Component<Props, State> {
   render() {
     const shouldRenderSplash = !this.state.loading && !this.state.tests.length && !this.state.f1Metrics
     return (
-      <Container sidePanelHidden={true} yOverflowScroll={true}>
+      <Container sidePanelHidden yOverflowScroll>
         <div />
         <div className="bph-layout-main">
           <div className="bph-layout-middle">

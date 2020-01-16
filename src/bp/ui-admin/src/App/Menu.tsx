@@ -80,7 +80,7 @@ const Menu: FC<MenuProps> = props => {
   return (
     <div className="bp-sa-menu">
       <div className="bp-sa-menu-header"> Workspace</div>
-      <ControlGroup vertical={true} fill={true}>
+      <ControlGroup vertical fill>
         <MenuItem
           id="btn-menu-bots"
           text="Bots"
@@ -96,7 +96,7 @@ const Menu: FC<MenuProps> = props => {
           url="/workspace/:workspaceId?/users"
           resource="admin.collaborators.*"
           operation="read"
-          isPro={true}
+          isPro
         />
 
         <MenuItem
@@ -106,14 +106,14 @@ const Menu: FC<MenuProps> = props => {
           url="/workspace/:workspaceId?/roles"
           resource="admin.roles.*"
           operation="read"
-          isPro={true}
+          isPro
         />
       </ControlGroup>
 
-      <AccessControl superAdmin={true}>
+      <AccessControl superAdmin>
         <Fragment>
           <div className="bp-sa-menu-header">Management</div>
-          <ControlGroup vertical={true} fill={true}>
+          <ControlGroup vertical fill>
             <MenuItem id="btn-menu-version" text="Source Control" icon="changes" url="/server/version" />
             <MenuItem
               id="btn-menu-license"
@@ -126,7 +126,7 @@ const Menu: FC<MenuProps> = props => {
           </ControlGroup>
 
           <div className="bp-sa-menu-header">Health</div>
-          <ControlGroup vertical={true} fill={true}>
+          <ControlGroup vertical fill>
             <MenuItem id="btn-menu-monitoring" text="Monitoring" icon="timeline-line-chart" url="/server/monitoring" />
             <MenuItem id="btn-menu-alerting" text="Alerting" icon="notifications" url="/server/alerting" />
             <MenuItem text="Debug" id="btn-menu-debug" icon="console" url="/server/debug" />
@@ -135,7 +135,7 @@ const Menu: FC<MenuProps> = props => {
       </AccessControl>
 
       <div className="bp-sa-menu-header">Announcements</div>
-      <ControlGroup vertical={true} fill={true}>
+      <ControlGroup vertical fill>
         <MenuItem
           text="Latest Releases"
           id="btn-menu-releases"

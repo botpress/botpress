@@ -120,7 +120,7 @@ const Login: FC<Props> = props => {
   }
 
   return (
-    <LoginContainer title="Login" error={error} poweredBy={true}>
+    <LoginContainer title="Login" error={error} poweredBy>
       {loginUrl ? (
         <LoginForm onLogin={loginUser} />
       ) : (

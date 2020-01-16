@@ -38,19 +38,17 @@ const BotItemCompact: FC<Props> = ({ bot, deleteBot, exportBot, createRevision, 
           <Button
             text="Config"
             icon="cog"
-            minimal={true}
+            minimal
             className="configBtn"
             onClick={() => history.push(`bots/${bot.id}`)}
           />
         </AccessControl>
 
-        {!bot.disabled && (
-          <AnchorButton text="Open chat" icon="chat" href={botShortLink} target="_blank" minimal={true} />
-        )}
+        {!bot.disabled && <AnchorButton text="Open chat" icon="chat" href={botShortLink} target="_blank" minimal />}
 
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
               {!bot.disabled && (
                 <MenuItem disabled={bot.locked} icon="edit" text="Edit in Studio" href={botStudioLink} />

@@ -94,13 +94,7 @@ class LangSwitcher extends React.Component<Props> {
             {this.props.contentLang.toUpperCase()}
           </span>
         </ActionItem>
-        <Dropdown
-          pullRight
-          dropup={true}
-          open={this.props.langSwitcherOpen}
-          onToggle={this.onToggle}
-          id="lang-switcher"
-        >
+        <Dropdown pullRight dropup open={this.props.langSwitcherOpen} onToggle={this.onToggle} id="lang-switcher">
           {/* react-bootstrap warning otherwise */}
           <Dropdown.Toggle style={{ display: 'none' }} />
           <Dropdown.Menu pullRight onClose={this.props.toggleLangSwitcher} className={style.langSwitherMenu}>

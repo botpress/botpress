@@ -193,7 +193,6 @@ class ActionModalForm extends Component {
   render() {
     return (
       <Modal
-        animation={false}
         show={this.props.show}
         onHide={this.onClose}
         container={document.getElementById('app')}

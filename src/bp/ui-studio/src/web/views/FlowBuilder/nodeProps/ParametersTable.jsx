@@ -127,7 +127,7 @@ export default class ParametersTable extends Component {
             <input type="text" disabled={!!definition.required} value={paramName} onChange={editKey} />
           </td>
           <td>
-            <SmartInput singleLine={true} value={paramValue} placeholder={definition.default} onChange={editValue} />
+            <SmartInput singleLine value={paramValue} placeholder={definition.default} onChange={editValue} />
           </td>
         </tr>
       )

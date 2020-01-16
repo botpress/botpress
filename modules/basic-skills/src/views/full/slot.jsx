@@ -276,7 +276,7 @@ export class Slot extends React.Component {
               value={this.state.selectedActionOption}
               options={this.state.actions}
               onChange={this.handleActionChange}
-              isClearable={true}
+              isClearable
             />
           </Col>
         </Row>

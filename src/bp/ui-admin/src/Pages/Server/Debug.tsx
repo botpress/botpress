@@ -76,7 +76,7 @@ export default class Debug extends React.Component<Props, State> {
         expanded={this.state.expanded}
         onCheck={checked => this.setState({ checked })}
         onExpand={expanded => this.setState({ expanded: ['bp', ...expanded] })}
-        showExpandAll={true}
+        showExpandAll
         icons={{
           check: <FaCheckSquare />,
           uncheck: <FaSquare />,
@@ -96,7 +96,7 @@ export default class Debug extends React.Component<Props, State> {
   renderSide() {
     return (
       <div>
-        <Button id="btn-refresh" onClick={this.loadConfiguration} fill={true} icon="refresh" text="Refresh" />
+        <Button id="btn-refresh" onClick={this.loadConfiguration} fill icon="refresh" text="Refresh" />
         <br />
         <br />
         <Tooltip content="When checked, the selected debug options will be enabled after each server restart">
@@ -112,7 +112,7 @@ export default class Debug extends React.Component<Props, State> {
           id="btn-save"
           onClick={this.saveConfiguration}
           intent={Intent.PRIMARY}
-          fill={true}
+          fill
           icon="floppy-disk"
           text="Save"
         />
@@ -125,7 +125,7 @@ export default class Debug extends React.Component<Props, State> {
       <PageContainer
         title="Configure Debug"
         helpText="This page allows you to enable or disable some debug scopes while using Botpress. This list is populated while features are being used, so some items may be missing"
-        superAdmin={true}
+        superAdmin
       >
         <SplitPage sideMenu={this.renderSide()}>{this.renderTree()}</SplitPage>
       </PageContainer>
