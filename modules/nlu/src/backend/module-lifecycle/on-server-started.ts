@@ -53,7 +53,7 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
     generateSimilarJunkWords: (vocab: string[], lang: string) =>
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
-    ducklingExtractor: new DucklingEntityExtractor(bp.logger),
+    duckling: new DucklingEntityExtractor(bp.logger),
     reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
       await setTrainingSession(bp, botId, trainSession)
 

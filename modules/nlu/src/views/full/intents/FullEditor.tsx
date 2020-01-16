@@ -16,8 +16,9 @@ interface Props {
   intent: string
   api: NLUApi
   contentLang: string
-  showSlotPanel: boolean
+  showSlotPanel?: boolean
   axios: AxiosInstance
+  liteEditor?: boolean
 }
 
 export const IntentEditor: FC<Props> = props => {
@@ -60,11 +61,13 @@ export const IntentEditor: FC<Props> = props => {
     <div className={style.intentEditor}>
       <div>
         <div className={style.header}>
-          <ContextSelector
-            contexts={intent.contexts}
-            saveContexts={contexts => saveIntent({ ...intent, contexts })}
-            api={props.api}
-          />
+          {!props.liteEditor && (
+            <ContextSelector
+              contexts={intent.contexts}
+              saveContexts={contexts => saveIntent({ ...intent, contexts })}
+              api={props.api}
+            />
+          )}
           <IntentHint intent={intent} contentLang={props.contentLang} axios={props.axios} />
         </div>
         <UtterancesEditor

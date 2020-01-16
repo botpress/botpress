@@ -16,6 +16,7 @@ type TrainingEntry = {
  * This engine is much slower because it trains multiple models instead of only one
  * For practical reasons, set `computeConfusionOnTrain` to true to enable Confusion Matrix computations.
  */
+// DEPRECATED
 export default class ConfusionEngine extends ScopedEngine {
   private modelName: string = ''
   private modelIdx: number = 0

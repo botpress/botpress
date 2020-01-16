@@ -1,0 +1,6008 @@
+[
+  {
+    "id": "yJzGf_tw7mgSkxpNpFKbs",
+    "utterance": "What is the contact number?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "6-hLpwvE02we__92m9W_W",
+    "utterance": "WHAT IS THE CONTACT NUMBER?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "2ZUahpuBEqM6_muWmojlO",
+    "utterance": "WHAT is THE contact NUMBER",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "SbbL1DoGzCni8GngFVfRh",
+    "utterance": "what is the contact number",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "jy5eT_OtHSjp-FxOuJY7k",
+    "utterance": "what    is the contact number    ?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "unZzJ4JtmFpKzPzSCMYDs",
+    "utterance": "WHAT... IS THE CONTACT NUMBER?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "2rLB_cjxfhELKuEeDwnVN",
+    "utterance": "what ; is ; your ; contact number ?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "vVk9NaIA-e2exA-6kOA9L",
+    "utterance": "? contact number, please!",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "JBUvcckw_6N27duZfNoeM",
+    "utterance": "      what is contact number",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "0pmO7tDt-X10XDEITOVMd",
+    "utterance": "Where can I find your ladnline?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "k9xuhVGQ36zRJQ6sWS3Hb",
+    "utterance": "Where can I find your ladnline?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "9vXYbJ0fscX1LzFmO0xmG",
+    "utterance": "Where can I find your ladnline?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "tjtT4jMhOYey7cIYLphXJ",
+    "utterance": "Where can I find your ladnline?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "_OPIsiTkjImxWDhGXdQuv",
+    "utterance": "Where can I find your ladnline?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-contact-details"]]
+  },
+  {
+    "id": "nSUp2Hx677leUSGe2MzKC",
+    "utterance": "Please help with technical isseu",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "7ss71A7psSG8RyL2UYM36",
+    "utterance": "Please help with technical isseu",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "0oD_BfMt8kAnC_VoLDWpn",
+    "utterance": "Please help with technical isseu",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "dEM18cfQ5-qpaojxR8Hf6",
+    "utterance": "Please help with technical isseu",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "UV3tMr168ndCQBG5B6OzD",
+    "utterance": "Please help with technical isseu",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "ppfl3tatTgsM6C4SeFOkg",
+    "utterance": "I want to amend my staetment",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "2tVwLYjmqTBwCICcWEGrs",
+    "utterance": "I want to amend my staetment",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "XNYXBTKXasqlLdanajjF0",
+    "utterance": "I want to amend my staetment",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "EaxkoKiYXUuAUsL3as7JA",
+    "utterance": "I want to amend my staetment",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "Rkn3hIzZYa2nLwRYCiYAy",
+    "utterance": "how do I go about cnacelling",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "N2hy6PZqKI4K1JWCQ0f4v",
+    "utterance": "how do I go about cnacelling",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "-vTSr2KmmXaCDdfieI2g2",
+    "utterance": "how do I go about cnacelling",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "Cxo2tyda_ALPINtsyu4eI",
+    "utterance": "how do I go about cnacelling",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "SOO0XZ0yAj_2X7ONtegGc",
+    "utterance": "how do I go about cnacelling",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "hK4cQZgbwXQY60fQdoImK",
+    "utterance": "I've got a probelm with login",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "i9H13eQC6BkXethXTGjRo",
+    "utterance": "I've got a probelm with login",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "OmE0O4vSmVlqtKl01YCq_",
+    "utterance": "I've got a probelm with login",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "fJGCG9xsNnfu_pmtsbVYP",
+    "utterance": "I've got a probelm with login",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "cRHyYmt-T97FtBgrNkRzs",
+    "utterance": "I've got a probelm with login",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "KH0APO323KQKxSKDZziXA",
+    "utterance": "Why is my screen lokced?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "SOaYEi8ppKkC2IceQedeq",
+    "utterance": "Why is my screen lokced?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "FP3x-Lco5lNgc-sRIoS3C",
+    "utterance": "Why is my screen lokced?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "ucqb4acw5C8IRd3Isd8U2",
+    "utterance": "Why is my screen lokced?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "bGqNU_glsQ6abyDmOQ7ud",
+    "utterance": "Why is my screen lokced?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "A0D9pb8wuwkE4y8-zAp1X",
+    "utterance": "Where can I find your lsndline?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "jUyc5Md7GihIxXpSNxHTC",
+    "utterance": "Where can I find your lsndline?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "6-NxU1rd4peaXBCGh9Il0",
+    "utterance": "Where can I find your lsndline?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "EgQFSyzXghNoEa6XY1Zmh",
+    "utterance": "Where can I find your lsndline?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "nIehrlC6avsyoQjSjyEiL",
+    "utterance": "Where can I find your lsndline?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-contact-details"]]
+  },
+  {
+    "id": "3czKYwARFGdn47i-WQM0G",
+    "utterance": "Please help with technical issye",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "QAiCT9R-PWBKV_Cgp7kCJ",
+    "utterance": "Please help with technical issye",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "Yqcsr8f3jE2Bft3Mrc59Y",
+    "utterance": "Please help with technical issye",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "v6SV6zvq3br1CGs0sWPSJ",
+    "utterance": "Please help with technical issye",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "t4w8HI4_Pi_P2yV9UHPGz",
+    "utterance": "Please help with technical issye",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "AM4e9QgurihyEbb24WYBm",
+    "utterance": "I want to amend my statrment",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "CBd1k7SyeQFq-Y75Wgl37",
+    "utterance": "I want to amend my statrment",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "UXvL3ITlXYnqK2-JoOSRm",
+    "utterance": "I want to amend my statrment",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "fh75C4OmrJGrytfqq15dR",
+    "utterance": "I want to amend my statrment",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "9kUOrovaJVhztZUtT-wKB",
+    "utterance": "how do I go about csncelling",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "sUypNoLsk-5rYW0L_kMVq",
+    "utterance": "how do I go about csncelling",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "-46ubf6eX5UcrkQxHhI9N",
+    "utterance": "how do I go about csncelling",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "F6pkbKz_CvlJ6I2gMxnhK",
+    "utterance": "how do I go about csncelling",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "2hvbCeK8gpLmM8vHYeTWc",
+    "utterance": "how do I go about csncelling",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "UBxuPnCn-VD8yqhrQNFJ6",
+    "utterance": "I've got a problen with login",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "WopPYgjRmC6WBFS4tdWY2",
+    "utterance": "I've got a problen with login",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "Dr6ohJvEwAbpPE1066Tb8",
+    "utterance": "I've got a problen with login",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "uK8idwFh3OZrJCFmPxdP5",
+    "utterance": "I've got a problen with login",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "x_h8RLk95C38Tj4bMthlF",
+    "utterance": "I've got a problen with login",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "sg-6yZDFn8Rvz3ynAediv",
+    "utterance": "Why is my screen lockef?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "41a2-ojdUTQS66yUYGLMv",
+    "utterance": "Why is my screen lockef?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "8lO0uzPWjbe-1wmk1KSjT",
+    "utterance": "Why is my screen lockef?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "aBRI4BlshnKT4Ik15qBoG",
+    "utterance": "Why is my screen lockef?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "2G1KCTI5JDuJqbgh71E_f",
+    "utterance": "Why is my screen lockef?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "tKLJOJNYWdcjIUXnuPJ25",
+    "utterance": "Where can I find your lndline?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "kjDsKYa1ETmdLYFDJV_hg",
+    "utterance": "Where can I find your lndline?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "BMe80xKXbGSdZqrC9cjcR",
+    "utterance": "Where can I find your lndline?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "8Mr0xixyrGLDkx4_K3vMm",
+    "utterance": "Where can I find your lndline?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "UHaILsiEZuDbDJHkn24HY",
+    "utterance": "Where can I find your lndline?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-contact-details"]]
+  },
+  {
+    "id": "DvfvT7sYYpzWV16ISCWQH",
+    "utterance": "Please help with technical ssue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "NAGqj40pcGNpiUzlCFZ8e",
+    "utterance": "Please help with technical ssue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "aQtKWUww_T530L-R1sJYW",
+    "utterance": "Please help with technical ssue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "n1GdrjYgofkt0nBilzMZS",
+    "utterance": "Please help with technical ssue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "k0pr_uV4JewXvFbu2Z3y7",
+    "utterance": "Please help with technical ssue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "xu5u4qgcoQSD0OpvJzrOM",
+    "utterance": "I want to amend my statment",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "aojDnYroRj01dmfjd5NKA",
+    "utterance": "I want to amend my statment",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "xP7SIf4_6lQMI5qFKayhs",
+    "utterance": "I want to amend my statment",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "RSr32qudBtKPxKY-tsbvA",
+    "utterance": "I want to amend my statment",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "IMJIMpjguk2zvqpAU15hn",
+    "utterance": "how do I go about cncelling",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "pmvRJMCq4zYN5eLOGpCUz",
+    "utterance": "how do I go about cncelling",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "1--AK1HLmjYTBiMCZdRjL",
+    "utterance": "how do I go about cncelling",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "VI8UrPSZAczXtC4a4VCU-",
+    "utterance": "how do I go about cncelling",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "9MFFfyo7qadgcVZnO5fa-",
+    "utterance": "how do I go about cncelling",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "bEHRlRe9xYZhQ2IMz-zV_",
+    "utterance": "I've got a poblem with login",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "vQzW1OZUACwIJWZtx-Yml",
+    "utterance": "I've got a poblem with login",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "nHrHttHs_2A0b7xaRi77W",
+    "utterance": "I've got a poblem with login",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "JmZxEK5nCnF_os2Fu1CN_",
+    "utterance": "I've got a poblem with login",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "dEYlOLzp2E7urP3YnN2-w",
+    "utterance": "I've got a poblem with login",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "7gk-ipgq3O7CZBgL3q9a2",
+    "utterance": "Why is my screen lcked?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "BmKspaFyJszrbOD0UzyLu",
+    "utterance": "Why is my screen lcked?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "HLTvdmjBlTUFaP-m8f6Su",
+    "utterance": "Why is my screen lcked?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "FHgmYqmy46dyGAP4yCgFe",
+    "utterance": "Why is my screen lcked?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "z03dr1BiOSei5vFAvOqHp",
+    "utterance": "Why is my screen lcked?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "cJvflFonlPrkCEBlRun3D",
+    "utterance": "Where can I find your landlines?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "lodbPfspKcXmIBKujw0h3",
+    "utterance": "Where can I find your landlines?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "k5-ug8FBJjP2L8T00Jqk8",
+    "utterance": "Where can I find your landlines?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "GwN4t4ySo5kvbtvKvWN8L",
+    "utterance": "Where can I find your landlines?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "UHqNPvOEe58vnuOv6WoIL",
+    "utterance": "Where can I find your landlines?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-contact-details"]]
+  },
+  {
+    "id": "Fgh_lGPPky802Ze4j7woq",
+    "utterance": "Please help with technical issues",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "s-YsRmRw0jGyOQQQwy39Y",
+    "utterance": "Please help with technical issues",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "mASy_bIan5c8t-OpCgPI7",
+    "utterance": "Please help with technical issues",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "I_DObxX9pPkLgZdXm9N5K",
+    "utterance": "Please help with technical issues",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "wUCGYJ2LkmPoxv7U1marf",
+    "utterance": "Please help with technical issues",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "XQVryJ5brqGQ6sPFqt6YP",
+    "utterance": "I want to amend my statements",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "yhFy1PhM883729dKtkW90",
+    "utterance": "I want to amend my statements",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "zpiQHWiGI-12B0XDXrQxr",
+    "utterance": "I want to amend my statements",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "mE0Q-u0eVKrkZ4k9uY6Rv",
+    "utterance": "I want to amend my statements",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "yAC6UaFNkzvUZF3zNaqNf",
+    "utterance": "how do I go about cancellings",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "B-sy0KDWc6old-vqAF_WL",
+    "utterance": "how do I go about cancellings",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "i0Rz6LjEW967VyeKsV_P0",
+    "utterance": "how do I go about cancellings",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "nEWiMyuiynsRYdifjxlgZ",
+    "utterance": "how do I go about cancellings",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "ZkxJJCu2__awJSFmE3JKT",
+    "utterance": "how do I go about cancellings",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "fhuUfJCFOhV2_hDp8-wYQ",
+    "utterance": "I've got a problems with logins",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "k1j3li239zAZtSWYCwrga",
+    "utterance": "I've got a problems with logins",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "TAKGDR0tHjuwcgygbBvYb",
+    "utterance": "I've got a problems with logins",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "mbSX_KI-dPm-6ufZYYyDq",
+    "utterance": "I've got a problems with logins",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "_1I1EojTTY9Es0Zmk2ckY",
+    "utterance": "I've got a problems with logins",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "kFrFnHJ2c3B3SlsSfuoV_",
+    "utterance": "Why are my screens locked?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "pxk1oCqAW4kA2boCTawHP",
+    "utterance": "Why are my screens locked?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "Ri1svjG3Y7OnX3qROulH5",
+    "utterance": "Why are my screens locked?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "bI8EK53S3UjvRpuDH86OZ",
+    "utterance": "Why are my screens locked?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "zTbO4VWEwV74tjqbjQdlN",
+    "utterance": "Why are my screens locked?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "UzicU25aK_hnUtjM3yW0L",
+    "utterance": "Where can I find your landlinne?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "s1gLMU1FjCnNSsJeSHukY",
+    "utterance": "Where can I find your landlinne?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "vVufRqi03vtet-xdhkFA5",
+    "utterance": "Where can I find your landlinne?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "02PZcXe0u4lRogI7yz-4F",
+    "utterance": "Where can I find your landlinne?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "sKbHvM10c5yCHEFSEoAje",
+    "utterance": "Where can I find your landlinne?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-contact-details"]]
+  },
+  {
+    "id": "aJqLJEZigSv4VfnT0XV9w",
+    "utterance": "Please help with technnical issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "1k-OLOS01Q9U50YjQwwbn",
+    "utterance": "Please help with technnical issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "QbzIoFqtRUq2ugqoC4X3m",
+    "utterance": "Please help with technnical issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "c0b7vhTGDkzuYNa_ANx28",
+    "utterance": "Please help with technnical issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "2qt6utaaLqB33sHTS1HQj",
+    "utterance": "Please help with technnical issue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "RCtf1yHh7IKW2FmozH91N",
+    "utterance": "I want to amend my statemment",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "GjIBdZQBSVW6eNZfePPDk",
+    "utterance": "I want to amend my statemment",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "hCW_jzcBxitiBe3psSMm9",
+    "utterance": "I want to amend my statemment",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "kXNnympx0LzWombTCdL9z",
+    "utterance": "I want to amend my statemment",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "lx55RzhH2l_6KmCdxbmCz",
+    "utterance": "how do I go abbout cancelling",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "qGO9RWBEIKEonChB2h_Pc",
+    "utterance": "how do I go abbout cancelling",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "RDvN9HlRxCT4gJi4A64IV",
+    "utterance": "how do I go abbout cancelling",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "xFKIB-7Ua0uZJg3S4IxfU",
+    "utterance": "how do I go abbout cancelling",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "yJ2XZsIHNr1Ip-9K7fAjY",
+    "utterance": "how do I go abbout cancelling",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "JLlFF7B0OE76enr0ssrnd",
+    "utterance": "I've got a problem with loggin",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "x3X0q2T-ZWmdqvJJwjPB3",
+    "utterance": "I've got a problem with loggin",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "AcNNMeiwPF3EgJKqYmSg7",
+    "utterance": "I've got a problem with loggin",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "d3PsHgTfnHsbmCQxNVEsd",
+    "utterance": "I've got a problem with loggin",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "GBXg7Wfu57wZksQc0chqz",
+    "utterance": "I've got a problem with loggin",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "DQQEGkvodDRJl-HOoiJAN",
+    "utterance": "Why are my screen lockked",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "NaUj1r4dIRiw3liG933sY",
+    "utterance": "Why are my screen lockked",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "m2mP7BrPqlWWoQ6IquycA",
+    "utterance": "Why are my screen lockked",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "qOOfdrnaoXGqICsMfc_Sv",
+    "utterance": "Why are my screen lockked",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "xNQdgv0OPWeQ7kK2we3EH",
+    "utterance": "Why are my screen lockked",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "mKGipIZGMgqsbwEA2uHaY",
+    "utterance": "Where can I find your lasndline?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "NWq9hgFsOy5-GHMyyLyCR",
+    "utterance": "Where can I find your lasndline?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "_4hPmvETWnZ4l1qZOwH54",
+    "utterance": "Where can I find your lasndline?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "_kTLHphW_RUlHgyzvWFrD",
+    "utterance": "Where can I find your lasndline?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "tBpbDSb6JK3KXwk7eBLHB",
+    "utterance": "Where can I find your lasndline?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-contact-details"]]
+  },
+  {
+    "id": "IxJRuEH298FHfbkqrRyqi",
+    "utterance": "Please help with tecvhnical issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "LJVZm2KlaMLTrNLVs_iFL",
+    "utterance": "Please help with tecvhnical issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "enmRgq6w0qphMO1bSmC2O",
+    "utterance": "Please help with tecvhnical issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "r9XK9RejTfWFPfgjPXCQx",
+    "utterance": "Please help with tecvhnical issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "6peII1zYIdd231iNLBGXV",
+    "utterance": "Please help with tecvhnical issue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "BSQOIP2qV93xJ2yrSrnO_",
+    "utterance": "I want to amend my statrement",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "PAo6ttzPvv_RVdon-xUSD",
+    "utterance": "I want to amend my statrement",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "S-jbUO9nDl6jjq2w0Cuz4",
+    "utterance": "I want to amend my statrement",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "6hbmyq8By0-pElfSyAL2t",
+    "utterance": "I want to amend my statrement",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "NyRQ8PgzzwQ1a8hXvN5SJ",
+    "utterance": "how do I go about cancellinfg",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "f8X7eC6WQ40WLbxiImf5o",
+    "utterance": "how do I go about cancellinfg",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "Y_P5P-elppKg8I074Plpr",
+    "utterance": "how do I go about cancellinfg",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "SBxfCLSpKpb_GoKV1XSaw",
+    "utterance": "how do I go about cancellinfg",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "XT0l00DGoCO9xvVGFus6i",
+    "utterance": "how do I go about cancellinfg",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "QHlGx9nLsg-DgivGSAxvF",
+    "utterance": "I've got a problem with logfin",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "t3WV9AybMPu9H9g7BRE0A",
+    "utterance": "I've got a problem with logfin",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "kHXWB_Bk23do2M0yTJOoC",
+    "utterance": "I've got a problem with logfin",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "ekaOXLubK_F8fFvNsJi67",
+    "utterance": "I've got a problem with logfin",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "u0F4lI5AhR-DxJI4ljxj5",
+    "utterance": "I've got a problem with logfin",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "Xl_NMFnnTExc29NQZDrs8",
+    "utterance": "Why are my screen lockerd",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "uKg7Ncp7NBG2o2QBT-Zau",
+    "utterance": "Why are my screen lockerd",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "Nc4tNBNIsXLM5Gi1lT-4u",
+    "utterance": "Why are my screen lockerd",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "_F5ibmexfeu-eP4jWQYq-",
+    "utterance": "Why are my screen lockerd",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "ItZ4OUXv2l5MpCAK6JjYD",
+    "utterance": "Why are my screen lockerd",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "AEdNyyGZfaYG86d-s3Xi3",
+    "utterance": "Where can I find your land line?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "33sO7Z4SSrt2L3IP5IBvY",
+    "utterance": "Where can I find your land line?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "YB2YV2WD655TqBNs_sfhX",
+    "utterance": "Where can I find your land line?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "qbOHztnUhzJCok1nRYGzu",
+    "utterance": "Where can I find your land line?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "upSm7EPVf0GKftf4TYjZ6",
+    "utterance": "Where can I find your land line?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-contact-details"]]
+  },
+  {
+    "id": "jgfr4qMp0CIBu8oob24Uf",
+    "utterance": "There's a problem with my screen",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "jvhbUlpVLMCw9ZRCc3I28",
+    "utterance": "There's a problem with my screen",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "W_Z5BO110sMPiJ4ecn9Qh",
+    "utterance": "There's a problem with my screen",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "Bslu-WQU7av_aVg6YaYL5",
+    "utterance": "There's a problem with my screen",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "5S_BL-vM1lJjmxfqIK9mx",
+    "utterance": "There's a problem with my screen",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "UTp4GqJ1U2tnl-GJ2jdFv",
+    "utterance": "They're is a problem with my screen",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "DIWKfWDFEW1MiOCCkSd0E",
+    "utterance": "They're is a problem with my screen",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "TqWQTBSfjKc82RVb1LdQq",
+    "utterance": "They're is a problem with my screen",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "TGje0U_pUc2ohXHyv7DOh",
+    "utterance": "They're is a problem with my screen",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "mZTLfmxdXbqQZoRbbPqM-",
+    "utterance": "They're is a problem with my screen",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "CTio6XAU8qtNXztRShA4h",
+    "utterance": "Theirs a problem with my screen",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "rsZ5plck8rpXJvZpTvzm4",
+    "utterance": "Theirs a problem with my screen",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "Jq3-zKi4wB01a7OUwC_TR",
+    "utterance": "Theirs a problem with my screen",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "vJKRY5TXvpxN2s4sqNywf",
+    "utterance": "Theirs a problem with my screen",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "MVpHDwvI0hU-X7nq-byJ8",
+    "utterance": "Theirs a problem with my screen",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "4iWdiZ0Ep8rtToq2Tnrsm",
+    "utterance": "I am experiencing difficulties using the system",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "6hWyw3ccfQsODrI0BFZLk",
+    "utterance": "I am experiencing difficulties using the system",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "AGbvVzEPIDqK1_FE_hkY7",
+    "utterance": "I am experiencing difficulties using the system",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "DdPtmvBtVgPhPamy9_pBa",
+    "utterance": "I am experiencing difficulties using the system",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "tL7m62XHZgIHDM0cFCDP_",
+    "utterance": "I am experiencing difficulties using the system",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "v-SyvVC97Ozft4lYmtIym",
+    "utterance": "I need techniqual support",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "V3AsFyhs6fp8ocXqIEa_p",
+    "utterance": "I need techniqual support",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "2TEDyw9k9wDyBfhE60TCQ",
+    "utterance": "I need techniqual support",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "vHk30kvTHD-tW4Z7Eso1X",
+    "utterance": "I need techniqual support",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "SmWIT2nbYn6XE9JjvtWAL",
+    "utterance": "I need techniqual support",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "jmVe2r_Qdwm_YkPpsAH8z",
+    "utterance": "I need technical support",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "suKqQpa9bOdsOanaZzvyX",
+    "utterance": "I need technical support",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "BPgmWxcadAwTCXCfXuFR6",
+    "utterance": "I need technical support",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "sDKCg7cMesvIvKUU1GOx8",
+    "utterance": "I need technical support",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "3RbKWlCPjbIeYk3Fx7BEI",
+    "utterance": "I need technical support",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "4piOblsvUZ_TetY6So3eS",
+    "utterance": "I'm experiencing dificulties using the system",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "4lgGrronzlumVmYjCbI8n",
+    "utterance": "I'm experiencing dificulties using the system",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "eqYPJjlWSN_tco4Qijdn8",
+    "utterance": "I'm experiencing dificulties using the system",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "K3xGpweCkOGxvrJbCfmqt",
+    "utterance": "I'm experiencing dificulties using the system",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "1uAVwmhpeacd2l-oqeLEZ",
+    "utterance": "I'm experiencing dificulties using the system",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "iApIv0eiome-TZZg7C2XA",
+    "utterance": "I'm experiencing difficuleties using the system",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "Q6zZUOWFlZfYZCLMGrAUr",
+    "utterance": "I'm experiencing difficuleties using the system",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "5xXxa-niMKI2OTxxV6ZZN",
+    "utterance": "I'm experiencing difficuleties using the system",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "RVsuGR6pIyfCenTcVHpHn",
+    "utterance": "I'm experiencing difficuleties using the system",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "p_P_8OZH10PHqWhHovGNZ",
+    "utterance": "I'm experiencing difficuleties using the system",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "Ba0U1lO_NnyIrSba9W0E9",
+    "utterance": "Where can I fidn your ladnline?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "TpU3x9MjhO6Vx_CXlJx0u",
+    "utterance": "Where can I fidn your ladnline?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "TEgmbTtio-uMDRk-3t0Qh",
+    "utterance": "Where can I fidn your ladnline?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "b9Apq2aATwfviPRhZC0gx",
+    "utterance": "Where can I fidn your ladnline?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "uCtee1gtGOIqdU5mQCOUo",
+    "utterance": "Where can I fidn your ladnline?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-contact-details"]]
+  },
+  {
+    "id": "ouxDyF-epUxcwBaxFzsfR",
+    "utterance": "Please help with techniqual isseu",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "Den6NjHXUi0N7xlnpOS2i",
+    "utterance": "Please help with techniqual isseu",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "7s4CEZlk7YqEQ8EC9Sca-",
+    "utterance": "Please help with techniqual isseu",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "LzUErDMqME_J0bEerCS5q",
+    "utterance": "Please help with techniqual isseu",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "n3HOrXCZwUVgM6FsLZSn7",
+    "utterance": "Please help with techniqual isseu",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "QQZxXnB6yrAy7rWPonHjW",
+    "utterance": "I want to ammend my staetment",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "3ZuWQSXmL_D1vB5TDIkpo",
+    "utterance": "I want to ammend my staetment",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "j__OC2YxzXvLm8rpMrRWW",
+    "utterance": "I want to ammend my staetment",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "Hnn3zG0j7V-63fXDKNI7d",
+    "utterance": "I want to ammend my staetment",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "1xzbBZ4FgLMPD7jiIn9rb",
+    "utterance": "how do I go about cnaceling",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "w6MrfPwIbUVhxtsJM3A5s",
+    "utterance": "how do I go about cnaceling",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "WVHdxcqkD2vwAT349kKJY",
+    "utterance": "how do I go about cnaceling",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "qyUmFnILJXF751hXWB5Sj",
+    "utterance": "how do I go about cnaceling",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "AGpKA50ggcY_PiGuwCBeR",
+    "utterance": "how do I go about cnaceling",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "5sZziyKLLBuNrfa7CFUG3",
+    "utterance": "I've got a probelm with loggin",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "zwGq7jm7CH3bQJx4ScRf0",
+    "utterance": "I've got a probelm with loggin",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "vlOgDxB7zy1gYuCrWYsER",
+    "utterance": "I've got a probelm with loggin",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "ZPW_IdgxP34gLywWyEkrE",
+    "utterance": "I've got a probelm with loggin",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "4e2n_W-hUzr3iyVNU3p6a",
+    "utterance": "I've got a probelm with loggin",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "8PDctbM1IbCCQ6y3hb4op",
+    "utterance": "Why are my screens lokced?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "lPD_dNPda3yhAZ5F1_Hw4",
+    "utterance": "Why are my screens lokced?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "cy95VoPp1dNl1c4BvCB0r",
+    "utterance": "Why are my screens lokced?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "v__oqf6bpjg7FEuFC4wky",
+    "utterance": "Why are my screens lokced?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "ISuF4jHQ0gipWeO2Ijx3K",
+    "utterance": "Why are my screens lokced?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "5Dmw6uIKYSlYqMHSq89XR",
+    "utterance": "I don't have any issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "vCKTaPvnh9JrWTLlA-ggp",
+    "utterance": "I have no problem at all",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "MXVjY0a0hYpZe1GDTr2fk",
+    "utterance": "I am happy I faced no issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "qiYZ554plp7V5hAeGbBqe",
+    "utterance": "I can not unlock my screen",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "V2v80htTnx2RVqFjxvC2J",
+    "utterance": "I can not unlock my screen",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "c8KtJgrdxwSRmIMFbOcMK",
+    "utterance": "I can not unlock my screen",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "CvVcIWtu5FgYERQ-SJgFF",
+    "utterance": "I can not unlock my screen",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "neka-jTUvZHRsMxN2PAID",
+    "utterance": "I can not unlock my screen",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "fDhrnlU1ca-Yw4HFP3Jos",
+    "utterance": "My screen is locked",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "umRcJIjX2_blpHKVDBXue",
+    "utterance": "My screen is locked",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "uPNa0-W255rjEDXc6HD0D",
+    "utterance": "My screen is locked",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "6DoOFyjm9rLn4cjw4mCnP",
+    "utterance": "My screen is locked",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "Vwo0bw0V7n8zAYAkLs2Bj",
+    "utterance": "My screen is locked",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "h1YaTv8vAzcwsAOK8LToE",
+    "utterance": "My screen is locked for some reason",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "OB2HBTxhubVq0g1ufrCgf",
+    "utterance": "My screen is locked for some reason",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "3Y8ss6znkqToslOy1TMV7",
+    "utterance": "My screen is locked for some reason",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "yAfrULr4yUEQqSOiP73Rp",
+    "utterance": "My screen is locked for some reason",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "RRH3CaXHee-dhxGiDBP8B",
+    "utterance": "My screen is locked for some reason",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "dtkLyEP6KRT1M1yCC9n7p",
+    "utterance": "Why is my screen locked?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "lM8L-eYLXFDl68IvanVoo",
+    "utterance": "Why is my screen locked?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "xAIWORfKPUMXIQ-3TcIEm",
+    "utterance": "Why is my screen locked?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "g4wNEaxoXDzt4v4e3wLM6",
+    "utterance": "Why is my screen locked?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "zrPSxbh_E-pvr0Oicul4C",
+    "utterance": "Why is my screen locked?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "5rIPKNNtnBnUtkqi9CyGo",
+    "utterance": "I can not login",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "9O-o2R0-jNWrcCyCv5b3D",
+    "utterance": "I can not login",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "2SE755DVhdAt6kZ8ElA3t",
+    "utterance": "I can not login",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "_vBDYIc2ES3mePSc5iqBb",
+    "utterance": "I can not login",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "EEK_hN6RkdRVBSxlHC-Fe",
+    "utterance": "I can not login",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "xS3PqgcB3_rlCW8324WDq",
+    "utterance": "I can't login in for some reason",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "tRACAbWBHriWoOi0gCJK9",
+    "utterance": "I can't login in for some reason",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "SlyTT_oOS19r6pIp40FIk",
+    "utterance": "I can't login in for some reason",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "FIooWGBp4E8L0N8lRiBTq",
+    "utterance": "I can't login in for some reason",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "BkOuqCeDaj4cKULh895g_",
+    "utterance": "I can't login in for some reason",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "U4DtT7c6vIIicvLLTRI4E",
+    "utterance": "I can not get the right results",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "keJ39jeuOLmxEz7uihqQF",
+    "utterance": "I can not get the right results",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "3_ImbxJeAMoXFcbeRWg0S",
+    "utterance": "I can not get the right results",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "RkdWG1QBRh1pftwPWVb6H",
+    "utterance": "I can not get the right results",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "xgs_utVUXKmlNf5wAKplh",
+    "utterance": "I can not get the right results",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "S4HW2tPIYHRbzXkFSzeMu",
+    "utterance": "I expected a different result",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "ucqtUdgIqGqX-8OxFm4z5",
+    "utterance": "I expected a different result",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "WOeKm6vj1WN9FqbbIj6ne",
+    "utterance": "I expected a different result",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "expCRQOElUFjP84Bt31AD",
+    "utterance": "I expected a different result",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "9gcIi-Vss--3HdpE8LEg7",
+    "utterance": "I expected a different result",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "p34s_54PhokApFpMvAJg9",
+    "utterance": "how do I go about making more money",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "P0Q0LVxbllqngJ5urSzrD",
+    "utterance": "how do I go about making more money",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "Wubo8ftn7XjbGpNNK_Z6_",
+    "utterance": "how do I go about making more money",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "vDZ6ys6E0PBRkHUpYvchR",
+    "utterance": "how do I go about making more money",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "USG0fsHDOPddETpw4iQEK",
+    "utterance": "how do I go about making more money",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "1IpQk6AKyTgZIxr1kEqX8",
+    "utterance": "Why is my results different?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "p-eD9cu_YiekkB_bslsNV",
+    "utterance": "Why is my results different?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "fQRdY3FiVAtgMOEfwXsk5",
+    "utterance": "Why is my results different?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "rnIa7sMVDcqQc4iyVShvu",
+    "utterance": "Why is my results different?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "I6snlh_DrovGUMXR5DRIh",
+    "utterance": "Why is my results different?",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "8e3056306gXaIGs62_jeZ",
+    "utterance": "I got the wrong results for some reason",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "MqKjKu6CBGUv1Ls4xpwi3",
+    "utterance": "I got the wrong results for some reason",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "FZugG7AUO_knLsHi3Tm1y",
+    "utterance": "I got the wrong results for some reason",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "PVHKrXPF3psSZuy2gqUVn",
+    "utterance": "I got the wrong results for some reason",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "_L64NQG_fyZMxpsdDO758",
+    "utterance": "I got the wrong results for some reason",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "uEh5ZeGYEnaAakGwEgXt8",
+    "utterance": "My results are not what it is supposed to be",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "3_9RX8sc1MA0kqrfoOGoT",
+    "utterance": "My results are not what it is supposed to be",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "n8TiU81-ZflRGx3XuYM9E",
+    "utterance": "My results are not what it is supposed to be",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "DYy-ILAnxdm3Nk8Ckmsvf",
+    "utterance": "My results are not what it is supposed to be",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "zbBFtLX0yhrGv_QG2uxnH",
+    "utterance": "My results are not what it is supposed to be",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "9VXezqFZF_BgZr9d0Q2Kx",
+    "utterance": "There is a problem with my screen",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "4JBXN4xPGhdsLRzCbSG0b",
+    "utterance": "There is a problem with my screen",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "ApMkOlhN6pGcn7_O7rUCo",
+    "utterance": "There is a problem with my screen",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "UkB0AAXgQWMpUB57Gpc9M",
+    "utterance": "There is a problem with my screen",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "CNQAt9hvA688rE6UmABHY",
+    "utterance": "There is a problem with my screen",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "tvYH7C_jrr0G26zunuAoS",
+    "utterance": "I've got a problem with login",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "9mw1LMtYzYSAw1M2cWcgt",
+    "utterance": "I've got a problem with login",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "1bgTa1eO54svQMaa0WWl-",
+    "utterance": "I've got a problem with login",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "cEPz99iO9GRq1TQCSMxDM",
+    "utterance": "I've got a problem with login",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "_NCmZw8sduLBrq8-hJN5L",
+    "utterance": "I've got a problem with login",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "nSg9vafy2CtIgADHQNvDD",
+    "utterance": "I've got an error when trying to loging",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "g3zFYOqWiew7Pval9IBmT",
+    "utterance": "I've got an error when trying to loging",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "zEVdAhKndeEtmR4XuHCmb",
+    "utterance": "I've got an error when trying to loging",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "diHFaCLGk4vax6V7ZK0Wy",
+    "utterance": "I've got an error when trying to loging",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "k-eY2auAkE9ZpuAEVOo5P",
+    "utterance": "I've got an error when trying to loging",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "sN_YehiWI_fU-Tcu2l1Ao",
+    "utterance": "I've got a problem with my results",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "sPlamgiSEHGYaRLhn7qVl",
+    "utterance": "I've got a problem with my results",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "esop-o15c40lY5-BFindh",
+    "utterance": "I've got a problem with my results",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "kL5JphvtR7bawOj5jZw_-",
+    "utterance": "I've got a problem with my results",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "BFOZXGEtMy-gcv5mJmbAo",
+    "utterance": "I've got a problem with my results",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "qIbXd6rMvugWIm8EauudX",
+    "utterance": "There is a problem with the result",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "kJIUyrCssYURhx9H7dkXi",
+    "utterance": "There is a problem with the result",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "6zoRd0fYaxq9_Cj38GA9o",
+    "utterance": "There is a problem with the result",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "fyqaIBE2TQwY7sqs_dcwU",
+    "utterance": "There is a problem with the result",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "61TDEC26KrOKOwif5lrdh",
+    "utterance": "There is a problem with the result",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "7s-o1kfLluro9REeJEWKT",
+    "utterance": "hpow do I go about getting help for an issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "ZPK9cK6YLeuaoKwD4p246",
+    "utterance": "hpow do I go about getting help for an issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "AFIK_3NWMkdYKy28sQPgu",
+    "utterance": "hpow do I go about getting help for an issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "T28YgUX-CV6jgRmOJhTqA",
+    "utterance": "hpow do I go about getting help for an issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "Sya7iP-ibcF7m0c_-jzyT",
+    "utterance": "hpow do I go about getting help for an issue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "TME4FGX0KiuteOFFc3Avh",
+    "utterance": "There is an error in the result",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "-45r_LB8W8tyk4ztL2Rww",
+    "utterance": "There is an error in the result",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "6EzlxF0b4SnQoF0ejyaET",
+    "utterance": "There is an error in the result",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "ZMz5yBc6jz2eCfaPOIVAl",
+    "utterance": "There is an error in the result",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "FE1OQH4Hy4aiDSWlA_DE2",
+    "utterance": "There is an error in the result",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "7GHG-CgqMWrMFSohh1Qib",
+    "utterance": "I can't continue with my subscription",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "sW-pR2PvppmH4QqjuBPMc",
+    "utterance": "I can't continue with my subscription",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "yC9j3NCAx75q41vHuDyzT",
+    "utterance": "I can't continue with my subscription",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "TS82jHagZg90i2AYnkDzD",
+    "utterance": "I can't continue with my subscription",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "3aarpjBbbEyLzTdQtvmcd",
+    "utterance": "I can't continue with my subscription",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "Gc3M5oWOE0dmQp0JlTE5y",
+    "utterance": "I have an inquiry about termination",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "jz-Wfm7K3zB6j_a261unJ",
+    "utterance": "I have an inquiry about termination",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "RO5z8c41XcCuF46usVj5h",
+    "utterance": "I have an inquiry about termination",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "pLEiHm3k-6589wkr2bIlZ",
+    "utterance": "I have an inquiry about termination",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "-D0FAsWhwjlDlbr5mQgye",
+    "utterance": "I have an inquiry about termination",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "WLJAi0txmxCsr1qb72C6M",
+    "utterance": "I am unsatisfied, I want to cancel my account",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "kly1Yvz4uVBxXWKsa_-Fa",
+    "utterance": "I am unsatisfied, I want to cancel my account",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "1nF_gowI9u9de9Ui7GMFJ",
+    "utterance": "I am unsatisfied, I want to cancel my account",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "R5-itAuImFLcpOkelazGj",
+    "utterance": "I am unsatisfied, I want to cancel my account",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "7fwnbUIzfB4c0Ugnk_bAs",
+    "utterance": "I am unsatisfied, I want to cancel my account",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "CJv4jo4mNx5dijL1oWpMl",
+    "utterance": "how can I cancel your service",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "4xzvU-dq_tbcgTrTVePZK",
+    "utterance": "how can I cancel your service",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "lSNurktLroNTeovH2PISV",
+    "utterance": "how can I cancel your service",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "u17mCAfWGdSC1et-yMJ2d",
+    "utterance": "how can I cancel your service",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "IAGerCk37SzO-es2BnhYy",
+    "utterance": "how can I cancel your service",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "TD19xOHgd-kVV6Td_vCsd",
+    "utterance": "I want to stop my business relationship withyou",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "Sq6MUa6Bbwnoh81hGP5zg",
+    "utterance": "I want to stop my business relationship withyou",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "6g-Wb7SqZNcv8A9qB66lK",
+    "utterance": "I want to stop my business relationship withyou",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "Z3JseYmSr9FsbRh8D6jC9",
+    "utterance": "I want to stop my business relationship withyou",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "ivKdtxtsXpQgcjaxcRMvj",
+    "utterance": "I want to stop my business relationship withyou",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "qurzPIRprGQpaRkNAzAYQ",
+    "utterance": "please help me cancel this service",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "oCVW2VSH0uLl2EMQc_AL0",
+    "utterance": "please help me cancel this service",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "texWZ-LzdkGg0ypnvsPdY",
+    "utterance": "please help me cancel this service",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "kbCStUdomVnEB5pThkYfF",
+    "utterance": "please help me cancel this service",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "KRk4Nko4eVqY_3TywLqJ4",
+    "utterance": "please help me cancel this service",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "Mornti_J2Ku8OPjPU5E2i",
+    "utterance": "how do I go about cancelling",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "A_cE7VX1QtF4scQs-V11G",
+    "utterance": "how do I go about cancelling",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "swM-dPfYYVfHfEfwPo1AN",
+    "utterance": "how do I go about cancelling",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "oMWqO2HotedDtrLpUKBxN",
+    "utterance": "how do I go about cancelling",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "rKw2z3mt63NwZVOaepPlo",
+    "utterance": "how do I go about cancelling",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "PV5w1sODHWkUFlB1EGDxD",
+    "utterance": "please help end my subscription",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "WyIt_REetmgLA5oPrB83a",
+    "utterance": "please help end my subscription",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "xQZ4ipJsdf5bLdQpvcIax",
+    "utterance": "please help end my subscription",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "cgB5arRP-LbRfsfI_A68w",
+    "utterance": "please help end my subscription",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "ugVH4V6DETimlKbn2MseF",
+    "utterance": "please help end my subscription",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "LcicbjOdCO5CjU_hOaGB4",
+    "utterance": "help cancel contract",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "OCmpnkk17ZEKzZZYGIuWx",
+    "utterance": "help cancel contract",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "P72ymaF-qEoWYKdfGggHg",
+    "utterance": "help cancel contract",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "NNmgJCvF-GlQsp657bAHX",
+    "utterance": "help cancel contract",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "izAIXfxXQEqgKPM9UgXT9",
+    "utterance": "help cancel contract",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "d8qVdMVBfVfZuFlxO9UtE",
+    "utterance": "who do I contact to cancel",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "qxK80a8mCCIdy4TwJZ2Bs",
+    "utterance": "who do I contact to cancel",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "rHROe_kur0DPwoFhsyJxC",
+    "utterance": "who do I contact to cancel",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "vBcXAg1P93-3xke1urckT",
+    "utterance": "who do I contact to cancel",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "anlvqpHyHenkCzPk9aYu-",
+    "utterance": "who do I contact to cancel",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "LPXEoNpaLh6iz-G9mIG-g",
+    "utterance": "I need my bill amended",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "kAPJpgMeLozXBA9dU5GLk",
+    "utterance": "I need my bill amended",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "KzSzmdLqbGk00OnUrsCBo",
+    "utterance": "I need my bill amended",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "j8Vh6EJEAYa7yqJ7v0CRo",
+    "utterance": "I need my bill amended",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "61YlEAimArK8FdMIP5yMH",
+    "utterance": "Rectify my bill",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "fM4j3x-80wNJZKXb9hOG7",
+    "utterance": "Rectify my bill",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "gRmwu7X2-1jLQBR4KxkBN",
+    "utterance": "Rectify my bill",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "sI7dA-7_jVqB8e3Kf_N7B",
+    "utterance": "Rectify my bill",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "OtyrS6V5mgWFS7mRA0K72",
+    "utterance": "Details of my bill",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "NrlTKFNP3dw1dkjbPwL87",
+    "utterance": "Details of my bill",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "1Vk7_UsHt87isag0XuYt_",
+    "utterance": "Details of my bill",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "bJMWvGH8Lx5p8TraDb5dY",
+    "utterance": "Details of my bill",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "QZnBN4VldbIa2XHh0hQ4b",
+    "utterance": "I got an error on my bill",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "kaMfVOwneeZ5GyVyyhuqQ",
+    "utterance": "I got an error on my bill",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "PBH6yWoCq1v3rpRKIABoo",
+    "utterance": "I got an error on my bill",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "O-yuksL-dL_fsyfl0WXtb",
+    "utterance": "I got an error on my bill",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "BvapwniyhUauvzHLTFjWU",
+    "utterance": "I am facing an issue with my bill",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "KzJQZyp0gZQnLeRfiW3kL",
+    "utterance": "I am facing an issue with my bill",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "q1CHAeKDqhWZ_IYbm527N",
+    "utterance": "I am facing an issue with my bill",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "2bZA-T7PqNTwlEqdoTfvL",
+    "utterance": "I am facing an issue with my bill",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "IhlyS9dcvrMTKPKee7hkX",
+    "utterance": "something is not working with my statement",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "vBjoKhyoNRAfMDGnJv2Dc",
+    "utterance": "something is not working with my statement",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "TOldg-rw0t5yAObM0dxYq",
+    "utterance": "something is not working with my statement",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "J4GoiSQ27tNxndWizVobv",
+    "utterance": "something is not working with my statement",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "0BMLrDyXenFn7VWGQ_vha",
+    "utterance": "terminate my monthly subscription",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "P0wa14dRaJ2vt9DQbJ4l1",
+    "utterance": "terminate my monthly subscription",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "GmFR6iPoNs4mj75ocFx3s",
+    "utterance": "terminate my monthly subscription",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "Q_fUYRCk5xWV0xHdWdAJA",
+    "utterance": "terminate my monthly subscription",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "iQpP_Z64gbB6y7y1UebI6",
+    "utterance": "Please give me my statement",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "6soDck6em--JYiPGC7VlB",
+    "utterance": "Please give me my statement",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "ivzLcOY2XBEG6-wLeTNCl",
+    "utterance": "Please give me my statement",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "zQnsoxUqLxlYS5Bgclw7b",
+    "utterance": "Please give me my statement",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "Ijl7Bet136BNdl12H8Yfi",
+    "utterance": "I want to resolve a billing issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "jOSTzsXwgLVWrZSluoMTl",
+    "utterance": "I want to resolve a billing issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "BdYBlqBXiSNkfgYVO4e6p",
+    "utterance": "I want to resolve a billing issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "tAZcYKH77u9B6DcxM4gCw",
+    "utterance": "I want to resolve a billing issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "NNiO8LCKe4XKP3RzqUpep",
+    "utterance": "I want to amend my statement",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "Q3x0kNhHtJ5Gh6wPt-BGu",
+    "utterance": "I want to amend my statement",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "oxnDdSQqSwWlMZhqKCGFJ",
+    "utterance": "I want to amend my statement",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "BJeznx4svdMjdzsNoZ15V",
+    "utterance": "I want to amend my statement",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "T0tSFipm7iumYEUrEdKQl",
+    "utterance": "I want to verify a charge",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "9ppsP4UkDKc5JXt_gqb7i",
+    "utterance": "I want to verify a charge",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "5m3pdBBEJVnYahaDfyaei",
+    "utterance": "I want to verify a charge",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "fH_YEa8WjSpaf58QGM2Sj",
+    "utterance": "I want to verify a charge",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "rcO7fKyW58sdX9tIQX5Wb",
+    "utterance": "I want to amend my bill",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "kN80RqSMCYXiLKqtfg7xQ",
+    "utterance": "I want to amend my bill",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "RTVytPL978MKAYY7bv0Dg",
+    "utterance": "I want to amend my bill",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "m_Hoa4Z-ScZTmotFZbTfK",
+    "utterance": "I want to amend my bill",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "cRbL5NARe4LVFP3F9H4zB",
+    "utterance": "I believe there is an error on my bill",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "mhNJ5eC46nR5R8tUU7EeV",
+    "utterance": "I believe there is an error on my bill",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "e39S3IUMmZKa4fCXusxMb",
+    "utterance": "I believe there is an error on my bill",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "dqIzBL-ZUmZcYNcwTeyy4",
+    "utterance": "I believe there is an error on my bill",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "sFMBIRhLE6o9-bgqB4002",
+    "utterance": "I need my bill amended",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "oTWdYsiMghxD6DboNqj4I",
+    "utterance": "Rectify my bill",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "HwVvQI2TzrxnzYiFhFhnA",
+    "utterance": "Details of my bill",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "dxvCT58Y4r-JxcH-r5vDS",
+    "utterance": "terminate my monthly subscription",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "vHTvtxf2sUuX6p9Y4J73L",
+    "utterance": "Please give me my statement",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "UZIyA0FEOpiUfPiwq_Cp7",
+    "utterance": "I want to amend my statement",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "rmHuFIbRUIcnWOhL86Y6K",
+    "utterance": "I want to verify a charge",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "rCgjRgTdIK5DG2frJiMEt",
+    "utterance": "I want to amend my bill",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "AWElG2Lvf5XHwRlYpJJ_o",
+    "utterance": "Please help with technical support",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "fsah-jE3kcsRxlD_Fpl_y",
+    "utterance": "Please help with technical support",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "GMG6UtxZigg3aqQRRPgbK",
+    "utterance": "Please help with technical support",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "RF-sKjjTqcjAagWlIN_TX",
+    "utterance": "Please help with technical support",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "3Ikbz2DdehAkoZMP_kbUX",
+    "utterance": "Please help with technical issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "eLPuxIpU0h51a9gvL3ckO",
+    "utterance": "Please help with technical issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "I2Hhph9w0xmQDxHidvm5a",
+    "utterance": "Please help with technical issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "w7ihXQ2B5eD8NluqAsBtz",
+    "utterance": "Please help with technical issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "fG2MA7dA8DLI2OCdDx9Me",
+    "utterance": "Please help with technical issue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "KO0AWPqgkgdotR6-fx6xI",
+    "utterance": "I need advice regarding my technical issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "yVR_H3yWBeKo7IbvFkv_Y",
+    "utterance": "I need advice regarding my technical issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "JbjhaIk68x6yIIVED3bxT",
+    "utterance": "I need advice regarding my technical issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "hNwFSDoAK372uOuDI6ja9",
+    "utterance": "I need advice regarding my technical issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "XdYXna4lSIJc1ah1gc2DY",
+    "utterance": "I need advice regarding my technical issue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "9CeHn8relnXeUtPDRST-a",
+    "utterance": "Please give me your tech support",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "chp2o3u2pop-fX6QSNsIy",
+    "utterance": "Please give me your tech support",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "-mXICoY7I5EOgNi9jj4aE",
+    "utterance": "Please give me your tech support",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "J8JqVXejZ6eBSoDy5nSYT",
+    "utterance": "Please give me your tech support",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "O5j86MNPImZtaKA_hrJBf",
+    "utterance": "I want to resolve an IT issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "aSKl-lIxukGvojSYA4SBV",
+    "utterance": "I want to resolve an IT issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "-uYzDfSKbX9Ki9Unnhk58",
+    "utterance": "I want to resolve an IT issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "8xrcQsXl9jeGuQpJ-Z9d3",
+    "utterance": "I want to resolve an IT issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "ubNvkNYpreWdPyrJ0Ha2K",
+    "utterance": "I want to resolve an IT issue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "uoGxGBV6gnINXvCwrk-Oe",
+    "utterance": "I want to resolve a technical issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "C1R7ScuLaTUny_p80xor5",
+    "utterance": "I want to resolve a technical issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "fGhuf00ww5JQxoVVYSKG4",
+    "utterance": "I want to resolve a technical issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "FZl_S3-fisXbVqz25l10K",
+    "utterance": "I want to resolve a technical issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "gkEGDCTbN9TwA1WxgT2CY",
+    "utterance": "I want to resolve a technical issue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "MrsYTk0lpLNXvJa6y04og",
+    "utterance": "I want to solve a problem",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "weL0iV50V-FwmC6A-AQF-",
+    "utterance": "I want to solve a problem",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "XYWNFdembnfboMN6K9rlA",
+    "utterance": "I want to solve a problem",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "Nc2YSZGAVHZVdpjDq9BOB",
+    "utterance": "I want to solve a problem",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "_l4KREIzB3o9--YeLEzmY",
+    "utterance": "I want to solve a problem",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "Ct7Siz4iFuGo7sbp5qAvN",
+    "utterance": "I have bugs",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "APssIyjKHi1erwnakCucj",
+    "utterance": "I have bugs",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "X4LYZ3-xwe7Y667X4x5NJ",
+    "utterance": "I have bugs",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "weFRMZyTuMTSm-I1G2n_s",
+    "utterance": "I have bugs",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "r3bOhPkdSQN7_rhd3z1k0",
+    "utterance": "I have bugs",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "z6-zNYjlmkBgozPOwrqim",
+    "utterance": "I want to solve some bugs",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "Ubc9eE0-SeHlSfo5Xidh2",
+    "utterance": "I want to solve some bugs",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "HLo7ODY7HjgnKrZQp_bzW",
+    "utterance": "I want to solve some bugs",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "j2S7pNeRjA5QNLX8C3T1s",
+    "utterance": "I want to solve some bugs",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "XSX6seX44vfaQi1sVyriR",
+    "utterance": "I want to solve some bugs",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "-Hxb_jxCyfAOp4onzjOUd",
+    "utterance": "I am facing several bugs",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "9nUDve9WK5-X8t5MWy3uo",
+    "utterance": "I am facing several bugs",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "zj27DfCYMFUSNHNKuczzj",
+    "utterance": "I am facing several bugs",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "xWjCG6n7ar34zcTd18gg_",
+    "utterance": "I am facing several bugs",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "Heuqxkg6ObqtCZXYAPQnf",
+    "utterance": "I am facing several bugs",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "eSuadvgg1vWOtiSlwKUre",
+    "utterance": "there is a major bug",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "OEJmaH4PbXDzGpr9LlrRf",
+    "utterance": "there is a major bug",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "9eNUBbLZ8oTxFNIfppJeT",
+    "utterance": "there is a major bug",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "hl8B-bq5Q-8VR085gvvpf",
+    "utterance": "there is a major bug",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "VRRZim_N-JICJw-Sfp4QP",
+    "utterance": "there is a major bug",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "HQp_oUxWKNxgHGu-JotG8",
+    "utterance": "there is a major glitch",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "zqYxs2mS-s4-4_508r2I9",
+    "utterance": "there is a major glitch",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "4adzw_JUWykMmLup77MyL",
+    "utterance": "there is a major glitch",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "_kpuC0wJGpoYtCux82_Ce",
+    "utterance": "there is a major glitch",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "qzP2etCkJscV74sD9Kbu0",
+    "utterance": "there is a major glitch",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "F2CEIzfQ3mKn46sggA_j-",
+    "utterance": "I have an inquiry about an IT issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "7xdkjna8s9mrnmeH2nfdq",
+    "utterance": "I have an inquiry about an IT issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "pPerNDuSTD6flLAxL6QOl",
+    "utterance": "I have an inquiry about an IT issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "4sDAZtbECHd0qp_ubq40a",
+    "utterance": "I have an inquiry about an IT issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "QbvBWr7h6yFSyE6VpvUQG",
+    "utterance": "I have an inquiry about an IT issue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "rwHu2YjpgvqqcQuH7kRM7",
+    "utterance": "Tech help",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "PBHjIEWyvS-iIqgVe3NMz",
+    "utterance": "Tech help",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "8CxmITwKWruUSmEHXiqei",
+    "utterance": "Tech help",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "8YGi2B6m4KguaLj30HlpH",
+    "utterance": "Tech help",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "ERsL88ml7yXo-8qwkE3E7",
+    "utterance": "Tech help",
+    "context": "F",
+    "conditions": [["intent", "is", "f-problem"]]
+  },
+  {
+    "id": "D9O9g2plVEF_XkyhrMLLc",
+    "utterance": "contract number",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "OMXGA1ap90ISl9EIGCwn2",
+    "utterance": "contract number",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "VwCrsJ2wpEC1uCD0l-8mn",
+    "utterance": "contract number",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "X1NDl0Vp9vLR6xdFj2c-_",
+    "utterance": "contract number",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "KPKSWxHf7Elbc3n8ZTR6X",
+    "utterance": "how can I reach you",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "KUaHgJt64Fh_kcp2HEP7Z",
+    "utterance": "how can I reach you",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "E_nto6W78edLPmCDgrGW5",
+    "utterance": "how can I reach you",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "JW0sTkJtqtRQEh2gl2JaG",
+    "utterance": "how can I reach you",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "PIzDH_AjfIwbFgKyHG9U5",
+    "utterance": "I need to talk to someone",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "aefrpF4Bzalw0ApWnYUp5",
+    "utterance": "I need to talk to someone",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "4r-xH_kh6QkfbKiDowjN6",
+    "utterance": "I need to talk to someone",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "QaW0FzGCDEFNHASNQCDZy",
+    "utterance": "I need to talk to someone",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "6oNLPGimvMnVHXBoO-Fdh",
+    "utterance": "Where can I find your landline?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "SYFmgzwUK6ZIFeNeiS4Fz",
+    "utterance": "Where can I find your landline?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "nD13p8xZ2FcuwvhFvJnib",
+    "utterance": "Where can I find your landline?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "npB2JjINMwgmCiCpijoZf",
+    "utterance": "Where can I find your landline?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "_1qZaAgHE33RaOkNtWFOS",
+    "utterance": "Do you have an 1-800 number?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "fmuH7-9rQu9oUldPXP8Xc",
+    "utterance": "Do you have an 1-800 number?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "lN81Ms_UtfO6msSiRrGTF",
+    "utterance": "Do you have an 1-800 number?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "ZUQXEzf9I_X32L15LlGO_",
+    "utterance": "Do you have an 1-800 number?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "oYbxGoM3XSO6sj88-Ijef",
+    "utterance": "I want to find your phone line",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "9jFIXK7O4ymAwMLL7aBJu",
+    "utterance": "I want to find your phone line",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "_W2hz52be-iBYPBBSdto6",
+    "utterance": "I want to find your phone line",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "Xjj5Bt0ly_cl_C_3faI6O",
+    "utterance": "I want to find your phone line",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "MvSaL2ZfpLiooEDpWdIpK",
+    "utterance": "I want to find your number",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "jQrE34cywKBkIDLpgLIfm",
+    "utterance": "I want to find your number",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "NEv83xV6sfyiIXwsnP4CE",
+    "utterance": "I want to find your number",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "lJUKJozXdZbt1JMQgi3LM",
+    "utterance": "I want to find your number",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "7z_xQg7BvyYRNG4Xmd4_y",
+    "utterance": "I can't seem to locate your help line",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "nPYtKl3mJhoHqavzVQGAn",
+    "utterance": "I can't seem to locate your help line",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "JOvMfE97KZpvtPrpN96PA",
+    "utterance": "I can't seem to locate your help line",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "elUJH3a7KROPcdJkFZMFl",
+    "utterance": "I can't seem to locate your help line",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "_uUfBJRZiHkATXjoBd39C",
+    "utterance": "I want to locate your toll free line",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "JzkuFmiHDopx-531-LaVj",
+    "utterance": "I want to locate your toll free line",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "4mGJpRIn_W5L3NaU0fQLa",
+    "utterance": "I want to locate your toll free line",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "7qFh5BdfZaIMFqhYaDWCT",
+    "utterance": "I want to locate your toll free line",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "xBb44t5LKWHn9xkRjwYx8",
+    "utterance": "May I inquire about your contact number",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "bYqDq5I98rHgGXpBNZyHZ",
+    "utterance": "May I inquire about your contact number",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "rADkim_onYAS0Yx5dwlBe",
+    "utterance": "May I inquire about your contact number",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "vvZBNj4p9QrwnVdetJETp",
+    "utterance": "May I inquire about your contact number",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "uT811ROw462Qg5IdSs5NF",
+    "utterance": "I inquire your contact number",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "F4u8v28_ew7K7nRuF27OY",
+    "utterance": "I inquire your contact number",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "e-rfqJSqhHAY7-OwxgAPS",
+    "utterance": "I inquire your contact number",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "XPmMIztU9Ii4-pbF49wgl",
+    "utterance": "I inquire your contact number",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "6aQyyZ0MGp8UT_VYa-Na-",
+    "utterance": "how do I go about reaching out to you",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "D-XNEIoqxJqtnSFDixwq5",
+    "utterance": "how do I go about reaching out to you",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "vVsgw7PxmJwwnnE3YMvOr",
+    "utterance": "how do I go about reaching out to you",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "KqN9D5Ck_sj2Oh-WWVjlq",
+    "utterance": "how do I go about reaching out to you",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "FdboDaVKbGx9H8kZLNbh5",
+    "utterance": "how do I go about contacting you",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "y2Wr0IFfRQOh8pxYMumNH",
+    "utterance": "how do I go about contacting you",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "0jnXZoJmnX-XZfZyauBw8",
+    "utterance": "how do I go about contacting you",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "ijybxYHYnuZgGSXe5_YTT",
+    "utterance": "how do I go about contacting you",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "Piyjl-JxNQYh3MNtW8mal",
+    "utterance": "What number can I call to make an inquiry",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "NT738WV93qoQUcwhRn9mM",
+    "utterance": "What number can I call to make an inquiry",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "J3-P5iAZaGXRRWftIJ8fD",
+    "utterance": "What number can I call to make an inquiry",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "yBZ0IYSvgutK3-Snj--G7",
+    "utterance": "What number can I call to make an inquiry",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "0AEYoaRUtNskE46lYgBMn",
+    "utterance": "Do you have toll free line?",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "cDDf-e7LXAe5Jwrq24nD1",
+    "utterance": "Do you have toll free line?",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "eFpLy24hZO3d7NfVdvJCB",
+    "utterance": "Do you have toll free line?",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "kORnx0BQJYl96DsHk9uFM",
+    "utterance": "Do you have toll free line?",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "xs3Xnsw5D_e33T7Fowrz-",
+    "utterance": "bill",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "aB6k8-Ad5gLX6ccVfJe56",
+    "utterance": "bill",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "Ux4cVTkjWVRvuQw8wHAnx",
+    "utterance": "bill",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "s8jNFeiW1cXhuqdjLIAGR",
+    "utterance": "bill",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "5wcSuV-Bc9SWoDpVI5i10",
+    "utterance": "contact",
+    "context": "A",
+    "conditions": [["intent", "is", "a-contact-details"]]
+  },
+  {
+    "id": "4tEz9eP9okcYXpPay_O2e",
+    "utterance": "contact",
+    "context": "C",
+    "conditions": [["intent", "is", "c-contact-details"]]
+  },
+  {
+    "id": "Zm5TjOinovflYAMIzTXh_",
+    "utterance": "contact",
+    "context": "D",
+    "conditions": [["intent", "is", "d-contact-details"]]
+  },
+  {
+    "id": "BQUB9RzQncywBn2VFtqcq",
+    "utterance": "contact",
+    "context": "E",
+    "conditions": [["intent", "is", "e-contact-details"]]
+  },
+  {
+    "id": "W8iFzXDzy4f2C-eIygEaR",
+    "utterance": "IT issue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "VBw81m_ZsRDumIo2O1mKt",
+    "utterance": "IT issue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "AB6d639ojLgSYJPn1xm30",
+    "utterance": "IT issue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "w1LzKUusYCtEdw9H60fCO",
+    "utterance": "IT issue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "FrhqSo6qwmkWLvEJH6TpS",
+    "utterance": "IT problem",
+    "context": "A",
+    "conditions": [["intent", "is", "a-problem"]]
+  },
+  {
+    "id": "5BLthbhVJP270mN5dC5Bg",
+    "utterance": "IT problem",
+    "context": "C",
+    "conditions": [["intent", "is", "c-problem"]]
+  },
+  {
+    "id": "w-yFQdTuOr6rBgPsL8Nsd",
+    "utterance": "IT problem",
+    "context": "D",
+    "conditions": [["intent", "is", "d-problem"]]
+  },
+  {
+    "id": "ZOpuelqSNTiQSorns4c6R",
+    "utterance": "IT problem",
+    "context": "E",
+    "conditions": [["intent", "is", "e-problem"]]
+  },
+  {
+    "id": "yZH3KCsfrUMD2STLFPrTA",
+    "utterance": "help with bill",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "cL6E4apVk0mOqEmFDoajk",
+    "utterance": "help with bill",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "0wuHnNy5P0_XjgwRQty5d",
+    "utterance": "help with bill",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "axHnVCL4VBn8tgRGMnZpJ",
+    "utterance": "help with bill",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "TYK8K_ZVz6BSUpOrZp-Q4",
+    "utterance": "help statement",
+    "context": "A",
+    "conditions": [["intent", "is", "a-bill-inquiry"]]
+  },
+  {
+    "id": "k_iCezfteNwG6TyDdd34g",
+    "utterance": "help statement",
+    "context": "C",
+    "conditions": [["intent", "is", "c-bill-inquiry"]]
+  },
+  {
+    "id": "YCRkJcglPm1NPEMkbi_5m",
+    "utterance": "help statement",
+    "context": "D",
+    "conditions": [["intent", "is", "d-bill-inquiry"]]
+  },
+  {
+    "id": "mnsZSyHCPm6Dn9E3Vd1oc",
+    "utterance": "help statement",
+    "context": "E",
+    "conditions": [["intent", "is", "e-bill-inquiry"]]
+  },
+  {
+    "id": "j1pnVUunZd5bGY76ALLbV",
+    "utterance": "help cancellation",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "z8p_kMBdPc1Wt9HF-iHDK",
+    "utterance": "help cancellation",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "fNpXSlzQshv-pbRDHwc2Q",
+    "utterance": "help cancellation",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "-yBsL2kQjKWUEbXKnZvxm",
+    "utterance": "help cancellation",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "XvDRu5NnA2oicihYpfv5o",
+    "utterance": "help cancellation",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "HoWjQ7BuHgYAlD7ckfHW3",
+    "utterance": "cancel",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "1ymz5HL96buIxMM0YtCBY",
+    "utterance": "cancel",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "ZTDEGkSIGrz7myEpO6efC",
+    "utterance": "cancel",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "DlztPD9VCtQl4Kml7d3n5",
+    "utterance": "cancel",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "doY1EjLe7A5xayLhjjSQ2",
+    "utterance": "cancel",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "eM1VSPrSGFMVsrpYtD1zf",
+    "utterance": "cancellation inquiry",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "fbQqeKTyM98nAlfW6iZbU",
+    "utterance": "cancellation inquiry",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "PsjMcLQWzwtHwxMSEjQFb",
+    "utterance": "cancellation inquiry",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "cGU7QnGG1TOynFyIXLE0C",
+    "utterance": "cancellation inquiry",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "BGGfv9uo3AuvP7NUJ1qvi",
+    "utterance": "cancellation inquiry",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "X9VDtB2GBFpgkqi5A49Lh",
+    "utterance": "termination inquiry",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "EYNhr9982AfHADTHuQhTG",
+    "utterance": "termination inquiry",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "1Ufy_tbYjCr2C_xxvORg3",
+    "utterance": "termination inquiry",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "82cDSg-ia1YC15IHXAaxl",
+    "utterance": "termination inquiry",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "KsTk3dxbz-8E_34jYPR8V",
+    "utterance": "termination inquiry",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "aPRePLQed3O6-1zwiIHaR",
+    "utterance": "terminate",
+    "context": "A",
+    "conditions": [["intent", "is", "a-cancellation"]]
+  },
+  {
+    "id": "Nc_RWEAGguy1wy_biqTbu",
+    "utterance": "terminate",
+    "context": "C",
+    "conditions": [["intent", "is", "c-cancellation"]]
+  },
+  {
+    "id": "pDdMKaJfeCzfGTqUQ9cZ8",
+    "utterance": "terminate",
+    "context": "D",
+    "conditions": [["intent", "is", "d-cancellation"]]
+  },
+  {
+    "id": "bnvV6tbwbIQrUD9Fl5Pyc",
+    "utterance": "terminate",
+    "context": "E",
+    "conditions": [["intent", "is", "e-cancellation"]]
+  },
+  {
+    "id": "vGIWg15DVs4fVM322geEn",
+    "utterance": "terminate",
+    "context": "F",
+    "conditions": [["intent", "is", "f-cancellation"]]
+  },
+  {
+    "id": "4ynkD1FTZoeLE7jSbuluh",
+    "utterance": "help",
+    "context": "A",
+    "conditions": [["intent", "is", "a-disambiguation"]]
+  },
+  {
+    "id": "y9ItOiGv2k3zbApv7kgUo",
+    "utterance": "help",
+    "context": "C",
+    "conditions": [["intent", "is", "c-disambiguation"]]
+  },
+  {
+    "id": "iYkmue2PKxtYmlHLBzKG2",
+    "utterance": "help",
+    "context": "D",
+    "conditions": [["intent", "is", "d-disambiguation"]]
+  },
+  {
+    "id": "MJuA5TWosqsteoDpyDveU",
+    "utterance": "help",
+    "context": "E",
+    "conditions": [["intent", "is", "e-disambiguation"]]
+  },
+  {
+    "id": "qc56XG0yvUlEz9wFm-23H",
+    "utterance": "help",
+    "context": "F",
+    "conditions": [["intent", "is", "f-disambiguation"]]
+  },
+  {
+    "id": "xWvO-PR3Dw3cYuJVwXiHm",
+    "utterance": "I need assistance",
+    "context": "A",
+    "conditions": [["intent", "is", "a-disambiguation"]]
+  },
+  {
+    "id": "nI8USoLgt7X_MoLd0DufL",
+    "utterance": "I need assistance",
+    "context": "C",
+    "conditions": [["intent", "is", "c-disambiguation"]]
+  },
+  {
+    "id": "KW5KVZuWTAjva69gln1E-",
+    "utterance": "I need assistance",
+    "context": "D",
+    "conditions": [["intent", "is", "d-disambiguation"]]
+  },
+  {
+    "id": "uEUnqgHw3MYtaFIHF0Zpv",
+    "utterance": "I need assistance",
+    "context": "E",
+    "conditions": [["intent", "is", "e-disambiguation"]]
+  },
+  {
+    "id": "qg6cYpmNDMKqZapln5qMh",
+    "utterance": "I need assistance",
+    "context": "F",
+    "conditions": [["intent", "is", "f-disambiguation"]]
+  },
+  {
+    "id": "tFlz1YeoEotb1qZmq4ljH",
+    "utterance": "give me assistance",
+    "context": "A",
+    "conditions": [["intent", "is", "a-disambiguation"]]
+  },
+  {
+    "id": "4kplfI30O7GDvrsMp9kzY",
+    "utterance": "give me assistance",
+    "context": "C",
+    "conditions": [["intent", "is", "c-disambiguation"]]
+  },
+  {
+    "id": "TeL72lWW0ngSgWK5UsYiy",
+    "utterance": "give me assistance",
+    "context": "D",
+    "conditions": [["intent", "is", "d-disambiguation"]]
+  },
+  {
+    "id": "-9w7ZVeo-CJa23wqLKo80",
+    "utterance": "give me assistance",
+    "context": "E",
+    "conditions": [["intent", "is", "e-disambiguation"]]
+  },
+  {
+    "id": "F6-u3TpImuF1aiz-8WEhN",
+    "utterance": "give me assistance",
+    "context": "F",
+    "conditions": [["intent", "is", "f-disambiguation"]]
+  },
+  {
+    "id": "ymczshTsagY5kZcNcuYdv",
+    "utterance": "I want help",
+    "context": "A",
+    "conditions": [["intent", "is", "a-disambiguation"]]
+  },
+  {
+    "id": "Olb3tCi7I6GCo1vNwJuqY",
+    "utterance": "I want help",
+    "context": "C",
+    "conditions": [["intent", "is", "c-disambiguation"]]
+  },
+  {
+    "id": "N4ytvE1P67kPiGMccm_hh",
+    "utterance": "I want help",
+    "context": "D",
+    "conditions": [["intent", "is", "d-disambiguation"]]
+  },
+  {
+    "id": "wRtVW9wVKdM4pIQjshPJE",
+    "utterance": "I want help",
+    "context": "E",
+    "conditions": [["intent", "is", "e-disambiguation"]]
+  },
+  {
+    "id": "ttL5b1pTPx3iJlZ0bdBCf",
+    "utterance": "I want help",
+    "context": "F",
+    "conditions": [["intent", "is", "f-disambiguation"]]
+  },
+  {
+    "id": "Sbjjs9tVsIB4J3wEIJPZe",
+    "utterance": "give me help",
+    "context": "A",
+    "conditions": [["intent", "is", "a-disambiguation"]]
+  },
+  {
+    "id": "bY4orBZD6mKFzejSA9N4R",
+    "utterance": "give me help",
+    "context": "C",
+    "conditions": [["intent", "is", "c-disambiguation"]]
+  },
+  {
+    "id": "U4BEtUs_-hjKvLrm_cXeD",
+    "utterance": "give me help",
+    "context": "D",
+    "conditions": [["intent", "is", "d-disambiguation"]]
+  },
+  {
+    "id": "_gkrrPNZ2--gykavtHI_R",
+    "utterance": "give me help",
+    "context": "E",
+    "conditions": [["intent", "is", "e-disambiguation"]]
+  },
+  {
+    "id": "v6rEv10BL-3S5KiITkgFw",
+    "utterance": "give me help",
+    "context": "F",
+    "conditions": [["intent", "is", "f-disambiguation"]]
+  },
+  {
+    "id": "vVrVBLwGmUlygPoRCz8zb",
+    "utterance": "I want assistance",
+    "context": "A",
+    "conditions": [["intent", "is", "a-disambiguation"]]
+  },
+  {
+    "id": "S9wi2YZMOxt3856hBscpt",
+    "utterance": "I want assistance",
+    "context": "C",
+    "conditions": [["intent", "is", "c-disambiguation"]]
+  },
+  {
+    "id": "SdAi78z3fTe4OIXtWx7SY",
+    "utterance": "I want assistance",
+    "context": "D",
+    "conditions": [["intent", "is", "d-disambiguation"]]
+  },
+  {
+    "id": "DIe8jNu0ndybD9I6pMzAF",
+    "utterance": "I want assistance",
+    "context": "E",
+    "conditions": [["intent", "is", "e-disambiguation"]]
+  },
+  {
+    "id": "rE5MOI29ucbrzCkubccm2",
+    "utterance": "I want assistance",
+    "context": "F",
+    "conditions": [["intent", "is", "f-disambiguation"]]
+  },
+  {
+    "id": "GbLVwh4_DZJ5hLQydDYN4",
+    "utterance": "How can I get help",
+    "context": "A",
+    "conditions": [["intent", "is", "a-disambiguation"]]
+  },
+  {
+    "id": "R-i97j8xGqh8iOvOud1CE",
+    "utterance": "How can I get help",
+    "context": "C",
+    "conditions": [["intent", "is", "c-disambiguation"]]
+  },
+  {
+    "id": "bOeZn3Fy6Iu3Nxb5Aov-Y",
+    "utterance": "How can I get help",
+    "context": "D",
+    "conditions": [["intent", "is", "d-disambiguation"]]
+  },
+  {
+    "id": "1YyNBhh_xcArKzEOisnC5",
+    "utterance": "How can I get help",
+    "context": "E",
+    "conditions": [["intent", "is", "e-disambiguation"]]
+  },
+  {
+    "id": "yx5vBl2ICxv0mSlxcc7DL",
+    "utterance": "How can I get help",
+    "context": "F",
+    "conditions": [["intent", "is", "f-disambiguation"]]
+  },
+  {
+    "id": "nEmVulZ2bNkqck8sarrG3",
+    "utterance": "hello",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "tTpmKF6yukAeLe4DEHnSF",
+    "utterance": "hello",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "sXQPZbUCbtO8SPDZlLlla",
+    "utterance": "hello",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "493sREZee9hggQ1Juse-7",
+    "utterance": "hello",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "11DvHlmqNd9fpbKIpNfXB",
+    "utterance": "hello",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "VtbD6ZRc-Wy_ZQ1Ie0bDu",
+    "utterance": "hello",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "enp4AEVWOec4JLXce65Z6",
+    "utterance": "hello how are you going",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "JcRPw6DMqW4JaECuDR7-h",
+    "utterance": "hello how are you going",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "qDaI8VP-Men35V28cc-YP",
+    "utterance": "hello how are you going",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "tuAVzyxx5LJnpU0H7-Gw3",
+    "utterance": "hello how are you going",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "dvXVMgNudYxsoURrdtDFU",
+    "utterance": "hello how are you going",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "kkqH1Buzyun1ZEMbsqq9E",
+    "utterance": "hello how are you going",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "fjK9hhdCSIN2DutEiKKzw",
+    "utterance": "what is your name",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "jFF1pa0D4DMIuCb5Hvmup",
+    "utterance": "what is your name",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "E8Ja8vqqPLbC54Frh0xfn",
+    "utterance": "what is your name",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "J-XxSJRLykygY4BjLnilo",
+    "utterance": "what is your name",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "_dyOK9jzEBc8dCNgAJzQN",
+    "utterance": "what is your name",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "G2fEfwhwxBppzLs3C57Uz",
+    "utterance": "what is your name",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "WJbNB7rbAUrJBG-scMV1Q",
+    "utterance": "how have you been",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "yGD4rara_pNHF6sgsdYc-",
+    "utterance": "how have you been",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "vFF_2uMgRGtQnXDAURZoN",
+    "utterance": "how have you been",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "mrN_SDPjfMUqJrQxtTBqq",
+    "utterance": "how have you been",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "77cJVE9clz0zVbtEu5W_d",
+    "utterance": "how have you been",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "XezFV_XaujuDtyuFWjjWO",
+    "utterance": "how have you been",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "ZlxVgLTpO0DP5oKljZf3W",
+    "utterance": "what are your hobbies",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "NLcXUIG9wzd7aJhV4pX44",
+    "utterance": "what are your hobbies",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "_EudufhqtFczhB5YUt9xc",
+    "utterance": "what are your hobbies",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "BgCkmECl8XSiwWliBFN3K",
+    "utterance": "what are your hobbies",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "PamRnaCkzTnRFovev7m8-",
+    "utterance": "what are your hobbies",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "snfRxn7IGR23DrXBpaWpp",
+    "utterance": "what are your hobbies",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "tjOwgkaYJ-fiFzrwVsgCO",
+    "utterance": "Tell me a joke",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "f-lF9MVB9rCGJQMjKcKPy",
+    "utterance": "Tell me a joke",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "5QZXobYjbNfOt6W6nL5pI",
+    "utterance": "Tell me a joke",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "Xsw-MIvnrTblIaCAdAVgd",
+    "utterance": "Tell me a joke",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "f90zZMu5orwkYDjvlLkLg",
+    "utterance": "Tell me a joke",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "S-tMDA0d0S8MZEQmwPtgV",
+    "utterance": "Tell me a joke",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "ZOD4Ji8Yk_tk8bA59CKcr",
+    "utterance": "I need help getting motivated",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "AhIqNwW0PX7Van5YLSNHY",
+    "utterance": "I need help getting motivated",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "qLfSN1KqE0z_tN2pjeeLi",
+    "utterance": "I need help getting motivated",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "2igt86xBlyEMENufuVEuA",
+    "utterance": "I need help getting motivated",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "CcqMp85xHMrpb9LyFQzIu",
+    "utterance": "I need help getting motivated",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "o7plFidp9pOWviZaoBlFY",
+    "utterance": "I need help getting motivated",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "6PI5yqt_4Yz0UdHg40GZC",
+    "utterance": "how",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "zGS4Q6PGeTTqtNZytsu-d",
+    "utterance": "how",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "4AJOsb77tZA0Sv41Ypusl",
+    "utterance": "how",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "G65ixVuRUz-OuAUR6XoPb",
+    "utterance": "how",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "iTvdTnWIp9oXRn3DJVFar",
+    "utterance": "how",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "e7bEVpKB9UNUKwr3HYm36",
+    "utterance": "how",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "C31oS0FCaueMRs26vdheq",
+    "utterance": "who built you",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "hSrDiz8WBMmtrRfnwOT3D",
+    "utterance": "who built you",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "PePkIEb_gGfxEaERQwzMU",
+    "utterance": "who built you",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "CJBXi7-SXuxuA778EUBsC",
+    "utterance": "who built you",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "dwLcw-Uj7lCJ3tAWxCJIn",
+    "utterance": "who built you",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "C5EYEe7GkxbPkK3Bp-uXJ",
+    "utterance": "who built you",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "jLQ6x_bYDzSVyKT2m8Hia",
+    "utterance": "what",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "f7nxPsVVBpfueu_b4SKNu",
+    "utterance": "what",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "yzfLQWAwF4Kx48FcBK0rf",
+    "utterance": "what",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "i_eM88nkMtMdxwMvTbYuc",
+    "utterance": "what",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "nGDf0fnwqjefjBy5TraYp",
+    "utterance": "what",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "ty0mEmYPVcuqWCU4raOhJ",
+    "utterance": "what",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "o_DCVGbnFbLow-7fDEEAm",
+    "utterance": "yes",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "r6jlLI2iEMIEmNZLGokFz",
+    "utterance": "yes",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "Gc7TKVHOuoqif4lYNH7He",
+    "utterance": "yes",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "dYB3FNA_7GfWh7sAdA7Uu",
+    "utterance": "yes",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "dpvmNzHyeE55PImw0lXM6",
+    "utterance": "yes",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "bfzKeTagpeoyAB342GDv3",
+    "utterance": "yes",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "hv_4pcUEJ7eWxYpQkcruw",
+    "utterance": "no",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "617QOy9WKq8dw3bOalhLX",
+    "utterance": "no",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "SpQ51nKyWi33icniX-jZD",
+    "utterance": "no",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "U4J5o8oiL337_pRylFxlo",
+    "utterance": "no",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "B7qyr70K814en_AG-WDlV",
+    "utterance": "no",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "hIiwvcMs2vK7fYWzkAl22",
+    "utterance": "no",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "Yi_M1hLhUeQtnIhKfTlgP",
+    "utterance": "please",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "nNOwSM985Ig6DwPGQQh7l",
+    "utterance": "please",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "OMyQEx940qkp1p5o2iSuv",
+    "utterance": "please",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "aAJNPULZERpFB1loiK0lp",
+    "utterance": "please",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "0KAbCqaB8YuivC2RSvcJP",
+    "utterance": "please",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "Ji-DbrfNviJtbsNwuxWg0",
+    "utterance": "please",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "2csg5pem2ZGTOt1U60zl6",
+    "utterance": "where",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "0rgofujsxYesYfckVun_3",
+    "utterance": "where",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "BrhCxovUNxhL3h17DKPvq",
+    "utterance": "where",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "HjPTKMhOUIUpcliWviu53",
+    "utterance": "where",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "HBWJZwiVJKrH7vth0GeXm",
+    "utterance": "where",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "bf0E2naMwmlx2_FPA_Udm",
+    "utterance": "where",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "WYAmzk_NdOYnt9I20OHry",
+    "utterance": "menu",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "vsbOqIRsTkSKI3PWcpyfX",
+    "utterance": "menu",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "OZiALAXTMyLFUpz4X5f_E",
+    "utterance": "menu",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "RB14TEaJsx9HMM5pGZQsx",
+    "utterance": "menu",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "VF7JQid1F9XaWXhdYrnPV",
+    "utterance": "menu",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "jw3i81RbYimgtsShbwcqj",
+    "utterance": "menu",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "ERyPcMIDEQRTpUjIK_2hz",
+    "utterance": "options",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "YYRnW9M_7DxNisayCUCIs",
+    "utterance": "options",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "k5bPeg9GAzWYXo3_C2HnM",
+    "utterance": "options",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "hMcVMtiYhe5rsJAOKeZUZ",
+    "utterance": "options",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "K06g9C8CCR4DUqkg5Hazu",
+    "utterance": "options",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "5UcF3i9jW3fistFcRloEm",
+    "utterance": "options",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "JL53K0jWa4s_6mxdvyMY4",
+    "utterance": "start",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "YZSZP9Aud70TWPkOaXTdK",
+    "utterance": "start",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "O4v4EVDcefpIp1tHMCfQu",
+    "utterance": "start",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "ksX8AeLvniuMFgpGOmi3K",
+    "utterance": "start",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "lyVRAVWLCnzofzJ2rszRO",
+    "utterance": "start",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "z8f9KFN2xucRWrK_9nwaD",
+    "utterance": "start",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "SFqpFoWQ_RKeMJYklVAKC",
+    "utterance": "what can you do",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "3vcf7gGU6sQ8Q6EXg64wA",
+    "utterance": "what can you do",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "OV6exIyMwncrCeO4SDPCS",
+    "utterance": "what can you do",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "5UDlviOktrHRnrIhXCsIu",
+    "utterance": "what can you do",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "IaWRm-76itPNcUTb2GZqv",
+    "utterance": "what can you do",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "YjKaBs64b7D6j3w37c9nD",
+    "utterance": "what can you do",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "aE1RuuhgsCcvWUsupAidL",
+    "utterance": "what can you do for me",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "tt7jGhgP8cEgvYVaN_H5b",
+    "utterance": "what can you do for me",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "Y80__M-lKnCtp9P8zlYgJ",
+    "utterance": "what can you do for me",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "luFnvE2CjkHtVhigYdZNB",
+    "utterance": "what can you do for me",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "6ZLxMg1bosfin1X_Yzy9i",
+    "utterance": "what can you do for me",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "jhZYVBS9adJoiGroaCJ7t",
+    "utterance": "what can you do for me",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "J1mhVE8tOGyVnO0u-Y6UY",
+    "utterance": "what are your functionalities",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "x7mwOLC7aupDsgLaCQ_YE",
+    "utterance": "what are your functionalities",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "_0D2tXyGcEI2yoPSHVBzR",
+    "utterance": "what are your functionalities",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "HuFKC7nBlaDrsd1hWOs2e",
+    "utterance": "what are your functionalities",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "-fgmq7GOZyoDvi8RO0ERt",
+    "utterance": "what are your functionalities",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "iqhm_Q3sX6aw-9wBKwUVq",
+    "utterance": "what are your functionalities",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "qIOqrv1IRa4KPmNIEv96Q",
+    "utterance": "list of options",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "4kS2e_3j9gxrxbtmf-B1M",
+    "utterance": "list of options",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "UxuZ6BBsZt_zz6wwRtpR0",
+    "utterance": "list of options",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "p05JrcwTIwkRJDmt8kFcE",
+    "utterance": "list of options",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "OwS1xQPQZ9CKLUFUnpior",
+    "utterance": "list of options",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "iSfMcauUcc5omGaKvH9Uo",
+    "utterance": "list of options",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "XZg5lkfAcYgj7s-fdX_ih",
+    "utterance": "choices",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "0a0WCriJNhaHr04kXf_Se",
+    "utterance": "choices",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "plLb-FBtZFcpfIfQtokMO",
+    "utterance": "choices",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "g4p76y7gGqZgfR0736ezc",
+    "utterance": "choices",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "xqfWystJ-q6E1JwqpLPid",
+    "utterance": "choices",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "xgYe7oBeIQPid4sISluKY",
+    "utterance": "choices",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "UYfQJVg1OEQYvaRQHcfgl",
+    "utterance": "I want",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "T3kMxSZS0gs2ZNO1uJLfZ",
+    "utterance": "I want",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "UxllLO8q-hC1xJQHKxX7l",
+    "utterance": "I want",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "MjuD78k_xbuhaMUXGtbx3",
+    "utterance": "I want",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "G3s-eGGgayP60xb35TyFX",
+    "utterance": "I want",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "GIDnQiNm3C7biLIIAqM-p",
+    "utterance": "I want",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "6A9L7KoE7HDFVHvreI5Ih",
+    "utterance": "I have",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "gk7NulHUKFxFPF5OXdi-s",
+    "utterance": "I have",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "ATB690u2M3-vuKn4xIu_0",
+    "utterance": "I have",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "1Mgg6l96w1TIdImzJDZK7",
+    "utterance": "I have",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "eM79bWxwo7pC-8_RIMxwi",
+    "utterance": "I have",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "POJUF--qs6weJRY01urWO",
+    "utterance": "I have",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "lA6ySjI8aUPxuwqlkHXBs",
+    "utterance": "I need",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "fIWP5AqnBk465nPbZGBPx",
+    "utterance": "I need",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "cQFMfeeyNfVxgFzGTg6eY",
+    "utterance": "I need",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "QTmcyS1wPnzok1p0jWvzc",
+    "utterance": "I need",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "7n1nIttUuoJ4v-u3dHQIE",
+    "utterance": "I need",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "SwvVRD4MPirrlltxoxipY",
+    "utterance": "I need",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "MwFg7cBaTypgm6gQglw1l",
+    "utterance": "I can't",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "Oaph8evgeDJZbhnxe9iag",
+    "utterance": "I can't",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "jBhEWtJcsbzbM33ipb_7b",
+    "utterance": "I can't",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "6b6n7eJgTgaqHnXk3KJWQ",
+    "utterance": "I can't",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "Tz4ad4NLF1HX8KHEi4w9Z",
+    "utterance": "I can't",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "0jvu44JtOWXwNMn9S2StE",
+    "utterance": "I can't",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "07t3wbP8hkNYFPBj8WtoB",
+    "utterance": "stop",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "-H63kaJlV7wWg9D52JWDF",
+    "utterance": "stop",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "yjTFHSScg3W-_FQeZVu1_",
+    "utterance": "stop",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "moi68rw99VxLILjCpf3yv",
+    "utterance": "stop",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "-Pe3zGgP62bZRtkMGQYav",
+    "utterance": "stop",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "Tv1UTSj0446Y9ALLnRA4q",
+    "utterance": "stop",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "onb5FjQo0y3kwwNY9CSL5",
+    "utterance": "I can't continue",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "6RSPvP3LeWp7AUVqrXTnl",
+    "utterance": "I can't continue",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "cHD5tQjJL2vGzRHChMCzw",
+    "utterance": "I can't continue",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "2rrR-lvDqmbJusIOq3uou",
+    "utterance": "I can't continue",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "bQnz3jW023NTJhhgAzXIB",
+    "utterance": "I can't continue",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "ya03FlynZeKCS7CEGeBKZ",
+    "utterance": "I can't continue",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "5-YWL74-0Lj94lUdKKDIo",
+    "utterance": "I believe",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "NZfYpeGjNg9rrAWRiQrdW",
+    "utterance": "I believe",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "h889d1AI3PNjS48muVDCq",
+    "utterance": "I believe",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "bpZXY8IusbJZ9X8hm8-qY",
+    "utterance": "I believe",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "a6iJ7yn4cFh15WJMTXigB",
+    "utterance": "I believe",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "aa1BDsGFmbQSBBJzNy8JD",
+    "utterance": "I believe",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "czNDp3F7-z3t_ZR8KH6zL",
+    "utterance": "please give me",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "id6agwFdBpIEJcyXj1fgP",
+    "utterance": "please give me",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "Vn0EUNb1tC3EgM4KlIO3n",
+    "utterance": "please give me",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "3Xmafo5KM-B-MUmVuX21R",
+    "utterance": "please give me",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "cm6NvXbYD1tzIHlKE2E_f",
+    "utterance": "please give me",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "y6hY8stawNLbeJrhK4-d9",
+    "utterance": "please give me",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "AX7dRqw7dq_y9Ec37mPo0",
+    "utterance": "tell me",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "P1cDBzJI7kgEf7T_nFQm2",
+    "utterance": "tell me",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "H10YHlV0PPpawx_SVT6SS",
+    "utterance": "tell me",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "zg6Erndo1jM4kuZUEP4A9",
+    "utterance": "tell me",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "mRan7u5N_GjY4OUVbIbbi",
+    "utterance": "tell me",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "7OMf_28nno5MZ2Z8OQv_Z",
+    "utterance": "tell me",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "1bvuiyfDXWf4P1vGAqFdO",
+    "utterance": "say something funny",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "ENPMWzfMugPJBOa_Ywuro",
+    "utterance": "say something funny",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "k70rt2PNchLQsyUsbqW2G",
+    "utterance": "say something funny",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "9EtIjcAh0s3pwu6nkKDAW",
+    "utterance": "say something funny",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "GfM5v7wWu8KBEiuQnlKbu",
+    "utterance": "say something funny",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "BvA0zW4W-xa5ULFl_tbe7",
+    "utterance": "say something funny",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "ifuKXoKYQf1slw2Dy1Dcl",
+    "utterance": "I want to buy a car",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "XfQLehnf4qi5pDQpGLaZ8",
+    "utterance": "I want to buy a car",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "VsoM87KjUQBsrRV7SEZZM",
+    "utterance": "I want to buy a car",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "kAZFsfpMgELRcZmRpEPrF",
+    "utterance": "I want to buy a car",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "j2G1HNS1DGi_O7aKhXM3C",
+    "utterance": "I want to buy a car",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "mDrvQuFdFFF-I7it7hH0i",
+    "utterance": "I want to buy a car",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "H3tLLPULmJurMC36n8wTp",
+    "utterance": "I want to find your website",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "AgulS9C9QyVqqe1A2a9y-",
+    "utterance": "I want to find your website",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "T_pwdQ1vPVS-6YoF4Yq3B",
+    "utterance": "I want to find your website",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "pKgi-jRS7BKCC1u47_aMh",
+    "utterance": "I want to find your website",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "4modal0rw14K3tHvNyLPR",
+    "utterance": "I want to find your website",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "C2F90C6C349K5Ux85ayZz",
+    "utterance": "I want to find your website",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "ptC8uGUoxmTRzEwuDVdLB",
+    "utterance": "I want to find your headquarter",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "ebMQaHE0O_iQUPUJnPwUb",
+    "utterance": "I want to find your headquarter",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "o1Wu1kLuin9f4Vj9B4X4J",
+    "utterance": "I want to find your headquarter",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "dBlUFwV_BNLtsoLDAAOr4",
+    "utterance": "I want to find your headquarter",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "kHagc6h1SuBBd-YPo5gxN",
+    "utterance": "I want to find your headquarter",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "VcG0ZK9HyUE-oAIVOcFTc",
+    "utterance": "I want to find your headquarter",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "u9raPC9_nJV73kqs3X9ck",
+    "utterance": "I want to locate you CEO",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "kasj8XVJTzmAM1mGn02XE",
+    "utterance": "I want to locate you CEO",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "c37XQE2E_pve6VQzGlCNl",
+    "utterance": "I want to locate you CEO",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "cOnCQgzY7UuojVVaYokRh",
+    "utterance": "I want to locate you CEO",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "24DvLIkpTLJAhPNuKCRXC",
+    "utterance": "I want to locate you CEO",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "jYIjD3aTj5YP_Wvrre3Kc",
+    "utterance": "I want to locate you CEO",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "RBJxjTWsLmLySXRhJf00m",
+    "utterance": "How many employees work for your company",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "zeN_16u_UhixH3nQmNJpl",
+    "utterance": "How many employees work for your company",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "WG5w1XDQVKLMKc0hlAb1B",
+    "utterance": "How many employees work for your company",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "3yPpxQLqWyd3Jp5Z3pIP6",
+    "utterance": "How many employees work for your company",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "ZP0oYTBa_rx9WZFlb6ese",
+    "utterance": "How many employees work for your company",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "5mH8OKyJkQZmCVu_NAcsm",
+    "utterance": "How many employees work for your company",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "_hB2noFduCR8wM-DdMv5t",
+    "utterance": "how many locations do you have",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "Zq0hQONYIWgbbyvFDnUDU",
+    "utterance": "how many locations do you have",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "h8nKAgRYSo7Oj0BpMoVW_",
+    "utterance": "how many locations do you have",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "7JmXHSjxNIZXg7QbkIzz9",
+    "utterance": "how many locations do you have",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "OOLaGYRsp0tAlbrZQ_EeY",
+    "utterance": "how many locations do you have",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "pVOq94YIHBHuGOp_i26ZI",
+    "utterance": "how many locations do you have",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "38i6g67nkhG9NOsN5prBw",
+    "utterance": "in what countries do you  operate",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "W5ANeR5GhL6pqy7j-W-X4",
+    "utterance": "in what countries do you  operate",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "gnipf2Xny_8btQoJXvfW4",
+    "utterance": "in what countries do you  operate",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "fZngkP-8GSnRIVI6q8V_z",
+    "utterance": "in what countries do you  operate",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "5-59ZeY3uRd3_4EwtAmWR",
+    "utterance": "in what countries do you  operate",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "48uI7DXmyka4GsO791fdl",
+    "utterance": "in what countries do you  operate",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "IayMpaNtrGsY9PF7J57hZ",
+    "utterance": "are you available near me",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "reINeSgXwKMCgXFIGVWyN",
+    "utterance": "are you available near me",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "3yPO8PLXEF3u9N9vhbhnT",
+    "utterance": "are you available near me",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "AQWb3YbwbIqDw6LcD-zLW",
+    "utterance": "are you available near me",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "juhCPPlTy25GLnx4krNZP",
+    "utterance": "are you available near me",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "9yqgXc7HTUNtu6_TzgBIp",
+    "utterance": "are you available near me",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "Q4lyMHoqSEzXjcpxrHYOn",
+    "utterance": "is there a location near me",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "2EJj1ZL3I6Fr18WHBJ2Nc",
+    "utterance": "is there a location near me",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "d6pNsIahJoIR7iOOdHLTI",
+    "utterance": "is there a location near me",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "pz-GAbGxZn6dcHeb7CbFn",
+    "utterance": "is there a location near me",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "yQmQWquTB73PMaRrurhXO",
+    "utterance": "is there a location near me",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "DnTi01WGwycgDQvubQIR2",
+    "utterance": "is there a location near me",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "K3oBN6xSSINi-eI2-UnC-",
+    "utterance": "what is the street number of your HQ",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "Rg5frXz5EbEcQ0J-betgG",
+    "utterance": "what is the street number of your HQ",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "yqJ9mUfHHr6FqUrHXG1rG",
+    "utterance": "what is the street number of your HQ",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "espnoNig07a766QbVIGoz",
+    "utterance": "what is the street number of your HQ",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "cdaDV5Up8vaHS41-GyLa7",
+    "utterance": "what is the street number of your HQ",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "xaV9WFaEdDDZyJYGQFEZ3",
+    "utterance": "what is the street number of your HQ",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "f2MHdPMcuiBvsaR1U5JSv",
+    "utterance": "what is your postal code",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "QDIlaO7temq-l85FfUG7o",
+    "utterance": "what is your postal code",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "43xTLQnZTcykVW17ryMYO",
+    "utterance": "what is your postal code",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "TCai1yngkpllP69b0ycNm",
+    "utterance": "what is your postal code",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "L8TfBcFe0d5JUm7Cj3OGL",
+    "utterance": "what is your postal code",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "GNi6gcbnwnmq_jS7ZBR8G",
+    "utterance": "what is your postal code",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "6d-BR_wNQ95vuhtF-1d0z",
+    "utterance": "I want to mail you something",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "f78HnIG8-oEIn1nkEO6J9",
+    "utterance": "I want to mail you something",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "_DbDriNpPeYgTVV5FfXIZ",
+    "utterance": "I want to mail you something",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "5xMXewgRb3LalpS1I8BgD",
+    "utterance": "I want to mail you something",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "c4fHF4HdzB4VKZRfe9_7f",
+    "utterance": "I want to mail you something",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "zAYB6ch9E9TWkks58WdKV",
+    "utterance": "I want to mail you something",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "fiTl_2Yxrw_X7SE7sHet3",
+    "utterance": "i want to make a complaint",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "_KeoGe3Y_CEnp2HXVqw56",
+    "utterance": "i want to make a complaint",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "6PtnWvnfzwwPPc5n2e4Lv",
+    "utterance": "i want to make a complaint",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "fkj0vlVvzllZ4VOdfeMwM",
+    "utterance": "i want to make a complaint",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "ncH-LhIC3voVO0l9j-bi7",
+    "utterance": "i want to make a complaint",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "Dg_OzHnRo_dKP4_PhTnHR",
+    "utterance": "i want to make a complaint",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "RV5sJXnPUYj0M4yvTk_WC",
+    "utterance": "are you human",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "wgtwWLPT16POcdgInDzSa",
+    "utterance": "are you human",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "btRjSOJrd6hZxZAc7_tDH",
+    "utterance": "are you human",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "h1muyFJHI7phaEtTqGe3w",
+    "utterance": "are you human",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "V38MNtUBprUonZzyU7E8u",
+    "utterance": "are you human",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "zNYEuHK9dXST0D3-TClZX",
+    "utterance": "are you human",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "OPEvwu7_Pb2zFldSWWZqs",
+    "utterance": "i have a complaint",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "QDLtj9oRG0qcdVJoizWZU",
+    "utterance": "i have a complaint",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "Flso2ssh92Ce24dRZkyM0",
+    "utterance": "i have a complaint",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "ZdZ43DPZ3RAr3Lv2gaPeF",
+    "utterance": "i have a complaint",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "oBqhb3ZZQhlLKbmAz20G9",
+    "utterance": "i have a complaint",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "j9p5dOSFEh_GsfyMeKWlV",
+    "utterance": "i have a complaint",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "4L9j-d010bs_YIlM2cfKJ",
+    "utterance": "complaint",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "TxfJJUPDkjCPD3_px04XT",
+    "utterance": "complaint",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "aMMOhq_M-xetL6T4qsAyZ",
+    "utterance": "complaint",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "UipxIVOe-0vnacl0HHInw",
+    "utterance": "complaint",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "3ihEiIZHdILg-oNhrh6FG",
+    "utterance": "complaint",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "uHLUadVn_nw_JVXphTa-N",
+    "utterance": "complaint",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "FgY9NJ9APpTqMiHWRid-X",
+    "utterance": "wow",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "BFkAxdiM6dVhxf1ejEY5D",
+    "utterance": "wow",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "93134Ma1iNir0wqxnisrT",
+    "utterance": "wow",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "VnasiuvvLGCEehdqCgCAd",
+    "utterance": "wow",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "JawwvKlWrnknjY-lC2L8H",
+    "utterance": "wow",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "rdVWMZElvltSpUVIe1IaP",
+    "utterance": "wow",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "TOkPQAqhnqHBX8av1gPZn",
+    "utterance": "that's bad",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "8X45ZPKPPUGTJbGy6iFwx",
+    "utterance": "that's bad",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "tQVq51x4GTAGno5-RM2Mu",
+    "utterance": "that's bad",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "3MA0Dqpi-SUpVFS4KYaUD",
+    "utterance": "that's bad",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "9mydVH0hBSH3qd67j1PZg",
+    "utterance": "that's bad",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "krbMz_DTq8Xv4AQlOT_mM",
+    "utterance": "that's bad",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "XZMxHBWWDmdt-quOBISl4",
+    "utterance": "that's sad",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "tG34o-lm7SwwKK4_jXIu6",
+    "utterance": "that's sad",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "6-fo4Co2cvjdlfptR0NSg",
+    "utterance": "that's sad",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "HxQr3TGkbHN1DYvF6aMZe",
+    "utterance": "that's sad",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "Aav6FkKTZ9HAqt4d99lW0",
+    "utterance": "that's sad",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "12ZaDZDFp1DChCqSOWvF3",
+    "utterance": "that's sad",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "bM3GpTAtsJ1qOuGAqQ-M-",
+    "utterance": "I am really unhappy",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "mF043mmAAkWvN_P-wbbj9",
+    "utterance": "I am really unhappy",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "2RZlxFEvK2zSr0hFweadN",
+    "utterance": "I am really unhappy",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "FfypibLgJWWZ8IdWgupFV",
+    "utterance": "I am really unhappy",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "cHQlce_0bCWKm_l7EIU4U",
+    "utterance": "I am really unhappy",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "fV-UhRhjY6mwh5-9Bb5Cd",
+    "utterance": "I am really unhappy",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "CWWtGO7UGG9s4vJvkdX8f",
+    "utterance": "I am mad",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "N0NjbvmlE8p2oS_Ezo9AR",
+    "utterance": "I am mad",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "UUIlp4ik3hBQrG74eDu6b",
+    "utterance": "I am mad",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "djOWU-YlhJmZpGHqZK_iM",
+    "utterance": "I am mad",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "yllxmWU8pYW4hqT31JP1V",
+    "utterance": "I am mad",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "rl50dyzl7S4zSEMKUoe_s",
+    "utterance": "I am mad",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  },
+  {
+    "id": "QTA5VFsC3bzuM17EnjwU1",
+    "utterance": "I'm mad",
+    "context": "A",
+    "conditions": [["intent", "is", "a-none"]]
+  },
+  {
+    "id": "nY9EYy1pw8Lgi4VIspqn4",
+    "utterance": "I'm mad",
+    "context": "B",
+    "conditions": [["intent", "is", "b-none"]]
+  },
+  {
+    "id": "N3o0Ijk7vyw5X_BIpgZPW",
+    "utterance": "I'm mad",
+    "context": "C",
+    "conditions": [["intent", "is", "c-none"]]
+  },
+  {
+    "id": "xV-TisWML3OGCuw51DOga",
+    "utterance": "I'm mad",
+    "context": "D",
+    "conditions": [["intent", "is", "d-none"]]
+  },
+  {
+    "id": "iAOTFoTPhThZJ1_cmbPVx",
+    "utterance": "I'm mad",
+    "context": "E",
+    "conditions": [["intent", "is", "e-none"]]
+  },
+  {
+    "id": "Wg0ThimFopGtxDIlMIH6C",
+    "utterance": "I'm mad",
+    "context": "F",
+    "conditions": [["intent", "is", "f-none"]]
+  }
+]

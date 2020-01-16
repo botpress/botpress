@@ -6,7 +6,8 @@ import { InjectedIntl } from 'react-intl'
 
 import WebchatApi from '../core/api'
 import constants from '../core/constants'
-import { getUserLocale } from '../translations'
+import { getUserLocale, initializeLocale, translations } from '../translations'
+
 import {
   BotInfo,
   Config,
@@ -23,6 +24,9 @@ import ViewStore from './view'
 
 /** Includes the partial definitions of all classes */
 export type StoreDef = Partial<RootStore> & Partial<ViewStore> & Partial<ComposerStore> & Partial<Config>
+
+initializeLocale()
+const chosenLocale = getUserLocale()
 
 class RootStore {
   public bp: StudioConnector
@@ -57,6 +61,9 @@ class RootStore {
   /** When a wrapper is defined, every messages are wrapped by the specified component */
   @observable
   public messageWrapper: MessageWrapper | undefined
+
+  @observable
+  public botUILanguage: string = chosenLocale
 
   constructor({ fullscreen }) {
     this.composer = new ComposerStore(this)
@@ -364,6 +371,14 @@ class RootStore {
 
     clearInterval(this._typingInterval)
     this._typingInterval = undefined
+  }
+
+  @action.bound
+  updateBotUILanguage(lang: string): void {
+    runInAction('-> setBotUILanguage', () => {
+      this.botUILanguage = lang
+      localStorage.setItem('bp/channel-web/user-lang', lang)
+    })
   }
 
   /** Returns the current conversation ID, or the last one if it didn't expired. Otherwise, returns nothing. */

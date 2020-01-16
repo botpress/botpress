@@ -5,6 +5,7 @@ import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, SPACE } from '../tools/token-utils'
 import {
+  EntityExtractionResult,
   Intent,
   ListEntity,
   ListEntityModel,
@@ -16,7 +17,7 @@ import {
 } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { extractUtteranceEntities } from './entity-extractor'
+import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
@@ -67,6 +68,7 @@ export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   slots: 'ignore',
   entities: 'ignore'
 }
+export const MIN_NB_UTTERANCES = 3
 const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.SVM.SVMOptions
 // TODO grid search / optimization for those hyperparams
 const NUM_CLUSTERS = 8
@@ -189,7 +191,7 @@ const trainIntentClassifier = async (
   const n_ctx = input.contexts.length
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= 3) // min nb utterances
+      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -250,7 +252,7 @@ export const ProcessIntents = async (
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
+    const cleaned = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
     const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
 
     const allowedEntities = _.chain(intent.slot_definitions)
@@ -270,12 +272,25 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const utts = _.chain(input.intents)
-    .filter(i => (i.slot_definitions || []).length > 0)
-    .flatMap(i => i.utterances)
-    .value()
+  const utterances = _.flatMap(input.intents.map(i => i.utterances))
 
-  await Promise.mapSeries(utts, u => extractUtteranceEntities(u, input, tools))
+  const allSysEntities = (await tools.duckling.extractMultiple(
+    utterances.map(u => u.toString()),
+    input.languageCode,
+    true
+  )).map(ents => ents.map(mapE1toE2Entity))
+
+  _.zip(utterances, allSysEntities)
+    .map(([utt, sysEntities]) => {
+      const listEntities = extractListEntities(utt, input.list_entities)
+      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
+      return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
+    })
+    .forEach(([utt, entities]) => {
+      entities.forEach(ent => {
+        utt.tagEntity(_.omit(ent, ['start, end']), ent.start, ent.end)
+      })
+    })
 
   return input
 }
@@ -353,6 +368,9 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
   let progress = 0
   const reportProgress: progressCB = (stepProgress = 1) => {
+    if (!input.trainingSession) {
+      return
+    }
     if (input.trainingSession.status === 'canceled') {
       tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
       throw new TrainingCanceledError()

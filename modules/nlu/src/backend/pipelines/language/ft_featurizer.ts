@@ -11,6 +11,7 @@ const debug = DEBUG('nlu')
 type Token = string
 type Document = Token[]
 
+// DEPRECATED
 export const enrichToken2Vec = async (
   lang: string,
   doc: Document,

@@ -1,5 +1,6 @@
 {
-  "name": "f-helpline",
+  "name": "f-helpline-problem",
+  "contexts": ["F"],
   "utterances": {
     "en": [
       "I can't get through to the helpline",
@@ -58,6 +59,5 @@
       "Comment se fait-il que le service d'assistance ne fonctionne pas?"
     ]
   },
-  "slots": [],
-  "contexts": ["BPDS-F"]
+  "slots": []
 }

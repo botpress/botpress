@@ -56,8 +56,8 @@ export class KeyValueStore {
     return this.forBot(botId).getStorageWithExpiry(key)
   }
 
-  removeStorageKeysStartingWith = key => {
-    this.globalKvs.removeStorageKeysStartingWith(key)
+  removeStorageKeysStartingWith = async key => {
+    return this.globalKvs.removeStorageKeysStartingWith(key)
   }
 
   getConversationStorageKey = (sessionId, variable) => {
@@ -164,13 +164,11 @@ export class KvsService implements sdk.KvsService {
   }
 
   setStorageWithExpiry = async (key: string, value, expiryInMs?: string) => {
-    const box = this.boxWithExpiry(value, expiryInMs)
-    await this.set(key, box)
+    await this.set(key, this.boxWithExpiry(value, expiryInMs))
   }
 
   getStorageWithExpiry = async key => {
-    const box = await this.get(this.botId, key)
-    return this.unboxWithExpiry(box)
+    return this.unboxWithExpiry(await this.get(key))
   }
 
   removeStorageKeysStartingWith = async key => {

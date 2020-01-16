@@ -15,7 +15,6 @@ describe('Studio - Flows', () => {
   it('Create new flow', async () => {
     await clickOn('#btn-add-flow')
     await fillField('#input-flow-name', 'test_flow')
-
     await Promise.all([expectBotApiCallSuccess('flow'), clickOn('#btn-submit')])
   })
 

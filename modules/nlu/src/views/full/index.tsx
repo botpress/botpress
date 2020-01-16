@@ -5,10 +5,10 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
-import { IntentEditor } from '../lite/intentEditor/IntentEditor'
 
 import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
+import { IntentEditor } from './intents/FullEditor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
 
@@ -73,8 +73,8 @@ const NLU: FC<Props> = props => {
     return isSame || (areDefined && item.name === otherItem.name && item.type === otherItem.type)
   }
 
-  const updateEntity = entity => {
-    api.updateEntity(entity)
+  const updateEntity = (targetEntity: string, entity) => {
+    api.updateEntity(targetEntity, entity)
     const i = entities.findIndex(ent => ent.id == entity.id)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }
@@ -157,3 +157,5 @@ const NLU: FC<Props> = props => {
 }
 
 export default NLU
+
+export { LiteEditor } from './intents/LiteEditor'

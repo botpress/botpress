@@ -120,7 +120,8 @@ export default class Utterance {
 
     for (const token of this.tokens) {
       const norm = computeNorm(token.vectors as number[])
-      if (norm <= 0) {
+      if (norm <= 0 || !token.isWord) {
+        // ignore special char tokens in sentence embeddings
         continue
       }
 
@@ -271,7 +272,7 @@ export async function buildUtteranceBatch(
       if (utterance.toString().length === utt.length) {
         parsedSlots.forEach(s => {
           utterance.tagSlot(
-            { name: s.name, source: s.value, confidence: 1 },
+            { name: s.name, source: s.value, value: s.value, confidence: 1 },
             s.cleanPosition.start,
             s.cleanPosition.end
           )
