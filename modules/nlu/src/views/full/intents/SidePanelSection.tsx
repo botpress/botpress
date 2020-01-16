@@ -64,20 +64,23 @@ export const IntentSidePanelSection: FC<Props> = props => {
   }
 
   const renameIntent = async (targetIntent: string, sanitizedName: string) => {
-    const intent = await props.api.fetchIntent(targetIntent)
-    // we might want to use the intent in the array instead of fetching it
-    intent.name = sanitizedName
-    await props.api.updateIntent(targetIntent, intent)
+    const intent = props.intents.find(i => i.name === targetIntent)
+    if (!intent) {
+      return
+    }
+
+    await props.api.updateIntent(targetIntent, { ...intent, name: sanitizedName })
     await props.reloadIntents()
     props.setCurrentItem({ name: sanitizedName, type: 'intent' })
   }
 
   const duplicateIntent = async (targetIntent: string, sanitizedName: string) => {
-    // we might want to use the intent in the array instead of fetching it
-    const intent = await props.api.fetchIntent(targetIntent)
-    const clone = _.cloneDeep(intent)
-    clone.name = sanitizedName
-    await props.api.createIntent(clone)
+    const intent = props.intents.find(i => i.name === targetIntent)
+    if (!intent) {
+      return
+    }
+
+    await props.api.createIntent({ ...intent, name: sanitizedName })
     await props.reloadIntents()
     props.setCurrentItem({ name: sanitizedName, type: 'intent' })
   }
