@@ -701,7 +701,7 @@ declare module 'botpress/sdk' {
       incomingEventId?: string
       sessionId: string
       goalId?: string
-      feedback: number
+      feedback?: number
       success?: boolean
       event: IO.Event
       createdOn: any

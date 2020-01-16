@@ -13,12 +13,7 @@ const migration: sdk.ModuleMigration = {
     try {
       await bp.database.schema.alterTable('events', table => {
         table.string('goalId').nullable()
-
-        table
-          .integer('feedback')
-          .notNullable()
-          .defaultTo(0)
-
+        table.integer('feedback').nullable()
         table.boolean('success').nullable()
       })
 

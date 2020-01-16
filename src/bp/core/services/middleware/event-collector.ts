@@ -77,7 +77,6 @@ export class EventCollector {
       sessionId,
       direction,
       goalId,
-      feedback: 0,
       success: goal?.success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: this.knex.json.set(this.ignoredProperties ? _.omit(event, this.ignoredProperties) : event || {}),
