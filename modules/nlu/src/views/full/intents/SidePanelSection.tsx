@@ -2,6 +2,7 @@ import { Button, Classes } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
+import { toastFailure } from 'botpress/utils'
 import { NluItem } from 'full'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
@@ -14,7 +15,7 @@ interface Props {
   currentItem: NluItem
   contentLang: string
   setCurrentItem: (x: NluItem) => void
-  reloadIntents: () => void
+  reloadIntents: () => Promise<void>
 }
 
 type NameModalAction = 'rename' | 'create' | 'duplicate'
@@ -31,14 +32,19 @@ export const IntentSidePanelSection: FC<Props> = props => {
     setModalOpen(true)
   }
 
-  const deleteIntent = (intentName: string) => {
+  const deleteIntent = async (intentName: string) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intentName}" ?`)
     if (confirmDelete) {
       if (props.currentItem && props.currentItem.name === intentName) {
         props.setCurrentItem(undefined)
       }
 
-      props.api.deleteIntent(intentName).then(props.reloadIntents)
+      try {
+        await props.api.deleteIntent(intentName)
+        await props.reloadIntents()
+      } catch (err) {
+        toastFailure('Could not delete intent')
+      }
     }
   }
 
@@ -58,9 +64,13 @@ export const IntentSidePanelSection: FC<Props> = props => {
       utterances: { [props.contentLang]: [rawName] } // note usage of raw name as first utterance
     }
 
-    await props.api.createIntent(intentDef)
-    props.reloadIntents()
-    props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    try {
+      await props.api.createIntent(intentDef)
+      await props.reloadIntents()
+      props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    } catch (err) {
+      toastFailure('Could not create intent')
+    }
   }
 
   const renameIntent = async (targetIntent: string, sanitizedName: string) => {
@@ -69,9 +79,13 @@ export const IntentSidePanelSection: FC<Props> = props => {
       return
     }
 
-    await props.api.updateIntent(targetIntent, { ...intent, name: sanitizedName })
-    await props.reloadIntents()
-    props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    try {
+      await props.api.updateIntent(targetIntent, { ...intent, name: sanitizedName })
+      await props.reloadIntents()
+      props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    } catch (err) {
+      toastFailure('Could not rename intent')
+    }
   }
 
   const duplicateIntent = async (targetIntent: string, sanitizedName: string) => {
@@ -80,9 +94,13 @@ export const IntentSidePanelSection: FC<Props> = props => {
       return
     }
 
-    await props.api.createIntent({ ...intent, name: sanitizedName })
-    await props.reloadIntents()
-    props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    try {
+      await props.api.createIntent({ ...intent, name: sanitizedName })
+      await props.reloadIntents()
+      props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    } catch (err) {
+      toastFailure('Could not duplicate intent')
+    }
   }
 
   const intentItems = props.intents
