@@ -1,10 +1,14 @@
 import { Button, ContextMenuTarget, Icon, Menu, MenuItem, Position, Spinner, Tooltip } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { Container, SplashScreen } from 'botpress/ui'
+import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React from 'react'
 
-import { makeApi, Test, TestResult, XValidationResults } from './api'
+import { Test, TestResult, XValidationResults } from '../../shared/typings'
+import { computeSummary } from '../../shared/utils'
+
+import { makeApi } from './api'
 import style from './style.scss'
 import { CreateTestModal } from './CreateTestModal'
 import { CrossValidationResults } from './F1Metrics'
@@ -74,6 +78,19 @@ export default class NLUTests extends React.Component<Props, State> {
     this.setState({ working: false })
   }
 
+  async saveResults() {
+    if (_.isEmpty(this.state.testResults)) {
+      return
+    }
+
+    try {
+      await this.api.exportResults(this.state.testResults)
+      toastSuccess('Results saved')
+    } catch (err) {
+      toastFailure('Could not export test results')
+    }
+  }
+
   render() {
     const shouldRenderSplash = !this.state.loading && !this.state.tests.length && !this.state.f1Metrics
     return (
@@ -117,6 +134,22 @@ export default class NLUTests extends React.Component<Props, State> {
                   <Spinner size={20} />
                   &nbsp; Working
                 </span>
+              )}
+              {!this.state.working && !_.isEmpty(this.state.testResults) && (
+                <React.Fragment>
+                  <Button
+                    type="button"
+                    intent="primary"
+                    minimal
+                    icon="export"
+                    onClick={() => this.saveResults()}
+                    text="Save results"
+                  />
+                  <span className={style.working}>
+                    <Icon icon="tick" />
+                    {_.round(computeSummary(this.state.tests, this.state.testResults) * 100, 1)}% of passing tests
+                  </span>
+                </React.Fragment>
               )}
             </div>
             <div className={style.container}>

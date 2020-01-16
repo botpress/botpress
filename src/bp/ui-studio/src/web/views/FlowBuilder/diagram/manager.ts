@@ -77,7 +77,10 @@ export class DiagramManager {
       return
     }
 
-    const nodes = currentFlow.nodes.map(node => {
+    const nodes = currentFlow.nodes.map((node: NodeView) => {
+      node.x = _.round(node.x)
+      node.y = _.round(node.y)
+
       return createNodeModel(node, {
         ...node,
         isStartNode: currentFlow.startNode === node.name,

@@ -1,7 +1,9 @@
 import { Button, H3, HTMLTable, Icon, Intent, Position, Tooltip } from '@blueprintjs/core'
+import _ from 'lodash'
 import React, { FC } from 'react'
 
-import { Test, TestResult } from './api'
+import { Test, TestResult } from '../../shared/typings'
+import { computeSummary } from '../../shared/utils'
 
 interface TestResultProps {
   testResult?: TestResult

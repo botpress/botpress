@@ -17,6 +17,7 @@ const _values = obj => Object.keys(obj).map(x => obj[x])
 class Web extends React.Component<MainProps> {
   private socket: BpSocket
   private parentClass: string
+  private hasBeenInitialized: boolean = false
 
   state = {
     played: false
@@ -43,10 +44,28 @@ class Web extends React.Component<MainProps> {
 
     // tslint:disable-next-line: no-floating-promises
     this.initialize()
+    this.initializeIfChatDisplayed()
+    this.props.setLoadingCompleted()
   }
 
   componentWillUnmount() {
     window.removeEventListener('message', this.handleIframeApi)
+  }
+
+  componentDidUpdate() {
+    this.initializeIfChatDisplayed()
+  }
+
+  async initializeIfChatDisplayed() {
+    if (this.hasBeenInitialized) {
+      return
+    }
+
+    if (this.props.activeView === 'side' || this.props.isFullscreen) {
+      this.hasBeenInitialized = true
+      await this.socket.waitForUserId()
+      await this.props.initializeChat()
+    }
   }
 
   async initialize() {
@@ -68,13 +87,10 @@ class Web extends React.Component<MainProps> {
     config.containerWidth && window.parent.postMessage({ type: 'setWidth', value: config.containerWidth }, '*')
 
     await this.socket.waitForUserId()
-    await this.props.initializeChat()
 
     config.reference && this.props.setReference()
 
     this.setupObserver()
-
-    this.props.setLoadingCompleted()
   }
 
   extractConfig() {
@@ -261,6 +277,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   resetUnread: store.view.resetUnread,
   incrementUnread: store.view.incrementUnread,
   activeView: store.view.activeView,
+  isFullscreen: store.view.isFullscreen,
   showChat: store.view.showChat,
   hideChat: store.view.hideChat,
   toggleBotInfo: store.view.toggleBotInfo,
@@ -287,6 +304,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'toggleBotInfo'
   | 'widgetTransition'
   | 'activeView'
+  | 'isFullscreen'
   | 'unreadCount'
   | 'hasUnreadMessages'
   | 'showWidgetButton'

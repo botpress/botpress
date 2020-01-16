@@ -1,5 +1,5 @@
 import { clickOn, fillField } from '../expectPuppeteer'
-import { autoAnswerDialog, expectBotApiCallSuccess, gotoStudio } from '../utils'
+import { expectBotApiCallSuccess, gotoStudio } from '../utils'
 
 describe('Module - NLU', () => {
   beforeAll(async () => {
@@ -16,6 +16,7 @@ describe('Module - NLU', () => {
   it('Create new intent', async () => {
     await clickOn('#btn-add-intent')
     await fillField('#input-intent-name', 'hello_there')
+
     await Promise.all([expectBotApiCallSuccess('mod/nlu/intents', 'POST'), clickOn('#btn-submit')])
   })
 
@@ -23,7 +24,7 @@ describe('Module - NLU', () => {
     await clickOn('span', { text: 'Entities' })
     await clickOn('button', { text: 'New entity' })
     await fillField('input[placeholder="Entity name"]', 'cars')
-    await clickOn('button', { text: 'Create Entity' })
-    await expectBotApiCallSuccess('mod/nlu/entities', 'POST')
+
+    await Promise.all([expectBotApiCallSuccess('mod/nlu/entities', 'POST'), clickOn('#entity-submit')])
   })
 })

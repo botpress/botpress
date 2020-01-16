@@ -2,10 +2,10 @@ import { Button, ControlGroup, FormGroup } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../api'
-import { IntentEditor } from '../lite/intentEditor/IntentEditor'
+import { makeApi } from '../../api'
+import style from '../style.scss'
 
-import style from './style.scss'
+import { IntentEditor } from './FullEditor'
 import IntentDropdown from './IntentDropdown'
 import NameModal from './NameModal'
 
@@ -19,6 +19,12 @@ interface Props {
   params: IntentParams
   updateParams: (params: IntentParams) => void
 }
+
+export const sanitizeName = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/\s|\t|\n/g, '-')
+    .replace(/[^a-z0-9-_.]/g, '')
 
 export const LiteEditor: FC<Props> = props => {
   const [intents, setIntents] = useState<NLU.IntentDefinition[]>([])
@@ -36,10 +42,10 @@ export const LiteEditor: FC<Props> = props => {
     setIntents(await api.fetchIntents())
   }
 
-  const createIntent = async (sanitizedName: string) => {
+  const createIntent = async (sanitizedName: string, rawName: string) => {
     const intentDef = {
       name: sanitizedName,
-      utterances: { [props.contentLang]: [name] }
+      utterances: { [props.contentLang]: [rawName] }
     }
 
     props.updateParams({ intentName: sanitizedName })
@@ -60,7 +66,13 @@ export const LiteEditor: FC<Props> = props => {
 
   return (
     <div>
-      <NameModal isOpen={isModalOpen} toggle={toggleModal} intents={intents} onCreate={createIntent} />
+      <NameModal
+        isOpen={isModalOpen}
+        toggle={toggleModal}
+        intents={intents}
+        onSubmit={createIntent}
+        title="Create Intent"
+      />
       {currentIntent && (
         <IntentEditor
           liteEditor={true}

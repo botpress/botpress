@@ -5,7 +5,6 @@ import classnames from 'classnames'
 import React, { Component } from 'react'
 import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
 import Select from 'react-select'
-import 'react-select/dist/react-select.css'
 
 import './button.css'
 import style from './style.scss'
@@ -206,7 +205,7 @@ export default class QnaAdmin extends Component<Props> {
       <Select
         id="select-category"
         className={style.categoryFilter}
-        multi
+        isMulti
         value={this.state.filterCategory}
         options={this.state.categoryOptions}
         onChange={this.onCategoriesFilter}

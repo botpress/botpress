@@ -33,6 +33,10 @@ class Container extends React.Component<ContainerProps> {
   }
 
   render() {
+    if (!this.props.isInitialized) {
+      return null
+    }
+
     const classNames = classnames('bpw-layout', 'bpw-chat-container', {
       'bpw-layout-fullscreen': this.props.isFullscreen && 'fullscreen',
       ['bpw-anim-' + this.props.sideTransition]: true
@@ -59,6 +63,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   isFullscreen: store.view.isFullscreen,
   sideTransition: store.view.sideTransition,
   dimensions: store.view.dimensions,
+  isInitialized: store.isInitialized,
   isPoweredByDisplayed: store.view.isPoweredByDisplayed,
   config: store.config,
   botName: store.botName
@@ -73,6 +78,7 @@ type ContainerProps = { store?: RootStore } & InjectedIntlProps &
     | 'isConversationsDisplayed'
     | 'isBotInfoDisplayed'
     | 'sideTransition'
+    | 'isInitialized'
     | 'dimensions'
     | 'isPoweredByDisplayed'
   >
