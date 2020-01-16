@@ -130,7 +130,7 @@ export class StateManager {
     }
 
     if (session && session.lastGoals) {
-      session.lastGoals = _.takeRight(session.lastGoals, this.LAST_MESSAGES_HISTORY_COUNT)
+      session.lastGoals = _.take(session.lastGoals, this.LAST_MESSAGES_HISTORY_COUNT)
     }
 
     const botConfig = await this.configProvider.getBotConfig(event.botId)
