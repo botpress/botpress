@@ -59,7 +59,8 @@ export default class FormModal extends Component<Props> {
       errorMessage: undefined,
       isText: true,
       isRedirect: false,
-      hasDuplicates: false
+      hasDuplicates: false,
+      hasAnswerDuplicates: false
     }
   }
 
@@ -183,6 +184,7 @@ export default class FormModal extends Component<Props> {
         {this.state.invalidFields.checkbox && <Alert bsStyle="danger">Action checkbox is required</Alert>}
         {hasInvalidInputs && <Alert bsStyle="danger">Inputs are required.</Alert>}
         {this.state.hasDuplicates && <Alert bsStyle="danger">Duplicated questions aren't allowed.</Alert>}
+        {this.state.hasAnswerDuplicates && <Alert bsStyle="danger">Duplicated answers aren't allowed.</Alert>}
         {this.state.errorMessage && <Alert bsStyle="danger">{this.state.errorMessage}</Alert>}
         {missingTranslations && <Alert bsStyle="danger">Missing translations</Alert>}
       </div>
@@ -191,6 +193,7 @@ export default class FormModal extends Component<Props> {
 
   handleSubmit = event => {
     event.preventDefault()
+    this.setState({ hasAnswerDuplicates: false })
     if (this.validateForm()) {
       return
     }
@@ -212,7 +215,21 @@ export default class FormModal extends Component<Props> {
     return this.state.item.questions[this.props.contentLang] || []
   }
 
-  createAnswer = answer => {
+  createAnswer = async answer => {
+    const textAnswers = await Promise.map(this.itemAnswers, (answer: string) =>
+      answer.startsWith('#!')
+        ? this.props.bp.axios
+            .get(`content/element/${answer.replace('#!', '')}`)
+            .then(({ data }) => data.formData[`text$${this.props.contentLang}`])
+        : answer
+    )
+
+    if ([...textAnswers, ...this.itemAnswers].includes(answer)) {
+      this.setState({ hasAnswerDuplicates: true })
+      return
+    }
+    this.setState({ hasAnswerDuplicates: false })
+
     const answers = [...this.itemAnswers, answer]
 
     this.changeItemProperty(`answers.${this.props.contentLang}`, answers)
