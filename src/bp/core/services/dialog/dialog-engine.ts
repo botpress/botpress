@@ -58,8 +58,7 @@ export class DialogEngine {
     // End session if there are no more instructions in the queue
     if (!instruction) {
       this._debug(event.botId, event.target, 'ending flow')
-      event.state.context = {}
-      event.state.temp = {}
+      this._endFlow(event)
       return event
     }
 
@@ -77,7 +76,8 @@ export class DialogEngine {
       } else if (result.followUpAction === 'transition') {
         const destination = result.options!.transitionTo!
         if (!destination || !destination.length) {
-          this._debug(event.botId, event.target, 'ending flow, because no transition destination defined? (red port)')
+          this._debug(event.botId, event.target, 'ending flow, because no transition destination defined (red port)')
+          this._endFlow(event)
           return event
         }
         // We reset the queue when we transition to another node.
@@ -187,6 +187,11 @@ export class DialogEngine {
     event.state.context.hasJumped = true
 
     return this.processEvent(sessionId, event)
+  }
+
+  private _endFlow(event: IO.IncomingEvent) {
+    event.state.context = {}
+    event.state.temp = {}
   }
 
   private initializeContext(event) {
