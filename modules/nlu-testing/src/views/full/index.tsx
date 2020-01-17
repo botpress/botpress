@@ -69,24 +69,17 @@ export default class NLUTests extends React.Component<Props, State> {
   runTests = async () => {
     this.setState({ working: true })
     await new Promise(resolve => this.setState({ testResults: {} }, resolve))
-    for (const test of this.state.tests) {
-      const testRes = await this.api.runTest(test)
-      await this.recordTestResult(testRes)
-    }
-    this.setState({ working: false })
+    const testResults = await this.api.runAllTests()
+    this.setState({ working: false, testResults })
   }
 
   runSingleTest = async (test: Test) => {
     this.setState({ working: true })
     const testRes = await this.api.runTest(test)
-    await this.recordTestResult(testRes)
-    this.setState({ working: false })
-  }
-
-  recordTestResult = async (testResult: TestResult) => {
-    return new Promise(resolve =>
-      this.setState({ testResults: { ...this.state.testResults, [testResult.id]: testResult } }, resolve)
+    await new Promise(resolve =>
+      this.setState({ testResults: { ...this.state.testResults, [testRes.id]: testRes } }, resolve)
     )
+    this.setState({ working: false })
   }
 
   deleteTest = async (test: Test) => {
@@ -164,7 +157,7 @@ export default class NLUTests extends React.Component<Props, State> {
                   />
                   <span className={style.working}>
                     <Icon icon="tick" />
-                    {_.round(computeSummary(this.state.tests, this.state.testResults) * 100, 1)}% of passing tests
+                    {computeSummary(this.state.tests, this.state.testResults)} % of tests passing
                   </span>
                 </React.Fragment>
               )}
