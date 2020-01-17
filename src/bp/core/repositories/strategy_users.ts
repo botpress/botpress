@@ -89,11 +89,12 @@ export class StrategyUsersRepository {
     strategy: string,
     filteredAttributes?: string[]
   ): Promise<UserInfo[]> {
-    const users: StrategyUser[] = await this.database
-      .knex(this._getTableName(strategy))
-      .where(
-        this.database.knex.raw(`LOWER(email) IN (${emails.map(() => '?').join(',')})`, emails.map(x => x.toLowerCase()))
+    const users: StrategyUser[] = await this.database.knex(this._getTableName(strategy)).where(
+      this.database.knex.raw(
+        `LOWER(email) IN (${emails.map(() => '?').join(',')})`,
+        emails.map(x => x.toLowerCase())
       )
+    )
 
     const json = this.database.knex.json
 

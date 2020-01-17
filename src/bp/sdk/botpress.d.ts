@@ -414,7 +414,6 @@ declare module 'botpress/sdk' {
     export interface SlotDefinition {
       name: string
       entities: string[]
-      entity?: string
       color: number
     }
 
@@ -692,7 +691,7 @@ declare module 'botpress/sdk' {
       goal: string
       eventId: string
       success?: boolean
-      ended?: boolean
+      active?: boolean
     }
 
     export type StoredEvent = {
@@ -702,6 +701,9 @@ declare module 'botpress/sdk' {
       /** Outgoing events will have the incoming event ID, if they were triggered by one */
       incomingEventId?: string
       sessionId: string
+      goalId?: string
+      feedback?: number
+      success?: boolean
       event: IO.Event
       createdOn: any
     } & EventDestination
@@ -1136,7 +1138,7 @@ declare module 'botpress/sdk' {
     flow?: string
     /** Used internally by the flow editor */
     readonly lastModified?: Date
-  } & (NodeActions)
+  } & NodeActions
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
 
@@ -1489,6 +1491,15 @@ declare module 'botpress/sdk' {
       fields: Partial<IO.StoredEvent>,
       searchParams?: EventSearchParams
     ): Promise<IO.StoredEvent[]>
+
+    /**
+     * When Event Storage is enabled, you can use this API to update an event. You can use multiple fields
+     * for your query, but at least one is required.
+     *
+     * @param id - The ID of the event to update
+     * @param fields - Fields to update on the event
+     */
+    export function updateEvent(id: number, fields: Partial<IO.StoredEvent>): Promise<void>
   }
 
   export type GetOrCreateResult<T> = Promise<{

@@ -50,7 +50,8 @@ export class DecisionEngine {
         event.state.session.lastGoals = [
           {
             goal: data.flow,
-            eventId: event.id
+            eventId: event.id,
+            active: true
           },
           ...(event.state.session.lastGoals || [])
         ]

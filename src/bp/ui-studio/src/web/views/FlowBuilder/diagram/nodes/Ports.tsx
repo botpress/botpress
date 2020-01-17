@@ -46,7 +46,7 @@ export class StandardPortWidgetDisconnected extends React.Component<Props> {
   renderSubflowNode() {
     const node = this.props.node
     const index = Number(this.props.name.replace('out', ''))
-    const subflow = node.next[index].node.replace(/\.flow\.json/i, '')
+    const subflow = node.next[index].node.replace(/\.flow\.json$/i, '')
 
     return (
       <div className={style.label}>
@@ -91,7 +91,7 @@ export class StandardPortWidgetDisconnected extends React.Component<Props> {
         missingConnection = true
       } else if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
         type = 'end'
-      } else if (/\.flow\.json/i.test(nextNode.node)) {
+      } else if (/\.flow\.json$/i.test(nextNode.node)) {
         type = 'subflow'
       } else if (/^#/i.test(nextNode.node)) {
         type = 'return'

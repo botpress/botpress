@@ -11,18 +11,23 @@ import ms from 'ms'
 
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
+type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
+
 @injectable()
 export class EventCollector {
+  private readonly MAX_RETRY_ATTEMPTS = 3
   private readonly BATCH_SIZE = 100
+  private readonly PRUNE_INTERVAL = ms('30s')
   private readonly TABLE_NAME = 'events'
   private knex!: Knex & sdk.KnexExtension
   private intervalRef
   private currentPromise
+  private lastPruneTs: number = 0
 
   private enabled = false
   private interval!: number
   private retentionPeriod!: number
-  private batch: sdk.IO.StoredEvent[] = []
+  private batch: BatchEvent[] = []
   private ignoredTypes: string[] = []
   private ignoredProperties: string[] = []
 
@@ -61,6 +66,14 @@ export class EventCollector {
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
+    const goal = (event as sdk.IO.IncomingEvent).state.session?.lastGoals?.[0]
+    const goalId = goal?.active ? goal.eventId : undefined
+    const success = goal?.active ? goal?.success : undefined
+
+    // Once the goal is a success or failure, it becomes inactive
+    if (goal?.success !== undefined) {
+      goal.active = false
+    }
 
     this.batch.push({
       botId,
@@ -69,6 +82,8 @@ export class EventCollector {
       target,
       sessionId,
       direction,
+      goalId,
+      success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: this.knex.json.set(this.ignoredProperties ? _.omit(event, this.ignoredProperties) : event || {}),
       createdOn: this.knex.date.now()
@@ -97,13 +112,25 @@ export class EventCollector {
     const elements = this.batch.splice(0, batchCount)
 
     this.currentPromise = this.knex
-      .batchInsert(this.TABLE_NAME, elements, this.BATCH_SIZE)
-      .then(async () => {
-        await this.runCleanup()
+      .batchInsert(
+        this.TABLE_NAME,
+        elements.map(x => _.omit(x, 'retry')),
+        this.BATCH_SIZE
+      )
+      .then(() => {
+        if (Date.now() - this.lastPruneTs >= this.PRUNE_INTERVAL) {
+          this.lastPruneTs = Date.now()
+          return this.runCleanup().catch(err => {
+            /* swallow errors */
+          })
+        }
       })
       .catch(err => {
         this.logger.attachError(err).error(`Couldn't store events to the database. Re-queuing elements`)
-        this.batch.push(...elements)
+        const elementsToRetry = elements
+          .map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 }))
+          .filter(x => x.retry < this.MAX_RETRY_ATTEMPTS)
+        this.batch.push(...elementsToRetry)
       })
       .finally(() => {
         this.currentPromise = undefined

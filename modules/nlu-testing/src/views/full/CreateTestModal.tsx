@@ -3,7 +3,9 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { Test, TestingAPI } from './api'
+import { Condition, Test } from '../../shared/typings'
+
+import { TestingAPI } from './api'
 
 interface Props {
   test?: Test
@@ -50,7 +52,7 @@ export const CreateTestModal: FC<Props> = props => {
         ..._.toPairs(slotConditions)
           .filter(([_, value]) => !!value)
           .map(([slotName, value]) => [`slot:${slotName}`, 'is', value])
-      ] as [string, string, string][]
+      ] as Condition[]
     }
 
     await props.api.updateTest(test)

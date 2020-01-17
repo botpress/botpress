@@ -1,12 +1,13 @@
 import { Button, Classes } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
-import { Item, ItemList, SearchBar, SectionAction, SidePanelSection } from 'botpress/ui'
+import { Item, ItemList, SearchBar } from 'botpress/ui'
+import { toastFailure } from 'botpress/utils'
 import { NluItem } from 'full'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
-import IntentNameModal from './IntentNameModal'
+import NameModal from './NameModal'
 
 interface Props {
   api: NLUApi
@@ -14,69 +15,92 @@ interface Props {
   currentItem: NluItem
   contentLang: string
   setCurrentItem: (x: NluItem) => void
-  reloadIntents: () => void
+  reloadIntents: () => Promise<void>
 }
+
+type NameModalAction = 'rename' | 'create' | 'duplicate'
 
 export const IntentSidePanelSection: FC<Props> = props => {
   const [modalOpen, setModalOpen] = useState(false)
-  const [intentName, setIntentName] = useState()
-  const [intentAction, setIntentAction] = useState<any>('create')
+  const [intentName, setIntentName] = useState('')
+  const [modalAction, setModalAction] = useState<NameModalAction>('create')
   const [intentsFilter, setIntentsFilter] = useState('')
 
-  const createIntent = () => {
-    setIntentAction('create')
-    setModalOpen(true)
-  }
-
-  const renameIntent = (intentName: string) => {
+  const showIntentNameModal = (intentName: string, action: NameModalAction) => {
     setIntentName(intentName)
-    setIntentAction('rename')
+    setModalAction(action)
     setModalOpen(true)
   }
 
-  const duplicateIntent = (intentName: string) => {
-    setIntentName(intentName)
-    setIntentAction('duplicate')
-    setModalOpen(true)
-  }
-
-  const deleteIntent = (intentName: string) => {
+  const deleteIntent = async (intentName: string) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intentName}" ?`)
     if (confirmDelete) {
       if (props.currentItem && props.currentItem.name === intentName) {
         props.setCurrentItem(undefined)
       }
 
-      props.api.deleteIntent(intentName).then(props.reloadIntents)
+      try {
+        await props.api.deleteIntent(intentName)
+        await props.reloadIntents()
+      } catch (err) {
+        toastFailure('Could not delete intent')
+      }
     }
   }
 
-  const onCreateIntent = async (name: string) => {
+  const onSubmit = async (sanitizedName: string, rawName: string) => {
+    if (modalAction === 'create') {
+      await createIntent(sanitizedName, rawName)
+    } else if (modalAction === 'rename') {
+      await renameIntent(intentName, sanitizedName)
+    } else if (modalAction === 'duplicate') {
+      await duplicateIntent(intentName, sanitizedName)
+    }
+  }
+
+  const createIntent = async (sanitizedName: string, rawName: string) => {
     const intentDef = {
-      name: name,
-      utterances: { [props.contentLang]: [name] }
+      name: sanitizedName,
+      utterances: { [props.contentLang]: [rawName] } // note usage of raw name as first utterance
     }
 
-    await props.api.createIntent(intentDef)
-    await props.reloadIntents()
-    props.setCurrentItem({ name: name, type: 'intent' })
+    try {
+      await props.api.createIntent(intentDef)
+      await props.reloadIntents()
+      props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    } catch (err) {
+      toastFailure('Could not create intent')
+    }
   }
 
-  const onRenameIntent = async (targetIntent: string, name: string) => {
-    const intent = await props.api.fetchIntent(targetIntent)
-    intent.name = name
-    await props.api.updateIntent(targetIntent, intent)
-    await props.reloadIntents()
-    props.setCurrentItem({ name: name, type: 'intent' })
+  const renameIntent = async (targetIntent: string, sanitizedName: string) => {
+    const intent = props.intents.find(i => i.name === targetIntent)
+    if (!intent) {
+      return
+    }
+
+    try {
+      await props.api.updateIntent(targetIntent, { ...intent, name: sanitizedName })
+      await props.reloadIntents()
+      props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    } catch (err) {
+      toastFailure('Could not rename intent')
+    }
   }
 
-  const onDuplicateIntent = async (targetIntent: string, name: string) => {
-    const intent = await props.api.fetchIntent(targetIntent)
-    const clone = _.cloneDeep(intent)
-    clone.name = name
-    await props.api.createIntent(clone)
-    await props.reloadIntents()
-    props.setCurrentItem({ name: name, type: 'intent' })
+  const duplicateIntent = async (targetIntent: string, sanitizedName: string) => {
+    const intent = props.intents.find(i => i.name === targetIntent)
+    if (!intent) {
+      return
+    }
+
+    try {
+      await props.api.createIntent({ ...intent, name: sanitizedName })
+      await props.reloadIntents()
+      props.setCurrentItem({ name: sanitizedName, type: 'intent' })
+    } catch (err) {
+      toastFailure('Could not duplicate intent')
+    }
   }
 
   const intentItems = props.intents
@@ -89,8 +113,16 @@ export const IntentSidePanelSection: FC<Props> = props => {
           value: intent.name,
           selected: props.currentItem && props.currentItem.name === intent.name,
           contextMenu: [
-            { label: 'Rename', icon: 'edit', onClick: () => renameIntent(intent.name) },
-            { label: 'Duplicate', icon: 'duplicate', onClick: () => duplicateIntent(intent.name) },
+            {
+              label: 'Rename',
+              icon: 'edit',
+              onClick: () => showIntentNameModal(intent.name, 'rename')
+            },
+            {
+              label: 'Duplicate',
+              icon: 'duplicate',
+              onClick: () => showIntentNameModal(intent.name, 'duplicate')
+            },
             { label: 'Delete', icon: 'delete', onClick: () => deleteIntent(intent.name) }
           ]
         } as Item)
@@ -103,9 +135,8 @@ export const IntentSidePanelSection: FC<Props> = props => {
         className={Classes.MINIMAL}
         icon="new-object"
         text="New intent"
-        onClick={createIntent}
+        onClick={() => showIntentNameModal('', 'create')}
       />
-
       <SearchBar
         id="intents-filter"
         icon="filter"
@@ -118,15 +149,13 @@ export const IntentSidePanelSection: FC<Props> = props => {
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'intent', name })}
       />
 
-      <IntentNameModal
-        action={intentAction}
-        originalName={intentName}
-        intentNames={props.intents.map(i => i.name)}
+      <NameModal
         isOpen={modalOpen}
         toggle={() => setModalOpen(!modalOpen)}
-        onCreateIntent={onCreateIntent}
-        onRenameIntent={onRenameIntent}
-        onDuplicateIntent={onDuplicateIntent}
+        onSubmit={onSubmit}
+        title={`${modalAction} intent`}
+        originalName={intentName}
+        intents={props.intents}
       />
     </div>
   )

@@ -227,6 +227,7 @@ const doCreateNewFlow = name => {
       onEnter: [],
       onReceive: null,
       next: [],
+      type: 'standard',
       x: 100,
       y: 100
     }
@@ -237,18 +238,20 @@ const doCreateNewFlow = name => {
       {
         id: prettyId(),
         name: 'success',
-        onEnter: ['ndu/endGoal {"success":"true"}'],
+        onEnter: [],
         onReceive: null,
         next: [],
+        type: 'success',
         x: 1000,
         y: 100
       },
       {
         id: prettyId(),
         name: 'failure',
-        onEnter: ['ndu/endGoal {"success":"false"}'],
+        onEnter: [],
         onReceive: null,
         next: [],
+        type: 'failure',
         x: 1000,
         y: 200
       }
@@ -364,7 +367,7 @@ let reducer = handleActions(
     [receiveFlows]: (state, { payload }) => {
       const flows = _.keys(payload).filter(key => !payload[key].skillData)
       const newFlow = _.keys(payload).includes('Built-In/welcome.flow.json') && 'Built-In/welcome.flow.json'
-      const defaultFlow = newFlow || _.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows)
+      const defaultFlow = newFlow || (_.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows))
 
       const newState = {
         ...state,
@@ -701,7 +704,10 @@ reducer = reduceReducers(
       [requestPasteFlowNode]: (state, { payload: { x, y } }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const newNodeId = prettyId()
-        const name = copyName(currentFlow.nodes.map(({ name }) => name), state.nodeInBuffer.name)
+        const name = copyName(
+          currentFlow.nodes.map(({ name }) => name),
+          state.nodeInBuffer.name
+        )
         return {
           ...state,
           currentFlowNode: newNodeId,

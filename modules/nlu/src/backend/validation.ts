@@ -23,3 +23,10 @@ export const IntentDefCreateSchema = Joi.object().keys({
     .items(Joi.string())
     .default(['global'])
 })
+
+export const PredictSchema = Joi.object().keys({
+  contexts: Joi.array()
+    .items(Joi.string())
+    .default(['global']),
+  text: Joi.string().required()
+})

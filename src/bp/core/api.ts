@@ -73,7 +73,8 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
     sendEvent: eventEngine.sendEvent.bind(eventEngine),
     replyToEvent: eventEngine.replyToEvent.bind(eventEngine),
     isIncomingQueueEmpty: eventEngine.isIncomingQueueEmpty.bind(eventEngine),
-    findEvents: eventRepo.findEvents.bind(eventRepo)
+    findEvents: eventRepo.findEvents.bind(eventRepo),
+    updateEvent: eventRepo.updateEvent.bind(eventRepo)
   }
 }
 

@@ -3,7 +3,7 @@ import classnames from 'classnames'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import style from './style.scss'
+import style from '../style.scss'
 
 const MENU_WIDTH = 300
 

@@ -30,22 +30,6 @@ export interface DialogConfig {
   sessionTimeoutInterval: string
 }
 
-/**
- * Configuration file definition for the Converse API
- */
-export type ConverseConfig = {
-  /**
-   * The timeout of the converse API requests
-   * @default 5s
-   */
-  timeout: string
-  /**
-   * The text limitation of the converse API requests
-   * @default 360
-   */
-  maxMessageLength: number
-}
-
 export interface LogsConfig {
   /**
    * The database output will not record Debug logs.

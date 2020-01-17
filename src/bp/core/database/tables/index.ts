@@ -19,7 +19,7 @@ import {
   WorkspaceUsersTable
 } from './server-wide'
 
-const tables: (typeof Table)[] = [
+const tables: typeof Table[] = [
   ServerMetadataTable,
   ChannelUsersTable,
   WorkspaceUsersTable,

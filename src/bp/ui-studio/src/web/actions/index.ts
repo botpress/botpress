@@ -47,7 +47,11 @@ const startMutexCountDown = (flow: FlowView) => dispatch => {
 export const clearFlowMutex = createAction('FLOWS/MODIFICATIONS/CLEAR_MUTEX')
 
 export const requestFlows = createAction('FLOWS/REQUEST')
-export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+export const receiveFlows = createAction(
+  'FLOWS/RECEIVE',
+  flows => flows,
+  () => ({ receiveAt: new Date() })
+)
 
 export const fetchFlows = () => dispatch => {
   dispatch(requestFlows())
@@ -67,7 +71,11 @@ export const fetchFlows = () => dispatch => {
     })
 }
 
-export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+export const receiveSaveFlows = createAction(
+  'FLOWS/SAVE/RECEIVE',
+  flows => flows,
+  () => ({ receiveAt: new Date() })
+)
 export const errorSaveFlows = createAction('FLOWS/SAVE/ERROR')
 export const clearErrorSaveFlows = createAction('FLOWS/SAVE/ERROR/CLEAR')
 
@@ -361,7 +369,14 @@ export const actionsReceived = createAction('ACTIONS/RECEIVED')
 export const refreshActions = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/actions`).then(({ data }) => {
-    dispatch(actionsReceived(_.sortBy(data.filter(action => !action.metadata.hidden), ['metadata.category', 'name'])))
+    dispatch(
+      actionsReceived(
+        _.sortBy(
+          data.filter(action => !action.metadata.hidden),
+          ['metadata.category', 'name']
+        )
+      )
+    )
   })
 }
 

@@ -19,7 +19,7 @@ import style from './style.scss'
 
 interface Props {
   entity: NLU.EntityDefinition
-  updateEntity: (entity: NLU.EntityDefinition) => void
+  updateEntity: (targetEntity: string, entity: NLU.EntityDefinition) => void
 }
 
 export const PatternEntityEditor: React.FC<Props> = props => {
@@ -60,7 +60,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
         examples: examplesStr.trim().split('\n')
       }
       validateExamples()
-      props.updateEntity(newEntity)
+      props.updateEntity(newEntity.id, newEntity)
     } catch (e) {
       setPatternValid(false)
     }
