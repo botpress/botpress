@@ -3,14 +3,10 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { conditionsDefinitions } from './conditions'
-import Database from './db'
 import { BotStorage } from './typings'
 
 export default async (bp: typeof sdk, bots: BotStorage) => {
   const router = bp.http.createRouterForBot('ndu')
-  const database = new Database(bp)
-
-  await database.initialize()
 
   router.get('/conditions', async (req, res) => {
     res.send(conditionsDefinitions)
@@ -80,13 +76,15 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
     res.send(await exportFlowData(data, req.query.goalName))
   })
 
-  router.post('/logEvent', async (req, res) => {
-    await database.appendEvent(req.body)
-    res.send(true)
-  })
-
   router.get('/events', async (req, res) => {
-    res.send(await database.listElements())
+    res.send(
+      await bp
+        .database('events')
+        .select('*')
+        .where({ botId: req.params.botId, direction: 'incoming' })
+        .orderBy('createdOn', 'desc')
+        .limit(100)
+    )
   })
 
   router.post('/topics', async (req, res) => {
