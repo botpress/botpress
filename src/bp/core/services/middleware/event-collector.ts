@@ -66,8 +66,13 @@ export class EventCollector {
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
-    const goal =  (event as sdk.IO.IncomingEvent).state.session?.lastGoals?.[0]
-    const goalId = goal && goal.success === undefined  ? goal.eventId : undefined
+    const goal = (event as sdk.IO.IncomingEvent).state.session?.lastGoals?.[0]
+    const goalId = goal?.active ? goal.eventId : undefined
+
+    // Once the goal is a success or failure, it becomes inactive
+    if (goal?.success !== undefined) {
+      goal.active = false
+    }
 
     this.batch.push({
       botId,
@@ -106,7 +111,11 @@ export class EventCollector {
     const elements = this.batch.splice(0, batchCount)
 
     this.currentPromise = this.knex
-      .batchInsert(this.TABLE_NAME, elements.map(x => _.omit(x, 'retry')), this.BATCH_SIZE)
+      .batchInsert(
+        this.TABLE_NAME,
+        elements.map(x => _.omit(x, 'retry')),
+        this.BATCH_SIZE
+      )
       .then(() => {
         if (Date.now() - this.lastPruneTs >= this.PRUNE_INTERVAL) {
           this.lastPruneTs = Date.now()
