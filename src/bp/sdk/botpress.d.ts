@@ -691,6 +691,7 @@ declare module 'botpress/sdk' {
       goal: string
       eventId: string
       success?: boolean
+      active?: boolean
     }
 
     export type StoredEvent = {
@@ -1137,7 +1138,7 @@ declare module 'botpress/sdk' {
     flow?: string
     /** Used internally by the flow editor */
     readonly lastModified?: Date
-  } & (NodeActions)
+  } & NodeActions
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
 
