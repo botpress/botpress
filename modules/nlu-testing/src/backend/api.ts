@@ -1,4 +1,5 @@
-import Axios from 'axios'
+import Axios, { AxiosRequestConfig } from 'axios'
+import P from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import parse from 'csv-parse'
 import stringify from 'csv-stringify/lib/sync'
@@ -9,7 +10,7 @@ import multer from 'multer'
 import nanoid from 'nanoid'
 import path from 'path'
 
-import { Condition, CSVTest, Test, TestResult } from '../shared/typings'
+import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
 
 const TestsSchema = Joi.array().items(
@@ -96,16 +97,7 @@ export default async (bp: typeof sdk) => {
     const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
 
     try {
-      const {
-        data: { nlu }
-      } = await Axios.post('mod/nlu/predict', { text: test.utterance, contexts: [test.context] }, axiosConfig)
-
-      const details = test.conditions.map(c => conditionMatch(nlu, c))
-      const result = {
-        success: details.every(r => r.success),
-        id: req.params.testId,
-        details
-      }
+      const result = await runTest(test, axiosConfig)
 
       res.send(result)
     } catch (err) {
@@ -157,6 +149,18 @@ export default async (bp: typeof sdk) => {
       res.sendStatus(500)
     }
   })
+
+  router.post('/runAll', async (req, res) => {
+    const tests = await getAllTests(req.params.botId)
+    const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
+
+    const resultsBatch = await P.mapSeries(_.chunk(tests, 20), testChunk => {
+      return P.map(testChunk, async test => runTest(test, axiosConfig))
+    })
+
+    const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
+    res.send(testResults)
+  })
 }
 
 function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
@@ -184,7 +188,20 @@ function isRunningFromSources(): string | null {
   }
 }
 
-function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]): TestResult {
+async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<TestResult> {
+  const {
+    data: { nlu }
+  } = await Axios.post('mod/nlu/predict', { text: test.utterance, contexts: [test.context] }, axiosConfig)
+
+  const details = test.conditions.map(c => conditionMatch(nlu, c))
+  return {
+    success: details.every(r => r.success),
+    id: test.id,
+    details
+  }
+}
+
+function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]): TestResultDetails {
   if (key === 'intent') {
     const received = nlu.intent.name
     const success = nlu.intent.name === expected
