@@ -8,13 +8,30 @@
   </head>
 
   <body>
-    This is an example of embedded webchat
+    <p>This is an example of embedded webchat. Try adding your "botId" as a URL parameter.</p>
+    <p>
+      Example: <code>https://botpress.team/assets/modules/channel-web/examples/embedded-webchat.html?botId=test</code>
+    </p>
   </body>
 
   <script>
+    function parseQuery(queryString) {
+      var query = {}
+      var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&')
+      for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i].split('=')
+        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '')
+      }
+      return query
+    }
+
+    var params = parseQuery(window.location && window.location.search)
+
+    const botId = (params && params.botId) || 'welcome-bot'
+
     window.botpressWebChat.init({
       host: 'http://localhost:3000',
-      botId: 'welcome-bot'
+      botId: botId
       /*
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
         This allows you to customize the chat on a per-bot basis.
