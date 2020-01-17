@@ -68,6 +68,7 @@ export class EventCollector {
     const sessionId = SessionIdFactory.createIdFromEvent(event)
     const goal = (event as sdk.IO.IncomingEvent).state.session?.lastGoals?.[0]
     const goalId = goal?.active ? goal.eventId : undefined
+    const success = goal?.active ? goal?.success : undefined
 
     // Once the goal is a success or failure, it becomes inactive
     if (goal?.success !== undefined) {
@@ -82,7 +83,7 @@ export class EventCollector {
       sessionId,
       direction,
       goalId,
-      success: goal?.success,
+      success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: this.knex.json.set(this.ignoredProperties ? _.omit(event, this.ignoredProperties) : event || {}),
       createdOn: this.knex.date.now()
