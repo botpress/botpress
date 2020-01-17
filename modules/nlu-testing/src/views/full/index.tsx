@@ -70,12 +70,29 @@ export default class NLUTests extends React.Component<Props, State> {
     this.setState({ working: true })
     await new Promise(resolve => this.setState({ testResults: {} }, resolve))
     for (const test of this.state.tests) {
-      const result = await this.api.runTest(test)
-      await new Promise(resolve =>
-        this.setState({ testResults: { ...this.state.testResults, [result.id]: result } }, resolve)
-      )
+      const testRes = await this.api.runTest(test)
+      await this.recordTestResult(testRes)
     }
     this.setState({ working: false })
+  }
+
+  runSingleTest = async (test: Test) => {
+    this.setState({ working: true })
+    const testRes = await this.api.runTest(test)
+    await this.recordTestResult(testRes)
+    this.setState({ working: false })
+  }
+
+  recordTestResult = async (testResult: TestResult) => {
+    return new Promise(resolve =>
+      this.setState({ testResults: { ...this.state.testResults, [testResult.id]: testResult } }, resolve)
+    )
+  }
+
+  deleteTest = async (test: Test) => {
+    await this.api.deleteTest(test)
+    await this.refreshTests()
+    delete this.state.testResults[test.id]
   }
 
   async saveResults() {
@@ -165,6 +182,8 @@ export default class NLUTests extends React.Component<Props, State> {
                   tests={this.state.tests}
                   testResults={this.state.testResults}
                   createTest={this.setModalVisible.bind(this, true)}
+                  runTest={this.runSingleTest}
+                  deleteTest={this.deleteTest}
                 />
               )}
               <CrossValidationResults f1Metrics={this.state.f1Metrics} />
@@ -184,54 +203,6 @@ export default class NLUTests extends React.Component<Props, State> {
           </div>
         </div>
       </Container>
-    )
-  }
-}
-
-@ContextMenuTarget
-class TableRow extends React.Component<{ test: Test; testResults: any; onDelete: () => void }, {}> {
-  render() {
-    return (
-      <tr>
-        {/* TODO edit utterance in place */}
-        <td>{this.props.test.utterance}</td>
-        <td>{this.props.test.context}</td>
-        <td>{this.props.test.conditions.map(c => c.join('-')).join(' | ')}</td>
-        <td>{this.renderResult()}</td>
-      </tr>
-    )
-  }
-
-  renderDetails = (res: TestResult) => (
-    <div>
-      {res.details
-        .filter(r => !r.success)
-        .map(r => (
-          <p>{r.reason}</p>
-        ))}
-    </div>
-  )
-
-  renderResult = () => {
-    const result = this.props.testResults[this.props.test.id]
-    if (result === undefined) {
-      return <span>-</span>
-    } else if (result.success) {
-      return <Icon icon="tick-circle" intent="success" />
-    } else {
-      return (
-        <Tooltip position={Position.LEFT} content={this.renderDetails(result)}>
-          <Icon icon="warning-sign" intent="danger" />
-        </Tooltip>
-      )
-    }
-  }
-
-  renderContextMenu = (e: React.MouseEvent<HTMLElement>) => {
-    return (
-      <Menu>
-        <MenuItem onClick={this.props.onDelete} text="Delete" />
-      </Menu>
     )
   }
 }
