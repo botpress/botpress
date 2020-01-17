@@ -151,7 +151,7 @@ export class PersistedConsoleLogger implements Logger {
     }
 
     const serializedMetadata = metadata ? serializeArgs(metadata) : ''
-    const timeFormat = 'HH:mm:ss.SSS'
+    const timeFormat = 'L HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
