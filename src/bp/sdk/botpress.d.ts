@@ -1491,6 +1491,15 @@ declare module 'botpress/sdk' {
       fields: Partial<IO.StoredEvent>,
       searchParams?: EventSearchParams
     ): Promise<IO.StoredEvent[]>
+
+    /**
+     * When Event Storage is enabled, you can use this API to update an event. You can use multiple fields
+     * for your query, but at least one is required.
+     *
+     * @param id - The ID of the event to update
+     * @param fields - Fields to update on the event
+     */
+    export function updateEvent(id: number, fields: Partial<IO.StoredEvent>): Promise<void>
   }
 
   export type GetOrCreateResult<T> = Promise<{
