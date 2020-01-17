@@ -15,7 +15,7 @@ const sendFeedback = async value => {
   const previousGoal = event.state.session.lastGoals[0]
   const goalId = previousGoal.eventId
   const targetEvent = (await bp.events.findEvents({ incomingEventId: goalId, goalId }, { count: 1 }))[0]
-  await bp.events.putEvent(targetEvent.id, { feedback })
+  await bp.events.updateEvent(targetEvent.id, { feedback })
 }
 
 return sendFeedback(args.value)
