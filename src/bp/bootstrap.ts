@@ -16,6 +16,7 @@ import os from 'os'
 
 import { setupMasterNode } from './cluster'
 import { FatalError } from './errors'
+import { errorFromList } from 'verror'
 
 async function setupEnv() {
   await Db.initialize()
@@ -102,31 +103,35 @@ This is a fatal error, process will exit.`
 
   const globalConfig = await Config.getBotpressConfig()
   const loadingErrors: Error[] = []
-  let modulesLog = ''
+  let loadedModulesLog = ''
+  let disabledModulesLog = ''
+  let erroredModulesLog = ''
 
   const resolver = new ModuleResolver(logger)
 
-  for (const entry of globalConfig.modules) {
+  for (const entry of globalConfig.modules) {  
     try {
       if (!entry.enabled) {
-        modulesLog += os.EOL + `${chalk.dim('⊝')} ${entry.location} ${chalk.gray('(disabled)')}`
+        const displayName = entry.location.replace(/^MODULES_ROOT\/|\\/, '')
+        disabledModulesLog += os.EOL + `${chalk.dim('⊝')} ${displayName} ${chalk.gray('(disabled)')}`
         continue
       }
 
       const moduleLocation = await resolver.resolve(entry.location)
       const rawEntry = resolver.requireModule(moduleLocation)
+      const displayName = rawEntry?.definition?.name || entry.location
 
       const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
       modules.push(entryPoint)
       process.LOADED_MODULES[entryPoint.definition.name] = moduleLocation
-      modulesLog += os.EOL + `${chalk.greenBright('⦿')} ${entry.location}`
+      loadedModulesLog += os.EOL + `${chalk.greenBright('⦿')} ${displayName}`
     } catch (err) {
-      modulesLog += os.EOL + `${chalk.redBright('⊗')} ${entry.location} ${chalk.gray('(error)')}`
+      erroredModulesLog += os.EOL + `${chalk.redBright('⊗')} ${entry.location} ${chalk.gray('(error)')}`
       loadingErrors.push(new FatalError(err, `Fatal error loading module "${entry.location}"`))
     }
   }
 
-  logger.info(`Using ${chalk.bold(modules.length.toString())} modules` + modulesLog)
+  logger.info(`Using ${chalk.bold(modules.length.toString())} modules` + loadedModulesLog + disabledModulesLog + erroredModulesLog)
 
   for (const err of loadingErrors) {
     logger.attachError(err).error('Error while loading some modules, they will be disabled')
