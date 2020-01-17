@@ -98,9 +98,12 @@ const wrapAction = (
     .catch(err => dispatch(errorAction(err)))
 }
 
-const updateCurrentFlow = async (_payload, state) => {
+const updateCurrentFlow = async (_payload, state, dispatch) => {
   const flowState = state.flows
-  return FlowsAPI.updateFlow(flowState, flowState.currentFlow)
+  const result = await FlowsAPI.updateFlow(flowState, flowState.currentFlow)
+  dispatch(fetchFlows())
+  dispatch(refreshFlowsLinks())
+  return result
 }
 
 const saveDirtyFlows = async state => {
@@ -141,8 +144,8 @@ export const duplicateFlow = wrapAction(requestDuplicateFlow, async (payload, st
 export const updateFlowNode = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
 export const createFlowNode = wrapAction(requestCreateFlowNode, updateCurrentFlow)
 
-export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state) => {
-  await updateCurrentFlow(payload, state)
+export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state, dispatch) => {
+  await updateCurrentFlow(payload, state, dispatch)
 
   // If node is a skill and there's no references to it, then the complete flow is deleted
   const deletedFlows = getDeletedFlows(state)
@@ -172,13 +175,13 @@ export const handleFlowEditorRedo = createAction('FLOWS/EDITOR/REDO')
 
 export const flowEditorUndo = wrapAction(handleFlowEditorUndo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
-  await updateCurrentFlow(payload, state)
+  await updateCurrentFlow(payload, state, dispatch)
   await createNewFlows(state)
 })
 
 export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, state, dispatch) => {
   dispatch(refreshFlowsLinks())
-  await updateCurrentFlow(payload, state)
+  await updateCurrentFlow(payload, state, dispatch)
   await createNewFlows(state)
 })
 
@@ -305,8 +308,8 @@ export const requestUpdateSkill = createAction('SKILLS/UPDATE')
 export const buildNewSkill = createAction('SKILLS/BUILD')
 export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
 
-export const insertNewSkill = wrapAction(requestInsertNewSkill, async (payload, state) => {
-  await updateCurrentFlow(payload, state)
+export const insertNewSkill = wrapAction(requestInsertNewSkill, async (payload, state, dispatch) => {
+  await updateCurrentFlow(payload, state, dispatch)
   await createNewFlows(state)
 })
 
