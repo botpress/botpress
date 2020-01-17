@@ -11,7 +11,6 @@ import { FailureNodeModel } from './nodes_v2/FailureNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
-import { SendFeedbackNodeModel } from './nodes_v2/SendFeedbackNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
 
 const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill']
@@ -47,8 +46,6 @@ const createNodeModel = (node, modelProps) => {
     return new SuccessNodeModel(modelProps)
   } else if (type === 'failure') {
     return new FailureNodeModel(modelProps)
-  } else if (type === 'send_feedback') {
-    return new SendFeedbackNodeModel(modelProps)
   } else {
     return new StandardNodeModel(modelProps)
   }

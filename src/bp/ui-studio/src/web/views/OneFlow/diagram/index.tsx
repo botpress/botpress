@@ -53,7 +53,6 @@ import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diag
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
-import { SendFeedbackWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SendFeedbackNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
@@ -81,7 +80,6 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new SendFeedbackWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     // This reference allows us to update flow nodes from widgets
