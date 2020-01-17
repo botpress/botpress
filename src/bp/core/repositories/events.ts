@@ -8,7 +8,7 @@ import { TYPES } from '../types'
 export interface EventRepository {
   findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams)
   pruneUntil(date: Date): Promise<void>
-  updateEvent(id: number, fields): Promise<void>
+  updateEvent(id: number, fields: Partial<sdk.IO.StoredEvent>): Promise<void>
 }
 
 export const DefaultSearchParams: sdk.EventSearchParams = {
@@ -55,7 +55,7 @@ export class KnexEventRepository implements EventRepository {
     )
   }
 
-  async updateEvent(id: number, fields): Promise<void> {
+  async updateEvent(id: number, fields: Partial<sdk.IO.StoredEvent>): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
       .where({ id })

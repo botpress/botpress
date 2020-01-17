@@ -1499,7 +1499,7 @@ declare module 'botpress/sdk' {
      * @param id - The ID of the event to update
      * @param fields - Fields to update on the event
      */
-    export function putEvent(id, fields): Promise<void>
+    export function updateEvent(id: number, fields: Partial<IO.StoredEvent>): Promise<void>
   }
 
   export type GetOrCreateResult<T> = Promise<{
