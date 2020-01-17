@@ -136,9 +136,7 @@ export const predict = async (config: DialogflowConfig, text: string, langCode: 
   }
 
   const { data } = await axios.post(
-    `https://content-dialogflow.googleapis.com/v2/projects/${
-      config.projectId
-    }/agent/sessions/${sessionId}:detectIntent`,
+    `https://content-dialogflow.googleapis.com/v2/projects/${config.projectId}/agent/sessions/${sessionId}:detectIntent`,
     body,
     {
       params: { alt: 'json' },

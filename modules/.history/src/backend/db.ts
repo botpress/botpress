@@ -39,7 +39,10 @@ export default class HistoryDb {
     await this.knex
       .del()
       .from(FLAGS_TABLE_NAME)
-      .whereIn('flaggedMessageId', messages.map(m => m.userMessage.id))
+      .whereIn(
+        'flaggedMessageId',
+        messages.map(m => m.userMessage.id)
+      )
   }
 
   async getDistinctConversations(botId: string, from?: number, to?: number): Promise<string[]> {

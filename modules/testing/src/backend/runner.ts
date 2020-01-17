@@ -111,7 +111,7 @@ export class SenarioRunner {
        * If QNA has the exact same source, then we don't care about the response (variations)
        * If the source is Dialog Manager, then the answer must be identical (either payload or content element id)
        */
-      if (!sameSource || (source !== 'qna' && (source === 'dialogManager' && !sameResponse))) {
+      if (!sameSource || (source !== 'qna' && source === 'dialogManager' && !sameResponse)) {
         mismatch = { reason: 'The reply was invalid', expected, received, index: idx }
         return false
       }

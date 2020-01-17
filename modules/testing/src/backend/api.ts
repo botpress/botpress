@@ -66,7 +66,10 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
       return res.sendStatus(400)
     }
 
-    const elements = await bp.cms.getContentElements(req.params.botId, elementIds.map(x => x.replace('#!', '')))
+    const elements = await bp.cms.getContentElements(
+      req.params.botId,
+      elementIds.map(x => x.replace('#!', ''))
+    )
     const rendered = elements.map(element => {
       return {
         id: `#!${element.id}`,
