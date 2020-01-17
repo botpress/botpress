@@ -15,7 +15,7 @@ export class EventsTable extends Table {
       table.string('sessionId').nullable()
       table.string('direction').notNullable()
       table.string('incomingEventId').nullable()
-      table.string('goalId').notNullable()
+      table.string('goalId').nullable()
       table.integer('feedback').nullable()
       table.boolean('success').nullable()
       table.json('event').notNullable()
