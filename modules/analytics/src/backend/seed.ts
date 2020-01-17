@@ -94,48 +94,51 @@ const run = async knex => {
 
   return addUsers(initialNumberOfUsers, knex, startDate)
     .then(() => {
-      return Promise.mapSeries(_.times(daysBack, n => n + 1), day => {
-        const i = daysBack - day
-        console.log('day', i)
-        let count = 0
-        const target = vary(interactionsPerDay * users.length)
+      return Promise.mapSeries(
+        _.times(daysBack, n => n + 1),
+        day => {
+          const i = daysBack - day
+          console.log('day', i)
+          let count = 0
+          const target = vary(interactionsPerDay * users.length)
 
-        while (count < target) {
-          const hour = _.random(1, 24, false)
-          if (Math.random() > distribution[hour] / 100) {
-            continue
+          while (count < target) {
+            const hour = _.random(1, 24, false)
+            if (Math.random() > distribution[hour] / 100) {
+              continue
+            }
+
+            const time = moment(new Date())
+              .startOf('day')
+              .subtract(i, 'days')
+              .add(hour - 1, 'hours')
+              .toDate()
+              .toISOString()
+
+            const direction = Math.random() > 0.3 ? 'in' : 'out'
+            const user = _.sample(users)
+
+            interactions.push({
+              ts: time,
+              type: 'text',
+              text: 'Random',
+              user_id: user.user_id,
+              channel: user.channel,
+              direction: direction
+            })
+            count++
           }
 
-          const time = moment(new Date())
-            .startOf('day')
+          dropUsers(vary((1 - retentionRate) * users.length, 0.13))
+          const addDate = moment(new Date())
             .subtract(i, 'days')
-            .add(hour - 1, 'hours')
             .toDate()
             .toISOString()
 
-          const direction = Math.random() > 0.3 ? 'in' : 'out'
-          const user = _.sample(users)
-
-          interactions.push({
-            ts: time,
-            type: 'text',
-            text: 'Random',
-            user_id: user.user_id,
-            channel: user.channel,
-            direction: direction
-          })
-          count++
+          const nbNewUsers = vary(users.length * growthRate, 0.25) + vary(fixedDailyGrowth, 0.25)
+          return addUsers(nbNewUsers, knex, addDate)
         }
-
-        dropUsers(vary((1 - retentionRate) * users.length, 0.13))
-        const addDate = moment(new Date())
-          .subtract(i, 'days')
-          .toDate()
-          .toISOString()
-
-        const nbNewUsers = vary(users.length * growthRate, 0.25) + vary(fixedDailyGrowth, 0.25)
-        return addUsers(nbNewUsers, knex, addDate)
-      })
+      )
     })
     .then(() => {
       console.log('Preparing to insert', interactions.length)

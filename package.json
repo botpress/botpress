@@ -143,7 +143,7 @@
     "jest-puppeteer": "^4.3.0",
     "lint-staged": "^8.1.5",
     "pkg": "^4.3.7",
-    "prettier": "^1.14.3",
+    "prettier": "^1.19.1",
     "puppeteer": "^1.19.0",
     "rimraf": "^2.6.2",
     "showdown": "^1.9.0",

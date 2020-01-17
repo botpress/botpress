@@ -70,9 +70,7 @@ export class Testing {
 
     if (events.length !== eventIds.length) {
       throw new Error(
-        `Could not load some specified events. Expected ${eventIds.length}, got ${
-          events.length
-        } events. Maybe they were cleared from the database, or they weren't saved yet.`
+        `Could not load some specified events. Expected ${eventIds.length}, got ${events.length} events. Maybe they were cleared from the database, or they weren't saved yet.`
       )
     }
 

@@ -704,7 +704,10 @@ reducer = reduceReducers(
       [requestPasteFlowNode]: (state, { payload: { x, y } }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const newNodeId = prettyId()
-        const name = copyName(currentFlow.nodes.map(({ name }) => name), state.nodeInBuffer.name)
+        const name = copyName(
+          currentFlow.nodes.map(({ name }) => name),
+          state.nodeInBuffer.name
+        )
         return {
           ...state,
           currentFlowNode: newNodeId,
