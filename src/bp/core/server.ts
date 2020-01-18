@@ -285,8 +285,7 @@ export default class HTTPServer {
         next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
       } else {
         if (err.statusCode === 413) {
-          this.logger
-            .error('You may need to increase httpServer.bodyLimit in file data/global/botpress.config.json')
+          this.logger.error('You may need to increase httpServer.bodyLimit in file data/global/botpress.config.json')
         }
         next(err)
       }
