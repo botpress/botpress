@@ -6,8 +6,10 @@ import { connect } from 'react-redux'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import Select from 'react-select'
-import { Row, Col, FormGroup, Label, Input, Form, Alert, UncontrolledTooltip, Collapse } from 'reactstrap'
+import { Row, Col, FormGroup, Label, Input, Form, UncontrolledTooltip, Collapse } from 'reactstrap'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
+import { generatePath } from 'react-router'
+import { getActiveWorkspace } from '~/Auth'
 import _ from 'lodash'
 
 import { fetchBots, fetchBotCategories } from '../../reducers/bots'
@@ -16,7 +18,8 @@ import { fetchLanguages } from '../../reducers/server'
 
 import api from '../../api'
 import PageContainer from '~/App/PageContainer'
-import SplitPage from '~/App/SplitPage'
+import StickyActionBar from '~/App/StickyActionBar'
+import AlertBanner from '~/App/AlertBanner'
 import { Button, Intent } from '@blueprintjs/core'
 
 const statusList = [
@@ -41,7 +44,9 @@ class Bots extends Component {
     categories: [],
     moreOpen: false,
     languages: [],
-    defaultLanguage: undefined
+    defaultLanguage: undefined,
+    formHasChanged: false,
+    isSaving: false
   }
 
   componentDidMount() {
@@ -79,12 +84,20 @@ class Bots extends Component {
     }
   }
 
+  sortLanguages = (a, b) => {
+    const langA = a.name.toUpperCase();
+    const langB = b.name.toUpperCase();
+
+    return (langA < langB) ? -1 : (langA > langB) ? 1 : 0;
+  }
+
   updateLanguages = () => {
     if (!this.props.languages) {
       return
     }
 
-    const languagesList = this.props.languages.map(lang => ({
+    // [TODO] max.cloutier 2020.01.17 should this be done on the backend side or is there a logic to this order? Just drove me nuts, had to sort it...
+    const languagesList = this.props.languages.sort(this.sortLanguages).map(lang => ({
       label: lang.name,
       value: lang.code
     }))
@@ -124,8 +137,27 @@ class Bots extends Component {
     )
   }
 
+  cancel = () => {
+    if (this.state.formHasChanged) {
+      // [TODO] max.cloutier 2020.01.17 Implement and use a custom confirm popup and replace the window.confirm in this file/app-wide
+      const conf = window.confirm(`There are unsaved changes in this form. Are you sure you want to cancel?`)
+
+      if (conf) {
+        this.backToList()
+      }
+    } else {
+      this.backToList()
+    }
+  }
+
+  backToList = () => {
+    const workspaceId = getActiveWorkspace()
+
+    this.props.history.push(generatePath('/workspace/:workspaceId?/bots', { workspaceId: workspaceId || undefined }))
+  }
+
   saveChanges = async () => {
-    this.setState({ error: undefined })
+    this.setState({ error: undefined, isSaving: true })
 
     const { selectedLanguages, selectedDefaultLang, category } = this.state
 
@@ -163,10 +195,10 @@ class Bots extends Component {
 
     await this.props.fetchBots()
 
-    this.setState({ successMsg: `Bot configuration updated successfully` })
+    this.setState({ successMsg: `Bot configuration updated successfully, you will be redirected to the bots list.` })
 
     window.setTimeout(() => {
-      this.setState({ successMsg: undefined })
+      this.backToList()
     }, 2000)
   }
 
@@ -187,35 +219,35 @@ class Bots extends Component {
     )
   }
 
-  handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
-  handleStatusChanged = status => this.setState({ status })
-  handleCategoryChanged = category => this.setState({ category })
+  handleInputChanged = event => this.setState({ [event.target.name]: event.target.value, formHasChanged: true })
+  handleStatusChanged = status => this.setState({ status, formHasChanged: true })
+  handleCategoryChanged = category => this.setState({ category, formHasChanged: true })
 
   handleDefaultLangChanged = lang => {
     if (!this.state.selectedDefaultLang) {
-      this.setState({ selectedDefaultLang: lang })
+      this.setState({ selectedDefaultLang: lang, formHasChanged: true })
       return
     }
 
     if (this.state.selectedDefaultLang !== lang) {
       const conf = window.confirm(
         `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${
-          lang.label
+        lang.label
         }? All of your content elements will be copied, make sure you translate them.`
       )
 
       if (conf) {
-        this.setState({ selectedDefaultLang: lang })
+        this.setState({ selectedDefaultLang: lang, formHasChanged: true })
       }
     }
   }
 
   handleLanguagesChanged = langs => {
-    this.setState({ selectedLanguages: langs })
+    this.setState({ selectedLanguages: langs, formHasChanged: true })
   }
 
   handleCommunityLanguageChanged = lang => {
-    this.setState({ selectedDefaultLang: lang, selectedLanguages: [lang] })
+    this.setState({ selectedDefaultLang: lang, selectedLanguages: [lang], formHasChanged: true })
   }
 
   handleImageFileChanged = async event => {
@@ -238,6 +270,8 @@ class Bots extends Component {
       this.setState({ error: null })
     }
 
+    // [TODO] max.cloutier 2020.01.17 Add indications that this will submit the form OR change the behavior so it saves only on save btn click
+    // If it can't be uploaded without saving, it should probably be a dedicated option that isn't part of this form
     await api
       .getSecured()
       .post(`/bots/${this.state.botId}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
@@ -303,10 +337,19 @@ class Bots extends Component {
   }
 
   renderDetails() {
+    const {
+      categories,
+      category,
+      description,
+      error,
+      name,
+      status,
+      successMsg
+    } = this.state;
     return (
       <div>
-        {this.state.error && <Alert color="danger">{this.state.error.message}</Alert>}
-        {this.state.successMsg && <Alert type="success">{this.state.successMsg}</Alert>}
+        {error && <AlertBanner type="error" hide={() => this.setState({ error: null })}>{error.message}</AlertBanner>}
+        {successMsg && <AlertBanner type="success" hideCloseBtn={true} hide={() => this.setState({ successMsg: '' })}>{successMsg}</AlertBanner>}
         <Form>
           <Row form>
             <Col md={5}>
@@ -318,21 +361,21 @@ class Bots extends Component {
                   id="input-name"
                   type="text"
                   name="name"
-                  value={this.state.name}
+                  value={name}
                   onChange={this.handleInputChanged}
                 />
               </FormGroup>
             </Col>
             <Col md={4}>
-              {!!this.state.categories.length && (
+              {!!categories.length && (
                 <FormGroup>
                   <Label>
                     <strong>Category</strong>
                   </Label>
                   <Select
                     id="select-category"
-                    options={this.state.categories}
-                    value={this.state.category}
+                    options={categories}
+                    value={category}
                     onChange={this.handleCategoryChanged}
                   />
                 </FormGroup>
@@ -343,15 +386,15 @@ class Bots extends Component {
                 <Label for="status">
                   <strong>Status</strong>
                   {this.renderHelp(
-                    `Public bots can be accessed by anyone, while private are only accessible by authenticated users. 
-                    Please note that private bots cannot be embedded on a website. 
-                    This should only be used for testing purposes while developing or if you access it directly using shortlinks`
+                    `Public bots can be accessed by anyone, while private are only accessible by authenticated users.
+                Please note that private bots cannot be embedded on a website.
+                This should only be used for testing purposes while developing or if you access it directly using shortlinks`
                   )}
                 </Label>
                 <Select
                   id="select-status"
                   options={statusList}
-                  value={this.state.status}
+                  value={status}
                   onChange={this.handleStatusChanged}
                   isSearchable={false}
                 />
@@ -366,7 +409,7 @@ class Bots extends Component {
               id="input-description"
               type="textarea"
               name="description"
-              value={this.state.description}
+              value={description}
               onChange={this.handleInputChanged}
             />
           </FormGroup>
@@ -391,7 +434,7 @@ class Bots extends Component {
                 id="input-website"
                 type="text"
                 name="website"
-                value={this.state.website}
+                value={this.state.website || ''}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -405,7 +448,7 @@ class Bots extends Component {
                 id="input-phone"
                 type="text"
                 name="phoneNumber"
-                value={this.state.phoneNumber}
+                value={this.state.phoneNumber || ''}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -419,7 +462,7 @@ class Bots extends Component {
                 id="input-email"
                 type="text"
                 name="emailAddress"
-                value={this.state.emailAddress}
+                value={this.state.emailAddress || ''}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -435,7 +478,7 @@ class Bots extends Component {
                 id="input-termsConditions"
                 type="text"
                 name="termsConditions"
-                value={this.state.termsConditions}
+                value={this.state.termsConditions || ''}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -449,7 +492,7 @@ class Bots extends Component {
                 type="text"
                 id="input-privacyPolicy"
                 name="privacyPolicy"
-                value={this.state.privacyPolicy}
+                value={this.state.privacyPolicy || ''}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -459,33 +502,30 @@ class Bots extends Component {
           This information is displayed on the Bot Information page,{' '}
           <a href="https://botpress.io/docs/tutorials/webchat-embedding" target="_blank" rel="noopener noreferrer">
             check the documentation for more details
-          </a>
+      </a>
         </small>
       </Fragment>
     )
   }
 
   renderPictures() {
+    // [TODO] max.cloutier 2020.01.17 functional, but the style of this section should be revisited
     return (
       <Fragment>
         <Row>
-          <Col md={7}>
+          <Col md={6}>
             <Label>
               <strong>Bot Avatar</strong>
             </Label>
             <Input type="file" accept="image/*" name="avatarUrl" onChange={this.handleImageFileChanged} />
+            {this.state.avatarUrl && <img height={75} alt="avatar" src={this.state.avatarUrl} />}
           </Col>
-          <Col md={4}>{this.state.avatarUrl && <img height={75} alt="avatar" src={this.state.avatarUrl} />}</Col>
-        </Row>
-        <Row>
-          <Col md={4}>
+          <Col md={6}>
             <Label>
               <strong>Cover Picture</strong>
             </Label>
             <Input type="file" accept="image/*" name="coverPictureUrl" onChange={this.handleImageFileChanged} />
-          </Col>
-          <Col md={8}>
-            {this.state.coverPictureUrl && <img width="100%" alt="cover" src={this.state.coverPictureUrl} />}
+            {this.state.coverPictureUrl && <img style={{ width: 'auto', maxWidth: '100%' }} alt="cover" src={this.state.coverPictureUrl} />}
           </Col>
         </Row>
       </Fragment>
@@ -533,22 +573,28 @@ class Bots extends Component {
   render() {
     return (
       <PageContainer
+        contentClassName="with-sticky-action-bar"
         title={`Bot - ${this.state.name || this.state.botId}`}
         helpText="This page shows the details you can configure for a desired bot."
       >
-        <SplitPage
-          sideMenu={
-            <Button
-              id="btn-save"
-              intent={Intent.PRIMARY}
-              icon="floppy-disk"
-              text="Save changes"
-              onClick={this.saveChanges}
-            />
-          }
-        >
-          {this.renderDetails()}
-        </SplitPage>
+        {this.renderDetails()}
+        <StickyActionBar>
+          <Button
+            id="btn-cancel"
+            intent={Intent.NONE}
+            text="Cancel"
+            disabled={this.state.isSaving}
+            onClick={this.cancel}
+          />
+          <Button
+            id="btn-save"
+            intent={Intent.PRIMARY}
+            icon="floppy-disk"
+            text="Save changes"
+            disabled={this.state.isSaving}
+            onClick={this.saveChanges}
+          />
+        </StickyActionBar>
       </PageContainer>
     )
   }
