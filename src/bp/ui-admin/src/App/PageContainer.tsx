@@ -7,6 +7,7 @@ import AccessControl from './AccessControl'
 interface Props {
   title?: JSX.Element | string
   helpText?: JSX.Element | string
+  contentClassName?: string
   fullWidth?: boolean
   superAdmin?: boolean
 }
@@ -23,7 +24,7 @@ const PageContainer: FC<Props> = props => {
         )}
       </div>
       <div className="bp-sa-overflow">
-        <div className={cx('bp-sa-content', { 'bp-sa-fullwidth': props.fullWidth })}>
+        <div className={`${cx('bp-sa-content', { 'bp-sa-fullwidth': props.fullWidth })} ${props.contentClassName || ''}`}>
           <AccessControl
             superAdmin={props.superAdmin}
             fallback={<Callout intent={Intent.DANGER}>This page is restricted to Super Admins</Callout>}
