@@ -8,7 +8,7 @@ import { PatternEntityEditor } from './PatternEntity'
 
 interface Props {
   entity: NLU.EntityDefinition
-  updateEntity: (e: NLU.EntityDefinition) => void
+  updateEntity: (targetEntity: string, e: NLU.EntityDefinition) => void
 }
 
 export default (props: Props) => {

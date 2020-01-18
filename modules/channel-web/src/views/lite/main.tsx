@@ -78,6 +78,7 @@ class Web extends React.Component<MainProps> {
     this.socket = new BpSocket(this.props.bp, config)
     this.socket.onMessage = this.handleNewMessage
     this.socket.onTyping = this.props.updateTyping
+    this.socket.onData = this.handleDataMessage
     this.socket.onUserIdChanged = this.props.setUserId
     this.socket.setup()
 
@@ -178,6 +179,19 @@ class Web extends React.Component<MainProps> {
     this.handleResetUnreadCount()
   }
 
+  handleDataMessage = event => {
+    if (!event || !event.payload) {
+      return
+    }
+
+    const { language } = event.payload
+    if (!language) {
+      return
+    }
+
+    this.props.updateBotUILanguage(language)
+  }
+
   async playSound() {
     if (this.state.played) {
       return
@@ -255,7 +269,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
   setReference: store.setReference,
-
+  updateBotUILanguage: store.updateBotUILanguage,
   isWebchatReady: store.view.isWebchatReady,
   showWidgetButton: store.view.showWidgetButton,
   hasUnreadMessages: store.view.hasUnreadMessages,
@@ -284,6 +298,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'intl'
   | 'updateTyping'
   | 'setReference'
+  | 'updateBotUILanguage'
   | 'hideChat'
   | 'showChat'
   | 'toggleBotInfo'

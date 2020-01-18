@@ -11,12 +11,13 @@ const N_KEEP_MODELS = 25
 
 export const ID_REGEX = /[\t\s]/gi
 
-export const sanitizeFilenameNoExt = name =>
+export const sanitizeFilenameNoExt = (name: string) =>
   name
     .toLowerCase()
     .replace(/\.json$/i, '')
     .replace(ID_REGEX, '-')
 
+// DEPRECATED
 export default class Storage {
   static ghostProvider: (botId?: string) => sdk.ScopedGhostService
 
@@ -69,7 +70,10 @@ export default class Storage {
   async updateIntent(intentName: string, content: Partial<sdk.NLU.IntentDefinition>) {
     const intentDef = await this.getIntent(intentName)
     const merged = _.merge(intentDef, content)
-
+    if (content.name && content.name !== intentName) {
+      await this.botGhost.deleteFile(this.intentsDir, `${intentName}.json`)
+      intentName = content.name
+    }
     return this.saveIntent(intentName, merged)
   }
 
@@ -229,9 +233,40 @@ export default class Storage {
     })
   }
 
+  async getCustomEntity(name: string): Promise<sdk.NLU.EntityDefinition> {
+    const entities = await this.getCustomEntities()
+    return entities.find(e => e.name === name)
+  }
+
   async saveEntity(entity: sdk.NLU.EntityDefinition): Promise<void> {
     const obj = _.omit(entity, ['id'])
     return this.botGhost.upsertFile(this.entitiesDir, `${entity.id}.json`, JSON.stringify(obj, undefined, 2))
+  }
+
+  async updateEntity(targetEntityId: string, entity: sdk.NLU.EntityDefinition) {
+    const entities = await this.getCustomEntities()
+    const oldEntity = entities.find(e => e.id === targetEntityId)
+    const obj = _.omit(entity, ['id'])
+
+    await this.botGhost.upsertFile(this.entitiesDir, `${entity.id}.json`, JSON.stringify(obj, undefined, 2))
+
+    if (oldEntity && oldEntity.name !== entity.name) {
+      await this.botGhost.deleteFile(this.entitiesDir, `${targetEntityId}.json`)
+      _.each(await this.getIntents(), async intent => {
+        let modified = false
+        _.each(intent.slots, slot => {
+          _.forEach(slot.entities, (e, index, arr) => {
+            if (e === oldEntity.name) {
+              arr[index] = entity.name
+              modified = true
+            }
+          })
+        })
+        if (modified) {
+          await this.updateIntent(intent.name, intent)
+        }
+      })
+    }
   }
 
   async deleteEntity(entityId: string): Promise<void> {

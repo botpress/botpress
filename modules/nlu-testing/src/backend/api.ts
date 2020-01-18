@@ -1,14 +1,16 @@
 import Axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import parse from 'csv-parse'
+import stringify from 'csv-stringify/lib/sync'
+import fs from 'fs'
 import Joi from 'joi'
 import _ from 'lodash'
+import multer from 'multer'
+import nanoid from 'nanoid'
+import path from 'path'
 
-export interface Test {
-  id: string
-  utterance: string
-  context: string
-  conditions: ['intent' | 'slot', 'is', string][]
-}
+import { Condition, CSVTest, Test, TestResult } from '../shared/typings'
+import { computeSummary } from '../shared/utils'
 
 const TestsSchema = Joi.array().items(
   Joi.object({
@@ -93,23 +95,93 @@ export default async (bp: typeof sdk) => {
 
     const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
 
-    const {
-      data: { nlu }
-    } = await Axios.post(
-      '/converse/nlutesting/secured?include=nlu',
-      { type: 'text', text: test.utterance, includedContexts: [test.context] },
-      axiosConfig
-    )
+    try {
+      const {
+        data: { nlu }
+      } = await Axios.post('mod/nlu/predict', { text: test.utterance, contexts: [test.context] }, axiosConfig)
 
-    const details = test.conditions.map(c => conditionMatch(nlu, c))
-    const result = {
-      success: details.every(r => r.success),
-      id: req.params.testId,
-      details
+      const details = test.conditions.map(c => conditionMatch(nlu, c))
+      const result = {
+        success: details.every(r => r.success),
+        id: req.params.testId,
+        details
+      }
+
+      res.send(result)
+    } catch (err) {
+      bp.logger.warn('could not get response from converse api', err)
+      res.send(400)
+    }
+  })
+
+  router.post('/import', multer().single('file'), (req, res) => {
+    parse(req.file.buffer, { columns: true }, async (err, data: CSVTest[]) => {
+      if (err) {
+        return res.status(500).send({ message: 'Cannot parse csv' })
+      }
+
+      const tests: Test[] = _.chain(data)
+        .filter(t => !!t.Context && !!t.Intent && !!t.Utterance)
+        .flatMap(t =>
+          t.Context.split(',').map(c => ({
+            id: nanoid(),
+            utterance: t.Utterance,
+            context: c,
+            conditions: [['intent', 'is', `${c.toLowerCase()}-${t.Intent}`]] as Condition[]
+          }))
+        )
+        .value()
+      try {
+        await saveAllTests(req.params.botId, tests)
+        res.status(200).send({ nTests: data.length })
+      } catch (err) {
+        res.status(400).send('Tests are invalid')
+      }
+    })
+  })
+
+  router.post('/export', async (req, res) => {
+    // TODO add a little validation
+    const targetPath = isRunningFromSources()
+    if (!targetPath) {
+      return res.status(400).send('Not in a git repository`')
     }
 
-    res.send(result)
+    const tests = await getAllTests(req.params.botId)
+    try {
+      const csv = results2CSV(tests, req.body.results)
+      fs.writeFileSync(targetPath, csv)
+      res.sendStatus(200)
+    } catch (err) {
+      console.log(err)
+      res.sendStatus(500)
+    }
   })
+}
+
+function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
+  const summary = computeSummary(tests, results)
+  const records = [
+    ['utterance', 'context', 'conditions', 'status', `date: ${new Date().toLocaleDateString()}`, `summary: ${summary}`],
+    ...tests.map(t => [
+      t.utterance,
+      t.context,
+      t.conditions.reduce((c, next) => `${c}-${next}`, ''),
+      _.get(results, `${t.id}.success`) ? 'pass' : 'fail'
+    ])
+  ]
+  return stringify(records)
+}
+
+function isRunningFromSources(): string | null {
+  try {
+    const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
+    const latestResultsPath = path.resolve(sourceDirectory, `./modules/nlu-testing/latest-results.csv`)
+    const exists = fs.existsSync(latestResultsPath)
+    return exists ? latestResultsPath : null
+  } catch {
+    return null
+  }
 }
 
 function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]): TestResult {
@@ -126,6 +198,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
     const slotName = key.split(':')[1]
     const received = _.get(nlu, `slots.${slotName}.source`, 'undefined')
     const success = received === expected
+
     return {
       success,
       reason: success ? '' : `Slot ${slotName} doesn't match. expected: ${expected} received: ${received}`,
@@ -133,11 +206,4 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       expected
     }
   }
-}
-
-export interface TestResult {
-  success: boolean
-  reason?: string
-  expected: string
-  received: string | undefined
 }

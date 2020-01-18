@@ -1,6 +1,5 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import 'bluebird-global'
-import { AccessControl } from 'botpress/utils'
 import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
@@ -11,6 +10,8 @@ const axiosConfig = { headers: { 'Content-Type': 'multipart/form-data' } }
 interface Props {
   axios: any
   onImportCompleted: () => void
+  isOpen: boolean
+  toggle: () => void
 }
 
 interface Analysis {
@@ -24,7 +25,6 @@ export const ImportModal: FC<Props> = props => {
   const [file, setFile] = useState<any>()
   const [filePath, setFilePath] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
-  const [isDialogOpen, setDialogOpen] = useState(false)
   const [importAction, setImportAction] = useState('insert')
   const [analysis, setAnalysis] = useState<Analysis>()
   const [statusId, setStatusId] = useState<string>()
@@ -108,7 +108,7 @@ Either the file is empty, or it doesn't match any known format.`)
 
   const closeDialog = () => {
     clearState()
-    setDialogOpen(false)
+    props.toggle()
   }
 
   const clearState = () => {
@@ -234,14 +234,10 @@ Either the file is empty, or it doesn't match any known format.`)
 
   return (
     <Fragment>
-      <AccessControl resource="module.qna" operation="write">
-        <Button icon="download" id="btn-importJson" text="Import JSON" onClick={() => setDialogOpen(true)} />
-      </AccessControl>
-
       <Dialog
         title={analysis ? 'Analysis' : 'Upload File'}
         icon="import"
-        isOpen={isDialogOpen}
+        isOpen={props.isOpen}
         onClose={closeDialog}
         transitionDuration={0}
         canOutsideClickClose={false}

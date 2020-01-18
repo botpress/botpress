@@ -1,27 +1,14 @@
+import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import jaroDistance from '../tools/jaro'
 import levenDistance from '../tools/levenshtein'
 import { extractPattern } from '../tools/patterns-utils'
-import { EntityExtractionResult, ListEntityModel, PatternEntity, Tools } from '../typings'
+import { EntityExtractionResult, ListEntityModel, PatternEntity } from '../typings'
 
-import { Predictors } from './predict-pipeline'
-import { TrainOutput } from './training-pipeline'
 import Utterance, { UtteranceToken } from './utterance'
 
 const ENTITY_SCORE_THRESHOLD = 0.6
-
-export const extractUtteranceEntities = async (utterance: Utterance, input: TrainOutput | Predictors, tools: Tools) => {
-  const extractedEntities = [
-    ...extractListEntities(utterance, input.list_entities),
-    ...extractPatternEntities(utterance, input.pattern_entities),
-    ...(await extractSystemEntities(utterance, tools))
-  ] as EntityExtractionResult[]
-
-  extractedEntities.forEach(entityRes => {
-    utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
-  })
-}
 
 const takeUntil = (
   arr: ReadonlyArray<UtteranceToken>,
@@ -193,9 +180,9 @@ export const extractPatternEntities = (
   })
 }
 
-export const extractSystemEntities = async (utterance: Utterance, tools: Tools): Promise<EntityExtractionResult[]> => {
-  const extracted = await tools.ducklingExtractor.extract(utterance.toString(), utterance.languageCode)
-  return extracted.map(ent => ({
+// TODO clean this later with entities and intent srvices
+export function mapE1toE2Entity(ent: NLU.Entity): EntityExtractionResult {
+  return {
     confidence: ent.meta.confidence,
     start: ent.meta.start,
     end: ent.meta.end,
@@ -206,5 +193,5 @@ export const extractSystemEntities = async (utterance: Utterance, tools: Tools):
       unit: ent.data.unit
     },
     type: ent.name
-  }))
+  }
 }

@@ -9,7 +9,7 @@ const incrementNumberOfConversations = async output => {
   const userId = event.target
   const botId = event.botId
   const key = bp.kvs.getUserStorageKey(userId, 'numberOfConversations')
-  let value = await bp.kvs.getStorageWithExpiry(botId, key)
+  let value = await bp.kvs.forBot(event.botId).getStorageWithExpiry(key)
   // Value could be 0
   if (value === undefined) {
     value = 0
@@ -17,7 +17,7 @@ const incrementNumberOfConversations = async output => {
     value++
   }
 
-  await bp.kvs.setStorageWithExpiry(botId, key, value)
+  await bp.kvs.forBot(event.botId).setStorageWithExpiry(key, value)
   temp[output] = value
 }
 

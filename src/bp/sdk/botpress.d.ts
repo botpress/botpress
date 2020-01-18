@@ -414,7 +414,6 @@ declare module 'botpress/sdk' {
     export interface SlotDefinition {
       name: string
       entities: string[]
-      entity?: string
       color: number
     }
 
@@ -463,15 +462,11 @@ declare module 'botpress/sdk' {
       source: any
       entity: Entity
       confidence: number
+      start: number
+      end: number
     }
 
-    export interface SlotCollection {
-      [key: string]: Slot
-    }
-
-    export interface SlotsCollection {
-      [key: string]: Slot[]
-    }
+    export type SlotCollection = Dic<Slot>
   }
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'

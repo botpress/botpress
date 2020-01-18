@@ -1,30 +1,54 @@
 import { configure } from 'mobx'
-import { Provider } from 'mobx-react'
+import { Provider, observer, inject } from 'mobx-react'
 import DevTools from 'mobx-react-devtools'
 import React from 'react'
 import { IntlProvider } from 'react-intl'
 
 import Chat from './main'
 import { RootStore } from './store'
-import { defaultLocale, getUserLocale, initializeLocale, translations } from './translations'
+
+import { defaultLocale, translations } from './translations'
 configure({ enforceActions: 'observed' })
 
-export const Embedded = props => WebChat(props, false)
-export const Fullscreen = props => WebChat(props, true)
+export const Embedded = props => new Wrapper(props, false)
+export const Fullscreen = props => new Wrapper(props, true)
 
-initializeLocale()
-const locale = getUserLocale()
+interface State {
+  fullscreen: any
+  store: any
+}
 
-const WebChat = (props, fullscreen) => (
-  <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>
-    <Provider store={new RootStore({ fullscreen })}>
-      <React.Fragment>
-        <Chat {...props} />
-        {process.env.NODE_ENV === 'development' && <DevTools className="bpw-mobx-tools" />}
-      </React.Fragment>
-    </Provider>
-  </IntlProvider>
-)
+interface Props {}
+
+class ExposedWebChat extends React.Component<Props, State> {
+  constructor(props, fullscreen) {
+    super(props)
+
+    this.state = {
+      fullscreen,
+      store: new RootStore({ fullscreen })
+    }
+  }
+
+  render() {
+    const { fullscreen } = this.state
+    const store = this.state.store
+    const { botUILanguage: locale } = store
+
+    return (
+      <Provider store={store}>
+        <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>
+          <React.Fragment>
+            <Chat {...this.props} />
+            {process.env.NODE_ENV === 'development' && <DevTools className="bpw-mobx-tools" />}
+          </React.Fragment>
+        </IntlProvider>
+      </Provider>
+    )
+  }
+}
+
+const Wrapper = observer(ExposedWebChat)
 
 /**
  * @deprecated Since the way views are handled has changed, we're also exporting views in lowercase.

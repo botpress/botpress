@@ -1,4 +1,4 @@
-import { Logger, MLToolkit, NLU } from 'botpress/sdk'
+import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { isPatternValid } from '../tools/patterns-utils'
@@ -9,12 +9,15 @@ import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 
+const trainDebug = DEBUG('nlu').sub('training')
+
 export default class E2 implements Engine2 {
-  private static tools: Tools
+  // NOTE: removed private in order to prevent important refactor (which will be done later)
+  static tools: Tools
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
+  constructor(private defaultLanguage: string, private botId: string) {}
 
   static provideTools(tools: Tools) {
     E2.tools = tools
@@ -24,9 +27,9 @@ export default class E2 implements Engine2 {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    trainingSession: TrainingSession
+    trainingSession?: TrainingSession
   ): Promise<Model> {
-    this.logger.info(`Started ${languageCode} training for bot ${this.botId}`)
+    trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
@@ -79,12 +82,15 @@ export default class E2 implements Engine2 {
     const model = await Trainer(input, E2.tools)
     model.hash = computeModelHash(intentDefs, entityDefs)
     if (model.success) {
-      E2.tools.reportTrainingProgress(this.botId, 'Training complete', {
-        ...trainingSession,
-        progress: 1,
-        status: 'done'
-      })
-      this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
+      trainingSession &&
+        E2.tools.reportTrainingProgress(this.botId, 'Training complete', {
+          ...trainingSession,
+          progress: 1,
+          status: 'done'
+        })
+
+      trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
+      await this.loadModel(model)
     }
 
     return model
@@ -128,7 +134,7 @@ export default class E2 implements Engine2 {
     const { input, output, artefacts } = model.data
     const tools = E2.tools
 
-    if (input.intents.length > 0) {
+    if (_.flatMap(input.intents, i => i.utterances).length > 0) {
       const ctx_classifier = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
       const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
         (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
@@ -151,7 +157,7 @@ export default class E2 implements Engine2 {
     } else {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return { ...artefacts } as Predictors
+      return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
   }
 

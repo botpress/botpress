@@ -1,3 +1,29 @@
+# [12.4.0](https://github.com/botpress/botpress/compare/v12.3.3...v12.4.0) (2020-01-16)
+
+
+### Bug Fixes
+
+* **admin:** version check ([a8b6112](https://github.com/botpress/botpress/commit/a8b6112))
+* **core:** event collector retry failed messages ([21e2db9](https://github.com/botpress/botpress/commit/21e2db9))
+* **nlu:** ignore special char in classification ([962b73a](https://github.com/botpress/botpress/commit/962b73a))
+* **nlu:** on create intent, raw name is used as first utterance ([3573b27](https://github.com/botpress/botpress/commit/3573b27))
+* **nlu:** token.isWord ([2e06041](https://github.com/botpress/botpress/commit/2e06041))
+
+
+### Features
+
+* **channel-web:** allow changing language of UI ([ea96b0c](https://github.com/botpress/botpress/commit/ea96b0c))
+* **cms:** implement image preview ([a54ef1f](https://github.com/botpress/botpress/commit/a54ef1f))
+* **nlu:** added lite editor for NLU module ([293a0c6](https://github.com/botpress/botpress/commit/293a0c6))
+* **nlu:** cross validation ([e408f05](https://github.com/botpress/botpress/commit/e408f05))
+* **nlu:** entity can be renamed and duplicated ([d315534](https://github.com/botpress/botpress/commit/d315534))
+* **nlu:** extract route ([05e3db0](https://github.com/botpress/botpress/commit/05e3db0))
+* **nlu-testing:** basic import tests from csv ([0676c26](https://github.com/botpress/botpress/commit/0676c26))
+* **nlu-testing:** save tests ([a4cebdb](https://github.com/botpress/botpress/commit/a4cebdb))
+* **studio:** implement image preview ([4015fe7](https://github.com/botpress/botpress/commit/4015fe7))
+
+
+
 ## [12.3.3](https://github.com/botpress/botpress/compare/v12.3.2...v12.3.3) (2020-01-13)
 
 

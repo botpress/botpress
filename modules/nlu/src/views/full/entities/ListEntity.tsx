@@ -20,7 +20,7 @@ import { Occurrence } from './ListEntityOccurrence'
 
 interface Props {
   entity: NLU.EntityDefinition
-  updateEntity: (entity: NLU.EntityDefinition) => void
+  updateEntity: (targetEntity: string, entity: NLU.EntityDefinition) => void
 }
 
 const FuzzyTolerance = {
@@ -42,7 +42,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
   useEffect(() => {
     const newEntity = { ...props.entity, fuzzy, occurrences }
     if (!_.isEqual(newEntity, props.entity)) {
-      props.updateEntity(newEntity)
+      props.updateEntity(newEntity.id, newEntity)
     }
   }, [occurrences, fuzzy])
 

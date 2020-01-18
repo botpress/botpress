@@ -20,7 +20,7 @@ const translations = { en, fr, pt, es, ar, ru, uk }
 
 const getUserLocale = () => {
   const locale = navigator.language || navigator['userLanguage'] || ''
-  const langCode = locale.split('-')[0]
+  const langCode = localStorage.getItem('bp/channel-web/user-lang') || locale.split('-')[0]
 
   return translations[langCode] ? langCode : defaultLocale
 }
