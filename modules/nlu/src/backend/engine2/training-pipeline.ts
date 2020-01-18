@@ -347,7 +347,9 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
 }
 
 const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer> => {
-  if (input.intents.length === 0) {
+  const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
+
+  if (!hasSlots) {
     return Buffer.from('')
   }
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)

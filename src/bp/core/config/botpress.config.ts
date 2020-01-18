@@ -113,7 +113,7 @@ export type BotpressConfig = {
      */
     backlog: number
     /**
-     * @default 100kb
+     * @default 10mb
      */
     bodyLimit: string | number
     cors: {
