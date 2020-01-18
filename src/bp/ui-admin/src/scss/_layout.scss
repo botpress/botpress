@@ -246,11 +246,6 @@
   }
 }
 
-.with-sticky-action-bar {
-  // Height of the sticky action bar (51px) + 14px to have a small gap between the bottom of the form and the bar
-  padding-bottom: 65px;
-}
-
 .alert-banner {
   background: #fcfcfc;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
@@ -299,6 +294,11 @@
       outline: none;
     }
   }
+}
+
+.with-sticky-action-bar {
+  // Height of the sticky action bar (51px) + 14px to have a small gap between the bottom of the form and the bar
+  padding-bottom: 65px;
 }
 
 .sticky-action-bar {

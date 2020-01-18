@@ -348,8 +348,8 @@ class Bots extends Component {
     } = this.state;
     return (
       <div>
-        {error && <AlertBanner type="error" onClick={() => this.setState({ error: null })}>{error.message}</AlertBanner>}
-        {successMsg && <AlertBanner type="success" hideCloseBtn={true} onClick={() => this.setState({ successMsg: '' })}>{successMsg}</AlertBanner>}
+        {error && <AlertBanner type="error" hide={() => this.setState({ error: null })}>{error.message}</AlertBanner>}
+        {successMsg && <AlertBanner type="success" hideCloseBtn={true} hide={() => this.setState({ successMsg: '' })}>{successMsg}</AlertBanner>}
         <Form>
           <Row form>
             <Col md={5}>
@@ -387,8 +387,8 @@ class Bots extends Component {
                   <strong>Status</strong>
                   {this.renderHelp(
                     `Public bots can be accessed by anyone, while private are only accessible by authenticated users.
-                    Please note that private bots cannot be embedded on a website.
-                    This should only be used for testing purposes while developing or if you access it directly using shortlinks`
+                Please note that private bots cannot be embedded on a website.
+                This should only be used for testing purposes while developing or if you access it directly using shortlinks`
                   )}
                 </Label>
                 <Select
@@ -502,7 +502,7 @@ class Bots extends Component {
           This information is displayed on the Bot Information page,{' '}
           <a href="https://botpress.io/docs/tutorials/webchat-embedding" target="_blank" rel="noopener noreferrer">
             check the documentation for more details
-          </a>
+      </a>
         </small>
       </Fragment>
     )
