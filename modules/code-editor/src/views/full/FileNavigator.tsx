@@ -39,9 +39,14 @@ class FileNavigator extends React.Component<Props, State> {
     observe(this.props.filters, 'filename', this.refreshNodes, true)
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (this.props.files && prevProps.files !== this.props.files) {
       this.refreshNodes()
+    }
+    if (this.props.selectedNode !== prevProps.selectedNode) {
+      const { nodes } = this.state
+      this.traverseTree(nodes, n => (n.isSelected = this.props.selectedNode === n.id))
+      this.setState({ nodes })
     }
   }
 
@@ -100,22 +105,15 @@ class FileNavigator extends React.Component<Props, State> {
     // If nodeData is set, it's a file, otherwise a folder
     if (node.nodeData) {
       await this.props.editor.openFile(node.nodeData as EditableFile)
-      this.forceUpdate()
+      this.props.onNodeStateSelected(node.id as string)
     } else {
-      node.isExpanded ? this.handleNodeCollapse(node) : this.handleNodeExpand(node)
+      this.handleNodeExpand(node, node.isExpanded)
     }
   }
 
-  private handleNodeCollapse = (node: ITreeNode) => {
-    this.props.onNodeStateChanged(node.id as string, false)
-    node.isExpanded = false
-
-    this.forceUpdate()
-  }
-
-  private handleNodeExpand = (node: ITreeNode) => {
-    this.props.onNodeStateChanged(node.id as string, true)
-    node.isExpanded = true
+  private handleNodeExpand = (node: ITreeNode, isExpanded: boolean) => {
+    this.props.onNodeStateExpanded(node.id as string, isExpanded)
+    node.isExpanded = isExpanded
 
     this.forceUpdate()
   }
@@ -240,8 +238,8 @@ class FileNavigator extends React.Component<Props, State> {
         contents={this.state.nodes}
         onNodeContextMenu={this.handleContextMenu}
         onNodeClick={this.handleNodeClick}
-        onNodeCollapse={this.handleNodeCollapse}
-        onNodeExpand={this.handleNodeExpand}
+        onNodeCollapse={n => this.handleNodeExpand(n, false)}
+        onNodeExpand={n => this.handleNodeExpand(n, true)}
         className={Classes.ELEVATION_0}
       />
     )
@@ -265,8 +263,10 @@ type Props = {
   editor?: EditorStore
   disableContextMenu?: boolean
   contextMenuType?: string
-  onNodeStateChanged: (id: string, isExpanded: boolean) => void
+  onNodeStateExpanded: (id: string, isExpanded: boolean) => void
+  onNodeStateSelected: (id: string) => void
   expandedNodes: object
+  selectedNode: string
 } & Pick<StoreDef, 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>
 
 interface State {

@@ -18,7 +18,8 @@ class PanelContent extends React.Component<Props> {
     actionFiles: [],
     hookFiles: [],
     botConfigs: [],
-    moduleConfigFiles: []
+    moduleConfigFiles: [],
+    selectedNode: ''
   }
 
   componentDidMount() {
@@ -65,12 +66,16 @@ class PanelContent extends React.Component<Props> {
     this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles, moduleConfigFiles })
   }
 
-  updateNodeState = (id: string, isExpanded: boolean) => {
+  updateNodeExpanded = (id: string, isExpanded: boolean) => {
     if (isExpanded) {
       this.expandedNodes[id] = true
     } else {
       delete this.expandedNodes[id]
     }
+  }
+
+  updateNodeSelected = (id: string) => {
+    this.setState({ selectedNode: id })
   }
 
   hasPermission(perm: string, isWrite?: boolean): boolean {
@@ -88,8 +93,10 @@ class PanelContent extends React.Component<Props> {
         <FileNavigator
           files={this.state.moduleConfigFiles}
           expandedNodes={this.expandedNodes}
+          selectedNode={this.state.selectedNode}
           contextMenuType="moduleConfig"
-          onNodeStateChanged={this.updateNodeState}
+          onNodeStateExpanded={this.updateNodeExpanded}
+          onNodeStateSelected={this.updateNodeSelected}
         />
       </SidePanelSection>
     )
@@ -106,7 +113,9 @@ class PanelContent extends React.Component<Props> {
           files={this.state.botConfigs}
           disableContextMenu={true}
           expandedNodes={this.expandedNodes}
-          onNodeStateChanged={this.updateNodeState}
+          selectedNode={this.state.selectedNode}
+          onNodeStateExpanded={this.updateNodeExpanded}
+          onNodeStateSelected={this.updateNodeSelected}
         />
       </SidePanelSection>
     )
@@ -139,7 +148,9 @@ class PanelContent extends React.Component<Props> {
         <FileNavigator
           files={this.state.actionFiles}
           expandedNodes={this.expandedNodes}
-          onNodeStateChanged={this.updateNodeState}
+          selectedNode={this.state.selectedNode}
+          onNodeStateExpanded={this.updateNodeExpanded}
+          onNodeStateSelected={this.updateNodeSelected}
         />
       </SidePanelSection>
     )
@@ -157,7 +168,9 @@ class PanelContent extends React.Component<Props> {
         <FileNavigator
           files={this.state.hookFiles}
           expandedNodes={this.expandedNodes}
-          onNodeStateChanged={this.updateNodeState}
+          selectedNode={this.state.selectedNode}
+          onNodeStateExpanded={this.updateNodeExpanded}
+          onNodeStateSelected={this.updateNodeSelected}
         />
       </SidePanelSection>
     )
