@@ -25,7 +25,7 @@ const ConfirmDialog: FC<Props> = props => {
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
-            id="btn-decline"
+            id="confirm-dialog-decline"
             type="button"
             onClick={props.decline}
             text={props.declineLabel}
@@ -33,7 +33,7 @@ const ConfirmDialog: FC<Props> = props => {
             intent={Intent.NONE}
           />
           <Button
-            id="btn-accept"
+            id="confirm-dialog-accept"
             type="button"
             onClick={props.accept}
             text={props.acceptLabel}
