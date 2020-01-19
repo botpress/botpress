@@ -24,7 +24,7 @@ const PageContainer: FC<Props> = props => {
         )}
       </div>
       <div className="bp-sa-overflow">
-        <div className={`${cx('bp-sa-content', { 'bp-sa-fullwidth': props.fullWidth })} ${props.contentClassName || ''}`}>
+        <div className={cx('bp-sa-content', { 'bp-sa-fullwidth': props.fullWidth }, props.contentClassName)}>
           <AccessControl
             superAdmin={props.superAdmin}
             fallback={<Callout intent={Intent.DANGER}>This page is restricted to Super Admins</Callout>}

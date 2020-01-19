@@ -84,20 +84,12 @@ class Bots extends Component {
     }
   }
 
-  sortLanguages = (a, b) => {
-    const langA = a.name.toUpperCase();
-    const langB = b.name.toUpperCase();
-
-    return (langA < langB) ? -1 : (langA > langB) ? 1 : 0;
-  }
-
   updateLanguages = () => {
     if (!this.props.languages) {
       return
     }
 
-    // [TODO] max.cloutier 2020.01.17 should this be done on the backend side or is there a logic to this order? Just drove me nuts, had to sort it...
-    const languagesList = this.props.languages.sort(this.sortLanguages).map(lang => ({
+    const languagesList = _.sortBy(this.props.languages, 'name').map(lang => ({
       label: lang.name,
       value: lang.code
     }))
@@ -138,22 +130,16 @@ class Bots extends Component {
   }
 
   cancel = () => {
-    if (this.state.formHasChanged) {
-      // [TODO] max.cloutier 2020.01.17 Implement and use a custom confirm popup and replace the window.confirm in this file/app-wide
-      const conf = window.confirm(`There are unsaved changes in this form. Are you sure you want to cancel?`)
-
-      if (conf) {
-        this.backToList()
-      }
-    } else {
-      this.backToList()
+    const { formHasChanged } = this.state
+    // [TODO] max.cloutier 2020.01.17 Implement and use a custom confirm popup and replace the window.confirm in this file/app-wide
+    if (formHasChanged && !window.confirm(`There are unsaved changes in this form. Are you sure you want to cancel?`)) {
+      return
     }
+    this.backToList()
   }
 
   backToList = () => {
-    const workspaceId = getActiveWorkspace()
-
-    this.props.history.push(generatePath('/workspace/:workspaceId?/bots', { workspaceId: workspaceId || undefined }))
+    this.props.history.push('/workspace/')
   }
 
   saveChanges = async () => {
@@ -232,7 +218,7 @@ class Bots extends Component {
     if (this.state.selectedDefaultLang !== lang) {
       const conf = window.confirm(
         `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${
-        lang.label
+          lang.label
         }? All of your content elements will be copied, make sure you translate them.`
       )
 
@@ -337,19 +323,19 @@ class Bots extends Component {
   }
 
   renderDetails() {
-    const {
-      categories,
-      category,
-      description,
-      error,
-      name,
-      status,
-      successMsg
-    } = this.state;
+    const { categories, category, description, error, name, status, successMsg } = this.state
     return (
       <div>
-        {error && <AlertBanner type="error" hide={() => this.setState({ error: null })}>{error.message}</AlertBanner>}
-        {successMsg && <AlertBanner type="success" hideCloseBtn={true} hide={() => this.setState({ successMsg: '' })}>{successMsg}</AlertBanner>}
+        {error && (
+          <AlertBanner type="error" hide={() => this.setState({ error: null })}>
+            {error.message}
+          </AlertBanner>
+        )}
+        {successMsg && (
+          <AlertBanner type="success" hideCloseBtn={true} hide={() => this.setState({ successMsg: '' })}>
+            {successMsg}
+          </AlertBanner>
+        )}
         <Form>
           <Row form>
             <Col md={5}>
@@ -357,13 +343,7 @@ class Bots extends Component {
                 <Label for="name">
                   <strong>Name</strong>
                 </Label>
-                <Input
-                  id="input-name"
-                  type="text"
-                  name="name"
-                  value={name}
-                  onChange={this.handleInputChanged}
-                />
+                <Input id="input-name" type="text" name="name" value={name} onChange={this.handleInputChanged} />
               </FormGroup>
             </Col>
             <Col md={4}>
@@ -502,7 +482,7 @@ class Bots extends Component {
           This information is displayed on the Bot Information page,{' '}
           <a href="https://botpress.io/docs/tutorials/webchat-embedding" target="_blank" rel="noopener noreferrer">
             check the documentation for more details
-      </a>
+          </a>
         </small>
       </Fragment>
     )
@@ -525,7 +505,9 @@ class Bots extends Component {
               <strong>Cover Picture</strong>
             </Label>
             <Input type="file" accept="image/*" name="coverPictureUrl" onChange={this.handleImageFileChanged} />
-            {this.state.coverPictureUrl && <img style={{ width: 'auto', maxWidth: '100%' }} alt="cover" src={this.state.coverPictureUrl} />}
+            {this.state.coverPictureUrl && (
+              <img style={{ width: 'auto', maxWidth: '100%' }} alt="cover" src={this.state.coverPictureUrl} />
+            )}
           </Col>
         </Row>
       </Fragment>
