@@ -1,6 +1,7 @@
 import { H4 } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component } from 'react'
+import { Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import {
   closeFlowNodeProps,
@@ -8,7 +9,6 @@ import {
   pasteFlowNodeElement,
   refreshFlowsLinks,
   requestEditSkill,
-  switchFlowNode,
   updateFlow,
   updateFlowNode
 } from '~/actions'
@@ -19,12 +19,10 @@ import FlowInformation from '../nodeProps/FlowInformation'
 import SkillCallNode from '../nodeProps/SkillCallNode'
 import StandardNode from '../nodeProps/StandardNode'
 
-import { Button } from 'react-bootstrap'
 import style from './style.scss'
 
 interface Props {
   currentFlowNode: any
-  switchFlowNode: (nodeId: string) => any
   closeFlowNodeProps: any
   show: any
   history: any
@@ -51,9 +49,11 @@ class Inspector extends Component<Props> {
     const node = this.props.currentFlowNode
     return (
       <div className={style.inspector}>
-        {node && <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} bsSize="xsmall">
-          <i className="material-icons">keyboard_backspace</i>
-        </Button>}
+        {node && (
+          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} bsSize="xsmall">
+            <i className="material-icons">keyboard_backspace</i>
+          </Button>
+        )}
         <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
         {this.renderNodeProperties()}
       </div>
@@ -119,7 +119,6 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   updateFlow,
-  switchFlowNode,
   requestEditSkill,
   copyFlowNodeElement,
   pasteFlowNodeElement,
