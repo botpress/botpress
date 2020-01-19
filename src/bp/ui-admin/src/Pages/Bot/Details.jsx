@@ -6,20 +6,18 @@ import { connect } from 'react-redux'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import Select from 'react-select'
-import { Row, Col, FormGroup, Label, Input, Form, UncontrolledTooltip, Collapse } from 'reactstrap'
+import { Row, Col, FormGroup, Label, Input, Form, Alert, UncontrolledTooltip, Collapse } from 'reactstrap'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
-import { generatePath } from 'react-router'
-import { getActiveWorkspace } from '~/Auth'
 import _ from 'lodash'
 
 import { fetchBots, fetchBotCategories } from '../../reducers/bots'
 import { fetchLicensing } from '../../reducers/license'
 import { fetchLanguages } from '../../reducers/server'
+import { toastSuccess } from '../../utils/toaster'
 
 import api from '../../api'
 import PageContainer from '~/App/PageContainer'
 import StickyActionBar from '~/App/StickyActionBar'
-import AlertBanner from '~/App/AlertBanner'
 import { Button, Intent } from '@blueprintjs/core'
 
 const statusList = [
@@ -181,11 +179,8 @@ class Bots extends Component {
 
     await this.props.fetchBots()
 
-    this.setState({ successMsg: `Bot configuration updated successfully, you will be redirected to the bots list.` })
-
-    window.setTimeout(() => {
-      this.backToList()
-    }, 2000)
+    toastSuccess('Bot configuration updated successfully')
+    this.backToList()
   }
 
   toggleMoreOpen = () => {
@@ -323,19 +318,10 @@ class Bots extends Component {
   }
 
   renderDetails() {
-    const { categories, category, description, error, name, status, successMsg } = this.state
+    const { categories, category, description, error, name, status } = this.state
     return (
       <div>
-        {error && (
-          <AlertBanner type="error" hide={() => this.setState({ error: null })}>
-            {error.message}
-          </AlertBanner>
-        )}
-        {successMsg && (
-          <AlertBanner type="success" hideCloseBtn={true} hide={() => this.setState({ successMsg: '' })}>
-            {successMsg}
-          </AlertBanner>
-        )}
+        {error && <Alert color="danger">{error.message}</Alert>}
         <Form>
           <Row form>
             <Col md={5}>
