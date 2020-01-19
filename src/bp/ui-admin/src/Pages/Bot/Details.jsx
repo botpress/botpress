@@ -198,6 +198,7 @@ class Bots extends Component {
     }
 
     if (this.state.selectedDefaultLang !== lang) {
+      // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
       const conf = window.confirm(
         `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${
           lang.label
@@ -343,8 +344,8 @@ class Bots extends Component {
                 <Label for="status">
                   <strong>Status</strong>
                   {this.renderHelp(
-                    `Public bots can be accessed by anyone, while private are only accessible by authenticated users. 
-                    Please note that private bots cannot be embedded on a website. 
+                    `Public bots can be accessed by anyone, while private are only accessible by authenticated users.
+                    Please note that private bots cannot be embedded on a website.
                     This should only be used for testing purposes while developing or if you access it directly using shortlinks`
                   )}
                 </Label>

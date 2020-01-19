@@ -68,6 +68,7 @@ class LicenseStatus extends React.Component {
   }
 
   enableProEdition = async () => {
+    // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
     if (!window.confirm('Are you sure?')) {
       return
     }
