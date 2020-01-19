@@ -188,16 +188,29 @@ class Bots extends Component<Props> {
                 {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
                 {idx === 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
                 {(botsByStage[stage.id] || []).map(bot => (
-                  <BotItemPipeline
-                    key={bot.id}
-                    bot={bot}
-                    allowStageChange={allowStageChange}
-                    requestStageChange={this.requestStageChange.bind(this, bot.id)}
-                    deleteBot={this.deleteBot.bind(this, bot.id)}
-                    exportBot={this.exportBot.bind(this, bot.id)}
-                    createRevision={this.createRevision.bind(this, bot.id)}
-                    rollback={this.toggleRollbackModal.bind(this, bot.id)}
-                  />
+                  <Fragment key={bot.id}>
+                    <BotItemPipeline
+                      bot={bot}
+                      allowStageChange={allowStageChange}
+                      requestStageChange={this.requestStageChange.bind(this, bot.id)}
+                      deleteBot={() => {
+                        this.setState({ deletingBotId: bot.id })
+                      }}
+                      exportBot={this.exportBot.bind(this, bot.id)}
+                      createRevision={this.createRevision.bind(this, bot.id)}
+                      rollback={this.toggleRollbackModal.bind(this, bot.id)}
+                    />
+                    {this.state.deletingBotId === bot.id && (
+                      <ConfirmDialog
+                        description="Are you sure you want to delete this bot? This can't be undone."
+                        acceptLabel="Delete"
+                        declineLabel="Cancel"
+                        accept={this.deleteBot.bind(this, bot.id)}
+                        decline={() => this.setState({ deletingBotId: null })}
+                        isOpen={true}
+                      />
+                    )}
+                  </Fragment>
                 ))}
               </Col>
             )
