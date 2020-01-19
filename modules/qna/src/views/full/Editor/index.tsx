@@ -1,7 +1,7 @@
 import { Button, Callout, Checkbox, Classes, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
 // @ts-ignore
 import ElementsList from 'botpress/elements-list'
-import { AccessControl } from 'botpress/utils'
+import { AccessControl, getFlowLabel } from 'botpress/utils'
 import classnames from 'classnames'
 import _ from 'lodash'
 import some from 'lodash/some'
@@ -42,8 +42,8 @@ export default class Editor extends Component<Props> {
       item: {
         answers: {},
         questions: {},
-        redirectFlow: '',
-        redirectNode: '',
+        redirectFlow: { label: '', value: '' },
+        redirectNode: { label: '', value: '' },
         action: ACTIONS.TEXT,
         category: DEFAULT_CATEGORY,
         enabled: true
@@ -81,6 +81,9 @@ export default class Editor extends Component<Props> {
     } = await this.props.bp.axios.get(`/mod/qna/questions/${this.props.id}`)
 
     item.category = { label: item.category, value: item.category }
+    item.redirectFlow = { label: getFlowLabel(item.redirectFlow), value: item.redirectFlow }
+    item.redirectNode = { label: item.redirectNode, value: item.redirectNode }
+
     this.setState({
       item,
       isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -107,6 +110,10 @@ export default class Editor extends Component<Props> {
       const { isText, isRedirect } = this.state
       const action = isText && isRedirect ? ACTIONS.TEXT_REDIRECT : isRedirect ? ACTIONS.REDIRECT : ACTIONS.TEXT
 
+      if (!isRedirect) {
+        this.state.item.redirectFlow = { label: '', value: '' }
+        this.state.item.redirectNode = { label: '', value: '' }
+      }
       this.changeItemProperty('action', action)
     })
   }
@@ -117,8 +124,8 @@ export default class Editor extends Component<Props> {
       questions: !this.itemQuestions.length || !this.itemQuestions[0].length,
       answer: isText && (!this.itemAnswers.length || !this.itemAnswers[0].length),
       checkbox: !(isText || isRedirect),
-      redirectFlow: isRedirect && !item.redirectFlow,
-      redirectNode: isRedirect && !item.redirectNode
+      redirectFlow: isRedirect && !item.redirectFlow.value,
+      redirectNode: isRedirect && !item.redirectNode.value
     }
     const hasDuplicates = this.isQuestionDuplicated()
 
@@ -138,6 +145,8 @@ export default class Editor extends Component<Props> {
 
   onCreate = async qnaItem => {
     qnaItem.category = qnaItem.category.value
+    qnaItem.redirectFlow = qnaItem.redirectFlow.value
+    qnaItem.redirectNode = qnaItem.redirectNode.value
     try {
       await this.props.bp.axios.post('/mod/qna/questions', qnaItem)
 
@@ -150,6 +159,8 @@ export default class Editor extends Component<Props> {
 
   onEdit = async qnaItem => {
     qnaItem.category = qnaItem.category.value
+    qnaItem.redirectFlow = qnaItem.redirectFlow.value
+    qnaItem.redirectNode = qnaItem.redirectNode.value
     const {
       page,
       filters: { question, categories }
@@ -238,7 +249,7 @@ export default class Editor extends Component<Props> {
     } = this.state
     const { flows, flowsList, categories, isEditing } = this.props
 
-    const currentFlow = flows ? flows.find(({ name }) => name === redirectFlow) || { nodes: [] } : { nodes: [] }
+    const currentFlow = flows ? flows.find(({ name }) => name === redirectFlow.value) || { nodes: [] } : { nodes: [] }
     const nodeList = currentFlow.nodes.map(({ name }) => ({ label: name, value: name }))
 
     return (
@@ -299,7 +310,7 @@ export default class Editor extends Component<Props> {
               <React.Fragment>
                 <div className={style.qnaAndOr}>
                   <div className={style.qnaAndOrLine} />
-                  <div className={style.qnaAndOrText}>and / or</div>
+                  <div className={style.qnaAndOrText}>and</div>
                   <div className={style.qnaAndOrLine} />
                 </div>
                 <div className={style.qnaRedirect}>
@@ -318,6 +329,7 @@ export default class Editor extends Component<Props> {
                       value={this.state.item.redirectFlow}
                       options={flowsList}
                       onChange={this.handleSelect('redirectFlow')}
+                      isDisabled={!this.state.isRedirect}
                     />
                   </div>
                   <div className={style.qnaRedirectNode}>
@@ -329,6 +341,7 @@ export default class Editor extends Component<Props> {
                       value={this.state.item.redirectNode}
                       options={nodeList}
                       onChange={this.handleSelect('redirectNode')}
+                      isDisabled={!this.state.isRedirect}
                     />
                   </div>
                 </div>
