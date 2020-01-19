@@ -8,6 +8,7 @@ import {
   pasteFlowNodeElement,
   refreshFlowsLinks,
   requestEditSkill,
+  switchFlowNode,
   updateFlow,
   updateFlowNode
 } from '~/actions'
@@ -18,10 +19,12 @@ import FlowInformation from '../nodeProps/FlowInformation'
 import SkillCallNode from '../nodeProps/SkillCallNode'
 import StandardNode from '../nodeProps/StandardNode'
 
+import { Button } from 'react-bootstrap'
 import style from './style.scss'
 
 interface Props {
   currentFlowNode: any
+  switchFlowNode: (nodeId: string) => any
   closeFlowNodeProps: any
   show: any
   history: any
@@ -40,9 +43,17 @@ interface Props {
 
 class Inspector extends Component<Props> {
   render() {
+    const goBackToMain = () => {
+      this.props.closeFlowNodeProps()
+      this.props.refreshFlowsLinks()
+    }
+
     const node = this.props.currentFlowNode
     return (
       <div className={style.inspector}>
+        {node && <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} bsSize="xsmall">
+          <i className="material-icons">keyboard_backspace</i>
+        </Button>}
         <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
         {this.renderNodeProperties()}
       </div>
@@ -108,6 +119,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   updateFlow,
+  switchFlowNode,
   requestEditSkill,
   copyFlowNodeElement,
   pasteFlowNodeElement,
