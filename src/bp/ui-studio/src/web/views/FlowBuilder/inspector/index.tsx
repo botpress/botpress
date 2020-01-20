@@ -1,7 +1,6 @@
-import { H4 } from '@blueprintjs/core'
+import { Button, H4 } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component } from 'react'
-import { Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import {
   closeFlowNodeProps,
@@ -50,7 +49,7 @@ class Inspector extends Component<Props> {
     return (
       <div className={style.inspector}>
         {node && (
-          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} bsSize="xsmall">
+          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small={true}>
             <i className="material-icons">keyboard_backspace</i>
           </Button>
         )}
