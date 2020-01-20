@@ -5,7 +5,7 @@ import React from 'react'
 import { RootStore, StoreDef } from '../../store'
 import { Message as MessageDetails } from '../../typings'
 
-import { FeedbackWrapper } from './FeedbackWrapper'
+import { InlineFeedback } from './InlineFeedback'
 import Message from './Message'
 
 class MessageGroup extends React.Component<Props> {
@@ -50,8 +50,8 @@ class MessageGroup extends React.Component<Props> {
     return payload
   }
 
-  handleOnFeedback(rating, eventId) {
-    this.props.onFeedback(rating, eventId)
+  handleOnFeedback(feedback, eventId) {
+    this.props.onFeedback(feedback, eventId)
   }
 
   render() {
@@ -72,33 +72,37 @@ class MessageGroup extends React.Component<Props> {
           <div className={'bpw-message-group'}>
             {this.props.messages.map((data, i) => {
               const isLastMsg = i == this.props.messages.length - 1
-              // todo: should check for a `feedback` flag in the payload when its from qna
-              // this flag does not exist yet
-              const isFeedback = true || data.payload.feedback
+              const payload = this.convertPayloadFromOldFormat(data)
+
+              let collectFeedback = payload.collectFeedback
+              if (payload.wrapped) {
+                collectFeedback = payload.wrapped.collectFeedback
+              }
 
               return (
-                <FeedbackWrapper
-                  show={this.props.isBot && isFeedback && isLastMsg}
-                  onFeedback={rating => this.handleOnFeedback(rating, data.incomingEventId)}
-                  key={`feedback-${i}`}
-                >
-                  <Message
-                    key={`msg-${i}`}
-                    isHighlighted={
-                      this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId)
-                    }
-                    isLastOfGroup={i >= this.props.messages.length - 1}
-                    isLastGroup={this.props.isLastGroup}
-                    isBotMessage={!data.userId}
-                    incomingEventId={data.incomingEventId}
-                    payload={this.convertPayloadFromOldFormat(data)}
-                    sentOn={data.sent_on}
-                    onSendData={this.props.onSendData}
-                    onFileUpload={this.props.onFileUpload}
-                    bp={this.props.bp}
-                    store={this.props.store}
-                  />
-                </FeedbackWrapper>
+                <Message
+                  key={`msg-${i}`}
+                  isHighlighted={
+                    this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId)
+                  }
+                  extra={
+                    this.props.isBot &&
+                    collectFeedback &&
+                    isLastMsg && (
+                      <InlineFeedback onFeedback={feedback => this.handleOnFeedback(feedback, data.incomingEventId)} />
+                    )
+                  }
+                  isLastOfGroup={i >= this.props.messages.length - 1}
+                  isLastGroup={this.props.isLastGroup}
+                  isBotMessage={!data.userId}
+                  incomingEventId={data.incomingEventId}
+                  payload={payload}
+                  sentOn={data.sent_on}
+                  onSendData={this.props.onSendData}
+                  onFileUpload={this.props.onFileUpload}
+                  bp={this.props.bp}
+                  store={this.props.store}
+                />
               )
             })}
           </div>

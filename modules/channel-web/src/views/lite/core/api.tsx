@@ -131,9 +131,9 @@ export default class WebchatApi {
     }
   }
 
-  async sendFeedback(rating: number, eventId: string): Promise<void> {
+  async sendFeedback(feedback: number, eventId: string): Promise<void> {
     try {
-      const data = { rating }
+      const data = { feedback }
       return this.axios.post(`/events/${eventId}/feedback`, data, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)

@@ -41,6 +41,7 @@ export namespace Renderer {
     isBotMessage?: boolean
     isLastMessage?: boolean
     sentOn?: Date
+    extra?: any
 
     onSendData?: (data: any) => Promise<void>
     onFileUpload?: (label: string, payload: any, file: File) => Promise<void>

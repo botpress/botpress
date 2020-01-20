@@ -295,13 +295,13 @@ export default async (bp: typeof sdk, db: Database) => {
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const eventId = req.params.eventId
-      const rating = req.body
-      console.log('** rating and event id ', eventId, rating)
+      const { feedback } = req.body
 
-      // TODO: implement sdk method in `core/sdk/impl.ts`
-      // Could be in bp.events or something else.
-      // The sdk function will be used in other channels to register the feedback
-      // await bp.events.registerFeedback(eventId, rating)
+      const events = await bp.events.findEvents({ incomingEventId: eventId })
+      const qnaEvent = events.find(e => e.event.nlu.intent.name.startsWith('__qna__'))
+      await bp.events.updateEvent(qnaEvent.id, { feedback })
+
+      res.sendStatus(200)
     })
   )
 

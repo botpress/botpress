@@ -265,8 +265,8 @@ class RootStore {
   }
 
   @action.bound
-  async sendFeedback(rating: number, eventId: string): Promise<void> {
-    await this.api.sendFeedback(rating, eventId)
+  async sendFeedback(feedback: number, eventId: string): Promise<void> {
+    await this.api.sendFeedback(feedback, eventId)
   }
 
   @action.bound

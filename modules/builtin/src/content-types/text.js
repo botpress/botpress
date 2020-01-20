@@ -15,7 +15,8 @@ function render(data) {
     {
       type: 'text',
       markdown: data.markdown,
-      text: data.text
+      text: data.text,
+      collectFeedback: data.collectFeedback
     }
   ]
 }
