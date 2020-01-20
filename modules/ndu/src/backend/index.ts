@@ -44,7 +44,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   botTemplates,
   definition: {
     name: 'ndu',
-    menuIcon: 'diagram-tree',
+    menuIcon: 'poll',
     menuText: 'NDU',
     noInterface: false,
     fullName: 'NDU',
