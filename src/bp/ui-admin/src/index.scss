@@ -165,6 +165,7 @@ pre.code {
 }
 
 @import 'node_modules/bootstrap/scss/bootstrap';
+@import './scss/_config.scss';
 @import './scss/_dropdown.scss';
 @import './scss/_layout.scss';
 @import './scss/_list-item.scss';

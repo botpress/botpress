@@ -520,9 +520,7 @@ class Bots extends Component {
               <strong>Cover Picture</strong>
             </Label>
             <Input type="file" accept="image/*" name="coverPictureUrl" onChange={this.handleImageFileChanged} />
-            {this.state.coverPictureUrl && (
-              <img style={{ width: 'auto', maxWidth: '100%' }} alt="cover" src={this.state.coverPictureUrl} />
-            )}
+            {this.state.coverPictureUrl && <img className="coverImg" alt="cover" src={this.state.coverPictureUrl} />}
           </Col>
         </Row>
       </Fragment>
