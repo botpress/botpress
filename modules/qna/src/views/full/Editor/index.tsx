@@ -291,7 +291,7 @@ export default class Editor extends Component<Props> {
             <H6>Answers</H6>
             <Checkbox
               label={'Bot will say: '}
-              checked={!flowsList || (flowsList && this.state.isText)}
+              checked={!flowsList || this.state.isText}
               onChange={this.changeItemAction('isText')}
               tabIndex={-1}
             />
@@ -310,7 +310,7 @@ export default class Editor extends Component<Props> {
               <React.Fragment>
                 <div className={style.qnaAndOr}>
                   <div className={style.qnaAndOrLine} />
-                  <div className={style.qnaAndOrText}>and</div>
+                  <div className={style.qnaAndOrText}>and / or</div>
                   <div className={style.qnaAndOrLine} />
                 </div>
                 <div className={style.qnaRedirect}>
