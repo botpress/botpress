@@ -1,4 +1,4 @@
-import { H4 } from '@blueprintjs/core'
+import { Button, H4 } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -40,9 +40,19 @@ interface Props {
 
 class Inspector extends Component<Props> {
   render() {
+    const goBackToMain = () => {
+      this.props.closeFlowNodeProps()
+      this.props.refreshFlowsLinks()
+    }
+
     const node = this.props.currentFlowNode
     return (
       <div className={style.inspector}>
+        {node && (
+          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small={true}>
+            <i className="material-icons">keyboard_backspace</i>
+          </Button>
+        )}
         <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
         {this.renderNodeProperties()}
       </div>
