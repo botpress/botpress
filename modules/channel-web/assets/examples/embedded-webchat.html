@@ -8,18 +8,120 @@
   </head>
 
   <body>
-    This is an example of embedded webchat
+    <h1>Webchat Embedding Example</h1>
+    <p>This is an example of embedded webchat. Try adding your "botId" as a URL parameter.</p>
+    <p>
+      Example: <code>https://botpress.team/assets/modules/channel-web/examples/embedded-webchat.html?botId=test</code>
+    </p>
+    <h2>
+      Custom buttons
+    </h2>
+    <p>
+      You can control the webchat visibility programmatically using the Webchat SDK. Moreover, you can listen for
+      webchat events to detect if the webchat is opened or closed. In this example, the Toggle button changes color when
+      the webchat is open (red).
+    </p>
+    <button id="show-bp">Show</button>
+    <button id="hide-bp">Hide</button>
+    <button id="toggle-bp" style="background-color: green;">Toggle</button>
+    <h2>Send Messages Programmatically</h2>
+    <p>You can simulate the user typing a message programmatically.</p>
+    <button id="send-message-bp">Send "Hello"</button>
+    <h2>Update Webchat Configuration</h2>
+    <p>You can change the webchat configuration at runtime.</p>
+    <button id="change-config1-bp">Config 1</button>
+    <button id="change-config2-bp">Config 2</button>
+    <h2>Control User Identity</h2>
+    <p>The current user ID is <span id="user-id-bp">UNKNOWN</span></p>
   </body>
 
   <script>
+    function parseQuery(queryString) {
+      var query = {}
+      var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&')
+      for (var i = 0; i < pairs.length; i++) {
+        var pair = pairs[i].split('=')
+        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '')
+      }
+      return query
+    }
+
+    var params = parseQuery(window.location && window.location.search)
+
+    const botId = (params && params.botId) || 'welcome-bot'
+    let userId
+
     window.botpressWebChat.init({
       host: 'http://localhost:3000',
-      botId: 'welcome-bot'
+      botId: botId
       /*
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
         This allows you to customize the chat on a per-bot basis.
       */
       //extraStylesheet: 'assets/modules/channel-web/examples/my-theme.css'
+    })
+
+    window.addEventListener('message', message => {
+      if (message.data.userId) {
+        userId = message.data.userId
+        document.getElementById('user-id-bp').innerText = userId
+      }
+    })
+
+    document.getElementById('show-bp').addEventListener('click', () => {
+      window.botpressWebChat.sendEvent({ type: 'show' })
+    })
+
+    document.getElementById('hide-bp').addEventListener('click', () => {
+      window.botpressWebChat.sendEvent({ type: 'hide' })
+    })
+
+    document.getElementById('send-message-bp').addEventListener('click', () => {
+      window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
+    })
+
+    document.getElementById('change-config1-bp').addEventListener('click', () => {
+      window.botpressWebChat.configure({
+        userId: userId,
+        extraStylesheet: 'assets/modules/channel-web/examples/custom-theme.css',
+        showConversationsButton: false,
+        botName: 'Bot Config 1',
+        botConvoDescription: 'Description of Bot Config 1',
+        enableReset: false,
+        enablePersistHistory: false,
+        enableResetSessionShortcut: false
+      })
+    })
+
+    document.getElementById('change-config2-bp').addEventListener('click', () => {
+      window.botpressWebChat.configure({
+        userId: userId,
+        extraStylesheet: null,
+        showConversationsButton: true,
+        botName: 'Bot Config 2',
+        botConvoDescription: 'Description of Bot Config 2',
+        enableReset: true,
+        enablePersistHistory: true,
+        enableResetSessionShortcut: true
+      })
+    })
+
+    let webchatOpen = false
+
+    document.getElementById('toggle-bp').addEventListener('click', () => {
+      window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
+    })
+
+    window.addEventListener('message', function(event) {
+      if (event.data.name === 'webchatOpened') {
+        webchatOpen = true
+        document.getElementById('toggle-bp').style = 'background-color: red;'
+      }
+
+      if (event.data.name === 'webchatClosed') {
+        webchatOpen = false
+        document.getElementById('toggle-bp').style = 'background-color: green;'
+      }
     })
   </script>
 </html>
