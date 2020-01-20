@@ -13,7 +13,7 @@ import _ from 'lodash'
 import { fetchBots, fetchBotCategories } from '../../reducers/bots'
 import { fetchLicensing } from '../../reducers/license'
 import { fetchLanguages } from '../../reducers/server'
-import { toastSuccess } from '../../utils/toaster'
+import { toastSuccess, toastFailure } from '../../utils/toaster'
 
 import api from '../../api'
 import PageContainer from '~/App/PageContainer'
@@ -27,23 +27,27 @@ const statusList = [
 ]
 
 class Bots extends Component {
-  state = {
-    id: '',
+  initialFormState = {
     name: '',
+    description: '',
+    privacyPolicy: '',
     avatarUrl: '',
     coverPictureUrl: '',
     category: undefined,
-    description: '',
     website: '',
     phoneNumber: '',
     termsConditions: '',
-    emailAddress: '',
+    emailAddress: ''
+  }
+
+  state = {
+    id: '',
+    ...this.initialFormState,
     error: undefined,
     categories: [],
     moreOpen: false,
     languages: [],
     defaultLanguage: undefined,
-    formHasChanged: false,
     isSaving: false
   }
 
@@ -106,31 +110,55 @@ class Bots extends Component {
     const status = this.bot.disabled ? 'disabled' : this.bot.private ? 'private' : 'public'
     const details = _.get(this.bot, 'details', {})
 
+    this.initialFormState = {
+      name: this.bot.name || '',
+      description: this.bot.description || '',
+      website: details.website || '',
+      phoneNumber: details.phoneNumber || '',
+      termsConditions: details.termsConditions || '',
+      privacyPolicy: details.privacyPolicy || '',
+      emailAddress: details.emailAddress || '',
+      status: statusList.find(x => x.value === status),
+      category: this.state.categories.find(x => x.value === this.bot.category),
+      avatarUrl: details.avatarUrl || '',
+      coverPictureUrl: details.coverPictureUrl || '',
+      selectedLanguages: this.bot.languages || [],
+      selectedDefaultLang: this.bot.defaultLanguage
+    }
+
     this.setState(
       {
         botId,
-        name: this.bot.name,
-        description: this.bot.description,
+        ...this.initialFormState,
         languages: this.bot.languages || [],
-        defaultLanguage: this.bot.defaultLanguage,
-        website: details.website,
-        phoneNumber: details.phoneNumber,
-        termsConditions: details.termsConditions,
-        privacyPolicy: details.privacyPolicy,
-        emailAddress: details.emailAddress,
-        status: statusList.find(x => x.value === status),
-        category: this.state.categories.find(x => x.value === this.bot.category),
-        avatarUrl: details.avatarUrl || '',
-        coverPictureUrl: details.coverPictureUrl || ''
+        defaultLanguage: this.bot.defaultLanguage
       },
       this.updateLanguages
     )
   }
 
   cancel = () => {
-    const { formHasChanged } = this.state
+    const currentFormState = {
+      name: this.state.name,
+      description: this.state.description,
+      website: this.state.website,
+      phoneNumber: this.state.phoneNumber,
+      termsConditions: this.state.termsConditions,
+      privacyPolicy: this.state.privacyPolicy,
+      emailAddress: this.state.emailAddress,
+      status: this.state.status,
+      category: this.state.category,
+      avatarUrl: this.state.avatarUrl,
+      coverPictureUrl: this.state.coverPictureUrl,
+      selectedLanguages: this.state.selectedLanguages.map(x => x.value),
+      selectedDefaultLang: this.state.selectedDefaultLang.value
+    }
+
     // [TODO] max.cloutier 2020.01.17 Implement and use a custom confirm popup and replace the window.confirm in this file/app-wide
-    if (formHasChanged && !window.confirm(`There are unsaved changes in this form. Are you sure you want to cancel?`)) {
+    if (
+      JSON.stringify(this.initialFormState) !== JSON.stringify(currentFormState) &&
+      !window.confirm(`There are unsaved changes in this form. Are you sure you want to cancel?`)
+    ) {
       return
     }
     this.backToList()
@@ -168,14 +196,15 @@ class Bots extends Component {
 
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
-      this.setState({ error: error })
+      toastFailure('The form contains errors')
+      this.setState({ error: error, isSaving: false })
       return
     }
 
     await api
       .getSecured()
       .post(`/admin/bots/${this.state.botId}`, bot)
-      .catch(err => this.setState({ error: err }))
+      .catch(err => this.setState({ error: err, isSaving: false }))
 
     await this.props.fetchBots()
 
@@ -200,13 +229,13 @@ class Bots extends Component {
     )
   }
 
-  handleInputChanged = event => this.setState({ [event.target.name]: event.target.value, formHasChanged: true })
-  handleStatusChanged = status => this.setState({ status, formHasChanged: true })
-  handleCategoryChanged = category => this.setState({ category, formHasChanged: true })
+  handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
+  handleStatusChanged = status => this.setState({ status })
+  handleCategoryChanged = category => this.setState({ category })
 
   handleDefaultLangChanged = lang => {
     if (!this.state.selectedDefaultLang) {
-      this.setState({ selectedDefaultLang: lang, formHasChanged: true })
+      this.setState({ selectedDefaultLang: lang })
       return
     }
 
@@ -218,17 +247,17 @@ class Bots extends Component {
       )
 
       if (conf) {
-        this.setState({ selectedDefaultLang: lang, formHasChanged: true })
+        this.setState({ selectedDefaultLang: lang })
       }
     }
   }
 
   handleLanguagesChanged = langs => {
-    this.setState({ selectedLanguages: langs, formHasChanged: true })
+    this.setState({ selectedLanguages: langs })
   }
 
   handleCommunityLanguageChanged = lang => {
-    this.setState({ selectedDefaultLang: lang, selectedLanguages: [lang], formHasChanged: true })
+    this.setState({ selectedDefaultLang: lang, selectedLanguages: [lang] })
   }
 
   handleImageFileChanged = async event => {
@@ -400,7 +429,7 @@ class Bots extends Component {
                 id="input-website"
                 type="text"
                 name="website"
-                value={this.state.website || ''}
+                value={this.state.website}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -414,7 +443,7 @@ class Bots extends Component {
                 id="input-phone"
                 type="text"
                 name="phoneNumber"
-                value={this.state.phoneNumber || ''}
+                value={this.state.phoneNumber}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -428,7 +457,7 @@ class Bots extends Component {
                 id="input-email"
                 type="text"
                 name="emailAddress"
-                value={this.state.emailAddress || ''}
+                value={this.state.emailAddress}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -444,7 +473,7 @@ class Bots extends Component {
                 id="input-termsConditions"
                 type="text"
                 name="termsConditions"
-                value={this.state.termsConditions || ''}
+                value={this.state.termsConditions}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
@@ -458,7 +487,7 @@ class Bots extends Component {
                 type="text"
                 id="input-privacyPolicy"
                 name="privacyPolicy"
-                value={this.state.privacyPolicy || ''}
+                value={this.state.privacyPolicy}
                 onChange={this.handleInputChanged}
               />
             </FormGroup>
