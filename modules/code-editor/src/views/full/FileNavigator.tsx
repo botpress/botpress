@@ -30,7 +30,7 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   treeRef: React.RefObject<Tree<NodeData>>
-  constructor(props) {
+  constructor(props: Props) {
     super(props)
     this.treeRef = React.createRef()
   }
@@ -45,7 +45,9 @@ class FileNavigator extends React.Component<Props, State> {
     }
     if (this.props.selectedNode !== prevProps.selectedNode) {
       const { nodes } = this.state
-      this.traverseTree(nodes, n => (n.isSelected = this.props.selectedNode === n.id))
+      let { selectedNode } = this.props
+      selectedNode = selectedNode.replace(`${this.props.id}/`, '')
+      this.traverseTree(nodes, n => (n.isSelected = selectedNode === n.id))
       this.setState({ nodes })
     }
   }
@@ -98,17 +100,15 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   private handleNodeClick = async (node: ITreeNode) => {
-    const originallySelected = node.isSelected
-    this.traverseTree(this.state.nodes, n => (n.isSelected = false))
-    node.isSelected = originallySelected !== null
+    this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
 
     // If nodeData is set, it's a file, otherwise a folder
     if (node.nodeData) {
       await this.props.editor.openFile(node.nodeData as EditableFile)
-      this.props.onNodeStateSelected(node.id as string)
     } else {
-      this.handleNodeExpand(node, node.isExpanded)
+      this.handleNodeExpand(node, !node.isExpanded)
     }
+    this.props.onNodeStateSelected(this.props.id + '/' + node.id)
   }
 
   private handleNodeExpand = (node: ITreeNode, isExpanded: boolean) => {
@@ -258,13 +258,14 @@ export default inject(({ store }: { store: RootStore }) => ({
 }))(observer(FileNavigator))
 
 type Props = {
+  id: number
   files: any
   store?: RootStore
   editor?: EditorStore
   disableContextMenu?: boolean
   contextMenuType?: string
   onNodeStateExpanded: (id: string, isExpanded: boolean) => void
-  onNodeStateSelected: (id: string) => void
+  onNodeStateSelected: (fullyQualifiedId: string) => void
   expandedNodes: object
   selectedNode: string
 } & Pick<StoreDef, 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>

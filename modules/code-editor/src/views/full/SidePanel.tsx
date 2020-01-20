@@ -26,7 +26,7 @@ class PanelContent extends React.Component<Props> {
     this.updateFolders()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (prevProps.files !== this.props.files) {
       this.updateFolders()
     }
@@ -74,8 +74,8 @@ class PanelContent extends React.Component<Props> {
     }
   }
 
-  updateNodeSelected = (id: string) => {
-    this.setState({ selectedNode: id })
+  updateNodeSelected = (fullyQualifiedId: string) => {
+    this.setState({ selectedNode: fullyQualifiedId })
   }
 
   hasPermission(perm: string, isWrite?: boolean): boolean {
@@ -91,6 +91,7 @@ class PanelContent extends React.Component<Props> {
     return (
       <SidePanelSection label="Module Configurations">
         <FileNavigator
+          id={0}
           files={this.state.moduleConfigFiles}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
@@ -110,6 +111,7 @@ class PanelContent extends React.Component<Props> {
     return (
       <SidePanelSection label="Configurations">
         <FileNavigator
+          id={1}
           files={this.state.botConfigs}
           disableContextMenu={true}
           expandedNodes={this.expandedNodes}
@@ -146,6 +148,7 @@ class PanelContent extends React.Component<Props> {
         actions={[{ id: 'btn-add-action', icon: <Icon icon="add" />, key: 'add', items }]}
       >
         <FileNavigator
+          id={2}
           files={this.state.actionFiles}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
@@ -166,6 +169,7 @@ class PanelContent extends React.Component<Props> {
     return (
       <SidePanelSection label={'Hooks'} actions={actions}>
         <FileNavigator
+          id={3}
           files={this.state.hookFiles}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
