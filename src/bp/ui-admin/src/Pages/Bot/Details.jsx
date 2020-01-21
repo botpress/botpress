@@ -280,8 +280,6 @@ class Bots extends Component {
       this.setState({ error: null })
     }
 
-    // [TODO] max.cloutier 2020.01.17 Add indications that this will submit the form OR change the behavior so it saves only on save btn click
-    // If it can't be uploaded without saving, it should probably be a dedicated option that isn't part of this form
     await api
       .getSecured()
       .post(`/bots/${this.state.botId}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
