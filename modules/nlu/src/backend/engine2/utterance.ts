@@ -31,7 +31,7 @@ export type UtteranceToken = Readonly<{
   isBOS: boolean
   isEOS: boolean
   POS: string
-  vectors: ReadonlyArray<number>
+  vector: ReadonlyArray<number>
   tfidf: number
   cluster: number
   offset: number
@@ -82,7 +82,7 @@ export default class Utterance {
             return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
           },
           value: value,
-          vectors: vectors[i],
+          vector: vectors[i],
           POS: posTags[i],
           toString: (opts: TokenToStringOptions) => {
             const options = { ...DefaultTokenToStringOptions, ...opts }
@@ -115,11 +115,11 @@ export default class Utterance {
     }
 
     let totalWeight = 0
-    const dims = this._tokens[0].vectors.length
+    const dims = this._tokens[0].vector.length
     let sentenceEmbedding = new Array(dims).fill(0)
 
     for (const token of this.tokens) {
-      const norm = computeNorm(token.vectors as number[])
+      const norm = computeNorm(token.vector as number[])
       if (norm <= 0 || !token.isWord) {
         // ignore special char tokens in sentence embeddings
         continue
@@ -128,7 +128,7 @@ export default class Utterance {
       // hard limit on TFIDF of (we don't want to over scale the features)
       const weight = Math.min(1, token.tfidf)
       totalWeight += weight
-      const weightedVec = scalarDivide(token.vectors as number[], norm / weight)
+      const weightedVec = scalarDivide(token.vector as number[], norm / weight)
       sentenceEmbedding = vectorAdd(sentenceEmbedding, weightedVec)
     }
 
@@ -185,7 +185,7 @@ export default class Utterance {
 
   clone(copyEntities: boolean, copySlots: boolean): Utterance {
     const tokens = this.tokens.map(x => x.value)
-    const vectors = this.tokens.map(x => <number[]>x.vectors)
+    const vectors = this.tokens.map(x => <number[]>x.vector)
     const POStags = this.tokens.map(x => x.POS)
     const utterance = new Utterance(tokens, vectors, POStags, this.languageCode)
     utterance.setGlobalTfidf({ ...this._globalTfidf })

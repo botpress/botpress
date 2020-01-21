@@ -1,10 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { isNoSubstitutionTemplateLiteral } from '../../../node_modules/typescript/lib/typescript'
 import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
 import * as math from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
+import { isWord } from '../tools/token-utils'
 import { Intent, PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
@@ -33,6 +35,7 @@ export type PredictStep = {
   detectedLanguage: string
   languageCode: string
   utterance?: Utterance
+  alternateUtterance?: Utterance
   ctx_predictions?: sdk.MLToolkit.SVM.Prediction[]
   intent_predictions?: {
     per_ctx?: _.Dictionary<sdk.MLToolkit.SVM.Prediction[]>
@@ -100,25 +103,74 @@ async function preprocessInput(
   return { stepOutput, predictors }
 }
 
+interface AlternateToken {
+  index: number
+  value: string
+  vector: number[]
+  POS: string
+}
+
 async function makePredictionUtterance(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
+  const { tfidf, vocabVectors, kmeans } = predictors
+
   const text = replaceConsecutiveSpaces(input.rawText.trim())
   const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools)
+  const alternateTokens: AlternateToken[] = []
 
-  const { tfidf, vocabVectors, kmeans } = predictors
   utterance.tokens.forEach(token => {
     const t = token.toString({ lowerCase: true })
-    if (!tfidf[t]) {
-      const closestToken = getClosestToken(t, <number[]>token.vectors, vocabVectors)
-      tfidf[t] = tfidf[closestToken]
+    if (!vocabVectors[t]) {
+      const closestToken = getClosestToken(t, <number[]>token.vector, vocabVectors, false) // make this return alternate token offset and tfidf ?
+      tfidf[t] = tfidf[closestToken] // do we still want to do this ? I suggest we keep 1 for OOV token in the original utterance
+      if (isWord(closestToken) && token.value.length > 3 && closestToken.length > 3) {
+        const alternateVector = vocabVectors[closestToken]
+        alternateTokens.push({
+          index: token.index,
+          value: closestToken,
+          vector: alternateVector,
+          POS: token.POS
+        })
+      }
     }
   })
 
-  utterance.setGlobalTfidf(tfidf)
-  utterance.setKmeans(kmeans)
+  const alternateUtterance = _.chain(alternateTokens)
+    .reduce(
+      (toks, tok) => {
+        const sliceStart = _.get(_.last(toks), 'index', -1) + 1
+        return [
+          ...toks,
+          ...utterance.tokens
+            .slice(sliceStart, tok.index)
+            .map(t => ({ ..._.pick(t, ['POS', 'vector']), value: t.toString() })),
+          tok
+        ]
+      },
+      [] as AlternateToken[]
+    )
+    .thru((altUttToks: AlternateToken[]) =>
+      altUttToks.length > 0
+        ? new Utterance(
+            altUttToks.map(t => t.value),
+            altUttToks.map(t => t.vector),
+            altUttToks.map(t => t.POS),
+            input.languageCode
+          )
+        : undefined
+    )
+    .value()
+
+  Array(utterance, alternateUtterance)
+    .filter(Boolean)
+    .forEach(u => {
+      u.setGlobalTfidf(tfidf)
+      u.setKmeans(kmeans)
+    })
 
   return {
     ...input,
-    utterance
+    utterance,
+    alternateUtterance
   }
 }
 
@@ -147,6 +199,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
 
   const features = input.utterance.sentenceEmbedding
   const predictions = await predictors.ctx_classifier.predict(features)
+  // TODO alternate sentence prediction for context as well ?
 
   return {
     ...input,
@@ -166,10 +219,32 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       return
     }
     const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
-    const preds = await predictor.predict(features)
+    let preds = await predictor.predict(features)
     const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
     if (exactPred) {
       preds.unshift(exactPred)
+    }
+
+    if (input.alternateUtterance) {
+      // Do we want exact preds as well ?
+      const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
+      const alternatePreds = await predictor.predict(alternateFeats)
+      // we might want to do this in intent election intead :)
+
+      // max
+      // preds = _.chain([...alternatePreds, ...preds])
+      //   .groupBy('label')
+      //   .values()
+      //   .map(gr => _.maxBy(gr, 'confidence'))
+      //   .value()
+
+      // mean
+      preds = _.chain([...alternatePreds, ...preds])
+        .groupBy('label')
+        .mapValues(gr => _.meanBy(gr, 'confidence'))
+        .toPairs()
+        .map(([label, confidence]) => ({ label, confidence }))
+        .value()
     }
 
     return preds

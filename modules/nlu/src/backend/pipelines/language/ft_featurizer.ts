@@ -55,19 +55,25 @@ export const getSentenceFeatures = async ({
   return computeSentenceEmbedding(vecs, doc, docTfidf, token2vec)
 }
 
-export function getClosestToken(tokenStr: string, tokenVec: number[], token2Vec: Token2Vec): string {
+export function getClosestToken(
+  tokenStr: string,
+  tokenVec: number[],
+  token2Vec: Token2Vec,
+  useSpacial: boolean
+): string {
   let token = ''
   let dist = Number.POSITIVE_INFINITY
   _.forEach(token2Vec, (vec, t) => {
     // Leveinshtein is for typo detection (takes precedence over spacial)
     const lev = levenshtein(tokenStr, t)
     if (lev <= 2 && t.length >= 4 && tokenStr.length >= 4 && lev <= dist) {
+      // TODO refine this logic here, amend !== send at all
       dist = lev
       token = t
     }
 
     // Space (vector) distance is for close-meaning detection
-    const d = ndistance(tokenVec, vec)
+    const d = useSpacial ? ndistance(tokenVec, vec) : Number.POSITIVE_INFINITY
     if (d <= dist) {
       token = t
       dist = d
