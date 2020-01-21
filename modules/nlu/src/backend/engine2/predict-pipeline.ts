@@ -141,12 +141,13 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
 }
 
 async function predictContext(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
-  if (predictors.intents.length === 0) {
+  const classifier = predictors.ctx_classifier
+  if (!classifier) {
     return { ...input, ctx_predictions: [{ label: DEFAULT_CTX, confidence: 1 }] }
   }
 
   const features = input.utterance.sentenceEmbedding
-  const predictions = await predictors.ctx_classifier.predict(features)
+  const predictions = await classifier.predict(features)
 
   return {
     ...input,

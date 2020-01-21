@@ -145,7 +145,6 @@ class RootStore {
   @action.bound
   async initializeChat(): Promise<void> {
     try {
-      await this.fetchBotInfo()
       await this.fetchConversations()
       await this.fetchConversation()
       runInAction('-> setInitialized', () => {
