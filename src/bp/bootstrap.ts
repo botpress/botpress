@@ -16,7 +16,6 @@ import os from 'os'
 
 import { setupMasterNode } from './cluster'
 import { FatalError } from './errors'
-import { errorFromList } from 'verror'
 
 async function setupEnv() {
   await Db.initialize()
@@ -109,7 +108,7 @@ This is a fatal error, process will exit.`
 
   const resolver = new ModuleResolver(logger)
 
-  for (const entry of globalConfig.modules) {  
+  for (const entry of globalConfig.modules) {
     try {
       if (!entry.enabled) {
         const displayName = entry.location.replace(/^MODULES_ROOT\/|\\/, '')
