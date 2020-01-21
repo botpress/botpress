@@ -121,7 +121,8 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
     const t = token.toString({ lowerCase: true })
     if (!vocabVectors[t]) {
       const closestToken = getClosestToken(t, <number[]>token.vector, vocabVectors, false) // make this return alternate token offset and tfidf ?
-      tfidf[t] = tfidf[closestToken] // do we still want to do this ? I suggest we keep 1 for OOV token in the original utterance
+      tfidf[t] = tfidf[closestToken]
+      tfidf[t] = 1 // neutral impact
       if (isWord(closestToken) && token.value.length > 3 && closestToken.length > 3) {
         const alternateVector = vocabVectors[closestToken]
         alternateTokens.push({
@@ -148,8 +149,15 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
       },
       [] as AlternateToken[]
     )
-    .thru((altUttToks: AlternateToken[]) =>
-      altUttToks.length > 0
+    .thru((altUttToks: AlternateToken[]) => {
+      const idx = _.get(_.last(alternateTokens), 'index', Number.POSITIVE_INFINITY) + 1
+      if (idx < utterance.tokens.length) {
+        altUttToks = [
+          ...altUttToks,
+          ...utterance.tokens.slice(idx).map(t => ({ ..._.pick(t, ['POS', 'vector', 'index']), value: t.toString() }))
+        ]
+      }
+      return altUttToks.length > 0
         ? new Utterance(
             altUttToks.map(t => t.value),
             altUttToks.map(t => t.vector),
@@ -157,7 +165,7 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
             input.languageCode
           )
         : undefined
-    )
+    })
     .value()
 
   Array(utterance, alternateUtterance)
