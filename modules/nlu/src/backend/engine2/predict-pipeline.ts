@@ -120,8 +120,7 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
   utterance.tokens.forEach(token => {
     const t = token.toString({ lowerCase: true })
     if (!vocabVectors[t]) {
-      const closestToken = getClosestToken(t, <number[]>token.vector, vocabVectors, false) // make this return alternate token offset and tfidf ?
-      tfidf[t] = tfidf[closestToken]
+      const closestToken = getClosestToken(t, <number[]>token.vector, vocabVectors, false)
       tfidf[t] = 1 // neutral impact
       if (isWord(closestToken) && token.value.length > 3 && closestToken.length > 3) {
         const alternateVector = vocabVectors[closestToken]
@@ -143,7 +142,7 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
           ...toks,
           ...utterance.tokens
             .slice(sliceStart, tok.index)
-            .map(t => ({ ..._.pick(t, ['POS', 'vector']), value: t.toString() })),
+            .map(t => ({ ..._.pick(t, ['POS', 'vector', 'index']), value: t.toString() })),
           tok
         ]
       },
@@ -237,14 +236,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       // Do we want exact preds as well ?
       const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
       const alternatePreds = await predictor.predict(alternateFeats)
-      // we might want to do this in intent election intead :)
-
-      // max
-      // preds = _.chain([...alternatePreds, ...preds])
-      //   .groupBy('label')
-      //   .values()
-      //   .map(gr => _.maxBy(gr, 'confidence'))
-      //   .value()
+      // we might want to do this in intent election intead
 
       // mean
       preds = _.chain([...alternatePreds, ...preds])
