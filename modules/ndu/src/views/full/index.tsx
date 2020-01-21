@@ -84,7 +84,7 @@ const Conversation: FC<{ logs: StoredEventIncoming[]; idx: number; triggers: Tri
   const { event, feedback, target } = logs[0]
 
   let feedbackText = 'No feedback'
-  if (feedback !== null) {
+  if (feedback != null) {
     feedbackText = feedback === -1 ? 'Negative experience' : 'Positive experience'
   }
 

@@ -9,17 +9,18 @@ import { connect } from 'react-redux'
 import { deleteFlow, duplicateFlow, fetchTopics, refreshConditions, renameFlow } from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
-import { Downloader } from '~/components/Shared/Utils'
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/SidePanel/Toolbar'
 
 import EditGoalModal from './GoalEditor'
+import { exportCompleteGoal } from './ImportGoal/export'
+import { ImportModal } from './ImportGoal/ImportModal'
 import Library from './Library'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
-import Topiclist from './TopicList'
+import TopicList from './TopicList'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -55,14 +56,13 @@ const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
   const [topicModalOpen, setTopicModalOpen] = useState(false)
   const [goalModalOpen, setGoalModalOpen] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
 
   const [selectedGoal, setSelectedGoal] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
 
   const [goalFilter, setGoalFilter] = useState('')
   const [libraryFilter, setLibraryFilter] = useState('')
-  const [url, setUrl] = useState('')
-  const [file, setFile] = useState('')
 
   useEffect(() => {
     props.refreshConditions()
@@ -105,10 +105,16 @@ const SidePanelContent: FC<Props> = props => {
     props.fetchTopics()
   }
 
+  const downloadTextFile = (text, fileName) => {
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(new Blob([text], { type: `application/json` }))
+    link.download = fileName
+    link.click()
+  }
+
   const exportGoal = async goalName => {
-    console.log('export')
-    setFile(goalName)
-    setUrl(`${window.BOT_API_PATH}/mod/ndu/exportGoal?goalName=${goalName}`)
+    const goal = await exportCompleteGoal(goalName)
+    downloadTextFile(JSON.stringify(goal), `${goalName}.json`)
   }
 
   return (
@@ -122,7 +128,7 @@ const SidePanelContent: FC<Props> = props => {
           <SearchBar icon="filter" placeholder="Filter topics and goals" onChange={setGoalFilter} />
 
           <SidePanelSection label="Topics" actions={props.permissions.includes('create') && [createTopicAction]}>
-            <Topiclist
+            <TopicList
               readOnly={props.readOnly}
               canDelete={props.permissions.includes('delete')}
               flows={flowsName}
@@ -133,6 +139,7 @@ const SidePanelContent: FC<Props> = props => {
               editGoal={editGoal}
               createGoal={createGoal}
               exportGoal={exportGoal}
+              importGoal={() => setImportModalOpen(!importModalOpen)}
               filter={goalFilter}
               editTopic={editTopic}
             />
@@ -142,7 +149,6 @@ const SidePanelContent: FC<Props> = props => {
             <SearchBar icon="filter" placeholder="Filter library" onChange={setLibraryFilter} />
             <Library filter={libraryFilter} />
           </SidePanelSection>
-          <Downloader url={url} filename={file} />
         </React.Fragment>
       )}
 
@@ -172,6 +178,13 @@ const SidePanelContent: FC<Props> = props => {
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}
       />
+
+      <ImportModal
+        isOpen={importModalOpen}
+        toggle={() => setImportModalOpen(!importModalOpen)}
+        onImportCompleted={() => {}}
+        flows={props.flows}
+      />
     </SidePanel>
   )
 }
@@ -194,7 +207,4 @@ const mapDispatchToProps = {
   fetchTopics
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SidePanelContent)
+export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)

@@ -36,7 +36,8 @@ export default class FlowsList extends Component<Props, State> {
   updateFlows() {
     const actions = {
       createGoal: this.props.createGoal,
-      editTopic: this.props.editTopic
+      editTopic: this.props.editTopic,
+      importGoal: this.props.importGoal
     }
 
     const flows = this.props.flows.filter(x => x.name !== 'main.flow.json')
@@ -154,6 +155,7 @@ interface Props {
   deleteFlow: Function
   exportGoal: Function
 
+  importGoal: (topicId: string) => void
   createGoal: (topicId: string) => void
   editGoal: (goalId: any, data: any) => void
   editTopic: (topicName: string) => void

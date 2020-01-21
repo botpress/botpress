@@ -16,12 +16,20 @@ const folderLabel = (folder, actions) => {
     actions.editTopic(folder)
   }
 
+  const importGoal = e => {
+    e.stopPropagation()
+    actions.importGoal(folder)
+  }
+
   return (
     <div className={style.treeNode}>
       <span>{folder}</span>
       <div className={style.overhidden} id="actions">
         <Tooltip content={<span>Edit topic</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
           <Button icon="edit" minimal={true} onClick={editTopic} />
+        </Tooltip>
+        <Tooltip content={<span>Import goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+          <Button icon="download" minimal={true} onClick={importGoal} />
         </Tooltip>
         <Tooltip content={<span>Create new goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
           <Button icon="insert" minimal={true} onClick={createGoal} />

@@ -48,5 +48,6 @@ export interface FilePermissions {
 interface RequestWithPerms {
   permissions: FilePermissions
   params: any
+  query: any
   body: any
 }
