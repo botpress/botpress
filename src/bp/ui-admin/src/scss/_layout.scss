@@ -251,6 +251,11 @@
   max-width: 100%;
 }
 
+.configUploadSuccess {
+  color: green;
+  margin-top: 1rem;
+}
+
 .with-sticky-action-bar {
   // Height of the sticky action bar (51px) + 14px to have a small gap between the bottom of the form and the bar
   padding-bottom: 65px;

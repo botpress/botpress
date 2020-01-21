@@ -286,7 +286,7 @@ class Bots extends Component {
       .getSecured()
       .post(`/bots/${this.state.botId}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
-        this.setState({ [targetProp]: response.data.url }, this.saveChanges)
+        this.setState({ [targetProp]: response.data.url })
       })
       .catch(err => {
         this.setState({ error: err })
@@ -513,6 +513,12 @@ class Bots extends Component {
               <strong>Bot Avatar</strong>
             </Label>
             <Input type="file" accept="image/*" name="avatarUrl" onChange={this.handleImageFileChanged} />
+            {this.state.avatarUrl !== this.initialFormState.avatarUrl && (
+              <p className="configUploadSuccess">
+                The bot avatar has been uploaded successfully. You need to save the form in order for the changes to
+                take effect.
+              </p>
+            )}
             {this.state.avatarUrl && <img height={75} alt="avatar" src={this.state.avatarUrl} />}
           </Col>
           <Col md={6}>
@@ -520,6 +526,12 @@ class Bots extends Component {
               <strong>Cover Picture</strong>
             </Label>
             <Input type="file" accept="image/*" name="coverPictureUrl" onChange={this.handleImageFileChanged} />
+            {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && (
+              <p className="configUploadSuccess">
+                The cover picture has been uploaded successfully. You need to save the form in order for the changes to
+                take effect.
+              </p>
+            )}
             {this.state.coverPictureUrl && <img className="coverImg" alt="cover" src={this.state.coverPictureUrl} />}
           </Col>
         </Row>
