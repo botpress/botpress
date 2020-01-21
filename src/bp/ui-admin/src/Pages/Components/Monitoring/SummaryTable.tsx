@@ -1,9 +1,20 @@
-import React from 'react'
+import { Button, Tooltip } from '@blueprintjs/core'
+import moment from 'moment'
+import React, { useState } from 'react'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
-import moment from 'moment'
+
+import ServerControl from './ServerControl'
 
 const SummaryTable = ({ data }) => {
+  const [isModalOpen, setModalOpen] = useState(false)
+  const [host, setHost] = useState('')
+
+  const restartServer = async host => {
+    setHost(host)
+    setModalOpen(true)
+  }
+
   const columns = [
     {
       Header: 'Host',
@@ -61,17 +72,30 @@ const SummaryTable = ({ data }) => {
       width: 120,
       className: 'center',
       accessor: 'errors.count'
+    },
+    {
+      Cell: x => (
+        <Tooltip content="Restart server">
+          <Button icon="power" onClick={() => restartServer(x.original.host)} />
+        </Tooltip>
+      ),
+
+      filterable: false,
+      width: 45
     }
   ]
 
   return (
-    <ReactTable
-      columns={columns}
-      data={data}
-      defaultPageSize={5}
-      defaultSorted={[{ id: 'host' }]}
-      className="-striped -highlight monitoringOverview"
-    />
+    <React.Fragment>
+      <ReactTable
+        columns={columns}
+        data={data}
+        defaultPageSize={5}
+        defaultSorted={[{ id: 'host' }]}
+        className="-striped -highlight monitoringOverview"
+      />
+      <ServerControl hostname={host} isOpen={isModalOpen} toggle={() => setModalOpen(!isModalOpen)} />
+    </React.Fragment>
   )
 }
 
