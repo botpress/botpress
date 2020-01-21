@@ -49,7 +49,6 @@ class Bots extends Component<Props> {
     isCreateBotModalOpen: false,
     isRollbackModalOpen: false,
     isImportBotModalOpen: false,
-    deletingBotId: null,
     focusedBot: null,
     archiveUrl: undefined,
     archiveName: '',
@@ -79,9 +78,16 @@ class Bots extends Component<Props> {
   }
 
   async deleteBot(botId) {
-    this.setState({ deletingBotId: null })
-    await api.getSecured().post(`/admin/bots/${botId}/delete`)
-    this.props.fetchBots()
+    if (
+      await ConfirmDialog({
+        description: "Are you sure you want to delete this bot? This can't be undone.",
+        acceptLabel: 'Delete',
+        declineLabel: 'Cancel'
+      })
+    ) {
+      await api.getSecured().post(`/admin/bots/${botId}/delete`)
+      this.props.fetchBots()
+    }
   }
 
   renderCreateNewBotButton() {
@@ -150,23 +156,11 @@ class Bots extends Component<Props> {
           <Fragment key={bot.id}>
             <BotItemCompact
               bot={bot}
-              deleteBot={() => {
-                this.setState({ deletingBotId: bot.id })
-              }}
+              deleteBot={this.deleteBot.bind(this, bot.id)}
               exportBot={this.exportBot.bind(this, bot.id)}
               createRevision={this.createRevision.bind(this, bot.id)}
               rollback={this.toggleRollbackModal.bind(this, bot.id)}
             />
-            {this.state.deletingBotId === bot.id && (
-              <ConfirmDialog
-                description="Are you sure you want to delete this bot? This can't be undone."
-                acceptLabel="Delete"
-                declineLabel="Cancel"
-                accept={this.deleteBot.bind(this, bot.id)}
-                decline={() => this.setState({ deletingBotId: null })}
-                isOpen={true}
-              />
-            )}
           </Fragment>
         ))}
       </div>
@@ -193,23 +187,11 @@ class Bots extends Component<Props> {
                       bot={bot}
                       allowStageChange={allowStageChange}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}
-                      deleteBot={() => {
-                        this.setState({ deletingBotId: bot.id })
-                      }}
+                      deleteBot={this.deleteBot.bind(this, bot.id)}
                       exportBot={this.exportBot.bind(this, bot.id)}
                       createRevision={this.createRevision.bind(this, bot.id)}
                       rollback={this.toggleRollbackModal.bind(this, bot.id)}
                     />
-                    {this.state.deletingBotId === bot.id && (
-                      <ConfirmDialog
-                        description="Are you sure you want to delete this bot? This can't be undone."
-                        acceptLabel="Delete"
-                        declineLabel="Cancel"
-                        accept={this.deleteBot.bind(this, bot.id)}
-                        decline={() => this.setState({ deletingBotId: null })}
-                        isOpen={true}
-                      />
-                    )}
                   </Fragment>
                 ))}
               </Col>
