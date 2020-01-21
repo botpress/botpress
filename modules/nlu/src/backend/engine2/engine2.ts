@@ -134,7 +134,7 @@ export default class E2 implements Engine2 {
     const { input, output, artefacts } = model.data
     const tools = E2.tools
 
-    if (input.intents.length > 0) {
+    if (_.flatMap(input.intents, i => i.utterances).length > 0) {
       const ctx_classifier = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
       const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
         (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
@@ -157,7 +157,7 @@ export default class E2 implements Engine2 {
     } else {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return { ...artefacts } as Predictors
+      return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
   }
 
