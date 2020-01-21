@@ -7,6 +7,7 @@ import { MonitoringService } from 'core/services/monitoring'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Router } from 'express'
 import _ from 'lodash'
+import os from 'os'
 import yn from 'yn'
 
 import { getDebugScopes, setDebugScopes } from '../../../debug'
@@ -89,9 +90,9 @@ export class ServerRouter extends CustomRouter {
           return res.status(400).send(`Rebooting the server is disabled in the botpress.config.json file`)
         }
 
-        this.logger.info(`User ${user} requested a server reboot`)
+        this.logger.info(`User ${user} requested a server reboot for ${req.query.hostname}`)
 
-        await this._rebootServer()
+        await this._rebootServer(req.query.hostname)
         res.sendStatus(200)
       })
     )
@@ -175,7 +176,9 @@ export class ServerRouter extends CustomRouter {
     this._rebootServer = await this.jobService.broadcast<void>(this.__local_rebootServer.bind(this))
   }
 
-  private __local_rebootServer() {
-    process.send && process.send({ type: 'reboot_server' })
+  private __local_rebootServer(hostname?: string) {
+    if (!hostname || hostname === os.hostname()) {
+      process.send!({ type: 'reboot_server' })
+    }
   }
 }
