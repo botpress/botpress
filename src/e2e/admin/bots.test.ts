@@ -2,7 +2,7 @@ import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { autoAnswerConfirmDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect} from '../utils'
+import { autoAnswerConfirmDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
