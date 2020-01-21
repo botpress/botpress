@@ -11,7 +11,8 @@
     <h1>Webchat Embedding Example</h1>
     <p>This is an example of embedded webchat. Try adding your "botId" as a URL parameter.</p>
     <p>
-      Example: <code>http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html?botId=test</code>
+      Example:
+      <code><span id="origin"></span>/assets/modules/channel-web/examples/embedded-webchat.html?botId=test</code>
     </p>
     <h2>
       Custom buttons
@@ -51,8 +52,10 @@
     const botId = (params && params.botId) || 'welcome-bot'
     let userId
 
+    document.getElementById('origin').innerText = window.location.origin
+
     window.botpressWebChat.init({
-      host: 'http://localhost:3000',
+      host: window.location.origin || 'http://localhost:3000',
       botId: botId
       /*
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
