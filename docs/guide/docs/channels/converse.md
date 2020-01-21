@@ -7,7 +7,7 @@ The Converse API is an easy way to integrate Botpress with any application or an
 
 ## Usage (Public API)
 
-`POST /api/v1/bots/{botId}/converse/{userId}` where **userId** is a unique string identifying a user that chats with your bot (**botId**).
+`POST /api/v1/bots/{botId}/converse/{userId}` where **userId** is a unique string identifying a user that chats with your bot (**botId**), you can use random string for **userId**, also don't forget to set the `Content-Type` HTTP header to `application/json`.
 
 ### Request Body
 
