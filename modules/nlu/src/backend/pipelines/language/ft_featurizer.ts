@@ -55,6 +55,18 @@ export const getSentenceFeatures = async ({
   return computeSentenceEmbedding(vecs, doc, docTfidf, token2vec)
 }
 
+function getMaxLevOps(token: string) {
+  if (token.length <= 3) {
+    return 0
+  } else if (token.length <= 4) {
+    return 1
+  } else if (token.length < 10) {
+    return 2
+  } else {
+    return 3
+  }
+}
+
 export function getClosestToken(
   tokenStr: string,
   tokenVec: number[],
@@ -66,8 +78,8 @@ export function getClosestToken(
   _.forEach(token2Vec, (vec, t) => {
     // Leveinshtein is for typo detection (takes precedence over spacial)
     const lev = levenshtein(tokenStr, t)
-    if (lev <= 2 && t.length >= 4 && tokenStr.length >= 4 && lev <= dist) {
-      // TODO refine this logic here, amend !== send at all
+    const maxLevOps = getMaxLevOps(tokenStr)
+    if (lev <= maxLevOps) {
       dist = lev
       token = t
     }
