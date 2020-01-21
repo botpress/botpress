@@ -1,11 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, isWord, SPACE } from '../tools/token-utils'
 import { parseUtterance } from '../tools/utterance-parser'
-import { ExtractedEntity, ExtractedSlot, TFIDF, Tools } from '../typings'
+import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
 
 export type UtteranceToStringOptions = {
   lowerCase?: boolean
@@ -282,6 +283,64 @@ export async function buildUtteranceBatch(
       return utterance
     })
     .filter(Boolean)
+}
+
+interface AlternateToken {
+  value: string
+  vector: number[] | ReadonlyArray<number>
+  POS: string
+  isAlter?: boolean
+}
+
+function uttTok2altTok(token: UtteranceToken): AlternateToken {
+  return {
+    ..._.pick(token, ['vector', 'POS']),
+    value: token.toString(),
+    isAlter: false
+  }
+}
+
+function isClosestTokenValid(originalToken: UtteranceToken, closestToken: string): boolean {
+  return isWord(closestToken) && originalToken.value.length > 3 && closestToken.length > 3
+}
+
+/**
+ * @description Returns slightly different version of the given utterance, replacing OOV tokens with their closest IV syntaxical neighbour
+ * @param utterance the original utterance
+ * @param vocabVectors Bot wide vocabulary
+ */
+export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2Vec): Utterance | undefined {
+  return _.chain(utterance.tokens)
+    .map(token => {
+      const strTok = token.toString({ lowerCase: true })
+      if (vocabVectors[strTok]) {
+        return uttTok2altTok(token)
+      }
+
+      const closestToken = getClosestToken(strTok, token.vector, vocabVectors, false)
+      if (isClosestTokenValid(token, closestToken)) {
+        return {
+          value: closestToken,
+          vector: vocabVectors[closestToken],
+          POS: token.POS,
+          isAlter: true
+        } as AlternateToken
+      }
+    })
+    .filter(Boolean)
+    .thru(altToks => {
+      const hasAlternate = altToks.length === utterance.tokens.length && altToks.some(t => t.isAlter)
+      return (
+        hasAlternate &&
+        new Utterance(
+          altToks.map(t => t.value),
+          altToks.map(t => <number[]>t.vector),
+          altToks.map(t => t.POS),
+          utterance.languageCode
+        )
+      )
+    })
+    .value()
 }
 
 /**

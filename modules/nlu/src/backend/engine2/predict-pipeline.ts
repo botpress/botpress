@@ -1,18 +1,15 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { isNoSubstitutionTemplateLiteral } from '../../../node_modules/typescript/lib/typescript'
-import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
 import * as math from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { isWord } from '../tools/token-utils'
 import { Intent, PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
-import Utterance, { buildUtteranceBatch } from './utterance'
+import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -103,69 +100,12 @@ async function preprocessInput(
   return { stepOutput, predictors }
 }
 
-interface AlternateToken {
-  index: number
-  value: string
-  vector: number[]
-  POS: string
-}
-
 async function makePredictionUtterance(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { tfidf, vocabVectors, kmeans } = predictors
 
   const text = replaceConsecutiveSpaces(input.rawText.trim())
   const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools)
-  const alternateTokens: AlternateToken[] = []
-
-  utterance.tokens.forEach(token => {
-    const t = token.toString({ lowerCase: true })
-    if (!vocabVectors[t]) {
-      const closestToken = getClosestToken(t, <number[]>token.vector, vocabVectors, false)
-      tfidf[t] = 1 // neutral impact
-      if (isWord(closestToken) && token.value.length > 3 && closestToken.length > 3) {
-        const alternateVector = vocabVectors[closestToken]
-        alternateTokens.push({
-          index: token.index,
-          value: closestToken,
-          vector: alternateVector,
-          POS: token.POS
-        })
-      }
-    }
-  })
-
-  const alternateUtterance = _.chain(alternateTokens)
-    .reduce(
-      (toks, tok) => {
-        const sliceStart = _.get(_.last(toks), 'index', -1) + 1
-        return [
-          ...toks,
-          ...utterance.tokens
-            .slice(sliceStart, tok.index)
-            .map(t => ({ ..._.pick(t, ['POS', 'vector', 'index']), value: t.toString() })),
-          tok
-        ]
-      },
-      [] as AlternateToken[]
-    )
-    .thru((altUttToks: AlternateToken[]) => {
-      const idx = _.get(_.last(alternateTokens), 'index', Number.POSITIVE_INFINITY) + 1
-      if (idx < utterance.tokens.length) {
-        altUttToks = [
-          ...altUttToks,
-          ...utterance.tokens.slice(idx).map(t => ({ ..._.pick(t, ['POS', 'vector', 'index']), value: t.toString() }))
-        ]
-      }
-      return altUttToks.length > 0
-        ? new Utterance(
-            altUttToks.map(t => t.value),
-            altUttToks.map(t => t.vector),
-            altUttToks.map(t => t.POS),
-            input.languageCode
-          )
-        : undefined
-    })
-    .value()
+  const alternateUtterance = getAlternateUtterance(utterance, vocabVectors)
 
   Array(utterance, alternateUtterance)
     .filter(Boolean)

@@ -69,9 +69,9 @@ function getMaxLevOps(token: string) {
 
 export function getClosestToken(
   tokenStr: string,
-  tokenVec: number[],
+  tokenVec: number[] | ReadonlyArray<number>,
   token2Vec: Token2Vec,
-  useSpacial: boolean
+  useSpacial: boolean = false
 ): string {
   let token = ''
   let dist = Number.POSITIVE_INFINITY
@@ -85,7 +85,7 @@ export function getClosestToken(
     }
 
     // Space (vector) distance is for close-meaning detection
-    const d = useSpacial ? ndistance(tokenVec, vec) : Number.POSITIVE_INFINITY
+    const d = useSpacial ? ndistance(<number[]>tokenVec, vec) : Number.POSITIVE_INFINITY
     if (d <= dist) {
       token = t
       dist = d
