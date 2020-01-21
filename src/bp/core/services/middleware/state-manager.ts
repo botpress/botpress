@@ -158,13 +158,8 @@ export class StateManager {
 
     this.currentPromise = this.knex
       .transaction(async trx => {
-        try {
-          for (const { event, ignoreContext } of elements) {
-            await this._saveState(event, ignoreContext, trx)
-          }
-          trx.commit()
-        } catch (err) {
-          trx.rollback(err)
+        for (const { event, ignoreContext } of elements) {
+          await this._saveState(event, ignoreContext, trx)
         }
       })
       .finally(() => {
