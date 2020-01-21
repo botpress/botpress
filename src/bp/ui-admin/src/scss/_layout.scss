@@ -246,54 +246,9 @@
   }
 }
 
-.alert-banner {
-  background: #fcfcfc;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-  left: 0;
-  padding: 10px 15px;
-  position: fixed;
-  right: 0;
-  text-align: center;
-  top: 0;
-  z-index: 99;
-
-  &.warning {
-    color: #856404;
-    background-color: #fff3cd;
-  }
-
-  &.info {
-    color: #0c5460;
-    background-color: #d1ecf1;
-  }
-
-  &.error {
-    color: #721c24;
-    background-color: #f8d7da;
-  }
-
-  &.success {
-    color: #155724;
-    background-color: #d4edda;
-  }
-
-  &--close-btn {
-    background: none;
-    border: none;
-    color: #252525;
-    font-size: 20px;
-    line-height: 0;
-    margin: 0;
-    padding: 11px 5px;
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translate(0, -50%);
-
-    &:focus {
-      outline: none;
-    }
-  }
+.coverImg {
+  width: auto;
+  max-width: 100%;
 }
 
 .with-sticky-action-bar {
