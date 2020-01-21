@@ -16,6 +16,10 @@ import OverridableComponent from './OverridableComponent'
 
 class Container extends React.Component<ContainerProps> {
   renderBody() {
+    if (!this.props.isInitialized) {
+      return null
+    }
+
     if (this.props.isConversationsDisplayed) {
       return <ConversationList />
     } else if (this.props.isBotInfoDisplayed) {
@@ -33,10 +37,6 @@ class Container extends React.Component<ContainerProps> {
   }
 
   render() {
-    if (!this.props.isInitialized) {
-      return null
-    }
-
     const classNames = classnames('bpw-layout', 'bpw-chat-container', {
       'bpw-layout-fullscreen': this.props.isFullscreen && 'fullscreen',
       ['bpw-anim-' + this.props.sideTransition]: true
