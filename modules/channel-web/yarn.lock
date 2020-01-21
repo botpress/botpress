@@ -852,6 +852,11 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
+"@juggle/resize-observer@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.0.2.tgz#f4f326806826c0da5221411374e4c54902c327bb"
+  integrity sha512-9fEfZIxZ1qTahMSX50pigfSJ/1N6X2oABhmgd4Dt2SsPkZi0lTlvoHu5V2yrGZ6m+oALfS4tJrpx9nbVIxwOYQ==
+
 "@types/bluebird-global@^3.5.7":
   version "3.5.9"
   resolved "https://registry.yarnpkg.com/@types/bluebird-global/-/bluebird-global-3.5.9.tgz#ed5aad94695c65b261c701bc22bb0755a7843f13"
