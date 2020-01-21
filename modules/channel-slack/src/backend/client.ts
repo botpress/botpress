@@ -84,9 +84,9 @@ export class SlackClient {
       const incomingEventId = blockId.replace('feedback-', '')
       const feedback = parseInt(selectedOption)
 
-      const events = await this.bp.events.findEvents({ incomingEventId })
-      const qnaEvent = events.find(e => e.event.nlu.intent.name.startsWith('__qna__'))
-      await this.bp.events.updateEvent(qnaEvent.id, { feedback })
+      const events = await this.bp.events.findEvents({ incomingEventId, direction: 'incoming' })
+      const event = events[0]
+      await this.bp.events.updateEvent(event.id, { feedback })
     })
 
     this.router.use(`/bots/${this.botId}/callback`, this.interactive.requestListener())

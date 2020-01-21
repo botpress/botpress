@@ -297,9 +297,9 @@ export default async (bp: typeof sdk, db: Database) => {
       const eventId = req.params.eventId
       const { feedback } = req.body
 
-      const events = await bp.events.findEvents({ incomingEventId: eventId })
-      const qnaEvent = events.find(e => e.event.nlu.intent.name.startsWith('__qna__'))
-      await bp.events.updateEvent(qnaEvent.id, { feedback })
+      const events = await bp.events.findEvents({ incomingEventId: eventId, direction: 'incoming' })
+      const event = events[0]
+      await bp.events.updateEvent(event.id, { feedback })
 
       res.sendStatus(200)
     })

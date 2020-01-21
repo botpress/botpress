@@ -160,7 +160,7 @@ class Message extends Component<MessageProps> {
           {rendered}
           {this.props.store.config.showTimestamp && this.renderTimestamp()}
         </div>
-        {this.props.extra}
+        {this.props.inlineFeedback}
       </div>
     )
   }

@@ -50,10 +50,6 @@ class MessageGroup extends React.Component<Props> {
     return payload
   }
 
-  handleOnFeedback(feedback, eventId) {
-    this.props.onFeedback(feedback, eventId)
-  }
-
   render() {
     if (this.state.hasError) {
       return '* Cannot display message *'
@@ -74,10 +70,10 @@ class MessageGroup extends React.Component<Props> {
               const isLastMsg = i == this.props.messages.length - 1
               const payload = this.convertPayloadFromOldFormat(data)
 
-              let collectFeedback = payload.collectFeedback
-              if (payload.wrapped) {
-                collectFeedback = payload.wrapped.collectFeedback
-              }
+              const showInlineFeedback =
+                this.props.isBot &&
+                isLastMsg &&
+                (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
 
               return (
                 <Message
@@ -85,11 +81,9 @@ class MessageGroup extends React.Component<Props> {
                   isHighlighted={
                     this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId)
                   }
-                  extra={
-                    this.props.isBot &&
-                    collectFeedback &&
-                    isLastMsg && (
-                      <InlineFeedback onFeedback={feedback => this.handleOnFeedback(feedback, data.incomingEventId)} />
+                  inlineFeedback={
+                    showInlineFeedback && (
+                      <InlineFeedback onFeedback={feedback => this.props.onFeedback(feedback, data.incomingEventId)} />
                     )
                   }
                   isLastOfGroup={i >= this.props.messages.length - 1}
