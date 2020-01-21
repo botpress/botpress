@@ -91,7 +91,7 @@ class PanelContent extends React.Component<Props> {
     return (
       <SidePanelSection label="Module Configurations">
         <FileNavigator
-          id={0}
+          id="moduleConfig"
           files={this.state.moduleConfigFiles}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
@@ -111,9 +111,9 @@ class PanelContent extends React.Component<Props> {
     return (
       <SidePanelSection label="Configurations">
         <FileNavigator
-          id={1}
+          id="config"
           files={this.state.botConfigs}
-          disableContextMenu={true}
+          disableContextMenu
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
           onNodeStateExpanded={this.updateNodeExpanded}
@@ -148,7 +148,7 @@ class PanelContent extends React.Component<Props> {
         actions={[{ id: 'btn-add-action', icon: <Icon icon="add" />, key: 'add', items }]}
       >
         <FileNavigator
-          id={2}
+          id="actions"
           files={this.state.actionFiles}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
@@ -169,7 +169,7 @@ class PanelContent extends React.Component<Props> {
     return (
       <SidePanelSection label={'Hooks'} actions={actions}>
         <FileNavigator
-          id={3}
+          id="hooks"
           files={this.state.hookFiles}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
@@ -235,12 +235,7 @@ class PanelContent extends React.Component<Props> {
           <FileStatus />
         ) : (
           <React.Fragment>
-            <SearchBar
-              icon="filter"
-              placeholder="Filter files"
-              onChange={this.props.setFilenameFilter}
-              showButton={false}
-            />
+            <SearchBar icon="filter" placeholder="Filter files" onChange={this.props.setFilenameFilter} />
 
             {this.renderSectionActions()}
             {this.renderSectionHooks()}

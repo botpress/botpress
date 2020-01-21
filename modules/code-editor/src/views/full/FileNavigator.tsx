@@ -45,8 +45,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
     if (this.props.selectedNode !== prevProps.selectedNode) {
       const { nodes } = this.state
-      let { selectedNode } = this.props
-      selectedNode = selectedNode.replace(`${this.props.id}/`, '')
+      const selectedNode = this.props.selectedNode.replace(`${this.props.id}/`, '')
       this.traverseTree(nodes, n => (n.isSelected = selectedNode === n.id))
       this.setState({ nodes })
     }
@@ -258,7 +257,7 @@ export default inject(({ store }: { store: RootStore }) => ({
 }))(observer(FileNavigator))
 
 type Props = {
-  id: number
+  id: string
   files: any
   store?: RootStore
   editor?: EditorStore
