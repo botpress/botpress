@@ -8,7 +8,10 @@ describe('Instruction Factory', () => {
       }
 
       const value = InstructionFactory.createOnEnter(node)
-      expect(value).toEqual([{ type: 'on-enter', fn: 'abc {}' }, { type: 'on-enter', fn: 'def {}' }])
+      expect(value).toEqual([
+        { type: 'on-enter', fn: 'abc {}' },
+        { type: 'on-enter', fn: 'def {}' }
+      ])
     })
   })
 
@@ -20,7 +23,10 @@ describe('Instruction Factory', () => {
     it('Returns instructions in order', () => {
       const flow = {}
       const value = InstructionFactory.createOnReceive(node, flow)
-      expect(value).toEqual([{ type: 'on-receive', fn: 'abc {}' }, { type: 'on-receive', fn: 'def {}' }])
+      expect(value).toEqual([
+        { type: 'on-receive', fn: 'abc {}' },
+        { type: 'on-receive', fn: 'def {}' }
+      ])
     })
 
     it('Create flow level instructions before node level instructions', () => {
@@ -40,7 +46,10 @@ describe('Instruction Factory', () => {
 
   describe('Create transition', () => {
     const node = {
-      next: [{ condition: 'abc {}', node: 'x' }, { condition: 'def {}', node: 'y' }]
+      next: [
+        { condition: 'abc {}', node: 'x' },
+        { condition: 'def {}', node: 'y' }
+      ]
     }
 
     it('Returns transitions in order', () => {
@@ -70,7 +79,10 @@ describe('Instruction Factory', () => {
       const node = { name: 'abc' }
       const flow = {
         catchAll: {
-          next: [{ condition: 'xyz {}', node: 'abc' }, { condition: 'xyz {}', node: 'bcd' }]
+          next: [
+            { condition: 'xyz {}', node: 'abc' },
+            { condition: 'xyz {}', node: 'bcd' }
+          ]
         }
       }
       const value = InstructionFactory.createTransition(flow, node)

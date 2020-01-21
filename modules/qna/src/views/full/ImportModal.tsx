@@ -143,6 +143,7 @@ Either the file is empty, or it doesn't match any known format.`)
             <FileInput
               text={filePath || 'Choose file...'}
               onChange={e => readFile((e.target as HTMLInputElement).files)}
+              inputProps={{ accept: '.json' }}
               fill={true}
             />
           </FormGroup>

@@ -111,7 +111,7 @@ class ViewStore {
 
   @computed
   get isBotInfoDisplayed(): boolean {
-    return this._showBotInfo && (this.rootStore.botInfo && this.rootStore.botInfo.showBotInfoPage)
+    return this._showBotInfo && this.rootStore.botInfo && this.rootStore.botInfo.showBotInfoPage
   }
 
   /** Returns the active transition for the side panel, like fade in or out */

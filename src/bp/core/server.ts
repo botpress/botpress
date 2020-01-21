@@ -321,9 +321,7 @@ export default class HTTPServer {
 
     if (!process.env.EXTERNAL_URL && !config.externalUrl) {
       this.logger.warn(
-        `External URL is not configured. Using default value of ${
-          process.EXTERNAL_URL
-        }. Some features may not work properly`
+        `External URL is not configured. Using default value of ${process.EXTERNAL_URL}. Some features may not work properly`
       )
     }
 

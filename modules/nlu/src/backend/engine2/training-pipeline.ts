@@ -274,11 +274,13 @@ export const ProcessIntents = async (
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
   const utterances = _.flatMap(input.intents.map(i => i.utterances))
 
-  const allSysEntities = (await tools.duckling.extractMultiple(
-    utterances.map(u => u.toString()),
-    input.languageCode,
-    true
-  )).map(ents => ents.map(mapE1toE2Entity))
+  const allSysEntities = (
+    await tools.duckling.extractMultiple(
+      utterances.map(u => u.toString()),
+      input.languageCode,
+      true
+    )
+  ).map(ents => ents.map(mapE1toE2Entity))
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
@@ -347,7 +349,9 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
 }
 
 const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer> => {
-  if (input.intents.length === 0) {
+  const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
+
+  if (!hasSlots) {
     return Buffer.from('')
   }
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
