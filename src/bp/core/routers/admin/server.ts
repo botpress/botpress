@@ -176,7 +176,7 @@ export class ServerRouter extends CustomRouter {
     this._rebootServer = await this.jobService.broadcast<void>(this.__local_rebootServer.bind(this))
   }
 
-  private async __local_rebootServer(hostname?: string) {
+  private __local_rebootServer(hostname?: string) {
     if (!hostname || hostname === os.hostname()) {
       process.send!({ type: 'reboot_server' })
     }
