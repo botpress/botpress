@@ -91,6 +91,7 @@ class Web extends React.Component<MainProps> {
     config.reference && this.props.setReference()
 
     this.setupObserver()
+    this.props.fetchBotInfo()
   }
 
   extractConfig() {
@@ -262,6 +263,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   config: store.config,
   sendData: store.sendData,
   initializeChat: store.initializeChat,
+  fetchBotInfo: store.fetchBotInfo,
   updateConfig: store.updateConfig,
   mergeConfig: store.mergeConfig,
   addEventToConversation: store.addEventToConversation,
@@ -292,6 +294,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'bp'
   | 'config'
   | 'initializeChat'
+  | 'fetchBotInfo'
   | 'sendMessage'
   | 'setUserId'
   | 'sendData'

@@ -1,9 +1,10 @@
+import { ResizeObserver } from '@juggle/resize-observer'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
 import { debounce } from 'lodash'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
-import { injectIntl, InjectedIntlProps } from 'react-intl'
 import React from 'react'
+import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
@@ -19,6 +20,7 @@ interface State {
 
 class MessageList extends React.Component<MessageListProps, State> {
   private messagesDiv: HTMLElement
+  private divSizeObserver: ResizeObserver
   state: State = { showNewMessageIndicator: false, manualScroll: false }
 
   componentDidMount() {
@@ -36,8 +38,24 @@ class MessageList extends React.Component<MessageListProps, State> {
         return
       }
       this.tryScrollToBottom()
-      this.tryScrollToBottom(true) // twice because some browsers scrolls before rendering the keyboard
     })
+
+    // this should account for keyboard rendering as it triggers a resize of the messagesDiv
+    this.divSizeObserver = new ResizeObserver(
+      debounce(
+        ([divResizeEntry]) => {
+          // we don't need to do anything with the resize entry
+          this.tryScrollToBottom()
+        },
+        200,
+        { trailing: true }
+      )
+    )
+    this.divSizeObserver.observe(this.messagesDiv)
+  }
+
+  componentWillUnmount() {
+    this.divSizeObserver.disconnect()
   }
 
   tryScrollToBottom(delayed?: boolean) {
