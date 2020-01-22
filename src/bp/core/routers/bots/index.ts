@@ -496,5 +496,13 @@ export class BotsRouter extends CustomRouter {
         res.sendStatus(201)
       })
     )
+
+    this.router.get(
+      '/improvements',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        res.sendStatus(200)
+      })
+    )
   }
 }

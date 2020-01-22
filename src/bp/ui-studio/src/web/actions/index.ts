@@ -305,6 +305,15 @@ export const addNotifications = notifications => dispatch => {
   dispatch(newNotificationsReceived(notifications))
 }
 
+// Improvements
+export const allImprovementsReceived = createAction('IMPROVEMENTS/ALL_RECEIVED')
+export const fetchImprovements = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/improvements`).then(res => {
+    dispatch(allImprovementsReceived(res.data))
+  })
+}
+
 // Skills
 export const requestInsertNewSkill = createAction('SKILLS/INSERT')
 export const requestInsertNewSkillNode = createAction('SKILLS/INSERT/NODE')
