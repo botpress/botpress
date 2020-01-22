@@ -15,9 +15,10 @@ import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/SidePanel/Toolbar'
 
 import EditGoalModal from './GoalEditor'
-import { exportCompleteGoal } from './ImportGoal/export'
-import { ImportModal } from './ImportGoal/ImportModal'
+import { exportCompleteGoal } from './GoalEditor/export'
+import { ImportModal } from './GoalEditor/ImportGoalModal'
 import Library from './Library'
+import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
 import TopicList from './TopicList'
@@ -112,6 +113,11 @@ const SidePanelContent: FC<Props> = props => {
     link.click()
   }
 
+  const exportTopic = async topicName => {
+    const topic = await exportCompleteTopic(topicName, props.flows)
+    downloadTextFile(JSON.stringify(topic), `${topicName}.json`)
+  }
+
   const exportGoal = async goalName => {
     const goal = await exportCompleteGoal(goalName)
     downloadTextFile(JSON.stringify(goal), `${goalName}.json`)
@@ -142,6 +148,7 @@ const SidePanelContent: FC<Props> = props => {
               importGoal={() => setImportModalOpen(!importModalOpen)}
               filter={goalFilter}
               editTopic={editTopic}
+              exportTopic={exportTopic}
             />
           </SidePanelSection>
 

@@ -5,6 +5,8 @@ import { addNode, FLOW_ICON, FOLDER_ICON, sortChildren } from '~/util/tree_commo
 
 import style from '../style.scss'
 
+import { TYPES } from '.'
+
 const folderLabel = (folder, actions) => {
   const createGoal = e => {
     e.stopPropagation()
@@ -16,20 +18,12 @@ const folderLabel = (folder, actions) => {
     actions.editTopic(folder)
   }
 
-  const importGoal = e => {
-    e.stopPropagation()
-    actions.importGoal(folder)
-  }
-
   return (
     <div className={style.treeNode}>
       <span>{folder}</span>
       <div className={style.overhidden} id="actions">
         <Tooltip content={<span>Edit topic</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
           <Button icon="edit" minimal={true} onClick={editTopic} />
-        </Tooltip>
-        <Tooltip content={<span>Import goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-          <Button icon="download" minimal={true} onClick={importGoal} />
         </Tooltip>
         <Tooltip content={<span>Create new goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
           <Button icon="insert" minimal={true} onClick={createGoal} />
@@ -62,7 +56,8 @@ export const splitFlowPath = (flow, actions, flowData) => {
       type: 'folder',
       icon: FOLDER_ICON,
       label: folderLabel(folder, actions),
-      fullPath: currentPath.join('/')
+      fullPath: currentPath.join('/'),
+      nodeData: { type: currentPath.length === 1 ? TYPES.Topic : TYPES.Folder }
     })
   }
 
@@ -76,7 +71,7 @@ export const splitFlowPath = (flow, actions, flowData) => {
       icon: FLOW_ICON,
       label: flowData.label || flowName,
       fullPath: id,
-      type: 'flow'
+      type: TYPES.Goal
     }
   }
 }
@@ -86,7 +81,7 @@ export const buildFlowsTree = (flows, filterName, actions) => {
   flows.forEach(flowData => {
     const { folders, flow } = splitFlowPath(flowData.name, actions, flowData)
     if (!filterName || flow.id.includes(filterName)) {
-      addNode(tree, folders, flow, { nodeData: flowData })
+      addNode(tree, folders, flow, { nodeData: { ...flowData, type: TYPES.Goal } })
     }
   })
 
