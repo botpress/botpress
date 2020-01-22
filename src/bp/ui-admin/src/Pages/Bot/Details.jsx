@@ -240,6 +240,7 @@ class Bots extends Component {
     }
 
     if (this.state.selectedDefaultLang !== lang) {
+      // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
       const conf = window.confirm(
         `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${
           lang.label

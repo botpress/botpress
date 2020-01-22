@@ -33,6 +33,7 @@ const UserActions: FC<Props> = props => {
   const { user } = props
 
   const resetPassword = async () => {
+    // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
     if (!window.confirm(`Are you sure you want to reset ${user.email}'s password?`)) {
       return
     }
@@ -47,6 +48,7 @@ const UserActions: FC<Props> = props => {
   }
 
   const deleteUser = async () => {
+    // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
     if (!window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
       return
     }
@@ -61,6 +63,7 @@ const UserActions: FC<Props> = props => {
   }
 
   const removeUser = async () => {
+    // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
     if (!window.confirm(`Are you sure you want to remove ${user.email} from this workspace?`)) {
       return
     }
