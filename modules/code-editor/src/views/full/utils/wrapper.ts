@@ -13,7 +13,7 @@ const wrapper = {
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
       return `${HOOK_SIGNATURES[hookType]} {\n  ${START_COMMENT}\n${content}\n  ${END_COMMENT}\n}`
     } else if (type === 'bot_config') {
-      return content.replace('../bot.config.schema.json', 'bp://types/bot.config.schema.json')
+      return content.replace('../../bot.config.schema.json', 'bp://types/bot.config.schema.json')
     } else if (type === 'main_config') {
       return content.replace('../botpress.config.schema.json', 'bp://types/botpress.config.schema.json')
     } else if (type === 'module_config') {
@@ -24,7 +24,7 @@ const wrapper = {
   },
   remove: (content: string, type: string) => {
     if (type === 'bot_config') {
-      return content.replace('bp://types/bot.config.schema.json', '../bot.config.schema.json')
+      return content.replace('bp://types/bot.config.schema.json', '../../bot.config.schema.json')
     }
     if (type === 'main_config') {
       return content.replace('bp://types/botpress.config.schema.json', '../botpress.config.schema.json')
