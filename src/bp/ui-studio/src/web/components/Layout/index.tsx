@@ -13,6 +13,7 @@ import BackendToast from '~/components/Util/BackendToast'
 import { isInputFocused } from '~/keyboardShortcuts'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
+import Improvement from '~/views/Improvement'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
@@ -178,6 +179,7 @@ class Layout extends React.Component<ILayoutProps> {
                     render={() => (window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />)}
                   />
                   <Route exact path="/content" component={Content} />
+                  <Route exact path="/improvement" component={Improvement} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
                   <Route exact path="/oneflow/:flow*" component={OneFlow} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
@@ -220,7 +222,4 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ viewModeChanged, updateDocumentationModal, toggleBottomPanel }, dispatch)
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Layout)
+export default connect(mapStateToProps, mapDispatchToProps)(Layout)
