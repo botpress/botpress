@@ -19,7 +19,8 @@ declare module 'botpress/sdk' {
       tableName: string,
       data: {},
       returnColumns?: string | string[],
-      idColumnName?: string
+      idColumnName?: string,
+      trx?: Knex.Transaction
     ): Promise<T>
   }
 
@@ -1038,7 +1039,7 @@ declare module 'botpress/sdk' {
     flow?: string
     /** Used internally by the flow editor */
     readonly lastModified?: Date
-  } & (NodeActions)
+  } & NodeActions
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
 
