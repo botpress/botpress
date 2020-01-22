@@ -61,46 +61,44 @@ export default class Utterance {
     for (let i = 0, offset = 0; i < tokens.length; i++) {
       const that = this
       const value = tokens[i]
-      arr.push(
-        Object.freeze({
-          index: i,
-          isBOS: i === 0,
-          isEOS: i === tokens.length - 1,
-          isWord: isWord(value),
-          offset: offset,
-          isSpace: isSpace(value),
-          get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
-            return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
-          },
-          get entities(): ReadonlyArray<UtteranceRange & ExtractedEntity> {
-            return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
-          },
-          get tfidf(): number {
-            return (that._globalTfidf && that._globalTfidf[value]) || 1
-          },
-          get cluster(): number {
-            const wordVec = vectors[i]
-            return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
-          },
-          value: value,
-          vector: vectors[i],
-          POS: posTags[i],
-          toString: (opts: TokenToStringOptions) => {
-            const options = { ...DefaultTokenToStringOptions, ...opts }
-            let result = value
-            if (options.lowerCase) {
-              result = result.toLowerCase()
-            }
-            if (options.realSpaces) {
-              result = result.replace(new RegExp(SPACE, 'g'), ' ')
-            }
-            if (options.trim) {
-              result = result.trim()
-            }
-            return result
+      arr.push(Object.freeze({
+        index: i,
+        isBOS: i === 0,
+        isEOS: i === tokens.length - 1,
+        isWord: isWord(value),
+        offset: offset,
+        isSpace: isSpace(value),
+        get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
+          return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
+        },
+        get entities(): ReadonlyArray<UtteranceRange & ExtractedEntity> {
+          return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
+        },
+        get tfidf(): number {
+          return (that._globalTfidf && that._globalTfidf[value]) || 1
+        },
+        get cluster(): number {
+          const wordVec = vectors[i]
+          return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
+        },
+        value: value,
+        vector: vectors[i],
+        POS: posTags[i],
+        toString: (opts: TokenToStringOptions = {}) => {
+          const options = { ...DefaultTokenToStringOptions, ...opts }
+          let result = value
+          if (options.lowerCase) {
+            result = result.toLowerCase()
           }
-        } as UtteranceToken)
-      )
+          if (options.realSpaces) {
+            result = result.replace(new RegExp(SPACE, 'g'), ' ')
+          }
+          if (options.trim) {
+            result = result.trim()
+          }
+          return result
+        }
+      }) as UtteranceToken)
       offset += value.length
     }
     this._tokens = arr
@@ -329,7 +327,7 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
       }
     })
     .filter(Boolean)
-    .thru(altToks => {
+    .thru((altToks: AlternateToken[]) => {
       const hasAlternate = altToks.length === utterance.tokens.length && altToks.some(t => t.isAlter)
       return (
         hasAlternate &&

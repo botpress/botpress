@@ -91,6 +91,7 @@ type CustomMatcher = (tok: string) => boolean
  * Merges consecutive tokens that all respect the provided regex
  * @param tokens list of string representing a sentence
  * @param charPatterns (string patterns) that **every** characters in a token **can** match
+ * @param matcher custom matcher function called on each token
  * @example ['13', 'lo', '34', '56'] with a char pool of numbers ==> ['13', 'lo', '3456']
  * @example ['_', '__', '_', 'abc'] with a char pool of ['_'] ==> ['____', 'abc']
  */

@@ -127,10 +127,10 @@ describe('Raw token processing', () => {
 
   test('mergeSimilarTokens with custom matcher', () => {
     expect(
-      mergeSimilarCharsetTokens(['ce', 'ci', 'est', 'très', 'vanil', 'lé'], LATIN_CHARSET, t => t !== 'ce')
-    ).toEqual(['ce', 'ciesttrèsvanillé'])
+      mergeSimilarCharsetTokens(['ce', 'ci', 'est', 'très', 'vanil', 'lé'], LATIN_CHARSET, t => t == 'ci' || t == 'lé')
+    ).toEqual(['ceci', 'est', 'très', 'vanillé'])
 
-    const notInVocab = t => !{ ce: 1, ci: 1 }[t]
+    const notInVocab = t => !{ ce: 1, ci: 1, est: 1 }[t]
     expect(mergeSimilarCharsetTokens(['ce', 'ci', 'est', 'très', 'vanil', 'lé'], LATIN_CHARSET, notInVocab)).toEqual([
       'ce',
       'ci',
