@@ -1,4 +1,3 @@
-import { ConverseConfig } from 'botpress/sdk'
 import { UniqueUser } from 'common/typings'
 import { IncidentRule } from 'core/services/alerting-service'
 
@@ -256,7 +255,7 @@ export type BotpressConfig = {
   autoRevision: boolean
   eventCollector: EventCollectorConfig
   /**
-   * @default { "default": { "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
+   * @default { "default": { "id": "default", "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
    */
   authStrategies: {
     [strategyId: string]: AuthStrategy

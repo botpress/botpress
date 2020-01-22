@@ -104,7 +104,7 @@ class PanelContent extends React.Component<Props> {
       <SidePanelSection label="Configurations">
         <FileNavigator
           files={this.state.botConfigs}
-          disableContextMenu={true}
+          disableContextMenu
           expandedNodes={this.expandedNodes}
           onNodeStateChanged={this.updateNodeState}
         />
@@ -218,12 +218,7 @@ class PanelContent extends React.Component<Props> {
           <FileStatus />
         ) : (
           <React.Fragment>
-            <SearchBar
-              icon="filter"
-              placeholder="Filter files"
-              onChange={this.props.setFilenameFilter}
-              showButton={false}
-            />
+            <SearchBar icon="filter" placeholder="Filter files" onChange={this.props.setFilenameFilter} />
 
             {this.renderSectionActions()}
             {this.renderSectionHooks()}

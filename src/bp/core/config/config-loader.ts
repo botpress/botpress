@@ -103,7 +103,7 @@ export class ConfigProvider {
       const botpressConfigSchema = await this.ghostService
         .root()
         .readFileAsObject<any>('/', 'botpress.config.schema.json')
-      const defaultConfig = defaultJsonBuilder(botpressConfigSchema)
+      const defaultConfig: BotpressConfig = defaultJsonBuilder(botpressConfigSchema)
 
       const config = {
         $schema: `../botpress.config.schema.json`,
