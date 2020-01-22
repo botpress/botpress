@@ -1,5 +1,5 @@
 import { Container } from 'botpress/ui'
-import { configure, observe } from 'mobx'
+import { configure } from 'mobx'
 import { Provider } from 'mobx-react'
 import React from 'react'
 
