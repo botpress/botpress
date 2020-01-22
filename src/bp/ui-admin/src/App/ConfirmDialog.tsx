@@ -2,15 +2,18 @@ import { Button, Classes, Dialog, Intent } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
-interface Props {
-  description: string
-  isOpen: boolean
-  resolve: (ok: boolean) => void
+interface Options {
   title?: string
   accept?: () => void
   decline?: () => void
   acceptLabel?: string
   declineLabel?: string
+}
+
+interface Props extends Options {
+  message: string
+  isOpen: boolean
+  resolve: (ok: boolean) => void
 }
 
 const ConfirmDialogComponent: FC<Props> = props => {
@@ -44,7 +47,7 @@ const ConfirmDialogComponent: FC<Props> = props => {
       transitionDuration={0}
       canOutsideClickClose={false}
     >
-      <div className={Classes.DIALOG_BODY}>{props.description}</div>
+      <div className={Classes.DIALOG_BODY}>{props.message}</div>
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
@@ -71,19 +74,19 @@ const ConfirmDialogComponent: FC<Props> = props => {
 
 ConfirmDialogComponent.defaultProps = {
   title: 'Confirmation Needed',
-  acceptLabel: 'Accept',
-  declineLabel: 'Decline',
+  acceptLabel: 'OK',
+  declineLabel: 'Cancel',
   accept: () => {},
   decline: () => {}
 }
 
-const ConfirmDialog: any = (props): Promise<boolean> => {
+const confirmDialog = (message: string, options: Options): Promise<boolean> => {
   return new Promise((resolve, reject) => {
-    addDialog(props, resolve)
+    addDialog({ message, ...options }, resolve)
   })
 }
 
-export default ConfirmDialog
+export default confirmDialog
 
 function addDialog(props, resolve) {
   const body = document.getElementsByTagName('body')[0]

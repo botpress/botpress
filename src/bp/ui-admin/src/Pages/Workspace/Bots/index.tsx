@@ -17,7 +17,7 @@ import { RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 import { toastSuccess } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
-import ConfirmDialog from '~/App/ConfirmDialog'
+import confirmDialog from '~/App/ConfirmDialog'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 import { Downloader } from '~/Pages/Components/Downloader'
@@ -79,8 +79,7 @@ class Bots extends Component<Props> {
 
   async deleteBot(botId) {
     if (
-      await ConfirmDialog({
-        description: "Are you sure you want to delete this bot? This can't be undone.",
+      await confirmDialog("Are you sure you want to delete this bot? This can't be undone.", {
         acceptLabel: 'Delete',
         declineLabel: 'Cancel'
       })
