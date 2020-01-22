@@ -255,7 +255,7 @@ export type BotpressConfig = {
   autoRevision: boolean
   eventCollector: EventCollectorConfig
   /**
-   * @default { "default": { "id": "default", "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
+   * @default { "default": { "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
    */
   authStrategies: {
     [strategyId: string]: AuthStrategy
@@ -323,7 +323,7 @@ export type RetentionPolicy = {
 export type AuthStrategyType = 'basic' | 'saml' | 'ldap' | 'oauth2'
 
 export interface AuthStrategy {
-  readonly id: string
+  readonly id?: string
   /**
    * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
    * @default basic

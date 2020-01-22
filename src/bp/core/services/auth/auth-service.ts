@@ -68,7 +68,7 @@ export default class AuthService {
   async getAllUsers() {
     return _.flatten(
       await Promise.mapSeries(this.getAllStrategies(), strategy =>
-        Promise.mapSeries(this.users.getAllUsers(strategy.id), user => {
+        Promise.mapSeries(this.users.getAllUsers(strategy.id!), user => {
           return { email: user.email, strategy: user.strategy }
         })
       )
