@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 1/21/2020,summary: 46.3
+utterance,context,conditions,status,date: 1/22/2020,summary: 46.7
 What is the contact number?,A,"-intent,is,a-contact-details",pass
 WHAT IS THE CONTACT NUMBER?,A,"-intent,is,a-contact-details",pass
 WHAT is THE contact NUMBER,A,"-intent,is,a-contact-details",pass
@@ -51,7 +51,7 @@ isseu,A,"-intent,is,a-problem",pass
 isseu,C,"-intent,is,c-problem",fail
 isseu,D,"-intent,is,d-problem",pass
 isseu,E,"-intent,is,e-problem",fail
-isseu,F,"-intent,is,f-problem",fail
+isseu,F,"-intent,is,f-problem",pass
 teck isseu,A,"-intent,is,a-problem",pass
 teck isseu,C,"-intent,is,c-problem",fail
 teck isseu,D,"-intent,is,d-problem",pass
@@ -173,8 +173,8 @@ trouble tologin,F,"-intent,is,f-problem",fail
 loginproblem,A,"-intent,is,a-problem",pass
 loginproblem,C,"-intent,is,c-problem",pass
 loginproblem,D,"-intent,is,d-problem",pass
-loginproblem,E,"-intent,is,e-problem",fail
-loginproblem,F,"-intent,is,f-problem",fail
+loginproblem,E,"-intent,is,e-problem",pass
+loginproblem,F,"-intent,is,f-problem",pass
 screenlocked,A,"-intent,is,a-none",fail
 screenlocked,C,"-intent,is,c-none",fail
 screenlocked,D,"-intent,is,d-none",fail
@@ -184,7 +184,7 @@ Whats the contactnumer,A,"-intent,is,a-contact-details",fail
 Whats the contactnumer,C,"-intent,is,c-contact-details",pass
 Whats the contactnumer,D,"-intent,is,d-contact-details",pass
 Whats the contactnumer,E,"-intent,is,e-contact-details",pass
-Whats the contactnumer,F,"-intent,is,f-contact-details",fail
+Whats the contactnumer,F,"-intent,is,f-contact-details",pass
 How can Icanncel,A,"-intent,is,a-cancellation",pass
 How can Icanncel,C,"-intent,is,c-cancellation",pass
 How can Icanncel,D,"-intent,is,d-cancellation",pass
@@ -202,7 +202,7 @@ Where tofind your land line?,E,"-intent,is,e-contact-details",pass
 Where tofind your land line?,F,"-intent,is,f-contact-details",pass
 teckproblem,A,"-intent,is,a-problem",fail
 teckproblem,C,"-intent,is,c-problem",pass
-teckproblem,D,"-intent,is,d-problem",fail
+teckproblem,D,"-intent,is,d-problem",pass
 teckproblem,E,"-intent,is,e-problem",fail
 teckproblem,F,"-intent,is,f-problem",fail
 Where can I find your landlines?,A,"-intent,is,a-contact-details",pass
@@ -218,7 +218,7 @@ Please help with technical issues,F,"-intent,is,f-problem",pass
 I want to amend my statements,A,"-intent,is,a-bill-inquiry",pass
 I want to amend my statements,C,"-intent,is,c-bill-inquiry",pass
 I want to amend my statements,D,"-intent,is,d-bill-inquiry",fail
-I want to amend my statements,E,"-intent,is,e-bill-inquiry",pass
+I want to amend my statements,E,"-intent,is,e-bill-inquiry",fail
 how do I go about cancellings,A,"-intent,is,a-cancellation",pass
 how do I go about cancellings,C,"-intent,is,c-cancellation",pass
 how do I go about cancellings,D,"-intent,is,d-cancellation",pass
@@ -477,7 +477,7 @@ I can't continue with my subscription,F,"-intent,is,f-cancellation",pass
 I have an inquiry about termination,A,"-intent,is,a-cancellation",fail
 I have an inquiry about termination,C,"-intent,is,c-cancellation",fail
 I have an inquiry about termination,D,"-intent,is,d-cancellation",pass
-I have an inquiry about termination,E,"-intent,is,e-cancellation",fail
+I have an inquiry about termination,E,"-intent,is,e-cancellation",pass
 I have an inquiry about termination,F,"-intent,is,f-cancellation",pass
 "I am unsatisfied, I want to cancel my account",A,"-intent,is,a-cancellation",pass
 "I am unsatisfied, I want to cancel my account",C,"-intent,is,c-cancellation",pass

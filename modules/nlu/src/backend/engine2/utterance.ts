@@ -250,13 +250,11 @@ export default class Utterance {
 export async function buildUtteranceBatch(
   raw_utterances: string[],
   language: string,
-  tools: Tools
+  tools: Tools,
+  vocab?: Token2Vec
 ): Promise<Utterance[]> {
   const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
-  const tokenUtterances = await tools.tokenize_utterances(
-    parsed.map(p => p.utterance),
-    language
-  )
+  const tokenUtterances = await tools.tokenize_utterances(parsed.map(p => p.utterance), language, vocab)
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language)
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
   const vectors = await tools.vectorize_tokens(uniqTokens, language)

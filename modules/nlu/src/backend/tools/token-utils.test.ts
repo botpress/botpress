@@ -125,6 +125,19 @@ describe('Raw token processing', () => {
     ).toEqual(['ceciesttrès', SPACE, 'vanillé', '#', '123båsStraße'])
   })
 
+  test('mergeSimilarTokens with custom matcher', () => {
+    expect(
+      mergeSimilarCharsetTokens(['ce', 'ci', 'est', 'très', 'vanil', 'lé'], LATIN_CHARSET, t => t !== 'ce')
+    ).toEqual(['ce', 'ciesttrèsvanillé'])
+
+    const notInVocab = t => !{ ce: 1, ci: 1 }[t]
+    expect(mergeSimilarCharsetTokens(['ce', 'ci', 'est', 'très', 'vanil', 'lé'], LATIN_CHARSET, notInVocab)).toEqual([
+      'ce',
+      'ci',
+      'esttrèsvanillé'
+    ])
+  })
+
   test('processUtteranceTokens', () => {
     const toks = [
       `${SPACE}my`,
