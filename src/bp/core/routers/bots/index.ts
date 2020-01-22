@@ -10,6 +10,7 @@ import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { asBytes } from 'core/misc/utils'
+import { EventRepository } from 'core/repositories'
 import { GhostService } from 'core/services'
 import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -54,6 +55,7 @@ export class BotsRouter extends CustomRouter {
   private botpressConfig: BotpressConfig | undefined
   private workspaceService: WorkspaceService
   private mediaPathRegex: RegExp
+  private eventRepo: EventRepository
 
   constructor(args: {
     actionService: ActionService
@@ -67,6 +69,7 @@ export class BotsRouter extends CustomRouter {
     ghostService: GhostService
     workspaceService: WorkspaceService
     logger: Logger
+    eventRepo: EventRepository
   }) {
     super('Bots', args.logger, Router({ mergeParams: true }))
     this.actionService = args.actionService
@@ -83,6 +86,7 @@ export class BotsRouter extends CustomRouter {
     this.checkMethodPermissions = checkMethodPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
+    this.eventRepo = args.eventRepo
   }
 
   async initialize() {
@@ -501,7 +505,51 @@ export class BotsRouter extends CustomRouter {
       '/improvements',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
-        res.sendStatus(200)
+        const botId = req.params.botId
+
+        const storedEvents = await this.eventRepo.findEvents({ botId, feedback: -1 })
+
+        const improvements = storedEvents.map(storedEvent => {
+          return {
+            id: storedEvent.id,
+            sessionId: storedEvent.sessionId,
+            timestamp: storedEvent.event.createdOn,
+            channel: storedEvent.channel,
+            feedback: storedEvent.feedback
+          }
+        })
+
+        res.send(improvements)
+      })
+    )
+
+    this.router.get(
+      '/messages/:sessionId',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const sessionId = req.params.sessionId
+
+        const storedEvents = await this.eventRepo.findEvents({ botId, sessionId })
+
+        const messageGroupsMap = {}
+        storedEvents.map(e => {
+          if (e.direction === 'incoming') {
+            const userMessage = e.event
+            const messageId = userMessage.id
+            messageGroupsMap[messageId] = {
+              userMessage,
+              botMessages: []
+            }
+          } else {
+            messageGroupsMap[e.incomingEventId!].botMessages.push(e.event)
+          }
+        })
+
+        let messageGroups = _.values(messageGroupsMap)
+        messageGroups = _.sortBy(messageGroups, mg => moment(mg.userMessage.createdOn).unix()).reverse()
+
+        res.send({ messageGroups })
       })
     )
   }

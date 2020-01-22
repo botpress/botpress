@@ -24,6 +24,7 @@ import { URL } from 'url'
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
+import { EventRepository } from './repositories'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
@@ -112,7 +113,8 @@ export default class HTTPServer {
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.EventRepository) private eventRepo: EventRepository
   ) {
     this.app = express()
 
@@ -166,7 +168,8 @@ export default class HTTPServer {
       authService,
       ghostService,
       workspaceService,
-      logger: this.logger
+      logger: this.logger,
+      eventRepo
     })
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
