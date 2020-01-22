@@ -376,7 +376,7 @@ Dokku is like a mini heroku on-prem. Once setup on your host, it's very easy to 
 ### Creating your EC2 instance
 
 1. Open the EC2 Dashboard and click on `Instances`. Press the `Launch Instance` button
-2. At the `Choose AMI` step, we recommend using Ubuntu Server 18.04 LTS
+2. At the `Choose AMI` step, we recommend using Ubuntu Server 18.04 LTS, we also support Centos 7.5, Debian 8.11, Red-hat 7.5, Ununtu 16.04
 3. Click on the tab named `6. Configure Security Group`
 4. Add these rules:
 
