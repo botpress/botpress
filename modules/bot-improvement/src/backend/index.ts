@@ -1,7 +1,14 @@
 import * as sdk from 'botpress/sdk'
 
-const onServerStarted = async (bp: typeof sdk) => {}
-const onServerReady = async (bp: typeof sdk) => {}
+import api from './api'
+
+export type SDK = typeof sdk
+
+const onServerStarted = async (bp: SDK) => {}
+
+const onServerReady = async (bp: SDK) => {
+  await api(bp)
+}
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
