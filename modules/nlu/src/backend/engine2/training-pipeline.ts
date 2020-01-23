@@ -120,7 +120,7 @@ export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.M
     .flatMapDeep(i => i.utterances.map(u => u.tokens))
     // @ts-ignore
     .uniqBy((t: UtteranceToken) => t.value)
-    .map((t: UtteranceToken) => t.vectors)
+    .map((t: UtteranceToken) => t.vector)
     .value() as number[][]
 
   if (data.length < 2) {
@@ -160,7 +160,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
     .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
     .reduce(
       // @ts-ignore
-      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vectors }),
+      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vector }),
       {} as Token2Vec
     )
     .value() as Token2Vec

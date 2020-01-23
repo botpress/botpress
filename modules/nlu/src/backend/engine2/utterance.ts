@@ -1,11 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, isWord, SPACE } from '../tools/token-utils'
 import { parseUtterance } from '../tools/utterance-parser'
-import { ExtractedEntity, ExtractedSlot, TFIDF, Tools } from '../typings'
+import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
 
 export type UtteranceToStringOptions = {
   lowerCase?: boolean
@@ -31,7 +32,7 @@ export type UtteranceToken = Readonly<{
   isBOS: boolean
   isEOS: boolean
   POS: string
-  vectors: ReadonlyArray<number>
+  vector: ReadonlyArray<number>
   tfidf: number
   cluster: number
   offset: number
@@ -82,7 +83,7 @@ export default class Utterance {
             return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
           },
           value: value,
-          vectors: vectors[i],
+          vector: vectors[i],
           POS: posTags[i],
           toString: (opts: TokenToStringOptions) => {
             const options = { ...DefaultTokenToStringOptions, ...opts }
@@ -115,11 +116,11 @@ export default class Utterance {
     }
 
     let totalWeight = 0
-    const dims = this._tokens[0].vectors.length
+    const dims = this._tokens[0].vector.length
     let sentenceEmbedding = new Array(dims).fill(0)
 
     for (const token of this.tokens) {
-      const norm = computeNorm(token.vectors as number[])
+      const norm = computeNorm(token.vector as number[])
       if (norm <= 0 || !token.isWord) {
         // ignore special char tokens in sentence embeddings
         continue
@@ -128,7 +129,7 @@ export default class Utterance {
       // hard limit on TFIDF of (we don't want to over scale the features)
       const weight = Math.min(1, token.tfidf)
       totalWeight += weight
-      const weightedVec = scalarDivide(token.vectors as number[], norm / weight)
+      const weightedVec = scalarDivide(token.vector as number[], norm / weight)
       sentenceEmbedding = vectorAdd(sentenceEmbedding, weightedVec)
     }
 
@@ -185,7 +186,7 @@ export default class Utterance {
 
   clone(copyEntities: boolean, copySlots: boolean): Utterance {
     const tokens = this.tokens.map(x => x.value)
-    const vectors = this.tokens.map(x => <number[]>x.vectors)
+    const vectors = this.tokens.map(x => <number[]>x.vector)
     const POStags = this.tokens.map(x => x.POS)
     const utterance = new Utterance(tokens, vectors, POStags, this.languageCode)
     utterance.setGlobalTfidf({ ...this._globalTfidf })
@@ -285,6 +286,64 @@ export async function buildUtteranceBatch(
       return utterance
     })
     .filter(Boolean)
+}
+
+interface AlternateToken {
+  value: string
+  vector: number[] | ReadonlyArray<number>
+  POS: string
+  isAlter?: boolean
+}
+
+function uttTok2altTok(token: UtteranceToken): AlternateToken {
+  return {
+    ..._.pick(token, ['vector', 'POS']),
+    value: token.toString(),
+    isAlter: false
+  }
+}
+
+function isClosestTokenValid(originalToken: UtteranceToken, closestToken: string): boolean {
+  return isWord(closestToken) && originalToken.value.length > 3 && closestToken.length > 3
+}
+
+/**
+ * @description Returns slightly different version of the given utterance, replacing OOV tokens with their closest IV syntaxical neighbour
+ * @param utterance the original utterance
+ * @param vocabVectors Bot wide vocabulary
+ */
+export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2Vec): Utterance | undefined {
+  return _.chain(utterance.tokens)
+    .map(token => {
+      const strTok = token.toString({ lowerCase: true })
+      if (vocabVectors[strTok]) {
+        return uttTok2altTok(token)
+      }
+
+      const closestToken = getClosestToken(strTok, token.vector, vocabVectors, false)
+      if (isClosestTokenValid(token, closestToken)) {
+        return {
+          value: closestToken,
+          vector: vocabVectors[closestToken],
+          POS: token.POS,
+          isAlter: true
+        } as AlternateToken
+      }
+    })
+    .filter(Boolean)
+    .thru(altToks => {
+      const hasAlternate = altToks.length === utterance.tokens.length && altToks.some(t => t.isAlter)
+      return (
+        hasAlternate &&
+        new Utterance(
+          altToks.map(t => t.value),
+          altToks.map(t => <number[]>t.vector),
+          altToks.map(t => t.POS),
+          utterance.languageCode
+        )
+      )
+    })
+    .value()
 }
 
 /**

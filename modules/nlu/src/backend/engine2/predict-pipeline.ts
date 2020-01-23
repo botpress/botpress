@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
 import * as math from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
@@ -10,7 +9,7 @@ import { Intent, PatternEntity, Tools } from '../typings'
 import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
-import Utterance, { buildUtteranceBatch } from './utterance'
+import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -33,6 +32,7 @@ export type PredictStep = {
   detectedLanguage: string
   languageCode: string
   utterance?: Utterance
+  alternateUtterance?: Utterance
   ctx_predictions?: sdk.MLToolkit.SVM.Prediction[]
   intent_predictions?: {
     per_ctx?: _.Dictionary<sdk.MLToolkit.SVM.Prediction[]>
@@ -101,24 +101,23 @@ async function preprocessInput(
 }
 
 async function makePredictionUtterance(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
+  const { tfidf, vocabVectors, kmeans } = predictors
+
   const text = replaceConsecutiveSpaces(input.rawText.trim())
   const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools)
+  const alternateUtterance = getAlternateUtterance(utterance, vocabVectors)
 
-  const { tfidf, vocabVectors, kmeans } = predictors
-  utterance.tokens.forEach(token => {
-    const t = token.toString({ lowerCase: true })
-    if (!tfidf[t]) {
-      const closestToken = getClosestToken(t, <number[]>token.vectors, vocabVectors)
-      tfidf[t] = tfidf[closestToken]
-    }
-  })
-
-  utterance.setGlobalTfidf(tfidf)
-  utterance.setKmeans(kmeans)
+  Array(utterance, alternateUtterance)
+    .filter(Boolean)
+    .forEach(u => {
+      u.setGlobalTfidf(tfidf)
+      u.setKmeans(kmeans)
+    })
 
   return {
     ...input,
-    utterance
+    utterance,
+    alternateUtterance
   }
 }
 
@@ -168,10 +167,25 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
         return
       }
       const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
-      const preds = await predictor.predict(features)
+      let preds = await predictor.predict(features)
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
         preds.unshift(exactPred)
+      }
+
+      if (input.alternateUtterance) {
+        // Do we want exact preds as well ?
+        const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
+        const alternatePreds = await predictor.predict(alternateFeats)
+        // we might want to do this in intent election intead
+
+        // mean
+        preds = _.chain([...alternatePreds, ...preds])
+          .groupBy('label')
+          .mapValues(gr => _.meanBy(gr, 'confidence'))
+          .toPairs()
+          .map(([label, confidence]) => ({ label, confidence }))
+          .value()
       }
 
       return preds
