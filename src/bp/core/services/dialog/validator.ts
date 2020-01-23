@@ -1,6 +1,5 @@
-import _ from 'lodash'
-
 import { Flow } from 'botpress/sdk'
+import _ from 'lodash'
 
 export function validateFlowSchema(flow: Flow) {
   // const errorPrefix = `[Flow] Invalid flow "${flow && flow.location}"`

@@ -292,7 +292,7 @@ export default class QnaAdmin extends Component<Props> {
 
   render() {
     return (
-      <Container sidePanelHidden={true}>
+      <Container sidePanelHidden>
         <div />
         <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
           <Panel.Body>

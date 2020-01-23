@@ -118,6 +118,7 @@ declare module 'botpress/sdk' {
      */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => void
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void
+    onFlowRenamed?: (bp: typeof import('botpress/sdk'), botId: string,  previousFlowName: string, newFlowName: string) => void
     /**
      * This method is called whenever a content element is created, updated or deleted.
      * Modules can act on these events if they need to update references, for example.

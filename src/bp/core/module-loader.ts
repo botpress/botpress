@@ -29,6 +29,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onBotUnmount: joi.func().optional(),
   onModuleUnmount: joi.func().optional(),
   onFlowChanged: joi.func().optional(),
+  onFlowRenamed: joi.func().optional(),
   onElementChanged: joi.func().optional(),
   skills: joi.array().optional(),
   botTemplates: joi.array().optional(),
@@ -139,7 +140,7 @@ export class ModuleLoader {
     // Module loaded successfully, we will process its regular lifecycle
     if (isModuleLoaded) {
       const api = await createForModule(moduleName)
-      await (entryPoint.onServerReady && entryPoint.onServerReady(api))
+      entryPoint.onServerReady && entryPoint.onServerReady(api)
 
       if (entryPoint.onBotMount) {
         await Promise.mapSeries(BotService.getMountedBots(), x => entryPoint.onBotMount!(api, x))
@@ -151,7 +152,7 @@ export class ModuleLoader {
     try {
       ModuleLoader.processModuleEntryPoint(module, name)
       const api = await createForModule(name)
-      await (module.onServerStarted && module.onServerStarted(api))
+      module.onServerStarted && module.onServerStarted(api)
 
       this.entryPoints.set(name, module)
 
@@ -179,7 +180,7 @@ export class ModuleLoader {
       await Promise.mapSeries(BotService.getMountedBots(), x => loadedModule.onBotUnmount!(api, x))
     }
 
-    await (loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api))
+    loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api)
 
     this.entryPoints.delete(moduleName)
     delete require.cache[require.resolve(moduleLocation)]
@@ -190,7 +191,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onBotUnmount && entryPoint.onBotUnmount(api, botId))
+      entryPoint.onBotUnmount && entryPoint.onBotUnmount(api, botId)
     }
   }
 
@@ -199,7 +200,16 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onFlowChanged && entryPoint.onFlowChanged(api, botId, flow))
+      entryPoint.onFlowChanged && entryPoint.onFlowChanged(api, botId, flow)
+    }
+  }
+
+  public async onFlowRenamed(botId: string, previousFlowName: string, newFlowName: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      entryPoint.onFlowRenamed && entryPoint.onFlowRenamed(api, botId, previousFlowName, newFlowName)
     }
   }
 
@@ -213,7 +223,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onElementChanged && entryPoint.onElementChanged(api, botId, action, element, oldElement))
+      entryPoint.onElementChanged && entryPoint.onElementChanged(api, botId, action, element, oldElement)
     }
   }
 
@@ -231,7 +241,7 @@ export class ModuleLoader {
 
       try {
         const api = await createForModule(name)
-        await (module.onServerReady && module.onServerReady(api))
+        module.onServerReady && module.onServerReady(api)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
@@ -243,7 +253,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onBotMount && entryPoint.onBotMount(api, botId))
+      entryPoint.onBotMount && entryPoint.onBotMount(api, botId)
     }
   }
 
