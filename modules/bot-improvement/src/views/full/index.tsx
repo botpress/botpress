@@ -123,16 +123,17 @@ class HitlModule extends React.Component<{ bp: any }, State> {
 export default props => {
   console.log(props)
 
-  // const api = makeApi(props.bp)
+  const api = makeApi(props.bp)
 
-  // const [sessions, setSessions] = useState([])
+  const [sessions, setSessions] = useState([])
 
-  // useEffect(() => {
-  //   const fetchSessions = async () => {
-  //     const sessions = await api.findSessions(this.state.filterSearchText, this.state.filterPaused)
-  //   }
-  //   fetchSessions()
-  // }, [])
+  useEffect(() => {
+    const fetchSessions = async () => {
+      const sessions = await api.findSessions('', false)
+      setSessions(sessions)
+    }
+    fetchSessions()
+  }, [])
 
   // if (this.state.loading) {
   //   return <Callout>Loading...</Callout>
