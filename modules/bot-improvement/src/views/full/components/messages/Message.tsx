@@ -4,7 +4,6 @@ import mimeTypes from 'mime/lite'
 import moment from 'moment'
 import path from 'path'
 import React from 'react'
-import ReactAudioPlayer from 'react-audio-player'
 
 import { Message as HitlMessage } from '../../../../backend/typings'
 import SVGIcon from '../SVGIcon'
@@ -41,8 +40,6 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
           <img src={url} title={name} />
         </a>
       )
-    } else if (type === 'audio' || mime.includes('audio/')) {
-      return <ReactAudioPlayer src={this.props.message.text} />
     } else if (type === 'video' || mime.includes('video/')) {
       return (
         <video controls>
