@@ -291,6 +291,21 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
+    '/events/:eventId/feedback',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const eventId = req.params.eventId
+      const { feedback } = req.body
+
+      const events = await bp.events.findEvents({ incomingEventId: eventId, direction: 'incoming' })
+      const event = events[0]
+      await bp.events.updateEvent(event.id, { feedback })
+
+      res.sendStatus(200)
+    })
+  )
+
+  router.post(
     '/conversations/:userId/:conversationId/reset',
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {

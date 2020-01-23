@@ -265,6 +265,11 @@ class RootStore {
   }
 
   @action.bound
+  async sendFeedback(feedback: number, eventId: string): Promise<void> {
+    await this.api.sendFeedback(feedback, eventId)
+  }
+
+  @action.bound
   async downloadConversation(): Promise<void> {
     try {
       const { txt, name } = await this.api.downloadConversation(this.currentConversationId)

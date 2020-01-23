@@ -131,6 +131,15 @@ export default class WebchatApi {
     }
   }
 
+  async sendFeedback(feedback: number, eventId: string): Promise<void> {
+    try {
+      const data = { feedback }
+      return this.axios.post(`/events/${eventId}/feedback`, data, this.axiosConfig)
+    } catch (err) {
+      await this.handleApiError(err)
+    }
+  }
+
   async uploadFile(data: any, convoId: number): Promise<void> {
     try {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
