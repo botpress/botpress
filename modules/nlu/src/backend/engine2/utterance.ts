@@ -61,44 +61,46 @@ export default class Utterance {
     for (let i = 0, offset = 0; i < tokens.length; i++) {
       const that = this
       const value = tokens[i]
-      arr.push(Object.freeze({
-        index: i,
-        isBOS: i === 0,
-        isEOS: i === tokens.length - 1,
-        isWord: isWord(value),
-        offset: offset,
-        isSpace: isSpace(value),
-        get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
-          return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
-        },
-        get entities(): ReadonlyArray<UtteranceRange & ExtractedEntity> {
-          return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
-        },
-        get tfidf(): number {
-          return (that._globalTfidf && that._globalTfidf[value]) || 1
-        },
-        get cluster(): number {
-          const wordVec = vectors[i]
-          return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
-        },
-        value: value,
-        vector: vectors[i],
-        POS: posTags[i],
-        toString: (opts: TokenToStringOptions = {}) => {
-          const options = { ...DefaultTokenToStringOptions, ...opts }
-          let result = value
-          if (options.lowerCase) {
-            result = result.toLowerCase()
+      arr.push(
+        Object.freeze({
+          index: i,
+          isBOS: i === 0,
+          isEOS: i === tokens.length - 1,
+          isWord: isWord(value),
+          offset: offset,
+          isSpace: isSpace(value),
+          get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
+            return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
+          },
+          get entities(): ReadonlyArray<UtteranceRange & ExtractedEntity> {
+            return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
+          },
+          get tfidf(): number {
+            return (that._globalTfidf && that._globalTfidf[value]) || 1
+          },
+          get cluster(): number {
+            const wordVec = vectors[i]
+            return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
+          },
+          value: value,
+          vector: vectors[i],
+          POS: posTags[i],
+          toString: (opts: TokenToStringOptions = {}) => {
+            const options = { ...DefaultTokenToStringOptions, ...opts }
+            let result = value
+            if (options.lowerCase) {
+              result = result.toLowerCase()
+            }
+            if (options.realSpaces) {
+              result = result.replace(new RegExp(SPACE, 'g'), ' ')
+            }
+            if (options.trim) {
+              result = result.trim()
+            }
+            return result
           }
-          if (options.realSpaces) {
-            result = result.replace(new RegExp(SPACE, 'g'), ' ')
-          }
-          if (options.trim) {
-            result = result.trim()
-          }
-          return result
-        }
-      }) as UtteranceToken)
+        }) as UtteranceToken
+      )
       offset += value.length
     }
     this._tokens = arr
@@ -252,7 +254,11 @@ export async function buildUtteranceBatch(
   vocab?: Token2Vec
 ): Promise<Utterance[]> {
   const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
-  const tokenUtterances = await tools.tokenize_utterances(parsed.map(p => p.utterance), language, vocab)
+  const tokenUtterances = await tools.tokenize_utterances(
+    parsed.map(p => p.utterance),
+    language,
+    vocab
+  )
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language)
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
   const vectors = await tools.vectorize_tokens(uniqTokens, language)
