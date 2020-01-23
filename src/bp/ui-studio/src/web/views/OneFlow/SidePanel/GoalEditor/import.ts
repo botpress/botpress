@@ -2,7 +2,7 @@ import axios from 'axios'
 import 'bluebird-global'
 import _ from 'lodash'
 
-import { ExportedFlow, ImportActions } from './ImportGoalModal'
+import { ExportedFlow, ImportActions } from '../typings'
 
 export const analyzeFile = async (file: ExportedFlow, flows) => {
   const ids = file.content.map(x => x.id)

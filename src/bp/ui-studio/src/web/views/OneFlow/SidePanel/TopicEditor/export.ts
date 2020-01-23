@@ -2,6 +2,7 @@ import axios from 'axios'
 import 'bluebird-global'
 import _ from 'lodash'
 
+import { ExportedTopic } from '../typings'
 import { exportCompleteGoal } from '../GoalEditor/export'
 
 const getKnowledge = async (topicName: string) => {
@@ -26,7 +27,7 @@ const getGoals = async (goals: string[]) => {
   }
 }
 
-export const exportCompleteTopic = async (topicName: string, flows: any[]) => {
+export const exportCompleteTopic = async (topicName: string, flows: any[]): Promise<ExportedTopic> => {
   const { data: topics } = await axios.get(`${window.BOT_API_PATH}/mod/ndu/topics`)
 
   return {

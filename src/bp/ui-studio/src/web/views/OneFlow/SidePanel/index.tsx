@@ -16,11 +16,12 @@ import Toolbar from '../../FlowBuilder/SidePanel/Toolbar'
 
 import EditGoalModal from './GoalEditor'
 import { exportCompleteGoal } from './GoalEditor/export'
-import { ImportModal } from './GoalEditor/ImportGoalModal'
+import ImportGoalModal from './GoalEditor/ImportGoalModal'
 import Library from './Library'
 import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
+import ImportTopicModal from './TopicEditor/ImportTopicModal'
 import TopicList from './TopicList'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
@@ -57,7 +58,8 @@ const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
   const [topicModalOpen, setTopicModalOpen] = useState(false)
   const [goalModalOpen, setGoalModalOpen] = useState(false)
-  const [importModalOpen, setImportModalOpen] = useState(false)
+  const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
+  const [importTopicModalOpen, setImportTopicModalOpen] = useState(false)
 
   const [selectedGoal, setSelectedGoal] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
@@ -81,6 +83,14 @@ const SidePanelContent: FC<Props> = props => {
     key: 'create',
     tooltip: 'Create new topic',
     onClick: () => setCreateTopicOpen(true)
+  }
+
+  const importTopicAction = {
+    id: 'btn-import-topic',
+    icon: <Icon icon="download" />,
+    key: 'import',
+    tooltip: 'Import existing topic',
+    onClick: () => setImportTopicModalOpen(true)
   }
 
   const editTopic = (topicName: string) => {
@@ -133,7 +143,10 @@ const SidePanelContent: FC<Props> = props => {
         <React.Fragment>
           <SearchBar icon="filter" placeholder="Filter topics and goals" onChange={setGoalFilter} />
 
-          <SidePanelSection label="Topics" actions={props.permissions.includes('create') && [createTopicAction]}>
+          <SidePanelSection
+            label="Topics"
+            actions={props.permissions.includes('create') && [createTopicAction, importTopicAction]}
+          >
             <TopicList
               readOnly={props.readOnly}
               canDelete={props.permissions.includes('delete')}
@@ -145,7 +158,7 @@ const SidePanelContent: FC<Props> = props => {
               editGoal={editGoal}
               createGoal={createGoal}
               exportGoal={exportGoal}
-              importGoal={() => setImportModalOpen(!importModalOpen)}
+              importGoal={() => setImportGoalModalOpen(!importGoalModalOpen)}
               filter={goalFilter}
               editTopic={editTopic}
               exportTopic={exportTopic}
@@ -186,9 +199,16 @@ const SidePanelContent: FC<Props> = props => {
         canRename={props.permissions.includes('rename')}
       />
 
-      <ImportModal
-        isOpen={importModalOpen}
-        toggle={() => setImportModalOpen(!importModalOpen)}
+      <ImportGoalModal
+        isOpen={importGoalModalOpen}
+        toggle={() => setImportGoalModalOpen(!importGoalModalOpen)}
+        onImportCompleted={() => {}}
+        flows={props.flows}
+      />
+
+      <ImportTopicModal
+        isOpen={importTopicModalOpen}
+        toggle={() => setImportTopicModalOpen(!importTopicModalOpen)}
         onImportCompleted={() => {}}
         flows={props.flows}
       />

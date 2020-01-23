@@ -1,13 +1,12 @@
 import { Button, Classes, Dialog, FileInput, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import 'bluebird-global'
-import sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils'
 
-import { ExportedFlow, ImportActions } from '../typings'
+import { ExportedTopic, ImportActions } from '../typings'
 
-import { analyzeFile, executeActions } from './import'
+import { analyzeFile, executeActions, renameTopic } from './import'
 
 interface Props {
   onImportCompleted: () => void
@@ -16,11 +15,11 @@ interface Props {
   flows: any
 }
 
-const ImportGoalModal: FC<Props> = props => {
+const ImportTopicModal: FC<Props> = props => {
   const [filePath, setFilePath] = useState<string>()
   const [isLoading, setIsLoading] = useState(false)
-  const [fileContent, setFileContent] = useState<ExportedFlow>()
-  const [goalName, setGoalName] = useState('')
+  const [fileContent, setFileContent] = useState<ExportedTopic>()
+  const [topicName, setTopicName] = useState('')
   const [actions, setActions] = useState<ImportActions[]>([])
 
   const readFile = (files: FileList | null) => {
@@ -46,7 +45,7 @@ const ImportGoalModal: FC<Props> = props => {
     setIsLoading(true)
     try {
       setActions(await analyzeFile(fileContent, props.flows))
-      setGoalName(fileContent?.name)
+      setTopicName(fileContent?.name)
     } catch (err) {
       toastFailure(err.message)
     } finally {
@@ -57,14 +56,18 @@ const ImportGoalModal: FC<Props> = props => {
   const doImport = async () => {
     setIsLoading(true)
     try {
-      await executeActions([
+      const allActions: ImportActions[] = [
         ...actions,
         {
-          type: 'flow',
-          name: goalName,
-          data: { ...fileContent, name: goalName }
+          type: 'topic',
+          name: topicName,
+          data: { ...fileContent, name: topicName }
         }
-      ])
+      ]
+
+      renameTopic(topicName, allActions)
+      console.log('RES', allActions)
+      // await executeActions(allActions)
 
       toastSuccess(`Goal imported successfully!`)
       closeDialog()
@@ -86,7 +89,7 @@ const ImportGoalModal: FC<Props> = props => {
       return null
     }
 
-    const { name, actions, intents, content, skills } = fileContent
+    const { name, knowledge, goals } = fileContent
 
     return (
       <div>
@@ -95,16 +98,10 @@ const ImportGoalModal: FC<Props> = props => {
         <br /> <br />
         <ul>
           <li>
-            <strong>{actions?.length ?? 'N/A'}</strong> Action(s)
+            <strong>{knowledge?.length ?? 'N/A'}</strong> Knowledge element(s)
           </li>
           <li>
-            <strong>{content?.length ?? 'N/A'}</strong> Content element(s)
-          </li>
-          <li>
-            <strong>{intents?.length ?? 'N/A'}</strong> Intent(s)
-          </li>
-          <li>
-            <strong>{skills?.length ?? 'N/A'}</strong> Skill(s)
+            <strong>{goals?.length ?? 'N/A'}</strong> Goals(s)
           </li>
         </ul>
       </div>
@@ -112,7 +109,7 @@ const ImportGoalModal: FC<Props> = props => {
   }
 
   const renderDetails = () => {
-    const alreadyExist = props.flows.find(x => x.name === goalName)
+    const alreadyExist = props.flows.find(x => x.name === topicName)
     const actionText = actions
       .map(x => {
         if (x.existing && x.identical) {
@@ -128,14 +125,14 @@ const ImportGoalModal: FC<Props> = props => {
     return (
       <div>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label="Goal Name" helperText="Choose a name for the goal">
+          <FormGroup label="Topic Name" helperText="Choose a name for the topic">
             <InputGroup
               id="input-flow-name"
               tabIndex={1}
-              value={goalName}
+              value={topicName}
               maxLength={100}
               intent={alreadyExist ? Intent.DANGER : Intent.NONE}
-              onChange={e => setGoalName(e.target.value)}
+              onChange={e => setTopicName(e.target.value)}
             />
           </FormGroup>
           <TextArea value={actionText} fill={true} rows={10}></TextArea>
@@ -200,7 +197,7 @@ const ImportGoalModal: FC<Props> = props => {
   return (
     <Fragment>
       <Dialog
-        title={'Import Goal'}
+        title="Import Topic"
         icon="import"
         isOpen={props.isOpen}
         onClose={closeDialog}
@@ -213,4 +210,4 @@ const ImportGoalModal: FC<Props> = props => {
   )
 }
 
-export default ImportGoalModal
+export default ImportTopicModal
