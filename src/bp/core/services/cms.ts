@@ -110,18 +110,23 @@ export class CMSService implements IDisposeOnExit {
   async loadElementsForBot(botId: string): Promise<any[]> {
     const contentElements = await this.getAllElements(botId)
 
-    const elements = await Promise.map(contentElements, element => {
-      return this.memDb(this.contentTable)
-        .insert(this.transformItemApiToDb(botId, element))
-        .catch(err => {
-          // ignore duplicate key errors
-          // TODO: Knex error handling
-        })
-    })
+    try {
+      const elements = await Promise.map(contentElements, element => {
+        return this.memDb(this.contentTable)
+          .insert(this.transformItemApiToDb(botId, element))
+          .catch(err => {
+            // ignore duplicate key errors
+            // TODO: Knex error handling
+          })
+      })
 
-    await this.recomputeElementsForBot(botId)
+      await this.recomputeElementsForBot(botId)
 
-    return elements
+      return elements
+    } catch (err) {
+      this.logger.error(`Error while processing content elements for bot ${botId}`)
+      throw err
+    }
   }
 
   async deleteAllElements(botId: string): Promise<void> {
@@ -479,7 +484,7 @@ export class CMSService implements IDisposeOnExit {
 
   private async fillComputedProps(contentType: ContentType, formData: object, languages: string[], defaultLanguage) {
     if (formData == undefined) {
-      throw new Error('"formData" must be a valid object')
+      throw new Error(`"formData" must be a valid object (content type: ${contentType.id})`)
     }
 
     const expandedFormData = await this.resolveRefs(formData)
