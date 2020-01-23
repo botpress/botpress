@@ -126,18 +126,20 @@ export default props => {
   const api = makeApi(props.bp)
 
   const [sessions, setSessions] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchSessions = async () => {
       const sessions = await api.findSessions('', false)
       setSessions(sessions)
+      setLoading(false)
     }
     fetchSessions()
   }, [])
 
-  // if (this.state.loading) {
-  //   return <Callout>Loading...</Callout>
-  // }
+  if (loading) {
+    return <Callout>Loading...</Callout>
+  }
 
   // const currentSessionId = this.state.currentSession && this.state.currentSession.id
 
