@@ -2,7 +2,7 @@ import { Callout } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
 import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
 import '../../../assets/default.css'
 import { HitlSessionOverview, Message as HitlMessage } from '../../backend/typings'
@@ -22,7 +22,7 @@ interface State {
   attributesConfig: Attribute[]
 }
 
-export default class HitlModule extends React.Component<{ bp: any }, State> {
+class HitlModule extends React.Component<{ bp: any }, State> {
   private api = makeApi(this.props.bp)
   private debounceQuerySessions = _.debounce(() => this.querySessions(), 700)
 
@@ -117,45 +117,66 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
   switchSession = (sessionId: string) =>
     this.setState({ currentSession: this.state.sessions.find(x => x.id === sessionId) })
 
-  render() {
-    if (this.state.loading) {
-      return <Callout>Loading...</Callout>
-    }
+  // render() {}
+}
 
-    const currentSessionId = this.state.currentSession && this.state.currentSession.id
+export default props => {
+  console.log(props)
 
-    return (
-      <Container sidePanelWidth={450}>
-        <Sidebar
-          sessions={this.state.sessions}
-          filterPaused={this.state.filterPaused}
-          currentSessionId={currentSessionId}
-          switchSession={this.switchSession}
-          querySessions={this.querySessions}
-          setFilterSearchText={this.setFilterSearchText}
-          toggleFilterPaused={this.toggleFilterPaused}
-        />
+  // const api = makeApi(props.bp)
 
-        <div className="bph-layout-main">
-          <div className="bph-layout-middle">
-            <Conversation
-              api={this.api}
-              events={this.props.bp.events}
-              currentSession={this.state.currentSession}
-              currentSessionId={currentSessionId}
+  // const [sessions, setSessions] = useState([])
+
+  // useEffect(() => {
+  //   const fetchSessions = async () => {
+  //     const sessions = await api.findSessions(this.state.filterSearchText, this.state.filterPaused)
+  //   }
+  //   fetchSessions()
+  // }, [])
+
+  // if (this.state.loading) {
+  //   return <Callout>Loading...</Callout>
+  // }
+
+  // const currentSessionId = this.state.currentSession && this.state.currentSession.id
+
+  return (
+    <Container sidePanelWidth={1000}>
+      <div>Main content</div>
+      {/* <div>
+        <h2>Flagged Messages</h2>
+        {props.feedbackItems.map((item, i) => {
+          return (
+            <Feedback
+              key={`feedback-${i}`}
+              item={item}
+              onItemClicked={() => {
+                setFeedbackItem(item)
+              }}
             />
-          </div>
-          <div className="bph-layout-profile">
-            {this.state.currentSession && (
-              <Profile
-                user={this.state.currentSession.user}
-                lastHeardOn={this.state.currentSession.lastHeardOn}
-                attributesConfig={this.state.attributesConfig}
-              />
-            )}
-          </div>
+          )
+        })}
+      </div> */}
+
+      <div className="bph-layout-main">
+        <div className="bph-layout-middle">
+          {/* <Conversation
+            api={this.api}
+            events={this.props.bp.events}
+            currentSession={this.state.currentSession}
+            currentSessionId={currentSessionId}
+          /> */}
         </div>
-      </Container>
-    )
-  }
+        <div className="bph-layout-profile">
+          {/* {this.state.currentSession && (
+            <Profile
+              user={this.state.currentSession.user}
+              lastHeardOn={this.state.currentSession.lastHeardOn}
+              attributesConfig={this.state.attributesConfig}
+            />
+          )} */}
+        </div>
+      </div>
+    </Container>
+  )
 }
