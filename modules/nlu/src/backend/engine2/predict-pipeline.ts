@@ -160,35 +160,37 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
   }
 
   const ctxToPredict = input.ctx_predictions.map(p => p.label)
-  const predictions = (await Promise.map(ctxToPredict, async ctx => {
-    const predictor = predictors.intent_classifier_per_ctx[ctx]
-    if (!predictor) {
-      return
-    }
-    const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
-    let preds = await predictor.predict(features)
-    const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
-    if (exactPred) {
-      preds.unshift(exactPred)
-    }
+  const predictions = (
+    await Promise.map(ctxToPredict, async ctx => {
+      const predictor = predictors.intent_classifier_per_ctx[ctx]
+      if (!predictor) {
+        return
+      }
+      const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
+      let preds = await predictor.predict(features)
+      const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
+      if (exactPred) {
+        preds.unshift(exactPred)
+      }
 
-    if (input.alternateUtterance) {
-      // Do we want exact preds as well ?
-      const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
-      const alternatePreds = await predictor.predict(alternateFeats)
-      // we might want to do this in intent election intead
+      if (input.alternateUtterance) {
+        // Do we want exact preds as well ?
+        const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
+        const alternatePreds = await predictor.predict(alternateFeats)
+        // we might want to do this in intent election intead
 
-      // mean
-      preds = _.chain([...alternatePreds, ...preds])
-        .groupBy('label')
-        .mapValues(gr => _.meanBy(gr, 'confidence'))
-        .toPairs()
-        .map(([label, confidence]) => ({ label, confidence }))
-        .value()
-    }
+        // mean
+        preds = _.chain([...alternatePreds, ...preds])
+          .groupBy('label')
+          .mapValues(gr => _.meanBy(gr, 'confidence'))
+          .toPairs()
+          .map(([label, confidence]) => ({ label, confidence }))
+          .value()
+      }
 
-    return preds
-  })).filter(_.identity)
+      return preds
+    })
+  ).filter(_.identity)
 
   return {
     ...input,
@@ -218,7 +220,10 @@ function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]):
 function electIntent(input: PredictStep): PredictStep {
   const totalConfidence = Math.min(
     1,
-    _.sumBy(input.ctx_predictions.filter(x => input.includedContexts.includes(x.label)), 'confidence')
+    _.sumBy(
+      input.ctx_predictions.filter(x => input.includedContexts.includes(x.label)),
+      'confidence'
+    )
   )
   const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
 
@@ -316,22 +321,19 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       } as sdk.NLU.Entity)
   )
 
-  const slots = step.utterance.slots.reduce(
-    (slots, s) => {
-      return {
-        ...slots,
-        [s.name]: {
-          start: s.startPos,
-          end: s.endPos,
-          confidence: s.confidence,
-          name: s.name,
-          source: s.source,
-          value: s.value
-        } as sdk.NLU.Slot
-      }
-    },
-    {} as sdk.NLU.SlotCollection
-  )
+  const slots = step.utterance.slots.reduce((slots, s) => {
+    return {
+      ...slots,
+      [s.name]: {
+        start: s.startPos,
+        end: s.endPos,
+        confidence: s.confidence,
+        name: s.name,
+        source: s.source,
+        value: s.value
+      } as sdk.NLU.Slot
+    }
+  }, {} as sdk.NLU.SlotCollection)
   return {
     ambiguous: step.intent_predictions.ambiguous,
     detectedLanguage: step.detectedLanguage,
