@@ -1,9 +1,12 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Embedded Webchat</title>
     <!-- Set the base URL to access this page, for example: /botpress/
     It must match the path configured as an externalUrl in Botpress config, and in the init method -->
     <base href="/" />
+    <!-- Object.assign polyfill (required for IE) -->
+    <script src="assets/modules/channel-web/object_assign.js"></script>
     <script src="assets/modules/channel-web/inject.js"></script>
   </head>
 
@@ -32,99 +35,121 @@
     <p>You can change the webchat configuration at runtime.</p>
     <button id="change-config1-bp">Config 1</button>
     <button id="change-config2-bp">Config 2</button>
+    <p>You can also change language</p>
+    <button id="change-lang1-bp">Arabic</button>
+    <button id="change-lang2-bp">French</button>
+    <button id="change-lang3-bp">Browser (default)</button>
     <h2>Control User Identity</h2>
     <p>The current user ID is <span id="user-id-bp">UNKNOWN</span></p>
-  </body>
 
-  <script>
-    function parseQuery(queryString) {
-      var query = {}
-      var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&')
-      for (var i = 0; i < pairs.length; i++) {
-        var pair = pairs[i].split('=')
-        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '')
+    <script>
+      function parseQuery(queryString) {
+        const query = {}
+        const pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&')
+        for (let i = 0; i < pairs.length; i++) {
+          const pair = pairs[i].split('=')
+          query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '')
+        }
+        return query
       }
-      return query
-    }
 
-    var params = parseQuery(window.location && window.location.search)
+      const params = parseQuery(window.location && window.location.search)
+      const botId = (params && params.botId) || 'welcome-bot'
 
-    const botId = (params && params.botId) || 'welcome-bot'
-    let userId
+      let userId
+      let webchatOpen = false
 
-    document.getElementById('origin').innerText = window.location.origin
-
-    window.botpressWebChat.init({
-      host: window.location.origin || 'http://localhost:3000',
-      botId: botId
-      /*
+      let lastConfig = {
+        host: window.location.origin || 'http://localhost:3000',
+        botId: botId
+        /*
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
         This allows you to customize the chat on a per-bot basis.
       */
-      //extraStylesheet: 'assets/modules/channel-web/examples/my-theme.css'
-    })
-
-    window.addEventListener('message', message => {
-      if (message.data.userId) {
-        userId = message.data.userId
-        document.getElementById('user-id-bp').innerText = userId
+        //extraStylesheet: 'assets/modules/channel-web/examples/my-theme.css'
       }
-    })
 
-    document.getElementById('show-bp').addEventListener('click', () => {
-      window.botpressWebChat.sendEvent({ type: 'show' })
-    })
+      window.botpressWebChat.init(lastConfig)
 
-    document.getElementById('hide-bp').addEventListener('click', () => {
-      window.botpressWebChat.sendEvent({ type: 'hide' })
-    })
+      window.addEventListener('message', function(message) {
+        if (message.data.userId) {
+          userId = message.data.userId
+          document.getElementById('user-id-bp').innerText = userId
+        }
 
-    document.getElementById('send-message-bp').addEventListener('click', () => {
-      window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
-    })
+        if (message.data.name === 'webchatOpened') {
+          webchatOpen = true
+          document.getElementById('toggle-bp').style.backgroundColor = 'red'
+        }
 
-    document.getElementById('change-config1-bp').addEventListener('click', () => {
-      window.botpressWebChat.configure({
-        userId: userId,
-        extraStylesheet: 'assets/modules/channel-web/examples/custom-theme.css',
-        showConversationsButton: false,
-        botName: 'Bot Config 1',
-        botConvoDescription: 'Description of Bot Config 1',
-        enableReset: false,
-        enablePersistHistory: false,
-        enableResetSessionShortcut: false
+        if (message.data.name === 'webchatClosed') {
+          webchatOpen = false
+          document.getElementById('toggle-bp').style.backgroundColor = 'green'
+        }
       })
-    })
 
-    document.getElementById('change-config2-bp').addEventListener('click', () => {
-      window.botpressWebChat.configure({
-        userId: userId,
-        extraStylesheet: null,
-        showConversationsButton: true,
-        botName: 'Bot Config 2',
-        botConvoDescription: 'Description of Bot Config 2',
-        enableReset: true,
-        enablePersistHistory: true,
-        enableResetSessionShortcut: true
+      document.getElementById('origin').innerText = window.location.origin
+
+      document.getElementById('show-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'show' })
       })
-    })
 
-    let webchatOpen = false
+      document.getElementById('hide-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'hide' })
+      })
 
-    document.getElementById('toggle-bp').addEventListener('click', () => {
-      window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
-    })
+      document.getElementById('send-message-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
+      })
 
-    window.addEventListener('message', function(event) {
-      if (event.data.name === 'webchatOpened') {
-        webchatOpen = true
-        document.getElementById('toggle-bp').style = 'background-color: red;'
-      }
+      document.getElementById('change-config1-bp').addEventListener('click', function() {
+        Object.assign(lastConfig, {
+          userId: userId,
+          extraStylesheet: 'assets/modules/channel-web/examples/custom-theme.css',
+          showConversationsButton: false,
+          botName: 'Bot Config 1',
+          botConvoDescription: 'Description of Bot Config 1',
+          enableReset: false,
+          enablePersistHistory: false,
+          enableResetSessionShortcut: false
+        })
 
-      if (event.data.name === 'webchatClosed') {
-        webchatOpen = false
-        document.getElementById('toggle-bp').style = 'background-color: green;'
-      }
-    })
-  </script>
+        window.botpressWebChat.configure(lastConfig)
+      })
+
+      document.getElementById('change-config2-bp').addEventListener('click', function() {
+        Object.assign(lastConfig, {
+          userId: userId,
+          extraStylesheet: null,
+          showConversationsButton: true,
+          botName: 'Bot Config 2',
+          botConvoDescription: 'Description of Bot Config 2',
+          enableReset: true,
+          enablePersistHistory: true,
+          enableResetSessionShortcut: true
+        })
+
+        window.botpressWebChat.configure(lastConfig)
+      })
+
+      document.getElementById('change-lang1-bp').addEventListener('click', function() {
+        lastConfig.locale = 'ar'
+        window.botpressWebChat.configure(lastConfig)
+      })
+
+      document.getElementById('change-lang2-bp').addEventListener('click', function() {
+        lastConfig.locale = 'fr'
+        window.botpressWebChat.configure(lastConfig)
+      })
+
+      document.getElementById('change-lang3-bp').addEventListener('click', function() {
+        lastConfig.locale = 'browser'
+        window.botpressWebChat.configure(lastConfig)
+      })
+
+      document.getElementById('toggle-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
+      })
+    </script>
+  </body>
 </html>

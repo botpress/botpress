@@ -318,6 +318,7 @@ class RootStore {
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
     this.view.disableAnimations = this.config.disableAnimations
     this.config.showPoweredBy ? this.view.showPoweredBy() : this.view.hidePoweredBy()
+    this.config.locale && this.updateBotUILanguage(getUserLocale(this.config.locale))
 
     try {
       window.USE_SESSION_STORAGE = this.config.useSessionStorage
