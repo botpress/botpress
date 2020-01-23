@@ -79,7 +79,7 @@ export default class Conversation extends React.Component<Props> {
 
     return (
       <div className="bph-conversation" style={{ overflow: 'hidden' }}>
-        <ConversationHeader api={this.props.api} displayName={displayName} isPaused={!!isPaused} sessionId={id} />
+        <ConversationHeader displayName={displayName} />
 
         <div className="bph-conversation-messages" ref={m => (this.messagesDiv = m)}>
           <MessageList messages={this.state.messages} />
