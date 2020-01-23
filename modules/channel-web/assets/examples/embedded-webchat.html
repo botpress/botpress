@@ -32,6 +32,10 @@
     <p>You can change the webchat configuration at runtime.</p>
     <button id="change-config1-bp">Config 1</button>
     <button id="change-config2-bp">Config 2</button>
+    <p>You can also change language</p>
+    <button id="change-lang1-bp">Arabic</button>
+    <button id="change-lang2-bp">French</button>
+    <button id="change-lang3-bp">Browser (default)</button>
     <h2>Control User Identity</h2>
     <p>The current user ID is <span id="user-id-bp">UNKNOWN</span></p>
   </body>
@@ -54,7 +58,7 @@
 
     document.getElementById('origin').innerText = window.location.origin
 
-    window.botpressWebChat.init({
+    let lastConfig = {
       host: window.location.origin || 'http://localhost:3000',
       botId: botId
       /*
@@ -62,7 +66,9 @@
         This allows you to customize the chat on a per-bot basis.
       */
       //extraStylesheet: 'assets/modules/channel-web/examples/my-theme.css'
-    })
+    }
+
+    window.botpressWebChat.init(lastConfig)
 
     window.addEventListener('message', message => {
       if (message.data.userId) {
@@ -84,7 +90,7 @@
     })
 
     document.getElementById('change-config1-bp').addEventListener('click', () => {
-      window.botpressWebChat.configure({
+      Object.assign(lastConfig, {
         userId: userId,
         extraStylesheet: 'assets/modules/channel-web/examples/custom-theme.css',
         showConversationsButton: false,
@@ -94,10 +100,12 @@
         enablePersistHistory: false,
         enableResetSessionShortcut: false
       })
+
+      window.botpressWebChat.configure(lastConfig)
     })
 
     document.getElementById('change-config2-bp').addEventListener('click', () => {
-      window.botpressWebChat.configure({
+      Object.assign(lastConfig, {
         userId: userId,
         extraStylesheet: null,
         showConversationsButton: true,
@@ -107,6 +115,23 @@
         enablePersistHistory: true,
         enableResetSessionShortcut: true
       })
+
+      window.botpressWebChat.configure(lastConfig)
+    })
+
+    document.getElementById('change-lang1-bp').addEventListener('click', () => {
+      lastConfig.locale = 'ar'
+      window.botpressWebChat.configure(lastConfig)
+    })
+
+    document.getElementById('change-lang2-bp').addEventListener('click', () => {
+      lastConfig.locale = 'fr'
+      window.botpressWebChat.configure(lastConfig)
+    })
+
+    document.getElementById('change-lang3-bp').addEventListener('click', () => {
+      lastConfig.locale = 'browser'
+      window.botpressWebChat.configure(lastConfig)
     })
 
     let webchatOpen = false

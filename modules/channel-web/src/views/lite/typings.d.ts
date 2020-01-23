@@ -141,6 +141,11 @@ export type Config = {
   enableArrowNavigation: boolean
   botName?: string
   avatarUrl?: string
+  /** Force the display language of the webchat (en, fr, ar, ru, etc..)
+   * Defaults to the user's browser language if not set
+   * Set to 'browser' to force use the browser's language
+   */
+  locale?: 'browser' | string
   /** Small description written under the bot's name */
   botConvoDescription?: string
   /** Replace or insert components at specific locations */
