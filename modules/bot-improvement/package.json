@@ -8,11 +8,6 @@
     "src": "src",
     "webBundle": "bin/web.bundle.js"
   },
-  "keywords": [
-    "hitl",
-    "human in the loop",
-    "botpress"
-  ],
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch",
