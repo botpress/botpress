@@ -1,11 +1,12 @@
 import axios from 'axios'
 import 'bluebird-global'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
 import { ExportedTopic, ImportActions } from '../typings'
-import { analyzeFile as analyzeFileGoal, executeActions as executeGoalActions } from '../GoalEditor/import'
+import { analyzeGoalFile, executeGoalActions, getGoalAction } from '../GoalEditor/import'
 
-export const analyzeFile = async (file: ExportedTopic, flows) => {
+export const analyzeTopicFile = async (file: ExportedTopic, flows: FlowView[]) => {
   const importActions: ImportActions[] = []
 
   try {
@@ -27,14 +28,11 @@ export const analyzeFile = async (file: ExportedTopic, flows) => {
 
   try {
     for (const goal of file.goals) {
-      const actions = await analyzeFileGoal(goal, flows)
+      const actions = await analyzeGoalFile(goal, flows)
+      const existing: any = flows.find(x => x.name === goal.name)
 
       importActions.push(...actions)
-      importActions.push({
-        type: 'flow',
-        name: goal.name,
-        data: goal
-      })
+      importActions.push(getGoalAction(goal, existing))
     }
   } catch (err) {
     console.error(`Can't check knowledge: ${err}`)
@@ -43,7 +41,7 @@ export const analyzeFile = async (file: ExportedTopic, flows) => {
   return importActions
 }
 
-export const executeActions = async (actions: ImportActions[]) => {
+export const executeTopicActions = async (actions: ImportActions[]) => {
   const getType = type => actions.filter(x => x.type === type && !x.identical)
   try {
     await Promise.each(getType('knowledge'), ({ data: { id, data } }) =>
@@ -56,18 +54,26 @@ export const executeActions = async (actions: ImportActions[]) => {
   await executeGoalActions(actions)
 }
 
-export const renameTopic = (newName: string, actions: ImportActions[]) => {
-  for (const action of actions) {
-    const { type, data } = action
+export const renameTopic = (newName: string, exportedTopic: ExportedTopic) => {
+  exportedTopic.goals.forEach(goal => {
+    const name = `${newName}${goal.name.substr(goal.name.indexOf('/'))}`
+    goal.name = name
+    goal.location = name
+  })
+}
 
-    if (type === 'flow') {
-      action.name = `${newName}${action.name.substr(action.name.indexOf('/'))}`
-      data.name = action.name
-      data.location = action.name
-    }
-
-    if (type === 'topic') {
-      data.name = newName
-    }
+export const detectFileType = content => {
+  if (content.name && content.knowledge && content.goals) {
+    return 'topic'
   }
+
+  if (content.name && content.nodes && content.content) {
+    return 'goal'
+  }
+  return 'unknown'
+}
+
+export const fields = {
+  topic: { knowledge: 'Knowledge element', goals: 'Goal' },
+  goal: { actions: 'Action', content: 'Content Element', intents: 'Intent', skills: 'Skill' }
 }

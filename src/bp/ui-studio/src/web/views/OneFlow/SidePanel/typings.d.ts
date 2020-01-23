@@ -1,4 +1,5 @@
 import sdk from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 
 export interface ImportActions {
   type: 'content' | 'action' | 'intent' | 'flow' | 'knowledge' | 'topic'
@@ -12,7 +13,7 @@ export interface ExportedTopic {
   name: string
   description: string
   knowledge: any[]
-  goals: any[]
+  goals: ExportedFlow[]
 }
 
 interface AdditionalGoalData {

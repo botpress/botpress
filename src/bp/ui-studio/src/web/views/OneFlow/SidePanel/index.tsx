@@ -1,6 +1,7 @@
 import { Icon } from '@blueprintjs/core'
 import axios from 'axios'
 import { Topic } from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import reject from 'lodash/reject'
 import values from 'lodash/values'
@@ -16,12 +17,11 @@ import Toolbar from '../../FlowBuilder/SidePanel/Toolbar'
 
 import EditGoalModal from './GoalEditor'
 import { exportCompleteGoal } from './GoalEditor/export'
-import ImportGoalModal from './GoalEditor/ImportGoalModal'
 import Library from './Library'
 import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
-import ImportTopicModal from './TopicEditor/ImportTopicModal'
+import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
@@ -36,7 +36,7 @@ interface OwnProps {
 interface StateProps {
   flowsNames: string[]
   showFlowNodeProps: boolean
-  flows: any
+  flows: FlowView[]
   currentFlow: any
   dirtyFlows: any
   flowPreview: boolean
@@ -199,17 +199,11 @@ const SidePanelContent: FC<Props> = props => {
         canRename={props.permissions.includes('rename')}
       />
 
-      <ImportGoalModal
-        isOpen={importGoalModalOpen}
-        toggle={() => setImportGoalModalOpen(!importGoalModalOpen)}
-        onImportCompleted={() => {}}
-        flows={props.flows}
-      />
-
-      <ImportTopicModal
+      <ImportModal
         isOpen={importTopicModalOpen}
         toggle={() => setImportTopicModalOpen(!importTopicModalOpen)}
         onImportCompleted={() => {}}
+        selectedTopic={selectedTopic}
         flows={props.flows}
       />
     </SidePanel>

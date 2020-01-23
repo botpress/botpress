@@ -1,10 +1,11 @@
 import axios from 'axios'
 import 'bluebird-global'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
 import { ExportedFlow, ImportActions } from '../typings'
 
-export const analyzeFile = async (file: ExportedFlow, flows) => {
+export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => {
   const ids = file.content.map(x => x.id)
   const { data: elements } = await axios.post(`${window.BOT_API_PATH}/content/elements`, { ids })
 
@@ -76,14 +77,14 @@ export const analyzeFile = async (file: ExportedFlow, flows) => {
       data: flow
     })
 
-    const flowContent = await analyzeFile(flow, flows)
+    const flowContent = await analyzeGoalFile(flow, flows)
     importActions.push(...flowContent)
   }
 
   return importActions
 }
 
-export const executeActions = async (actions: ImportActions[]) => {
+export const executeGoalActions = async (actions: ImportActions[]) => {
   const botId = window.BOT_ID
 
   const getType = type => actions.filter(x => x.type === type && !x.identical)
@@ -121,9 +122,21 @@ export const executeActions = async (actions: ImportActions[]) => {
 
   try {
     await Promise.each(getType('flow'), ({ data }) =>
-      axios.post(`${window.BOT_API_PATH}/flow`, { flow: _.omit(data, ['content', 'actions', 'intents', 'skills']) })
+      axios.post(`${window.BOT_API_PATH}/flow`, { flow: cleanFlowProperties(data) })
     )
   } catch (err) {
     console.error(`Can't import flows: ${err}`)
+  }
+}
+
+export const cleanFlowProperties = flow => _.omit(flow, ['content', 'actions', 'intents', 'skills', 'currentMutex'])
+
+export const getGoalAction = (newGoal: ExportedFlow, existingGoal: ExportedFlow): ImportActions => {
+  return {
+    type: 'flow',
+    name: newGoal.name,
+    existing: !!existingGoal,
+    identical: existingGoal !== undefined && _.isEqual(cleanFlowProperties(newGoal), cleanFlowProperties(existingGoal)),
+    data: newGoal
   }
 }
