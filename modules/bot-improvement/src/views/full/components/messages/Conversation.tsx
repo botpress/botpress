@@ -1,4 +1,4 @@
-import { HitlApi } from 'full/api'
+import { BotImprovementApi } from 'full/api'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
@@ -10,7 +10,7 @@ import { MessageList } from './MessageList'
 interface Props {
   events: any
   currentSession: HitlSessionOverview
-  api: HitlApi
+  api: BotImprovementApi
   currentSessionId: string
 }
 
