@@ -85,7 +85,7 @@ export default class Utterance {
           value: value,
           vector: vectors[i],
           POS: posTags[i],
-          toString: (opts: TokenToStringOptions) => {
+          toString: (opts: TokenToStringOptions = {}) => {
             const options = { ...DefaultTokenToStringOptions, ...opts }
             let result = value
             if (options.lowerCase) {
@@ -99,7 +99,7 @@ export default class Utterance {
             }
             return result
           }
-        } as UtteranceToken)
+        }) as UtteranceToken
       )
       offset += value.length
     }
@@ -250,12 +250,14 @@ export default class Utterance {
 export async function buildUtteranceBatch(
   raw_utterances: string[],
   language: string,
-  tools: Tools
+  tools: Tools,
+  vocab?: Token2Vec
 ): Promise<Utterance[]> {
   const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
   const tokenUtterances = await tools.tokenize_utterances(
     parsed.map(p => p.utterance),
-    language
+    language,
+    vocab
   )
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language)
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
@@ -331,7 +333,7 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
       }
     })
     .filter(Boolean)
-    .thru(altToks => {
+    .thru((altToks: AlternateToken[]) => {
       const hasAlternate = altToks.length === utterance.tokens.length && altToks.some(t => t.isAlter)
       return (
         hasAlternate &&

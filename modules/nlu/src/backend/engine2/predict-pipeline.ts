@@ -104,7 +104,7 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
   const { tfidf, vocabVectors, kmeans } = predictors
 
   const text = replaceConsecutiveSpaces(input.rawText.trim())
-  const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools)
+  const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools, vocabVectors)
   const alternateUtterance = getAlternateUtterance(utterance, vocabVectors)
 
   Array(utterance, alternateUtterance)
