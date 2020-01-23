@@ -130,7 +130,9 @@ This is a fatal error, process will exit.`
     }
   }
 
-  logger.info(`Using ${chalk.bold(modules.length.toString())} modules` + loadedModulesLog + disabledModulesLog + erroredModulesLog)
+  logger.info(
+    `Using ${chalk.bold(modules.length.toString())} modules` + loadedModulesLog + disabledModulesLog + erroredModulesLog
+  )
 
   for (const err of loadingErrors) {
     logger.attachError(err).error('Error while loading some modules, they will be disabled')
