@@ -30,7 +30,7 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   treeRef: React.RefObject<Tree<NodeData>>
-  constructor(props) {
+  constructor(props: Props) {
     super(props)
     this.treeRef = React.createRef()
   }
@@ -39,9 +39,15 @@ class FileNavigator extends React.Component<Props, State> {
     observe(this.props.filters, 'filename', this.refreshNodes, true)
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     if (this.props.files && prevProps.files !== this.props.files) {
       this.refreshNodes()
+    }
+    if (this.props.selectedNode !== prevProps.selectedNode) {
+      const { nodes } = this.state
+      const selectedNode = this.props.selectedNode.replace(`${this.props.id}/`, '')
+      this.traverseTree(nodes, n => (n.isSelected = selectedNode === n.id))
+      this.setState({ nodes })
     }
   }
 
@@ -93,29 +99,20 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   private handleNodeClick = async (node: ITreeNode) => {
-    const originallySelected = node.isSelected
-    this.traverseTree(this.state.nodes, n => (n.isSelected = false))
-    node.isSelected = originallySelected !== null
+    this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
 
     // If nodeData is set, it's a file, otherwise a folder
     if (node.nodeData) {
       await this.props.editor.openFile(node.nodeData as EditableFile)
-      this.forceUpdate()
     } else {
-      node.isExpanded ? this.handleNodeCollapse(node) : this.handleNodeExpand(node)
+      this.handleNodeExpand(node, !node.isExpanded)
     }
+    this.props.onNodeStateSelected(this.props.id + '/' + node.id)
   }
 
-  private handleNodeCollapse = (node: ITreeNode) => {
-    this.props.onNodeStateChanged(node.id as string, false)
-    node.isExpanded = false
-
-    this.forceUpdate()
-  }
-
-  private handleNodeExpand = (node: ITreeNode) => {
-    this.props.onNodeStateChanged(node.id as string, true)
-    node.isExpanded = true
+  private handleNodeExpand = (node: ITreeNode, isExpanded: boolean) => {
+    this.props.onNodeStateExpanded(node.id as string, isExpanded)
+    node.isExpanded = isExpanded
 
     this.forceUpdate()
   }
@@ -240,8 +237,8 @@ class FileNavigator extends React.Component<Props, State> {
         contents={this.state.nodes}
         onNodeContextMenu={this.handleContextMenu}
         onNodeClick={this.handleNodeClick}
-        onNodeCollapse={this.handleNodeCollapse}
-        onNodeExpand={this.handleNodeExpand}
+        onNodeCollapse={n => this.handleNodeExpand(n, false)}
+        onNodeExpand={n => this.handleNodeExpand(n, true)}
         className={Classes.ELEVATION_0}
       />
     )
@@ -260,13 +257,16 @@ export default inject(({ store }: { store: RootStore }) => ({
 }))(observer(FileNavigator))
 
 type Props = {
+  id: string
   files: any
   store?: RootStore
   editor?: EditorStore
   disableContextMenu?: boolean
   contextMenuType?: string
-  onNodeStateChanged: (id: string, isExpanded: boolean) => void
+  onNodeStateExpanded: (id: string, isExpanded: boolean) => void
+  onNodeStateSelected: (fullyQualifiedId: string) => void
   expandedNodes: object
+  selectedNode: string
 } & Pick<StoreDef, 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>
 
 interface State {

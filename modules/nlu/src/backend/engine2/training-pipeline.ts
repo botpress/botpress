@@ -20,6 +20,7 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
+import { isNumber } from 'util'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -199,6 +200,7 @@ const trainIntentClassifier = async (
         }))
       )
       .value()
+      .filter(x => x.coordinates.filter(isNaN).length == 0)
 
     if (points.length > 0) {
       const svm = new tools.mlToolkit.SVM.Trainer()
@@ -231,7 +233,7 @@ const trainContextClassifier = async (
           coordinates: utt.sentenceEmbedding
         }))
       )
-  })
+  }).filter(x => x.coordinates.filter(isNaN).length == 0)
 
   if (points.length > 0) {
     const svm = new tools.mlToolkit.SVM.Trainer()

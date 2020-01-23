@@ -9,9 +9,9 @@ const ACTION_SIGNATURE =
 const wrapper = {
   add: (content: string, type: string, hookType?: string) => {
     if (type === 'action') {
-      return `${ACTION_SIGNATURE}{\n${START_COMMENT}\n\n${content}\n${END_COMMENT}\n}`
+      return `${ACTION_SIGNATURE} {\n  ${START_COMMENT}\n${content}\n  ${END_COMMENT}\n}`
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
-      return `${HOOK_SIGNATURES[hookType]}{\n${START_COMMENT}\n\n${content}\n${END_COMMENT}\n}`
+      return `${HOOK_SIGNATURES[hookType]} {\n  ${START_COMMENT}\n${content}\n  ${END_COMMENT}\n}`
     } else if (type === 'bot_config') {
       return content.replace('../../bot.config.schema.json', 'bp://types/bot.config.schema.json')
     } else if (type === 'main_config') {
