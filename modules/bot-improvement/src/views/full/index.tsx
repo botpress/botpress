@@ -10,7 +10,6 @@ import { Attribute } from '../../config'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
-import Composer from './components/Composer'
 import Profile from './components/Profile'
 import Sidebar from './components/Sidebar'
 
@@ -145,7 +144,6 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
               currentSession={this.state.currentSession}
               currentSessionId={currentSessionId}
             />
-            <Composer api={this.api} currentSessionId={currentSessionId} />
           </div>
           <div className="bph-layout-profile">
             {this.state.currentSession && (
