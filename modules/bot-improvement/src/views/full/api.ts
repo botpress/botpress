@@ -12,8 +12,8 @@ export interface BotImprovementApi {
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): BotImprovementApi => ({
-  getSessions: () => bp.axios.get(`/mod/hitl/sessions`).then(res => res.data),
-  fetchSessionMessages: sessionId => bp.axios.get(`/mod/hitl/sessions/${sessionId}`).then(res => res.data),
+  getSessions: () => bp.axios.get(`/mod/bot-improvement/sessions`).then(res => res.data),
+  fetchSessionMessages: sessionId => bp.axios.get(`/mod/bot-improvement/sessions/${sessionId}`).then(res => res.data),
   getAttributes: () => bp.axios.get(`/mod/hitl/config/attributes`).then(res => res.data),
   sendMessage: (sessionId, message) => bp.axios.post(`/mod/hitl/sessions/${sessionId}/message`, { message }),
   setPauseState: (sessionId, action) => bp.axios.post(`/mod/hitl/sessions/${sessionId}/${action}`)
