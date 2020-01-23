@@ -130,9 +130,10 @@ export default props => {
 
   useEffect(() => {
     const fetchSessions = async () => {
-      const sessions = await api.findSessions('', false)
+      const sessions = await api.findSessions(undefined, false)
       setSessions(sessions)
       setLoading(false)
+      console.log('done loading sessions')
     }
     fetchSessions()
   }, [])
@@ -141,7 +142,11 @@ export default props => {
     return <Callout>Loading...</Callout>
   }
 
-  // const currentSessionId = this.state.currentSession && this.state.currentSession.id
+  const currentSession = sessions[0]
+  console.log(`currentSession:`, currentSession)
+
+  const currentSessionId = currentSession && currentSession.id
+  console.log(`currentSessionId:`, currentSessionId)
 
   return (
     <Container sidePanelWidth={1000}>
@@ -163,12 +168,12 @@ export default props => {
 
       <div className="bph-layout-main">
         <div className="bph-layout-middle">
-          {/* <Conversation
-            api={this.api}
-            events={this.props.bp.events}
-            currentSession={this.state.currentSession}
+          <Conversation
+            api={api}
+            events={props.bp.events}
+            currentSession={currentSession}
             currentSessionId={currentSessionId}
-          /> */}
+          />
         </div>
         <div className="bph-layout-profile">
           {/* {this.state.currentSession && (
