@@ -44,7 +44,8 @@ export const patchKnex = (knex: Knex): KnexExtended => {
     tableName: string,
     data: any,
     returnColumns: string | string[] = 'id',
-    idColumnName: string = 'id'
+    idColumnName: string = 'id',
+    trx?: Knex.Transaction
   ): Promise<T> => {
     const handleResult = res => {
       if (!res || res.length !== 1) {
@@ -60,7 +61,8 @@ export const patchKnex = (knex: Knex): KnexExtended => {
         .returning(returnColumns)
         .then(handleResult)
     }
-    return knex.transaction(trx =>
+
+    const getQuery = trx =>
       knex(tableName)
         .insert(data)
         .transacting(trx)
@@ -81,6 +83,14 @@ export const patchKnex = (knex: Knex): KnexExtended => {
                 .then(handleResult)
             })
         )
+
+    // transactions inside another transaction may lead to a deadlock
+    if (trx) {
+      return getQuery(trx)
+    }
+
+    return knex.transaction(trx =>
+      getQuery(trx)
         .then(trx.commit)
         .catch(trx.rollback)
     )

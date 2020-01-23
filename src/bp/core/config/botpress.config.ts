@@ -308,7 +308,7 @@ export type RetentionPolicy = {
 export type AuthStrategyType = 'basic' | 'saml' | 'ldap' | 'oauth2'
 
 export interface AuthStrategy {
-  readonly id: string
+  readonly id?: string
   /**
    * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
    * @default basic
