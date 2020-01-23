@@ -1,35 +1,12 @@
 import _ from 'lodash'
 import moment from 'moment'
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 
 import { Message as HitlMessage } from '../../../../backend/typings'
 
 import Message from './Message'
 
-interface Props {
-  messages: HitlMessage[]
-}
-
-class MessageWrapper extends React.Component<{ message: any }> {
-  state = {
-    hasError: false
-  }
-
-  static getDerivedStateFromError(error) {
-    console.error(`There was an error while trying to display this message: `, error)
-    return { hasError: true }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <p className="bph-chat-error">* Cannot display message *</p>
-    }
-
-    return <Message message={this.props.message} />
-  }
-}
-
-export const MessageList: FC<Props> = props => {
+export const MessageList: FC<{ messages: HitlMessage[] }> = props => {
   if (!props.messages) {
     return <div>No Messages found</div>
   }
@@ -49,7 +26,7 @@ export const MessageList: FC<Props> = props => {
             <span>{moment(group[0].ts).format('DD MMMM YYYY')}</span>
           </div>
           {group.map(message => (
-            <MessageWrapper key={`${message.id}${message.ts}`} message={message} />
+            <Message key={`${message.id}${message.ts}`} message={message} />
           ))}
         </div>
       ))}
