@@ -1,6 +1,7 @@
 import { IO } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
+import { AnalyticsRepository } from 'core/repositories/analytics'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -25,14 +26,22 @@ export class DialogEngine {
   constructor(
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
-    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
+    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
     await this._loadFlows(botId)
 
-    const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
+    let context
+
+    if (_.isEmpty(event.state.context)) {
+      context = this.initializeContext(event)
+      await this.analyticsRepo.incrementMetric(event.botId, event.channel, 'sessions_count')
+    } else {
+      context = event.state.context
+    }
     const currentFlow = this._findFlow(botId, context.currentFlow)
     const currentNode = this._findNode(botId, currentFlow, context.currentNode)
 
@@ -62,7 +71,6 @@ export class DialogEngine {
         ...queue.instructions,
         { type: 'transition', fn: 'true', node: 'Built-In/feedback.flow.json' }
       ]
-
     } else if (currentNode?.type === 'failure') {
       const goal = event.state.session.lastGoals.find(x => x.goal === context.currentFlow)
       goal && (goal.success = false)

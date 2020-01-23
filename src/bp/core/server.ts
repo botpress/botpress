@@ -25,6 +25,7 @@ import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
+import { AnalyticsRouter } from './routers/bots/analytics'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
@@ -51,6 +52,7 @@ import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
+import { AnalyticsRepository } from './repositories/analytics'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
@@ -77,9 +79,10 @@ export default class HTTPServer {
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private contentRouter!: ContentRouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortlinksRouter: ShortLinksRouter
+  private analyticsRouter!: AnalyticsRouter
+  private contentRouter!: ContentRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
   private _needPermissions: (
@@ -112,7 +115,8 @@ export default class HTTPServer {
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository
   ) {
     this.app = express()
 
@@ -194,9 +198,11 @@ export default class HTTPServer {
     this.httpServer = createServer(app)
 
     await this.botsRouter.initialize()
+    this.analyticsRouter = new AnalyticsRouter(this.logger, this.authService, this.workspaceService, this.analyticsRepo)
     this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
+    this.botsRouter.router.use('/analytics', this.analyticsRouter.router)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
 

@@ -3,6 +3,7 @@ import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { createExpiry } from 'core/misc/expiry'
+import { AnalyticsRepository } from 'core/repositories/analytics'
 import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
 import Knex from 'knex'
@@ -38,7 +39,8 @@ export class StateManager {
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository
   ) {
     // Temporarily opt-in until thoroughly tested
     this.useRedis = process.CLUSTER_ENABLED && process.env.USE_REDIS_STATE
@@ -81,7 +83,11 @@ export class StateManager {
 
     const state = event.state
 
-    const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
+    const { result: user, created } = await this.userRepo.getOrCreate(event.channel, event.target)
+    if (created) {
+      await this.analyticsRepo.incrementMetric(event.botId, event.channel, 'users_new_count')
+    }
+
     state.user = user.attributes
 
     const session = await this.sessionRepo.get(sessionId)

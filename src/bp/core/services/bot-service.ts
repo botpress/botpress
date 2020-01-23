@@ -7,6 +7,7 @@ import { IDisposable } from 'core/misc/disposable'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleLoader } from 'core/module-loader'
+import { AnalyticsRepository } from 'core/repositories/analytics'
 import { RealTimePayload } from 'core/sdk/impl'
 import { Statistics } from 'core/stats'
 import { TYPES } from 'core/types'
@@ -61,6 +62,7 @@ export class BotService {
     @inject(TYPES.Logger)
     @tagged('name', 'BotService')
     private logger: Logger,
+    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.CMSService) private cms: CMSService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
