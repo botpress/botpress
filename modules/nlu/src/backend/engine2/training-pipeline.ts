@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { isSpace, SPACE } from '../tools/token-utils'
+import { convertToRealSpaces, isSpace, SPACE } from '../tools/token-utils'
 import {
   EntityExtractionResult,
   Intent,
@@ -20,7 +20,6 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
-import { isNumber } from 'util'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -96,7 +95,9 @@ const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
 
 const makeListEntityModel = async (entity: ListEntity, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
-  const allTokens = await tools.tokenize_utterances(allValues, languageCode)
+  const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
+    toks.map(convertToRealSpaces)
+  )
 
   return <ListEntityModel>{
     type: 'custom.list',

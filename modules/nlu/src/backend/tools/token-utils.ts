@@ -12,6 +12,8 @@ export const hasSpace = (str: string) => _.some(str, isSpace)
 
 export const isSpace = (str: string) => _.every(str, c => c === SPACE || c === ' ')
 
+export const convertToRealSpaces = (str: string) => str.replace(new RegExp(SPACE, 'g'), ' ')
+
 export const makeTokens = (stringTokens: string[], text: string) => {
   return stringTokens.reduce(reduceTokens(text), [] as Token[])
 }
