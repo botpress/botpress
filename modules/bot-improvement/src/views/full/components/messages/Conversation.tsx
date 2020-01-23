@@ -1,6 +1,6 @@
 import { HitlApi } from 'full/api'
 import _ from 'lodash'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { HitlSessionOverview, Message as HitlMessage } from '../../../../backend/typings'
 
@@ -14,7 +14,7 @@ interface Props {
   currentSessionId: string
 }
 
-export default class Conversation extends React.Component<Props> {
+class Conversation extends React.Component<Props> {
   private messagesDiv: HTMLElement
 
   state = {
@@ -87,4 +87,34 @@ export default class Conversation extends React.Component<Props> {
       </div>
     )
   }
+}
+
+export default props => {
+  const [messages, setMessages] = useState([])
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const messages = await props.api.fetchSessionMessages(props.currentSession.id)
+      setMessages(messages)
+    }
+    fetchMessages()
+  }, [])
+
+  if (!props.currentSession) {
+    return null
+  }
+
+  const { user, id, isPaused } = props.currentSession
+  const displayName = _.get(user, 'attributes.full_name', user.fullName)
+
+  return (
+    <div className="bph-conversation" style={{ overflow: 'hidden' }}>
+      <ConversationHeader displayName={displayName} />
+
+      {/* <div className="bph-conversation-messages" ref={m => (this.messagesDiv = m)}> */}
+      <div className="bph-conversation-messages">
+        <MessageList messages={messages} />
+      </div>
+    </div>
+  )
 }
