@@ -80,7 +80,7 @@ class RootStore {
   }
 
   @action.bound
-  setFiles(messages) {
+  setFiles(messages: FilesDS) {
     this.files = messages
   }
 
