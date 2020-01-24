@@ -64,26 +64,26 @@
       //extraStylesheet: 'assets/modules/channel-web/examples/my-theme.css'
     })
 
-    window.addEventListener('message', message => {
+    window.addEventListener('message', function(message) {
       if (message.data.userId) {
         userId = message.data.userId
         document.getElementById('user-id-bp').innerText = userId
       }
     })
 
-    document.getElementById('show-bp').addEventListener('click', () => {
+    document.getElementById('show-bp').addEventListener('click', function() {
       window.botpressWebChat.sendEvent({ type: 'show' })
     })
 
-    document.getElementById('hide-bp').addEventListener('click', () => {
+    document.getElementById('hide-bp').addEventListener('click', function() {
       window.botpressWebChat.sendEvent({ type: 'hide' })
     })
 
-    document.getElementById('send-message-bp').addEventListener('click', () => {
+    document.getElementById('send-message-bp').addEventListener('click', function() {
       window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
     })
 
-    document.getElementById('change-config1-bp').addEventListener('click', () => {
+    document.getElementById('change-config1-bp').addEventListener('click', function() {
       window.botpressWebChat.configure({
         userId: userId,
         extraStylesheet: 'assets/modules/channel-web/examples/custom-theme.css',
@@ -96,7 +96,7 @@
       })
     })
 
-    document.getElementById('change-config2-bp').addEventListener('click', () => {
+    document.getElementById('change-config2-bp').addEventListener('click', function() {
       window.botpressWebChat.configure({
         userId: userId,
         extraStylesheet: null,
@@ -111,7 +111,7 @@
 
     let webchatOpen = false
 
-    document.getElementById('toggle-bp').addEventListener('click', () => {
+    document.getElementById('toggle-bp').addEventListener('click', function() {
       window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
     })
 
