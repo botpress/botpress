@@ -69,7 +69,7 @@ export const initializeAnalytics = () => {
 export const trackMessage = (direction: 'sent' | 'received') => {
   if (window.SEND_USAGE_STATS) {
     try {
-      ReactGA.event({ category: 'Interactions', action: 'message ' + direction })
+      ReactGA.event({ category: 'Interactions', action: `message ${direction}` })
     } finally {
     }
   }

@@ -218,8 +218,8 @@ class RootStore {
       return
     }
 
-    trackMessage('sent')
     await this.sendData({ type: 'text', text: userMessage })
+    trackMessage('sent')
 
     this.composer.addMessageToHistory(userMessage)
     this.composer.updateMessage('')
