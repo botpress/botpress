@@ -151,15 +151,43 @@ export default class Editor {
     // Required so array.includes() can be used without displaying an error
     const es6include = fs.readFileSync(path.join(__dirname, '/../typings/es6include.txt'), 'utf-8')
 
+    const moduleTypings = await this.getModuleTypings()
+
     this._typings = {
       'process.d.ts': buildRestrictedProcessVars(),
       'node.d.ts': nodeTyping.toString(),
       'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`),
       'bot.config.schema.json': botSchema.toString(),
       'botpress.config.schema.json': botpressConfigSchema.toString(),
-      'es6include.d.ts': es6include.toString()
+      'es6include.d.ts': es6include.toString(),
+      ...moduleTypings
     }
 
     return this._typings
+  }
+
+  async getModuleTypings() {
+    const cwd = path.resolve(__dirname, '../../..')
+    try {
+      return _.reduce(
+        fs.readdirSync(cwd),
+        (result, dir) => {
+          const pkgPath = path.join(cwd, dir, 'package.json')
+          if (fs.existsSync(pkgPath)) {
+            const pkg = fs.readFileSync(pkgPath, 'utf-8').toString()
+            const moduleName = JSON.parse(pkg).name
+            const schemaPath = path.join(cwd, dir, 'assets/config.schema.json')
+            result['modules/' + moduleName + '/config.schema.json'] = fs.existsSync(schemaPath)
+              ? fs.readFileSync(schemaPath, 'utf-8')
+              : '{}'
+          }
+          return result
+        },
+        {}
+      )
+    } catch (e) {
+      this.bp.logger.attachError(e).error('Error reading typings')
+      return {}
+    }
   }
 }

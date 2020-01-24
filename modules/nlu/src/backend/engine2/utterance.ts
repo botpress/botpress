@@ -252,10 +252,7 @@ export async function buildUtteranceBatch(
   tools: Tools
 ): Promise<Utterance[]> {
   const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
-  const tokenUtterances = await tools.tokenize_utterances(
-    parsed.map(p => p.utterance),
-    language
-  )
+  const tokenUtterances = await tools.tokenize_utterances(parsed.map(p => p.utterance), language)
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language)
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
   const vectors = await tools.vectorize_tokens(uniqTokens, language)
