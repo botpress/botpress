@@ -94,17 +94,17 @@ export default props => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      const messages = await props.api.fetchSessionMessages(props.currentSession.session_id)
+      const messages = await props.api.fetchSessionMessages(props.session.session_id)
       setMessages(messages)
     }
     fetchMessages()
-  }, [])
+  }, [props.session])
 
-  if (!props.currentSession) {
+  if (!props.session) {
     return null
   }
 
-  const { user, id, isPaused } = props.currentSession
+  const { user, session_id, isPaused } = props.session
   const displayName = _.get(user, 'attributes.full_name', user.fullName)
 
   return (

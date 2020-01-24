@@ -10,6 +10,7 @@ import { Attribute } from '../../config'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
+import Feedback from './components/Feedback'
 import Profile from './components/Profile'
 import Sidebar from './components/Sidebar'
 
@@ -121,19 +122,20 @@ class HitlModule extends React.Component<{ bp: any }, State> {
 }
 
 export default props => {
-  console.log(props)
+  console.log('rendering index')
 
   const api = makeApi(props.bp)
 
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
+  const [currentSessionIndex, setCurrentSessionIndex] = useState(0)
 
   useEffect(() => {
     const fetchSessions = async () => {
+      console.log('fetching sessions')
       const sessions = await api.getSessions()
       setSessions(sessions)
       setLoading(false)
-      console.log('done loading sessions')
     }
     fetchSessions()
   }, [])
@@ -142,38 +144,29 @@ export default props => {
     return <Callout>Loading...</Callout>
   }
 
-  const currentSession = sessions[0]
+  const currentSession = sessions[currentSessionIndex]
   console.log(`currentSession:`, currentSession)
-
-  const currentSessionId = currentSession && currentSession.id
-  console.log(`currentSessionId:`, currentSessionId)
 
   return (
     <Container sidePanelWidth={1000}>
-      <div>Main content</div>
-      {/* <div>
-        <h2>Flagged Messages</h2>
-        {props.feedbackItems.map((item, i) => {
+      <div>
+        <h2>Flagged Sessions</h2>
+        {sessions.map((item, i) => {
           return (
             <Feedback
               key={`feedback-${i}`}
               item={item}
               onItemClicked={() => {
-                setFeedbackItem(item)
+                setCurrentSessionIndex(i)
               }}
             />
           )
         })}
-      </div> */}
+      </div>
 
       <div className="bph-layout-main">
         <div className="bph-layout-middle">
-          <Conversation
-            api={api}
-            events={props.bp.events}
-            currentSession={currentSession}
-            currentSessionId={currentSessionId}
-          />
+          <Conversation api={api} events={props.bp.events} session={currentSession} />
         </div>
         <div className="bph-layout-profile">
           {/* {this.state.currentSession && (

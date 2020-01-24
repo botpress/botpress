@@ -20,13 +20,13 @@ export const MessageList: FC<{ messages: HitlMessage[] }> = props => {
 
   return (
     <div>
-      {groups.map(group => (
-        <div key={group[0].id}>
+      {groups.map((group, groupIdx) => (
+        <div key={groupIdx}>
           <div className="bph-conversation-date">
             <span>{moment(group[0].ts).format('DD MMMM YYYY')}</span>
           </div>
-          {group.map(message => (
-            <Message key={`${message.id}${message.ts}`} message={message} />
+          {group.map((message, messageIdx) => (
+            <Message key={`${groupIdx}${messageIdx}`} message={message} />
           ))}
         </div>
       ))}

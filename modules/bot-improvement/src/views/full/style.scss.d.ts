@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'column': string;
+  'feedbackItem': string;
   'mainContainer': string;
   'profile': string;
 }
