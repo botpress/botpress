@@ -110,7 +110,7 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
   }
 
   renderMessage() {
-    const { ts, direction, type, source } = this.props.message
+    const { ts, direction, type, source, flagged } = this.props.message
     const date = moment(ts).format('MMMM Do YYYY, h:mm a')
 
     let messageFrom = 'bot'
@@ -145,6 +145,7 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
         <div className="bph-message-container">
           <div className="bph-chat-bubble">{this.renderContent()}</div>
         </div>
+        {flagged && <div>flagged</div>}
         {messageFrom !== 'user' && avatar}
       </div>
     )

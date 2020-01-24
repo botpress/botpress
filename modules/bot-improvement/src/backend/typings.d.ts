@@ -31,6 +31,7 @@ export interface Message {
   source: 'bot' | 'user' | 'agent'
   ts: Date
   readonly session_id?: string
+  flagged: boolean
 }
 
 // Hitl sessions can either be identified by sessionId, or a combination of botId, channel and target

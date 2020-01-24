@@ -1,3 +1,4 @@
+import { IO } from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
 
@@ -52,16 +53,27 @@ export default async (bp: SDK) => {
   router.get('/sessions', async (req, res) => {
     const botId = req.params.botId
 
-    const storedEvents = await bp.events.findEvents({ botId, feedback: -1 })
+    const knex = bp.database
 
-    const sessions = storedEvents.map(storedEvent => {
+    const flaggedEvents = await bp.events.findEvents({ botId, feedback: -1 })
+    const incomingEventIds = flaggedEvents.map(e => e.incomingEventId)
+    const outgoingEvents: IO.StoredEvent[] = await knex
+      .from('events')
+      .where({ botId, direction: 'outgoing' })
+      .whereIn('incomingEventId', incomingEventIds)
+
+    const sessions = flaggedEvents.map(storedEvent => {
+      const botReplies = outgoingEvents.filter(e => e.incomingEventId === storedEvent.incomingEventId)
+      const botReply = _.head(_.orderBy(botReplies, ['id'], ['desc']))
+
       return {
         botId,
         session_id: storedEvent.sessionId,
         timestamp: storedEvent.event.createdOn,
         channel: storedEvent.channel,
         feedback: storedEvent.feedback,
-        user: {}
+        user: {},
+        botReply
       }
     })
 
@@ -71,17 +83,30 @@ export default async (bp: SDK) => {
   router.get('/sessions/:sessionId', async (req, res) => {
     const sessionId = req.params.sessionId
 
-    const storedEvents = await bp.events.findEvents({ sessionId })
+    const sessionEvents = await bp.events.findEvents({ sessionId })
+    const flaggedEvents = sessionEvents.filter(e => e.feedback < 0)
 
-    const messages = storedEvents.map(storedEvent => {
+    const repliesToFlaggedEventIds = []
+    flaggedEvents.map(flaggedEvent => {
+      const incomingEventId = flaggedEvent.incomingEventId
+      const replies = sessionEvents.filter(e => e.incomingEventId === incomingEventId && e.direction === 'outgoing')
+      const lastReply = _.head(_.orderBy(replies, ['id', 'desc']))
+      repliesToFlaggedEventIds.push(lastReply.id)
+    })
+
+    const messages = sessionEvents.map(storedEvent => {
       const event = storedEvent.event
       const payload = event.payload || {}
       const text = event.preview || payload.text || (payload.wrapped && payload.wrapped.text)
       const direction = event.direction === 'outgoing' ? 'out' : 'in'
 
       let source = 'user'
+      let flagged = false
       if (direction === 'out') {
         source = event.payload.agent ? 'agent' : 'bot'
+        if (repliesToFlaggedEventIds.includes(storedEvent.id)) {
+          flagged = true
+        }
       }
 
       return {
@@ -90,8 +115,9 @@ export default async (bp: SDK) => {
         raw_message: event.payload,
         text,
         source,
-        direction
-        // event.
+        direction,
+        flagged,
+        createdOn: event.createdOn
       }
     })
 
@@ -112,6 +138,7 @@ export default async (bp: SDK) => {
     // let messageGroups = _.values(messageGroupsMap)
     // messageGroups = _.sortBy(messageGroups, mg => moment(mg.userMessage.createdOn).unix()).reverse()
 
-    res.send(messages)
+    const sortedMessages = _.sortBy(messages, m => moment(m.createdOn).unix())
+    res.send(sortedMessages)
   })
 }
