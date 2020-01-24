@@ -11,7 +11,7 @@ import Select from 'react-select'
 import style from '../style.scss'
 import QnaHint from '../QnaHint'
 
-const ACTIONS = {
+export const ACTIONS = {
   TEXT: 'text',
   REDIRECT: 'redirect',
   TEXT_REDIRECT: 'text_redirect'
@@ -59,7 +59,8 @@ export default class Editor extends Component<Props> {
       errorMessage: undefined,
       isText: true,
       isRedirect: false,
-      hasDuplicates: false
+      hasDuplicates: false,
+      isIncorrectRedirection: false
     }
   }
 
@@ -128,9 +129,18 @@ export default class Editor extends Component<Props> {
       redirectNode: isRedirect && !item.redirectNode.value
     }
     const hasDuplicates = this.isQuestionDuplicated()
+    const isIncorrectRedirection = !this.isValidRedirection()
 
-    this.setState({ invalidFields, hasDuplicates, errorMessage: undefined })
-    return some(invalidFields) || hasDuplicates
+    this.setState({ invalidFields, hasDuplicates, isIncorrectRedirection, errorMessage: undefined })
+    return some(invalidFields) || hasDuplicates || isIncorrectRedirection
+  }
+
+  isValidRedirection() {
+    if (!this.state.isRedirect) {
+      return true
+    }
+    const flow = _.find(this.props.flows, f => f.name === this.state.item.redirectFlow.value)
+    return flow && _.find(flow.nodes, n => n.name === this.state.item.redirectNode.value)
   }
 
   isQuestionDuplicated() {
@@ -180,7 +190,8 @@ export default class Editor extends Component<Props> {
 
   alertMessage() {
     const hasInvalidInputs = Object.values(this.state.invalidFields).find(Boolean)
-    const missingTranslations = this.props.isEditing && (!this.itemAnswers.length || !this.itemQuestions.length)
+    const missingTranslations =
+      this.props.isEditing && (!this.itemQuestions.length || (!this.itemAnswers.length && this.state.isText))
 
     return (
       <div>
@@ -189,6 +200,7 @@ export default class Editor extends Component<Props> {
         {this.state.hasDuplicates && <Callout intent={Intent.DANGER}>Duplicated questions aren't allowed.</Callout>}
         {this.state.errorMessage && <Callout intent={Intent.DANGER}>{this.state.errorMessage}</Callout>}
         {missingTranslations && <Callout intent={Intent.DANGER}>Missing translations</Callout>}
+        {this.state.isIncorrectRedirection && <Callout intent={Intent.DANGER}>Incorrect redirection</Callout>}
       </div>
     )
   }
@@ -283,7 +295,8 @@ export default class Editor extends Component<Props> {
                 fill={true}
                 rows={5}
                 className={classnames({
-                  qnaCategoryError: invalidFields.questions || this.state.hasDuplicates
+                  qnaCategoryError:
+                    invalidFields.questions || this.state.hasDuplicates || this.state.isIncorrectRedirection
                 })}
               />
             </FormGroup>
@@ -356,7 +369,7 @@ export default class Editor extends Component<Props> {
             <AccessControl resource="module.qna" operation="write">
               <Button
                 id="btn-submit"
-                text={isEditing ? 'Edit' : 'Save'}
+                text={isEditing ? 'Save' : 'Add'}
                 intent={Intent.PRIMARY}
                 onClick={this.handleSubmit}
               />
