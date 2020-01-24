@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'comment': string;
+  'commentSelected': string;
   'endPort': string;
   'fn': string;
   'highlightedNode': string;

@@ -175,6 +175,10 @@ class Diagram extends Component<Props> {
     this.diagramWidget.forceUpdate()
   }
 
+  updateCommentText = async (text: string) => {
+    this.props.updateFlowNode({ text: text })
+  }
+
   linkCreatedNode = async () => {
     const sourcePort: DefaultPortModel = _.get(this.dragPortSource, 'parent.sourcePort')
     this.dragPortSource = undefined
@@ -350,6 +354,7 @@ class Diagram extends Component<Props> {
     const targetModel = target.model
     return (
       targetModel instanceof StandardNodeModel ||
+      targetModel instanceof CommentNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
       target.model instanceof RouterNodeModel
     )
@@ -521,11 +526,9 @@ class Diagram extends Component<Props> {
           this.add.routerNode(point)
           break
         case 'comment':
-          console.info('adding 1 at ' + point)
           this.add.commentNode(point)
           break
         default:
-          console.info('adding standard at ' + point)
           this.add.standardNode(point)
           break
       }
@@ -604,7 +607,7 @@ interface NodeProblem {
 
 type BpNodeModel = StandardNodeModel | CommentNodeModel| SkillCallNodeModel
 
-type ExtendedDiagramEngine = {
+export type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
   flowBuilder?: any
 } & DiagramEngine

@@ -61,15 +61,20 @@ class Inspector extends Component<Props> {
 
   renderNodeProperties() {
     const { readOnly } = this.props
+    const nodeType = _.get(this.props, 'currentFlowNode.type') || (this.props.currentFlowNode ? 'standard' : null)
+
+    if (nodeType === 'comment') {
+      return
+    }
+
     const subflows = _.filter(_.map(this.props.flows, f => f.name), f => f !== _.get(this.props, 'currentFlow.name'))
-    const flowType = _.get(this.props, 'currentFlowNode.type') || (this.props.currentFlowNode ? 'standard' : null)
 
     const updateNodeAndRefresh = (...args) => {
       this.props.updateFlowNode(...args)
       this.props.refreshFlowsLinks()
     }
 
-    if (flowType === 'skill-call') {
+    if (nodeType === 'skill-call') {
       return (
         <SkillCallNode
           readOnly={readOnly}
@@ -87,7 +92,7 @@ class Inspector extends Component<Props> {
       )
     }
 
-    if (nodeTypes.includes(flowType)) {
+    if (nodeTypes.includes(nodeType)) {
       return (
         <StandardNode
           readOnly={readOnly}
@@ -98,7 +103,7 @@ class Inspector extends Component<Props> {
           updateFlow={this.props.updateFlow}
           copyFlowNodeElement={this.props.copyFlowNodeElement}
           pasteFlowNodeElement={this.props.pasteFlowNodeElement}
-          transitionOnly={flowType === 'router'}
+          transitionOnly={nodeType === 'router'}
           buffer={this.props.buffer}
         />
       )

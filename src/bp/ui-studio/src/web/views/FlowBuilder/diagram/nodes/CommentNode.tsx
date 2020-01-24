@@ -30,6 +30,10 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
     this.setState({ text: event.target.value }, this.updateTextareaHeight)
   }
 
+  handleOnBlur = () => {
+    this.props.node.handleTextUpdate(this.state.text)
+  }
+
   updateTextareaHeight = () => {
     this.setState({ rows: (_.countBy(this.state.text)['\n'] || 0) + 1 })
   }
@@ -37,7 +41,7 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
   render() {
     const node = this.props.node
 
-    const className = classnames(style.comment, {[style.highlightedNode]: node.isHighlighted })
+    const className = classnames(style.comment, {[style.highlightedNode]: node.isHighlighted, [style.commentSelected]: node.selected })
 
     return (
       <div>
@@ -46,6 +50,7 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
           value={this.state.text}
           onKeyDown={this.handleKeyDown}
           onChange={this.handleOnChange}
+          onBlur={this.handleOnBlur}
           rows={this.state.rows}
         />
       </div>
@@ -55,11 +60,12 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
 
 export class CommentNodeModel extends BaseNodeModel {
   public text: string
-  constructor({ id, x, y, name, text, isHighlighted }) {
+  handleTextUpdate: any
+  constructor({ id, x, y, text, isHighlighted, handleTextUpdate }) {
     super('comment', id)
     this.next = []
-    this.name = name
     this.text = text
+    this.handleTextUpdate = handleTextUpdate
     this.isHighlighted = isHighlighted
     this.x = this.oldX = x
     this.y = this.oldY = y
