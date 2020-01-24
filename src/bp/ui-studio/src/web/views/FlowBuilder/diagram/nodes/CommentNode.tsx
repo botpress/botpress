@@ -39,10 +39,16 @@ export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel;
   }
 
   render() {
-    const className = classnames(style.comment)
-
     return (
-      <TextArea className={className} onChange={this.handleOnChange} value={this.state.text} rows={this.state.rows} />
+      <div className={classnames(style.comment)}>
+        <TextArea
+          onChange={this.handleOnChange}
+          value={this.state.text}
+          rows={this.state.rows}
+          onMouseDown={e => e.stopPropagation()}
+          onDragEnd={e => e.stopPropagation()}
+        />
+      </div>
     )
   }
 }

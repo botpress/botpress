@@ -498,9 +498,13 @@ class Diagram extends Component<Props> {
     if (this.props.readOnly) {
       return
     }
+    const dataString = event.dataTransfer.getData('diagram-node')
+    if (!dataString) {
+      return
+    }
 
     this.manager.unselectAllElements()
-    const data = JSON.parse(event.dataTransfer.getData('diagram-node'))
+    const data = JSON.parse(dataString)
 
     const point = this.manager.getRealPosition(event)
 
