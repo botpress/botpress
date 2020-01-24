@@ -174,10 +174,9 @@ export default class Editor {
         (result, dir) => {
           const pkgPath = path.join(cwd, dir, 'package.json')
           if (fs.existsSync(pkgPath)) {
-            const pkg = fs.readFileSync(pkgPath, 'utf-8').toString()
-            const moduleName = JSON.parse(pkg).name
+            const moduleName = require(pkgPath).name
             const schemaPath = path.join(cwd, dir, 'assets/config.schema.json')
-            result['modules/' + moduleName + '/config.schema.json'] = fs.existsSync(schemaPath)
+            result[`modules/${moduleName}/config.schema.json`] = fs.existsSync(schemaPath)
               ? fs.readFileSync(schemaPath, 'utf-8')
               : '{}'
           }
