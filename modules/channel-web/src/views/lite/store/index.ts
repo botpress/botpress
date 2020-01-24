@@ -17,7 +17,7 @@ import {
   MessageWrapper,
   StudioConnector
 } from '../typings'
-import { downloadFile } from '../utils'
+import { downloadFile, trackMessage } from '../utils'
 
 import ComposerStore from './composer'
 import ViewStore from './view'
@@ -217,6 +217,8 @@ class RootStore {
     if (!userMessage || !userMessage.length) {
       return
     }
+
+    trackMessage('sent')
     await this.sendData({ type: 'text', text: userMessage })
 
     this.composer.addMessageToHistory(userMessage)

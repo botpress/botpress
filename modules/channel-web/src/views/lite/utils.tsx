@@ -66,6 +66,24 @@ export const initializeAnalytics = () => {
   }
 }
 
+export const trackMessage = (direction: 'sent' | 'received') => {
+  if (window.SEND_USAGE_STATS) {
+    try {
+      ReactGA.event({ category: 'Interactions', action: 'message ' + direction })
+    } finally {
+    }
+  }
+}
+
+export const trackWebchatState = (state: 'show' | 'hide' | 'toggle') => {
+  if (window.SEND_USAGE_STATS) {
+    try {
+      ReactGA.event({ category: 'Display', action: state })
+    } finally {
+    }
+  }
+}
+
 export const renderUnsafeHTML = (message: string = '', escaped: boolean): string => {
   if (escaped) {
     message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;')
