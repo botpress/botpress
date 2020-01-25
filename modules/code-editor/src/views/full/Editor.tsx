@@ -113,7 +113,6 @@ class Editor extends React.Component<Props> {
       (result, content, name) => {
         result.push({
           uri: 'bp://types/' + name,
-          fileMatch: [name.replace(/schema\./, '')],
           schema: JSON.parse(content)
         })
         return result
