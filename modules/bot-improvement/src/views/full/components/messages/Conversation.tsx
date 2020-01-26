@@ -94,7 +94,7 @@ export default props => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      const messages = await props.api.fetchSessionMessages(props.session.session_id)
+      const messages = await props.api.fetchSessionMessages(props.session.sessionId)
       setMessages(messages)
     }
     fetchMessages()
