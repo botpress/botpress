@@ -10,7 +10,7 @@ import { Attribute } from '../../config'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
-import Feedback from './components/Feedback'
+import FeedbackItem from './components/FeedbackItem'
 import Profile from './components/Profile'
 import Sidebar from './components/Sidebar'
 
@@ -132,7 +132,6 @@ export default props => {
 
   useEffect(() => {
     const fetchSessions = async () => {
-      console.log('fetching sessions')
       const sessions = await api.getFeedbackItems()
       setSessions(sessions)
       setLoading(false)
@@ -145,7 +144,6 @@ export default props => {
   }
 
   const currentSession = sessions[currentSessionIndex]
-  console.log(`currentSession:`, currentSession)
 
   return (
     <Container sidePanelWidth={1000}>
@@ -153,7 +151,7 @@ export default props => {
         <h2>Flagged Sessions</h2>
         {sessions.map((item, i) => {
           return (
-            <Feedback
+            <FeedbackItem
               key={`feedback-${i}`}
               item={item}
               onItemClicked={() => {
