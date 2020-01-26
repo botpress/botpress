@@ -182,6 +182,15 @@
   top: -40px;
 }
 
-.comment {
-  border: 4px solid lightgrey !important;
+.commentHeader {
+  height: 30px;
+}
+
+.commentIcon {
+  width: 10%;
+  margin-left: 45%;
+}
+
+.hidden {
+  display: none !important;
 }

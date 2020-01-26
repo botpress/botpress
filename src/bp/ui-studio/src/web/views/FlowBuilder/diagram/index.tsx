@@ -34,7 +34,7 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { Timeout, toastInfo } from '~/components/Shared/Utils'
+import { isInputFocused } from '~/keyboardShortcuts'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
@@ -173,10 +173,6 @@ class Diagram extends Component<Props> {
 
     this.checkForLinksUpdate()
     this.diagramWidget.forceUpdate()
-  }
-
-  updateCommentText = async (text: string) => {
-    this.props.updateFlowNode({ text: text })
   }
 
   linkCreatedNode = async () => {
@@ -447,10 +443,19 @@ class Diagram extends Component<Props> {
   }
 
   onKeyDown = event => {
-    if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
-      this.copySelectedElementToBuffer()
-    } else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
-      this.pasteElementFromBuffer()
+    const ctrl = event.ctrlKey || event.metaKey
+    if (isInputFocused()) {
+      if (ctrl && event.key === 'a') {
+        event.target.select()
+      }
+    } else {
+      if (ctrl) {
+        if (event.key === 'c') {
+          this.copySelectedElementToBuffer()
+        } else if (event.key === 'v') {
+          this.pasteElementFromBuffer()
+        }
+      }
     }
   }
 
@@ -644,9 +649,4 @@ const mapDispatchToProps = {
   buildSkill: buildNewSkill
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  null,
-  { withRef: true }
-)(Diagram)
+export default connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(Diagram)

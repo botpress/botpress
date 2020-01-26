@@ -1,4 +1,4 @@
-import { TextArea } from '@blueprintjs/core'
+import { Icon, TextArea } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
@@ -10,44 +10,60 @@ const style = require('./style.scss')
 export class CommentNodeWidget extends React.Component<{ node: CommentNodeModel; diagramEngine: DiagramEngine }> {
   state = {
     rows: 0,
-    text: ''
+    text: '',
+    isIconVisible: false
   }
 
   componentDidMount() {
     this.setState({ text: this.props.node.text }, this.updateTextareaHeight)
   }
 
-  handleKeyDown = event => {
-    if (event.key === 'Enter') {
-      this.setState({ text: this.state.text + '\n' }, this.updateTextareaHeight)
-
-      event.preventDefault()
-    }
-  }
-
-  handleOnChange = event => {
-    this.setState({ text: event.target.value }, this.updateTextareaHeight)
-  }
-
-  handleOnBlur = () => {
-    const flowBuilder = this.props.diagramEngine['flowBuilder']
-    flowBuilder.updateCommentText(this.state.text)
+  handleOnChange = e => {
+    this.setState({ text: e.target.value }, this.updateTextareaHeight)
   }
 
   updateTextareaHeight = () => {
     this.setState({ rows: (_.countBy(this.state.text)['\n'] || 0) + 1 })
   }
 
+  onMouseDown = e => {
+    e.stopPropagation()
+
+    const flowBuilder = this.props.diagramEngine['flowBuilder']
+    flowBuilder.manager.unselectAllElements()
+    this.props.node.setSelected(true)
+  }
+
+  onMouseEnter = e => this.setState({ isIconVisible: true })
+
+  onMouseLeave = e => {
+    this.setState({ isIconVisible: false })
+
+    const flowBuilder = this.props.diagramEngine['flowBuilder']
+    flowBuilder.props.updateFlowNode({ text: this.state.text })
+  }
+
   render() {
+    const iconClass = classnames(style.commentIcon, { [style.hidden]: !this.state.isIconVisible })
     return (
-      <div className={classnames(style.comment)}>
-        <TextArea
-          onChange={this.handleOnChange}
-          value={this.state.text}
-          rows={this.state.rows}
-          onMouseDown={e => e.stopPropagation()}
-          onDragEnd={e => e.stopPropagation()}
-        />
+      <div>
+        <div
+          className={classnames(style.commentHeader)}
+          onMouseEnter={e => this.setState({ isIconVisible: true })}
+          onMouseLeave={e => this.setState({ isIconVisible: false })}
+        >
+          <Icon className={iconClass} icon="arrows-horizontal" iconSize={Icon.SIZE_LARGE} />
+        </div>
+        <div>
+          <TextArea
+            onChange={this.handleOnChange}
+            value={this.state.text}
+            rows={this.state.rows}
+            onMouseDown={this.onMouseDown}
+            onMouseEnter={this.onMouseEnter}
+            onMouseLeave={this.onMouseLeave}
+          />
+        </div>
       </div>
     )
   }
