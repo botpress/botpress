@@ -9,7 +9,7 @@ export default props => {
       <div>Feedback: {props.item.feedback}</div>
       <div>Session ID: {props.item.sessionId}</div>
       <div>Timestamp: {props.item.timestamp}</div>
-      <div>Channel: {props.item.channel}</div>
+      <div>Source: {props.item.source.type}</div>
     </div>
   )
 }
