@@ -17,7 +17,7 @@
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.15.1",
+    "@blueprintjs/core": "^3.23.1",
     "classnames": "^2.2.6",
     "react-icons": "^3.6.1"
   },

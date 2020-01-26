@@ -29,7 +29,7 @@
     "lodash": ">=4.17.12"
   },
   "dependencies": {
-    "@blueprintjs/core": "^3.15.1",
+    "@blueprintjs/core": "^3.23.1",
     "anser": "^1.4.8",
     "axios": "^0.19.0",
     "babel-polyfill": "^6.26.0",

@@ -21,7 +21,7 @@
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "devDependencies": {
-    "@blueprintjs/core": "^3.15.1",
+    "@blueprintjs/core": "^3.23.1",
     "@types/node": "^10.11.3",
     "@types/react": "^16.8.17",
     "@types/react-bootstrap": "^0.32.19",
