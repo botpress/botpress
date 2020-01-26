@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { IO } from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
@@ -47,10 +48,46 @@ import { SDK } from '.'
 //   }
 // ]
 
+interface QnAItem {
+  id: string
+  data: {
+    action: string
+    answers: {
+      [lang: string]: string[]
+    }
+    category: string
+    enabled: boolean
+    questions: {
+      [lang: string]: string[]
+    }
+  }
+}
+
+const QNA_IDENTIFIER = '__qna__'
+
+const isQna = (event: IO.IncomingEvent): boolean => {
+  const intentName = getIntentName(event)
+  return intentName.startsWith(QNA_IDENTIFIER)
+}
+
+const getQnaIdFromIntentName = (intentName: string): string => {
+  return intentName.replace(QNA_IDENTIFIER, '')
+}
+
+const getIntentName = (event: IO.IncomingEvent): string => {
+  return event.nlu.intent.name
+}
+
+const getQnaItemFromEvent = (event: IO.IncomingEvent, qnaItems: QnAItem[]): QnAItem => {
+  const intentName = getIntentName(event)
+  const qnaId = getQnaIdFromIntentName(intentName)
+  return qnaItems.find(item => item.id === qnaId)
+}
+
 export default async (bp: SDK) => {
   const router = bp.http.createRouterForBot('bot-improvement')
 
-  router.get('/sessions', async (req, res) => {
+  router.get('/feedback-items', async (req, res) => {
     const botId = req.params.botId
 
     const knex = bp.database
@@ -62,22 +99,32 @@ export default async (bp: SDK) => {
       .where({ botId, direction: 'outgoing' })
       .whereIn('incomingEventId', incomingEventIds)
 
-    const sessions = flaggedEvents.map(storedEvent => {
-      const botReplies = outgoingEvents.filter(e => e.incomingEventId === storedEvent.incomingEventId)
-      const botReply = _.head(_.orderBy(botReplies, ['id'], ['desc']))
+    const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
+    const qnaItems: QnAItem[] = (await axios.get('/mod/qna/questions', axiosConfig)).data.items
+
+    const feedbackItems = flaggedEvents.map(flaggedEvent => {
+      const replies = outgoingEvents.filter(e => e.incomingEventId === flaggedEvent.incomingEventId)
+      const incomingEvent = <IO.IncomingEvent>flaggedEvent.event
+
+      let source: { type: 'qna' | 'goal'; qnaItem?: QnAItem }
+      if (isQna(incomingEvent)) {
+        const qnaItem = getQnaItemFromEvent(incomingEvent, qnaItems)
+        source = { type: 'qna', qnaItem }
+      } else {
+        source = { type: 'goal' }
+      }
 
       return {
-        botId,
-        session_id: storedEvent.sessionId,
-        timestamp: storedEvent.event.createdOn,
-        channel: storedEvent.channel,
-        feedback: storedEvent.feedback,
-        user: {},
-        botReply
+        sessionId: flaggedEvent.sessionId,
+        timestamp: flaggedEvent.event.createdOn,
+        feedback: flaggedEvent.feedback,
+        user: {}, // TODO: check if user is necessary
+        replies,
+        source
       }
     })
 
-    res.send(sessions)
+    res.send(feedbackItems)
   })
 
   router.get('/sessions/:sessionId', async (req, res) => {
@@ -120,23 +167,6 @@ export default async (bp: SDK) => {
         createdOn: event.createdOn
       }
     })
-
-    // const messageGroupsMap = {}
-    // storedEvents.map(e => {
-    //   if (e.direction === 'incoming') {
-    //     const userMessage = e.event
-    //     const messageId = userMessage.id
-    //     messageGroupsMap[messageId] = {
-    //       userMessage,
-    //       botMessages: []
-    //     }
-    //   } else {
-    //     messageGroupsMap[e.incomingEventId!].botMessages.push(e.event)
-    //   }
-    // })
-
-    // let messageGroups = _.values(messageGroupsMap)
-    // messageGroups = _.sortBy(messageGroups, mg => moment(mg.userMessage.createdOn).unix()).reverse()
 
     const sortedMessages = _.sortBy(messages, m => moment(m.createdOn).unix())
     res.send(sortedMessages)

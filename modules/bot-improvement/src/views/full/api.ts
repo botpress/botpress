@@ -4,7 +4,7 @@ import { HitlSessionOverview, Message } from '../../backend/typings'
 import { Attribute } from '../../config'
 
 export interface BotImprovementApi {
-  getSessions: () => Promise<HitlSessionOverview[]>
+  getFeedbackItems: () => Promise<HitlSessionOverview[]>
   fetchSessionMessages: (sessionId: string) => Promise<Message[]>
   getAttributes: () => Promise<Attribute[]>
   sendMessage: (sessionId: string, message: string) => Promise<any>
@@ -12,7 +12,7 @@ export interface BotImprovementApi {
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): BotImprovementApi => ({
-  getSessions: () => bp.axios.get(`/mod/bot-improvement/sessions`).then(res => res.data),
+  getFeedbackItems: () => bp.axios.get(`/mod/bot-improvement/feedback-items`).then(res => res.data),
   fetchSessionMessages: sessionId => bp.axios.get(`/mod/bot-improvement/sessions/${sessionId}`).then(res => res.data),
   getAttributes: () => bp.axios.get(`/mod/hitl/config/attributes`).then(res => res.data),
   sendMessage: (sessionId, message) => bp.axios.post(`/mod/hitl/sessions/${sessionId}/message`, { message }),

@@ -105,7 +105,7 @@ class HitlModule extends React.Component<{ bp: any }, State> {
 
   querySessions = async () => {
     try {
-      const sessions = await this.api.getSessions()
+      const sessions = await this.api.getFeedbackItems()
       this.setState({ loading: false, sessions })
     } catch (err) {
       toastFailure(err.message)
@@ -133,7 +133,7 @@ export default props => {
   useEffect(() => {
     const fetchSessions = async () => {
       console.log('fetching sessions')
-      const sessions = await api.getSessions()
+      const sessions = await api.getFeedbackItems()
       setSessions(sessions)
       setLoading(false)
     }
