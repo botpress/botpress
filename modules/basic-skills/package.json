@@ -25,7 +25,7 @@
     "@types/node": "^10.11.0",
     "@types/nodemailer": "^6.2.1",
     "@types/react-bootstrap": "^0.32.20",
-    "@types/reactstrap": "^8.0.6",
+    "@types/reactstrap": "^8.4.1",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {

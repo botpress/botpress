@@ -18,8 +18,8 @@
     "@types/jest": "^23.3.9",
     "@types/jszip": "^3.1.6",
     "@types/node": "^10.11.3",
-    "@types/react": "^16.8.17",
-    "@types/react-dom": "^16.8.4",
+    "@types/react": "^16.9.19",
+    "@types/react-dom": "^16.9.5",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {
