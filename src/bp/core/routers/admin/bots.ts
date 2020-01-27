@@ -8,8 +8,8 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { ConflictError, ForbiddenError, NotFoundError } from '../errors'
-import { assertBotpressPro, hasPermissions, needPermissions, success as sendSuccess } from '../util'
+import { ConflictError, ForbiddenError } from '../errors'
+import { assertBotpressPro, assertWorkspace, hasPermissions, needPermissions, success as sendSuccess } from '../util'
 
 const chatUserBotFields = [
   'id',
@@ -51,6 +51,7 @@ export class BotsRouter extends CustomRouter {
 
     router.get(
       '/',
+      assertWorkspace,
       this.asyncMiddleware(async (req, res) => {
         const isBotAdmin = await this.hasPermissions(req, 'read', this.resource)
         const isChatUser = await this.hasPermissions(req, 'read', 'user.bots')
