@@ -1,9 +1,18 @@
 import Database from 'core/database'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
-import { isNumber } from 'util'
 
 const TABLE_NAME = 'srv_analytics'
+
+export interface Analytics {
+  id: number
+  botId: string
+  metric_name: string
+  channel: string
+  created_on: string
+  updated_on: string
+  value: number
+}
 
 export type MetricName =
   | 'sessions_count'
@@ -21,37 +30,33 @@ export type MetricName =
 export class AnalyticsRepository {
   constructor(@inject(TYPES.Database) private db: Database) {}
 
-  async incrementMetric(botId: string, channel: string, metric: MetricName): Promise<void> {
-    const row = await this.db
+  async insert(args: { botId: string; channel: string; metric: string; value: number }) {
+    const { botId, channel, metric, value } = args
+    await this.db
       .knex(TABLE_NAME)
-      .select('value')
-      .where({ botId, channel, metric_name: metric })
-      .first()
-
-    if (!row) {
-      await this.db
-        .knex(TABLE_NAME)
-        .insert({ botId, channel, metric_name: metric, value: 1, created_on: this.db.knex.date.now() })
-    } else {
-      await this.db
-        .knex(TABLE_NAME)
-        .update({ value: row.value + 1, updated_on: this.db.knex.date.now() })
-        .where({ botId, metric_name: metric })
-    }
+      .insert({ botId, channel, metric_name: metric, value, created_on: this.db.knex.date.now() })
   }
 
-  async get(botId: string, channel: string, metric: string): Promise<number> {
-    const row = await this.db
+  async update(id: number, value: number): Promise<void> {
+    await this.db
       .knex(TABLE_NAME)
-      .select('value')
+      .update({ value, updated_on: this.db.knex.date.now() })
+      .where({ id })
+  }
+
+  async get(args: { botId: string; channel: string; metric: string }): Promise<Analytics> {
+    const { botId, channel, metric } = args
+    const analytics: Analytics = await this.db
+      .knex(TABLE_NAME)
+      .select()
       .where({ botId, channel, metric_name: metric })
       .first()
 
-    if (!row) {
+    if (!analytics) {
       throw new Error(`Could not find analytics for ${botId}-${channel}-${metric}`)
     }
 
-    return row.value
+    return analytics
   }
 
   async getByChannel(botId: string, channel: string) {

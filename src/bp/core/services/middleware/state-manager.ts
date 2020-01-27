@@ -3,7 +3,6 @@ import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { createExpiry } from 'core/misc/expiry'
-import { AnalyticsRepository } from 'core/repositories/analytics'
 import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
 import Knex from 'knex'
@@ -13,6 +12,7 @@ import ms from 'ms'
 
 import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
+import AnalyticsService from '../analytics-service'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
@@ -40,7 +40,7 @@ export class StateManager {
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository
+    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
   ) {
     // Temporarily opt-in until thoroughly tested
     this.useRedis = process.CLUSTER_ENABLED && process.env.USE_REDIS_STATE
@@ -85,7 +85,7 @@ export class StateManager {
 
     const { result: user, created } = await this.userRepo.getOrCreate(event.channel, event.target)
     if (created) {
-      await this.analyticsRepo.incrementMetric(event.botId, event.channel, 'users_new_count')
+      await this.analytics.incrementMetric(event.botId, event.channel, 'users_new_count')
     }
 
     state.user = user.attributes

@@ -52,7 +52,7 @@ import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
-import { AnalyticsRepository } from './repositories/analytics'
+import { AnalyticsRepository } from './repositories/analytics-repository'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.

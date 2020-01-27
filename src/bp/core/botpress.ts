@@ -19,10 +19,10 @@ import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
-import { AnalyticsRepository } from './repositories/analytics'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { AlertingService } from './services/alerting-service'
+import AnalyticsService from './services/analytics-service'
 import AuthService from './services/auth/auth-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
@@ -96,7 +96,7 @@ export class Botpress {
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
     @inject(TYPES.StatsService) private statsService: StatsService,
-    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository
+    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -304,7 +304,7 @@ export class Botpress {
         return
       }
 
-      await this.analyticsRepo.incrementMetric(event.botId, event.channel, 'msg_received_count')
+      await this.analytics.incrementMetric(event.botId, event.channel, 'msg_received_count')
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)
@@ -313,7 +313,7 @@ export class Botpress {
 
     this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       this.eventCollector.storeEvent(event)
-      await this.analyticsRepo.incrementMetric(event.botId, event.channel, 'msg_sent_count')
+      await this.analytics.incrementMetric(event.botId, event.channel, 'msg_sent_count')
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
 

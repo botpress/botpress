@@ -13,7 +13,7 @@ import {
   UserRepository,
   WorkspaceInviteCodesRepository
 } from '.'
-import { AnalyticsRepository } from './analytics'
+import { AnalyticsRepository } from './analytics-repository'
 import { KnexLogsRepository, LogsRepository } from './logs'
 import { StrategyUsersRepository } from './strategy_users'
 import { WorkspaceUsersRepository } from './workspace_users'
