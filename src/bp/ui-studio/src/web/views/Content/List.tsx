@@ -233,6 +233,13 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
+        Header: 'Used',
+        filterable: false,
+        sortable: false,
+        accessor: 'occurancesCount',
+        width: 70
+      },
+      {
         Cell: x => (!this.props.readOnly ? <Button small={true} icon="edit" className="icon-edit" /> : ''),
         filterable: false,
         width: 45

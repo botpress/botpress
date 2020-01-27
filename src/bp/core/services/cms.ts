@@ -58,7 +58,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
-  ) {}
+  ) { }
 
   disposeOnExit() {
     this.sandbox && this.sandbox.dispose()
@@ -215,8 +215,19 @@ export class CMSService implements IDisposeOnExit {
       query = query.limit(count)
     }
 
+    const flowsPath = this.ghost.forBot(botId).directoryListing('flows', '*.flow.json')
+
+    const flows = (await Promise.map(flowsPath, (flowPath: string) => {
+      return this.ghost.forBot(botId).readFileAsString('flows', flowPath);
+    })).join('')
+
+    const addOccurancesCount = element => ({
+      ...element,
+      occurancesCount: (flows.match(new RegExp(element.id, 'g')) || []).length
+    })
+
     const dbElements = await query.offset(from)
-    const elements: ContentElement[] = dbElements.map(this.transformDbItemToApi)
+    const elements: ContentElement[] = dbElements.map(this.transformDbItemToApi).map(addOccurancesCount)
 
     return Promise.map(elements, el => (language ? this._translateElement(el, language) : el))
   }
