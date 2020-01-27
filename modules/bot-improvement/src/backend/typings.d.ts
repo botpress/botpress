@@ -78,6 +78,7 @@ export interface Message {
 }
 
 interface MessageGroup {
+  flagged: boolean
   incoming: Message
   replies: Message[]
 }

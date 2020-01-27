@@ -140,8 +140,8 @@ export default async (bp: SDK) => {
 
     for (const [incomingEventId, events] of storedEventsByIncomingEventId) {
       const [incoming, ...replies] = events
-
       messageGroups.push({
+        flagged: incoming.feedback < 0,
         incoming: convertStoredEventToMessage(incoming),
         replies: replies.map(r => convertStoredEventToMessage(r))
       })

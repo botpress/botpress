@@ -4,6 +4,7 @@ interface CssExports {
   'column': string;
   'feedbackItem': string;
   'mainContainer': string;
+  'messageGroup-flagged': string;
   'profile': string;
 }
 declare var cssExports: CssExports;
