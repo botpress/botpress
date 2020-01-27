@@ -45,8 +45,7 @@ const Language: FC<Props> = props => {
   const deleteLanguage = async () => {
     if (
       await confirmDialog(`Are you sure that you want to delete ${props.language.name} from the server?`, {
-        acceptLabel: 'Ok',
-        declineLabel: 'Cancel'
+        acceptLabel: 'Delete'
       })
     ) {
       await api.getSecured().post(`/admin/languages/${props.language.code}/delete`)
