@@ -2,7 +2,7 @@ import { BotImprovementApi } from 'full/api'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { FeedbackItem, MessageGroup, FlaggedMessageGroup } from '../../../../backend/typings'
+import { FeedbackItem, FlaggedMessageGroup } from '../../../../backend/typings'
 
 import { ConversationHeader } from './ConversationHeader'
 import { MessageList } from './MessageList'
