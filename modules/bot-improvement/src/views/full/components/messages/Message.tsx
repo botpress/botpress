@@ -128,7 +128,7 @@ export default (props: { message: Message }) => {
     const avatar = (
       <div className="bph-message-avatar">
         {<SVGIcon name={messageFrom} width="50" fill="#FFF" />}
-        <time>{moment(ts).format('LT')}</time>
+        <time>{moment(ts).format('L LTS')}</time>
       </div>
     )
 

@@ -124,7 +124,7 @@ export default async (bp: SDK) => {
   router.get('/sessions/:sessionId', async (req, res: SessionResponse) => {
     const sessionId = req.params.sessionId
 
-    const sessionEvents = await bp.events.findEvents({ sessionId })
+    const sessionEvents = await bp.events.findEvents({ sessionId }, { count: -1 })
 
     const storedEventsByIncomingEventId = new Map<number, IO.StoredEvent[]>()
 
@@ -141,7 +141,6 @@ export default async (bp: SDK) => {
     for (const [incomingEventId, events] of storedEventsByIncomingEventId) {
       const [incoming, ...replies] = events.sort(sortStoredEvents)
       messageGroups.push({
-        flagged: incoming.feedback < 0,
         incoming: convertStoredEventToMessage(incoming),
         replies: replies.map(r => convertStoredEventToMessage(r))
       })

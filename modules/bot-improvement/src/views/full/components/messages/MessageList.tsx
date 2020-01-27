@@ -1,12 +1,12 @@
 import _ from 'lodash'
 import React, { FC } from 'react'
 
-import { MessageGroup } from '../../../../backend/typings'
+import { FlaggedMessageGroup } from '../../../../backend/typings'
 import style from '../../style.scss'
 
 import Message from './Message'
 
-export const MessageList: FC<{ messageGroups: MessageGroup[] }> = props => {
+export const MessageList: FC<{ messageGroups: FlaggedMessageGroup[] }> = props => {
   return (
     <div>
       {props.messageGroups.map((group, groupIdx) => (
