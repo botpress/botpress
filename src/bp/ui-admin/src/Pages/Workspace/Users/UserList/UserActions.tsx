@@ -34,8 +34,7 @@ const UserActions: FC<Props> = props => {
   const resetPassword = async () => {
     if (
       !(await confirmDialog(`Are you sure you want to reset ${user.email}'s password?`, {
-        acceptLabel: 'Reset',
-        declineLabel: 'Cancel'
+        acceptLabel: 'Reset'
       }))
     ) {
       return
@@ -53,8 +52,7 @@ const UserActions: FC<Props> = props => {
   const deleteUser = async () => {
     if (
       !(await confirmDialog(`Are you sure you want to delete ${user.email}'s account?`, {
-        acceptLabel: 'Delete',
-        declineLabel: 'Cancel'
+        acceptLabel: 'Delete'
       }))
     ) {
       return
@@ -72,8 +70,7 @@ const UserActions: FC<Props> = props => {
   const removeUser = async () => {
     if (
       !(await confirmDialog(`Are you sure you want to remove ${user.email} from this workspace?`, {
-        acceptLabel: 'Remove',
-        declineLabel: 'Cancel'
+        acceptLabel: 'Remove'
       }))
     ) {
       return
