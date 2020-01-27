@@ -248,8 +248,7 @@ class Bots extends Component {
           lang.label
         }? All of your content elements will be copied, make sure you translate them.`,
         {
-          acceptLabel: 'Ok',
-          declineLabel: 'Cancel'
+          acceptLabel: 'Change'
         }
       )
 
