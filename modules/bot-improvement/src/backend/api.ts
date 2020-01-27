@@ -1,11 +1,10 @@
 import axios from 'axios'
 import { IO } from 'botpress/sdk'
 import { Response } from 'express'
-import _, { Dictionary } from 'lodash'
-import moment from 'moment'
-import assert from 'assert'
+import _ from 'lodash'
 
 import { SDK } from '.'
+import { sortStoredEvents } from './helpers'
 import { FeedbackItem, Message, MessageGroup, QnAItem } from './typings'
 
 // [
@@ -140,21 +139,7 @@ export default async (bp: SDK) => {
     const messageGroups: MessageGroup[] = []
 
     for (const [incomingEventId, events] of storedEventsByIncomingEventId) {
-      const [incoming, ...replies] = events.sort((a, b) => {
-        if (a.direction === 'incoming') {
-          return -1
-        }
-        if (b.direction === 'incoming') {
-          return 1
-        }
-        if (a.createdOn < b.createdOn) {
-          return -1
-        }
-        if (a.createdOn > b.createdOn) {
-          return 1
-        }
-        return 0
-      })
+      const [incoming, ...replies] = events.sort(sortStoredEvents)
       messageGroups.push({
         flagged: incoming.feedback < 0,
         incoming: convertStoredEventToMessage(incoming),
