@@ -21,23 +21,63 @@ export interface User {
   attributes: object
 }
 
-export interface Message {
-  id: number
-  type: string
-  text: string
-  /** The complete payload  */
-  raw_message: any
-  direction: 'out' | 'in'
-  source: 'bot' | 'user' | 'agent'
-  ts: Date
-  readonly session_id?: string
-  flagged: boolean
-}
-
 // Hitl sessions can either be identified by sessionId, or a combination of botId, channel and target
 export interface SessionIdentity {
   botId?: string
   channel?: string
   userId?: string
   sessionId?: string
+}
+
+export interface QnAItem {
+  id: string
+  data: {
+    action: string
+    answers: {
+      [lang: string]: string[]
+    }
+    category: string
+    enabled: boolean
+    questions: {
+      [lang: string]: string[]
+    }
+  }
+}
+
+export interface FeedbackItem {
+  sessionId: string
+  eventId: number
+  timestamp: Date
+  source: {
+    type: 'qna' | 'goal'
+    qnaItem?: QnAItem
+  }
+  user: any // TODO: check if user is necessary
+}
+
+export interface IncomingMessage {
+  id: number
+  type: string
+  text: string
+  raw_message: any
+  direction: 'in' | 'out'
+  source: 'user' | 'bot'
+  ts: Date
+  readonly sessionId?: string
+}
+
+export interface Message {
+  id: number
+  type: string
+  text: string
+  raw_message: any
+  direction: 'in' | 'out'
+  source: 'user' | 'bot'
+  ts: Date
+  sessionId: string
+}
+
+interface MessageGroup {
+  incoming: Message
+  replies: Message[]
 }

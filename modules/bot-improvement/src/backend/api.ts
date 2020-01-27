@@ -1,9 +1,11 @@
 import axios from 'axios'
 import { IO } from 'botpress/sdk'
-import _ from 'lodash'
+import { Response } from 'express'
+import _, { Dictionary } from 'lodash'
 import moment from 'moment'
 
 import { SDK } from '.'
+import { FeedbackItem, Message, MessageGroup, QnAItem } from './typings'
 
 // [
 //   {
@@ -48,21 +50,6 @@ import { SDK } from '.'
 //   }
 // ]
 
-interface QnAItem {
-  id: string
-  data: {
-    action: string
-    answers: {
-      [lang: string]: string[]
-    }
-    category: string
-    enabled: boolean
-    questions: {
-      [lang: string]: string[]
-    }
-  }
-}
-
 const QNA_IDENTIFIER = '__qna__'
 
 const isQna = (event: IO.IncomingEvent): boolean => {
@@ -84,10 +71,18 @@ const getQnaItemFromEvent = (event: IO.IncomingEvent, qnaItems: QnAItem[]): QnAI
   return qnaItems.find(item => item.id === qnaId)
 }
 
+interface FeedbackItemsResponse extends Response {
+  send: (body: FeedbackItem[]) => FeedbackItemsResponse
+}
+
+interface SessionResponse extends Response {
+  send: (body: MessageGroup[]) => SessionResponse
+}
+
 export default async (bp: SDK) => {
   const router = bp.http.createRouterForBot('bot-improvement')
 
-  router.get('/feedback-items', async (req, res) => {
+  router.get('/feedback-items', async (req, res: FeedbackItemsResponse) => {
     const botId = req.params.botId
 
     const knex = bp.database
@@ -103,7 +98,7 @@ export default async (bp: SDK) => {
     const qnaItems: QnAItem[] = (await axios.get('/mod/qna/questions', axiosConfig)).data.items
 
     const feedbackItems = flaggedEvents.map(flaggedEvent => {
-      const replies = outgoingEvents.filter(e => e.incomingEventId === flaggedEvent.incomingEventId)
+      // const replies = outgoingEvents.filter(e => e.incomingEventId === flaggedEvent.incomingEventId)
       const incomingEvent = <IO.IncomingEvent>flaggedEvent.event
 
       let source: { type: 'qna' | 'goal'; qnaItem?: QnAItem }
@@ -115,11 +110,10 @@ export default async (bp: SDK) => {
       }
 
       return {
+        eventId: flaggedEvent.id,
         sessionId: flaggedEvent.sessionId,
         timestamp: flaggedEvent.event.createdOn,
-        feedback: flaggedEvent.feedback,
-        user: {}, // TODO: check if user is necessary
-        replies,
+        user: {},
         source
       }
     })
@@ -127,48 +121,59 @@ export default async (bp: SDK) => {
     res.send(feedbackItems)
   })
 
-  router.get('/sessions/:sessionId', async (req, res) => {
+  router.get('/sessions/:sessionId', async (req, res: SessionResponse) => {
     const sessionId = req.params.sessionId
 
     const sessionEvents = await bp.events.findEvents({ sessionId })
-    const flaggedEvents = sessionEvents.filter(e => e.feedback < 0)
 
-    const repliesToFlaggedEventIds = []
-    flaggedEvents.map(flaggedEvent => {
-      const incomingEventId = flaggedEvent.incomingEventId
-      const replies = sessionEvents.filter(e => e.incomingEventId === incomingEventId && e.direction === 'outgoing')
-      const lastReply = _.head(_.orderBy(replies, ['id', 'desc']))
-      repliesToFlaggedEventIds.push(lastReply.id)
+    const storedEventsByIncomingEventId = new Map<number, IO.StoredEvent[]>()
+
+    sessionEvents.map(e => {
+      const incomingEventId = parseInt(e.incomingEventId)
+      if (!storedEventsByIncomingEventId.get(incomingEventId)) {
+        storedEventsByIncomingEventId.set(incomingEventId, [])
+      }
+      storedEventsByIncomingEventId.get(incomingEventId).push(e)
     })
 
-    const messages = sessionEvents.map(storedEvent => {
-      const event = storedEvent.event
-      const payload = event.payload || {}
-      const text = event.preview || payload.text || (payload.wrapped && payload.wrapped.text)
-      const direction = event.direction === 'outgoing' ? 'out' : 'in'
+    const messageGroups: MessageGroup[] = []
 
-      let source = 'user'
-      let flagged = false
-      if (direction === 'out') {
-        source = event.payload.agent ? 'agent' : 'bot'
-        if (repliesToFlaggedEventIds.includes(storedEvent.id)) {
-          flagged = true
-        }
-      }
+    for (const [incomingEventId, events] of storedEventsByIncomingEventId) {
+      const [incoming, ...replies] = events
 
-      return {
-        session_id: sessionId,
-        type: event.type,
-        raw_message: event.payload,
-        text,
-        source,
-        direction,
-        flagged,
-        createdOn: event.createdOn
-      }
-    })
+      messageGroups.push({
+        incoming: convertStoredEventToMessage(incoming),
+        replies: replies.map(r => convertStoredEventToMessage(r))
+      })
+    }
 
-    const sortedMessages = _.sortBy(messages, m => moment(m.createdOn).unix())
-    res.send(sortedMessages)
+    res.send(messageGroups)
   })
+}
+
+const convertStoredEventToMessage = (storedEvent: IO.StoredEvent): Message => {
+  const event = storedEvent.event
+  const payload = event.payload || {}
+  const text = event.preview || payload.text || (payload.wrapped && payload.wrapped.text)
+  const direction = event.direction === 'outgoing' ? 'out' : 'in'
+
+  let source: 'user' | 'bot' = 'user'
+  const flagged = false
+  if (direction === 'out') {
+    source = 'bot'
+    // if (repliesToFlaggedEventIds.includes(storedEvent.id)) {
+    //   flagged = true
+    // }
+  }
+
+  return {
+    id: storedEvent.id,
+    sessionId: storedEvent.sessionId,
+    type: event.type,
+    text,
+    raw_message: event.payload,
+    direction,
+    source,
+    ts: event.createdOn
+  }
 }
