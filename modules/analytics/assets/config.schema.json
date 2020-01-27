@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "description": "Option to enable or disable the module for a bot.",
+      "default": true,
+      "type": "boolean"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "enabled"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+

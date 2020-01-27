@@ -53,4 +53,11 @@ export class AnalyticsRepository {
 
     return row.value
   }
+
+  async getByChannel(botId: string, channel: string) {
+    const metrics = await this.db
+      .knex(TABLE_NAME)
+      .select('*')
+      .where({ botId, channel })
+  }
 }

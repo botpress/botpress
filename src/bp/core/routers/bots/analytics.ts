@@ -29,7 +29,6 @@ export class AnalyticsRouter extends CustomRouter {
       this._checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         const { botId, channel, metric } = req.params
-        const value = await this.analyticsRepo.get(botId, channel, metric)
         // ?: not sure if a route for a single metric is useful
       })
     )
