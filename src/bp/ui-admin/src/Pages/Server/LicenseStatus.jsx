@@ -72,8 +72,7 @@ class LicenseStatus extends React.Component {
     try {
       if (
         await confirmDialog('Are you sure?', {
-          acceptLabel: 'Enable',
-          declineLabel: 'Cancel'
+          acceptLabel: 'Enable'
         })
       ) {
         const result = await api.getSecured().post('/admin/server/config/enablePro')
