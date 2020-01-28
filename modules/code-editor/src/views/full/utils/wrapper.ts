@@ -17,7 +17,7 @@ const wrapper = {
     } else if (type === 'main_config') {
       return content.replace('../botpress.config.schema.json', 'bp://types/botpress.config.schema.json')
     } else if (type === 'module_config') {
-      return content // TODO: download schemas from server
+      return content.replace(/"..\/..\/assets\/(.*?config\.schema\.json")/, '"bp://types/$1')
     } else {
       return `// Unknown file type`
     }
@@ -30,7 +30,7 @@ const wrapper = {
       return content.replace('bp://types/botpress.config.schema.json', '../botpress.config.schema.json')
     }
     if (type === 'module_config') {
-      return content
+      return content.replace(/"bp:\/\/types\/(.*?config\.schema\.json")/, '"../../assets/$1')
     }
 
     const startIndex = content.indexOf(START_COMMENT)

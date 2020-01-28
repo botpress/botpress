@@ -12,10 +12,10 @@
     "package": "./node_modules/.bin/module-builder package"
   },
   "devDependencies": {
-    "@blueprintjs/core": "^3.15.1",
+    "@blueprintjs/core": "^3.23.1",
     "@types/node": "^10.11.7",
-    "@types/react": "^16.8.17",
-    "@types/react-dom": "^16.8.4",
+    "@types/react": "^16.9.19",
+    "@types/react-dom": "^16.9.5",
     "module-builder": "../../build/module-builder",
     "monaco-editor-webpack-plugin": "^1.7.0"
   },
@@ -24,7 +24,7 @@
     "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",
     "prettier": "^1.18.2",
-    "react-icons": "^3.7.0"
+    "react-icons": "^3.8.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
