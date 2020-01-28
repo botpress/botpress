@@ -6,6 +6,7 @@ import { EditableFile } from './typings'
 export interface FileDefinition {
   allowGlobal?: boolean // When true, this type of file can be stored as global
   allowScoped?: boolean // When true, this file can be scoped to a specific bot
+  onlySuperAdmin?: boolean
   isJSON?: boolean // When true, the file content is checked for valid JSON (also used for listing files in ghost)
   permission: string // The permission required for this type of file (will be prepended by global / bot)
   filenames?: string[] // List of valid filenames. Used for validation before save (& avoid doing a full directory listing)
@@ -80,5 +81,12 @@ export const FileTypes: { [type: string]: FileDefinition } = {
       baseDir: '/config'
     },
     canDelete: (file: EditableFile) => !!file.botId
+  },
+  raw: {
+    onlySuperAdmin: true,
+    permission: 'raw',
+    ghost: {
+      baseDir: '/'
+    }
   }
 }

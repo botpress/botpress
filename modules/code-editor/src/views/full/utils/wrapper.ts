@@ -19,7 +19,7 @@ const wrapper = {
     } else if (type === 'module_config') {
       return content.replace(/"..\/..\/assets\/(.*?config\.schema\.json")/, '"bp://types/$1')
     } else {
-      return `// Unknown file type`
+      return content
     }
   },
   remove: (content: string, type: string) => {
