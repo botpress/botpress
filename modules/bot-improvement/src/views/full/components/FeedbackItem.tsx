@@ -17,7 +17,14 @@ const FeedbackItemComponent: FC<{
       <div>Timestamp: {feedbackItem.timestamp}</div>
       <div>Source: {feedbackItem.source.type}</div>
       {feedbackItem.source.type === 'qna' && (
-        <div>Detected Intent: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
+        <div>
+          <div>Detected Intent: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
+          <h3>Intent should have been</h3>
+          <select onClick={e => e.stopPropagation()}>
+            <option value="qna">QnA</option>
+            <option value="start_goal">Start Goal</option>
+          </select>
+        </div>
       )}
     </div>
   )
