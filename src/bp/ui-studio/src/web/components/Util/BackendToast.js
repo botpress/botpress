@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { toast } from 'react-toastify'
+import { Component } from 'react'
+import { toastSuccess, toastError, toastInfo } from '../Shared/Utils'
 import _ from 'lodash'
 
 import EventBus from '~/util/EventBus'
@@ -8,35 +8,25 @@ export default class BackendToast extends Component {
   constructor(props) {
     super(props)
 
-    const mostRecentToastId = {}
-
     EventBus.default.on('toast.*', function(options) {
       const eventName = this.event
 
-      options.text = options.text.length > 64 ? `${options.text.slice(0, 63)}...` : options.text
+      const text = options.text.length > 64 ? `${options.text.slice(0, 63)}...` : options.text
 
-      mostRecentToastId[eventName] = BackendToast[options.type](options, mostRecentToastId[eventName])
+      mostRecentToastId[eventName] = BackendToast[options.type](text)
     })
   }
 
-  static dismissIfActive = id => toast.isActive(id) && toast.dismiss(id)
-
-  static info = ({ text, time }, id) => {
-    BackendToast.dismissIfActive(id)
-
-    return toast.info(text, { autoClose: time })
+  static info = text => {
+    toastInfo(text)
   }
 
-  static success = ({ text }, id) => {
-    BackendToast.dismissIfActive(id)
-
-    return toast.success(text)
+  static success = text => {
+    toastSuccess(text)
   }
 
-  static error = ({ text }, id) => {
-    BackendToast.dismissIfActive(id)
-
-    return toast.error(text, { autoClose: false })
+  static error = text => {
+    toastError(text)
   }
 
   render = () => null

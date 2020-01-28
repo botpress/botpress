@@ -1,6 +1,5 @@
 import axios from 'axios'
 import React from 'react'
-import { toast } from 'react-toastify'
 import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
 
@@ -132,7 +131,6 @@ Please check our migration guide here: https://botpress.io/docs/developers/migra
     const bp = {
       events: EventBus.default,
       axios: axios.create({ baseURL: window.BOT_API_PATH }),
-      toast,
       getModuleInjector: () => InjectedModuleView,
       loadModuleView: this.loadModuleView
     }
