@@ -19,6 +19,7 @@ import {
 
 export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 export const MAIN_GLOBAL_CONFIG_FILES = ['botpress.config.json', 'workspaces.json']
+const RAW_FILES_FILTERS = ['**/*.map']
 
 export default class Editor {
   private bp: typeof sdk
@@ -80,7 +81,7 @@ export default class Editor {
   }
 
   async loadRawFiles(): Promise<EditableFile[]> {
-    const files = await this.bp.ghost.forRoot().directoryListing('/', '*.*', ['**/*.map'], true)
+    const files = await this.bp.ghost.forRoot().directoryListing('/', '*.*', RAW_FILES_FILTERS, true)
 
     return Promise.map(files, async (filepath: string) => ({
       name: path.basename(filepath),

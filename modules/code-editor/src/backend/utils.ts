@@ -68,7 +68,7 @@ export const arePermissionsValid = (
   const isGlobalValid = def.allowGlobal && !editableFile.botId
   const isScopedValid = def.allowScoped && !!editableFile.botId
 
-  const hasRootPerm = def.onlySuperAdmin && permissions[`root.${def.permission}`][actionType]
+  const hasRootPerm = def.allowRoot && permissions[`root.${def.permission}`][actionType]
 
   return (hasGlobalPerm && isGlobalValid) || (hasScopedPerm && isScopedValid) || hasRootPerm
 }
