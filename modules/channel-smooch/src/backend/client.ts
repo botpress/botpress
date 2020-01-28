@@ -15,21 +15,31 @@ export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
 }
 
 export async function incomingHandler(bp: typeof sdk, botId: string, body) {
-  await bp.events.sendEvent(
-    bp.IO.Event({
-      botId,
-      channel: 'smooch',
-      direction: 'incoming',
-      payload: {
+  if (!body.messages) {
+    return
+  }
+
+  for (const message of body.messages) {
+    if (message.type !== 'text') {
+      continue
+    }
+
+    await bp.events.sendEvent(
+      bp.IO.Event({
+        botId,
+        channel: 'smooch',
+        direction: 'incoming',
         type: 'text',
-        markdown: false,
-        text: body.messages[0].text
-      },
-      preview: body.messages[0].text,
-      target: body.appUser._id,
-      type: 'text'
-    })
-  )
+        payload: {
+          type: 'text',
+          markdown: false,
+          text: message.text
+        },
+        preview: message.text,
+        target: body.appUser._id
+      })
+    )
+  }
 }
 
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
