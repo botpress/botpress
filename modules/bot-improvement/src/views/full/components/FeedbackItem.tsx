@@ -1,14 +1,15 @@
 import React, { FC } from 'react'
 
-import { FeedbackItem } from '../../../backend/typings'
+import { FeedbackItem, QnAItem } from '../../../backend/typings'
 import style from '../style.scss'
 
 const FeedbackItemComponent: FC<{
   feedbackItem: FeedbackItem
   onItemClicked: () => void
   contentLang: string
-}> = (props: { feedbackItem: FeedbackItem; onItemClicked: () => void; contentLang: string }) => {
-  const { feedbackItem, contentLang, onItemClicked } = props
+  qnaItems: QnAItem[]
+}> = props => {
+  const { feedbackItem, contentLang, onItemClicked, qnaItems } = props
 
   return (
     <div className={style.feedbackItem} onClick={e => onItemClicked()}>
@@ -23,6 +24,11 @@ const FeedbackItemComponent: FC<{
           <select onClick={e => e.stopPropagation()}>
             <option value="qna">QnA</option>
             <option value="start_goal">Start Goal</option>
+          </select>
+          <select>
+            {qnaItems.map((i, idx) => (
+              <option key={`qnaItem-${idx}`}>{i.data.questions[contentLang][0]}</option>
+            ))}
           </select>
         </div>
       )}

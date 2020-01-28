@@ -4,7 +4,7 @@ import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
 import '../../../assets/default.css'
-import { FeedbackItem } from '../../backend/typings'
+import { FeedbackItem, QnAItem } from '../../backend/typings'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
@@ -15,25 +15,38 @@ export default props => {
   const api = makeApi(bp)
 
   const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([])
-  const [loading, setLoading] = useState(true)
+  const [qnaItems, setQnaItems] = useState<QnAItem[]>([])
+  const [feedbackItemsLoading, setFeedbackItemsLoading] = useState(true)
+  const [qnasLoading, setQnasLoading] = useState(true)
   const [currentFeedbackItemIdx, setCurrentFeedbackItemIdx] = useState(0)
 
   useEffect(() => {
     const fetchFeedbackItems = async () => {
       const feedbackItems = await api.getFeedbackItems()
       setFeedbackItems(feedbackItems)
-      setLoading(false)
+      setFeedbackItemsLoading(false)
     }
     fetchFeedbackItems().catch(e => {
       throw e
     })
   }, [])
 
-  if (loading) {
+  useEffect(() => {
+    const fetchQnAs = async () => {
+      setQnaItems(await api.getQnaItems())
+      setQnasLoading(false)
+    }
+    fetchQnAs().catch(e => {
+      throw e
+    })
+  }, [])
+
+  if (feedbackItemsLoading || qnasLoading) {
     return <Callout>Loading...</Callout>
   }
 
   const feedbackItem = feedbackItems[currentFeedbackItemIdx]
+  console.log(`feedbackItem: ${feedbackItem}`)
 
   return (
     <Container sidePanelWidth={1000}>
@@ -48,6 +61,7 @@ export default props => {
                 setCurrentFeedbackItemIdx(i)
               }}
               contentLang={contentLang}
+              qnaItems={qnaItems}
             />
           )
         })}
