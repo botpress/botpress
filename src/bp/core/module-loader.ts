@@ -241,9 +241,14 @@ export class ModuleLoader {
   public async loadModulesForBot(botId: string) {
     const modules = this.getLoadedModules()
     for (const module of modules) {
-      const entryPoint = this.getModule(module.name)
-      const api = await createForModule(module.name)
-      await (entryPoint.onBotMount && entryPoint.onBotMount(api, botId))
+      try {
+        const entryPoint = this.getModule(module.name)
+        const api = await createForModule(module.name)
+        await (entryPoint.onBotMount && entryPoint.onBotMount(api, botId))
+      } catch (err) {
+        this.logger.error(`Error while mounting bot "${botId}" in module ${module.name}: ${err}`)
+        throw err
+      }
     }
   }
 
