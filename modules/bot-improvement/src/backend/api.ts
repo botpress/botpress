@@ -43,12 +43,8 @@ const convertStoredEventToMessage = (storedEvent: IO.StoredEvent): Message => {
   const direction = event.direction === 'outgoing' ? 'out' : 'in'
 
   let source: 'user' | 'bot' = 'user'
-  const flagged = false
   if (direction === 'out') {
     source = 'bot'
-    // if (repliesToFlaggedEventIds.includes(storedEvent.id)) {
-    //   flagged = true
-    // }
   }
 
   return {
