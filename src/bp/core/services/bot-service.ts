@@ -289,9 +289,11 @@ export class BotService {
         await this._migrateBotContent(botId)
 
         if (!originalConfig.disabled) {
-          await this.mountBot(botId)
+          if (!(await this.mountBot(botId))) {
+            this.logger.forBot(botId).warn(`Import of bot ${botId} completed, but it couldn't be mounted`)
+            return
+          }
         } else {
-          this._invalidateBotIds()
           BotService.setBotStatus(botId, 'disabled')
         }
 
@@ -300,6 +302,7 @@ export class BotService {
         this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)
       }
     } finally {
+      this._invalidateBotIds()
       tmpDir.removeCallback()
     }
   }
