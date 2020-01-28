@@ -25,7 +25,7 @@ export const MessageList: FC<{ messageGroups: FlaggedMessageGroup[] }> = props =
         <div
           ref={el => (itemRefs[group.incoming.id] = el)}
           key={groupIdx}
-          className={group.flagged && style['messageGroup-flagged']}
+          className={(group.flagged && style['messageGroup-flagged']) || ''}
         >
           <Message message={group.incoming} />
           {group.replies.map((message, messageIdx) => (
