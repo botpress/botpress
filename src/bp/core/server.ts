@@ -36,6 +36,7 @@ import { hasPermissions, monitoringMiddleware, needPermissions } from './routers
 import { GhostService } from './services'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
+import AnalyticsService from './services/analytics-service'
 import { AuthStrategies } from './services/auth-strategies'
 import AuthService, { EXTERNAL_AUTH_HEADER, SERVER_USER, TOKEN_AUDIENCE } from './services/auth/auth-service'
 import { generateUserToken } from './services/auth/util'
@@ -52,7 +53,6 @@ import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
-import { AnalyticsRepository } from './repositories/analytics-repository'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
@@ -116,7 +116,7 @@ export default class HTTPServer {
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository
+    @inject(TYPES.AnalyticsService) private analyticsService: AnalyticsService
   ) {
     this.app = express()
 
@@ -198,7 +198,12 @@ export default class HTTPServer {
     this.httpServer = createServer(app)
 
     await this.botsRouter.initialize()
-    this.analyticsRouter = new AnalyticsRouter(this.logger, this.authService, this.workspaceService, this.analyticsRepo)
+    this.analyticsRouter = new AnalyticsRouter(
+      this.logger,
+      this.authService,
+      this.workspaceService,
+      this.analyticsService
+    )
     this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)

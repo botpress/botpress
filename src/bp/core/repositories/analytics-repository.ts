@@ -50,6 +50,7 @@ export class AnalyticsRepository {
       .knex(TABLE_NAME)
       .select()
       .where({ botId, channel, metric_name: metric })
+      .orderBy('created_on', 'desc')
       .first()
 
     if (!analytics) {
@@ -59,10 +60,18 @@ export class AnalyticsRepository {
     return analytics
   }
 
-  async getByChannel(botId: string, channel: string) {
-    const metrics = await this.db
+  async getBetweenDates(botId: string, startDate: string, endDate: string, channel?: string): Promise<Analytics[]> {
+    let query = this.db
       .knex(TABLE_NAME)
-      .select('*')
-      .where({ botId, channel })
+      .select()
+      .whereBetween('created_on', [startDate, endDate])
+      .andWhere({ botId })
+
+    if (channel) {
+      query = query.andWhere({ channel })
+    }
+
+    // nested promises
+    return await query
   }
 }
