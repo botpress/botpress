@@ -14,7 +14,7 @@
     "classnames": "^2.2.5",
     "core-js": "^2.4.1",
     "module-builder": "../../build/module-builder",
-    "react-bootstrap": "^0.32.1",
+    "react-bootstrap": "^0.33.1",
     "react-bootstrap-date-picker": "github:mixxt/react-bootstrap-date-picker",
     "react-bootstrap-time-picker": "^1.0.3"
   },

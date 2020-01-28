@@ -1,4 +1,5 @@
 import { Dialog } from '@blueprintjs/core'
+import { Flow } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -17,7 +18,7 @@ interface Props {
   categories: any
   bp: any
   flowsList: any
-  flows: any
+  flows: Flow[]
 }
 
 const EditorModal: FC<Props> = props => {
