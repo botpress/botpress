@@ -11,7 +11,8 @@ import Conversation from './components/messages/Conversation'
 import FeedbackItemComponent from './components/FeedbackItem'
 
 export default props => {
-  const api = makeApi(props.bp)
+  const { bp, contentLang } = props
+  const api = makeApi(bp)
 
   const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -41,11 +42,12 @@ export default props => {
         {feedbackItems.map((item, i) => {
           return (
             <FeedbackItemComponent
-              key={`feedback-${i}`}
-              item={item}
+              key={`feedbackItem-${i}`}
+              feedbackItem={item}
               onItemClicked={() => {
                 setCurrentFeedbackItemIdx(i)
               }}
+              contentLang={contentLang}
             />
           )
         })}
