@@ -76,7 +76,7 @@ const SummaryTable = ({ data }) => {
     {
       Cell: x => (
         <Tooltip content="Restart server">
-          <Button icon="power" onClick={() => restartServer(x.original.host)} />
+          <Button icon="power" onClick={() => restartServer(x.original.host)} small />
         </Tooltip>
       ),
 

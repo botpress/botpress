@@ -1,4 +1,6 @@
 import { BotConfig, BotTemplate, Logger, Stage } from 'botpress/sdk'
+import cluster from 'cluster'
+import { BotHealth, ServerHealth } from 'common/typings'
 import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
 import { createForGlobalHooks } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
@@ -17,6 +19,8 @@ import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
 import moment from 'moment'
+import ms from 'ms'
+import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
 import tmp from 'tmp'
@@ -48,6 +52,12 @@ const DEFAULT_BOT_CONFIGS = {
   details: {}
 }
 
+const STATUS_REFRESH_INTERVAL = ms('15s')
+const STATUS_EXPIRY = ms('20s')
+const DEFAULT_BOT_HEALTH: BotHealth = { status: 'unmounted', errorCount: 0, warningCount: 0 }
+
+const getBotStatusKey = (serverId: string) => `bp_server_${serverId}_bots`
+
 @injectable()
 export class BotService {
   public mountBot: Function = this._localMount
@@ -56,6 +66,8 @@ export class BotService {
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
   private static _botListenerHandles: Map<string, IDisposable> = new Map()
+  private static _botHealth: { [botId: string]: BotHealth } = {}
+  private _updateBotHealthDebounce = _.debounce(this._updateBotHealth, 500)
 
   constructor(
     @inject(TYPES.Logger)
@@ -79,18 +91,19 @@ export class BotService {
   async init() {
     this.mountBot = await this.jobService.broadcast<void>(this._localMount.bind(this))
     this.unmountBot = await this.jobService.broadcast<void>(this._localUnmount.bind(this))
+
+    if (!cluster.isMaster) {
+      setInterval(() => this._updateBotHealthDebounce(), STATUS_REFRESH_INTERVAL)
+    }
   }
 
   async findBotById(botId: string): Promise<BotConfig | undefined> {
-    const bot = await this.configProvider.getBotConfig(botId)
-    !bot && this.logger.warn(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
-
-    // @deprecated > 11 : New bots all define default language
-    if (!bot.defaultLanguage) {
-      bot.disabled = true
+    if (!(await this.ghostService.forBot(botId).fileExists('/', 'bot.config.json'))) {
+      this.logger.warn(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
+      return
     }
 
-    return bot
+    return this.configProvider.getBotConfig(botId)
   }
 
   async findBotsByIds(botsIds: string[]): Promise<BotConfig[]> {
@@ -183,7 +196,7 @@ export class BotService {
     })
 
     if (!updatedBot.disabled) {
-      if (this._isBotMounted(botId)) {
+      if (this.isBotMounted(botId)) {
         // we need to remount the bot to update the config
         await this.unmountBot(botId)
       }
@@ -201,7 +214,7 @@ export class BotService {
     }
 
     if (!actualBot.disabled && updatedBot.disabled) {
-      await this.unmountBot(botId)
+      await this.unmountBot(botId, true)
     }
   }
 
@@ -274,7 +287,13 @@ export class BotService {
         await this.workspaceService.addBotRef(botId, workspaceId)
 
         await this._migrateBotContent(botId)
-        await this.mountBot(botId)
+
+        if (!originalConfig.disabled) {
+          await this.mountBot(botId)
+        } else {
+          this._invalidateBotIds()
+          BotService.setBotStatus(botId, 'disabled')
+        }
 
         this.logger.forBot(botId).info(`Import of bot ${botId} successful`)
       } else {
@@ -505,14 +524,14 @@ export class BotService {
     )
   }
 
-  private _isBotMounted(botId: string): boolean {
+  public isBotMounted(botId: string): boolean {
     return BotService._mountedBots.get(botId) || false
   }
 
   // Do not use directly use the public version instead due to broadcasting
-  private async _localMount(botId: string) {
-    if (this._isBotMounted(botId)) {
-      return
+  private async _localMount(botId: string): Promise<boolean> {
+    if (this.isBotMounted(botId)) {
+      return true
     }
 
     try {
@@ -541,16 +560,25 @@ export class BotService {
           )
         }, botId)
       )
+
+      BotService.setBotStatus(botId, 'mounted')
+      return true
     } catch (err) {
+      BotService.setBotStatus(botId, 'error')
+
       this.logger
         .attachError(err)
         .error(`Cannot mount bot "${botId}". Make sure it exists on the filesystem or the database.`)
+      return false
+    } finally {
+      await this._updateBotHealthDebounce()
     }
   }
 
   // Do not use directly use the public version instead due to broadcasting
-  private async _localUnmount(botId: string) {
-    if (!this._isBotMounted(botId)) {
+  private async _localUnmount(botId: string, isDisabled?: boolean) {
+    if (!this.isBotMounted(botId)) {
+      this._invalidateBotIds()
       return
     }
 
@@ -559,7 +587,11 @@ export class BotService {
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
+
     BotService._mountedBots.set(botId, false)
+    BotService.setBotStatus(botId, isDisabled ? 'disabled' : 'unmounted')
+
+    await this._updateBotHealthDebounce()
     this._invalidateBotIds()
   }
 
@@ -649,5 +681,56 @@ export class BotService {
 
     const globalGhost = this.ghostService.global()
     await Promise.mapSeries(outDated, rev => globalGhost.deleteFile(REVISIONS_DIR, rev))
+  }
+
+  private async _updateBotHealth(): Promise<void> {
+    const botIds = await this.getBotsIds()
+
+    Object.keys(BotService._botHealth)
+      .filter(x => !botIds.includes(x))
+      .forEach(id => delete BotService._botHealth[id])
+
+    const redis = this.jobService.getRedisClient()
+    if (redis) {
+      const data = JSON.stringify({ serverId: process.SERVER_ID, hostname: os.hostname(), bots: BotService._botHealth })
+      await redis.set(getBotStatusKey(process.SERVER_ID), data, 'PX', STATUS_EXPIRY)
+    }
+  }
+
+  public async getBotHealth(): Promise<ServerHealth[]> {
+    const redis = this.jobService.getRedisClient()
+    if (!redis) {
+      return [{ serverId: process.SERVER_ID, hostname: os.hostname(), bots: BotService._botHealth }]
+    }
+
+    const serverIds = await redis.keys(getBotStatusKey('*'))
+    if (!serverIds.length) {
+      return []
+    }
+
+    const servers = await redis.mget(...serverIds)
+    return Promise.mapSeries(servers, data => JSON.parse(data as string))
+  }
+
+  public static incrementBotStats(botId: string, type: 'error' | 'warning') {
+    const info = this._botHealth[botId] || DEFAULT_BOT_HEALTH
+
+    this._botHealth[botId] = {
+      ...info,
+      errorCount: info.errorCount + (type === 'error' ? 1 : 0),
+      warningCount: info.warningCount + (type === 'warning' ? 1 : 0)
+    }
+  }
+
+  public static setBotStatus(botId: string, status: 'mounted' | 'unmounted' | 'disabled' | 'error') {
+    this._botHealth[botId] = {
+      ...(this._botHealth[botId] || DEFAULT_BOT_HEALTH),
+      status
+    }
+
+    if (['unmounted', 'disabled'].includes(status)) {
+      this._botHealth[botId].errorCount = 0
+      this._botHealth[botId].warningCount = 0
+    }
   }
 }

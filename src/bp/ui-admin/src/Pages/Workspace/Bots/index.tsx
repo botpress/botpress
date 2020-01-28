@@ -10,12 +10,14 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
+import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 import { toastSuccess } from '~/utils/toaster'
+import { toastFailure } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
 import confirmDialog from '~/App/ConfirmDialog'
 import PageContainer from '~/App/PageContainer'
@@ -23,7 +25,7 @@ import SplitPage from '~/App/SplitPage'
 import { Downloader } from '~/Pages/Components/Downloader'
 
 import api from '../../../api'
-import { fetchBots } from '../../../reducers/bots'
+import { fetchBotHealth, fetchBots } from '../../../reducers/bots'
 import { fetchLicensing } from '../../../reducers/license'
 import AccessControl from '../../../App/AccessControl'
 import LoadingSection from '../../Components/LoadingSection'
@@ -38,9 +40,11 @@ const botFilterFields = ['name', 'id', 'description']
 
 interface Props extends RouteComponentProps {
   bots: BotConfig[]
+  health: ServerHealth[]
   workspace: any
   fetchBots: () => void
   fetchLicensing: () => void
+  fetchBotHealth: () => void
   licensing: any
 }
 
@@ -57,6 +61,8 @@ class Bots extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchBots()
+    this.props.fetchBotHealth()
+
     if (!this.props.licensing) {
       this.props.fetchLicensing()
     }
@@ -86,6 +92,17 @@ class Bots extends Component<Props> {
     ) {
       await api.getSecured().post(`/admin/bots/${botId}/delete`)
       this.props.fetchBots()
+    }
+  }
+
+  async reloadBot(botId: string) {
+    try {
+      await api.getSecured().post(`/admin/bots/${botId}/reload`)
+      this.props.fetchBots()
+      toastSuccess(`Bot remounted successfully`)
+    } catch (err) {
+      console.log(err)
+      toastFailure(`Could not mount bot. Check server logs for details`)
     }
   }
 
@@ -144,6 +161,17 @@ class Bots extends Component<Props> {
     toastSuccess('Rollback success')
   }
 
+  findBotError(botId: string) {
+    if (!this.props.health) {
+      return false
+    }
+
+    return _.some(
+      this.props.health.map(x => x.bots[botId]),
+      s => s && s.status === 'error'
+    )
+  }
+
   renderCompactView(bots: BotConfig[]) {
     if (!bots.length) {
       return null
@@ -155,10 +183,12 @@ class Bots extends Component<Props> {
           <Fragment key={bot.id}>
             <BotItemCompact
               bot={bot}
+              hasError={this.findBotError(bot.id)}
               deleteBot={this.deleteBot.bind(this, bot.id)}
               exportBot={this.exportBot.bind(this, bot.id)}
               createRevision={this.createRevision.bind(this, bot.id)}
               rollback={this.toggleRollbackModal.bind(this, bot.id)}
+              reloadBot={this.reloadBot.bind(this, bot.id)}
             />
           </Fragment>
         ))}
@@ -184,12 +214,14 @@ class Bots extends Component<Props> {
                   <Fragment key={bot.id}>
                     <BotItemPipeline
                       bot={bot}
+                      hasError={this.findBotError(bot.id)}
                       allowStageChange={allowStageChange}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}
                       deleteBot={this.deleteBot.bind(this, bot.id)}
                       exportBot={this.exportBot.bind(this, bot.id)}
                       createRevision={this.createRevision.bind(this, bot.id)}
                       rollback={this.toggleRollbackModal.bind(this, bot.id)}
+                      reloadBot={this.reloadBot.bind(this, bot.id)}
                     />
                   </Fragment>
                 ))}
@@ -290,6 +322,7 @@ class Bots extends Component<Props> {
 
 const mapStateToProps = state => ({
   bots: state.bots.bots,
+  health: state.bots.health,
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
   licensing: state.license.licensing
@@ -297,10 +330,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   fetchBots,
-  fetchLicensing
+  fetchLicensing,
+  fetchBotHealth
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Bots)
+export default connect(mapStateToProps, mapDispatchToProps)(Bots)

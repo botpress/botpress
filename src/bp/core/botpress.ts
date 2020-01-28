@@ -274,6 +274,8 @@ export class Botpress {
     const disabledBots = [...bots.values()].filter(b => b.disabled).map(b => b.id)
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
+    disabledBots.forEach(botId => BotService.setBotStatus(botId, 'disabled'))
+
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
   }
 
@@ -390,6 +392,7 @@ export class Botpress {
   private formatProcessingError(err: ProcessingError) {
     return `Error processing "${err.instruction}"
 Err: ${err.message}
+BotId: ${err.botId}
 Flow: ${err.flowName}
 Node: ${err.nodeName}`
   }

@@ -192,7 +192,7 @@ export class BotsRouter extends CustomRouter {
         const { botId, app } = req.params
 
         const bot = await this.botService.findBotById(botId)
-        if (!bot) {
+        if (!bot || !this.botService.isBotMounted(botId)) {
           return res.sendStatus(404)
         }
 
