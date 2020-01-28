@@ -24,9 +24,9 @@ const onServerReady = async (bp: typeof sdk) => {
 
     if (client) {
       await client.handleWebhookRequest(req.body)
-      res.status(200).send()
+      res.sendStatus(200)
     } else {
-      res.status(404).send({ message: `Bot "${botId}" not a Smooch bot` })
+      res.status(404).send('Bot not a smooch bot')
     }
   })
 }
@@ -48,7 +48,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
     return
   }
 
-  await client.delete()
+  await client.removeWebhook()
   delete clients[botId]
 }
 

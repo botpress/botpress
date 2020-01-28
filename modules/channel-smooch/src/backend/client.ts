@@ -5,11 +5,12 @@ import { Config } from '../config'
 
 import { Clients } from './typings'
 
-const name = 'smooch.sendMessage'
+const MIDDLEWARE_NAME = 'smooch.sendMessage'
 
 export class SmoochClient {
   private smooch: any
-  private path: string
+  private webhookUrl: string
+  private logger: sdk.Logger
 
   constructor(
     private bp: typeof sdk,
@@ -17,9 +18,15 @@ export class SmoochClient {
     private config: Config,
     private router: any,
     private route: string
-  ) {}
+  ) {
+    this.logger = bp.logger.forBot(botId)
+  }
 
   async initialize() {
+    if (!this.config.keyId || !this.config.secret) {
+      return this.logger.error(`[${this.botId}] The keyId and secret must be configured to use this channel.`)
+    }
+
     this.smooch = new Smooch({
       keyId: this.config.keyId,
       secret: this.config.secret,
@@ -27,18 +34,24 @@ export class SmoochClient {
     })
 
     const url = (await this.router.getPublicPath()) + this.route
-    this.path = url.replace('BOT_ID', this.botId)
+    this.webhookUrl = url.replace('BOT_ID', this.botId)
 
-    await this.smooch.webhooks.create({
-      target: this.path,
-      triggers: ['message:appUser']
-    })
+    try {
+      const { webhook } = await this.smooch.webhooks.create({
+        target: this.webhookUrl,
+        triggers: ['message:appUser']
+      })
+      this.logger.info(`[${this.botId}] Successfully created smooch webhook with url : ${webhook.target}`)
+    } catch (e) {
+      this.logger.error(`[${this.botId}] Failed to create smooch webhook. Provided keyId and secret are likely invalid`)
+      throw e
+    }
   }
 
-  async delete() {
+  async removeWebhook() {
     const { webhooks } = await this.smooch.webhooks.list()
     for (const hook of webhooks) {
-      if (hook.target == this.path) {
+      if (hook.target === this.webhookUrl) {
         await this.smooch.webhooks.delete(hook._id)
       }
     }
@@ -62,7 +75,6 @@ export class SmoochClient {
           type: 'text',
           payload: {
             type: 'text',
-            markdown: false,
             text: message.text
           },
           preview: message.text,
@@ -105,7 +117,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       ' This middleware should be placed at the end as it swallows events once sent.',
     direction: 'outgoing',
     handler: outgoingHandler,
-    name,
+    name: MIDDLEWARE_NAME,
     order: 100
   })
 
@@ -124,5 +136,5 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 }
 
 export async function removeMiddleware(bp: typeof sdk) {
-  bp.events.removeMiddleware(name)
+  bp.events.removeMiddleware(MIDDLEWARE_NAME)
 }
