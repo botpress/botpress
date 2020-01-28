@@ -246,8 +246,7 @@ export class ModuleLoader {
         const api = await createForModule(module.name)
         await (entryPoint.onBotMount && entryPoint.onBotMount(api, botId))
       } catch (err) {
-        this.logger.error(`Error while mounting bot "${botId}" in module ${module.name}: ${err}`)
-        throw err
+        throw new Error(`while mounting bot in ${module.name}: ${err}`)
       }
     }
   }
