@@ -119,7 +119,6 @@ export interface StudioConnector {
   events: any
   /** An axios instance */
   axios: any
-  toast: any
   getModuleInjector: any
   loadModuleView: any
 }

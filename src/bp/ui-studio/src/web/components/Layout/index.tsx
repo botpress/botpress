@@ -3,7 +3,6 @@ import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
-import { style, ToastContainer } from 'react-toastify'
 import { bindActionCreators } from 'redux'
 import { toggleBottomPanel, updateDocumentationModal, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
@@ -183,7 +182,6 @@ class Layout extends React.Component<ILayoutProps> {
             <BottomPanel />
           </SplitPane>
 
-          <ToastContainer position="bottom-right" />
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
