@@ -41,7 +41,7 @@ class SkillsBuilder extends React.Component {
     })
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.skillId !== this.props.skillId || nextProps.opened !== this.props.opened) {
       this.setState({
         ...this.resetState(),
