@@ -1,1 +1,3 @@
-export type Clients = { [keyId: string]: any }
+import { SmoochClient } from './client'
+
+export type Clients = { [botId: string]: SmoochClient }
