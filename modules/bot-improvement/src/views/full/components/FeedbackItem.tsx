@@ -32,6 +32,8 @@ const FeedbackItemComponent: FC<{
           </select>
         </div>
       )}
+
+      <button>Mark as solved</button>
     </div>
   )
 }
