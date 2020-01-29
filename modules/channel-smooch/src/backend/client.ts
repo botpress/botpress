@@ -78,6 +78,7 @@ export class SmoochClient {
             text: message.text
           },
           preview: message.text,
+          threadId: payload.conversation._id,
           target: payload.appUser._id
         })
       )
