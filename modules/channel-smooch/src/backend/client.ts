@@ -105,6 +105,16 @@ export class SmoochClient {
           type: 'text'
         }
       })
+    } else if (event.type === 'file') {
+      await this.smooch.appUsers.sendMessage({
+        appId: this.smooch.keyId,
+        userId: event.target,
+        message: {
+          role: 'appMaker',
+          type: 'image',
+          mediaUrl: event.payload.url
+        }
+      })
     }
 
     next(undefined, false)
