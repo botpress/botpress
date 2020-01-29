@@ -36,32 +36,34 @@ const buildEvent = (props?: RecursivePartial<IO.StoredEvent>): IO.StoredEvent =>
   )
 }
 
-test('empty', () => {
-  expect([].sort(sortStoredEvents)).toEqual([])
-})
+describe('sortStoredEvents', () => {
+  test('empty', () => {
+    expect([].sort(sortStoredEvents)).toEqual([])
+  })
 
-test('1 stored event', () => {
-  const e = buildEvent()
+  test('1 stored event', () => {
+    const e = buildEvent()
 
-  expect([e].sort(sortStoredEvents)).toEqual([e])
-})
+    expect([e].sort(sortStoredEvents)).toEqual([e])
+  })
 
-test('2 events', () => {
-  const e1 = buildEvent()
+  test('2 events', () => {
+    const e1 = buildEvent()
 
-  const e2 = buildEvent({ direction: 'outgoing' })
+    const e2 = buildEvent({ direction: 'outgoing' })
 
-  expect([e1, e2].sort(sortStoredEvents)).toEqual([e1, e2])
-  expect([e2, e1].sort(sortStoredEvents)).toEqual([e1, e2])
-})
+    expect([e1, e2].sort(sortStoredEvents)).toEqual([e1, e2])
+    expect([e2, e1].sort(sortStoredEvents)).toEqual([e1, e2])
+  })
 
-test('3 events', () => {
-  const e1 = buildEvent()
+  test('3 events', () => {
+    const e1 = buildEvent()
 
-  const e2 = buildEvent({ direction: 'outgoing', event: { createdOn: new Date('2019-01-01') } })
-  const e3 = buildEvent({ direction: 'outgoing', event: { createdOn: new Date('2019-01-02') } })
+    const e2 = buildEvent({ direction: 'outgoing', event: { createdOn: new Date('2019-01-01') } })
+    const e3 = buildEvent({ direction: 'outgoing', event: { createdOn: new Date('2019-01-02') } })
 
-  expect([e1, e2, e3].sort(sortStoredEvents)).toEqual([e1, e2, e3])
-  expect([e3, e2, e1].sort(sortStoredEvents)).toEqual([e1, e2, e3])
-  expect([e2, e3, e1].sort(sortStoredEvents)).toEqual([e1, e2, e3])
+    expect([e1, e2, e3].sort(sortStoredEvents)).toEqual([e1, e2, e3])
+    expect([e3, e2, e1].sort(sortStoredEvents)).toEqual([e1, e2, e3])
+    expect([e2, e3, e1].sort(sortStoredEvents)).toEqual([e1, e2, e3])
+  })
 })
