@@ -94,6 +94,8 @@ export class SmoochClient {
       await this.sendFile(event)
     } else if (event.type === 'carousel') {
       await this.sendCarousel(event)
+    } else if (event.type === 'default') {
+      await this.sendChoices(event)
     }
 
     next(undefined, false)
@@ -195,6 +197,27 @@ export class SmoochClient {
         role: 'appMaker',
         type: 'carousel',
         items: cards
+      }
+    })
+  }
+  async sendChoices(event: sdk.IO.Event) {
+    const actions = []
+    for (const reply of event.payload.quick_replies) {
+      actions.push({
+        type: 'reply',
+        text: reply.title,
+        payload: reply.payload
+      })
+    }
+
+    await this.smooch.appUsers.sendMessage({
+      appId: this.smooch.keyId,
+      userId: event.target,
+      message: {
+        text: event.payload.text,
+        role: 'appMaker',
+        type: 'text',
+        actions
       }
     })
   }
