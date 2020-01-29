@@ -131,7 +131,7 @@ export default async (bp: SDK) => {
 
     const result = await knex('bot_improvement_feedback_items')
       .where({ eventId })
-      .update({ state, correctedActionType, correctedObjectId }, ['id'])
+      .update({ state, correctedActionType, correctedObjectId })
     if (!result) {
       await knex('bot_improvement_feedback_items').insert({ eventId, state, correctedActionType, correctedObjectId })
     }
