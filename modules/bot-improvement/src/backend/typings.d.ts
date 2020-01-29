@@ -53,6 +53,9 @@ export interface FeedbackItem {
     qnaItem?: QnAItem
   }
   user: any // TODO: check if user is necessary
+  state: 'pending' | 'solved'
+  correctedActionType: string
+  correctedObjectId: string
 }
 
 export interface IncomingMessage {

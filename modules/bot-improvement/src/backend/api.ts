@@ -6,6 +6,7 @@ import _ from 'lodash'
 import { SDK } from '.'
 import { sortStoredEvents } from './helpers'
 import { FeedbackItem, Message, MessageGroup, QnAItem } from './typings'
+import { FeedbackItemSchema } from './validation'
 
 const QNA_IDENTIFIER = '__qna__'
 
@@ -67,7 +68,14 @@ export default async (bp: SDK) => {
     const knex = bp.database
 
     const flaggedEvents = await knex
-      .column({ eventId: 'events.id' }, 'events.event', 'events.sessionId')
+      .column(
+        { eventId: 'events.id' },
+        'events.event',
+        'events.sessionId',
+        'bot_improvement_feedback_items.state',
+        'bot_improvement_feedback_items.correctedActionType',
+        'bot_improvement_feedback_items.correctedObjectId'
+      )
       .select()
       .from('events')
       .leftJoin('bot_improvement_feedback_items', {
@@ -100,15 +108,39 @@ export default async (bp: SDK) => {
         sessionId: flaggedEvent.sessionId,
         timestamp: flaggedEvent.event.createdOn,
         user: {},
-        source
+        source,
+        state: flaggedEvent.state,
+        correctedActionType: flaggedEvent.correctedActionType,
+        correctedObjectId: flaggedEvent.correctedObjectId
       }
     })
 
     res.send(feedbackItems)
   })
 
+  router.post('/feedback-items/:eventId', async (req, res) => {
+    const { error, value } = FeedbackItemSchema.validate(req.body)
+    if (error) {
+      return res.status(400).send('Body is invalid')
+    }
+
+    const { eventId } = req.params
+    const { state, correctedActionType, correctedObjectId } = value
+
+    const knex = bp.database
+
+    const result = await knex('bot_improvement_feedback_items')
+      .where({ eventId })
+      .update({ state, correctedActionType, correctedObjectId }, ['id'])
+    if (!result) {
+      await knex('bot_improvement_feedback_items').insert({ eventId, state, correctedActionType, correctedObjectId })
+    }
+
+    res.sendStatus(200)
+  })
+
   router.get('/sessions/:sessionId', async (req, res: SessionResponse) => {
-    const sessionId = req.params.sessionId
+    const { sessionId } = req.params
 
     const sessionEvents = await bp.events.findEvents({ sessionId }, { count: -1 })
 

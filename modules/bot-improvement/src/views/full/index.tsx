@@ -17,12 +17,19 @@ export default props => {
   const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([])
   const [qnaItems, setQnaItems] = useState<QnAItem[]>([])
   const [feedbackItemsLoading, setFeedbackItemsLoading] = useState(true)
-  const [qnasLoading, setQnasLoading] = useState(true)
   const [currentFeedbackItemIdx, setCurrentFeedbackItemIdx] = useState(0)
 
   useEffect(() => {
     const fetchFeedbackItems = async () => {
-      const feedbackItems = await api.getFeedbackItems()
+      const qnaItems = await api.getQnaItems()
+      setQnaItems(qnaItems)
+
+      const feedbackItems = (await api.getFeedbackItems()).map(i => {
+        i.correctedActionType = i.correctedActionType || 'qna'
+        i.correctedObjectId = i.correctedObjectId || qnaItems[0].id
+        return i
+      })
+
       setFeedbackItems(feedbackItems)
       setFeedbackItemsLoading(false)
     }
@@ -31,37 +38,54 @@ export default props => {
     })
   }, [])
 
-  useEffect(() => {
-    const fetchQnAs = async () => {
-      setQnaItems(await api.getQnaItems())
-      setQnasLoading(false)
-    }
-    fetchQnAs().catch(e => {
-      throw e
-    })
-  }, [])
-
-  if (feedbackItemsLoading || qnasLoading) {
+  if (feedbackItemsLoading) {
     return <Callout>Loading...</Callout>
   }
 
-  const feedbackItem = feedbackItems[currentFeedbackItemIdx]
-  console.log(`feedbackItem: ${feedbackItem}`)
+  const currentFeedbackItem = feedbackItems[currentFeedbackItemIdx]
 
   return (
     <Container sidePanelWidth={1000}>
       <div>
         <h2>Feedback Items</h2>
         {feedbackItems.map((item, i) => {
+          const updateFeedbackItem = async changedProps => {
+            const listClone = [...feedbackItems]
+            const itemClone = _.cloneDeep(item)
+            _.merge(itemClone, changedProps)
+
+            listClone[i] = itemClone
+            setFeedbackItems(listClone)
+
+            return itemClone
+          }
+
+          const handleCorrectedActionTypeChange = async (correctedActionType: string) => {
+            await updateFeedbackItem({ correctedActionType })
+          }
+          const handleCorrectedActionObjectIdChange = async (correctedObjectId: string) => {
+            await updateFeedbackItem({ correctedObjectId })
+          }
+          const handleSubmit = async () => {
+            const itemClone = await updateFeedbackItem({ state: 'solved' })
+            await api.updateFeedbackItem(itemClone)
+          }
+
           return (
             <FeedbackItemComponent
               key={`feedbackItem-${i}`}
               feedbackItem={item}
+              correctedActionType={item.correctedActionType}
+              correctedObjectId={item.correctedObjectId}
               onItemClicked={() => {
                 setCurrentFeedbackItemIdx(i)
               }}
               contentLang={contentLang}
               qnaItems={qnaItems}
+              goals={['goal1', 'goal2', 'goal3']}
+              handleCorrectedActionTypeChange={handleCorrectedActionTypeChange}
+              handleCorrectedActionObjectIdChange={handleCorrectedActionObjectIdChange}
+              handleSubmit={handleSubmit}
             />
           )
         })}
@@ -69,7 +93,7 @@ export default props => {
 
       <div className="bph-layout-main">
         <div className="bph-layout-middle">
-          <Conversation api={api} feedbackItem={feedbackItem} />
+          <Conversation api={api} feedbackItem={currentFeedbackItem} />
         </div>
         <div className="bph-layout-profile">
           {/* {this.state.currentSession && (

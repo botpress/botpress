@@ -15,8 +15,8 @@ export default (bp: SDK) => {
         .unsigned()
         .notNullable()
       table.string('state').notNullable()
-      table.string('corrected_action_type')
-      table.string('corrected_object_id')
+      table.string('correctedActionType').notNullable()
+      table.string('correctedObjectId').notNullable()
     })
   }
 
