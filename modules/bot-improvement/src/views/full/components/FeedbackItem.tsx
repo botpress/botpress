@@ -79,8 +79,17 @@ const FeedbackItemComponent: FC<{
           onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
         >
           {correctedActionType === 'qna' &&
-            qnaItems.map((i, idx) => <option key={`qnaItem-${idx}`}>{i.data.questions[contentLang][0]}</option>)}
-          {correctedActionType === 'start_goal' && goals.map((i, idx) => <option key={`goal-${idx}`}>{i}</option>)}
+            qnaItems.map((i, idx) => (
+              <option key={`qnaItem-${idx}`} value={i.id}>
+                {i.data.questions[contentLang][0]}
+              </option>
+            ))}
+          {correctedActionType === 'start_goal' &&
+            goals.map((i, idx) => (
+              <option key={`goal-${idx}`} value={i}>
+                {i}
+              </option>
+            ))}
         </select>
       </div>
 
