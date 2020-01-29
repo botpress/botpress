@@ -9,6 +9,7 @@ import { FeedbackItem, QnAItem } from '../../backend/typings'
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
 import FeedbackItemComponent from './components/FeedbackItem'
+import style from './style.scss'
 
 export default props => {
   const { bp, contentLang } = props
@@ -46,7 +47,7 @@ export default props => {
 
   return (
     <Container sidePanelWidth={1000}>
-      <div>
+      <div className={style.feedbackItemsContainer}>
         <h2>Feedback Items</h2>
         {feedbackItems.map((item, i) => {
           const updateFeedbackItem = async changedProps => {

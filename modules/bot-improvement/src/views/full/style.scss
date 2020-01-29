@@ -9,9 +9,14 @@
   padding: 0;
   min-width: 320px;
 }
+
 .profile {
   background-color: white;
   padding: 0px;
+}
+
+.feedbackItemsContainer {
+  overflow-y: scroll;
 }
 
 .feedbackItem {
