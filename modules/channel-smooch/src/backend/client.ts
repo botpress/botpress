@@ -87,37 +87,116 @@ export class SmoochClient {
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type === 'typing') {
-      await this.smooch.appUsers.conversationActivity({
-        appId: this.smooch.keyId,
-        userId: event.target,
-        activityProps: {
-          role: 'appMaker',
-          type: 'typing:start'
-        }
-      })
+      await this.sendTyping(event)
     } else if (event.type === 'text') {
-      await this.smooch.appUsers.sendMessage({
-        appId: this.smooch.keyId,
-        userId: event.target,
-        message: {
-          text: event.payload.text,
-          role: 'appMaker',
-          type: 'text'
-        }
-      })
+      await this.sendText(event)
     } else if (event.type === 'file') {
-      await this.smooch.appUsers.sendMessage({
-        appId: this.smooch.keyId,
-        userId: event.target,
-        message: {
-          role: 'appMaker',
-          type: 'image',
-          mediaUrl: event.payload.url
-        }
-      })
+      await this.sendFile(event)
+    } else if (event.type === 'carousel') {
+      await this.sendCarousel(event)
     }
 
     next(undefined, false)
+  }
+
+  async sendTyping(event: sdk.IO.Event) {
+    await this.smooch.appUsers.conversationActivity({
+      appId: this.smooch.keyId,
+      userId: event.target,
+      activityProps: {
+        role: 'appMaker',
+        type: 'typing:start'
+      }
+    })
+  }
+  async sendText(event: sdk.IO.Event) {
+    await this.smooch.appUsers.sendMessage({
+      appId: this.smooch.keyId,
+      userId: event.target,
+      message: {
+        text: event.payload.text,
+        role: 'appMaker',
+        type: 'text'
+      }
+    })
+  }
+  async sendFile(event: sdk.IO.Event) {
+    await this.smooch.appUsers.sendMessage({
+      appId: this.smooch.keyId,
+      userId: event.target,
+      message: {
+        role: 'appMaker',
+        type: 'image',
+        mediaUrl: event.payload.url
+      }
+    })
+  }
+  async sendCarousel(event: sdk.IO.Event) {
+    const cards = []
+    for (const bpCard of event.payload.elements) {
+      const card = {
+        title: bpCard.title,
+        description: bpCard.subtitle,
+        mediaUrl: bpCard.picture,
+        actions: []
+      }
+
+      // Smooch crashes if mediaUrl is defined but has no value
+      if (!card.mediaUrl) delete card.mediaUrl
+
+      for (const bpAction of bpCard.buttons) {
+        let action
+
+        if (bpAction.type === 'open_url') {
+          action = {
+            text: bpAction.title,
+            type: 'link',
+            uri: bpAction.url
+          }
+        } else if (bpAction.type === 'postback') {
+          // This works but postback doesn't do anything
+          action = {
+            text: bpAction.title,
+            type: 'postback',
+            payload: bpAction.payload
+          }
+        }
+        // Doesn't work
+        /*
+         else if (bpAction.type === 'say_something') {
+          action = {
+            text: bpAction.title,
+            type: 'reply',
+            payload: bpAction.text
+          }
+        }
+        */
+
+        if (action) card.actions.push(action)
+      }
+
+      if (card.actions.length === 0) {
+        // Smooch crashes if this list is empty. However putting this dummy card in seems to
+        // produce the expected result (that is seeing 0 actions)
+        card.actions.push({
+          text: '',
+          type: 'postback',
+          payload: ''
+        })
+      }
+
+      cards.push(card)
+    }
+
+    await this.smooch.appUsers.sendMessage({
+      appId: this.smooch.keyId,
+      userId: event.target,
+      message: {
+        role: 'appMaker',
+        type: 'carousel',
+        items: cards
+      }
+    })
   }
 }
 
