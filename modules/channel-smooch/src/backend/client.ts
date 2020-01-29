@@ -3,7 +3,7 @@ import Smooch from 'smooch-core'
 
 import { Config } from '../config'
 
-import { Clients } from './typings'
+import { Clients, MessagePayload, Webhook } from './typings'
 
 const MIDDLEWARE_NAME = 'smooch.sendMessage'
 
@@ -37,7 +37,7 @@ export class SmoochClient {
     this.webhookUrl = url.replace('BOT_ID', this.botId)
 
     try {
-      const { webhook } = await this.smooch.webhooks.create({
+      const { webhook }: { webhook: Webhook } = await this.smooch.webhooks.create({
         target: this.webhookUrl,
         triggers: ['message:appUser']
       })
@@ -49,7 +49,7 @@ export class SmoochClient {
   }
 
   async removeWebhook() {
-    const { webhooks } = await this.smooch.webhooks.list()
+    const { webhooks }: { webhooks: Webhook[] } = await this.smooch.webhooks.list()
     for (const hook of webhooks) {
       if (hook.target === this.webhookUrl) {
         await this.smooch.webhooks.delete(hook._id)
@@ -57,12 +57,12 @@ export class SmoochClient {
     }
   }
 
-  async handleWebhookRequest(body: any) {
-    if (!body.messages) {
+  async handleWebhookRequest(payload: MessagePayload) {
+    if (!payload.messages) {
       return
     }
 
-    for (const message of body.messages) {
+    for (const message of payload.messages) {
       if (message.type !== 'text') {
         continue
       }
@@ -78,7 +78,7 @@ export class SmoochClient {
             text: message.text
           },
           preview: message.text,
-          target: body.appUser._id
+          target: payload.appUser._id
         })
       )
     }
