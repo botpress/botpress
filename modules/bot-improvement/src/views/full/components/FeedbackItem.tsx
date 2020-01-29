@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React, { FC } from 'react'
 
-import { FeedbackItem, QnAItem } from '../../../backend/typings'
+import { FeedbackItem, FeedbackItemState, QnAItem } from '../../../backend/typings'
 import style from '../style.scss'
 
 const FeedbackItemComponent: FC<{
@@ -14,7 +14,9 @@ const FeedbackItemComponent: FC<{
   goals: string[]
   handleCorrectedActionTypeChange: (correctedActionType: string) => void
   handleCorrectedActionObjectIdChange: (correctedActionObjectId: string) => void
-  handleSubmit: () => void
+  markAsSolved: () => void
+  markAsPending: () => void
+  state: FeedbackItemState
 }> = props => {
   const {
     feedbackItem,
@@ -26,7 +28,9 @@ const FeedbackItemComponent: FC<{
     goals,
     handleCorrectedActionTypeChange,
     handleCorrectedActionObjectIdChange,
-    handleSubmit
+    markAsSolved,
+    markAsPending,
+    state
   } = props
 
   const getId = (prefix: string) => {
@@ -80,7 +84,10 @@ const FeedbackItemComponent: FC<{
         </select>
       </div>
 
-      <button onClick={e => handleSubmit()}>Mark as solved</button>
+      {state === 'pending' && <button onClick={e => markAsSolved()}>Mark as solved</button>}
+      {state === 'solved' && <button onClick={e => markAsPending()}>Mark as pending</button>}
+
+      {state && <div>State: {state}</div>}
     </div>
   )
 }

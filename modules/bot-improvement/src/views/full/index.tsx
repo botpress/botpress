@@ -4,7 +4,7 @@ import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
 import '../../../assets/default.css'
-import { FeedbackItem, QnAItem } from '../../backend/typings'
+import { FeedbackItem, FeedbackItemState, QnAItem } from '../../backend/typings'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
@@ -64,11 +64,21 @@ export default props => {
           const handleCorrectedActionTypeChange = async (correctedActionType: string) => {
             await updateFeedbackItem({ correctedActionType })
           }
+
           const handleCorrectedActionObjectIdChange = async (correctedObjectId: string) => {
             await updateFeedbackItem({ correctedObjectId })
           }
-          const handleSubmit = async () => {
-            const itemClone = await updateFeedbackItem({ state: 'solved' })
+
+          const markAsSolved = async () => {
+            await saveItem('solved')
+          }
+
+          const markAsPending = async () => {
+            await saveItem('pending')
+          }
+
+          const saveItem = async (state: FeedbackItemState) => {
+            const itemClone = await updateFeedbackItem({ state })
             await api.updateFeedbackItem({
               state: itemClone.state,
               eventId: itemClone.eventId,
@@ -91,7 +101,9 @@ export default props => {
               goals={['goal1', 'goal2', 'goal3']}
               handleCorrectedActionTypeChange={handleCorrectedActionTypeChange}
               handleCorrectedActionObjectIdChange={handleCorrectedActionObjectIdChange}
-              handleSubmit={handleSubmit}
+              markAsSolved={markAsSolved}
+              markAsPending={markAsPending}
+              state={item.state}
             />
           )
         })}
