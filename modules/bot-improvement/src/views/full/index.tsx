@@ -28,6 +28,7 @@ export default props => {
       const feedbackItems = (await api.getFeedbackItems()).map(i => {
         i.correctedActionType = i.correctedActionType || 'qna'
         i.correctedObjectId = i.correctedObjectId || qnaItems[0].id
+        i.state = i.state || 'pending'
         return i
       })
 
