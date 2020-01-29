@@ -388,6 +388,10 @@ export const refreshIntents = () => dispatch => {
   })
 }
 
-export const getQnAContentElementUsage = () => {
-  return axios.get(`${window.BOT_API_PATH}/mod/qna/contentElementUsage`)
+export const receiveQNAContentElement = createAction('QNA/CONTENT_ELEMENT')
+export const getQNAContentElementUsage = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/mod/qna/contentElementUsage`).then(({ data }) => {
+    dispatch(receiveQNAContentElement(data))
+  })
 }

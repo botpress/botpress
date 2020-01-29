@@ -11,7 +11,7 @@ import {
   fetchContentCategories,
   fetchContentItems,
   fetchFlows,
-  getQnAContentElementUsage,
+  getQNAContentElementUsage,
   upsertContentItem
 } from '~/actions'
 import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
@@ -54,9 +54,7 @@ class ContentView extends Component<Props, State> {
       this.props.fetchContentCategories()
       this.props.fetchFlows()
       this.fetchCategoryItems(this.state.selectedId)
-      getQnAContentElementUsage().then(res => {
-        this.setState({ qnaUsage: res.data })
-      })
+      this.props.getQNAContentElementUsage()
     }
   }
 
@@ -90,28 +88,21 @@ class ContentView extends Component<Props, State> {
             node: node.name,
             count: 0
           }
-          node.onEnter &&
-            node.onEnter.forEach((v: string | ActionBuilderProps) => {
-              if (typeof v === 'string' && v.startsWith('say #!' + element.id)) {
-                if (!usage.count) {
-                  element.usage.push(usage)
-                }
-                usage.count++
+
+          const addUsage = (v: string | ActionBuilderProps) => {
+            if (typeof v === 'string' && v.startsWith('say #!' + element.id)) {
+              if (!usage.count) {
+                element.usage.push(usage)
               }
-            })
-          node.onReceive &&
-            node.onReceive.forEach((v: string | ActionBuilderProps) => {
-              if (typeof v === 'string' && v.startsWith('say #!' + element.id)) {
-                if (!usage.count) {
-                  element.usage.push(usage)
-                }
-                usage.count++
-              }
-            })
+              usage.count++
+            }
+          }
+          node.onEnter?.forEach(addUsage)
+          node.onReceive?.forEach(addUsage)
         })
       })
 
-      const usage = this.state.qnaUsage['#!' + element.id]
+      const usage = this.props.qnaUsage['#!' + element.id]
       usage &&
         element.usage.push({
           type: 'Q&A',
@@ -119,6 +110,7 @@ class ContentView extends Component<Props, State> {
           count: usage.count
         })
     })
+
     return this.state.modifyId
       ? _.get(_.find(this.props.contentItems, { id: this.state.modifyId }), 'contentType')
       : this.state.selectedId
@@ -251,32 +243,33 @@ const mapStateToProps = (state: RootReducer) => ({
   categories: state.content.categories,
   contentItems: state.content.currentItems,
   flows: state.flows,
-  user: state.user
+  user: state.user,
+  qnaUsage: state.content.qnaUsage
 })
 
 const mapDispatchToProps = {
   fetchContentCategories,
   fetchContentItems,
   fetchFlows,
+  getQNAContentElementUsage,
   upsertContentItem,
   deleteContentItems
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ContentView)
+export default connect(mapStateToProps, mapDispatchToProps)(ContentView)
 
 type Props = {
   fetchContentCategories: Function
   fetchContentItems: Function
   fetchFlows: Function
+  getQNAContentElementUsage: Function
   upsertContentItem: Function
   deleteContentItems: Function
   categories: any
   contentItems: ContentElementUsage[]
   flows: FlowReducer
   user: UserReducer
+  qnaUsage: ContentElementUsage[]
 } & RouteComponentProps
 
 interface State {

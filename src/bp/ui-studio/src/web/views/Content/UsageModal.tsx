@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Modal } from 'react-bootstrap'
+import { Classes, Dialog } from '@blueprintjs/core'
+import React, { FC, useState } from 'react'
 import ReactTable from 'react-table'
 
 import { ContentUsage } from '.'
@@ -7,83 +7,69 @@ import style from './style.scss'
 
 interface Props {
   usage: ContentUsage[]
-  handleClose: Function
+  isOpen: boolean
+  handleClose: () => void
 }
 
-interface State {
-  page: number
-  pageSize: number
-}
+export const UsageModal: FC<Props> = props => {
+  const [getPage, setPage] = useState(0)
+  const [getPageSize, setPageSize] = useState(5)
 
-export default class UsageModal extends React.Component<Props, State> {
-  state = {
-    page: 0,
-    pageSize: 5
+  const columns = [
+    {
+      Header: 'Type',
+      filterable: false,
+      accessor: 'type'
+    },
+    {
+      Header: 'Name',
+      filterable: false,
+      accessor: 'name'
+    },
+    {
+      Header: 'Node',
+      filterable: false,
+      accessor: 'node'
+    },
+    {
+      Header: 'Count',
+      filterable: false,
+      accessor: 'count'
+    }
+  ]
+
+  const onFetchData = ({ page, pageSize }) => {
+    setPage(page)
+    setPageSize(pageSize)
   }
 
-  getTableColumns() {
-    return [
-      {
-        Header: 'Type',
-        filterable: false,
-        accessor: 'type',
-        width: 150
-      },
-      {
-        Header: 'Name',
-        filterable: false,
-        accessor: 'name',
-        width: 150
-      },
-      {
-        Header: 'Node',
-        filterable: false,
-        accessor: 'node',
-        width: 150
-      },
-      {
-        Header: 'Count',
-        filterable: false,
-        accessor: 'count',
-        width: 50
-      }
-    ]
+  const onPageSizeChange = (pageSize: number, page: number) => {
+    setPage(page)
+    setPageSize(pageSize)
   }
 
-  fetchData = (state: State) => {
-    this.setState({
-      pageSize: state.pageSize,
-      page: state.page
-    })
-  }
-
-  render() {
-    const pageCount = Math.ceil(this.props.usage.length / this.state.pageSize)
-    return (
-      <Modal
-        container={document.getElementById('app')}
-        className={style.modal}
-        onHide={this.props.handleClose}
-        backdrop={'static'}
-        show
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Content Usage</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <ReactTable
-            columns={this.getTableColumns()}
-            data={this.props.usage}
-            page={this.state.page}
-            onFetchData={this.fetchData}
-            onPageSizeChange={(pageSize, page) => this.setState({ page, pageSize })}
-            onPageChange={page => this.setState({ page })}
-            defaultPageSize={this.state.pageSize}
-            className="-striped -highlight"
-            pages={pageCount}
-          />
-        </Modal.Body>
-      </Modal>
-    )
-  }
+  const pageCount = Math.ceil(props.usage.length / getPageSize)
+  return (
+    <Dialog
+      title="Content Usage"
+      isOpen={props.isOpen}
+      className={style.modal}
+      onClose={props.handleClose}
+      canOutsideClickClose
+    >
+      <div className={Classes.DIALOG_BODY}>
+        <ReactTable
+          columns={columns}
+          data={props.usage}
+          page={getPage}
+          onFetchData={onFetchData}
+          onPageSizeChange={onPageSizeChange}
+          onPageChange={setPage}
+          defaultPageSize={getPageSize}
+          className="-striped -highlight"
+          pages={pageCount}
+        />
+      </div>
+    </Dialog>
+  )
 }

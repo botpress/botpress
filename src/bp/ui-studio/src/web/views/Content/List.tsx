@@ -12,7 +12,7 @@ import withLanguage from '~/components/Util/withLanguage'
 
 import { ContentUsage } from '.'
 import style from './style.scss'
-import UsageModal from './UsageModal'
+import { UsageModal } from './UsageModal'
 
 class ListView extends Component<Props, State> {
   private debouncedHandleSearch
@@ -387,9 +387,11 @@ class ListView extends Component<Props, State> {
           </RightToolbarButtons> */}
         </Toolbar>
         <div style={{ padding: 5 }}>{this.renderTable()}</div>
-        {this.state.showUsageModal && (
-          <UsageModal usage={this.state.contentUsage} handleClose={() => this.setState({ showUsageModal: false })} />
-        )}
+        <UsageModal
+          usage={this.state.contentUsage}
+          handleClose={() => this.setState({ showUsageModal: false })}
+          isOpen={this.state.showUsageModal}
+        />
       </div>
     )
   }
