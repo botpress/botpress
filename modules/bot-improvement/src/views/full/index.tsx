@@ -69,7 +69,12 @@ export default props => {
           }
           const handleSubmit = async () => {
             const itemClone = await updateFeedbackItem({ state: 'solved' })
-            await api.updateFeedbackItem(itemClone)
+            await api.updateFeedbackItem({
+              state: itemClone.state,
+              eventId: itemClone.eventId,
+              correctedActionType: itemClone.correctedActionType,
+              correctedObjectId: itemClone.correctedObjectId
+            })
           }
 
           return (

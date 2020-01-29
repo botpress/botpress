@@ -6,7 +6,9 @@ export interface BotImprovementApi {
   getFeedbackItems: () => Promise<FeedbackItem[]>
   getQnaItems: () => Promise<QnAItem[]>
   fetchSession: (sessionId: string) => Promise<MessageGroup[]>
-  updateFeedbackItem: (feedbackItem: FeedbackItem) => Promise<void>
+  updateFeedbackItem: (
+    feedbackItem: Pick<FeedbackItem, 'eventId' | 'correctedActionType' | 'correctedObjectId' | 'state'>
+  ) => Promise<void>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): BotImprovementApi => ({
