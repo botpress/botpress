@@ -26,7 +26,7 @@ export default class MentionSuggestionsPortal extends Component {
     this.props.setEditorState(this.props.getEditorState())
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.updatePortalClientRect(nextProps)
   }
 
