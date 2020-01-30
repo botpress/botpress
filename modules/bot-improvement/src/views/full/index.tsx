@@ -4,7 +4,7 @@ import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
 import '../../../assets/default.css'
-import { FeedbackItem, FeedbackItemState, QnAItem } from '../../backend/typings'
+import { FeedbackItem, FeedbackItemState, QnAItem, Goal } from '../../backend/typings'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
@@ -17,6 +17,7 @@ export default props => {
 
   const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([])
   const [qnaItems, setQnaItems] = useState<QnAItem[]>([])
+  const [goals, setGoals] = useState<Goal[]>([])
   const [feedbackItemsLoading, setFeedbackItemsLoading] = useState(true)
   const [currentFeedbackItemIdx, setCurrentFeedbackItemIdx] = useState(0)
 
@@ -24,6 +25,8 @@ export default props => {
     const fetchFeedbackItems = async () => {
       const qnaItems = await api.getQnaItems()
       setQnaItems(qnaItems)
+      const goals = await api.getGoals()
+      setGoals(goals)
 
       const feedbackItems = (await api.getFeedbackItems()).map(i => {
         i.correctedActionType = i.correctedActionType || 'qna'
@@ -99,7 +102,7 @@ export default props => {
               }}
               contentLang={contentLang}
               qnaItems={qnaItems}
-              goals={['goal1', 'goal2', 'goal3']}
+              goals={goals}
               handleCorrectedActionTypeChange={handleCorrectedActionTypeChange}
               handleCorrectedActionObjectIdChange={handleCorrectedActionObjectIdChange}
               markAsSolved={markAsSolved}

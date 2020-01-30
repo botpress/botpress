@@ -1,5 +1,7 @@
 import assert from 'assert'
-import { IO } from 'botpress/sdk'
+import { IO, Topic } from 'botpress/sdk'
+
+import { Goal } from './typings'
 
 export const sortStoredEvents = (a: IO.StoredEvent, b: IO.StoredEvent) => {
   if (a.direction === 'incoming' && b.direction === 'outgoing') {
@@ -18,4 +20,14 @@ export const sortStoredEvents = (a: IO.StoredEvent, b: IO.StoredEvent) => {
     return 1
   }
   return 0
+}
+
+export const topicsToGoals = (topics: Topic[]): Goal[] => {
+  return topics.reduce((result, t) => {
+    const [topic, name] = t.name.split('/')
+    if (name) {
+      result.push({ topic, name })
+    }
+    return result
+  }, [])
 }

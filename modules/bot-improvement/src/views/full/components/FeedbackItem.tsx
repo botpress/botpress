@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React, { FC } from 'react'
 
-import { FeedbackItem, FeedbackItemState, QnAItem } from '../../../backend/typings'
+import { FeedbackItem, FeedbackItemState, QnAItem, Goal } from '../../../backend/typings'
 import style from '../style.scss'
 
 const FeedbackItemComponent: FC<{
@@ -11,7 +11,7 @@ const FeedbackItemComponent: FC<{
   onItemClicked: () => void
   contentLang: string
   qnaItems: QnAItem[]
-  goals: string[]
+  goals: Goal[]
   handleCorrectedActionTypeChange: (correctedActionType: string) => void
   handleCorrectedActionObjectIdChange: (correctedActionObjectId: string) => void
   markAsSolved: () => void
@@ -86,8 +86,8 @@ const FeedbackItemComponent: FC<{
             ))}
           {correctedActionType === 'start_goal' &&
             goals.map((i, idx) => (
-              <option key={`goal-${idx}`} value={i}>
-                {i}
+              <option key={`goal-${idx}`} value={`${i.topic}/${i.name}`}>
+                {`${i.topic}/${i.name}`}
               </option>
             ))}
         </select>

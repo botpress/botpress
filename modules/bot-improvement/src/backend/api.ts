@@ -1,10 +1,10 @@
 import axios from 'axios'
-import { IO } from 'botpress/sdk'
+import { IO, Topic } from 'botpress/sdk'
 import { Response } from 'express'
 import _ from 'lodash'
 
 import { SDK } from '.'
-import { sortStoredEvents } from './helpers'
+import { sortStoredEvents, topicsToGoals } from './helpers'
 import { FeedbackItem, Message, MessageGroup, QnAItem } from './typings'
 import { FeedbackItemSchema } from './validation'
 
@@ -116,6 +116,13 @@ export default async (bp: SDK) => {
     })
 
     res.send(feedbackItems)
+  })
+
+  router.get('/goals', async (req, res) => {
+    const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
+    const topics: Topic[] = (await axios.get('/mod/ndu/topics', axiosConfig)).data
+    const goals = topicsToGoals(topics)
+    res.send(goals)
   })
 
   router.post('/feedback-items/:eventId', async (req, res) => {

@@ -88,3 +88,8 @@ interface MessageGroup {
 }
 
 type FlaggedMessageGroup = MessageGroup & { flagged: boolean }
+
+export interface Goal {
+  topic: string
+  name: string
+}
