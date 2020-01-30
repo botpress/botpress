@@ -11,6 +11,7 @@ export class SmoochClient {
   private smooch: any
   private webhookUrl: string
   private logger: sdk.Logger
+  private secret: string
 
   constructor(
     private bp: typeof sdk,
@@ -41,6 +42,7 @@ export class SmoochClient {
         target: this.webhookUrl,
         triggers: ['message:appUser']
       })
+      this.secret = webhook.secret
       this.logger.info(`[${this.botId}] Successfully created smooch webhook with url : ${webhook.target}`)
     } catch (e) {
       this.logger.error(`[${this.botId}] Failed to create smooch webhook. Provided keyId and secret are likely invalid`)
@@ -55,6 +57,10 @@ export class SmoochClient {
         await this.smooch.webhooks.delete(hook._id)
       }
     }
+  }
+
+  auth(req): boolean {
+    return req.headers['x-api-key'] === this.secret
   }
 
   async handleWebhookRequest(payload: MessagePayload) {

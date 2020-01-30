@@ -22,7 +22,7 @@ const onServerReady = async (bp: typeof sdk) => {
     const { botId } = req.params
     const client = clients[botId]
 
-    if (client) {
+    if (client && client.auth(req)) {
       await client.handleWebhookRequest(req.body)
       res.sendStatus(200)
     } else {
