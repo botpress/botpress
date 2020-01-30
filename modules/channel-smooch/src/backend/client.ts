@@ -104,7 +104,7 @@ export class SmoochClient {
   }
 
   async sendTyping(event: sdk.IO.Event) {
-    await this.smooch.appUsers.conversationActivity({
+    return this.smooch.appUsers.conversationActivity({
       appId: this.smooch.keyId,
       userId: event.target,
       activityProps: {
@@ -114,26 +114,24 @@ export class SmoochClient {
     })
   }
   async sendText(event: sdk.IO.Event) {
-    await this.smooch.appUsers.sendMessage({
-      appId: this.smooch.keyId,
-      userId: event.target,
-      message: {
+    return this.sendMessage(
+      {
         text: event.payload.text,
         role: 'appMaker',
         type: 'text'
-      }
-    })
+      },
+      event.target
+    )
   }
   async sendFile(event: sdk.IO.Event) {
-    await this.smooch.appUsers.sendMessage({
-      appId: this.smooch.keyId,
-      userId: event.target,
-      message: {
+    return this.sendMessage(
+      {
         role: 'appMaker',
         type: 'image',
         mediaUrl: event.payload.url
-      }
-    })
+      },
+      event.target
+    )
   }
   async sendCarousel(event: sdk.IO.Event) {
     const cards = []
@@ -146,42 +144,36 @@ export class SmoochClient {
       }
 
       // Smooch crashes if mediaUrl is defined but has no value
-      if (!card.mediaUrl) delete card.mediaUrl
+      if (!card.mediaUrl) {
+        delete card.mediaUrl
+      }
 
-      for (const bpAction of bpCard.buttons) {
-        let action
-
-        if (bpAction.type === 'open_url') {
-          action = {
-            text: bpAction.title,
+      for (const { type, title, url, payload } of bpCard.buttons) {
+        if (type === 'open_url') {
+          card.actions.push({
+            text: title,
             type: 'link',
-            uri: bpAction.url
-          }
-        } else if (bpAction.type === 'postback') {
+            uri: url
+          })
+        } else if (type === 'postback') {
           // This works but postback doesn't do anything
-          action = {
-            text: bpAction.title,
+          card.actions.push({
+            text: title,
             type: 'postback',
-            payload: bpAction.payload
-          }
-        }
-        // Doesn't work
-        /*
-         else if (bpAction.type === 'say_something') {
-          action = {
+            payload: payload
+          })
+        } /* else if (bpAction.type === 'say_something') {
+          card.actions.push({
             text: bpAction.title,
             type: 'reply',
             payload: bpAction.text
-          }
-        }
-        */
-
-        if (action) card.actions.push(action)
+          })
+        }*/
       }
 
       if (card.actions.length === 0) {
-        // Smooch crashes if this list is empty. However putting this dummy card in seems to
-        // produce the expected result (that is seeing 0 actions)
+        // Smooch crashes if this list is empty or undefined. However putting this dummy
+        // card in seems to produce the expected result (that is seeing 0 actions)
         card.actions.push({
           text: '',
           type: 'postback',
@@ -192,56 +184,45 @@ export class SmoochClient {
       cards.push(card)
     }
 
-    await this.smooch.appUsers.sendMessage({
-      appId: this.smooch.keyId,
-      userId: event.target,
-      message: {
+    return this.sendMessage(
+      {
         role: 'appMaker',
         type: 'carousel',
         items: cards
-      }
-    })
+      },
+      event.target
+    )
   }
   async sendChoices(event: sdk.IO.Event) {
-    const actions = []
-    for (const reply of event.payload.quick_replies) {
-      actions.push({
-        type: 'reply',
-        text: reply.title,
-        payload: reply.payload
-      })
-    }
-
-    await this.smooch.appUsers.sendMessage({
-      appId: this.smooch.keyId,
-      userId: event.target,
-      message: {
+    const actions = event.payload.quick_replies.map(r => ({ type: 'reply', text: r.title, payload: r.payload }))
+    return this.sendMessage(
+      {
         text: event.payload.text,
         role: 'appMaker',
         type: 'text',
         actions
-      }
-    })
+      },
+      event.target
+    )
   }
   async sendDropdown(event: sdk.IO.Event) {
-    const actions = []
-    for (const option of event.payload.options) {
-      actions.push({
-        type: 'reply',
-        text: option.label,
-        payload: option.value
-      })
-    }
-
-    await this.smooch.appUsers.sendMessage({
-      appId: this.smooch.keyId,
-      userId: event.target,
-      message: {
+    const actions = event.payload.options.map(r => ({ type: 'reply', text: r.label, payload: r.value }))
+    return this.sendMessage(
+      {
         text: event.payload.message,
         role: 'appMaker',
         type: 'text',
         actions
-      }
+      },
+      event.target
+    )
+  }
+
+  sendMessage = async (message, userId) => {
+    return this.smooch.appUsers.sendMessage({
+      appId: this.smooch.keyId,
+      userId,
+      message
     })
   }
 }

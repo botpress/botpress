@@ -12,8 +12,6 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
   "devDependencies": {
-    "@types/bluebird-global": "^3.5.7",
-    "@types/lodash": "^4.14.116",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {

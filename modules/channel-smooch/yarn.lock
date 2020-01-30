@@ -852,23 +852,6 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@types/bluebird-global@^3.5.7":
-  version "3.5.9"
-  resolved "https://registry.yarnpkg.com/@types/bluebird-global/-/bluebird-global-3.5.9.tgz#ed5aad94695c65b261c701bc22bb0755a7843f13"
-  integrity sha512-4xOGT3R+LR4C4wZ9pABz9//DR+nhXpvXcWM96zDKxbJxtMzSvCT/u4t0PbFHs7fCSfIlMH4YJo0aHrWofjdZGg==
-  dependencies:
-    "@types/bluebird" "*"
-
-"@types/bluebird@*":
-  version "3.5.24"
-  resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.24.tgz#11f76812531c14f793b8ecbf1de96f672905de8a"
-  integrity sha512-YeQoDpq4Lm8ppSBqAnAeF/xy1cYp/dMTif2JFcvmAbETMRlvKHT2iLcWu+WyYiJO3b3Ivokwo7EQca/xfLVJmg==
-
-"@types/lodash@^4.14.116":
-  version "4.14.116"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.116.tgz#5ccf215653e3e8c786a58390751033a9adca0eb9"
-  integrity sha512-lRnAtKnxMXcYYXqOiotTmJd74uawNWuPnsnPrrO7HiFuE3npE2iQhfABatbYDyxTNqZNuXzcKGhw37R7RjBFLg==
-
 "@webassemblyjs/ast@1.7.8":
   version "1.7.8"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.7.8.tgz#f31f480debeef957f01b623f27eabc695fa4fe8f"

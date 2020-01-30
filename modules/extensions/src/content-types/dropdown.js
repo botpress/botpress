@@ -49,7 +49,6 @@ function renderSlack(data) {
 }
 
 function renderElement(data, channel) {
-  console.log(data)
   if (channel === 'web' || channel === 'api') {
     return render(data)
   } else if (channel === 'slack') {
