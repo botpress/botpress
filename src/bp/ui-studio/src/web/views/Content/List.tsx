@@ -3,14 +3,16 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
+import Markdown from 'react-markdown'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
-import { LeftToolbarButtons, RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
+import { LeftToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 import { Downloader } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 
+import { ContentUsage } from '.'
 import style from './style.scss'
-import { ImportModal } from './ImportModal'
+import { UsageModal } from './UsageModal'
 
 class ListView extends Component<Props, State> {
   private debouncedHandleSearch
@@ -24,8 +26,11 @@ class ListView extends Component<Props, State> {
     page: 0,
     filters: [],
     sortOrder: [],
+    sortOrderUsage: '',
     tableHeight: 0,
-    downloadUrl: undefined
+    downloadUrl: undefined,
+    showUsageModal: false,
+    contentUsage: []
   }
 
   componentDidMount() {
@@ -79,7 +84,13 @@ class ListView extends Component<Props, State> {
   }
 
   handleDeleteSelected = () => {
-    if (window.confirm(`Do you really want to delete ${this.state.checkedIds.length} items?`)) {
+    if (
+      window.confirm(
+        `Do you really want to delete ${this.state.checkedIds.length} item${
+          this.state.checkedIds.length === 1 ? '' : 's'
+        }?`
+      )
+    ) {
       this.props.handleDeleteSelected(this.state.checkedIds)
       this.setState({ checkedIds: [], allChecked: false })
     }
@@ -116,9 +127,18 @@ class ListView extends Component<Props, State> {
     const filters = state.filtered.map(filter => {
       return { column: filter.id, value: filter.value }
     })
-    const sortOrder = state.sorted.map(sort => {
+    let sortOrder = state.sorted.map(sort => {
       return { column: sort.id, desc: sort.desc }
     })
+
+    if (sortOrder[0].column == 'usage') {
+      // we save the sorting locally, because the database doesn't have the 'usage' column
+      this.state.sortOrderUsage = sortOrder[0].desc ? 'desc' : 'asc'
+      sortOrder = []
+    } else {
+      this.state.sortOrderUsage = ''
+    }
+
     const hasTextChanged = !_.isEqual(this.state.filters, filters)
 
     this.setState(
@@ -147,9 +167,15 @@ class ListView extends Component<Props, State> {
   onRowClick = (state, rowInfo, column, instance) => {
     return {
       onClick: (e, handleOriginal) => {
-        if (column.id !== 'checkbox' && !this.props.readOnly && rowInfo) {
-          const { id, contentType } = rowInfo.original
-          this.props.handleEdit(id, contentType)
+        if (rowInfo) {
+          if (column.id === 'usage') {
+            if (rowInfo.original.usage.length) {
+              this.setState({ showUsageModal: true, contentUsage: rowInfo.original.usage })
+            }
+          } else if (column.id !== 'checkbox' && !this.props.readOnly) {
+            const { id, contentType } = rowInfo.original
+            this.props.handleEdit(id, contentType)
+          }
         }
 
         if (handleOriginal) {
@@ -213,7 +239,19 @@ class ListView extends Component<Props, State> {
           const className = classnames({ [style.missingTranslation]: preview.startsWith('(missing translation) ') })
           return (
             <React.Fragment>
-              <span className={className}>{preview}</span>
+              <span className={className}>
+                <Markdown
+                  source={preview}
+                  renderers={{
+                    image: props => <img {...props} className={style.imagePreview} />,
+                    link: props => (
+                      <a href={props.href} target="_blank">
+                        {props.children}
+                      </a>
+                    )
+                  }}
+                />
+              </span>
             </React.Fragment>
           )
         }
@@ -233,11 +271,26 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Cell: x => (!this.props.readOnly ? <Button small={true} icon="edit" className="icon-edit" /> : ''),
+        Header: 'Usage',
+        id: 'usage',
+        Cell: x => {
+          const count = this.getCountUsage(x.original.usage)
+          return count ? <a>{count}</a> : count
+        },
+        filterable: false,
+        className: style.centered,
+        width: 100
+      },
+      {
+        Cell: x => (!this.props.readOnly ? <Button small icon="edit" className="icon-edit" /> : ''),
         filterable: false,
         width: 45
       }
     ]
+  }
+
+  getCountUsage(usage: ContentUsage[]) {
+    return usage.reduce((acc: number, v: ContentUsage) => (acc += v.count), 0)
   }
 
   renderTable() {
@@ -245,6 +298,14 @@ class ListView extends Component<Props, State> {
     const noDataMessage = this.props.readOnly
       ? "There's no content here."
       : "There's no content yet. You can create some using the 'Add' button."
+
+    if (this.state.sortOrderUsage) {
+      const desc = this.state.sortOrderUsage === 'desc'
+      this.props.contentItems.sort((a, b) => {
+        const c = this.getCountUsage(a.usage) > this.getCountUsage(b.usage) ? 1 : -1
+        return desc ? -c : c
+      })
+    }
 
     return (
       <ReactTable
@@ -308,7 +369,7 @@ class ListView extends Component<Props, State> {
               id="input-search"
               style={{ marginTop: 3, width: 250 }}
               placeholder="Search content"
-              small={true}
+              small
               value={this.state.searchTerm}
               onChange={this.handleSearchChanged}
             />
@@ -327,6 +388,11 @@ class ListView extends Component<Props, State> {
           </RightToolbarButtons> */}
         </Toolbar>
         <div style={{ padding: 5 }}>{this.renderTable()}</div>
+        <UsageModal
+          usage={this.state.contentUsage}
+          handleClose={() => this.setState({ showUsageModal: false })}
+          isOpen={this.state.showUsageModal}
+        />
       </div>
     )
   }
@@ -356,6 +422,8 @@ interface State {
   filters: any
   tableHeight: number
   downloadUrl: string | undefined
+  showUsageModal: boolean
+  contentUsage: ContentUsage[]
 }
 
 interface SearchQuery {

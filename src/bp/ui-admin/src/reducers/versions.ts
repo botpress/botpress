@@ -1,6 +1,7 @@
 import axios from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
+import api from '~/api'
 
 interface GithubRelease {
   version: string
@@ -15,7 +16,7 @@ export interface VersionState {
   latestReleases: GithubRelease[]
 }
 
-const RECEIVE_CURRENT_VERSON = 'version/RECEIVE_CURRENT_VERSON'
+const RECEIVE_CURRENT_VERSION = 'version/RECEIVE_CURRENT_VERSION'
 const RECEIVE_LATEST_RELEASES = 'version/RECEIVE_LATEST_RELEASES'
 
 export const fetchCurrentVersion = () => {
@@ -23,7 +24,7 @@ export const fetchCurrentVersion = () => {
     try {
       const { data } = await axios.get('/version', { baseURL: process.env.REACT_APP_API_URL })
       dispatch({
-        type: RECEIVE_CURRENT_VERSON,
+        type: RECEIVE_CURRENT_VERSION,
         payload: { version: data }
       })
     } catch (err) {
@@ -45,8 +46,28 @@ export const fetchLatestVersions = () => {
         details: x.body,
         githubUrl: x.html_url,
         releaseDate: x.created_at,
-        daysAgo: moment(x.created_at).fromNow()
+        daysAgo: moment(x.created_at).fromNow(),
+        dockerUrl: ''
       }))
+
+      try {
+        const { data } = await api.getSecured().get('/admin/docker_images')
+
+        const dockerInfo = data.results.map(result => ({
+          name: result.name,
+          version: result.name.slice(1).replace(/_/g, '.'),
+          hash: result.images[0].digest.replace(/\:/g, '-')
+        }))
+
+        releases.forEach(r => {
+          const details = dockerInfo.find(x => x.version === r.version)
+          if (details) {
+            r.dockerUrl = `https://hub.docker.com/layers/botpress/server/${details.name}/images/${details.hash}`
+          }
+        })
+      } catch (err) {
+        console.error('could not fetch docker image information', err)
+      }
 
       dispatch({
         type: RECEIVE_LATEST_RELEASES,
@@ -67,7 +88,7 @@ export default (state: VersionState = initialState, action) => {
         ...state,
         latestReleases: action.payload.releases
       }
-    case RECEIVE_CURRENT_VERSON:
+    case RECEIVE_CURRENT_VERSION:
       return {
         ...state,
         currentVersion: action.payload.version

@@ -280,10 +280,13 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`/s`, this.shortlinksRouter.router)
 
-    this.app.use(function handleErrors(err, req, res, next) {
+    this.app.use((err, req, res, next) => {
       if (err instanceof UnlicensedError) {
         next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
       } else {
+        if (err.statusCode === 413) {
+          this.logger.error('You may need to increase httpServer.bodyLimit in file data/global/botpress.config.json')
+        }
         next(err)
       }
     })
@@ -318,9 +321,7 @@ export default class HTTPServer {
 
     if (!process.env.EXTERNAL_URL && !config.externalUrl) {
       this.logger.warn(
-        `External URL is not configured. Using default value of ${
-          process.EXTERNAL_URL
-        }. Some features may not work properly`
+        `External URL is not configured. Using default value of ${process.EXTERNAL_URL}. Some features may not work properly`
       )
     }
 

@@ -15,7 +15,7 @@ import { BotpressConfig } from './botpress.config'
 
 /**
  * These properties should not be considered when calculating the config hash
- * They are always read from the configuraiton file and can be dynamically changed
+ * They are always read from the configuration file and can be dynamically changed
  */
 const removeDynamicProps = config => _.omit(config, ['superAdmins'])
 
@@ -103,7 +103,7 @@ export class ConfigProvider {
       const botpressConfigSchema = await this.ghostService
         .root()
         .readFileAsObject<any>('/', 'botpress.config.schema.json')
-      const defaultConfig = defaultJsonBuilder(botpressConfigSchema)
+      const defaultConfig: BotpressConfig = defaultJsonBuilder(botpressConfigSchema)
 
       const config = {
         $schema: `../botpress.config.schema.json`,

@@ -9,10 +9,17 @@ import { Config } from '../config'
 import { FileDefinition, FileTypes } from './definitions'
 import { EditorError } from './editorError'
 import { EditableFile, FilePermissions, FilesDS, FileType, TypingDefinitions } from './typings'
-import { assertValidFilename, buildRestrictedProcessVars, getBuiltinExclusion, getFileLocation } from './utils'
+import {
+  assertValidFilename,
+  buildRestrictedProcessVars,
+  getBuiltinExclusion,
+  getFileLocation,
+  RAW_TYPE
+} from './utils'
 
 export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 export const MAIN_GLOBAL_CONFIG_FILES = ['botpress.config.json', 'workspaces.json']
+const RAW_FILES_FILTERS = ['**/*.map']
 
 export default class Editor {
   private bp: typeof sdk
@@ -26,7 +33,13 @@ export default class Editor {
     this._config = config
   }
 
-  async getAllFiles(permissions: FilePermissions): Promise<FilesDS> {
+  async getAllFiles(permissions: FilePermissions, rawFiles?: boolean): Promise<FilesDS> {
+    if (rawFiles && permissions['root.raw'].read) {
+      return {
+        raw: await this.loadRawFiles()
+      }
+    }
+
     const files: FilesDS = {}
 
     await Promise.mapSeries(Object.keys(permissions), async type => {
@@ -53,6 +66,11 @@ export default class Editor {
     return this._getGhost(file).readFileAsString(folder, filename)
   }
 
+  async readFileBuffer(file: EditableFile): Promise<Buffer> {
+    const { folder, filename } = getFileLocation(file)
+    return this._getGhost(file).readFileAsBuffer(folder, filename)
+  }
+
   async saveFile(file: EditableFile): Promise<void> {
     const shouldSyncToDisk = FileTypes[file.type].ghost.shouldSyncToDisk
     const { folder, filename } = getFileLocation(file)
@@ -60,6 +78,17 @@ export default class Editor {
     return this._getGhost(file).upsertFile(folder, filename, file.content, {
       syncDbToDisk: shouldSyncToDisk
     })
+  }
+
+  async loadRawFiles(): Promise<EditableFile[]> {
+    const files = await this.bp.ghost.forRoot().directoryListing('/', '*.*', RAW_FILES_FILTERS, true)
+
+    return Promise.map(files, async (filepath: string) => ({
+      name: path.basename(filepath),
+      type: 'raw' as FileType,
+      location: filepath,
+      content: undefined
+    }))
   }
 
   async loadFiles(fileTypeId: string, botId?: string): Promise<EditableFile[]> {
@@ -106,6 +135,9 @@ export default class Editor {
   }
 
   private _getGhost(file: EditableFile): sdk.ScopedGhostService {
+    if (file.type === RAW_TYPE) {
+      return this.bp.ghost.forRoot()
+    }
     return file.botId ? this.bp.ghost.forBot(this._botId) : this.bp.ghost.forGlobal()
   }
 
@@ -120,7 +152,9 @@ export default class Editor {
   }
 
   async renameFile(file: EditableFile, newName: string): Promise<void> {
-    assertValidFilename(newName)
+    if (file.type !== RAW_TYPE) {
+      assertValidFilename(newName)
+    }
 
     const { folder, filename } = getFileLocation(file)
     const newFilename = filename.replace(filename, newName)
@@ -151,15 +185,42 @@ export default class Editor {
     // Required so array.includes() can be used without displaying an error
     const es6include = fs.readFileSync(path.join(__dirname, '/../typings/es6include.txt'), 'utf-8')
 
+    const moduleTypings = await this.getModuleTypings()
+
     this._typings = {
       'process.d.ts': buildRestrictedProcessVars(),
       'node.d.ts': nodeTyping.toString(),
       'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`),
       'bot.config.schema.json': botSchema.toString(),
       'botpress.config.schema.json': botpressConfigSchema.toString(),
-      'es6include.d.ts': es6include.toString()
+      'es6include.d.ts': es6include.toString(),
+      ...moduleTypings
     }
 
     return this._typings
+  }
+
+  async getModuleTypings() {
+    const cwd = path.resolve(__dirname, '../../..')
+    try {
+      return _.reduce(
+        fs.readdirSync(cwd),
+        (result, dir) => {
+          const pkgPath = path.join(cwd, dir, 'package.json')
+          if (fs.existsSync(pkgPath)) {
+            const moduleName = require(pkgPath).name
+            const schemaPath = path.join(cwd, dir, 'assets/config.schema.json')
+            result[`modules/${moduleName}/config.schema.json`] = fs.existsSync(schemaPath)
+              ? fs.readFileSync(schemaPath, 'utf-8')
+              : '{}'
+          }
+          return result
+        },
+        {}
+      )
+    } catch (e) {
+      this.bp.logger.attachError(e).error('Error reading typings')
+      return {}
+    }
   }
 }

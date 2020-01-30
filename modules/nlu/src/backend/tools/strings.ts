@@ -36,46 +36,41 @@ export function setSimilarity(a: string[], b: string[]): number {
 
 /**
  * Returns the levenshtein distance between two strings
- * Duplicate of `src/bp/ml/homebrew/leveinsthein`, remove/refactor if/when we merge NLU into core
  * @returns the # of operations required to go from a to b
  */
 export function levenshtein(a: string, b: string): number {
-  let tmp
-
-  if (a.length === 0) {
-    return b.length
+  const an = a ? a.length : 0
+  const bn = b ? b.length : 0
+  if (an === 0) {
+    return bn
   }
-  if (b.length === 0) {
-    return a.length
+  if (bn === 0) {
+    return an
   }
-  if (a.length > b.length) {
-    tmp = a
-    a = b
-    b = tmp
+  const matrix = new Array<number[]>(bn + 1)
+  for (let i = 0; i <= bn; ++i) {
+    const row = (matrix[i] = new Array<number>(an + 1))
+    row[0] = i
   }
-
-  let i: number,
-    j: number,
-    res: number = 0
-
-  const alen = a.length,
-    blen = b.length,
-    row = Array(alen)
-
-  for (i = 0; i <= alen; i++) {
-    row[i] = i
+  const firstRow = matrix[0]
+  for (let j = 1; j <= an; ++j) {
+    firstRow[j] = j
   }
-
-  for (i = 1; i <= blen; i++) {
-    res = i
-    for (j = 1; j <= alen; j++) {
-      tmp = row[j - 1]
-      row[j - 1] = res
-      res = b[i - 1] === a[j - 1] ? tmp : Math.min(tmp + 1, Math.min(res + 1, row[j] + 1))
+  for (let i = 1; i <= bn; ++i) {
+    for (let j = 1; j <= an; ++j) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1]
+      } else {
+        matrix[i][j] =
+          Math.min(
+            matrix[i - 1][j - 1], // substitution
+            matrix[i][j - 1], // insertion
+            matrix[i - 1][j] // deletion
+          ) + 1
+      }
     }
   }
-
-  return res
+  return matrix[bn][an]
 }
 
 /**

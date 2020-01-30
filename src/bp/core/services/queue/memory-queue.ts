@@ -5,7 +5,7 @@ import nanoid from 'nanoid'
 
 import { TYPES } from '../../types'
 
-import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueConsummer, QueueOptions } from '.'
+import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueConsumer, QueueOptions } from '.'
 
 @injectable()
 export default class MemoryQueue implements Queue {
@@ -114,7 +114,7 @@ export default class MemoryQueue implements Queue {
     }
   }
 
-  subscribe(fn: QueueConsummer) {
+  subscribe(fn: QueueConsumer) {
     this._subscribers.push(fn)
   }
 }

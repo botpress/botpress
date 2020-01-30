@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import fse from 'fs-extra'
+import httpsProxyAgent from 'https-proxy-agent'
 import _, { debounce, sumBy } from 'lodash'
 import lru from 'lru-cache'
 import moment from 'moment'
@@ -10,7 +11,7 @@ import path from 'path'
 
 import { setSimilarity, vocabNGram } from './tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from './tools/token-utils'
-import { Gateway, LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
+import { Gateway, LangsGateway, LanguageProvider, LanguageSource, NLUHealth, Token2Vec } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -95,7 +96,13 @@ export class RemoteLanguageProvider implements LanguageProvider {
         headers['authorization'] = 'bearer ' + source.authToken
       }
 
-      const client = axios.create({ baseURL: source.endpoint, headers })
+      const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
+
+      const client = axios.create({
+        baseURL: source.endpoint,
+        headers,
+        ...proxyConfig
+      })
       try {
         await retry(async () => {
           const { data } = await client.get('/info')
@@ -346,7 +353,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       const group = idxToFetch.splice(0, 100)
 
       // We have new tokens we haven't cached yet
-      const query = group.map(idx => tokens[idx])
+      const query = group.map(idx => tokens[idx].toLowerCase())
       // Fetch only the missing tokens
       if (!query.length) {
         break
@@ -356,9 +363,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
       if (fetched.length !== query.length) {
         throw new Error(
-          `Language Provider didn't receive as many vectors as we asked for (asked ${query.length} and received ${
-            fetched.length
-          })`
+          `Language Provider didn't receive as many vectors as we asked for (asked ${query.length} and received ${fetched.length})`
         )
       }
 
@@ -374,7 +379,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return vectors
   }
 
-  async tokenize(utterances: string[], lang: string): Promise<string[][]> {
+  async tokenize(utterances: string[], lang: string, vocab: Token2Vec = {}): Promise<string[][]> {
     if (!utterances.length) {
       return []
     }
@@ -392,7 +397,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     })
 
     // At this point, final[] contains the utterances we had cached
-    // It has somes "holes", we kept track of the indices where those wholes are in `idxToFetch`
+    // It has some "holes", we kept track of the indices where those wholes are in `idxToFetch`
 
     while (idxToFetch.length) {
       // While there's utterances we haven't tokenized yet
@@ -413,13 +418,11 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
 
       let fetched = await this.queryProvider<string[][]>(lang, '/tokenize', { utterances: query }, 'tokens')
-      fetched = fetched.map(processUtteranceTokens)
+      fetched = fetched.map(toks => processUtteranceTokens(toks, vocab))
 
       if (fetched.length !== query.length) {
         throw new Error(
-          `Language Provider didn't receive as many utterances as we asked for (asked ${query.length} and received ${
-            fetched.length
-          })`
+          `Language Provider didn't receive as many utterances as we asked for (asked ${query.length} and received ${fetched.length})`
         )
       }
 

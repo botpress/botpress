@@ -3,7 +3,6 @@ import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
-import { style, ToastContainer } from 'react-toastify'
 import { bindActionCreators } from 'redux'
 import { toggleBottomPanel, updateDocumentationModal, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
@@ -18,6 +17,7 @@ import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 
 import GuidedTour from './GuidedTour'
+import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.styl'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
@@ -182,7 +182,6 @@ class Layout extends React.Component<ILayoutProps> {
             <BottomPanel />
           </SplitPane>
 
-          <ToastContainer position="bottom-right" />
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
@@ -197,6 +196,7 @@ class Layout extends React.Component<ILayoutProps> {
             toggleBottomPanel={this.props.toggleBottomPanel}
           />
           <GuidedTour isDisplayed={this.state.guidedTourOpen} onToggle={this.toggleGuidedTour} />
+          <LanguageServerHealth />
         </div>
       </HotKeys>
     )

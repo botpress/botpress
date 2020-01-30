@@ -41,7 +41,7 @@ Means the user will _see_ everything but the flows, and won't be able to _change
 | +w  | Grant write  |
 | -w  | Revoke write |
 
-### Available Ressources (res)
+### Available Resources (res)
 
 | res               | description                                  |
 | ----------------- | -------------------------------------------- |
@@ -63,7 +63,7 @@ Means the user will _see_ everything but the flows, and won't be able to _change
 | module.\*         | Global access to all modules                 |
 | module.MODULE_ID  |                                              |
 
-For now, modules only support a single top-level ressource **and one operation (write)**. The ressource path is defined as `module.MODULE_ID`, for example `module.hitl` or `module.code-editor`.
+For now, modules only support a single top-level resource **and one operation (write)**. The resource path is defined as `module.MODULE_ID`, for example `module.hitl` or `module.code-editor`.
 
 ### Example
 

@@ -37,7 +37,7 @@ export const createZip = async (dataset: Dataset, config: DialogflowConfig): Pro
       entities.file(
         `${entity.name}_entries_${dataset.defaultLanguage}.json`,
         Files['entities/<name>_entries_<lang>.json'](
-          entity.occurences.map(x => ({
+          entity.occurrences.map(x => ({
             value: x.name,
             synonyms: x.synonyms
           }))
@@ -136,9 +136,7 @@ export const predict = async (config: DialogflowConfig, text: string, langCode: 
   }
 
   const { data } = await axios.post(
-    `https://content-dialogflow.googleapis.com/v2/projects/${
-      config.projectId
-    }/agent/sessions/${sessionId}:detectIntent`,
+    `https://content-dialogflow.googleapis.com/v2/projects/${config.projectId}/agent/sessions/${sessionId}:detectIntent`,
     body,
     {
       params: { alt: 'json' },

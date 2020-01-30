@@ -16,7 +16,7 @@ class UploadWidget extends Component {
     }
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
     if (!newProps.value && !this.state.expanded) {
       this.setState({ expanded: true })
     }
@@ -67,7 +67,7 @@ class UploadWidget extends Component {
       <AccessControl
         operation="write"
         resource="bot.media"
-        fallback={<em>Youd don&apos;t have permission to upload files for this bot. Talk to your team owner.</em>}
+        fallback={<em>You don&apos;t have permission to upload files for this bot. Talk to your team owner.</em>}
       >
         <FormGroup>
           {!expanded ? (

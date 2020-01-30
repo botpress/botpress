@@ -214,7 +214,7 @@ export class BotService {
     return this.ghostService.forBot(botId).exportToArchiveBuffer('models/**/*', replaceContent)
   }
 
-  async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
+  async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
     if (!isValidBotId(botId)) {
       throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
     }
@@ -222,7 +222,7 @@ export class BotService {
     if (await this.botExists(botId)) {
       if (!allowOverwrite) {
         throw new InvalidOperationError(
-          `Cannot import the bot ${botId}, it already exists, and overwrite is not allowed`
+          `Cannot import the bot ${botId}, it already exists, and overwriting is not allowed`
         )
       } else {
         this.logger.warn(`The bot ${botId} already exists, files in the archive will overwrite existing ones`)
@@ -242,7 +242,6 @@ export class BotService {
       await this.hookService.executeHook(new Hooks.BeforeBotImport(api, botId, tmpFolder, hookResult))
 
       if (hookResult.allowImport) {
-        const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
         const pipeline = await this.workspaceService.getPipeline(workspaceId)
 
         await replace({
@@ -291,7 +290,7 @@ export class BotService {
     if (configFile.length > 1) {
       throw new InvalidOperationError(`Bots must be imported in separate archives`)
     } else if (configFile.length !== 1) {
-      throw new InvalidOperationError(`The archive doesn't seems to contain a bot`)
+      throw new InvalidOperationError(`The archive doesn't seem to contain a bot`)
     }
 
     return path.join(directory, path.dirname(configFile[0]))
@@ -382,7 +381,7 @@ export class BotService {
     await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult))
     if (_.isArray(hookResult.actions)) {
       await Promise.map(hookResult.actions, async action => {
-        if (bpConfig.autoRevision) {
+        if (bpConfig.autoRevision && (await this.botExists(alteredBot.id))) {
           await this.createRevision(alteredBot.id)
         }
         if (action === 'promote_copy') {
@@ -545,7 +544,7 @@ export class BotService {
     } catch (err) {
       this.logger
         .attachError(err)
-        .error(`Cannot mount bot "${botId}". Make sure it exists on the filesytem or the database.`)
+        .error(`Cannot mount bot "${botId}". Make sure it exists on the filesystem or the database.`)
     }
   }
 
@@ -588,8 +587,8 @@ export class BotService {
     return revisions
       .filter(rev => rev.startsWith(`${botId}${REV_SPLIT_CHAR}`) && rev.includes(stageID))
       .sort((revA, revB) => {
-        const dateA = revA.split(REV_SPLIT_CHAR)[1].replace('.tgz', '')
-        const dateB = revB.split(REV_SPLIT_CHAR)[1].replace('.tgz', '')
+        const dateA = revA.split(REV_SPLIT_CHAR)[1].replace(/\.tgz$/i, '')
+        const dateB = revB.split(REV_SPLIT_CHAR)[1].replace(/\.tgz$/i, '')
 
         return parseInt(dateA, 10) - parseInt(dateB, 10)
       })
@@ -612,7 +611,7 @@ export class BotService {
 
   public async rollback(botId: string, revision: string): Promise<void> {
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
-    const revParts = revision.replace('.tgz', '').split(REV_SPLIT_CHAR)
+    const revParts = revision.replace(/\.tgz$/i, '').split(REV_SPLIT_CHAR)
     if (revParts.length < 2) {
       throw new VError('invalid revision')
     }

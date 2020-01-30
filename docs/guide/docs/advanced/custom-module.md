@@ -140,7 +140,7 @@ const onServerReady = async (bp: SDK) => {
 
 ### onBotMount && onBotUnmount
 
-These methods are called everytime a bot is started or stopped (either when starting Botpress or when creating or deleting a bot).
+These methods are called every time a bot is started or stopped (either when starting Botpress or when creating or deleting a bot).
 
 Example:
 
@@ -202,7 +202,7 @@ const botTemplates: sdk.BotTemplate[] = [
 
 The definition is used by Botpress to setup your module.
 
-Please refer to the [API Reference](https://botpress.io/reference/) for informations on the possible options
+Please refer to the [API Reference](https://botpress.io/reference/) for information on the possible options
 
 The only way to communicate with modules (or between them) is by using the API endpoint.
 All modules are isolated and receives their own instance of `bp`
@@ -485,7 +485,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
 
 ## Register Actions
 
-Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](../main/code) section for more informations about Actions.
+Modules can register new actions that will be available on the flow editor. Please check out the [Custom Code](../main/code) section for more information about Actions.
 Those actions must be deployed to the `data/global/actions` folder to be recognized by Botpress. Here is how to do that:
 
 1. Create a folder named `actions` in `src`

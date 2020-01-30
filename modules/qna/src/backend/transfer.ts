@@ -58,7 +58,10 @@ export const importQuestions = async (data: ImportData, storage, bp, statusCallb
   return Promise.each(entriesToSave, async (question: QnaEntry) => {
     await (storage as Storage).insert({ ...question, enabled: true })
     questionsSavedCount += 1
-    statusCallback(uploadStatusId, `Saved ${questionsSavedCount}/${entriesToSave.length} questions`)
+    statusCallback(
+      uploadStatusId,
+      `Saved ${questionsSavedCount}/${entriesToSave.length} question${entriesToSave.length === 1 ? '' : 's'}`
+    )
   })
 }
 

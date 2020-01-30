@@ -48,7 +48,7 @@ const BOTS_GHOST_KEY = '__bots__'
 @injectable()
 export class GhostService {
   private _scopedGhosts: Map<string, ScopedGhostService> = new Map()
-  public enabled: boolean = false
+  public useDbDriver: boolean = false
 
   constructor(
     @inject(TYPES.DiskStorageDriver) private diskDriver: DiskStorageDriver,
@@ -61,14 +61,24 @@ export class GhostService {
     this.cache.events.on && this.cache.events.on('syncDbFilesToDisk', this._onSyncReceived)
   }
 
-  initialize(enabled: boolean) {
-    this.enabled = enabled
+  async initialize(useDbDriver: boolean, ignoreSync?: boolean) {
+    this.useDbDriver = useDbDriver
     this._scopedGhosts.clear()
+
+    const global = await this.global().directoryListing('/')
+
+    if (useDbDriver && !ignoreSync && _.isEmpty(global)) {
+      this.logger.info('Syncing data/global/ to database')
+      await this.global().sync()
+
+      this.logger.info('Syncing data/bots/ to database')
+      await this.bots().sync()
+    }
   }
 
   // Not caching this scope since it's rarely used
   root(): ScopedGhostService {
-    return new ScopedGhostService(`./data`, this.diskDriver, this.dbDriver, this.enabled, this.cache, this.logger)
+    return new ScopedGhostService(`./data`, this.diskDriver, this.dbDriver, this.useDbDriver, this.cache, this.logger)
   }
 
   global(): ScopedGhostService {
@@ -80,7 +90,7 @@ export class GhostService {
       `./data/global`,
       this.diskDriver,
       this.dbDriver,
-      this.enabled,
+      this.useDbDriver,
       this.cache,
       this.logger
     )
@@ -105,10 +115,13 @@ export class GhostService {
 
     const allChanges = await this.listFileChanges(tmpFolder)
     for (const { changes, localFiles } of allChanges) {
-      await Promise.map(changes.filter(x => x.action === 'del'), async file => {
-        await this.dbDriver.deleteFile(file.path)
-        await invalidateFile(file.path)
-      })
+      await Promise.map(
+        changes.filter(x => x.action === 'del'),
+        async file => {
+          await this.dbDriver.deleteFile(file.path)
+          await invalidateFile(file.path)
+        }
+      )
 
       // Upload all local files for that scope
       if (localFiles.length) {
@@ -145,8 +158,14 @@ export class GhostService {
         return {
           path: file,
           action: 'edit' as FileChangeAction,
-          add: _.sumBy(diff.filter(d => d.added), 'count'),
-          del: _.sumBy(diff.filter(d => d.removed), 'count')
+          add: _.sumBy(
+            diff.filter(d => d.added),
+            'count'
+          ),
+          del: _.sumBy(
+            diff.filter(d => d.removed),
+            'count'
+          )
         }
       } catch (err) {
         // Todo better handling
@@ -211,7 +230,7 @@ export class GhostService {
       `./data/bots`,
       this.diskDriver,
       this.dbDriver,
-      this.enabled,
+      this.useDbDriver,
       this.cache,
       this.logger
     )
@@ -233,7 +252,7 @@ export class GhostService {
       `./data/bots/${botId}`,
       this.diskDriver,
       this.dbDriver,
-      this.enabled,
+      this.useDbDriver,
       this.cache,
       this.logger,
       botId
@@ -280,7 +299,7 @@ export class GhostService {
   }
 
   public async getPending(botIds: string[]): Promise<ServerWidePendingRevisions | {}> {
-    if (!this.enabled) {
+    if (!this.useDbDriver) {
       return {}
     }
 
@@ -453,8 +472,8 @@ export class ScopedGhostService {
     })
   }
 
-  public async exportToDirectory(directory: string, exludes?: string | string[]): Promise<string[]> {
-    const allFiles = await this.directoryListing('./', '*.*', exludes, true)
+  public async exportToDirectory(directory: string, excludes?: string | string[]): Promise<string[]> {
+    const allFiles = await this.directoryListing('./', '*.*', excludes, true)
 
     for (const file of allFiles.filter(x => x !== 'revisions.json')) {
       const content = await this.primaryDriver.readFile(this._normalizeFileName('./', file))
@@ -486,11 +505,11 @@ export class ScopedGhostService {
     await this.upsertFiles('/', files, { ignoreLock: true })
   }
 
-  public async exportToArchiveBuffer(exludes?: string | string[], replaceContent?: ReplaceContent): Promise<Buffer> {
+  public async exportToArchiveBuffer(excludes?: string | string[], replaceContent?: ReplaceContent): Promise<Buffer> {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
     try {
-      const outFiles = await this.exportToDirectory(tmpDir.name, exludes)
+      const outFiles = await this.exportToDirectory(tmpDir.name, excludes)
       if (replaceContent) {
         await replace({ files: `${tmpDir.name}/**/*.json`, from: replaceContent.from, to: replaceContent.to })
       }

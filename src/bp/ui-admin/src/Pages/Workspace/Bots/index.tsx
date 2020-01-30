@@ -17,6 +17,7 @@ import { RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 import { toastSuccess } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
+import confirmDialog from '~/App/ConfirmDialog'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 import { Downloader } from '~/Pages/Components/Downloader'
@@ -77,9 +78,14 @@ class Bots extends Component<Props> {
   }
 
   async deleteBot(botId) {
-    if (window.confirm("Are you sure you want to delete this bot? This can't be undone.")) {
+    if (
+      await confirmDialog("Are you sure you want to delete this bot? This can't be undone.", {
+        acceptLabel: 'Delete',
+        declineLabel: 'Cancel'
+      })
+    ) {
       await api.getSecured().post(`/admin/bots/${botId}/delete`)
-      await this.props.fetchBots()
+      this.props.fetchBots()
     }
   }
 
@@ -112,8 +118,9 @@ class Bots extends Component<Props> {
   }
 
   async requestStageChange(botId) {
-    await api.getSecured().post(`/admin/bots/${botId}/stage`)
-    await this.props.fetchBots()
+    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stage`)
+    this.props.fetchBots()
+    toastSuccess('Bot promoted to next stage')
   }
 
   isLicensed = () => {
@@ -145,14 +152,15 @@ class Bots extends Component<Props> {
     return (
       <div className="bp_table bot_views compact_view">
         {bots.map(bot => (
-          <BotItemCompact
-            key={bot.id}
-            bot={bot}
-            deleteBot={this.deleteBot.bind(this, bot.id)}
-            exportBot={this.exportBot.bind(this, bot.id)}
-            createRevision={this.createRevision.bind(this, bot.id)}
-            rollback={this.toggleRollbackModal.bind(this, bot.id)}
-          />
+          <Fragment key={bot.id}>
+            <BotItemCompact
+              bot={bot}
+              deleteBot={this.deleteBot.bind(this, bot.id)}
+              exportBot={this.exportBot.bind(this, bot.id)}
+              createRevision={this.createRevision.bind(this, bot.id)}
+              rollback={this.toggleRollbackModal.bind(this, bot.id)}
+            />
+          </Fragment>
         ))}
       </div>
     )
@@ -173,16 +181,17 @@ class Bots extends Component<Props> {
                 {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
                 {idx === 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
                 {(botsByStage[stage.id] || []).map(bot => (
-                  <BotItemPipeline
-                    key={bot.id}
-                    bot={bot}
-                    allowStageChange={allowStageChange}
-                    requestStageChange={this.requestStageChange.bind(this, bot.id)}
-                    deleteBot={this.deleteBot.bind(this, bot.id)}
-                    exportBot={this.exportBot.bind(this, bot.id)}
-                    createRevision={this.createRevision.bind(this, bot.id)}
-                    rollback={this.toggleRollbackModal.bind(this, bot.id)}
-                  />
+                  <Fragment key={bot.id}>
+                    <BotItemPipeline
+                      bot={bot}
+                      allowStageChange={allowStageChange}
+                      requestStageChange={this.requestStageChange.bind(this, bot.id)}
+                      deleteBot={this.deleteBot.bind(this, bot.id)}
+                      exportBot={this.exportBot.bind(this, bot.id)}
+                      createRevision={this.createRevision.bind(this, bot.id)}
+                      rollback={this.toggleRollbackModal.bind(this, bot.id)}
+                    />
+                  </Fragment>
                 ))}
               </Col>
             )
@@ -217,7 +226,7 @@ class Bots extends Component<Props> {
         )}
 
         {!hasBots && (
-          <Callout title="This workspace has no bot, yet" className="filterCallout">
+          <Callout title="This workspace has no bots, yet" className="filterCallout">
             <p>
               <br />
               In Botpress, bots are always assigned to a workspace.

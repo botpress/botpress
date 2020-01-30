@@ -5,7 +5,7 @@ import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess } from '../u
 describe('Admin - UI', () => {
   it('Load server license page', async () => {
     await clickOn('#btn-menu-license')
-    await expectMatch(new RegExp('Enable Botpress Professionnal|Cluster fingerprint|Unofficial Botpress Build'))
+    await expectMatch(new RegExp('Enable Botpress Professional|Cluster fingerprint|Unofficial Botpress Build'))
   })
 
   it('Load version control page', async () => {

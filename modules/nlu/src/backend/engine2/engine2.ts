@@ -1,29 +1,23 @@
-import { Logger, MLToolkit, NLU } from 'botpress/sdk'
+import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { isPatternValid } from '../tools/patterns-utils'
-import { Engine2, EntityExtractor, ListEntity, TrainingSession } from '../typings'
+import { Engine2, ListEntity, Tools, TrainingSession } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { Model } from './model-service'
+import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 
-export interface Tools {
-  tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
-  vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
-  generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
-  ducklingExtractor: EntityExtractor
-  mlToolkit: typeof MLToolkit
-}
+const trainDebug = DEBUG('nlu').sub('training')
 
 export default class E2 implements Engine2 {
-  private static tools: Tools
+  // NOTE: removed private in order to prevent important refactor (which will be done later)
+  static tools: Tools
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
+  constructor(private defaultLanguage: string, private botId: string) {}
 
   static provideTools(tools: Tools) {
     E2.tools = tools
@@ -33,9 +27,9 @@ export default class E2 implements Engine2 {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    trainingSession: TrainingSession
+    trainingSession?: TrainingSession
   ): Promise<Model> {
-    this.logger.info(`Started ${languageCode} training for bot ${this.botId}`)
+    trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
@@ -44,7 +38,7 @@ export default class E2 implements Engine2 {
           name: e.name,
           fuzzyTolerance: e.fuzzy,
           sensitive: e.sensitive,
-          synonyms: _.chain(e.occurences)
+          synonyms: _.chain(e.occurrences)
             .keyBy('name')
             .mapValues('synonyms')
             .value()
@@ -86,13 +80,16 @@ export default class E2 implements Engine2 {
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
     const model = await Trainer(input, E2.tools)
+    model.hash = computeModelHash(intentDefs, entityDefs)
     if (model.success) {
-      E2.tools.reportTrainingProgress(this.botId, 'Training complete', {
-        ...trainingSession,
-        progress: 1,
-        status: 'done'
-      })
-      this.logger.info(`Successfully finished ${languageCode} training for bot: ${this.botId}`)
+      trainingSession &&
+        E2.tools.reportTrainingProgress(this.botId, 'Training complete', {
+          ...trainingSession,
+          progress: 1,
+          status: 'done'
+        })
+
+      trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
       await this.loadModel(model)
     }
 
@@ -104,18 +101,26 @@ export default class E2 implements Engine2 {
       this.predictorsByLang[model.languageCode] !== undefined &&
       this.modelsByLang[model.languageCode] !== undefined &&
       _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input)
-    ) // compare hash instead
+      // TODO compare hash instead (need a migration)
+      // this.modelsByLang[model.languageCode].hash === model.hash
+    )
   }
 
   async loadModels(models: Model[]) {
-    return Promise.map(models, model => this.loadModel(model))
+    // note the usage of mapSeries, possible race condition
+    return Promise.mapSeries(models, model => this.loadModel(model))
   }
 
   async loadModel(model: Model) {
     if (this.modelAlreadyLoaded(model)) {
       return
     }
+    // TODO if model or predictor not valid, throw and retry
+    this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
+    this.modelsByLang[model.languageCode] = model
+  }
 
+  private async _makePredictors(model: Model): Promise<Predictors> {
     if (!model.data.output) {
       const intents = await ProcessIntents(
         model.data.input.intents,
@@ -123,19 +128,14 @@ export default class E2 implements Engine2 {
         model.data.artefacts.list_entities,
         E2.tools
       )
-      model.data.output = { intents } as TrainOutput // needed for prediction
+      model.data.output = { intents } as TrainOutput
     }
 
-    this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
-    this.modelsByLang[model.languageCode] = model
-  }
-
-  private async _makePredictors(model: Model): Promise<Predictors> {
     const { input, output, artefacts } = model.data
     const tools = E2.tools
 
-    if (input.intents.length > 0) {
-      const ctx_classifer = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
+    if (_.flatMap(input.intents, i => i.utterances).length > 0) {
+      const ctx_classifier = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
       const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
         (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
         {} as _.Dictionary<MLToolkit.SVM.Predictor>
@@ -143,11 +143,11 @@ export default class E2 implements Engine2 {
       const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
       slot_tagger.load(artefacts.slots_model)
 
-      const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persistd
+      const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted
 
       return {
         ...artefacts,
-        ctx_classifer,
+        ctx_classifier,
         intent_classifier_per_ctx,
         slot_tagger,
         kmeans,
@@ -157,7 +157,7 @@ export default class E2 implements Engine2 {
     } else {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return { ...artefacts } as Predictors
+      return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
   }
 
@@ -168,8 +168,7 @@ export default class E2 implements Engine2 {
       includedContexts
     }
 
-    // TODO throw error if no model was loaded
-
+    // error handled a level higher
     return Predict(input, E2.tools, this.predictorsByLang)
   }
 }

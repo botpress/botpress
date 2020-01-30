@@ -90,7 +90,7 @@ export async function buildBackend(modulePath: string) {
   const outputFiles = []
 
   for (const file of files) {
-    const dest = file.replace(/^src\//i, 'dist/').replace(/.ts$/i, '.js')
+    const dest = file.replace(/^src\//i, 'dist/').replace(/\.ts$/i, '.js')
     mkdirp.sync(path.dirname(dest))
 
     if (copyWithoutTransform.find(x => file.startsWith(`src/${x}`))) {

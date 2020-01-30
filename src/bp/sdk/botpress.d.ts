@@ -1,6 +1,6 @@
 /**
  * This is the official Botpress SDK, designed to help our fellow developers to create wonderful modules and
- * extend the world's best chatbot functionnality to make it even better! Your module will receives an instance of
+ * extend the world's best chatbot functionality to make it even better! Your module will receives an instance of
  * this SDK (Yes, all those beautiful features!) to kick start your development. Missing something important?
  * Please let us know in our official Github Repo!
  */
@@ -19,7 +19,8 @@ declare module 'botpress/sdk' {
       tableName: string,
       data: {},
       returnColumns?: string | string[],
-      idColumnName?: string
+      idColumnName?: string,
+      trx?: Knex.Transaction
     ): Promise<T>
   }
 
@@ -159,7 +160,7 @@ declare module 'botpress/sdk' {
     menuIcon?: string
     /** The name displayed on the menu */
     menuText?: string
-    /** Optionnaly specify a link to your page or github repo */
+    /** Optionally specify a link to your page or github repo */
     homepage?: string
     /** Whether or not the module is likely to change */
     experimental?: boolean
@@ -256,8 +257,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new(): Model
-        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new (): Model
+        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -394,7 +395,7 @@ declare module 'botpress/sdk' {
   export namespace NLU {
     export type EntityType = 'system' | 'pattern' | 'list'
 
-    export interface EntityDefOccurence {
+    export interface EntityDefOccurrence {
       name: string
       synonyms: string[]
     }
@@ -407,14 +408,13 @@ declare module 'botpress/sdk' {
       matchCase?: boolean
       examples?: string[]
       fuzzy?: number
-      occurences?: EntityDefOccurence[]
+      occurrences?: EntityDefOccurrence[]
       pattern?: string
     }
 
     export interface SlotDefinition {
       name: string
       entities: string[]
-      entity?: string
       color: number
     }
 
@@ -463,15 +463,11 @@ declare module 'botpress/sdk' {
       source: any
       entity: Entity
       confidence: number
+      start: number
+      end: number
     }
 
-    export interface SlotCollection {
-      [key: string]: Slot
-    }
-
-    export interface SlotsCollection {
-      [key: string]: Slot[]
-    }
+    export type SlotCollection = Dic<Slot>
   }
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
@@ -527,7 +523,7 @@ declare module 'botpress/sdk' {
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
-       * @returns Return wheter or not the event has the flag
+       * @returns Return whether or not the event has the flag
        * @example event.hasFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE)
        */
       hasFlag(flag: symbol): boolean
@@ -556,10 +552,10 @@ declare module 'botpress/sdk' {
 
     export interface EventUnderstanding {
       readonly intent: NLU.Intent
-      /** Predicted intents needs disambiguiation */
+      /** Predicted intents needs disambiguation */
       readonly ambiguous: boolean
       readonly intents: NLU.Intent[]
-      /** The language used for prediction. Will be equal to detected langauge when its part of supported languages, falls back to default language otherwise */
+      /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
       readonly detectedLanguage: string
@@ -597,7 +593,7 @@ declare module 'botpress/sdk' {
       source: string
       /** More specific details from the source of the suggestion, e.g. the name of the QnA */
       sourceDetails?: string
-      /** The Decision Engine's decison about this suggestion */
+      /** The Decision Engine's decision about this suggestion */
       decision: {
         status: 'dropped' | 'elected'
         reason: string
@@ -1043,7 +1039,7 @@ declare module 'botpress/sdk' {
     flow?: string
     /** Used internally by the flow editor */
     readonly lastModified?: Date
-  } & (NodeActions)
+  } & NodeActions
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
 
@@ -1060,7 +1056,7 @@ declare module 'botpress/sdk' {
   export interface NodeTransition {
     /** The text to display instead of the condition in the flow editor */
     caption?: string
-    /** A JS expression thas is evaluated to determine if it should send the user to the specified node */
+    /** A JS expression that is evaluated to determine if it should send the user to the specified node */
     condition: string
     /** The destination node */
     node: string
@@ -1132,7 +1128,7 @@ declare module 'botpress/sdk' {
     inversify: any
   }
 
-  /** These are additional informations that Botpress may pass down to migrations (for ex: running bot-specific migration) */
+  /** These are additional information that Botpress may pass down to migrations (for ex: running bot-specific migration) */
   export interface MigrationMetadata {
     botId?: string
   }
@@ -1194,6 +1190,7 @@ declare module 'botpress/sdk' {
     export function sendPayload(payload: RealTimePayload)
   }
 
+  // prettier-ignore
   export type RouterCondition = boolean | ((req: any) => boolean)
 
   /**
@@ -1298,7 +1295,7 @@ declare module 'botpress/sdk' {
 
     /**
      * Create a new router for a module. Once created, use them to register new endpoints. Routers created
-     * with this method are accessible via the url /mod/{routernName}
+     * with this method are accessible via the url /mod/{routerName}
      *
      * @example const router = bp.http.createRouterForBot('myModule')
      * @example router.get('/list', ...)
@@ -1349,13 +1346,13 @@ declare module 'botpress/sdk' {
 
   /**
    * Events is the base communication channel of the bot. Messages and payloads are a part of it,
-   * and it is the only way to receive or send informations. Each event goes through the whole middleware chain (incoming or outgoing)
+   * and it is the only way to receive or send information. Each event goes through the whole middleware chain (incoming or outgoing)
    * before being received by either the bot or the user.
    */
   export namespace events {
     /**
      * Register a new middleware globally. They are sorted based on their declared order each time a new one is registered.
-     * @param midddleware - The middleware definition to register
+     * @param middleware - The middleware definition to register
      */
     export function registerMiddleware(middleware: IO.MiddlewareDefinition): void
 
@@ -1379,7 +1376,7 @@ declare module 'botpress/sdk' {
     export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
 
     /**
-     * Return the state of the icoming queue. True if there are any events(messages)
+     * Return the state of the incoming queue. True if there are any events(messages)
      * from the user waiting in the queue.
      * @param event - Current event in the action context, used to identify the queue
      */
@@ -1430,7 +1427,7 @@ declare module 'botpress/sdk' {
   export type State = any
 
   /**
-   * The dialog engine is what processes conversations. It orchestrates the conversationnal flow logic.
+   * The dialog engine is what processes conversations. It orchestrates the conversational flow logic.
    */
   export namespace dialog {
     /**
@@ -1450,11 +1447,11 @@ declare module 'botpress/sdk' {
     export function deleteSession(sessionId: string): Promise<void>
 
     /**
-     * Jumps to a specific flow and optionaly a specific node. This is useful when the default flow behaviour needs to be bypassed.
+     * Jumps to a specific flow and optionally a specific node. This is useful when the default flow behavior needs to be bypassed.
      * @param sessionId The Id of the the current Dialog Session. If the session doesn't exists, it will be created with this Id.
      * @param event The event to be processed
      * @param flowName The name of the flow to jump to
-     * @param nodeName The name of the optionnal node to jump to.
+     * @param nodeName The name of the optional node to jump to.
      * The node will default to the starting node of the flow if this value is omitted.
      */
     export function jumpTo(
@@ -1469,7 +1466,7 @@ declare module 'botpress/sdk' {
     export function getModuleConfig(moduleId: string): Promise<any>
 
     /**
-     * Returns the configuation values for the specified module and bot.
+     * Returns the configuration values for the specified module and bot.
      * @param moduleId
      * @param botId
      * @param ignoreGlobal Enable this when you want only bot-specific configuration to be possible
@@ -1597,9 +1594,15 @@ declare module 'botpress/sdk' {
      * Allows to import directly an archive (tar.gz) in a new bot.
      * @param botId The ID of the new bot (or an existing one)
      * @param archive The buffer of the archive file
+     * @param workspaceId The workspace where the bot will be imported
      * @param allowOverwrite? If not set, it will throw an error if the folder exists. Otherwise, it will overwrite files already present
      */
-    export function importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void>
+    export function importBot(
+      botId: string,
+      archive: Buffer,
+      workspaceId: string,
+      allowOverwrite?: boolean
+    ): Promise<void>
   }
 
   export namespace workspaces {
@@ -1642,6 +1645,10 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forGlobal(): ScopedGhostService
+    /**
+     * Access the BPFS at the root of the data folder
+     */
+    export function forRoot(): ScopedGhostService
   }
 
   export namespace cms {
@@ -1723,7 +1730,7 @@ declare module 'botpress/sdk' {
 
     /**
      * Render a template using Mustache template rendering.
-     * Use recursive template rendering to extract nexted templates.
+     * Use recursive template rendering to extract nested templates.
      *
      * @param item TemplateItem to render
      * @param context Variables to use for the template rendering

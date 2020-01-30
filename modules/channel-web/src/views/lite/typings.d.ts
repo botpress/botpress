@@ -119,7 +119,6 @@ export interface StudioConnector {
   events: any
   /** An axios instance */
   axios: any
-  toast: any
   getModuleInjector: any
   loadModuleView: any
 }
@@ -141,6 +140,11 @@ export type Config = {
   enableArrowNavigation: boolean
   botName?: string
   avatarUrl?: string
+  /** Force the display language of the webchat (en, fr, ar, ru, etc..)
+   * Defaults to the user's browser language if not set
+   * Set to 'browser' to force use the browser's language
+   */
+  locale?: 'browser' | string
   /** Small description written under the bot's name */
   botConvoDescription?: string
   /** Replace or insert components at specific locations */
@@ -162,6 +166,8 @@ export type Config = {
   enablePersistHistory: boolean
   /** Experimental: expose the store to the parent frame for more control on the webchat's behavior */
   exposeStore: boolean
+  /** Reference ensures that a specific value and its signature are valid */
+  reference: string
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'

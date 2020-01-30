@@ -28,4 +28,4 @@ If you want to use default postgres connection string simply set it as follow
 
 Please make sure you are using Postgres 9.5 or higher.
 
-If you don't want to type those variables each time you start Botpress, we also supports `.env` files. Check out our [configuration section](../../manage/configuration) for more informations about that
+If you don't want to type those variables each time you start Botpress, we also supports `.env` files. Check out our [configuration section](../../manage/configuration) for more information about that

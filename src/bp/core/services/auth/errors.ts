@@ -5,7 +5,7 @@ export class InvalidOperationError extends ResponseError {
     super('Invalid operation: ' + message, 400, 'BP_0006')
   }
 
-  type = 'InvalidOperatonError'
+  type = 'InvalidOperationError'
 }
 
 export class InvalidCredentialsError extends ResponseError {
@@ -28,7 +28,7 @@ export class LockedOutError extends ResponseError {
 
 export class WeakPasswordError extends ResponseError {
   constructor(message?: string) {
-    super('Password doesnt match policy' + (message ? ' ' + message : ''), 400, 'BP_0012')
+    super("Password doesn't match policy" + (message ? ' ' + message : ''), 400, 'BP_0012')
     this.skipLogging = true
   }
 

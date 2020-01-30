@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import nanoid from 'nanoid/generate'
 import yn from 'yn'
 
 const setup = async bp => {
@@ -34,7 +33,7 @@ const setup = async bp => {
 }
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
-  const randomId = nanoid('abcdefghijklmnopqrstuvwxyz0123456789', 10)
+  const { randomId } = data
   const hardRetryLimit = 10
   const nbMaxRetries = Math.min(Number(data.config.nbMaxRetries), hardRetryLimit)
   const repeatQuestion = yn(data.config.repeatChoicesOnInvalid)
@@ -93,7 +92,7 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
       ],
       next: [
         {
-          condition: `Number(temp['skill-choice-invalid-count-${randomId}']) >= Number(${nbMaxRetries})`,
+          condition: `Number(temp['skill-choice-invalid-count-${randomId}']) > Number(${nbMaxRetries})`,
           node: '#'
         },
         { condition: 'true', node: 'sorry' }

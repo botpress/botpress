@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { CreatedUser, WorkspaceUser } from 'common/typings'
+import { WorkspaceUser } from 'common/typings'
 import AuthService from 'core/services/auth/auth-service'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
@@ -77,8 +77,14 @@ export class UsersRouter extends CustomRouter {
       this.assertBotpressPro,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const { email, strategy, role } = req.body
+        const { strategy, role } = req.body
 
+        const existingUser = await this.authService.findUser(req.body.email, strategy)
+        if (!existingUser) {
+          throw new InvalidOperationError(`User doesn't exist`)
+        }
+
+        const email = existingUser.email
         const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
         if (workspaceUsers.find(x => x.email.toLowerCase() === email.toLowerCase() && x.strategy === strategy)) {
           throw new ConflictError(`User "${email}" is already a member of this workspace`)
@@ -139,12 +145,8 @@ export class UsersRouter extends CustomRouter {
           throw new ConflictError(`User "${email}" is already taken`)
         }
 
-        if (!req.workspace) {
-          throw new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`)
-        }
-
         const result = await this.authService.createUser({ email, strategy }, strategy)
-        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace, { role })
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, { role })
 
         return sendSuccess(res, 'User created successfully', {
           email,
@@ -180,7 +182,7 @@ export class UsersRouter extends CustomRouter {
 
         const tempPassword = await this.authService.resetPassword(email, strategy)
 
-        return sendSuccess(res, 'Password reseted', {
+        return sendSuccess(res, 'Password reset', {
           tempPassword
         })
       })

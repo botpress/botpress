@@ -95,7 +95,7 @@ export class CMSService implements IDisposeOnExit {
     let contentElements: ContentElement[] = []
 
     for (const fileName of fileNames) {
-      const contentType = path.basename(fileName).replace(/.json$/i, '')
+      const contentType = path.basename(fileName).replace(/\.json$/i, '')
       const fileContentElements = await this.ghost
         .forBot(botId)
         .readFileAsObject<ContentElement[]>(this.elementsDir, fileName)
@@ -110,18 +110,23 @@ export class CMSService implements IDisposeOnExit {
   async loadElementsForBot(botId: string): Promise<any[]> {
     const contentElements = await this.getAllElements(botId)
 
-    const elements = await Promise.map(contentElements, element => {
-      return this.memDb(this.contentTable)
-        .insert(this.transformItemApiToDb(botId, element))
-        .catch(err => {
-          // ignore duplicate key errors
-          // TODO: Knex error handling
-        })
-    })
+    try {
+      const elements = await Promise.map(contentElements, element => {
+        return this.memDb(this.contentTable)
+          .insert(this.transformItemApiToDb(botId, element))
+          .catch(err => {
+            // ignore duplicate key errors
+            // TODO: Knex error handling
+          })
+      })
 
-    await this.recomputeElementsForBot(botId)
+      await this.recomputeElementsForBot(botId)
 
-    return elements
+      return elements
+    } catch (err) {
+      this.logger.error(`Error while processing content elements for bot ${botId}`)
+      throw err
+    }
   }
 
   async deleteAllElements(botId: string): Promise<void> {
@@ -237,9 +242,14 @@ export class CMSService implements IDisposeOnExit {
     return Promise.map(apiElements, el => (language ? this._translateElement(el, language) : el))
   }
 
-  async countContentElements(botId: string): Promise<number> {
-    return this.memDb(this.contentTable)
-      .where({ botId })
+  async countContentElements(botId?: string): Promise<number> {
+    let query = this.memDb(this.contentTable)
+
+    if (botId) {
+      query = query.where({ botId })
+    }
+
+    return query
       .count('* as count')
       .first()
       .then(row => (row && Number(row.count)) || 0)
@@ -474,7 +484,7 @@ export class CMSService implements IDisposeOnExit {
 
   private async fillComputedProps(contentType: ContentType, formData: object, languages: string[], defaultLanguage) {
     if (formData == undefined) {
-      throw new Error('"formData" must be a valid object')
+      throw new Error(`"formData" must be a valid object (content type: ${contentType.id})`)
     }
 
     const expandedFormData = await this.resolveRefs(formData)
@@ -600,9 +610,9 @@ export class CMSService implements IDisposeOnExit {
       }
     }
 
-    const additionnalData = { BOT_URL: process.EXTERNAL_URL }
+    const additionalData = { BOT_URL: process.EXTERNAL_URL }
 
-    let payloads = await contentTypeRenderer.renderElement({ ...additionnalData, ...args }, channel)
+    let payloads = await contentTypeRenderer.renderElement({ ...additionalData, ...args }, channel)
     if (!_.isArray(payloads)) {
       payloads = [payloads]
     }

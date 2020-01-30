@@ -4,7 +4,16 @@
 
 [![CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNTZoU0wzRmRQd29iWTFqVjliUzlvN0gzUUtoN25QVHlHMUhWYkZCWHpPQ3ZKQzFOMFh6Wm5EcHkxQW5SUmJuTFpLSDJXdURDVzNtRjM5d1BaU2pNUHhJPSIsIml2UGFyYW1ldGVyU3BlYyI6Iitoa0RBM091SnlXNTJwK2MiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codesuite/codebuild/projects/botpress-ce-tests/history?region=us-east-1)
 
-Botpress is an open-source all-in-one bot creation platform that provides all the tools you need to build, debug and deploy AI-based conversational assistants.
+Botpress is an open-source all-in-one bot creation platform that provides all the tools you need to build, debug and deploy AI-based conversational assistants.  Built-in channels include:
+
+- Facebook Messenger
+- Slack
+- Microsoft Teams
+- Skype
+- Website (Webchat)
+- Telegram
+
+Botpress is:
 
 - Developer-focused
 - Natural Language Understanding (NLU)
@@ -81,5 +90,7 @@ Botpress Partners is a list of agencies who can help you build your next convers
 | [ZeroBulb](https://www.zerobulb.com) | Kerala, India |
 | [Tasqat](https://www.tasqat.com)| Dubai, United Arab Emirates |
 | [Creative Melon](https://creativemelon.co.za) | Johannesburg, South Africa |
+| [PaperGo](https://www.papergo.io) | Patras, Greece |
+| [BotArtisanz](http://botartisanz.com/) | Kerala, India |
 
 _If you are an agency and would like to be on this list, please clone the repository & add your agency to the list in the README.md. Then, you can create a pull request on the repository and we'll make sure to review and merge your PR swiftly._

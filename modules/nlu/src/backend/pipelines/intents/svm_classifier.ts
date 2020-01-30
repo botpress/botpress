@@ -21,6 +21,7 @@ const getPayloadForInnerSVMProgress = total => index => progress => ({
   value: 0.25 + Math.floor((progress * index) / (2 * total))
 })
 
+// DEPRECATED
 export default class SVMClassifier {
   private l0Predictor: sdk.MLToolkit.SVM.Predictor
   private l1PredictorsByContextName: { [key: string]: sdk.MLToolkit.SVM.Predictor } = {}
@@ -110,7 +111,7 @@ export default class SVMClassifier {
       intentDefs.filter(x => x.name !== 'none'),
       // we're generating none intents automatically from now on
       // but some existing bots might have the 'none' intent already created
-      // so we exclude it explicitely from the dataset here
+      // so we exclude it explicitly from the dataset here
       async intent => {
         const utterances = this._getSanitizedIntentUtterances(intent)
         debugTrain('tokenizing intent ' + intent.name)
@@ -357,7 +358,11 @@ export default class SVMClassifier {
 
           const l1Features = [...l1Vec, tokens.length]
           const preds = await this.l1PredictorsByContextName[ctx].predict(l1Features)
-          const l0Conf = _.get(l0.find(x => x.label === ctx), 'confidence', 0)
+          const l0Conf = _.get(
+            l0.find(x => x.label === ctx),
+            'confidence',
+            0
+          )
 
           if (preds.length <= 0) {
             return []
@@ -411,7 +416,10 @@ export default class SVMClassifier {
   ): Promise<sdk.MLToolkit.SVM.Prediction[]> {
     const allL0 = await this.l0Predictor.predict(l0Features)
     const includedL0 = allL0.filter(c => includedContexts.includes(c.label))
-    const totalL0Confidence = Math.min(1, _.sumBy(includedL0, c => c.confidence))
+    const totalL0Confidence = Math.min(
+      1,
+      _.sumBy(includedL0, c => c.confidence)
+    )
     return includedL0.map(x => ({ ...x, confidence: x.confidence / totalL0Confidence }))
   }
 }

@@ -72,7 +72,7 @@ When you have the duckling binary, simply edit the file `data/global/config/nlu.
 ```
 
 - **Linux and Mac**: Duckling must be compiled to run correctly on your specific system. Therefore, you will need to install the software development tools and build it from source.
-  Please follow the instructions on the [GitHub page of Duckling[(https://github.com/facebook/duckling). We may provide some binaries in the future for common OS.
+  Please follow the instructions on the [GitHub page of Duckling](https://github.com/facebook/duckling). We may provide some binaries in the future for common OS.
 
 - **Windows**: If you run Botpress on windows, there is a zip file available [here](https://s3.amazonaws.com/botpress-binaries/tools/duckling/duckling-windows.zip).
   Simply double-click on run-duckling.bat (the bat file simply sets the code page of the console to UTF-8, then runs the executable). The folder `zoneinfo` includes the Olson timezones which are already available by default on other OS.
@@ -376,7 +376,7 @@ Dokku is like a mini heroku on-prem. Once setup on your host, it's very easy to 
 ### Creating your EC2 instance
 
 1. Open the EC2 Dashboard and click on `Instances`. Press the `Launch Instance` button
-2. At the `Choose AMI` step, we recommend using Ubuntu Server 18.04 LTS
+2. At the `Choose AMI` step, we recommend using Ubuntu Server 18.04 LTS, we also support Centos 7.5, Debian 8.11, Red-hat 7.5, Ununtu 16.04
 3. Click on the tab named `6. Configure Security Group`
 4. Add these rules:
 

@@ -51,8 +51,8 @@ export default async (bp: typeof sdk, db: Database) => {
       bp.realtime.sendPayload(payload)
     } else if (standardTypes.includes(messageType)) {
       const message = await db.appendBotMessage(
-        botName,
-        botAvatarUrl,
+        (event.payload || {}).botName || botName,
+        (event.payload || {}).botAvatarUrl || botAvatarUrl,
         conversationId,
         event.payload,
         event.incomingEventId

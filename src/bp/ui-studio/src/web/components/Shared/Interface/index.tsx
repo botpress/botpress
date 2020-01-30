@@ -45,13 +45,15 @@ export const Container = (props: ContainerProps) => {
     'toggle-sidepanel': toggleSidePanel
   }
 
-  const childs = React.Children.toArray(props.children)
+  const children = React.Children.toArray(props.children)
   return (
     <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} className={style.fullsize} focused>
       <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
         <SplitPane split={'vertical'} defaultSize={width} size={sidePanelVisible ? width : 0}>
-          {childs[0]}
-          <div className={style.fullsize}>{childs.slice(1)}</div>
+          {children[0]}
+          <div className={classnames(style.fullsize, { [style.yOverflowScroll]: props.yOverflowScroll })}>
+            {children.slice(1)}
+          </div>
         </SplitPane>
       </div>
     </HotKeys>
@@ -90,7 +92,7 @@ export const SearchBar = (props: SearchBarProps) => {
     <div className={style.searchBar}>
       <ControlGroup fill={true}>
         <InputGroup
-          id="input-filter"
+          id={props.id}
           leftIcon={props.icon}
           placeholder={props.placeholder || 'Search'}
           value={text}

@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events'
 
+global['NativePromise'] = global.Promise
+
 const yn = require('yn')
 const path = require('path')
 const fs = require('fs')
@@ -66,7 +68,7 @@ process.on('uncaughtException', err => {
 
 try {
   require('dotenv').config({ path: path.resolve(process.PROJECT_LOCATION, '.env') })
-  process.core_env = process.env as BotpressEnvironementVariables
+  process.core_env = process.env as BotpressEnvironmentVariables
 
   const argv = require('yargs')
     .command(

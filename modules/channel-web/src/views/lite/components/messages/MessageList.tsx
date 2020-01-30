@@ -1,8 +1,10 @@
+import { ResizeObserver } from '@juggle/resize-observer'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
 import { debounce } from 'lodash'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
+import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
@@ -18,6 +20,7 @@ interface State {
 
 class MessageList extends React.Component<MessageListProps, State> {
   private messagesDiv: HTMLElement
+  private divSizeObserver: ResizeObserver
   state: State = { showNewMessageIndicator: false, manualScroll: false }
 
   componentDidMount() {
@@ -35,8 +38,24 @@ class MessageList extends React.Component<MessageListProps, State> {
         return
       }
       this.tryScrollToBottom()
-      this.tryScrollToBottom(true) // twice because some browsers scrolls before rendering the keyboad
     })
+
+    // this should account for keyboard rendering as it triggers a resize of the messagesDiv
+    this.divSizeObserver = new ResizeObserver(
+      debounce(
+        ([divResizeEntry]) => {
+          // we don't need to do anything with the resize entry
+          this.tryScrollToBottom()
+        },
+        200,
+        { trailing: true }
+      )
+    )
+    this.divSizeObserver.observe(this.messagesDiv)
+  }
+
+  componentWillUnmount() {
+    this.divSizeObserver.disconnect()
   }
 
   tryScrollToBottom(delayed?: boolean) {
@@ -93,7 +112,7 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   renderMessageGroups() {
-    const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMesage(m))
+    const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMessage(m))
     const groups = []
 
     let lastSpeaker = undefined
@@ -101,7 +120,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     let currentGroup = undefined
 
     messages.forEach(m => {
-      const speaker = !!m.userId ? m.userId : 'bot'
+      const speaker = m.full_name
       const date = m.sent_on
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
@@ -113,6 +132,9 @@ class MessageList extends React.Component<MessageListProps, State> {
         groups.push(currentGroup)
       }
 
+      if (currentGroup.find(x => x.id === m.id)) {
+        return
+      }
       currentGroup.push(m)
 
       lastSpeaker = speaker
@@ -146,7 +168,7 @@ class MessageList extends React.Component<MessageListProps, State> {
 
           const avatar = userId
             ? this.props.showUserAvatar && this.renderAvatar(userName, avatarUrl)
-            : this.renderAvatar(this.props.botName, this.props.botAvatarUrl)
+            : this.renderAvatar(this.props.botName, avatarUrl || this.props.botAvatarUrl)
 
           return (
             <div key={i}>
@@ -166,7 +188,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     )
   }
 
-  shouldDisplayMesage = (m: Message): boolean => {
+  shouldDisplayMessage = (m: Message): boolean => {
     return m.message_type !== 'postback'
   }
 
@@ -191,7 +213,11 @@ class MessageList extends React.Component<MessageListProps, State> {
       >
         {this.state.showNewMessageIndicator && (
           <div className="bpw-new-messages-indicator" onClick={e => this.tryScrollToBottom()}>
-            <span>{this.props.intl.formatMessage({ id: 'messages.newMessage' })}</span>
+            <span>
+              {this.props.intl.formatMessage({
+                id: 'messages.newMessage' + (this.props.currentMessages.length === 1 ? '' : 's')
+              })}
+            </span>
           </div>
         )}
         {this.renderMessageGroups()}
@@ -211,18 +237,19 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusedArea: store.view.focusedArea,
   showUserAvatar: store.config.showUserAvatar,
   enableArrowNavigation: store.config.enableArrowNavigation
-}))(observer(MessageList))
+}))(injectIntl(observer(MessageList)))
 
-type MessageListProps = Pick<
-  StoreDef,
-  | 'intl'
-  | 'isBotTyping'
-  | 'focusedArea'
-  | 'focusPrevious'
-  | 'focusNext'
-  | 'botAvatarUrl'
-  | 'botName'
-  | 'enableArrowNavigation'
-  | 'showUserAvatar'
-  | 'currentMessages'
->
+type MessageListProps = InjectedIntlProps &
+  Pick<
+    StoreDef,
+    | 'intl'
+    | 'isBotTyping'
+    | 'focusedArea'
+    | 'focusPrevious'
+    | 'focusNext'
+    | 'botAvatarUrl'
+    | 'botName'
+    | 'enableArrowNavigation'
+    | 'showUserAvatar'
+    | 'currentMessages'
+  >

@@ -43,6 +43,7 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
+import { StatsService } from './services/stats-service'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
@@ -92,7 +93,8 @@ export class Botpress {
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
     @inject(TYPES.EventCollector) private eventCollector: EventCollector,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.MigrationService) private migrationService: MigrationService
+    @inject(TYPES.MigrationService) private migrationService: MigrationService,
+    @inject(TYPES.StatsService) private statsService: StatsService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -131,6 +133,10 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
+
+    if (this.config.sendUsageStats) {
+      this.statsService.start()
+    }
 
     await AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
 
@@ -220,7 +226,7 @@ export class Botpress {
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
 
-      // Avoids overwriting the folder when developping locally on the studio
+      // Avoids overwriting the folder when developing locally on the studio
       if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
         const studioPath = await fse.lstatSync(`${assets}/ui-studio/public`)
         if (studioPath.isSymbolicLink()) {
@@ -260,9 +266,7 @@ export class Botpress {
       const pipeline = await this.workspaceService.getPipeline(workspace.id)
       if (pipeline && pipeline.length > 4) {
         this.logger.warn(
-          `It seems like you have more than 4 stages in your pipeline, consider to join stages together (workspace: ${
-            workspace.id
-          })`
+          `It seems like you have more than 4 stages in your pipeline, consider to join stages together (workspace: ${workspace.id})`
         )
       }
     }
@@ -271,21 +275,6 @@ export class Botpress {
     const botsToMount = _.without(botsRef, ...disabledBots, ...deleted)
 
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
-  }
-
-  @WrapErrorsWith('Error initializing Ghost Service')
-  async initializeGhost(): Promise<void> {
-    const useDbDriver = process.BPFS_STORAGE === 'database'
-    this.ghostService.initialize(useDbDriver)
-    const global = await this.ghostService.global().directoryListing('/')
-
-    if (useDbDriver && _.isEmpty(global)) {
-      this.logger.info('Syncing data/global/ to database')
-      await this.ghostService.global().sync()
-
-      this.logger.info('Syncing data/bots/ to database')
-      await this.ghostService.bots().sync()
-    }
   }
 
   private async initializeServices() {
@@ -428,9 +417,7 @@ Node: ${err.nodeName}`
         this.stats.track(
           'server',
           'heartbeat',
-          `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${
-            process.IS_LICENSED
-          }, bots: ${nbBots}, collaborators: ${nbCollabs}`
+          `version: ${process.BOTPRESS_VERSION}, pro: ${process.IS_PRO_ENABLED}, licensed: ${process.IS_LICENSED}, bots: ${nbBots}, collaborators: ${nbCollabs}`
         )
       }
     }, ms('2m'))

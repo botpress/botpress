@@ -102,13 +102,13 @@ You can consume a memory action just like any other action from the Botpress Flo
 
 Variables set using the `user` namespace will be saved as attributes for the user. This means that those attributes will always follow the user, not notwithstanding conversations or time period.
 
-When a user sends a message to the bot, the first middleware is tasked with loading that user's informations. After everything is processed, any changes to the `user` object will be persisted to the database.
+When a user sends a message to the bot, the first middleware is tasked with loading that user's information. After everything is processed, any changes to the `user` object will be persisted to the database.
 
 This means that you can alter the `user` object using middlwares and actions, and it will be saved at the end.
 
 #### User Memory - Data Retention
 
-Since privacy is an important matter, there is a built-in system that makes it dead-easy to set retention periods for different type of informations. You could have, for example a policy that says `email expires after 2 months` or `remember user's mood for 1 day`. Whenever the user's attribute is changed, the expiration policy is updated.
+Since privacy is an important matter, there is a built-in system that makes it dead-easy to set retention periods for different type of information. You could have, for example a policy that says `email expires after 2 months` or `remember user's mood for 1 day`. Whenever the user's attribute is changed, the expiration policy is updated.
 
 Here's how it could be configured:
 
@@ -174,6 +174,6 @@ Please check out the [Custom Code](code#actions) section for more details about 
 
 What if the four previous types of storage doesn't fulfill my requirements? Don't worry, we still have other options!
 
-The Key-Value Store is a general-purpose store which allows you to store any type of data. You will need to manage expirations and data update yourself, sice Botpress will not update these values on its own.
+The Key-Value Store is a general-purpose store which allows you to store any type of data. You will need to manage expirations and data update yourself, since Botpress will not update these values on its own.
 
 The KVS is available from the [Botpress SDK](https://botpress.io/reference/modules/_botpress_sdk_.kvs.html)

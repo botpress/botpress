@@ -32,18 +32,26 @@ const createHint = (utterances, goodMLUtterances, minMLUtterances) => {
   }
 
   if (utterances.length && utterances.length < minMLUtterances) {
+    const remaining = minMLUtterances - utterances.length
     return (
       <span>
         This Q&A will use <strong>exact match only</strong>. To enable machine learning, add at least{' '}
-        <strong>{minMLUtterances - utterances.length} more questions</strong>
+        <strong>
+          {remaining} more question{remaining === 1 ? '' : 's'}
+        </strong>
       </span>
     )
   }
 
   if (utterances.length >= minMLUtterances && utterances.length < idealNumberOfUtt) {
+    const remaining = idealNumberOfUtt - utterances.length
     return (
       <span>
-        Add <strong>{idealNumberOfUtt - utterances.length} more questions</strong> to make your Q&A more resilient.
+        Add{' '}
+        <strong>
+          {remaining} more question{remaining === 1 ? '' : 's'}
+        </strong>{' '}
+        to make your Q&A more resilient.
       </span>
     )
   }

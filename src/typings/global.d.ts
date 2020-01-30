@@ -40,7 +40,7 @@ declare namespace NodeJS {
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
-    core_env: BotpressEnvironementVariables
+    core_env: BotpressEnvironmentVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
     AUTO_MIGRATE: boolean
@@ -62,7 +62,7 @@ declare type PRO_FEATURES = 'seats'
 /**
  * This is a copy of process.env to add typing and documentation to variables
  */
-declare type BotpressEnvironementVariables = {
+declare type BotpressEnvironmentVariables = {
   /** Replace the path of the NodeJS Native Extensions for external OS-specific libraries such as fastText and CRFSuite */
   readonly NATIVE_EXTENSIONS_DIR?: string
 
@@ -102,7 +102,7 @@ declare type BotpressEnvironementVariables = {
    */
   readonly REVERSE_PROXY?: string
 
-  /** Use this proxy connexion string to access external services, like Duckling and Licensing
+  /** Use this proxy connection string to access external services, like Duckling and Licensing
    *  This values overwrites the value defined in the global Botpress configuration
    * @example http://username:password@hostname:port
    */
@@ -161,6 +161,17 @@ declare type BotpressEnvironementVariables = {
    * Adding temporarily until the feature is battle-tested
    */
   readonly BP_NO_REDIS_STATE?: boolean
+
+  /**
+   * Experimental feature which will try to load actions locally, then from the ghost
+   */
+  readonly BP_EXPERIMENTAL_REQUIRE_BPFS?: boolean
+
+  /**
+   * When true, all hooks and GLOBAL actions are executed outside the sandbox.
+   * Can give a significant performance improvement but removes some protections.
+   */
+  readonly DISABLE_GLOBAL_SANDBOX?: boolean
 }
 
 interface IDebug {

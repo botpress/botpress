@@ -42,7 +42,7 @@ class ImportBotModal extends Component<Props, State> {
     this.setState({ isProcessing: true })
 
     try {
-      await api.getSecured({ timeout: 30000 }).post(`/admin/bots/${this.state.botId}/import`, this.state.fileContent, {
+      await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${this.state.botId}/import`, this.state.fileContent, {
         headers: { 'Content-Type': 'application/tar+gzip' }
       })
 
@@ -139,16 +139,12 @@ class ImportBotModal extends Component<Props, State> {
                 autoFocus={true}
               />
             </FormGroup>
-            <FormGroup
-              label="Bot Archive"
-              labelInfo="*"
-              labelFor="archive"
-              helperText="File must be a valid .zip or .tgz archive"
-            >
+            <FormGroup label="Bot Archive" labelInfo="*" labelFor="archive">
               <FileInput
                 tabIndex={2}
                 text={this.state.filePath || 'Choose file...'}
                 onChange={event => this.handleFileChanged((event.target as HTMLInputElement).files)}
+                inputProps={{ accept: '.zip,.tgz' }}
               />
             </FormGroup>
           </div>

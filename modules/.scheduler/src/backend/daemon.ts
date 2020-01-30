@@ -23,9 +23,9 @@ class Daemon {
       return Bluebird.resolve(undefined)
     }
 
-    const nextOccurence = util.getNextOccurence(task.schedule_type, task.schedule).toDate()
+    const nextOccurrence = util.getNextOccurrence(task.schedule_type, task.schedule).toDate()
 
-    return this.db.scheduleNext(task.id, nextOccurence)
+    return this.db.scheduleNext(task.id, nextOccurrence)
   }
 
   private runSingleTask = async expired => {
@@ -83,7 +83,7 @@ class Daemon {
 
           this.bp.notifications.create(undefined, {
             botId: undefined,
-            message: 'An error occured while running task: ' + taskId + '. Please check the logs for more info.',
+            message: 'An error occurred while running task: ' + taskId + '. Please check the logs for more info.',
             level: 'error'
           })
 

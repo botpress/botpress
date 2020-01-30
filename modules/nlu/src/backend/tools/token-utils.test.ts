@@ -1,5 +1,6 @@
 import { LATIN_CHARSET } from './chars'
 import {
+  isWord,
   makeTokens,
   mergeSimilarCharsetTokens,
   mergeSpecialCharactersTokens,
@@ -7,6 +8,14 @@ import {
   restoreOriginalUtteranceCasing,
   SPACE
 } from './token-utils'
+
+test('isWord', () => {
+  expect(isWord('lol123')).toBeTruthy()
+  expect(isWord('hey 123')).toBeFalsy()
+  expect(isWord('!')).toBeFalsy()
+  expect(isWord('^jo!')).toBeFalsy()
+  expect(isWord('?¿')).toBeFalsy()
+})
 
 // We might want to get rid of this once engine2 is done
 describe('Tokens generation', () => {
@@ -114,6 +123,19 @@ describe('Raw token processing', () => {
         LATIN_CHARSET
       )
     ).toEqual(['ceciesttrès', SPACE, 'vanillé', '#', '123båsStraße'])
+  })
+
+  test('mergeSimilarTokens with custom matcher', () => {
+    expect(
+      mergeSimilarCharsetTokens(['ce', 'ci', 'est', 'très', 'vanil', 'lé'], LATIN_CHARSET, t => t == 'ci' || t == 'lé')
+    ).toEqual(['ceci', 'est', 'très', 'vanillé'])
+
+    const notInVocab = t => !{ ce: 1, ci: 1, est: 1 }[t]
+    expect(mergeSimilarCharsetTokens(['ce', 'ci', 'est', 'très', 'vanil', 'lé'], LATIN_CHARSET, notInVocab)).toEqual([
+      'ce',
+      'ci',
+      'esttrèsvanillé'
+    ])
   })
 
   test('processUtteranceTokens', () => {

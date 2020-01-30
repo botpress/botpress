@@ -152,7 +152,7 @@ export default class LanguageService {
       return { model, path }
     }
 
-    const { model, usedDelta } = await this._getRessourceConsumptionInfo(lang, loadingAction)
+    const { model, usedDelta } = await this._getResourceConsumptionInfo(lang, loadingAction)
 
     return {
       ...this._models[lang].fastTextModel,
@@ -170,7 +170,7 @@ export default class LanguageService {
       return Promise.resolve({ model: tokenizer, path })
     }
 
-    const { model: tokenizer, usedDelta } = await this._getRessourceConsumptionInfo(lang, loadingAction)
+    const { model: tokenizer, usedDelta } = await this._getResourceConsumptionInfo(lang, loadingAction)
 
     return {
       ...this._models[lang].bpeModel,
@@ -180,7 +180,7 @@ export default class LanguageService {
     } as LoadedBPEModel
   }
 
-  private async _getRessourceConsumptionInfo(
+  private async _getResourceConsumptionInfo(
     lang: string,
     action: (
       lang: string
@@ -201,14 +201,15 @@ export default class LanguageService {
     return { model, usedDelta, dtDelta }
   }
 
-  private _getQueryVectors = (fastTextModel: LoadedFastTextModel) => async (token): Promise<number[]> => {
-    const cacheKey = `${fastTextModel.name}/${fastTextModel.path}/${token}`
+  private _getQueryVectors = (fastTextModel: LoadedFastTextModel) => async (token: string): Promise<number[]> => {
+    const t = token.toLowerCase()
+    const cacheKey = `${fastTextModel.name}/${fastTextModel.path}/${t}`
 
     if (this._cache.has(cacheKey)) {
       return this._cache.get(cacheKey)
     }
 
-    const val = await fastTextModel.model.queryWordVectors(token)
+    const val = await fastTextModel.model.queryWordVectors(t)
     this._cache.set(cacheKey, val)
     return val
   }
@@ -248,7 +249,7 @@ export default class LanguageService {
 
   private _getModels(): Dic<ModelSet> {
     if (!fs.existsSync(this.langDir)) {
-      throw new Error(`The language directory (${this.langDir}) doesn't exists.`)
+      throw new Error(`The language directory (${this.langDir}) doesn't exist.`)
     }
 
     const files = fs.readdirSync(this.langDir)

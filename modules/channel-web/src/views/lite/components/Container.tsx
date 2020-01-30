@@ -16,6 +16,10 @@ import OverridableComponent from './OverridableComponent'
 
 class Container extends React.Component<ContainerProps> {
   renderBody() {
+    if (!this.props.isInitialized) {
+      return null
+    }
+
     if (this.props.isConversationsDisplayed) {
       return <ConversationList />
     } else if (this.props.isBotInfoDisplayed) {
@@ -59,6 +63,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   isFullscreen: store.view.isFullscreen,
   sideTransition: store.view.sideTransition,
   dimensions: store.view.dimensions,
+  isInitialized: store.isInitialized,
   isPoweredByDisplayed: store.view.isPoweredByDisplayed,
   config: store.config,
   botName: store.botName
@@ -73,6 +78,7 @@ type ContainerProps = { store?: RootStore } & InjectedIntlProps &
     | 'isConversationsDisplayed'
     | 'isBotInfoDisplayed'
     | 'sideTransition'
+    | 'isInitialized'
     | 'dimensions'
     | 'isPoweredByDisplayed'
   >

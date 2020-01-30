@@ -59,7 +59,7 @@ Here's an example of the structure of an incoming event processed by Botpress Na
   "flags": {},
   "nlu": { // <<<<------
     "language": "en", // language identified
-    "intent": { // most likely intent, assuming confidence is within config treshold
+    "intent": { // most likely intent, assuming confidence is within config threshold
       "name": "hello",
       "confidence": 1
     },
@@ -90,7 +90,7 @@ You can use that metadata in your flows to create transitions when a specific in
 
 To enable debugging of the NLU module, make sure that `debugModeEnabled` is set to `true` in your `data/global/config/nlu.json` file.
 
-> **Tip**: In production, you can also use the `BP_NLU_DEBUGMODEENABLED` environement variable instead of modifying the configuration directly.
+> **Tip**: In production, you can also use the `BP_NLU_DEBUGMODEENABLED` environment variable instead of modifying the configuration directly.
 
 ##### Example of debugging message
 

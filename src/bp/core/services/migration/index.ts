@@ -66,7 +66,7 @@ export class MigrationService {
     this.displayMigrationStatus(configVersion, missingMigrations, this.logger)
 
     if (!process.AUTO_MIGRATE) {
-      await this.logger.error(
+      this.logger.error(
         `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
       )
 
@@ -91,16 +91,16 @@ export class MigrationService {
 
     this.displayMigrationStatus(botVersion, missingMigrations, this.logger.forBot(botId))
     const opts = await this.getMigrationOpts({ botId })
-    let hasFailures
+    let hasFailures = false
 
     await Promise.mapSeries(missingMigrations, async ({ filename }) => {
       const result = await this.loadedMigrations[filename].up(opts)
       debug.forBot(botId, `Migration step finished`, { filename, result })
       if (result.success) {
-        await this.logger.info(`- ${result.message || 'Success'}`)
+        this.logger.info(`- ${result.message || 'Success'}`)
       } else {
         hasFailures = true
-        await this.logger.error(`- ${result.message || 'Failure'}`)
+        this.logger.error(`- ${result.message || 'Failure'}`)
       }
     })
 
@@ -115,7 +115,7 @@ export class MigrationService {
     const opts = await this.getMigrationOpts()
 
     this.logger.info(chalk`========================================
-{bold ${center(`Executing ${missingMigrations.length.toString()} migrations`, 40)}}
+{bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40)}}
 ========================================`)
 
     const completed = await this._getCompletedMigrations()
@@ -149,15 +149,15 @@ export class MigrationService {
       const result = await this.loadedMigrations[filename].up(opts)
       if (result.success) {
         await this._saveCompletedMigration(filename, result)
-        await this.logger.info(`- ${result.message || 'Success'}`)
+        this.logger.info(`- ${result.message || 'Success'}`)
       } else {
         hasFailures = true
-        await this.logger.error(`- ${result.message || 'Failure'}`)
+        this.logger.error(`- ${result.message || 'Failure'}`)
       }
     })
 
     if (hasFailures) {
-      await this.logger.error(
+      this.logger.error(
         `Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.`
       )
 
@@ -185,7 +185,7 @@ export class MigrationService {
     logger.warn(chalk`========================================
 {bold ${center(`Migration Required`, 40)}}
 {dim ${center(`Version ${configVersion} => ${this.currentVersion} `, 40)}}
-{dim ${center(`${migrations.length} changes`, 40)}}
+{dim ${center(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40)}}
 ========================================`)
 
     Object.keys(types).map(type => {
@@ -250,7 +250,7 @@ export class MigrationService {
         return {
           filename: path.basename(filepath),
           version: semver.valid(rawVersion.replace(/_/g, '.')),
-          title: (title || '').replace('.js', ''),
+          title: (title || '').replace(/\.js$/i, ''),
           date: Number(timestamp),
           location: path.join(rootPath, filepath)
         }

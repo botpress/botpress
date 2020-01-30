@@ -8,6 +8,7 @@ import { VError } from 'verror'
 
 import Database from '../../database'
 import { TYPES } from '../../types'
+import { BPError } from '../dialog/errors'
 
 import { FileRevision, StorageDriver } from '.'
 
@@ -73,7 +74,7 @@ export default class DBStorageDriver implements StorageDriver {
         .then()
 
       if (!file) {
-        throw new Error(`[DB Storage] File "${filePath}" not found`)
+        throw new BPError(`[DB Storage] File "${filePath}" not found`, 'ENOENT')
       }
 
       return Buffer.from((<any>file).content as Buffer)

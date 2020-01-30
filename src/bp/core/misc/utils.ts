@@ -30,7 +30,10 @@ export function createSpyObject<T>(): MockObject<T> {
   return proxy as MockObject<T>
 }
 
-export async function expectAsync<T>(promise: Promise<T>, matcher: (obj: jest.Matchers<T>) => void): Promise<void> {
+export async function expectAsync<T>(
+  promise: Promise<T>,
+  matcher: (obj: jest.JestMatchersShape<jest.Matchers<void, T>, jest.Matchers<Promise<void>, T>>) => void
+): Promise<void> {
   try {
     const ret = await promise
     matcher(expect(ret))

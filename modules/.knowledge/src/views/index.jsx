@@ -63,7 +63,7 @@ export default class KnowledgeManager extends Component {
   }
 
   handleDeleteSelected = async documents => {
-    if (confirm(`Do you really want to delete ${documents.length} documents?`)) {
+    if (confirm(`Do you really want to delete ${documents.length} document${documents.length === 1 ? '' : 's'}?`)) {
       await this.props.bp.axios.post(`/mod/knowledge/bulk_delete`, documents)
       this.fetchDocuments()
     }
@@ -133,7 +133,7 @@ export default class KnowledgeManager extends Component {
         })
         .catch(() => {
           this.setState({
-            syncMessage: `There was an eror while synchronizing. Please check the logs`,
+            syncMessage: `There was an error while synchronizing. Please check the logs`,
             isSyncError: true
           })
           this.clearWithDelay('syncMessage')

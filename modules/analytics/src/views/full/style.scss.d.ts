@@ -12,7 +12,7 @@ interface CssExports {
   'metricName': string;
   'noData': string;
   'rangeDropdown': string;
-  'rententionHeatMap': string;
+  'retentionHeatMap': string;
   'smallGraphContainer': string;
   'specificMetrics': string;
   'title': string;

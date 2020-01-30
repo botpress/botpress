@@ -3,14 +3,23 @@ import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { isSpace, SPACE } from '../tools/token-utils'
-import { ListEntity, ListEntityModel, PatternEntity, TFIDF, Token2Vec, TrainingSession } from '../typings'
+import { convertToRealSpaces, isSpace, SPACE } from '../tools/token-utils'
+import {
+  EntityExtractionResult,
+  Intent,
+  ListEntity,
+  ListEntityModel,
+  PatternEntity,
+  TFIDF,
+  Token2Vec,
+  Tools,
+  TrainingSession
+} from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
-import { Tools } from './engine2'
-import { extractUtteranceEntities } from './entity-extractor'
+import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
-import Utterance, { buildUtterances, UtteranceToken, UtteranceToStringOptions } from './utterance'
+import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -46,26 +55,12 @@ export interface TrainArtefacts {
   exact_match_index: ExactMatchIndex
 }
 
-export type Intent<T> = Readonly<{
-  name: string
-  contexts: string[]
-  slot_definitions: SlotDefinition[]
-  utterances: T[]
-  vocab?: _.Dictionary<boolean>
-  slot_entities?: string[]
-}>
-
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
-
-type SlotDefinition = Readonly<{
-  name: string
-  entities: string[]
-}>
 
 type progressCB = (p?: number) => void
 
-const debugIntents = DEBUG('nlu').sub('intents')
-const debugIntentsTrain = debugIntents.sub('train')
+const debugTraining = DEBUG('nlu').sub('training')
+const debugIntentsTrain = debugTraining.sub('intents')
 const NONE_INTENT = 'none'
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
@@ -73,6 +68,7 @@ export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   slots: 'ignore',
   entities: 'ignore'
 }
+export const MIN_NB_UTTERANCES = 3
 const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.SVM.SVMOptions
 // TODO grid search / optimization for those hyperparams
 const NUM_CLUSTERS = 8
@@ -99,7 +95,9 @@ const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
 
 const makeListEntityModel = async (entity: ListEntity, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
-  const allTokens = await tools.tokenize_utterances(allValues, languageCode)
+  const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
+    toks.map(convertToRealSpaces)
+  )
 
   return <ListEntityModel>{
     type: 'custom.list',
@@ -123,7 +121,7 @@ export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.M
     .flatMapDeep(i => i.utterances.map(u => u.tokens))
     // @ts-ignore
     .uniqBy((t: UtteranceToken) => t.value)
-    .map((t: UtteranceToken) => t.vectors)
+    .map((t: UtteranceToken) => t.vector)
     .value() as number[][]
 
   if (data.length < 2) {
@@ -163,10 +161,10 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
     .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
     .reduce(
       // @ts-ignore
-      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vectors }),
+      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vector }),
       {} as Token2Vec
     )
-    .value()
+    .value() as Token2Vec
 }
 
 export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
@@ -186,7 +184,7 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
-const trainIntentClassifer = async (
+const trainIntentClassifier = async (
   input: TrainOutput,
   tools: Tools,
   progress: progressCB
@@ -195,7 +193,7 @@ const trainIntentClassifer = async (
   const n_ctx = input.contexts.length
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx) && i.utterances.length > 3) // min nb utterances
+      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -203,6 +201,7 @@ const trainIntentClassifer = async (
         }))
       )
       .value()
+      .filter(x => x.coordinates.filter(isNaN).length == 0)
 
     if (points.length > 0) {
       const svm = new tools.mlToolkit.SVM.Trainer()
@@ -235,7 +234,7 @@ const trainContextClassifier = async (
           coordinates: utt.sentenceEmbedding
         }))
       )
-  })
+  }).filter(x => x.coordinates.filter(isNaN).length == 0)
 
   if (points.length > 0) {
     const svm = new tools.mlToolkit.SVM.Trainer()
@@ -256,8 +255,8 @@ export const ProcessIntents = async (
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    const cleaned = intent.utterances.map(replaceConsecutiveSpaces)
-    const utterances = await buildUtterances(cleaned, languageCode, tools)
+    const cleaned = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
+    const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
 
     const allowedEntities = _.chain(intent.slot_definitions)
       .flatMap(s => s.entities)
@@ -276,13 +275,29 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const copy = { ...input }
+  const utterances = _.flatMap(input.intents.map(i => i.utterances))
 
-  for (const intent of copy.intents.filter(i => (i.slot_definitions || []).length > 0)) {
-    intent.utterances.forEach(async utterance => await extractUtteranceEntities(utterance, input, tools))
-  }
+  const allSysEntities = (
+    await tools.duckling.extractMultiple(
+      utterances.map(u => u.toString()),
+      input.languageCode,
+      true
+    )
+  ).map(ents => ents.map(mapE1toE2Entity))
 
-  return copy
+  _.zip(utterances, allSysEntities)
+    .map(([utt, sysEntities]) => {
+      const listEntities = extractListEntities(utt, input.list_entities)
+      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
+      return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
+    })
+    .forEach(([utt, entities]) => {
+      entities.forEach(ent => {
+        utt.tagEntity(_.omit(ent, ['start, end']), ent.start, ent.end)
+      })
+    })
+
+  return input
 }
 
 export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
@@ -312,7 +327,7 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   const intent: Intent<Utterance> = {
     name: NONE_INTENT,
     slot_definitions: [],
-    utterances: await buildUtterances(noneUtterances, input.languageCode, tools),
+    utterances: await buildUtteranceBatch(noneUtterances, input.languageCode, tools),
     contexts: [...input.contexts],
     vocab: {},
     slot_entities: []
@@ -337,7 +352,9 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
 }
 
 const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer> => {
-  if (input.intents.length === 0) {
+  const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
+
+  if (!hasSlots) {
     return Buffer.from('')
   }
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
@@ -358,6 +375,9 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
   let progress = 0
   const reportProgress: progressCB = (stepProgress = 1) => {
+    if (!input.trainingSession) {
+      return
+    }
     if (input.trainingSession.status === 'canceled') {
       tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
       throw new TrainingCanceledError()
@@ -377,7 +397,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
     reportProgress()
-    const intent_model_by_ctx = await trainIntentClassifer(output, tools, reportProgress)
+    const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
     reportProgress()
     const slots_model = await trainSlotTagger(output, tools)
     reportProgress()
@@ -396,10 +416,10 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
-    // TODO use bp.logger once this is moved in Engine2
     if (err instanceof TrainingCanceledError) {
-      console.log('Training aborted')
+      debugTraining('Training aborted')
     } else {
+      // TODO use bp.logger once this is moved in Engine2
       console.log('Could not finish training NLU model', err)
     }
     _.merge(model, { success: false })

@@ -35,7 +35,9 @@ const DeleteWorkspaceModal: FC<Props> = props => {
     return null
   }
 
-  const botsWarning = `${props.workspace.bots.length} bots will also be deleted`
+  const botsWarning = `${props.workspace.bots.length} bot${
+    props.workspace.bots.length === 1 ? '' : 's'
+  } will also be deleted`
 
   return (
     <Dialog

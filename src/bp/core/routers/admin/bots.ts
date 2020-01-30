@@ -8,8 +8,8 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { ConflictError, ForbiddenError, NotFoundError } from '../errors'
-import { assertBotpressPro, hasPermissions, needPermissions, success as sendSuccess } from '../util'
+import { ConflictError, ForbiddenError } from '../errors'
+import { assertBotpressPro, assertWorkspace, hasPermissions, needPermissions, success as sendSuccess } from '../util'
 
 const chatUserBotFields = [
   'id',
@@ -51,6 +51,7 @@ export class BotsRouter extends CustomRouter {
 
     router.get(
       '/',
+      assertWorkspace,
       this.asyncMiddleware(async (req, res) => {
         const isBotAdmin = await this.hasPermissions(req, 'read', this.resource)
         const isChatUser = await this.hasPermissions(req, 'read', 'user.bots')
@@ -74,7 +75,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const categories = (await this.configProvider.getBotpressConfig()).botCategories
-        return sendSuccess(res, 'Retreived bot categories', { categories })
+        return sendSuccess(res, 'Retrieved bot categories', { categories })
       })
     )
 
@@ -107,7 +108,7 @@ export class BotsRouter extends CustomRouter {
         }
 
         if (botLinked) {
-          this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workpaces.json for more details`)
+          this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workspaces.json for more details`)
         } else {
           await this.workspaceService.addBotRef(bot.id, req.workspace!)
         }
@@ -203,7 +204,7 @@ export class BotsRouter extends CustomRouter {
         req.on('data', chunk => buffers.push(chunk))
         await Promise.fromCallback(cb => req.on('end', cb))
 
-        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), false)
+        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), req.workspace!, false)
         res.sendStatus(200)
       })
     )

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import Markdown from 'react-markdown'
-import axios from 'axios'
 import _ from 'lodash'
 
 import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
@@ -24,7 +23,7 @@ class ActionModalForm extends Component {
 
   textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { item } = nextProps
 
     if (this.props.show || !nextProps.show) {

@@ -68,7 +68,7 @@ const Menu: FC<MenuProps> = props => {
   const renderLatestReleaseTag = () => {
     const current = props.version.currentVersion
     const latest = _.get(props, 'version.latestReleases.0.version', current)
-    if (latest !== current) {
+    if (latest > current) {
       return (
         <Tag minimal intent={Intent.SUCCESS}>
           new

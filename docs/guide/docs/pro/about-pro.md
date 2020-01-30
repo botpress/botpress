@@ -3,7 +3,7 @@ id: about-pro
 title: About
 ---
 
-## Additionnal Features
+## Additional Features
 
 | Feature                    | Community | Pro |
 | -------------------------- | --------- | --- |
@@ -18,6 +18,7 @@ title: About
 | High-Availability          |           | ✔️  |
 | Increased Performances     |           | ✔️  |
 | Standard Support           |           | ✔️  |
+| Multilanguage Bots         |           | ✔️  |
 
 For more details, visit our [pricing page](https://botpress.io/pricing/).
 

@@ -90,7 +90,7 @@ Here is a complete example
 #### Prerequisite
 
 - Botpress Pro enabled with a valid license key
-- Informations to access the LDAP server
+- Information to access the LDAP server
 
 #### Quick Start
 

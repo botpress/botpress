@@ -58,7 +58,7 @@ export class ModulesRouter extends CustomRouter {
   }
 
   private setupRoutes(): void {
-    this.router.get('/', (req, res) => {
+    this.router.get('/', (_req, res) => {
       res.json(this.moduleLoader.getLoadedModules())
     })
 
@@ -128,7 +128,7 @@ export class ModulesRouter extends CustomRouter {
       '/:moduleName/reload',
       this.checkTokenHeader,
       assertSuperAdmin,
-      this.asyncMiddleware(async (req, res, next) => {
+      this.asyncMiddleware(async (req, res, _next) => {
         const moduleName = req.params.moduleName
         const config = await this.configProvider.getBotpressConfig()
         const module = config.modules.find(x => x.location.endsWith(moduleName))
@@ -145,15 +145,15 @@ export class ModulesRouter extends CustomRouter {
     this.router.get(
       '/botTemplates',
       this.checkTokenHeader,
-      this.asyncMiddleware(async (req, res, next) => {
-        res.send(await this.moduleLoader.getBotTemplates())
+      this.asyncMiddleware(async (_req, res, _next) => {
+        res.send(this.moduleLoader.getBotTemplates())
       })
     )
 
     this.router.get(
       '/skills',
       this.checkTokenHeader,
-      this.asyncMiddleware(async (req, res, next) => {
+      this.asyncMiddleware(async (_req, res, _next) => {
         res.send(await this.moduleLoader.getAllSkills())
       })
     )

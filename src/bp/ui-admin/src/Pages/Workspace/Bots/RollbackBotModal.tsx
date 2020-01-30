@@ -29,7 +29,7 @@ const RollbackBotModal: FC<Props> = props => {
     const { data } = await api.getSecured().get(`/admin/bots/${props.botId}/revisions`)
 
     const revisions = data.payload.revisions.map(rev => {
-      const parts = rev.replace('.tgz', '').split('++')
+      const parts = rev.replace(/\.tgz$/i, '').split('++')
       parts[1] = new Date(parseInt(parts[1], 10)).toLocaleString()
       return {
         label: parts.join(' - '),
@@ -43,7 +43,7 @@ const RollbackBotModal: FC<Props> = props => {
   const submit = async () => {
     try {
       setProcessing(true)
-      await api.getSecured({ timeout: 30000 }).post(`/admin/bots/${props.botId}/rollback`, { revision: selected.value })
+      await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${props.botId}/rollback`, { revision: selected.value })
 
       props.onRollbackSuccess()
       closeModal()

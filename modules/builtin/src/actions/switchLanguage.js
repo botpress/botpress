@@ -5,9 +5,10 @@
  * @author Botpress, Inc.
  * @param {string} lang - The language code, e.g. "en"
  */
-const myAction = async lang => {
-  event.state.user.language = lang
+const switchLanguage = async language => {
+  event.state.user.language = language
+  bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'webchat.data', { payload: { language } }))
   await event.setFlag(bp.IO.WellKnownFlags.FORCE_PERSIST_STATE, true)
 }
 
-return myAction(args.lang)
+return switchLanguage(args.lang)

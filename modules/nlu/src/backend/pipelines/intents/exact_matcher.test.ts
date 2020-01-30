@@ -15,12 +15,15 @@ const NUMBER_ENTITY = 'NUMBER_ENTITY'
 const SPACE = '\u2581'
 
 function makeSequence(text: string, intent: string, knownSlots?: KnownSlot[], contexts?: string[]): TrainingSequence {
-  const tokens = makeTokens(text.split(' ').map(t => SPACE + t), text)
+  const tokens = makeTokens(
+    text.split(' ').map(t => SPACE + t),
+    text
+  )
 
   contexts = contexts || []
   knownSlots = knownSlots || []
   return {
-    cannonical: text,
+    canonical: text,
     contexts,
     intent,
     knownSlots,

@@ -30,22 +30,6 @@ export interface DialogConfig {
   sessionTimeoutInterval: string
 }
 
-/**
- * Configuration file definition for the Converse API
- */
-export type ConverseConfig = {
-  /**
-   * The timeout of the converse API requests
-   * @default 5s
-   */
-  timeout: string
-  /**
-   * The text limitation of the converse API requests
-   * @default 360
-   */
-  maxMessageLength: number
-}
-
 export interface LogsConfig {
   /**
    * The database output will not record Debug logs.
@@ -101,8 +85,8 @@ export type BotpressConfig = {
      */
     port: number
     /**
-     * There are two external URL that Botpress calls: https://license.botpress.io and https://duckling.botpress.io
-     * If you are behind a corporare proxy, you can configure it below.
+     * There are three external URLs that Botpress calls: https://license.botpress.io, https://duckling.botpress.io and https://lang-01.botpress.io
+     * If you are behind a corporate proxy, you can configure it below.
      * It is also possible to self-host Duckling, please check the documentation
      *
      * @example http://username:password@hostname:port
@@ -113,7 +97,7 @@ export type BotpressConfig = {
      */
     backlog: number
     /**
-     * @default 100kb
+     * @default 10mb
      */
     bodyLimit: string | number
     cors: {
@@ -186,7 +170,7 @@ export type BotpressConfig = {
      */
     alerting: AlertingConfig
     /**
-     * External Authentication makes it possible to authenticate end-users (chat users) from an other system
+     * External Authentication makes it possible to authenticate end-users (chat users) from another system
      * by using JWT tokens.
      *
      * In addition to authenticate the users, the JWT token can also contain arbitrary additional
@@ -277,7 +261,7 @@ export type BotpressConfig = {
 }
 
 export interface ExternalAuthConfig {
-  /** Set to true to enable external authentification
+  /** Set to true to enable external authentication
    * @default false
    */
   enabled: boolean
@@ -324,7 +308,7 @@ export type RetentionPolicy = {
 export type AuthStrategyType = 'basic' | 'saml' | 'ldap' | 'oauth2'
 
 export interface AuthStrategy {
-  readonly id: string
+  readonly id?: string
   /**
    * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
    * @default basic
@@ -437,7 +421,7 @@ export interface AuthStrategyOauth2 {
    */
   callbackURL: string
   /*
-   * Set this URL if your access token doesn't include user data. Botpress will query that URL to fetch user informations
+   * Set this URL if your access token doesn't include user data. Botpress will query that URL to fetch user information
    * @example https://botpress.io/userinfo
    */
   userInfoURL?: string
@@ -558,7 +542,7 @@ export interface EventCollectorConfig {
   retentionPeriod: string
   /**
    * Specify an array of event types that won't be persisted to the database. For example, typing events and visits
-   * may not provide you with useful informations
+   * may not provide you with useful information
    * @default ["visit","typing"]
    */
   ignoredEventTypes: string[]

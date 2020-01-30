@@ -7,7 +7,7 @@ import { explodePath, requireAtPaths } from './require'
 
 describe('explodePath', () => {
   it('absolute location', () => {
-    const result = explodePath('/a/b/c/d')
+    const result = explodePath('/a/b/c/d'.replace('/', path.sep))
 
     expect(result[0]).toEqual(path.resolve('/a/b/c/d'))
     expect(result[1]).toEqual(path.resolve('/a/b/c/d/node_production_modules'))
@@ -27,7 +27,7 @@ describe('explodePath', () => {
   })
 
   it('relative location', () => {
-    const result = explodePath('./a/b/c/d')
+    const result = explodePath('./a/b/c/d'.replace('/', path.sep))
 
     expect(result[0]).toEqual(path.join('./a/b/c/d'))
     expect(result[1]).toEqual(path.join('./a/b/c/d/node_production_modules'))

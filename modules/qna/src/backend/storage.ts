@@ -23,7 +23,7 @@ const makeID = (qna: QnaEntry) => {
     .replace(/_+$/, '')}`
 }
 
-const normalizeQuestions = questions =>
+const normalizeQuestions = (questions: string[]) =>
   questions
     .map(q =>
       q
@@ -102,10 +102,10 @@ export default class Storage {
     const { data: allIntents } = await axios.get(`/mod/nlu/intents`, axiosConfig)
 
     const leftOverQnaIntents = allIntents.filter(
-      intent =>
+      (intent: sdk.NLU.IntentDefinition) =>
         intent.name.startsWith('__qna__') && !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
     )
-    await Promise.map(leftOverQnaIntents, intent =>
+    await Promise.map(leftOverQnaIntents, (intent: sdk.NLU.IntentDefinition) =>
       axios.post(`/mod/nlu/intents/${intent.name}/delete`, {}, axiosConfig)
     )
 
@@ -214,11 +214,11 @@ export default class Storage {
   async fetchQNAs(opts?: Paging) {
     try {
       let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
-      if (opts && opts.start && opts.count) {
+      if (opts && opts.count) {
         questions = questions.slice(opts.start, opts.start + opts.count)
       }
 
-      return Promise.map(questions, itemName => this.getQnaItem(itemName.replace('.json', '')))
+      return Promise.map(questions, itemName => this.getQnaItem(itemName.replace(/\.json$/i, '')))
     } catch (err) {
       this.bp.logger.warn(`Error while reading questions. ${err}`)
       return []
@@ -259,8 +259,8 @@ export default class Storage {
 
     if (!(question || categories.length)) {
       items = await this.fetchQNAs({
-        start: offset != undefined ? parseInt(offset, 10) : undefined,
-        count: limit ? parseInt(limit, 10) : undefined
+        start: +offset,
+        count: +limit
       })
       count = await this.count()
     } else {
@@ -273,8 +273,30 @@ export default class Storage {
 
   async getAllContentElementIds(list?: QnaItem[]): Promise<string[]> {
     const qnas = list || (await this.fetchQNAs())
-    const allAnswers = _.flatMapDeep(qnas, qna => Object.keys(qna.data.answers).map(lang => qna.data.answers[lang]))
+    const allAnswers = _.flatMapDeep(qnas, qna => Object.values(qna.data.answers))
     return _.uniq(_.filter(allAnswers as string[], x => _.isString(x) && x.startsWith('#!')))
+  }
+
+  async getContentElementUsage(): Promise<any> {
+    const qnas = await this.fetchQNAs()
+
+    return _.reduce(
+      qnas,
+      (result, qna) => {
+        const answers = _.flatMap(Object.values(qna.data.answers))
+
+        _.filter(answers, x => x.startsWith('#!')).forEach(answer => {
+          const values = result[answer]
+          if (values) {
+            values.count++
+          } else {
+            result[answer] = { qna: qna.id.substr(qna.id.indexOf('_') + 1), count: 1 }
+          }
+        })
+        return result
+      },
+      {}
+    )
   }
 
   async count() {
@@ -285,11 +307,11 @@ export default class Storage {
   // TODO remove batch deleter, it's done one by one anyway
   async delete(qnaId) {
     const ids = _.isArray(qnaId) ? qnaId : [qnaId]
-    if (ids.length === 0) {
+    if (!ids.length) {
       return
     }
 
-    const deletePromise = async (id): Promise<void> => {
+    const deletePromise = async (id: string): Promise<void> => {
       await this.deleteMatchingIntent(id)
       return this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
     }

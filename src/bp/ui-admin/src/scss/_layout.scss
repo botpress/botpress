@@ -246,6 +246,41 @@
   }
 }
 
+.coverImg {
+  width: auto;
+  max-width: 100%;
+}
+
+.configUploadSuccess {
+  color: green;
+  margin-top: 1rem;
+}
+
+.with-sticky-action-bar {
+  // Height of the sticky action bar (51px) + 14px to have a small gap between the bottom of the form and the bar
+  padding-bottom: 65px;
+}
+
+.sticky-action-bar {
+  background: #fcfcfc;
+  bottom: 0;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  left: 0;
+  padding: 10px 15px;
+  position: absolute;
+  right: 0;
+  text-align: right;
+
+  button {
+    margin-left: 15px;
+  }
+
+  &--content {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+}
+
 .dropdown-picture {
   height: 30px;
   width: 30px;
