@@ -16,7 +16,7 @@ class UploadWidget extends Component {
     }
   }
 
-  componentWillReceiveProps(newProps) {
+  UNSAFE_componentWillReceiveProps(newProps) {
     if (!newProps.value && !this.state.expanded) {
       this.setState({ expanded: true })
     }

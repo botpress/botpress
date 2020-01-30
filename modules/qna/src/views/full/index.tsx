@@ -27,7 +27,7 @@ export default class QnaAdmin extends Component<Props> {
   state = {
     items: [],
     currentItemId: undefined,
-    flows: null,
+    flows: [],
     flowsList: [],
     filter: '',
     showBulkImport: undefined,
@@ -280,6 +280,7 @@ export default class QnaAdmin extends Component<Props> {
         key={id}
         id={id}
         item={data}
+        flows={this.state.flows}
         contentLang={this.props.contentLang}
         onEditItem={this.editItem(id)}
         onToggleItem={this.toggleEnableItem.bind(this)}

@@ -15,7 +15,7 @@ export default class ParametersTable extends Component {
     this.state = { arguments: this.transformArguments(props.value) }
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({ arguments: this.transformArguments(nextProps.value) })
   }
 

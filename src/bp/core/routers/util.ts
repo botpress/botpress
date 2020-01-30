@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import { StrategyUser } from 'core/repositories/strategy_users'
+import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
@@ -158,6 +159,13 @@ export const assertSuperAdmin = (req: Request, res: Response, next: Function) =>
   next()
 }
 
+export const assertWorkspace = async (req: RequestWithUser, _res: Response, next: NextFunction) => {
+  if (!req.workspace) {
+    return next(new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`))
+  }
+  next()
+}
+
 export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
   _req: RequestWithUser,
   _res: Response,
@@ -231,6 +239,10 @@ const checkPermissions = (workspaceService: WorkspaceService) => (operation: str
     req.workspace = await workspaceService.getBotWorkspaceId(req.params.botId)
   }
 
+  if (!req.workspace) {
+    throw new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`)
+  }
+
   const { email, strategy, isSuperAdmin } = req.tokenUser
 
   // The server user is used internally, and has all the permissions
@@ -246,7 +258,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (operation: str
     return
   }
 
-  if (!email || !strategy || !req.workspace) {
+  if (!email || !strategy) {
     debugFailure(`${req.originalUrl} %o`, {
       method: req.method,
       email,
@@ -255,7 +267,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (operation: str
       ip: req.ip,
       reason: 'missing auth parameter'
     })
-    return new NotFoundError(`Missing one of the required parameters: email, strategy or workspace`)
+    return new NotFoundError(`Missing one of the required parameters: email or strategy`)
   }
 
   const user = await workspaceService.findUser(email, strategy, req.workspace)
