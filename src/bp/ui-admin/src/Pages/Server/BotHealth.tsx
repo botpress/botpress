@@ -122,7 +122,7 @@ const BotHealth: FC<Props> = props => {
       columns={columns}
       data={data}
       defaultPageSize={10}
-      defaultSorted={[{ id: 'host' }]}
+      defaultSorted={[{ id: 'host', desc: false }]}
       className="-striped -highlight monitoringOverview"
     />
   )
