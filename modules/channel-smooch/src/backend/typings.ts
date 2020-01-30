@@ -50,3 +50,15 @@ export interface Message {
     type: string
   }
 }
+
+export interface Card {
+  title: string
+  description: string
+  actions: {
+    text: string
+    type: string
+    uri?: string
+    payload?: string
+  }[]
+  mediaUrl?: string
+}

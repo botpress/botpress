@@ -3,7 +3,7 @@ import Smooch from 'smooch-core'
 
 import { Config } from '../config'
 
-import { Clients, MessagePayload, Webhook } from './typings'
+import { Card, Clients, MessagePayload, Webhook } from './typings'
 
 const MIDDLEWARE_NAME = 'smooch.sendMessage'
 
@@ -119,6 +119,7 @@ export class SmoochClient {
       }
     })
   }
+
   async sendText(event: sdk.IO.Event) {
     return this.sendMessage(
       {
@@ -129,6 +130,7 @@ export class SmoochClient {
       event.target
     )
   }
+
   async sendFile(event: sdk.IO.Event) {
     return this.sendMessage(
       {
@@ -139,19 +141,19 @@ export class SmoochClient {
       event.target
     )
   }
+
   async sendCarousel(event: sdk.IO.Event) {
     const cards = []
     for (const bpCard of event.payload.elements) {
-      const card = {
+      const card: Card = {
         title: bpCard.title,
         description: bpCard.subtitle,
-        mediaUrl: bpCard.picture,
         actions: []
       }
 
       // Smooch crashes if mediaUrl is defined but has no value
-      if (!card.mediaUrl) {
-        delete card.mediaUrl
+      if (bpCard.picture) {
+        card.mediaUrl = bpCard.picture
       }
 
       for (const { type, title, url, payload } of bpCard.buttons) {
@@ -199,6 +201,7 @@ export class SmoochClient {
       event.target
     )
   }
+
   async sendChoices(event: sdk.IO.Event) {
     const actions = event.payload.quick_replies.map(r => ({ type: 'reply', text: r.title, payload: r.payload }))
     return this.sendMessage(
@@ -211,6 +214,7 @@ export class SmoochClient {
       event.target
     )
   }
+
   async sendDropdown(event: sdk.IO.Event) {
     const actions = event.payload.options.map(r => ({ type: 'reply', text: r.label, payload: r.value }))
     return this.sendMessage(

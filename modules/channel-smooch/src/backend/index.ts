@@ -22,9 +22,13 @@ const onServerReady = async (bp: typeof sdk) => {
     const { botId } = req.params
     const client = clients[botId]
 
-    if (client && client.auth(req)) {
-      await client.handleWebhookRequest(req.body)
-      res.sendStatus(200)
+    if (client) {
+      if (client.auth(req)) {
+        await client.handleWebhookRequest(req.body)
+        res.sendStatus(200)
+      } else {
+        res.status(401).send('Auth token invalid')
+      }
     } else {
       res.status(404).send('Bot not a smooch bot')
     }
