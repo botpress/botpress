@@ -26,7 +26,7 @@ export const topicsToGoals = (topics: Topic[]): Goal[] => {
   return topics.reduce((result, t) => {
     const [topic, name] = t.name.split('/')
     if (name) {
-      result.push({ topic, name })
+      result.push({ id: t.name, topic, name })
     }
     return result
   }, [])

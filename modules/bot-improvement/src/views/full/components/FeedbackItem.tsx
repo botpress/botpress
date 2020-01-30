@@ -80,14 +80,14 @@ const FeedbackItemComponent: FC<{
         >
           {correctedActionType === 'qna' &&
             qnaItems.map((i, idx) => (
-              <option key={`qnaItem-${idx}`} value={i.id}>
+              <option key={`qnaItem-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
                 {i.data.questions[contentLang][0]}
               </option>
             ))}
           {correctedActionType === 'start_goal' &&
             goals.map((i, idx) => (
-              <option key={`goal-${idx}`} value={`${i.topic}/${i.name}`}>
-                {`${i.topic}/${i.name}`}
+              <option key={`goal-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
+                {i.id}
               </option>
             ))}
         </select>

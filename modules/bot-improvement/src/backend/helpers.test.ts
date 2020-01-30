@@ -75,7 +75,7 @@ describe('topicsToGoals', () => {
 
   test('one topic', () => {
     expect(topicsToGoals([{ name: 'HR/fireEmployee', description: '' }])).toEqual([
-      { topic: 'HR', name: 'fireEmployee' }
+      { id: 'HR/fireEmployee', topic: 'HR', name: 'fireEmployee' }
     ])
   })
 
@@ -86,6 +86,6 @@ describe('topicsToGoals', () => {
         { name: 'HR/', description: '' },
         { name: 'IT/', description: '' }
       ])
-    ).toEqual([{ topic: 'HR', name: 'fireEmployee' }])
+    ).toEqual([{ id: 'HR/fireEmployee', topic: 'HR', name: 'fireEmployee' }])
   })
 })
