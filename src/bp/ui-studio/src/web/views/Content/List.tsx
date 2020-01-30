@@ -278,7 +278,8 @@ class ListView extends Component<Props, State> {
           return count ? <a>{count}</a> : count
         },
         filterable: false,
-        width: 150
+        className: style.centered,
+        width: 100
       },
       {
         Cell: x => (!this.props.readOnly ? <Button small icon="edit" className="icon-edit" /> : ''),

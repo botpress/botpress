@@ -19,7 +19,8 @@ export const UsageModal: FC<Props> = props => {
     {
       Header: 'Type',
       filterable: false,
-      accessor: 'type'
+      accessor: 'type',
+      width: 100
     },
     {
       Header: 'Name',
@@ -34,7 +35,9 @@ export const UsageModal: FC<Props> = props => {
     {
       Header: 'Count',
       filterable: false,
-      accessor: 'count'
+      accessor: 'count',
+      width: 80,
+      className: style.centered
     }
   ]
 
@@ -56,6 +59,7 @@ export const UsageModal: FC<Props> = props => {
       className={style.modal}
       onClose={props.handleClose}
       canOutsideClickClose
+      style={{ width: 700 }}
     >
       <div className={Classes.DIALOG_BODY}>
         <ReactTable

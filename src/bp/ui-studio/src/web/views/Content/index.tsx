@@ -102,13 +102,15 @@ class ContentView extends Component<Props, State> {
         })
       })
 
-      const usage = this.props.qnaUsage['#!' + element.id]
-      usage &&
-        element.usage.push({
-          type: 'Q&A',
-          name: usage.qna,
-          count: usage.count
-        })
+      if (this.props.qnaUsage) {
+        const usage = this.props.qnaUsage['#!' + element.id]
+        usage &&
+          element.usage.push({
+            type: 'Q&A',
+            name: usage.qna,
+            count: usage.count
+          })
+      }
     })
 
     return this.state.modifyId
@@ -256,7 +258,10 @@ const mapDispatchToProps = {
   deleteContentItems
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContentView)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ContentView)
 
 type Props = {
   fetchContentCategories: Function
