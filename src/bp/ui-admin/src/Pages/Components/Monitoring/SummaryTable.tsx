@@ -91,7 +91,7 @@ const SummaryTable = ({ data }) => {
         columns={columns}
         data={data}
         defaultPageSize={5}
-        defaultSorted={[{ id: 'host' }]}
+        defaultSorted={[{ id: 'host', desc: false }]}
         className="-striped -highlight monitoringOverview"
       />
       <ServerControl hostname={host} isOpen={isModalOpen} toggle={() => setModalOpen(!isModalOpen)} />

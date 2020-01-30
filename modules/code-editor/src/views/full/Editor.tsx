@@ -113,7 +113,6 @@ class Editor extends React.Component<Props> {
       (result, content, name) => {
         result.push({
           uri: 'bp://types/' + name,
-          fileMatch: [name.replace(/schema\./, '')],
           schema: JSON.parse(content)
         })
         return result
@@ -140,7 +139,7 @@ class Editor extends React.Component<Props> {
   render() {
     return (
       <React.Fragment>
-        {!this.props.editor.isOpenedFile && <SplashScreen />}
+        {!this.props.editor.isOpenedFile && <SplashScreen rawEditor={this.props.store.useRawEditor} />}
         <div className={style.editorContainer}>
           <div className={style.tabsContainer}>
             <div className={style.tab}>

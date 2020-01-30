@@ -15,7 +15,7 @@ export default class EditableInput extends Component {
     this.props.onMount && this.props.onMount(this.input)
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({ value: nextProps.value || nextProps.defaultValue })
   }
 

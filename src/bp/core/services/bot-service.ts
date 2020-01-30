@@ -537,6 +537,11 @@ export class BotService {
       return true
     }
 
+    if (!(await this.ghostService.forBot(botId).fileExists('/', 'bot.config.json'))) {
+      this.logger.error(`Cannot mount bot "${botId}". Make sure it exists on the filesystem or the database.`)
+      return false
+    }
+
     try {
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
@@ -569,9 +574,7 @@ export class BotService {
     } catch (err) {
       BotService.setBotStatus(botId, 'error')
 
-      this.logger
-        .attachError(err)
-        .error(`Cannot mount bot "${botId}". Make sure it exists on the filesystem or the database.`)
+      this.logger.attachError(err).error(`Cannot mount bot "${botId}"`)
       return false
     } finally {
       await this._updateBotHealthDebounce()
