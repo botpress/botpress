@@ -10,7 +10,7 @@ export interface Webhook {
   includeFullAppUser: boolean
   /** Triggers that the webhook listens to */
   triggers: string[]
-  /** Smooch secret key */
+  /** Secret key generated for this webhook */
   secret: string
   /** URL to be called when the webhook is triggered */
   target: string
