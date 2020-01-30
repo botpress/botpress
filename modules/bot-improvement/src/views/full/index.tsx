@@ -4,7 +4,7 @@ import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
 import '../../../assets/default.css'
-import { FeedbackItem, FeedbackItemState, QnAItem, Goal } from '../../backend/typings'
+import { FeedbackItem, Goal, QnAItem } from '../../backend/typings'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
