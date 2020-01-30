@@ -29,9 +29,7 @@ const EditorModal: FC<Props> = props => {
       isOpen={props.showQnAModal}
       onClose={props.closeQnAModal}
       transitionDuration={0}
-      canOutsideClickClose={false}
       style={{ width: 700 }}
-      enforceFocus={false}
     >
       <Editor {...props} />
     </Dialog>

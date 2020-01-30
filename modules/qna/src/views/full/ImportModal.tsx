@@ -144,7 +144,7 @@ Either the file is empty, or it doesn't match any known format.`)
               text={filePath || 'Choose file...'}
               onChange={e => readFile((e.target as HTMLInputElement).files)}
               inputProps={{ accept: '.json' }}
-              fill={true}
+              fill
             />
           </FormGroup>
         </div>
@@ -241,7 +241,6 @@ Either the file is empty, or it doesn't match any known format.`)
         isOpen={props.isOpen}
         onClose={closeDialog}
         transitionDuration={0}
-        canOutsideClickClose={false}
       >
         {showStatus && renderStatus()}
         {!showStatus && (analysis ? renderAnalysis() : renderUpload())}

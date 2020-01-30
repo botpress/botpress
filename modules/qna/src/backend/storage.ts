@@ -102,20 +102,20 @@ export default class Storage {
     const { data: allIntents } = await axios.get(`/mod/nlu/intents`, axiosConfig)
 
     const leftOverQnaIntents = allIntents.filter(
-      intent =>
+      (intent: sdk.NLU.IntentDefinition) =>
         intent.name.startsWith('__qna__') && !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
     )
-    await Promise.map(leftOverQnaIntents, intent =>
+    await Promise.map(leftOverQnaIntents, (intent: sdk.NLU.IntentDefinition) =>
       axios.post(`/mod/nlu/intents/${intent.name}/delete`, {}, axiosConfig)
     )
 
     const qnaItemsToSync = allQuestions.filter(
       qnaItem => qnaItem.data.enabled && !_.find(allIntents, i => i.name === getIntentId(qnaItem.id).toLowerCase())
     )
-    await Promise.map(qnaItemsToSync, item => this.createNLUIntentFromQnaItem(item))
+    await Promise.map(qnaItemsToSync, item => this.createNLUIntentFromQnaItem(item, false))
   }
 
-  private async createNLUIntentFromQnaItem(qnaItem: QnaItem): Promise<void> {
+  private async createNLUIntentFromQnaItem(qnaItem: QnaItem, create: boolean): Promise<void> {
     const axiosConfig = await this.getAxiosConfig()
     const utterances = {}
     for (const lang in qnaItem.data.questions) {
@@ -130,7 +130,7 @@ export default class Storage {
     }
 
     await axios.post('/mod/nlu/intents', intent, axiosConfig)
-    this.bp.logger.info(`Created NLU intent for QNA ${qnaItem.id}`)
+    this.bp.logger.info(`${create ? `Created` : `Updated`} NLU intent for QNA ${qnaItem.id}`)
   }
 
   async update(data: QnaEntry, id: string): Promise<string> {
@@ -140,7 +140,7 @@ export default class Storage {
     const item: QnaItem = { id, data }
 
     if (data.enabled) {
-      await this.createNLUIntentFromQnaItem(item)
+      await this.createNLUIntentFromQnaItem(item, false)
     } else {
       await this.deleteMatchingIntent(item.id)
     }
@@ -166,7 +166,7 @@ export default class Storage {
       const id = makeID(data)
       const item: QnaItem = { id, data }
       if (data.enabled) {
-        await this.createNLUIntentFromQnaItem(item)
+        await this.createNLUIntentFromQnaItem(item, true)
       }
 
       await this.bp.ghost
@@ -188,7 +188,7 @@ export default class Storage {
       .filter(q => newQuestions.includes(q))
 
     if (dupes.length) {
-      throw new Error(`These questions already exists in another entry: ${dupes.join(', ')}`)
+      throw new Error(`These questions already exist in another entry: ${dupes.join(', ')}`)
     }
   }
 
@@ -285,11 +285,11 @@ export default class Storage {
   // TODO remove batch deleter, it's done one by one anyway
   async delete(qnaId) {
     const ids = _.isArray(qnaId) ? qnaId : [qnaId]
-    if (ids.length === 0) {
+    if (!ids.length) {
       return
     }
 
-    const deletePromise = async (id): Promise<void> => {
+    const deletePromise = async (id: string): Promise<void> => {
       await this.deleteMatchingIntent(id)
       return this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
     }
