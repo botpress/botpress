@@ -380,6 +380,10 @@ class Diagram extends Component<Props> {
 
   checkForLinksUpdate = _.debounce(
     () => {
+      if (this.props.readOnly) {
+        return
+      }
+
       const links = this.manager.getLinksRequiringUpdate()
       if (links) {
         this.props.updateFlow({ links })
@@ -628,9 +632,4 @@ const mapDispatchToProps = {
   buildSkill: buildNewSkill
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  null,
-  { withRef: true }
-)(Diagram)
+export default connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(Diagram)
