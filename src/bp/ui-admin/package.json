@@ -4,7 +4,7 @@
   "private": true,
   "publisher": "botpress",
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "build-css": "node-sass-chokidar src/ -o src/",
@@ -28,7 +28,7 @@
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.6",
     "element-closest-polyfill": "^1.0.0",
-    "firebase": "^5.9.1",
+    "firebase": "^7.7.0",
     "jdenticon": "^2.1.1",
     "joi-browser": "^13.4.0",
     "moment": "^2.24.0",

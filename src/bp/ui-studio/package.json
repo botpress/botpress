@@ -3,7 +3,7 @@
   "version": "11.0.0",
   "author": "Botpress",
   "engines": {
-    "node": ">=8.9"
+    "node": ">=12"
   },
   "license": "AGPL-3.0-only",
   "main": "lib/index.js",
@@ -113,10 +113,10 @@
     "hard-source-webpack-plugin": "^0.13.1",
     "html-webpack-plugin": "^3.2.0",
     "immutable": "^4.0.0-rc.12",
-    "node-sass": "^4.8.3",
+    "node-sass": "^4.12.0",
     "postcss-loader": "^2.0.8",
     "raw-loader": "^1.0.0",
-    "sass-loader": "^6.0.6",
+    "sass-loader": "^7.3.1",
     "script-loader": "^0.7.0",
     "style-loader": "^0.13.1",
     "stylus": "^0.54.5",

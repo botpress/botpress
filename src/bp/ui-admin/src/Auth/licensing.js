@@ -1,8 +1,8 @@
-import * as firebase from 'firebase/app'
+import firebase from 'firebase/app'
 import 'firebase/auth'
 
 // Move from legacy utils/firebase
-// TODO make this env vars on the build server so it's easily replacable
+// TODO make this env vars on the build server so it's easily replaceable
 var config = {
   apiKey: 'AIzaSyBorvBTBW8GbNjJSmhqLbJsu-SvzqTx5OY',
   authDomain: 'botpress-licensing.firebaseapp.com',

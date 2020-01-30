@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: '10.11.0'
+          node-version: '12.14.1'
       - name: Fetch Node Packages
         run: |
           yarn --verbose
