@@ -1190,6 +1190,7 @@ declare module 'botpress/sdk' {
     export function sendPayload(payload: RealTimePayload)
   }
 
+  // prettier-ignore
   export type RouterCondition = boolean | ((req: any) => boolean)
 
   /**
@@ -1644,6 +1645,10 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forGlobal(): ScopedGhostService
+    /**
+     * Access the BPFS at the root of the data folder
+     */
+    export function forRoot(): ScopedGhostService
   }
 
   export namespace cms {

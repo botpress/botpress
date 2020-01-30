@@ -37,7 +37,7 @@ class ActionItem extends Component<Props> {
     }
 
     if (prevState.itemId !== this.state.itemId && this.state.itemId) {
-      this.props.fetchContentItem(this.state.itemId, { force: true, batched: true }).then(this.props.refreshFlowsLinks)
+      this.props.fetchContentItem(this.state.itemId, { force: true, batched: true })
     }
   }
 

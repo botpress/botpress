@@ -58,7 +58,7 @@ export async function getWordWeight(
     if (!weight) {
       // TODO use vector in token instead
       const [wordVec] = await languageProvider.vectorize([strTok], language)
-      const closestTok = await getClosestToken(strTok, Array.from(wordVec), tokenVecCache)
+      const closestTok = await getClosestToken(strTok, Array.from(wordVec), tokenVecCache, true)
       weight = tfidf['global'][closestTok]
     }
 

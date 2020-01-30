@@ -112,7 +112,7 @@ Please check our migration guide here: https://botpress.io/docs/developers/migra
     this._isMounted = false
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.loadModule(nextProps.moduleName, nextProps.componentName)
   }
 

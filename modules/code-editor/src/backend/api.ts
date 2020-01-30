@@ -10,7 +10,8 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.get('/files', loadPermsMw, async (req: RequestWithPerms, res, next) => {
     try {
-      res.send(await editorByBot[req.params.botId].getAllFiles(req.permissions))
+      const rawFiles = req.query.rawFiles === 'true'
+      res.send(await editorByBot[req.params.botId].getAllFiles(req.permissions, rawFiles))
     } catch (err) {
       bp.logger.attachError(err).error('Error fetching files')
       next(err)
@@ -33,6 +34,14 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
     } catch (err) {
       next(err)
     }
+  })
+
+  router.post('/download', loadPermsMw, validateFilePayloadMw('read'), async (req: RequestWithPerms, res, next) => {
+    const buffer = await editorByBot[req.params.botId].readFileBuffer(req.body)
+
+    res.setHeader('Content-Disposition', `attachment; filename=${req.body.name}`)
+    res.setHeader('Content-Type', 'application/octet-stream')
+    res.send(buffer)
   })
 
   router.post('/exists', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {

@@ -10,7 +10,12 @@ const LIST_ENTITIES: ListEntityModel[] = [
     type: 'custom.list',
     fuzzyTolerance: 0.8,
     id: 'entId',
-    mappingsTokens: { 'Air Canada': [['Air', SPACE, 'Canada'], ['air', 'can']] },
+    mappingsTokens: {
+      'Air Canada': [
+        ['Air', SPACE, 'Canada'],
+        ['air', 'can']
+      ]
+    },
     languageCode: 'en',
     sensitive: false
   }
