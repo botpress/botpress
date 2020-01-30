@@ -11,23 +11,35 @@ import Conversation from './components/messages/Conversation'
 import FeedbackItemComponent from './components/FeedbackItem'
 import style from './style.scss'
 
+const defaultState: {
+  feedbackItems: FeedbackItem[]
+  qnaItems: QnAItem[]
+  goals: Goal[]
+  feedbackItemsLoading: boolean
+  currentFeedbackItemIdx: number
+} = {
+  feedbackItems: [],
+  qnaItems: [],
+  goals: [],
+  feedbackItemsLoading: true,
+  currentFeedbackItemIdx: 0
+}
+
 export default props => {
   const { bp, contentLang } = props
   const api = makeApi(bp)
 
-  const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([])
-  const [qnaItems, setQnaItems] = useState<QnAItem[]>([])
-  const [goals, setGoals] = useState<Goal[]>([])
-  const [feedbackItemsLoading, setFeedbackItemsLoading] = useState(true)
-  const [currentFeedbackItemIdx, setCurrentFeedbackItemIdx] = useState(0)
+  const [state, setState] = useState(defaultState)
+
+  const { qnaItems, goals, feedbackItems, feedbackItemsLoading, currentFeedbackItemIdx } = state
 
   const defaultQnaItemId = qnaItems.length && qnaItems[0].id
   const defaultGoalId = goals.length && goals[0].id
 
   useEffect(() => {
     const initializeState = async () => {
-      setQnaItems(await api.getQnaItems())
-      setGoals(await api.getGoals())
+      const qnaItems = await api.getQnaItems()
+      const goals = await api.getGoals()
 
       const feedbackItems = (await api.getFeedbackItems()).map(i => {
         i.correctedActionType = i.correctedActionType || 'qna'
@@ -36,8 +48,7 @@ export default props => {
         return i
       })
 
-      setFeedbackItems(feedbackItems)
-      setFeedbackItemsLoading(false)
+      setState(state => ({ ...state, feedbackItemsLoading: false, feedbackItems, goals, qnaItems }))
     }
     initializeState().catch(e => {
       throw e
@@ -61,7 +72,7 @@ export default props => {
             _.merge(itemClone, changedProps)
 
             listClone[i] = itemClone
-            setFeedbackItems(listClone)
+            setState(state => ({ ...state, feedbackItems: listClone }))
 
             const { state, eventId, correctedActionType, correctedObjectId } = itemClone
             await api.updateFeedbackItem({
@@ -98,7 +109,7 @@ export default props => {
               correctedActionType={item.correctedActionType}
               correctedObjectId={item.correctedObjectId}
               onItemClicked={() => {
-                setCurrentFeedbackItemIdx(i)
+                setState(state => ({ ...state, currentFeedbackItemIdx: i }))
               }}
               contentLang={contentLang}
               qnaItems={qnaItems}
