@@ -62,7 +62,13 @@ export default props => {
             listClone[i] = itemClone
             setFeedbackItems(listClone)
 
-            return itemClone
+            const { state, eventId, correctedActionType, correctedObjectId } = itemClone
+            await api.updateFeedbackItem({
+              state,
+              eventId,
+              correctedActionType,
+              correctedObjectId
+            })
           }
 
           const handleCorrectedActionTypeChange = async (correctedActionType: string) => {
@@ -74,21 +80,11 @@ export default props => {
           }
 
           const markAsSolved = async () => {
-            await saveItem('solved')
+            await updateFeedbackItem({ state: 'solved' })
           }
 
           const markAsPending = async () => {
-            await saveItem('pending')
-          }
-
-          const saveItem = async (state: FeedbackItemState) => {
-            const itemClone = await updateFeedbackItem({ state })
-            await api.updateFeedbackItem({
-              state: itemClone.state,
-              eventId: itemClone.eventId,
-              correctedActionType: itemClone.correctedActionType,
-              correctedObjectId: itemClone.correctedObjectId
-            })
+            await updateFeedbackItem({ state: 'pending' })
           }
 
           return (
