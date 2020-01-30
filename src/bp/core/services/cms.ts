@@ -104,7 +104,7 @@ export class CMSService implements IDisposeOnExit {
         fileContentElements.forEach(el => Object.assign(el, { contentType }))
         contentElements = _.concat(contentElements, fileContentElements)
       } catch (err) {
-        throw new Error(`while processing content type of "${fileName}": ${err}`)
+        throw new Error(`while processing elements of "${fileName}": ${err}`)
       }
     }
 
@@ -459,29 +459,34 @@ export class CMSService implements IDisposeOnExit {
     const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
 
     for (const contentType of this.contentTypes) {
-      // @ts-ignore
-      await this.memDb(this.contentTable)
-        .select('id', 'formData', 'botId')
-        .where('contentType', contentType.id)
-        .andWhere({ botId })
-        .then<Iterable<any>>()
-        .each(async (element: any) => {
-          const computedProps = await this.fillComputedProps(
-            contentType,
-            JSON.parse(element.formData),
-            languages,
-            defaultLanguage
-          )
-          element = { ...element, ...computedProps }
+      let elementId
+      try {
+        await this.memDb(this.contentTable)
+          .select('id', 'formData', 'botId')
+          .where('contentType', contentType.id)
+          .andWhere({ botId })
+          .then<Iterable<any>>()
+          .each(async (element: any) => {
+            elementId = element.id
+            const computedProps = await this.fillComputedProps(
+              contentType,
+              JSON.parse(element.formData),
+              languages,
+              defaultLanguage
+            )
+            element = { ...element, ...computedProps }
 
-          return this.memDb(this.contentTable)
-            .where('id', element.id)
-            .andWhere({ botId })
-            .update(this.transformItemApiToDb(botId, element))
-            .catch(err => {
-              throw new VError(err, `Could not update the element for ID "${element.id}"`)
-            })
-        })
+            return this.memDb(this.contentTable)
+              .where('id', element.id)
+              .andWhere({ botId })
+              .update(this.transformItemApiToDb(botId, element))
+              .catch(err => {
+                throw new VError(err, `Could not update the element for ID "${element.id}"`)
+              })
+          })
+      } catch (err) {
+        throw new Error(`while computing elements of type "${contentType.id}" (element: ${elementId}): ${err}`)
+      }
     }
   }
 
