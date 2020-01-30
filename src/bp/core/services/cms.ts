@@ -95,22 +95,26 @@ export class CMSService implements IDisposeOnExit {
     let contentElements: ContentElement[] = []
 
     for (const fileName of fileNames) {
-      const contentType = path.basename(fileName).replace(/\.json$/i, '')
-      const fileContentElements = await this.ghost
-        .forBot(botId)
-        .readFileAsObject<ContentElement[]>(this.elementsDir, fileName)
+      try {
+        const contentType = path.basename(fileName).replace(/\.json$/i, '')
+        const fileContentElements = await this.ghost
+          .forBot(botId)
+          .readFileAsObject<ContentElement[]>(this.elementsDir, fileName)
 
-      fileContentElements.forEach(el => Object.assign(el, { contentType }))
-      contentElements = _.concat(contentElements, fileContentElements)
+        fileContentElements.forEach(el => Object.assign(el, { contentType }))
+        contentElements = _.concat(contentElements, fileContentElements)
+      } catch (err) {
+        throw new Error(`while processing elements of "${fileName}": ${err}`)
+      }
     }
 
     return contentElements
   }
 
   async loadElementsForBot(botId: string): Promise<any[]> {
-    const contentElements = await this.getAllElements(botId)
-
     try {
+      const contentElements = await this.getAllElements(botId)
+
       const elements = await Promise.map(contentElements, element => {
         return this.memDb(this.contentTable)
           .insert(this.transformItemApiToDb(botId, element))
@@ -124,8 +128,7 @@ export class CMSService implements IDisposeOnExit {
 
       return elements
     } catch (err) {
-      this.logger.error(`Error while processing content elements for bot ${botId}`)
-      throw err
+      throw new Error(`while processing content elements: ${err}`)
     }
   }
 
@@ -456,29 +459,34 @@ export class CMSService implements IDisposeOnExit {
     const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
 
     for (const contentType of this.contentTypes) {
-      // @ts-ignore
-      await this.memDb(this.contentTable)
-        .select('id', 'formData', 'botId')
-        .where('contentType', contentType.id)
-        .andWhere({ botId })
-        .then<Iterable<any>>()
-        .each(async (element: any) => {
-          const computedProps = await this.fillComputedProps(
-            contentType,
-            JSON.parse(element.formData),
-            languages,
-            defaultLanguage
-          )
-          element = { ...element, ...computedProps }
+      let elementId
+      try {
+        await this.memDb(this.contentTable)
+          .select('id', 'formData', 'botId')
+          .where('contentType', contentType.id)
+          .andWhere({ botId })
+          .then<Iterable<any>>()
+          .each(async (element: any) => {
+            elementId = element.id
+            const computedProps = await this.fillComputedProps(
+              contentType,
+              JSON.parse(element.formData),
+              languages,
+              defaultLanguage
+            )
+            element = { ...element, ...computedProps }
 
-          return this.memDb(this.contentTable)
-            .where('id', element.id)
-            .andWhere({ botId })
-            .update(this.transformItemApiToDb(botId, element))
-            .catch(err => {
-              throw new VError(err, `Could not update the element for ID "${element.id}"`)
-            })
-        })
+            return this.memDb(this.contentTable)
+              .where('id', element.id)
+              .andWhere({ botId })
+              .update(this.transformItemApiToDb(botId, element))
+              .catch(err => {
+                throw new VError(err, `Could not update the element for ID "${element.id}"`)
+              })
+          })
+      } catch (err) {
+        throw new Error(`while computing elements of type "${contentType.id}" (element: ${elementId}): ${err}`)
+      }
     }
   }
 
