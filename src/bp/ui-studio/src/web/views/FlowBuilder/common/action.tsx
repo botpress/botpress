@@ -37,7 +37,7 @@ class ActionItem extends Component<Props> {
     }
 
     if (prevState.itemId !== this.state.itemId && this.state.itemId) {
-      this.props.fetchContentItem(this.state.itemId, { force: true, batched: true })
+      this.props.fetchContentItem(this.state.itemId, { force: true, batched: true }).then(this.props.refreshFlowsLinks)
     }
   }
 
@@ -163,7 +163,4 @@ class ActionItem extends Component<Props> {
 const mapStateToProps = state => ({ items: state.content.itemsById })
 const mapDispatchToProps = { fetchContentItem, refreshFlowsLinks }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withLanguage(ActionItem))
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(ActionItem))
