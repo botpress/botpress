@@ -203,6 +203,7 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
 
 function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]): TestResultDetails {
   if (key === 'intent') {
+    expected = expected.endsWith('none') ? 'none' : expected
     const received = nlu.intent.name
     const success = nlu.intent.name === expected
     return {
