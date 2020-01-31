@@ -82,11 +82,7 @@ const BotItemCompact: FC<Props> = ({ bot, hasError, deleteBot, exportBot, create
             &nbsp;
           </span>
         )}
-        {bot.disabled || hasError ? (
-          <span>{bot.name || bot.id}</span>
-        ) : (
-          <a href={botStudioLink}>{bot.name || bot.id}</a>
-        )}
+        {bot.disabled ? <span>{bot.name || bot.id}</span> : <a href={botStudioLink}>{bot.name || bot.id}</a>}
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
