@@ -547,7 +547,7 @@ export class BotsRouter extends CustomRouter {
         })
 
         let messageGroups = _.values(messageGroupsMap)
-        messageGroups = _.sortBy(messageGroups, mg => moment(mg.userMessage.createdOn).unix()).reverse()
+        // messageGroups = _.sortBy(messageGroups, mg => moment(mg.userMessage.createdOn).unix()).reverse()
 
         res.send({ messageGroups })
       })
