@@ -95,8 +95,6 @@ const FeedbackItemComponent: FC<{
 
       {state === 'pending' && <button onClick={e => markAsSolved()}>Mark as solved</button>}
       {state === 'solved' && <button onClick={e => markAsPending()}>Mark as pending</button>}
-
-      {state && <div>State: {state}</div>}
     </div>
   )
 }
