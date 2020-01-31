@@ -30,7 +30,7 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 
 const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {
   const oldFlow = await bp.ghost.forBot(botId).readFileAsObject<sdk.Flow>('./flows', newFlow.location)
-  const qnaStorage = await botScopedStorage.get(botId)
+  const qnaStorage = botScopedStorage.get(botId)
   const questions = await qnaStorage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
 
   // Detect nodes that had their name changed
@@ -54,6 +54,23 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
   }
 }
 
+const onFlowRenamed = async (bp: typeof sdk, botId: string, previousFlowName: string, newFlowName: string) => {
+  const qnaStorage = botScopedStorage.get(botId)
+  const questions = await qnaStorage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
+
+  const updatedItems = questions.items
+    .filter(q => q.data.redirectFlow === previousFlowName)
+    .map(q => {
+      q.data.redirectFlow = newFlowName
+      return q
+    })
+
+  for (const item of updatedItems) {
+    await qnaStorage.update(item.data, item.id)
+    bp.logger.debug(`References to flow "${previousFlowName}" have been updated to "${newFlowName}"`)
+  }
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
@@ -61,6 +78,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   onModuleUnmount,
   onFlowChanged,
+  onFlowRenamed,
   definition: {
     name: 'qna',
     menuIcon: 'question_answer',

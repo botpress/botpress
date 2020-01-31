@@ -112,10 +112,10 @@ export default class Storage {
     const qnaItemsToSync = allQuestions.filter(
       qnaItem => qnaItem.data.enabled && !_.find(allIntents, i => i.name === getIntentId(qnaItem.id).toLowerCase())
     )
-    await Promise.map(qnaItemsToSync, item => this.createNLUIntentFromQnaItem(item))
+    await Promise.map(qnaItemsToSync, item => this.createNLUIntentFromQnaItem(item, false))
   }
 
-  private async createNLUIntentFromQnaItem(qnaItem: QnaItem): Promise<void> {
+  private async createNLUIntentFromQnaItem(qnaItem: QnaItem, create: boolean): Promise<void> {
     const axiosConfig = await this.getAxiosConfig()
     const utterances = {}
     for (const lang in qnaItem.data.questions) {
@@ -130,7 +130,7 @@ export default class Storage {
     }
 
     await axios.post('/mod/nlu/intents', intent, axiosConfig)
-    this.bp.logger.info(`Created NLU intent for QNA ${qnaItem.id}`)
+    this.bp.logger.info(`${create ? `Created` : `Updated`} NLU intent for QNA ${qnaItem.id}`)
   }
 
   async update(data: QnaEntry, id: string): Promise<string> {
@@ -140,7 +140,7 @@ export default class Storage {
     const item: QnaItem = { id, data }
 
     if (data.enabled) {
-      await this.createNLUIntentFromQnaItem(item)
+      await this.createNLUIntentFromQnaItem(item, false)
     } else {
       await this.deleteMatchingIntent(item.id)
     }
@@ -166,7 +166,7 @@ export default class Storage {
       const id = makeID(data)
       const item: QnaItem = { id, data }
       if (data.enabled) {
-        await this.createNLUIntentFromQnaItem(item)
+        await this.createNLUIntentFromQnaItem(item, true)
       }
 
       await this.bp.ghost
@@ -188,7 +188,7 @@ export default class Storage {
       .filter(q => newQuestions.includes(q))
 
     if (dupes.length) {
-      throw new Error(`These questions already exists in another entry: ${dupes.join(', ')}`)
+      throw new Error(`These questions already exist in another entry: ${dupes.join(', ')}`)
     }
   }
 
