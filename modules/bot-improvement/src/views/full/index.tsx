@@ -12,7 +12,7 @@ import Conversation from './components/messages/Conversation'
 import FeedbackItemComponent from './components/FeedbackItem'
 import style from './style.scss'
 
-type SelectedTab = 'pending' | 'solved'
+type SelectedTabId = 'pending' | 'solved'
 
 const defaultState: {
   feedbackItems: FeedbackItem[]
@@ -20,7 +20,7 @@ const defaultState: {
   goals: Goal[]
   feedbackItemsLoading: boolean
   currentFeedbackItem: FeedbackItem
-  selectedTab: SelectedTab
+  selectedTab: SelectedTabId
 } = {
   feedbackItems: [],
   qnaItems: [],
@@ -139,7 +139,7 @@ export default props => {
         <h2>Feedback Items</h2>
         <Tabs
           selectedTabId={state.selectedTab}
-          onChange={(newTabId: SelectedTab) => {
+          onChange={(newTabId: SelectedTabId) => {
             setState({ ...state, selectedTab: newTabId })
           }}
         >
