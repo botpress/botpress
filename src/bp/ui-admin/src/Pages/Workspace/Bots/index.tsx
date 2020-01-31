@@ -99,6 +99,7 @@ class Bots extends Component<Props> {
     try {
       await api.getSecured().post(`/admin/bots/${botId}/reload`)
       this.props.fetchBots()
+      this.props.fetchBotHealth()
       toastSuccess(`Bot remounted successfully`)
     } catch (err) {
       console.log(err)
