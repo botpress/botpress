@@ -52,7 +52,10 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
     return
   }
 
-  await client.removeWebhook()
+  if (!process.CLUSTER_ENABLED) {
+    // Avoid leftover webhooks
+    await client.removeWebhook()
+  }
   delete clients[botId]
 }
 
@@ -72,7 +75,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     fullName: 'Smooch',
     homepage: 'https://botpress.io',
     noInterface: true,
-    plugins: []
+    plugins: [],
+    experimental: true
   }
 }
 

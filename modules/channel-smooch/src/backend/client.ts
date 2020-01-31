@@ -45,7 +45,8 @@ export class SmoochClient {
       this.secret = webhook.secret
       this.logger.info(`[${this.botId}] Successfully created smooch webhook with url : ${webhook.target}`)
     } catch (e) {
-      this.logger.error(`[${this.botId}] Failed to create smooch webhook. Provided keyId and secret are likely invalid`)
+      this.logger.error(`[${this.botId}] Failed to create smooch webhook`)
+      this.logger.attachError(e)
       throw e
     }
   }
