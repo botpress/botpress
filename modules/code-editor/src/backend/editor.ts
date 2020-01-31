@@ -27,10 +27,14 @@ export default class Editor {
   private _typings: TypingDefinitions
   private _config: Config
 
-  constructor(bp: typeof sdk, botId: string, config: Config) {
+  constructor(bp: typeof sdk, config: Config) {
     this.bp = bp
-    this._botId = botId
     this._config = config
+  }
+
+  forBot(botId: string) {
+    this._botId = botId
+    return this
   }
 
   async getAllFiles(permissions: FilePermissions, rawFiles?: boolean): Promise<FilesDS> {
