@@ -192,7 +192,7 @@ export class BotsRouter extends CustomRouter {
         const { botId, app } = req.params
 
         const bot = await this.botService.findBotById(botId)
-        if (!bot || !this.botService.isBotMounted(botId)) {
+        if (!bot) {
           return res.sendStatus(404)
         }
 
@@ -226,6 +226,7 @@ export class BotsRouter extends CustomRouter {
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
               window.BOT_LOCKED = ${!!bot.locked};
               window.WORKSPACE_ID = "${workspaceId}";
+              window.IS_BOT_MOUNTED = ${this.botService.isBotMounted(botId)};
               window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}
