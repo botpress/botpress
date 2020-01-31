@@ -2,7 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'column': string;
-  'feedbackItem': string;
+  'currentFeedbackItem': string;
   'feedbackItemsContainer': string;
   'mainContainer': string;
   'messageGroup-flagged': string;

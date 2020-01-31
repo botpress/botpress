@@ -118,6 +118,7 @@ export default props => {
               onItemClicked={() => {
                 setState(state => ({ ...state, currentFeedbackItem: item }))
               }}
+              current={item === currentFeedbackItem}
               contentLang={contentLang}
               qnaItems={qnaItems}
               goals={goals}

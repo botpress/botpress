@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React, { FC } from 'react'
 
-import { FeedbackItem, FeedbackItemState, QnAItem, Goal } from '../../../backend/typings'
+import { FeedbackItem, FeedbackItemState, Goal, QnAItem } from '../../../backend/typings'
 import style from '../style.scss'
 
 const FeedbackItemComponent: FC<{
@@ -17,6 +17,7 @@ const FeedbackItemComponent: FC<{
   markAsSolved: () => void
   markAsPending: () => void
   state: FeedbackItemState
+  current: boolean
 }> = props => {
   const {
     feedbackItem,
@@ -30,7 +31,8 @@ const FeedbackItemComponent: FC<{
     handleCorrectedActionObjectIdChange,
     markAsSolved,
     markAsPending,
-    state
+    state,
+    current
   } = props
 
   const getId = (prefix: string) => {
@@ -41,7 +43,7 @@ const FeedbackItemComponent: FC<{
   const objectId = getId('object')
 
   return (
-    <div className={style.feedbackItem} onClick={e => onItemClicked()}>
+    <div className={current ? style.currentFeedbackItem : ''} onClick={e => onItemClicked()}>
       <div>Event Id: {feedbackItem.eventId}</div>
       <div>Session ID: {feedbackItem.sessionId}</div>
       <div>Timestamp: {feedbackItem.timestamp}</div>
