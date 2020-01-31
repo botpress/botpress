@@ -36,7 +36,8 @@ export default props => {
 
   const [state, setState] = useState(defaultState)
 
-  const { qnaItems, goals, feedbackItems, feedbackItemsLoading, currentFeedbackItem } = state
+  const { qnaItems, goals, feedbackItems, feedbackItemsLoading } = state
+  let { currentFeedbackItem } = state
 
   const defaultQnaItemId = qnaItems.length && qnaItems[0].id
   const defaultGoalId = goals.length && goals[0].id
@@ -66,6 +67,10 @@ export default props => {
 
   const pendingFeedbackItems = feedbackItems.filter(i => i.state === 'pending')
   const solvedFeedbackItems = feedbackItems.filter(i => i.state === 'solved')
+
+  if (!currentFeedbackItem) {
+    currentFeedbackItem = pendingFeedbackItems[0]
+  }
 
   const updateFeedbackItem = async (item: FeedbackItem, changedProps) => {
     const listClone = [...feedbackItems]
@@ -141,7 +146,11 @@ export default props => {
         <Tabs
           selectedTabId={state.selectedTab}
           onChange={(newTabId: SelectedTabId) => {
-            setState({ ...state, selectedTab: newTabId })
+            if (newTabId === 'pending') {
+              setState({ ...state, selectedTab: newTabId, currentFeedbackItem: pendingFeedbackItems[0] })
+            } else {
+              setState({ ...state, selectedTab: newTabId, currentFeedbackItem: solvedFeedbackItems[0] })
+            }
           }}
         >
           <Tab id="pending" title="Pending" panel={<FeedbackItemPanel feedbackItems={pendingFeedbackItems} />} />
