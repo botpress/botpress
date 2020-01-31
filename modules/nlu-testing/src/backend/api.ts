@@ -205,9 +205,13 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
   if (key === 'intent') {
     expected = expected.endsWith('none') ? 'none' : expected
     const received = nlu.intent.name
-    const success = nlu.intent.name === expected
+    // const success = nlu.intent.name === expected
+
+    // @ts-ignore
+    const success = expected === 'none' ? nlu.outOfScope : received !== 'none' && !nlu.outOfScope
+
     return {
-      success: nlu.intent.name === expected,
+      success,
       reason: success ? '' : `Intent doesn't match, expected: ${expected} received: ${received}`,
       received,
       expected

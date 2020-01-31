@@ -10,6 +10,8 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
+import { POS_CLASSES } from '../pos-tagger'
+import { encodeOH } from '../tools/encoder'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -262,6 +264,8 @@ function electIntent(input: PredictStep): PredictStep {
     .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
     .value()
 
+  // @ts-ignore
+  // if (!predictions.length || predictions[0].confidence < 0.3 || input.outOfScope) {
   if (!predictions.length || predictions[0].confidence < 0.3) {
     predictions = [
       { name: NONE_INTENT, context: _.get(predictions, '0.context', 'global'), confidence: 1 },
@@ -272,6 +276,37 @@ function electIntent(input: PredictStep): PredictStep {
   return _.merge(input, {
     intent_predictions: { combined: predictions, elected: _.maxBy(predictions, 'confidence') }
   })
+}
+
+async function predictOutOfScope(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
+  // @ts-ignore
+  const oos = new tools.mlToolkit.SVM.Predictor(predictors.oos_model)
+  // @ts-ignore
+  // const pred1 = (await oos.predict(input.utterance.sentenceEmbedding))[0].label
+  // // @ts-ignore
+  // const pred2 = input.alternateUtterance ? (await oos.predict(input.alternateUtterance.sentenceEmbedding))[0].label : -1
+  const utt = input.alternateUtterance || input.utterance
+  const posOH = encodeOH(
+    POS_CLASSES,
+    utt.tokens.map(t => t.POS)
+  )
+
+  // const kmeansOH = encodeOH(
+  //   _.range(8),
+  //   utt.tokens.map(t => t.cluster)
+  // )
+
+  // const features = [...posOH, ...kmeansOH, utt.tokens.length]
+  const features = [...utt.sentenceEmbedding, ...posOH]
+  // const features = posOH
+  // @ts-ignore
+  const outOfScope = (await oos.predict(features))[0].label === -1
+
+  return {
+    ...input,
+    // @ts-ignore
+    outOfScope
+  }
 }
 
 function detectAmbiguity(input: PredictStep): PredictStep {
@@ -343,6 +378,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     intent: step.intent_predictions.elected,
     intents: step.intent_predictions.combined,
     language: step.languageCode,
+    // @ts-ignore
+    outOfScope: step.outOfScope,
     slots,
     ms: Date.now() - startTime
   }
@@ -382,6 +419,7 @@ export const Predict = async (
 
     stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
+    stepOutput = await predictOutOfScope(stepOutput, predictors, tools)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
     stepOutput = electIntent(stepOutput)

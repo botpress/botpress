@@ -6,6 +6,33 @@ import { isSpace, SPACE } from './tools/token-utils'
 
 const USE_POS = yn(process.env.BP_EXPERIMENTAL_NLU_POS)
 
+export const POS_CLASSES = [
+  'ADJ',
+  'ADP',
+  'ADV',
+  'AUX',
+  'CONJ',
+  'CCONJ',
+  'DET',
+  'INTJ',
+  'NOUN',
+  'NUM',
+  'PART',
+  'PRON',
+  'PROPN',
+  'PUNCT',
+  'SCONJ',
+  'SYM',
+  'VERB',
+  'X',
+  SPACE
+]
+
+// export function makePOSdic(): _.Dictionary<ReadonlyArray<number>[]> {
+export function makePOSdic(): _.Dictionary<number> {
+  return POS_CLASSES.reduce((dic, cls) => ({ ...dic, [cls]: 0 }), {})
+}
+
 function n_alpha(word: string): number {
   // TODO support more alphabets
   return (word.match(/[a-zA-z]/g) || []).length

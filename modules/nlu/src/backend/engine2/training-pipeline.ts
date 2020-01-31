@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { isSpace, SPACE } from '../tools/token-utils'
+import { isSpace, SPACE, mergeSimilarCharsetTokens } from '../tools/token-utils'
 import {
   EntityExtractionResult,
   Intent,
@@ -20,7 +20,8 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
-import { isNumber } from 'util'
+import { makePOSdic, POS_CLASSES } from '../pos-tagger'
+import { encodeOH } from '../tools/encoder'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -362,6 +363,31 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   return crfExtractor.serialized
 }
 
+const trainOOS = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
+  const points: sdk.MLToolkit.SVM.DataPoint[] = _.chain(input.intents)
+    .filter(i => i.name !== 'none')
+    .flatMap(i =>
+      i.utterances.map(utt => {
+        const posOH = encodeOH(
+          POS_CLASSES,
+          utt.tokens.map(t => t.POS)
+        )
+
+        // const feats = [...posOH, ...kmeansOH, utt.tokens.length]
+        const feats = [...utt.sentenceEmbedding, ...posOH]
+        // const feats = posOH
+
+        return { label: '1', coordinates: feats }
+      })
+    )
+    .value()
+  const svm = new tools.mlToolkit.SVM.Trainer()
+  return svm.train(points, {
+    classifier: 'ONE_CLASS',
+    kernel: 'RBF'
+  })
+}
+
 const NB_STEPS = 5 // change this if the training pipeline changes
 export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<Model> => {
   const model: Partial<Model> = {
@@ -394,6 +420,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
 
+    const oos_model = await trainOOS(output, tools)
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
     reportProgress()
     const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
@@ -403,6 +430,8 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
+      // @ts-ignore
+      oos_model,
       tfidf: output.tfIdf,
       ctx_model,
       intent_model_by_ctx,

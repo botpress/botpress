@@ -76,7 +76,7 @@ export function getClosestToken(
   let token = ''
   let dist = Number.POSITIVE_INFINITY
   _.forEach(token2Vec, (vec, t) => {
-    // Leveinshtein is for typo detection (takes precedence over spacial)
+    // Leveinshtein is for typo detection
     const lev = levenshtein(tokenStr, t)
     const maxLevOps = getMaxLevOps(tokenStr)
     if (lev <= maxLevOps) {
@@ -86,7 +86,8 @@ export function getClosestToken(
 
     // Space (vector) distance is for close-meaning detection
     const d = useSpacial ? ndistance(<number[]>tokenVec, vec) : Number.POSITIVE_INFINITY
-    if (d <= dist) {
+    // stricly smaller, we want letter distance to take precedence over spacial
+    if (d < dist) {
       token = t
       dist = d
     }
