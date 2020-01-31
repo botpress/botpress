@@ -10,7 +10,7 @@ import { toastFailure, toastSuccess } from '~/utils/toaster'
 import confirmDialog from '~/App/ConfirmDialog'
 
 interface Props {
-  health: ServerHealth[]
+  health?: ServerHealth[]
   fetchBotHealth: () => void
 }
 
@@ -34,7 +34,7 @@ const BotHealth: FC<Props> = props => {
 
     const data = botIds.map(botId => ({
       botId,
-      data: props.health.reduce((obj, entry) => {
+      data: props.health!.reduce((obj, entry) => {
         obj[getKey(entry)] = entry.bots[botId]
         return obj
       }, {})
@@ -44,7 +44,7 @@ const BotHealth: FC<Props> = props => {
   }
 
   const updateColumns = () => {
-    const hostColumns = props.health.map(entry => {
+    const hostColumns = props.health!.map(entry => {
       const key = getKey(entry)
       return {
         Header: entry.hostname,
@@ -52,17 +52,17 @@ const BotHealth: FC<Props> = props => {
           {
             Header: 'Status',
             Cell: cell => {
-              const status = _.get(cell.original, `data[${key}].status`)
-              if (status === 'error') {
-                return <span style={{ color: 'red' }}>Error</span>
-              } else if (status === 'mounted') {
-                return 'Mounted'
-              } else if (status === 'disabled') {
-                return 'Disabled'
-              } else if (status === 'unmounted') {
-                return 'Unmounted'
-              } else {
-                return 'N/A'
+              switch (_.get(cell.original, `data[${key}].status`)) {
+                default:
+                  return 'N/A'
+                case 'error':
+                  return <span style={{ color: 'red' }}>Error</span>
+                case 'mounted':
+                  return 'Mounted'
+                case 'disabled':
+                  return 'Disabled'
+                case 'unmounted':
+                  return 'Unmounted'
               }
             },
             width: 80,
@@ -115,6 +115,10 @@ const BotHealth: FC<Props> = props => {
       console.log(err)
       toastFailure(`Could not mount bot. Check server logs for details`)
     }
+  }
+
+  if (!props.health) {
+    return null
   }
 
   return (
