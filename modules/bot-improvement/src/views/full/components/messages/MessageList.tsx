@@ -16,11 +16,14 @@ export const MessageList: FC<{ messageGroups: FlaggedMessageGroup[] }> = props =
     }
     const flaggedMessageGroup = messageGroups.find(g => g.flagged)
     const ref = itemRefs[flaggedMessageGroup.incoming.id]
-    ref.scrollIntoView()
+    messagesListRef.current.scrollTop =
+      ref.offsetTop - screen.height / 2 + ref.offsetHeight / 2 + messagesListRef.current.offsetTop
   })
 
+  const messagesListRef = React.createRef<HTMLDivElement>()
+
   return (
-    <div>
+    <div ref={messagesListRef} className="bph-conversation-messages">
       {messageGroups.map((group, groupIdx) => (
         <div
           ref={el => (itemRefs[group.incoming.id] = el)}

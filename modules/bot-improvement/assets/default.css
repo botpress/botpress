@@ -185,6 +185,7 @@
 .bph-conversation-messages {
   height: calc(100vh - var(--conversation-header-height) - var(--composer-height) - var(--statusbar-height) - 10px);
   overflow-y: auto;
+  position: relative;
 }
 
 .bph-convo-container {

@@ -32,9 +32,7 @@ const Conversation: FC<{ api: BotImprovementApi; feedbackItem: FeedbackItem }> =
       <ConversationHeader displayName={displayName} />
 
       {/* <div className="bph-conversation-messages" ref={m => (this.messagesDiv = m)}> */}
-      <div className="bph-conversation-messages">
-        <MessageList messageGroups={messageGroups} />
-      </div>
+      <MessageList messageGroups={messageGroups} />
     </div>
   )
 }
