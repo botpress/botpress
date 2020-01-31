@@ -27,6 +27,7 @@ export class AnalyticsRouter extends CustomRouter {
     this.router.get(
       '/channel/:channel',
       this._checkTokenHeader,
+      this._needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, channel } = req.params
         const { start, end } = req.query
@@ -39,7 +40,7 @@ export class AnalyticsRouter extends CustomRouter {
             res.send(analytics)
           }
         } catch (err) {
-          res.sendStatus(400).send({ message: err.message })
+          res.status(400).send(err.message)
         }
       })
     )
