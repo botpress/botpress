@@ -143,10 +143,10 @@ class CreateBotModal extends Component<Props, State> {
   get isButtonDisabled() {
     const { isProcessing, botId, botName, selectedTemplate } = this.state
     return (
-      (this.props.existingBots && !!botName && this.props.existingBots.some(bot => bot.name === botName)) ||
-      isProcessing ||
       !botId ||
       !botName ||
+      (this.props.existingBots && this.props.existingBots.some(bot => bot.name === botName || bot.id === botId)) ||
+      isProcessing ||
       !selectedTemplate ||
       !this._form ||
       !this._form.checkValidity()
