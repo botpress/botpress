@@ -1,5 +1,5 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { BotTemplate } from 'botpress/sdk'
+import { BotTemplate, BotConfig } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -18,6 +18,7 @@ type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
 
 interface OwnProps {
   isOpen: boolean
+  existingBots: BotConfig[]
   onCreateBotSuccess: () => void
   toggle: () => void
 }
@@ -141,7 +142,15 @@ class CreateBotModal extends Component<Props, State> {
 
   get isButtonDisabled() {
     const { isProcessing, botId, botName, selectedTemplate } = this.state
-    return isProcessing || !botId || !botName || !selectedTemplate || !this._form || !this._form.checkValidity()
+    return (
+      (this.props.existingBots && !!botName && this.props.existingBots.some(bot => bot.name === botName)) ||
+      isProcessing ||
+      !botId ||
+      !botName ||
+      !selectedTemplate ||
+      !this._form ||
+      !this._form.checkValidity()
+    )
   }
 
   render() {
