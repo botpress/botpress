@@ -28,7 +28,7 @@ export const JOIN_CHAR = `::${SPACE}::`
 const BATCH_SIZE = 10
 const DISABLED_MSG = `, so it will be disabled.
 For more information (or if you want to self-host it), please check the docs at
-https://botpress.io/docs/build/nlu/#system-entities
+https://botpress.com/docs/build/nlu/#system-entities
 `
 const DUCKLING_ENTITIES = [
   'amountOfMoney',

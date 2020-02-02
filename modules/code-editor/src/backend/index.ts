@@ -31,7 +31,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuText: 'Code Editor',
     noInterface: false,
     fullName: 'Code Editor',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 

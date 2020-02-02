@@ -40,7 +40,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'translate',
     menuText: 'NLU',
     fullName: 'NLU',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 
