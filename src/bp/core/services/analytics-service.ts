@@ -11,7 +11,7 @@ export default class AnalyticsService {
     @inject(TYPES.UserRepository) private userRepo: UserRepository
   ) {}
 
-  async incrementMetric(botId: string, channel: string, metric: MetricName) {
+  async incrementMetric(botId: string, channel: string, metric: MetricName, increment = 1) {
     try {
       const analytic = await this.analyticsRepo.get({ botId, channel, metric })
       const latest = moment(analytic.created_on).startOf('day')
@@ -19,12 +19,12 @@ export default class AnalyticsService {
 
       // Aggregate metrics per day
       if (latest.isBefore(today)) {
-        await this.analyticsRepo.insert({ botId, channel, metric, value: 1 })
+        await this.analyticsRepo.insert({ botId, channel, metric, value: increment })
       } else {
-        await this.analyticsRepo.update(analytic.id, analytic.value + 1)
+        await this.analyticsRepo.update(analytic.id, analytic.value + increment)
       }
     } catch (err) {
-      await this.analyticsRepo.insert({ botId, channel, metric, value: 1 })
+      await this.analyticsRepo.insert({ botId, channel, metric, value: increment })
     }
   }
 
@@ -36,7 +36,7 @@ export default class AnalyticsService {
       channel
     )
 
-    const userCount = await this.userRepo.getUserCount(channel)
+    const userCount = await this.userRepo.getUserCount({ channel })
     const userCountMetric = {
       metric_name: 'user_count',
       value: userCount

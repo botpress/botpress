@@ -83,7 +83,7 @@ export class StateManager {
 
     const state = event.state
 
-    const { result: user, created } = await this.userRepo.getOrCreate(event.channel, event.target)
+    const { result: user, created } = await this.userRepo.getOrCreate(event.channel, event.target, event.botId)
     if (created) {
       await this.analytics.incrementMetric(event.botId, event.channel, 'users_new_count')
     }

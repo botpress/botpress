@@ -5,13 +5,14 @@ import Knex from 'knex'
 
 import Database from '../database'
 import { TYPES } from '../types'
+
 export interface UserRepository {
-  getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
+  getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User>
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   setAttributes(channel: string, id: string, attributes: any, trx?: Knex.Transaction): Promise<void>
   getAttributes(channel: string, id: string): Promise<any>
   getAllUsers(paging?: Paging): Promise<any>
-  getUserCount(channel?: string): Promise<any>
+  getUserCount(opt?: { channel?: string; botId?: string }): Promise<any>
 }
 
 @injectable()
@@ -23,7 +24,7 @@ export class KnexUserRepository implements UserRepository {
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
   ) {}
 
-  async getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User> {
+  async getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User> {
     channel = channel.toLowerCase()
 
     const ug = await this.database
@@ -53,6 +54,7 @@ export class KnexUserRepository implements UserRepository {
       .insertAndRetrieve<User>(
         this.tableName,
         {
+          botId,
           channel,
           user_id: id,
           attributes: this.database.knex.json.set({})
@@ -136,11 +138,14 @@ export class KnexUserRepository implements UserRepository {
     }))
   }
 
-  async getUserCount(channel?: string) {
+  async getUserCount(opt?: { channel?: string; botId?: string }) {
     let query = this.database.knex<User>(this.tableName).count<Record<string, number>>('user_id as qty')
 
-    if (channel) {
-      query = query.where({ channel })
+    if (opt?.channel) {
+      query = query.andWhere({ channel: opt.channel })
+    }
+    if (opt?.botId) {
+      query = query.andWhere({ botId: opt.botId })
     }
 
     const result = await query.first().then(result => result!.qty)
