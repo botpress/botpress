@@ -140,7 +140,7 @@ export default props => {
   }
 
   return (
-    <Container sidePanelWidth={1000}>
+    <Container sidePanelWidth={750}>
       <div className={style.feedbackItemsContainer}>
         <h2>Feedback Items</h2>
         <Tabs
@@ -174,20 +174,7 @@ export default props => {
         </Tabs>
       </div>
 
-      <div className="bph-layout-main">
-        <div className="bph-layout-middle">
-          <Conversation api={api} feedbackItem={currentFeedbackItem || feedbackItems[0]} />
-        </div>
-        <div className="bph-layout-profile">
-          {/* {this.state.currentSession && (
-            <Profile
-              user={this.state.currentSession.user}
-              lastHeardOn={this.state.currentSession.lastHeardOn}
-              attributesConfig={this.state.attributesConfig}
-            />
-          )} */}
-        </div>
-      </div>
+      <Conversation api={api} feedbackItem={currentFeedbackItem || feedbackItems[0]} />
     </Container>
   )
 }
