@@ -24,14 +24,9 @@ const Conversation: FC<{ api: BotImprovementApi; feedbackItem: FeedbackItem }> =
     })
   }, [props.feedbackItem])
 
-  const { user } = props.feedbackItem
-  const displayName = _.get(user, 'attributes.full_name', user.fullName)
-
   return (
     <div className="bph-conversation" style={{ overflow: 'hidden' }}>
-      <ConversationHeader displayName={displayName} />
-
-      {/* <div className="bph-conversation-messages" ref={m => (this.messagesDiv = m)}> */}
+      <ConversationHeader displayName="Conversation Preview" />
       <MessageList messageGroups={messageGroups} />
     </div>
   )
