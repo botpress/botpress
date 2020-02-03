@@ -1,4 +1,5 @@
-import { Button, Card, Elevation, HTMLSelect } from '@blueprintjs/core'
+import { Button, Card, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
+import { DateRangePicker, DateRange } from '@blueprintjs/datetime'
 import axios, { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import moment, { unix } from 'moment'
@@ -19,6 +20,11 @@ import {
 } from 'recharts'
 
 import style from './style.scss'
+
+const colorSlack = '#de5454'
+const colorMessenger = '#568ee2'
+const colorWeb = '#ffc658'
+const colorTelegram = '#3d35df'
 
 export default class AnalyticsModule extends React.Component<{ bp: any }> {
   state = {
@@ -59,10 +65,23 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
     })
   }
 
+  handleDateChange = (selectedDates: DateRange) => {
+    console.log('dates:', selectedDates)
+  }
+
+  isLoaded = () => {
+    return this.state.metrics && this.state.startDate && this.state.endDate
+  }
+
   render() {
-    return (
-      this.state.metrics && (
+    if (this.isLoaded()) {
+      const startDate = moment.unix(this.state.startDate).toDate()
+      const endDate = moment.unix(this.state.endDate).toDate()
+      console.log(startDate, endDate)
+
+      return (
         <div>
+          {/* <DateRangePicker onChange={this.handleDateChange} value={[startDate, endDate]} /> */}
           <div>
             Filter by
             <HTMLSelect onChange={this.handleFilterChange} defaultValue="all">
@@ -76,11 +95,13 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
           {this.renderUnderstanding()}
         </div>
       )
-    )
+    }
+
+    return null
   }
 
-  getMetricCount = metric =>
-    this.state.metrics.filter(m => m.metric_name === metric).reduce((acc, cur) => acc + cur.value, 0)
+  getMetricCount = metricName =>
+    this.state.metrics.filter(m => m.metric_name === metricName).reduce((acc, cur) => acc + cur.value, 0)
 
   avgSessionLength = () => {
     const received = this.getMetricCount('msg_received_count')
@@ -89,14 +110,17 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
     return ((received + sent) / sessions).toFixed(2)
   }
 
+  getMetric = metricName => this.state.metrics.filter(x => x.metric_name === metricName)
+
   renderAgentUsage() {
     return (
       <React.Fragment>
         <h3>Agent Usage</h3>
         <div className={style.metricsContainer}>
-          {this.renderNumberOfSessions(this.state.metrics.filter(x => x.metric_name === 'sessions_count'))}
-          {this.renderNumberMetric('Number of Sessions', this.getMetricCount('sessions_count'))}
-          {this.renderNumberMetric('Total Messages Received', this.getMetricCount('msg_received_count'))}
+          {this.renderTimeSeriesChart('Sessions', this.getMetric('sessions_count'))}
+          {/* {this.renderNumberMetric('Number of Sessions', this.getMetricCount('sessions_count'))} */}
+          {this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count'))}
+          {/* {this.renderNumberMetric('Total Messages Received', this.getMetricCount('msg_received_count'))} */}
           {this.renderNumberMetric('Goals Initiated', 34)}
           {this.renderNumberMetric('Goals Completed', '50%')}
           {this.renderNumberMetric('QNA Sent', 54)}
@@ -142,51 +166,46 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
     )
   }
 
-  mapToTimeSeries(metricData: any[]) {
-    const a = metricData.map(x => {
-      return {
-        time: moment(x.created_on)
-          .startOf('day')
-          .unix(),
-        [x.channel]: x.value
-      }
-    })
+  mapDataForCharts(data: any[]) {
+    const chartsData = data.map(metric => ({
+      time: moment(metric.created_on)
+        .startOf('day')
+        .unix(),
+      [metric.channel]: metric.value
+    }))
 
-    console.log(a)
-
-    return a
+    return _.sortBy(chartsData, 'time')
   }
 
-  renderNumberOfSessions(data) {
-    const tickCount = (this.state.endDate - this.state.startDate) / 86400
+  formatTick = timestamp => moment.unix(timestamp).format('DD-MM')
+
+  renderTimeSeriesChart(name: string, data) {
+    const aDayInSeconds = 86400
+    const tickCount = (this.state.endDate - this.state.startDate) / aDayInSeconds
 
     return (
-      <LineChart
-        width={500}
-        height={300}
-        data={this.mapToTimeSeries(data)}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5
-        }}
-      >
-        <CartesianGrid />
-        <XAxis
-          dataKey="time"
-          type="number"
-          domain={[this.state.startDate, this.state.endDate]}
-          tickFormatter={unix => moment.unix(unix).format('DD-MM')}
-        />
-        <YAxis />
-        <Tooltip labelFormatter={unix => moment.unix(unix).format('DD-MM')} />
-        <Legend />
-        <Line type="monotone" dataKey="web" stroke="#ffc658" />
-        <Line type="monotone" dataKey="messenger" stroke="#8884d8" />
-        <Line type="monotone" dataKey="slack" stroke="#de5454" />
-        <Line type="monotone" dataKey="telegram" stroke="#8884d8" />
-      </LineChart>
+      <div className={style.chartMetric}>
+        <h4 className={style.chartMetricName}>{name}</h4>
+        <ResponsiveContainer>
+          <BarChart
+            margin={{
+              top: 0,
+              right: 0,
+              left: 0,
+              bottom: 0
+            }}
+            data={this.mapDataForCharts(data)}
+          >
+            <Tooltip labelFormatter={this.formatTick} />
+            <XAxis dataKey="time" tickCount={tickCount} tickFormatter={this.formatTick} />
+            <YAxis />
+            <Bar stackId="1" type="monotone" dataKey="web" stroke={colorWeb} fill={colorWeb} />
+            <Bar stackId="1" type="monotone" dataKey="messenger" stroke={colorMessenger} fill={colorMessenger} />
+            <Bar stackId="1" type="monotone" dataKey="slack" stroke={colorSlack} fill={colorSlack} />
+            <Bar stackId="1" type="monotone" dataKey="telegram" stroke={colorTelegram} fill={colorTelegram} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     )
   }
 }
