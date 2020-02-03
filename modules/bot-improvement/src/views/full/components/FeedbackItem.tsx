@@ -53,10 +53,9 @@ const FeedbackItemComponent: FC<{
         <div>Event Id: {feedbackItem.eventId}</div>
         <div>Session ID: {feedbackItem.sessionId}</div>
         <div>Timestamp: {feedbackItem.timestamp}</div>
-        <div>Source: {feedbackItem.source.type}</div>
         <div>
           <h4>Detected Intent</h4>
-          Type: {feedbackItem.source.type}
+          Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
           {feedbackItem.source.type === 'qna' && (
             <div>Question: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
           )}
@@ -73,7 +72,7 @@ const FeedbackItemComponent: FC<{
               onChange={e => handleCorrectedActionTypeChange(e.target.value)}
             >
               <option selected={correctedActionType === 'qna'} value="qna">
-                QnA
+                Q&A
               </option>
               <option selected={correctedActionType === 'start_goal'} value="start_goal">
                 Start Goal
