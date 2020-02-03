@@ -1,6 +1,7 @@
 import { Button, Card, Elevation, HTMLSelect, Label, Divider } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
+import moment from 'moment'
 
 import { FeedbackItem, FeedbackItemState, Goal, QnAItem } from '../../../backend/typings'
 import style from '../style.scss'
@@ -54,7 +55,7 @@ const FeedbackItemComponent: FC<{
         <h4>Details</h4>
         <div>Event Id: {feedbackItem.eventId}</div>
         <div>Session ID: {feedbackItem.sessionId}</div>
-        <div>Timestamp: {feedbackItem.timestamp}</div>
+        <div>Timestamp: {moment(feedbackItem.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</div>
         <div>
           <h4>Detected Intent</h4>
           Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
