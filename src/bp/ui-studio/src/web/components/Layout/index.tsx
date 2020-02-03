@@ -3,7 +3,6 @@ import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
-import { style, ToastContainer } from 'react-toastify'
 import { bindActionCreators } from 'redux'
 import { toggleBottomPanel, updateDocumentationModal, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
@@ -16,6 +15,7 @@ import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
+import OneFlow from '~/views/OneFlow'
 
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
@@ -23,7 +23,6 @@ import layout from './Layout.styl'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import BottomPanel from './StatusBar/BottomPanel'
-import OneFlow from '~/views/OneFlow'
 
 interface ILayoutProps {
   viewModeChanged: any
@@ -175,7 +174,14 @@ class Layout extends React.Component<ILayoutProps> {
                   <Route
                     exact
                     path="/"
-                    render={() => (window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />)}
+                    render={() => {
+                        if (!window.IS_BOT_MOUNTED) {
+                          return <Redirect to="/modules/code-editor" />
+                        }
+
+                        return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                      }
+                    }
                   />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
@@ -189,7 +195,6 @@ class Layout extends React.Component<ILayoutProps> {
             <BottomPanel />
           </SplitPane>
 
-          <ToastContainer position="bottom-right" />
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
@@ -220,7 +225,4 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ viewModeChanged, updateDocumentationModal, toggleBottomPanel }, dispatch)
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Layout)
+export default connect(mapStateToProps, mapDispatchToProps)(Layout)

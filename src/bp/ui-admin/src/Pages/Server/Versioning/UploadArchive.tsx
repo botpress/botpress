@@ -114,6 +114,7 @@ const UploadArchive = () => {
               <FileInput
                 text={filePath || 'Choose file...'}
                 onChange={e => readArchive((e.target as HTMLInputElement).files)}
+                inputProps={{ accept: '.tgz' }}
                 fill={true}
               />
             </FormGroup>

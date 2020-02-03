@@ -1,10 +1,8 @@
-import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { extractArchive } from 'core/misc/archive'
 import { GhostService } from 'core/services'
 import { BotService } from 'core/services/bot-service'
 import { Router } from 'express'
-import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import path from 'path'
@@ -79,15 +77,6 @@ export class VersioningRouter extends CustomRouter {
 
     this.router.get('/bpfs_status', (req, res) => {
       res.send({ isAvailable: process.BPFS_STORAGE === 'database' })
-    })
-
-    this.router.get('/docker_images', async (req, res) => {
-      const { data } = await axios.get(
-        'https://hub.docker.com/v2/repositories/botpress/server/tags/?page_size=125&page=1&name=v',
-        process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
-      )
-
-      res.send(data)
     })
   }
 

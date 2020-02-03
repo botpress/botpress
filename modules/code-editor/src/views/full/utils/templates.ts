@@ -7,21 +7,15 @@ const baseAction = `
    * @param {string} name - An example string variable
    * @param {any} value - Another Example value
    */
-    const myAction = async (name, value) => {
-
-
-    }
+  const myAction = async (name, value) => {\n  \n  \n  }
 
   return myAction(args.name, args.value)
 `
 
 const baseHook = `
-  async function hook() {
+  async function hook() {\n  \n  \n  }
 
-
-  }
-
-return hook()
+  return hook()
 `
 
 export { baseAction, baseHook }

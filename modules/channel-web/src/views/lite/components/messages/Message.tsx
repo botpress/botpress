@@ -148,14 +148,19 @@ class Message extends Component<MessageProps> {
 
     return (
       <div
-        onContextMenu={type !== 'session_reset' ? this.handleContextMenu : () => {}}
         className={classnames(this.props.className, wrappedClass, 'bpw-chat-bubble', 'bpw-bubble-' + type, {
           'bpw-bubble-highlight': this.props.isHighlighted
         })}
         style={additionalStyle}
       >
-        {rendered}
-        {this.props.store.config.showTimestamp && this.renderTimestamp()}
+        <div
+          className="bpw-chat-bubble-content"
+          onContextMenu={type !== 'session_reset' ? this.handleContextMenu : () => {}}
+        >
+          {rendered}
+          {this.props.store.config.showTimestamp && this.renderTimestamp()}
+        </div>
+        {this.props.inlineFeedback}
       </div>
     )
   }

@@ -14,6 +14,7 @@ export type FileType =
   | 'module_config'
   | 'hook_example'
   | 'action_example'
+  | 'raw'
 
 export interface EditableFile {
   /** The name of the file, extracted from its location */
@@ -39,7 +40,7 @@ export interface FilesDS {
 export interface FilePermissions {
   [key: string]: {
     type: string
-    isGlobal: boolean
+    isGlobal?: boolean
     read: boolean
     write: boolean
   }
@@ -48,6 +49,6 @@ export interface FilePermissions {
 interface RequestWithPerms {
   permissions: FilePermissions
   params: any
-  query: any
+  query?: any
   body: any
 }

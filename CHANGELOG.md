@@ -1,3 +1,32 @@
+## [12.4.2](https://github.com/botpress/botpress/compare/v12.4.1...v12.4.2) (2020-01-22)
+
+
+### Bug Fixes
+
+* **code-editor:** fix config schemas ([4170e34](https://github.com/botpress/botpress/commit/4170e34))
+* **code-editor:** single selection ([aab4580](https://github.com/botpress/botpress/commit/aab4580))
+* **core:** pool issue with knex and transactions ([79f3596](https://github.com/botpress/botpress/commit/79f3596))
+* **docs:** add hint about Content-Type header ([d7b6af7](https://github.com/botpress/botpress/commit/d7b6af7))
+* **nlu:** exclude NaN vectors ([fe44ac2](https://github.com/botpress/botpress/commit/fe44ac2))
+* **nlu:** handling of spacing inside slots ([035b0fe](https://github.com/botpress/botpress/commit/035b0fe))
+
+
+
+## [12.4.1](https://github.com/botpress/botpress/compare/v12.4.0...v12.4.1) (2020-01-21)
+
+
+### Bug Fixes
+
+* **channel-web:** faster loading on embedded mode ([dd9864d](https://github.com/botpress/botpress/commit/dd9864d))
+* **core:** redisio to use native promises ([2c2beb0](https://github.com/botpress/botpress/commit/2c2beb0))
+* **core:** user is stuck when a transition is missing ([0a98133](https://github.com/botpress/botpress/commit/0a98133))
+* **nlu:** empty dataset validation ([30fd61f](https://github.com/botpress/botpress/commit/30fd61f))
+* specify accept extensions in file upload ([2f05161](https://github.com/botpress/botpress/commit/2f05161))
+* **qna:** fix redirect to flow ([b1bfb4c](https://github.com/botpress/botpress/commit/b1bfb4c))
+* **studio:** keep randomId on choice edit (resolve [#2813](https://github.com/botpress/botpress/issues/2813)) ([77a4206](https://github.com/botpress/botpress/commit/77a4206))
+
+
+
 # [12.4.0](https://github.com/botpress/botpress/compare/v12.3.3...v12.4.0) (2020-01-16)
 
 

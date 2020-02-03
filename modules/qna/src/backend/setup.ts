@@ -53,7 +53,8 @@ export const initModule = async (bp: typeof sdk, botScopedStorage: Map<string, S
       let args: any = {
         user: _.get(event, 'state.user') || {},
         session: _.get(event, 'state.session') || {},
-        temp: _.get(event, 'state.temp') || {}
+        temp: _.get(event, 'state.temp') || {},
+        collectFeedback: true
       }
 
       const electedAnswer = getAlternativeAnswer(qnaEntry, lang)

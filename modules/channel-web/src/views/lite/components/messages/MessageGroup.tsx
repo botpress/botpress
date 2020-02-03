@@ -5,6 +5,7 @@ import React from 'react'
 import { RootStore, StoreDef } from '../../store'
 import { Message as MessageDetails } from '../../typings'
 
+import { InlineFeedback } from './InlineFeedback'
 import Message from './Message'
 
 class MessageGroup extends React.Component<Props> {
@@ -66,17 +67,30 @@ class MessageGroup extends React.Component<Props> {
           {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
           <div className={'bpw-message-group'}>
             {this.props.messages.map((data, i) => {
+              const isLastMsg = i == this.props.messages.length - 1
+              const payload = this.convertPayloadFromOldFormat(data)
+
+              const showInlineFeedback =
+                this.props.isBot &&
+                isLastMsg &&
+                (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
+
               return (
                 <Message
                   key={`msg-${i}`}
                   isHighlighted={
                     this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId)
                   }
+                  inlineFeedback={
+                    showInlineFeedback && (
+                      <InlineFeedback onFeedback={feedback => this.props.onFeedback(feedback, data.incomingEventId)} />
+                    )
+                  }
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}
                   isBotMessage={!data.userId}
                   incomingEventId={data.incomingEventId}
-                  payload={this.convertPayloadFromOldFormat(data)}
+                  payload={payload}
                   sentOn={data.sent_on}
                   onSendData={this.props.onSendData}
                   onFileUpload={this.props.onFileUpload}
@@ -95,6 +109,7 @@ class MessageGroup extends React.Component<Props> {
 export default inject(({ store }: { store: RootStore }) => ({
   store,
   bp: store.bp,
+  onFeedback: store.sendFeedback,
   onSendData: store.sendData,
   onFileUpload: store.uploadFile,
   messageWrapper: store.messageWrapper,
@@ -110,6 +125,7 @@ type Props = {
   isLastGroup: boolean
   onFileUpload?: any
   onSendData?: any
+  onFeedback?: any
   store?: RootStore
   highlightedMessages?: string[]
 } & Pick<StoreDef, 'showUserName' | 'messageWrapper' | 'bp'>

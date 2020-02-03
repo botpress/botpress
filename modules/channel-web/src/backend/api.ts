@@ -5,6 +5,7 @@ import moment from 'moment'
 import multer from 'multer'
 import multers3 from 'multer-s3'
 import path from 'path'
+import apicache from 'apicache'
 
 import { Config } from '../config'
 
@@ -74,6 +75,10 @@ export default async (bp: typeof sdk, db: Database) => {
   }
 
   const router = bp.http.createRouterForBot('channel-web', { checkAuthentication: false, enableJsonBodyParser: true })
+  const perBotCache = apicache.options({
+    appendKey: req => req.method + ' for bot ' + req.params && req.params.botId,
+    statusCodes: { include: [200] }
+  }).middleware
 
   const asyncApi = fn => async (req, res, next) => {
     try {
@@ -86,6 +91,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.get(
     '/botInfo',
+    perBotCache('1 minute'),
     asyncApi(async (req, res) => {
       const { botId } = req.params
       const security = ((await bp.config.getModuleConfig('channel-web')) as Config).security // usage of global because a user could overwrite bot scoped configs
@@ -286,6 +292,21 @@ export default async (bp: typeof sdk, db: Database) => {
       })
 
       await bp.events.sendEvent(event)
+      res.sendStatus(200)
+    })
+  )
+
+  router.post(
+    '/events/:eventId/feedback',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const eventId = req.params.eventId
+      const { feedback } = req.body
+
+      const events = await bp.events.findEvents({ incomingEventId: eventId, direction: 'incoming' })
+      const event = events[0]
+      await bp.events.updateEvent(event.id, { feedback })
+
       res.sendStatus(200)
     })
   )

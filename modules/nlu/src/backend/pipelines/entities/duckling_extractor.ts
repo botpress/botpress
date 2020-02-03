@@ -27,7 +27,7 @@ interface KeyedItem {
 export const JOIN_CHAR = `::${SPACE}::`
 const BATCH_SIZE = 10
 const DISABLED_MSG = `, so it will be disabled.
-For more informations (or if you want to self-host it), please check the docs at
+For more information (or if you want to self-host it), please check the docs at
 https://botpress.io/docs/build/nlu/#system-entities
 `
 const DUCKLING_ENTITIES = [
@@ -50,8 +50,8 @@ const CACHE_PATH = path.join(process.APP_DATA_PATH || '', 'cache', 'sys_entities
 
 // Further improvements:
 // 1 - Duckling entity interface
-// 2- duckling entity results mapper (to map as E1 entity or E2 entites)
-// 3- in _extractBatch, shift results ==> dont walk whole array n times (nlog(n) vs n2)
+// 2- duckling entity results mapper (to map as E1 entity or E2 entities)
+// 3- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)
 
 export class DucklingEntityExtractor {
   public static enabled: boolean

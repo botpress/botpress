@@ -1,5 +1,6 @@
 //Errors
 
+import { toastFailure } from 'botpress/utils'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
@@ -84,7 +85,7 @@ export default class BroadcastModule extends React.Component {
         this.setState({ loading: false })
 
         console.error(err)
-        this.props.bp.toast("Can't fetch broadcast list from the server.")
+        toastFailure("Can't fetch broadcast list from the server.")
       })
   }
 
@@ -92,7 +93,7 @@ export default class BroadcastModule extends React.Component {
     const { content, date, userTimezone, time, filteringConditions } = this.state.broadcast
 
     if (!content) {
-      this.props.bp.toast.error('Content field is required.')
+      toastFailure('Content field is required.')
 
       return
     }

@@ -15,7 +15,7 @@
     "baseUrl": "./bp",
     "outDir": "../out",
     "typeRoots": ["./typings", "../node_modules/@types", "./bp/common"],
-    "types": ["reflect-metadata", "jest", "bluebird-global"]
+    "types": ["reflect-metadata", "jest"]
   },
   "exclude": [
     "e2e/**",

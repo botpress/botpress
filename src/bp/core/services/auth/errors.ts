@@ -5,7 +5,7 @@ export class InvalidOperationError extends ResponseError {
     super('Invalid operation: ' + message, 400, 'BP_0006')
   }
 
-  type = 'InvalidOperatonError'
+  type = 'InvalidOperationError'
 }
 
 export class InvalidCredentialsError extends ResponseError {
