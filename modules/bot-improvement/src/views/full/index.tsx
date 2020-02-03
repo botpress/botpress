@@ -72,8 +72,6 @@ export default props => {
     currentFeedbackItem = pendingFeedbackItems[0]
   }
 
-  console.log(`currentFeedbackItem:`, currentFeedbackItem)
-
   const updateFeedbackItem = async (item: FeedbackItem, changedProps) => {
     const listClone = [...feedbackItems]
     const itemClone = _.cloneDeep(item)
