@@ -1,3 +1,5 @@
+$blue: #3e95f2;
+
 .mainContainer {
   :global(.container) {
     width: 100%;
@@ -26,7 +28,7 @@
 }
 
 .feedbackItem.current {
-  border: 6px solid #3e95f2;
+  border: 6px solid $blue;
   padding: 14px;
 }
 
@@ -45,6 +47,6 @@
 
 .messageGroup.flagged {
   padding: 0;
-  border: 6px solid #3e95f2;
+  border: 6px solid $blue;
   border-radius: 3px;
 }
