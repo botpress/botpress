@@ -1,4 +1,4 @@
-import { Callout } from '@blueprintjs/core'
+import { Callout, Icon } from '@blueprintjs/core'
 import { Tab, Tabs } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
 import _ from 'lodash'
@@ -153,8 +153,24 @@ export default props => {
             }
           }}
         >
-          <Tab id="pending" title="Pending" panel={<FeedbackItemPanel feedbackItems={pendingFeedbackItems} />} />
-          <Tab id="solved" title="Solved" panel={<FeedbackItemPanel feedbackItems={solvedFeedbackItems} />} />
+          <Tab
+            id="pending"
+            title={
+              <>
+                <Icon icon="issue" /> Pending
+              </>
+            }
+            panel={<FeedbackItemPanel feedbackItems={pendingFeedbackItems} />}
+          />
+          <Tab
+            id="solved"
+            title={
+              <>
+                <Icon icon="tick" /> Solved
+              </>
+            }
+            panel={<FeedbackItemPanel feedbackItems={solvedFeedbackItems} />}
+          />
         </Tabs>
       </div>
 
