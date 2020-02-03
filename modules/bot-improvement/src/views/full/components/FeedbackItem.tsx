@@ -48,72 +48,71 @@ const FeedbackItemComponent: FC<{
       interactive={true}
       elevation={current ? Elevation.THREE : Elevation.ZERO}
       className={`${style.feedbackItem} ` + (current ? style.current : '')}
+      onClick={e => onItemClicked()}
     >
-      <div onClick={e => onItemClicked()}>
-        <div>Event Id: {feedbackItem.eventId}</div>
-        <div>Session ID: {feedbackItem.sessionId}</div>
-        <div>Timestamp: {feedbackItem.timestamp}</div>
-        <div>
-          <h4>Detected Intent</h4>
-          Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
-          {feedbackItem.source.type === 'qna' && (
-            <div>Question: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
-          )}
-          {feedbackItem.source.type === 'goal' && <div>Start Goal:</div>}
-        </div>
-        <div className={style.intentCorrectionForm}>
-          <h4>Intent shoud have been:</h4>
-
-          <Label>
-            Type
-            <HTMLSelect
-              id={selectTypeId}
-              onClick={e => e.stopPropagation()}
-              onChange={e => handleCorrectedActionTypeChange(e.target.value)}
-            >
-              <option selected={correctedActionType === 'qna'} value="qna">
-                Q&A
-              </option>
-              <option selected={correctedActionType === 'start_goal'} value="start_goal">
-                Start Goal
-              </option>
-            </HTMLSelect>
-          </Label>
-
-          <Label>
-            {correctedActionType === 'qna' ? 'Question' : 'Goal'}
-            <HTMLSelect
-              id={objectId}
-              onClick={e => e.stopPropagation()}
-              onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
-            >
-              {correctedActionType === 'qna' &&
-                qnaItems.map((i, idx) => (
-                  <option key={`qnaItem-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
-                    {i.data.questions[contentLang][0]}
-                  </option>
-                ))}
-              {correctedActionType === 'start_goal' &&
-                goals.map((i, idx) => (
-                  <option key={`goal-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
-                    {i.id}
-                  </option>
-                ))}
-            </HTMLSelect>
-          </Label>
-        </div>
-
-        {state === 'pending' && (
-          <Button icon="tick" onClick={e => markAsSolved()}>
-            Mark as solved
-          </Button>
+      <div>Event Id: {feedbackItem.eventId}</div>
+      <div>Session ID: {feedbackItem.sessionId}</div>
+      <div>Timestamp: {feedbackItem.timestamp}</div>
+      <div>
+        <h4>Detected Intent</h4>
+        Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
+        {feedbackItem.source.type === 'qna' && (
+          <div>Question: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
         )}
-        {state === 'solved' && (
-          <Button icon="issue" onClick={e => markAsPending()}>
-            Mark as pending
-          </Button>
-        )}
+        {feedbackItem.source.type === 'goal' && <div>Start Goal:</div>}
       </div>
+      <div className={style.intentCorrectionForm}>
+        <h4>Intent shoud have been:</h4>
+
+        <Label>
+          Type
+          <HTMLSelect
+            id={selectTypeId}
+            onClick={e => e.stopPropagation()}
+            onChange={e => handleCorrectedActionTypeChange(e.target.value)}
+          >
+            <option selected={correctedActionType === 'qna'} value="qna">
+              Q&A
+            </option>
+            <option selected={correctedActionType === 'start_goal'} value="start_goal">
+              Start Goal
+            </option>
+          </HTMLSelect>
+        </Label>
+
+        <Label>
+          {correctedActionType === 'qna' ? 'Question' : 'Goal'}
+          <HTMLSelect
+            id={objectId}
+            onClick={e => e.stopPropagation()}
+            onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
+          >
+            {correctedActionType === 'qna' &&
+              qnaItems.map((i, idx) => (
+                <option key={`qnaItem-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
+                  {i.data.questions[contentLang][0]}
+                </option>
+              ))}
+            {correctedActionType === 'start_goal' &&
+              goals.map((i, idx) => (
+                <option key={`goal-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
+                  {i.id}
+                </option>
+              ))}
+          </HTMLSelect>
+        </Label>
+      </div>
+
+      {state === 'pending' && (
+        <Button icon="tick" onClick={e => markAsSolved()}>
+          Mark as solved
+        </Button>
+      )}
+      {state === 'solved' && (
+        <Button icon="issue" onClick={e => markAsPending()}>
+          Mark as pending
+        </Button>
+      )}
     </Card>
   )
 }
