@@ -9,6 +9,7 @@ import _ from 'lodash'
 import multer from 'multer'
 import nanoid from 'nanoid'
 import path from 'path'
+import MultiClassF1Scorer from './f1-scorer'
 
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
@@ -154,11 +155,20 @@ export default async (bp: typeof sdk) => {
     const tests = await getAllTests(req.params.botId)
     const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
 
+    const f1Scorer = new MultiClassF1Scorer()
     const resultsBatch = await P.mapSeries(_.chunk(tests, 20), testChunk => {
       return P.map(testChunk, async test => runTest(test, axiosConfig))
     })
 
+    _.zip(tests, _.flatten(resultsBatch)).forEach(([test, res]) => {
+      const expected = test.conditions[0][2].endsWith('none') ? 'oos' : 'inScope'
+      // @ts-ignore
+      const actual = res.nlu.outOfScope ? 'oos' : 'inScope'
+      f1Scorer.record(expected, actual)
+    })
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
+    // @ts-ignore
+    testResults.F1 = f1Scorer.getResults()
     res.send(testResults)
   })
 }
@@ -195,6 +205,8 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
 
   const details = test.conditions.map(c => conditionMatch(nlu, c))
   return {
+    // @ts-ignore
+    nlu,
     success: details.every(r => r.success),
     id: test.id,
     details
@@ -208,7 +220,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
     // const success = nlu.intent.name === expected
 
     // @ts-ignore
-    const success = expected === 'none' ? nlu.outOfScope : received !== 'none' && !nlu.outOfScope
+    const success = expected === 'none' ? nlu.outOfScope : !nlu.outOfScope
 
     return {
       success,
