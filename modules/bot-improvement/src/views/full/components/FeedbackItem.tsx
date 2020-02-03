@@ -43,7 +43,10 @@ const FeedbackItemComponent: FC<{
   const objectId = getId('object')
 
   return (
-    <div className={current ? style.currentFeedbackItem : ''} onClick={e => onItemClicked()}>
+    <div
+      className={`${style.feedbackItem} ` + (current ? style.currentFeedbackItem : '')}
+      onClick={e => onItemClicked()}
+    >
       <div>Event Id: {feedbackItem.eventId}</div>
       <div>Session ID: {feedbackItem.sessionId}</div>
       <div>Timestamp: {feedbackItem.timestamp}</div>

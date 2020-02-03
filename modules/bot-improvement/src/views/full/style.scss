@@ -15,6 +15,10 @@
   padding: 0px;
 }
 
+.feedbackItem:hover {
+  cursor: pointer;
+}
+
 .feedbackItemsContainer {
   overflow-y: scroll;
 }

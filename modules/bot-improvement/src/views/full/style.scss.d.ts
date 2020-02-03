@@ -3,6 +3,7 @@
 interface CssExports {
   'column': string;
   'currentFeedbackItem': string;
+  'feedbackItem': string;
   'feedbackItemsContainer': string;
   'mainContainer': string;
   'messageGroup-flagged': string;
