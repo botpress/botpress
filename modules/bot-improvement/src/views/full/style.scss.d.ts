@@ -5,6 +5,7 @@ interface CssExports {
   'current': string;
   'feedbackItem': string;
   'feedbackItemsContainer': string;
+  'intentCorrectionForm': string;
   'mainContainer': string;
   'messageGroup-flagged': string;
   'profile': string;

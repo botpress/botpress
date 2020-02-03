@@ -1,4 +1,4 @@
-import { Button, Card, Elevation, HTMLSelect } from '@blueprintjs/core'
+import { Button, Card, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -62,43 +62,46 @@ const FeedbackItemComponent: FC<{
           )}
           {feedbackItem.source.type === 'goal' && <div>Start Goal:</div>}
         </div>
-        <div>
+        <div className={style.intentCorrectionForm}>
           <h4>Intent shoud have been:</h4>
-          <label htmlFor={selectTypeId}>Type:</label>
-          <HTMLSelect
-            id={selectTypeId}
-            onClick={e => e.stopPropagation()}
-            onChange={e => handleCorrectedActionTypeChange(e.target.value)}
-          >
-            <option selected={correctedActionType === 'qna'} value="qna">
-              QnA
-            </option>
-            <option selected={correctedActionType === 'start_goal'} value="start_goal">
-              Start Goal
-            </option>
-          </HTMLSelect>
 
-          {correctedActionType === 'qna' && <label htmlFor={objectId}>Question:</label>}
-          {correctedActionType === 'start_goal' && <label htmlFor={objectId}>Goal:</label>}
+          <Label>
+            Type
+            <HTMLSelect
+              id={selectTypeId}
+              onClick={e => e.stopPropagation()}
+              onChange={e => handleCorrectedActionTypeChange(e.target.value)}
+            >
+              <option selected={correctedActionType === 'qna'} value="qna">
+                QnA
+              </option>
+              <option selected={correctedActionType === 'start_goal'} value="start_goal">
+                Start Goal
+              </option>
+            </HTMLSelect>
+          </Label>
 
-          <HTMLSelect
-            id={objectId}
-            onClick={e => e.stopPropagation()}
-            onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
-          >
-            {correctedActionType === 'qna' &&
-              qnaItems.map((i, idx) => (
-                <option key={`qnaItem-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
-                  {i.data.questions[contentLang][0]}
-                </option>
-              ))}
-            {correctedActionType === 'start_goal' &&
-              goals.map((i, idx) => (
-                <option key={`goal-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
-                  {i.id}
-                </option>
-              ))}
-          </HTMLSelect>
+          <Label>
+            {correctedActionType === 'qna' ? 'Question' : 'Goal'}
+            <HTMLSelect
+              id={objectId}
+              onClick={e => e.stopPropagation()}
+              onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
+            >
+              {correctedActionType === 'qna' &&
+                qnaItems.map((i, idx) => (
+                  <option key={`qnaItem-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
+                    {i.data.questions[contentLang][0]}
+                  </option>
+                ))}
+              {correctedActionType === 'start_goal' &&
+                goals.map((i, idx) => (
+                  <option key={`goal-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
+                    {i.id}
+                  </option>
+                ))}
+            </HTMLSelect>
+          </Label>
         </div>
 
         {state === 'pending' && <Button onClick={e => markAsSolved()}>Mark as solved</Button>}

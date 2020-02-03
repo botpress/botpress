@@ -20,6 +20,10 @@
   padding: 20px;
 }
 
+.feedbackItem .intentCorrectionForm {
+  max-width: 30%;
+}
+
 .feedbackItem.current {
   border: 6px solid #3e95f2;
   padding: 14px;
