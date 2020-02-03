@@ -121,9 +121,12 @@ export const executeGoalActions = async (actions: ImportActions[]) => {
   }
 
   try {
-    await Promise.each(getType('flow'), ({ data }) =>
-      axios.post(`${window.BOT_API_PATH}/flow`, { flow: cleanFlowProperties(data) })
-    )
+    await Promise.each(getType('flow'), ({ data, existing }) => {
+      const flowPath = (existing && `/${data.location.replace(/\//g, '%2F')}`) || ''
+      return axios.post(`${window.BOT_API_PATH}/flow${flowPath}`, {
+        flow: cleanFlowProperties(data)
+      })
+    })
   } catch (err) {
     console.error(`Can't import flows: ${err}`)
   }

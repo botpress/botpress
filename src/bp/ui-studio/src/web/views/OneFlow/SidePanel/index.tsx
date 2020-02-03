@@ -59,7 +59,7 @@ const SidePanelContent: FC<Props> = props => {
   const [topicModalOpen, setTopicModalOpen] = useState(false)
   const [goalModalOpen, setGoalModalOpen] = useState(false)
   const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
-  const [importTopicModalOpen, setImportTopicModalOpen] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
 
   const [selectedGoal, setSelectedGoal] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
@@ -85,12 +85,12 @@ const SidePanelContent: FC<Props> = props => {
     onClick: () => setCreateTopicOpen(true)
   }
 
-  const importTopicAction = {
-    id: 'btn-import-topic',
+  const importAction = {
+    id: 'btn-import',
     icon: <Icon icon="download" />,
     key: 'import',
-    tooltip: 'Import existing topic',
-    onClick: () => setImportTopicModalOpen(true)
+    tooltip: 'Import content',
+    onClick: () => setImportModalOpen(true)
   }
 
   const editTopic = (topicName: string) => {
@@ -145,7 +145,7 @@ const SidePanelContent: FC<Props> = props => {
 
           <SidePanelSection
             label="Topics"
-            actions={props.permissions.includes('create') && [createTopicAction, importTopicAction]}
+            actions={props.permissions.includes('create') && [createTopicAction, importAction]}
           >
             <TopicList
               readOnly={props.readOnly}
@@ -200,8 +200,8 @@ const SidePanelContent: FC<Props> = props => {
       />
 
       <ImportModal
-        isOpen={importTopicModalOpen}
-        toggle={() => setImportTopicModalOpen(!importTopicModalOpen)}
+        isOpen={importModalOpen}
+        toggle={() => setImportModalOpen(!importModalOpen)}
         onImportCompleted={() => {}}
         selectedTopic={selectedTopic}
         flows={props.flows}
