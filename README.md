@@ -34,6 +34,10 @@ Botpress can be easily deployed on DigitalOcean as a 1-Click App [here](https://
 
 [![DigitalOcean](.github/do_button.svg)](https://marketplace.digitalocean.com/apps/botpress)
 
+Botpress can also be deployed on Heroku [here](https://heroku.com/deploy?template=https://github.com/botpress/botpress)
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/botpress/botpress)
+
 ## Deploy using Binaries
 
 You can download the binaries [here](https://botpress.io/download).
