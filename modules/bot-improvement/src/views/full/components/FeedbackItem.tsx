@@ -1,6 +1,6 @@
+import { Button, Card, Elevation } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
-import { Button, Card, Elevation } from '@blueprintjs/core'
 
 import { FeedbackItem, FeedbackItemState, Goal, QnAItem } from '../../../backend/typings'
 import style from '../style.scss'
@@ -101,8 +101,8 @@ const FeedbackItemComponent: FC<{
           </select>
         </div>
 
-        {state === 'pending' && <button onClick={e => markAsSolved()}>Mark as solved</button>}
-        {state === 'solved' && <button onClick={e => markAsPending()}>Mark as pending</button>}
+        {state === 'pending' && <Button onClick={e => markAsSolved()}>Mark as solved</Button>}
+        {state === 'solved' && <Button onClick={e => markAsPending()}>Mark as pending</Button>}
       </div>
     </Card>
   )
