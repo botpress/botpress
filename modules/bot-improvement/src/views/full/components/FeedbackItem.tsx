@@ -1,4 +1,4 @@
-import { Button, Card, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
+import { Button, Card, Elevation, HTMLSelect, Label, Divider } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -50,17 +50,21 @@ const FeedbackItemComponent: FC<{
       className={`${style.feedbackItem} ` + (current ? style.current : '')}
       onClick={e => onItemClicked()}
     >
-      <div>Event Id: {feedbackItem.eventId}</div>
-      <div>Session ID: {feedbackItem.sessionId}</div>
-      <div>Timestamp: {feedbackItem.timestamp}</div>
-      <div>
-        <h4>Detected Intent</h4>
-        Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
-        {feedbackItem.source.type === 'qna' && (
-          <div>Question: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
-        )}
-        {feedbackItem.source.type === 'goal' && <div>Start Goal:</div>}
+      <div style={{ marginRight: '5%' }}>
+        <h4>Details</h4>
+        <div>Event Id: {feedbackItem.eventId}</div>
+        <div>Session ID: {feedbackItem.sessionId}</div>
+        <div>Timestamp: {feedbackItem.timestamp}</div>
+        <div>
+          <h4>Detected Intent</h4>
+          Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
+          {feedbackItem.source.type === 'qna' && (
+            <div>Question: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
+          )}
+          {feedbackItem.source.type === 'goal' && <div>Start Goal:</div>}
+        </div>
       </div>
+      <Divider style={{ marginRight: '3%' }} />
       <div className={style.intentCorrectionForm}>
         <h4>Intent shoud have been:</h4>
 
@@ -101,18 +105,18 @@ const FeedbackItemComponent: FC<{
               ))}
           </HTMLSelect>
         </Label>
-      </div>
 
-      {state === 'pending' && (
-        <Button icon="tick" onClick={e => markAsSolved()}>
-          Mark as solved
-        </Button>
-      )}
-      {state === 'solved' && (
-        <Button icon="issue" onClick={e => markAsPending()}>
-          Mark as pending
-        </Button>
-      )}
+        {state === 'pending' && (
+          <Button icon="tick" onClick={e => markAsSolved()}>
+            Mark as solved
+          </Button>
+        )}
+        {state === 'solved' && (
+          <Button icon="issue" onClick={e => markAsPending()}>
+            Mark as pending
+          </Button>
+        )}
+      </div>
     </Card>
   )
 }
