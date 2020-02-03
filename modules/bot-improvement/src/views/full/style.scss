@@ -15,16 +15,22 @@
   padding: 0px;
 }
 
+.feedbackItem {
+  margin: 10px;
+  padding: 20px;
+}
+
+.feedbackItem.current {
+  border: 6px solid #99fbcd;
+  padding: 14px;
+}
+
 .feedbackItem:hover {
   cursor: pointer;
 }
 
 .feedbackItemsContainer {
   overflow-y: scroll;
-}
-
-.currentFeedbackItem {
-  border: 1px solid blue;
 }
 
 .messageGroup-flagged {
