@@ -1,15 +1,29 @@
 import { Button, Card, Elevation, HTMLSelect } from '@blueprintjs/core'
 import axios, { AxiosInstance } from 'axios'
-import moment from 'moment'
+import _ from 'lodash'
+import moment, { unix } from 'moment'
 import React from 'react'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
 
 import style from './style.scss'
 
 export default class AnalyticsModule extends React.Component<{ bp: any }> {
-  private axios: AxiosInstance
-
   state = {
-    channels: ['web', 'slack', 'messenger', 'telegram', 'all'],
+    channels: ['all', 'web', 'slack', 'messenger', 'telegram'],
+    selectedChannel: 'all',
     metrics: [],
     startDate: undefined,
     endDate: undefined
@@ -19,13 +33,14 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
     const aWeekAgo = moment()
       .subtract(7, 'days')
       .startOf('day')
-      .format('MM-DD-YYYY')
-    const today = moment()
+      .unix()
+    const tomorrow = moment()
+      .add(1, 'day')
       .startOf('day')
-      .format('MM-DD-YYYY')
+      .unix()
 
-    this.fetchAnalytics('all', aWeekAgo, today).then(({ data }) => {
-      this.setState({ start: aWeekAgo, end: today, metrics: data })
+    this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, tomorrow).then(({ data }) => {
+      this.setState({ startDate: aWeekAgo, endDate: tomorrow, metrics: data })
     })
   }
 
@@ -46,19 +61,21 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
 
   render() {
     return (
-      <div>
+      this.state.metrics && (
         <div>
-          Filter by
-          <HTMLSelect onChange={this.handleFilterChange}>
-            {this.state.channels.map(c => {
-              return <option value={c}>{c}</option>
-            })}
-          </HTMLSelect>
+          <div>
+            Filter by
+            <HTMLSelect onChange={this.handleFilterChange} defaultValue="all">
+              {this.state.channels.map(c => {
+                return <option value={c}>{c}</option>
+              })}
+            </HTMLSelect>
+          </div>
+          {this.renderAgentUsage()}
+          {this.renderEngagement()}
+          {this.renderUnderstanding()}
         </div>
-        {this.renderAgentUsage()}
-        {this.renderEngagement()}
-        {this.renderUnderstanding()}
-      </div>
+      )
     )
   }
 
@@ -77,6 +94,7 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
       <React.Fragment>
         <h3>Agent Usage</h3>
         <div className={style.metricsContainer}>
+          {this.renderNumberOfSessions(this.state.metrics.filter(x => x.metric_name === 'sessions_count'))}
           {this.renderNumberMetric('Number of Sessions', this.getMetricCount('sessions_count'))}
           {this.renderNumberMetric('Total Messages Received', this.getMetricCount('msg_received_count'))}
           {this.renderNumberMetric('Goals Initiated', 34)}
@@ -92,9 +110,8 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
       <React.Fragment>
         <h3>Engagement & Retention</h3>
         <div className={style.metricsContainer}>
-          {this.renderNumberMetric('Avg Session Messages', 12)}
           {this.renderNumberMetric('Avg Session Length', this.avgSessionLength())}
-          {this.renderNumberMetric('Number of Users', 34)}
+          {this.renderNumberMetric('Number of Users', this.getMetricCount('user_count'))}
           {this.renderNumberMetric('Number of New Users', '50%')}
           {this.renderNumberMetric('Number of Returning Users', 54)}
         </div>
@@ -122,6 +139,54 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
         <h4 className={style.numberMetricName}>{name}</h4>
         <h2 className={style.numberMetricValue}>{value}</h2>
       </Card>
+    )
+  }
+
+  mapToTimeSeries(metricData: any[]) {
+    const a = metricData.map(x => {
+      return {
+        time: moment(x.created_on)
+          .startOf('day')
+          .unix(),
+        [x.channel]: x.value
+      }
+    })
+
+    console.log(a)
+
+    return a
+  }
+
+  renderNumberOfSessions(data) {
+    const tickCount = (this.state.endDate - this.state.startDate) / 86400
+
+    return (
+      <LineChart
+        width={500}
+        height={300}
+        data={this.mapToTimeSeries(data)}
+        margin={{
+          top: 5,
+          right: 30,
+          left: 20,
+          bottom: 5
+        }}
+      >
+        <CartesianGrid />
+        <XAxis
+          dataKey="time"
+          type="number"
+          domain={[this.state.startDate, this.state.endDate]}
+          tickFormatter={unix => moment.unix(unix).format('DD-MM')}
+        />
+        <YAxis />
+        <Tooltip labelFormatter={unix => moment.unix(unix).format('DD-MM')} />
+        <Legend />
+        <Line type="monotone" dataKey="web" stroke="#ffc658" />
+        <Line type="monotone" dataKey="messenger" stroke="#8884d8" />
+        <Line type="monotone" dataKey="slack" stroke="#de5454" />
+        <Line type="monotone" dataKey="telegram" stroke="#8884d8" />
+      </LineChart>
     )
   }
 }

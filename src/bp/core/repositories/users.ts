@@ -11,7 +11,7 @@ export interface UserRepository {
   setAttributes(channel: string, id: string, attributes: any, trx?: Knex.Transaction): Promise<void>
   getAttributes(channel: string, id: string): Promise<any>
   getAllUsers(paging?: Paging): Promise<any>
-  getUserCount(): Promise<any>
+  getUserCount(channel?: string): Promise<any>
 }
 
 @injectable()
@@ -136,12 +136,14 @@ export class KnexUserRepository implements UserRepository {
     }))
   }
 
-  async getUserCount() {
-    const result = await this.database
-      .knex<User>(this.tableName)
-      .count<Record<string, number>>('user_id as qty')
-      .first()
-      .then(result => result!.qty)
+  async getUserCount(channel?: string) {
+    let query = this.database.knex<User>(this.tableName).count<Record<string, number>>('user_id as qty')
+
+    if (channel) {
+      query = query.where({ channel })
+    }
+
+    const result = await query.first().then(result => result!.qty)
 
     // depending on the DB type (sqlite, postgres), the returned type can be string or int. We force int.
     // @ts-ignore

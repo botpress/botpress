@@ -1,8 +1,10 @@
 import { Logger } from 'botpress/sdk'
+import { Analytics } from 'core/repositories/analytics-repository'
 import AnalyticsService from 'core/services/analytics-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
+import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
@@ -34,15 +36,19 @@ export class AnalyticsRouter extends CustomRouter {
         try {
           if (!channel || channel === 'all') {
             const analytics = await this.analytics.getDateRange(botId, start, end, undefined)
-            res.send(analytics)
+            res.send(analytics.map(this.toDto))
           } else {
             const analytics = await this.analytics.getDateRange(botId, start, end, channel)
-            res.send(analytics)
+            res.send(analytics.map(this.toDto))
           }
         } catch (err) {
           res.status(400).send(err.message)
         }
       })
     )
+  }
+
+  toDto(analytics: Partial<Analytics>) {
+    return _.pick(analytics, ['metric_name', 'value', 'created_on', 'channel'])
   }
 }
