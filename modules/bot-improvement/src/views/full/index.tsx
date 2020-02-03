@@ -72,6 +72,8 @@ export default props => {
     currentFeedbackItem = pendingFeedbackItems[0]
   }
 
+  console.log(`currentFeedbackItem:`, currentFeedbackItem)
+
   const updateFeedbackItem = async (item: FeedbackItem, changedProps) => {
     const listClone = [...feedbackItems]
     const itemClone = _.cloneDeep(item)
@@ -123,7 +125,7 @@ export default props => {
               onItemClicked={() => {
                 setState(state => ({ ...state, currentFeedbackItem: item }))
               }}
-              current={item === currentFeedbackItem}
+              current={item.eventId === currentFeedbackItem.eventId}
               contentLang={contentLang}
               qnaItems={qnaItems}
               goals={goals}
