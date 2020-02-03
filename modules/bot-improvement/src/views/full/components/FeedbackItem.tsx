@@ -104,8 +104,16 @@ const FeedbackItemComponent: FC<{
           </Label>
         </div>
 
-        {state === 'pending' && <Button onClick={e => markAsSolved()}>Mark as solved</Button>}
-        {state === 'solved' && <Button onClick={e => markAsPending()}>Mark as pending</Button>}
+        {state === 'pending' && (
+          <Button icon="tick" onClick={e => markAsSolved()}>
+            Mark as solved
+          </Button>
+        )}
+        {state === 'solved' && (
+          <Button icon="issue" onClick={e => markAsPending()}>
+            Mark as pending
+          </Button>
+        )}
       </div>
     </Card>
   )
