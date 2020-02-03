@@ -9,6 +9,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
+import yn from 'yn'
 
 import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
@@ -41,7 +42,7 @@ export class StateManager {
     @inject(TYPES.JobService) private jobService: JobService
   ) {
     // Temporarily opt-in until thoroughly tested
-    this.useRedis = process.CLUSTER_ENABLED && process.env.USE_REDIS_STATE
+    this.useRedis = process.CLUSTER_ENABLED && yn(process.env.USE_REDIS_STATE)
   }
 
   public initialize() {
@@ -136,7 +137,7 @@ export class StateManager {
     const botConfig = await this.configProvider.getBotConfig(event.botId)
     const botpressConfig = await this.getBotpressConfig()
 
-    const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
+    const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId, trx)
     const expiry = createExpiry(botConfig, botpressConfig)
 
     dialogSession.session_data = session || {}

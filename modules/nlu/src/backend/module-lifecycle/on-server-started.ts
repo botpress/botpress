@@ -12,7 +12,7 @@ import LangProvider from '../language-provider'
 import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
 import { getPOSTagger, tagSentence } from '../pos-tagger'
 import Storage from '../storage'
-import { NLUState, Tools, TrainingSession } from '../typings'
+import { NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -45,7 +45,8 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
       const tagger = getPOSTagger(lang, bp.MLToolkit)
       return tokenUtterances.map(tagSentence.bind(this, tagger))
     },
-    tokenize_utterances: (utterances: string[], lang: string) => state.languageProvider.tokenize(utterances, lang),
+    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
+      state.languageProvider.tokenize(utterances, lang, vocab),
     vectorize_tokens: async (tokens, lang) => {
       const a = await state.languageProvider.vectorize(tokens, lang)
       return a.map(x => Array.from(x.values()))

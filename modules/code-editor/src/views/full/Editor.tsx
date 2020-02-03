@@ -97,22 +97,32 @@ class Editor extends React.Component<Props> {
 
   loadTypings = async () => {
     const typings = await this.props.fetchTypings()
-    if (!typings) {
-      return
-    }
 
-    Object.keys(typings).forEach(name => {
-      const uri = 'bp://types/' + name
-      const content = typings[name]
+    this.setSchemas(typings)
 
-      if (name.endsWith('.json')) {
-        monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-          schemas: [{ uri, fileMatch: ['bot.config.json'], schema: JSON.parse(content) }],
-          validate: true
-        })
-      } else {
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(content, uri)
+    _.forEach(typings, (content, name) => {
+      if (!name.includes('.schema.')) {
+        monaco.languages.typescript.typescriptDefaults.addExtraLib(content, 'bp://types/' + name)
       }
+    })
+  }
+
+  setSchemas = (typings: any) => {
+    const schemas = _.reduce(
+      _.pickBy(typings, (content, name) => name.includes('.schema.')),
+      (result, content, name) => {
+        result.push({
+          uri: 'bp://types/' + name,
+          schema: JSON.parse(content)
+        })
+        return result
+      },
+      []
+    )
+
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+      schemas,
+      validate: true
     })
   }
 
@@ -129,7 +139,7 @@ class Editor extends React.Component<Props> {
   render() {
     return (
       <React.Fragment>
-        {!this.props.editor.isOpenedFile && <SplashScreen />}
+        {!this.props.editor.isOpenedFile && <SplashScreen rawEditor={this.props.store.useRawEditor} />}
         <div className={style.editorContainer}>
           <div className={style.tabsContainer}>
             <div className={style.tab}>

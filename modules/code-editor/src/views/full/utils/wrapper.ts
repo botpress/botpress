@@ -9,17 +9,17 @@ const ACTION_SIGNATURE =
 const wrapper = {
   add: (content: string, type: string, hookType?: string) => {
     if (type === 'action') {
-      return `${ACTION_SIGNATURE}{\n${START_COMMENT}\n\n${content}\n${END_COMMENT}\n}`
+      return `${ACTION_SIGNATURE} {\n  ${START_COMMENT}\n${content}\n  ${END_COMMENT}\n}`
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
-      return `${HOOK_SIGNATURES[hookType]}{\n${START_COMMENT}\n\n${content}\n${END_COMMENT}\n}`
+      return `${HOOK_SIGNATURES[hookType]} {\n  ${START_COMMENT}\n${content}\n  ${END_COMMENT}\n}`
     } else if (type === 'bot_config') {
       return content.replace('../../bot.config.schema.json', 'bp://types/bot.config.schema.json')
     } else if (type === 'main_config') {
       return content.replace('../botpress.config.schema.json', 'bp://types/botpress.config.schema.json')
     } else if (type === 'module_config') {
-      return content // TODO: download schemas from server
+      return content.replace(/"..\/..\/assets\/(.*?config\.schema\.json")/, '"bp://types/$1')
     } else {
-      return `// Unknown file type`
+      return content
     }
   },
   remove: (content: string, type: string) => {
@@ -30,7 +30,7 @@ const wrapper = {
       return content.replace('bp://types/botpress.config.schema.json', '../botpress.config.schema.json')
     }
     if (type === 'module_config') {
-      return content
+      return content.replace(/"bp:\/\/types\/(.*?config\.schema\.json")/, '"../../assets/$1')
     }
 
     const startIndex = content.indexOf(START_COMMENT)

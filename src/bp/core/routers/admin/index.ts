@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
@@ -11,6 +12,7 @@ import { JobService } from 'core/services/job-service'
 import { MonitoringService } from 'core/services/monitoring'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
+import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
@@ -105,6 +107,15 @@ export class AdminRouter extends CustomRouter {
         res.send(await this.licenseService.auditLicensing(req.headers['x-bp-audit'] as string))
       })
     )
+
+    router.get('/docker_images', async (req, res) => {
+      const { data } = await axios.get(
+        'https://hub.docker.com/v2/repositories/botpress/server/tags/?page_size=125&page=1&name=v',
+        process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
+      )
+
+      res.send(data)
+    })
 
     router.use('/bots', this.checkTokenHeader, this.botsRouter.router)
     router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)

@@ -73,4 +73,22 @@ describe('parse utterance', () => {
     expect(res.parts).toHaveLength(4)
     expect(res.parts[3].text).toEqual('Jay')
   })
+
+  test('bounding spaces are trimmed from slots', () => {
+    const utterance = 'My name is[ Kanye    ](me) and your name is[   Jay ](you).'
+    // raw            .012345678901234567890123456789012345678901234567890123.
+    const res = parseUtterance(utterance)
+    expect(res.utterance).toEqual('My name is Kanye     and your name is   Jay .')
+    expect(res.parsedSlots.length).toEqual(2)
+    expect(res.parsedSlots[0].name).toEqual('me')
+    expect(res.parsedSlots[0].value).toEqual('Kanye')
+    expect(res.parsedSlots[0].rawPosition).toEqual({ start: 10, end: 26 })
+    expect(res.parsedSlots[0].cleanPosition).toEqual({ start: 10, end: 15 })
+    expect(res.parsedSlots[1].name).toEqual('you')
+    expect(res.parsedSlots[1].value).toEqual('Jay')
+    expect(res.parsedSlots[1].rawPosition).toEqual({ start: 43, end: 57 })
+    expect(res.parsedSlots[1].cleanPosition).toEqual({ start: 37, end: 40 })
+    expect(res.parts).toHaveLength(7)
+    expect(res.parts[4].text).toEqual('Jay')
+  })
 })

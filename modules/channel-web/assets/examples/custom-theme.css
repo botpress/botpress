@@ -1,0 +1,76 @@
+.bpw-from-bot .bpw-chat-bubble {
+  background-color: #ececec;
+}
+
+.bpw-chat-bubble:last-of-type {
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.bpw-chat-bubble:first-of-type {
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.bpw-from-user .bpw-chat-bubble:last-of-type {
+  border-bottom-right-radius: 0px;
+}
+
+.bpw-from-bot .bpw-chat-bubble:last-of-type {
+  border-bottom-left-radius: 0px;
+}
+
+.bpw-from-user .bpw-chat-bubble {
+  background-color: #4278f3;
+  color: #ffffff;
+}
+
+.bpw-date-container .bpw-small-line {
+  border-bottom: none;
+}
+
+.bpw-date-container {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.bpw-header-container {
+  background-color: #f8f8f8;
+  border-bottom: none;
+}
+
+.bpw-bot-avatar img,
+.bpw-bot-avatar svg {
+  border: none;
+  border-radius: 50%;
+}
+
+.bpw-composer {
+  padding: 10px;
+  background: none;
+  border: none;
+}
+
+.bpw-composer textarea {
+  background: #ececec;
+  border-radius: 20px;
+  font-size: 1.25rem;
+  overflow: hidden;
+}
+
+.send-btn {
+  position: absolute;
+  right: 30px;
+  bottom: 28px;
+  border: none;
+  border-radius: 5px;
+  background: #fff;
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.send-btn:hover {
+  background: #d8d8d8;
+}

@@ -227,6 +227,7 @@ export class BotsRouter extends CustomRouter {
               window.BOT_LOCKED = ${!!bot.locked};
               window.USE_ONEFLOW = ${!!bot['oneflow']};
               window.WORKSPACE_ID = "${workspaceId}";
+              window.IS_BOT_MOUNTED = ${this.botService.isBotMounted(botId)};
               window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}

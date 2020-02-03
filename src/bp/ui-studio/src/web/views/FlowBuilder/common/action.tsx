@@ -163,7 +163,4 @@ class ActionItem extends Component<Props> {
 const mapStateToProps = state => ({ items: state.content.itemsById })
 const mapDispatchToProps = { fetchContentItem, refreshFlowsLinks }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withLanguage(ActionItem))
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(ActionItem))

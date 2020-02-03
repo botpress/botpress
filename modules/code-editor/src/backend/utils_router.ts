@@ -12,9 +12,23 @@ export const getPermissionsMw = (bp: typeof sdk) => async (req: any, res, next):
 
   const perms: FilePermissions = {}
   for (const type of Object.keys(FileTypes)) {
-    const { allowGlobal, allowScoped, permission } = FileTypes[type]
+    const { allowGlobal, allowScoped, allowRoot, onlySuperAdmin, permission } = FileTypes[type]
+
+    const rootKey = `root.${permission}`
     const globalKey = `global.${permission}`
     const botKey = `bot.${permission}`
+
+    if (onlySuperAdmin && !req.tokenUser.isSuperAdmin) {
+      continue
+    }
+
+    if (allowRoot) {
+      perms[rootKey] = {
+        type,
+        write: await permissionsChecker('write', rootKey),
+        read: await permissionsChecker('read', rootKey)
+      }
+    }
 
     if (allowGlobal) {
       perms[globalKey] = {

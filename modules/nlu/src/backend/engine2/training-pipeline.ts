@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { isSpace, SPACE } from '../tools/token-utils'
+import { convertToRealSpaces, isSpace, SPACE } from '../tools/token-utils'
 import {
   EntityExtractionResult,
   Intent,
@@ -95,7 +95,9 @@ const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
 
 const makeListEntityModel = async (entity: ListEntity, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
-  const allTokens = await tools.tokenize_utterances(allValues, languageCode)
+  const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
+    toks.map(convertToRealSpaces)
+  )
 
   return <ListEntityModel>{
     type: 'custom.list',
@@ -119,7 +121,7 @@ export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.M
     .flatMapDeep(i => i.utterances.map(u => u.tokens))
     // @ts-ignore
     .uniqBy((t: UtteranceToken) => t.value)
-    .map((t: UtteranceToken) => t.vectors)
+    .map((t: UtteranceToken) => t.vector)
     .value() as number[][]
 
   if (data.length < 2) {
@@ -159,7 +161,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
     .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
     .reduce(
       // @ts-ignore
-      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vectors }),
+      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vector }),
       {} as Token2Vec
     )
     .value() as Token2Vec
@@ -199,6 +201,7 @@ const trainIntentClassifier = async (
         }))
       )
       .value()
+      .filter(x => x.coordinates.filter(isNaN).length == 0)
 
     if (points.length > 0) {
       const svm = new tools.mlToolkit.SVM.Trainer()
@@ -231,7 +234,7 @@ const trainContextClassifier = async (
           coordinates: utt.sentenceEmbedding
         }))
       )
-  })
+  }).filter(x => x.coordinates.filter(isNaN).length == 0)
 
   if (points.length > 0) {
     const svm = new tools.mlToolkit.SVM.Trainer()
@@ -349,7 +352,9 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
 }
 
 const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer> => {
-  if (input.intents.length === 0) {
+  const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
+
+  if (!hasSlots) {
     return Buffer.from('')
   }
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
