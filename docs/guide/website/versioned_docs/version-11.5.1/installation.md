@@ -8,7 +8,7 @@ Getting started with Botpress is very easy. We build and distribute binaries of 
 
 ## Download
 
-The latest stable binaries are available for download [**here**](https://botpress.io/download). Alternatively, you may find all the versions and nightly builds in our public [**S3 Bucket**](https://s3.amazonaws.com/botpress-binaries/index.html).
+The latest stable binaries are available for download [**here**](https://botpress.com/download). Alternatively, you may find all the versions and nightly builds in our public [**S3 Bucket**](https://s3.amazonaws.com/botpress-binaries/index.html).
 
 ## Installation
 

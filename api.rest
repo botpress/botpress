@@ -59,6 +59,6 @@ GET https://lang-01.botpress.io/info
 #       "baseUrl": "http://localhost:3000"
 #     },
 #     "production": {
-#       "baseUrl": "https://botpress.io",
+#       "baseUrl": "https://botpress.com",
 #     }
 #   }

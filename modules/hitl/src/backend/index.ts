@@ -38,7 +38,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'feedback',
     menuText: 'HITL',
     fullName: 'Human In The Loop',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 

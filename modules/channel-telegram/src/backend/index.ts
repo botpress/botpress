@@ -83,7 +83,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'channel-telegram',
     menuIcon: 'none', // no interface = true
     fullName: 'Telegram',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: true,
     plugins: []
   }
