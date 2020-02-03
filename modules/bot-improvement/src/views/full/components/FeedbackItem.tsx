@@ -1,4 +1,4 @@
-import { Button, Card, Elevation } from '@blueprintjs/core'
+import { Button, Card, Elevation, HTMLSelect } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -65,7 +65,7 @@ const FeedbackItemComponent: FC<{
         <div>
           <h4>Intent shoud have been:</h4>
           <label htmlFor={selectTypeId}>Type:</label>
-          <select
+          <HTMLSelect
             id={selectTypeId}
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionTypeChange(e.target.value)}
@@ -76,12 +76,12 @@ const FeedbackItemComponent: FC<{
             <option selected={correctedActionType === 'start_goal'} value="start_goal">
               Start Goal
             </option>
-          </select>
+          </HTMLSelect>
 
           {correctedActionType === 'qna' && <label htmlFor={objectId}>Question:</label>}
           {correctedActionType === 'start_goal' && <label htmlFor={objectId}>Goal:</label>}
 
-          <select
+          <HTMLSelect
             id={objectId}
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
@@ -98,7 +98,7 @@ const FeedbackItemComponent: FC<{
                   {i.id}
                 </option>
               ))}
-          </select>
+          </HTMLSelect>
         </div>
 
         {state === 'pending' && <Button onClick={e => markAsSolved()}>Mark as solved</Button>}
