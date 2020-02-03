@@ -5,9 +5,10 @@ interface CssExports {
   'current': string;
   'feedbackItem': string;
   'feedbackItemsContainer': string;
+  'flagged': string;
   'intentCorrectionForm': string;
   'mainContainer': string;
-  'messageGroup-flagged': string;
+  'messageGroup': string;
   'profile': string;
 }
 declare var cssExports: CssExports;

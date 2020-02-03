@@ -39,6 +39,12 @@
   padding-left: 15px;
 }
 
-.messageGroup-flagged {
-  border: 1px solid red;
+.messageGroup {
+  padding: 6px;
+}
+
+.messageGroup.flagged {
+  padding: 0;
+  border: 6px solid #3e95f2;
+  border-radius: 3px;
 }
