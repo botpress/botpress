@@ -3,6 +3,7 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { FeedbackItem, FlaggedMessageGroup } from '../../../../backend/typings'
+import style from '../../style.scss'
 
 import { ConversationHeader } from './ConversationHeader'
 import { MessageList } from './MessageList'
@@ -25,7 +26,7 @@ const Conversation: FC<{ api: BotImprovementApi; feedbackItem: FeedbackItem }> =
   }, [props.feedbackItem])
 
   return (
-    <div className="bph-conversation" style={{ overflow: 'hidden' }}>
+    <div className={style.conversation} style={{ overflow: 'hidden' }}>
       <ConversationHeader displayName="Conversation Preview" />
       <MessageList messageGroups={messageGroups} />
     </div>

@@ -23,7 +23,7 @@ export const MessageList: FC<{ messageGroups: FlaggedMessageGroup[] }> = props =
   const messagesListRef = React.createRef<HTMLDivElement>()
 
   return (
-    <div ref={messagesListRef} className="bph-conversation-messages">
+    <div ref={messagesListRef} className={style.conversationMessages}>
       {messageGroups.map((group, groupIdx) => (
         <div
           ref={el => (itemRefs[group.incoming.id] = el)}

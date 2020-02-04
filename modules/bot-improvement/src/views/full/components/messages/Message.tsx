@@ -6,6 +6,7 @@ import path from 'path'
 import React from 'react'
 
 import { Message } from '../../../../backend/typings'
+import style from '../../style.scss'
 import SVGIcon from '../SVGIcon'
 
 const validMessageTypes = [
@@ -117,7 +118,7 @@ export default (props: { message: Message }) => {
     if (direction === 'in') {
       if (type === 'visit') {
         return (
-          <div className={classnames('bph-message', 'bph-from-system')}>
+          <div className={classnames(style.message, style.fromSystem)}>
             <p>User visit: {date}</p>
           </div>
         )
@@ -126,7 +127,7 @@ export default (props: { message: Message }) => {
     }
 
     const avatar = (
-      <div className="bph-message-avatar">
+      <div className={style.messageAvatar}>
         {<SVGIcon name={messageFrom} width="50" fill="#FFF" />}
         <time>{moment(ts).format('L LTS')}</time>
       </div>
@@ -134,13 +135,13 @@ export default (props: { message: Message }) => {
 
     return (
       <div
-        className={classnames('bph-message', {
-          ['bph-from-bot']: messageFrom === 'bot'
+        className={classnames(style.message, {
+          [style.fromBot]: messageFrom === 'bot'
         })}
       >
         {messageFrom === 'user' && avatar}
-        <div className="bph-message-container">
-          <div className="bph-chat-bubble">{renderContent()}</div>
+        <div className={style.messageContainer}>
+          <div className={style.chatBubble}>{renderContent()}</div>
         </div>
         {messageFrom !== 'user' && avatar}
       </div>

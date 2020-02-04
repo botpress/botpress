@@ -4,7 +4,6 @@ import { Container } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import '../../../assets/default.css'
 import { FeedbackItem, Goal, QnAItem } from '../../backend/typings'
 
 import { makeApi } from './api'
