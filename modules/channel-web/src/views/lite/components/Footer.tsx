@@ -18,7 +18,7 @@ const Footer = () => {
             </svg>
           </i>
           {' by '}
-          <a href={'https://botpress.io'} target="_blank">
+          <a href={'https://botpress.com'} target="_blank">
             {'Botpress'}
           </a>
         </span>

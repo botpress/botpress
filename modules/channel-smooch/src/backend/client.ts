@@ -110,7 +110,7 @@ export class SmoochClient {
   }
 
   async sendTyping(event: sdk.IO.Event) {
-    return this.smooch.appUsers.conversationActivity({
+    await this.smooch.appUsers.conversationActivity({
       appId: this.smooch.keyId,
       userId: event.target,
       activityProps: {
@@ -118,6 +118,7 @@ export class SmoochClient {
         type: 'typing:start'
       }
     })
+    return new Promise(resolve => setTimeout(() => resolve(), 1000))
   }
 
   async sendText(event: sdk.IO.Event) {

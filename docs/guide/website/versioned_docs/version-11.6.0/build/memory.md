@@ -105,4 +105,4 @@ What if the four previous types of storage doesn't fulfill my requirements? Don'
 
 The Key-Value Store is a general-purpose store which allows you to store any type of data. You will need to manage expirations and data update yourself, sice Botpress will not update these values on its own.
 
-The KVS is available from the [Botpress SDK](https://botpress.io/reference/modules/_botpress_sdk_.kvs.html)
+The KVS is available from the [Botpress SDK](https://botpress.com/reference/modules/_botpress_sdk_.kvs.html)

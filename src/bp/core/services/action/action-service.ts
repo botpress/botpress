@@ -115,9 +115,9 @@ export class ScopedActionService {
       await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', exclude)
     )
 
-    const actions: ActionDefinition[] = (await Promise.map(globalActionsFiles, async file =>
-      this.getActionDefinition(file, 'global', true)
-    )).concat(await Promise.map(localActionsFiles, async file => this.getActionDefinition(file, 'local', true)))
+    const actions: ActionDefinition[] = (
+      await Promise.map(globalActionsFiles, async file => this.getActionDefinition(file, 'global', true))
+    ).concat(await Promise.map(localActionsFiles, async file => this.getActionDefinition(file, 'local', true)))
 
     this._actionsCache = actions
     return actions

@@ -30,7 +30,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuText: 'Extensions',
     noInterface: true,
     fullName: 'Extensions',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 

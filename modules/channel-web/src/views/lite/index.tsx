@@ -52,7 +52,7 @@ const Wrapper = observer(ExposedWebChat)
 
 /**
  * @deprecated Since the way views are handled has changed, we're also exporting views in lowercase.
- * https://botpress.io/docs/developers/migrate/
+ * https://botpress.com/docs/developers/migrate/
  */
 export { Embedded as embedded } from '.'
 export { Fullscreen as fullscreen } from '.'

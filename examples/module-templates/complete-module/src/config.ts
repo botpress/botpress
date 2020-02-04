@@ -7,7 +7,7 @@
  */
 export interface Config {
   /**
-   * @default https://botpress.io
+   * @default https://botpress.com
    */
   someEndpoint: string
   /**

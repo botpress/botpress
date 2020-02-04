@@ -59,7 +59,7 @@ const Versioning: FC<{ profile: any }> = props => {
             Pushing local changes to a remote server is only possible when using the BPFS Storage "Database". <br />
             <br />
             Check out the{' '}
-            <a href="https://botpress.io/docs/next/advanced/versions/" target="_blank">
+            <a href="https://botpress.com/docs/next/advanced/versions/" target="_blank">
               <b>documentation</b>
             </a>{' '}
             for more information.
