@@ -1,0 +1,44 @@
+.header {
+  margin: 15px 50px 15px 50px;
+  display: inline-block;
+}
+
+.metricsSection {
+  margin-top: 50px;
+  margin-left: 50px;
+}
+
+.metricsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.numberMetric {
+  text-align: center;
+  display: inline-block;
+  width: 150px;
+  padding: 5px;
+  margin: 10px 0 10px 10px;
+}
+
+.numberMetricName {
+  margin-top: 10px;
+  height: 50px;
+}
+
+.numberMetricValue {
+  margin-top: 10px;
+}
+
+.chartMetric {
+  display: inline-block;
+  width: 300px;
+  height: 150px;
+}
+
+.chartMetricName {
+  text-align: center;
+  margin: 0 auto;
+  height: 50px;
+}

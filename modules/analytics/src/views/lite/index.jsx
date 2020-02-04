@@ -1,6 +1,6 @@
 import React from 'react'
 
-export class LiteView extends React.Component {
+export default class LiteView extends React.Component {
   render() {
     return null
   }
