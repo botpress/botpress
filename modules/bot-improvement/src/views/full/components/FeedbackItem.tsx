@@ -75,13 +75,10 @@ const FeedbackItemComponent: FC<{
             id={selectTypeId}
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionTypeChange(e.target.value)}
+            value={correctedActionType}
           >
-            <option selected={correctedActionType === 'qna'} value="qna">
-              Q&A
-            </option>
-            <option selected={correctedActionType === 'start_goal'} value="start_goal">
-              Start Goal
-            </option>
+            <option value="qna">Q&A</option>
+            <option value="start_goal">Start Goal</option>
           </HTMLSelect>
         </Label>
 
@@ -91,16 +88,17 @@ const FeedbackItemComponent: FC<{
             id={objectId}
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
+            value={correctedObjectId}
           >
             {correctedActionType === 'qna' &&
               qnaItems.map((i, idx) => (
-                <option key={`qnaItem-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
+                <option key={`qnaItem-${idx}`} value={i.id}>
                   {i.data.questions[contentLang][0]}
                 </option>
               ))}
             {correctedActionType === 'start_goal' &&
               goals.map((i, idx) => (
-                <option key={`goal-${idx}`} selected={correctedObjectId === i.id} value={i.id}>
+                <option key={`goal-${idx}`} value={i.id}>
                   {i.id}
                 </option>
               ))}
