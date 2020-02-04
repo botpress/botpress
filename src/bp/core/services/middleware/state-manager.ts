@@ -82,11 +82,7 @@ export class StateManager {
     }
 
     const state = event.state
-
-    const { result: user, created } = await this.userRepo.getOrCreate(event.channel, event.target, event.botId)
-    if (created) {
-      await this.analytics.incrementMetric(event.botId, event.channel, 'users_new_count')
-    }
+    const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target, event.botId)
 
     state.user = user.attributes
 
@@ -142,7 +138,8 @@ export class StateManager {
     const botConfig = await this.configProvider.getBotConfig(event.botId)
     const botpressConfig = await this.getBotpressConfig()
 
-    const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
+    const { result: dialogSession, created } = await this.sessionRepo.getOrCreateSession(sessionId, event.botId)
+    created && (await this.analytics.incrementMetric(event.botId, event.channel, 'sessions_count'))
     const expiry = createExpiry(botConfig, botpressConfig)
 
     dialogSession.session_data = session || {}

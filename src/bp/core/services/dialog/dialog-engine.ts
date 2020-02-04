@@ -1,12 +1,10 @@
 import { IO } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
-import { AnalyticsRepository } from 'core/repositories/analytics-repository'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import AnalyticsService from '../analytics-service'
 import { converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
 
@@ -27,8 +25,7 @@ export class DialogEngine {
   constructor(
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
-    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
-    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
@@ -39,7 +36,6 @@ export class DialogEngine {
 
     if (_.isEmpty(event.state.context)) {
       context = this.initializeContext(event)
-      await this.analytics.incrementMetric(event.botId, event.channel, 'sessions_count')
     } else {
       context = event.state.context
     }

@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import AnalyticsService from 'core/services/analytics-service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -24,7 +25,7 @@ export class DialogSession {
 
 export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
-  getOrCreateSession(sessionId: string, botId: string): Promise<DialogSession>
+  getOrCreateSession(sessionId: string, botId: string): Knex.GetOrCreateResult<DialogSession>
   get(id: string): Promise<DialogSession>
   getExpiredContextSessionIds(botId: string): Promise<string[]>
   deleteExpiredSessions(botId: string)
@@ -32,18 +33,26 @@ export interface SessionRepository {
   update(session: DialogSession, trx?: Knex.Transaction)
 }
 
+export interface DialogSessionResult {
+  session: DialogSession
+  created: boolean
+}
+
 @injectable()
 export class KnexSessionRepository implements SessionRepository {
   private readonly tableName = 'dialog_sessions'
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
+  ) {}
 
-  async getOrCreateSession(sessionId: string, botId: string): Promise<DialogSession> {
+  async getOrCreateSession(sessionId: string, botId: string): Knex.GetOrCreateResult<DialogSession> {
     const session = await this.get(sessionId)
     if (!session) {
-      return this.createSession(sessionId, botId, {}, {}, {})
+      return { result: await this.createSession(sessionId, botId, {}, {}, {}), created: true }
     }
-    return session
+    return { result: session, created: false }
   }
 
   async createSession(sessionId, botId, context, temp_data, session_data): Promise<DialogSession> {

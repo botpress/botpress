@@ -1,15 +1,15 @@
 import { Paging, User } from 'botpress/sdk'
+import AnalyticsService from 'core/services/analytics-service'
 import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 
 import Database from '../database'
 import { TYPES } from '../types'
-import { Analytics } from './analytics-repository'
-import AnalyticsService from 'core/services/analytics-service'
 
 export interface UserRepository {
   getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User>
+  get(channel: string, id: string): Promise<User>
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   setAttributes(channel: string, id: string, attributes: any, trx?: Knex.Transaction): Promise<void>
   getAttributes(channel: string, id: string): Promise<any>
@@ -27,7 +27,7 @@ export class KnexUserRepository implements UserRepository {
     @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
   ) {}
 
-  async getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User> {
+  async getOrCreate(channel: string, id: string, botId: string): Knex.GetOrCreateResult<User> {
     channel = channel.toLowerCase()
 
     const ug = await this.database
@@ -74,9 +74,38 @@ export class KnexUserRepository implements UserRepository {
         }
       })
 
-    this.analytics.incrementMetric(botId, channel, 'users_new_count')
+    await this.analytics.incrementMetric(botId, channel, 'new_users_count')
 
     return { result: newUser, created: true }
+  }
+
+  async get(channel: string, id: string): Promise<User> {
+    channel = channel.toLowerCase()
+
+    const ug = await this.database
+      .knex(this.tableName)
+      .where({
+        channel,
+        user_id: id
+      })
+      .limit(1)
+      .select('attributes', 'created_at', 'updated_at')
+      .first()
+
+    if (ug) {
+      const user: User = {
+        channel,
+        id: id,
+        createdOn: ug.created_at,
+        updatedOn: ug.updated_at,
+        attributes: this.database.knex.json.get(ug.attributes),
+        otherChannels: []
+      }
+
+      return user
+    } else {
+      throw new Error(`User id ${id} not found.`)
+    }
   }
 
   async getAttributes(channel: string, user_id: string): Promise<any> {

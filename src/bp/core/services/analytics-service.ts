@@ -24,22 +24,7 @@ export default class AnalyticsService {
     }
   }
 
-  async getDateRange(botId: string, startDate: string, endDate: string, channel?: string) {
-    const analytics = await this.analyticsRepo.getBetweenDates(
-      botId,
-      this.formatUnixToISO(startDate),
-      this.formatUnixToISO(endDate),
-      channel
-    )
-    return analytics
-  }
-
-  private formatUnixToISO(unix) {
-    const momentDate = moment.unix(unix)
-    if (!momentDate.isValid()) {
-      throw new Error(`Invalid unix timestamp format ${unix}.`)
-    }
-
-    return momentDate.toISOString()
+  async getDateRange(botId: string, startDate: Date, endDate: Date, channel?: string) {
+    return this.analyticsRepo.getBetweenDates(botId, startDate, endDate, channel)
   }
 }

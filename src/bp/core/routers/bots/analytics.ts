@@ -5,6 +5,7 @@ import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
+import moment from 'moment'
 
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
@@ -33,12 +34,16 @@ export class AnalyticsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, channel } = req.params
         const { start, end } = req.query
+
+        const startDate = this.unixToDate(start)
+        const endDate = this.unixToDate(end)
+
         try {
           if (!channel || channel === 'all') {
-            const analytics = await this.analytics.getDateRange(botId, start, end, undefined)
+            const analytics = await this.analytics.getDateRange(botId, startDate, endDate, undefined)
             res.send(analytics.map(this.toDto))
           } else {
-            const analytics = await this.analytics.getDateRange(botId, start, end, channel)
+            const analytics = await this.analytics.getDateRange(botId, startDate, endDate, channel)
             res.send(analytics.map(this.toDto))
           }
         } catch (err) {
@@ -50,5 +55,14 @@ export class AnalyticsRouter extends CustomRouter {
 
   toDto(analytics: Partial<Analytics>) {
     return _.pick(analytics, ['metric_name', 'value', 'created_on', 'channel'])
+  }
+
+  unixToDate(unix) {
+    const momentDate = moment.unix(unix)
+    if (!momentDate.isValid()) {
+      throw new Error(`Invalid unix timestamp format ${unix}.`)
+    }
+
+    return momentDate.toDate()
   }
 }

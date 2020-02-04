@@ -41,8 +41,7 @@ export class DataRetentionJanitor extends Janitor {
 
     while (expired.length > 0) {
       await Promise.mapSeries(expired, async ({ channel, user_id, field_path }) => {
-        const { result: user } = await this.userRepo.getOrCreate(channel, user_id)
-
+        const user = await this.userRepo.get(channel, user_id)
         await this.userRepo.setAttributes(channel, user.id, _.omit(user.attributes, field_path))
         await this.dataRetentionService.delete(channel, user_id, field_path)
       })

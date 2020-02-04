@@ -41,7 +41,7 @@ export default class AnalyticsJanitor extends Janitor {
       const usersPerBot = users.filter(x => x.botId === botId)
       channels.forEach(async channel => {
         const usersPerChannel = usersPerBot.filter(x => x.channel === channel) as []
-        await this.analytics.incrementMetric(botId, channel, 'users_new_count', usersPerChannel.length)
+        await this.analytics.incrementMetric(botId, channel, 'new_users_count', usersPerChannel.length)
       })
     }
 

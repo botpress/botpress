@@ -1,6 +1,7 @@
 import Database from 'core/database'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import moment from 'moment'
 
 const TABLE_NAME = 'srv_analytics'
 
@@ -61,11 +62,13 @@ export class AnalyticsRepository {
     return analytics
   }
 
-  async getBetweenDates(botId: string, startDate: string, endDate: string, channel?: string): Promise<Analytics[]> {
+  async getBetweenDates(botId: string, startDate: Date, endDate: Date, channel?: string): Promise<Analytics[]> {
+    const includeEndDate = moment(endDate).add(1, 'day')
+
     let query = this.db
       .knex(TABLE_NAME)
       .select()
-      .whereBetween('created_on', [startDate, endDate])
+      .whereBetween('created_on', [startDate.toISOString(), includeEndDate.toISOString()])
       .andWhere({ botId })
 
     if (channel) {
