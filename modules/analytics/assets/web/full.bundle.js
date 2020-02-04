@@ -17710,6 +17710,3530 @@ module.exports = _interopRequireDefault;
 
 /***/ }),
 
+/***/ "./node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css":
+/*!***************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css ***!
+  \***************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../../../css-loader!./blueprint-datetime.css */ "./node_modules/css-loader/index.js!./node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../../../style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js ***!
+  \**********************************************************************/
+/*! exports provided: DATEINPUT, DATEINPUT_POPOVER, DATEPICKER, DATEPICKER_CAPTION, DATEPICKER_CAPTION_CARET, DATEPICKER_CAPTION_MEASURE, DATEPICKER_CAPTION_SELECT, DATEPICKER_DAY, DATEPICKER_DAY_DISABLED, DATEPICKER_DAY_OUTSIDE, DATEPICKER_DAY_SELECTED, DATEPICKER_FOOTER, DATEPICKER_MONTH_SELECT, DATEPICKER_YEAR_SELECT, DATEPICKER_NAVBAR, DATERANGEPICKER, DATERANGEPICKER_CONTIGUOUS, DATERANGEPICKER_SINGLE_MONTH, DATERANGEPICKER_DAY_SELECTED_RANGE, DATERANGEPICKER_DAY_HOVERED_RANGE, DATERANGEPICKER_SHORTCUTS, DATERANGEPICKER_TIMEPICKERS, DATETIMEPICKER, TIMEPICKER, TIMEPICKER_ARROW_BUTTON, TIMEPICKER_ARROW_ROW, TIMEPICKER_DIVIDER_TEXT, TIMEPICKER_HOUR, TIMEPICKER_INPUT, TIMEPICKER_INPUT_ROW, TIMEPICKER_MILLISECOND, TIMEPICKER_MINUTE, TIMEPICKER_SECOND, TIMEPICKER_AMPM_SELECT */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEINPUT", function() { return DATEINPUT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEINPUT_POPOVER", function() { return DATEINPUT_POPOVER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER", function() { return DATEPICKER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_CAPTION", function() { return DATEPICKER_CAPTION; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_CAPTION_CARET", function() { return DATEPICKER_CAPTION_CARET; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_CAPTION_MEASURE", function() { return DATEPICKER_CAPTION_MEASURE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_CAPTION_SELECT", function() { return DATEPICKER_CAPTION_SELECT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_DAY", function() { return DATEPICKER_DAY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_DAY_DISABLED", function() { return DATEPICKER_DAY_DISABLED; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_DAY_OUTSIDE", function() { return DATEPICKER_DAY_OUTSIDE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_DAY_SELECTED", function() { return DATEPICKER_DAY_SELECTED; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_FOOTER", function() { return DATEPICKER_FOOTER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_MONTH_SELECT", function() { return DATEPICKER_MONTH_SELECT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_YEAR_SELECT", function() { return DATEPICKER_YEAR_SELECT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_NAVBAR", function() { return DATEPICKER_NAVBAR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER", function() { return DATERANGEPICKER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_CONTIGUOUS", function() { return DATERANGEPICKER_CONTIGUOUS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_SINGLE_MONTH", function() { return DATERANGEPICKER_SINGLE_MONTH; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_DAY_SELECTED_RANGE", function() { return DATERANGEPICKER_DAY_SELECTED_RANGE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_DAY_HOVERED_RANGE", function() { return DATERANGEPICKER_DAY_HOVERED_RANGE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_SHORTCUTS", function() { return DATERANGEPICKER_SHORTCUTS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_TIMEPICKERS", function() { return DATERANGEPICKER_TIMEPICKERS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATETIMEPICKER", function() { return DATETIMEPICKER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER", function() { return TIMEPICKER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_ARROW_BUTTON", function() { return TIMEPICKER_ARROW_BUTTON; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_ARROW_ROW", function() { return TIMEPICKER_ARROW_ROW; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_DIVIDER_TEXT", function() { return TIMEPICKER_DIVIDER_TEXT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_HOUR", function() { return TIMEPICKER_HOUR; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_INPUT", function() { return TIMEPICKER_INPUT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_INPUT_ROW", function() { return TIMEPICKER_INPUT_ROW; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_MILLISECOND", function() { return TIMEPICKER_MILLISECOND; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_MINUTE", function() { return TIMEPICKER_MINUTE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_SECOND", function() { return TIMEPICKER_SECOND; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TIMEPICKER_AMPM_SELECT", function() { return TIMEPICKER_AMPM_SELECT; });
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__);
+/*
+ * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var NS = _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__["Classes"].getClassNamespace();
+var DATEINPUT = NS + "-dateinput";
+var DATEINPUT_POPOVER = DATEINPUT + "-popover";
+var DATEPICKER = NS + "-datepicker";
+var DATEPICKER_CAPTION = DATEPICKER + "-caption";
+var DATEPICKER_CAPTION_CARET = DATEPICKER_CAPTION + "-caret";
+var DATEPICKER_CAPTION_MEASURE = DATEPICKER_CAPTION + "-measure";
+var DATEPICKER_CAPTION_SELECT = DATEPICKER_CAPTION + "-select";
+var DATEPICKER_DAY = "DayPicker-Day";
+var DATEPICKER_DAY_DISABLED = DATEPICKER_DAY + "--disabled";
+var DATEPICKER_DAY_OUTSIDE = DATEPICKER_DAY + "--outside";
+var DATEPICKER_DAY_SELECTED = DATEPICKER_DAY + "--selected";
+var DATEPICKER_FOOTER = DATEPICKER + "-footer";
+var DATEPICKER_MONTH_SELECT = DATEPICKER + "-month-select";
+var DATEPICKER_YEAR_SELECT = DATEPICKER + "-year-select";
+var DATEPICKER_NAVBAR = DATEPICKER + "-navbar";
+var DATERANGEPICKER = NS + "-daterangepicker";
+var DATERANGEPICKER_CONTIGUOUS = DATERANGEPICKER + "-contiguous";
+var DATERANGEPICKER_SINGLE_MONTH = DATERANGEPICKER + "-single-month";
+var DATERANGEPICKER_DAY_SELECTED_RANGE = DATEPICKER_DAY + "--selected-range";
+var DATERANGEPICKER_DAY_HOVERED_RANGE = DATEPICKER_DAY + "--hovered-range";
+var DATERANGEPICKER_SHORTCUTS = DATERANGEPICKER + "-shortcuts";
+var DATERANGEPICKER_TIMEPICKERS = DATERANGEPICKER + "-timepickers";
+var DATETIMEPICKER = NS + "-datetimepicker";
+var TIMEPICKER = NS + "-timepicker";
+var TIMEPICKER_ARROW_BUTTON = TIMEPICKER + "-arrow-button";
+var TIMEPICKER_ARROW_ROW = TIMEPICKER + "-arrow-row";
+var TIMEPICKER_DIVIDER_TEXT = TIMEPICKER + "-divider-text";
+var TIMEPICKER_HOUR = TIMEPICKER + "-hour";
+var TIMEPICKER_INPUT = TIMEPICKER + "-input";
+var TIMEPICKER_INPUT_ROW = TIMEPICKER + "-input-row";
+var TIMEPICKER_MILLISECOND = TIMEPICKER + "-millisecond";
+var TIMEPICKER_MINUTE = TIMEPICKER + "-minute";
+var TIMEPICKER_SECOND = TIMEPICKER + "-second";
+var TIMEPICKER_AMPM_SELECT = TIMEPICKER + "-ampm-select";
+//# sourceMappingURL=classes.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js":
+/*!************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js ***!
+  \************************************************************************/
+/*! exports provided: isDateValid, areEqual, areRangesEqual, areSameDay, areSameMonth, areSameTime, clone, isDayInRange, isDayRangeInRange, isMonthInRange, isTimeEqualOrGreaterThan, isTimeEqualOrSmallerThan, isTimeInRange, getTimeInRange, isTimeSameOrAfter, getDateBetween, getDateTime, getDateOnlyWithTime, getDatePreviousMonth, getDateNextMonth, convert24HourMeridiem, getIsPmFrom24Hour, get12HourFrom24Hour, get24HourFrom12Hour */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isDateValid", function() { return isDateValid; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "areEqual", function() { return areEqual; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "areRangesEqual", function() { return areRangesEqual; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "areSameDay", function() { return areSameDay; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "areSameMonth", function() { return areSameMonth; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "areSameTime", function() { return areSameTime; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clone", function() { return clone; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isDayInRange", function() { return isDayInRange; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isDayRangeInRange", function() { return isDayRangeInRange; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isMonthInRange", function() { return isMonthInRange; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTimeEqualOrGreaterThan", function() { return isTimeEqualOrGreaterThan; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTimeEqualOrSmallerThan", function() { return isTimeEqualOrSmallerThan; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTimeInRange", function() { return isTimeInRange; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getTimeInRange", function() { return getTimeInRange; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTimeSameOrAfter", function() { return isTimeSameOrAfter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDateBetween", function() { return getDateBetween; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDateTime", function() { return getDateTime; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDateOnlyWithTime", function() { return getDateOnlyWithTime; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDatePreviousMonth", function() { return getDatePreviousMonth; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDateNextMonth", function() { return getDateNextMonth; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "convert24HourMeridiem", function() { return convert24HourMeridiem; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getIsPmFrom24Hour", function() { return getIsPmFrom24Hour; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "get12HourFrom24Hour", function() { return get12HourFrom24Hour; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "get24HourFrom12Hour", function() { return get24HourFrom12Hour; });
+/* harmony import */ var _months__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./months */ "./node_modules/@blueprintjs/datetime/lib/esm/common/months.js");
+/*
+ * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+function isDateValid(date) {
+    return date instanceof Date && !isNaN(date.valueOf());
+}
+function areEqual(date1, date2) {
+    if (date1 == null && date2 == null) {
+        return true;
+    }
+    else if (date1 == null || date2 == null) {
+        return false;
+    }
+    else {
+        return date1.getTime() === date2.getTime();
+    }
+}
+function areRangesEqual(dateRange1, dateRange2) {
+    if (dateRange1 == null && dateRange2 == null) {
+        return true;
+    }
+    else if (dateRange1 == null || dateRange2 == null) {
+        return false;
+    }
+    else {
+        var start1 = dateRange1[0], end1 = dateRange1[1];
+        var start2 = dateRange2[0], end2 = dateRange2[1];
+        var areStartsEqual = (start1 == null && start2 == null) || areSameDay(start1, start2);
+        var areEndsEqual = (end1 == null && end2 == null) || areSameDay(end1, end2);
+        return areStartsEqual && areEndsEqual;
+    }
+}
+function areSameDay(date1, date2) {
+    return areSameMonth(date1, date2) && date1.getDate() === date2.getDate();
+}
+function areSameMonth(date1, date2) {
+    return (date1 != null &&
+        date2 != null &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getFullYear() === date2.getFullYear());
+}
+function areSameTime(date1, date2) {
+    return (date1 != null &&
+        date2 != null &&
+        date1.getHours() === date2.getHours() &&
+        date1.getMinutes() === date2.getMinutes() &&
+        date1.getSeconds() === date2.getSeconds() &&
+        date1.getMilliseconds() === date2.getMilliseconds());
+}
+function clone(d) {
+    return new Date(d.getTime());
+}
+function isDayInRange(date, dateRange, exclusive) {
+    if (exclusive === void 0) { exclusive = false; }
+    if (date == null) {
+        return false;
+    }
+    var day = clone(date);
+    var start = clone(dateRange[0]);
+    var end = clone(dateRange[1]);
+    day.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    return start <= day && day <= end && (!exclusive || (!areSameDay(start, day) && !areSameDay(day, end)));
+}
+function isDayRangeInRange(innerRange, outerRange) {
+    return ((innerRange[0] == null || isDayInRange(innerRange[0], outerRange)) &&
+        (innerRange[1] == null || isDayInRange(innerRange[1], outerRange)));
+}
+function isMonthInRange(date, dateRange) {
+    if (date == null) {
+        return false;
+    }
+    var day = clone(date);
+    var start = clone(dateRange[0]);
+    var end = clone(dateRange[1]);
+    day.setDate(1);
+    start.setDate(1);
+    end.setDate(1);
+    day.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    return start <= day && day <= end;
+}
+var isTimeEqualOrGreaterThan = function (time, timeToCompare) { return time.getTime() >= timeToCompare.getTime(); };
+var isTimeEqualOrSmallerThan = function (time, timeToCompare) { return time.getTime() <= timeToCompare.getTime(); };
+function isTimeInRange(date, minDate, maxDate) {
+    var time = getDateOnlyWithTime(date);
+    var minTime = getDateOnlyWithTime(minDate);
+    var maxTime = getDateOnlyWithTime(maxDate);
+    var isTimeGreaterThanMinTime = isTimeEqualOrGreaterThan(time, minTime);
+    var isTimeSmallerThanMaxTime = isTimeEqualOrSmallerThan(time, maxTime);
+    if (isTimeEqualOrSmallerThan(maxTime, minTime)) {
+        return isTimeGreaterThanMinTime || isTimeSmallerThanMaxTime;
+    }
+    return isTimeGreaterThanMinTime && isTimeSmallerThanMaxTime;
+}
+function getTimeInRange(time, minTime, maxTime) {
+    if (areSameTime(minTime, maxTime)) {
+        return maxTime;
+    }
+    else if (isTimeInRange(time, minTime, maxTime)) {
+        return time;
+    }
+    else if (isTimeSameOrAfter(time, maxTime)) {
+        return maxTime;
+    }
+    return minTime;
+}
+/**
+ * Returns true if the time part of `date` is later than or equal to the time
+ * part of `dateToCompare`. The day, month, and year parts will not be compared.
+ */
+function isTimeSameOrAfter(date, dateToCompare) {
+    var time = getDateOnlyWithTime(date);
+    var timeToCompare = getDateOnlyWithTime(dateToCompare);
+    return isTimeEqualOrGreaterThan(time, timeToCompare);
+}
+/**
+ * @returns a Date at the exact time-wise midpoint between startDate and endDate
+ */
+function getDateBetween(dateRange) {
+    var start = dateRange[0].getTime();
+    var end = dateRange[1].getTime();
+    var middle = start + (end - start) * 0.5;
+    return new Date(middle);
+}
+function getDateTime(date, time) {
+    if (date == null) {
+        return null;
+    }
+    else if (time == null) {
+        // cannot use default argument because `null` is a common value in this package.
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+    }
+    else {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
+    }
+}
+function getDateOnlyWithTime(date) {
+    return new Date(0, 0, 0, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+}
+function getDatePreviousMonth(date) {
+    if (date.getMonth() === _months__WEBPACK_IMPORTED_MODULE_0__["Months"].JANUARY) {
+        return new Date(date.getFullYear() - 1, _months__WEBPACK_IMPORTED_MODULE_0__["Months"].DECEMBER);
+    }
+    else {
+        return new Date(date.getFullYear(), date.getMonth() - 1);
+    }
+}
+function getDateNextMonth(date) {
+    if (date.getMonth() === _months__WEBPACK_IMPORTED_MODULE_0__["Months"].DECEMBER) {
+        return new Date(date.getFullYear() + 1, _months__WEBPACK_IMPORTED_MODULE_0__["Months"].JANUARY);
+    }
+    else {
+        return new Date(date.getFullYear(), date.getMonth() + 1);
+    }
+}
+function convert24HourMeridiem(hour, toPm) {
+    if (hour < 0 || hour > 23) {
+        throw new Error("hour must be between [0,23] inclusive: got " + hour);
+    }
+    return toPm ? hour % 12 + 12 : hour % 12;
+}
+function getIsPmFrom24Hour(hour) {
+    if (hour < 0 || hour > 23) {
+        throw new Error("hour must be between [0,23] inclusive: got " + hour);
+    }
+    return hour >= 12;
+}
+function get12HourFrom24Hour(hour) {
+    if (hour < 0 || hour > 23) {
+        throw new Error("hour must be between [0,23] inclusive: got " + hour);
+    }
+    var newHour = hour % 12;
+    return newHour === 0 ? 12 : newHour;
+}
+function get24HourFrom12Hour(hour, isPm) {
+    if (hour < 1 || hour > 12) {
+        throw new Error("hour must be between [1,12] inclusive: got " + hour);
+    }
+    var newHour = hour === 12 ? 0 : hour;
+    return isPm ? newHour + 12 : newHour;
+}
+//# sourceMappingURL=dateUtils.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/common/errors.js":
+/*!*********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/common/errors.js ***!
+  \*********************************************************************/
+/*! exports provided: DATEPICKER_DEFAULT_VALUE_INVALID, DATEPICKER_INITIAL_MONTH_INVALID, DATEPICKER_MAX_DATE_INVALID, DATEPICKER_VALUE_INVALID, DATERANGEPICKER_DEFAULT_VALUE_INVALID, DATERANGEPICKER_INITIAL_MONTH_INVALID, DATERANGEPICKER_MAX_DATE_INVALID, DATERANGEPICKER_VALUE_INVALID, DATERANGEPICKER_PREFERRED_BOUNDARY_TO_MODIFY_INVALID, DATERANGEINPUT_NULL_VALUE */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_DEFAULT_VALUE_INVALID", function() { return DATEPICKER_DEFAULT_VALUE_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_INITIAL_MONTH_INVALID", function() { return DATEPICKER_INITIAL_MONTH_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_MAX_DATE_INVALID", function() { return DATEPICKER_MAX_DATE_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATEPICKER_VALUE_INVALID", function() { return DATEPICKER_VALUE_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_DEFAULT_VALUE_INVALID", function() { return DATERANGEPICKER_DEFAULT_VALUE_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_INITIAL_MONTH_INVALID", function() { return DATERANGEPICKER_INITIAL_MONTH_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_MAX_DATE_INVALID", function() { return DATERANGEPICKER_MAX_DATE_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_VALUE_INVALID", function() { return DATERANGEPICKER_VALUE_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEPICKER_PREFERRED_BOUNDARY_TO_MODIFY_INVALID", function() { return DATERANGEPICKER_PREFERRED_BOUNDARY_TO_MODIFY_INVALID; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DATERANGEINPUT_NULL_VALUE", function() { return DATERANGEINPUT_NULL_VALUE; });
+/*
+ * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var ns = "[Blueprint]";
+var DATEPICKER_DEFAULT_VALUE_INVALID = ns + " <DatePicker> defaultValue must be within minDate and maxDate bounds.";
+var DATEPICKER_INITIAL_MONTH_INVALID = ns + " <DatePicker> initialMonth must be within minDate and maxDate bounds.";
+var DATEPICKER_MAX_DATE_INVALID = ns + " <DatePicker> maxDate must be later than minDate.";
+var DATEPICKER_VALUE_INVALID = ns + " <DatePicker> value prop must be within minDate and maxDate bounds.";
+var DATERANGEPICKER_DEFAULT_VALUE_INVALID = DATEPICKER_DEFAULT_VALUE_INVALID.replace("DatePicker", "DateRangePicker");
+var DATERANGEPICKER_INITIAL_MONTH_INVALID = DATEPICKER_INITIAL_MONTH_INVALID.replace("DatePicker", "DateRangePicker");
+var DATERANGEPICKER_MAX_DATE_INVALID = DATEPICKER_MAX_DATE_INVALID.replace("DatePicker", "DateRangePicker");
+var DATERANGEPICKER_VALUE_INVALID = DATEPICKER_VALUE_INVALID.replace("DatePicker", "DateRangePicker");
+var DATERANGEPICKER_PREFERRED_BOUNDARY_TO_MODIFY_INVALID = "<DateRangePicker> preferredBoundaryToModify must be a valid Boundary if defined.";
+var DATERANGEINPUT_NULL_VALUE = ns +
+    " <DateRangeInput> value cannot be null. Pass undefined to clear the value and operate in" +
+    " uncontrolled mode, or pass [null, null] to clear the value and continue operating in controlled mode.";
+//# sourceMappingURL=errors.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/common/monthAndYear.js":
+/*!***************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/common/monthAndYear.js ***!
+  \***************************************************************************/
+/*! exports provided: MonthAndYear */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MonthAndYear", function() { return MonthAndYear; });
+/* harmony import */ var _dateUtils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var MonthAndYear = /** @class */ (function () {
+    function MonthAndYear(month, year) {
+        if (month !== null && year !== null) {
+            this.date = new Date(year, month);
+        }
+        else {
+            this.date = new Date();
+        }
+    }
+    MonthAndYear.fromDate = function (date) {
+        return date == null ? undefined : new MonthAndYear(date.getMonth(), date.getFullYear());
+    };
+    MonthAndYear.prototype.clone = function () {
+        return new MonthAndYear(this.getMonth(), this.getYear());
+    };
+    MonthAndYear.prototype.getFullDate = function () {
+        return this.date;
+    };
+    MonthAndYear.prototype.getMonth = function () {
+        return this.date.getMonth();
+    };
+    MonthAndYear.prototype.getYear = function () {
+        return this.date.getFullYear();
+    };
+    MonthAndYear.prototype.getPreviousMonth = function () {
+        var previousMonthDate = Object(_dateUtils__WEBPACK_IMPORTED_MODULE_0__["getDatePreviousMonth"])(this.date);
+        return new MonthAndYear(previousMonthDate.getMonth(), previousMonthDate.getFullYear());
+    };
+    MonthAndYear.prototype.getNextMonth = function () {
+        var nextMonthDate = Object(_dateUtils__WEBPACK_IMPORTED_MODULE_0__["getDateNextMonth"])(this.date);
+        return new MonthAndYear(nextMonthDate.getMonth(), nextMonthDate.getFullYear());
+    };
+    MonthAndYear.prototype.isBefore = function (monthAndYear) {
+        return compareMonthAndYear(this, monthAndYear) < 0;
+    };
+    MonthAndYear.prototype.isAfter = function (monthAndYear) {
+        return compareMonthAndYear(this, monthAndYear) > 0;
+    };
+    MonthAndYear.prototype.isSame = function (monthAndYear) {
+        return compareMonthAndYear(this, monthAndYear) === 0;
+    };
+    MonthAndYear.prototype.isSameMonth = function (monthAndYear) {
+        return this.getMonth() === monthAndYear.getMonth();
+    };
+    return MonthAndYear;
+}());
+
+// returns negative if left < right
+// returns positive if left > right
+// returns 0 if left === right
+function compareMonthAndYear(firstMonthAndYear, secondMonthAndYear) {
+    var firstMonth = firstMonthAndYear.getMonth();
+    var firstYear = firstMonthAndYear.getYear();
+    var secondMonth = secondMonthAndYear.getMonth();
+    var secondYear = secondMonthAndYear.getYear();
+    if (firstYear === secondYear) {
+        return firstMonth - secondMonth;
+    }
+    else {
+        return firstYear - secondYear;
+    }
+}
+//# sourceMappingURL=monthAndYear.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/common/months.js":
+/*!*********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/common/months.js ***!
+  \*********************************************************************/
+/*! exports provided: Months */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Months", function() { return Months; });
+/*
+ * Copyright 2017 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Enumeration of calendar months.
+ *
+ * Note that the enum values are numbers (with January as `0`) so they can be
+ * easily compared to `date.getMonth()`.
+ */
+var Months;
+(function (Months) {
+    Months[Months["JANUARY"] = 0] = "JANUARY";
+    Months[Months["FEBRUARY"] = 1] = "FEBRUARY";
+    Months[Months["MARCH"] = 2] = "MARCH";
+    Months[Months["APRIL"] = 3] = "APRIL";
+    Months[Months["MAY"] = 4] = "MAY";
+    Months[Months["JUNE"] = 5] = "JUNE";
+    Months[Months["JULY"] = 6] = "JULY";
+    Months[Months["AUGUST"] = 7] = "AUGUST";
+    Months[Months["SEPTEMBER"] = 8] = "SEPTEMBER";
+    Months[Months["OCTOBER"] = 9] = "OCTOBER";
+    Months[Months["NOVEMBER"] = 10] = "NOVEMBER";
+    Months[Months["DECEMBER"] = 11] = "DECEMBER";
+})(Months || (Months = {}));
+//# sourceMappingURL=months.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/common/timeUnit.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/common/timeUnit.js ***!
+  \***********************************************************************/
+/*! exports provided: TimeUnit, getTimeUnit, setTimeUnit, isTimeUnitValid, wrapTimeAtUnit, getTimeUnitClassName, getTimeUnitMax, getTimeUnitMin, getDefaultMinTime, getDefaultMaxTime */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TimeUnit", function() { return TimeUnit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getTimeUnit", function() { return getTimeUnit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setTimeUnit", function() { return setTimeUnit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTimeUnitValid", function() { return isTimeUnitValid; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "wrapTimeAtUnit", function() { return wrapTimeAtUnit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getTimeUnitClassName", function() { return getTimeUnitClassName; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getTimeUnitMax", function() { return getTimeUnitMax; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getTimeUnitMin", function() { return getTimeUnitMin; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDefaultMinTime", function() { return getDefaultMinTime; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDefaultMaxTime", function() { return getDefaultMaxTime; });
+/* harmony import */ var _classes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _dateUtils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/*
+ * Copyright 2018 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+/** describes a component of time. `H:MM:SS.MS` */
+var TimeUnit;
+(function (TimeUnit) {
+    // NOTE: string enum so we can use it in Record<> type at the end of this file, which requires string keys
+    TimeUnit["HOUR_24"] = "hour24";
+    TimeUnit["HOUR_12"] = "hour12";
+    TimeUnit["MINUTE"] = "minute";
+    TimeUnit["SECOND"] = "second";
+    TimeUnit["MS"] = "ms";
+})(TimeUnit || (TimeUnit = {}));
+/** Returns the given time unit component of the date. */
+function getTimeUnit(unit, date) {
+    switch (unit) {
+        case TimeUnit.HOUR_24:
+            return date.getHours();
+        case TimeUnit.HOUR_12:
+            return Object(_dateUtils__WEBPACK_IMPORTED_MODULE_1__["get12HourFrom24Hour"])(date.getHours());
+        case TimeUnit.MINUTE:
+            return date.getMinutes();
+        case TimeUnit.SECOND:
+            return date.getSeconds();
+        case TimeUnit.MS:
+            return date.getMilliseconds();
+        default:
+            throw Error("Invalid TimeUnit");
+    }
+}
+/** Sets the given time unit to the given time in date object. Modifies given `date` object and returns it. */
+function setTimeUnit(unit, time, date, isPm) {
+    switch (unit) {
+        case TimeUnit.HOUR_24:
+            date.setHours(time);
+            break;
+        case TimeUnit.HOUR_12:
+            date.setHours(Object(_dateUtils__WEBPACK_IMPORTED_MODULE_1__["get24HourFrom12Hour"])(time, isPm));
+            break;
+        case TimeUnit.MINUTE:
+            date.setMinutes(time);
+            break;
+        case TimeUnit.SECOND:
+            date.setSeconds(time);
+            break;
+        case TimeUnit.MS:
+            date.setMilliseconds(time);
+            break;
+        default:
+            throw Error("Invalid TimeUnit");
+    }
+    return date;
+}
+/** Returns true if `time` is a valid value */
+function isTimeUnitValid(unit, time) {
+    return time != null && !isNaN(time) && getTimeUnitMin(unit) <= time && time <= getTimeUnitMax(unit);
+}
+/** If unit of time is greater than max, returns min. If less than min, returns max. Otherwise, returns time. */
+function wrapTimeAtUnit(unit, time) {
+    var max = getTimeUnitMax(unit);
+    var min = getTimeUnitMin(unit);
+    if (time > max) {
+        return min;
+    }
+    else if (time < min) {
+        return max;
+    }
+    return time;
+}
+function getTimeUnitClassName(unit) {
+    return TimeUnitMetadata[unit].className;
+}
+function getTimeUnitMax(unit) {
+    return TimeUnitMetadata[unit].max;
+}
+function getTimeUnitMin(unit) {
+    return TimeUnitMetadata[unit].min;
+}
+function getDefaultMinTime() {
+    return new Date(0, 0, 0, DEFAULT_MIN_HOUR, DEFAULT_MIN_MINUTE, DEFAULT_MIN_SECOND, DEFAULT_MIN_MILLISECOND);
+}
+function getDefaultMaxTime() {
+    return new Date(0, 0, 0, DEFAULT_MAX_HOUR, DEFAULT_MAX_MINUTE, DEFAULT_MAX_SECOND, DEFAULT_MAX_MILLISECOND);
+}
+var DEFAULT_MIN_HOUR = 0;
+var MERIDIEM_MIN_HOUR = 1;
+var DEFAULT_MIN_MINUTE = 0;
+var DEFAULT_MIN_SECOND = 0;
+var DEFAULT_MIN_MILLISECOND = 0;
+var DEFAULT_MAX_HOUR = 23;
+var MERIDIEM_MAX_HOUR = 12;
+var DEFAULT_MAX_MINUTE = 59;
+var DEFAULT_MAX_SECOND = 59;
+var DEFAULT_MAX_MILLISECOND = 999;
+/**
+ * A datastore (internal to this file) mapping TimeUnits to useful information about them.
+ * Use the `get*` methods above to access these fields.
+ */
+var TimeUnitMetadata = (_a = {},
+    _a[TimeUnit.HOUR_24] = {
+        className: _classes__WEBPACK_IMPORTED_MODULE_0__["TIMEPICKER_HOUR"],
+        max: DEFAULT_MAX_HOUR,
+        min: DEFAULT_MIN_HOUR,
+    },
+    _a[TimeUnit.HOUR_12] = {
+        className: _classes__WEBPACK_IMPORTED_MODULE_0__["TIMEPICKER_HOUR"],
+        max: MERIDIEM_MAX_HOUR,
+        min: MERIDIEM_MIN_HOUR,
+    },
+    _a[TimeUnit.MINUTE] = {
+        className: _classes__WEBPACK_IMPORTED_MODULE_0__["TIMEPICKER_MINUTE"],
+        max: DEFAULT_MAX_MINUTE,
+        min: DEFAULT_MIN_MINUTE,
+    },
+    _a[TimeUnit.SECOND] = {
+        className: _classes__WEBPACK_IMPORTED_MODULE_0__["TIMEPICKER_SECOND"],
+        max: DEFAULT_MAX_SECOND,
+        min: DEFAULT_MIN_SECOND,
+    },
+    _a[TimeUnit.MS] = {
+        className: _classes__WEBPACK_IMPORTED_MODULE_0__["TIMEPICKER_MILLISECOND"],
+        max: DEFAULT_MAX_MILLISECOND,
+        min: DEFAULT_MIN_MILLISECOND,
+    },
+    _a);
+var _a;
+//# sourceMappingURL=timeUnit.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/common/utils.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/common/utils.js ***!
+  \********************************************************************/
+/*! exports provided: measureTextWidth, padWithZeroes */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "measureTextWidth", function() { return measureTextWidth; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "padWithZeroes", function() { return padWithZeroes; });
+/*
+ * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Measure width in pixels of a string displayed with styles provided by `className`.
+ * Should only be used if measuring can't be done with existing DOM elements.
+ */
+function measureTextWidth(text, className, containerElement) {
+    if (className === void 0) { className = ""; }
+    if (containerElement === void 0) { containerElement = document.body; }
+    if (containerElement == null) {
+        return 0;
+    }
+    var span = document.createElement("span");
+    span.classList.add(className);
+    span.textContent = text;
+    containerElement.appendChild(span);
+    var spanWidth = span.offsetWidth;
+    span.remove();
+    return spanWidth;
+}
+function padWithZeroes(str, minLength) {
+    if (str.length < minLength) {
+        return "" + stringRepeat("0", minLength - str.length) + str;
+    }
+    else {
+        return str;
+    }
+}
+function stringRepeat(str, numTimes) {
+    return new Array(numTimes + 1).join(str);
+}
+//# sourceMappingURL=utils.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/dateFormat.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/dateFormat.js ***!
+  \******************************************************************/
+/*! exports provided: getFormattedDateString */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getFormattedDateString", function() { return getFormattedDateString; });
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/*
+ * Copyright 2018 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+function getFormattedDateString(date, props, ignoreRange) {
+    if (ignoreRange === void 0) { ignoreRange = false; }
+    if (date == null) {
+        return "";
+    }
+    else if (!Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_0__["isDateValid"])(date)) {
+        return props.invalidDateMessage;
+    }
+    else if (ignoreRange || Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_0__["isDayInRange"])(date, [props.minDate, props.maxDate])) {
+        return props.formatDate(date, props.locale);
+    }
+    else {
+        return props.outOfRangeMessage;
+    }
+}
+//# sourceMappingURL=dateFormat.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/dateInput.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/dateInput.js ***!
+  \*****************************************************************/
+/*! exports provided: DateInput */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DateInput", function() { return DateInput; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/* harmony import */ var _dateFormat__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./dateFormat */ "./node_modules/@blueprintjs/datetime/lib/esm/dateFormat.js");
+/* harmony import */ var _datePicker__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./datePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/datePicker.js");
+/* harmony import */ var _datePickerCore__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./datePickerCore */ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerCore.js");
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+
+
+
+var DateInput = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](DateInput, _super);
+    function DateInput() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.state = {
+            isInputFocused: false,
+            isOpen: false,
+            value: _this.props.value !== undefined ? _this.props.value : _this.props.defaultValue,
+            valueString: null,
+        };
+        _this.inputEl = null;
+        _this.popoverContentEl = null;
+        _this.lastElementInPopover = null;
+        _this.inputRef = function (ref) {
+            _this.inputEl = ref;
+            var _a = _this.props.inputProps, inputProps = _a === void 0 ? {} : _a;
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(inputProps.inputRef, ref);
+        };
+        _this.handleClosePopover = function (e) {
+            var _a = _this.props.popoverProps, popoverProps = _a === void 0 ? {} : _a;
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(popoverProps.onClose, e);
+            _this.setState({ isOpen: false });
+        };
+        _this.handleDateChange = function (newDate, isUserChange, didSubmitWithEnter) {
+            if (didSubmitWithEnter === void 0) { didSubmitWithEnter = false; }
+            var prevDate = _this.state.value;
+            // this change handler was triggered by a change in month, day, or (if
+            // enabled) time. for UX purposes, we want to close the popover only if
+            // the user explicitly clicked a day within the current month.
+            var isOpen = !isUserChange ||
+                !_this.props.closeOnSelection ||
+                (prevDate != null && (_this.hasMonthChanged(prevDate, newDate) || _this.hasTimeChanged(prevDate, newDate)));
+            // if selecting a date via click or Tab, the input will already be
+            // blurred by now, so sync isInputFocused to false. if selecting via
+            // Enter, setting isInputFocused to false won't do anything by itself,
+            // plus we want the field to retain focus anyway.
+            // (note: spelling out the ternary explicitly reads more clearly.)
+            var isInputFocused = didSubmitWithEnter ? true : false;
+            if (_this.props.value === undefined) {
+                var valueString = Object(_dateFormat__WEBPACK_IMPORTED_MODULE_6__["getFormattedDateString"])(newDate, _this.props);
+                _this.setState({ isInputFocused: isInputFocused, isOpen: isOpen, value: newDate, valueString: valueString });
+            }
+            else {
+                _this.setState({ isInputFocused: isInputFocused, isOpen: isOpen });
+            }
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.onChange, newDate, isUserChange);
+        };
+        _this.handleInputFocus = function (e) {
+            var valueString = _this.state.value == null ? "" : _this.formatDate(_this.state.value);
+            _this.setState({ isInputFocused: true, isOpen: true, valueString: valueString });
+            _this.safeInvokeInputProp("onFocus", e);
+        };
+        _this.handleInputClick = function (e) {
+            // stop propagation to the Popover's internal handleTargetClick handler;
+            // otherwise, the popover will flicker closed as soon as it opens.
+            e.stopPropagation();
+            _this.safeInvokeInputProp("onClick", e);
+        };
+        _this.handleInputChange = function (e) {
+            var valueString = e.target.value;
+            var value = _this.parseDate(valueString);
+            if (Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isDateValid"])(value) && _this.isDateInRange(value)) {
+                if (_this.props.value === undefined) {
+                    _this.setState({ value: value, valueString: valueString });
+                }
+                else {
+                    _this.setState({ valueString: valueString });
+                }
+                _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.onChange, value, true);
+            }
+            else {
+                if (valueString.length === 0) {
+                    _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.onChange, null, true);
+                }
+                _this.setState({ valueString: valueString });
+            }
+            _this.safeInvokeInputProp("onChange", e);
+        };
+        _this.handleInputBlur = function (e) {
+            var valueString = _this.state.valueString;
+            var date = _this.parseDate(valueString);
+            if (valueString.length > 0 &&
+                valueString !== Object(_dateFormat__WEBPACK_IMPORTED_MODULE_6__["getFormattedDateString"])(_this.state.value, _this.props) &&
+                (!Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isDateValid"])(date) || !_this.isDateInRange(date))) {
+                if (_this.props.value === undefined) {
+                    _this.setState({ isInputFocused: false, value: date, valueString: null });
+                }
+                else {
+                    _this.setState({ isInputFocused: false });
+                }
+                if (isNaN(date.valueOf())) {
+                    _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.onError, new Date(undefined));
+                }
+                else if (!_this.isDateInRange(date)) {
+                    _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.onError, date);
+                }
+                else {
+                    _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.onChange, date, true);
+                }
+            }
+            else {
+                if (valueString.length === 0) {
+                    _this.setState({ isInputFocused: false, value: null, valueString: null });
+                }
+                else {
+                    _this.setState({ isInputFocused: false });
+                }
+            }
+            _this.registerPopoverBlurHandler();
+            _this.safeInvokeInputProp("onBlur", e);
+        };
+        _this.handleInputKeyDown = function (e) {
+            if (e.which === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Keys"].ENTER) {
+                var nextDate = _this.parseDate(_this.state.valueString);
+                _this.handleDateChange(nextDate, true, true);
+            }
+            else if (e.which === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Keys"].TAB) {
+                _this.setState({ isOpen: false });
+            }
+            else if (e.which === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Keys"].ESCAPE) {
+                _this.setState({ isOpen: false });
+                _this.inputEl.blur();
+            }
+            _this.safeInvokeInputProp("onKeyDown", e);
+        };
+        // focus DOM event listener (not React event)
+        _this.handlePopoverBlur = function (e) {
+            var relatedTarget = e.relatedTarget;
+            if (relatedTarget == null) {
+                // Support IE11 (#2924)
+                relatedTarget = document.activeElement;
+            }
+            // Beware: this.popoverContentEl is sometimes null under Chrome
+            if (relatedTarget == null ||
+                (_this.popoverContentEl != null && !_this.popoverContentEl.contains(relatedTarget))) {
+                _this.handleClosePopover();
+            }
+            else if (relatedTarget != null) {
+                _this.unregisterPopoverBlurHandler();
+                _this.lastElementInPopover = relatedTarget;
+                _this.lastElementInPopover.addEventListener("blur", _this.handlePopoverBlur);
+            }
+        };
+        _this.registerPopoverBlurHandler = function () {
+            if (_this.popoverContentEl != null) {
+                // If current activeElement exists inside popover content, a month
+                // change has triggered and this element should be lastTabbableElement
+                var lastTabbableElement = _this.popoverContentEl.contains(document.activeElement)
+                    ? document.activeElement
+                    : undefined;
+                // Popover contents are well structured, but the selector will need
+                // to be updated if more focusable components are added in the future
+                if (lastTabbableElement == null) {
+                    var tabbableElements = _this.popoverContentEl.querySelectorAll("input, [tabindex]:not([tabindex='-1'])");
+                    var numOfElements = tabbableElements.length;
+                    if (numOfElements > 0) {
+                        // Keep track of the last focusable element in popover and add
+                        // a blur handler, so that when:
+                        // * user tabs to the next element, popover closes
+                        // * focus moves to element within popover, popover stays open
+                        lastTabbableElement = tabbableElements[numOfElements - 1];
+                    }
+                }
+                _this.unregisterPopoverBlurHandler();
+                _this.lastElementInPopover = lastTabbableElement;
+                _this.lastElementInPopover.addEventListener("blur", _this.handlePopoverBlur);
+            }
+        };
+        _this.unregisterPopoverBlurHandler = function () {
+            if (_this.lastElementInPopover != null) {
+                _this.lastElementInPopover.removeEventListener("blur", _this.handlePopoverBlur);
+            }
+        };
+        return _this;
+    }
+    DateInput.prototype.componentWillUnmount = function () {
+        _super.prototype.componentWillUnmount.call(this);
+        this.unregisterPopoverBlurHandler();
+    };
+    DateInput.prototype.render = function () {
+        var _this = this;
+        var _a = this.state, value = _a.value, valueString = _a.valueString;
+        var dateString = this.state.isInputFocused ? valueString : Object(_dateFormat__WEBPACK_IMPORTED_MODULE_6__["getFormattedDateString"])(value, this.props);
+        var dateValue = Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isDateValid"])(value) ? value : null;
+        var dayPickerProps = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, this.props.dayPickerProps, { 
+            // dom elements for the updated month is not available when
+            // onMonthChange is called. setTimeout is necessary to wait
+            // for the updated month to be rendered
+            onMonthChange: function (month) {
+                _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.dayPickerProps.onMonthChange, month);
+                _this.setTimeout(_this.registerPopoverBlurHandler);
+            } });
+        var wrappedPopoverContent = (react__WEBPACK_IMPORTED_MODULE_2__["createElement"]("div", { ref: function (ref) { return (_this.popoverContentEl = ref); } },
+            react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_datePicker__WEBPACK_IMPORTED_MODULE_7__["DatePicker"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, this.props, { dayPickerProps: dayPickerProps, onChange: this.handleDateChange, value: dateValue }))));
+        // assign default empty object here to prevent mutation
+        var _b = this.props, _c = _b.inputProps, inputProps = _c === void 0 ? {} : _c, _d = _b.popoverProps, popoverProps = _d === void 0 ? {} : _d;
+        var isErrorState = value != null && (!Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isDateValid"])(value) || !this.isDateInRange(value));
+        return (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Popover"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ isOpen: this.state.isOpen && !this.props.disabled }, popoverProps, { autoFocus: false, className: classnames__WEBPACK_IMPORTED_MODULE_1___default()(popoverProps.className, this.props.className), content: wrappedPopoverContent, enforceFocus: false, onClose: this.handleClosePopover, popoverClassName: classnames__WEBPACK_IMPORTED_MODULE_1___default()(_common_classes__WEBPACK_IMPORTED_MODULE_4__["DATEINPUT_POPOVER"], popoverProps.popoverClassName) }),
+            react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["InputGroup"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ autoComplete: "off", intent: isErrorState ? _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Intent"].DANGER : _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Intent"].NONE, placeholder: this.props.placeholder, rightElement: this.props.rightElement, type: "text" }, inputProps, { disabled: this.props.disabled, inputRef: this.inputRef, onBlur: this.handleInputBlur, onChange: this.handleInputChange, onClick: this.handleInputClick, onFocus: this.handleInputFocus, onKeyDown: this.handleInputKeyDown, value: dateString }))));
+    };
+    DateInput.prototype.componentWillReceiveProps = function (nextProps) {
+        _super.prototype.componentWillReceiveProps.call(this, nextProps);
+        if (nextProps.value !== this.props.value) {
+            this.setState({ value: nextProps.value });
+        }
+    };
+    DateInput.prototype.isDateInRange = function (value) {
+        return Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isDayInRange"])(value, [this.props.minDate, this.props.maxDate]);
+    };
+    DateInput.prototype.hasMonthChanged = function (prevDate, nextDate) {
+        return (prevDate == null) !== (nextDate == null) || nextDate.getMonth() !== prevDate.getMonth();
+    };
+    DateInput.prototype.hasTimeChanged = function (prevDate, nextDate) {
+        if (this.props.timePrecision == null) {
+            return false;
+        }
+        return ((prevDate == null) !== (nextDate == null) ||
+            nextDate.getHours() !== prevDate.getHours() ||
+            nextDate.getMinutes() !== prevDate.getMinutes() ||
+            nextDate.getSeconds() !== prevDate.getSeconds() ||
+            nextDate.getMilliseconds() !== prevDate.getMilliseconds());
+    };
+    /** safe wrapper around invoking input props event handler (prop defaults to undefined) */
+    DateInput.prototype.safeInvokeInputProp = function (name, e) {
+        var _a = this.props.inputProps, inputProps = _a === void 0 ? {} : _a;
+        _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(inputProps[name], e);
+    };
+    DateInput.prototype.parseDate = function (dateString) {
+        if (dateString === this.props.outOfRangeMessage || dateString === this.props.invalidDateMessage) {
+            return null;
+        }
+        var _a = this.props, locale = _a.locale, parseDate = _a.parseDate;
+        var newDate = parseDate(dateString, locale);
+        return newDate === false ? new Date(undefined) : newDate;
+    };
+    DateInput.prototype.formatDate = function (date) {
+        if (!Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isDateValid"])(date) || !this.isDateInRange(date)) {
+            return "";
+        }
+        var _a = this.props, locale = _a.locale, formatDate = _a.formatDate;
+        return formatDate(date, locale);
+    };
+    DateInput.displayName = _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["DISPLAYNAME_PREFIX"] + ".DateInput";
+    DateInput.defaultProps = {
+        closeOnSelection: true,
+        dayPickerProps: {},
+        disabled: false,
+        invalidDateMessage: "Invalid date",
+        maxDate: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_8__["getDefaultMaxDate"])(),
+        minDate: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_8__["getDefaultMinDate"])(),
+        outOfRangeMessage: "Out of range",
+        reverseMonthAndYearMenus: false,
+    };
+    return DateInput;
+}(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["AbstractPureComponent"]));
+
+//# sourceMappingURL=dateInput.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/datePicker.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/datePicker.js ***!
+  \******************************************************************/
+/*! exports provided: DatePicker */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DatePicker", function() { return DatePicker; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var react_day_picker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-day-picker */ "./node_modules/react-day-picker/DayPicker.js");
+/* harmony import */ var react_day_picker__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(react_day_picker__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/* harmony import */ var _common_errors__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./common/errors */ "./node_modules/@blueprintjs/datetime/lib/esm/common/errors.js");
+/* harmony import */ var _datePickerCaption__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./datePickerCaption */ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerCaption.js");
+/* harmony import */ var _datePickerCore__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./datePickerCore */ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerCore.js");
+/* harmony import */ var _datePickerNavbar__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./datePickerNavbar */ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerNavbar.js");
+/* harmony import */ var _timePicker__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./timePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/timePicker.js");
+/*
+ * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+var DatePicker = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](DatePicker, _super);
+    function DatePicker(props, context) {
+        var _this = _super.call(this, props, context) || this;
+        _this.ignoreNextMonthChange = false;
+        _this.disabledDays = function (day) { return !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayInRange"](day, [_this.props.minDate, _this.props.maxDate]); };
+        _this.getDisabledDaysModifier = function () {
+            var disabledDays = _this.props.dayPickerProps.disabledDays;
+            return Array.isArray(disabledDays) ? [_this.disabledDays].concat(disabledDays) : [_this.disabledDays, disabledDays];
+        };
+        _this.renderCaption = function (props) { return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_datePickerCaption__WEBPACK_IMPORTED_MODULE_8__["DatePickerCaption"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, props, { maxDate: _this.props.maxDate, minDate: _this.props.minDate, onDateChange: _this.handleMonthChange, reverseMonthAndYearMenus: _this.props.reverseMonthAndYearMenus }))); };
+        _this.renderNavbar = function (props) { return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_datePickerNavbar__WEBPACK_IMPORTED_MODULE_10__["DatePickerNavbar"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, props, { maxDate: _this.props.maxDate, minDate: _this.props.minDate }))); };
+        _this.handleDayClick = function (day, modifiers, e) {
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onDayClick, day, modifiers, e);
+            if (modifiers.disabled) {
+                return;
+            }
+            if (_this.props.value === undefined) {
+                // set now if uncontrolled, otherwise they'll be updated in `componentWillReceiveProps`
+                _this.setState({
+                    displayMonth: day.getMonth(),
+                    displayYear: day.getFullYear(),
+                    selectedDay: day.getDate(),
+                });
+            }
+            if (_this.state.value != null && _this.state.value.getMonth() !== day.getMonth()) {
+                _this.ignoreNextMonthChange = true;
+            }
+            // allow toggling selected date by clicking it again (if prop enabled)
+            var newValue = _this.props.canClearSelection && modifiers.selected ? null : _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateTime"](day, _this.state.value);
+            _this.updateValue(newValue, true);
+        };
+        _this.handleClearClick = function () { return _this.updateValue(null, true); };
+        _this.handleMonthChange = function (newDate) {
+            var date = _this.computeValidDateInSpecifiedMonthYear(newDate.getFullYear(), newDate.getMonth());
+            _this.setState({ displayMonth: date.getMonth(), displayYear: date.getFullYear() });
+            if (_this.state.value !== null) {
+                // if handleDayClick just got run (so this flag is set), then the
+                // user selected a date in a new month, so don't invoke onChange a
+                // second time
+                _this.updateValue(date, false, _this.ignoreNextMonthChange);
+                _this.ignoreNextMonthChange = false;
+            }
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onMonthChange, date);
+        };
+        _this.handleTodayClick = function () {
+            var value = new Date();
+            var displayMonth = value.getMonth();
+            var displayYear = value.getFullYear();
+            var selectedDay = value.getDate();
+            _this.setState({ displayMonth: displayMonth, displayYear: displayYear, selectedDay: selectedDay });
+            _this.updateValue(value, true);
+        };
+        _this.handleTimeChange = function (time) {
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.timePickerProps.onChange, time);
+            var value = _this.state.value;
+            var newValue = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateTime"](value != null ? value : new Date(), time);
+            _this.updateValue(newValue, true);
+        };
+        var value = getInitialValue(props);
+        var initialMonth = getInitialMonth(props, value);
+        _this.state = {
+            displayMonth: initialMonth.getMonth(),
+            displayYear: initialMonth.getFullYear(),
+            selectedDay: value == null ? null : value.getDate(),
+            value: value,
+        };
+        return _this;
+    }
+    DatePicker.prototype.render = function () {
+        var _a = this.props, className = _a.className, dayPickerProps = _a.dayPickerProps, locale = _a.locale, localeUtils = _a.localeUtils, maxDate = _a.maxDate, minDate = _a.minDate, modifiers = _a.modifiers, showActionsBar = _a.showActionsBar;
+        var _b = this.state, displayMonth = _b.displayMonth, displayYear = _b.displayYear;
+        return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", { className: classnames__WEBPACK_IMPORTED_MODULE_2___default()(_common_classes__WEBPACK_IMPORTED_MODULE_5__["DATEPICKER"], className) },
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"](react_day_picker__WEBPACK_IMPORTED_MODULE_4___default.a, tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ showOutsideDays: true, locale: locale, localeUtils: localeUtils, modifiers: modifiers }, dayPickerProps, { canChangeMonth: true, captionElement: this.renderCaption, navbarElement: this.renderNavbar, disabledDays: this.getDisabledDaysModifier(), fromMonth: minDate, month: new Date(displayYear, displayMonth), onDayClick: this.handleDayClick, onMonthChange: this.handleMonthChange, selectedDays: this.state.value, toMonth: maxDate })),
+            this.maybeRenderTimePicker(),
+            showActionsBar && this.renderOptionsBar()));
+    };
+    DatePicker.prototype.componentWillReceiveProps = function (nextProps) {
+        _super.prototype.componentWillReceiveProps.call(this, nextProps);
+        var value = nextProps.value;
+        if (value === this.props.value) {
+            // no action needed
+            return;
+        }
+        else if (value == null) {
+            // clear the value
+            this.setState({ value: value });
+        }
+        else {
+            this.setState({
+                displayMonth: value.getMonth(),
+                displayYear: value.getFullYear(),
+                selectedDay: value.getDate(),
+                value: value,
+            });
+        }
+    };
+    DatePicker.prototype.validateProps = function (props) {
+        var defaultValue = props.defaultValue, initialMonth = props.initialMonth, maxDate = props.maxDate, minDate = props.minDate, value = props.value;
+        if (defaultValue != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayInRange"](defaultValue, [minDate, maxDate])) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATEPICKER_DEFAULT_VALUE_INVALID"]);
+        }
+        if (initialMonth != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isMonthInRange"](initialMonth, [minDate, maxDate])) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATEPICKER_INITIAL_MONTH_INVALID"]);
+        }
+        if (maxDate != null && minDate != null && maxDate < minDate && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameDay"](maxDate, minDate)) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATEPICKER_MAX_DATE_INVALID"]);
+        }
+        if (value != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayInRange"](value, [minDate, maxDate])) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATEPICKER_VALUE_INVALID"]);
+        }
+    };
+    DatePicker.prototype.renderOptionsBar = function () {
+        var _a = this.props, clearButtonText = _a.clearButtonText, todayButtonText = _a.todayButtonText;
+        return [
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Divider"], { key: "div" }),
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", { className: _common_classes__WEBPACK_IMPORTED_MODULE_5__["DATEPICKER_FOOTER"], key: "footer" },
+                react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Button"], { minimal: true, onClick: this.handleTodayClick, text: todayButtonText }),
+                react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Button"], { minimal: true, onClick: this.handleClearClick, text: clearButtonText })),
+        ];
+    };
+    DatePicker.prototype.maybeRenderTimePicker = function () {
+        var _a = this.props, timePrecision = _a.timePrecision, timePickerProps = _a.timePickerProps;
+        if (timePrecision == null && timePickerProps === DatePicker.defaultProps.timePickerProps) {
+            return null;
+        }
+        return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_timePicker__WEBPACK_IMPORTED_MODULE_11__["TimePicker"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ precision: timePrecision }, timePickerProps, { onChange: this.handleTimeChange, value: this.state.value })));
+    };
+    DatePicker.prototype.computeValidDateInSpecifiedMonthYear = function (displayYear, displayMonth) {
+        var _a = this.props, minDate = _a.minDate, maxDate = _a.maxDate;
+        var selectedDay = this.state.selectedDay;
+        // month is 0-based, date is 1-based. date 0 is last day of previous month.
+        var maxDaysInMonth = new Date(displayYear, displayMonth + 1, 0).getDate();
+        var displayDate = selectedDay == null ? 1 : Math.min(selectedDay, maxDaysInMonth);
+        // 12:00 matches the underlying react-day-picker timestamp behavior
+        var value = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateTime"](new Date(displayYear, displayMonth, displayDate, 12), this.state.value);
+        // clamp between min and max dates
+        if (value < minDate) {
+            return minDate;
+        }
+        else if (value > maxDate) {
+            return maxDate;
+        }
+        return value;
+    };
+    /**
+     * Update `value` by invoking `onChange` (always) and setting state (if uncontrolled).
+     */
+    DatePicker.prototype.updateValue = function (value, isUserChange, skipOnChange) {
+        if (skipOnChange === void 0) { skipOnChange = false; }
+        if (!skipOnChange) {
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(this.props.onChange, value, isUserChange);
+        }
+        if (this.props.value === undefined) {
+            this.setState({ value: value });
+        }
+    };
+    DatePicker.defaultProps = {
+        canClearSelection: true,
+        clearButtonText: "Clear",
+        dayPickerProps: {},
+        maxDate: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_9__["getDefaultMaxDate"])(),
+        minDate: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_9__["getDefaultMinDate"])(),
+        reverseMonthAndYearMenus: false,
+        showActionsBar: false,
+        timePickerProps: {},
+        todayButtonText: "Today",
+    };
+    DatePicker.displayName = _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["DISPLAYNAME_PREFIX"] + ".DatePicker";
+    return DatePicker;
+}(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["AbstractPureComponent"]));
+
+function getInitialValue(props) {
+    // !== because `null` is a valid value (no date)
+    if (props.value !== undefined) {
+        return props.value;
+    }
+    if (props.defaultValue !== undefined) {
+        return props.defaultValue;
+    }
+    return null;
+}
+function getInitialMonth(props, value) {
+    var today = new Date();
+    // != because we must have a real `Date` to begin the calendar on.
+    if (props.initialMonth != null) {
+        return props.initialMonth;
+    }
+    else if (value != null) {
+        return value;
+    }
+    else if (_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayInRange"](today, [props.minDate, props.maxDate])) {
+        return today;
+    }
+    else {
+        return _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateBetween"]([props.minDate, props.maxDate]);
+    }
+}
+//# sourceMappingURL=datePicker.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerCaption.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/datePickerCaption.js ***!
+  \*************************************************************************/
+/*! exports provided: DatePickerCaption */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DatePickerCaption", function() { return DatePickerCaption; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/* harmony import */ var _common_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./common/utils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/utils.js");
+/*
+ * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+var DatePickerCaption = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](DatePickerCaption, _super);
+    function DatePickerCaption() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.state = { monthRightOffset: 0 };
+        _this.handleMonthSelectChange = _this.dateChangeHandler(function (d, month) { return d.setMonth(month); }, _this.props.onMonthChange);
+        _this.handleYearSelectChange = _this.dateChangeHandler(function (d, year) { return d.setFullYear(year); }, _this.props.onYearChange);
+        return _this;
+    }
+    DatePickerCaption.prototype.render = function () {
+        var _this = this;
+        var _a = this.props, date = _a.date, locale = _a.locale, localeUtils = _a.localeUtils, minDate = _a.minDate, maxDate = _a.maxDate, _b = _a.months, months = _b === void 0 ? localeUtils.getMonths(locale) : _b;
+        var minYear = minDate.getFullYear();
+        var maxYear = maxDate.getFullYear();
+        var displayMonth = date.getMonth();
+        var displayYear = date.getFullYear();
+        // build the list of available months, limiting based on minDate and maxDate as necessary
+        var startMonth = displayYear === minYear ? minDate.getMonth() : 0;
+        var endMonth = displayYear === maxYear ? maxDate.getMonth() + 1 : undefined;
+        var monthOptionElements = months
+            .map(function (month, i) { return ({ label: month, value: i }); })
+            .slice(startMonth, endMonth);
+        var years = [minYear];
+        for (var year = minYear + 1; year <= maxYear; ++year) {
+            years.push(year);
+        }
+        // allow out-of-bounds years but disable the option. this handles the Dec 2016 case in #391.
+        if (displayYear > maxYear) {
+            years.push({ value: displayYear, disabled: true });
+        }
+        this.displayedMonthText = months[displayMonth];
+        var monthSelect = (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["HTMLSelect"], { iconProps: { style: { right: this.state.monthRightOffset } }, className: _common_classes__WEBPACK_IMPORTED_MODULE_3__["DATEPICKER_MONTH_SELECT"], key: "month", minimal: true, onChange: this.handleMonthSelectChange, value: displayMonth, options: monthOptionElements }));
+        var yearSelect = (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["HTMLSelect"], { className: _common_classes__WEBPACK_IMPORTED_MODULE_3__["DATEPICKER_YEAR_SELECT"], key: "year", minimal: true, onChange: this.handleYearSelectChange, value: displayYear, options: years }));
+        var orderedSelects = this.props.reverseMonthAndYearMenus
+            ? [yearSelect, monthSelect]
+            : [monthSelect, yearSelect];
+        return (react__WEBPACK_IMPORTED_MODULE_2__["createElement"]("div", { className: this.props.classNames.caption },
+            react__WEBPACK_IMPORTED_MODULE_2__["createElement"]("div", { className: _common_classes__WEBPACK_IMPORTED_MODULE_3__["DATEPICKER_CAPTION"], ref: function (ref) { return (_this.containerElement = ref); } }, orderedSelects),
+            react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Divider"], null)));
+    };
+    DatePickerCaption.prototype.componentDidMount = function () {
+        var _this = this;
+        requestAnimationFrame(function () { return _this.positionArrows(); });
+    };
+    DatePickerCaption.prototype.componentDidUpdate = function () {
+        this.positionArrows();
+    };
+    DatePickerCaption.prototype.positionArrows = function () {
+        // measure width of text as rendered inside our container element.
+        var monthTextWidth = Object(_common_utils__WEBPACK_IMPORTED_MODULE_5__["measureTextWidth"])(this.displayedMonthText, _common_classes__WEBPACK_IMPORTED_MODULE_3__["DATEPICKER_CAPTION_MEASURE"], this.containerElement);
+        var monthSelectWidth = this.containerElement == null ? 0 : this.containerElement.firstElementChild.clientWidth;
+        var rightOffset = Math.max(2, monthSelectWidth - monthTextWidth - _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Icon"].SIZE_STANDARD - 2);
+        this.setState({ monthRightOffset: rightOffset });
+    };
+    DatePickerCaption.prototype.dateChangeHandler = function (updater, handler) {
+        var _this = this;
+        return function (e) {
+            var value = parseInt(e.target.value, 10);
+            var newDate = Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_4__["clone"])(_this.props.date);
+            updater(newDate, value);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.onDateChange, newDate);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(handler, value);
+        };
+    };
+    return DatePickerCaption;
+}(react__WEBPACK_IMPORTED_MODULE_2__["PureComponent"]));
+
+//# sourceMappingURL=datePickerCaption.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerCore.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/datePickerCore.js ***!
+  \**********************************************************************/
+/*! exports provided: DISABLED_MODIFIER, HOVERED_RANGE_MODIFIER, OUTSIDE_MODIFIER, SELECTED_MODIFIER, SELECTED_RANGE_MODIFIER, DISALLOWED_MODIFIERS, getDefaultMaxDate, getDefaultMinDate, combineModifiers */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DISABLED_MODIFIER", function() { return DISABLED_MODIFIER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "HOVERED_RANGE_MODIFIER", function() { return HOVERED_RANGE_MODIFIER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "OUTSIDE_MODIFIER", function() { return OUTSIDE_MODIFIER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SELECTED_MODIFIER", function() { return SELECTED_MODIFIER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SELECTED_RANGE_MODIFIER", function() { return SELECTED_RANGE_MODIFIER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DISALLOWED_MODIFIERS", function() { return DISALLOWED_MODIFIERS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDefaultMaxDate", function() { return getDefaultMaxDate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDefaultMinDate", function() { return getDefaultMinDate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "combineModifiers", function() { return combineModifiers; });
+/* harmony import */ var _common_months__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./common/months */ "./node_modules/@blueprintjs/datetime/lib/esm/common/months.js");
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var DISABLED_MODIFIER = "disabled";
+var HOVERED_RANGE_MODIFIER = "hovered-range";
+var OUTSIDE_MODIFIER = "outside";
+var SELECTED_MODIFIER = "selected";
+var SELECTED_RANGE_MODIFIER = "selected-range";
+// modifiers the user can't set because they are used by Blueprint or react-day-picker
+var DISALLOWED_MODIFIERS = [
+    DISABLED_MODIFIER,
+    HOVERED_RANGE_MODIFIER,
+    OUTSIDE_MODIFIER,
+    SELECTED_MODIFIER,
+    SELECTED_RANGE_MODIFIER,
+];
+function getDefaultMaxDate() {
+    var date = new Date();
+    date.setFullYear(date.getFullYear());
+    date.setMonth(_common_months__WEBPACK_IMPORTED_MODULE_0__["Months"].DECEMBER, 31);
+    return date;
+}
+function getDefaultMinDate() {
+    var date = new Date();
+    date.setFullYear(date.getFullYear() - 20);
+    date.setMonth(_common_months__WEBPACK_IMPORTED_MODULE_0__["Months"].JANUARY, 1);
+    return date;
+}
+function combineModifiers(baseModifiers, userModifiers) {
+    var modifiers = baseModifiers;
+    if (userModifiers != null) {
+        modifiers = {};
+        for (var _i = 0, _a = Object.keys(userModifiers); _i < _a.length; _i++) {
+            var key = _a[_i];
+            if (DISALLOWED_MODIFIERS.indexOf(key) === -1) {
+                modifiers[key] = userModifiers[key];
+            }
+        }
+        for (var _b = 0, _c = Object.keys(baseModifiers); _b < _c.length; _b++) {
+            var key = _c[_b];
+            modifiers[key] = baseModifiers[key];
+        }
+    }
+    return modifiers;
+}
+//# sourceMappingURL=datePickerCore.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerNavbar.js":
+/*!************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/datePickerNavbar.js ***!
+  \************************************************************************/
+/*! exports provided: DatePickerNavbar */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DatePickerNavbar", function() { return DatePickerNavbar; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/*
+ * Copyright 2018 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+var DatePickerNavbar = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](DatePickerNavbar, _super);
+    function DatePickerNavbar() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.handleNextClick = function () { return _this.props.onNextClick(); };
+        _this.handlePreviousClick = function () { return _this.props.onPreviousClick(); };
+        return _this;
+    }
+    DatePickerNavbar.prototype.render = function () {
+        var _a = this.props, classes = _a.classNames, month = _a.month, maxDate = _a.maxDate, minDate = _a.minDate;
+        return (react__WEBPACK_IMPORTED_MODULE_2__["createElement"]("div", { className: classnames__WEBPACK_IMPORTED_MODULE_3___default()(_common_classes__WEBPACK_IMPORTED_MODULE_4__["DATEPICKER_NAVBAR"], classes.navBar) },
+            this.props.hideLeftNavButton || (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Button"], { className: classes.navButtonPrev, disabled: Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["areSameMonth"])(month, minDate), icon: "chevron-left", minimal: true, onClick: this.handlePreviousClick })),
+            this.props.hideRightNavButton || (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Button"], { className: classes.navButtonNext, disabled: Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["areSameMonth"])(month, maxDate), icon: "chevron-right", minimal: true, onClick: this.handleNextClick }))));
+    };
+    return DatePickerNavbar;
+}(react__WEBPACK_IMPORTED_MODULE_2__["PureComponent"]));
+
+//# sourceMappingURL=datePickerNavbar.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/dateRangeInput.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/dateRangeInput.js ***!
+  \**********************************************************************/
+/*! exports provided: DateRangeInput */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DateRangeInput", function() { return DateRangeInput; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var react_day_picker__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-day-picker */ "./node_modules/react-day-picker/DayPicker.js");
+/* harmony import */ var react_day_picker__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(react_day_picker__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/* harmony import */ var _common_errors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./common/errors */ "./node_modules/@blueprintjs/datetime/lib/esm/common/errors.js");
+/* harmony import */ var _dateFormat__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./dateFormat */ "./node_modules/@blueprintjs/datetime/lib/esm/dateFormat.js");
+/* harmony import */ var _datePickerCore__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./datePickerCore */ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerCore.js");
+/* harmony import */ var _dateRangePicker__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./dateRangePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/dateRangePicker.js");
+/*
+ * Copyright 2017 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+
+
+
+
+var DateRangeInput = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](DateRangeInput, _super);
+    function DateRangeInput(props, context) {
+        var _this = _super.call(this, props, context) || this;
+        _this.refHandlers = {
+            endInputRef: function (ref) {
+                _this.endInputRef = ref;
+                _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Utils"].safeInvoke(_this.props.endInputProps.inputRef, ref);
+            },
+            startInputRef: function (ref) {
+                _this.startInputRef = ref;
+                _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Utils"].safeInvoke(_this.props.startInputProps.inputRef, ref);
+            },
+        };
+        _this.renderInputGroup = function (boundary) {
+            var inputProps = _this.getInputProps(boundary);
+            var handleInputEvent = boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START ? _this.handleStartInputEvent : _this.handleEndInputEvent;
+            return (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["InputGroup"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ autoComplete: "off" }, inputProps, { disabled: _this.props.disabled, intent: _this.isInputInErrorState(boundary) ? _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Intent"].DANGER : inputProps.intent, inputRef: _this.getInputRef(boundary), onBlur: handleInputEvent, onChange: handleInputEvent, onClick: handleInputEvent, onFocus: handleInputEvent, onKeyDown: handleInputEvent, onMouseDown: handleInputEvent, placeholder: _this.getInputPlaceholderString(boundary), value: _this.getInputDisplayString(boundary) })));
+        };
+        // Callbacks - DateRangePicker
+        // ===========================
+        _this.handleDateRangePickerChange = function (selectedRange, didSubmitWithEnter) {
+            if (didSubmitWithEnter === void 0) { didSubmitWithEnter = false; }
+            // ignore mouse events in the date-range picker if the popover is animating closed.
+            if (!_this.state.isOpen) {
+                return;
+            }
+            var selectedStart = selectedRange[0], selectedEnd = selectedRange[1];
+            var isOpen = true;
+            var isStartInputFocused;
+            var isEndInputFocused;
+            var startHoverString;
+            var endHoverString;
+            if (selectedStart == null) {
+                // focus the start field by default or if only an end date is specified
+                isStartInputFocused = true;
+                isEndInputFocused = false;
+                // for clarity, hide the hover string until the mouse moves over a different date
+                startHoverString = null;
+            }
+            else if (selectedEnd == null) {
+                // focus the end field if a start date is specified
+                isStartInputFocused = false;
+                isEndInputFocused = true;
+                endHoverString = null;
+            }
+            else if (_this.props.closeOnSelection) {
+                isOpen = false;
+                isStartInputFocused = false;
+                // if we submit via click or Tab, the focus will have moved already.
+                // it we submit with Enter, the focus won't have moved, and setting
+                // the flag to false won't have an effect anyway, so leave it true.
+                isEndInputFocused = didSubmitWithEnter ? true : false;
+            }
+            else if (_this.state.lastFocusedField === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START) {
+                // keep the start field focused
+                isStartInputFocused = true;
+                isEndInputFocused = false;
+            }
+            else {
+                // keep the end field focused
+                isStartInputFocused = false;
+                isEndInputFocused = true;
+            }
+            var baseStateChange = {
+                endHoverString: endHoverString,
+                endInputString: _this.formatDate(selectedEnd),
+                isEndInputFocused: isEndInputFocused,
+                isOpen: isOpen,
+                isStartInputFocused: isStartInputFocused,
+                startHoverString: startHoverString,
+                startInputString: _this.formatDate(selectedStart),
+                wasLastFocusChangeDueToHover: false,
+            };
+            if (_this.isControlled()) {
+                _this.setState(baseStateChange);
+            }
+            else {
+                _this.setState(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, baseStateChange, { selectedEnd: selectedEnd, selectedStart: selectedStart }));
+            }
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Utils"].safeInvoke(_this.props.onChange, selectedRange);
+        };
+        _this.handleDateRangePickerHoverChange = function (hoveredRange, _hoveredDay, hoveredBoundary) {
+            // ignore mouse events in the date-range picker if the popover is animating closed.
+            if (!_this.state.isOpen) {
+                return;
+            }
+            if (hoveredRange == null) {
+                // undo whatever focus changes we made while hovering over various calendar dates
+                var isEndInputFocused = _this.state.boundaryToModify === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].END;
+                _this.setState({
+                    endHoverString: null,
+                    isEndInputFocused: isEndInputFocused,
+                    isStartInputFocused: !isEndInputFocused,
+                    lastFocusedField: _this.state.boundaryToModify,
+                    startHoverString: null,
+                });
+            }
+            else {
+                var hoveredStart = hoveredRange[0], hoveredEnd = hoveredRange[1];
+                var isStartInputFocused = hoveredBoundary != null ? hoveredBoundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START : _this.state.isStartInputFocused;
+                var isEndInputFocused = hoveredBoundary != null ? hoveredBoundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].END : _this.state.isEndInputFocused;
+                _this.setState({
+                    endHoverString: _this.formatDate(hoveredEnd),
+                    isEndInputFocused: isEndInputFocused,
+                    isStartInputFocused: isStartInputFocused,
+                    lastFocusedField: isStartInputFocused ? _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START : _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].END,
+                    shouldSelectAfterUpdate: _this.props.selectAllOnFocus,
+                    startHoverString: _this.formatDate(hoveredStart),
+                    wasLastFocusChangeDueToHover: true,
+                });
+            }
+        };
+        // Callbacks - Input
+        // =================
+        // instantiate these two functions once so we don't have to for each callback on each render.
+        _this.handleStartInputEvent = function (e) {
+            _this.handleInputEvent(e, _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START);
+        };
+        _this.handleEndInputEvent = function (e) {
+            _this.handleInputEvent(e, _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].END);
+        };
+        _this.handleInputEvent = function (e, boundary) {
+            switch (e.type) {
+                case "blur":
+                    _this.handleInputBlur(e, boundary);
+                    break;
+                case "change":
+                    _this.handleInputChange(e, boundary);
+                    break;
+                case "click":
+                    _this.handleInputClick(e);
+                    break;
+                case "focus":
+                    _this.handleInputFocus(e, boundary);
+                    break;
+                case "keydown":
+                    _this.handleInputKeyDown(e);
+                    break;
+                case "mousedown":
+                    _this.handleInputMouseDown();
+                    break;
+                default:
+                    break;
+            }
+            var inputProps = _this.getInputProps(boundary);
+            var callbackFn = _this.getInputGroupCallbackForEvent(e, inputProps);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Utils"].safeInvoke(callbackFn, e);
+        };
+        // add a keydown listener to persistently change focus when tabbing:
+        // - if focused in start field, Tab moves focus to end field
+        // - if focused in end field, Shift+Tab moves focus to start field
+        _this.handleInputKeyDown = function (e) {
+            var isTabPressed = e.which === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Keys"].TAB;
+            var isEnterPressed = e.which === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Keys"].ENTER;
+            var isShiftPressed = e.shiftKey;
+            var _a = _this.state, selectedStart = _a.selectedStart, selectedEnd = _a.selectedEnd;
+            // order of JS events is our enemy here. when tabbing between fields,
+            // this handler will fire in the middle of a focus exchange when no
+            // field is currently focused. we work around this by referring to the
+            // most recently focused field, rather than the currently focused field.
+            var wasStartFieldFocused = _this.state.lastFocusedField === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START;
+            var wasEndFieldFocused = _this.state.lastFocusedField === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].END;
+            // move focus to the other field
+            if (isTabPressed) {
+                var isEndInputFocused = void 0;
+                var isStartInputFocused = void 0;
+                var isOpen = true;
+                if (wasStartFieldFocused && !isShiftPressed) {
+                    isStartInputFocused = false;
+                    isEndInputFocused = true;
+                    // prevent the default focus-change behavior to avoid race conditions;
+                    // we'll handle the focus change ourselves in componentDidUpdate.
+                    e.preventDefault();
+                }
+                else if (wasEndFieldFocused && isShiftPressed) {
+                    isStartInputFocused = true;
+                    isEndInputFocused = false;
+                    e.preventDefault();
+                }
+                else {
+                    // don't prevent default here, otherwise Tab won't do anything.
+                    isStartInputFocused = false;
+                    isEndInputFocused = false;
+                    isOpen = false;
+                }
+                _this.setState({
+                    isEndInputFocused: isEndInputFocused,
+                    isOpen: isOpen,
+                    isStartInputFocused: isStartInputFocused,
+                    wasLastFocusChangeDueToHover: false,
+                });
+            }
+            else if (wasStartFieldFocused && isEnterPressed) {
+                var nextStartDate = _this.parseDate(_this.state.startInputString);
+                _this.handleDateRangePickerChange([nextStartDate, selectedEnd], true);
+            }
+            else if (wasEndFieldFocused && isEnterPressed) {
+                var nextEndDate = _this.parseDate(_this.state.endInputString);
+                _this.handleDateRangePickerChange([selectedStart, nextEndDate], true);
+            }
+            else {
+                // let the default keystroke happen without side effects
+                return;
+            }
+        };
+        _this.handleInputMouseDown = function () {
+            // clicking in the field constitutes an explicit focus change. we update
+            // the flag on "mousedown" instead of on "click", because it needs to be
+            // set before onFocus is called ("click" triggers after "focus").
+            _this.setState({ wasLastFocusChangeDueToHover: false });
+        };
+        _this.handleInputClick = function (e) {
+            // unless we stop propagation on this event, a click within an input
+            // will close the popover almost as soon as it opens.
+            e.stopPropagation();
+        };
+        _this.handleInputFocus = function (_e, boundary) {
+            var _a = _this.getStateKeysAndValuesForBoundary(boundary), keys = _a.keys, values = _a.values;
+            var inputString = Object(_dateFormat__WEBPACK_IMPORTED_MODULE_7__["getFormattedDateString"])(values.selectedValue, _this.props, true);
+            // change the boundary only if the user explicitly focused in the field.
+            // focus changes from hovering don't count; they're just temporary.
+            var boundaryToModify = _this.state.wasLastFocusChangeDueToHover ? _this.state.boundaryToModify : boundary;
+            _this.setState((_b = {},
+                _b[keys.inputString] = inputString,
+                _b[keys.isInputFocused] = true,
+                _b.boundaryToModify = boundaryToModify,
+                _b.isOpen = true,
+                _b.lastFocusedField = boundary,
+                _b.shouldSelectAfterUpdate = _this.props.selectAllOnFocus,
+                _b.wasLastFocusChangeDueToHover = false,
+                _b));
+            var _b;
+        };
+        _this.handleInputBlur = function (_e, boundary) {
+            var _a = _this.getStateKeysAndValuesForBoundary(boundary), keys = _a.keys, values = _a.values;
+            var maybeNextDate = _this.parseDate(values.inputString);
+            var isValueControlled = _this.isControlled();
+            var nextState = (_b = {},
+                _b[keys.isInputFocused] = false,
+                _b.shouldSelectAfterUpdate = false,
+                _b);
+            if (_this.isInputEmpty(values.inputString)) {
+                if (isValueControlled) {
+                    nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, (_c = {}, _c[keys.inputString] = Object(_dateFormat__WEBPACK_IMPORTED_MODULE_7__["getFormattedDateString"])(values.controlledValue, _this.props), _c));
+                }
+                else {
+                    nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, (_d = {}, _d[keys.inputString] = null, _d[keys.selectedValue] = null, _d));
+                }
+            }
+            else if (!_this.isNextDateRangeValid(maybeNextDate, boundary)) {
+                if (!isValueControlled) {
+                    nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, (_f = {}, _f[keys.inputString] = null, _f[keys.selectedValue] = maybeNextDate, _f));
+                }
+                _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Utils"].safeInvoke(_this.props.onError, _this.getDateRangeForCallback(maybeNextDate, boundary));
+            }
+            _this.setState(nextState);
+            var _b, _c, _d, _f;
+        };
+        _this.handleInputChange = function (e, boundary) {
+            var inputString = e.target.value;
+            var keys = _this.getStateKeysAndValuesForBoundary(boundary).keys;
+            var maybeNextDate = _this.parseDate(inputString);
+            var isValueControlled = _this.isControlled();
+            var nextState = { shouldSelectAfterUpdate: false };
+            if (inputString.length === 0) {
+                // this case will be relevant when we start showing the hovered range in the input
+                // fields. goal is to show an empty field for clarity until the mouse moves over a
+                // different date.
+                var baseState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, (_a = {}, _a[keys.inputString] = "", _a));
+                if (isValueControlled) {
+                    nextState = baseState;
+                }
+                else {
+                    nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, baseState, (_b = {}, _b[keys.selectedValue] = null, _b));
+                }
+                _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Utils"].safeInvoke(_this.props.onChange, _this.getDateRangeForCallback(null, boundary));
+            }
+            else if (_this.isDateValidAndInRange(maybeNextDate)) {
+                // note that error cases that depend on both fields (e.g. overlapping dates) should fall
+                // through into this block so that the UI can update immediately, possibly with an error
+                // message on the other field.
+                // also, clear the hover string to ensure the most recent keystroke appears.
+                var baseState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, (_c = {}, _c[keys.hoverString] = null, _c[keys.inputString] = inputString, _c));
+                if (isValueControlled) {
+                    nextState = baseState;
+                }
+                else {
+                    nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, baseState, (_d = {}, _d[keys.selectedValue] = maybeNextDate, _d));
+                }
+                if (_this.isNextDateRangeValid(maybeNextDate, boundary)) {
+                    _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Utils"].safeInvoke(_this.props.onChange, _this.getDateRangeForCallback(maybeNextDate, boundary));
+                }
+            }
+            else {
+                // again, clear the hover string to ensure the most recent keystroke appears
+                nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, (_f = {}, _f[keys.inputString] = inputString, _f[keys.hoverString] = null, _f));
+            }
+            _this.setState(nextState);
+            var _a, _b, _c, _d, _f;
+        };
+        // Callbacks - Popover
+        // ===================
+        _this.handlePopoverClose = function () {
+            _this.setState({ isOpen: false });
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Utils"].safeInvoke(_this.props.popoverProps.onClose);
+        };
+        _this.getInitialRange = function (props) {
+            if (props === void 0) { props = _this.props; }
+            var defaultValue = props.defaultValue, value = props.value;
+            if (value != null) {
+                return value;
+            }
+            else if (defaultValue != null) {
+                return defaultValue;
+            }
+            else {
+                return [null, null];
+            }
+        };
+        _this.getSelectedRange = function () {
+            var selectedStart;
+            var selectedEnd;
+            if (_this.isControlled()) {
+                _a = _this.props.value, selectedStart = _a[0], selectedEnd = _a[1];
+            }
+            else {
+                selectedStart = _this.state.selectedStart;
+                selectedEnd = _this.state.selectedEnd;
+            }
+            // this helper function checks if the provided boundary date *would* overlap the selected
+            // other boundary date. providing the already-selected start date simply tells us if we're
+            // currently in an overlapping state.
+            var doBoundaryDatesOverlap = _this.doBoundaryDatesOverlap(selectedStart, _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START);
+            var dateRange = [selectedStart, doBoundaryDatesOverlap ? undefined : selectedEnd];
+            return dateRange.map(function (selectedBound) {
+                return _this.isDateValidAndInRange(selectedBound) ? selectedBound : undefined;
+            });
+            var _a;
+        };
+        _this.getInputGroupCallbackForEvent = function (e, inputProps) {
+            // use explicit switch cases to ensure callback function names remain grep-able in the codebase.
+            switch (e.type) {
+                case "blur":
+                    return inputProps.onBlur;
+                case "change":
+                    return inputProps.onChange;
+                case "click":
+                    return inputProps.onClick;
+                case "focus":
+                    return inputProps.onFocus;
+                case "keydown":
+                    return inputProps.onKeyDown;
+                case "mousedown":
+                    return inputProps.onMouseDown;
+                default:
+                    return undefined;
+            }
+        };
+        _this.getInputDisplayString = function (boundary) {
+            var values = _this.getStateKeysAndValuesForBoundary(boundary).values;
+            var isInputFocused = values.isInputFocused, inputString = values.inputString, selectedValue = values.selectedValue, hoverString = values.hoverString;
+            if (hoverString != null) {
+                return hoverString;
+            }
+            else if (isInputFocused) {
+                return inputString == null ? "" : inputString;
+            }
+            else if (selectedValue == null) {
+                return "";
+            }
+            else if (_this.doesEndBoundaryOverlapStartBoundary(selectedValue, boundary)) {
+                return _this.props.overlappingDatesMessage;
+            }
+            else {
+                return Object(_dateFormat__WEBPACK_IMPORTED_MODULE_7__["getFormattedDateString"])(selectedValue, _this.props);
+            }
+        };
+        _this.getInputPlaceholderString = function (boundary) {
+            var isStartBoundary = boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START;
+            var isEndBoundary = boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].END;
+            var inputProps = _this.getInputProps(boundary);
+            var isInputFocused = _this.getStateKeysAndValuesForBoundary(boundary).values.isInputFocused;
+            // use the custom placeholder text for the input, if providied
+            if (inputProps.placeholder != null) {
+                return inputProps.placeholder;
+            }
+            else if (isStartBoundary) {
+                return isInputFocused ? _this.state.formattedMinDateString : "Start date";
+            }
+            else if (isEndBoundary) {
+                return isInputFocused ? _this.state.formattedMaxDateString : "End date";
+            }
+            else {
+                return "";
+            }
+        };
+        _this.getInputProps = function (boundary) {
+            return boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START ? _this.props.startInputProps : _this.props.endInputProps;
+        };
+        _this.getInputRef = function (boundary) {
+            return boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START ? _this.refHandlers.startInputRef : _this.refHandlers.endInputRef;
+        };
+        _this.getStateKeysAndValuesForBoundary = function (boundary) {
+            var controlledRange = _this.props.value;
+            if (boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START) {
+                return {
+                    keys: {
+                        hoverString: "startHoverString",
+                        inputString: "startInputString",
+                        isInputFocused: "isStartInputFocused",
+                        selectedValue: "selectedStart",
+                    },
+                    values: {
+                        controlledValue: controlledRange != null ? controlledRange[0] : undefined,
+                        hoverString: _this.state.startHoverString,
+                        inputString: _this.state.startInputString,
+                        isInputFocused: _this.state.isStartInputFocused,
+                        selectedValue: _this.state.selectedStart,
+                    },
+                };
+            }
+            else {
+                return {
+                    keys: {
+                        hoverString: "endHoverString",
+                        inputString: "endInputString",
+                        isInputFocused: "isEndInputFocused",
+                        selectedValue: "selectedEnd",
+                    },
+                    values: {
+                        controlledValue: controlledRange != null ? controlledRange[1] : undefined,
+                        hoverString: _this.state.endHoverString,
+                        inputString: _this.state.endInputString,
+                        isInputFocused: _this.state.isEndInputFocused,
+                        selectedValue: _this.state.selectedEnd,
+                    },
+                };
+            }
+        };
+        _this.getDateRangeForCallback = function (currDate, currBoundary) {
+            var otherBoundary = _this.getOtherBoundary(currBoundary);
+            var otherDate = _this.getStateKeysAndValuesForBoundary(otherBoundary).values.selectedValue;
+            return currBoundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START ? [currDate, otherDate] : [otherDate, currDate];
+        };
+        _this.getOtherBoundary = function (boundary) {
+            return boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START ? _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].END : _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START;
+        };
+        _this.doBoundaryDatesOverlap = function (date, boundary) {
+            var allowSingleDayRange = _this.props.allowSingleDayRange;
+            var otherBoundary = _this.getOtherBoundary(boundary);
+            var otherBoundaryDate = _this.getStateKeysAndValuesForBoundary(otherBoundary).values.selectedValue;
+            if (date == null || otherBoundaryDate == null) {
+                return false;
+            }
+            if (boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START) {
+                var isAfter = react_day_picker__WEBPACK_IMPORTED_MODULE_3___default.a.DateUtils.isDayAfter(date, otherBoundaryDate);
+                return isAfter || (!allowSingleDayRange && react_day_picker__WEBPACK_IMPORTED_MODULE_3___default.a.DateUtils.isSameDay(date, otherBoundaryDate));
+            }
+            else {
+                var isBefore = react_day_picker__WEBPACK_IMPORTED_MODULE_3___default.a.DateUtils.isDayBefore(date, otherBoundaryDate);
+                return isBefore || (!allowSingleDayRange && react_day_picker__WEBPACK_IMPORTED_MODULE_3___default.a.DateUtils.isSameDay(date, otherBoundaryDate));
+            }
+        };
+        /**
+         * Returns true if the provided boundary is an END boundary overlapping the
+         * selected start date. (If the boundaries overlap, we consider the END
+         * boundary to be erroneous.)
+         */
+        _this.doesEndBoundaryOverlapStartBoundary = function (boundaryDate, boundary) {
+            return boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START ? false : _this.doBoundaryDatesOverlap(boundaryDate, boundary);
+        };
+        _this.isControlled = function () { return _this.props.value !== undefined; };
+        _this.isInputEmpty = function (inputString) { return inputString == null || inputString.length === 0; };
+        _this.isInputInErrorState = function (boundary) {
+            var values = _this.getStateKeysAndValuesForBoundary(boundary).values;
+            var isInputFocused = values.isInputFocused, hoverString = values.hoverString, inputString = values.inputString, selectedValue = values.selectedValue;
+            if (hoverString != null || _this.isInputEmpty(inputString)) {
+                // don't show an error state while we're hovering over a valid date.
+                return false;
+            }
+            var boundaryValue = isInputFocused ? _this.parseDate(inputString) : selectedValue;
+            return (boundaryValue != null &&
+                (!_this.isDateValidAndInRange(boundaryValue) ||
+                    _this.doesEndBoundaryOverlapStartBoundary(boundaryValue, boundary)));
+        };
+        _this.isDateValidAndInRange = function (date) {
+            return Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isDateValid"])(date) && Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isDayInRange"])(date, [_this.props.minDate, _this.props.maxDate]);
+        };
+        _this.reset(props);
+        return _this;
+    }
+    /**
+     * Public method intended for unit testing only. Do not use in feature work!
+     */
+    DateRangeInput.prototype.reset = function (props) {
+        if (props === void 0) { props = this.props; }
+        var _a = this.getInitialRange(), selectedStart = _a[0], selectedEnd = _a[1];
+        this.state = {
+            formattedMaxDateString: this.getFormattedMinMaxDateString(props, "maxDate"),
+            formattedMinDateString: this.getFormattedMinMaxDateString(props, "minDate"),
+            isOpen: false,
+            selectedEnd: selectedEnd,
+            selectedStart: selectedStart,
+        };
+    };
+    DateRangeInput.prototype.componentDidUpdate = function () {
+        var _a = this.state, isStartInputFocused = _a.isStartInputFocused, isEndInputFocused = _a.isEndInputFocused, shouldSelectAfterUpdate = _a.shouldSelectAfterUpdate;
+        var shouldFocusStartInput = this.shouldFocusInputRef(isStartInputFocused, this.startInputRef);
+        var shouldFocusEndInput = this.shouldFocusInputRef(isEndInputFocused, this.endInputRef);
+        if (shouldFocusStartInput) {
+            this.startInputRef.focus();
+        }
+        else if (shouldFocusEndInput) {
+            this.endInputRef.focus();
+        }
+        if (isStartInputFocused && shouldSelectAfterUpdate) {
+            this.startInputRef.select();
+        }
+        else if (isEndInputFocused && shouldSelectAfterUpdate) {
+            this.endInputRef.select();
+        }
+    };
+    DateRangeInput.prototype.render = function () {
+        var _a = this.props.popoverProps, popoverProps = _a === void 0 ? {} : _a;
+        var popoverContent = (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_dateRangePicker__WEBPACK_IMPORTED_MODULE_9__["DateRangePicker"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, this.props, { boundaryToModify: this.state.boundaryToModify, onChange: this.handleDateRangePickerChange, onHoverChange: this.handleDateRangePickerHoverChange, value: this.getSelectedRange() })));
+        var popoverClassName = classnames__WEBPACK_IMPORTED_MODULE_1___default()(popoverProps.className, this.props.className);
+        // allow custom props for the popover and each input group, but pass them in an order that
+        // guarantees only some props are overridable.
+        return (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Popover"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ isOpen: this.state.isOpen, position: _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Position"].BOTTOM_LEFT }, this.props.popoverProps, { autoFocus: false, className: popoverClassName, content: popoverContent, enforceFocus: false, onClose: this.handlePopoverClose }),
+            react__WEBPACK_IMPORTED_MODULE_2__["createElement"]("div", { className: _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Classes"].CONTROL_GROUP },
+                this.renderInputGroup(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].START),
+                this.renderInputGroup(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["Boundary"].END))));
+    };
+    DateRangeInput.prototype.componentWillReceiveProps = function (nextProps) {
+        _super.prototype.componentWillReceiveProps.call(this, nextProps);
+        var nextState = {};
+        if (nextProps.value !== this.props.value) {
+            var _a = this.getInitialRange(nextProps), selectedStart = _a[0], selectedEnd = _a[1];
+            nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, { selectedStart: selectedStart, selectedEnd: selectedEnd });
+        }
+        // cache the formatted date strings to avoid computing on each render.
+        if (nextProps.minDate !== this.props.minDate) {
+            var formattedMinDateString = this.getFormattedMinMaxDateString(nextProps, "minDate");
+            nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, { formattedMinDateString: formattedMinDateString });
+        }
+        if (nextProps.maxDate !== this.props.maxDate) {
+            var formattedMaxDateString = this.getFormattedMinMaxDateString(nextProps, "maxDate");
+            nextState = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, { formattedMaxDateString: formattedMaxDateString });
+        }
+        this.setState(nextState);
+    };
+    DateRangeInput.prototype.validateProps = function (props) {
+        if (props.value === null) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_6__["DATERANGEINPUT_NULL_VALUE"]);
+        }
+    };
+    // Helpers
+    // =======
+    DateRangeInput.prototype.shouldFocusInputRef = function (isFocused, inputRef) {
+        return isFocused && inputRef !== undefined && document.activeElement !== inputRef;
+    };
+    DateRangeInput.prototype.isNextDateRangeValid = function (nextDate, boundary) {
+        return this.isDateValidAndInRange(nextDate) && !this.doBoundaryDatesOverlap(nextDate, boundary);
+    };
+    // this is a slightly kludgy function, but it saves us a good amount of repeated code between
+    // the constructor and componentWillReceiveProps.
+    DateRangeInput.prototype.getFormattedMinMaxDateString = function (props, propName) {
+        var date = props[propName];
+        var defaultDate = DateRangeInput.defaultProps[propName];
+        // default values are applied only if a prop is strictly `undefined`
+        // See: https://facebook.github.io/react/docs/react-component.html#defaultprops
+        return Object(_dateFormat__WEBPACK_IMPORTED_MODULE_7__["getFormattedDateString"])(date === undefined ? defaultDate : date, this.props);
+    };
+    DateRangeInput.prototype.parseDate = function (dateString) {
+        if (dateString === this.props.outOfRangeMessage || dateString === this.props.invalidDateMessage) {
+            return null;
+        }
+        var _a = this.props, locale = _a.locale, parseDate = _a.parseDate;
+        var newDate = parseDate(dateString, locale);
+        return newDate === false ? new Date(undefined) : newDate;
+    };
+    DateRangeInput.prototype.formatDate = function (date) {
+        if (!this.isDateValidAndInRange(date)) {
+            return "";
+        }
+        var _a = this.props, locale = _a.locale, formatDate = _a.formatDate;
+        return formatDate(date, locale);
+    };
+    DateRangeInput.defaultProps = {
+        allowSingleDayRange: false,
+        closeOnSelection: true,
+        contiguousCalendarMonths: true,
+        dayPickerProps: {},
+        disabled: false,
+        endInputProps: {},
+        invalidDateMessage: "Invalid date",
+        maxDate: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_8__["getDefaultMaxDate"])(),
+        minDate: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_8__["getDefaultMinDate"])(),
+        outOfRangeMessage: "Out of range",
+        overlappingDatesMessage: "Overlapping dates",
+        popoverProps: {},
+        selectAllOnFocus: false,
+        shortcuts: true,
+        singleMonthOnly: false,
+        startInputProps: {},
+    };
+    DateRangeInput.displayName = _blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["DISPLAYNAME_PREFIX"] + ".DateRangeInput";
+    return DateRangeInput;
+}(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_4__["AbstractPureComponent"]));
+
+//# sourceMappingURL=dateRangeInput.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/dateRangePicker.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/dateRangePicker.js ***!
+  \***********************************************************************/
+/*! exports provided: DateRangePicker */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DateRangePicker", function() { return DateRangePicker; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var react_day_picker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-day-picker */ "./node_modules/react-day-picker/DayPicker.js");
+/* harmony import */ var react_day_picker__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(react_day_picker__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/* harmony import */ var _common_errors__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./common/errors */ "./node_modules/@blueprintjs/datetime/lib/esm/common/errors.js");
+/* harmony import */ var _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./common/monthAndYear */ "./node_modules/@blueprintjs/datetime/lib/esm/common/monthAndYear.js");
+/* harmony import */ var _datePickerCaption__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./datePickerCaption */ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerCaption.js");
+/* harmony import */ var _datePickerCore__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./datePickerCore */ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerCore.js");
+/* harmony import */ var _datePickerNavbar__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./datePickerNavbar */ "./node_modules/@blueprintjs/datetime/lib/esm/datePickerNavbar.js");
+/* harmony import */ var _dateRangeSelectionStrategy__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./dateRangeSelectionStrategy */ "./node_modules/@blueprintjs/datetime/lib/esm/dateRangeSelectionStrategy.js");
+/* harmony import */ var _shortcuts__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./shortcuts */ "./node_modules/@blueprintjs/datetime/lib/esm/shortcuts.js");
+/* harmony import */ var _timePicker__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./timePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/timePicker.js");
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var DateRangePicker = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](DateRangePicker, _super);
+    function DateRangePicker(props, context) {
+        var _this = _super.call(this, props, context) || this;
+        // these will get merged with the user's own
+        _this.modifiers = (_a = {},
+            _a[_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["SELECTED_RANGE_MODIFIER"]] = function (day) {
+                var value = _this.state.value;
+                return value[0] != null && value[1] != null && _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayInRange"](day, value, true);
+            },
+            _a[_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["SELECTED_RANGE_MODIFIER"] + "-start"] = function (day) { return _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameDay"](_this.state.value[0], day); },
+            _a[_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["SELECTED_RANGE_MODIFIER"] + "-end"] = function (day) { return _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameDay"](_this.state.value[1], day); },
+            _a[_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["HOVERED_RANGE_MODIFIER"]] = function (day) {
+                var _a = _this.state, hoverValue = _a.hoverValue, _b = _a.value, selectedStart = _b[0], selectedEnd = _b[1];
+                if (selectedStart == null && selectedEnd == null) {
+                    return false;
+                }
+                if (hoverValue == null || hoverValue[0] == null || hoverValue[1] == null) {
+                    return false;
+                }
+                return _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayInRange"](day, hoverValue, true);
+            },
+            _a[_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["HOVERED_RANGE_MODIFIER"] + "-start"] = function (day) {
+                var hoverValue = _this.state.hoverValue;
+                if (hoverValue == null || hoverValue[0] == null) {
+                    return false;
+                }
+                return _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameDay"](hoverValue[0], day);
+            },
+            _a[_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["HOVERED_RANGE_MODIFIER"] + "-end"] = function (day) {
+                var hoverValue = _this.state.hoverValue;
+                if (hoverValue == null || hoverValue[1] == null) {
+                    return false;
+                }
+                return _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameDay"](hoverValue[1], day);
+            },
+            _a);
+        _this.disabledDays = function (day) { return !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayInRange"](day, [_this.props.minDate, _this.props.maxDate]); };
+        _this.getDisabledDaysModifier = function () {
+            var disabledDays = _this.props.dayPickerProps.disabledDays;
+            return disabledDays instanceof Array ? [_this.disabledDays].concat(disabledDays) : [_this.disabledDays, disabledDays];
+        };
+        _this.handleTimeChange = function (newTime, dateIndex) {
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.timePickerProps.onChange, newTime);
+            var _a = _this.state, value = _a.value, time = _a.time;
+            var newValue = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateTime"](value[dateIndex] != null ? _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["clone"](value[dateIndex]) : new Date(), newTime);
+            var newDateRange = [value[0], value[1]];
+            newDateRange[dateIndex] = newValue;
+            var newTimeRange = [time[0], time[1]];
+            newTimeRange[dateIndex] = newTime;
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.onChange, newDateRange);
+            _this.setState({ value: newDateRange, time: newTimeRange });
+        };
+        _this.handleTimeChangeLeftCalendar = function (time) {
+            _this.handleTimeChange(time, 0);
+        };
+        _this.handleTimeChangeRightCalendar = function (time) {
+            _this.handleTimeChange(time, 1);
+        };
+        _this.renderSingleNavbar = function (navbarProps) { return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_datePickerNavbar__WEBPACK_IMPORTED_MODULE_11__["DatePickerNavbar"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, navbarProps, { maxDate: _this.props.maxDate, minDate: _this.props.minDate }))); };
+        _this.renderLeftNavbar = function (navbarProps) { return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_datePickerNavbar__WEBPACK_IMPORTED_MODULE_11__["DatePickerNavbar"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, navbarProps, { hideRightNavButton: _this.props.contiguousCalendarMonths, maxDate: _this.props.maxDate, minDate: _this.props.minDate }))); };
+        _this.renderRightNavbar = function (navbarProps) { return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_datePickerNavbar__WEBPACK_IMPORTED_MODULE_11__["DatePickerNavbar"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, navbarProps, { hideLeftNavButton: _this.props.contiguousCalendarMonths, maxDate: _this.props.maxDate, minDate: _this.props.minDate }))); };
+        _this.renderSingleCaption = function (captionProps) { return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_datePickerCaption__WEBPACK_IMPORTED_MODULE_9__["DatePickerCaption"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, captionProps, { maxDate: _this.props.maxDate, minDate: _this.props.minDate, onMonthChange: _this.handleLeftMonthSelectChange, onYearChange: _this.handleLeftYearSelectChange, reverseMonthAndYearMenus: _this.props.reverseMonthAndYearMenus }))); };
+        _this.renderLeftCaption = function (captionProps) { return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_datePickerCaption__WEBPACK_IMPORTED_MODULE_9__["DatePickerCaption"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, captionProps, { maxDate: _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDatePreviousMonth"](_this.props.maxDate), minDate: _this.props.minDate, onMonthChange: _this.handleLeftMonthSelectChange, onYearChange: _this.handleLeftYearSelectChange, reverseMonthAndYearMenus: _this.props.reverseMonthAndYearMenus }))); };
+        _this.renderRightCaption = function (captionProps) { return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_datePickerCaption__WEBPACK_IMPORTED_MODULE_9__["DatePickerCaption"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, captionProps, { maxDate: _this.props.maxDate, minDate: _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateNextMonth"](_this.props.minDate), onMonthChange: _this.handleRightMonthSelectChange, onYearChange: _this.handleRightYearSelectChange, reverseMonthAndYearMenus: _this.props.reverseMonthAndYearMenus }))); };
+        _this.handleDayMouseEnter = function (day, modifiers, e) {
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onDayMouseEnter, day, modifiers, e);
+            if (modifiers.disabled) {
+                return;
+            }
+            var _a = _dateRangeSelectionStrategy__WEBPACK_IMPORTED_MODULE_12__["DateRangeSelectionStrategy"].getNextState(_this.state.value, day, _this.props.allowSingleDayRange, _this.props.boundaryToModify), dateRange = _a.dateRange, boundary = _a.boundary;
+            _this.setState({ hoverValue: dateRange });
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.onHoverChange, dateRange, day, boundary);
+        };
+        _this.handleDayMouseLeave = function (day, modifiers, e) {
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onDayMouseLeave, day, modifiers, e);
+            if (modifiers.disabled) {
+                return;
+            }
+            _this.setState({ hoverValue: undefined });
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.onHoverChange, undefined, day, undefined);
+        };
+        _this.handleDayClick = function (day, modifiers, e) {
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onDayClick, day, modifiers, e);
+            if (modifiers.disabled) {
+                // rerender base component to get around bug where you can navigate past bounds by clicking days
+                _this.forceUpdate();
+                return;
+            }
+            var nextValue = _dateRangeSelectionStrategy__WEBPACK_IMPORTED_MODULE_12__["DateRangeSelectionStrategy"].getNextState(_this.state.value, day, _this.props.allowSingleDayRange, _this.props.boundaryToModify).dateRange;
+            // update the hovered date range after click to show the newly selected
+            // state, at leasts until the mouse moves again
+            _this.handleDayMouseEnter(day, modifiers, e);
+            _this.handleNextState(nextValue);
+        };
+        _this.handleShortcutClick = function (shortcut) {
+            var dateRange = shortcut.dateRange, includeTime = shortcut.includeTime;
+            if (includeTime) {
+                var newDateRange = [dateRange[0], dateRange[1]];
+                var newTimeRange = [dateRange[0], dateRange[1]];
+                var nextState = getStateChange(_this.state.value, dateRange, _this.state, _this.props.contiguousCalendarMonths);
+                _this.setState(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, nextState, { time: newTimeRange }));
+                _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.onChange, newDateRange);
+            }
+            else {
+                _this.handleNextState(dateRange);
+            }
+        };
+        _this.handleNextState = function (nextValue) {
+            var value = _this.state.value;
+            nextValue[0] = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateTime"](nextValue[0], _this.state.time[0]);
+            nextValue[1] = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateTime"](nextValue[1], _this.state.time[1]);
+            var nextState = getStateChange(value, nextValue, _this.state, _this.props.contiguousCalendarMonths);
+            if (_this.props.value == null) {
+                _this.setState(nextState);
+            }
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.onChange, nextValue);
+        };
+        _this.handleLeftMonthChange = function (newDate) {
+            var leftView = _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"].fromDate(newDate);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onMonthChange, leftView.getFullDate());
+            _this.updateLeftView(leftView);
+        };
+        _this.handleRightMonthChange = function (newDate) {
+            var rightView = _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"].fromDate(newDate);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onMonthChange, rightView.getFullDate());
+            _this.updateRightView(rightView);
+        };
+        _this.handleLeftMonthSelectChange = function (leftMonth) {
+            var leftView = new _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"](leftMonth, _this.state.leftView.getYear());
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onMonthChange, leftView.getFullDate());
+            _this.updateLeftView(leftView);
+        };
+        _this.handleRightMonthSelectChange = function (rightMonth) {
+            var rightView = new _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"](rightMonth, _this.state.rightView.getYear());
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onMonthChange, rightView.getFullDate());
+            _this.updateRightView(rightView);
+        };
+        /*
+         * The min / max months are offset by one because we are showing two months.
+         * We do a comparison check to see if
+         *   a) the proposed [Month, Year] change throws the two calendars out of order
+         *   b) the proposed [Month, Year] goes beyond the min / max months
+         * and rectify appropriately.
+         */
+        _this.handleLeftYearSelectChange = function (leftDisplayYear) {
+            var leftView = new _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"](_this.state.leftView.getMonth(), leftDisplayYear);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onMonthChange, leftView.getFullDate());
+            var _a = _this.props, minDate = _a.minDate, maxDate = _a.maxDate;
+            var adjustedMaxDate = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDatePreviousMonth"](maxDate);
+            var minMonthAndYear = new _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"](minDate.getMonth(), minDate.getFullYear());
+            var maxMonthAndYear = new _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"](adjustedMaxDate.getMonth(), adjustedMaxDate.getFullYear());
+            if (leftView.isBefore(minMonthAndYear)) {
+                leftView = minMonthAndYear;
+            }
+            else if (leftView.isAfter(maxMonthAndYear)) {
+                leftView = maxMonthAndYear;
+            }
+            var rightView = _this.state.rightView.clone();
+            if (!leftView.isBefore(rightView) || _this.props.contiguousCalendarMonths) {
+                rightView = leftView.getNextMonth();
+            }
+            _this.setViews(leftView, rightView);
+        };
+        _this.handleRightYearSelectChange = function (rightDisplayYear) {
+            var rightView = new _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"](_this.state.rightView.getMonth(), rightDisplayYear);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(_this.props.dayPickerProps.onMonthChange, rightView.getFullDate());
+            var _a = _this.props, minDate = _a.minDate, maxDate = _a.maxDate;
+            var adjustedMinDate = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateNextMonth"](minDate);
+            var minMonthAndYear = _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"].fromDate(adjustedMinDate);
+            var maxMonthAndYear = _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"].fromDate(maxDate);
+            if (rightView.isBefore(minMonthAndYear)) {
+                rightView = minMonthAndYear;
+            }
+            else if (rightView.isAfter(maxMonthAndYear)) {
+                rightView = maxMonthAndYear;
+            }
+            var leftView = _this.state.leftView.clone();
+            if (!rightView.isAfter(leftView) || _this.props.contiguousCalendarMonths) {
+                leftView = rightView.getPreviousMonth();
+            }
+            _this.setViews(leftView, rightView);
+        };
+        var value = getInitialValue(props);
+        var time = value;
+        var initialMonth = getInitialMonth(props, value);
+        // if the initial month is the last month of the picker's
+        // allowable range, the react-day-picker library will show
+        // the max month on the left and the *min* month on the right.
+        // subtracting one avoids that weird, wraparound state (#289).
+        var initialMonthEqualsMinMonth = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameMonth"](initialMonth, props.minDate);
+        var initalMonthEqualsMaxMonth = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameMonth"](initialMonth, props.maxDate);
+        if (!props.singleMonthOnly && !initialMonthEqualsMinMonth && initalMonthEqualsMaxMonth) {
+            initialMonth.setMonth(initialMonth.getMonth() - 1);
+        }
+        // show the selected end date's encompassing month in the right view if
+        // the calendars don't have to be contiguous.
+        // if left view and right view months are the same, show next month in the right view.
+        var leftView = _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"].fromDate(initialMonth);
+        var rightDate = value[1];
+        var rightView = !props.contiguousCalendarMonths && rightDate != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameMonth"](initialMonth, rightDate)
+            ? _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"].fromDate(rightDate)
+            : leftView.getNextMonth();
+        _this.state = { leftView: leftView, rightView: rightView, value: value, hoverValue: [null, null], time: time };
+        return _this;
+        var _a;
+    }
+    DateRangePicker.prototype.render = function () {
+        var _a = this.props, className = _a.className, contiguousCalendarMonths = _a.contiguousCalendarMonths, singleMonthOnly = _a.singleMonthOnly;
+        var isShowingOneMonth = singleMonthOnly || _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameMonth"](this.props.minDate, this.props.maxDate);
+        var classes = classnames__WEBPACK_IMPORTED_MODULE_2___default()(_common_classes__WEBPACK_IMPORTED_MODULE_5__["DATEPICKER"], _common_classes__WEBPACK_IMPORTED_MODULE_5__["DATERANGEPICKER"], className, (_b = {},
+            _b[_common_classes__WEBPACK_IMPORTED_MODULE_5__["DATERANGEPICKER_CONTIGUOUS"]] = contiguousCalendarMonths,
+            _b[_common_classes__WEBPACK_IMPORTED_MODULE_5__["DATERANGEPICKER_SINGLE_MONTH"]] = isShowingOneMonth,
+            _b));
+        // use the left DayPicker when we only need one
+        return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", { className: classes },
+            this.maybeRenderShortcuts(),
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", null,
+                this.renderCalendars(isShowingOneMonth),
+                this.maybeRenderTimePickers())));
+        var _b;
+    };
+    DateRangePicker.prototype.componentWillReceiveProps = function (nextProps) {
+        _super.prototype.componentWillReceiveProps.call(this, nextProps);
+        if (!_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areRangesEqual"](this.props.value, nextProps.value) ||
+            this.props.contiguousCalendarMonths !== nextProps.contiguousCalendarMonths) {
+            var nextState = getStateChange(this.props.value, nextProps.value, this.state, nextProps.contiguousCalendarMonths);
+            this.setState(nextState);
+        }
+    };
+    DateRangePicker.prototype.validateProps = function (props) {
+        var defaultValue = props.defaultValue, initialMonth = props.initialMonth, maxDate = props.maxDate, minDate = props.minDate, boundaryToModify = props.boundaryToModify, value = props.value;
+        var dateRange = [minDate, maxDate];
+        if (defaultValue != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayRangeInRange"](defaultValue, dateRange)) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATERANGEPICKER_DEFAULT_VALUE_INVALID"]);
+        }
+        if (initialMonth != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isMonthInRange"](initialMonth, dateRange)) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATERANGEPICKER_INITIAL_MONTH_INVALID"]);
+        }
+        if (maxDate != null && minDate != null && maxDate < minDate && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameDay"](maxDate, minDate)) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATERANGEPICKER_MAX_DATE_INVALID"]);
+        }
+        if (value != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayRangeInRange"](value, dateRange)) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATERANGEPICKER_VALUE_INVALID"]);
+        }
+        if (boundaryToModify != null && boundaryToModify !== _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Boundary"].START && boundaryToModify !== _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Boundary"].END) {
+            throw new Error(_common_errors__WEBPACK_IMPORTED_MODULE_7__["DATERANGEPICKER_PREFERRED_BOUNDARY_TO_MODIFY_INVALID"]);
+        }
+    };
+    DateRangePicker.prototype.maybeRenderShortcuts = function () {
+        var shortcuts = this.props.shortcuts;
+        if (shortcuts == null || shortcuts === false) {
+            return null;
+        }
+        var _a = this.props, allowSingleDayRange = _a.allowSingleDayRange, maxDate = _a.maxDate, minDate = _a.minDate, timePrecision = _a.timePrecision;
+        return [
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_shortcuts__WEBPACK_IMPORTED_MODULE_13__["Shortcuts"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ key: "shortcuts" }, { allowSingleDayRange: allowSingleDayRange, maxDate: maxDate, minDate: minDate, shortcuts: shortcuts, timePrecision: timePrecision }, { onShortcutClick: this.handleShortcutClick })),
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Divider"], { key: "div" }),
+        ];
+    };
+    DateRangePicker.prototype.maybeRenderTimePickers = function () {
+        var _a = this.props, timePrecision = _a.timePrecision, timePickerProps = _a.timePickerProps;
+        if (timePrecision == null && timePickerProps === DateRangePicker.defaultProps.timePickerProps) {
+            return null;
+        }
+        return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", { className: _common_classes__WEBPACK_IMPORTED_MODULE_5__["DATERANGEPICKER_TIMEPICKERS"] },
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_timePicker__WEBPACK_IMPORTED_MODULE_14__["TimePicker"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ precision: timePrecision }, timePickerProps, { onChange: this.handleTimeChangeLeftCalendar, value: this.state.time[0] })),
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_timePicker__WEBPACK_IMPORTED_MODULE_14__["TimePicker"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ precision: timePrecision }, timePickerProps, { onChange: this.handleTimeChangeRightCalendar, value: this.state.time[1] }))));
+    };
+    DateRangePicker.prototype.renderCalendars = function (isShowingOneMonth) {
+        var _a = this.props, dayPickerProps = _a.dayPickerProps, locale = _a.locale, localeUtils = _a.localeUtils, maxDate = _a.maxDate, minDate = _a.minDate;
+        var dayPickerBaseProps = tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ locale: locale,
+            localeUtils: localeUtils, modifiers: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["combineModifiers"])(this.modifiers, this.props.modifiers), showOutsideDays: true }, dayPickerProps, { disabledDays: this.getDisabledDaysModifier(), onDayClick: this.handleDayClick, onDayMouseEnter: this.handleDayMouseEnter, onDayMouseLeave: this.handleDayMouseLeave, selectedDays: this.state.value });
+        if (isShowingOneMonth) {
+            return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](react_day_picker__WEBPACK_IMPORTED_MODULE_4___default.a, tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, dayPickerBaseProps, { captionElement: this.renderSingleCaption, navbarElement: this.renderSingleNavbar, fromMonth: minDate, month: this.state.leftView.getFullDate(), numberOfMonths: 1, onMonthChange: this.handleLeftMonthChange, toMonth: maxDate })));
+        }
+        else {
+            return [
+                react__WEBPACK_IMPORTED_MODULE_3__["createElement"](react_day_picker__WEBPACK_IMPORTED_MODULE_4___default.a, tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ key: "left" }, dayPickerBaseProps, { canChangeMonth: true, captionElement: this.renderLeftCaption, navbarElement: this.renderLeftNavbar, fromMonth: minDate, month: this.state.leftView.getFullDate(), numberOfMonths: 1, onMonthChange: this.handleLeftMonthChange, toMonth: _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDatePreviousMonth"](maxDate) })),
+                react__WEBPACK_IMPORTED_MODULE_3__["createElement"](react_day_picker__WEBPACK_IMPORTED_MODULE_4___default.a, tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({ key: "right" }, dayPickerBaseProps, { canChangeMonth: true, captionElement: this.renderRightCaption, navbarElement: this.renderRightNavbar, fromMonth: _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateNextMonth"](minDate), month: this.state.rightView.getFullDate(), numberOfMonths: 1, onMonthChange: this.handleRightMonthChange, toMonth: maxDate })),
+            ];
+        }
+    };
+    DateRangePicker.prototype.updateLeftView = function (leftView) {
+        var rightView = this.state.rightView.clone();
+        if (!leftView.isBefore(rightView) || this.props.contiguousCalendarMonths) {
+            rightView = leftView.getNextMonth();
+        }
+        this.setViews(leftView, rightView);
+    };
+    DateRangePicker.prototype.updateRightView = function (rightView) {
+        var leftView = this.state.leftView.clone();
+        if (!rightView.isAfter(leftView) || this.props.contiguousCalendarMonths) {
+            leftView = rightView.getPreviousMonth();
+        }
+        this.setViews(leftView, rightView);
+    };
+    DateRangePicker.prototype.setViews = function (leftView, rightView) {
+        this.setState({ leftView: leftView, rightView: rightView });
+    };
+    DateRangePicker.defaultProps = {
+        allowSingleDayRange: false,
+        contiguousCalendarMonths: true,
+        dayPickerProps: {},
+        maxDate: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["getDefaultMaxDate"])(),
+        minDate: Object(_datePickerCore__WEBPACK_IMPORTED_MODULE_10__["getDefaultMinDate"])(),
+        reverseMonthAndYearMenus: false,
+        shortcuts: true,
+        singleMonthOnly: false,
+        timePickerProps: {},
+    };
+    DateRangePicker.displayName = _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["DISPLAYNAME_PREFIX"] + ".DateRangePicker";
+    return DateRangePicker;
+}(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["AbstractPureComponent"]));
+
+function getStateChange(value, nextValue, state, contiguousCalendarMonths) {
+    if (value != null && nextValue == null) {
+        return { value: [null, null] };
+    }
+    else if (nextValue != null) {
+        var leftView = state.leftView.clone();
+        var rightView = state.rightView.clone();
+        var nextValueStartView = _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"].fromDate(nextValue[0]);
+        var nextValueEndView = _common_monthAndYear__WEBPACK_IMPORTED_MODULE_8__["MonthAndYear"].fromDate(nextValue[1]);
+        // Only end date selected.
+        // If the newly selected end date isn't in either of the displayed months, then
+        //   - set the right DayPicker to the month of the selected end date
+        //   - ensure the left DayPicker is before the right, changing if needed
+        if (nextValueStartView == null && nextValueEndView != null) {
+            if (!nextValueEndView.isSame(leftView) && !nextValueEndView.isSame(rightView)) {
+                rightView = nextValueEndView;
+                if (!leftView.isBefore(rightView)) {
+                    leftView = rightView.getPreviousMonth();
+                }
+            }
+        }
+        else if (nextValueStartView != null && nextValueEndView == null) {
+            // Only start date selected.
+            // If the newly selected start date isn't in either of the displayed months, then
+            //   - set the left DayPicker to the month of the selected start date
+            //   - ensure the right DayPicker is before the left, changing if needed
+            if (!nextValueStartView.isSame(leftView) && !nextValueStartView.isSame(rightView)) {
+                leftView = nextValueStartView;
+                if (!rightView.isAfter(leftView)) {
+                    rightView = leftView.getNextMonth();
+                }
+            }
+        }
+        else if (nextValueStartView != null && nextValueEndView != null) {
+            // Both start and end date months are identical
+            // If the selected month isn't in either of the displayed months, then
+            //   - set the left DayPicker to be the selected month
+            //   - set the right DayPicker to +1
+            if (nextValueStartView.isSameMonth(nextValueEndView)) {
+                if (leftView.isSame(nextValueStartView) || rightView.isSame(nextValueStartView)) {
+                    // do nothing
+                }
+                else {
+                    leftView = nextValueStartView;
+                    rightView = nextValueStartView.getNextMonth();
+                }
+            }
+            else {
+                // Different start and end date months, adjust display months.
+                if (!leftView.isSame(nextValueStartView)) {
+                    leftView = nextValueStartView;
+                    rightView = nextValueStartView.getNextMonth();
+                }
+                if (contiguousCalendarMonths === false && !rightView.isSame(nextValueEndView)) {
+                    rightView = nextValueEndView;
+                }
+            }
+        }
+        return {
+            leftView: leftView,
+            rightView: rightView,
+            value: nextValue,
+        };
+    }
+    else if (contiguousCalendarMonths === true) {
+        // contiguousCalendarMonths is toggled on.
+        // If the previous leftView and rightView are not contiguous, then set the right DayPicker to left + 1
+        if (!state.leftView.getNextMonth().isSameMonth(state.rightView)) {
+            var nextRightView = state.leftView.getNextMonth();
+            return { rightView: nextRightView };
+        }
+    }
+    return {};
+}
+function getInitialValue(props) {
+    if (props.value != null) {
+        return props.value;
+    }
+    if (props.defaultValue != null) {
+        return props.defaultValue;
+    }
+    return [null, null];
+}
+function getInitialMonth(props, value) {
+    var today = new Date();
+    // != because we must have a real `Date` to begin the calendar on.
+    if (props.initialMonth != null) {
+        return props.initialMonth;
+    }
+    else if (value[0] != null) {
+        return _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["clone"](value[0]);
+    }
+    else if (value[1] != null) {
+        var month = _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["clone"](value[1]);
+        if (!_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["areSameMonth"](month, props.minDate)) {
+            month.setMonth(month.getMonth() - 1);
+        }
+        return month;
+    }
+    else if (_common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["isDayInRange"](today, [props.minDate, props.maxDate])) {
+        return today;
+    }
+    else {
+        return _common_dateUtils__WEBPACK_IMPORTED_MODULE_6__["getDateBetween"]([props.minDate, props.maxDate]);
+    }
+}
+//# sourceMappingURL=dateRangePicker.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/dateRangeSelectionStrategy.js":
+/*!**********************************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/dateRangeSelectionStrategy.js ***!
+  \**********************************************************************************/
+/*! exports provided: DateRangeSelectionStrategy */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DateRangeSelectionStrategy", function() { return DateRangeSelectionStrategy; });
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+var DateRangeSelectionStrategy = /** @class */ (function () {
+    function DateRangeSelectionStrategy() {
+    }
+    /**
+     * Returns the new date-range and the boundary that would be affected if `day` were clicked. The
+     * affected boundary may be different from the provided `boundary` in some cases. For example,
+     * clicking a particular boundary's selected date will always deselect it regardless of which
+     * `boundary` you provide to this function (because it's simply a more intuitive interaction).
+     */
+    DateRangeSelectionStrategy.getNextState = function (currentRange, day, allowSingleDayRange, boundary) {
+        if (boundary != null) {
+            return this.getNextStateForBoundary(currentRange, day, allowSingleDayRange, boundary);
+        }
+        else {
+            return this.getDefaultNextState(currentRange, day, allowSingleDayRange);
+        }
+    };
+    DateRangeSelectionStrategy.getNextStateForBoundary = function (currentRange, day, allowSingleDayRange, boundary) {
+        var boundaryDate = this.getBoundaryDate(boundary, currentRange);
+        var otherBoundary = this.getOtherBoundary(boundary);
+        var otherBoundaryDate = this.getBoundaryDate(otherBoundary, currentRange);
+        var nextBoundary;
+        var nextDateRange;
+        if (boundaryDate == null && otherBoundaryDate == null) {
+            nextBoundary = boundary;
+            nextDateRange = this.createRangeForBoundary(boundary, day, null);
+        }
+        else if (boundaryDate != null && otherBoundaryDate == null) {
+            var nextBoundaryDate = Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_1__["areSameDay"])(boundaryDate, day) ? null : day;
+            nextBoundary = boundary;
+            nextDateRange = this.createRangeForBoundary(boundary, nextBoundaryDate, null);
+        }
+        else if (boundaryDate == null && otherBoundaryDate != null) {
+            if (Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_1__["areSameDay"])(day, otherBoundaryDate)) {
+                var nextDate = void 0;
+                if (allowSingleDayRange) {
+                    nextBoundary = boundary;
+                    nextDate = otherBoundaryDate;
+                }
+                else {
+                    nextBoundary = otherBoundary;
+                    nextDate = null;
+                }
+                nextDateRange = this.createRangeForBoundary(boundary, nextDate, nextDate);
+            }
+            else if (this.isOverlappingOtherBoundary(boundary, day, otherBoundaryDate)) {
+                nextBoundary = otherBoundary;
+                nextDateRange = this.createRangeForBoundary(boundary, otherBoundaryDate, day);
+            }
+            else {
+                nextBoundary = boundary;
+                nextDateRange = this.createRangeForBoundary(boundary, day, otherBoundaryDate);
+            }
+        }
+        else {
+            // both boundaryDate and otherBoundaryDate are already defined
+            if (Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_1__["areSameDay"])(boundaryDate, day)) {
+                var isSingleDayRangeSelected = Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_1__["areSameDay"])(boundaryDate, otherBoundaryDate);
+                var nextOtherBoundaryDate = isSingleDayRangeSelected ? null : otherBoundaryDate;
+                nextBoundary = boundary;
+                nextDateRange = this.createRangeForBoundary(boundary, null, nextOtherBoundaryDate);
+            }
+            else if (Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_1__["areSameDay"])(day, otherBoundaryDate)) {
+                var _a = allowSingleDayRange
+                    ? [otherBoundaryDate, otherBoundaryDate]
+                    : [boundaryDate, null], nextBoundaryDate = _a[0], nextOtherBoundaryDate = _a[1];
+                nextBoundary = allowSingleDayRange ? boundary : otherBoundary;
+                nextDateRange = this.createRangeForBoundary(boundary, nextBoundaryDate, nextOtherBoundaryDate);
+            }
+            else if (this.isOverlappingOtherBoundary(boundary, day, otherBoundaryDate)) {
+                nextBoundary = boundary;
+                nextDateRange = this.createRangeForBoundary(boundary, day, null);
+            }
+            else {
+                // extend the date range with an earlier boundaryDate date
+                nextBoundary = boundary;
+                nextDateRange = this.createRangeForBoundary(boundary, day, otherBoundaryDate);
+            }
+        }
+        return { dateRange: nextDateRange, boundary: nextBoundary };
+    };
+    DateRangeSelectionStrategy.getDefaultNextState = function (selectedRange, day, allowSingleDayRange) {
+        var start = selectedRange[0], end = selectedRange[1];
+        var nextDateRange;
+        if (start == null && end == null) {
+            nextDateRange = [day, null];
+        }
+        else if (start != null && end == null) {
+            nextDateRange = this.createRange(day, start, allowSingleDayRange);
+        }
+        else if (start == null && end != null) {
+            nextDateRange = this.createRange(day, end, allowSingleDayRange);
+        }
+        else {
+            var isStart = Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_1__["areSameDay"])(start, day);
+            var isEnd = Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_1__["areSameDay"])(end, day);
+            if (isStart && isEnd) {
+                nextDateRange = [null, null];
+            }
+            else if (isStart) {
+                nextDateRange = [null, end];
+            }
+            else if (isEnd) {
+                nextDateRange = [start, null];
+            }
+            else {
+                nextDateRange = [day, null];
+            }
+        }
+        return { dateRange: nextDateRange };
+    };
+    DateRangeSelectionStrategy.getOtherBoundary = function (boundary) {
+        return boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__["Boundary"].START ? _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__["Boundary"].END : _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__["Boundary"].START;
+    };
+    DateRangeSelectionStrategy.getBoundaryDate = function (boundary, dateRange) {
+        return boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__["Boundary"].START ? dateRange[0] : dateRange[1];
+    };
+    DateRangeSelectionStrategy.isOverlappingOtherBoundary = function (boundary, boundaryDate, otherBoundaryDate) {
+        return boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__["Boundary"].START ? boundaryDate > otherBoundaryDate : boundaryDate < otherBoundaryDate;
+    };
+    DateRangeSelectionStrategy.createRangeForBoundary = function (boundary, boundaryDate, otherBoundaryDate) {
+        return boundary === _blueprintjs_core__WEBPACK_IMPORTED_MODULE_0__["Boundary"].START
+            ? [boundaryDate, otherBoundaryDate]
+            : [otherBoundaryDate, boundaryDate];
+    };
+    DateRangeSelectionStrategy.createRange = function (a, b, allowSingleDayRange) {
+        // clicking the same date again will clear it
+        if (!allowSingleDayRange && Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_1__["areSameDay"])(a, b)) {
+            return [null, null];
+        }
+        return a < b ? [a, b] : [b, a];
+    };
+    return DateRangeSelectionStrategy;
+}());
+
+//# sourceMappingURL=dateRangeSelectionStrategy.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/dateTimePicker.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/dateTimePicker.js ***!
+  \**********************************************************************/
+/*! exports provided: DateTimePicker */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DateTimePicker", function() { return DateTimePicker; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/* harmony import */ var _datePicker__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./datePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/datePicker.js");
+/* harmony import */ var _timePicker__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./timePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/timePicker.js");
+/*
+ * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+
+
+/** @deprecated since 3.4.0. Prefer `<DatePicker>` with `timePrecision` and `timePickerProps`. */
+var DateTimePicker = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](DateTimePicker, _super);
+    function DateTimePicker(props, context) {
+        var _this = _super.call(this, props, context) || this;
+        _this.handleDateChange = function (dateValue, isUserChange) {
+            if (_this.props.value === undefined) {
+                _this.setState({ dateValue: dateValue });
+            }
+            var value = _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["getDateTime"](dateValue, _this.state.timeValue);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.onChange, value, isUserChange);
+        };
+        _this.handleTimeChange = function (timeValue) {
+            if (_this.props.value === undefined) {
+                _this.setState({ timeValue: timeValue });
+            }
+            var value = _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["getDateTime"](_this.state.dateValue, timeValue);
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["Utils"].safeInvoke(_this.props.onChange, value, true);
+        };
+        var initialValue = _this.props.value !== undefined ? _this.props.value : _this.props.defaultValue;
+        _this.state = {
+            dateValue: initialValue,
+            timeValue: initialValue,
+        };
+        return _this;
+    }
+    DateTimePicker.prototype.render = function () {
+        var value = _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["getDateTime"](this.state.dateValue, this.state.timeValue);
+        return (react__WEBPACK_IMPORTED_MODULE_2__["createElement"]("div", { className: classnames__WEBPACK_IMPORTED_MODULE_1___default()(_common_classes__WEBPACK_IMPORTED_MODULE_4__["DATETIMEPICKER"], this.props.className) },
+            react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_datePicker__WEBPACK_IMPORTED_MODULE_6__["DatePicker"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, this.props.datePickerProps, { canClearSelection: this.props.canClearSelection, onChange: this.handleDateChange, value: value })),
+            react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_timePicker__WEBPACK_IMPORTED_MODULE_7__["TimePicker"], tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, this.props.timePickerProps, { onChange: this.handleTimeChange, value: value }))));
+    };
+    DateTimePicker.prototype.componentWillReceiveProps = function (nextProps) {
+        if (this.props.value === nextProps.value) {
+            return;
+        }
+        else if (nextProps.value != null) {
+            this.setState({
+                dateValue: nextProps.value,
+                timeValue: nextProps.value,
+            });
+        }
+        else {
+            // clear only the date to remove the selected-date style in the calendar
+            this.setState({ dateValue: null });
+        }
+    };
+    DateTimePicker.defaultProps = {
+        canClearSelection: true,
+        defaultValue: new Date(),
+    };
+    DateTimePicker.displayName = _blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["DISPLAYNAME_PREFIX"] + ".DateTimePicker";
+    return DateTimePicker;
+}(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_3__["AbstractPureComponent"]));
+
+//# sourceMappingURL=dateTimePicker.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/index.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/index.js ***!
+  \*************************************************************/
+/*! exports provided: Classes, Months, DateInput, DatePicker, DateTimePicker, DateRangeInput, DateRangePicker, TimePicker, TimePrecision */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Classes", function() { return Classes; });
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_months__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./common/months */ "./node_modules/@blueprintjs/datetime/lib/esm/common/months.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Months", function() { return _common_months__WEBPACK_IMPORTED_MODULE_1__["Months"]; });
+
+/* harmony import */ var _dateInput__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./dateInput */ "./node_modules/@blueprintjs/datetime/lib/esm/dateInput.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DateInput", function() { return _dateInput__WEBPACK_IMPORTED_MODULE_2__["DateInput"]; });
+
+/* harmony import */ var _datePicker__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./datePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/datePicker.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DatePicker", function() { return _datePicker__WEBPACK_IMPORTED_MODULE_3__["DatePicker"]; });
+
+/* harmony import */ var _dateTimePicker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./dateTimePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/dateTimePicker.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DateTimePicker", function() { return _dateTimePicker__WEBPACK_IMPORTED_MODULE_4__["DateTimePicker"]; });
+
+/* harmony import */ var _dateRangeInput__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./dateRangeInput */ "./node_modules/@blueprintjs/datetime/lib/esm/dateRangeInput.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DateRangeInput", function() { return _dateRangeInput__WEBPACK_IMPORTED_MODULE_5__["DateRangeInput"]; });
+
+/* harmony import */ var _dateRangePicker__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./dateRangePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/dateRangePicker.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "DateRangePicker", function() { return _dateRangePicker__WEBPACK_IMPORTED_MODULE_6__["DateRangePicker"]; });
+
+/* harmony import */ var _timePicker__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./timePicker */ "./node_modules/@blueprintjs/datetime/lib/esm/timePicker.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TimePicker", function() { return _timePicker__WEBPACK_IMPORTED_MODULE_7__["TimePicker"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TimePrecision", function() { return _timePicker__WEBPACK_IMPORTED_MODULE_7__["TimePrecision"]; });
+
+/*
+ * Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var Classes = _common_classes__WEBPACK_IMPORTED_MODULE_0__;
+
+
+
+
+
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/shortcuts.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/shortcuts.js ***!
+  \*****************************************************************/
+/*! exports provided: Shortcuts */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Shortcuts", function() { return Shortcuts; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/*
+ * Copyright 2018 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+var Shortcuts = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](Shortcuts, _super);
+    function Shortcuts() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Shortcuts.prototype.render = function () {
+        var _this = this;
+        var shortcuts = this.props.shortcuts === true
+            ? createDefaultShortcuts(this.props.allowSingleDayRange, this.props.timePrecision !== undefined)
+            : this.props.shortcuts;
+        var shortcutElements = shortcuts.map(function (s, i) { return (react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["MenuItem"], { className: _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Classes"].POPOVER_DISMISS_OVERRIDE, disabled: !_this.isShortcutInRange(s.dateRange), key: i, onClick: _this.getShorcutClickHandler(s), text: s.label })); });
+        return react__WEBPACK_IMPORTED_MODULE_2__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Menu"], { className: _common_classes__WEBPACK_IMPORTED_MODULE_3__["DATERANGEPICKER_SHORTCUTS"] }, shortcutElements);
+    };
+    Shortcuts.prototype.getShorcutClickHandler = function (shortcut) {
+        var _this = this;
+        return function () { return _this.props.onShortcutClick(shortcut); };
+    };
+    Shortcuts.prototype.isShortcutInRange = function (shortcutDateRange) {
+        return Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_4__["isDayRangeInRange"])(shortcutDateRange, [this.props.minDate, this.props.maxDate]);
+    };
+    return Shortcuts;
+}(react__WEBPACK_IMPORTED_MODULE_2__["PureComponent"]));
+
+function createShortcut(label, dateRange) {
+    return { dateRange: dateRange, label: label };
+}
+function createDefaultShortcuts(allowSingleDayRange, hasTimePrecision) {
+    var today = new Date();
+    var makeDate = function (action) {
+        var returnVal = Object(_common_dateUtils__WEBPACK_IMPORTED_MODULE_4__["clone"])(today);
+        action(returnVal);
+        returnVal.setDate(returnVal.getDate() + 1);
+        return returnVal;
+    };
+    var tomorrow = makeDate(function () { return null; });
+    var yesterday = makeDate(function (d) { return d.setDate(d.getDate() - 2); });
+    var oneWeekAgo = makeDate(function (d) { return d.setDate(d.getDate() - 7); });
+    var oneMonthAgo = makeDate(function (d) { return d.setMonth(d.getMonth() - 1); });
+    var threeMonthsAgo = makeDate(function (d) { return d.setMonth(d.getMonth() - 3); });
+    var sixMonthsAgo = makeDate(function (d) { return d.setMonth(d.getMonth() - 6); });
+    var oneYearAgo = makeDate(function (d) { return d.setFullYear(d.getFullYear() - 1); });
+    var twoYearsAgo = makeDate(function (d) { return d.setFullYear(d.getFullYear() - 2); });
+    var singleDayShortcuts = allowSingleDayRange
+        ? [
+            createShortcut("Today", [today, hasTimePrecision ? tomorrow : today]),
+            createShortcut("Yesterday", [yesterday, hasTimePrecision ? today : yesterday]),
+        ]
+        : [];
+    return singleDayShortcuts.concat([
+        createShortcut("Past week", [oneWeekAgo, today]),
+        createShortcut("Past month", [oneMonthAgo, today]),
+        createShortcut("Past 3 months", [threeMonthsAgo, today]),
+        createShortcut("Past 6 months", [sixMonthsAgo, today]),
+        createShortcut("Past year", [oneYearAgo, today]),
+        createShortcut("Past 2 years", [twoYearsAgo, today]),
+    ]);
+}
+//# sourceMappingURL=shortcuts.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@blueprintjs/datetime/lib/esm/timePicker.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@blueprintjs/datetime/lib/esm/timePicker.js ***!
+  \******************************************************************/
+/*! exports provided: TimePrecision, TimePicker */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TimePrecision", function() { return TimePrecision; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TimePicker", function() { return TimePicker; });
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+/* harmony import */ var _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _common_classes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./common/classes */ "./node_modules/@blueprintjs/datetime/lib/esm/common/classes.js");
+/* harmony import */ var _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./common/dateUtils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/dateUtils.js");
+/* harmony import */ var _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./common/timeUnit */ "./node_modules/@blueprintjs/datetime/lib/esm/common/timeUnit.js");
+/* harmony import */ var _common_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./common/utils */ "./node_modules/@blueprintjs/datetime/lib/esm/common/utils.js");
+/*
+ * Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
+
+
+
+
+
+var TimePrecision = {
+    MILLISECOND: "millisecond",
+    MINUTE: "minute",
+    SECOND: "second",
+};
+var TimePicker = /** @class */ (function (_super) {
+    tslib__WEBPACK_IMPORTED_MODULE_0__["__extends"](TimePicker, _super);
+    function TimePicker(props, context) {
+        var _this = _super.call(this, props, context) || this;
+        // begin method definitions: event handlers
+        _this.getInputBlurHandler = function (unit) { return function (e) {
+            var text = getStringValueFromInputEvent(e);
+            _this.updateTime(parseInt(text, 10), unit);
+        }; };
+        _this.getInputChangeHandler = function (unit) { return function (e) {
+            var TWO_DIGITS = /^\d{0,2}$/;
+            var THREE_DIGITS = /^\d{0,3}$/;
+            var text = getStringValueFromInputEvent(e);
+            var isValid = false;
+            switch (unit) {
+                case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_24:
+                case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_12:
+                case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MINUTE:
+                case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].SECOND:
+                    isValid = TWO_DIGITS.test(text);
+                    break;
+                case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MS:
+                    isValid = THREE_DIGITS.test(text);
+                    break;
+                default:
+                    throw Error("Invalid TimeUnit");
+            }
+            if (isValid) {
+                _this.updateTime(parseInt(text, 10), unit);
+            }
+        }; };
+        _this.getInputKeyDownHandler = function (unit) { return function (e) {
+            handleKeyEvent(e, (_a = {},
+                _a[_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Keys"].ARROW_UP] = function () { return _this.incrementTime(unit); },
+                _a[_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Keys"].ARROW_DOWN] = function () { return _this.decrementTime(unit); },
+                _a[_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Keys"].ENTER] = function () {
+                    e.currentTarget.blur();
+                },
+                _a));
+            var _a;
+        }; };
+        _this.handleFocus = function (e) {
+            if (_this.props.selectAllOnFocus) {
+                e.currentTarget.select();
+            }
+        };
+        _this.handleAmPmChange = function (e) {
+            var isNextPm = e.currentTarget.value === "pm";
+            if (isNextPm !== _this.state.isPm) {
+                var hour_1 = _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["convert24HourMeridiem"](_this.state.value.getHours(), isNextPm);
+                _this.setState({ isPm: isNextPm }, function () { return _this.updateTime(hour_1, _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_24); });
+            }
+        };
+        _this.incrementTime = function (unit) { return _this.shiftTime(unit, 1); };
+        _this.decrementTime = function (unit) { return _this.shiftTime(unit, -1); };
+        var value = props.minTime;
+        if (props.value != null) {
+            value = props.value;
+        }
+        else if (props.defaultValue != null) {
+            value = props.defaultValue;
+        }
+        _this.state = _this.getFullStateFromValue(value, props.useAmPm);
+        return _this;
+    }
+    TimePicker.prototype.render = function () {
+        var shouldRenderMilliseconds = this.props.precision === TimePrecision.MILLISECOND;
+        var shouldRenderSeconds = shouldRenderMilliseconds || this.props.precision === TimePrecision.SECOND;
+        var hourUnit = this.props.useAmPm ? _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_12 : _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_24;
+        var classes = classnames__WEBPACK_IMPORTED_MODULE_2___default()(_common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER"], this.props.className, (_a = {},
+            _a[_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Classes"].DISABLED] = this.props.disabled,
+            _a));
+        /* tslint:disable:max-line-length */
+        return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", { className: classes },
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", { className: _common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_ARROW_ROW"] },
+                this.maybeRenderArrowButton(true, hourUnit),
+                this.maybeRenderArrowButton(true, _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MINUTE),
+                shouldRenderSeconds && this.maybeRenderArrowButton(true, _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].SECOND),
+                shouldRenderMilliseconds && this.maybeRenderArrowButton(true, _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MS)),
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", { className: _common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_INPUT_ROW"] },
+                this.renderInput(_common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_HOUR"], hourUnit, this.state.hourText),
+                this.renderDivider(),
+                this.renderInput(_common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_MINUTE"], _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MINUTE, this.state.minuteText),
+                shouldRenderSeconds && this.renderDivider(),
+                shouldRenderSeconds &&
+                    this.renderInput(_common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_SECOND"], _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].SECOND, this.state.secondText),
+                shouldRenderMilliseconds && this.renderDivider("."),
+                shouldRenderMilliseconds &&
+                    this.renderInput(_common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_MILLISECOND"], _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MS, this.state.millisecondText)),
+            this.maybeRenderAmPm(),
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("div", { className: _common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_ARROW_ROW"] },
+                this.maybeRenderArrowButton(false, hourUnit),
+                this.maybeRenderArrowButton(false, _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MINUTE),
+                shouldRenderSeconds && this.maybeRenderArrowButton(false, _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].SECOND),
+                shouldRenderMilliseconds && this.maybeRenderArrowButton(false, _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MS))));
+        var _a;
+        /* tslint:enable:max-line-length */
+    };
+    TimePicker.prototype.componentWillReceiveProps = function (nextProps) {
+        var didMinTimeChange = nextProps.minTime !== this.props.minTime;
+        var didMaxTimeChange = nextProps.maxTime !== this.props.maxTime;
+        var didBoundsChange = didMinTimeChange || didMaxTimeChange;
+        var value = this.state.value;
+        if (didBoundsChange) {
+            value = _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["getTimeInRange"](this.state.value, nextProps.minTime, nextProps.maxTime);
+        }
+        if (nextProps.value != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["areSameTime"](nextProps.value, this.props.value)) {
+            value = nextProps.value;
+        }
+        this.setState(this.getFullStateFromValue(value, nextProps.useAmPm));
+    };
+    // begin method definitions: rendering
+    TimePicker.prototype.maybeRenderArrowButton = function (isDirectionUp, timeUnit) {
+        var _this = this;
+        if (!this.props.showArrowButtons) {
+            return null;
+        }
+        var classes = classnames__WEBPACK_IMPORTED_MODULE_2___default()(_common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_ARROW_BUTTON"], Object(_common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["getTimeUnitClassName"])(timeUnit));
+        var onClick = function () { return (isDirectionUp ? _this.incrementTime : _this.decrementTime)(timeUnit); };
+        return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("span", { className: classes, onClick: onClick },
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Icon"], { icon: isDirectionUp ? "chevron-up" : "chevron-down" })));
+    };
+    TimePicker.prototype.renderDivider = function (text) {
+        if (text === void 0) { text = ":"; }
+        return react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("span", { className: _common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_DIVIDER_TEXT"] }, text);
+    };
+    TimePicker.prototype.renderInput = function (className, unit, value) {
+        return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("input", { className: classnames__WEBPACK_IMPORTED_MODULE_2___default()(_common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_INPUT"], className), onBlur: this.getInputBlurHandler(unit), onChange: this.getInputChangeHandler(unit), onFocus: this.handleFocus, onKeyDown: this.getInputKeyDownHandler(unit), value: value, disabled: this.props.disabled }));
+    };
+    TimePicker.prototype.maybeRenderAmPm = function () {
+        if (!this.props.useAmPm) {
+            return null;
+        }
+        return (react__WEBPACK_IMPORTED_MODULE_3__["createElement"](_blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["HTMLSelect"], { className: _common_classes__WEBPACK_IMPORTED_MODULE_4__["TIMEPICKER_AMPM_SELECT"], disabled: this.props.disabled, onChange: this.handleAmPmChange, value: this.state.isPm ? "pm" : "am" },
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("option", { value: "am" }, "AM"),
+            react__WEBPACK_IMPORTED_MODULE_3__["createElement"]("option", { value: "pm" }, "PM")));
+    };
+    // begin method definitions: state modification
+    /**
+     * Generates a full ITimePickerState object with all text fields set to formatted strings based on value
+     */
+    TimePicker.prototype.getFullStateFromValue = function (value, useAmPm) {
+        var timeInRange = _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["getTimeInRange"](value, this.props.minTime, this.props.maxTime);
+        var hourUnit = useAmPm ? _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_12 : _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_24;
+        /* tslint:disable:object-literal-sort-keys */
+        return {
+            hourText: formatTime(timeInRange.getHours(), hourUnit),
+            minuteText: formatTime(timeInRange.getMinutes(), _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MINUTE),
+            secondText: formatTime(timeInRange.getSeconds(), _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].SECOND),
+            millisecondText: formatTime(timeInRange.getMilliseconds(), _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MS),
+            value: timeInRange,
+            isPm: _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["getIsPmFrom24Hour"](timeInRange.getHours()),
+        };
+        /* tslint:enable:object-literal-sort-keys */
+    };
+    TimePicker.prototype.shiftTime = function (unit, amount) {
+        if (this.props.disabled) {
+            return;
+        }
+        var newTime = Object(_common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["getTimeUnit"])(unit, this.state.value) + amount;
+        this.updateTime(Object(_common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["wrapTimeAtUnit"])(unit, newTime), unit);
+    };
+    TimePicker.prototype.updateTime = function (time, unit) {
+        var newValue = _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["clone"](this.state.value);
+        if (Object(_common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["isTimeUnitValid"])(unit, time)) {
+            Object(_common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["setTimeUnit"])(unit, time, newValue, this.state.isPm);
+            if (_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["isTimeInRange"](newValue, this.props.minTime, this.props.maxTime)) {
+                this.updateState({ value: newValue });
+            }
+            else {
+                this.updateState(this.getFullStateFromValue(this.state.value, this.props.useAmPm));
+            }
+        }
+        else {
+            this.updateState(this.getFullStateFromValue(this.state.value, this.props.useAmPm));
+        }
+    };
+    TimePicker.prototype.updateState = function (state) {
+        var newState = state;
+        var hasNewValue = newState.value != null && !_common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["areSameTime"](newState.value, this.state.value);
+        if (this.props.value == null) {
+            // component is uncontrolled
+            if (hasNewValue) {
+                newState = this.getFullStateFromValue(newState.value, this.props.useAmPm);
+            }
+            this.setState(newState);
+        }
+        else {
+            // component is controlled, and there's a new value
+            // so set inputs' text based off of _old_ value and later fire onChange with new value
+            if (hasNewValue) {
+                this.setState(this.getFullStateFromValue(this.state.value, this.props.useAmPm));
+            }
+            else {
+                // no new value, this means only text has changed (from user typing)
+                // we want inputs to change, so update state with new text for the inputs
+                // but don't change actual value
+                this.setState(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"]({}, newState, { value: _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["clone"](this.state.value) }));
+            }
+        }
+        if (hasNewValue) {
+            _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["Utils"].safeInvoke(this.props.onChange, newState.value);
+        }
+    };
+    TimePicker.defaultProps = {
+        disabled: false,
+        maxTime: Object(_common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["getDefaultMaxTime"])(),
+        minTime: Object(_common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["getDefaultMinTime"])(),
+        precision: TimePrecision.MINUTE,
+        selectAllOnFocus: false,
+        showArrowButtons: false,
+        useAmPm: false,
+    };
+    TimePicker.displayName = _blueprintjs_core__WEBPACK_IMPORTED_MODULE_1__["DISPLAYNAME_PREFIX"] + ".TimePicker";
+    return TimePicker;
+}(react__WEBPACK_IMPORTED_MODULE_3__["Component"]));
+
+function formatTime(time, unit) {
+    switch (unit) {
+        case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_24:
+            return time.toString();
+        case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].HOUR_12:
+            return _common_dateUtils__WEBPACK_IMPORTED_MODULE_5__["get12HourFrom24Hour"](time).toString();
+        case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MINUTE:
+        case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].SECOND:
+            return _common_utils__WEBPACK_IMPORTED_MODULE_7__["padWithZeroes"](time.toString(), 2);
+        case _common_timeUnit__WEBPACK_IMPORTED_MODULE_6__["TimeUnit"].MS:
+            return _common_utils__WEBPACK_IMPORTED_MODULE_7__["padWithZeroes"](time.toString(), 3);
+        default:
+            throw Error("Invalid TimeUnit");
+    }
+}
+function getStringValueFromInputEvent(e) {
+    return e.target.value;
+}
+function handleKeyEvent(e, actions, preventDefault) {
+    if (preventDefault === void 0) { preventDefault = true; }
+    for (var _i = 0, _a = Object.keys(actions); _i < _a.length; _i++) {
+        var k = _a[_i];
+        var key = Number(k);
+        if (e.which === key) {
+            if (preventDefault) {
+                e.preventDefault();
+            }
+            actions[key]();
+        }
+    }
+}
+//# sourceMappingURL=timePicker.js.map
+
+/***/ }),
+
 /***/ "./node_modules/balanced-match/index.js":
 /*!**********************************************!*\
   !*** ./node_modules/balanced-match/index.js ***!
@@ -20407,6 +23931,25 @@ $({ target: 'Number', proto: true, forced: FORCED }, {
 
 /***/ }),
 
+/***/ "./node_modules/css-loader/index.js!./node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css":
+/*!*****************************************************************************************************!*\
+  !*** ./node_modules/css-loader!./node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css ***!
+  \*****************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../../../css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, "/*!\n\nCopyright 2015-present Palantir Technologies, Inc. All rights reserved.\nLicensed under the Apache License, Version 2.0.\n\n*/\n/*\nA mixin to generate the classes for a React CSSTransition which animates any number of CSS\nproperties at once.\n\nTransitioned properties are specificed as a map of property names to lists of (inital value, final\nvalue). For enter & appear transitions, each property will transition from its initial to its final\nvalue. For exit transitions, each property will transition in reverse, from final to initial.\n\n**Simple example:**\n`@include react-transition(\"popover\", (opacity: 0 1), $before: \"&\");`\nTransition named \"popover\" moves opacity from 0 to 1. `\"&\"` indicates that the\nTransition classes are expected to be applied to this element, where the mixin is invoked.\n\n**Params:**\n$name: React transitionName prop\n$properties: map of CSS property to (initial, final) values\n$duration: transition duration\n$easing: transition easing function\n$delay: transition delay\n$before: selector text to insert before transition name (often to select self: &)\n$after: selector text to insert after transiton name (to select children)\n*/\n/*\nA mixin to generate the classes for one phase of a React CSSTransition.\n`$phase` must be `appear` or `enter` or `exit`.\nIf `enter` phase is given then `appear` phase will be generated at the same time.\nIf `exit` phase is given then property values are animated in reverse, from final to initial.\n\n**Example:**\n@include react-transition-phase(toast, enter, $enter-translate, $before: \"&\");\n@include react-transition-phase(toast, leave, $leave-blur, $pt-transition-duration * 3, $before: \"&\");\n*/\n/*\nGiven map of properties to values, set each property to the value at the given index.\n(remember that sass indices are 1-based).\n\nExample: `each-prop((opacity: 0 1), 2)` will print \"opacity: 1\"\n*/\n/*\nFormat transition class name with all the bits.\n\"enter\" phase will include \"appear\" phase in returned name.\n*/\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n.bp3-datepicker {\n  position: relative;\n  border-radius: 3px;\n  background: #ffffff;\n  padding: 5px;\n  user-select: none; }\n  .bp3-datepicker .DayPicker {\n    display: inline-block;\n    position: relative;\n    min-width: 210px;\n    vertical-align: top; }\n    .bp3-datepicker .DayPicker:focus {\n      outline: none; }\n  .bp3-datepicker .DayPicker-Month {\n    display: inline-table;\n    margin: 0 5px 5px;\n    border-collapse: collapse;\n    border-spacing: 0;\n    user-select: none; }\n    .bp3-datepicker .DayPicker-Month + .bp3-datepicker .DayPicker-Month {\n      margin-left: 10px; }\n  .bp3-datepicker .DayPicker-Caption {\n    display: table-caption; }\n  .bp3-datepicker .DayPicker-Weekdays {\n    display: table-header-group; }\n  .bp3-datepicker .DayPicker-WeekdaysRow {\n    display: table-row; }\n  .bp3-datepicker .DayPicker-Weekday {\n    display: table-cell;\n    width: 30px;\n    height: 30px;\n    vertical-align: middle;\n    text-align: center;\n    line-height: 1;\n    padding-top: 5px;\n    font-weight: 600; }\n    .bp3-datepicker .DayPicker-Weekday abbr[title] {\n      text-decoration: none; }\n  .bp3-datepicker .DayPicker-Body {\n    display: table-row-group; }\n  .bp3-datepicker .DayPicker-Week {\n    display: table-row; }\n  .bp3-datepicker .DayPicker-WeekNumber {\n    display: table-cell;\n    width: 30px;\n    height: 30px;\n    vertical-align: middle;\n    text-align: center;\n    line-height: 1;\n    color: rgba(92, 112, 128, 0.5);\n    font-size: 14px; }\n  .bp3-datepicker .DayPicker-Day {\n    display: table-cell;\n    width: 30px;\n    height: 30px;\n    vertical-align: middle;\n    text-align: center;\n    line-height: 1;\n    border-radius: 3px;\n    cursor: pointer; }\n    .bp3-datepicker .DayPicker-Day.DayPicker-Day--outside {\n      color: rgba(92, 112, 128, 0.5); }\n    .bp3-datepicker .DayPicker-Day:hover, .bp3-datepicker .DayPicker-Day:focus {\n      background: #d8e1e8;\n      color: #182026; }\n    .bp3-datepicker .DayPicker-Day:active {\n      background: #ced9e0; }\n    .bp3-datepicker .DayPicker-Day.DayPicker-Day--selected {\n      border-radius: 3px;\n      background-color: #137cbd;\n      color: #ffffff; }\n      .bp3-datepicker .DayPicker-Day.DayPicker-Day--selected:hover {\n        background-color: #106ba3; }\n    .bp3-datepicker .DayPicker-Day.DayPicker-Day--disabled {\n      background: none;\n      cursor: not-allowed;\n      color: rgba(92, 112, 128, 0.5); }\n\n.bp3-datepicker-navbar {\n  display: flex;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  right: 0;\n  left: 0;\n  height: 30px; }\n  .bp3-datepicker-navbar > .DayPicker-NavButton--prev {\n    margin-right: auto; }\n  .bp3-datepicker-navbar > .DayPicker-NavButton--next {\n    margin-left: auto; }\n\n.bp3-datepicker-caption {\n  display: flex;\n  flex-direction: row;\n  justify-content: space-between;\n  margin: 0 25px 5px; }\n  .bp3-datepicker-caption > * {\n    flex-grow: 0;\n    flex-shrink: 0; }\n  .bp3-datepicker-caption > :first-child {\n    flex-grow: 1;\n    flex-shrink: 1; }\n  .bp3-datepicker-caption select {\n    padding-right: 16px;\n    padding-left: 5px;\n    font-weight: 600; }\n    .bp3-datepicker-caption select + .bp3-icon {\n      right: 2px; }\n  .bp3-datepicker-caption + .bp3-divider {\n    margin: 0; }\n\n.bp3-datepicker-month-select {\n  flex-shrink: 1; }\n\n.bp3-datepicker-year-select {\n  flex-shrink: 1;\n  min-width: 60px; }\n\n.bp3-datepicker-caption-measure {\n  padding-left: 5px;\n  font-weight: 600; }\n\n.bp3-datepicker-footer {\n  display: flex;\n  justify-content: space-between; }\n\n.bp3-dark .bp3-datepicker {\n  background: #30404d; }\n  .bp3-dark .bp3-datepicker .DayPicker-WeekNumber {\n    color: rgba(191, 204, 214, 0.5); }\n  .bp3-dark .bp3-datepicker .DayPicker-Day.DayPicker-Day--outside {\n    color: rgba(191, 204, 214, 0.5); }\n  .bp3-dark .bp3-datepicker .DayPicker-Day:hover, .bp3-dark .bp3-datepicker .DayPicker-Day:focus {\n    background: #5c7080;\n    color: #ffffff; }\n  .bp3-dark .bp3-datepicker .DayPicker-Day:active {\n    background: #738694; }\n  .bp3-dark .bp3-datepicker .DayPicker-Day.DayPicker-Day--selected {\n    background-color: #137cbd; }\n    .bp3-dark .bp3-datepicker .DayPicker-Day.DayPicker-Day--selected:hover {\n      background-color: #2b95d6; }\n  .bp3-dark .bp3-datepicker .DayPicker-Day.DayPicker-Day--disabled {\n    background: none;\n    color: rgba(191, 204, 214, 0.5); }\n  .bp3-dark .bp3-datepicker .bp3-datepicker-footer {\n    border-top-color: rgba(16, 22, 26, 0.4); }\n\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n.bp3-daterangepicker {\n  display: flex;\n  white-space: nowrap; }\n  .bp3-daterangepicker .DayPicker:first-of-type .bp3-datepicker-navbar {\n    left: 5px; }\n  .bp3-daterangepicker .DayPicker-NavButton--interactionDisabled {\n    display: none; }\n  .bp3-daterangepicker .bp3-daterangepicker-timepickers {\n    display: flex;\n    justify-content: space-around; }\n  .bp3-daterangepicker.bp3-daterangepicker-contiguous .DayPicker {\n    min-width: 220px; }\n  .bp3-daterangepicker.bp3-daterangepicker-single-month .DayPicker {\n    min-width: 210px; }\n  .bp3-daterangepicker .DayPicker-Day--outside {\n    visibility: hidden; }\n  .bp3-daterangepicker .DayPicker-Day--hovered-range {\n    border-radius: 0; }\n    .bp3-daterangepicker .DayPicker-Day--hovered-range:not(.DayPicker-Day--selected):not(.DayPicker-Day--selected-range):not(.DayPicker-Day--selected-range-start):not(.DayPicker-Day--selected-range-end) {\n      background-color: #ebf1f5; }\n  .bp3-daterangepicker .DayPicker-Day--selected-range {\n    border-radius: 0;\n    background-color: #ebf1f5; }\n    .bp3-daterangepicker .DayPicker-Day--selected-range:hover {\n      background-color: #ced9e0; }\n  .bp3-daterangepicker .DayPicker-Day--selected-range-start:not(.DayPicker-Day--selected-range-end):not(.DayPicker-Day--hovered-range-end) {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0; }\n  .bp3-daterangepicker .DayPicker-Day--selected-range-end:not(.DayPicker-Day--selected-range-start):not(.DayPicker-Day--hovered-range-start) {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0; }\n  .bp3-daterangepicker .DayPicker-Day--hovered-range-start:not(.DayPicker-Day--hovered-range-end) {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0; }\n  .bp3-daterangepicker .DayPicker-Day--hovered-range-end:not(.DayPicker-Day--hovered-range-start) {\n    border-top-left-radius: 0;\n    border-bottom-left-radius: 0; }\n  .bp3-dark .bp3-daterangepicker .DayPicker-Day--hovered-range:not(.DayPicker-Day--selected):not(.DayPicker-Day--selected-range):not(.DayPicker-Day--selected-range-start):not(.DayPicker-Day--selected-range-end) {\n    background-color: #394b59; }\n  .bp3-dark .bp3-daterangepicker .DayPicker-Day--selected-range {\n    background-color: #394b59; }\n    .bp3-dark .bp3-daterangepicker .DayPicker-Day--selected-range:hover {\n      background-color: #5c7080; }\n\n.bp3-menu.bp3-daterangepicker-shortcuts {\n  min-width: 120px;\n  padding: 0; }\n\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\nCSS `border` property issues:\n- An element can only have one border.\n- Borders can't stack with shadows.\n- Borders modify the size of the element they're applied to.\n- Border positioning requires the extra `box-sizing` property.\n\n`box-shadow` doesn't have these issues, we're using it instead of `border`.\n*/\n/*\nOverlay shadows are used for default buttons\nfloating on top of other elements. This way, the\nshadows blend with the colors beneath it.\nSwitches and slider handles both use these variables.\n*/\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n.bp3-timepicker {\n  white-space: nowrap; }\n  .bp3-timepicker .bp3-timepicker-arrow-row {\n    padding: 0 1px; }\n  .bp3-timepicker .bp3-timepicker-arrow-button {\n    color: #5c7080;\n    display: inline-block;\n    width: 33px;\n    padding: 4px 0;\n    text-align: center; }\n    .bp3-timepicker .bp3-timepicker-arrow-button:hover {\n      color: #182026; }\n    .bp3-dark .bp3-timepicker .bp3-timepicker-arrow-button {\n      color: #bfccd6; }\n      .bp3-dark .bp3-timepicker .bp3-timepicker-arrow-button:hover {\n        color: #f5f8fa; }\n    .bp3-timepicker .bp3-timepicker-arrow-button + .bp3-timepicker-arrow-button {\n      margin-left: 11px; }\n    .bp3-timepicker .bp3-timepicker-arrow-button:hover {\n      cursor: pointer; }\n  .bp3-timepicker .bp3-timepicker-input-row {\n    display: inline-block;\n    border-radius: 3px;\n    box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2);\n    background: #ffffff;\n    height: 30px;\n    padding: 0 1px;\n    vertical-align: middle;\n    line-height: 28px; }\n  .bp3-timepicker .bp3-timepicker-divider-text {\n    display: inline-block;\n    width: 11px;\n    text-align: center;\n    color: #5c7080;\n    font-size: 16px; }\n  .bp3-timepicker .bp3-timepicker-input {\n    outline: 0;\n    border: 0;\n    border-radius: 3px;\n    box-shadow: 0 0 0 0 rgba(19, 124, 189, 0), 0 0 0 0 rgba(19, 124, 189, 0);\n    background: transparent;\n    width: 33px;\n    height: 28px;\n    padding: 0;\n    text-align: center;\n    color: #182026;\n    transition: box-shadow 100ms cubic-bezier(0.4, 1, 0.75, 0.9); }\n    .bp3-timepicker .bp3-timepicker-input:focus {\n      box-shadow: 0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3); }\n  .bp3-timepicker .bp3-timepicker-ampm-select {\n    margin-left: 5px; }\n  .bp3-timepicker.bp3-disabled .bp3-timepicker-input-row {\n    box-shadow: none;\n    background: rgba(206, 217, 224, 0.5);\n    cursor: not-allowed;\n    color: rgba(92, 112, 128, 0.5);\n    resize: none; }\n  .bp3-timepicker.bp3-disabled .bp3-timepicker-input,\n  .bp3-timepicker.bp3-disabled .bp3-timepicker-divider-text {\n    cursor: not-allowed;\n    color: rgba(92, 112, 128, 0.5); }\n  .bp3-timepicker.bp3-disabled .bp3-timepicker-arrow-button,\n  .bp3-timepicker.bp3-disabled .bp3-timepicker-arrow-button:hover {\n    cursor: not-allowed;\n    color: rgba(92, 112, 128, 0.5); }\n\n.bp3-dark .bp3-timepicker .bp3-timepicker-input-row {\n  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);\n  background: rgba(16, 22, 26, 0.3); }\n\n.bp3-dark .bp3-timepicker .bp3-timepicker-divider-text {\n  color: #bfccd6; }\n\n.bp3-dark .bp3-timepicker .bp3-timepicker-input {\n  color: #f5f8fa; }\n\n.bp3-datepicker .bp3-timepicker {\n  margin-top: 5px;\n  margin-bottom: 10px;\n  text-align: center; }\n  .bp3-datepicker .bp3-timepicker:last-child {\n    margin-bottom: 5px; }\n\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n/*\n * Copyright 2017 Palantir Technologies, Inc. All rights reserved.\n */\n.bp3-datetimepicker {\n  border-radius: 3px;\n  background-color: #ffffff;\n  padding: 10px;\n  text-align: center; }\n  .bp3-dark .bp3-datetimepicker {\n    background: #30404d; }\n    .bp3-dark .bp3-datetimepicker .bp3-datepicker {\n      border-bottom: 1px solid rgba(16, 22, 26, 0.4); }\n  .bp3-datetimepicker .bp3-datepicker {\n    border-bottom: 1px solid rgba(16, 22, 26, 0.15);\n    padding: 0 0 10px; }\n  .bp3-datetimepicker .bp3-timepicker {\n    margin-top: 10px; }\n\n.bp3-dateinput-popover {\n  padding: 0; }", ""]);
+
+// exports
+
+
+/***/ }),
+
 /***/ "./node_modules/css-loader/lib/css-base.js":
 /*!*************************************************!*\
   !*** ./node_modules/css-loader/lib/css-base.js ***!
@@ -20506,15 +24049,18 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".analytics__style__metricsContainer___2FFhb{display:flex;flex-wrap:wrap;width:100%}.analytics__style__numberMetric___cCrQN{text-align:center;display:inline-block;width:150px;padding:5px;margin:10px 0 10px 10px}.analytics__style__numberMetricName___1znWj{margin-top:10px;height:50px}.analytics__style__numberMetricValue___3o5nR{margin-top:10px}.analytics__style__chartMetric___3OUfE{display:inline-block;width:300px;height:150px}\n", ""]);
+exports.push([module.i, ".analytics__style__header___3j1J8{margin:15px 50px 15px 50px;display:inline-block}.analytics__style__metricsSection___3RC4v{margin-top:50px;margin-left:50px}.analytics__style__metricsContainer___2FFhb{display:flex;flex-wrap:wrap;width:100%}.analytics__style__numberMetric___cCrQN{text-align:center;display:inline-block;width:150px;padding:5px;margin:10px 0 10px 10px}.analytics__style__numberMetricName___1znWj{margin-top:10px;height:50px}.analytics__style__numberMetricValue___3o5nR{margin-top:10px}.analytics__style__chartMetric___3OUfE{display:inline-block;width:300px;height:150px}.analytics__style__chartMetricName___2LLP0{text-align:center;margin:0 auto;height:50px}\n", ""]);
 
 // exports
 exports.locals = {
+	"header": "analytics__style__header___3j1J8",
+	"metricsSection": "analytics__style__metricsSection___3RC4v",
 	"metricsContainer": "analytics__style__metricsContainer___2FFhb",
 	"numberMetric": "analytics__style__numberMetric___cCrQN",
 	"numberMetricName": "analytics__style__numberMetricName___1znWj",
 	"numberMetricValue": "analytics__style__numberMetricValue___3o5nR",
-	"chartMetric": "analytics__style__chartMetric___3OUfE"
+	"chartMetric": "analytics__style__chartMetric___3OUfE",
+	"chartMetricName": "analytics__style__chartMetricName___2LLP0"
 };
 
 /***/ }),
@@ -62205,6 +65751,2400 @@ module.exports.polyfill = function(object) {
 
 /***/ }),
 
+/***/ "./node_modules/react-day-picker/DayPicker.js":
+/*!****************************************************!*\
+  !*** ./node_modules/react-day-picker/DayPicker.js ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+  Used as main file in package.json
+*/
+
+/* eslint-disable no-var */
+/* eslint-env node */
+
+var DayPicker = __webpack_require__(/*! ./lib/src/DayPicker */ "./node_modules/react-day-picker/lib/src/DayPicker.js");
+var DateUtils = __webpack_require__(/*! ./lib/src/DateUtils */ "./node_modules/react-day-picker/lib/src/DateUtils.js");
+var LocaleUtils = __webpack_require__(/*! ./lib/src/LocaleUtils */ "./node_modules/react-day-picker/lib/src/LocaleUtils.js");
+var ModifiersUtils = __webpack_require__(/*! ./lib/src/ModifiersUtils */ "./node_modules/react-day-picker/lib/src/ModifiersUtils.js");
+var Weekday = __webpack_require__(/*! ./lib/src/Weekday */ "./node_modules/react-day-picker/lib/src/Weekday.js");
+var Navbar = __webpack_require__(/*! ./lib/src/Navbar */ "./node_modules/react-day-picker/lib/src/Navbar.js");
+var PropTypes = __webpack_require__(/*! ./lib/src/PropTypes */ "./node_modules/react-day-picker/lib/src/PropTypes.js");
+
+module.exports = DayPicker;
+module.exports.DateUtils = DateUtils;
+module.exports.LocaleUtils = LocaleUtils;
+module.exports.ModifiersUtils = ModifiersUtils;
+module.exports.WeekdayPropTypes = Weekday.propTypes;
+module.exports.NavbarPropTypes = Navbar.propTypes;
+module.exports.PropTypes = PropTypes;
+
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/Caption.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/Caption.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _LocaleUtils = __webpack_require__(/*! ./LocaleUtils */ "./node_modules/react-day-picker/lib/src/LocaleUtils.js");
+
+var _LocaleUtils2 = _interopRequireDefault(_LocaleUtils);
+
+var _keys = __webpack_require__(/*! ./keys */ "./node_modules/react-day-picker/lib/src/keys.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Caption = function (_Component) {
+  _inherits(Caption, _Component);
+
+  function Caption(props) {
+    _classCallCheck(this, Caption);
+
+    var _this = _possibleConstructorReturn(this, (Caption.__proto__ || Object.getPrototypeOf(Caption)).call(this, props));
+
+    _this.handleKeyUp = _this.handleKeyUp.bind(_this);
+    return _this;
+  }
+
+  _createClass(Caption, [{
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      return nextProps.locale !== this.props.locale || nextProps.classNames !== this.props.classNames || nextProps.date.getMonth() !== this.props.date.getMonth() || nextProps.date.getFullYear() !== this.props.date.getFullYear();
+    }
+  }, {
+    key: 'handleKeyUp',
+    value: function handleKeyUp(e) {
+      if (e.keyCode === _keys.ENTER) {
+        this.props.onClick(e);
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          classNames = _props.classNames,
+          date = _props.date,
+          months = _props.months,
+          locale = _props.locale,
+          localeUtils = _props.localeUtils,
+          onClick = _props.onClick;
+
+      return _react2.default.createElement(
+        'div',
+        { className: classNames.caption, role: 'heading' },
+        _react2.default.createElement(
+          'div',
+          { onClick: onClick, onKeyUp: this.handleKeyUp },
+          months ? months[date.getMonth()] + ' ' + date.getFullYear() : localeUtils.formatMonthTitle(date, locale)
+        )
+      );
+    }
+  }]);
+
+  return Caption;
+}(_react.Component);
+
+Caption.propTypes = {
+  date: _propTypes2.default.instanceOf(Date),
+  months: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  locale: _propTypes2.default.string,
+  localeUtils: _propTypes2.default.object,
+  onClick: _propTypes2.default.func,
+  classNames: _propTypes2.default.shape({
+    caption: _propTypes2.default.string.isRequired
+  }).isRequired
+};
+Caption.defaultProps = {
+  localeUtils: _LocaleUtils2.default
+};
+exports.default = Caption;
+//# sourceMappingURL=Caption.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/DateUtils.js":
+/*!************************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/DateUtils.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.clone = clone;
+exports.isDate = isDate;
+exports.addMonths = addMonths;
+exports.isSameDay = isSameDay;
+exports.isSameMonth = isSameMonth;
+exports.isDayBefore = isDayBefore;
+exports.isDayAfter = isDayAfter;
+exports.isPastDay = isPastDay;
+exports.isFutureDay = isFutureDay;
+exports.isDayBetween = isDayBetween;
+exports.addDayToRange = addDayToRange;
+exports.isDayInRange = isDayInRange;
+exports.getWeekNumber = getWeekNumber;
+/**
+ * Clone a date object.
+ *
+ * @export
+ * @param  {Date} d The date to clone
+ * @return {Date} The cloned date
+ */
+function clone(d) {
+  return new Date(d.getTime());
+}
+
+/**
+ * Return `true` if the passed value is a valid JavaScript Date object.
+ *
+ * @export
+ * @param {any} value
+ * @returns {Boolean}
+ */
+function isDate(value) {
+  return value instanceof Date && !isNaN(value.valueOf());
+}
+
+/**
+ * Return `d` as a new date with `n` months added.
+ *
+ * @export
+ * @param {Date} d
+ * @param {number} n
+ */
+function addMonths(d, n) {
+  var newDate = clone(d);
+  newDate.setMonth(d.getMonth() + n);
+  return newDate;
+}
+
+/**
+ * Return `true` if two dates are the same day, ignoring the time.
+ *
+ * @export
+ * @param  {Date}  d1
+ * @param  {Date}  d2
+ * @return {Boolean}
+ */
+function isSameDay(d1, d2) {
+  if (!d1 || !d2) {
+    return false;
+  }
+  return d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+}
+
+/**
+ * Return `true` if two dates fall in the same month.
+ *
+ * @export
+ * @param  {Date}  d1
+ * @param  {Date}  d2
+ * @return {Boolean}
+ */
+function isSameMonth(d1, d2) {
+  if (!d1 || !d2) {
+    return false;
+  }
+  return d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+}
+
+/**
+ * Returns `true` if the first day is before the second day.
+ *
+ * @export
+ * @param {Date} d1
+ * @param {Date} d2
+ * @returns {Boolean}
+ */
+function isDayBefore(d1, d2) {
+  var day1 = clone(d1).setHours(0, 0, 0, 0);
+  var day2 = clone(d2).setHours(0, 0, 0, 0);
+  return day1 < day2;
+}
+
+/**
+ * Returns `true` if the first day is after the second day.
+ *
+ * @export
+ * @param {Date} d1
+ * @param {Date} d2
+ * @returns {Boolean}
+ */
+function isDayAfter(d1, d2) {
+  var day1 = clone(d1).setHours(0, 0, 0, 0);
+  var day2 = clone(d2).setHours(0, 0, 0, 0);
+  return day1 > day2;
+}
+
+/**
+ * Return `true` if a day is in the past, e.g. yesterday or any day
+ * before yesterday.
+ *
+ * @export
+ * @param  {Date}  d
+ * @return {Boolean}
+ */
+function isPastDay(d) {
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return isDayBefore(d, today);
+}
+
+/**
+ * Return `true` if a day is in the future, e.g. tomorrow or any day
+ * after tomorrow.
+ *
+ * @export
+ * @param  {Date}  d
+ * @return {Boolean}
+ */
+function isFutureDay(d) {
+  var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+  tomorrow.setHours(0, 0, 0, 0);
+  return d >= tomorrow;
+}
+
+/**
+ * Return `true` if day `d` is between days `d1` and `d2`,
+ * without including them.
+ *
+ * @export
+ * @param  {Date}  d
+ * @param  {Date}  d1
+ * @param  {Date}  d2
+ * @return {Boolean}
+ */
+function isDayBetween(d, d1, d2) {
+  var date = clone(d);
+  date.setHours(0, 0, 0, 0);
+  return isDayAfter(date, d1) && isDayBefore(date, d2) || isDayAfter(date, d2) && isDayBefore(date, d1);
+}
+
+/**
+ * Add a day to a range and return a new range. A range is an object with
+ * `from` and `to` days.
+ *
+ * @export
+ * @param {Date} day
+ * @param {Object} range
+ * @return {Object} Returns a new range object
+ */
+function addDayToRange(day) {
+  var range = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { from: null, to: null };
+  var from = range.from,
+      to = range.to;
+
+  if (!from) {
+    from = day;
+  } else if (from && to && isSameDay(from, to) && isSameDay(day, from)) {
+    from = null;
+    to = null;
+  } else if (to && isDayBefore(day, from)) {
+    from = day;
+  } else if (to && isSameDay(day, to)) {
+    from = day;
+    to = day;
+  } else {
+    to = day;
+    if (isDayBefore(to, from)) {
+      to = from;
+      from = day;
+    }
+  }
+
+  return { from: from, to: to };
+}
+
+/**
+ * Return `true` if a day is included in a range of days.
+ *
+ * @export
+ * @param  {Date}  day
+ * @param  {Object}  range
+ * @return {Boolean}
+ */
+function isDayInRange(day, range) {
+  var from = range.from,
+      to = range.to;
+
+  return from && isSameDay(day, from) || to && isSameDay(day, to) || from && to && isDayBetween(day, from, to);
+}
+
+/**
+ * Return the year's week number (as per ISO, i.e. with the week starting from monday)
+ * for the given day.
+ *
+ * @export
+ * @param {Date} day
+ * @returns {Number}
+ */
+function getWeekNumber(day) {
+  var date = clone(day);
+  date.setHours(0, 0, 0);
+  date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+  return Math.ceil(((date - new Date(date.getFullYear(), 0, 1)) / 8.64e7 + 1) / 7);
+}
+
+exports.default = {
+  addDayToRange: addDayToRange,
+  addMonths: addMonths,
+  clone: clone,
+  getWeekNumber: getWeekNumber,
+  isDate: isDate,
+  isDayAfter: isDayAfter,
+  isDayBefore: isDayBefore,
+  isDayBetween: isDayBetween,
+  isDayInRange: isDayInRange,
+  isFutureDay: isFutureDay,
+  isPastDay: isPastDay,
+  isSameDay: isSameDay,
+  isSameMonth: isSameMonth
+};
+//# sourceMappingURL=DateUtils.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/Day.js":
+/*!******************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/Day.js ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _DateUtils = __webpack_require__(/*! ./DateUtils */ "./node_modules/react-day-picker/lib/src/DateUtils.js");
+
+var _Helpers = __webpack_require__(/*! ./Helpers */ "./node_modules/react-day-picker/lib/src/Helpers.js");
+
+var _classNames = __webpack_require__(/*! ./classNames */ "./node_modules/react-day-picker/lib/src/classNames.js");
+
+var _classNames2 = _interopRequireDefault(_classNames);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint-disable jsx-a11y/no-static-element-interactions, react/forbid-prop-types */
+
+function handleEvent(handler, day, modifiers) {
+  if (!handler) {
+    return undefined;
+  }
+  return function (e) {
+    e.persist();
+    handler(day, modifiers, e);
+  };
+}
+
+var Day = function (_Component) {
+  _inherits(Day, _Component);
+
+  function Day() {
+    _classCallCheck(this, Day);
+
+    return _possibleConstructorReturn(this, (Day.__proto__ || Object.getPrototypeOf(Day)).apply(this, arguments));
+  }
+
+  _createClass(Day, [{
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      var _this2 = this;
+
+      var propNames = Object.keys(this.props);
+      var nextPropNames = Object.keys(nextProps);
+      if (propNames.length !== nextPropNames.length) {
+        return true;
+      }
+      return propNames.some(function (name) {
+        if (name === 'modifiers' || name === 'modifiersStyles' || name === 'classNames') {
+          var prop = _this2.props[name];
+          var nextProp = nextProps[name];
+          var modifiers = Object.keys(prop);
+          var nextModifiers = Object.keys(nextProp);
+          if (modifiers.length !== nextModifiers.length) {
+            return true;
+          }
+          return modifiers.some(function (mod) {
+            return !(0, _Helpers.hasOwnProp)(nextProp, mod) || prop[mod] !== nextProp[mod];
+          });
+        }
+        if (name === 'day') {
+          return !(0, _DateUtils.isSameDay)(_this2.props[name], nextProps[name]);
+        }
+        return !(0, _Helpers.hasOwnProp)(nextProps, name) || _this2.props[name] !== nextProps[name];
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          classNames = _props.classNames,
+          modifiersStyles = _props.modifiersStyles,
+          day = _props.day,
+          tabIndex = _props.tabIndex,
+          empty = _props.empty,
+          modifiers = _props.modifiers,
+          onMouseEnter = _props.onMouseEnter,
+          onMouseLeave = _props.onMouseLeave,
+          onMouseUp = _props.onMouseUp,
+          onMouseDown = _props.onMouseDown,
+          onClick = _props.onClick,
+          onKeyDown = _props.onKeyDown,
+          onTouchStart = _props.onTouchStart,
+          onTouchEnd = _props.onTouchEnd,
+          onFocus = _props.onFocus,
+          ariaLabel = _props.ariaLabel,
+          ariaDisabled = _props.ariaDisabled,
+          ariaSelected = _props.ariaSelected,
+          children = _props.children;
+
+
+      var className = classNames.day;
+      if (classNames !== _classNames2.default) {
+        // When using CSS modules prefix the modifier as required by the BEM syntax
+        className += ' ' + Object.keys(modifiers).join(' ');
+      } else {
+        className += Object.keys(modifiers).map(function (modifier) {
+          return ' ' + className + '--' + modifier;
+        }).join('');
+      }
+
+      var style = void 0;
+      if (modifiersStyles) {
+        Object.keys(modifiers).filter(function (modifier) {
+          return !!modifiersStyles[modifier];
+        }).forEach(function (modifier) {
+          style = _extends({}, style, modifiersStyles[modifier]);
+        });
+      }
+
+      if (empty) {
+        return _react2.default.createElement('div', { 'aria-disabled': true, className: className, style: style });
+      }
+      return _react2.default.createElement(
+        'div',
+        {
+          className: className,
+          tabIndex: tabIndex,
+          style: style,
+          role: 'gridcell',
+          'aria-label': ariaLabel,
+          'aria-disabled': ariaDisabled,
+          'aria-selected': ariaSelected,
+          onClick: handleEvent(onClick, day, modifiers),
+          onKeyDown: handleEvent(onKeyDown, day, modifiers),
+          onMouseEnter: handleEvent(onMouseEnter, day, modifiers),
+          onMouseLeave: handleEvent(onMouseLeave, day, modifiers),
+          onMouseUp: handleEvent(onMouseUp, day, modifiers),
+          onMouseDown: handleEvent(onMouseDown, day, modifiers),
+          onTouchEnd: handleEvent(onTouchEnd, day, modifiers),
+          onTouchStart: handleEvent(onTouchStart, day, modifiers),
+          onFocus: handleEvent(onFocus, day, modifiers)
+        },
+        children
+      );
+    }
+  }]);
+
+  return Day;
+}(_react.Component);
+
+Day.propTypes = {
+  classNames: _propTypes2.default.shape({
+    day: _propTypes2.default.string.isRequired
+  }).isRequired,
+
+  day: _propTypes2.default.instanceOf(Date).isRequired,
+  children: _propTypes2.default.node.isRequired,
+
+  ariaDisabled: _propTypes2.default.bool,
+  ariaLabel: _propTypes2.default.string,
+  ariaSelected: _propTypes2.default.bool,
+  empty: _propTypes2.default.bool,
+  modifiers: _propTypes2.default.object,
+  modifiersStyles: _propTypes2.default.object,
+  onClick: _propTypes2.default.func,
+  onKeyDown: _propTypes2.default.func,
+  onMouseEnter: _propTypes2.default.func,
+  onMouseLeave: _propTypes2.default.func,
+  onMouseDown: _propTypes2.default.func,
+  onMouseUp: _propTypes2.default.func,
+  onTouchEnd: _propTypes2.default.func,
+  onTouchStart: _propTypes2.default.func,
+  onFocus: _propTypes2.default.func,
+  tabIndex: _propTypes2.default.number
+};
+Day.defaultProps = {
+  tabIndex: -1
+};
+Day.defaultProps = {
+  modifiers: {},
+  modifiersStyles: {},
+  empty: false
+};
+exports.default = Day;
+//# sourceMappingURL=Day.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/DayPicker.js":
+/*!************************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/DayPicker.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ModifiersUtils = exports.LocaleUtils = exports.DateUtils = exports.DayPicker = undefined;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _Caption = __webpack_require__(/*! ./Caption */ "./node_modules/react-day-picker/lib/src/Caption.js");
+
+var _Caption2 = _interopRequireDefault(_Caption);
+
+var _Navbar = __webpack_require__(/*! ./Navbar */ "./node_modules/react-day-picker/lib/src/Navbar.js");
+
+var _Navbar2 = _interopRequireDefault(_Navbar);
+
+var _Month = __webpack_require__(/*! ./Month */ "./node_modules/react-day-picker/lib/src/Month.js");
+
+var _Month2 = _interopRequireDefault(_Month);
+
+var _Weekday = __webpack_require__(/*! ./Weekday */ "./node_modules/react-day-picker/lib/src/Weekday.js");
+
+var _Weekday2 = _interopRequireDefault(_Weekday);
+
+var _Helpers = __webpack_require__(/*! ./Helpers */ "./node_modules/react-day-picker/lib/src/Helpers.js");
+
+var Helpers = _interopRequireWildcard(_Helpers);
+
+var _DateUtils = __webpack_require__(/*! ./DateUtils */ "./node_modules/react-day-picker/lib/src/DateUtils.js");
+
+var DateUtils = _interopRequireWildcard(_DateUtils);
+
+var _LocaleUtils = __webpack_require__(/*! ./LocaleUtils */ "./node_modules/react-day-picker/lib/src/LocaleUtils.js");
+
+var LocaleUtils = _interopRequireWildcard(_LocaleUtils);
+
+var _ModifiersUtils = __webpack_require__(/*! ./ModifiersUtils */ "./node_modules/react-day-picker/lib/src/ModifiersUtils.js");
+
+var ModifiersUtils = _interopRequireWildcard(_ModifiersUtils);
+
+var _classNames = __webpack_require__(/*! ./classNames */ "./node_modules/react-day-picker/lib/src/classNames.js");
+
+var _classNames2 = _interopRequireDefault(_classNames);
+
+var _keys = __webpack_require__(/*! ./keys */ "./node_modules/react-day-picker/lib/src/keys.js");
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var DayPicker = exports.DayPicker = function (_Component) {
+  _inherits(DayPicker, _Component);
+
+  function DayPicker(props) {
+    _classCallCheck(this, DayPicker);
+
+    var _this = _possibleConstructorReturn(this, (DayPicker.__proto__ || Object.getPrototypeOf(DayPicker)).call(this, props));
+
+    _this.dayPicker = null;
+
+    _this.showNextMonth = function (callback) {
+      if (!_this.allowNextMonth()) {
+        return;
+      }
+      var deltaMonths = _this.props.pagedNavigation ? _this.props.numberOfMonths : 1;
+      var nextMonth = DateUtils.addMonths(_this.state.currentMonth, deltaMonths);
+      _this.showMonth(nextMonth, callback);
+    };
+
+    _this.showPreviousMonth = function (callback) {
+      if (!_this.allowPreviousMonth()) {
+        return;
+      }
+      var deltaMonths = _this.props.pagedNavigation ? _this.props.numberOfMonths : 1;
+      var previousMonth = DateUtils.addMonths(_this.state.currentMonth, -deltaMonths);
+      _this.showMonth(previousMonth, callback);
+    };
+
+    _this.handleKeyDown = function (e) {
+      e.persist();
+
+      switch (e.keyCode) {
+        case _keys.LEFT:
+          if (_this.props.dir === 'rtl') {
+            _this.showNextMonth();
+          } else {
+            _this.showPreviousMonth();
+          }
+          Helpers.cancelEvent(e);
+          break;
+        case _keys.RIGHT:
+          if (_this.props.dir === 'rtl') {
+            _this.showPreviousMonth();
+          } else {
+            _this.showNextMonth();
+          }
+          Helpers.cancelEvent(e);
+          break;
+        case _keys.UP:
+          _this.showPreviousYear();
+          Helpers.cancelEvent(e);
+          break;
+        case _keys.DOWN:
+          _this.showNextYear();
+          Helpers.cancelEvent(e);
+          break;
+        default:
+          break;
+      }
+
+      if (_this.props.onKeyDown) {
+        _this.props.onKeyDown(e);
+      }
+    };
+
+    _this.handleDayKeyDown = function (day, modifiers, e) {
+      e.persist();
+
+      switch (e.keyCode) {
+        case _keys.LEFT:
+          Helpers.cancelEvent(e);
+          if (_this.props.dir === 'rtl') {
+            _this.focusNextDay(e.target);
+          } else {
+            _this.focusPreviousDay(e.target);
+          }
+          break;
+        case _keys.RIGHT:
+          Helpers.cancelEvent(e);
+          if (_this.props.dir === 'rtl') {
+            _this.focusPreviousDay(e.target);
+          } else {
+            _this.focusNextDay(e.target);
+          }
+          break;
+        case _keys.UP:
+          Helpers.cancelEvent(e);
+          _this.focusPreviousWeek(e.target);
+          break;
+        case _keys.DOWN:
+          Helpers.cancelEvent(e);
+          _this.focusNextWeek(e.target);
+          break;
+        case _keys.ENTER:
+        case _keys.SPACE:
+          Helpers.cancelEvent(e);
+          if (_this.props.onDayClick) {
+            _this.handleDayClick(day, modifiers, e);
+          }
+          break;
+        default:
+          break;
+      }
+      if (_this.props.onDayKeyDown) {
+        _this.props.onDayKeyDown(day, modifiers, e);
+      }
+    };
+
+    _this.handleDayClick = function (day, modifiers, e) {
+      e.persist();
+
+      if (modifiers[_this.props.classNames.outside] && _this.props.enableOutsideDaysClick) {
+        _this.handleOutsideDayClick(day);
+      }
+      if (_this.props.onDayClick) {
+        _this.props.onDayClick(day, modifiers, e);
+      }
+    };
+
+    _this.handleTodayButtonClick = function (e) {
+      var today = new Date();
+      var month = new Date(today.getFullYear(), today.getMonth());
+      _this.showMonth(month);
+      e.target.blur();
+      if (_this.props.onTodayButtonClick) {
+        e.persist();
+        _this.props.onTodayButtonClick(new Date(today.getFullYear(), today.getMonth(), today.getDate()), ModifiersUtils.getModifiersForDay(today, _this.props.modifiers), e);
+      }
+    };
+
+    var currentMonth = _this.getCurrentMonthFromProps(props);
+    _this.state = { currentMonth: currentMonth };
+    return _this;
+  }
+
+  _createClass(DayPicker, [{
+    key: 'componentDidUpdate',
+    value: function componentDidUpdate(prevProps) {
+      // Changing the `month` props means changing the current displayed month
+      if (prevProps.month !== this.props.month && !DateUtils.isSameMonth(prevProps.month, this.props.month)) {
+        var currentMonth = this.getCurrentMonthFromProps(this.props);
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({ currentMonth: currentMonth });
+      }
+    }
+
+    /**
+     * Return the month to be shown in the calendar based on the component props.
+     *
+     * @param {Object} props
+     * @returns Date
+     * @memberof DayPicker
+     * @private
+     */
+
+  }, {
+    key: 'getCurrentMonthFromProps',
+    value: function getCurrentMonthFromProps(props) {
+      var initialMonth = Helpers.startOfMonth(props.month || props.initialMonth);
+      var currentMonth = initialMonth;
+
+      if (props.pagedNavigation && props.numberOfMonths > 1 && props.fromMonth) {
+        var fromMonth = Helpers.startOfMonth(props.fromMonth);
+        var diffInMonths = Helpers.getMonthsDiff(fromMonth, currentMonth);
+        currentMonth = DateUtils.addMonths(fromMonth, Math.floor(diffInMonths / props.numberOfMonths) * props.numberOfMonths);
+      } else if (props.toMonth && props.numberOfMonths > 1 && Helpers.getMonthsDiff(currentMonth, props.toMonth) <= 0) {
+        currentMonth = DateUtils.addMonths(Helpers.startOfMonth(props.toMonth), 1 - this.props.numberOfMonths);
+      }
+      return currentMonth;
+    }
+  }, {
+    key: 'getNextNavigableMonth',
+    value: function getNextNavigableMonth() {
+      return DateUtils.addMonths(this.state.currentMonth, this.props.numberOfMonths);
+    }
+  }, {
+    key: 'getPreviousNavigableMonth',
+    value: function getPreviousNavigableMonth() {
+      return DateUtils.addMonths(this.state.currentMonth, -1);
+    }
+  }, {
+    key: 'allowPreviousMonth',
+    value: function allowPreviousMonth() {
+      var previousMonth = DateUtils.addMonths(this.state.currentMonth, -1);
+      return this.allowMonth(previousMonth);
+    }
+  }, {
+    key: 'allowNextMonth',
+    value: function allowNextMonth() {
+      var nextMonth = DateUtils.addMonths(this.state.currentMonth, this.props.numberOfMonths);
+      return this.allowMonth(nextMonth);
+    }
+  }, {
+    key: 'allowMonth',
+    value: function allowMonth(d) {
+      var _props = this.props,
+          fromMonth = _props.fromMonth,
+          toMonth = _props.toMonth,
+          canChangeMonth = _props.canChangeMonth;
+
+      if (!canChangeMonth || fromMonth && Helpers.getMonthsDiff(fromMonth, d) < 0 || toMonth && Helpers.getMonthsDiff(toMonth, d) > 0) {
+        return false;
+      }
+      return true;
+    }
+  }, {
+    key: 'allowYearChange',
+    value: function allowYearChange() {
+      return this.props.canChangeMonth;
+    }
+  }, {
+    key: 'showMonth',
+    value: function showMonth(d, callback) {
+      var _this2 = this;
+
+      if (!this.allowMonth(d)) {
+        return;
+      }
+      this.setState({ currentMonth: Helpers.startOfMonth(d) }, function () {
+        if (callback) {
+          callback();
+        }
+        if (_this2.props.onMonthChange) {
+          _this2.props.onMonthChange(_this2.state.currentMonth);
+        }
+      });
+    }
+  }, {
+    key: 'showNextYear',
+    value: function showNextYear() {
+      if (!this.allowYearChange()) {
+        return;
+      }
+      var nextMonth = DateUtils.addMonths(this.state.currentMonth, 12);
+      this.showMonth(nextMonth);
+    }
+  }, {
+    key: 'showPreviousYear',
+    value: function showPreviousYear() {
+      if (!this.allowYearChange()) {
+        return;
+      }
+      var nextMonth = DateUtils.addMonths(this.state.currentMonth, -12);
+      this.showMonth(nextMonth);
+    }
+  }, {
+    key: 'focus',
+    value: function focus() {
+      this.wrapper.focus();
+    }
+  }, {
+    key: 'focusFirstDayOfMonth',
+    value: function focusFirstDayOfMonth() {
+      Helpers.getDayNodes(this.dayPicker, this.props.classNames)[0].focus();
+    }
+  }, {
+    key: 'focusLastDayOfMonth',
+    value: function focusLastDayOfMonth() {
+      var dayNodes = Helpers.getDayNodes(this.dayPicker, this.props.classNames);
+      dayNodes[dayNodes.length - 1].focus();
+    }
+  }, {
+    key: 'focusPreviousDay',
+    value: function focusPreviousDay(dayNode) {
+      var _this3 = this;
+
+      var dayNodes = Helpers.getDayNodes(this.dayPicker, this.props.classNames);
+      var dayNodeIndex = Helpers.nodeListToArray(dayNodes).indexOf(dayNode);
+      if (dayNodeIndex === -1) return;
+      if (dayNodeIndex === 0) {
+        this.showPreviousMonth(function () {
+          return _this3.focusLastDayOfMonth();
+        });
+      } else {
+        dayNodes[dayNodeIndex - 1].focus();
+      }
+    }
+  }, {
+    key: 'focusNextDay',
+    value: function focusNextDay(dayNode) {
+      var _this4 = this;
+
+      var dayNodes = Helpers.getDayNodes(this.dayPicker, this.props.classNames);
+      var dayNodeIndex = Helpers.nodeListToArray(dayNodes).indexOf(dayNode);
+      if (dayNodeIndex === -1) return;
+      if (dayNodeIndex === dayNodes.length - 1) {
+        this.showNextMonth(function () {
+          return _this4.focusFirstDayOfMonth();
+        });
+      } else {
+        dayNodes[dayNodeIndex + 1].focus();
+      }
+    }
+  }, {
+    key: 'focusNextWeek',
+    value: function focusNextWeek(dayNode) {
+      var _this5 = this;
+
+      var dayNodes = Helpers.getDayNodes(this.dayPicker, this.props.classNames);
+      var dayNodeIndex = Helpers.nodeListToArray(dayNodes).indexOf(dayNode);
+      var isInLastWeekOfMonth = dayNodeIndex > dayNodes.length - 8;
+
+      if (isInLastWeekOfMonth) {
+        this.showNextMonth(function () {
+          var daysAfterIndex = dayNodes.length - dayNodeIndex;
+          var nextMonthDayNodeIndex = 7 - daysAfterIndex;
+          Helpers.getDayNodes(_this5.dayPicker, _this5.props.classNames)[nextMonthDayNodeIndex].focus();
+        });
+      } else {
+        dayNodes[dayNodeIndex + 7].focus();
+      }
+    }
+  }, {
+    key: 'focusPreviousWeek',
+    value: function focusPreviousWeek(dayNode) {
+      var _this6 = this;
+
+      var dayNodes = Helpers.getDayNodes(this.dayPicker, this.props.classNames);
+      var dayNodeIndex = Helpers.nodeListToArray(dayNodes).indexOf(dayNode);
+      var isInFirstWeekOfMonth = dayNodeIndex <= 6;
+
+      if (isInFirstWeekOfMonth) {
+        this.showPreviousMonth(function () {
+          var previousMonthDayNodes = Helpers.getDayNodes(_this6.dayPicker, _this6.props.classNames);
+          var startOfLastWeekOfMonth = previousMonthDayNodes.length - 7;
+          var previousMonthDayNodeIndex = startOfLastWeekOfMonth + dayNodeIndex;
+          previousMonthDayNodes[previousMonthDayNodeIndex].focus();
+        });
+      } else {
+        dayNodes[dayNodeIndex - 7].focus();
+      }
+    }
+
+    // Event handlers
+
+  }, {
+    key: 'handleOutsideDayClick',
+    value: function handleOutsideDayClick(day) {
+      var currentMonth = this.state.currentMonth;
+      var numberOfMonths = this.props.numberOfMonths;
+
+      var diffInMonths = Helpers.getMonthsDiff(currentMonth, day);
+      if (diffInMonths > 0 && diffInMonths >= numberOfMonths) {
+        this.showNextMonth();
+      } else if (diffInMonths < 0) {
+        this.showPreviousMonth();
+      }
+    }
+  }, {
+    key: 'renderNavbar',
+    value: function renderNavbar() {
+      var _props2 = this.props,
+          labels = _props2.labels,
+          locale = _props2.locale,
+          localeUtils = _props2.localeUtils,
+          canChangeMonth = _props2.canChangeMonth,
+          navbarElement = _props2.navbarElement,
+          attributes = _objectWithoutProperties(_props2, ['labels', 'locale', 'localeUtils', 'canChangeMonth', 'navbarElement']);
+
+      if (!canChangeMonth) return null;
+
+      var props = {
+        month: this.state.currentMonth,
+        classNames: this.props.classNames,
+        className: this.props.classNames.navBar,
+        nextMonth: this.getNextNavigableMonth(),
+        previousMonth: this.getPreviousNavigableMonth(),
+        showPreviousButton: this.allowPreviousMonth(),
+        showNextButton: this.allowNextMonth(),
+        onNextClick: this.showNextMonth,
+        onPreviousClick: this.showPreviousMonth,
+        dir: attributes.dir,
+        labels: labels,
+        locale: locale,
+        localeUtils: localeUtils
+      };
+      return _react2.default.isValidElement(navbarElement) ? _react2.default.cloneElement(navbarElement, props) : _react2.default.createElement(navbarElement, props);
+    }
+  }, {
+    key: 'renderMonths',
+    value: function renderMonths() {
+      var months = [];
+      var firstDayOfWeek = Helpers.getFirstDayOfWeekFromProps(this.props);
+      for (var i = 0; i < this.props.numberOfMonths; i += 1) {
+        var month = DateUtils.addMonths(this.state.currentMonth, i);
+        months.push(_react2.default.createElement(_Month2.default, _extends({
+          key: i
+        }, this.props, {
+          month: month,
+          firstDayOfWeek: firstDayOfWeek,
+          onDayKeyDown: this.handleDayKeyDown,
+          onDayClick: this.handleDayClick
+        })));
+      }
+
+      if (this.props.reverseMonths) {
+        months.reverse();
+      }
+      return months;
+    }
+  }, {
+    key: 'renderFooter',
+    value: function renderFooter() {
+      if (this.props.todayButton) {
+        return _react2.default.createElement(
+          'div',
+          { className: this.props.classNames.footer },
+          this.renderTodayButton()
+        );
+      }
+      return null;
+    }
+  }, {
+    key: 'renderTodayButton',
+    value: function renderTodayButton() {
+      return _react2.default.createElement(
+        'button',
+        {
+          type: 'button',
+          tabIndex: 0,
+          className: this.props.classNames.todayButton,
+          'aria-label': this.props.todayButton,
+          onClick: this.handleTodayButtonClick
+        },
+        this.props.todayButton
+      );
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this7 = this;
+
+      var className = this.props.classNames.container;
+
+      if (!this.props.onDayClick) {
+        className = className + ' ' + this.props.classNames.interactionDisabled;
+      }
+      if (this.props.className) {
+        className = className + ' ' + this.props.className;
+      }
+      return _react2.default.createElement(
+        'div',
+        _extends({}, this.props.containerProps, {
+          className: className,
+          ref: function ref(el) {
+            return _this7.dayPicker = el;
+          },
+          lang: this.props.locale
+        }),
+        _react2.default.createElement(
+          'div',
+          {
+            className: this.props.classNames.wrapper,
+            ref: function ref(el) {
+              return _this7.wrapper = el;
+            },
+            tabIndex: this.props.canChangeMonth && typeof this.props.tabIndex !== 'undefined' ? this.props.tabIndex : -1,
+            onKeyDown: this.handleKeyDown,
+            onFocus: this.props.onFocus,
+            onBlur: this.props.onBlur
+          },
+          this.renderNavbar(),
+          _react2.default.createElement(
+            'div',
+            { className: this.props.classNames.months },
+            this.renderMonths()
+          ),
+          this.renderFooter()
+        )
+      );
+    }
+  }]);
+
+  return DayPicker;
+}(_react.Component);
+
+DayPicker.VERSION = '7.4.0';
+DayPicker.propTypes = {
+  // Rendering months
+  initialMonth: _propTypes2.default.instanceOf(Date),
+  month: _propTypes2.default.instanceOf(Date),
+  numberOfMonths: _propTypes2.default.number,
+  fromMonth: _propTypes2.default.instanceOf(Date),
+  toMonth: _propTypes2.default.instanceOf(Date),
+  canChangeMonth: _propTypes2.default.bool,
+  reverseMonths: _propTypes2.default.bool,
+  pagedNavigation: _propTypes2.default.bool,
+  todayButton: _propTypes2.default.string,
+  showWeekNumbers: _propTypes2.default.bool,
+  showWeekDays: _propTypes2.default.bool,
+
+  // Modifiers
+  selectedDays: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.func, _propTypes2.default.array]),
+  disabledDays: _propTypes2.default.oneOfType([_propTypes2.default.object, _propTypes2.default.func, _propTypes2.default.array]),
+
+  modifiers: _propTypes2.default.object,
+  modifiersStyles: _propTypes2.default.object,
+
+  // Localization
+  dir: _propTypes2.default.string,
+  firstDayOfWeek: _propTypes2.default.oneOf([0, 1, 2, 3, 4, 5, 6]),
+  labels: _propTypes2.default.shape({
+    nextMonth: _propTypes2.default.string.isRequired,
+    previousMonth: _propTypes2.default.string.isRequired
+  }),
+  locale: _propTypes2.default.string,
+  localeUtils: _propTypes2.default.shape({
+    formatMonthTitle: _propTypes2.default.func,
+    formatWeekdayShort: _propTypes2.default.func,
+    formatWeekdayLong: _propTypes2.default.func,
+    getFirstDayOfWeek: _propTypes2.default.func
+  }),
+  months: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  weekdaysLong: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  weekdaysShort: _propTypes2.default.arrayOf(_propTypes2.default.string),
+
+  // Customization
+  showOutsideDays: _propTypes2.default.bool,
+  enableOutsideDaysClick: _propTypes2.default.bool,
+  fixedWeeks: _propTypes2.default.bool,
+
+  // CSS and HTML
+  classNames: _propTypes2.default.shape({
+    body: _propTypes2.default.string,
+    container: _propTypes2.default.string,
+    day: _propTypes2.default.string.isRequired,
+    disabled: _propTypes2.default.string.isRequired,
+    footer: _propTypes2.default.string,
+    interactionDisabled: _propTypes2.default.string,
+    months: _propTypes2.default.string,
+    month: _propTypes2.default.string,
+    navBar: _propTypes2.default.string,
+    outside: _propTypes2.default.string.isRequired,
+    selected: _propTypes2.default.string.isRequired,
+    today: _propTypes2.default.string.isRequired,
+    todayButton: _propTypes2.default.string,
+    week: _propTypes2.default.string,
+    wrapper: _propTypes2.default.string
+  }),
+  className: _propTypes2.default.string,
+  containerProps: _propTypes2.default.object,
+  tabIndex: _propTypes2.default.number,
+
+  // Custom elements
+  renderDay: _propTypes2.default.func,
+  renderWeek: _propTypes2.default.func,
+  weekdayElement: _propTypes2.default.oneOfType([_propTypes2.default.element, _propTypes2.default.func, _propTypes2.default.instanceOf(_react.Component)]),
+  navbarElement: _propTypes2.default.oneOfType([_propTypes2.default.element, _propTypes2.default.func, _propTypes2.default.instanceOf(_react.Component)]),
+  captionElement: _propTypes2.default.oneOfType([_propTypes2.default.element, _propTypes2.default.func, _propTypes2.default.instanceOf(_react.Component)]),
+
+  // Events
+  onBlur: _propTypes2.default.func,
+  onFocus: _propTypes2.default.func,
+  onKeyDown: _propTypes2.default.func,
+  onDayClick: _propTypes2.default.func,
+  onDayKeyDown: _propTypes2.default.func,
+  onDayMouseEnter: _propTypes2.default.func,
+  onDayMouseLeave: _propTypes2.default.func,
+  onDayMouseDown: _propTypes2.default.func,
+  onDayMouseUp: _propTypes2.default.func,
+  onDayTouchStart: _propTypes2.default.func,
+  onDayTouchEnd: _propTypes2.default.func,
+  onDayFocus: _propTypes2.default.func,
+  onMonthChange: _propTypes2.default.func,
+  onCaptionClick: _propTypes2.default.func,
+  onWeekClick: _propTypes2.default.func,
+  onTodayButtonClick: _propTypes2.default.func
+};
+DayPicker.defaultProps = {
+  classNames: _classNames2.default,
+  tabIndex: 0,
+  initialMonth: new Date(),
+  numberOfMonths: 1,
+  labels: {
+    previousMonth: 'Previous Month',
+    nextMonth: 'Next Month'
+  },
+  locale: 'en',
+  localeUtils: LocaleUtils,
+  showOutsideDays: false,
+  enableOutsideDaysClick: true,
+  fixedWeeks: false,
+  canChangeMonth: true,
+  reverseMonths: false,
+  pagedNavigation: false,
+  showWeekNumbers: false,
+  showWeekDays: true,
+  renderDay: function renderDay(day) {
+    return day.getDate();
+  },
+  renderWeek: function renderWeek(weekNumber) {
+    return weekNumber;
+  },
+  weekdayElement: _react2.default.createElement(_Weekday2.default, null),
+  navbarElement: _react2.default.createElement(_Navbar2.default, { classNames: _classNames2.default }),
+  captionElement: _react2.default.createElement(_Caption2.default, { classNames: _classNames2.default })
+};
+
+
+DayPicker.DateUtils = DateUtils;
+DayPicker.LocaleUtils = LocaleUtils;
+DayPicker.ModifiersUtils = ModifiersUtils;
+
+exports.DateUtils = DateUtils;
+exports.LocaleUtils = LocaleUtils;
+exports.ModifiersUtils = ModifiersUtils;
+exports.default = DayPicker;
+//# sourceMappingURL=DayPicker.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/Helpers.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/Helpers.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+exports.cancelEvent = cancelEvent;
+exports.getFirstDayOfMonth = getFirstDayOfMonth;
+exports.getDaysInMonth = getDaysInMonth;
+exports.getModifiersFromProps = getModifiersFromProps;
+exports.getFirstDayOfWeekFromProps = getFirstDayOfWeekFromProps;
+exports.isRangeOfDates = isRangeOfDates;
+exports.getMonthsDiff = getMonthsDiff;
+exports.getWeekArray = getWeekArray;
+exports.startOfMonth = startOfMonth;
+exports.getDayNodes = getDayNodes;
+exports.nodeListToArray = nodeListToArray;
+exports.hasOwnProp = hasOwnProp;
+
+var _DateUtils = __webpack_require__(/*! ./DateUtils */ "./node_modules/react-day-picker/lib/src/DateUtils.js");
+
+var _LocaleUtils = __webpack_require__(/*! ./LocaleUtils */ "./node_modules/react-day-picker/lib/src/LocaleUtils.js");
+
+var _classNames = __webpack_require__(/*! ./classNames */ "./node_modules/react-day-picker/lib/src/classNames.js");
+
+var _classNames2 = _interopRequireDefault(_classNames);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function cancelEvent(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function getFirstDayOfMonth(d) {
+  return new Date(d.getFullYear(), d.getMonth(), 1, 12);
+}
+
+function getDaysInMonth(d) {
+  var resultDate = getFirstDayOfMonth(d);
+
+  resultDate.setMonth(resultDate.getMonth() + 1);
+  resultDate.setDate(resultDate.getDate() - 1);
+
+  return resultDate.getDate();
+}
+
+function getModifiersFromProps(props) {
+  var modifiers = _extends({}, props.modifiers);
+  if (props.selectedDays) {
+    modifiers[props.classNames.selected] = props.selectedDays;
+  }
+  if (props.disabledDays) {
+    modifiers[props.classNames.disabled] = props.disabledDays;
+  }
+  return modifiers;
+}
+
+function getFirstDayOfWeekFromProps(props) {
+  var firstDayOfWeek = props.firstDayOfWeek,
+      _props$locale = props.locale,
+      locale = _props$locale === undefined ? 'en' : _props$locale,
+      _props$localeUtils = props.localeUtils,
+      localeUtils = _props$localeUtils === undefined ? {} : _props$localeUtils;
+
+  if (!isNaN(firstDayOfWeek)) {
+    return firstDayOfWeek;
+  }
+  if (localeUtils.getFirstDayOfWeek) {
+    return localeUtils.getFirstDayOfWeek(locale);
+  }
+  return 0;
+}
+
+function isRangeOfDates(value) {
+  return !!(value && value.from && value.to);
+}
+
+function getMonthsDiff(d1, d2) {
+  return d2.getMonth() - d1.getMonth() + 12 * (d2.getFullYear() - d1.getFullYear());
+}
+
+function getWeekArray(d) {
+  var firstDayOfWeek = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (0, _LocaleUtils.getFirstDayOfWeek)();
+  var fixedWeeks = arguments[2];
+
+  var daysInMonth = getDaysInMonth(d);
+  var dayArray = [];
+
+  var week = [];
+  var weekArray = [];
+
+  for (var i = 1; i <= daysInMonth; i += 1) {
+    dayArray.push(new Date(d.getFullYear(), d.getMonth(), i, 12));
+  }
+
+  dayArray.forEach(function (day) {
+    if (week.length > 0 && day.getDay() === firstDayOfWeek) {
+      weekArray.push(week);
+      week = [];
+    }
+    week.push(day);
+    if (dayArray.indexOf(day) === dayArray.length - 1) {
+      weekArray.push(week);
+    }
+  });
+
+  // unshift days to start the first week
+  var firstWeek = weekArray[0];
+  for (var _i = 7 - firstWeek.length; _i > 0; _i -= 1) {
+    var outsideDate = (0, _DateUtils.clone)(firstWeek[0]);
+    outsideDate.setDate(firstWeek[0].getDate() - 1);
+    firstWeek.unshift(outsideDate);
+  }
+
+  // push days until the end of the last week
+  var lastWeek = weekArray[weekArray.length - 1];
+  for (var _i2 = lastWeek.length; _i2 < 7; _i2 += 1) {
+    var _outsideDate = (0, _DateUtils.clone)(lastWeek[lastWeek.length - 1]);
+    _outsideDate.setDate(lastWeek[lastWeek.length - 1].getDate() + 1);
+    lastWeek.push(_outsideDate);
+  }
+
+  // add extra weeks to reach 6 weeks
+  if (fixedWeeks && weekArray.length < 6) {
+    var lastExtraWeek = void 0;
+
+    for (var _i3 = weekArray.length; _i3 < 6; _i3 += 1) {
+      lastExtraWeek = weekArray[weekArray.length - 1];
+      var lastDay = lastExtraWeek[lastExtraWeek.length - 1];
+      var extraWeek = [];
+
+      for (var j = 0; j < 7; j += 1) {
+        var _outsideDate2 = (0, _DateUtils.clone)(lastDay);
+        _outsideDate2.setDate(lastDay.getDate() + j + 1);
+        extraWeek.push(_outsideDate2);
+      }
+
+      weekArray.push(extraWeek);
+    }
+  }
+
+  return weekArray;
+}
+
+function startOfMonth(d) {
+  var newDate = (0, _DateUtils.clone)(d);
+  newDate.setDate(1);
+  newDate.setHours(12, 0, 0, 0); // always set noon to avoid time zone issues
+  return newDate;
+}
+
+function getDayNodes(node, classNames) {
+  var outsideClassName = void 0;
+  if (classNames === _classNames2.default) {
+    // When using CSS modules prefix the modifier as required by the BEM syntax
+    outsideClassName = classNames.day + '--' + classNames.outside;
+  } else {
+    outsideClassName = '' + classNames.outside;
+  }
+  var dayQuery = classNames.day.replace(/ /g, '.');
+  var outsideDayQuery = outsideClassName.replace(/ /g, '.');
+  var selector = '.' + dayQuery + ':not(.' + outsideDayQuery + ')';
+  return node.querySelectorAll(selector);
+}
+
+function nodeListToArray(nodeList) {
+  return Array.prototype.slice.call(nodeList, 0);
+}
+
+function hasOwnProp(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+//# sourceMappingURL=Helpers.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/LocaleUtils.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/LocaleUtils.js ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.formatDay = formatDay;
+exports.formatMonthTitle = formatMonthTitle;
+exports.formatWeekdayShort = formatWeekdayShort;
+exports.formatWeekdayLong = formatWeekdayLong;
+exports.getFirstDayOfWeek = getFirstDayOfWeek;
+exports.getMonths = getMonths;
+var WEEKDAYS_LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+var WEEKDAYS_SHORT = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+
+var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function formatDay(day) {
+  return day.toDateString();
+}
+
+function formatMonthTitle(d) {
+  return MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function formatWeekdayShort(i) {
+  return WEEKDAYS_SHORT[i];
+}
+
+function formatWeekdayLong(i) {
+  return WEEKDAYS_LONG[i];
+}
+
+function getFirstDayOfWeek() {
+  return 0;
+}
+
+function getMonths() {
+  return MONTHS;
+}
+
+exports.default = {
+  formatDay: formatDay,
+  formatMonthTitle: formatMonthTitle,
+  formatWeekdayShort: formatWeekdayShort,
+  formatWeekdayLong: formatWeekdayLong,
+  getFirstDayOfWeek: getFirstDayOfWeek,
+  getMonths: getMonths
+};
+//# sourceMappingURL=LocaleUtils.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/ModifiersUtils.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/ModifiersUtils.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.dayMatchesModifier = dayMatchesModifier;
+exports.getModifiersForDay = getModifiersForDay;
+
+var _DateUtils = __webpack_require__(/*! ./DateUtils */ "./node_modules/react-day-picker/lib/src/DateUtils.js");
+
+var _Helpers = __webpack_require__(/*! ./Helpers */ "./node_modules/react-day-picker/lib/src/Helpers.js");
+
+/**
+ * Return `true` if a date matches the specified modifier.
+ *
+ * @export
+ * @param {Date} day
+ * @param {Any} modifier
+ * @return {Boolean}
+ */
+function dayMatchesModifier(day, modifier) {
+  if (!modifier) {
+    return false;
+  }
+  var arr = Array.isArray(modifier) ? modifier : [modifier];
+  return arr.some(function (mod) {
+    if (!mod) {
+      return false;
+    }
+    if (mod instanceof Date) {
+      return (0, _DateUtils.isSameDay)(day, mod);
+    }
+    if ((0, _Helpers.isRangeOfDates)(mod)) {
+      return (0, _DateUtils.isDayInRange)(day, mod);
+    }
+    if (mod.after && mod.before && (0, _DateUtils.isDayAfter)(mod.before, mod.after)) {
+      return (0, _DateUtils.isDayAfter)(day, mod.after) && (0, _DateUtils.isDayBefore)(day, mod.before);
+    }
+    if (mod.after && mod.before && ((0, _DateUtils.isDayAfter)(mod.after, mod.before) || (0, _DateUtils.isSameDay)(mod.after, mod.before))) {
+      return (0, _DateUtils.isDayAfter)(day, mod.after) || (0, _DateUtils.isDayBefore)(day, mod.before);
+    }
+    if (mod.after) {
+      return (0, _DateUtils.isDayAfter)(day, mod.after);
+    }
+    if (mod.before) {
+      return (0, _DateUtils.isDayBefore)(day, mod.before);
+    }
+    if (mod.daysOfWeek) {
+      return mod.daysOfWeek.some(function (dayOfWeek) {
+        return day.getDay() === dayOfWeek;
+      });
+    }
+    if (typeof mod === 'function') {
+      return mod(day);
+    }
+    return false;
+  });
+}
+
+/**
+ * Return the modifiers matching the given day for the given
+ * object of modifiers.
+ *
+ * @export
+ * @param {Date} day
+ * @param {Object} [modifiersObj={}]
+ * @return {Array}
+ */
+function getModifiersForDay(day) {
+  var modifiersObj = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  return Object.keys(modifiersObj).reduce(function (modifiers, modifierName) {
+    var value = modifiersObj[modifierName];
+    if (dayMatchesModifier(day, value)) {
+      modifiers.push(modifierName);
+    }
+    return modifiers;
+  }, []);
+}
+
+exports.default = { dayMatchesModifier: dayMatchesModifier, getModifiersForDay: getModifiersForDay };
+//# sourceMappingURL=ModifiersUtils.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/Month.js":
+/*!********************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/Month.js ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _Weekdays = __webpack_require__(/*! ./Weekdays */ "./node_modules/react-day-picker/lib/src/Weekdays.js");
+
+var _Weekdays2 = _interopRequireDefault(_Weekdays);
+
+var _Day = __webpack_require__(/*! ./Day */ "./node_modules/react-day-picker/lib/src/Day.js");
+
+var _Day2 = _interopRequireDefault(_Day);
+
+var _keys = __webpack_require__(/*! ./keys */ "./node_modules/react-day-picker/lib/src/keys.js");
+
+var _ModifiersUtils = __webpack_require__(/*! ./ModifiersUtils */ "./node_modules/react-day-picker/lib/src/ModifiersUtils.js");
+
+var ModifiersUtils = _interopRequireWildcard(_ModifiersUtils);
+
+var _Helpers = __webpack_require__(/*! ./Helpers */ "./node_modules/react-day-picker/lib/src/Helpers.js");
+
+var Helpers = _interopRequireWildcard(_Helpers);
+
+var _DateUtils = __webpack_require__(/*! ./DateUtils */ "./node_modules/react-day-picker/lib/src/DateUtils.js");
+
+var DateUtils = _interopRequireWildcard(_DateUtils);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Month = function (_Component) {
+  _inherits(Month, _Component);
+
+  function Month() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Month);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Month.__proto__ || Object.getPrototypeOf(Month)).call.apply(_ref, [this].concat(args))), _this), _this.renderDay = function (day) {
+      var monthNumber = _this.props.month.getMonth();
+      var propModifiers = Helpers.getModifiersFromProps(_this.props);
+      var dayModifiers = ModifiersUtils.getModifiersForDay(day, propModifiers);
+      if (DateUtils.isSameDay(day, new Date()) && !Object.prototype.hasOwnProperty.call(propModifiers, _this.props.classNames.today)) {
+        dayModifiers.push(_this.props.classNames.today);
+      }
+      if (day.getMonth() !== monthNumber) {
+        dayModifiers.push(_this.props.classNames.outside);
+      }
+
+      var isOutside = day.getMonth() !== monthNumber;
+      var tabIndex = -1;
+      // Focus on the first day of the month
+      if (_this.props.onDayClick && !isOutside && day.getDate() === 1) {
+        tabIndex = _this.props.tabIndex; // eslint-disable-line prefer-destructuring
+      }
+      var key = '' + day.getFullYear() + day.getMonth() + day.getDate();
+      var modifiers = {};
+      dayModifiers.forEach(function (modifier) {
+        modifiers[modifier] = true;
+      });
+
+      return _react2.default.createElement(
+        _Day2.default,
+        {
+          key: '' + (isOutside ? 'outside-' : '') + key,
+          classNames: _this.props.classNames,
+          day: day,
+          modifiers: modifiers,
+          modifiersStyles: _this.props.modifiersStyles,
+          empty: isOutside && !_this.props.showOutsideDays && !_this.props.fixedWeeks,
+          tabIndex: tabIndex,
+          ariaLabel: _this.props.localeUtils.formatDay(day, _this.props.locale),
+          ariaDisabled: isOutside || dayModifiers.indexOf('disabled') > -1,
+          ariaSelected: dayModifiers.indexOf('selected') > -1,
+          onClick: _this.props.onDayClick,
+          onFocus: _this.props.onDayFocus,
+          onKeyDown: _this.props.onDayKeyDown,
+          onMouseEnter: _this.props.onDayMouseEnter,
+          onMouseLeave: _this.props.onDayMouseLeave,
+          onMouseDown: _this.props.onDayMouseDown,
+          onMouseUp: _this.props.onDayMouseUp,
+          onTouchEnd: _this.props.onDayTouchEnd,
+          onTouchStart: _this.props.onDayTouchStart
+        },
+        _this.props.renderDay(day, modifiers)
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  _createClass(Month, [{
+    key: 'render',
+    value: function render() {
+      var _this2 = this;
+
+      var _props = this.props,
+          classNames = _props.classNames,
+          month = _props.month,
+          months = _props.months,
+          fixedWeeks = _props.fixedWeeks,
+          captionElement = _props.captionElement,
+          weekdayElement = _props.weekdayElement,
+          locale = _props.locale,
+          localeUtils = _props.localeUtils,
+          weekdaysLong = _props.weekdaysLong,
+          weekdaysShort = _props.weekdaysShort,
+          firstDayOfWeek = _props.firstDayOfWeek,
+          onCaptionClick = _props.onCaptionClick,
+          showWeekNumbers = _props.showWeekNumbers,
+          showWeekDays = _props.showWeekDays,
+          onWeekClick = _props.onWeekClick;
+
+
+      var captionProps = {
+        date: month,
+        classNames: classNames,
+        months: months,
+        localeUtils: localeUtils,
+        locale: locale,
+        onClick: onCaptionClick ? function (e) {
+          return onCaptionClick(month, e);
+        } : undefined
+      };
+      var caption = _react2.default.isValidElement(captionElement) ? _react2.default.cloneElement(captionElement, captionProps) : _react2.default.createElement(captionElement, captionProps);
+
+      var weeks = Helpers.getWeekArray(month, firstDayOfWeek, fixedWeeks);
+      return _react2.default.createElement(
+        'div',
+        { className: classNames.month, role: 'grid' },
+        caption,
+        showWeekDays && _react2.default.createElement(_Weekdays2.default, {
+          classNames: classNames,
+          weekdaysShort: weekdaysShort,
+          weekdaysLong: weekdaysLong,
+          firstDayOfWeek: firstDayOfWeek,
+          showWeekNumbers: showWeekNumbers,
+          locale: locale,
+          localeUtils: localeUtils,
+          weekdayElement: weekdayElement
+        }),
+        _react2.default.createElement(
+          'div',
+          { className: classNames.body, role: 'rowgroup' },
+          weeks.map(function (week) {
+            var weekNumber = void 0;
+            if (showWeekNumbers) {
+              weekNumber = DateUtils.getWeekNumber(week[6]);
+            }
+            return _react2.default.createElement(
+              'div',
+              {
+                key: week[0].getTime(),
+                className: classNames.week,
+                role: 'row'
+              },
+              showWeekNumbers && _react2.default.createElement(
+                'div',
+                {
+                  className: classNames.weekNumber,
+                  tabIndex: onWeekClick ? 0 : -1,
+                  role: 'gridcell',
+                  onClick: onWeekClick ? function (e) {
+                    return onWeekClick(weekNumber, week, e);
+                  } : undefined,
+                  onKeyUp: onWeekClick ? function (e) {
+                    return e.keyCode === _keys.ENTER && onWeekClick(weekNumber, week, e);
+                  } : undefined
+                },
+                _this2.props.renderWeek(weekNumber, week, month)
+              ),
+              week.map(_this2.renderDay)
+            );
+          })
+        )
+      );
+    }
+  }]);
+
+  return Month;
+}(_react.Component);
+
+Month.propTypes = {
+  classNames: _propTypes2.default.shape({
+    body: _propTypes2.default.string.isRequired,
+    month: _propTypes2.default.string.isRequired,
+    outside: _propTypes2.default.string.isRequired,
+    today: _propTypes2.default.string.isRequired,
+    week: _propTypes2.default.string.isRequired,
+    weekNumber: _propTypes2.default.string.isRequired
+  }).isRequired,
+  tabIndex: _propTypes2.default.number,
+
+  month: _propTypes2.default.instanceOf(Date).isRequired,
+  months: _propTypes2.default.arrayOf(_propTypes2.default.string),
+
+  modifiersStyles: _propTypes2.default.object,
+
+  showWeekDays: _propTypes2.default.bool,
+  showOutsideDays: _propTypes2.default.bool,
+
+  renderDay: _propTypes2.default.func.isRequired,
+  renderWeek: _propTypes2.default.func.isRequired,
+
+  captionElement: _propTypes2.default.oneOfType([_propTypes2.default.element, _propTypes2.default.func, _propTypes2.default.instanceOf(_react2.default.Component)]).isRequired,
+  weekdayElement: _propTypes2.default.oneOfType([_propTypes2.default.element, _propTypes2.default.func, _propTypes2.default.instanceOf(_react2.default.Component)]),
+
+  fixedWeeks: _propTypes2.default.bool,
+  showWeekNumbers: _propTypes2.default.bool,
+
+  locale: _propTypes2.default.string.isRequired,
+  localeUtils: _propTypes2.default.object.isRequired,
+  weekdaysLong: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  weekdaysShort: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  firstDayOfWeek: _propTypes2.default.number.isRequired,
+
+  onCaptionClick: _propTypes2.default.func,
+  onDayClick: _propTypes2.default.func,
+  onDayFocus: _propTypes2.default.func,
+  onDayKeyDown: _propTypes2.default.func,
+  onDayMouseEnter: _propTypes2.default.func,
+  onDayMouseLeave: _propTypes2.default.func,
+  onDayMouseDown: _propTypes2.default.func,
+  onDayMouseUp: _propTypes2.default.func,
+  onDayTouchEnd: _propTypes2.default.func,
+  onDayTouchStart: _propTypes2.default.func,
+  onWeekClick: _propTypes2.default.func
+};
+exports.default = Month;
+//# sourceMappingURL=Month.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/Navbar.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/Navbar.js ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _classNames = __webpack_require__(/*! ./classNames */ "./node_modules/react-day-picker/lib/src/classNames.js");
+
+var _classNames2 = _interopRequireDefault(_classNames);
+
+var _keys = __webpack_require__(/*! ./keys */ "./node_modules/react-day-picker/lib/src/keys.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Navbar = function (_Component) {
+  _inherits(Navbar, _Component);
+
+  function Navbar() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Navbar);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Navbar.__proto__ || Object.getPrototypeOf(Navbar)).call.apply(_ref, [this].concat(args))), _this), _this.handleNextClick = function () {
+      if (_this.props.onNextClick) {
+        _this.props.onNextClick();
+      }
+    }, _this.handlePreviousClick = function () {
+      if (_this.props.onPreviousClick) {
+        _this.props.onPreviousClick();
+      }
+    }, _this.handleNextKeyDown = function (e) {
+      if (e.keyCode !== _keys.ENTER && e.keyCode !== _keys.SPACE) {
+        return;
+      }
+      e.preventDefault();
+      _this.handleNextClick();
+    }, _this.handlePreviousKeyDown = function (e) {
+      if (e.keyCode !== _keys.ENTER && e.keyCode !== _keys.SPACE) {
+        return;
+      }
+      e.preventDefault();
+      _this.handlePreviousClick();
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  _createClass(Navbar, [{
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      return nextProps.labels !== this.props.labels || nextProps.dir !== this.props.dir || this.props.showPreviousButton !== nextProps.showPreviousButton || this.props.showNextButton !== nextProps.showNextButton;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          classNames = _props.classNames,
+          className = _props.className,
+          showPreviousButton = _props.showPreviousButton,
+          showNextButton = _props.showNextButton,
+          labels = _props.labels,
+          dir = _props.dir;
+
+
+      var previousClickHandler = void 0;
+      var nextClickHandler = void 0;
+      var previousKeyDownHandler = void 0;
+      var nextKeyDownHandler = void 0;
+      var shouldShowPrevious = void 0;
+      var shouldShowNext = void 0;
+
+      if (dir === 'rtl') {
+        previousClickHandler = this.handleNextClick;
+        nextClickHandler = this.handlePreviousClick;
+        previousKeyDownHandler = this.handleNextKeyDown;
+        nextKeyDownHandler = this.handlePreviousKeyDown;
+        shouldShowNext = showPreviousButton;
+        shouldShowPrevious = showNextButton;
+      } else {
+        previousClickHandler = this.handlePreviousClick;
+        nextClickHandler = this.handleNextClick;
+        previousKeyDownHandler = this.handlePreviousKeyDown;
+        nextKeyDownHandler = this.handleNextKeyDown;
+        shouldShowNext = showNextButton;
+        shouldShowPrevious = showPreviousButton;
+      }
+
+      var previousClassName = shouldShowPrevious ? classNames.navButtonPrev : classNames.navButtonPrev + ' ' + classNames.navButtonInteractionDisabled;
+
+      var nextClassName = shouldShowNext ? classNames.navButtonNext : classNames.navButtonNext + ' ' + classNames.navButtonInteractionDisabled;
+
+      var previousButton = _react2.default.createElement('span', {
+        tabIndex: '0',
+        role: 'button',
+        'aria-label': labels.previousMonth,
+        key: 'previous',
+        className: previousClassName,
+        onKeyDown: shouldShowPrevious ? previousKeyDownHandler : undefined,
+        onClick: shouldShowPrevious ? previousClickHandler : undefined
+      });
+
+      var nextButton = _react2.default.createElement('span', {
+        tabIndex: '0',
+        role: 'button',
+        'aria-label': labels.nextMonth,
+        key: 'right',
+        className: nextClassName,
+        onKeyDown: shouldShowNext ? nextKeyDownHandler : undefined,
+        onClick: shouldShowNext ? nextClickHandler : undefined
+      });
+
+      return _react2.default.createElement(
+        'div',
+        { className: className || classNames.navBar },
+        dir === 'rtl' ? [nextButton, previousButton] : [previousButton, nextButton]
+      );
+    }
+  }]);
+
+  return Navbar;
+}(_react.Component);
+
+Navbar.propTypes = {
+  classNames: _propTypes2.default.shape({
+    navBar: _propTypes2.default.string.isRequired,
+    navButtonPrev: _propTypes2.default.string.isRequired,
+    navButtonNext: _propTypes2.default.string.isRequired,
+    navButtonInteractionDisabled: _propTypes2.default.string.isRequired
+  }),
+  className: _propTypes2.default.string,
+  showPreviousButton: _propTypes2.default.bool,
+  showNextButton: _propTypes2.default.bool,
+  onPreviousClick: _propTypes2.default.func,
+  onNextClick: _propTypes2.default.func,
+  dir: _propTypes2.default.string,
+  labels: _propTypes2.default.shape({
+    previousMonth: _propTypes2.default.string.isRequired,
+    nextMonth: _propTypes2.default.string.isRequired
+  })
+};
+Navbar.defaultProps = {
+  classNames: _classNames2.default,
+  dir: 'ltr',
+  labels: {
+    previousMonth: 'Previous Month',
+    nextMonth: 'Next Month'
+  },
+  showPreviousButton: true,
+  showNextButton: true
+};
+exports.default = Navbar;
+//# sourceMappingURL=Navbar.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/PropTypes.js":
+/*!************************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/PropTypes.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ModifierPropType = undefined;
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var PrimitiveTypes = {
+  localeUtils: _propTypes2.default.shape({
+    formatMonthTitle: _propTypes2.default.func,
+    formatWeekdayShort: _propTypes2.default.func,
+    formatWeekdayLong: _propTypes2.default.func,
+    getFirstDayOfWeek: _propTypes2.default.func
+  }),
+  range: _propTypes2.default.shape({
+    from: _propTypes2.default.instanceOf(Date),
+    to: _propTypes2.default.instanceOf(Date)
+  }),
+  after: _propTypes2.default.shape({
+    after: _propTypes2.default.instanceOf(Date)
+  }),
+  before: _propTypes2.default.shape({
+    before: _propTypes2.default.instanceOf(Date)
+  })
+};
+
+var ModifierPropType = exports.ModifierPropType = _propTypes2.default.oneOfType([PrimitiveTypes.after, PrimitiveTypes.before, PrimitiveTypes.range, _propTypes2.default.func, _propTypes2.default.array]);
+
+exports.default = PrimitiveTypes;
+//# sourceMappingURL=PropTypes.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/Weekday.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/Weekday.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Weekday = function (_Component) {
+  _inherits(Weekday, _Component);
+
+  function Weekday() {
+    _classCallCheck(this, Weekday);
+
+    return _possibleConstructorReturn(this, (Weekday.__proto__ || Object.getPrototypeOf(Weekday)).apply(this, arguments));
+  }
+
+  _createClass(Weekday, [{
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      return this.props !== nextProps;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          weekday = _props.weekday,
+          className = _props.className,
+          weekdaysLong = _props.weekdaysLong,
+          weekdaysShort = _props.weekdaysShort,
+          localeUtils = _props.localeUtils,
+          locale = _props.locale;
+
+      var title = void 0;
+      if (weekdaysLong) {
+        title = weekdaysLong[weekday];
+      } else {
+        title = localeUtils.formatWeekdayLong(weekday, locale);
+      }
+      var content = void 0;
+      if (weekdaysShort) {
+        content = weekdaysShort[weekday];
+      } else {
+        content = localeUtils.formatWeekdayShort(weekday, locale);
+      }
+
+      return _react2.default.createElement(
+        'div',
+        { className: className, role: 'columnheader' },
+        _react2.default.createElement(
+          'abbr',
+          { title: title },
+          content
+        )
+      );
+    }
+  }]);
+
+  return Weekday;
+}(_react.Component);
+
+Weekday.propTypes = {
+  weekday: _propTypes2.default.number,
+  className: _propTypes2.default.string,
+  locale: _propTypes2.default.string,
+  localeUtils: _propTypes2.default.object,
+
+  weekdaysLong: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  weekdaysShort: _propTypes2.default.arrayOf(_propTypes2.default.string)
+};
+exports.default = Weekday;
+//# sourceMappingURL=Weekday.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/Weekdays.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/Weekdays.js ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(/*! react */ "react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Weekdays = function (_Component) {
+  _inherits(Weekdays, _Component);
+
+  function Weekdays() {
+    _classCallCheck(this, Weekdays);
+
+    return _possibleConstructorReturn(this, (Weekdays.__proto__ || Object.getPrototypeOf(Weekdays)).apply(this, arguments));
+  }
+
+  _createClass(Weekdays, [{
+    key: 'shouldComponentUpdate',
+    value: function shouldComponentUpdate(nextProps) {
+      return this.props !== nextProps;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          classNames = _props.classNames,
+          firstDayOfWeek = _props.firstDayOfWeek,
+          showWeekNumbers = _props.showWeekNumbers,
+          weekdaysLong = _props.weekdaysLong,
+          weekdaysShort = _props.weekdaysShort,
+          locale = _props.locale,
+          localeUtils = _props.localeUtils,
+          weekdayElement = _props.weekdayElement;
+
+      var days = [];
+      for (var i = 0; i < 7; i += 1) {
+        var weekday = (i + firstDayOfWeek) % 7;
+        var elementProps = {
+          key: i,
+          className: classNames.weekday,
+          weekday: weekday,
+          weekdaysLong: weekdaysLong,
+          weekdaysShort: weekdaysShort,
+          localeUtils: localeUtils,
+          locale: locale
+        };
+        var element = _react2.default.isValidElement(weekdayElement) ? _react2.default.cloneElement(weekdayElement, elementProps) : _react2.default.createElement(weekdayElement, elementProps);
+        days.push(element);
+      }
+
+      return _react2.default.createElement(
+        'div',
+        { className: classNames.weekdays, role: 'rowgroup' },
+        _react2.default.createElement(
+          'div',
+          { className: classNames.weekdaysRow, role: 'row' },
+          showWeekNumbers && _react2.default.createElement('div', { className: classNames.weekday }),
+          days
+        )
+      );
+    }
+  }]);
+
+  return Weekdays;
+}(_react.Component);
+
+Weekdays.propTypes = {
+  classNames: _propTypes2.default.shape({
+    weekday: _propTypes2.default.string.isRequired,
+    weekdays: _propTypes2.default.string.isRequired,
+    weekdaysRow: _propTypes2.default.string.isRequired
+  }).isRequired,
+
+  firstDayOfWeek: _propTypes2.default.number.isRequired,
+  weekdaysLong: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  weekdaysShort: _propTypes2.default.arrayOf(_propTypes2.default.string),
+  showWeekNumbers: _propTypes2.default.bool,
+  locale: _propTypes2.default.string.isRequired,
+  localeUtils: _propTypes2.default.object.isRequired,
+  weekdayElement: _propTypes2.default.oneOfType([_propTypes2.default.element, _propTypes2.default.func, _propTypes2.default.instanceOf(_react2.default.Component)])
+};
+exports.default = Weekdays;
+//# sourceMappingURL=Weekdays.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/classNames.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/classNames.js ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+// Proxy object to map classnames when css modules are not used
+
+exports.default = {
+  container: 'DayPicker',
+  wrapper: 'DayPicker-wrapper',
+  interactionDisabled: 'DayPicker--interactionDisabled',
+  months: 'DayPicker-Months',
+  month: 'DayPicker-Month',
+
+  navBar: 'DayPicker-NavBar',
+  navButtonPrev: 'DayPicker-NavButton DayPicker-NavButton--prev',
+  navButtonNext: 'DayPicker-NavButton DayPicker-NavButton--next',
+  navButtonInteractionDisabled: 'DayPicker-NavButton--interactionDisabled',
+
+  caption: 'DayPicker-Caption',
+  weekdays: 'DayPicker-Weekdays',
+  weekdaysRow: 'DayPicker-WeekdaysRow',
+  weekday: 'DayPicker-Weekday',
+  body: 'DayPicker-Body',
+  week: 'DayPicker-Week',
+  weekNumber: 'DayPicker-WeekNumber',
+  day: 'DayPicker-Day',
+  footer: 'DayPicker-Footer',
+  todayButton: 'DayPicker-TodayButton',
+
+  // default modifiers
+  today: 'today',
+  selected: 'selected',
+  disabled: 'disabled',
+  outside: 'outside'
+};
+//# sourceMappingURL=classNames.js.map
+
+/***/ }),
+
+/***/ "./node_modules/react-day-picker/lib/src/keys.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/react-day-picker/lib/src/keys.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var LEFT = exports.LEFT = 37;
+var UP = exports.UP = 38;
+var RIGHT = exports.RIGHT = 39;
+var DOWN = exports.DOWN = 40;
+var ENTER = exports.ENTER = 13;
+var SPACE = exports.SPACE = 32;
+var ESC = exports.ESC = 27;
+var TAB = exports.TAB = 9;
+//# sourceMappingURL=keys.js.map
+
+/***/ }),
+
 /***/ "./node_modules/react-is/cjs/react-is.development.js":
 /*!***********************************************************!*\
   !*** ./node_modules/react-is/cjs/react-is.development.js ***!
@@ -86427,6 +92367,235 @@ module.exports = function (css) {
 
 /***/ }),
 
+/***/ "./node_modules/tslib/tslib.es6.js":
+/*!*****************************************!*\
+  !*** ./node_modules/tslib/tslib.es6.js ***!
+  \*****************************************/
+/*! exports provided: __extends, __assign, __rest, __decorate, __param, __metadata, __awaiter, __generator, __exportStar, __values, __read, __spread, __spreadArrays, __await, __asyncGenerator, __asyncDelegator, __asyncValues, __makeTemplateObject, __importStar, __importDefault */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__extends", function() { return __extends; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__assign", function() { return __assign; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__rest", function() { return __rest; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__decorate", function() { return __decorate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__param", function() { return __param; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__metadata", function() { return __metadata; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__awaiter", function() { return __awaiter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__generator", function() { return __generator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__exportStar", function() { return __exportStar; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__values", function() { return __values; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__read", function() { return __read; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__spread", function() { return __spread; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__spreadArrays", function() { return __spreadArrays; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__await", function() { return __await; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__asyncGenerator", function() { return __asyncGenerator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__asyncDelegator", function() { return __asyncDelegator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__asyncValues", function() { return __asyncValues; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__makeTemplateObject", function() { return __makeTemplateObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__importStar", function() { return __importStar; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "__importDefault", function() { return __importDefault; });
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    }
+    return __assign.apply(this, arguments);
+}
+
+function __rest(s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+}
+
+function __decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+
+function __param(paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+}
+
+function __metadata(metadataKey, metadataValue) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
+}
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+function __generator(thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+}
+
+function __exportStar(m, exports) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+
+function __values(o) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+    if (m) return m.call(o);
+    return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+}
+
+function __read(o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+}
+
+function __spread() {
+    for (var ar = [], i = 0; i < arguments.length; i++)
+        ar = ar.concat(__read(arguments[i]));
+    return ar;
+}
+
+function __spreadArrays() {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
+
+function __await(v) {
+    return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+
+function __asyncGenerator(thisArg, _arguments, generator) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var g = generator.apply(thisArg, _arguments || []), i, q = [];
+    return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
+    function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+    function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
+    function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
+    function fulfill(value) { resume("next", value); }
+    function reject(value) { resume("throw", value); }
+    function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
+}
+
+function __asyncDelegator(o) {
+    var i, p;
+    return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
+    function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
+}
+
+function __asyncValues(o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+}
+
+function __makeTemplateObject(cooked, raw) {
+    if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
+    return cooked;
+};
+
+function __importStar(mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result.default = mod;
+    return result;
+}
+
+function __importDefault(mod) {
+    return (mod && mod.__esModule) ? mod : { default: mod };
+}
+
+
+/***/ }),
+
 /***/ "./src/views/full/index.tsx":
 /*!**********************************!*\
   !*** ./src/views/full/index.tsx ***!
@@ -86449,11 +92618,49 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var core_1 = __webpack_require__(/*! @blueprintjs/core */ "@blueprintjs/core");
+var datetime_1 = __webpack_require__(/*! @blueprintjs/datetime */ "./node_modules/@blueprintjs/datetime/lib/esm/index.js");
+__webpack_require__(/*! @blueprintjs/datetime/lib/css/blueprint-datetime.css */ "./node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css");
 var lodash_1 = __importDefault(__webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js"));
 var moment_1 = __importDefault(__webpack_require__(/*! moment */ "../../node_modules/moment/moment.js"));
 var react_1 = __importDefault(__webpack_require__(/*! react */ "react"));
@@ -86488,12 +92695,25 @@ var AnalyticsModule = /** @class */ (function (_super) {
                 _this.setState({ metrics: data });
             });
         };
-        _this.handleDateChange = function (selectedDates) {
-            console.log('dates:', selectedDates);
-        };
+        _this.handleDateChange = function (dateRange) { return __awaiter(_this, void 0, void 0, function () {
+            var startDate, endDate, data;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        startDate = moment_1.default(dateRange[0]).unix();
+                        endDate = moment_1.default(dateRange[1]).unix();
+                        return [4 /*yield*/, this.fetchAnalytics(this.state.selectedChannel, startDate, endDate)];
+                    case 1:
+                        data = (_a.sent()).data;
+                        this.setState({ startDate: startDate, endDate: endDate, metrics: data });
+                        return [2 /*return*/];
+                }
+            });
+        }); };
         _this.isLoaded = function () {
             return _this.state.metrics && _this.state.startDate && _this.state.endDate;
         };
+        _this.capitalize = function (str) { return str.substring(0, 1).toUpperCase() + str.substring(1); };
         _this.getMetricCount = function (metricName) {
             return _this.state.metrics.filter(function (m) { return m.metric_name === metricName; }).reduce(function (acc, cur) { return acc + cur.value; }, 0);
         };
@@ -86513,26 +92733,29 @@ var AnalyticsModule = /** @class */ (function (_super) {
             .subtract(7, 'days')
             .startOf('day')
             .unix();
-        var tomorrow = moment_1.default()
-            .add(1, 'day')
+        var today = moment_1.default()
             .startOf('day')
             .unix();
-        this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, tomorrow).then(function (_a) {
+        this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, today).then(function (_a) {
             var data = _a.data;
-            _this.setState({ startDate: aWeekAgo, endDate: tomorrow, metrics: data });
+            _this.setState({ startDate: aWeekAgo, endDate: today, metrics: data });
         });
     };
+    AnalyticsModule.prototype.renderDateInput = function () {
+        var startDate = moment_1.default.unix(this.state.startDate).toDate();
+        var endDate = moment_1.default.unix(this.state.endDate).toDate();
+        return (react_1.default.createElement(datetime_1.DateRangeInput, { closeOnSelection: false, formatDate: function (date) { return moment_1.default(date).format('MMMM Do YYYY'); }, maxDate: new Date(), parseDate: function (str) { return new Date(str); }, onChange: this.handleDateChange, value: [startDate, endDate] }));
+    };
     AnalyticsModule.prototype.render = function () {
+        var _this = this;
         if (this.isLoaded()) {
-            var startDate = moment_1.default.unix(this.state.startDate).toDate();
-            var endDate = moment_1.default.unix(this.state.endDate).toDate();
-            console.log(startDate, endDate);
             return (react_1.default.createElement("div", null,
-                react_1.default.createElement("div", null,
-                    "Filter by",
-                    react_1.default.createElement(core_1.HTMLSelect, { onChange: this.handleFilterChange, defaultValue: "all" }, this.state.channels.map(function (c) {
-                        return react_1.default.createElement("option", { value: c }, c);
-                    }))),
+                react_1.default.createElement("div", { className: style_scss_1.default.header },
+                    "Filter by\u00A0",
+                    react_1.default.createElement(core_1.HTMLSelect, { onChange: this.handleFilterChange, defaultValue: "all" }, this.state.channels.map(function (channel) {
+                        return react_1.default.createElement("option", { value: channel }, _this.capitalize(channel));
+                    })),
+                    this.renderDateInput()),
                 this.renderAgentUsage(),
                 this.renderEngagement(),
                 this.renderUnderstanding()));
@@ -86540,29 +92763,30 @@ var AnalyticsModule = /** @class */ (function (_super) {
         return null;
     };
     AnalyticsModule.prototype.renderAgentUsage = function () {
-        return (react_1.default.createElement(react_1.default.Fragment, null,
+        return (react_1.default.createElement("div", { className: style_scss_1.default.metricsSection },
             react_1.default.createElement("h3", null, "Agent Usage"),
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
                 this.renderTimeSeriesChart('Sessions', this.getMetric('sessions_count')),
                 this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count')),
-                this.renderNumberMetric('Goals Initiated', 34),
-                this.renderNumberMetric('Goals Completed', '50%'),
+                this.renderNumberMetric('Goals Started', this.getMetricCount('goals_started_count')),
+                this.renderNumberMetric('Goals Completed', this.getMetricCount('goals_completed_count')),
                 this.renderNumberMetric('QNA Sent', 54))));
     };
     AnalyticsModule.prototype.renderEngagement = function () {
-        return (react_1.default.createElement(react_1.default.Fragment, null,
+        return (react_1.default.createElement("div", { className: style_scss_1.default.metricsSection },
             react_1.default.createElement("h3", null, "Engagement & Retention"),
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
-                this.renderNumberMetric('Avg Session Length', this.avgSessionLength()),
-                this.renderNumberMetric('Number of Users', this.getMetricCount('user_count')),
-                this.renderNumberMetric('Number of New Users', '50%'),
+                this.renderNumberMetric('Messages / Session', this.avgSessionLength()),
+                this.renderNumberMetric('Number of Users', this.getMetricCount('users_count')),
+                this.renderNumberMetric('Number of New Users', this.getMetricCount('new_users_count')),
                 this.renderNumberMetric('Number of Returning Users', 54))));
     };
     AnalyticsModule.prototype.renderUnderstanding = function () {
-        return (react_1.default.createElement(react_1.default.Fragment, null,
+        var goalsOutcome = this.getMetricCount('goals_completed_count') / this.getMetricCount('goals_started_count') || 0;
+        return (react_1.default.createElement("div", { className: style_scss_1.default.metricsSection },
             react_1.default.createElement("h3", null, "Understanding"),
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
-                this.renderNumberMetric('# Positive Goals Outcome', 12),
+                this.renderNumberMetric('# Positive Goals Outcome', goalsOutcome),
                 this.renderNumberMetric('# Positive QNA Feedback', 34),
                 this.renderNumberMetric('# Understood Messages', 34),
                 this.renderNumberMetric('# Understood Top-Level Messages', '50%'))));
@@ -86591,19 +92815,14 @@ var AnalyticsModule = /** @class */ (function (_super) {
         return (react_1.default.createElement("div", { className: style_scss_1.default.chartMetric },
             react_1.default.createElement("h4", { className: style_scss_1.default.chartMetricName }, name),
             react_1.default.createElement(recharts_1.ResponsiveContainer, null,
-                react_1.default.createElement(recharts_1.BarChart, { margin: {
-                        top: 0,
-                        right: 0,
-                        left: 0,
-                        bottom: 0
-                    }, data: this.mapDataForCharts(data) },
+                react_1.default.createElement(recharts_1.AreaChart, { data: this.mapDataForCharts(data) },
                     react_1.default.createElement(recharts_1.Tooltip, { labelFormatter: this.formatTick }),
-                    react_1.default.createElement(recharts_1.XAxis, { dataKey: "time", tickCount: tickCount, tickFormatter: this.formatTick }),
+                    react_1.default.createElement(recharts_1.XAxis, { dataKey: "time", tickFormatter: this.formatTick, tickCount: tickCount }),
                     react_1.default.createElement(recharts_1.YAxis, null),
-                    react_1.default.createElement(recharts_1.Bar, { stackId: "1", type: "monotone", dataKey: "web", stroke: colorWeb, fill: colorWeb }),
-                    react_1.default.createElement(recharts_1.Bar, { stackId: "1", type: "monotone", dataKey: "messenger", stroke: colorMessenger, fill: colorMessenger }),
-                    react_1.default.createElement(recharts_1.Bar, { stackId: "1", type: "monotone", dataKey: "slack", stroke: colorSlack, fill: colorSlack }),
-                    react_1.default.createElement(recharts_1.Bar, { stackId: "1", type: "monotone", dataKey: "telegram", stroke: colorTelegram, fill: colorTelegram })))));
+                    react_1.default.createElement(recharts_1.Area, { stackId: "1", type: "monotone", dataKey: "web", stroke: colorWeb, fill: colorWeb }),
+                    react_1.default.createElement(recharts_1.Area, { stackId: "1", type: "monotone", dataKey: "messenger", stroke: colorMessenger, fill: colorMessenger }),
+                    react_1.default.createElement(recharts_1.Area, { stackId: "1", type: "monotone", dataKey: "slack", stroke: colorSlack, fill: colorSlack }),
+                    react_1.default.createElement(recharts_1.Area, { stackId: "1", type: "monotone", dataKey: "telegram", stroke: colorTelegram, fill: colorTelegram })))));
     };
     return AnalyticsModule;
 }(react_1.default.Component));

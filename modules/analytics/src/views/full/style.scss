@@ -1,3 +1,13 @@
+.header {
+  margin: 15px 50px 15px 50px;
+  display: inline-block;
+}
+
+.metricsSection {
+  margin-top: 50px;
+  margin-left: 50px;
+}
+
 .metricsContainer {
   display: flex;
   flex-wrap: wrap;
@@ -28,4 +38,7 @@
 }
 
 .chartMetricName {
+  text-align: center;
+  margin: 0 auto;
+  height: 50px;
 }

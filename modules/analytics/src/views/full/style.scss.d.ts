@@ -2,7 +2,10 @@
 // Please do not change this file!
 interface CssExports {
   'chartMetric': string;
+  'chartMetricName': string;
+  'header': string;
   'metricsContainer': string;
+  'metricsSection': string;
   'numberMetric': string;
   'numberMetricName': string;
   'numberMetricValue': string;

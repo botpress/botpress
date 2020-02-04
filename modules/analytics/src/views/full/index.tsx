@@ -1,5 +1,6 @@
 import { Button, Card, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
-import { DateRangePicker, DateRange } from '@blueprintjs/datetime'
+import { DateRange, DateRangeInput } from '@blueprintjs/datetime'
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios, { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import moment, { unix } from 'moment'
@@ -40,13 +41,12 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
       .subtract(7, 'days')
       .startOf('day')
       .unix()
-    const tomorrow = moment()
-      .add(1, 'day')
+    const today = moment()
       .startOf('day')
       .unix()
 
-    this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, tomorrow).then(({ data }) => {
-      this.setState({ startDate: aWeekAgo, endDate: tomorrow, metrics: data })
+    this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, today).then(({ data }) => {
+      this.setState({ startDate: aWeekAgo, endDate: today, metrics: data })
     })
   }
 
@@ -65,30 +65,47 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
     })
   }
 
-  handleDateChange = (selectedDates: DateRange) => {
-    console.log('dates:', selectedDates)
+  handleDateChange = async (dateRange: DateRange) => {
+    const startDate = moment(dateRange[0]).unix()
+    const endDate = moment(dateRange[1]).unix()
+
+    const { data } = await this.fetchAnalytics(this.state.selectedChannel, startDate, endDate)
+    this.setState({ startDate, endDate, metrics: data })
   }
 
   isLoaded = () => {
     return this.state.metrics && this.state.startDate && this.state.endDate
   }
 
+  capitalize = str => str.substring(0, 1).toUpperCase() + str.substring(1)
+
+  renderDateInput() {
+    const startDate = moment.unix(this.state.startDate).toDate()
+    const endDate = moment.unix(this.state.endDate).toDate()
+    return (
+      <DateRangeInput
+        closeOnSelection={false}
+        formatDate={date => moment(date).format('MMMM Do YYYY')}
+        maxDate={new Date()}
+        parseDate={str => new Date(str)}
+        onChange={this.handleDateChange}
+        value={[startDate, endDate]}
+      />
+    )
+  }
+
   render() {
     if (this.isLoaded()) {
-      const startDate = moment.unix(this.state.startDate).toDate()
-      const endDate = moment.unix(this.state.endDate).toDate()
-      console.log(startDate, endDate)
-
       return (
         <div>
-          {/* <DateRangePicker onChange={this.handleDateChange} value={[startDate, endDate]} /> */}
-          <div>
-            Filter by
+          <div className={style.header}>
+            Filter by&nbsp;
             <HTMLSelect onChange={this.handleFilterChange} defaultValue="all">
-              {this.state.channels.map(c => {
-                return <option value={c}>{c}</option>
+              {this.state.channels.map(channel => {
+                return <option value={channel}>{this.capitalize(channel)}</option>
               })}
             </HTMLSelect>
+            {this.renderDateInput()}
           </div>
           {this.renderAgentUsage()}
           {this.renderEngagement()}
@@ -114,46 +131,48 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
 
   renderAgentUsage() {
     return (
-      <React.Fragment>
+      <div className={style.metricsSection}>
         <h3>Agent Usage</h3>
         <div className={style.metricsContainer}>
           {this.renderTimeSeriesChart('Sessions', this.getMetric('sessions_count'))}
           {/* {this.renderNumberMetric('Number of Sessions', this.getMetricCount('sessions_count'))} */}
           {this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count'))}
           {/* {this.renderNumberMetric('Total Messages Received', this.getMetricCount('msg_received_count'))} */}
-          {this.renderNumberMetric('Goals Initiated', 34)}
-          {this.renderNumberMetric('Goals Completed', '50%')}
+          {this.renderNumberMetric('Goals Started', this.getMetricCount('goals_started_count'))}
+          {this.renderNumberMetric('Goals Completed', this.getMetricCount('goals_completed_count'))}
           {this.renderNumberMetric('QNA Sent', 54)}
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 
   renderEngagement() {
     return (
-      <React.Fragment>
+      <div className={style.metricsSection}>
         <h3>Engagement & Retention</h3>
         <div className={style.metricsContainer}>
-          {this.renderNumberMetric('Avg Session Length', this.avgSessionLength())}
-          {this.renderNumberMetric('Number of Users', this.getMetricCount('user_count'))}
-          {this.renderNumberMetric('Number of New Users', '50%')}
+          {this.renderNumberMetric('Messages / Session', this.avgSessionLength())}
+          {this.renderNumberMetric('Number of Users', this.getMetricCount('users_count'))}
+          {this.renderNumberMetric('Number of New Users', this.getMetricCount('new_users_count'))}
           {this.renderNumberMetric('Number of Returning Users', 54)}
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 
   renderUnderstanding() {
+    const goalsOutcome = this.getMetricCount('goals_completed_count') / this.getMetricCount('goals_started_count') || 0
+
     return (
-      <React.Fragment>
+      <div className={style.metricsSection}>
         <h3>Understanding</h3>
         <div className={style.metricsContainer}>
-          {this.renderNumberMetric('# Positive Goals Outcome', 12)}
+          {this.renderNumberMetric('# Positive Goals Outcome', goalsOutcome)}
           {this.renderNumberMetric('# Positive QNA Feedback', 34)}
           {this.renderNumberMetric('# Understood Messages', 34)}
           {this.renderNumberMetric('# Understood Top-Level Messages', '50%')}
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 
@@ -187,23 +206,15 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
       <div className={style.chartMetric}>
         <h4 className={style.chartMetricName}>{name}</h4>
         <ResponsiveContainer>
-          <BarChart
-            margin={{
-              top: 0,
-              right: 0,
-              left: 0,
-              bottom: 0
-            }}
-            data={this.mapDataForCharts(data)}
-          >
+          <AreaChart data={this.mapDataForCharts(data)}>
             <Tooltip labelFormatter={this.formatTick} />
-            <XAxis dataKey="time" tickCount={tickCount} tickFormatter={this.formatTick} />
+            <XAxis dataKey="time" tickFormatter={this.formatTick} tickCount={tickCount} />
             <YAxis />
-            <Bar stackId="1" type="monotone" dataKey="web" stroke={colorWeb} fill={colorWeb} />
-            <Bar stackId="1" type="monotone" dataKey="messenger" stroke={colorMessenger} fill={colorMessenger} />
-            <Bar stackId="1" type="monotone" dataKey="slack" stroke={colorSlack} fill={colorSlack} />
-            <Bar stackId="1" type="monotone" dataKey="telegram" stroke={colorTelegram} fill={colorTelegram} />
-          </BarChart>
+            <Area stackId="1" type="monotone" dataKey="web" stroke={colorWeb} fill={colorWeb} />
+            <Area stackId="1" type="monotone" dataKey="messenger" stroke={colorMessenger} fill={colorMessenger} />
+            <Area stackId="1" type="monotone" dataKey="slack" stroke={colorSlack} fill={colorSlack} />
+            <Area stackId="1" type="monotone" dataKey="telegram" stroke={colorTelegram} fill={colorTelegram} />
+          </AreaChart>
         </ResponsiveContainer>
       </div>
     )
