@@ -1,17 +1,16 @@
 import * as sdk from 'botpress/sdk'
-import { Migration } from 'core/services/migration'
-import { UserRepository, KnexUserRepository } from 'core/repositories'
+import AnalyticsService from 'core/services/analytics-service'
+import { Migration, MigrationOpts } from 'core/services/migration'
 import { TYPES } from 'core/types'
-import { AnalyticsRepository } from 'core/repositories/analytics-repository'
 import _ from 'lodash'
 
 const migration: Migration = {
   info: {
-    description: 'Add botId to srv_channel_users',
+    description: 'Migration for the nex analytics',
     target: 'core',
     type: 'database'
   },
-  up: async ({ bp, inversify }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ bp, inversify }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       await bp.database.createTableIfNotExists('srv_analytics', table => {
         table.increments('id').primary()
@@ -30,7 +29,7 @@ const migration: Migration = {
       // Can only populate botId from users created on channel web
       const users = await bp
         .database('srv_channel_users')
-        .select('user_id', 'channel', 'botId')
+        .select('user_id', 'channel')
         .where({ channel: 'web' })
 
       const usersBots = await bp
@@ -49,7 +48,16 @@ const migration: Migration = {
           .where({ user_id: userBot['userId'] })
       })
 
-      _.uniqBy(users, 'botId')
+      const analytics = inversify.get<AnalyticsService>(TYPES.AnalyticsService)
+
+      const updated_users = await bp
+        .database('srv_channel_users')
+        .select('user_id', 'channel', 'botId')
+        .where({ channel: 'web' })
+
+      updated_users.forEach(async user => {
+        await analytics.incrementMetric(user['botId'], user['channel'], 'users_count')
+      })
 
       return { success: true, message: 'Configuration updated successfully' }
     } catch (err) {

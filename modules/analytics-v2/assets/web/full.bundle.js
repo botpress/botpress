@@ -24049,7 +24049,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".analytics-v2__style__header___3j1J8{margin:15px 50px 15px 50px;display:inline-block}.analytics-v2__style__metricsSection___3RC4v{margin-top:50px;margin-left:50px}.analytics-v2__style__metricsContainer___2FFhb{display:flex;flex-wrap:wrap;width:100%}.analytics-v2__style__numberMetric___cCrQN{text-align:center;display:inline-block;width:150px;padding:5px;margin:10px 0 10px 10px}.analytics-v2__style__numberMetricName___1znWj{margin-top:10px;height:50px}.analytics-v2__style__numberMetricValue___3o5nR{margin-top:10px}.analytics-v2__style__chartMetric___3OUfE{display:inline-block;width:300px;height:150px}.analytics-v2__style__chartMetricName___2LLP0{text-align:center;margin:0 auto;height:50px}\n", ""]);
+exports.push([module.i, ".analytics-v2__style__header___3j1J8{margin:15px 50px 15px 50px;display:inline-block}.analytics-v2__style__metricsSection___3RC4v{margin-top:50px;margin-left:50px}.analytics-v2__style__metricsContainer___2FFhb{display:flex;flex-wrap:wrap;width:100%}.analytics-v2__style__numberMetric___cCrQN{text-align:center;display:inline-block;width:150px;padding:5px;margin:10px 0 10px 10px}.analytics-v2__style__numberMetricName___1znWj{margin-top:10px;height:50px}.analytics-v2__style__numberMetricValue___3o5nR{margin-top:10px}.analytics-v2__style__chartMetric___3OUfE{margin-top:50px;display:inline-block;width:300px;height:150px}.analytics-v2__style__chartMetricName___2LLP0{text-align:center;margin:0 auto;height:50px}\n", ""]);
 
 // exports
 exports.locals = {
@@ -92768,16 +92768,16 @@ var AnalyticsModule = /** @class */ (function (_super) {
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
                 this.renderTimeSeriesChart('Sessions', this.getMetric('sessions_count')),
                 this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count')),
-                this.renderNumberMetric('Goals Started', this.getMetricCount('goals_started_count')),
-                this.renderNumberMetric('Goals Completed', this.getMetricCount('goals_completed_count')),
-                this.renderNumberMetric('QNA Sent', 54))));
+                this.renderTimeSeriesChart('Goals Started', this.getMetric('goals_started_count')),
+                this.renderTimeSeriesChart('Goals Completed', this.getMetric('goals_completed_count')),
+                this.renderTimeSeriesChart('QNA Sent', this.getMetric('msg_sent_qna_count')))));
     };
     AnalyticsModule.prototype.renderEngagement = function () {
         return (react_1.default.createElement("div", { className: style_scss_1.default.metricsSection },
             react_1.default.createElement("h3", null, "Engagement & Retention"),
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
+                this.renderTimeSeriesChart('Number of Users', this.getMetric('users_count')),
                 this.renderNumberMetric('Messages / Session', this.avgSessionLength()),
-                this.renderNumberMetric('Number of Users', this.getMetricCount('users_count')),
                 this.renderNumberMetric('Number of New Users', this.getMetricCount('new_users_count')),
                 this.renderNumberMetric('Number of Returning Users', 54))));
     };
