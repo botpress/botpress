@@ -138,9 +138,9 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
           {/* {this.renderNumberMetric('Number of Sessions', this.getMetricCount('sessions_count'))} */}
           {this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count'))}
           {/* {this.renderNumberMetric('Total Messages Received', this.getMetricCount('msg_received_count'))} */}
-          {this.renderNumberMetric('Goals Started', this.getMetricCount('goals_started_count'))}
-          {this.renderNumberMetric('Goals Completed', this.getMetricCount('goals_completed_count'))}
-          {this.renderNumberMetric('QNA Sent', 54)}
+          {this.renderTimeSeriesChart('Goals Started', this.getMetric('goals_started_count'))}
+          {this.renderTimeSeriesChart('Goals Completed', this.getMetric('goals_completed_count'))}
+          {this.renderTimeSeriesChart('QNA Sent', this.getMetric('msg_sent_qna_count'))}
         </div>
       </div>
     )
@@ -151,8 +151,8 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
       <div className={style.metricsSection}>
         <h3>Engagement & Retention</h3>
         <div className={style.metricsContainer}>
+          {this.renderTimeSeriesChart('Number of Users', this.getMetric('users_count'))}
           {this.renderNumberMetric('Messages / Session', this.avgSessionLength())}
-          {this.renderNumberMetric('Number of Users', this.getMetricCount('users_count'))}
           {this.renderNumberMetric('Number of New Users', this.getMetricCount('new_users_count'))}
           {this.renderNumberMetric('Number of Returning Users', 54)}
         </div>
