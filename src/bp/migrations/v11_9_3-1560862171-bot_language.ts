@@ -22,9 +22,7 @@ const migration: Migration = {
 
       if (!bot.defaultLanguage) {
         bp.logger.warn(
-          `Bot "${
-            bot.id
-          }" doesn't have a default language, which is now required, go to your admin console to fix this issue.`
+          `Bot "${bot.id}" doesn't have a default language, which is now required, go to your admin console to fix this issue.`
         )
         updatedConfig.disabled = true
       }

@@ -1,16 +1,18 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { EditorByBot, RequestWithPerms } from './typings'
+import Editor from './editor'
+import { RequestWithPerms } from './typings'
 import { getPermissionsMw, validateFilePayloadMw } from './utils_router'
 
-export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
+export default async (bp: typeof sdk, editor: Editor) => {
   const loadPermsMw = getPermissionsMw(bp)
   const router = bp.http.createRouterForBot('code-editor')
 
   router.get('/files', loadPermsMw, async (req: RequestWithPerms, res, next) => {
     try {
-      res.send(await editorByBot[req.params.botId].getAllFiles(req.permissions))
+      const rawFiles = req.query.rawFiles === 'true'
+      res.send(await editor.forBot(req.params.botId).getAllFiles(req.permissions, rawFiles))
     } catch (err) {
       bp.logger.attachError(err).error('Error fetching files')
       next(err)
@@ -19,7 +21,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.post('/save', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
-      await editorByBot[req.params.botId].saveFile(req.body)
+      await editor.forBot(req.params.botId).saveFile(req.body)
       res.sendStatus(200)
     } catch (err) {
       bp.logger.attachError(err).error('Could not save file')
@@ -29,15 +31,23 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.post('/readFile', loadPermsMw, validateFilePayloadMw('read'), async (req: RequestWithPerms, res, next) => {
     try {
-      res.send({ fileContent: await editorByBot[req.params.botId].readFileContent(req.body) })
+      res.send({ fileContent: await editor.forBot(req.params.botId).readFileContent(req.body) })
     } catch (err) {
       next(err)
     }
   })
 
+  router.post('/download', loadPermsMw, validateFilePayloadMw('read'), async (req: RequestWithPerms, res, next) => {
+    const buffer = await editor.forBot(req.params.botId).readFileBuffer(req.body)
+
+    res.setHeader('Content-Disposition', `attachment; filename=${req.body.name}`)
+    res.setHeader('Content-Type', 'application/octet-stream')
+    res.send(buffer)
+  })
+
   router.post('/exists', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
-      res.send(await editorByBot[req.params.botId].fileExists(req.body))
+      res.send(await editor.forBot(req.params.botId).fileExists(req.body))
     } catch (err) {
       next(err)
     }
@@ -45,7 +55,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.post('/rename', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
-      await editorByBot[req.params.botId].renameFile(req.body.file, req.body.newName)
+      await editor.forBot(req.params.botId).renameFile(req.body.file, req.body.newName)
       res.sendStatus(200)
     } catch (err) {
       bp.logger.attachError(err).error('Could not rename file')
@@ -55,7 +65,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.post('/remove', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
-      await editorByBot[req.params.botId].deleteFile(req.body)
+      await editor.forBot(req.params.botId).deleteFile(req.body)
       res.sendStatus(200)
     } catch (err) {
       bp.logger.attachError(err).error('Could not delete file')
@@ -74,7 +84,7 @@ export default async (bp: typeof sdk, editorByBot: EditorByBot) => {
 
   router.get('/typings', async (req, res, next) => {
     try {
-      res.send(await editorByBot[req.params.botId].loadTypings())
+      res.send(await editor.loadTypings())
     } catch (err) {
       bp.logger.attachError(err).error('Could not load typings. Code completion will not be available')
       next(err)

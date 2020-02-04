@@ -115,10 +115,13 @@ export class GhostService {
 
     const allChanges = await this.listFileChanges(tmpFolder)
     for (const { changes, localFiles } of allChanges) {
-      await Promise.map(changes.filter(x => x.action === 'del'), async file => {
-        await this.dbDriver.deleteFile(file.path)
-        await invalidateFile(file.path)
-      })
+      await Promise.map(
+        changes.filter(x => x.action === 'del'),
+        async file => {
+          await this.dbDriver.deleteFile(file.path)
+          await invalidateFile(file.path)
+        }
+      )
 
       // Upload all local files for that scope
       if (localFiles.length) {
@@ -155,8 +158,14 @@ export class GhostService {
         return {
           path: file,
           action: 'edit' as FileChangeAction,
-          add: _.sumBy(diff.filter(d => d.added), 'count'),
-          del: _.sumBy(diff.filter(d => d.removed), 'count')
+          add: _.sumBy(
+            diff.filter(d => d.added),
+            'count'
+          ),
+          del: _.sumBy(
+            diff.filter(d => d.removed),
+            'count'
+          )
         }
       } catch (err) {
         // Todo better handling

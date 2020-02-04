@@ -18,11 +18,13 @@ import uk from './uk.json'
 const defaultLocale = 'en'
 const translations = { en, fr, pt, es, ar, ru, uk }
 
-const getUserLocale = () => {
-  const locale = navigator.language || navigator['userLanguage'] || ''
-  const langCode = localStorage.getItem('bp/channel-web/user-lang') || locale.split('-')[0]
+const getUserLocale = (manualLocale?: 'browser' | string) => {
+  const code = str => str.split('-')[0]
+  const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
+  const storageLocale = code(localStorage.getItem('bp/channel-web/user-lang') || '')
+  manualLocale = code(manualLocale === 'browser' ? browserLocale : manualLocale || '')
 
-  return translations[langCode] ? langCode : defaultLocale
+  return translations[manualLocale] ? manualLocale : translations[storageLocale] ? storageLocale : defaultLocale
 }
 
 const initializeLocale = () => {

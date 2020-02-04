@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'cancel': string;
+  'centered': string;
   'content': string;
   'imagePreview': string;
   'missingTranslation': string;

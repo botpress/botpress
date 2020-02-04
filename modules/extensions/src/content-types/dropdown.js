@@ -26,29 +26,26 @@ function render(data) {
     }
   ]
 }
+
 function renderSlack(data) {
-  return [
-    {
-      type: 'actions',
-      elements: [
-        {
-          type: 'static_select',
-          action_id: 'option_selected',
-          placeholder: {
-            type: 'plain_text',
-            text: data.message
-          },
-          options: data.options.map(q => ({
-            text: {
-              type: 'plain_text',
-              text: q.label
-            },
-            value: q.value
-          }))
-        }
-      ]
-    }
-  ]
+  return [{
+    type: 'actions',
+    elements: [{
+      type: 'static_select',
+      action_id: 'option_selected',
+      placeholder: {
+        type: 'plain_text',
+        text: data.message
+      },
+      options: data.options.map(q => ({
+        text: {
+          type: 'plain_text',
+          text: q.label
+        },
+        value: q.value
+      }))
+    }]
+  }]
 }
 
 function renderElement(data, channel) {
@@ -56,6 +53,8 @@ function renderElement(data, channel) {
     return render(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
+  } else if (channel === 'smooch') {
+    return [data]
   }
 
   return []
@@ -125,9 +124,15 @@ module.exports = {
     }
   },
   uiSchema: {
-    message: { 'ui:field': 'i18n_field' },
-    buttonText: { 'ui:field': 'i18n_field' },
-    options: { 'ui:field': 'i18n_array' }
+    message: {
+      'ui:field': 'i18n_field'
+    },
+    buttonText: {
+      'ui:field': 'i18n_field'
+    },
+    options: {
+      'ui:field': 'i18n_array'
+    }
   },
   computePreviewText: formData => formData.message && 'Dropdown: ' + formData.message,
   renderElement

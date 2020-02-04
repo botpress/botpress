@@ -19,9 +19,9 @@ export default class CodeEditorApi {
     }
   }
 
-  async fetchFiles(): Promise<FilesDS> {
+  async fetchFiles(useRawEditor?: boolean): Promise<FilesDS> {
     try {
-      const { data } = await this.axios.get('/mod/code-editor/files')
+      const { data } = await this.axios.get(`/mod/code-editor/files${useRawEditor ? '?rawFiles=true' : ''}`)
       return data
     } catch (err) {
       this.handleApiError(err, 'Could not fetch files from server')
@@ -68,6 +68,19 @@ export default class CodeEditorApi {
     try {
       const { data } = await this.axios.post('/mod/code-editor/readFile', file)
       return data.fileContent
+    } catch (err) {
+      this.handleApiError(err, 'Could not check if file already exists')
+    }
+  }
+
+  async downloadFile(file: EditableFile) {
+    try {
+      const { data } = await this.axios.post('/mod/code-editor/download', file, { responseType: 'blob' })
+
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(new Blob([data]))
+      link.download = file.name
+      link.click()
     } catch (err) {
       this.handleApiError(err, 'Could not check if file already exists')
     }

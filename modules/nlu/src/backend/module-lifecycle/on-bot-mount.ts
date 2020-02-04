@@ -47,7 +47,7 @@ export function getOnBotMount(state: NLUState) {
 
     const engine = new Engine2(bot.defaultLanguage, bot.id)
     const trainOrLoad = _.debounce(
-      async () => {
+      async (forceTrain: boolean = false) => {
         const ghost = bp.ghost.forBot(botId)
         const intentDefs = await (engine1 as ScopedEngine).storage.getIntents() // TODO replace this with intent service when implemented
         const entityDefs = await (engine1 as ScopedEngine).storage.getCustomEntities() // TODO: replace this with entities service once implemented
@@ -60,9 +60,9 @@ export function getOnBotMount(state: NLUState) {
             return
           }
           let model = await ModelService.getModel(ghost, hash, languageCode)
-          if (!model) {
+          if (forceTrain || !model) {
             const trainSession = makeTrainingSession(languageCode, lock)
-            state.nluByBot[botId].trainSessions[languageCode] = trainSession // TODO move this in setTrainingSession
+            state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
             model = await engine.train(intentDefs, entityDefs, languageCode, trainSession)
             if (model.success) {
@@ -104,6 +104,6 @@ export function getOnBotMount(state: NLUState) {
       trainSessions: {}
     }
 
-    trainOrLoad() // floating promise on purpose
+    trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
   }
 }

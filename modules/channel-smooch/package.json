@@ -1,0 +1,24 @@
+{
+  "name": "channel-smooch",
+  "version": "1.0.0",
+  "description": "A Botpress connector for Smooch",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "module-builder": "../../build/module-builder"
+  },
+  "dependencies": {
+    "smooch-core": "^8.8.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
+  }
+}

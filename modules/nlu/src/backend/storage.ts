@@ -334,13 +334,16 @@ export default class Storage {
   async getModelsFromHash(modelHash: string, lang: string): Promise<Model[]> {
     const modelsMeta = await this._getAvailableModels(true, lang)
 
-    return Promise.map(modelsMeta.filter(meta => meta.hash === modelHash || meta.scope === 'global'), async meta => {
-      const ghostDriver = meta.scope === 'global' ? this.globalGhost : this.botGhost
+    return Promise.map(
+      modelsMeta.filter(meta => meta.hash === modelHash || meta.scope === 'global'),
+      async meta => {
+        const ghostDriver = meta.scope === 'global' ? this.globalGhost : this.botGhost
 
-      return {
-        meta,
-        model: await ghostDriver.readFileAsBuffer(`${this.modelsDir}/${lang}`, meta.fileName!)
+        return {
+          meta,
+          model: await ghostDriver.readFileAsBuffer(`${this.modelsDir}/${lang}`, meta.fileName!)
+        }
       }
-    })
+    )
   }
 }

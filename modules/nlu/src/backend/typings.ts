@@ -115,7 +115,7 @@ export interface LangsGateway {
 export interface LanguageProvider {
   languages: string[]
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
-  tokenize(utterances: string[], lang: string): Promise<string[][]>
+  tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
   getHealth(): Partial<NLUHealth>
 }
@@ -202,7 +202,7 @@ export interface TrainingSession {
 }
 
 export interface Tools {
-  tokenize_utterances(utterances: string[], languageCode: string): Promise<string[][]>
+  tokenize_utterances(utterances: string[], languageCode: string, vocab?: Token2Vec): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>

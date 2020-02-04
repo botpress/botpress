@@ -6,6 +6,7 @@ import React from 'react'
 import { HOOK_SIGNATURES } from '../../typings/hooks'
 
 import FileStatus from './components/FileStatus'
+import NameModal from './components/NameModal'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import { EXAMPLE_FOLDER_LABEL } from './utils/tree'
@@ -19,7 +20,10 @@ class PanelContent extends React.Component<Props> {
     hookFiles: [],
     botConfigs: [],
     moduleConfigFiles: [],
-    selectedNode: ''
+    rawFiles: [],
+    selectedNode: '',
+    selectedFile: undefined,
+    isMoveModalOpen: false
   }
 
   componentDidMount() {
@@ -45,6 +49,9 @@ class PanelContent extends React.Component<Props> {
       return
     }
 
+    const rawFiles = []
+    this.addFiles('raw', `Data`, rawFiles)
+
     const actionFiles = []
     this.addFiles('bot.actions', `Bot (${window['BOT_NAME']})`, actionFiles)
     this.addFiles('global.actions', `Global`, actionFiles)
@@ -63,7 +70,7 @@ class PanelContent extends React.Component<Props> {
     this.addFiles('hook_example', EXAMPLE_FOLDER_LABEL, hookFiles)
     this.addFiles('action_example', EXAMPLE_FOLDER_LABEL, actionFiles)
 
-    this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles, moduleConfigFiles })
+    this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles, moduleConfigFiles, rawFiles })
   }
 
   updateNodeExpanded = (id: string, isExpanded: boolean) => {
@@ -180,6 +187,44 @@ class PanelContent extends React.Component<Props> {
     )
   }
 
+  renderSectionRaw() {
+    const createFile = async (name: string) => {
+      return this.props.editor.openFile({ name, location: name, content: ' ', type: 'raw' })
+    }
+
+    return (
+      <SidePanelSection
+        label="Raw File Editor"
+        actions={[
+          {
+            id: 'btn-add-action',
+            icon: <Icon icon="add" />,
+            key: 'add',
+            onClick: () => this.setState({ selectedFile: undefined, isMoveModalOpen: true })
+          }
+        ]}
+      >
+        <FileNavigator
+          id="raw"
+          files={this.state.rawFiles}
+          expandedNodes={this.expandedNodes}
+          selectedNode={this.state.selectedNode}
+          onNodeStateExpanded={this.updateNodeExpanded}
+          onNodeStateSelected={this.updateNodeSelected}
+          moveFile={file => this.setState({ selectedFile: file, isMoveModalOpen: true })}
+        />
+        <NameModal
+          isOpen={this.state.isMoveModalOpen}
+          toggle={() => this.setState({ isMoveModalOpen: !this.state.isMoveModalOpen })}
+          createFile={createFile}
+          renameFile={this.props.store.renameFile}
+          selectedFile={this.state.selectedFile}
+          files={this.props.files}
+        />
+      </SidePanelSection>
+    )
+  }
+
   _buildHooksActions() {
     const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
       id: hookType,
@@ -236,11 +281,16 @@ class PanelContent extends React.Component<Props> {
         ) : (
           <React.Fragment>
             <SearchBar icon="filter" placeholder="Filter files" onChange={this.props.setFilenameFilter} />
-
-            {this.renderSectionActions()}
-            {this.renderSectionHooks()}
-            {this.renderSectionConfig()}
-            {this.renderSectionModuleConfig()}
+            {this.props.store.useRawEditor ? (
+              this.renderSectionRaw()
+            ) : (
+              <React.Fragment>
+                {this.renderSectionActions()}
+                {this.renderSectionHooks()}
+                {this.renderSectionConfig()}
+                {this.renderSectionModuleConfig()}
+              </React.Fragment>
+            )}
           </React.Fragment>
         )}
       </SidePanel>

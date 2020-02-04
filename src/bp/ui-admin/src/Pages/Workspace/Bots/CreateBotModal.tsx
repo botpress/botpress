@@ -203,7 +203,7 @@ class CreateBotModal extends Component<Props, State> {
                   tabIndex="3"
                   options={this.state.templates}
                   value={this.state.selectedTemplate}
-                  onChange={selectedTemplate => this.setState({ selectedTemplate })}
+                  onChange={selectedTemplate => this.setState({ selectedTemplate: selectedTemplate as any })}
                   getOptionLabel={o => o.name}
                   getOptionValue={o => o.id}
                 />
@@ -215,7 +215,7 @@ class CreateBotModal extends Component<Props, State> {
                   tabIndex="4"
                   options={this.state.categories}
                   value={this.state.selectedCategory}
-                  onChange={selectedCategory => this.setState({ selectedCategory })}
+                  onChange={selectedCategory => this.setState({ selectedCategory: selectedCategory as any })}
                 />
               </FormGroup>
             )}
