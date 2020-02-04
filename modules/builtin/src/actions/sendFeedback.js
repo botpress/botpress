@@ -13,6 +13,9 @@ const sendFeedback = async value => {
     throw `Unexpected value: ${value}`
   }
   const previousGoal = event.state.session.lastGoals[0]
+  if (!previousGoal) {
+    return
+  }
   const goalId = previousGoal.eventId
   const targetEvent = (await bp.events.findEvents({ incomingEventId: goalId, goalId }, { count: 1 }))[0]
   await bp.events.updateEvent(targetEvent.id, { feedback })
