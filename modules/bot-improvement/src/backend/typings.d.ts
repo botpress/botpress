@@ -53,6 +53,7 @@ export interface FeedbackItem {
   source: {
     type: 'qna' | 'goal'
     qnaItem?: QnAItem
+    goal?: Goal
   }
   user: any // TODO: check if user is necessary
   state: FeedbackItemState

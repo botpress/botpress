@@ -21,6 +21,7 @@
     "@types/react": "^16.8.17",
     "@types/react-bootstrap": "^0.32.19",
     "@types/react-dom": "^16.8.4",
+    "@types/jest": "^25.1.1",
     "module-builder": "../../build/module-builder"
   },
   "dependencies": {

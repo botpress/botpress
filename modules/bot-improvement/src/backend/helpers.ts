@@ -22,12 +22,40 @@ export const sortStoredEvents = (a: IO.StoredEvent, b: IO.StoredEvent) => {
   return 0
 }
 
+const topicToGoal = (topic: Topic): Goal => {
+  const [t, name] = topic.name.split('/')
+  if (!name) {
+    throw `No name in topic: ${topic}`
+  }
+
+  return { id: topic.name.replace('.flow.json', ''), topic: t, name: name.replace('.flow.json', '') }
+}
+
 export const topicsToGoals = (topics: Topic[]): Goal[] => {
   return topics.reduce((result, t) => {
-    const [topic, name] = t.name.split('/')
-    if (name) {
-      result.push({ id: t.name, topic, name })
+    try {
+      const goal = topicToGoal(t)
+      result.push(goal)
+    } catch (e) {
+      // no-op
     }
     return result
   }, [])
+}
+
+export const getGoalFromEvent = (event: IO.IncomingEvent): Goal => {
+  if (!event.ndu) {
+    throw 'No Goal found'
+  }
+
+  const [triggerId, trigger] = Object.entries(event.ndu.triggers).find(kv => {
+    const [triggerId, trigger] = kv
+    return trigger.result.user_intent_is === 1
+  })
+
+  if (!triggerId) {
+    throw 'No Goal found'
+  }
+
+  return topicToGoal({ name: trigger.goal, description: '' })
 }

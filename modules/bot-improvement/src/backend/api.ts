@@ -4,8 +4,8 @@ import { Response } from 'express'
 import _ from 'lodash'
 
 import { SDK } from '.'
-import { sortStoredEvents, topicsToGoals } from './helpers'
-import { FeedbackItem, Message, MessageGroup, QnAItem } from './typings'
+import { getGoalFromEvent, sortStoredEvents, topicsToGoals } from './helpers'
+import { FeedbackItem, Goal, Message, MessageGroup, QnAItem } from './typings'
 import { FeedbackItemSchema } from './validation'
 
 const QNA_IDENTIFIER = '__qna__'
@@ -95,12 +95,13 @@ export default async (bp: SDK) => {
     const feedbackItems = flaggedEvents.map(flaggedEvent => {
       const incomingEvent = <IO.IncomingEvent>flaggedEvent.event
 
-      let source: { type: 'qna' | 'goal'; qnaItem?: QnAItem }
+      let source: { type: 'qna' | 'goal'; qnaItem?: QnAItem; goal?: Goal }
       if (isQna(incomingEvent)) {
         const qnaItem = getQnaItemFromEvent(incomingEvent, qnaItems)
         source = { type: 'qna', qnaItem }
       } else {
-        source = { type: 'goal' }
+        const goal = getGoalFromEvent(incomingEvent)
+        source = { type: 'goal', goal }
       }
 
       return {

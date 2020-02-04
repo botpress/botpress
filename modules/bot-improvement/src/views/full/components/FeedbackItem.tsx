@@ -62,7 +62,7 @@ const FeedbackItemComponent: FC<{
           {feedbackItem.source.type === 'qna' && (
             <div>Question: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
           )}
-          {feedbackItem.source.type === 'goal' && <div>Start Goal:</div>}
+          {feedbackItem.source.type === 'goal' && <div>Goal: {feedbackItem.source.goal.id}</div>}
         </div>
       </div>
       <Divider style={{ marginRight: '3%' }} />
