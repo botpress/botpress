@@ -37,13 +37,6 @@ const FeedbackItemComponent: FC<{
     current
   } = props
 
-  const getId = (prefix: string) => {
-    return `${prefix}-${feedbackItem.eventId}`
-  }
-
-  const selectTypeId = getId('select-type')
-  const objectId = getId('object')
-
   return (
     <Card
       interactive={true}
@@ -72,7 +65,6 @@ const FeedbackItemComponent: FC<{
         <Label>
           Type
           <HTMLSelect
-            id={selectTypeId}
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionTypeChange(e.target.value)}
             value={correctedActionType}
@@ -85,7 +77,6 @@ const FeedbackItemComponent: FC<{
         <Label>
           {correctedActionType === 'qna' ? 'Question' : 'Goal'}
           <HTMLSelect
-            id={objectId}
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
             value={correctedObjectId}
