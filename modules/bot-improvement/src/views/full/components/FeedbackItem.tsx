@@ -1,9 +1,9 @@
-import { Button, Card, Elevation, HTMLSelect, Label, Divider } from '@blueprintjs/core'
+import { Button, Card, Divider, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
 import _ from 'lodash'
-import React, { FC } from 'react'
 import moment from 'moment'
+import React, { FC } from 'react'
 
-import { FeedbackItem, FeedbackItemState, Goal, QnAItem } from '../../../backend/typings'
+import { FeedbackItem, FeedbackItemStatus, Goal, QnAItem } from '../../../backend/typings'
 import style from '../style.scss'
 
 const FeedbackItemComponent: FC<{
@@ -18,7 +18,7 @@ const FeedbackItemComponent: FC<{
   handleCorrectedActionObjectIdChange: (correctedActionObjectId: string) => void
   markAsSolved: () => void
   markAsPending: () => void
-  state: FeedbackItemState
+  status: FeedbackItemStatus
   current: boolean
 }> = props => {
   const {
@@ -33,7 +33,7 @@ const FeedbackItemComponent: FC<{
     handleCorrectedActionObjectIdChange,
     markAsSolved,
     markAsPending,
-    state,
+    status,
     current
   } = props
 
@@ -107,12 +107,12 @@ const FeedbackItemComponent: FC<{
           </HTMLSelect>
         </Label>
 
-        {state === 'pending' && (
+        {status === 'pending' && (
           <Button icon="tick" onClick={e => markAsSolved()}>
             Mark as solved
           </Button>
         )}
-        {state === 'solved' && (
+        {status === 'solved' && (
           <Button icon="issue" onClick={e => markAsPending()}>
             Mark as pending
           </Button>

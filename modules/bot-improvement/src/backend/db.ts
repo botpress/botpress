@@ -14,7 +14,7 @@ export default (bp: SDK) => {
         .integer('eventId')
         .unsigned()
         .notNullable()
-      table.string('state').notNullable()
+      table.string('status').notNullable()
       table.string('correctedActionType').notNullable()
       table.string('correctedObjectId').notNullable()
     })

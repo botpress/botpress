@@ -44,7 +44,7 @@ export interface QnAItem {
   }
 }
 
-type FeedbackItemState = 'pending' | 'solved'
+type FeedbackItemStatus = 'pending' | 'solved'
 
 export interface FeedbackItem {
   sessionId: string
@@ -56,7 +56,7 @@ export interface FeedbackItem {
     goal?: Goal
   }
   user: any // TODO: check if user is necessary
-  state: FeedbackItemState
+  status: FeedbackItemStatus
   correctedActionType: string
   correctedObjectId: string
 }

@@ -8,7 +8,7 @@ export interface BotImprovementApi {
   getGoals: () => Promise<Goal[]>
   fetchSession: (sessionId: string) => Promise<MessageGroup[]>
   updateFeedbackItem: (
-    feedbackItem: Pick<FeedbackItem, 'eventId' | 'correctedActionType' | 'correctedObjectId' | 'state'>
+    feedbackItem: Pick<FeedbackItem, 'eventId' | 'correctedActionType' | 'correctedObjectId' | 'status'>
   ) => Promise<void>
 }
 

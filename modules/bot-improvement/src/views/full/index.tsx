@@ -30,6 +30,14 @@ const defaultState: {
   selectedTab: 'pending'
 }
 
+const getDefaultQnaItemId = (qnaItems: QnAItem[]) => {
+  return qnaItems[0].id
+}
+
+const getDefaultGoalId = (goals: Goal[]) => {
+  return goals[0].id
+}
+
 export default props => {
   const { bp, contentLang } = props
   const api = makeApi(bp)
@@ -39,18 +47,17 @@ export default props => {
   const { qnaItems, goals, feedbackItems, feedbackItemsLoading } = state
   let { currentFeedbackItem } = state
 
-  const defaultQnaItemId = qnaItems.length && qnaItems[0].id
-  const defaultGoalId = goals.length && goals[0].id
-
   useEffect(() => {
     const initializeState = async () => {
       const qnaItems = await api.getQnaItems()
       const goals = await api.getGoals()
 
+      const defaultQnaItemId = getDefaultQnaItemId(qnaItems)
+
       const feedbackItems = (await api.getFeedbackItems()).map(i => {
         i.correctedActionType = i.correctedActionType || 'qna'
         i.correctedObjectId = i.correctedObjectId || defaultQnaItemId
-        i.state = i.state || 'pending'
+        i.status = i.status || 'pending'
         return i
       })
 
@@ -75,8 +82,8 @@ export default props => {
     return <Callout>Loading...</Callout>
   }
 
-  const pendingFeedbackItems = feedbackItems.filter(i => i.state === 'pending')
-  const solvedFeedbackItems = feedbackItems.filter(i => i.state === 'solved')
+  const pendingFeedbackItems = feedbackItems.filter(i => i.status === 'pending')
+  const solvedFeedbackItems = feedbackItems.filter(i => i.status === 'solved')
 
   if (!currentFeedbackItem) {
     currentFeedbackItem = pendingFeedbackItems[0]
@@ -91,9 +98,9 @@ export default props => {
     listClone[idx] = itemClone
     setState(state => ({ ...state, feedbackItems: listClone }))
 
-    const { state, eventId, correctedActionType, correctedObjectId } = itemClone
+    const { status, eventId, correctedActionType, correctedObjectId } = itemClone
     await api.updateFeedbackItem({
-      state,
+      status,
       eventId,
       correctedActionType,
       correctedObjectId
@@ -106,6 +113,9 @@ export default props => {
       <div>
         {feedbackItems.map(item => {
           const handleCorrectedActionTypeChange = async (correctedActionType: string) => {
+            const defaultQnaItemId = getDefaultQnaItemId(qnaItems)
+            const defaultGoalId = getDefaultGoalId(goals)
+
             await updateFeedbackItem(item, {
               correctedActionType,
               correctedObjectId: correctedActionType === 'qna' ? defaultQnaItemId : defaultGoalId
@@ -117,11 +127,11 @@ export default props => {
           }
 
           const markAsSolved = async () => {
-            await updateFeedbackItem(item, { state: 'solved' })
+            await updateFeedbackItem(item, { status: 'solved' })
           }
 
           const markAsPending = async () => {
-            await updateFeedbackItem(item, { state: 'pending' })
+            await updateFeedbackItem(item, { status: 'pending' })
           }
 
           return (
@@ -141,7 +151,7 @@ export default props => {
               handleCorrectedActionObjectIdChange={handleCorrectedActionObjectIdChange}
               markAsSolved={markAsSolved}
               markAsPending={markAsPending}
-              state={item.state}
+              status={item.status}
             />
           )
         })}

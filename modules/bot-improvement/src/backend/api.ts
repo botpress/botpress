@@ -72,7 +72,7 @@ export default async (bp: SDK) => {
         { eventId: 'events.id' },
         'events.event',
         'events.sessionId',
-        'bot_improvement_feedback_items.state',
+        'bot_improvement_feedback_items.status',
         'bot_improvement_feedback_items.correctedActionType',
         'bot_improvement_feedback_items.correctedObjectId'
       )
@@ -110,7 +110,7 @@ export default async (bp: SDK) => {
         timestamp: flaggedEvent.event.createdOn,
         user: {},
         source,
-        state: flaggedEvent.state,
+        status: flaggedEvent.status,
         correctedActionType: flaggedEvent.correctedActionType,
         correctedObjectId: flaggedEvent.correctedObjectId
       }
@@ -133,15 +133,15 @@ export default async (bp: SDK) => {
     }
 
     const { eventId } = req.params
-    const { state, correctedActionType, correctedObjectId } = value
+    const { status, correctedActionType, correctedObjectId } = value
 
     const knex = bp.database
 
     const result = await knex('bot_improvement_feedback_items')
       .where({ eventId })
-      .update({ state, correctedActionType, correctedObjectId })
+      .update({ status, correctedActionType, correctedObjectId })
     if (!result) {
-      await knex('bot_improvement_feedback_items').insert({ eventId, state, correctedActionType, correctedObjectId })
+      await knex('bot_improvement_feedback_items').insert({ eventId, status, correctedActionType, correctedObjectId })
     }
 
     res.sendStatus(200)

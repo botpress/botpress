@@ -1,7 +1,7 @@
 import Joi from 'joi'
 
 export const FeedbackItemSchema = Joi.object().keys({
-  state: Joi.string()
+  status: Joi.string()
     .valid(['pending', 'solved'])
     .required(),
   eventId: Joi.number().required(),
