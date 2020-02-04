@@ -45,13 +45,15 @@ export interface QnAItem {
 }
 
 type FeedbackItemStatus = 'pending' | 'solved'
+type SourceType = 'qna' | 'goal'
+type CorrectedActionType = 'qna' | 'start_goal'
 
 export interface FeedbackItem {
   sessionId: string
   eventId: number
   timestamp: Date
   source: {
-    type: 'qna' | 'goal'
+    type: SourceType
     qnaItem?: QnAItem
     goal?: Goal
   }

@@ -10,7 +10,7 @@ const onServerStarted = async (bp: SDK) => {
 }
 
 const onServerReady = async (bp: SDK) => {
-  await api(bp)
+  await api(bp, db(bp))
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
