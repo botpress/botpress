@@ -19,7 +19,9 @@
     "test": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "itest": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.e2e.config.js all",
     "tslint": "node_modules/.bin/tslint --project tslint.json",
-    "commitmsg": "commitlint -e $GIT_PARAMS"
+    "commitmsg": "commitlint -e $GIT_PARAMS",
+    "heroku-prebuild": "yarn",
+    "heroku-postbuild": "yarn build"
   },
   "dependencies": {
     "axios": "^0.19.0",
