@@ -21,7 +21,7 @@ original_id: about-pro
 | Standard Support           |           | ✔️  |
 | Multilanguage Bots         |           | ✔️  |
 
-For more details, visit our [pricing page](https://botpress.io/pricing/).
+For more details, visit our [pricing page](https://botpress.com/pricing/).
 
 ## Activation
 

@@ -280,4 +280,4 @@ const payload = {
 }
 ```
 
-[security sdk]: https://botpress.io/reference/modules/_botpress_sdk_.security.html#getmessagesignature
+[security sdk]: https://botpress.com/reference/modules/_botpress_sdk_.security.html#getmessagesignature

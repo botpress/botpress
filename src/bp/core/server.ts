@@ -295,7 +295,7 @@ export default class HTTPServer {
       const statusCode = err.statusCode || 500
       const errorCode = err.errorCode || 'BP_000'
       const message = (err.errorCode && err.message) || 'Unexpected error'
-      const docs = err.docs || 'https://botpress.io/docs'
+      const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
       res.status(statusCode).json({

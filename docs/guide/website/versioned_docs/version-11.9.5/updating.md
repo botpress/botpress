@@ -4,7 +4,7 @@ title: Updating to New Releases
 original_id: updating
 ---
 
-Download the new version of Botpress [here](https://botpress.io/download).
+Download the new version of Botpress [here](https://botpress.com/download).
 
 Even though Botpress Server has become much more stable, breaking changes still might occur. When they do, resolving them is often as simple as editing config files in the `/data` folder.
 

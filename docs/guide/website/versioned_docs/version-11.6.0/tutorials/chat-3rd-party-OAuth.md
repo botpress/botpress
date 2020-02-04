@@ -8,7 +8,7 @@ original_id: chat-3rd-party-OAuth
 
 Ever wanted to authenticate a user against a 3rd party authentication system to act on its behalf, just like you would do in a mobile/web app? In this tutorial, we will do just that. We will build a simple module that authenticates a user to Twitter and save its credentials to its attributes so it can be used to query its Twitter account.
 
-> **Prerequisites:** We assume that you have a knowledge on how to [create a custom botpress module](/docs/developers/create-module), that you have a basic knowledge of the [botpress sdk](https://botpress.io/reference/) as well as prior experience with `botpress.config.json`. We also assume that you created a [Twitter app](https://developer.twitter.com/en/docs/basics/getting-started) and that you have some previous experience with [Passport.js](http://www.passportjs.org/docs/).
+> **Prerequisites:** We assume that you have a knowledge on how to [create a custom botpress module](/docs/developers/create-module), that you have a basic knowledge of the [botpress sdk](https://botpress.com/reference/) as well as prior experience with `botpress.config.json`. We also assume that you created a [Twitter app](https://developer.twitter.com/en/docs/basics/getting-started) and that you have some previous experience with [Passport.js](http://www.passportjs.org/docs/).
 
 The code for this example is available in the [examples](https://github.com/botpress/botpress/tree/master/examples/chat-3rd-party-OAuth) directory of our GitHub repository.
 
@@ -32,7 +32,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'twitter-auth',
     fullName: 'Twitter oAuth1 example',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: true
   }
 }
