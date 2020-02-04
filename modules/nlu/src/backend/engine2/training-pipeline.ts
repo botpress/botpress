@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
 import { replaceConsecutiveSpaces } from '../tools/strings'
+import { averageVectors } from '../tools/math'
 import { isSpace, SPACE, mergeSimilarCharsetTokens } from '../tools/token-utils'
 import {
   EntityExtractionResult,
@@ -314,13 +315,13 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
   const avgUtterances = _.meanBy(input.intents, x => x.utterances.length)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = Math.max(5, avgUtterances)
+  const nbOfNoneUtterances = Math.max(5, 500)
 
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
   const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(avgTokens / 2, avgTokens * 2, false))
+    const nbWords = Math.round(_.random(1, avgTokens * 1.5, false))
     return _.sampleSize(junkWords, nbWords).join(joinChar)
   })
 
@@ -364,7 +365,7 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
 }
 
 const trainOOS = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
-  const points: sdk.MLToolkit.SVM.DataPoint[] = _.chain(input.intents)
+  const points_a: sdk.MLToolkit.SVM.DataPoint[] = _.chain(input.intents)
     .filter(i => i.name !== 'none')
     .flatMap(i =>
       i.utterances.map(utt => {
@@ -373,18 +374,74 @@ const trainOOS = async (input: TrainOutput, tools: Tools): Promise<string | unde
           utt.tokens.map(t => t.POS)
         )
 
-        // const feats = [...posOH, ...kmeansOH, utt.tokens.length]
-        const feats = [...utt.sentenceEmbedding, ...posOH]
-        // const feats = posOH
+        // const tokensVerbs = utt.tokens.filter(x => ['NOUN', 'VERB'].includes(x.POS)).map(x => <number[]>x.vector)
+        // if (!tokensVerbs.length) {
+        //   tokensVerbs.push(new Array(utt.tokens[0].vector.length).fill(0))
+        // }
+        // const verbsEmbeddings = averageVectors(tokensVerbs)
+        // const feats = [...utt.sentenceEmbedding, ...verbsEmbeddings]
 
-        return { label: '1', coordinates: feats }
+        const averageByPOS = (...cls: string[]) => {
+          const tokens = utt.tokens.filter(t => cls.includes(t.POS))
+          const vectors = tokens.map(x => <number[]>x.vector)
+          if (!vectors.length) {
+            vectors.push(new Array(utt.tokens[0].vector.length).fill(0))
+          }
+          return averageVectors(vectors)
+        }
+
+        const pos1 = averageByPOS('VERB', 'NOUN')
+        const pos2 = averageByPOS('ADJ', 'ADV', 'ADV', 'AUX', 'DET', 'PROPN', 'PRON')
+        const pos3 = averageByPOS('CONJ', 'CCONJ', 'INTJ', 'AUX', 'SCONJ')
+        const pos4 = averageByPOS('PUNCT', 'SYM', 'X', 'NUM', 'PART')
+        const feats = [...pos1, ...pos2]
+
+        // const feats = [...posOH, ...kmeansOH, utt.tokens.length]
+        // const feats = [...utt.sentenceEmbedding, ...posOH]
+
+        // const feats = [...posOH, utt.tokens.length]
+        // const feats = [...posOH]
+
+        return { label: 'in', coordinates: feats }
       })
     )
     .value()
+
+  const points_b: sdk.MLToolkit.SVM.DataPoint[] = _.chain(input.intents)
+    .filter(i => i.name === 'none')
+    .flatMap(i =>
+      i.utterances.map(utt => {
+        const posOH = encodeOH(
+          POS_CLASSES,
+          utt.tokens.map(t => t.POS)
+        )
+
+        const averageByPOS = (...cls: string[]) => {
+          const tokens = utt.tokens.filter(t => cls.includes(t.POS))
+          const vectors = tokens.map(x => <number[]>x.vector)
+          if (!vectors.length) {
+            vectors.push(new Array(utt.tokens[0].vector.length).fill(0))
+          }
+          return averageVectors(vectors)
+        }
+
+        const pos1 = averageByPOS('VERB', 'NOUN')
+        const pos2 = averageByPOS('ADJ', 'ADV', 'ADV', 'AUX', 'DET', 'PROPN', 'PRON')
+        const pos3 = averageByPOS('CONJ', 'CCONJ', 'INTJ', 'AUX', 'SCONJ')
+        const pos4 = averageByPOS('PUNCT', 'SYM', 'X', 'NUM', 'PART')
+        // const feats = [...pos1, ...pos2, ...pos3, ...pos4]
+        const feats = [...pos1, ...pos2]
+
+        return { label: 'out', coordinates: feats }
+      })
+    )
+    .value()
+
   const svm = new tools.mlToolkit.SVM.Trainer()
-  return svm.train(points, {
-    classifier: 'ONE_CLASS',
-    kernel: 'RBF'
+  return svm.train([...points_a, ...points_b], {
+    // classifier: 'ONE_CLASS',
+    kernel: 'LINEAR',
+    gamma: 0.0001
   })
 }
 

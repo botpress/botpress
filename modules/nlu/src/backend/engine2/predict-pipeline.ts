@@ -297,10 +297,30 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
   // )
 
   // const features = [...posOH, ...kmeansOH, utt.tokens.length]
-  const features = [...utt.sentenceEmbedding, ...posOH]
-  // const features = posOH
+  // const features = [...utt.sentenceEmbedding, ...posOH]
+  const averageByPOS = (...cls: string[]) => {
+    const tokens = utt.tokens.filter(t => cls.includes(t.POS))
+    const vectors = tokens.map(x => <number[]>x.vector)
+    if (!vectors.length) {
+      vectors.push(new Array(utt.tokens[0].vector.length).fill(0))
+    }
+    return math.averageVectors(vectors)
+  }
+
+  const pos1 = averageByPOS('VERB', 'NOUN')
+  const pos2 = averageByPOS('ADJ', 'ADV', 'ADV', 'AUX', 'DET', 'PROPN', 'PRON')
+  const pos3 = averageByPOS('CONJ', 'CCONJ', 'INTJ', 'AUX', 'SCONJ')
+  const pos4 = averageByPOS('PUNCT', 'SYM', 'X', 'NUM', 'PART')
+  // const features = [...pos1, ...pos2, ...pos3, ...pos4]
+  const features = [...pos1, ...pos2]
+  // const features = [...posOH, utt.tokens.length]
+  // const features = [...posOH]
+
   // @ts-ignore
-  const outOfScope = (await oos.predict(features))[0].label === -1
+  const preds = await oos.predict(features)
+  const pos = utt.tokens.map(x => x.POS).join(' ')
+  const sent = utt.toString()
+  const outOfScope = preds[0].label == -1 || preds[0].label == 'out'
 
   return {
     ...input,

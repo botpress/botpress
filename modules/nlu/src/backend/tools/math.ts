@@ -67,6 +67,18 @@ export function scalarMultiply(vec: number[], multiplier: number): number[] {
   return vec.map(x => x * multiplier)
 }
 
+export function averageVectors(vecs: number[][]): number[] {
+  if (!vecs.length) {
+    return []
+  }
+
+  if (_.uniqBy(vecs, 'length').length > 1) {
+    throw new Error('Vectors must all be of the same size')
+  }
+
+  return vectorAdd(...vecs.map(vec => scalarDivide(vec, vecs.length)))
+}
+
 export function scalarDivide(vec: number[], divider: number): number[] {
   return scalarMultiply(vec, 1 / divider)
 }

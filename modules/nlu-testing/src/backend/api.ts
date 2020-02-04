@@ -220,6 +220,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
     // const success = nlu.intent.name === expected
 
     // @ts-ignore
+
     const success = expected === 'none' ? nlu.outOfScope : !nlu.outOfScope
 
     return {
