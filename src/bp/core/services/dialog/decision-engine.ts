@@ -7,6 +7,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
+import AnalyticsService from '../analytics-service'
 import { CMSService } from '../cms'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
@@ -30,7 +31,8 @@ export class DecisionEngine {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.StateManager) private stateManager: StateManager,
-    @inject(TYPES.CMSService) private cms: CMSService
+    @inject(TYPES.CMSService) private cms: CMSService,
+    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
   ) {}
 
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
@@ -45,6 +47,7 @@ export class DecisionEngine {
       if (action === 'send') {
         await this._sendSuggestion(data, sessionId, event)
       } else if (action === 'redirect') {
+        await this.analytics.incrementMetric(event.botId, event.channel, 'goals_started_count')
         await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
 
         event.state.session.lastGoals = [

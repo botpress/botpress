@@ -22,7 +22,8 @@ export type MetricName =
   | 'goals_failed_count'
   | 'msg_sent_count'
   | 'msg_sent_qna_count'
-  | 'users_new_count'
+  | 'new_users_count'
+  | 'users_count'
   | 'msg_nlu_none'
   | 'sessions_start_nlu_none'
 

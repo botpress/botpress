@@ -1,4 +1,3 @@
-import { UserRepository } from 'core/repositories'
 import { AnalyticsRepository, MetricName } from 'core/repositories/analytics-repository'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
@@ -6,10 +5,7 @@ import moment from 'moment'
 
 @injectable()
 export default class AnalyticsService {
-  constructor(
-    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository,
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
-  ) {}
+  constructor(@inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository) {}
 
   async incrementMetric(botId: string, channel: string, metric: MetricName, increment = 1) {
     try {
@@ -35,14 +31,7 @@ export default class AnalyticsService {
       this.formatUnixToISO(endDate),
       channel
     )
-
-    const userCount = await this.userRepo.getUserCount({ channel })
-    const userCountMetric = {
-      metric_name: 'user_count',
-      value: userCount
-    }
-
-    return [...analytics, userCountMetric]
+    return analytics
   }
 
   private formatUnixToISO(unix) {

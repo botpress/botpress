@@ -5,6 +5,8 @@ import Knex from 'knex'
 
 import Database from '../database'
 import { TYPES } from '../types'
+import { Analytics } from './analytics-repository'
+import AnalyticsService from 'core/services/analytics-service'
 
 export interface UserRepository {
   getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User>
@@ -21,7 +23,8 @@ export class KnexUserRepository implements UserRepository {
 
   constructor(
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
+    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
   ) {}
 
   async getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User> {
@@ -70,6 +73,8 @@ export class KnexUserRepository implements UserRepository {
           updatedOn: res['updated_at']
         }
       })
+
+    this.analytics.incrementMetric(botId, channel, 'users_new_count')
 
     return { result: newUser, created: true }
   }

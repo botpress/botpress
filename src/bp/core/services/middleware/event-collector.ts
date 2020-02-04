@@ -9,6 +9,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
+import AnalyticsService from '../analytics-service'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
@@ -36,7 +37,8 @@ export class EventCollector {
     @tagged('name', 'EventCollector')
     private logger: sdk.Logger,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
   ) {}
 
   async initialize(database: Database) {
@@ -53,7 +55,7 @@ export class EventCollector {
     this.enabled = true
   }
 
-  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent) {
+  public async storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent): Promise<void> {
     if (!this.enabled || this.ignoredTypes.includes(event.type)) {
       return
     }
@@ -72,6 +74,11 @@ export class EventCollector {
 
     // Once the goal is a success or failure, it becomes inactive
     if (goal?.success !== undefined) {
+      if (goal?.success) {
+        await this.analytics.incrementMetric(botId, channel, 'goals_completed_count')
+      } else {
+        await this.analytics.incrementMetric(botId, channel, 'goals_failed_count')
+      }
       goal.active = false
     }
 

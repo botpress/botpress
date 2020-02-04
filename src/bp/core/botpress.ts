@@ -312,7 +312,7 @@ export class Botpress {
     }
 
     this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
-      this.eventCollector.storeEvent(event)
+      await this.eventCollector.storeEvent(event)
       await this.analytics.incrementMetric(event.botId, event.channel, 'msg_sent_count')
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
@@ -326,7 +326,7 @@ export class Botpress {
     }
 
     this.decisionEngine.onAfterEventProcessed = async (event: sdk.IO.IncomingEvent) => {
-      this.eventCollector.storeEvent(event)
+      await this.eventCollector.storeEvent(event)
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
