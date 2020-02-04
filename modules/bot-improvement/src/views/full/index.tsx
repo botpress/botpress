@@ -61,6 +61,16 @@ export default props => {
     })
   }, [])
 
+  if (feedbackItems.length === 0) {
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', placeContent: 'center' }}>
+        <Callout title={'No feedback items'} style={{ width: '30%', margin: 'auto' }}>
+          Feedback items are created when chat users give negative feedback on bot messages
+        </Callout>
+      </div>
+    )
+  }
+
   if (feedbackItemsLoading) {
     return <Callout>Loading...</Callout>
   }
