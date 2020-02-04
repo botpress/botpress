@@ -1,22 +1,5 @@
 $blue: #3e95f2;
 
-.mainContainer {
-  :global(.container) {
-    width: 100%;
-    overflow: hidden;
-  }
-}
-
-.column {
-  padding: 0;
-  min-width: 320px;
-}
-
-.profile {
-  background-color: white;
-  padding: 0px;
-}
-
 .feedbackItem {
   margin: 10px;
   padding: 20px;
