@@ -14,6 +14,7 @@ import {
 // @ts-ignore
 import ContentPickerWidget from 'botpress/content-picker'
 import _ from 'lodash'
+import nanoid from 'nanoid/generate'
 import React from 'react'
 
 import style from './style.scss'
@@ -38,6 +39,7 @@ interface ChoiceConfig {
 interface State {
   tab: any
   keywords: any
+  randomId: string
   contentId: string
   invalidContentId: string
   config: ChoiceConfig
@@ -50,6 +52,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
   state: State = {
     tab: 'basic',
     keywords: {},
+    randomId: nanoid('abcdefghijklmnopqrstuvwxyz0123456789', 10),
     contentId: '',
     invalidContentId: '',
     config: {
@@ -68,6 +71,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
       const { data } = await this.fetchDefaultConfig()
       this.setState(
         {
+          randomId: getOrDefault('randomId', 'randomId'),
           contentId: getOrDefault('contentId', 'contentId'),
           invalidContentId: getOrDefault('invalidContentId', 'invalidContentId'),
           keywords: getOrDefault('keywords', 'keywords'),
@@ -97,6 +101,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
   updateParent = () => {
     this.props.onDataChanged &&
       this.props.onDataChanged({
+        randomId: this.state.randomId,
         contentId: this.state.contentId,
         invalidContentId: this.state.invalidContentId,
         keywords: this.state.keywords,

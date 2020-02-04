@@ -25,7 +25,7 @@ export class DialogSession {
 
 export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
-  getOrCreateSession(sessionId: string, botId: string): Knex.GetOrCreateResult<DialogSession>
+  getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Knex.GetOrCreateResult<DialogSession>
   get(id: string): Promise<DialogSession>
   getExpiredContextSessionIds(botId: string): Promise<string[]>
   deleteExpiredSessions(botId: string)
@@ -47,20 +47,31 @@ export class KnexSessionRepository implements SessionRepository {
     @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
   ) {}
 
-  async getOrCreateSession(sessionId: string, botId: string): Knex.GetOrCreateResult<DialogSession> {
+  async getOrCreateSession(
+    sessionId: string,
+    botId: string,
+    trx?: Knex.Transaction
+  ): Knex.GetOrCreateResult<DialogSession> {
     const session = await this.get(sessionId)
     if (!session) {
-      return { result: await this.createSession(sessionId, botId, {}, {}, {}), created: true }
+      return { result: await this.createSession(sessionId, botId, {}, {}, {}, trx), created: true }
     }
     return { result: session, created: false }
   }
 
-  async createSession(sessionId, botId, context, temp_data, session_data): Promise<DialogSession> {
+  async createSession(
+    sessionId,
+    botId,
+    context,
+    temp_data,
+    session_data,
+    trx?: Knex.Transaction
+  ): Promise<DialogSession> {
     const session = new DialogSession(sessionId, botId, context, temp_data, session_data)
-    return this.insert(session)
+    return this.insert(session, trx)
   }
 
-  async insert(session: DialogSession): Promise<DialogSession> {
+  async insert(session: DialogSession, trx?: Knex.Transaction): Promise<DialogSession> {
     const newSession = await this.database.knex.insertAndRetrieve<DialogSession>(
       this.tableName,
       {
@@ -74,7 +85,9 @@ export class KnexSessionRepository implements SessionRepository {
         context_expiry: session.context_expiry ? this.database.knex.date.format(session.context_expiry) : eval('null'),
         session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null')
       },
-      ['id', 'botId', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on']
+      ['id', 'botId', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on'],
+      undefined,
+      trx
     )
 
     if (newSession) {

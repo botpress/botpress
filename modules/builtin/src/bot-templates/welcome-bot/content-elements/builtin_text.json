@@ -123,7 +123,7 @@
   {
     "id": "builtin_text-bOU5xw",
     "formData": {
-      "text$en": "Please refer to our [documentation](https://botpress.io/docs/build/memory) to learn more about Bot Memory.",
+      "text$en": "Please refer to our [documentation](https://botpress.com/docs/build/memory) to learn more about Bot Memory.",
       "typing$en": true
     },
     "createdBy": "admin",
@@ -143,7 +143,7 @@
   {
     "id": "builtin_text-T8Oa8M",
     "formData": {
-      "text$en": "To learn more about how to setup a Contextual FAQ, please refer to our [tutorial](https://botpress.io/docs/tutorials/contextual-faq)",
+      "text$en": "To learn more about how to setup a Contextual FAQ, please refer to our [tutorial](https://botpress.com/docs/tutorials/contextual-faq)",
       "typing$en": true
     },
     "createdBy": "admin",

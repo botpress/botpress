@@ -1,9 +1,11 @@
 import { Button, Icon, Intent, Switch, Tooltip } from '@blueprintjs/core'
+import { Flow } from 'botpress/sdk'
 import { AccessControl } from 'botpress/utils'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
 import style from '../style.scss'
+import { ACTIONS } from '../Editor'
 
 import RedirectInfo from './RedirectInfo'
 import Variations from './Variations'
@@ -12,6 +14,7 @@ interface Props {
   id: string
   item: any
   contentLang: string
+  flows?: Flow[]
   // Hides category and redirect info
   isVersion2?: boolean
   onEditItem: (id: string) => void
@@ -28,11 +31,12 @@ const Item: FC<Props> = props => {
 
   const questions = item.questions[contentLang] || []
   const answers = item.answers[contentLang] || []
+  const missingTranslations = !questions.length || (item.action !== ACTIONS.REDIRECT && !answers.length)
 
   return (
     <div className={cx(style.qnaItem, style.well)} key={id}>
       <div className={style.itemContainer} role="entry">
-        {!questions.length && (
+        {missingTranslations && (
           <div className={style.itemQuestions}>
             <a className={style.firstQuestionTitle} onClick={() => props.onEditItem(id)}>
               <Tooltip content="Missing translation">
@@ -48,7 +52,7 @@ const Item: FC<Props> = props => {
           </div>
         )}
 
-        {questions.length > 0 && (
+        {!missingTranslations && (
           <div className={style.itemQuestions}>
             <span className={style.itemQuestionsTitle}>Q:</span>
             <a className={style.firstQuestionTitle} onClick={() => props.onEditItem(id)}>
@@ -69,7 +73,13 @@ const Item: FC<Props> = props => {
         {!props.isVersion2 && (
           <div>
             <div className={style.itemRedirect}>
-              {<RedirectInfo redirectFlow={item.redirectFlow} redirectNode={item.redirectNode} />}
+              <RedirectInfo
+                id={props.id}
+                redirectFlow={item.redirectFlow}
+                redirectNode={item.redirectNode}
+                flows={props.flows}
+                onEditItem={props.onEditItem}
+              />
             </div>
           </div>
         )}

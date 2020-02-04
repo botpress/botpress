@@ -109,8 +109,16 @@ class Sidebar extends React.Component {
             </a>
           </div>
           <ul className={classnames('nav', style.mainMenu)}>
-            {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
-            {this.props.modules.filter(m => !m.noInterface).map(this.renderModuleItem)}
+            {window.IS_BOT_MOUNTED ? (
+              <React.Fragment>
+                {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
+                {this.props.modules.filter(m => !m.noInterface).map(this.renderModuleItem)}
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                {this.props.modules.filter(m => m.name === 'code-editor').map(this.renderModuleItem)}
+              </React.Fragment>
+            )}
             <li className={classnames(style.empty, 'bp-empty')} />
           </ul>
         </div>

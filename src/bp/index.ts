@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events'
 
+global['NativePromise'] = global.Promise
+
 const yn = require('yn')
 const path = require('path')
 const fs = require('fs')

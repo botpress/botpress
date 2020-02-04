@@ -1,4 +1,5 @@
 import { createMessageAdapter } from '@slack/interactive-messages'
+import SlackMessageAdapter from '@slack/interactive-messages/dist/adapter'
 import { RTMClient } from '@slack/rtm-api'
 import { WebClient } from '@slack/web-api'
 import axios from 'axios'
@@ -22,7 +23,7 @@ const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 export class SlackClient {
   private client: WebClient
   private rtm: RTMClient
-  private interactive: any
+  private interactive: SlackMessageAdapter
   private logger: sdk.Logger
 
   constructor(private bp: typeof sdk, private botId: string, private config: Config, private router) {
@@ -71,6 +72,21 @@ export class SlackClient {
 
       //  await axios.post(payload.response_url, { text: `*${label}*` })
       await this.sendEvent(payload, { type: 'quick_reply', text: label, payload: value })
+    })
+
+    this.interactive.action({ actionId: 'feedback-overflow' }, async payload => {
+      debugIncoming(`Received feedback %o`, payload)
+
+      const action = payload.actions[0]
+      const blockId = action.block_id
+      const selectedOption = action.selected_option.value
+
+      const incomingEventId = blockId.replace('feedback-', '')
+      const feedback = parseInt(selectedOption)
+
+      const events = await this.bp.events.findEvents({ incomingEventId, direction: 'incoming' })
+      const event = events[0]
+      await this.bp.events.updateEvent(event.id, { feedback })
     })
 
     this.router.use(`/bots/${this.botId}/callback`, this.interactive.requestListener())
@@ -146,6 +162,36 @@ export class SlackClient {
       text: event.payload.text,
       channel: event.threadId || event.target,
       blocks
+    }
+
+    if (event.payload.collectFeedback && messageType === 'text') {
+      message.blocks = [
+        {
+          type: 'section',
+          block_id: `feedback-${event.incomingEventId}`,
+          text: { type: 'mrkdwn', text: event.payload.text },
+          accessory: {
+            type: 'overflow',
+            options: [
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '👍'
+                },
+                value: '1'
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '👎'
+                },
+                value: '-1'
+              }
+            ],
+            action_id: 'feedback-overflow'
+          }
+        }
+      ]
     }
 
     debugOutgoing(`Sending message %o`, message)

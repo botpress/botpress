@@ -15,7 +15,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     noInterface: true,
     menuText: 'Examples',
     fullName: 'Examples',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 

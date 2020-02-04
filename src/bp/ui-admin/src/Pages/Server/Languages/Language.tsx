@@ -4,6 +4,7 @@ import React, { FC, SFC, useState } from 'react'
 import api from '../../../api'
 
 import { LanguageSource } from './typings'
+import confirmDialog from '~/App/ConfirmDialog'
 
 interface Props {
   language: {
@@ -42,7 +43,11 @@ const Language: FC<Props> = props => {
   const [modelLoading, setLoading] = useState(false)
 
   const deleteLanguage = async () => {
-    if (window.confirm(`Are you sure that you want to delete ${props.language.name} from the server?`)) {
+    if (
+      await confirmDialog(`Are you sure that you want to delete ${props.language.name} from the server?`, {
+        acceptLabel: 'Delete'
+      })
+    ) {
       await api.getSecured().post(`/admin/languages/${props.language.code}/delete`)
     }
   }

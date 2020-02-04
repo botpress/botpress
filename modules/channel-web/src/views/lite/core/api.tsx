@@ -11,8 +11,10 @@ export default class WebchatApi {
     this.axios = axiosInstance
     this.axios.interceptors.request.use(
       config => {
-        const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
-        config.url += prefix + '__ts=' + new Date().getTime()
+        if (!config.url.includes('/botInfo')) {
+          const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
+          config.url += prefix + '__ts=' + new Date().getTime()
+        }
         return config
       },
       error => {
@@ -126,6 +128,15 @@ export default class WebchatApi {
     try {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
       return this.axios.post(`/messages/${this.userId}`, data, config)
+    } catch (err) {
+      await this.handleApiError(err)
+    }
+  }
+
+  async sendFeedback(feedback: number, eventId: string): Promise<void> {
+    try {
+      const data = { feedback }
+      return this.axios.post(`/events/${eventId}/feedback`, data, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)
     }

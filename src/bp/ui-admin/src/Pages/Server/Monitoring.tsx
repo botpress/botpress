@@ -19,6 +19,7 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
+import { fetchBotHealth } from '~/reducers/bots'
 import PageContainer from '~/App/PageContainer'
 
 import { fetchStats, refreshStats } from '../../reducers/monitoring'
@@ -26,6 +27,8 @@ import CheckRequirements from '../Components/CheckRequirements'
 import LoadingSection from '../Components/LoadingSection'
 import ChartTooltip from '../Components/Monitoring/ChartTooltip'
 import SummaryTable from '../Components/Monitoring/SummaryTable'
+
+import BotHealth from './BotHealth'
 
 const timeFrameOptions = [
   { value: '1m', label: '1 minute' },
@@ -55,6 +58,7 @@ interface Props {
   rawStats: any
   fetchStats: any
   refreshStats: any
+  fetchBotStatus: () => void
 }
 
 interface State {
@@ -146,7 +150,7 @@ class Monitoring extends Component<Props, State> {
     let intervalId: any = undefined
 
     if (autoRefresh && !this.state.intervalId) {
-      intervalId = setInterval(() => this.props.refreshStats(), 10000)
+      intervalId = setInterval(() => this.refreshStats(), 10000)
     } else if (!autoRefresh && this.state.intervalId) {
       clearInterval(this.state.intervalId)
     }
@@ -157,6 +161,11 @@ class Monitoring extends Component<Props, State> {
     if (active && payload) {
       return <ChartTooltip payload={payload} uniqueHosts={this.state.uniqueHosts} date={label} />
     }
+  }
+
+  refreshStats() {
+    this.props.refreshStats()
+    this.props.fetchBotStatus()
   }
 
   renderOverview() {
@@ -255,6 +264,12 @@ class Monitoring extends Component<Props, State> {
           <Col md={12}>
             <h5>Overview</h5>
             {this.renderOverview()}
+          </Col>
+        </Row>
+        <Row>
+          <Col md={12}>
+            <h5>Bot Health</h5>
+            <BotHealth />
           </Col>
         </Row>
       </div>
@@ -363,7 +378,7 @@ const mapStateToProps = state => ({
   loading: state.monitoring.loading
 })
 
-const mapDispatchToProps = { fetchStats, refreshStats }
+const mapDispatchToProps = { fetchStats, refreshStats, fetchBotStatus: fetchBotHealth }
 
 export default connect(
   mapStateToProps,

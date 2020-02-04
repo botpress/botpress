@@ -1,6 +1,5 @@
 import axios from 'axios'
 import React from 'react'
-import { toast } from 'react-toastify'
 import InjectedComponent from '~/components/Injected'
 import EventBus from '~/util/EventBus'
 
@@ -96,7 +95,7 @@ Component "${componentName}" doesn't exist for module "${moduleName}"
 There was a breaking change in how module views are handled in Botpress 11.6
 Web bundles and liteViews were replaced by a more standardized method.
 
-Please check our migration guide here: https://botpress.io/docs/developers/migrate/`),
+Please check our migration guide here: https://botpress.com/docs/developers/migrate/`),
         moduleComponent: null
       })
     } else {
@@ -113,7 +112,7 @@ Please check our migration guide here: https://botpress.io/docs/developers/migra
     this._isMounted = false
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.loadModule(nextProps.moduleName, nextProps.componentName)
   }
 
@@ -132,7 +131,6 @@ Please check our migration guide here: https://botpress.io/docs/developers/migra
     const bp = {
       events: EventBus.default,
       axios: axios.create({ baseURL: window.BOT_API_PATH }),
-      toast,
       getModuleInjector: () => InjectedModuleView,
       loadModuleView: this.loadModuleView
     }

@@ -18,7 +18,6 @@ import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 
 import api from '../../api'
-import AccessControl from '~/App/AccessControl'
 
 export default class Debug extends React.Component<Props, State> {
   state = {

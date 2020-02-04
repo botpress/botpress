@@ -6,7 +6,7 @@ This module has been build to facilitate the views of your users information.
 
 ### Community
 
-There's a [Community Forum](https://help.botpress.io) where you are welcome to join us, ask any question and even help others.
+There's a [Community Forum](https://forum.botpress.com) where you are welcome to join us, ask any question and even help others.
 
 ### License
 

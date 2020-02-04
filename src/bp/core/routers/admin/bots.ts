@@ -8,8 +8,8 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { ConflictError, ForbiddenError, NotFoundError } from '../errors'
-import { assertBotpressPro, hasPermissions, needPermissions, success as sendSuccess } from '../util'
+import { ConflictError, ForbiddenError } from '../errors'
+import { assertBotpressPro, assertWorkspace, hasPermissions, needPermissions, success as sendSuccess } from '../util'
 
 const chatUserBotFields = [
   'id',
@@ -51,6 +51,7 @@ export class BotsRouter extends CustomRouter {
 
     router.get(
       '/',
+      assertWorkspace,
       this.asyncMiddleware(async (req, res) => {
         const isBotAdmin = await this.hasPermissions(req, 'read', this.resource)
         const isChatUser = await this.hasPermissions(req, 'read', 'user.bots')
@@ -241,6 +242,27 @@ export class BotsRouter extends CustomRouter {
         await this.botService.rollback(botId, req.body.revision)
 
         return sendSuccess(res, `Created a new revision for bot ${botId}`)
+      })
+    )
+
+    router.get(
+      '/health',
+      this.needPermissions('read', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        return sendSuccess(res, 'Retrieved bot health', await this.botService.getBotHealth())
+      })
+    )
+
+    router.post(
+      '/:botId/reload',
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+
+        await this.botService.unmountBot(botId)
+        const success = await this.botService.mountBot(botId)
+
+        return success ? sendSuccess(res, `Reloaded bot ${botId}`) : res.sendStatus(400)
       })
     )
   }

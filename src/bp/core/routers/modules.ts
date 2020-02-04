@@ -1,4 +1,5 @@
 import { FlowGeneratorMetadata, Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 
@@ -6,8 +7,7 @@ import { ModuleLoader } from '../module-loader'
 import { SkillService } from '../services/dialog/skill/service'
 
 import { CustomRouter } from './customRouter'
-import { checkTokenHeader, assertSuperAdmin } from './util'
-import { ConfigProvider } from 'core/config/config-loader'
+import { assertSuperAdmin, checkTokenHeader } from './util'
 
 export class ModulesRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
@@ -25,7 +25,7 @@ export class ModulesRouter extends CustomRouter {
   }
 
   private setupRoutes(): void {
-    this.router.get('/', (req, res) => {
+    this.router.get('/', (_req, res) => {
       res.json(this.moduleLoader.getLoadedModules())
     })
 
@@ -33,7 +33,7 @@ export class ModulesRouter extends CustomRouter {
       '/reload/:moduleName',
       this.checkTokenHeader,
       assertSuperAdmin,
-      this.asyncMiddleware(async (req, res, next) => {
+      this.asyncMiddleware(async (req, res, _next) => {
         const moduleName = req.params.moduleName
         const config = await this.configProvider.getBotpressConfig()
         const module = config.modules.find(x => x.location.endsWith(moduleName))
@@ -50,15 +50,15 @@ export class ModulesRouter extends CustomRouter {
     this.router.get(
       '/botTemplates',
       this.checkTokenHeader,
-      this.asyncMiddleware(async (req, res, next) => {
-        res.send(await this.moduleLoader.getBotTemplates())
+      this.asyncMiddleware(async (_req, res, _next) => {
+        res.send(this.moduleLoader.getBotTemplates())
       })
     )
 
     this.router.get(
       '/skills',
       this.checkTokenHeader,
-      this.asyncMiddleware(async (req, res, next) => {
+      this.asyncMiddleware(async (_req, res, _next) => {
         res.send(await this.moduleLoader.getAllSkills())
       })
     )

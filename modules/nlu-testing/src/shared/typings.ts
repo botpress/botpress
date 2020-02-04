@@ -7,28 +7,23 @@ export interface Test {
   conditions: Condition[]
 }
 
-export interface TestResult {
-  success: boolean
-  reason?: string
-  expected: string
-  received: string | undefined
-}
-
 export interface CSVTest {
   Context: string
   Utterance: string
   Intent: string
 }
 
+export interface TestResultDetails {
+  success: boolean
+  reason: string
+  expected: string
+  received: string
+}
+
 export interface TestResult {
   id: string
   success: boolean
-  details: {
-    success: boolean
-    reason: string
-    expected: string
-    received: string
-  }[]
+  details: TestResultDetails[]
 }
 
 export interface F1 {

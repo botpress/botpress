@@ -12,7 +12,7 @@ import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
 import { BadRequestError, NotFoundError } from './errors'
-import { checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
+import { assertWorkspace, checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
 
 export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
@@ -72,6 +72,7 @@ export class AuthRouter extends CustomRouter {
     router.get(
       '/me/profile',
       this.checkTokenHeader,
+      assertWorkspace,
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
         const { email, strategy, isSuperAdmin } = req.tokenUser!
         const user = await this.authService.findUser(email, strategy)

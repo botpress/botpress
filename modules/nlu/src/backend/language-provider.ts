@@ -11,7 +11,7 @@ import path from 'path'
 
 import { setSimilarity, vocabNGram } from './tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from './tools/token-utils'
-import { Gateway, LangsGateway, LanguageProvider, LanguageSource, NLUHealth } from './typings'
+import { Gateway, LangsGateway, LanguageProvider, LanguageSource, NLUHealth, Token2Vec } from './typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -379,7 +379,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return vectors
   }
 
-  async tokenize(utterances: string[], lang: string): Promise<string[][]> {
+  async tokenize(utterances: string[], lang: string, vocab: Token2Vec = {}): Promise<string[][]> {
     if (!utterances.length) {
       return []
     }
@@ -418,7 +418,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
 
       let fetched = await this.queryProvider<string[][]>(lang, '/tokenize', { utterances: query }, 'tokens')
-      fetched = fetched.map(processUtteranceTokens)
+      fetched = fetched.map(toks => processUtteranceTokens(toks, vocab))
 
       if (fetched.length !== query.length) {
         throw new Error(

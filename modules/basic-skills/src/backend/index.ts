@@ -49,7 +49,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'basic-skills',
     menuIcon: 'fiber_smart_record',
     fullName: 'Basic Skills',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: true,
     plugins: [],
     moduleView: { stretched: true }

@@ -1,9 +1,19 @@
-import { Button, H3, HTMLTable, Icon, Intent, Position, Tooltip } from '@blueprintjs/core'
+import {
+  Button,
+  ContextMenuTarget,
+  H3,
+  HTMLTable,
+  Icon,
+  Intent,
+  Menu,
+  MenuItem,
+  Position,
+  Tooltip
+} from '@blueprintjs/core'
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { Component, FC } from 'react'
 
 import { Test, TestResult } from '../../shared/typings'
-import { computeSummary } from '../../shared/utils'
 
 interface TestResultProps {
   testResult?: TestResult
@@ -33,13 +43,49 @@ const TestResult: FC<TestResultProps> = ({ testResult }) => {
   }
 }
 
-interface Props {
+interface TableRowProps {
+  test: Test
+  testResult: TestResult
+  onRun: () => void
+  onDelete: () => void
+}
+
+@ContextMenuTarget
+class TableRow extends Component<TableRowProps> {
+  render() {
+    const { test, testResult } = this.props
+    return (
+      <tr key={test.id}>
+        {/* TODO edit utterance in place */}
+        <td>{test.utterance}</td>
+        <td>{test.context}</td>
+        <td>{test.conditions.map(c => c.join('-')).join(' | ')}</td>
+        <td>
+          <TestResult testResult={testResult} />
+        </td>
+      </tr>
+    )
+  }
+
+  renderContextMenu = (e: React.MouseEvent<HTMLElement>) => {
+    return (
+      <Menu>
+        <MenuItem onClick={this.props.onRun} text="Run" />
+        <MenuItem onClick={this.props.onDelete} text="Delete" />
+      </Menu>
+    )
+  }
+}
+
+interface TestTableProps {
   tests: Test[]
   testResults: _.Dictionary<TestResult>
   createTest: () => void
+  runTest: (test: Test) => void
+  deleteTest: (testId: Test) => void
 }
 
-export const TestTable: FC<Props> = props => (
+export const TestTable: FC<TestTableProps> = props => (
   <React.Fragment>
     <H3>
       NLU System Tests &nbsp;
@@ -64,15 +110,12 @@ export const TestTable: FC<Props> = props => (
       </thead>
       <tbody>
         {props.tests.map(test => (
-          <tr key={test.id}>
-            {/* TODO edit utterance in place */}
-            <td>{test.utterance}</td>
-            <td>{test.context}</td>
-            <td>{test.conditions.map(c => c.join('-')).join(' | ')}</td>
-            <td>
-              <TestResult testResult={props.testResults[test.id]} />
-            </td>
-          </tr>
+          <TableRow
+            test={test}
+            testResult={props.testResults[test.id]}
+            onRun={props.runTest.bind(this, test)}
+            onDelete={props.deleteTest.bind(this, test)}
+          />
         ))}
       </tbody>
     </HTMLTable>

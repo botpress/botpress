@@ -10,7 +10,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { checkLocationOrigin, initializeAnalytics } from './utils'
+import { checkLocationOrigin, initializeAnalytics, trackWebchatState, trackMessage } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -91,6 +91,7 @@ class Web extends React.Component<MainProps> {
     config.reference && this.props.setReference()
 
     this.setupObserver()
+    this.props.fetchBotInfo()
   }
 
   extractConfig() {
@@ -148,11 +149,15 @@ class Web extends React.Component<MainProps> {
 
       if (type === 'show') {
         this.props.showChat()
+        trackWebchatState('show')
       } else if (type === 'hide') {
         this.props.hideChat()
+        trackWebchatState('hide')
       } else if (type === 'toggle') {
         this.props.displayWidgetView ? this.props.showChat() : this.props.hideChat()
+        trackWebchatState('toggle')
       } else if (type === 'message') {
+        trackMessage('sent')
         await this.props.sendMessage(text)
       } else if (type === 'toggleBotInfo') {
         this.props.toggleBotInfo()
@@ -168,6 +173,7 @@ class Web extends React.Component<MainProps> {
       return
     }
 
+    trackMessage('received')
     await this.props.addEventToConversation(event)
 
     // there's no focus on the actual conversation
@@ -262,6 +268,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   config: store.config,
   sendData: store.sendData,
   initializeChat: store.initializeChat,
+  fetchBotInfo: store.fetchBotInfo,
   updateConfig: store.updateConfig,
   mergeConfig: store.mergeConfig,
   addEventToConversation: store.addEventToConversation,
@@ -284,7 +291,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   dimensions: store.view.dimensions,
   widgetTransition: store.view.widgetTransition,
   displayWidgetView: store.view.displayWidgetView,
-  setLoadingCompleted: store.view.setLoadingCompleted
+  setLoadingCompleted: store.view.setLoadingCompleted,
+  sendFeedback: store.sendFeedback
 }))(injectIntl(observer(Web)))
 
 type MainProps = { store: RootStore } & Pick<
@@ -292,6 +300,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'bp'
   | 'config'
   | 'initializeChat'
+  | 'fetchBotInfo'
   | 'sendMessage'
   | 'setUserId'
   | 'sendData'

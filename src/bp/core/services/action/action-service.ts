@@ -7,6 +7,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
+import yn from 'yn'
 
 import { GhostService } from '..'
 import { createForAction } from '../../api'
@@ -212,7 +213,7 @@ export class ScopedActionService {
   async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
     process.ASSERT_LICENSED()
 
-    if (process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS) {
+    if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
       await this.checkActionRequires(actionName)
     }
 

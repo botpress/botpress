@@ -7,7 +7,7 @@ import { KeyValueStore } from 'core/services/kvs'
 import RealtimeService from 'core/services/realtime'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import moment = require('moment')
+import moment from 'moment'
 import nanoid from 'nanoid/generate'
 
 import { GhostService } from '../..'
@@ -178,7 +178,7 @@ export class FlowService {
     const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(botId, flow, isNew)
 
     await Promise.all([
-      ghost.upsertFile(FLOW_DIR, flowPath, JSON.stringify(flowContent, undefined, 2)),
+      ghost.upsertFile(FLOW_DIR, flowPath!, JSON.stringify(flowContent, undefined, 2)),
       ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
     ])
 
@@ -227,6 +227,8 @@ export class FlowService {
       ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
     this._allFlows.clear()
+
+    await this.moduleLoader.onFlowRenamed(botId, previousName, newName)
 
     this.notifyChanges({
       name: previousName,
@@ -305,7 +307,7 @@ export class FlowService {
     return this._upsertFlow(botId, flow)
   }
 
-  private async prepareSaveFlow(botId, flow, isNew: boolean) {
+  private async prepareSaveFlow(botId: string, flow: FlowView, isNew: boolean) {
     const schemaError = validateFlowSchema(flow)
     if (schemaError) {
       throw new Error(schemaError)
@@ -326,10 +328,10 @@ export class FlowService {
     }
 
     const flowPath = flow.location
-    return { flowPath, uiPath: this.uiPath(flowPath), flowContent, uiContent }
+    return { flowPath, uiPath: this.uiPath(flowPath!), flowContent, uiContent }
   }
 
-  private uiPath(flowPath) {
+  private uiPath(flowPath: string) {
     return flowPath.replace(/\.flow\.json$/i, '.ui.json')
   }
 }

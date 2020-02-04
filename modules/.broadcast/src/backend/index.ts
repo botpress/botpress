@@ -39,7 +39,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'settings_input_antenna',
     menuText: 'Broadcast',
     fullName: 'Broadcast',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 

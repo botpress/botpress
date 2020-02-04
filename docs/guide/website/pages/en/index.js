@@ -72,7 +72,7 @@ class HomeSplash extends React.Component {
           <img className="mainLogo" src={imgUrl('botpress.svg')} alt="Project Logo" />
           <ProjectTitle />
           <PromoSection>
-            <Button href="https://botpress.io">Try It Out</Button>
+            <Button href="https://botpress.com">Try It Out</Button>
           </PromoSection>
         </div>
       </SplashContainer>
@@ -99,7 +99,7 @@ const GuideCards = () => (
       },
       {
         content: 'Find all the code references you need in this always up-to-date Botpress SDK Reference.',
-        title: '<a href="https://botpress.io/reference/">📘 SDK Reference</a>'
+        title: '<a href="https://botpress.com/reference/">📘 SDK Reference</a>'
       },
       {
         content: 'Advanced examples for developers on how you can use Botpress.',

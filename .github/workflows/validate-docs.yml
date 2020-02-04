@@ -20,7 +20,7 @@ jobs:
           pip install scrapy
           scrapy runspider \
           -o errors.csv \
-          -a site="https://botpress.io/docs" \
+          -a site="https://botpress.com/docs" \
           -a domain="botpress.io" \
           .github/workflows/code/validate-docs/spider.py \
           -s AUTOTHROTTLE_ENABLED=true \

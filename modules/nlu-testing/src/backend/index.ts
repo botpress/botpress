@@ -38,7 +38,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'done_outline',
     menuText: 'NLU Testing',
     fullName: 'NLU Regression Testing',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     experimental: true
   }
 }

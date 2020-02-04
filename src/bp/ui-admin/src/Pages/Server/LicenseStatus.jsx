@@ -12,6 +12,7 @@ import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
 import PageContainer from '~/App/PageContainer'
+import confirmDialog from '~/App/ConfirmDialog'
 
 class LicenseStatus extends React.Component {
   state = {
@@ -68,14 +69,16 @@ class LicenseStatus extends React.Component {
   }
 
   enableProEdition = async () => {
-    if (!window.confirm('Are you sure?')) {
-      return
-    }
-
     try {
-      const result = await api.getSecured().post('/admin/server/config/enablePro')
-      if (result.status === 200) {
-        await this.rebootServer()
+      if (
+        await confirmDialog('Are you sure?', {
+          acceptLabel: 'Enable'
+        })
+      ) {
+        const result = await api.getSecured().post('/admin/server/config/enablePro')
+        if (result.status === 200) {
+          await this.rebootServer()
+        }
       }
     } catch (error) {
       this.setState({ error })

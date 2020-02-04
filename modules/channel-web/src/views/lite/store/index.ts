@@ -17,7 +17,7 @@ import {
   MessageWrapper,
   StudioConnector
 } from '../typings'
-import { downloadFile } from '../utils'
+import { downloadFile, trackMessage } from '../utils'
 
 import ComposerStore from './composer'
 import ViewStore from './view'
@@ -145,7 +145,6 @@ class RootStore {
   @action.bound
   async initializeChat(): Promise<void> {
     try {
-      await this.fetchBotInfo()
       await this.fetchConversations()
       await this.fetchConversation()
       runInAction('-> setInitialized', () => {
@@ -218,7 +217,9 @@ class RootStore {
     if (!userMessage || !userMessage.length) {
       return
     }
+
     await this.sendData({ type: 'text', text: userMessage })
+    trackMessage('sent')
 
     this.composer.addMessageToHistory(userMessage)
     this.composer.updateMessage('')
@@ -262,6 +263,11 @@ class RootStore {
       timezone: new Date().getTimezoneOffset() / 60,
       language: getUserLocale()
     })
+  }
+
+  @action.bound
+  async sendFeedback(feedback: number, eventId: string): Promise<void> {
+    await this.api.sendFeedback(feedback, eventId)
   }
 
   @action.bound
@@ -319,6 +325,7 @@ class RootStore {
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
     this.view.disableAnimations = this.config.disableAnimations
     this.config.showPoweredBy ? this.view.showPoweredBy() : this.view.hidePoweredBy()
+    this.config.locale && this.updateBotUILanguage(getUserLocale(this.config.locale))
 
     try {
       window.USE_SESSION_STORAGE = this.config.useSessionStorage
