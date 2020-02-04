@@ -26,7 +26,15 @@ export const POS_CLASSES = [
   'VERB',
   'X',
   SPACE
-]
+] as const
+
+type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<infer ElementType> ? ElementType : never
+
+export type POS_CLASS = ElementType<typeof POS_CLASSES>
+export const POS1_SET: POS_CLASS[] = ['VERB', 'NOUN']
+export const POS2_SET: POS_CLASS[] = ['ADJ', 'ADV', 'ADV', 'AUX', 'DET', 'PROPN', 'PRON']
+export const POS3_SET: POS_CLASS[] = ['CONJ', 'CCONJ', 'INTJ', 'AUX', 'SCONJ']
+export const POS4_SET: POS_CLASS[] = ['PUNCT', 'SYM', 'X', 'NUM', 'PART']
 
 // export function makePOSdic(): _.Dictionary<ReadonlyArray<number>[]> {
 export function makePOSdic(): _.Dictionary<number> {

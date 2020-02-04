@@ -21,7 +21,7 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
-import { makePOSdic, POS_CLASSES } from '../pos-tagger'
+import { makePOSdic, POS_CLASSES, POS1_SET, POS2_SET, POS3_SET, POS4_SET } from '../pos-tagger'
 import { encodeOH } from '../tools/encoder'
 
 // TODO make this return artefacts only and move the make model login in E2
@@ -390,11 +390,11 @@ const trainOOS = async (input: TrainOutput, tools: Tools): Promise<string | unde
           return averageVectors(vectors)
         }
 
-        const pos1 = averageByPOS('VERB', 'NOUN')
-        const pos2 = averageByPOS('ADJ', 'ADV', 'ADV', 'AUX', 'DET', 'PROPN', 'PRON')
-        const pos3 = averageByPOS('CONJ', 'CCONJ', 'INTJ', 'AUX', 'SCONJ')
-        const pos4 = averageByPOS('PUNCT', 'SYM', 'X', 'NUM', 'PART')
-        const feats = [...pos1, ...pos2]
+        const pos1 = averageByPOS(...POS1_SET)
+        const pos2 = averageByPOS(...POS2_SET)
+        const pos3 = averageByPOS(...POS3_SET)
+        const pos4 = averageByPOS(...POS4_SET)
+        const feats = [...pos1, ...pos2, ...pos3, ...pos4]
 
         // const feats = [...posOH, ...kmeansOH, utt.tokens.length]
         // const feats = [...utt.sentenceEmbedding, ...posOH]
@@ -402,7 +402,7 @@ const trainOOS = async (input: TrainOutput, tools: Tools): Promise<string | unde
         // const feats = [...posOH, utt.tokens.length]
         // const feats = [...posOH]
 
-        return { label: 'in', coordinates: feats }
+        return { label: i.name, coordinates: feats }
       })
     )
     .value()
@@ -425,12 +425,11 @@ const trainOOS = async (input: TrainOutput, tools: Tools): Promise<string | unde
           return averageVectors(vectors)
         }
 
-        const pos1 = averageByPOS('VERB', 'NOUN')
-        const pos2 = averageByPOS('ADJ', 'ADV', 'ADV', 'AUX', 'DET', 'PROPN', 'PRON')
-        const pos3 = averageByPOS('CONJ', 'CCONJ', 'INTJ', 'AUX', 'SCONJ')
-        const pos4 = averageByPOS('PUNCT', 'SYM', 'X', 'NUM', 'PART')
-        // const feats = [...pos1, ...pos2, ...pos3, ...pos4]
-        const feats = [...pos1, ...pos2]
+        const pos1 = averageByPOS(...POS1_SET)
+        const pos2 = averageByPOS(...POS2_SET)
+        const pos3 = averageByPOS(...POS3_SET)
+        const pos4 = averageByPOS(...POS4_SET)
+        const feats = [...pos1, ...pos2, ...pos3, ...pos4]
 
         return { label: 'out', coordinates: feats }
       })
@@ -439,9 +438,10 @@ const trainOOS = async (input: TrainOutput, tools: Tools): Promise<string | unde
 
   const svm = new tools.mlToolkit.SVM.Trainer()
   return svm.train([...points_a, ...points_b], {
-    // classifier: 'ONE_CLASS',
-    kernel: 'LINEAR',
-    gamma: 0.0001
+    classifier: 'C_SVC',
+    kernel: 'LINEAR'
+    // c: [100, 10, 1, 0.5, 0.1, 0.01, 0.001],
+    // gamma: [10, 1, 0.5, 0.1, 0.01, 0.001, 0.0001]
   })
 }
 

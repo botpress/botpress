@@ -10,7 +10,7 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
-import { POS_CLASSES } from '../pos-tagger'
+import { POS_CLASSES, POS1_SET, POS2_SET, POS3_SET, POS4_SET } from '../pos-tagger'
 import { encodeOH } from '../tools/encoder'
 
 export type Predictors = TrainArtefacts & {
@@ -307,14 +307,11 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
     return math.averageVectors(vectors)
   }
 
-  const pos1 = averageByPOS('VERB', 'NOUN')
-  const pos2 = averageByPOS('ADJ', 'ADV', 'ADV', 'AUX', 'DET', 'PROPN', 'PRON')
-  const pos3 = averageByPOS('CONJ', 'CCONJ', 'INTJ', 'AUX', 'SCONJ')
-  const pos4 = averageByPOS('PUNCT', 'SYM', 'X', 'NUM', 'PART')
-  // const features = [...pos1, ...pos2, ...pos3, ...pos4]
-  const features = [...pos1, ...pos2]
-  // const features = [...posOH, utt.tokens.length]
-  // const features = [...posOH]
+  const pos1 = averageByPOS(...POS1_SET)
+  const pos2 = averageByPOS(...POS2_SET)
+  const pos3 = averageByPOS(...POS3_SET)
+  const pos4 = averageByPOS(...POS4_SET)
+  const features = [...pos1, ...pos2, ...pos3, ...pos4]
 
   // @ts-ignore
   const preds = await oos.predict(features)
