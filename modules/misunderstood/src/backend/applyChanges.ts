@@ -71,7 +71,10 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
         status: FLAGGED_MESSAGE_STATUS.applied,
         updatedAt: knex.fn.now()
       })
-      .whereIn('id', events.map(({ id }) => id))
+      .whereIn(
+        'id',
+        events.map(({ id }) => id)
+      )
 
     setImmediate(async () => {
       const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })

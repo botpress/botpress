@@ -9,6 +9,7 @@ export interface TestingAPI {
   updateTest: (x: Test) => Promise<void>
   deleteTest: (x: Test) => Promise<void>
   runTest: (x: Test) => Promise<TestResult>
+  runAllTests: () => Promise<_.Dictionary<TestResult>>
   computeCrossValidation: (lang: string) => Promise<XValidationResults>
   exportResults: (results: _.Dictionary<TestResult>) => Promise<void>
 }
@@ -35,6 +36,11 @@ export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
 
     runTest: async (test: Test): Promise<TestResult> => {
       const { data } = await bp.axios.post(`/mod/nlu-testing/tests/${test.id}/run`)
+      return data
+    },
+
+    runAllTests: async (): Promise<_.Dictionary<TestResult>> => {
+      const { data } = await bp.axios.post(`/mod/nlu-testing/runAll`)
       return data
     },
 

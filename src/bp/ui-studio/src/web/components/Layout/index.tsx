@@ -170,7 +170,13 @@ class Layout extends React.Component<ILayoutProps> {
             <div>
               <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
                 <Switch>
-                  <Route exact path="/" render={() => <Redirect to="/flows" />} />
+                  <Route
+                    exact
+                    path="/"
+                    render={() =>
+                      window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/modules/code-editor" />
+                    }
+                  />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
@@ -212,7 +218,4 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ viewModeChanged, updateDocumentationModal, toggleBottomPanel }, dispatch)
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Layout)
+export default connect(mapStateToProps, mapDispatchToProps)(Layout)

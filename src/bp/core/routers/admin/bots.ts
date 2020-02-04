@@ -244,5 +244,26 @@ export class BotsRouter extends CustomRouter {
         return sendSuccess(res, `Created a new revision for bot ${botId}`)
       })
     )
+
+    router.get(
+      '/health',
+      this.needPermissions('read', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        return sendSuccess(res, 'Retrieved bot health', await this.botService.getBotHealth())
+      })
+    )
+
+    router.post(
+      '/:botId/reload',
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+
+        await this.botService.unmountBot(botId)
+        const success = await this.botService.mountBot(botId)
+
+        return success ? sendSuccess(res, `Reloaded bot ${botId}`) : res.sendStatus(400)
+      })
+    )
   }
 }

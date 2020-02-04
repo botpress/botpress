@@ -2,6 +2,7 @@ import { AxiosError } from 'axios'
 import { Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
 import { IDisposable } from 'core/misc/disposable'
+import { BotService } from 'core/services/bot-service'
 import { incrementMetric } from 'core/services/monitoring'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
@@ -151,7 +152,7 @@ export class PersistedConsoleLogger implements Logger {
     }
 
     const serializedMetadata = metadata ? serializeArgs(metadata) : ''
-    const timeFormat = 'HH:mm:ss.SSS'
+    const timeFormat = 'L HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
@@ -229,6 +230,10 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
+    if (this.botId) {
+      BotService.incrementBotStats(this.botId, 'warning')
+    }
+
     incrementMetric('warnings.count')
     this.print(LoggerLevel.Warn, message, metadata)
   }
@@ -236,6 +241,10 @@ export class PersistedConsoleLogger implements Logger {
   error(message: string, metadata?: any): void {
     if (this.currentMessageLevel === undefined) {
       this.currentMessageLevel = LogLevel.PRODUCTION
+    }
+
+    if (this.botId) {
+      BotService.incrementBotStats(this.botId, 'error')
     }
 
     incrementMetric('errors.count')

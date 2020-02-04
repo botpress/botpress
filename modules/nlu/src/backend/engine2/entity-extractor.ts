@@ -104,7 +104,10 @@ export const extractListEntities = (
 
           const exact_score = exactScore(worksetStrWCase, occurrence) === 1 ? 1 : 0
           const fuzzy = list.fuzzyTolerance < 1 && worksetStrLow.join('').length >= 4
-          const fuzzy_score = fuzzyScore(worksetStrLow, occurrence.map(t => t.toLowerCase()))
+          const fuzzy_score = fuzzyScore(
+            worksetStrLow,
+            occurrence.map(t => t.toLowerCase())
+          )
           const fuzzy_factor = fuzzy_score >= list.fuzzyTolerance ? fuzzy_score : 0
           const structural_score = structuralScore(worksetStrWCase, occurrence)
           const finalScore = fuzzy ? fuzzy_factor * structural_score : exact_score * structural_score
