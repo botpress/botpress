@@ -33,7 +33,7 @@ require('yargs')
     alias: 'v',
     describe: 'display more info about what is being done'
   })
-  .epilogue('for more information, visit https://botpress.io/docs')
+  .epilogue('for more information, visit https://botpress.com/docs')
   .demandCommand(1)
   .help()
   .wrap(72).argv

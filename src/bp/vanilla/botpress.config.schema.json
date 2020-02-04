@@ -87,7 +87,7 @@
       }
     },
     "licenseKey": {
-      "description": "The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.\nYou can purchase a license on https://botpress.io\nFor usage with Botpress Pro/Enterprise.",
+      "description": "The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.\nYou can purchase a license on https://botpress.com\nFor usage with Botpress Pro/Enterprise.",
       "type": "string"
     },
     "sendUsageStats": {

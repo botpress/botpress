@@ -7,8 +7,7 @@ import {
   intentsReceived,
   requestInsertNewSkill,
   requestUpdateSkill,
-  skillsReceived,
-  updateSkill
+  skillsReceived
 } from '~/actions'
 
 const defaultState = {

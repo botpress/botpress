@@ -283,10 +283,13 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`/s`, this.shortlinksRouter.router)
 
-    this.app.use(function handleErrors(err, req, res, next) {
+    this.app.use((err, req, res, next) => {
       if (err instanceof UnlicensedError) {
         next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
       } else {
+        if (err.statusCode === 413) {
+          this.logger.error('You may need to increase httpServer.bodyLimit in file data/global/botpress.config.json')
+        }
         next(err)
       }
     })
@@ -295,7 +298,7 @@ export default class HTTPServer {
       const statusCode = err.statusCode || 500
       const errorCode = err.errorCode || 'BP_000'
       const message = (err.errorCode && err.message) || 'Unexpected error'
-      const docs = err.docs || 'https://botpress.io/docs'
+      const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
       res.status(statusCode).json({

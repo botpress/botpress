@@ -12,11 +12,11 @@ The following information is here to walk you through your first and future cont
 
 As contributors, you should be respectful and considerate of others - both contributors and non-contributors alike. Please refer to the [code of conduct](./CODE_OF_CONDUCT.md) for our and your responsibilities to the rest of the community.
 
-However, as a reminder, we do have a [Community Forum](https://help.botpress.io/) and a [website](https://botpress.io/), so please use these as places to find support rather than using the issue tracker which should be reserved for feature requests and bug reports.
+However, as a reminder, we do have a [Community Forum](https://help.botpress.com/) and a [website](https://botpress.com/), so please use these as places to find support rather than using the issue tracker which should be reserved for feature requests and bug reports.
 
 ### New to contributing to open-source?
 
-Working on your first Pull Request? You can learn how from this *free* series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
+Working on your first Pull Request? You can learn how from this _free_ series, [How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github).
 
 At this point, you're ready to make your changes! Feel free to ask for help; everyone is a beginner at first :smile_cat:
 
@@ -24,24 +24,26 @@ If a maintainer asks you to "rebase" your PR, they're saying that a lot of code 
 
 ### Why become a contributor :robot:?
 
-We all have our motivation for doing what we do. For the core team at Botpress, it's our mission; __Making machines understand humans.__ Building more intuitive applications using language is why we write lines of code in botpress/botpress.
+We all have our motivation for doing what we do. For the core team at Botpress, it's our mission; **Making machines understand humans.** Building more intuitive applications using language is why we write lines of code in botpress/botpress.
 
 What's your motivation?
-* You are looking for experience before finding a job
-* You are using the product and you have some idea for improvements.
-* You believe in the mission.
-* You want to be part of a community of like-minded individuals.
+
+- You are looking for experience before finding a job
+- You are using the product and you have some idea for improvements.
+- You believe in the mission.
+- You want to be part of a community of like-minded individuals.
 
 Let us know what motivates you!
 
 ### How can you contribute?
 
 Botpress is an open-source project and we welcome any contributions from the community! There are more ways to contribute than fixing bugs and writing features.
-* Improving the documentation
-* Submitting bug reports
-* Writing tutorials
-* Organizing meetups
-* Supporting the community by answering questions on the forum.
+
+- Improving the documentation
+- Submitting bug reports
+- Writing tutorials
+- Organizing meetups
+- Supporting the community by answering questions on the forum.
 
 Those are all great contributions and will be welcomed as much as any other.
 
@@ -51,7 +53,7 @@ If you're not sure where to start issues, we've labeled some issues with [`good 
 
 Start by checking out the [README](./README.md) and check out the introductory videos and get familiar with what Botpress does. Forum, documentation, and tutorials can also be a great starting point and needless to say that they are as essential to the community as any other feature or bug fix.
 
-Side note: There's a *What are you working on?* topic on our [Forum](https://help.botpress.io/t/welcome-what-are-you-working-on/2689) so maybe :wave: here and get settled in!
+Side note: There's a _What are you working on?_ topic on our [Forum](https://forum.botpress.com/t/welcome-what-are-you-working-on/2689) so maybe :wave: here and get settled in!
 
 When you are ready to start, go straight to [Getting Started](#getting-started) or [Setting up your local Dev Environment](#setting-up-your-local-dev-environment)
 
@@ -63,33 +65,38 @@ Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Pr
 
 ### Your Responsibilities
 
-* Ensure contributions are unit tested and that all tests pass before submitting any pull-request.
+- Ensure contributions are unit tested and that all tests pass before submitting any pull-request.
 
   Before you run the tests, you need a PostgreSQL server running on your machine. If you have [Docker](https://www.docker.com/) installed, you can run the following at the command prompt, to automatically download and start a PostgreSQL server. You don't need to understand or install PostgreSQL Server yourself.
 
   To run local PostgreSQL server at the command prompt.
+
   ```
   # macOS
   docker run -p 5432:5432 -e POSTGRES_USER=$USER postgres
   # Windows PowerShell
   docker run -p 5432:5432 -e POSTGRES_USER=$env:UserName postgres
   ```
+
   Note:
-  * Press `Ctrl-c` to stop it.
+
+  - Press `Ctrl-c` to stop it.
 
   To run the tests run at the command prompt.
+
   ```
   npm run test
   ```
 
-* Ensure that the code lints cleanly
+- Ensure that the code lints cleanly
 
   To lint the code run at the command prompt.
+
   ```
   npm run lint
   ```
 
-* If you do find any issues or think of a feature please [create a Github issue](https://help.github.com/articles/creating-an-issue/) for this first. Discuss things transparently and get community feedback.
+- If you do find any issues or think of a feature please [create a Github issue](https://help.github.com/articles/creating-an-issue/) for this first. Discuss things transparently and get community feedback.
 
 ### How to Report a Bug
 
@@ -123,62 +130,64 @@ These instructions assume a parent directory `bar` and we will be adding two chi
 
 1. Fork the [botpress repo](https://github.com/botpress/botpress) & copy the link. (If you are new to open-source, GitHub, or Git, check out the excellent egghead.io link in 'New to contributing to open-source?' for additional important Git commands, such as checking out a branch, setting your upstream repo, keeping your local copy in sync, and making your pull request).
 2. Open a new terminal/CLI tab, and run commands
-    ```shell
-    # botpress terminal window
 
-    # create and navigate to the `bar` directory
-    $ mkdir bar && cd bar
-    # Clone the forked repo locally
-    bar $ git clone https://github.com/YOURNAME/botpress.git
-    ```
+   ```shell
+   # botpress terminal window
+
+   # create and navigate to the `bar` directory
+   $ mkdir bar && cd bar
+   # Clone the forked repo locally
+   bar $ git clone https://github.com/YOURNAME/botpress.git
+   ```
 
 3. Continue running commands in the **botpress terminal window**
 
-    ```shell
-    # Install Yarn globally
-    bar $ npm install --global yarn
+   ```shell
+   # Install Yarn globally
+   bar $ npm install --global yarn
 
-    # Navigate to the botpress directory
-    bar $ cd botpress
+   # Navigate to the botpress directory
+   bar $ cd botpress
 
-    # Setup the dev environment
-    bar/botpress $ yarn run bootstrap
+   # Setup the dev environment
+   bar/botpress $ yarn run bootstrap
 
-    # Start the botpress server
-    bar/botpress $ yarn start
-    ```
+   # Start the botpress server
+   bar/botpress $ yarn start
+   ```
 
 4. Open a new terminal/CLI tab (**foobot**), and run commands
 
-    ```shell
-    # Create our test bot called `foobot`
-    bar $ yarn --cwd=botpress run init-foobot
+   ```shell
+   # Create our test bot called `foobot`
+   bar $ yarn --cwd=botpress run init-foobot
 
-    # Navigate to the foobot directory
-    bar $ cd foobot
+   # Navigate to the foobot directory
+   bar $ cd foobot
 
-    # Start the bot normally
-    bar/foobot $ bp start
-    ```
+   # Start the bot normally
+   bar/foobot $ bp start
+   ```
 
-*Next Steps*
+_Next Steps_
 
 5. You will note that if you want to access the CLI while `botpress` and `foobot` are running, you will need to open a third tab.
 6. If you want to confirm that your local copy is working, a straightforward method is to make a change to botpress's React code on your local copy, restart both botpress and foobot
-  - edit code in botpress
-  - in: **botpress terminal window**
-    ```shell
-    # Ctl-C to end watch
-    # Start botpress
-    bar/botpress $ yarn start
-    ```
-  - in: **foobot terminal window**
-    ```shell
-    # Ctl-C to stop bot
-    bar/foobot $ bp start
-    ```
- - visit `localhost:3000` in a browser to confirm your change was implemented
+
+- edit code in botpress
+- in: **botpress terminal window**
+  ```shell
+  # Ctl-C to end watch
+  # Start botpress
+  bar/botpress $ yarn start
+  ```
+- in: **foobot terminal window**
+  ```shell
+  # Ctl-C to stop bot
+  bar/foobot $ bp start
+  ```
+- visit `localhost:3000` in a browser to confirm your change was implemented
 
 ### Community
 
-The maintainers and the community members can be found on [the forum](https://help.botpress.io/) and will try to reply to most messages.
+The maintainers and the community members can be found on [the forum](https://forum.botpress.com/) and will try to reply to most messages.

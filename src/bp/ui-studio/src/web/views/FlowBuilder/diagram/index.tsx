@@ -326,9 +326,9 @@ class Diagram extends Component<Props> {
     )
   }
 
-  checkForProblems() {
+  checkForProblems = _.debounce(() => {
     this.props.updateFlowProblems(this.manager.getNodeProblems())
-  }
+  }, 500)
 
   createFlow(name: string) {
     this.props.createFlow(name + '.flow.json')
@@ -378,14 +378,22 @@ class Diagram extends Component<Props> {
     this.checkForLinksUpdate()
   }
 
-  checkForLinksUpdate() {
-    const links = this.manager.getLinksRequiringUpdate()
-    if (links) {
-      this.props.updateFlow({ links })
-    }
+  checkForLinksUpdate = _.debounce(
+    () => {
+      if (this.props.readOnly) {
+        return
+      }
 
-    this.checkForProblems()
-  }
+      const links = this.manager.getLinksRequiringUpdate()
+      if (links) {
+        this.props.updateFlow({ links })
+      }
+
+      this.checkForProblems()
+    },
+    500,
+    { leading: true }
+  )
 
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
@@ -624,9 +632,4 @@ const mapDispatchToProps = {
   buildSkill: buildNewSkill
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  null,
-  { withRef: true }
-)(Diagram)
+export default connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(Diagram)

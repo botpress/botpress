@@ -1,5 +1,5 @@
 import { Container } from 'botpress/ui'
-import { configure, observe } from 'mobx'
+import { configure } from 'mobx'
 import { Provider } from 'mobx-react'
 import React from 'react'
 
@@ -23,8 +23,8 @@ export default class CodeEditor extends React.Component<{ bp: any }> {
   }
 
   render() {
-    const keyMap = { newFile: 'ctrl+alt+n' }
-    const keyHandlers = { newFile: this.store.createNewAction }
+    const keyMap = { newFile: 'ctrl+alt+n', rawFileMode: 'r a w t o o l' }
+    const keyHandlers = { newFile: this.store.createNewAction, rawFileMode: this.store.enableRawEditor }
 
     return (
       <Provider store={this.store}>

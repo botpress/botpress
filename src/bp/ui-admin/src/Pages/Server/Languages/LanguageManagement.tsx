@@ -1,4 +1,5 @@
 import { Spinner } from '@blueprintjs/core'
+import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import api from '../../../api'
@@ -47,7 +48,7 @@ const LanguageManagement: FC<Props> = props => {
     lang => !languages.installed.find((l: any) => l.lang === lang.code)
   )
 
-  const installed = languages.installed.map(x => ({
+  const installed = _.sortBy(languages.installed, 'name').map(x => ({
     ...x,
     ...languages.available.find(l => l.code === x.lang)
   }))

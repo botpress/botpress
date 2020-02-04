@@ -10,7 +10,7 @@ import { CustomRouter } from '../customRouter'
 import { checkTokenHeader } from '../util'
 
 // this schema ensures a non breaking api signature (> 11.5)
-// see https://botpress.io/docs/build/channels/#usage-public-api
+// see https://botpress.com/docs/build/channels/#usage-public-api
 const conversePayloadSchema = {
   type: joi.string().valid('text'), // add other types as we need
   text: joi.string().required(),

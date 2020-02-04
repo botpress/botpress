@@ -7,8 +7,9 @@ import _ from 'lodash'
 import path from 'path'
 import { VError } from 'verror'
 
-import { FileRevision, StorageDriver } from '.'
 import { BPError } from '../dialog/errors'
+
+import { FileRevision, StorageDriver } from '.'
 
 @injectable()
 export default class DiskStorageDriver implements StorageDriver {

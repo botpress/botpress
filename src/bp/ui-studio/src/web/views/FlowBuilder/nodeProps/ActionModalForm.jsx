@@ -23,7 +23,7 @@ class ActionModalForm extends Component {
 
   textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const { item } = nextProps
 
     if (this.props.show || !nextProps.show) {

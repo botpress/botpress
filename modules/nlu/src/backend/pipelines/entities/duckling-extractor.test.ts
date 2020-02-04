@@ -109,7 +109,7 @@ describe('Extract Multiple', () => {
     await duck.extractMultiple([ex], 'en', false)
 
     expect(mockedFetch).toHaveBeenCalledTimes(2)
-    // make sure ex isnt removed from 2nd call
+    // make sure ex isn't removed from 2nd call
     expect(mockedFetch.mock.calls[0][0]).toEqual(mockedFetch.mock.calls[1][0])
   })
 

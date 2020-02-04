@@ -49,19 +49,24 @@ export const fetchLatestVersions = () => {
         daysAgo: moment(x.created_at).fromNow(),
         dockerUrl: ''
       }))
+
       try {
-        const { data } = await api.getSecured().get('/admin/versioning/docker_images')
-        _.forEach(releases, x => {
-          _.forEach(data.results, r => {
-            const version = x.version.replace(/\./g, '_')
-            if (r.name.slice(1) === version) {
-              const digest = r.images[0].digest.replace(/\:/g, '-')
-              x.dockerUrl = `https://hub.docker.com/layers/botpress/server/v${version}/images/${digest}`
-            }
-          })
+        const { data } = await api.getSecured().get('/admin/docker_images')
+
+        const dockerInfo = data.results.map(result => ({
+          name: result.name,
+          version: result.name.slice(1).replace(/_/g, '.'),
+          hash: result.images[0].digest.replace(/\:/g, '-')
+        }))
+
+        releases.forEach(r => {
+          const details = dockerInfo.find(x => x.version === r.version)
+          if (details) {
+            r.dockerUrl = `https://hub.docker.com/layers/botpress/server/${details.name}/images/${details.hash}`
+          }
         })
       } catch (err) {
-        console.error('could not fetch docker image information')
+        console.error('could not fetch docker image information', err)
       }
 
       dispatch({
