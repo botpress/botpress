@@ -2,10 +2,12 @@
   "name": "Botpress",
   "description": "The Conversational Platform with built-in language understanding (NLU), beautiful graphical interface and Dialog Manager (DM).",
   "repository": "https://github.com/botpress/botpress",
-  "env": {
-    "YARN_PRODUCTION": {
-      "description": "",
-      "value": "false"
+  "formation": {
+    "web": {
+      "quantity": 1
     }
-  }
+  },
+  "success_url": "/",
+  "website": "https://botpress.com/",
+  "stack": "container"
 }
