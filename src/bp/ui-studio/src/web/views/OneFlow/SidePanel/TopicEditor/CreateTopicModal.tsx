@@ -22,7 +22,7 @@ const CreateTopicModal: FC<Props> = props => {
     const goalName = `${name}/${goal}`
 
     props.onCreateFlow(goalName)
-    await props.updateTopics([...props.topics, { name: goalName, description: '' }])
+    await props.updateTopics([...props.topics, { name, description: '' }])
 
     closeModal()
   }

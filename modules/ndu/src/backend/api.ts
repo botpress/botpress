@@ -34,28 +34,6 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
   })
 
   router.get('/library', async (req, res) => {
-    const library = [
-      {
-        elementPath: 'Content/Text/Hello, welcome to the bot',
-        goalName: 'hire_new_employee',
-        elementId: '#!builtin_text-F7FM5E'
-      },
-      {
-        elementPath: 'Content/Text/Please choose a choice',
-        goalName: 'hire_new_employee',
-        elementId: '#!builtin_text-Xqk8ha'
-      },
-      {
-        elementPath: 'Content/Image/Nice background',
-        goalName: 'hire_new_employee',
-        elementId: '#!builtin_image-YSseJL'
-      },
-      {
-        elementPath: 'Actions/Switch language',
-        goalName: 'hire_new_employee',
-        elementId: 'builtin/switchLanguage {"lang":"fr"}'
-      }
-    ]
-    res.send(library)
+    res.send([])
   })
 }
