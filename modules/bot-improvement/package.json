@@ -1,13 +1,9 @@
 {
   "name": "bot-improvement",
   "version": "1.0.0",
-  "description": "Bot Improveent",
+  "description": "Fix bot mistakes based on chat user feedback",
   "private": true,
   "main": "dist/backend/index.js",
-  "botpress": {
-    "src": "src",
-    "webBundle": "bin/web.bundle.js"
-  },
   "scripts": {
     "build": "./node_modules/.bin/module-builder build",
     "watch": "./node_modules/.bin/module-builder watch",
