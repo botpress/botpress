@@ -1,34 +1,3 @@
-export type HitlSessionOverview = {
-  lastMessage: Message
-  user: User
-} & HitlSession
-
-export interface HitlSession {
-  id: string
-  botId: string
-  channel: string
-  userId: string
-  lastEventOn: Date
-  lastHeardOn: Date
-  isPaused: boolean
-  pausedBy: string
-}
-
-export interface User {
-  id: string
-  fullName: string
-  avatarUrl: string
-  attributes: object
-}
-
-// Hitl sessions can either be identified by sessionId, or a combination of botId, channel and target
-export interface SessionIdentity {
-  botId?: string
-  channel?: string
-  userId?: string
-  sessionId?: string
-}
-
 export interface QnAItem {
   id: string
   data: {
@@ -42,6 +11,12 @@ export interface QnAItem {
       [lang: string]: string[]
     }
   }
+}
+
+export interface Goal {
+  id: string
+  topic: string
+  name: string
 }
 
 type FeedbackItemStatus = 'pending' | 'solved'
@@ -63,17 +38,6 @@ export interface FeedbackItem {
   correctedObjectId: string
 }
 
-export interface IncomingMessage {
-  id: number
-  type: string
-  text: string
-  raw_message: any
-  direction: 'in' | 'out'
-  source: 'user' | 'bot'
-  ts: Date
-  readonly sessionId?: string
-}
-
 export interface Message {
   id: number
   type: string
@@ -91,9 +55,3 @@ interface MessageGroup {
 }
 
 type FlaggedMessageGroup = MessageGroup & { flagged: boolean }
-
-export interface Goal {
-  id: string
-  topic: string
-  name: string
-}
