@@ -3,6 +3,7 @@ import 'bluebird-global'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
+import { ElementType } from '..'
 import { ExportedFlow, ImportAction } from '../typings'
 
 export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => {
@@ -22,14 +23,14 @@ export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => 
         const { data } = await axios.post(`${window.BOT_API_PATH}/mod/code-editor/readFile`, existing)
 
         importActions.push({
-          type: 'action',
+          type: ElementType.Action,
           name: action.actionName,
           existing: true,
           identical: data.fileContent === action.fileContent,
           data: action
         })
       } else {
-        importActions.push({ type: 'action', name: action.actionName, data: action })
+        importActions.push({ type: ElementType.Action, name: action.actionName, data: action })
       }
     }
   } catch (err) {
@@ -43,7 +44,7 @@ export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => 
       const existing = intents.find(x => x.name === intent.name)
 
       importActions.push({
-        type: 'intent',
+        type: ElementType.Intent,
         name: intent.name,
         existing: !!existing,
         identical: existing !== undefined && _.isEqual(existing, intent),
@@ -58,7 +59,7 @@ export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => 
     const existing = elements.find(x => x.id === content.id)
 
     importActions.push({
-      type: 'content',
+      type: ElementType.Content,
       name: content.id,
       existing: !!existing,
       identical: existing !== undefined && _.isEqual(existing.formData, content.formData),
@@ -70,7 +71,7 @@ export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => 
     const existing = flows.find(x => x.name === flow.name)
 
     importActions.push({
-      type: 'flow',
+      type: ElementType.Flow,
       name: flow.name,
       existing: !!existing,
       identical: existing !== undefined && _.isEqual(existing, flow),
@@ -138,7 +139,7 @@ export const cleanFlowProperties = flow => _.omit(flow, ['content', 'actions', '
 
 export const getGoalAction = (newGoal: ExportedFlow, existingGoal: FlowView): ImportAction => {
   return {
-    type: 'flow',
+    type: ElementType.Goal,
     name: newGoal.name,
     existing: !!existingGoal,
     identical: existingGoal !== undefined && _.isEqual(cleanFlowProperties(newGoal), cleanFlowProperties(existingGoal)),

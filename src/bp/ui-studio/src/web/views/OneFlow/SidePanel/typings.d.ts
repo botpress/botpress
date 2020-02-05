@@ -1,8 +1,9 @@
 import sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
+import { ElementType } from '.'
 
 export interface ImportAction {
-  type: 'content' | 'action' | 'intent' | 'flow' | 'knowledge' | 'topic'
+  type: ElementType
   name: string
   identical?: boolean
   existing?: boolean

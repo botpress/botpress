@@ -24,6 +24,17 @@ import TopicList from './TopicList'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
+export enum ElementType {
+  Topic = 'topic',
+  Goal = 'goal',
+  Content = 'content',
+  Action = 'action',
+  Intent = 'intent',
+  Flow = 'flow',
+  Knowledge = 'knowledge',
+  Unknown = 'unknown'
+}
+
 interface OwnProps {
   onCreateFlow: (flowName: string) => void
   history: any

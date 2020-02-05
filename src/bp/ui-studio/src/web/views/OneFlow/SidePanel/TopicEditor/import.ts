@@ -4,6 +4,7 @@ import { Topic } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
+import { ElementType } from '..'
 import { ExportedTopic, ImportAction } from '../typings'
 import { analyzeGoalFile, executeGoalActions, getGoalAction } from '../GoalEditor/import'
 
@@ -16,7 +17,7 @@ export const analyzeTopicFile = async (file: ExportedTopic, flows: FlowView[]) =
     for (const question of file.knowledge) {
       const existing = questions.items.find(x => x.id === question.id)
       importActions.push({
-        type: 'knowledge',
+        type: ElementType.Knowledge,
         name: question.id,
         existing: !!existing,
         identical: existing !== undefined && _.isEqual(existing, question),
@@ -74,18 +75,18 @@ export const renameTopic = (newName: string, exportedTopic: ExportedTopic) => {
 
 export const detectFileType = content => {
   if (content.name && content.knowledge && content.goals) {
-    return 'topic'
+    return ElementType.Topic
   }
 
   if (content.name && content.nodes && content.content) {
-    return 'goal'
+    return ElementType.Goal
   }
-  return 'unknown'
+  return ElementType.Unknown
 }
 
 export const getTopicAction = (newTopic: Topic, existingTopic: Topic): ImportAction => {
   return {
-    type: 'topic',
+    type: ElementType.Topic,
     name: newTopic.name,
     existing: !!existingTopic,
     identical: existingTopic !== undefined && _.isEqual(newTopic, existingTopic),

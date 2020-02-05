@@ -7,12 +7,11 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils'
 
+import { ElementType } from '..'
 import { ExportedFlow, ExportedTopic, ImportAction } from '../typings'
 import { analyzeGoalFile, executeGoalActions, getGoalAction } from '../GoalEditor/import'
 
 import { analyzeTopicFile, detectFileType, executeTopicActions, fields, getTopicAction, renameTopic } from './import'
-
-type FileType = 'topic' | 'goal' | 'unknown'
 
 interface Topic {
   name: string
@@ -35,7 +34,7 @@ const ImportModal: FC<Props> = props => {
   const [topics, setTopics] = useState<Topic[]>([])
   const [actions, setActions] = useState<ImportAction[]>(undefined)
   const [overwrite, setOverwrite] = useState(false)
-  const [detected, setDetected] = useState<FileType>('unknown')
+  const [detected, setDetected] = useState<ElementType>(ElementType.Unknown)
   const [name, setName] = useState('')
 
   useEffect(() => {
@@ -74,7 +73,7 @@ const ImportModal: FC<Props> = props => {
   const analyzeImport = async () => {
     setIsLoading(true)
     try {
-      if (detected === 'topic') {
+      if (detected === ElementType.Topic) {
         const content = fileContent as ExportedTopic
 
         // Update the flow names with the correct topic before analysis
@@ -88,7 +87,7 @@ const ImportModal: FC<Props> = props => {
         )
 
         setActions([...actions, topicAction].filter(x => !x.existing || !x.identical))
-      } else if (detected === 'goal') {
+      } else if (detected === ElementType.Goal) {
         const content = fileContent as ExportedFlow
 
         const actions = await analyzeGoalFile(content, props.flows)
@@ -109,7 +108,7 @@ const ImportModal: FC<Props> = props => {
   const doImport = async () => {
     setIsLoading(true)
     try {
-      if (detected === 'topic') {
+      if (detected === ElementType.Topic) {
         await executeTopicActions(actions)
       } else {
         await executeGoalActions(actions)
@@ -145,7 +144,7 @@ const ImportModal: FC<Props> = props => {
         <DialogBody>
           {!!missing.length && (
             <div>
-              <strong>These elements doesn't exist and will be created</strong>
+              <strong>These elements don't exist and will be created</strong>
               <div style={{ padding: 5 }}>
                 <ul>
                   {missing.map(x => (
@@ -204,7 +203,6 @@ const ImportModal: FC<Props> = props => {
     let alreadyExist = !!topics?.find(x => x.name === name)
     if (detected === 'goal') {
       alreadyExist = !!props.flows.find(x => x.name === name)
-    } else {
     }
 
     return (
