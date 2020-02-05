@@ -84,7 +84,7 @@ const SidePanelContent: FC<Props> = props => {
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
 
-  const normalFlows = reject(props.flows, x => x.name.startsWith('skills/'))
+  const normalFlows = reject(props.flows, x => x.name && x.name.startsWith('skills/'))
   const flowsName = normalFlows.map(x => ({ name: x.name, label: x.label }))
 
   const createTopicAction = {

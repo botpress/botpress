@@ -50,6 +50,6 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
   })
 
   router.get('/library', async (req, res) => {
-    res.send([])
+    res.send(await bots[req.params.botId].getLibrary())
   })
 }

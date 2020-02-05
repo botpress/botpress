@@ -124,7 +124,7 @@ export const executeGoalActions = async (actions: ImportAction[]) => {
   }
 
   try {
-    await Promise.each(getActionsForType('flow'), ({ data, existing }) => {
+    await Promise.each([...getActionsForType('flow'), ...getActionsForType('goal')], ({ data, existing }) => {
       const flowPath = (existing && `/${data.location.replace(/\//g, '%2F')}`) || ''
       return axios.post(`${window.BOT_API_PATH}/flow${flowPath}`, {
         flow: cleanFlowProperties(data)
