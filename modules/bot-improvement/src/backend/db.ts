@@ -40,8 +40,7 @@ const getQnaItemFromEvent = (event: IO.IncomingEvent, qnaItems: QnAItem[]): QnAI
   return qnaItems.find(item => item.id === qnaId)
 }
 
-const convertStoredEventToMessage = (storedEvent: IO.StoredEvent): Message => {
-  const event = storedEvent.event
+const convertStoredEventToMessage = ({ id, event, sessionId }: IO.StoredEvent): Message => {
   const payload = event.payload || {}
   const text = event.preview || payload.text || (payload.wrapped && payload.wrapped.text)
   const direction = event.direction === 'outgoing' ? 'out' : 'in'
@@ -52,8 +51,8 @@ const convertStoredEventToMessage = (storedEvent: IO.StoredEvent): Message => {
   }
 
   return {
-    id: storedEvent.id,
-    sessionId: storedEvent.sessionId,
+    id,
+    sessionId,
     type: event.type,
     text,
     raw_message: event.payload,
