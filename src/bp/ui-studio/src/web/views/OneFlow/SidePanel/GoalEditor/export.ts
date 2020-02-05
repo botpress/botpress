@@ -41,7 +41,9 @@ const getIntents = async (intentNames: string[]) => {
   }
 }
 
-const getContentElements = async (ids: string[]): Promise<Partial<sdk.ContentElement[]>> => {
+const getContentElements = async (
+  ids: string[]
+): Promise<Pick<sdk.ContentElement, 'id' | 'contentType' | 'formData' | 'previews'>[]> => {
   try {
     const { data } = await axios.post(`${window.BOT_API_PATH}/content/elements`, { ids })
     return data.map(x => _.pick(x, ['id', 'contentType', 'formData', 'previews']))
