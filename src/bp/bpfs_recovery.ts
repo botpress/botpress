@@ -24,7 +24,7 @@ export default async (argv, action) => {
     database = container.get<Database>(TYPES.Database)
 
     const useDbDriver = process.env.BPFS_STORAGE === 'database'
-    ghost.initialize(useDbDriver)
+    ghost.initialize(useDbDriver).catch(e => console.log(e))
 
     await database.initialize()
   } catch (err) {

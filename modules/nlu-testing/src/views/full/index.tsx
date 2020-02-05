@@ -57,7 +57,10 @@ export default class NLUTests extends React.Component<Props, State> {
   }
 
   refreshTests = async () => {
-    this.api.fetchTests().then(tests => this.setState({ tests, loading: false }))
+    this.api
+      .fetchTests()
+      .then(tests => this.setState({ tests, loading: false }))
+      .catch(e => console.log(e))
   }
 
   computeXValidation = async () => {

@@ -20,7 +20,10 @@ export const EntitySelector: FC<Props> = props => {
   const [availableEntities, setAvbEntities] = useState([])
 
   useEffect(() => {
-    props.api.fetchEntities().then(setAvbEntities)
+    props.api
+      .fetchEntities()
+      .then(setAvbEntities)
+      .catch(e => console.log(e))
   }, [])
 
   const removeItem = (_, idx: number) => {

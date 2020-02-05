@@ -51,7 +51,7 @@ export class MessengerService {
       }
 
       this.bp.logger.info(`Messenger Webhook URL is ${publicPath.replace('BOT_ID', '___')}/webhook`)
-    })
+    }).catch(e => console.log(e))
 
     this.router.use(
       expressJson({

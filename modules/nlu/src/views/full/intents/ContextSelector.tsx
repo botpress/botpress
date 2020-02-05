@@ -16,7 +16,10 @@ export const ContextSelector: FC<Props> = props => {
   const [availableContexts, setContexts] = useState([])
 
   useEffect(() => {
-    props.api.fetchContexts().then(setContexts)
+    props.api
+      .fetchContexts()
+      .then(setContexts)
+      .catch(e => console.log(e))
   }, [])
 
   const removeCtx = (_, idx: number) => {

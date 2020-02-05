@@ -74,7 +74,7 @@ const NLU: FC<Props> = props => {
   }
 
   const updateEntity = (targetEntity: string, entity) => {
-    api.updateEntity(targetEntity, entity)
+    api.updateEntity(targetEntity, entity).catch(e => console.log(e))
     const i = entities.findIndex(ent => ent.id == entity.id)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }

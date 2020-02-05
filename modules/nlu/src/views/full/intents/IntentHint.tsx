@@ -24,7 +24,9 @@ const IntentHint: FC<Props> = props => {
   const [recommendations, setRecommendations] = useState<NluMlRecommendations | undefined>()
 
   useEffect(() => {
-    fetchRecommendations(props.axios).then(setRecommendations)
+    fetchRecommendations(props.axios)
+      .then(setRecommendations)
+      .catch(e => console.log(e))
   }, [props.intent.utterances, props.intent.slots])
 
   if (!recommendations) {

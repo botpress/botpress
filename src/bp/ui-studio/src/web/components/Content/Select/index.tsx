@@ -184,9 +184,9 @@ class SelectContent extends Component<Props, State> {
 
   setCurrentCategory(contentType) {
     this.setState({ contentType }, () => {
-      Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
-        this.setState({ step: formSteps.MAIN })
-      )
+      Promise.all([this.searchContentItems(), this.fetchContentItemsCount()])
+        .then(() => this.setState({ step: formSteps.MAIN }))
+        .catch(e => console.log(e))
     })
   }
 
@@ -358,7 +358,4 @@ const mapDispatchToProps = {
   upsertContentItem
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withLanguage(SelectContent))
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(SelectContent))

@@ -8,11 +8,11 @@ import watchCmd from './watch'
 require('yargs')
   .command('build', 'builds a botpress module', {}, argv => {
     configure(argv.verbose)
-    buildCmd(argv)
+    buildCmd(argv).catch(e => console.log(e))
   })
   .command('watch', 'watches and rebuilds a module', {}, argv => {
     configure(argv.verbose)
-    watchCmd(argv)
+    watchCmd(argv).catch(e => console.log(e))
   })
   .command(
     'package',
@@ -26,7 +26,7 @@ require('yargs')
     },
     argv => {
       configure(argv.verbose)
-      packageCmd(argv)
+      packageCmd(argv).catch(e => console.log(e))
     }
   )
   .option('verbose', {

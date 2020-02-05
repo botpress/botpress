@@ -31,7 +31,7 @@ const LanguageManagement: FC<Props> = props => {
       await fetchLanguages(setLanguages)
     }
 
-    init()
+    init().catch(e => console.log(e))
   }, [])
 
   // TODO extract this as a custom hook

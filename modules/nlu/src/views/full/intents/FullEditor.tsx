@@ -25,7 +25,10 @@ export const IntentEditor: FC<Props> = props => {
   const [intent, setIntent] = useState<NLU.IntentDefinition>()
 
   useEffect(() => {
-    props.api.fetchIntent(props.intent).then(setIntent)
+    props.api
+      .fetchIntent(props.intent)
+      .then(setIntent)
+      .catch(e => console.log(e))
   }, [props.intent])
 
   if (!intent) {
@@ -35,7 +38,7 @@ export const IntentEditor: FC<Props> = props => {
 
   const saveIntent = (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
-    props.api.createIntent(newIntent)
+    props.api.createIntent(newIntent).catch(e => console.log(e))
   }
 
   const handleUtterancesChange = (newUtterances: string[]) => {
