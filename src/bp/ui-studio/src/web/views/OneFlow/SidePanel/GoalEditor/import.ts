@@ -3,13 +3,13 @@ import 'bluebird-global'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
-import { ExportedFlow, ImportActions } from '../typings'
+import { ExportedFlow, ImportAction } from '../typings'
 
 export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => {
   const ids = file.content.map(x => x.id)
   const { data: elements } = await axios.post(`${window.BOT_API_PATH}/content/elements`, { ids })
 
-  const importActions: ImportActions[] = []
+  const importActions: ImportAction[] = []
 
   try {
     const { data: actions } = await axios.get(`${window.BOT_API_PATH}/mod/code-editor/files?includeBuiltin=true`)
@@ -84,13 +84,13 @@ export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => 
   return importActions
 }
 
-export const executeGoalActions = async (actions: ImportActions[]) => {
+export const executeGoalActions = async (actions: ImportAction[]) => {
   const botId = window.BOT_ID
 
-  const getType = type => actions.filter(x => x.type === type && !x.identical)
+  const getActionsForType = type => actions.filter(x => x.type === type && !x.identical)
 
   try {
-    await Promise.each(getType('content'), ({ data: { contentType, formData, id } }) =>
+    await Promise.each(getActionsForType('content'), ({ data: { contentType, formData, id } }) =>
       axios.post(`${window.BOT_API_PATH}/content/${contentType}/element/${id}`, { formData })
     )
   } catch (err) {
@@ -98,13 +98,15 @@ export const executeGoalActions = async (actions: ImportActions[]) => {
   }
 
   try {
-    await Promise.each(getType('intent'), ({ data }) => axios.post(`${window.BOT_API_PATH}/mod/nlu/intents`, data))
+    await Promise.each(getActionsForType('intent'), ({ data }) =>
+      axios.post(`${window.BOT_API_PATH}/mod/nlu/intents`, data)
+    )
   } catch (err) {
     console.error(`Can't import intents: ${err}`)
   }
 
   try {
-    await Promise.each(getType('action'), async ({ data: { actionName, fileContent } }) => {
+    await Promise.each(getActionsForType('action'), async ({ data: { actionName, fileContent } }) => {
       const isGlobal = actionName.indexOf('/') > 0
       const name = `${actionName}.js`
 
@@ -121,7 +123,7 @@ export const executeGoalActions = async (actions: ImportActions[]) => {
   }
 
   try {
-    await Promise.each(getType('flow'), ({ data, existing }) => {
+    await Promise.each(getActionsForType('flow'), ({ data, existing }) => {
       const flowPath = (existing && `/${data.location.replace(/\//g, '%2F')}`) || ''
       return axios.post(`${window.BOT_API_PATH}/flow${flowPath}`, {
         flow: cleanFlowProperties(data)
@@ -134,7 +136,7 @@ export const executeGoalActions = async (actions: ImportActions[]) => {
 
 export const cleanFlowProperties = flow => _.omit(flow, ['content', 'actions', 'intents', 'skills', 'currentMutex'])
 
-export const getGoalAction = (newGoal: ExportedFlow, existingGoal: ExportedFlow): ImportActions => {
+export const getGoalAction = (newGoal: ExportedFlow, existingGoal: FlowView): ImportAction => {
   return {
     type: 'flow',
     name: newGoal.name,

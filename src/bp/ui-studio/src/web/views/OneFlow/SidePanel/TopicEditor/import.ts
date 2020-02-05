@@ -3,11 +3,11 @@ import 'bluebird-global'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
-import { ExportedTopic, ImportActions } from '../typings'
+import { ExportedTopic, ImportAction } from '../typings'
 import { analyzeGoalFile, executeGoalActions, getGoalAction } from '../GoalEditor/import'
 
 export const analyzeTopicFile = async (file: ExportedTopic, flows: FlowView[]) => {
-  const importActions: ImportActions[] = []
+  const importActions: ImportAction[] = []
 
   try {
     const { data: questions } = await axios.get(`${window.BOT_API_PATH}/mod/qna/questions`)
@@ -41,7 +41,7 @@ export const analyzeTopicFile = async (file: ExportedTopic, flows: FlowView[]) =
   return importActions
 }
 
-export const executeTopicActions = async (actions: ImportActions[]) => {
+export const executeTopicActions = async (actions: ImportAction[]) => {
   const getType = type => actions.filter(x => x.type === type && !x.identical)
   try {
     await Promise.each(getType('knowledge'), ({ data: { id, data } }) =>

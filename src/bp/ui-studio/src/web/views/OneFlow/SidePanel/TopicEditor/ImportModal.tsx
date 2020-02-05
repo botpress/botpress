@@ -1,12 +1,13 @@
 import { Button, Checkbox, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import 'bluebird-global'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils'
 
-import { ExportedFlow, ExportedTopic, ImportActions } from '../typings'
+import { ExportedFlow, ExportedTopic, ImportAction } from '../typings'
 import { analyzeGoalFile, executeGoalActions, getGoalAction } from '../GoalEditor/import'
 
 import { analyzeTopicFile, detectFileType, executeTopicActions, fields, renameTopic } from './import'
@@ -22,7 +23,7 @@ interface Props {
   onImportCompleted: () => void
   isOpen: boolean
   toggle: () => void
-  flows: any
+  flows: FlowView[]
   selectedTopic: string
 }
 
@@ -31,12 +32,13 @@ const ImportModal: FC<Props> = props => {
   const [isLoading, setIsLoading] = useState(false)
   const [fileContent, setFileContent] = useState<ExportedTopic | ExportedFlow>()
   const [topics, setTopics] = useState<Topic[]>([])
-  const [actions, setActions] = useState<ImportActions[]>(undefined)
+  const [actions, setActions] = useState<ImportAction[]>(undefined)
   const [overwrite, setOverwrite] = useState(false)
   const [detected, setDetected] = useState<FileType>('unknown')
   const [name, setName] = useState('')
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     loadTopics()
   }, [])
 
@@ -78,7 +80,7 @@ const ImportModal: FC<Props> = props => {
         renameTopic(name, content)
 
         const actions = await analyzeTopicFile(content, props.flows)
-        const topicAction: ImportActions = {
+        const topicAction: ImportAction = {
           type: 'topic',
           name: name,
           data: { ...fileContent, name: name }
