@@ -66,10 +66,6 @@ export default (bp: typeof sdk): Database => {
   const knex = bp.database
 
   const initialize = async () => {
-    if (!knex) {
-      throw new Error('you must initialize the database before')
-    }
-
     await knex.createTableIfNotExists('bot_improvement_feedback_items', table => {
       table.increments('id').primary()
       table
