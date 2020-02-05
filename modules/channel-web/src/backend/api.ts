@@ -306,6 +306,8 @@ export default async (bp: typeof sdk, db: Database) => {
       const events = await bp.events.findEvents({ incomingEventId: eventId, direction: 'incoming' })
       const event = events[0]
       await bp.events.updateEvent(event.id, { feedback })
+      const feedbackMetric: sdk.MetricName = feedback === 1 ? 'feedback_positive_count' : 'feedback_negative_count'
+      await bp.analytics.incrementMetric(event.botId, event.channel, feedbackMetric)
 
       res.sendStatus(200)
     })

@@ -202,6 +202,10 @@ export class DecisionEngine {
     const result: SendSuggestionResult = { executeFlows: true }
 
     if (payloads) {
+      if (event.decision?.source === 'qna') {
+        await this.analytics.incrementMetric(event.botId, event.channel, 'msg_sent_qna_count')
+      }
+
       await this.eventEngine.replyToEvent(event, payloads, event.id)
 
       const message: IO.DialogTurnHistory = {
