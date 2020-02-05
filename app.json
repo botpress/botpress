@@ -9,6 +9,7 @@
   },
   "env": {
     "BPFS_STORAGE": {
+      "description": "Tells botpress to use an external database (postgres). Should be left at default.",
       "value": "database"
     }
   },
