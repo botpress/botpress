@@ -5,7 +5,6 @@ import bots from './bots'
 import content, { ContentReducer } from './content'
 import flows, { FlowReducer } from './flows'
 import hints from './hints'
-import improvements from './improvements'
 import language from './language'
 import modules from './modules'
 import ndu from './ndu'
@@ -24,7 +23,6 @@ const bpApp = combineReducers({
   bot,
   modules,
   notifications,
-  improvements,
   skills,
   language,
   hints,

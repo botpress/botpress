@@ -72,7 +72,11 @@ export const fetchFlows = () => dispatch => {
     })
 }
 
-export const receiveSaveFlows = createAction('FLOWS/SAVE/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+export const receiveSaveFlows = createAction(
+  'FLOWS/SAVE/RECEIVE',
+  flows => flows,
+  () => ({ receiveAt: new Date() })
+)
 export const errorSaveFlows = createAction('FLOWS/SAVE/ERROR')
 export const clearErrorSaveFlows = createAction('FLOWS/SAVE/ERROR/CLEAR')
 
@@ -302,15 +306,6 @@ export const addNotifications = notifications => dispatch => {
   dispatch(newNotificationsReceived(notifications))
 }
 
-// Improvements
-export const allImprovementsReceived = createAction('IMPROVEMENTS/ALL_RECEIVED')
-export const fetchImprovements = () => dispatch => {
-  // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/improvements`).then(res => {
-    dispatch(allImprovementsReceived(res.data))
-  })
-}
-
 // Skills
 export const requestInsertNewSkill = createAction('SKILLS/INSERT')
 export const requestInsertNewSkillNode = createAction('SKILLS/INSERT/NODE')
@@ -375,7 +370,14 @@ export const actionsReceived = createAction('ACTIONS/RECEIVED')
 export const refreshActions = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/actions`).then(({ data }) => {
-    dispatch(actionsReceived(_.sortBy(data.filter(action => !action.metadata.hidden), ['metadata.category', 'name'])))
+    dispatch(
+      actionsReceived(
+        _.sortBy(
+          data.filter(action => !action.metadata.hidden),
+          ['metadata.category', 'name']
+        )
+      )
+    )
   })
 }
 
