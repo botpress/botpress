@@ -131,6 +131,10 @@ export class DecisionEngine {
         processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
 
+        if (event.nlu?.intent.name === 'none') {
+          await this.analytics.incrementMetric(event.botId, event.channel, 'msg_nlu_none')
+        }
+
         await this.stateManager.persist(processedEvent, false)
         return
       } catch (err) {

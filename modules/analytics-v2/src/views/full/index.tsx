@@ -8,10 +8,10 @@ import { Area, AreaChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YA
 
 import style from './style.scss'
 
-const colorSlack = '#de5454'
-const colorMessenger = '#568ee2'
-const colorWeb = '#ffc658'
-const colorTelegram = '#3d35df'
+const colorSlack = '#4A154B'
+const colorMessenger = '#0196FF'
+const colorWeb = '#FFA83A'
+const colorTelegram = '#2EA6DA'
 
 export default class AnalyticsModule extends React.Component<{ bp: any }> {
   state = {
@@ -129,6 +129,19 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
     })
   }
 
+  getUnderstoodPercent = () => {
+    const received = this.getMetricCount('msg_received_count')
+    const none = this.getMetricCount('msg_nlu_none')
+    const percent = ((received - none) / received) * 100
+    return percent.toFixed(2) + '%'
+  }
+
+  getReturningUsers = () => {
+    const usersCount = this.getMetricCount('users_count')
+    const newUsersCount = this.getMetricCount('new_users_count')
+    return ((newUsersCount / usersCount) * 100).toFixed(2) + '%'
+  }
+
   getMetric = metricName => this.state.metrics.filter(x => x.metric_name === metricName)
 
   renderAgentUsage() {
@@ -154,7 +167,7 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
           {this.renderTimeSeriesChart('Average Session Length', this.getAvgMsgPerSessions())}
           {this.renderTimeSeriesChart('Total Users', this.getMetric('users_count'))}
           {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
-          {this.renderTimeSeriesChart('Returning Users', this.getMetric('returning_users_count'))}
+          {this.renderNumberMetric('Returning Users', this.getReturningUsers())}
         </div>
       </div>
     )
@@ -168,8 +181,8 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
         <h3>Understanding</h3>
         <div className={style.metricsContainer}>
           {this.renderNumberMetric('# Positive Goals Outcome', goalsOutcome)}
-          {this.renderTimeSeriesChart('# Positive QNA Feedback', this.getMetric('feedback_positive_count'))}
-          {this.renderNumberMetric('# Understood Messages', 666)}
+          {this.renderNumberMetric('# Positive QNA Feedback', this.getMetricCount('feedback_positive_count'))}
+          {this.renderNumberMetric('# Understood Messages', this.getUnderstoodPercent())}
           {this.renderNumberMetric('# Understood Top-Level Messages', 666)}
         </div>
       </div>
@@ -199,8 +212,8 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
   formatTick = timestamp => moment.unix(timestamp).format('DD-MM')
 
   renderTimeSeriesChart(name: string, data) {
-    const aDayInSeconds = 86400
-    const tickCount = (this.state.endDate - this.state.startDate) / aDayInSeconds
+    const seccondsIn24Hours = 86400
+    const tickCount = (this.state.endDate - this.state.startDate) / seccondsIn24Hours
 
     return (
       <div className={style.chartMetric}>
@@ -210,10 +223,10 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
             <Tooltip labelFormatter={this.formatTick} />
             <XAxis dataKey="time" tickFormatter={this.formatTick} tickCount={tickCount} />
             <YAxis />
-            <Area stackId="1" type="monotone" dataKey="web" stroke={colorWeb} fill={colorWeb} />
-            <Area stackId="1" type="monotone" dataKey="messenger" stroke={colorMessenger} fill={colorMessenger} />
-            <Area stackId="1" type="monotone" dataKey="slack" stroke={colorSlack} fill={colorSlack} />
-            <Area stackId="1" type="monotone" dataKey="telegram" stroke={colorTelegram} fill={colorTelegram} />
+            <Area stackId={1} type="monotone" dataKey="web" stroke={colorWeb} fill={colorWeb} />
+            <Area stackId={2} type="monotone" dataKey="messenger" stroke={colorMessenger} fill={colorMessenger} />
+            <Area stackId={3} type="monotone" dataKey="slack" stroke={colorSlack} fill={colorSlack} />
+            <Area stackId={4} type="monotone" dataKey="telegram" stroke={colorTelegram} fill={colorTelegram} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

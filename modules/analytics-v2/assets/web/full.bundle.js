@@ -92677,10 +92677,10 @@ var moment_1 = __importDefault(__webpack_require__(/*! moment */ "../../node_mod
 var react_1 = __importDefault(__webpack_require__(/*! react */ "react"));
 var recharts_1 = __webpack_require__(/*! recharts */ "./node_modules/recharts/es6/index.js");
 var style_scss_1 = __importDefault(__webpack_require__(/*! ./style.scss */ "./src/views/full/style.scss"));
-var colorSlack = '#de5454';
-var colorMessenger = '#568ee2';
-var colorWeb = '#ffc658';
-var colorTelegram = '#3d35df';
+var colorSlack = '#4A154B';
+var colorMessenger = '#0196FF';
+var colorWeb = '#FFA83A';
+var colorTelegram = '#2EA6DA';
 var AnalyticsModule = /** @class */ (function (_super) {
     __extends(AnalyticsModule, _super);
     function AnalyticsModule() {
@@ -92742,6 +92742,17 @@ var AnalyticsModule = /** @class */ (function (_super) {
                 };
             });
         };
+        _this.getUnderstoodPercent = function () {
+            var received = _this.getMetricCount('msg_received_count');
+            var none = _this.getMetricCount('msg_nlu_none');
+            var percent = ((received - none) / received) * 100;
+            return percent.toFixed(2) + '%';
+        };
+        _this.getReturningUsers = function () {
+            var usersCount = _this.getMetricCount('users_count');
+            var newUsersCount = _this.getMetricCount('new_users_count');
+            return ((newUsersCount / usersCount) * 100).toFixed(2) + '%';
+        };
         _this.getMetric = function (metricName) { return _this.state.metrics.filter(function (x) { return x.metric_name === metricName; }); };
         _this.formatTick = function (timestamp) { return moment_1.default.unix(timestamp).format('DD-MM'); };
         return _this;
@@ -92798,7 +92809,7 @@ var AnalyticsModule = /** @class */ (function (_super) {
                 this.renderTimeSeriesChart('Average Session Length', this.getAvgMsgPerSessions()),
                 this.renderTimeSeriesChart('Total Users', this.getMetric('users_count')),
                 this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count')),
-                this.renderTimeSeriesChart('Returning Users', this.getMetric('returning_users_count')))));
+                this.renderNumberMetric('Returning Users', this.getReturningUsers()))));
     };
     AnalyticsModule.prototype.renderUnderstanding = function () {
         var goalsOutcome = this.getMetricCount('goals_completed_count') / this.getMetricCount('goals_started_count') || 0;
@@ -92806,8 +92817,8 @@ var AnalyticsModule = /** @class */ (function (_super) {
             react_1.default.createElement("h3", null, "Understanding"),
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
                 this.renderNumberMetric('# Positive Goals Outcome', goalsOutcome),
-                this.renderTimeSeriesChart('# Positive QNA Feedback', this.getMetric('feedback_positive_count')),
-                this.renderNumberMetric('# Understood Messages', 666),
+                this.renderNumberMetric('# Positive QNA Feedback', this.getMetricCount('feedback_positive_count')),
+                this.renderNumberMetric('# Understood Messages', this.getUnderstoodPercent()),
                 this.renderNumberMetric('# Understood Top-Level Messages', 666))));
     };
     AnalyticsModule.prototype.renderNumberMetric = function (name, value) {
@@ -92829,8 +92840,8 @@ var AnalyticsModule = /** @class */ (function (_super) {
         return lodash_1.default.sortBy(chartsData, 'time');
     };
     AnalyticsModule.prototype.renderTimeSeriesChart = function (name, data) {
-        var aDayInSeconds = 86400;
-        var tickCount = (this.state.endDate - this.state.startDate) / aDayInSeconds;
+        var seccondsIn24Hours = 86400;
+        var tickCount = (this.state.endDate - this.state.startDate) / seccondsIn24Hours;
         return (react_1.default.createElement("div", { className: style_scss_1.default.chartMetric },
             react_1.default.createElement("h4", { className: style_scss_1.default.chartMetricName }, name),
             react_1.default.createElement(recharts_1.ResponsiveContainer, null,
@@ -92838,10 +92849,10 @@ var AnalyticsModule = /** @class */ (function (_super) {
                     react_1.default.createElement(recharts_1.Tooltip, { labelFormatter: this.formatTick }),
                     react_1.default.createElement(recharts_1.XAxis, { dataKey: "time", tickFormatter: this.formatTick, tickCount: tickCount }),
                     react_1.default.createElement(recharts_1.YAxis, null),
-                    react_1.default.createElement(recharts_1.Area, { stackId: "1", type: "monotone", dataKey: "web", stroke: colorWeb, fill: colorWeb }),
-                    react_1.default.createElement(recharts_1.Area, { stackId: "1", type: "monotone", dataKey: "messenger", stroke: colorMessenger, fill: colorMessenger }),
-                    react_1.default.createElement(recharts_1.Area, { stackId: "1", type: "monotone", dataKey: "slack", stroke: colorSlack, fill: colorSlack }),
-                    react_1.default.createElement(recharts_1.Area, { stackId: "1", type: "monotone", dataKey: "telegram", stroke: colorTelegram, fill: colorTelegram })))));
+                    react_1.default.createElement(recharts_1.Area, { stackId: 1, type: "monotone", dataKey: "web", stroke: colorWeb, fill: colorWeb }),
+                    react_1.default.createElement(recharts_1.Area, { stackId: 2, type: "monotone", dataKey: "messenger", stroke: colorMessenger, fill: colorMessenger }),
+                    react_1.default.createElement(recharts_1.Area, { stackId: 3, type: "monotone", dataKey: "slack", stroke: colorSlack, fill: colorSlack }),
+                    react_1.default.createElement(recharts_1.Area, { stackId: 4, type: "monotone", dataKey: "telegram", stroke: colorTelegram, fill: colorTelegram })))));
     };
     return AnalyticsModule;
 }(react_1.default.Component));
