@@ -1,3 +1,4 @@
+import { ConverseConfig } from 'botpress/sdk'
 import { UniqueUser } from 'common/typings'
 import { IncidentRule } from 'core/services/alerting-service'
 
@@ -27,22 +28,6 @@ export interface DialogConfig {
    * @default 30m
    */
   sessionTimeoutInterval: string
-}
-
-/**
- * Configuration file definition for the Converse API
- */
-export type ConverseConfig = {
-  /**
-   * The timeout of the converse API requests
-   * @default 5s
-   */
-  timeout: string
-  /**
-   * The text limitation of the converse API requests
-   * @default 360
-   */
-  maxMessageLength: number
 }
 
 export interface LogsConfig {
@@ -126,7 +111,7 @@ export type BotpressConfig = {
      * Represents the complete base URL exposed externally by your bot. This is useful if you configure the bot
      * locally and use NGINX as a reverse proxy to handle HTTPS. It should include the protocol and no trailing slash.
      * If unset, it will be constructed from the real host/port
-     * @example https://botpress.io
+     * @example https://botpress.com
      * @default
      */
     externalUrl: string
@@ -173,7 +158,7 @@ export type BotpressConfig = {
     enabled: boolean
     /**
      * The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
-     * You can purchase a license on https://botpress.io
+     * You can purchase a license on https://botpress.com
      * For usage with Botpress Pro/Enterprise.
      * @default paste your license key here
      */
@@ -437,7 +422,7 @@ export interface AuthStrategyOauth2 {
   callbackURL: string
   /*
    * Set this URL if your access token doesn't include user data. Botpress will query that URL to fetch user information
-   * @example https://botpress.io/userinfo
+   * @example https://botpress.com/userinfo
    */
   userInfoURL?: string
   /** If the access token is a JWT token, set the parameters below to decode it. */

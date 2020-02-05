@@ -36,23 +36,25 @@ async function makeIntentTestSet(rawUtts: string[], ctxs: string[], intent: stri
 async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet, TestSet]> {
   const lo = _.runInContext() // so seed is applied
   let testSet: TestSet = []
-  const trainSet = (await Promise.map(intents, async i => {
-    // split data & preserve distribution
-    const nTrain = Math.floor(TRAIN_SET_SIZE * i.utterances[language].length)
-    if (nTrain < MIN_NB_UTTERANCES) {
-      return // filter out thouse without enough data
-    }
+  const trainSet = (
+    await Promise.map(intents, async i => {
+      // split data & preserve distribution
+      const nTrain = Math.floor(TRAIN_SET_SIZE * i.utterances[language].length)
+      if (nTrain < MIN_NB_UTTERANCES) {
+        return // filter out thouse without enough data
+      }
 
-    const utterances = lo.shuffle(i.utterances[language])
-    const trainUtts = utterances.slice(0, nTrain)
-    const iTestSet = await makeIntentTestSet(utterances.slice(nTrain), i.contexts, i.name, language)
-    testSet = [...testSet, ...iTestSet]
+      const utterances = lo.shuffle(i.utterances[language])
+      const trainUtts = utterances.slice(0, nTrain)
+      const iTestSet = await makeIntentTestSet(utterances.slice(nTrain), i.contexts, i.name, language)
+      testSet = [...testSet, ...iTestSet]
 
-    return {
-      ...i,
-      utterances: { [language]: trainUtts }
-    }
-  })).filter(Boolean)
+      return {
+        ...i,
+        utterances: { [language]: trainUtts }
+      }
+    })
+  ).filter(Boolean)
 
   return [trainSet, testSet]
 }

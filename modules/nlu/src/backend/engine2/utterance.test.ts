@@ -49,7 +49,7 @@ describe('UtteranceClass', () => {
       utterance.tokens.forEach((tok, i) => {
         expect(tok.index).toEqual(i)
         expect(tok.value).toEqual(TOKENS[i])
-        expect(tok.vectors).toEqual(VECTORS[i])
+        expect(tok.vector).toEqual(VECTORS[i])
         expect(tok.POS).toEqual(POS_TAGS[i])
       })
     })

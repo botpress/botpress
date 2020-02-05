@@ -47,9 +47,12 @@ export default class PatternExtractor {
     entityDef: sdk.NLU.EntityDefinition
   ): Promise<sdk.NLU.Entity[]> {
     const texts = [occurrence.name, ...occurrence.synonyms]
-    const values = (await this.languageProvider.tokenize(texts.map(x => x.toLowerCase()), ds.language)).filter(
-      x => x.length
-    )
+    const values = (
+      await this.languageProvider.tokenize(
+        texts.map(x => x.toLowerCase()),
+        ds.language
+      )
+    ).filter(x => x.length)
 
     const findings: sdk.NLU.Entity[] = []
 

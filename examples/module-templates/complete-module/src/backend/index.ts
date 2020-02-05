@@ -27,7 +27,7 @@ const botTemplates: sdk.BotTemplate[] = [{ id: 'my_bot_demo', name: 'Bot Demo', 
 
 /**
  * Skills allows you to create custom logic and use them easily on the flow editor
- * Check this link for more information: https://botpress.io/docs/developers/create-module/#skill-creation
+ * Check this link for more information: https://botpress.com/docs/developers/create-module/#skill-creation
  */
 const skills: sdk.Skill[] = []
 
@@ -54,7 +54,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     // The full name is used in other places, for example when displaying bot templates
     fullName: 'Complete Module',
     // Not used anywhere, but should be a link to your website or module repository
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 

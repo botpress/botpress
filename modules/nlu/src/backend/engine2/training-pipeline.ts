@@ -121,7 +121,7 @@ export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.M
     .flatMapDeep(i => i.utterances.map(u => u.tokens))
     // @ts-ignore
     .uniqBy((t: UtteranceToken) => t.value)
-    .map((t: UtteranceToken) => t.vectors)
+    .map((t: UtteranceToken) => t.vector)
     .value() as number[][]
 
   if (data.length < 2) {
@@ -161,7 +161,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
     .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
     .reduce(
       // @ts-ignore
-      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vectors }),
+      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vector }),
       {} as Token2Vec
     )
     .value() as Token2Vec
@@ -277,11 +277,13 @@ export const ProcessIntents = async (
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
   const utterances = _.flatMap(input.intents.map(i => i.utterances))
 
-  const allSysEntities = (await tools.duckling.extractMultiple(
-    utterances.map(u => u.toString()),
-    input.languageCode,
-    true
-  )).map(ents => ents.map(mapE1toE2Entity))
+  const allSysEntities = (
+    await tools.duckling.extractMultiple(
+      utterances.map(u => u.toString()),
+      input.languageCode,
+      true
+    )
+  ).map(ents => ents.map(mapE1toE2Entity))
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {

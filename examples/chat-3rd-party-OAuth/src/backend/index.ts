@@ -78,7 +78,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'twitter-auth',
     fullName: 'Twitter oAuth1 example',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: true
   }
 }

@@ -118,7 +118,7 @@ export const Checklist: FC<Props> = props => {
       <div className="checklist">
         <Item
           title="Enable Botpress Professional"
-          docs="https://botpress.io/docs/pro/about-pro/"
+          docs="https://botpress.com/docs/pro/about-pro/"
           status={getEnv('PRO_ENABLED') === 'true' || getConfig('pro.enabled') === 'true' ? 'success' : 'warning'}
           source={[
             { type: 'env', key: 'PRO_ENABLED', value: getEnv('BP_PRODUCTION') },
@@ -132,7 +132,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Use a Postgres database"
-          docs="https://botpress.io/docs/tutorials/database/#how-to-switch-from-sqlite-to-postgres"
+          docs="https://botpress.com/docs/tutorials/database/#how-to-switch-from-sqlite-to-postgres"
           status={getEnv('DATABASE_URL').startsWith('postgres') ? 'success' : 'warning'}
           source={[{ type: 'env', key: 'DATABASE_URL', value: getEnv('DATABASE_URL') }]}
         >
@@ -142,7 +142,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Use the database BPFS storage"
-          docs="https://botpress.io/docs/advanced/hosting/#overview"
+          docs="https://botpress.com/docs/advanced/hosting/#overview"
           status={getEnv('BPFS_STORAGE') === 'database' ? 'success' : 'warning'}
           source={[{ type: 'env', key: 'BPFS_STORAGE', value: getEnv('BPFS_STORAGE') }]}
         >
@@ -167,7 +167,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Configure the external server URL"
-          docs="https://botpress.io/docs/advanced/configuration/#exposing-your-bot-on-the-internet"
+          docs="https://botpress.com/docs/advanced/configuration/#exposing-your-bot-on-the-internet"
           status={isSet(getEnv('EXTERNAL_URL')) || isSet(getConfig('httpServer.externalUrl')) ? 'success' : 'warning'}
           source={[
             { type: 'env', key: 'EXTERNAL_URL', value: getEnv('EXTERNAL_URL') },
@@ -211,7 +211,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Host your own language server"
-          docs="https://botpress.io/docs/advanced/hosting/#language-server"
+          docs="https://botpress.com/docs/advanced/hosting/#language-server"
           status={languageEndpoint.includes('botpress.io') ? 'warning' : 'success'}
           source={[{ type: 'config', key: 'nlu.json: languageSources', value: languageEndpoint }]}
         >
@@ -222,7 +222,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Securing your server with HTTPS"
-          docs="https://botpress.io/docs/advanced/hosting/#secure-configuration-for-the-nginx-server"
+          docs="https://botpress.com/docs/advanced/hosting/#secure-configuration-for-the-nginx-server"
           status={protocol === 'https' ? 'success' : 'warning'}
           source={[{ key: 'Detected protocol', value: protocol }]}
         >
@@ -232,7 +232,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable audit trail"
-          docs="https://botpress.io/docs/advanced/configuration/#advanced-logging"
+          docs="https://botpress.com/docs/advanced/configuration/#advanced-logging"
           status={hasAuditTrail ? 'success' : 'warning'}
         >
           You can enable a special debug scope that tracks every requests sent to the server (and the corresponding
@@ -242,7 +242,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable Sticky Sessions"
-          docs="https://botpress.io/docs/next/tutorials/cluster-digital-ocean#instructions"
+          docs="https://botpress.com/docs/next/tutorials/cluster-digital-ocean#instructions"
           status={stickyEnabled ? 'success' : 'warning'}
           source={[
             { type: 'config', key: 'httpServer.socketTransports', value: getConfig('httpServer.socketTransports') }
@@ -262,7 +262,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Output logs to the filesystem"
-          docs="https://botpress.io/docs/advanced/configuration/#logs-configuration"
+          docs="https://botpress.com/docs/advanced/configuration/#logs-configuration"
           status={getConfig('logs.fileOutput.enabled') === 'true' ? 'success' : 'none'}
           source={[{ type: 'config', key: 'logs.fileOutput.enabled', value: getConfig('logs.fileOutput.enabled') }]}
         >
@@ -272,7 +272,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Change Botpress base path"
-          docs="https://botpress.io/docs/advanced/configuration/#changing-the-base-url-of-your-bot"
+          docs="https://botpress.com/docs/advanced/configuration/#changing-the-base-url-of-your-bot"
           status={isSet(getLive('ROOT_PATH')) ? 'success' : 'none'}
           source={[{ key: 'Current base path', value: !isSet(getLive('ROOT_PATH')) ? '/' : getLive('ROOT_PATH') }]}
         >
@@ -283,7 +283,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Create custom roles and review permissions"
-          docs="https://botpress.io/docs/pro/rbac/#adding-a-new-role"
+          docs="https://botpress.com/docs/pro/rbac/#adding-a-new-role"
           status="none"
         >
           There is a default set of role and permissions when you create a workspace. It is recommended to review and
@@ -292,7 +292,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable other authentication mechanism"
-          docs="https://botpress.io/docs/advanced/authentication/#docsNav"
+          docs="https://botpress.com/docs/advanced/authentication/#docsNav"
           status="none"
         >
           The default authentication method is a username/password, but you can enable additional authentication
@@ -301,7 +301,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Configure your Reverse Proxy and Load Balancing"
-          docs="https://botpress.io/docs/advanced/hosting/#setting-up-nginx"
+          docs="https://botpress.com/docs/advanced/hosting/#setting-up-nginx"
           status="none"
         >
           Check the documentation for more information

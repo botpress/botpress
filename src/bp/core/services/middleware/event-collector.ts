@@ -102,7 +102,11 @@ export class EventCollector {
     const elements = this.batch.splice(0, batchCount)
 
     this.currentPromise = this.knex
-      .batchInsert(this.TABLE_NAME, elements.map(x => _.omit(x, 'retry')), this.BATCH_SIZE)
+      .batchInsert(
+        this.TABLE_NAME,
+        elements.map(x => _.omit(x, 'retry')),
+        this.BATCH_SIZE
+      )
       .then(() => {
         if (Date.now() - this.lastPruneTs >= this.PRUNE_INTERVAL) {
           this.lastPruneTs = Date.now()

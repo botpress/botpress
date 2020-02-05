@@ -499,7 +499,7 @@ class Bots extends Component {
         </Row>
         <small>
           This information is displayed on the Bot Information page,{' '}
-          <a href="https://botpress.io/docs/tutorials/webchat-embedding" target="_blank" rel="noopener noreferrer">
+          <a href="https://botpress.com/docs/tutorials/webchat-embedding" target="_blank" rel="noopener noreferrer">
             check the documentation for more details
           </a>
         </small>

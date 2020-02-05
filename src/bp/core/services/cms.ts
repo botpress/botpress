@@ -95,33 +95,41 @@ export class CMSService implements IDisposeOnExit {
     let contentElements: ContentElement[] = []
 
     for (const fileName of fileNames) {
-      const contentType = path.basename(fileName).replace(/\.json$/i, '')
-      const fileContentElements = await this.ghost
-        .forBot(botId)
-        .readFileAsObject<ContentElement[]>(this.elementsDir, fileName)
+      try {
+        const contentType = path.basename(fileName).replace(/\.json$/i, '')
+        const fileContentElements = await this.ghost
+          .forBot(botId)
+          .readFileAsObject<ContentElement[]>(this.elementsDir, fileName)
 
-      fileContentElements.forEach(el => Object.assign(el, { contentType }))
-      contentElements = _.concat(contentElements, fileContentElements)
+        fileContentElements.forEach(el => Object.assign(el, { contentType }))
+        contentElements = _.concat(contentElements, fileContentElements)
+      } catch (err) {
+        throw new Error(`while processing elements of "${fileName}": ${err}`)
+      }
     }
 
     return contentElements
   }
 
   async loadElementsForBot(botId: string): Promise<any[]> {
-    const contentElements = await this.getAllElements(botId)
+    try {
+      const contentElements = await this.getAllElements(botId)
 
-    const elements = await Promise.map(contentElements, element => {
-      return this.memDb(this.contentTable)
-        .insert(this.transformItemApiToDb(botId, element))
-        .catch(err => {
-          // ignore duplicate key errors
-          // TODO: Knex error handling
-        })
-    })
+      const elements = await Promise.map(contentElements, element => {
+        return this.memDb(this.contentTable)
+          .insert(this.transformItemApiToDb(botId, element))
+          .catch(err => {
+            // ignore duplicate key errors
+            // TODO: Knex error handling
+          })
+      })
 
-    await this.recomputeElementsForBot(botId)
+      await this.recomputeElementsForBot(botId)
 
-    return elements
+      return elements
+    } catch (err) {
+      throw new Error(`while processing content elements: ${err}`)
+    }
   }
 
   async deleteAllElements(botId: string): Promise<void> {
@@ -451,35 +459,40 @@ export class CMSService implements IDisposeOnExit {
     const { languages, defaultLanguage } = await this.configProvider.getBotConfig(botId)
 
     for (const contentType of this.contentTypes) {
-      // @ts-ignore
-      await this.memDb(this.contentTable)
-        .select('id', 'formData', 'botId')
-        .where('contentType', contentType.id)
-        .andWhere({ botId })
-        .then<Iterable<any>>()
-        .each(async (element: any) => {
-          const computedProps = await this.fillComputedProps(
-            contentType,
-            JSON.parse(element.formData),
-            languages,
-            defaultLanguage
-          )
-          element = { ...element, ...computedProps }
+      let elementId
+      try {
+        await this.memDb(this.contentTable)
+          .select('id', 'formData', 'botId')
+          .where('contentType', contentType.id)
+          .andWhere({ botId })
+          .then<Iterable<any>>()
+          .each(async (element: any) => {
+            elementId = element.id
+            const computedProps = await this.fillComputedProps(
+              contentType,
+              JSON.parse(element.formData),
+              languages,
+              defaultLanguage
+            )
+            element = { ...element, ...computedProps }
 
-          return this.memDb(this.contentTable)
-            .where('id', element.id)
-            .andWhere({ botId })
-            .update(this.transformItemApiToDb(botId, element))
-            .catch(err => {
-              throw new VError(err, `Could not update the element for ID "${element.id}"`)
-            })
-        })
+            return this.memDb(this.contentTable)
+              .where('id', element.id)
+              .andWhere({ botId })
+              .update(this.transformItemApiToDb(botId, element))
+              .catch(err => {
+                throw new VError(err, `Could not update the element for ID "${element.id}"`)
+              })
+          })
+      } catch (err) {
+        throw new Error(`while computing elements of type "${contentType.id}" (element: ${elementId}): ${err}`)
+      }
     }
   }
 
   private async fillComputedProps(contentType: ContentType, formData: object, languages: string[], defaultLanguage) {
     if (formData == undefined) {
-      throw new Error('"formData" must be a valid object')
+      throw new Error(`"formData" must be a valid object (content type: ${contentType.id})`)
     }
 
     const expandedFormData = await this.resolveRefs(formData)

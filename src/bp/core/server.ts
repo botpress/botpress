@@ -295,7 +295,7 @@ export default class HTTPServer {
       const statusCode = err.statusCode || 500
       const errorCode = err.errorCode || 'BP_000'
       const message = (err.errorCode && err.message) || 'Unexpected error'
-      const docs = err.docs || 'https://botpress.io/docs'
+      const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
       res.status(statusCode).json({
@@ -321,9 +321,7 @@ export default class HTTPServer {
 
     if (!process.env.EXTERNAL_URL && !config.externalUrl) {
       this.logger.warn(
-        `External URL is not configured. Using default value of ${
-          process.EXTERNAL_URL
-        }. Some features may not work properly`
+        `External URL is not configured. Using default value of ${process.EXTERNAL_URL}. Some features may not work properly`
       )
     }
 

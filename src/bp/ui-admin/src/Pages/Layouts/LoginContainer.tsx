@@ -32,7 +32,7 @@ export const LoginContainer: FC<Props> = props => {
           {props.poweredBy && (
             <div className="homepage">
               <p>
-                Powered by <a href="https://botpress.io">Botpress</a>
+                Powered by <a href="https://botpress.com">Botpress</a>
               </p>
             </div>
           )}

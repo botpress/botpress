@@ -155,7 +155,7 @@ if (event.type === 'proactive-trigger') {
 }
 ```
 
-Here we're using the [replyToEvent](https://botpress.io/reference/modules/_botpress_sdk_.events.html#replytoevent) function from the SDK to reply to the current event and [renderElement](https://botpress.io/reference/modules/_botpress_sdk_.cms.html#renderelement) to render our custom content.
+Here we're using the [replyToEvent](https://botpress.com/reference/modules/_botpress_sdk_.events.html#replytoevent) function from the SDK to reply to the current event and [renderElement](https://botpress.com/reference/modules/_botpress_sdk_.cms.html#renderelement) to render our custom content.
 
 ### Send proactive only to new users
 

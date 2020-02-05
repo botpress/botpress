@@ -180,12 +180,24 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     const isDisabled = file.name.startsWith('.')
+    const canMove = this.props.store.useRawEditor && this.props.moveFile
+
     ContextMenu.show(
       <Menu>
-        <MenuItem id="btn-rename" icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
+        {canMove ? (
+          <MenuItem id="btn-move" icon="edit" text="Rename / Move" onClick={() => this.props.moveFile(file)} />
+        ) : (
+          <MenuItem id="btn-rename" icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
+        )}
         <MenuItem id="btn-delete" icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
         <MenuDivider />
         <MenuItem id="btn-duplicate" icon="duplicate" text="Duplicate" onClick={() => this.props.duplicateFile(file)} />
+        <MenuItem
+          id="btn-download"
+          icon="download"
+          text="Download"
+          onClick={() => this.props.store.api.downloadFile(file)}
+        />
         <MenuDivider />
         {isDisabled ? (
           <MenuItem id="btn-enable" icon="endorsed" text="Enable" onClick={() => this.props.enableFile(file)} />
@@ -265,6 +277,7 @@ type Props = {
   contextMenuType?: string
   onNodeStateExpanded: (id: string, isExpanded: boolean) => void
   onNodeStateSelected: (fullyQualifiedId: string) => void
+  moveFile?: (file: any) => void
   expandedNodes: object
   selectedNode: string
 } & Pick<StoreDef, 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>

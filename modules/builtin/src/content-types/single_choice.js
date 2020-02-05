@@ -18,7 +18,8 @@ function render(data) {
         title: c.title,
         payload: c.value.toUpperCase()
       })),
-      typing: data.typing
+      typing: data.typing,
+      markdown: data.markdown
     }
   ]
 }
@@ -122,6 +123,11 @@ module.exports = {
             }
           }
         }
+      },
+      markdown: {
+        type: 'boolean',
+        title: 'Use markdown',
+        default: true
       },
       ...base.typingIndicators
     }

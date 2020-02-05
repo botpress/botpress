@@ -56,7 +56,7 @@ Deletes all the historical tasks.
 `scheduler` exposes `bp.scheduler.add` and `bp.scheduler.remove` functions as public API so that it can be used within other packages:
 
 ```js
-await bp.scheduler.add({ 
+await bp.scheduler.add({
   id: 'Test Notification',
   schedule: '2018-06-30T18:00:00.000Z',
   action: `bp.notifications.send({ level: 'success', message: 'Schedule triggered successfully' })`,
@@ -70,7 +70,7 @@ await bp.scheduler.remove('Test Notification')
 
 Pull requests are welcomed! We believe that it takes all of us to create something big and impactful.
 
-There's a [Community Forum](https://help.botpress.io) where you are welcome to join us, ask any question and even help others.
+There's a [Community Forum](https://forum.botpress.com) where you are welcome to join us, ask any question and even help others.
 
 ## License
 

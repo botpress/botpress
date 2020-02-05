@@ -23,7 +23,7 @@ const makeID = (qna: QnaEntry) => {
     .replace(/_+$/, '')}`
 }
 
-const normalizeQuestions = questions =>
+const normalizeQuestions = (questions: string[]) =>
   questions
     .map(q =>
       q
@@ -273,8 +273,30 @@ export default class Storage {
 
   async getAllContentElementIds(list?: QnaItem[]): Promise<string[]> {
     const qnas = list || (await this.fetchQNAs())
-    const allAnswers = _.flatMapDeep(qnas, qna => Object.keys(qna.data.answers).map(lang => qna.data.answers[lang]))
+    const allAnswers = _.flatMapDeep(qnas, qna => Object.values(qna.data.answers))
     return _.uniq(_.filter(allAnswers as string[], x => _.isString(x) && x.startsWith('#!')))
+  }
+
+  async getContentElementUsage(): Promise<any> {
+    const qnas = await this.fetchQNAs()
+
+    return _.reduce(
+      qnas,
+      (result, qna) => {
+        const answers = _.flatMap(Object.values(qna.data.answers))
+
+        _.filter(answers, x => x.startsWith('#!')).forEach(answer => {
+          const values = result[answer]
+          if (values) {
+            values.count++
+          } else {
+            result[answer] = { qna: qna.id.substr(qna.id.indexOf('_') + 1), count: 1 }
+          }
+        })
+        return result
+      },
+      {}
+    )
   }
 
   async count() {

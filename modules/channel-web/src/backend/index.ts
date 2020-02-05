@@ -25,7 +25,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'channel-web',
     menuIcon: 'chrome_reader_mode',
     fullName: 'Web Chat',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: true,
     plugins: [{ entry: 'WebBotpressUIInjection', position: 'overlay' }]
   }

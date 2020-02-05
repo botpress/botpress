@@ -60,7 +60,10 @@ export function makeExtractedSlots(
   utterance: Utterance,
   slotTagResults: TagResult[]
 ): SlotExtractionResult[] {
-  return _.zip(utterance.tokens.filter(t => !t.isSpace), slotTagResults)
+  return _.zip(
+    utterance.tokens.filter(t => !t.isSpace),
+    slotTagResults
+  )
     .filter(([token, tagRes]) => tagRes.tag !== BIO.OUT)
     .reduce((combined, [token, tagRes]) => {
       const last = _.last(combined)

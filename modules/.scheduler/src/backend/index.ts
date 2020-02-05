@@ -50,7 +50,7 @@ const obj: sdk.ModuleEntryPoint = {
     name: 'scheduler',
     menuIcon: 'alarm_on',
     fullName: 'Scheduler',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: false,
     plugins: [],
     moduleView: { stretched: true }

@@ -2,7 +2,7 @@
 Below is an example of how you can register your custom analytics.
 You can also use this as a template. 
 
-If you need help, please refer to the official guide at https://botpress.io/docs/developers/analytics.
+If you need help, please refer to the official guide at https://botpress.com/docs/developers/analytics.
 
 Example:
 

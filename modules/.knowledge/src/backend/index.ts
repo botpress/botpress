@@ -41,7 +41,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'library_books',
     menuText: 'Knowledge',
     fullName: 'knowledge',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 
