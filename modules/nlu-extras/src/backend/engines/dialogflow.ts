@@ -1,13 +1,13 @@
-import Zip from 'jszip'
 import axios from 'axios'
-import { GoogleToken } from 'gtoken'
 import crypto from 'crypto'
+import { GoogleToken } from 'gtoken'
+import Zip from 'jszip'
+import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
-import _ from 'lodash'
 
-import { parseUtterance } from '../utterance-parser'
 import { Dataset, DialogflowConfig } from '../typings'
+import { parseUtterance } from '../utterance-parser'
 
 const tokenCache = new LRU({ max: 10000 })
 
@@ -78,7 +78,7 @@ export const createZip = async (dataset: Dataset, config: DialogflowConfig): Pro
     )
 
     const langs = Object.keys(intent.utterances).filter(lang => intent.utterances[lang].length)
-    for (let lang of langs) {
+    for (const lang of langs) {
       const content = Files['intents/<name>_usersays_<lang>.json'](intent.utterances[lang])
       intents.file(`${intent.name}_usersays_${lang}.json`, content)
     }
