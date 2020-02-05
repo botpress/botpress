@@ -118,7 +118,12 @@ declare module 'botpress/sdk' {
      */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => Promise<void>
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => Promise<void>
-    onFlowRenamed?: (bp: typeof import('botpress/sdk'), botId: string,  previousFlowName: string, newFlowName: string) => Promise<void>
+    onFlowRenamed?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      previousFlowName: string,
+      newFlowName: string
+    ) => Promise<void>
     /**
      * This method is called whenever a content element is created, updated or deleted.
      * Modules can act on these events if they need to update references, for example.
@@ -1690,6 +1695,35 @@ declare module 'botpress/sdk' {
      * @deprecated will be removed, use global or forBot
      */
     export function removeStorageKeysStartingWith(key): Promise<void>
+  }
+
+  export type MetricName =
+    | 'sessions_count'
+    | 'msg_received_count'
+    | 'goals_started_count'
+    | 'goals_completed_count'
+    | 'goals_failed_count'
+    | 'msg_sent_count'
+    | 'msg_sent_qna_count'
+    | 'new_users_count'
+    | 'users_count'
+    | 'msg_nlu_none'
+    | 'sessions_start_nlu_none'
+    | 'feedback_positive'
+    | 'feedback_negative'
+
+  export interface Analytics {
+    id: number
+    botId: string
+    metric_name: string
+    channel: string
+    created_on: string
+    updated_on: string
+    value: number
+  }
+
+  export namespace analytics {
+    export function incrementMetric(botId: string, channel: string, metric: MetricName): Promise<void>
   }
 
   export namespace bots {

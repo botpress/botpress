@@ -1,5 +1,4 @@
-import { Logger } from 'botpress/sdk'
-import { Analytics } from 'core/repositories/analytics-repository'
+import { Analytics, Logger } from 'botpress/sdk'
 import AnalyticsService from 'core/services/analytics-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'

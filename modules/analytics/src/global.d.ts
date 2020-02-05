@@ -69,6 +69,15 @@ declare type BotpressEnvironmentVariables = {
   /** Change the BPFS storage mechanism ("database" or "disk"). Defaults to "disk" */
   readonly BPFS_STORAGE?: 'database' | 'disk'
 
+  /** The URL exposed by Botpress to external users (eg: when displaying links) */
+  readonly EXTERNAL_URL?: string
+
+  /** Use this to override the hostname that botpress will listen on (by default it's localhost) - replaces httpServer.host */
+  readonly BP_HOST?: string
+
+  /** Change the port where botpress listens. Replaces the configuration of httpServer.port */
+  readonly PORT?: number
+
   /**
    * The connection string for redis
    * @example redis://username:password@localhost:6379
@@ -97,6 +106,12 @@ declare type BotpressEnvironmentVariables = {
   readonly BP_LICENSE_KEY?: string
 
   /**
+   * Change the host of the licensing server
+   * @default https://license.botpress.io
+   */
+  readonly BP_LICENSE_SERVER_HOST?: string
+
+  /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
    * Read more: https://expressjs.com/en/guide/behind-proxies.html
    */
@@ -113,6 +128,9 @@ declare type BotpressEnvironmentVariables = {
    * @example bp:dialog:*,bp:nlu:intents:*
    */
   readonly DEBUG?: string
+
+  /** Enable performance hooks to track incoming and outgoing events */
+  readonly BP_DEBUG_IO?: boolean
 
   /**
    * Overrides the auto-computed `process.APP_DATA_PATH` path
@@ -156,11 +174,8 @@ declare type BotpressEnvironmentVariables = {
    */
   readonly BP_FAILSAFE?: boolean
 
-  /**
-   * When true, it will not store/load the state from redis to speed up event processing
-   * Adding temporarily until the feature is battle-tested
-   */
-  readonly BP_NO_REDIS_STATE?: boolean
+  /** When true, Redis will be used to keep active sessions in memory for better performances */
+  readonly USE_REDIS_STATE?: boolean
 
   /**
    * Experimental feature which will try to load actions locally, then from the ghost
@@ -172,6 +187,18 @@ declare type BotpressEnvironmentVariables = {
    * Can give a significant performance improvement but removes some protections.
    */
   readonly DISABLE_GLOBAL_SANDBOX?: boolean
+
+  /** Migration Testing: Simulate a specific version for the server, ex: 12.5.0 */
+  readonly TESTMIG_BP_VERSION?: string
+
+  /** Migration Testing: Simulate a specific version for the configuration file, ex: 12.4.0 */
+  readonly TESTMIG_CONFIG_VERSION?: string
+
+  /** Migration Testing: Set this to true to run completed migrations everytime the server starts */
+  readonly TESTMIG_IGNORE_COMPLETED?: boolean
+
+  /** Prevent running migrations (to allow manual fix of an issue which prevents server startup) */
+  readonly SKIP_MIGRATIONS?: boolean
 }
 
 interface IDebug {

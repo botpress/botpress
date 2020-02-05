@@ -19,7 +19,8 @@ declare module 'botpress/sdk' {
       tableName: string,
       data: {},
       returnColumns?: string | string[],
-      idColumnName?: string
+      idColumnName?: string,
+      trx?: Knex.Transaction
     ): Promise<T>
   }
 
@@ -106,17 +107,23 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     /** Called once the core is initialized. Usually for middlewares / database init */
-    onServerStarted?: (bp: typeof import('botpress/sdk')) => void
+    onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
-    onServerReady?: (bp: typeof import('botpress/sdk')) => void
-    onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => void
-    onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => void
+    onServerReady?: (bp: typeof import('botpress/sdk')) => Promise<void>
+    onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => Promise<void>
+    onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => Promise<void>
     /**
      * Called when the module is unloaded, before being reloaded
      * onBotUnmount is called for each bots before this one is called
      */
-    onModuleUnmount?: (bp: typeof import('botpress/sdk')) => void
-    onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void
+    onModuleUnmount?: (bp: typeof import('botpress/sdk')) => Promise<void>
+    onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => Promise<void>
+    onFlowRenamed?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      previousFlowName: string,
+      newFlowName: string
+    ) => Promise<void>
     /**
      * This method is called whenever a content element is created, updated or deleted.
      * Modules can act on these events if they need to update references, for example.
@@ -127,7 +134,7 @@ declare module 'botpress/sdk' {
       action: ElementChangedAction,
       element: ContentElement,
       oldElement?: ContentElement
-    ) => void
+    ) => Promise<void>
   }
 
   /**
@@ -1289,6 +1296,7 @@ declare module 'botpress/sdk' {
     export function sendPayload(payload: RealTimePayload)
   }
 
+  // prettier-ignore
   export type RouterCondition = boolean | ((req: any) => boolean)
 
   /**
@@ -1511,7 +1519,7 @@ declare module 'botpress/sdk' {
     /**
      * Returns an existing user or create a new one with the specified keys
      */
-    export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>
+    export function getOrCreateUser(channel: string, userId: string, botId: string): GetOrCreateResult<User>
 
     /**
      * Merge the specified attributes to the existing attributes of the user
@@ -1689,6 +1697,33 @@ declare module 'botpress/sdk' {
     export function removeStorageKeysStartingWith(key): Promise<void>
   }
 
+  export type MetricName =
+    | 'sessions_count'
+    | 'msg_received_count'
+    | 'goals_started_count'
+    | 'goals_completed_count'
+    | 'goals_failed_count'
+    | 'msg_sent_count'
+    | 'msg_sent_qna_count'
+    | 'new_users_count'
+    | 'users_count'
+    | 'msg_nlu_none'
+    | 'sessions_start_nlu_none'
+
+  export interface Analytics {
+    id: number
+    botId: string
+    metric_name: string
+    channel: string
+    created_on: string
+    updated_on: string
+    value: number
+  }
+
+  export namespace analytics {
+    export function incrementMetric(botId: string, channel: string, metric: MetricName): Promise<void>
+  }
+
   export namespace bots {
     export function getAllBots(): Promise<Map<string, BotConfig>>
     export function getBotById(botId: string): Promise<BotConfig | undefined>
@@ -1752,6 +1787,10 @@ declare module 'botpress/sdk' {
      * Access the Ghost Service globally. Check the {@link ScopedGhostService} for the operations available on the scoped element.
      */
     export function forGlobal(): ScopedGhostService
+    /**
+     * Access the BPFS at the root of the data folder
+     */
+    export function forRoot(): ScopedGhostService
   }
 
   export namespace cms {

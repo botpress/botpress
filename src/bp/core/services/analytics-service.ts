@@ -1,4 +1,5 @@
-import { AnalyticsRepository, MetricName } from 'core/repositories/analytics-repository'
+import { MetricName } from 'botpress/sdk'
+import { AnalyticsRepository } from 'core/repositories/analytics-repository'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import moment from 'moment'

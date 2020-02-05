@@ -18,6 +18,7 @@ import { EventRepository, SessionRepository, UserRepository } from './repositori
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import AnalyticsService from './services/analytics-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { DialogEngine } from './services/dialog/dialog-engine'
@@ -108,6 +109,12 @@ const bots = (botService: BotService): typeof sdk.bots => {
       return botService.exportBot(botId)
     },
     importBot: botService.importBot.bind(botService)
+  }
+}
+
+const analytics = (analytics: AnalyticsService): typeof sdk.analytics => {
+  return {
+    incrementMetric: analytics.incrementMetric.bind(analytics)
   }
 }
 
@@ -262,6 +269,7 @@ export class BotpressAPIProvider {
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
   distributed: typeof sdk.distributed
+  analytics: typeof sdk.analytics
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -283,7 +291,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager
+    @inject(TYPES.StateManager) stateManager: StateManager,
+    @inject(TYPES.AnalyticsService) analytics: AnalyticsService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -302,6 +311,7 @@ export class BotpressAPIProvider {
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
+    this.analytics = analytics
   }
 
   @Memoize()
@@ -333,7 +343,8 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed
+      distributed: this.distributed,
+      analytics: this.analytics
     }
   }
 }
