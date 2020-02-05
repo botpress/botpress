@@ -1,7 +1,10 @@
 import { Button, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import axios from 'axios'
 import { Topic } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
+import { connect } from 'react-redux'
+import { fetchTopics } from '~/actions'
 import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
 
@@ -11,7 +14,7 @@ interface Props {
 
   toggle: () => void
   onCreateFlow: (goalName: string) => void
-  updateTopics: (topics: Topic[]) => Promise<void>
+  fetchTopics: () => void
 }
 
 const CreateTopicModal: FC<Props> = props => {
@@ -19,10 +22,9 @@ const CreateTopicModal: FC<Props> = props => {
   const [goal, setGoal] = useState('')
 
   const submit = async () => {
-    const goalName = `${name}/${goal}`
-
-    props.onCreateFlow(goalName)
-    await props.updateTopics([...props.topics, { name: goalName, description: '' }])
+    props.onCreateFlow(`${name}/${goal}`)
+    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topics`, { name, description: '' })
+    props.fetchTopics()
 
     closeModal()
   }
@@ -74,4 +76,12 @@ const CreateTopicModal: FC<Props> = props => {
   )
 }
 
-export default CreateTopicModal
+const mapStateToProps = state => ({
+  topics: state.ndu.topics
+})
+
+const mapDispatchToProps = {
+  fetchTopics
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateTopicModal)

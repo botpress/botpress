@@ -1,27 +1,39 @@
 import { Icon } from '@blueprintjs/core'
-import axios from 'axios'
-import { Topic } from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import reject from 'lodash/reject'
 import values from 'lodash/values'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, duplicateFlow, fetchTopics, refreshConditions, renameFlow } from '~/actions'
+import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, refreshConditions, renameFlow } from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
-import { Downloader } from '~/components/Shared/Utils'
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/SidePanel/Toolbar'
 
 import EditGoalModal from './GoalEditor'
+import { exportCompleteGoal } from './GoalEditor/export'
 import Library from './Library'
+import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
-import Topiclist from './TopicList'
+import ImportModal from './TopicEditor/ImportModal'
+import TopicList from './TopicList'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
+
+export enum ElementType {
+  Topic = 'topic',
+  Goal = 'goal',
+  Content = 'content',
+  Action = 'action',
+  Intent = 'intent',
+  Flow = 'flow',
+  Knowledge = 'knowledge',
+  Unknown = 'unknown'
+}
 
 interface OwnProps {
   onCreateFlow: (flowName: string) => void
@@ -33,7 +45,7 @@ interface OwnProps {
 interface StateProps {
   flowsNames: string[]
   showFlowNodeProps: boolean
-  flows: any
+  flows: FlowView[]
   currentFlow: any
   dirtyFlows: any
   flowPreview: boolean
@@ -44,6 +56,7 @@ interface StateProps {
 interface DispatchProps {
   refreshConditions: () => void
   fetchTopics: () => void
+  fetchFlows: () => void
   deleteFlow: (flowName: string) => void
   renameFlow: any
   duplicateFlow: any
@@ -55,14 +68,14 @@ const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
   const [topicModalOpen, setTopicModalOpen] = useState(false)
   const [goalModalOpen, setGoalModalOpen] = useState(false)
+  const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
 
   const [selectedGoal, setSelectedGoal] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
 
   const [goalFilter, setGoalFilter] = useState('')
   const [libraryFilter, setLibraryFilter] = useState('')
-  const [url, setUrl] = useState('')
-  const [file, setFile] = useState('')
 
   useEffect(() => {
     props.refreshConditions()
@@ -80,6 +93,14 @@ const SidePanelContent: FC<Props> = props => {
     key: 'create',
     tooltip: 'Create new topic',
     onClick: () => setCreateTopicOpen(true)
+  }
+
+  const importAction = {
+    id: 'btn-import',
+    icon: <Icon icon="download" />,
+    key: 'import',
+    tooltip: 'Import content',
+    onClick: () => setImportModalOpen(true)
   }
 
   const editTopic = (topicName: string) => {
@@ -100,15 +121,26 @@ const SidePanelContent: FC<Props> = props => {
     setGoalModalOpen(true)
   }
 
-  const updateTopics = async (topics: Topic[]) => {
-    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topics`, topics)
-    props.fetchTopics()
+  const downloadTextFile = (text, fileName) => {
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(new Blob([text], { type: `application/json` }))
+    link.download = fileName
+    link.click()
+  }
+
+  const exportTopic = async topicName => {
+    const topic = await exportCompleteTopic(topicName, props.flows)
+    downloadTextFile(JSON.stringify(topic), `${topicName}.json`)
   }
 
   const exportGoal = async goalName => {
-    console.log('export')
-    setFile(goalName)
-    setUrl(`${window.BOT_API_PATH}/mod/ndu/exportGoal?goalName=${goalName}`)
+    const goal = await exportCompleteGoal(goalName)
+    downloadTextFile(JSON.stringify(goal), `${goalName}.json`)
+  }
+
+  const onImportCompleted = () => {
+    props.fetchFlows()
+    props.fetchTopics()
   }
 
   return (
@@ -121,8 +153,11 @@ const SidePanelContent: FC<Props> = props => {
         <React.Fragment>
           <SearchBar icon="filter" placeholder="Filter topics and goals" onChange={setGoalFilter} />
 
-          <SidePanelSection label="Topics" actions={props.permissions.includes('create') && [createTopicAction]}>
-            <Topiclist
+          <SidePanelSection
+            label="Topics"
+            actions={props.permissions.includes('create') && [createTopicAction, importAction]}
+          >
+            <TopicList
               readOnly={props.readOnly}
               canDelete={props.permissions.includes('delete')}
               flows={flowsName}
@@ -133,8 +168,10 @@ const SidePanelContent: FC<Props> = props => {
               editGoal={editGoal}
               createGoal={createGoal}
               exportGoal={exportGoal}
+              importGoal={() => setImportGoalModalOpen(!importGoalModalOpen)}
               filter={goalFilter}
               editTopic={editTopic}
+              exportTopic={exportTopic}
             />
           </SidePanelSection>
 
@@ -142,7 +179,6 @@ const SidePanelContent: FC<Props> = props => {
             <SearchBar icon="filter" placeholder="Filter library" onChange={setLibraryFilter} />
             <Library filter={libraryFilter} />
           </SidePanelSection>
-          <Downloader url={url} filename={file} />
         </React.Fragment>
       )}
 
@@ -150,18 +186,12 @@ const SidePanelContent: FC<Props> = props => {
         selectedTopic={selectedTopic}
         isOpen={topicModalOpen}
         toggle={() => setTopicModalOpen(!topicModalOpen)}
-        onDuplicateFlow={props.duplicateFlow}
-        onRenameFlow={props.renameFlow}
-        topics={props.topics}
-        updateTopics={updateTopics}
       />
 
       <CreateTopicModal
         isOpen={createTopicOpen}
         toggle={() => setCreateTopicOpen(!createTopicOpen)}
         onCreateFlow={props.onCreateFlow}
-        topics={props.topics}
-        updateTopics={updateTopics}
       />
 
       <EditGoalModal
@@ -171,6 +201,15 @@ const SidePanelContent: FC<Props> = props => {
         selectedTopic={selectedTopic}
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}
+      />
+
+      <ImportModal
+        isOpen={importModalOpen}
+        toggle={() => setImportModalOpen(!importModalOpen)}
+        onImportCompleted={onImportCompleted}
+        selectedTopic={selectedTopic}
+        flows={props.flows}
+        topics={props.topics}
       />
     </SidePanel>
   )
@@ -191,10 +230,8 @@ const mapDispatchToProps = {
   duplicateFlow,
   renameFlow,
   refreshConditions,
-  fetchTopics
+  fetchTopics,
+  fetchFlows
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SidePanelContent)
+export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)
