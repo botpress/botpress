@@ -31,7 +31,7 @@ const getQnaIdFromIntentName = (intentName: string): string => {
 }
 
 const getIntentName = (event: IO.IncomingEvent): string => {
-  return event.nlu.intent.name
+  return event.nlu?.intent?.name || ''
 }
 
 const getQnaItemFromEvent = (event: IO.IncomingEvent, qnaItems: QnAItem[]): QnAItem => {
