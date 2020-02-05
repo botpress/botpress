@@ -48,12 +48,11 @@ export const getGoalFromEvent = (event: IO.IncomingEvent): Goal => {
     throw 'No Goal found'
   }
 
-  const [triggerId, trigger] = Object.entries(event.ndu.triggers).find(kv => {
-    const [triggerId, trigger] = kv
+  const trigger = Object.values(event.ndu.triggers).find(trigger => {
     return trigger.result.user_intent_is === 1
   })
 
-  if (!triggerId) {
+  if (!trigger) {
     throw 'No Goal found'
   }
 
