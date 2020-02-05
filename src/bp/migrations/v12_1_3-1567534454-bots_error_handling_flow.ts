@@ -24,6 +24,7 @@ const migration: Migration = {
           id: '3rr0r',
           name: 'entry',
           onEnter: ['say #!builtin_text-error'],
+          // tslint:disable-next-line: no-null-keyword
           onReceive: null,
           next: []
         }
