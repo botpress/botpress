@@ -7,7 +7,15 @@
       "quantity": 1
     }
   },
+  "env": {
+    "BPFS_STORAGE": {
+      "value": "database"
+    }
+  },
   "success_url": "/",
   "website": "https://botpress.com/",
-  "stack": "container"
+  "stack": "container",
+  "addons": [
+    "heroku-postgresql"
+  ]
 }
