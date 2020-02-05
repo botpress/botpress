@@ -92776,9 +92776,9 @@ var AnalyticsModule = /** @class */ (function (_super) {
         return (react_1.default.createElement("div", { className: style_scss_1.default.metricsSection },
             react_1.default.createElement("h3", null, "Engagement & Retention"),
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
-                this.renderTimeSeriesChart('Number of Users', this.getMetric('users_count')),
                 this.renderNumberMetric('Messages / Session', this.avgSessionLength()),
-                this.renderNumberMetric('Number of New Users', this.getMetricCount('new_users_count')),
+                this.renderTimeSeriesChart('Number of Users', this.getMetric('users_count')),
+                this.renderTimeSeriesChart('Number of New Users', this.getMetric('new_users_count')),
                 this.renderNumberMetric('Number of Returning Users', 54))));
     };
     AnalyticsModule.prototype.renderUnderstanding = function () {

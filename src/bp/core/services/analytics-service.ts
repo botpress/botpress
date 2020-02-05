@@ -10,15 +10,32 @@ export default class AnalyticsService {
 
   async incrementMetric(botId: string, channel: string, metric: MetricName, increment = 1) {
     try {
-      const analytic = await this.analyticsRepo.get({ botId, channel, metric })
-      const latest = moment(analytic.created_on).startOf('day')
+      const analytics = await this.analyticsRepo.get({ botId, channel, metric })
+      const latest = moment(analytics.created_on).startOf('day')
       const today = moment().startOf('day')
 
       // Aggregate metrics per day
       if (latest.isBefore(today)) {
         await this.analyticsRepo.insert({ botId, channel, metric, value: increment })
       } else {
-        await this.analyticsRepo.update(analytic.id, analytic.value + increment)
+        await this.analyticsRepo.update(analytics.id, analytics.value + increment)
+      }
+    } catch (err) {
+      await this.analyticsRepo.insert({ botId, channel, metric, value: increment })
+    }
+  }
+
+  async incrementMetricTotal(botId: string, channel: string, metric: MetricName, increment = 1) {
+    try {
+      const analytics = await this.analyticsRepo.get({ botId, channel, metric })
+      const latest = moment(analytics.created_on).startOf('day')
+      const today = moment().startOf('day')
+
+      // Aggregate metrics per day
+      if (latest.isBefore(today)) {
+        await this.analyticsRepo.insert({ botId, channel, metric, value: analytics.value + increment })
+      } else {
+        await this.analyticsRepo.update(analytics.id, analytics.value + increment)
       }
     } catch (err) {
       await this.analyticsRepo.insert({ botId, channel, metric, value: increment })

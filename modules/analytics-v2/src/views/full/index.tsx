@@ -151,9 +151,9 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
       <div className={style.metricsSection}>
         <h3>Engagement & Retention</h3>
         <div className={style.metricsContainer}>
-          {this.renderTimeSeriesChart('Number of Users', this.getMetric('users_count'))}
           {this.renderNumberMetric('Messages / Session', this.avgSessionLength())}
-          {this.renderNumberMetric('Number of New Users', this.getMetricCount('new_users_count'))}
+          {this.renderTimeSeriesChart('Number of Users', this.getMetric('users_count'))}
+          {this.renderTimeSeriesChart('Number of New Users', this.getMetric('new_users_count'))}
           {this.renderNumberMetric('Number of Returning Users', 54)}
         </div>
       </div>

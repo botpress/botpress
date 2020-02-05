@@ -1723,7 +1723,18 @@ declare module 'botpress/sdk' {
   }
 
   export namespace analytics {
-    export function incrementMetric(botId: string, channel: string, metric: MetricName): Promise<void>
+    export function incrementMetric(
+      botId: string,
+      channel: string,
+      metric: MetricName,
+      increment?: number
+    ): Promise<void>
+    export function incrementMetricTotal(
+      botId: string,
+      channel: string,
+      metric: MetricName,
+      increment?: number
+    ): Promise<void>
   }
 
   export namespace bots {
