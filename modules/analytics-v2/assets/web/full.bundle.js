@@ -24049,7 +24049,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, ".analytics-v2__style__header___3j1J8{margin:15px 50px 15px 50px;display:inline-block}.analytics-v2__style__metricsSection___3RC4v{margin-top:50px;margin-left:50px}.analytics-v2__style__metricsContainer___2FFhb{display:flex;flex-wrap:wrap;width:100%}.analytics-v2__style__numberMetric___cCrQN{text-align:center;display:inline-block;width:150px;padding:5px;margin:10px 0 10px 10px}.analytics-v2__style__numberMetricName___1znWj{margin-top:10px;height:50px}.analytics-v2__style__numberMetricValue___3o5nR{margin-top:10px}.analytics-v2__style__chartMetric___3OUfE{margin-top:50px;display:inline-block;width:300px;height:150px}.analytics-v2__style__chartMetricName___2LLP0{text-align:center;margin:0 auto;height:50px}\n", ""]);
+exports.push([module.i, ".analytics-v2__style__header___3j1J8{margin:15px 50px 15px 50px;display:inline-block}.analytics-v2__style__metricsSection___3RC4v{margin-top:50px;margin-left:50px}.analytics-v2__style__metricsContainer___2FFhb{display:flex;flex-wrap:wrap;width:100%}.analytics-v2__style__numberMetric___cCrQN{text-align:center;display:inline-block;width:150px;padding:5px;margin:10px 0 10px 10px}.analytics-v2__style__numberMetricName___1znWj{margin-top:10px;height:50px}.analytics-v2__style__numberMetricValue___3o5nR{margin-top:10px}.analytics-v2__style__chartMetric___3OUfE{margin-top:50px;display:inline-block;width:300px;height:150px}.analytics-v2__style__chartMetricName___2LLP0{text-align:center;margin:0 auto;height:50px;padding-left:50px}\n", ""]);
 
 // exports
 exports.locals = {
@@ -92618,6 +92618,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -92717,11 +92728,19 @@ var AnalyticsModule = /** @class */ (function (_super) {
         _this.getMetricCount = function (metricName) {
             return _this.state.metrics.filter(function (m) { return m.metric_name === metricName; }).reduce(function (acc, cur) { return acc + cur.value; }, 0);
         };
-        _this.avgSessionLength = function () {
-            var received = _this.getMetricCount('msg_received_count');
-            var sent = _this.getMetricCount('msg_sent_count');
-            var sessions = _this.getMetricCount('sessions_count');
-            return ((received + sent) / sessions).toFixed(2);
+        _this.getAvgMsgPerSessions = function () {
+            var augmentedMetrics = _this.state.metrics.map(function (m) { return (__assign(__assign({}, m), { day: moment_1.default(m.created_on).format('DD-MM') })); });
+            var metricsByDate = lodash_1.default.sortBy(augmentedMetrics, 'day');
+            var sessionsCountPerDay = metricsByDate.filter(function (m) { return m.metric_name === 'sessions_count'; });
+            return sessionsCountPerDay.map(function (s) {
+                var sentCount = augmentedMetrics.find(function (m) { return m.metric_name === 'msg_sent_count' && s.day === m.day && s.channel === m.channel; });
+                var receivedCount = augmentedMetrics.find(function (m) { return m.metric_name === 'msg_received_count' && s.day === m.day && s.channel === m.channel; });
+                return {
+                    value: Math.round((lodash_1.default.get(sentCount, 'value', 0) + lodash_1.default.get(receivedCount, 'value', 0)) / s.value),
+                    channel: s.channel,
+                    created_on: s.created_on
+                };
+            });
         };
         _this.getMetric = function (metricName) { return _this.state.metrics.filter(function (x) { return x.metric_name === metricName; }); };
         _this.formatTick = function (timestamp) { return moment_1.default.unix(timestamp).format('DD-MM'); };
@@ -92776,10 +92795,10 @@ var AnalyticsModule = /** @class */ (function (_super) {
         return (react_1.default.createElement("div", { className: style_scss_1.default.metricsSection },
             react_1.default.createElement("h3", null, "Engagement & Retention"),
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
-                this.renderNumberMetric('Messages / Session', this.avgSessionLength()),
-                this.renderTimeSeriesChart('Number of Users', this.getMetric('users_count')),
-                this.renderTimeSeriesChart('Number of New Users', this.getMetric('new_users_count')),
-                this.renderNumberMetric('Number of Returning Users', 54))));
+                this.renderTimeSeriesChart('Average Session Length', this.getAvgMsgPerSessions()),
+                this.renderTimeSeriesChart('Total Users', this.getMetric('users_count')),
+                this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count')),
+                this.renderTimeSeriesChart('Returning Users', this.getMetric('returning_users_count')))));
     };
     AnalyticsModule.prototype.renderUnderstanding = function () {
         var goalsOutcome = this.getMetricCount('goals_completed_count') / this.getMetricCount('goals_started_count') || 0;
@@ -92787,9 +92806,9 @@ var AnalyticsModule = /** @class */ (function (_super) {
             react_1.default.createElement("h3", null, "Understanding"),
             react_1.default.createElement("div", { className: style_scss_1.default.metricsContainer },
                 this.renderNumberMetric('# Positive Goals Outcome', goalsOutcome),
-                this.renderNumberMetric('# Positive QNA Feedback', 34),
-                this.renderNumberMetric('# Understood Messages', 34),
-                this.renderNumberMetric('# Understood Top-Level Messages', '50%'))));
+                this.renderTimeSeriesChart('# Positive QNA Feedback', this.getMetric('feedback_positive_count')),
+                this.renderNumberMetric('# Understood Messages', 666),
+                this.renderNumberMetric('# Understood Top-Level Messages', 666))));
     };
     AnalyticsModule.prototype.renderNumberMetric = function (name, value) {
         return (react_1.default.createElement(core_1.Card, { className: style_scss_1.default.numberMetric },

@@ -1,24 +1,10 @@
-import { Button, Card, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
+import { Card, HTMLSelect } from '@blueprintjs/core'
 import { DateRange, DateRangeInput } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
-import axios, { AxiosInstance } from 'axios'
 import _ from 'lodash'
-import moment, { unix } from 'moment'
+import moment from 'moment'
 import React from 'react'
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
-} from 'recharts'
+import { Area, AreaChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import style from './style.scss'
 
@@ -120,11 +106,27 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
   getMetricCount = metricName =>
     this.state.metrics.filter(m => m.metric_name === metricName).reduce((acc, cur) => acc + cur.value, 0)
 
-  avgSessionLength = () => {
-    const received = this.getMetricCount('msg_received_count')
-    const sent = this.getMetricCount('msg_sent_count')
-    const sessions = this.getMetricCount('sessions_count')
-    return ((received + sent) / sessions).toFixed(2)
+  getAvgMsgPerSessions = () => {
+    const augmentedMetrics = this.state.metrics.map(m => ({
+      ...m,
+      day: moment(m.created_on).format('DD-MM')
+    }))
+    const metricsByDate = _.sortBy(augmentedMetrics, 'day')
+    const sessionsCountPerDay = metricsByDate.filter(m => m.metric_name === 'sessions_count')
+
+    return sessionsCountPerDay.map(s => {
+      const sentCount = augmentedMetrics.find(
+        m => m.metric_name === 'msg_sent_count' && s.day === m.day && s.channel === m.channel
+      )
+      const receivedCount = augmentedMetrics.find(
+        m => m.metric_name === 'msg_received_count' && s.day === m.day && s.channel === m.channel
+      )
+      return {
+        value: Math.round((_.get(sentCount, 'value', 0) + _.get(receivedCount, 'value', 0)) / s.value),
+        channel: s.channel,
+        created_on: s.created_on
+      }
+    })
   }
 
   getMetric = metricName => this.state.metrics.filter(x => x.metric_name === metricName)
@@ -135,9 +137,7 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
         <h3>Agent Usage</h3>
         <div className={style.metricsContainer}>
           {this.renderTimeSeriesChart('Sessions', this.getMetric('sessions_count'))}
-          {/* {this.renderNumberMetric('Number of Sessions', this.getMetricCount('sessions_count'))} */}
           {this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count'))}
-          {/* {this.renderNumberMetric('Total Messages Received', this.getMetricCount('msg_received_count'))} */}
           {this.renderTimeSeriesChart('Goals Started', this.getMetric('goals_started_count'))}
           {this.renderTimeSeriesChart('Goals Completed', this.getMetric('goals_completed_count'))}
           {this.renderTimeSeriesChart('QNA Sent', this.getMetric('msg_sent_qna_count'))}
@@ -151,10 +151,10 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
       <div className={style.metricsSection}>
         <h3>Engagement & Retention</h3>
         <div className={style.metricsContainer}>
-          {this.renderNumberMetric('Messages / Session', this.avgSessionLength())}
-          {this.renderTimeSeriesChart('Number of Users', this.getMetric('users_count'))}
-          {this.renderTimeSeriesChart('Number of New Users', this.getMetric('new_users_count'))}
-          {this.renderNumberMetric('Number of Returning Users', 54)}
+          {this.renderTimeSeriesChart('Average Session Length', this.getAvgMsgPerSessions())}
+          {this.renderTimeSeriesChart('Total Users', this.getMetric('users_count'))}
+          {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
+          {this.renderTimeSeriesChart('Returning Users', this.getMetric('returning_users_count'))}
         </div>
       </div>
     )
@@ -168,9 +168,9 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
         <h3>Understanding</h3>
         <div className={style.metricsContainer}>
           {this.renderNumberMetric('# Positive Goals Outcome', goalsOutcome)}
-          {this.renderNumberMetric('# Positive QNA Feedback', 34)}
-          {this.renderNumberMetric('# Understood Messages', 34)}
-          {this.renderNumberMetric('# Understood Top-Level Messages', '50%')}
+          {this.renderTimeSeriesChart('# Positive QNA Feedback', this.getMetric('feedback_positive_count'))}
+          {this.renderNumberMetric('# Understood Messages', 666)}
+          {this.renderNumberMetric('# Understood Top-Level Messages', 666)}
         </div>
       </div>
     )

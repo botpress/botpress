@@ -1707,6 +1707,7 @@ declare module 'botpress/sdk' {
     | 'msg_sent_qna_count'
     | 'new_users_count'
     | 'users_count'
+    | 'returning_users_count'
     | 'msg_nlu_none'
     | 'sessions_start_nlu_none'
     | 'feedback_positive'
