@@ -7,7 +7,6 @@ import { Config } from '../config'
 import { getDataset } from './dataset'
 import { createZip, restoreAgent } from './engines/dialogflow'
 import { enableForBot, registerMiddleware, removeForBot } from './middleware'
-import {} from './typings'
 
 const dfListenerByBot: any = {}
 
