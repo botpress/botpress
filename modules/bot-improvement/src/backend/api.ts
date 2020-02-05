@@ -3,7 +3,6 @@ import { Topic } from 'botpress/sdk'
 import { Response } from 'express'
 import _ from 'lodash'
 
-import { SDK } from '.'
 import { Database } from './db'
 import { topicsToGoals } from './helpers'
 import { FeedbackItem, MessageGroup } from './typings'
@@ -17,7 +16,7 @@ interface SessionResponse extends Response {
   send: (body: MessageGroup[]) => SessionResponse
 }
 
-export default async (bp: SDK, db: Database) => {
+export default async (bp: typeof sdk, db: Database) => {
   const router = bp.http.createRouterForBot('bot-improvement')
 
   router.get('/feedback-items', async (req, res: FeedbackItemsResponse) => {

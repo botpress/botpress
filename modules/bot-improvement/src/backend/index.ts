@@ -3,13 +3,11 @@ import * as sdk from 'botpress/sdk'
 import api from './api'
 import db from './db'
 
-export type SDK = typeof sdk
-
-const onServerStarted = async (bp: SDK) => {
+const onServerStarted = async (bp: typeof sdk) => {
   await db(bp).initialize()
 }
 
-const onServerReady = async (bp: SDK) => {
+const onServerReady = async (bp: typeof sdk) => {
   await api(bp, db(bp))
 }
 

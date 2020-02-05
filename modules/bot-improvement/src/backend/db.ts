@@ -2,7 +2,6 @@ import axios from 'axios'
 import { IO } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { SDK } from '.'
 import { getGoalFromEvent, sortStoredEvents } from './helpers'
 import { CorrectedActionType, FeedbackItem, FeedbackItemStatus, Goal, Message, MessageGroup, QnAItem } from './typings'
 
@@ -64,7 +63,7 @@ const convertStoredEventToMessage = (storedEvent: IO.StoredEvent): Message => {
   }
 }
 
-export default (bp: SDK): Database => {
+export default (bp: typeof sdk): Database => {
   const knex = bp.database
 
   const initialize = async () => {
