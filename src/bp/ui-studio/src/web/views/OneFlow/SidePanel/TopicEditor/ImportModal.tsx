@@ -10,7 +10,7 @@ import { toastFailure, toastSuccess } from '~/components/Shared/Utils'
 import { ExportedFlow, ExportedTopic, ImportAction } from '../typings'
 import { analyzeGoalFile, executeGoalActions, getGoalAction } from '../GoalEditor/import'
 
-import { analyzeTopicFile, detectFileType, executeTopicActions, fields, renameTopic } from './import'
+import { analyzeTopicFile, detectFileType, executeTopicActions, fields, getTopicAction, renameTopic } from './import'
 
 type FileType = 'topic' | 'goal' | 'unknown'
 
@@ -24,6 +24,7 @@ interface Props {
   isOpen: boolean
   toggle: () => void
   flows: FlowView[]
+  topics: Topic[]
   selectedTopic: string
 }
 
@@ -80,11 +81,11 @@ const ImportModal: FC<Props> = props => {
         renameTopic(name, content)
 
         const actions = await analyzeTopicFile(content, props.flows)
-        const topicAction: ImportAction = {
-          type: 'topic',
-          name: name,
-          data: { ...fileContent, name: name }
-        }
+
+        const topicAction = getTopicAction(
+          _.pick(content, ['name', 'description']),
+          props.topics.find(x => x.name === content.name)
+        )
 
         setActions([...actions, topicAction].filter(x => !x.existing || !x.identical))
       } else if (detected === 'goal') {
@@ -95,7 +96,7 @@ const ImportModal: FC<Props> = props => {
           content,
           props.flows.find(x => x.name === name)
         )
-        console.log(props.flows, goalAction, name)
+
         setActions([...actions, goalAction].filter(x => !x.identical))
       }
     } catch (err) {
@@ -115,6 +116,7 @@ const ImportModal: FC<Props> = props => {
       }
 
       toastSuccess(`${detected} imported successfully!`)
+      props.onImportCompleted()
       closeDialog()
     } catch (err) {
       toastFailure(err.message)

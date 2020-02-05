@@ -176,7 +176,6 @@ const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state)
 })
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  { updateFlow, renameFlow, createFlow }
-)(EditGoalModal)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow, renameFlow, createFlow })(
+  EditGoalModal
+)

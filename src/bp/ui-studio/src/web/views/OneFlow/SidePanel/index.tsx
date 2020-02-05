@@ -1,13 +1,11 @@
 import { Icon } from '@blueprintjs/core'
-import axios from 'axios'
-import { Topic } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import reject from 'lodash/reject'
 import values from 'lodash/values'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, duplicateFlow, fetchTopics, refreshConditions, renameFlow } from '~/actions'
+import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, refreshConditions, renameFlow } from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
@@ -47,6 +45,7 @@ interface StateProps {
 interface DispatchProps {
   refreshConditions: () => void
   fetchTopics: () => void
+  fetchFlows: () => void
   deleteFlow: (flowName: string) => void
   renameFlow: any
   duplicateFlow: any
@@ -111,11 +110,6 @@ const SidePanelContent: FC<Props> = props => {
     setGoalModalOpen(true)
   }
 
-  const updateTopics = async (topics: Topic[]) => {
-    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topics`, topics)
-    props.fetchTopics()
-  }
-
   const downloadTextFile = (text, fileName) => {
     const link = document.createElement('a')
     link.href = URL.createObjectURL(new Blob([text], { type: `application/json` }))
@@ -131,6 +125,11 @@ const SidePanelContent: FC<Props> = props => {
   const exportGoal = async goalName => {
     const goal = await exportCompleteGoal(goalName)
     downloadTextFile(JSON.stringify(goal), `${goalName}.json`)
+  }
+
+  const onImportCompleted = () => {
+    props.fetchFlows()
+    props.fetchTopics()
   }
 
   return (
@@ -176,18 +175,12 @@ const SidePanelContent: FC<Props> = props => {
         selectedTopic={selectedTopic}
         isOpen={topicModalOpen}
         toggle={() => setTopicModalOpen(!topicModalOpen)}
-        onDuplicateFlow={props.duplicateFlow}
-        onRenameFlow={props.renameFlow}
-        topics={props.topics}
-        updateTopics={updateTopics}
       />
 
       <CreateTopicModal
         isOpen={createTopicOpen}
         toggle={() => setCreateTopicOpen(!createTopicOpen)}
         onCreateFlow={props.onCreateFlow}
-        topics={props.topics}
-        updateTopics={updateTopics}
       />
 
       <EditGoalModal
@@ -202,9 +195,10 @@ const SidePanelContent: FC<Props> = props => {
       <ImportModal
         isOpen={importModalOpen}
         toggle={() => setImportModalOpen(!importModalOpen)}
-        onImportCompleted={() => {}}
+        onImportCompleted={onImportCompleted}
         selectedTopic={selectedTopic}
         flows={props.flows}
+        topics={props.topics}
       />
     </SidePanel>
   )
@@ -225,7 +219,8 @@ const mapDispatchToProps = {
   duplicateFlow,
   renameFlow,
   refreshConditions,
-  fetchTopics
+  fetchTopics,
+  fetchFlows
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)

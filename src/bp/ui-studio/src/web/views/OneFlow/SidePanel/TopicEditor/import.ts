@@ -1,5 +1,6 @@
 import axios from 'axios'
 import 'bluebird-global'
+import { Topic } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
@@ -42,13 +43,22 @@ export const analyzeTopicFile = async (file: ExportedTopic, flows: FlowView[]) =
 }
 
 export const executeTopicActions = async (actions: ImportAction[]) => {
-  const getType = type => actions.filter(x => x.type === type && !x.identical)
+  const getActionType = type => actions.filter(x => x.type === type && !x.identical)
   try {
-    await Promise.each(getType('knowledge'), ({ data: { id, data } }) =>
+    await Promise.each(getActionType('knowledge'), ({ data: { id, data } }) =>
       axios.post(`${window.BOT_API_PATH}/mod/qna/questions/${id}`, data)
     )
   } catch (err) {
-    console.error(`Can't import knoweldge: ${err}`)
+    console.error(`Can't import knowledge: ${err}`)
+  }
+
+  try {
+    await Promise.each(getActionType('topic'), ({ data, name, existing }) => {
+      const topicPath = (existing && `/${name}`) || ''
+      return axios.post(`${window.BOT_API_PATH}/mod/ndu/topic${topicPath}`, data)
+    })
+  } catch (err) {
+    console.error(`Can't import topic: ${err}`)
   }
 
   await executeGoalActions(actions)
@@ -71,6 +81,16 @@ export const detectFileType = content => {
     return 'goal'
   }
   return 'unknown'
+}
+
+export const getTopicAction = (newTopic: Topic, existingTopic: Topic): ImportAction => {
+  return {
+    type: 'topic',
+    name: newTopic.name,
+    existing: !!existingTopic,
+    identical: existingTopic !== undefined && _.isEqual(newTopic, existingTopic),
+    data: newTopic
+  }
 }
 
 export const fields = {

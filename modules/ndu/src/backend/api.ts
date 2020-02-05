@@ -1,8 +1,10 @@
 import * as sdk from 'botpress/sdk'
+import { validate } from 'joi'
 import _ from 'lodash'
 
 import { conditionsDefinitions } from './conditions'
 import { BotStorage } from './typings'
+import { TopicSchema } from './validation'
 
 export default async (bp: typeof sdk, bots: BotStorage) => {
   const router = bp.http.createRouterForBot('ndu')
@@ -27,10 +29,24 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
     )
   })
 
-  router.post('/topics', async (req, res) => {
+  router.post('/topic/:topicName?', async (req, res) => {
+    const { topicName } = req.params
     const storage = bots[req.params.botId]
-    await storage.saveTopics(req.body)
-    res.send(true)
+
+    try {
+      const topic = await validate(req.body, TopicSchema)
+      const topics = await storage.getTopics()
+
+      if (!topicName) {
+        await storage.saveTopics([...topics, topic])
+      } else {
+        await storage.saveTopics([...topics.filter(x => x.name !== topicName), topic])
+      }
+
+      res.sendStatus(200)
+    } catch (err) {
+      res.status(400).send(err)
+    }
   })
 
   router.get('/library', async (req, res) => {

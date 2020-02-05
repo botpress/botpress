@@ -1,9 +1,13 @@
 import { Button, Classes, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
+import axios from 'axios'
 import { Topic } from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
+import { connect } from 'react-redux'
+import { fetchTopics, renameFlow } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { BaseDialog } from '~/components/Shared/Interface'
+import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
 
 import style from '../style.scss'
@@ -12,11 +16,10 @@ interface Props {
   selectedTopic: string
   isOpen: boolean
   topics: Topic[]
-
+  flows: FlowView[]
   toggle: () => void
-  onDuplicateFlow: (flow: { flowNameToDuplicate: string; name: string }) => void
-  onRenameFlow: (flow: { targetFlow: string; name: string }) => void
-  updateTopics: (topics: Topic[]) => Promise<void>
+  renameFlow: (flow: { targetFlow: string; name: string }) => void
+  fetchTopics: () => void
 }
 
 const EditTopicModal: FC<Props> = props => {
@@ -29,18 +32,25 @@ const EditTopicModal: FC<Props> = props => {
     setTab('overview')
 
     if (props.topics) {
-      const topic = props.topics.find(x => x.name === props.selectedTopic)
+      const topic = props.topics.find(x => x && x.name === props.selectedTopic)
       setDescription(topic && topic.description)
     }
   }, [props.isOpen])
 
   const submit = async () => {
-    const { topics } = props
+    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topic/${props.selectedTopic}`, { name, description })
 
-    const index = topics.findIndex(x => x.name === props.selectedTopic)
-    const newTopics = [...topics.slice(0, index), { name, description }, ...topics.slice(index + 1)]
+    if (name !== props.selectedTopic) {
+      props.flows
+        .filter(f => f.name.startsWith(`${props.selectedTopic}/`))
+        .forEach(f =>
+          props.renameFlow({ targetFlow: f.name, name: f.name.replace(`${props.selectedTopic}/`, `${name}/`) })
+        )
 
-    await props.updateTopics(newTopics)
+      // TODO: Update knowledge items
+    }
+
+    props.fetchTopics()
 
     closeModal()
   }
@@ -60,7 +70,7 @@ const EditTopicModal: FC<Props> = props => {
       style={{ width: 900, minHeight: 475 }}
       onSubmit={submit}
     >
-      <div className={Classes.DIALOG_BODY}>
+      <DialogBody>
         <Tabs id="tabs" vertical={true} onChange={tab => setTab(tab as string)} selectedTabId={tab}>
           <Tab
             id="overview"
@@ -96,7 +106,6 @@ const EditTopicModal: FC<Props> = props => {
                   id="btn-submit"
                   text="Save changes"
                   intent={Intent.PRIMARY}
-                  onClick={submit}
                   className={style.modalFooter}
                 />
               </div>
@@ -117,9 +126,19 @@ const EditTopicModal: FC<Props> = props => {
             }
           />
         </Tabs>
-      </div>
+      </DialogBody>
     </BaseDialog>
   )
 }
 
-export default EditTopicModal
+const mapStateToProps = state => ({
+  flows: _.values(state.flows.flowsByName),
+  topics: state.ndu.topics
+})
+
+const mapDispatchToProps = {
+  renameFlow,
+  fetchTopics
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditTopicModal)
