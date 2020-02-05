@@ -1,4 +1,5 @@
-import { ScopedGhostService, BotConfig, NLU } from 'botpress/sdk'
+import { BotConfig, NLU, ScopedGhostService } from 'botpress/sdk'
+
 import { Dataset } from './typings'
 
 export const getDataset = async (bpfs: ScopedGhostService): Promise<Dataset> => {
