@@ -24,4 +24,4 @@ jobs:
           yarn
       - name: Run TSLint
         run: |
-          yarn ru tslint
+          yarn run tslint
