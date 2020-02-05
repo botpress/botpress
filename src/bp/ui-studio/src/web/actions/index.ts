@@ -52,7 +52,11 @@ const startMutexCountDown = (flow: FlowView) => dispatch => {
 export const clearFlowMutex = createAction('FLOWS/MODIFICATIONS/CLEAR_MUTEX')
 
 export const requestFlows = createAction('FLOWS/REQUEST')
-export const receiveFlows = createAction('FLOWS/RECEIVE', flows => flows, () => ({ receiveAt: new Date() }))
+export const receiveFlows = createAction(
+  'FLOWS/RECEIVE',
+  flows => flows,
+  () => ({ receiveAt: new Date() })
+)
 
 export const fetchFlows = () => dispatch => {
   dispatch(requestFlows())
