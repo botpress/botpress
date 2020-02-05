@@ -16,10 +16,8 @@ export const ContextSelector: FC<Props> = props => {
   const [availableContexts, setContexts] = useState([])
 
   useEffect(() => {
-    props.api
-      .fetchContexts()
-      .then(setContexts)
-      .catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    props.api.fetchContexts().then(setContexts)
   }, [])
 
   const removeCtx = (_, idx: number) => {

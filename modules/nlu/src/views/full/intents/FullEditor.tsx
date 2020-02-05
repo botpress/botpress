@@ -25,10 +25,8 @@ export const IntentEditor: FC<Props> = props => {
   const [intent, setIntent] = useState<NLU.IntentDefinition>()
 
   useEffect(() => {
-    props.api
-      .fetchIntent(props.intent)
-      .then(setIntent)
-      .catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    props.api.fetchIntent(props.intent).then(setIntent)
   }, [props.intent])
 
   if (!intent) {
@@ -38,7 +36,8 @@ export const IntentEditor: FC<Props> = props => {
 
   const saveIntent = (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
-    props.api.createIntent(newIntent).catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    props.api.createIntent(newIntent)
   }
 
   const handleUtterancesChange = (newUtterances: string[]) => {

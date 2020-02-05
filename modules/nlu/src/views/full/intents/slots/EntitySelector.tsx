@@ -20,10 +20,8 @@ export const EntitySelector: FC<Props> = props => {
   const [availableEntities, setAvbEntities] = useState([])
 
   useEffect(() => {
-    props.api
-      .fetchEntities()
-      .then(setAvbEntities)
-      .catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    props.api.fetchEntities().then(setAvbEntities)
   }, [])
 
   const removeItem = (_, idx: number) => {

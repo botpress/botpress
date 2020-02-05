@@ -43,39 +43,31 @@ export const EntityNameModal: FC<Props> = props => {
     e.preventDefault()
 
     if (props.action === 'create') {
-      onCreateEntity()
+      await onCreateEntity()
     } else if (props.action === 'duplicate') {
-      onDuplicateEntity().catch(e => console.log(e))
+      await onDuplicateEntity()
     } else if (props.action === 'rename') {
-      onRenameEntity().catch(e => console.log(e))
+      await onRenameEntity()
     }
 
     props.closeModal()
   }
 
-  const onCreateEntity = () => {
+  const onCreateEntity = async () => {
     const entity = {
       id: getEntityId(name),
       name: name.trim(),
       type: type as NLU.EntityType,
       occurrences: []
     }
-    props.api
-      .createEntity(entity)
-      .then(() => {
-        props.onEntityModified(entity)
-      })
-      .catch(e => console.log(e))
+    props.onEntityModified(await props.api.createEntity(entity))
   }
 
   const onRenameEntity = async () => {
     const entity = _.cloneDeep(props.originalEntity)
     entity.name = name.trim()
     entity.id = getEntityId(name)
-    props.api
-      .updateEntity(props.originalEntity.id, entity)
-      .then(() => props.onEntityModified(entity))
-      .catch(e => console.log(e))
+    props.onEntityModified(await props.api.updateEntity(props.originalEntity.id, entity))
   }
 
   const getEntityId = (entityName: string) =>
@@ -88,10 +80,7 @@ export const EntityNameModal: FC<Props> = props => {
     const clone = _.cloneDeep(props.originalEntity)
     clone.name = name.trim()
     clone.id = getEntityId(name)
-    props.api
-      .createEntity(clone)
-      .then(() => props.onEntityModified(clone))
-      .catch(e => console.log(e))
+    props.onEntityModified(await props.api.createEntity(clone))
   }
 
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name

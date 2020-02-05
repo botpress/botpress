@@ -106,7 +106,7 @@ export default class ScopedEngine implements Engine {
       this._autoTrainTimer = setInterval(async () => {
         if (this._preloaded && (await this.checkSyncNeeded())) {
           // Sync only if the model has been already loaded
-          this.trainOrLoad().catch(e => console.log(e))
+          await this.trainOrLoad()
         }
       }, this._autoTrainInterval)
     }

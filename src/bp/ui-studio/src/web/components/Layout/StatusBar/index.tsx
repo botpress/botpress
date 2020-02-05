@@ -92,19 +92,17 @@ class StatusBar extends React.Component<Props> {
   }
 
   fetchTrainingSession = () => {
-    axios
-      .get(`${window.BOT_API_PATH}/mod/nlu/training/${this.props.contentLang}`)
-      .then(({ data: session }) => {
-        if (session && session.status === 'training') {
-          this.setState({
-            working: true,
-            progress: session.progress,
-            message: 'Training'
-          })
-          this.updateProgress(session.progress)
-        }
-      })
-      .catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${this.props.contentLang}`).then(({ data: session }) => {
+      if (session && session.status === 'training') {
+        this.setState({
+          working: true,
+          progress: session.progress,
+          message: 'Training'
+        })
+        this.updateProgress(session.progress)
+      }
+    })
   }
 
   initializeProgressBar = () => {

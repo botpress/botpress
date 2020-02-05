@@ -184,9 +184,10 @@ class SelectContent extends Component<Props, State> {
 
   setCurrentCategory(contentType) {
     this.setState({ contentType }, () => {
-      Promise.all([this.searchContentItems(), this.fetchContentItemsCount()])
-        .then(() => this.setState({ step: formSteps.MAIN }))
-        .catch(e => console.log(e))
+      // tslint:disable-next-line: no-floating-promises
+      Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
+        this.setState({ step: formSteps.MAIN })
+      )
     })
   }
 

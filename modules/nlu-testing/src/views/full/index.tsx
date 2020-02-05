@@ -57,10 +57,8 @@ export default class NLUTests extends React.Component<Props, State> {
   }
 
   refreshTests = async () => {
-    this.api
-      .fetchTests()
-      .then(tests => this.setState({ tests, loading: false }))
-      .catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    this.api.fetchTests().then(tests => this.setState({ tests, loading: false }))
   }
 
   computeXValidation = async () => {

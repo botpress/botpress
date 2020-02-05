@@ -72,8 +72,7 @@ describe('Middleware', () => {
       throw err
     })
 
-    expect(middleware.run({} as IO.Event))
-      .rejects.toEqual(err)
-      .catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    expect(middleware.run({} as IO.Event)).rejects.toEqual(err)
   })
 })

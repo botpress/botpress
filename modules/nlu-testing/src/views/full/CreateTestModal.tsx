@@ -29,18 +29,16 @@ export const CreateTestModal: FC<Props> = props => {
   const [slotConditions, setSlotConditions] = useState<_.Dictionary<string>>({})
 
   useEffect(() => {
-    props.api
-      .fetchIntents()
-      .then(intents => {
-        setIntents([...intents, noneIntent])
-        const ctxs = _.chain(intents)
-          .flatMap(i => i.contexts)
-          .uniq()
-          .value()
-        setAvailableCtxs(ctxs)
-        setSelectedCtx(ctxs[0] || 'global')
-      })
-      .catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    props.api.fetchIntents().then(intents => {
+      setIntents([...intents, noneIntent])
+      const ctxs = _.chain(intents)
+        .flatMap(i => i.contexts)
+        .uniq()
+        .value()
+      setAvailableCtxs(ctxs)
+      setSelectedCtx(ctxs[0] || 'global')
+    })
   }, [])
 
   const createTest = async e => {

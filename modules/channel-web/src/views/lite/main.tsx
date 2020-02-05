@@ -44,7 +44,8 @@ class Web extends React.Component<MainProps> {
 
     // tslint:disable-next-line: no-floating-promises
     this.initialize()
-    this.initializeIfChatDisplayed().catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    this.initializeIfChatDisplayed()
     this.props.setLoadingCompleted()
   }
 
@@ -53,7 +54,8 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidUpdate() {
-    this.initializeIfChatDisplayed().catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    this.initializeIfChatDisplayed()
   }
 
   async initializeIfChatDisplayed() {
@@ -91,7 +93,8 @@ class Web extends React.Component<MainProps> {
     config.reference && this.props.setReference()
 
     this.setupObserver()
-    this.props.fetchBotInfo().catch(e => console.log(e))
+    // tslint:disable-next-line: no-floating-promises
+    this.props.fetchBotInfo()
   }
 
   extractConfig() {
