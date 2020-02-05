@@ -1,3 +1,4 @@
+import apicache from 'apicache'
 import aws from 'aws-sdk'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
@@ -5,7 +6,6 @@ import moment from 'moment'
 import multer from 'multer'
 import multers3 from 'multer-s3'
 import path from 'path'
-import apicache from 'apicache'
 
 import { Config } from '../config'
 
@@ -124,7 +124,7 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      const user = await bp.users.getOrCreateUser('web', userId)
+      const user = await bp.users.getOrCreateUser('web', userId, botId)
       const payload = req.body || {}
 
       let { conversationId = undefined } = req.query || {}
@@ -176,7 +176,7 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      await bp.users.getOrCreateUser('web', userId) // Just to create the user if it doesn't exist
+      await bp.users.getOrCreateUser('web', userId, botId) // Just to create the user if it doesn't exist
 
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
@@ -221,7 +221,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    await bp.users.getOrCreateUser('web', userId)
+    await bp.users.getOrCreateUser('web', userId, botId)
 
     const conversations = await db.listConversations(userId, botId)
 
@@ -277,7 +277,7 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncApi(async (req, res) => {
       const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
-      await bp.users.getOrCreateUser('web', userId)
+      await bp.users.getOrCreateUser('web', userId, botId)
       const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
 
       const event = bp.IO.Event({
@@ -316,7 +316,7 @@ export default async (bp: typeof sdk, db: Database) => {
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId, userId, conversationId } = req.params
-      await bp.users.getOrCreateUser('web', userId)
+      await bp.users.getOrCreateUser('web', userId, botId)
 
       const payload = {
         text: `Reset the conversation`,
@@ -342,7 +342,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { botId, userId, reference } = req.params
       let { conversationId } = req.params
 
-      await bp.users.getOrCreateUser('web', userId)
+      await bp.users.getOrCreateUser('web', userId, botId)
 
       if (typeof reference !== 'string' || !reference.length || reference.indexOf('=') === -1) {
         throw new Error('Invalid reference')
@@ -385,8 +385,8 @@ export default async (bp: typeof sdk, db: Database) => {
   })
 
   router.get('/preferences/:userId', async (req, res) => {
-    const { userId } = req.params
-    const { result } = await bp.users.getOrCreateUser('web', userId)
+    const { userId, botId } = req.params
+    const { result } = await bp.users.getOrCreateUser('web', userId, botId)
 
     return res.send({ language: result.attributes.language })
   })
@@ -421,7 +421,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   const convertToTxtFile = async conversation => {
     const { messages } = conversation
-    const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
+    const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId, conversation.botId)
     const timeFormat = 'MM/DD/YY HH:mm'
     const fullName = `${user.attributes['first_name'] || ''} ${user.attributes['last_name'] || ''}`
     const metadata = `Title: ${conversation.title}\r\nCreated on: ${moment(conversation.created_on).format(
