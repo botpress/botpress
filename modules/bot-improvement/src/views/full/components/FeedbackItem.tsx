@@ -101,7 +101,7 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
             value={feedbackItem.correctedActionType}
           >
             {qnaItems.length > 0 && <option value="qna">Q&A</option>}
-            <option value="start_goal">Start Goal</option>
+            {goals.length > 0 && <option value="start_goal">Start Goal</option>}
           </HTMLSelect>
         </Label>
 
