@@ -46,7 +46,6 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
       correctedActionType,
       correctedObjectId
     })
-    console.log('clone:', clone)
     saveHandler(clone)
   }
 
