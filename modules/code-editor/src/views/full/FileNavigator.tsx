@@ -176,15 +176,17 @@ class FileNavigator extends React.Component<Props, State> {
           </Menu>,
           { left: e.clientX, top: e.clientY }
         )
-      } else if (file.type === 'hook' && BOT_SCOPED_HOOKS.includes(file.hookType)) {
+      } else if (file.type === 'hook') {
         ContextMenu.show(
           <Menu>
-            <MenuItem
-              id="btn-duplicateCurrent"
-              icon="duplicate"
-              text="Copy example to my bot"
-              onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
-            />
+            {BOT_SCOPED_HOOKS.includes(file.hookType) && (
+              <MenuItem
+                id="btn-duplicateCurrent"
+                icon="duplicate"
+                text="Copy example to my bot"
+                onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
+              />
+            )}
             <MenuItem
               id="btn-duplicateCurrent"
               icon="duplicate"
