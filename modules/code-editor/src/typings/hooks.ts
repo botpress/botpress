@@ -16,3 +16,12 @@ export const HOOK_SIGNATURES = {
   after_stage_changed:
     'async function hook(bp: typeof sdk, previousBotConfig: sdk.BotConfig, bot: sdk.BotConfig, users: Partial<sdk.AuthUser[]>, pipeline: sdk.Pipeline)'
 }
+
+export const BOT_SCOPED_HOOKS = [
+  'before_incoming_middleware',
+  'after_incoming_middleware',
+  'before_outgoing_middleware',
+  'after_event_processed',
+  'before_suggestions_election',
+  'before_session_timeout'
+]

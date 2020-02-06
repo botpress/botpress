@@ -16,6 +16,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import { EditableFile } from '../../backend/typings'
+import { BOT_SCOPED_HOOKS } from '../../typings/hooks'
 
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
@@ -175,7 +176,7 @@ class FileNavigator extends React.Component<Props, State> {
           </Menu>,
           { left: e.clientX, top: e.clientY }
         )
-      } else if (file.type === 'hook') {
+      } else if (file.type === 'hook' && BOT_SCOPED_HOOKS.includes(file.hookType)) {
         ContextMenu.show(
           <Menu>
             <MenuItem
