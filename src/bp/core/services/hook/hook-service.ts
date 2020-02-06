@@ -169,7 +169,7 @@ export class HookService {
   }
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
-    const botId = hook.args?.event?.botId
+    const botId = hook.args?.event?.botId || hook.args?.botId
     const scripts = await this.extractScripts(hook, botId)
     await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script, hook))
   }

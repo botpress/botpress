@@ -245,15 +245,15 @@ class PanelContent extends React.Component<Props> {
             'before_session_timeout'
           ].includes(x.id)
         )
+      },
+      {
+        label: 'Bot Hooks',
+        items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
       }
     ]
 
     if (showGlobalHooks) {
       items.push(
-        {
-          label: 'Bot Hooks',
-          items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
-        },
         {
           label: 'General Hooks',
           items: hooks.filter(x => ['after_server_start'].includes(x.id))

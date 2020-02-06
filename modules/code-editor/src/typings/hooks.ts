@@ -23,5 +23,8 @@ export const BOT_SCOPED_HOOKS = [
   'before_outgoing_middleware',
   'after_event_processed',
   'before_suggestions_election',
-  'before_session_timeout'
+  'before_session_timeout',
+  'after_bot_mount',
+  'after_bot_unmount',
+  'before_bot_import'
 ]

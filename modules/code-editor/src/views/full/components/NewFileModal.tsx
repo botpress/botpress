@@ -3,8 +3,9 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { FileTypes } from '../../../backend/definitions'
-import { EditableFile, FilesDS } from '../../../backend/typings'
-import { baseAction, baseHook } from '../utils/templates'
+import { FilesDS } from '../../../backend/typings'
+import { BOT_SCOPED_HOOKS } from '../../../typings/hooks'
+import { baseAction } from '../utils/templates'
 
 interface Props {
   isOpen: boolean
@@ -59,6 +60,10 @@ const NewFileModal: FC<Props> = props => {
   const fileDefinition = FileTypes[props.selectedType]
   const canGlobalWrite = props.hasPermission(`global.${fileDefinition.permission}`, true)
 
+  const canBeBotScoped =
+    props.selectedType !== 'hook' ||
+    (props.selectedType === 'hook' && BOT_SCOPED_HOOKS.includes(props.selectedHookType))
+
   return (
     <Dialog
       isOpen={props.isOpen}
@@ -81,7 +86,7 @@ const NewFileModal: FC<Props> = props => {
             />
           </FormGroup>
 
-          {fileDefinition.allowScoped && (
+          {fileDefinition.allowScoped && canBeBotScoped && (
             <Checkbox
               label="Create for the current bot"
               checked={isScoped}
