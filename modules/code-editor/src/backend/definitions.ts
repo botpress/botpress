@@ -1,7 +1,8 @@
 import { HOOK_SIGNATURES } from '../typings/hooks'
 
-import { MAIN_GLOBAL_CONFIG_FILES } from './editor'
 import { EditableFile } from './typings'
+
+export const MAIN_GLOBAL_CONFIG_FILES = ['botpress.config.json', 'workspaces.json']
 
 export interface FileDefinition {
   allowGlobal?: boolean // When true, this type of file can be stored as global
@@ -37,7 +38,7 @@ export const FileTypes: { [type: string]: FileDefinition } = {
   },
   hook: {
     allowGlobal: true,
-    allowScoped: false,
+    allowScoped: true,
     permission: 'hooks',
     ghost: {
       baseDir: '/hooks',
