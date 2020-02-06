@@ -42,11 +42,15 @@ const NewFileModal: FC<Props> = props => {
       content: props.selectedType === 'action' ? baseAction : ' ',
       type: props.selectedType,
       hookType: props.selectedHookType,
-      botId: isScoped ? window.BOT_ID : undefined
+      botId: canBeBotScoped() && isScoped ? window.BOT_ID : undefined
     })
 
     closeModal()
   }
+
+  const canBeBotScoped = () =>
+    props.selectedType !== 'hook' ||
+    (props.selectedType === 'hook' && BOT_SCOPED_HOOKS.includes(props.selectedHookType))
 
   const closeModal = () => {
     setName('')
@@ -59,10 +63,6 @@ const NewFileModal: FC<Props> = props => {
 
   const fileDefinition = FileTypes[props.selectedType]
   const canGlobalWrite = props.hasPermission(`global.${fileDefinition.permission}`, true)
-
-  const canBeBotScoped =
-    props.selectedType !== 'hook' ||
-    (props.selectedType === 'hook' && BOT_SCOPED_HOOKS.includes(props.selectedHookType))
 
   return (
     <Dialog
@@ -86,7 +86,7 @@ const NewFileModal: FC<Props> = props => {
             />
           </FormGroup>
 
-          {fileDefinition.allowScoped && canBeBotScoped && (
+          {fileDefinition.allowScoped && canBeBotScoped() && (
             <Checkbox
               label="Create for the current bot"
               checked={isScoped}

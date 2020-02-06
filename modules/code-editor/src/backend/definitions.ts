@@ -1,4 +1,4 @@
-import { HOOK_SIGNATURES } from '../typings/hooks'
+import { BOT_SCOPED_HOOKS, HOOK_SIGNATURES } from '../typings/hooks'
 
 import { EditableFile } from './typings'
 
@@ -23,7 +23,7 @@ export interface FileDefinition {
   /** Validation if the selected file can be deleted */
   canDelete?: (file: EditableFile) => boolean
   /** An additional validation that must be done for that type of file. Return a string indicating the error message */
-  validate?: (file: EditableFile) => Promise<string | undefined>
+  validate?: (file: EditableFile, isWriting?: boolean) => Promise<string | undefined>
 }
 
 export const FileTypes: { [type: string]: FileDefinition } = {
@@ -47,7 +47,10 @@ export const FileTypes: { [type: string]: FileDefinition } = {
       upsertFilename: (file: EditableFile) => file.location.replace(file.hookType, ''),
       shouldSyncToDisk: true
     },
-    validate: async (file: EditableFile) => {
+    validate: async (file: EditableFile, isWriting?: boolean) => {
+      if (isWriting && file.botId && !BOT_SCOPED_HOOKS.includes(file.hookType)) {
+        return `This hook can't be scoped to a bot`
+      }
       return HOOK_SIGNATURES[file.hookType] === undefined && `Invalid hook type "${file.hookType}"`
     }
   },
