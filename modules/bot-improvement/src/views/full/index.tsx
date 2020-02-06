@@ -72,9 +72,9 @@ export default props => {
     return feedbackItems.filter(i => i.status === 'pending')
   }
 
-  if (feedbackItems.length === 0) {
+  if (!feedbackItems.length) {
     return (
-      <div style={{ width: '100%', height: '100%', display: 'flex', placeContent: 'center' }}>
+      <div className={style.noFeedbackItems}>
         <Callout title={'No feedback items'} style={{ width: '30%', margin: 'auto' }}>
           Feedback items are created when chat users give negative feedback on bot messages
         </Callout>

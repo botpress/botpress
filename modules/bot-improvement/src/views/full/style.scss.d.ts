@@ -19,6 +19,7 @@ interface CssExports {
   'messageAvatar': string;
   'messageContainer': string;
   'messageGroup': string;
+  'noFeedbackItems': string;
   'summary': string;
 }
 declare var cssExports: CssExports;
