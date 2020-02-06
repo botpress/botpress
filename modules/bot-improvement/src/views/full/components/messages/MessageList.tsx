@@ -24,15 +24,15 @@ export const MessageList: FC<{ messageGroups: FlaggedMessageGroup[] }> = props =
 
   return (
     <div ref={messagesListRef} className={style.conversationMessages}>
-      {messageGroups.map((group, groupIdx) => (
+      {messageGroups.map(group => (
         <div
           ref={el => (itemRefs[group.incoming.id] = el)}
-          key={groupIdx}
+          key={group.incoming.id}
           className={`${style.messageGroup} ` + (group.flagged && style.flagged)}
         >
           <Message message={group.incoming} />
-          {group.replies.map((message, messageIdx) => (
-            <Message key={`${groupIdx}${messageIdx}`} message={message} />
+          {group.replies.map(message => (
+            <Message key={`${group.incoming.id}-${message.id}`} message={message} />
           ))}
         </div>
       ))}
