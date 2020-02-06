@@ -5,6 +5,8 @@ import { addNode, FLOW_ICON, FOLDER_ICON, sortChildren } from '~/util/tree_commo
 
 import style from '../style.scss'
 
+import { TYPES } from '.'
+
 const folderLabel = (folder, actions) => {
   const createGoal = e => {
     e.stopPropagation()
@@ -54,7 +56,8 @@ export const splitFlowPath = (flow, actions, flowData) => {
       type: 'folder',
       icon: FOLDER_ICON,
       label: folderLabel(folder, actions),
-      fullPath: currentPath.join('/')
+      fullPath: currentPath.join('/'),
+      nodeData: { type: currentPath.length === 1 ? TYPES.Topic : TYPES.Folder }
     })
   }
 
@@ -68,7 +71,7 @@ export const splitFlowPath = (flow, actions, flowData) => {
       icon: FLOW_ICON,
       label: flowData.label || flowName,
       fullPath: id,
-      type: 'flow'
+      type: TYPES.Goal
     }
   }
 }
@@ -78,7 +81,7 @@ export const buildFlowsTree = (flows, filterName, actions) => {
   flows.forEach(flowData => {
     const { folders, flow } = splitFlowPath(flowData.name, actions, flowData)
     if (!filterName || flow.id.includes(filterName)) {
-      addNode(tree, folders, flow, { nodeData: flowData })
+      addNode(tree, folders, flow, { nodeData: { ...flowData, type: TYPES.Goal } })
     }
   })
 

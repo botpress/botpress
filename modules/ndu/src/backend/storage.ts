@@ -23,6 +23,11 @@ export default class Storage {
   }
 
   async getLibrary() {
-    return this.bp.ghost.forBot(this.botId).readFileAsObject('ndu', 'library.json')
+    const ghost = this.bp.ghost.forBot(this.botId)
+    if (await ghost.fileExists('ndu', 'library.json')) {
+      return ghost.readFileAsObject('ndu', 'library.json')
+    }
+
+    return []
   }
 }
