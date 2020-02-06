@@ -1,11 +1,10 @@
 import axios from 'axios'
-import { Topic } from 'botpress/sdk'
 import { Response } from 'express'
 import _ from 'lodash'
 
 import { Database } from './db'
-import { topicsToGoals } from './helpers'
-import { FeedbackItem, MessageGroup } from './typings'
+import { flowsToGoals } from './helpers'
+import { FeedbackItem, FlowView, MessageGroup } from './typings'
 import { FeedbackItemSchema } from './validation'
 
 interface FeedbackItemsResponse extends Response {
@@ -29,8 +28,8 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.get('/goals', async (req, res) => {
     const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
-    const topics: Topic[] = (await axios.get('/mod/ndu/topics', axiosConfig)).data
-    const goals = topicsToGoals(topics)
+    const flows: FlowView[] = (await axios.get('/flows', axiosConfig)).data
+    const goals = flowsToGoals(flows)
     res.send(goals)
   })
 

@@ -1,3 +1,5 @@
+import { Flow, FlowNode, IO } from 'botpress/sdk'
+
 export interface QnAItem {
   id: string
   data: {
@@ -55,3 +57,27 @@ interface MessageGroup {
 }
 
 type FlaggedMessageGroup = MessageGroup & { flagged: boolean }
+
+interface FlowMutex {
+  lastModifiedBy: string
+  lastModifiedAt: Date
+  remainingSeconds?: number
+}
+
+interface NodeLinkView {
+  source: string
+  target: string
+  points: FlowPoint[]
+}
+
+interface FlowPoint {
+  x: number
+  y: number
+}
+declare type NodeView = FlowNode & FlowPoint
+
+export declare type FlowView = Flow & {
+  nodes: NodeView[]
+  links: NodeLinkView[]
+  currentMutex?: FlowMutex
+}

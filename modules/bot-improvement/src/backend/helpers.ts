@@ -1,7 +1,7 @@
 import assert from 'assert'
-import { IO, Topic } from 'botpress/sdk'
+import { IO } from 'botpress/sdk'
 
-import { Goal } from './typings'
+import { FlowView, Goal } from './typings'
 
 export const sortStoredEvents = (a: IO.StoredEvent, b: IO.StoredEvent) => {
   if (a.direction === 'incoming' && b.direction === 'outgoing') {
@@ -22,22 +22,15 @@ export const sortStoredEvents = (a: IO.StoredEvent, b: IO.StoredEvent) => {
   return 0
 }
 
-const topicToGoal = (topic: Topic): Goal => {
-  const [t, name] = topic.name.split('/')
-  if (!name) {
-    throw `No name in topic: ${topic}`
-  }
-
-  return { id: topic.name.replace('.flow.json', ''), topic: t, name: name.replace('.flow.json', '') }
+const flowNameToGoal = (flowName: string): Goal => {
+  const [t, name] = flowName.split('/')
+  return { id: flowName.replace('.flow.json', ''), topic: t, name: name.replace('.flow.json', '') }
 }
 
-export const topicsToGoals = (topics: Topic[]): Goal[] => {
-  return topics.reduce((result, t) => {
-    try {
-      const goal = topicToGoal(t)
-      result.push(goal)
-    } catch (e) {
-      // no-op
+export const flowsToGoals = (flows: FlowView[]): Goal[] => {
+  return flows.reduce((result, flow) => {
+    if (!flow.name.startsWith('Built-In/') && !flow.name.startsWith('skills/')) {
+      result.push(flowNameToGoal(flow.name))
     }
     return result
   }, [])
@@ -56,5 +49,5 @@ export const getGoalFromEvent = (event: IO.IncomingEvent): Goal => {
     throw 'No Goal found'
   }
 
-  return topicToGoal({ name: trigger.goal, description: '' })
+  return flowNameToGoal(trigger.goal)
 }

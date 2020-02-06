@@ -1,7 +1,8 @@
 import { IO } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getGoalFromEvent, sortStoredEvents, topicsToGoals } from './helpers'
+import { flowsToGoals, getGoalFromEvent, sortStoredEvents } from './helpers'
+import { FlowView } from './typings'
 
 describe('sortStoredEvents', () => {
   const buildEvent = (): IO.StoredEvent => {
@@ -58,36 +59,24 @@ describe('sortStoredEvents', () => {
   })
 })
 
-describe('topicsToGoals', () => {
-  test('no topics', () => {
-    expect(topicsToGoals([])).toEqual([])
+describe('flowsToGoals', () => {
+  test('no flows', () => {
+    expect(flowsToGoals([])).toEqual([])
   })
 
-  test('one topic', () => {
-    expect(topicsToGoals([{ name: 'HR/fireEmployee', description: '' }])).toEqual([
-      { id: 'HR/fireEmployee', topic: 'HR', name: 'fireEmployee' }
-    ])
-  })
+  test('many flows', () => {
+    const flows: FlowView[] = [
+      { name: 'Built-In/error.flow.json', startNode: 'someStartNode', nodes: [], links: [] },
+      { name: 'Built-In/feedback.flow.json', startNode: 'someStartNode', nodes: [], links: [] },
+      { name: 'Built-In/welcome.flow.json', startNode: 'someStartNode', nodes: [], links: [] },
+      { name: 'HR/hireEmployee.flow.json', startNode: 'someStartNode', nodes: [], links: [] },
+      { name: 'IT/startServer.flow.json', startNode: 'someStartNode', nodes: [], links: [] },
+      { name: 'skills/choiceb71567.flow.json', startNode: 'someStartNode', nodes: [], links: [] }
+    ]
 
-  test('topics without goal names', () => {
-    expect(
-      topicsToGoals([
-        { name: 'HR/fireEmployee', description: '' },
-        { name: 'HR/', description: '' },
-        { name: 'IT/', description: '' }
-      ])
-    ).toEqual([{ id: 'HR/fireEmployee', topic: 'HR', name: 'fireEmployee' }])
-  })
-
-  test('topics ending with flow.json extension', () => {
-    expect(
-      topicsToGoals([
-        { name: 'HR/fireEmployee.flow.json', description: '' },
-        { name: 'HR/hireEmployee.flow.json', description: '' }
-      ])
-    ).toEqual([
-      { id: 'HR/fireEmployee', topic: 'HR', name: 'fireEmployee' },
-      { id: 'HR/hireEmployee', topic: 'HR', name: 'hireEmployee' }
+    expect(flowsToGoals(flows)).toEqual([
+      { id: 'HR/hireEmployee', topic: 'HR', name: 'hireEmployee' },
+      { id: 'IT/startServer', topic: 'IT', name: 'startServer' }
     ])
   })
 })
