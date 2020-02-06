@@ -8,51 +8,46 @@ import { FeedbackItem, Goal, QnAItem } from '../../backend/typings'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
-import FeedbackItemComponent from './components/FeedbackItem'
+import FeedbackItemPanel from './components/FeedbackItemPanel'
 import style from './style.scss'
 
 type SelectedTabId = 'pending' | 'solved'
-
-const defaultState: {
-  feedbackItems: FeedbackItem[]
-  qnaItems: QnAItem[]
-  goals: Goal[]
-  feedbackItemsLoading: boolean
-  currentFeedbackItem: FeedbackItem
-  selectedTab: SelectedTabId
-} = {
-  feedbackItems: [],
-  qnaItems: [],
-  goals: [],
-  feedbackItemsLoading: true,
-  currentFeedbackItem: null,
-  selectedTab: 'pending'
-}
-
-const getDefaultQnaItemId = (qnaItems: QnAItem[]) => {
-  return qnaItems[0].id
-}
-
-const getDefaultGoalId = (goals: Goal[]) => {
-  return goals[0].id
-}
 
 export default props => {
   const { bp, contentLang } = props
   const api = makeApi(bp)
 
-  const [state, setState] = useState(defaultState)
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [qnaItems, setQnaItems] = useState<QnAItem[]>([])
+  const [defaultQnaItemId, setDefaultQnaItemId] = useState('')
+  const [defaultGoalId, setDefaultGoalId] = useState('')
+  const [feedbackItems, setFeedbackItems] = useState<FeedbackItem[]>([])
+  const [feedbackItemsLoading, setFeedbackItemsLoading] = useState(true)
+  const [currentFeedbackItem, setCurrentFeedbackItem] = useState<FeedbackItem>(undefined)
+  const [selectedTabId, setSelectedTabId] = useState<SelectedTabId>('pending')
 
-  const { qnaItems, goals, feedbackItems, feedbackItemsLoading } = state
-  let { currentFeedbackItem } = state
+  useEffect(() => {
+    const fetchGoals = async () => {
+      const goals = await api.getGoals()
+      setGoals(goals)
+      setDefaultGoalId(goals[0].id)
+    }
+    // tslint:disable-next-line: no-floating-promises
+    fetchGoals()
+  }, [])
+
+  useEffect(() => {
+    const fetchQnaItems = async () => {
+      const qnaItems = await api.getQnaItems()
+      setQnaItems(qnaItems)
+      setDefaultQnaItemId(qnaItems[0].id)
+    }
+    // tslint:disable-next-line: no-floating-promises
+    fetchQnaItems()
+  }, [])
 
   useEffect(() => {
     const initializeState = async () => {
-      const qnaItems = await api.getQnaItems()
-      const goals = await api.getGoals()
-
-      const defaultQnaItemId = getDefaultQnaItemId(qnaItems)
-
       const feedbackItems = (await api.getFeedbackItems()).map(i => {
         i.correctedActionType = i.correctedActionType || 'qna'
         i.correctedObjectId = i.correctedObjectId || defaultQnaItemId
@@ -60,12 +55,22 @@ export default props => {
         return i
       })
 
-      setState(state => ({ ...state, feedbackItemsLoading: false, feedbackItems, goals, qnaItems }))
+      setFeedbackItems(feedbackItems)
+      setFeedbackItemsLoading(false)
+
+      setCurrentFeedbackItem(getPendingFeedbackItems()[0])
     }
-    initializeState().catch(e => {
-      throw e
-    })
+    // tslint:disable-next-line: no-floating-promises
+    initializeState()
   }, [])
+
+  const getSolvedFeedbackItems = () => {
+    return feedbackItems.filter(i => i.status === 'solved')
+  }
+
+  const getPendingFeedbackItems = () => {
+    return feedbackItems.filter(i => i.status === 'pending')
+  }
 
   if (feedbackItems.length === 0) {
     return (
@@ -81,81 +86,11 @@ export default props => {
     return <Callout>Loading...</Callout>
   }
 
-  const pendingFeedbackItems = feedbackItems.filter(i => i.status === 'pending')
-  const solvedFeedbackItems = feedbackItems.filter(i => i.status === 'solved')
-
-  if (!currentFeedbackItem) {
-    currentFeedbackItem = pendingFeedbackItems[0]
-  }
-
-  const updateFeedbackItem = async (item: FeedbackItem, changedProps) => {
+  const updateFeedbackItem = async (item: FeedbackItem) => {
     const listClone = [...feedbackItems]
-    const itemClone = _.cloneDeep(item)
-    _.merge(itemClone, changedProps)
-
     const idx = listClone.findIndex(e => e.eventId === item.eventId)
-    listClone[idx] = itemClone
-    setState(state => ({ ...state, feedbackItems: listClone }))
-
-    const { status, eventId, correctedActionType, correctedObjectId } = itemClone
-    await api.updateFeedbackItem({
-      status,
-      eventId,
-      correctedActionType,
-      correctedObjectId
-    })
-  }
-
-  const FeedbackItemPanel: FC<{ feedbackItems: FeedbackItem[] }> = props => {
-    const { feedbackItems } = props
-    return (
-      <div>
-        {feedbackItems.map(item => {
-          const handleCorrectedActionTypeChange = async (correctedActionType: string) => {
-            const defaultQnaItemId = getDefaultQnaItemId(qnaItems)
-            const defaultGoalId = getDefaultGoalId(goals)
-
-            await updateFeedbackItem(item, {
-              correctedActionType,
-              correctedObjectId: correctedActionType === 'qna' ? defaultQnaItemId : defaultGoalId
-            })
-          }
-
-          const handleCorrectedActionObjectIdChange = async (correctedObjectId: string) => {
-            await updateFeedbackItem(item, { correctedObjectId })
-          }
-
-          const markAsSolved = async () => {
-            await updateFeedbackItem(item, { status: 'solved' })
-          }
-
-          const markAsPending = async () => {
-            await updateFeedbackItem(item, { status: 'pending' })
-          }
-
-          return (
-            <FeedbackItemComponent
-              key={`feedbackItem-${item.eventId}`}
-              feedbackItem={item}
-              correctedActionType={item.correctedActionType}
-              correctedObjectId={item.correctedObjectId}
-              onItemClicked={() => {
-                setState(state => ({ ...state, currentFeedbackItem: item }))
-              }}
-              current={item.eventId === currentFeedbackItem.eventId}
-              contentLang={contentLang}
-              qnaItems={qnaItems}
-              goals={goals}
-              handleCorrectedActionTypeChange={handleCorrectedActionTypeChange}
-              handleCorrectedActionObjectIdChange={handleCorrectedActionObjectIdChange}
-              markAsSolved={markAsSolved}
-              markAsPending={markAsPending}
-              status={item.status}
-            />
-          )
-        })}
-      </div>
-    )
+    listClone[idx] = item
+    setFeedbackItems(listClone)
   }
 
   return (
@@ -163,12 +98,13 @@ export default props => {
       <div className={style.feedbackItemsContainer}>
         <h2>Feedback Items</h2>
         <Tabs
-          selectedTabId={state.selectedTab}
+          selectedTabId={selectedTabId}
           onChange={(newTabId: SelectedTabId) => {
+            setSelectedTabId(newTabId)
             if (newTabId === 'pending') {
-              setState({ ...state, selectedTab: newTabId, currentFeedbackItem: pendingFeedbackItems[0] })
+              setCurrentFeedbackItem(getPendingFeedbackItems()[0])
             } else {
-              setState({ ...state, selectedTab: newTabId, currentFeedbackItem: solvedFeedbackItems[0] })
+              setCurrentFeedbackItem(getSolvedFeedbackItems()[0])
             }
           }}
         >
@@ -179,7 +115,22 @@ export default props => {
                 <Icon icon="issue" /> Pending
               </>
             }
-            panel={<FeedbackItemPanel feedbackItems={pendingFeedbackItems} />}
+            panel={
+              <FeedbackItemPanel
+                feedbackItems={getPendingFeedbackItems()}
+                goals={goals}
+                qnaItems={qnaItems}
+                contentLang={contentLang}
+                bp={bp}
+                onItemClicked={clickedItem => {
+                  setCurrentFeedbackItem(clickedItem)
+                }}
+                currentFeedbackItem={currentFeedbackItem}
+                defaultGoalId={defaultGoalId}
+                defaultQnaItemId={defaultQnaItemId}
+                onSave={savedItem => updateFeedbackItem(savedItem)}
+              />
+            }
           />
           <Tab
             id="solved"
@@ -188,12 +139,27 @@ export default props => {
                 <Icon icon="tick" /> Solved
               </>
             }
-            panel={<FeedbackItemPanel feedbackItems={solvedFeedbackItems} />}
+            panel={
+              <FeedbackItemPanel
+                feedbackItems={getSolvedFeedbackItems()}
+                goals={goals}
+                qnaItems={qnaItems}
+                contentLang={contentLang}
+                bp={bp}
+                onItemClicked={clickedItem => {
+                  setCurrentFeedbackItem(clickedItem)
+                }}
+                currentFeedbackItem={currentFeedbackItem}
+                defaultGoalId={defaultGoalId}
+                defaultQnaItemId={defaultQnaItemId}
+                onSave={savedItem => updateFeedbackItem(savedItem)}
+              />
+            }
           />
         </Tabs>
       </div>
 
-      <Conversation api={api} feedbackItem={currentFeedbackItem || feedbackItems[0]} />
+      {currentFeedbackItem && <Conversation api={api} feedbackItem={currentFeedbackItem} />}
     </Container>
   )
 }

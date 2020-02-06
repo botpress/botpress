@@ -3,41 +3,71 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
 
-import { FeedbackItem, FeedbackItemStatus, Goal, QnAItem } from '../../../backend/typings'
+import { FeedbackItem, Goal, QnAItem } from '../../../backend/typings'
+import { makeApi } from '../api'
 import style from '../style.scss'
 
 interface FeedbackItemComponentProps {
-  feedbackItem: FeedbackItem
-  correctedActionType: string
-  correctedObjectId: string
-  onItemClicked: () => void
+  bp: any
   contentLang: string
+  feedbackItem: FeedbackItem
   qnaItems: QnAItem[]
   goals: Goal[]
-  handleCorrectedActionTypeChange: (correctedActionType: string) => void
-  handleCorrectedActionObjectIdChange: (correctedActionObjectId: string) => void
-  markAsSolved: () => void
-  markAsPending: () => void
-  status: FeedbackItemStatus
+  onItemClicked: () => void
   current: boolean
+  saveHandler: (FeedbackItem) => void
+  defaultQnaItemId: string
+  defaultGoalId: string
 }
 
 const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
   const {
-    feedbackItem,
-    correctedActionType,
-    correctedObjectId,
+    bp,
     contentLang,
-    onItemClicked,
+    feedbackItem,
     qnaItems,
     goals,
-    handleCorrectedActionTypeChange,
-    handleCorrectedActionObjectIdChange,
-    markAsSolved,
-    markAsPending,
-    status,
-    current
+    onItemClicked,
+    current,
+    saveHandler,
+    defaultGoalId,
+    defaultQnaItemId
   } = props
+
+  const api = makeApi(bp)
+
+  const updateFeedbackItem = async changedProps => {
+    const clone = _.cloneDeep(feedbackItem)
+    _.merge(clone, changedProps)
+    const { status, eventId, correctedActionType, correctedObjectId } = clone
+    await api.updateFeedbackItem({
+      status,
+      eventId,
+      correctedActionType,
+      correctedObjectId
+    })
+    console.log('clone:', clone)
+    saveHandler(clone)
+  }
+
+  const markAsSolved = async () => {
+    await updateFeedbackItem({ status: 'solved' })
+  }
+
+  const markAsPending = async () => {
+    await updateFeedbackItem({ status: 'pending' })
+  }
+
+  const handleCorrectedActionTypeChange = async (correctedActionType: string) => {
+    await updateFeedbackItem({
+      correctedActionType,
+      correctedObjectId: correctedActionType === 'qna' ? defaultQnaItemId : defaultGoalId
+    })
+  }
+
+  const handleCorrectedActionObjectIdChange = async (correctedObjectId: string) => {
+    await updateFeedbackItem({ correctedObjectId })
+  }
 
   return (
     <Card
@@ -69,7 +99,7 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
           <HTMLSelect
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionTypeChange(e.target.value)}
-            value={correctedActionType}
+            value={feedbackItem.correctedActionType}
           >
             <option value="qna">Q&A</option>
             <option value="start_goal">Start Goal</option>
@@ -77,19 +107,19 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
         </Label>
 
         <Label>
-          {correctedActionType === 'qna' ? 'Question' : 'Goal'}
+          {feedbackItem.correctedActionType === 'qna' ? 'Question' : 'Goal'}
           <HTMLSelect
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
-            value={correctedObjectId}
+            value={feedbackItem.correctedObjectId}
           >
-            {correctedActionType === 'qna' &&
+            {feedbackItem.correctedActionType === 'qna' &&
               qnaItems.map((i, idx) => (
                 <option key={`qnaItem-${idx}`} value={i.id}>
                   {i.data.questions[contentLang][0]}
                 </option>
               ))}
-            {correctedActionType === 'start_goal' &&
+            {feedbackItem.correctedActionType === 'start_goal' &&
               goals.map((i, idx) => (
                 <option key={`goal-${idx}`} value={i.id}>
                   {i.id}
@@ -98,12 +128,12 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
           </HTMLSelect>
         </Label>
 
-        {status === 'pending' && (
+        {feedbackItem.status === 'pending' && (
           <Button icon="tick" onClick={e => markAsSolved()}>
             Mark as solved
           </Button>
         )}
-        {status === 'solved' && (
+        {feedbackItem.status === 'solved' && (
           <Button icon="issue" onClick={e => markAsPending()}>
             Mark as pending
           </Button>
