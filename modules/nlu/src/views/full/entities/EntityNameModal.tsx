@@ -1,8 +1,9 @@
 import { Button, Callout, Classes, Dialog, FormGroup, HTMLSelect, Intent } from '@blueprintjs/core'
-import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useEffect, useRef, useState } from 'react'
+
+import { NLUApi } from '../../api'
 
 const AVAILABLE_TYPES = [
   {
