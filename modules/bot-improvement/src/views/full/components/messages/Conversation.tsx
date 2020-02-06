@@ -20,9 +20,8 @@ const Conversation: FC<{ api: BotImprovementApi; feedbackItem: FeedbackItem }> =
       })
       setMessageGroups(flaggedMessageGroups)
     }
-    fetchMessages().catch(e => {
-      throw e
-    })
+    // tslint:disable-next-line: no-floating-promises
+    fetchMessages()
   }, [props.feedbackItem])
 
   return (
