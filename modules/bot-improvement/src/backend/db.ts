@@ -156,7 +156,7 @@ export default (bp: typeof sdk): Database => {
 
     const messageGroups: MessageGroup[] = []
 
-    for (const [incomingEventId, events] of storedEventsByIncomingEventId) {
+    for (const events of storedEventsByIncomingEventId.values()) {
       const [incoming, ...replies] = _.sortBy(events, ['direction', 'asc'], ['event.createdOn', 'asc'])
       messageGroups.push({
         incoming: convertStoredEventToMessage(incoming),
