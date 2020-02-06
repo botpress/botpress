@@ -2,7 +2,7 @@ import axios from 'axios'
 import { IO } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getGoalFromEvent, sortStoredEvents } from './helpers'
+import { getGoalFromEvent } from './helpers'
 import { CorrectedActionType, FeedbackItem, FeedbackItemStatus, Goal, Message, MessageGroup, QnAItem } from './typings'
 
 const QNA_IDENTIFIER = '__qna__'
@@ -157,7 +157,7 @@ export default (bp: typeof sdk): Database => {
     const messageGroups: MessageGroup[] = []
 
     for (const [incomingEventId, events] of storedEventsByIncomingEventId) {
-      const [incoming, ...replies] = events.sort(sortStoredEvents)
+      const [incoming, ...replies] = _.sortBy(events, ['direction', 'asc'], ['event.createdOn', 'asc'])
       messageGroups.push({
         incoming: convertStoredEventToMessage(incoming),
         replies: replies.map(r => convertStoredEventToMessage(r))
