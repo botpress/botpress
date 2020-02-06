@@ -17,17 +17,15 @@ export const flowsToGoals = (flows: FlowView[]): Goal[] => {
 }
 
 export const getGoalFromEvent = (event: IO.IncomingEvent): Goal => {
-  if (!event.ndu) {
+  if (event.state.session.lastGoals.length === 0) {
     throw 'No Goal found'
   }
 
-  const trigger = Object.values(event.ndu.triggers).find(trigger => {
-    return trigger.result.user_intent_is === 1
-  })
+  const goal = event.state.session.lastGoals.find(goal => goal.active)
 
-  if (!trigger) {
+  if (!goal) {
     throw 'No Goal found'
   }
 
-  return flowNameToGoal(trigger.goal)
+  return flowNameToGoal(goal.goal)
 }

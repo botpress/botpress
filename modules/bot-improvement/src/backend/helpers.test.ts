@@ -62,9 +62,22 @@ describe('getGoalFromEvent', () => {
 
   test('one goal', () => {
     const event = _.merge(buildEvent(), {
-      ndu: {
-        triggers: { sometriggerId: { goal: 'HR/hireEmployee.flow.json', result: { user_intent_is: 1 } } },
-        actions: []
+      state: {
+        session: {
+          lastGoals: [
+            {
+              goal: 'HR/hireEmployee.flow.json',
+              eventId: '158099772463078140',
+              active: false,
+              success: true
+            },
+            {
+              goal: 'HR/hireEmployee.flow.json',
+              eventId: '158099767574662100',
+              active: true
+            }
+          ]
+        }
       }
     })
 
