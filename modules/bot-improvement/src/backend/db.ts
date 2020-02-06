@@ -142,28 +142,17 @@ export default (bp: typeof sdk): Database => {
   }
 
   const getMessageGroups = async (sessionId: string) => {
-    const sessionEvents = await bp.events.findEvents({ sessionId }, { count: -1 })
+    const sessionEvents: IO.StoredEvent[] = await bp.events.findEvents({ sessionId }, { count: -1 })
 
-    const storedEventsByIncomingEventId = new Map<number, IO.StoredEvent[]>()
+    const storedEventsByIncomingEventId = _.groupBy(sessionEvents, 'incomingEventId')
 
-    sessionEvents.map(e => {
-      const incomingEventId = parseInt(e.incomingEventId)
-      if (!storedEventsByIncomingEventId.get(incomingEventId)) {
-        storedEventsByIncomingEventId.set(incomingEventId, [])
-      }
-      storedEventsByIncomingEventId.get(incomingEventId).push(e)
-    })
-
-    const messageGroups: MessageGroup[] = []
-
-    for (const events of storedEventsByIncomingEventId.values()) {
+    const messageGroups: MessageGroup[] = Object.values(storedEventsByIncomingEventId).map(events => {
       const [incoming, ...replies] = _.sortBy(events, ['direction', 'asc'], ['event.createdOn', 'asc'])
-      messageGroups.push({
+      return {
         incoming: convertStoredEventToMessage(incoming),
         replies: replies.map(r => convertStoredEventToMessage(r))
-      })
-    }
-
+      }
+    })
     return messageGroups
   }
 
