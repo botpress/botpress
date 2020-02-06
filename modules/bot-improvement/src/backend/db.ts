@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { IO } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { getGoalFromEvent } from './helpers'
@@ -102,7 +103,13 @@ export default (bp: typeof sdk): Database => {
       )
 
     const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-    const qnaItems: QnAItem[] = (await axios.get('/mod/qna/questions', axiosConfig)).data.items
+
+    let qnaItems: QnAItem[]
+    try {
+      qnaItems = (await axios.get('/mod/qna/questions', axiosConfig)).data.items
+    } catch (e) {
+      bp.logger.attachError(e).error(`Could not fetch QnA questions`)
+    }
 
     const feedbackItems = flaggedEvents.map(flaggedEvent => {
       const incomingEvent = <IO.IncomingEvent>flaggedEvent.event

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import * as sdk from 'botpress/sdk'
 import { Response } from 'express'
 import _ from 'lodash'
 
