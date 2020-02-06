@@ -6,7 +6,7 @@ import React, { FC } from 'react'
 import { FeedbackItem, FeedbackItemStatus, Goal, QnAItem } from '../../../backend/typings'
 import style from '../style.scss'
 
-const FeedbackItemComponent: FC<{
+interface FeedbackItemComponentProps {
   feedbackItem: FeedbackItem
   correctedActionType: string
   correctedObjectId: string
@@ -20,7 +20,9 @@ const FeedbackItemComponent: FC<{
   markAsPending: () => void
   status: FeedbackItemStatus
   current: boolean
-}> = props => {
+}
+
+const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
   const {
     feedbackItem,
     correctedActionType,
