@@ -83,8 +83,8 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
         <div>
           <h4>Detected Intent</h4>
           Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
-          {feedbackItem.source.type === 'qna' && (
-            <div>Question: {feedbackItem.source.qnaItem.data.questions[contentLang][0]}</div>
+          {feedbackItem.source.type === 'qna' && feedbackItem.source.qnaItem && (
+            <div>Question: {feedbackItem.source.qnaItem?.data.questions[contentLang][0]}</div>
           )}
           {feedbackItem.source.type === 'goal' && <div>Goal: {feedbackItem.source.goal.id}</div>}
         </div>
