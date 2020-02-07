@@ -60,9 +60,9 @@ export default class ActionService {
       return this._scopedActions.get(botId)!
     }
 
-    const scopedGhost = new ScopedActionService(this.ghost, this.logger, botId, this.cache)
-    this._scopedActions.set(botId, scopedGhost)
-    return scopedGhost
+    const scopedActionService = new ScopedActionService(this.ghost, this.logger, botId, this.cache)
+    this._scopedActions.set(botId, scopedActionService)
+    return scopedActionService
   }
 }
 
