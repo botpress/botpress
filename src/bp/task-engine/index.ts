@@ -1,33 +1,24 @@
 import { Logger } from 'botpress/sdk'
-import express from 'express'
 import { injectable } from 'inversify'
 import { inject, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { TYPES } from '../core/types'
 
+import { ActionServer } from './action-server'
 import ActionService, { ScopedActionService } from './action-service'
-
-const port = 4000
 
 @injectable()
 export class TaskEngine {
-  private readonly app: express.Express
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'TaskEngine')
     private logger: Logger,
-    @inject(TYPES.ActionService) private actionService: ActionService
-  ) {
-    this.app = express()
-
-    this.app.get('/', (req, res) => res.send('Hello World!'))
-
-    console.log(`Got logger: ${this.logger}`)
-  }
+    @inject(TYPES.ActionService) private actionService: ActionService,
+    @inject(TYPES.ActionServer) private actionServer: ActionServer
+  ) {}
   async start() {
-    console.log('starting TaskEngine')
-    this.app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+    await this.actionServer.start()
   }
 
   forBot(botId: string): ScopedActionService {

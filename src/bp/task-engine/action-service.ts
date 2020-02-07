@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { createForAction } from 'core/api'
@@ -126,7 +127,12 @@ export class ScopedActionService {
 
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 
-    const { action, code, dirPath, lookups } = await this.getActionDetails(actionName)
+    const { action, code, dirPath, lookups, trusted } = await this.getActionDetails(actionName)
+
+    if (trusted) {
+      console.log('trusted action')
+    }
+
     const _require = prepareRequire(dirPath, lookups)
 
     const api = await createForAction()
@@ -144,10 +150,10 @@ export class ScopedActionService {
 
     try {
       let result
-      if (action.location === 'global' && process.DISABLE_GLOBAL_SANDBOX) {
+      if (trusted) {
         result = await this.runWithoutVm(code, args, _require)
       } else {
-        result = await this.runInVm(code, dirPath, args, _require)
+        result = await this.runInActionServer(actionName)
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
@@ -160,6 +166,11 @@ export class ScopedActionService {
         .error(`An error occurred while executing the action "${actionName}`)
       throw new ActionExecutionError(err.message, actionName, err.stack)
     }
+  }
+
+  private async runInActionServer(actionName: string) {
+    const response = await axios.post('http://localhost:4000/action/run', { actionName })
+    console.log(`response: ${response}`)
   }
 
   private _listenForCacheInvalidation() {
@@ -221,7 +232,13 @@ export class ScopedActionService {
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
     const lookups = getBaseLookupPaths(dirPath)
 
-    return { code, dirPath, lookups, action }
+    const trusted = this.isTrustecAction(actionName)
+    return { code, dirPath, lookups, action, trusted }
+  }
+
+  private isTrustecAction(actionName: string): boolean {
+    // TODO: find more scalable approach
+    return ['analytics/increment', 'analytics/decrement', 'analytics/set'].includes(actionName)
   }
 
   // This method tries to load require() files from the FS and fallback on BPFS

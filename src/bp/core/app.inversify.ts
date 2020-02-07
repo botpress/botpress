@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
 import { TaskEngine } from 'task-engine'
+import { ActionServer } from 'task-engine/action-server'
 
 import { BotpressAPIProvider } from './api'
 import { Botpress } from './botpress'
@@ -118,6 +119,11 @@ container
 container
   .bind<TaskEngine>(TYPES.TaskEngine)
   .to(TaskEngine)
+  .inSingletonScope()
+
+container
+  .bind<ActionServer>(TYPES.ActionServer)
+  .to(ActionServer)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')

@@ -78,7 +78,8 @@ const TYPES = {
   StrategyUsersRepository: Symbol.for('StrategyUsersRepository'),
   WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
   WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository'),
-  TaskEngine: Symbol.for('TaskEngine')
+  TaskEngine: Symbol.for('TaskEngine'),
+  ActionServer: Symbol.for('ActionServer')
 }
 
 export { TYPES }
