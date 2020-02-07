@@ -163,7 +163,7 @@ export default async (bp: typeof sdk) => {
     _.zip(tests, _.flatten(resultsBatch)).forEach(([test, res]) => {
       const expected = test.conditions[0][2].endsWith('none') ? 'oos' : 'inScope'
       // @ts-ignore
-      const actual = res.nlu.outOfScope ? 'oos' : 'inScope'
+      const actual = res.nlu.outOfScope[test.context] > res.nlu.intent.confidence ? 'oos' : 'inScope'
       f1Scorer.record(expected, actual)
     })
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
@@ -203,7 +203,7 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
     data: { nlu }
   } = await Axios.post('mod/nlu/predict', { text: test.utterance, contexts: [test.context] }, axiosConfig)
 
-  const details = test.conditions.map(c => conditionMatch(nlu, c))
+  const details = test.conditions.map(c => conditionMatch(nlu, c, test.context))
   return {
     // @ts-ignore
     nlu,
@@ -213,15 +213,14 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
   }
 }
 
-function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]): TestResultDetails {
+function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails {
   if (key === 'intent') {
     expected = expected.endsWith('none') ? 'none' : expected
     const received = nlu.intent.name
-    // const success = nlu.intent.name === expected
+    const success = nlu.intent.name === expected
 
     // @ts-ignore
-
-    const success = expected === 'none' ? nlu.outOfScope : !nlu.outOfScope
+    // const success = expected === 'none' ? nlu.outOfScope[ctx] : !nlu.outOfScope[ctx]
 
     return {
       success,

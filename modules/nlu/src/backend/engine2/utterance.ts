@@ -127,7 +127,7 @@ export default class Utterance {
       }
 
       // hard limit on TFIDF of (we don't want to over scale the features)
-      const weight = 1
+      const weight = Math.min(1, token.tfidf)
       totalWeight += weight
       const weightedVec = scalarDivide(token.vector as number[], norm / weight)
       sentenceEmbedding = vectorAdd(sentenceEmbedding, weightedVec)
@@ -318,7 +318,7 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
   return _.chain(utterance.tokens)
     .map(token => {
       const strTok = token.toString({ lowerCase: true })
-      if (vocabVectors[strTok]) {
+      if (!token.isWord || vocabVectors[strTok]) {
         return uttTok2altTok(token)
       }
 

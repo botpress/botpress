@@ -10,8 +10,8 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
-import { POS_CLASSES, POS1_SET, POS2_SET, POS3_SET, POS4_SET } from '../pos-tagger'
-import { encodeOH } from '../tools/encoder'
+import { POS1_SET, POS2_SET, POS3_SET } from '../pos-tagger'
+import { isNoSubstitutionTemplateLiteral } from '../../../node_modules/typescript/lib/typescript'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -232,8 +232,12 @@ function electIntent(input: PredictStep): PredictStep {
   // taken from svm classifier #349
   let predictions = _.chain(ctxPreds)
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
-      const intentPreds = _.orderBy(input.intent_predictions.per_ctx[ctx], 'confidence', 'desc')
-      if (intentPreds.length === 1 || intentPreds[0].confidence === 1) {
+      const intentPreds = _.orderBy(
+        [...input.intent_predictions.per_ctx[ctx], { label: NONE_INTENT, confidence: input.outOfScope[ctx] }],
+        'confidence',
+        'desc'
+      )
+      if (intentPreds[0].confidence === 1) {
         return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
       }
 
@@ -244,7 +248,10 @@ function electIntent(input: PredictStep): PredictStep {
           confidence: ctxConf * x.confidence,
           context: ctx
         }))
-        return [{ label: 'none', l0Confidence: ctxConf, context: ctx, confidence: 1 }, ...others] // refine confidence
+        return [
+          { label: NONE_INTENT, l0Confidence: ctxConf, context: ctx, confidence: input.outOfScope[ctx] },
+          ...others
+        ]
       }
 
       const lnstd = math.std(intentPreds.map(x => Math.log(x.confidence))) // because we want a lognormal distribution
@@ -264,11 +271,10 @@ function electIntent(input: PredictStep): PredictStep {
     .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
     .value()
 
-  // @ts-ignore
-  // if (!predictions.length || predictions[0].confidence < 0.3 || input.outOfScope) {
-  if (!predictions.length || predictions[0].confidence < 0.3) {
+  const ctx = _.get(predictions, '0.context', 'global')
+  if (!predictions.length || (predictions[0].confidence < 0.3 && input.outOfScope[ctx])) {
     predictions = [
-      { name: NONE_INTENT, context: _.get(predictions, '0.context', 'global'), confidence: 1 },
+      { name: NONE_INTENT, context: ctx, confidence: 1 },
       ...predictions.filter(p => p.name !== NONE_INTENT)
     ]
   }
@@ -279,30 +285,13 @@ function electIntent(input: PredictStep): PredictStep {
 }
 
 async function predictOutOfScope(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  // @ts-ignore
-  const oos = new tools.mlToolkit.SVM.Predictor(predictors.oos_model)
-  // @ts-ignore
-  // const pred1 = (await oos.predict(input.utterance.sentenceEmbedding))[0].label
-  // // @ts-ignore
-  // const pred2 = input.alternateUtterance ? (await oos.predict(input.alternateUtterance.sentenceEmbedding))[0].label : -1
   const utt = input.alternateUtterance || input.utterance
-  const posOH = encodeOH(
-    POS_CLASSES,
-    utt.tokens.map(t => t.POS)
-  )
 
-  // const kmeansOH = encodeOH(
-  //   _.range(8),
-  //   utt.tokens.map(t => t.cluster)
-  // )
-
-  // const features = [...posOH, ...kmeansOH, utt.tokens.length]
-  // const features = [...utt.sentenceEmbedding, ...posOH]
   const averageByPOS = (...cls: string[]) => {
     const tokens = utt.tokens.filter(t => cls.includes(t.POS))
-    const vectors = tokens.map(x => <number[]>x.vector)
+    const vectors = tokens.map(x => math.scalarMultiply(<number[]>x.vector, x.tfidf))
     if (!vectors.length) {
-      vectors.push(new Array(utt.tokens[0].vector.length).fill(0))
+      return new Array(utt.tokens[0].vector.length).fill(0)
     }
     return math.averageVectors(vectors)
   }
@@ -310,14 +299,19 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
   const pos1 = averageByPOS(...POS1_SET)
   const pos2 = averageByPOS(...POS2_SET)
   const pos3 = averageByPOS(...POS3_SET)
-  const pos4 = averageByPOS(...POS4_SET)
-  const features = [...pos1, ...pos2, ...pos3, ...pos4]
+  const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
 
+  const outOfScope = {}
   // @ts-ignore
-  const preds = await oos.predict(features)
-  const pos = utt.tokens.map(x => x.POS).join(' ')
-  const sent = utt.toString()
-  const outOfScope = preds[0].label == -1 || preds[0].label == 'out'
+  for (const [ctx, oos] of Object.entries(predictors.oos_classifier_by_ctx)) {
+    const preds = await oos.predict(feats)
+    const outConf = _.sumBy(
+      preds.filter(p => p.label.startsWith('out')),
+      'confidence'
+    )
+    // outOfScope[ctx] = outConf > preds.filter(p => !p.label.startsWith('out'))[0].confidence
+    outOfScope[ctx] = outConf
+  }
 
   return {
     ...input,
@@ -408,7 +402,6 @@ export function findExactIntentForCtx(
   utterance: Utterance,
   ctx: string
 ): sdk.MLToolkit.SVM.Prediction | undefined {
-  // TODO add some levinstein logic here
   const candidateKey = utterance.toString(EXACT_MATCH_STR_OPTIONS)
 
   const maybeMatch = exactMatchIndex[candidateKey]

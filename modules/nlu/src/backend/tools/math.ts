@@ -76,7 +76,15 @@ export function averageVectors(vecs: number[][]): number[] {
     throw new Error('Vectors must all be of the same size')
   }
 
-  return vectorAdd(...vecs.map(vec => scalarDivide(vec, vecs.length)))
+  const normalized = vecs
+    .map(vec => {
+      const norm = computeNorm(vec)
+      if (norm) {
+        return scalarDivide(vec, norm)
+      }
+    })
+    .filter(Boolean)
+  return vectorAdd(...normalized)
 }
 
 export function scalarDivide(vec: number[], divider: number): number[] {

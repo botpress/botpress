@@ -2,9 +2,10 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
+import { POS1_SET, POS2_SET, POS3_SET } from '../pos-tagger'
+import { averageVectors, scalarMultiply } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { averageVectors } from '../tools/math'
-import { isSpace, SPACE, mergeSimilarCharsetTokens } from '../tools/token-utils'
+import { isSpace, mergeSimilarCharsetTokens, SPACE } from '../tools/token-utils'
 import {
   EntityExtractionResult,
   Intent,
@@ -21,8 +22,6 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
-import { makePOSdic, POS_CLASSES, POS1_SET, POS2_SET, POS3_SET, POS4_SET } from '../pos-tagger'
-import { encodeOH } from '../tools/encoder'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -195,6 +194,7 @@ const trainIntentClassifier = async (
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
       .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
+      .filter(i => i.name !== 'none')
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -315,20 +315,36 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
   const avgUtterances = _.meanBy(input.intents, x => x.utterances.length)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = Math.max(5, 500)
+  const nbOfNoneUtterances = Math.max(5, 300)
+
+  const vocabWords = _.chain(input.tfIdf)
+    .toPairs()
+    .filter(([word, tfidf]) => tfidf <= 0.5)
+    .map('0')
+    .value()
 
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
-  const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 1.5, false))
+  const vocabUtts = _.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
+    return _.sampleSize(vocabWords, nbWords).join(joinChar)
+  })
+
+  const junkWordsUtts = _.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
     return _.sampleSize(junkWords, nbWords).join(joinChar)
+  })
+
+  const mixedUtts = _.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
+    return _.sampleSize([...junkWords, ...vocabWords], nbWords).join(joinChar)
   })
 
   const intent: Intent<Utterance> = {
     name: NONE_INTENT,
     slot_definitions: [],
-    utterances: await buildUtteranceBatch(noneUtterances, input.languageCode, tools),
+    utterances: await buildUtteranceBatch([...mixedUtts, ...vocabUtts, ...junkWordsUtts], input.languageCode, tools),
     contexts: [...input.contexts],
     vocab: {},
     slot_entities: []
@@ -364,85 +380,72 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   return crfExtractor.serialized
 }
 
-const trainOOS = async (input: TrainOutput, tools: Tools): Promise<string | undefined> => {
-  const points_a: sdk.MLToolkit.SVM.DataPoint[] = _.chain(input.intents)
-    .filter(i => i.name !== 'none')
-    .flatMap(i =>
-      i.utterances.map(utt => {
-        const posOH = encodeOH(
-          POS_CLASSES,
-          utt.tokens.map(t => t.POS)
-        )
-
-        // const tokensVerbs = utt.tokens.filter(x => ['NOUN', 'VERB'].includes(x.POS)).map(x => <number[]>x.vector)
-        // if (!tokensVerbs.length) {
-        //   tokensVerbs.push(new Array(utt.tokens[0].vector.length).fill(0))
-        // }
-        // const verbsEmbeddings = averageVectors(tokensVerbs)
-        // const feats = [...utt.sentenceEmbedding, ...verbsEmbeddings]
-
-        const averageByPOS = (...cls: string[]) => {
-          const tokens = utt.tokens.filter(t => cls.includes(t.POS))
-          const vectors = tokens.map(x => <number[]>x.vector)
-          if (!vectors.length) {
-            vectors.push(new Array(utt.tokens[0].vector.length).fill(0))
+const trainOOS = async (input: TrainOutput, tools: Tools): Promise<_.Dictionary<string>> => {
+  const oosByCtx = {}
+  for (const ctx of input.contexts) {
+    const points_a = _.chain(input.intents)
+      .filter(i => i.contexts.includes(ctx))
+      .filter(i => i.name !== 'none')
+      .flatMap(i =>
+        i.utterances.map(utt => {
+          const averageByPOS = (...cls: string[]) => {
+            const tokens = utt.tokens.filter(t => cls.includes(t.POS))
+            const vectors = tokens.map(x => scalarMultiply(<number[]>x.vector, x.tfidf))
+            if (!vectors.length) {
+              return new Array(utt.tokens[0].vector.length).fill(0)
+            }
+            return averageVectors(vectors)
           }
-          return averageVectors(vectors)
-        }
 
-        const pos1 = averageByPOS(...POS1_SET)
-        const pos2 = averageByPOS(...POS2_SET)
-        const pos3 = averageByPOS(...POS3_SET)
-        const pos4 = averageByPOS(...POS4_SET)
-        const feats = [...pos1, ...pos2, ...pos3, ...pos4]
+          const pos1 = averageByPOS(...POS1_SET)
+          const pos2 = averageByPOS(...POS2_SET)
+          const pos3 = averageByPOS(...POS3_SET)
+          const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
 
-        // const feats = [...posOH, ...kmeansOH, utt.tokens.length]
-        // const feats = [...utt.sentenceEmbedding, ...posOH]
+          return { label: i.name, coordinates: feats }
+        })
+      )
+      .value()
 
-        // const feats = [...posOH, utt.tokens.length]
-        // const feats = [...posOH]
-
-        return { label: i.name, coordinates: feats }
-      })
-    )
-    .value()
-
-  const points_b: sdk.MLToolkit.SVM.DataPoint[] = _.chain(input.intents)
-    .filter(i => i.name === 'none')
-    .flatMap(i =>
-      i.utterances.map(utt => {
-        const posOH = encodeOH(
-          POS_CLASSES,
-          utt.tokens.map(t => t.POS)
-        )
-
-        const averageByPOS = (...cls: string[]) => {
-          const tokens = utt.tokens.filter(t => cls.includes(t.POS))
-          const vectors = tokens.map(x => <number[]>x.vector)
-          if (!vectors.length) {
-            vectors.push(new Array(utt.tokens[0].vector.length).fill(0))
+    const noneEmbeddings = _.chain(input.intents)
+      .filter(i => i.name === 'none')
+      .flatMap(i =>
+        i.utterances.map(utt => {
+          const averageByPOS = (...cls: string[]) => {
+            const tokens = utt.tokens.filter(t => cls.includes(t.POS))
+            const vectors = tokens.map(x => scalarMultiply(<number[]>x.vector, x.tfidf))
+            if (!vectors.length) {
+              return new Array(utt.tokens[0].vector.length).fill(0)
+            }
+            return averageVectors(vectors)
           }
-          return averageVectors(vectors)
-        }
 
-        const pos1 = averageByPOS(...POS1_SET)
-        const pos2 = averageByPOS(...POS2_SET)
-        const pos3 = averageByPOS(...POS3_SET)
-        const pos4 = averageByPOS(...POS4_SET)
-        const feats = [...pos1, ...pos2, ...pos3, ...pos4]
+          const pos1 = averageByPOS(...POS1_SET)
+          const pos2 = averageByPOS(...POS2_SET)
+          const pos3 = averageByPOS(...POS3_SET)
+          const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
+          return feats
+        })
+      )
+      .value()
 
-        return { label: 'out', coordinates: feats }
-      })
-    )
-    .value()
+    const kmeans = tools.mlToolkit.KMeans.kmeans(noneEmbeddings, 3, KMEANS_OPTIONS)
+    const points_b: sdk.MLToolkit.SVM.DataPoint[] = noneEmbeddings.map(emb => {
+      const cluster = kmeans.nearest([emb])[0]
+      return {
+        label: `out_${cluster}`,
+        coordinates: emb
+      }
+    })
 
-  const svm = new tools.mlToolkit.SVM.Trainer()
-  return svm.train([...points_a, ...points_b], {
-    classifier: 'C_SVC',
-    kernel: 'LINEAR'
-    // c: [100, 10, 1, 0.5, 0.1, 0.01, 0.001],
-    // gamma: [10, 1, 0.5, 0.1, 0.01, 0.001, 0.0001]
-  })
+    const svm = new tools.mlToolkit.SVM.Trainer()
+    oosByCtx[ctx] = await svm.train([...points_a, ...points_b], {
+      classifier: 'C_SVC',
+      kernel: 'LINEAR'
+    })
+  }
+
+  return oosByCtx
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
@@ -477,7 +480,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
 
-    const oos_model = await trainOOS(output, tools)
+    const oos_by_ctx = await trainOOS(output, tools)
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
     reportProgress()
     const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
@@ -488,7 +491,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
       // @ts-ignore
-      oos_model,
+      oos_by_ctx,
       tfidf: output.tfIdf,
       ctx_model,
       intent_model_by_ctx,
