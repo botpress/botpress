@@ -96,7 +96,7 @@ export default class ScopedEngine implements Engine {
 
   async init(): Promise<void> {
     if (this.config.preloadModels) {
-      this.trainOrLoad().catch(e => console.log(e))
+      await this.trainOrLoad()
     }
 
     if (!isNaN(this._autoTrainInterval) && this._autoTrainInterval >= 5000) {
