@@ -4,11 +4,10 @@ import './sdk/rewire'
 // tslint:disable-next-line:ordered-imports
 import './common/polyfills'
 
-import { start as startActionServer } from 'action_server'
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
-import { Botpress, Config, Db, Ghost, Logger } from 'core/app'
+import { Botpress, Config, Db, Ghost, Logger, TaskEngine } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
@@ -70,7 +69,7 @@ async function start() {
   }
 
   if (process.env.ENV_TYPE === 'ACTION_SERVER') {
-    startActionServer()
+    await TaskEngine.start()
     return
   }
 

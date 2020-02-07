@@ -2,6 +2,7 @@ import 'bluebird-global'
 import LicensingService from 'common/licensing-service'
 import { FatalError } from 'errors'
 import 'reflect-metadata'
+import { TaskEngine as TaskEngineImpl } from 'task-engine'
 
 import { container } from './app.inversify'
 import { Botpress as Core } from './botpress'
@@ -16,6 +17,7 @@ let logger: LoggerProvider | undefined
 let config: ConfigProvider | undefined
 let ghost: GhostService | undefined
 let database: Database | undefined
+let taskEngine: TaskEngineImpl | undefined
 
 try {
   botpress = container.get<Core>(TYPES.Botpress)
@@ -23,6 +25,7 @@ try {
   config = container.get<ConfigProvider>(TYPES.ConfigProvider)
   ghost = container.get<GhostService>(TYPES.GhostService)
   database = container.get<Database>(TYPES.Database)
+  taskEngine = container.get<TaskEngineImpl>(TYPES.TaskEngine)
 
   const licensing = container.get<LicensingService>(TYPES.LicensingService)
   licensing.installProtection()
@@ -35,3 +38,4 @@ export const Logger = logger!
 export const Config = config
 export const Ghost = ghost
 export const Db = database
+export const TaskEngine = taskEngine
