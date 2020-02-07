@@ -4,6 +4,7 @@ import './sdk/rewire'
 // tslint:disable-next-line:ordered-imports
 import './common/polyfills'
 
+import { start as startActionServer } from 'action_server'
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
@@ -66,6 +67,11 @@ async function start() {
   if (cluster.isMaster) {
     // The master process only needs getos and rewire
     return setupMasterNode(await getLogger('Cluster'))
+  }
+
+  if (process.env.ENV_TYPE === 'ACTION_SERVER') {
+    startActionServer()
+    return
   }
 
   // Server ID is provided by the master node

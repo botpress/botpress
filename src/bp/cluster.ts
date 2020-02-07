@@ -69,4 +69,5 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   })
 
   cluster.fork({ SERVER_ID: process.SERVER_ID })
+  cluster.fork({ ENV_TYPE: 'ACTION_SERVER' })
 }
