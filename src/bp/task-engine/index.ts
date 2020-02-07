@@ -12,10 +12,16 @@ const port = 4000
 @injectable()
 export class TaskEngine {
   private readonly app: express.Express
-  constructor() {
+  constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'TaskEngine')
+    private logger: Logger
+  ) {
     this.app = express()
 
     this.app.get('/', (req, res) => res.send('Hello World!'))
+
+    console.log(`Got logger: ${this.logger}`)
   }
   async start() {
     console.log('starting TaskEngine')
