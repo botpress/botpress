@@ -118,7 +118,7 @@ container
 container
   .bind<TaskEngine>(TYPES.TaskEngine)
   .to(TaskEngine)
-  .inRequestScope()
+  .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
 
