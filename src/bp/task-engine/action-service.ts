@@ -27,6 +27,15 @@ import { TYPES } from '../core/types'
 const debug = DEBUG('action-server')
 const DEBOUNCE_DELAY = ms('2s')
 
+type ActionLocation = 'local' | 'global'
+
+export type ActionDefinition = {
+  name: string
+  isRemote: boolean
+  location: ActionLocation
+  metadata?: ActionMetadata
+}
+
 @injectable()
 export default class ActionService {
   private _scopedActions: Map<string, ScopedActionService> = new Map()
@@ -41,6 +50,16 @@ export default class ActionService {
   ) {
     this._listenForCacheInvalidation()
     this._invalidateDebounce = _.debounce(this._invalidateRequire, DEBOUNCE_DELAY, { leading: true, trailing: false })
+  }
+
+  forBot(botId: string): ScopedActionService {
+    if (this._scopedActions.has(botId)) {
+      return this._scopedActions.get(botId)!
+    }
+
+    const scopedActionService = new ScopedActionService(this.ghost, this.logger, botId, this.cache)
+    this._scopedActions.set(botId, scopedActionService)
+    return scopedActionService
   }
 
   private _listenForCacheInvalidation() {
@@ -59,25 +78,6 @@ export default class ActionService {
 
     clearRequireCache()
   }
-
-  forBot(botId: string): ScopedActionService {
-    if (this._scopedActions.has(botId)) {
-      return this._scopedActions.get(botId)!
-    }
-
-    const scopedActionService = new ScopedActionService(this.ghost, this.logger, botId, this.cache)
-    this._scopedActions.set(botId, scopedActionService)
-    return scopedActionService
-  }
-}
-
-type ActionLocation = 'local' | 'global'
-
-export type ActionDefinition = {
-  name: string
-  isRemote: boolean
-  location: ActionLocation
-  metadata?: ActionMetadata
 }
 
 export class ScopedActionService {
@@ -88,22 +88,6 @@ export class ScopedActionService {
 
   constructor(private ghost: GhostService, private logger: Logger, private botId: string, private cache: ObjectCache) {
     this._listenForCacheInvalidation()
-  }
-
-  private _listenForCacheInvalidation() {
-    const clearDebounce = _.debounce(this._clearCache.bind(this), DEBOUNCE_DELAY, { leading: true, trailing: false })
-
-    this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf(`/actions`) > -1) {
-        clearDebounce()
-      }
-    })
-  }
-
-  private _clearCache() {
-    this._scriptsCache.clear()
-    this._actionsCache = undefined
-    this._validScripts = {}
   }
 
   async listActions(): Promise<ActionDefinition[]> {
@@ -128,91 +112,9 @@ export class ScopedActionService {
     return actions
   }
 
-  private async getActionDefinition(
-    file: string,
-    location: ActionLocation,
-    includeMetadata: boolean
-  ): Promise<ActionDefinition> {
-    let action: ActionDefinition = {
-      name: file.replace(/\.js$/i, ''),
-      isRemote: false,
-      location: location
-    }
-
-    if (includeMetadata) {
-      const script = await this.getActionScript(action)
-      action = { ...action, metadata: extractMetadata(script) }
-    }
-
-    return action
-  }
-
-  private async getActionScript(action: ActionDefinition): Promise<string> {
-    if (this._scriptsCache.has(action.name)) {
-      return this._scriptsCache.get(action.name)!
-    }
-
-    let script: string
-    if (action.location === 'global') {
-      script = await this.ghost.global().readFileAsString('actions', action.name + '.js')
-    } else {
-      script = await this.ghost.forBot(this.botId).readFileAsString('actions', action.name + '.js')
-    }
-
-    this._scriptsCache.set(action.name, script)
-    return script
-  }
-
   async hasAction(actionName: string): Promise<boolean> {
     const actions = await this.listActions()
     return !!actions.find(x => x.name === actionName)
-  }
-
-  async getActionDetails(actionName: string) {
-    const action = await this.findAction(actionName)
-    const code = await this.getActionScript(action)
-
-    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
-    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
-    const lookups = getBaseLookupPaths(dirPath)
-
-    return { code, dirPath, lookups, action }
-  }
-
-  // This method tries to load require() files from the FS and fallback on BPFS
-  async checkActionRequires(actionName: string): Promise<boolean> {
-    if (this._validScripts[actionName]) {
-      return true
-    }
-
-    const { code, dirPath: parentScript, lookups } = await this.getActionDetails(actionName)
-
-    const isRequireValid = prepareRequireTester(parentScript, lookups)
-    const files = extractRequiredFiles(code)
-
-    for (const file of files) {
-      if (isRequireValid(file)) {
-        continue
-      }
-
-      try {
-        // Ensures the required files are available before compiling the action
-        await this.checkActionRequires(file)
-
-        const { code, dirPath, lookups } = await this.getActionDetails(file)
-        const exports = requireFromString(code, file, parentScript, prepareRequire(dirPath, lookups))
-
-        if (_.isEmpty(exports)) {
-          this.logger.warn(`Your required file (${file}) looks empty. Missing module.exports ? `)
-        }
-      } catch (err) {
-        this.logger.attachError(err).error(`There is an issue with required file ${file}.js in action ${actionName}.js`)
-        return false
-      }
-    }
-
-    this._validScripts[actionName] = true
-    return true
   }
 
   async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
@@ -258,6 +160,104 @@ export class ScopedActionService {
         .error(`An error occurred while executing the action "${actionName}`)
       throw new ActionExecutionError(err.message, actionName, err.stack)
     }
+  }
+
+  private _listenForCacheInvalidation() {
+    const clearDebounce = _.debounce(this._clearCache.bind(this), DEBOUNCE_DELAY, { leading: true, trailing: false })
+
+    this.cache.events.on('invalidation', key => {
+      if (key.toLowerCase().indexOf(`/actions`) > -1) {
+        clearDebounce()
+      }
+    })
+  }
+
+  private _clearCache() {
+    this._scriptsCache.clear()
+    this._actionsCache = undefined
+    this._validScripts = {}
+  }
+
+  private async getActionDefinition(
+    file: string,
+    location: ActionLocation,
+    includeMetadata: boolean
+  ): Promise<ActionDefinition> {
+    let action: ActionDefinition = {
+      name: file.replace(/\.js$/i, ''),
+      isRemote: false,
+      location: location
+    }
+
+    if (includeMetadata) {
+      const script = await this.getActionScript(action)
+      action = { ...action, metadata: extractMetadata(script) }
+    }
+
+    return action
+  }
+
+  private async getActionScript(action: ActionDefinition): Promise<string> {
+    if (this._scriptsCache.has(action.name)) {
+      return this._scriptsCache.get(action.name)!
+    }
+
+    let script: string
+    if (action.location === 'global') {
+      script = await this.ghost.global().readFileAsString('actions', action.name + '.js')
+    } else {
+      script = await this.ghost.forBot(this.botId).readFileAsString('actions', action.name + '.js')
+    }
+
+    this._scriptsCache.set(action.name, script)
+    return script
+  }
+
+  private async getActionDetails(actionName: string) {
+    const action = await this.findAction(actionName)
+    const code = await this.getActionScript(action)
+
+    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
+    const lookups = getBaseLookupPaths(dirPath)
+
+    return { code, dirPath, lookups, action }
+  }
+
+  // This method tries to load require() files from the FS and fallback on BPFS
+  private async checkActionRequires(actionName: string): Promise<boolean> {
+    if (this._validScripts[actionName]) {
+      return true
+    }
+
+    const { code, dirPath: parentScript, lookups } = await this.getActionDetails(actionName)
+
+    const isRequireValid = prepareRequireTester(parentScript, lookups)
+    const files = extractRequiredFiles(code)
+
+    for (const file of files) {
+      if (isRequireValid(file)) {
+        continue
+      }
+
+      try {
+        // Ensures the required files are available before compiling the action
+        await this.checkActionRequires(file)
+
+        const { code, dirPath, lookups } = await this.getActionDetails(file)
+        const exports = requireFromString(code, file, parentScript, prepareRequire(dirPath, lookups))
+
+        if (_.isEmpty(exports)) {
+          this.logger.warn(`Your required file (${file}) looks empty. Missing module.exports ? `)
+        }
+      } catch (err) {
+        this.logger.attachError(err).error(`There is an issue with required file ${file}.js in action ${actionName}.js`)
+        return false
+      }
+    }
+
+    this._validScripts[actionName] = true
+    return true
   }
 
   private async runWithoutVm(code: string, args: any, _require: Function) {
