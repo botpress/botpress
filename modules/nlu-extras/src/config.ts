@@ -12,6 +12,7 @@ export interface Config {
 
   /**
    * Configuration of the Dialogflow NLU engine
-   * @default null */
+   * @default null
+   */
   dialogflow?: DialogflowConfig
 }
