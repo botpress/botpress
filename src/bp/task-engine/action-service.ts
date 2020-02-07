@@ -1,25 +1,30 @@
 import { Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { createForAction } from 'core/api'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
-import { inject, injectable, tagged } from 'inversify'
+import { clearRequireCache, requireFromString } from 'core/modules/require'
+import { GhostService } from 'core/services'
+import { ActionMetadata, extractMetadata } from 'core/services/action/metadata'
+import {
+  extractRequiredFiles,
+  getBaseLookupPaths,
+  prepareRequire,
+  prepareRequireTester
+} from 'core/services/action/utils'
+import { VmRunner } from 'core/services/action/vm'
+import { ActionExecutionError } from 'core/services/dialog/errors'
+import { injectable } from 'inversify'
+import { inject, tagged } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
 import yn from 'yn'
 
-import { GhostService } from '..'
-import { createForAction } from '../../api'
-import { clearRequireCache, requireFromString } from '../../modules/require'
-import { TYPES } from '../../types'
-import { ActionExecutionError } from '../dialog/errors'
+import { TYPES } from '../core/types'
 
-import { ActionMetadata, extractMetadata } from './metadata'
-import { extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
-import { VmRunner } from './vm'
-
-const debug = DEBUG('actions')
+const debug = DEBUG('action-server')
 const DEBOUNCE_DELAY = ms('2s')
 
 @injectable()

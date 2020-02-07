@@ -11,7 +11,6 @@ import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { asBytes } from 'core/misc/utils'
 import { GhostService } from 'core/services'
-import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { FlowService, MutexError } from 'core/services/dialog/flow/service'
@@ -27,6 +26,7 @@ import moment from 'moment'
 import ms from 'ms'
 import multer from 'multer'
 import path from 'path'
+import { TaskEngine } from 'task-engine'
 import { URL } from 'url'
 
 import { disableForModule } from '../conditionalMiddleware'
@@ -38,7 +38,7 @@ const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = '10mb'
 
 export class BotsRouter extends CustomRouter {
-  private actionService: ActionService
+  private taskEngine: TaskEngine
   private botService: BotService
   private configProvider: ConfigProvider
   private flowService: FlowService
@@ -56,7 +56,7 @@ export class BotsRouter extends CustomRouter {
   private mediaPathRegex: RegExp
 
   constructor(args: {
-    actionService: ActionService
+    taskEngine: TaskEngine
     botService: BotService
     configProvider: ConfigProvider
     flowService: FlowService
@@ -69,7 +69,7 @@ export class BotsRouter extends CustomRouter {
     logger: Logger
   }) {
     super('Bots', args.logger, Router({ mergeParams: true }))
-    this.actionService = args.actionService
+    this.taskEngine = args.taskEngine
     this.botService = args.botService
     this.configProvider = args.configProvider
     this.flowService = args.flowService
@@ -363,7 +363,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('read', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const actions = await this.actionService.forBot(botId).listActions()
+        const actions = await this.taskEngine.forBot(botId).listActions()
         res.send(Serialize(actions))
       })
     )
