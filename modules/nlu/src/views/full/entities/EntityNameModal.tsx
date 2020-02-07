@@ -60,14 +60,16 @@ export const EntityNameModal: FC<Props> = props => {
       type: type as NLU.EntityType,
       occurrences: []
     }
-    props.onEntityModified(await props.api.createEntity(entity))
+    await props.api.createEntity(entity)
+    props.onEntityModified(entity)
   }
 
   const onRenameEntity = async () => {
     const entity = _.cloneDeep(props.originalEntity)
     entity.name = name.trim()
     entity.id = getEntityId(name)
-    props.onEntityModified(await props.api.updateEntity(props.originalEntity.id, entity))
+    await props.api.updateEntity(props.originalEntity.id, entity)
+    props.onEntityModified(entity)
   }
 
   const getEntityId = (entityName: string) =>
@@ -80,7 +82,8 @@ export const EntityNameModal: FC<Props> = props => {
     const clone = _.cloneDeep(props.originalEntity)
     clone.name = name.trim()
     clone.id = getEntityId(name)
-    props.onEntityModified(await props.api.createEntity(clone))
+    await props.api.createEntity(clone)
+    props.onEntityModified(clone)
   }
 
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name
