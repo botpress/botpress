@@ -1,6 +1,7 @@
 import { Card, HTMLSelect } from '@blueprintjs/core'
 import { DateRange, DateRangeInput } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
+import axios from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
 import React from 'react'
@@ -13,7 +14,7 @@ const colorMessenger = '#0196FF'
 const colorWeb = '#FFA83A'
 const colorTelegram = '#2EA6DA'
 
-export default class AnalyticsModule extends React.Component<{ bp: any }> {
+export default class Analytics extends React.Component<{ bp: any }> {
   state = {
     channels: ['all', 'web', 'slack', 'messenger', 'telegram'],
     selectedChannel: 'all',
@@ -37,7 +38,7 @@ export default class AnalyticsModule extends React.Component<{ bp: any }> {
   }
 
   fetchAnalytics = (channel, startDate, endDate) => {
-    return this.props.bp.axios.get(`/analytics/channel/${channel}`, {
+    return axios.get(`${window.BOT_API_PATH}/analytics/channel/${channel}`, {
       params: {
         start: startDate,
         end: endDate

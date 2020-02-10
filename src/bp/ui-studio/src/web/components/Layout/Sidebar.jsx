@@ -22,6 +22,12 @@ const BASIC_MENU_ITEMS = [
     path: window.USE_ONEFLOW ? '/oneflow' : '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'device_hub'
+  },
+  {
+    name: 'Analytics',
+    path: '/analytics',
+    rule: { res: 'bot.content', op: 'read' },
+    icon: 'timeline'
   }
 ].filter(Boolean)
 

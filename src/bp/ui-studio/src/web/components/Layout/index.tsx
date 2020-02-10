@@ -10,6 +10,7 @@ import DocumentationModal from '~/components/Layout/DocumentationModal'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
 import { isInputFocused } from '~/keyboardShortcuts'
+import Analytics from '~/views/Analytics'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
@@ -175,17 +176,17 @@ class Layout extends React.Component<ILayoutProps> {
                     exact
                     path="/"
                     render={() => {
-                        if (!window.IS_BOT_MOUNTED) {
-                          return <Redirect to="/modules/code-editor" />
-                        }
-
-                        return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                      if (!window.IS_BOT_MOUNTED) {
+                        return <Redirect to="/modules/code-editor" />
                       }
-                    }
+
+                      return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                    }}
                   />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
                   <Route exact path="/oneflow/:flow*" component={OneFlow} />
+                  <Route exact path="/analytics" component={Analytics} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                   <Route exact path="/notifications" component={Notifications} />
                   <Route exact path="/logs" component={Logs} />
