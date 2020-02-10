@@ -1,6 +1,6 @@
 {
+  "extends": "../tsconfig.shared.json",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "typeRoots": ["./src/botpress.d.ts", "./node_modules/@types", "./node_modules"]
+    "baseUrl": "./"
   }
 }

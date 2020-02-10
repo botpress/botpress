@@ -1,7 +1,8 @@
 import { Intent, Switch, Tag, Tooltip } from '@blueprintjs/core'
-import { HitlApi } from 'full/api'
 import _ from 'lodash'
 import React, { FC } from 'react'
+
+import { HitlApi } from '../../api'
 
 interface Props {
   isPaused: boolean
