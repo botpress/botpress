@@ -308,7 +308,8 @@ declare module 'botpress/sdk' {
         kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
         c: number | number[]
         gamma: number | number[]
-        probability: boolean
+        probability?: boolean
+        reduce?: boolean
       }
 
       export type DataPoint = {

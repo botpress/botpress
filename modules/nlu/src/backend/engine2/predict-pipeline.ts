@@ -232,11 +232,19 @@ function electIntent(input: PredictStep): PredictStep {
   // taken from svm classifier #349
   let predictions = _.chain(ctxPreds)
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
-      const intentPreds = _.orderBy(
-        [...input.intent_predictions.per_ctx[ctx], { label: NONE_INTENT, confidence: input.outOfScope[ctx] }],
-        'confidence',
-        'desc'
-      )
+      const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx])
+        .thru(preds => {
+          if (input.outOfScope[ctx].label === 'out') {
+            return [
+              ...preds,
+              { label: NONE_INTENT, confidence: input.outOfScope[ctx].confidence, context: ctx, l0Confidence: ctxConf }
+            ]
+          } else {
+            return preds
+          }
+        })
+        .orderBy('confidence', 'desc')
+        .value()
       if (intentPreds[0].confidence === 1) {
         return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
       }
@@ -248,10 +256,7 @@ function electIntent(input: PredictStep): PredictStep {
           confidence: ctxConf * x.confidence,
           context: ctx
         }))
-        return [
-          { label: NONE_INTENT, l0Confidence: ctxConf, context: ctx, confidence: input.outOfScope[ctx] },
-          ...others
-        ]
+        return [{ label: NONE_INTENT, l0Confidence: ctxConf, context: ctx, confidence: 1 }, ...others]
       }
 
       const lnstd = math.std(intentPreds.map(x => Math.log(x.confidence))) // because we want a lognormal distribution
@@ -266,15 +271,15 @@ function electIntent(input: PredictStep): PredictStep {
       ]
     })
     .orderBy('confidence', 'desc')
-    .uniqBy(p => p.label)
     .filter(p => input.includedContexts.includes(p.context))
+    .uniqBy(p => p.label)
     .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
     .value()
 
   const ctx = _.get(predictions, '0.context', 'global')
-  if (!predictions.length || (predictions[0].confidence < 0.3 && input.outOfScope[ctx])) {
+  if (!predictions.length || (predictions[0].confidence < 0.3 && input.outOfScope[ctx].label == 'out')) {
     predictions = [
-      { name: NONE_INTENT, context: ctx, confidence: 1 },
+      { name: NONE_INTENT, context: ctx, confidence: input.outOfScope[ctx].confidence },
       ...predictions.filter(p => p.name !== NONE_INTENT)
     ]
   }
@@ -309,8 +314,9 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
       preds.filter(p => p.label.startsWith('out')),
       'confidence'
     )
-    // outOfScope[ctx] = outConf > preds.filter(p => !p.label.startsWith('out'))[0].confidence
-    outOfScope[ctx] = outConf
+    const inConf = preds.filter(p => !p.label.startsWith('out'))[0].confidence
+    const label = outConf > inConf ? 'out' : 'in'
+    outOfScope[ctx] = { label, confidence: Math.max(outConf, inConf) }
   }
 
   return {

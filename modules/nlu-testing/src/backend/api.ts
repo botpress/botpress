@@ -161,9 +161,9 @@ export default async (bp: typeof sdk) => {
     })
 
     _.zip(tests, _.flatten(resultsBatch)).forEach(([test, res]) => {
-      const expected = test.conditions[0][2].endsWith('none') ? 'oos' : 'inScope'
+      const expected = test.conditions[0][2].endsWith('none') ? 'out' : 'in'
       // @ts-ignore
-      const actual = res.nlu.outOfScope[test.context] > res.nlu.intent.confidence ? 'oos' : 'inScope'
+      const actual = res.nlu.outOfScope[test.context].label
       f1Scorer.record(expected, actual)
     })
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
@@ -217,10 +217,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
   if (key === 'intent') {
     expected = expected.endsWith('none') ? 'none' : expected
     const received = nlu.intent.name
-    const success = nlu.intent.name === expected
-
-    // @ts-ignore
-    // const success = expected === 'none' ? nlu.outOfScope[ctx] : !nlu.outOfScope[ctx]
+    const success = expected === received
 
     return {
       success,

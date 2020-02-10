@@ -5,7 +5,7 @@ import tfidf from '../pipelines/intents/tfidf'
 import { POS1_SET, POS2_SET, POS3_SET } from '../pos-tagger'
 import { averageVectors, scalarMultiply } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { isSpace, mergeSimilarCharsetTokens, SPACE } from '../tools/token-utils'
+import { isSpace, SPACE } from '../tools/token-utils'
 import {
   EntityExtractionResult,
   Intent,
@@ -442,6 +442,7 @@ const trainOOS = async (input: TrainOutput, tools: Tools): Promise<_.Dictionary<
     oosByCtx[ctx] = await svm.train([...points_a, ...points_b], {
       classifier: 'C_SVC',
       kernel: 'LINEAR'
+      // reduce: true // project points in a PCA space ==> makes serialization smaller
     })
   }
 
