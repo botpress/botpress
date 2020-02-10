@@ -114,6 +114,7 @@ const bots = (botService: BotService): typeof sdk.bots => {
 
 const analytics = (analytics: AnalyticsService): typeof sdk.analytics => {
   return {
+    batch: analytics.batch.bind(analytics),
     incrementMetric: analytics.incrementMetric.bind(analytics),
     incrementMetricTotal: analytics.incrementMetricTotal.bind(analytics)
   }

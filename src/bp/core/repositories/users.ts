@@ -74,8 +74,8 @@ export class KnexUserRepository implements UserRepository {
         }
       })
 
-    await this.analytics.incrementMetric(botId, channel, 'new_users_count')
-    await this.analytics.incrementMetricTotal(botId, channel, 'users_count')
+    this.analytics.batch(this.analytics.incrementMetric, { botId, channel, metric: 'new_users_count' })
+    this.analytics.batch(this.analytics.incrementMetricTotal, { botId, channel, metric: 'users_count' })
 
     return { result: newUser, created: true }
   }

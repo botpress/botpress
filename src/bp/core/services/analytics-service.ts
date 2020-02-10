@@ -1,14 +1,66 @@
-import { MetricName } from 'botpress/sdk'
+import { Analytics, AnalyticsFn, Logger, MetricDefinition } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import { AnalyticsRepository } from 'core/repositories/analytics-repository'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import moment from 'moment'
+import ms from 'ms'
+
+export interface BatchObject {
+  fn: AnalyticsFn
+  metricDef: MetricDefinition
+}
 
 @injectable()
 export default class AnalyticsService {
-  constructor(@inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository) {}
+  private readonly BATCH_SIZE = 100
 
-  async incrementMetric(botId: string, channel: string, metric: MetricName, increment = 1) {
+  private metricsBatch: BatchObject[] = []
+  private enabled = false
+  private interval!: number
+  private intervalRef
+  private currentPromise
+
+  constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'AnalyticsService')
+    private logger: Logger,
+    @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+  ) {}
+
+  async initialize() {
+    const config = (await this.configProvider.getBotpressConfig()).analytics
+    if (!config || !config.enabled) {
+      return
+    }
+
+    this.interval = ms(config.interval)
+    this.enabled = config.enabled
+  }
+
+  batch(fn: AnalyticsFn, metricDef: MetricDefinition) {
+    if (!this.enabled) {
+      return
+    }
+
+    this.metricsBatch.push({ fn, metricDef })
+  }
+
+  start() {
+    if (this.intervalRef || !this.enabled) {
+      return
+    }
+    this.intervalRef = setInterval(this._runTask, this.interval)
+  }
+
+  async incrementMetric(metricDef: MetricDefinition): Promise<void> {
+    if (!this.enabled) {
+      return
+    }
+
+    const { botId, channel, metric, increment = 1 } = metricDef
+
     try {
       const analytics = await this.analyticsRepo.get({ botId, channel, metric })
       const latest = moment(analytics.created_on).startOf('day')
@@ -25,7 +77,13 @@ export default class AnalyticsService {
     }
   }
 
-  async incrementMetricTotal(botId: string, channel: string, metric: MetricName, increment = 1) {
+  async incrementMetricTotal(metricDef: MetricDefinition): Promise<void> {
+    if (!this.enabled) {
+      return
+    }
+
+    const { botId, channel, metric, increment = 1 } = metricDef
+
     try {
       const analytics = await this.analyticsRepo.get({ botId, channel, metric })
       const latest = moment(analytics.created_on).startOf('day')
@@ -42,7 +100,27 @@ export default class AnalyticsService {
     }
   }
 
-  async getDateRange(botId: string, startDate: Date, endDate: Date, channel?: string) {
+  async getDateRange(botId: string, startDate: Date, endDate: Date, channel?: string): Promise<Analytics[]> {
     return this.analyticsRepo.getBetweenDates(botId, startDate, endDate, channel)
+  }
+
+  private _runTask = async () => {
+    if (this.currentPromise || !this.metricsBatch.length) {
+      return
+    }
+
+    const batchSize = Math.min(this.metricsBatch.length, this.BATCH_SIZE)
+    for (let i = 0; i < batchSize; i++) {
+      const metric = this.metricsBatch.shift()
+      this.currentPromise = metric?.fn
+        .call(this, metric.metricDef)
+        .catch(err => {
+          this.logger.attachError(err).error('Could not persist metrics. Re-queuing now.')
+          this.metricsBatch.push(metric)
+        })
+        .finally(() => {
+          this.currentPromise = undefined
+        })
+    }
   }
 }

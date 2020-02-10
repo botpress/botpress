@@ -47,7 +47,11 @@ export class DecisionEngine {
       if (action === 'send') {
         await this._sendSuggestion(data, sessionId, event)
       } else if (action === 'redirect') {
-        await this.analytics.incrementMetric(event.botId, event.channel, 'goals_started_count')
+        this.analytics.batch(this.analytics.incrementMetric, {
+          botId: event.botId,
+          channel: event.channel,
+          metric: 'goals_started_count'
+        })
         await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
 
         event.state.session.lastGoals = [
@@ -132,7 +136,11 @@ export class DecisionEngine {
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
 
         if (event.nlu?.intent.name === 'none') {
-          await this.analytics.incrementMetric(event.botId, event.channel, 'msg_nlu_none')
+          this.analytics.batch(this.analytics.incrementMetric, {
+            botId: event.botId,
+            channel: event.channel,
+            metric: 'msg_nlu_none'
+          })
         }
 
         await this.stateManager.persist(processedEvent, false)
@@ -207,7 +215,11 @@ export class DecisionEngine {
 
     if (payloads) {
       if (event.decision?.source === 'qna') {
-        await this.analytics.incrementMetric(event.botId, event.channel, 'msg_sent_qna_count')
+        this.analytics.batch(this.analytics.incrementMetric, {
+          botId: event.botId,
+          channel: event.channel,
+          metric: 'msg_sent_qna_count'
+        })
       }
 
       await this.eventEngine.replyToEvent(event, payloads, event.id)

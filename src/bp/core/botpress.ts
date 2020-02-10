@@ -96,7 +96,7 @@ export class Botpress {
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
     @inject(TYPES.StatsService) private statsService: StatsService,
-    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
+    @inject(TYPES.AnalyticsService) private analyticService: AnalyticsService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -295,6 +295,7 @@ export class Botpress {
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
     await this.eventCollector.initialize(this.database)
+    await this.analyticService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
@@ -306,7 +307,12 @@ export class Botpress {
         return
       }
 
-      await this.analytics.incrementMetric(event.botId, event.channel, 'msg_received_count')
+      this.analyticService.batch(this.analyticService.incrementMetric, {
+        botId: event.botId,
+        channel: event.channel,
+        metric: 'msg_received_count'
+      })
+
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)
@@ -314,8 +320,12 @@ export class Botpress {
     }
 
     this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
-      await this.eventCollector.storeEvent(event)
-      await this.analytics.incrementMetric(event.botId, event.channel, 'msg_sent_count')
+      this.eventCollector.storeEvent(event)
+      this.analyticService.batch(this.analyticService.incrementMetric, {
+        botId: event.botId,
+        channel: event.channel,
+        metric: 'msg_sent_count'
+      })
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
 
@@ -328,7 +338,7 @@ export class Botpress {
     }
 
     this.decisionEngine.onAfterEventProcessed = async (event: sdk.IO.IncomingEvent) => {
-      await this.eventCollector.storeEvent(event)
+      this.eventCollector.storeEvent(event)
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
@@ -361,6 +371,7 @@ export class Botpress {
     await this.monitoringService.start()
     await this.alertingService.start()
     await this.eventCollector.start()
+    await this.analyticService.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()

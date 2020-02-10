@@ -55,9 +55,9 @@ const migration: Migration = {
         .select('user_id', 'channel', 'botId')
         .where({ channel: 'web' })
 
-      updated_users.forEach(async user => {
-        await analytics.incrementMetric(user['botId'], user['channel'], 'users_count')
-      })
+      await Promise.mapSeries(updated_users, user =>
+        analytics.incrementMetric({ botId: user['botId'], channel: user['channel'], metric: 'users_count' })
+      )
 
       return { success: true, message: 'Configuration updated successfully' }
     } catch (err) {

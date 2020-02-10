@@ -307,7 +307,11 @@ export default async (bp: typeof sdk, db: Database) => {
       const event = events[0]
       await bp.events.updateEvent(event.id, { feedback })
       const feedbackMetric: sdk.MetricName = feedback === 1 ? 'feedback_positive_count' : 'feedback_negative_count'
-      await bp.analytics.incrementMetric(event.botId, event.channel, feedbackMetric)
+      bp.analytics.batch(bp.analytics.incrementMetric, {
+        botId: event.botId,
+        channel: event.channel,
+        metric: feedbackMetric
+      })
 
       res.sendStatus(200)
     })

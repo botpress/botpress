@@ -1697,6 +1697,13 @@ declare module 'botpress/sdk' {
     export function removeStorageKeysStartingWith(key): Promise<void>
   }
 
+  export interface MetricDefinition {
+    botId: string
+    channel: string
+    metric: MetricName
+    increment?: number
+  }
+
   export type MetricName =
     | 'sessions_count'
     | 'msg_received_count'
@@ -1723,19 +1730,12 @@ declare module 'botpress/sdk' {
     value: number
   }
 
+  export type AnalyticsFn = (metricDef: MetricDefinition) => Promise<void>
+
   export namespace analytics {
-    export function incrementMetric(
-      botId: string,
-      channel: string,
-      metric: MetricName,
-      increment?: number
-    ): Promise<void>
-    export function incrementMetricTotal(
-      botId: string,
-      channel: string,
-      metric: MetricName,
-      increment?: number
-    ): Promise<void>
+    export function batch(fn: AnalyticsFn, def: MetricDefinition): void
+    export function incrementMetric(metricDef: MetricDefinition): Promise<void>
+    export function incrementMetricTotal(metricDef: MetricDefinition): Promise<void>
   }
 
   export namespace bots {

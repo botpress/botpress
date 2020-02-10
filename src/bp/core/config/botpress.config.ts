@@ -258,6 +258,16 @@ export type BotpressConfig = {
    * @default []
    */
   additionalLanguages?: { name: string; code: string }[]
+  analytics: {
+    /**
+     * @default true
+     */
+    enabled: boolean
+    /**
+     * @default 5m
+     */
+    interval: string
+  }
 }
 
 export interface ExternalAuthConfig {
