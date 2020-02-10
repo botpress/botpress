@@ -441,8 +441,8 @@ const trainOOS = async (input: TrainOutput, tools: Tools): Promise<_.Dictionary<
     const svm = new tools.mlToolkit.SVM.Trainer()
     oosByCtx[ctx] = await svm.train([...points_a, ...points_b], {
       classifier: 'C_SVC',
-      kernel: 'LINEAR'
-      // reduce: true // project points in a PCA space ==> makes serialization smaller
+      kernel: 'LINEAR',
+      reduce: true // project points in a PCA space ==> makes serialization smaller
     })
   }
 

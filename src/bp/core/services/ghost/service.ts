@@ -40,7 +40,7 @@ export interface FileChange {
 
 export type FileChangeAction = 'add' | 'edit' | 'del'
 
-const MAX_GHOST_FILE_SIZE = asBytes('500mb')
+const MAX_GHOST_FILE_SIZE = asBytes('100mb')
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
