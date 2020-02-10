@@ -12,16 +12,6 @@ const migration: Migration = {
   },
   up: async ({ bp, inversify }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
-      await bp.database.createTableIfNotExists('srv_analytics', table => {
-        table.increments('id').primary()
-        table.string('botId')
-        table.string('metric_name')
-        table.string('channel')
-        table.timestamp('created_on')
-        table.timestamp('updated_on')
-        table.decimal('value')
-      })
-
       await bp.database.schema.table('srv_channel_users', table => {
         table.string('botId')
       })
