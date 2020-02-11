@@ -82,8 +82,13 @@ export default class ActionService {
 
 interface RunActionProps {
   actionName: string
+  actionServer?: ActionServer
   incomingEvent: IO.IncomingEvent
   actionArgs: any
+}
+
+interface ActionServer {
+  baseUrl: string
 }
 
 export class ScopedActionService {
@@ -124,7 +129,7 @@ export class ScopedActionService {
   }
 
   async runAction(props: RunActionProps): Promise<any> {
-    const { actionName, incomingEvent, actionArgs } = props
+    const { actionName, actionServer, incomingEvent, actionArgs } = props
 
     process.ASSERT_LICENSED()
 
@@ -156,14 +161,20 @@ export class ScopedActionService {
       if (trusted) {
         result = await this.runWithoutVm(code, args, _require)
       } else {
-        const response = await this.runInLocalActionServer({
-          actionName,
-          actionArgs,
-          botId: incomingEvent.botId,
-          incomingEvent
-        })
-        result = response.result
-        _.merge(incomingEvent, response.incomingEvent)
+        if (actionServer) {
+          const response = await this.runInActionServer({
+            actionServer,
+            actionName,
+            actionArgs,
+            botId: incomingEvent.botId,
+            incomingEvent
+          })
+          result = response.result
+          _.merge(incomingEvent, response.incomingEvent)
+        } else {
+          this.logger.warn('Running legacy JavaScript action. Please migrate to the new Action Server.')
+          result = await this.runInVm(code, dirPath, args, _require)
+        }
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
@@ -212,14 +223,15 @@ export class ScopedActionService {
     return { code, dirPath, lookups, action, trusted }
   }
 
-  private async runInLocalActionServer(props: {
+  private async runInActionServer(props: {
+    actionServer: ActionServer
     actionName: string
     incomingEvent: IO.IncomingEvent
     actionArgs: any
     botId: string
   }): Promise<{ result: any; incomingEvent: IO.IncomingEvent }> {
-    const { actionName, actionArgs, botId } = props
-    const response = await axios.post('http://localhost:4000/action/run', {
+    const { actionName, actionArgs, botId, actionServer } = props
+    const response = await axios.post(`${actionServer.baseUrl}/action/run`, {
       actionName,
       incomingEvent: props.incomingEvent,
       actionArgs,
