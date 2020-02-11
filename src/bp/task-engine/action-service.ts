@@ -153,7 +153,7 @@ export class ScopedActionService {
       if (trusted) {
         result = await this.runWithoutVm(code, args, _require)
       } else {
-        result = await this.runInActionServer(actionName)
+        result = await this.runInActionServer({ actionName, actionArgs, botId: incomingEvent.botId, incomingEvent })
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
@@ -168,9 +168,49 @@ export class ScopedActionService {
     }
   }
 
-  private async runInActionServer(actionName: string) {
-    const response = await axios.post('http://localhost:4000/action/run', { actionName })
-    console.log(`response: ${response}`)
+  async runInVm(code: string, dirPath: string, args: any, _require: Function) {
+    const modRequire = new Proxy(
+      {},
+      {
+        get: (_obj, prop) => _require(prop)
+      }
+    )
+
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: args,
+      require: {
+        external: true,
+        mock: modRequire
+      },
+      timeout: 5000
+    })
+
+    const runner = new VmRunner()
+    return runner.runInVm(vm, code, dirPath)
+  }
+
+  async getActionDetails(actionName: string) {
+    const action = await this.findAction(actionName)
+    const code = await this.getActionScript(action)
+
+    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
+    const lookups = getBaseLookupPaths(dirPath)
+
+    const trusted = this.isTrustedAction(actionName)
+    return { code, dirPath, lookups, action, trusted }
+  }
+
+  private async runInActionServer(props: { actionName: string; incomingEvent: any; actionArgs: any; botId: string }) {
+    const { actionName, incomingEvent, actionArgs, botId } = props
+    const response = await axios.post('http://localhost:4000/action/run', {
+      actionName,
+      incomingEvent,
+      actionArgs,
+      botId
+    })
+    console.log(`response:`, response)
   }
 
   private _listenForCacheInvalidation() {
@@ -224,19 +264,7 @@ export class ScopedActionService {
     return script
   }
 
-  private async getActionDetails(actionName: string) {
-    const action = await this.findAction(actionName)
-    const code = await this.getActionScript(action)
-
-    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
-    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
-    const lookups = getBaseLookupPaths(dirPath)
-
-    const trusted = this.isTrustecAction(actionName)
-    return { code, dirPath, lookups, action, trusted }
-  }
-
-  private isTrustecAction(actionName: string): boolean {
+  private isTrustedAction(actionName: string): boolean {
     // TODO: find more scalable approach
     return ['analytics/increment', 'analytics/decrement', 'analytics/set'].includes(actionName)
   }
@@ -285,28 +313,6 @@ export class ScopedActionService {
 
     const fn = new Function(...Object.keys(args), code)
     return fn(...Object.values(args))
-  }
-
-  private async runInVm(code: string, dirPath: string, args: any, _require: Function) {
-    const modRequire = new Proxy(
-      {},
-      {
-        get: (_obj, prop) => _require(prop)
-      }
-    )
-
-    const vm = new NodeVM({
-      wrapper: 'none',
-      sandbox: args,
-      require: {
-        external: true,
-        mock: modRequire
-      },
-      timeout: 5000
-    })
-
-    const runner = new VmRunner()
-    return runner.runInVm(vm, code, dirPath)
   }
 
   private async findAction(actionName: string): Promise<ActionDefinition> {
