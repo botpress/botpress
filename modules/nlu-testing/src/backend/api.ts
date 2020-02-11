@@ -155,20 +155,21 @@ export default async (bp: typeof sdk) => {
     const tests = await getAllTests(req.params.botId)
     const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
 
-    const f1Scorer = new MultiClassF1Scorer()
     const resultsBatch = await P.mapSeries(_.chunk(tests, 20), testChunk => {
       return P.map(testChunk, async test => runTest(test, axiosConfig))
     })
 
-    _.zip(tests, _.flatten(resultsBatch)).forEach(([test, res]) => {
-      const expected = test.conditions[0][2].endsWith('none') ? 'out' : 'in'
-      // @ts-ignore
-      const actual = res.nlu.outOfScope[test.context].label
-      f1Scorer.record(expected, actual)
-    })
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
-    // @ts-ignore
-    testResults.F1 = f1Scorer.getResults()
+    // uncomment this when working on out of scope
+    // const f1Scorer = new MultiClassF1Scorer()
+    // _.zip(tests, _.flatten(resultsBatch)).forEach(([test, res]) => {
+    //   const expected = test.conditions[0][2].endsWith('none') ? 'out' : 'in'
+    //   // @ts-ignore
+    //   const actual = res.nlu.outOfScope[test.context].label
+    //   f1Scorer.record(expected, actual)
+    //   // @ts-ignore
+    // })
+    // testResults.OOSF1 = f1Scorer.getResults()
     res.send(testResults)
   })
 }
