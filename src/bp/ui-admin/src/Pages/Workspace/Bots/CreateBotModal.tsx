@@ -1,12 +1,12 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { BotTemplate } from 'botpress/sdk'
+import { BotTemplate, BotConfig } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 
 import api from '../../../api'
-import { fetchBotCategories, fetchBotTemplates } from '../../../reducers/bots'
+import { fetchBotCategories, fetchBotTemplates, fetchBots } from '../../../reducers/bots'
 
 export const sanitizeBotId = (text: string) =>
   text
@@ -25,6 +25,7 @@ interface OwnProps {
 interface DispatchProps {
   fetchBotCategories: () => void
   fetchBotTemplates: () => void
+  fetchBots: () => void
 }
 
 interface StateProps {
@@ -32,6 +33,7 @@ interface StateProps {
   botTemplatesFetched: boolean
   botTemplates: BotTemplate[]
   botCategories: string[]
+  bots: BotConfig[]
 }
 
 type Props = DispatchProps & StateProps & OwnProps
@@ -73,6 +75,7 @@ class CreateBotModal extends Component<Props, State> {
   componentDidMount() {
     this.loadCategories()
     this.loadTemplates()
+    this.props.fetchBots()
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -139,9 +142,13 @@ class CreateBotModal extends Component<Props, State> {
     this.props.toggle()
   }
 
+  isIdUnique() {
+    return !this.props.bots.some(e => e.id === this.state.botId)
+  }
+
   get isButtonDisabled() {
     const { isProcessing, botId, botName, selectedTemplate } = this.state
-    return isProcessing || !botId || !botName || !selectedTemplate || !this._form || !this._form.checkValidity()
+    return isProcessing || !botId || !botName || !selectedTemplate || !this._form || !this._form.checkValidity() || !this.isIdUnique()
   }
 
   render() {
@@ -242,7 +249,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   fetchBotTemplates,
-  fetchBotCategories
+  fetchBotCategories,
+  fetchBots
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(
