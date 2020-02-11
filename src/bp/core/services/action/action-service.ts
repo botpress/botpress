@@ -80,6 +80,12 @@ export default class ActionService {
   }
 }
 
+interface RunActionProps {
+  actionName: string
+  incomingEvent: IO.IncomingEvent
+  actionArgs: any
+}
+
 export class ScopedActionService {
   private _actionsCache: ActionDefinition[] | undefined
   private _scriptsCache: Map<string, string> = new Map()
@@ -117,7 +123,9 @@ export class ScopedActionService {
     return !!actions.find(x => x.name === actionName)
   }
 
-  async runAction(actionName: string, incomingEvent: IO.IncomingEvent, actionArgs: any): Promise<any> {
+  async runAction(props: RunActionProps): Promise<any> {
+    const { actionName, incomingEvent, actionArgs } = props
+
     process.ASSERT_LICENSED()
 
     if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {

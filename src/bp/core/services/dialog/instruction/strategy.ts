@@ -135,7 +135,7 @@ export class ActionStrategy implements InstructionStrategy {
       if (!hasAction) {
         throw new Error(`Action "${actionName}" not found, `)
       }
-      await this.actionService.forBot(botId).runAction(actionName, event, args)
+      await this.actionService.forBot(botId).runAction({ actionName, incomingEvent: event, actionArgs: args })
     } catch (err) {
       event.state.__error = {
         type: 'action-execution',
