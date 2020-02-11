@@ -1,6 +1,7 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+import { isPOSAvailable } from '../pos-tagger'
 import { isPatternValid } from '../tools/patterns-utils'
 import { Engine2, ListEntity, Tools, TrainingSession } from '../typings'
 
@@ -146,18 +147,16 @@ export default class E2 implements Engine2 {
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
-    const oos_classifier_by_ctx = _.toPairs(oos_by_ctx).reduce(
-      (c, [ctx, oosModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(oosModel as string) }),
-      {} as _.Dictionary<MLToolkit.SVM.Predictor>
-    )
+    const oos_classifier_by_ctx = isPOSAvailable(model.languageCode)
+      ? _.toPairs(oos_by_ctx).reduce(
+          (c, [ctx, oosModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(oosModel as string) }),
+          {} as _.Dictionary<MLToolkit.SVM.Predictor>
+        )
+      : {}
     const slot_tagger = new CRFExtractor2(tools.mlToolkit)
     slot_tagger.load(artefacts.slots_model)
 
     const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted
-
-    // TODO test out with 300 dims if this is still working fine
-    // TODO blend both models
-    // TODO compress models with message pack
 
     return {
       ...artefacts,

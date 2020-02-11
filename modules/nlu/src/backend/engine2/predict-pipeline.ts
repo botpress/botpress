@@ -318,21 +318,21 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
   const pos3 = averageByPOS(...POS3_SET)
   const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
 
-  const outOfScope = {}
-  for (const [ctx, oos] of Object.entries(predictors.oos_classifier_by_ctx)) {
+  const oosByCtx = await Promise.map(Object.entries(predictors.oos_classifier_by_ctx), async ([ctx, oos]) => {
     const preds = await oos.predict(feats)
     const outConf = _.sumBy(
       preds.filter(p => p.label.startsWith('out')),
       'confidence'
     )
     const inConf = preds.filter(p => !p.label.startsWith('out'))[0].confidence
+    const confidence = Math.max(outConf, inConf)
     const label = outConf > inConf ? 'out' : 'in'
-    outOfScope[ctx] = { label, confidence: Math.max(outConf, inConf) }
-  }
+    return [ctx, { label, confidence }] as [string, sdk.MLToolkit.SVM.Prediction]
+  }).reduce((oosPreds, [ctx, pred]) => ({ ...oosPreds, [ctx]: pred }), {} as _.Dictionary<sdk.MLToolkit.SVM.Prediction>)
 
   return {
     ...input,
-    oos_prediction_by_ctx: outOfScope
+    oos_prediction_by_ctx: oosByCtx
   }
 }
 
