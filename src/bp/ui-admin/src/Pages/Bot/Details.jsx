@@ -244,9 +244,7 @@ class Bots extends Component {
 
     if (this.state.selectedDefaultLang !== lang) {
       const conf = await confirmDialog(
-        `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${
-          lang.label
-        }? All of your content elements will be copied, make sure you translate them.`,
+        `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${lang.label}? All of your content elements will be copied, make sure you translate them.`,
         {
           acceptLabel: 'Change'
         }
@@ -626,7 +624,4 @@ const mapDispatchToProps = {
   fetchLanguages
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Bots)
+export default connect(mapStateToProps, mapDispatchToProps)(Bots)

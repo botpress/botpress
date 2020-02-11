@@ -22,6 +22,12 @@ const BASIC_MENU_ITEMS = [
     path: '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'device_hub'
+  },
+  {
+    name: 'Config',
+    path: '/config',
+    rule: { res: 'bot.config', op: 'read' },
+    icon: 'settings'
   }
 ].filter(Boolean)
 
