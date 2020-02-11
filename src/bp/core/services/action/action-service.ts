@@ -2,6 +2,7 @@ import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { createForAction } from 'core/api'
+import Database from 'core/database'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { clearRequireCache, requireFromString } from 'core/modules/require'
@@ -45,6 +46,7 @@ export default class ActionService {
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
+    @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
     private logger: Logger
@@ -58,7 +60,7 @@ export default class ActionService {
       return this._scopedActions.get(botId)!
     }
 
-    const scopedActionService = new ScopedActionService(this.ghost, this.logger, botId, this.cache)
+    const scopedActionService = new ScopedActionService(this.ghost, this.logger, botId, this.cache, this.database)
     this._scopedActions.set(botId, scopedActionService)
     return scopedActionService
   }
@@ -98,7 +100,13 @@ export class ScopedActionService {
   // Keeps a quick index of files which have already been required
   private _validScripts: { [filename: string]: boolean } = {}
 
-  constructor(private ghost: GhostService, private logger: Logger, private botId: string, private cache: ObjectCache) {
+  constructor(
+    private ghost: GhostService,
+    private logger: Logger,
+    private botId: string,
+    private cache: ObjectCache,
+    private database: Database
+  ) {
     this._listenForCacheInvalidation()
   }
 
@@ -130,7 +138,9 @@ export class ScopedActionService {
   }
 
   async runAction(props: RunActionProps): Promise<any> {
-    const { actionName, actionServer, incomingEvent, actionArgs } = props
+    const { actionName, incomingEvent, actionArgs } = props
+    // todo: fix this
+    const actionServer: ActionServer = { baseUrl: 'http://localhost:4000' }
 
     process.ASSERT_LICENSED()
 
@@ -231,11 +241,14 @@ export class ScopedActionService {
     actionArgs: any
     botId: string
   }): Promise<{ result: any; incomingEvent: IO.IncomingEvent }> {
-    const { actionName, actionArgs, botId, actionServer } = props
+    const { actionName, actionArgs, botId, actionServer, incomingEvent } = props
 
     const token = jsonwebtoken.sign({ botId, allowedScopes: [], workspace: '', taskId: '' }, process.APP_SECRET, {
       expiresIn: '15m'
     })
+
+    const knex = this.database.knex('tasks')
+    const taskId = (await knex.returning('id').insert({ eventId: incomingEvent.id, status: 'started' }))[0]
     const response = await axios.post(`${actionServer.baseUrl}/action/run`, {
       token,
       actionName,
@@ -244,8 +257,11 @@ export class ScopedActionService {
       botId
     })
 
-    const { result, incomingEvent } = response.data
-    return { result, incomingEvent }
+    await knex
+      .where({ id: taskId })
+      .update({ status: 'completed', response_status_code: response.status, updated_at: this.database.knex.date.now() })
+
+    return { result: response.data.result, incomingEvent: response.data.incomingEvent }
   }
 
   private _listenForCacheInvalidation() {
