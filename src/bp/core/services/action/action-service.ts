@@ -148,7 +148,7 @@ export class ScopedActionService {
       if (trusted) {
         result = await this.runWithoutVm(code, args, _require)
       } else {
-        const response = await this.runInActionServer({
+        const response = await this.runInLocalActionServer({
           actionName,
           actionArgs,
           botId: incomingEvent.botId,
@@ -204,7 +204,7 @@ export class ScopedActionService {
     return { code, dirPath, lookups, action, trusted }
   }
 
-  private async runInActionServer(props: {
+  private async runInLocalActionServer(props: {
     actionName: string
     incomingEvent: IO.IncomingEvent
     actionArgs: any
