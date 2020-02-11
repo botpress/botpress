@@ -210,7 +210,7 @@ export class ScopedActionService {
       actionArgs,
       botId
     })
-    console.log(`response:`, response)
+    return response.data.result
   }
 
   private _listenForCacheInvalidation() {
