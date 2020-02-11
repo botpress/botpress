@@ -140,7 +140,6 @@ export default class E2 implements Engine2 {
       return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
 
-    // @ts-ignore
     const { ctx_model, intent_model_by_ctx, oos_by_ctx } = artefacts
     const ctx_classifier = new tools.mlToolkit.SVM.Predictor(ctx_model)
     const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
@@ -163,7 +162,6 @@ export default class E2 implements Engine2 {
     return {
       ...artefacts,
       ctx_classifier,
-      // @ts-ignore
       oos_classifier_by_ctx,
       intent_classifier_per_ctx,
       slot_tagger,

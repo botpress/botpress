@@ -4,8 +4,15 @@ import yn from 'yn'
 
 import { isSpace, SPACE } from './tools/token-utils'
 
-const USE_POS = yn(process.env.BP_EXPERIMENTAL_NLU_POS)
+const USE_POS: boolean = yn(process.env.BP_EXPERIMENTAL_NLU_POS)
 
+export function isPOSAvailable(lang: string): boolean {
+  // TODO check that language is part of supported languages once we support more
+  return USE_POS && lang === 'en'
+}
+type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<infer ElementType> ? ElementType : never
+
+export type POS_CLASS = ElementType<typeof POS_CLASSES>
 export const POS_CLASSES = [
   'ADJ',
   'ADP',
@@ -28,15 +35,11 @@ export const POS_CLASSES = [
   SPACE
 ] as const
 
-type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<infer ElementType> ? ElementType : never
-
-export type POS_CLASS = ElementType<typeof POS_CLASSES>
 export const POS1_SET: POS_CLASS[] = ['VERB', 'NOUN']
 export const POS2_SET: POS_CLASS[] = ['DET', 'PROPN', 'PRON', 'ADJ', 'AUX']
 export const POS3_SET: POS_CLASS[] = ['CONJ', 'CCONJ', 'INTJ', 'SCONJ', 'ADV']
 export const POS4_SET: POS_CLASS[] = ['PUNCT', 'SYM', 'X', 'NUM', 'PART']
 
-// export function makePOSdic(): _.Dictionary<ReadonlyArray<number>[]> {
 export function makePOSdic(): _.Dictionary<number> {
   return POS_CLASSES.reduce((dic, cls) => ({ ...dic, [cls]: 0 }), {})
 }
@@ -103,8 +106,7 @@ export const fallbackTagger: sdk.MLToolkit.CRF.Tagger = {
 const taggersByLang: { [lang: string]: sdk.MLToolkit.CRF.Tagger } = {}
 
 export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit): sdk.MLToolkit.CRF.Tagger {
-  // TODO check that language is part of supported languages once we support more
-  if (!USE_POS || languageCode !== 'en') {
+  if (isPOSAvailable(languageCode)) {
     return fallbackTagger
   }
 

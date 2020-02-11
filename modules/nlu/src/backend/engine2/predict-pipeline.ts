@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
+import { POS1_SET, POS2_SET, POS3_SET, isPOSAvailable } from '../pos-tagger'
 import * as math from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { Intent, PatternEntity, Tools } from '../typings'
@@ -10,12 +11,11 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
-import { POS1_SET, POS2_SET, POS3_SET } from '../pos-tagger'
-import { isNoSubstitutionTemplateLiteral } from '../../../node_modules/typescript/lib/typescript'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
+  oos_classifier_by_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   kmeans: sdk.MLToolkit.KMeans.KmeansResult
   slot_tagger: CRFExtractor2 // TODO replace this by MlToolkit.CRF.Tagger
   pattern_entities: PatternEntity[]
@@ -42,6 +42,7 @@ export type PredictStep = {
     elected?: E1IntentPred // only to comply with E1
     ambiguous?: boolean
   }
+  oos_prediction_by_ctx?: _.Dictionary<sdk.MLToolkit.SVM.Prediction>
   // TODO slots predictions per intent
 }
 
@@ -234,10 +235,15 @@ function electIntent(input: PredictStep): PredictStep {
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
       const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx])
         .thru(preds => {
-          if (input.outOfScope[ctx].label === 'out') {
+          if (input.oos_prediction_by_ctx && input.oos_prediction_by_ctx[ctx].label === 'out') {
             return [
               ...preds,
-              { label: NONE_INTENT, confidence: input.outOfScope[ctx].confidence, context: ctx, l0Confidence: ctxConf }
+              {
+                label: NONE_INTENT,
+                confidence: input.oos_prediction_by_ctx[ctx].confidence,
+                context: ctx,
+                l0Confidence: ctxConf
+              }
             ]
           } else {
             return preds
@@ -277,9 +283,12 @@ function electIntent(input: PredictStep): PredictStep {
     .value()
 
   const ctx = _.get(predictions, '0.context', 'global')
-  if (!predictions.length || (predictions[0].confidence < 0.3 && input.outOfScope[ctx].label == 'out')) {
+  if (
+    !predictions.length ||
+    (predictions[0].confidence < 0.3 && input.oos_prediction_by_ctx && input.oos_prediction_by_ctx[ctx].label == 'out')
+  ) {
     predictions = [
-      { name: NONE_INTENT, context: ctx, confidence: input.outOfScope[ctx].confidence },
+      { name: NONE_INTENT, context: ctx, confidence: input.oos_prediction_by_ctx[ctx].confidence },
       ...predictions.filter(p => p.name !== NONE_INTENT)
     ]
   }
@@ -290,6 +299,9 @@ function electIntent(input: PredictStep): PredictStep {
 }
 
 async function predictOutOfScope(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
+  if (!isPOSAvailable(input.languageCode)) {
+    return input
+  }
   const utt = input.alternateUtterance || input.utterance
 
   const averageByPOS = (...cls: string[]) => {
@@ -307,7 +319,6 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
   const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
 
   const outOfScope = {}
-  // @ts-ignore
   for (const [ctx, oos] of Object.entries(predictors.oos_classifier_by_ctx)) {
     const preds = await oos.predict(feats)
     const outConf = _.sumBy(
@@ -321,8 +332,7 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
 
   return {
     ...input,
-    // @ts-ignore
-    outOfScope
+    oos_prediction_by_ctx: outOfScope
   }
 }
 
@@ -372,7 +382,6 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         }
       } as sdk.NLU.Entity)
   )
-
   const slots = step.utterance.slots.reduce((slots, s) => {
     return {
       ...slots,
@@ -395,8 +404,6 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     intent: step.intent_predictions.elected,
     intents: step.intent_predictions.combined,
     language: step.languageCode,
-    // @ts-ignore
-    outOfScope: step.outOfScope,
     slots,
     ms: Date.now() - startTime
   }

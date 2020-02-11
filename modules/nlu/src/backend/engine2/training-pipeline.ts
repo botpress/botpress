@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
-import { POS1_SET, POS2_SET, POS3_SET } from '../pos-tagger'
+import { isPOSAvailable, POS1_SET, POS2_SET, POS3_SET } from '../pos-tagger'
 import { averageVectors, scalarMultiply } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, SPACE } from '../tools/token-utils'
@@ -55,6 +55,7 @@ export interface TrainArtefacts {
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
+  oos_by_ctx: Dic<string>
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -71,8 +72,6 @@ export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   entities: 'ignore'
 }
 export const MIN_NB_UTTERANCES = 3
-const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.SVM.SVMOptions
-// TODO grid search / optimization for those hyperparams
 const NUM_CLUSTERS = 8
 const KMEANS_OPTIONS = {
   iterations: 250,
@@ -194,7 +193,6 @@ const trainIntentClassifier = async (
   for (const ctx of input.contexts) {
     const points = _.chain(input.intents)
       .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
-      .filter(i => i.name !== 'none')
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -207,7 +205,7 @@ const trainIntentClassifier = async (
     if (points.length > 0) {
       const svm = new tools.mlToolkit.SVM.Trainer()
       let progressCalls = 0
-      svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => {
+      svmPerCtx[ctx] = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
         if (++progressCalls % 5 === 0) {
           debugIntentsTrain('svm progress ==> %d', p)
           progress(_.round(p / n_ctx, 1))
@@ -240,7 +238,7 @@ const trainContextClassifier = async (
   if (points.length > 0) {
     const svm = new tools.mlToolkit.SVM.Trainer()
     let progressCalls = 0
-    return svm.train(points, SVM_OPTIONS, p => {
+    return svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
       if (++progressCalls % 5 === 0) {
         progress(_.round(p, 1))
         debugIntentsTrain('svm progress ==> %d', p)
@@ -313,9 +311,8 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
     .value()
 
   const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
-  const avgUtterances = _.meanBy(input.intents, x => x.utterances.length)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = Math.max(5, 300)
+  const nbOfNoneUtterances = Math.max(100, Math.min(250, allUtterances.length))
 
   const vocabWords = _.chain(input.tfIdf)
     .toPairs()
@@ -380,7 +377,11 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   return crfExtractor.serialized
 }
 
-const trainOOS = async (input: TrainOutput, tools: Tools): Promise<_.Dictionary<string>> => {
+const trainOOS = async (input: TrainOutput, tools: Tools, progressCB): Promise<_.Dictionary<string>> => {
+  if (!isPOSAvailable(input.languageCode)) {
+    return {}
+  }
+
   const oosByCtx = {}
   for (const ctx of input.contexts) {
     const points_a = _.chain(input.intents)
@@ -481,7 +482,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
 
-    const oos_by_ctx = await trainOOS(output, tools)
+    const oos_by_ctx = await trainOOS(output, tools, reportProgress)
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
     reportProgress()
     const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
@@ -491,7 +492,6 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
-      // @ts-ignore
       oos_by_ctx,
       tfidf: output.tfIdf,
       ctx_model,
