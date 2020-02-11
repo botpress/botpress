@@ -15,6 +15,7 @@ import {
 } from 'core/services/action/utils'
 import { VmRunner } from 'core/services/action/vm'
 import { ActionExecutionError } from 'core/services/dialog/errors'
+import { TYPES } from 'core/types'
 import { injectable } from 'inversify'
 import { inject, tagged } from 'inversify'
 import _ from 'lodash'
@@ -22,8 +23,6 @@ import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
 import yn from 'yn'
-
-import { TYPES } from '../core/types'
 
 const debug = DEBUG('action-server')
 const DEBOUNCE_DELAY = ms('2s')

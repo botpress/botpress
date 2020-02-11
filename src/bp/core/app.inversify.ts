@@ -1,7 +1,5 @@
 import { Logger } from 'botpress/sdk'
 import { Container } from 'inversify'
-import { TaskEngine } from 'task-engine'
-import { ActionServer } from 'task-engine/action-server'
 
 import { BotpressAPIProvider } from './api'
 import { Botpress } from './botpress'
@@ -12,6 +10,7 @@ import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
+import { LocalActionServer } from './services/action/local-action-server'
 import { EventCollector } from './services/middleware/event-collector'
 import { MigrationService } from './services/migration'
 import { DataRetentionJanitor } from './services/retention/janitor'
@@ -117,13 +116,8 @@ container
   .inSingletonScope()
 
 container
-  .bind<TaskEngine>(TYPES.TaskEngine)
-  .to(TaskEngine)
-  .inSingletonScope()
-
-container
-  .bind<ActionServer>(TYPES.ActionServer)
-  .to(ActionServer)
+  .bind<LocalActionServer>(TYPES.LocalActionServer)
+  .to(LocalActionServer)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')

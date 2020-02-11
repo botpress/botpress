@@ -7,7 +7,7 @@ import './common/polyfills'
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
-import { Botpress, Config, Db, Ghost, Logger, TaskEngine } from 'core/app'
+import { Botpress, Config, Db, Ghost, LocalActionServer, Logger } from 'core/app'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
@@ -99,6 +99,11 @@ async function start() {
     return setupMasterNode(await getLogger('Cluster'))
   }
 
+  if (process.env.ENV_TYPE === 'ACTION_SERVER') {
+    await LocalActionServer.start()
+    return
+  }
+
   // Server ID is provided by the master node
   process.SERVER_ID = process.env.SERVER_ID!
 
@@ -116,11 +121,6 @@ async function start() {
 
   for (const loadedModule of loadedModules) {
     process.LOADED_MODULES[loadedModule.entryPoint.definition.name] = loadedModule.moduleLocation
-  }
-
-  if (process.env.ENV_TYPE === 'ACTION_SERVER') {
-    await TaskEngine.start(loadedModules.map(m => m.entryPoint))
-    return
   }
 
   logger.info(chalk`========================================

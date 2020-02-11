@@ -2,10 +2,10 @@ import LicensingService from 'common/licensing-service'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
 import { ContainerModule, interfaces } from 'inversify'
-import ActionService from 'task-engine/action-service'
 
 import { TYPES } from '../types'
 
+import ActionService from './action/action-service'
 import { AlertingService, CEAlertingService } from './alerting-service'
 import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
 import AuthService from './auth/auth-service'

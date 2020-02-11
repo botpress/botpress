@@ -19,7 +19,6 @@ import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
 import path from 'path'
 import portFinder from 'portfinder'
-import { TaskEngine } from 'task-engine'
 import { URL } from 'url'
 
 import { ExternalAuthConfig } from './config/botpress.config'
@@ -34,6 +33,7 @@ import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
+import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
 import AuthService, { EXTERNAL_AUTH_HEADER, SERVER_USER, TOKEN_AUDIENCE } from './services/auth/auth-service'
@@ -96,7 +96,7 @@ export default class HTTPServer {
     private logger: Logger,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
-    @inject(TYPES.TaskEngine) taskEngine: TaskEngine,
+    @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MediaService) mediaService: MediaService,
@@ -156,7 +156,7 @@ export default class HTTPServer {
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
-      taskEngine,
+      actionService,
       botService,
       configProvider,
       flowService,

@@ -1,9 +1,9 @@
 import { IO, Logger } from 'botpress/sdk'
+import ActionService from 'core/services/action/action-service'
 import { CMSService } from 'core/services/cms'
 import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import { TaskEngine } from 'task-engine'
 import { NodeVM } from 'vm2'
 
 import { container } from '../../../app.inversify'
@@ -39,7 +39,7 @@ export class ActionStrategy implements InstructionStrategy {
     @inject(TYPES.Logger)
     @tagged('name', 'Actions')
     private logger: Logger,
-    @inject(TYPES.TaskEngine) private taskEngine: TaskEngine,
+    @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cms: CMSService
   ) {}
@@ -129,13 +129,13 @@ export class ActionStrategy implements InstructionStrategy {
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
     debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)
-    const hasAction = await this.taskEngine.forBot(botId).hasAction(actionName)
+    const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
 
     try {
       if (!hasAction) {
         throw new Error(`Action "${actionName}" not found, `)
       }
-      await this.taskEngine.forBot(botId).runAction(actionName, event, args)
+      await this.actionService.forBot(botId).runAction(actionName, event, args)
     } catch (err) {
       event.state.__error = {
         type: 'action-execution',
