@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Logger } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { createForAction } from 'core/api'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
@@ -118,7 +118,7 @@ export class ScopedActionService {
     return !!actions.find(x => x.name === actionName)
   }
 
-  async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
+  async runAction(actionName: string, incomingEvent: IO.IncomingEvent, actionArgs: any): Promise<any> {
     process.ASSERT_LICENSED()
 
     if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
@@ -128,10 +128,6 @@ export class ScopedActionService {
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 
     const { action, code, dirPath, lookups, trusted } = await this.getActionDetails(actionName)
-
-    if (trusted) {
-      console.log('trusted action')
-    }
 
     const _require = prepareRequire(dirPath, lookups)
 
@@ -153,7 +149,14 @@ export class ScopedActionService {
       if (trusted) {
         result = await this.runWithoutVm(code, args, _require)
       } else {
-        result = await this.runInActionServer({ actionName, actionArgs, botId: incomingEvent.botId, incomingEvent })
+        const response = await this.runInActionServer({
+          actionName,
+          actionArgs,
+          botId: incomingEvent.botId,
+          incomingEvent
+        })
+        result = response.result
+        _.merge(incomingEvent, response.incomingEvent)
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
@@ -202,15 +205,22 @@ export class ScopedActionService {
     return { code, dirPath, lookups, action, trusted }
   }
 
-  private async runInActionServer(props: { actionName: string; incomingEvent: any; actionArgs: any; botId: string }) {
-    const { actionName, incomingEvent, actionArgs, botId } = props
+  private async runInActionServer(props: {
+    actionName: string
+    incomingEvent: IO.IncomingEvent
+    actionArgs: any
+    botId: string
+  }): Promise<{ result: any; incomingEvent: IO.IncomingEvent }> {
+    const { actionName, actionArgs, botId } = props
     const response = await axios.post('http://localhost:4000/action/run', {
       actionName,
-      incomingEvent,
+      incomingEvent: props.incomingEvent,
       actionArgs,
       botId
     })
-    return response.data.result
+
+    const { result, incomingEvent } = response.data
+    return { result, incomingEvent }
   }
 
   private _listenForCacheInvalidation() {

@@ -55,7 +55,7 @@ export class ActionServer {
 
       const result = await this.actionService.forBot(botId).runInVm(code, dirPath, args, _require)
 
-      res.status(200).send({ result })
+      res.status(200).send({ result, incomingEvent })
     })
   }
   async start() {
