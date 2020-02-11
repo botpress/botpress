@@ -18,6 +18,7 @@ import { ActionExecutionError } from 'core/services/dialog/errors'
 import { TYPES } from 'core/types'
 import { injectable } from 'inversify'
 import { inject, tagged } from 'inversify'
+import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import ms from 'ms'
 import path from 'path'
@@ -231,7 +232,12 @@ export class ScopedActionService {
     botId: string
   }): Promise<{ result: any; incomingEvent: IO.IncomingEvent }> {
     const { actionName, actionArgs, botId, actionServer } = props
+
+    const token = jsonwebtoken.sign({ botId, allowedScopes: [], workspace: '', taskId: '' }, process.APP_SECRET, {
+      expiresIn: '15m'
+    })
     const response = await axios.post(`${actionServer.baseUrl}/action/run`, {
+      token,
       actionName,
       incomingEvent: props.incomingEvent,
       actionArgs,
