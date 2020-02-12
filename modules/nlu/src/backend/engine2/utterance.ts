@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { getClosestToken } from '../pipelines/language/ft_featurizer'
+import { POS_CLASS } from '../pos-tagger'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, isWord, SPACE } from '../tools/token-utils'
@@ -31,7 +32,7 @@ export type UtteranceToken = Readonly<{
   isSpace: boolean
   isBOS: boolean
   isEOS: boolean
-  POS: string
+  POS: POS_CLASS
   vector: ReadonlyArray<number>
   tfidf: number
   cluster: number
@@ -51,7 +52,7 @@ export default class Utterance {
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
   private _sentenceEmbedding?: number[]
 
-  constructor(tokens: string[], vectors: number[][], posTags: string[], public languageCode: Readonly<string>) {
+  constructor(tokens: string[], vectors: number[][], posTags: POS_CLASS[], public languageCode: Readonly<string>) {
     const allSameLength = [tokens, vectors, posTags].every(arr => arr.length === tokens.length)
     if (!allSameLength) {
       throw Error(`Tokens, vectors and postTags dimensions must match`)

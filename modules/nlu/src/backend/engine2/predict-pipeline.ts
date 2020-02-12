@@ -249,6 +249,7 @@ function electIntent(input: PredictStep): PredictStep {
             return preds
           }
         })
+        .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
         .orderBy('confidence', 'desc')
         .value()
       if (intentPreds[0].confidence === 1) {
@@ -272,8 +273,13 @@ function electIntent(input: PredictStep): PredictStep {
       }
 
       return [
-        { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: ctxConf * p1Conf },
-        { label: intentPreds[1].label, l0Confidence: ctxConf, context: ctx, confidence: ctxConf * (1 - p1Conf) }
+        { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: _.round(ctxConf * p1Conf, 2) },
+        {
+          label: intentPreds[1].label,
+          l0Confidence: ctxConf,
+          context: ctx,
+          confidence: _.round(ctxConf * (1 - p1Conf), 2)
+        }
       ]
     })
     .orderBy('confidence', 'desc')
@@ -283,14 +289,19 @@ function electIntent(input: PredictStep): PredictStep {
     .value()
 
   const ctx = _.get(predictions, '0.context', 'global')
-  if (
-    !predictions.length ||
-    (predictions[0].confidence < 0.3 && input.oos_prediction_by_ctx && input.oos_prediction_by_ctx[ctx].label == 'out')
-  ) {
-    predictions = [
-      { name: NONE_INTENT, context: ctx, confidence: input.oos_prediction_by_ctx[ctx].confidence },
-      ...predictions.filter(p => p.name !== NONE_INTENT)
-    ]
+  const shouldConsiderOOS =
+    predictions[0].name !== NONE_INTENT &&
+    predictions[0].confidence < 0.4 &&
+    input.oos_prediction_by_ctx &&
+    input.oos_prediction_by_ctx[ctx].label == 'out'
+  if (!predictions.length || shouldConsiderOOS) {
+    predictions = _.orderBy(
+      [
+        ...predictions.filter(p => p.name !== NONE_INTENT),
+        { name: NONE_INTENT, context: ctx, confidence: input.oos_prediction_by_ctx[ctx].confidence }
+      ],
+      'confidence'
+    )
   }
 
   return _.merge(input, {

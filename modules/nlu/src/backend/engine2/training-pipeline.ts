@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
-import { isPOSAvailable, POS1_SET, POS2_SET, POS3_SET } from '../pos-tagger'
+import { isPOSAvailable, POS1_SET, POS2_SET, POS3_SET, POS_SET } from '../pos-tagger'
 import { averageVectors, scalarMultiply } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, SPACE } from '../tools/token-utils'
@@ -63,7 +63,6 @@ export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] 
 type progressCB = (p?: number) => void
 
 const debugTraining = DEBUG('nlu').sub('training')
-const debugIntentsTrain = debugTraining.sub('intents')
 const NONE_INTENT = 'none'
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
@@ -80,6 +79,7 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+  debugTraining('preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
     makeListEntityModel(list, input.languageCode, tools)
@@ -188,33 +188,37 @@ const trainIntentClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
-  const svmPerCtx: _.Dictionary<string> = {}
-  const n_ctx = input.contexts.length
-  for (const ctx of input.contexts) {
-    const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
-      .flatMap(i =>
-        i.utterances.map(utt => ({
-          label: i.name,
-          coordinates: utt.sentenceEmbedding
-        }))
-      )
-      .value()
-      .filter(x => x.coordinates.filter(isNaN).length == 0)
+  debugTraining('Training intent classifier')
+  const svmPerCtx: _.Dictionary<string> = (
+    await Promise.mapSeries(input.contexts, async (ctx, i) => {
+      const points = _.chain(input.intents)
+        .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
+        .flatMap(i =>
+          i.utterances.map(utt => ({
+            label: i.name,
+            coordinates: utt.sentenceEmbedding
+          }))
+        )
+        .value()
+        .filter(x => x.coordinates.filter(isNaN).length == 0)
 
-    if (points.length > 0) {
+      if (points.length < 0) {
+        progress(1 / input.contexts.length)
+        return
+      }
       const svm = new tools.mlToolkit.SVM.Trainer()
       let progressCalls = 0
-      svmPerCtx[ctx] = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+      const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
         if (++progressCalls % 5 === 0) {
-          debugIntentsTrain('svm progress ==> %d', p)
-          progress(_.round(p / n_ctx, 1))
+          const completion = (i + p) / input.contexts.length
+          progress(completion)
         }
       })
-    } else {
-      progress(1 / n_ctx)
-    }
-  }
+      return [ctx, model]
+    })
+  )
+    .filter(Boolean)
+    .reduce((ctxSvms, [ctx, model]) => ({ ...ctxSvms, [ctx]: model }), {})
 
   return svmPerCtx
 }
@@ -224,6 +228,7 @@ const trainContextClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<string | undefined> => {
+  debugTraining('Training context classifier')
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
@@ -236,12 +241,11 @@ const trainContextClassifier = async (
   }).filter(x => x.coordinates.filter(isNaN).length == 0)
 
   if (points.length > 0) {
-    const svm = new tools.mlToolkit.SVM.Trainer()
     let progressCalls = 0
+    const svm = new tools.mlToolkit.SVM.Trainer()
     return svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
       if (++progressCalls % 5 === 0) {
         progress(_.round(p, 1))
-        debugIntentsTrain('svm progress ==> %d', p)
       }
     })
   }
@@ -371,86 +375,91 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   if (!hasSlots) {
     return Buffer.from('')
   }
+
+  debugTraining('Training slot tagger')
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
   await crfExtractor.train(input.intents)
 
   return crfExtractor.serialized
 }
 
-const trainOOS = async (input: TrainOutput, tools: Tools, progressCB): Promise<_.Dictionary<string>> => {
+const trainOOS = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
+  debugTraining('Training out of scope classifier')
   if (!isPOSAvailable(input.languageCode)) {
+    progress()
     return {}
   }
-
-  const oosByCtx = {}
-  for (const ctx of input.contexts) {
-    const points_a = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx))
-      .filter(i => i.name !== 'none')
-      .flatMap(i =>
-        i.utterances.map(utt => {
-          const averageByPOS = (...cls: string[]) => {
-            const tokens = utt.tokens.filter(t => cls.includes(t.POS))
-            const vectors = tokens.map(x => scalarMultiply(<number[]>x.vector, x.tfidf))
-            if (!vectors.length) {
-              return new Array(utt.tokens[0].vector.length).fill(0)
-            }
-            return averageVectors(vectors)
-          }
-
-          const pos1 = averageByPOS(...POS1_SET)
-          const pos2 = averageByPOS(...POS2_SET)
-          const pos3 = averageByPOS(...POS3_SET)
-          const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
-
-          return { label: i.name, coordinates: feats }
-        })
-      )
-      .value()
-
-    const noneEmbeddings = _.chain(input.intents)
-      .filter(i => i.name === 'none')
-      .flatMap(i =>
-        i.utterances.map(utt => {
-          const averageByPOS = (...cls: string[]) => {
-            const tokens = utt.tokens.filter(t => cls.includes(t.POS))
-            const vectors = tokens.map(x => scalarMultiply(<number[]>x.vector, x.tfidf))
-            if (!vectors.length) {
-              return new Array(utt.tokens[0].vector.length).fill(0)
-            }
-            return averageVectors(vectors)
-          }
-
-          const pos1 = averageByPOS(...POS1_SET)
-          const pos2 = averageByPOS(...POS2_SET)
-          const pos3 = averageByPOS(...POS3_SET)
-          const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
-          return feats
-        })
-      )
-      .value()
-
-    const kmeans = tools.mlToolkit.KMeans.kmeans(noneEmbeddings, 3, KMEANS_OPTIONS)
-    const points_b: sdk.MLToolkit.SVM.DataPoint[] = noneEmbeddings.map(emb => {
-      const cluster = kmeans.nearest([emb])[0]
-      return {
-        label: `out_${cluster}`,
-        coordinates: emb
-      }
-    })
-
-    const svm = new tools.mlToolkit.SVM.Trainer()
-    oosByCtx[ctx] = await svm.train([...points_a, ...points_b], {
-      classifier: 'C_SVC',
-      kernel: 'LINEAR',
-      reduce: true // project points in a PCA space ==> makes serialization smaller
-    })
+  const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
+    kernel: 'LINEAR',
+    classifier: 'C_SVC',
+    reduce: true
   }
+  // TODO extract this in featurizer
+  const averageByPOS = (utt: Utterance, posClasses: POS_SET) => {
+    const tokens = utt.tokens.filter(t => posClasses.includes(t.POS))
+    const vectors = tokens.map(x => scalarMultiply(<number[]>x.vector, x.tfidf))
+    if (!vectors.length) {
+      return new Array(utt.tokens[0].vector.length).fill(0)
+    }
+    return averageVectors(vectors)
+  }
+
+  // TODO extract this in featurizer file
+  const noneEmbeddings = _.chain(input.intents)
+    .filter(i => i.name === 'none')
+    .flatMap(i =>
+      i.utterances.map(utt => {
+        const pos1 = averageByPOS(utt, POS1_SET)
+        const pos2 = averageByPOS(utt, POS2_SET)
+        const pos3 = averageByPOS(utt, POS3_SET)
+        const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
+        return feats
+      })
+    )
+    .value()
+
+  const kmeans = tools.mlToolkit.KMeans.kmeans(noneEmbeddings, 3, KMEANS_OPTIONS)
+  const none_points: sdk.MLToolkit.SVM.DataPoint[] = noneEmbeddings.map(emb => {
+    const cluster = kmeans.nearest([emb])[0]
+    return {
+      label: `out_${cluster}`,
+      coordinates: emb
+    }
+  })
+
+  const oosByCtx: _.Dictionary<string> = (
+    await Promise.mapSeries(input.contexts, async (ctx, i) => {
+      const ctx_points = _.chain(input.intents)
+        .filter(i => i.contexts.includes(ctx))
+        .filter(i => i.name !== 'none')
+        .flatMap(i =>
+          i.utterances.map(utt => {
+            const pos1 = averageByPOS(utt, POS1_SET)
+            const pos2 = averageByPOS(utt, POS2_SET)
+            const pos3 = averageByPOS(utt, POS3_SET)
+            const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
+
+            return { label: i.name, coordinates: feats }
+          })
+        )
+        .value()
+
+      let progressCalls = 0
+      const svm = new tools.mlToolkit.SVM.Trainer()
+      const model = await svm.train([...ctx_points, ...none_points], trainingOptions, p => {
+        if (++progressCalls % 2 === 0) {
+          const completion = _.round((p * (i + 1)) / input.contexts.length, 2)
+          progress(completion)
+        }
+      })
+      return [ctx, model]
+    })
+  ).reduce((ctxOOs, [ctx, model]) => ({ ...ctxOOs, [ctx]: model }), {})
 
   return oosByCtx
 }
 
-const NB_STEPS = 5 // change this if the training pipeline changes
+const NB_STEPS = 6 // change this if the training pipeline changes
 export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<Model> => {
   const model: Partial<Model> = {
     startedAt: new Date(),
@@ -460,7 +469,8 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     }
   }
 
-  let progress = 0
+  let totalProgress = 0
+  let normalizedProgress = 0
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (!input.trainingSession) {
       return
@@ -469,9 +479,14 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
       throw new TrainingCanceledError()
     }
-    progress = Math.floor(progress) + stepProgress
-    const scaledProgress = Math.min(1, _.round(progress / NB_STEPS, 2))
-    tools.reportTrainingProgress(input.botId, 'Training', { ...input.trainingSession, progress: scaledProgress })
+
+    totalProgress = Math.max(totalProgress, Math.floor(totalProgress) + _.round(stepProgress, 2))
+    const scaledProgress = Math.min(1, _.round(totalProgress / NB_STEPS, 2))
+    if (scaledProgress === normalizedProgress) {
+      return
+    }
+    normalizedProgress = scaledProgress
+    tools.reportTrainingProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
     let output = await preprocessInput(input, tools)

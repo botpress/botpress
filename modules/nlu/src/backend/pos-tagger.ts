@@ -13,6 +13,7 @@ export function isPOSAvailable(lang: string): boolean {
 type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<infer ElementType> ? ElementType : never
 
 export type POS_CLASS = ElementType<typeof POS_CLASSES>
+export type POS_SET = POS_CLASS[]
 export const POS_CLASSES = [
   'ADJ',
   'ADP',
@@ -35,10 +36,10 @@ export const POS_CLASSES = [
   SPACE
 ] as const
 
-export const POS1_SET: POS_CLASS[] = ['VERB', 'NOUN']
-export const POS2_SET: POS_CLASS[] = ['DET', 'PROPN', 'PRON', 'ADJ', 'AUX']
-export const POS3_SET: POS_CLASS[] = ['CONJ', 'CCONJ', 'INTJ', 'SCONJ', 'ADV']
-export const POS4_SET: POS_CLASS[] = ['PUNCT', 'SYM', 'X', 'NUM', 'PART']
+export const POS1_SET: POS_SET = ['VERB', 'NOUN']
+export const POS2_SET: POS_SET = ['DET', 'PROPN', 'PRON', 'ADJ', 'AUX']
+export const POS3_SET: POS_SET = ['CONJ', 'CCONJ', 'INTJ', 'SCONJ', 'ADV']
+export const POS4_SET: POS_SET = ['PUNCT', 'SYM', 'X', 'NUM', 'PART']
 
 export function makePOSdic(): _.Dictionary<number> {
   return POS_CLASSES.reduce((dic, cls) => ({ ...dic, [cls]: 0 }), {})
@@ -106,7 +107,7 @@ export const fallbackTagger: sdk.MLToolkit.CRF.Tagger = {
 const taggersByLang: { [lang: string]: sdk.MLToolkit.CRF.Tagger } = {}
 
 export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit): sdk.MLToolkit.CRF.Tagger {
-  if (isPOSAvailable(languageCode)) {
+  if (!isPOSAvailable(languageCode)) {
     return fallbackTagger
   }
 
@@ -120,7 +121,7 @@ export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit
   return taggersByLang[languageCode]
 }
 
-export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]): string[] {
+export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]): POS_CLASS[] {
   const [words, spaceIdx] = tokens.reduce(
     ([words, spaceIdx], token, idx) => {
       if (isSpace(token)) {
@@ -142,5 +143,5 @@ export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]):
     tags.splice(idx, 0, SPACE)
   }
 
-  return tags
+  return tags as POS_CLASS[]
 }
