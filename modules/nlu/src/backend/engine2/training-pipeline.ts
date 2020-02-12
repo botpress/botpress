@@ -4,6 +4,7 @@ import _ from 'lodash'
 import tfidf from '../pipelines/intents/tfidf'
 import { isPOSAvailable, POS1_SET, POS2_SET, POS3_SET, POS_SET } from '../pos-tagger'
 import { averageVectors, scalarMultiply } from '../tools/math'
+import { getStopWordsForLang } from '../tools/stopWords'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { isSpace, SPACE } from '../tools/token-utils'
 import {
@@ -21,8 +22,8 @@ import {
 import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
+import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
-import { featurizeOOSUtterances, featurizeInScopeUtterances } from './out-of-scope-featurizer'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -210,7 +211,7 @@ const trainIntentClassifier = async (
       const svm = new tools.mlToolkit.SVM.Trainer()
       let progressCalls = 0
       const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-        if (++progressCalls % 5 === 0) {
+        if (++progressCalls % 10 === 0) {
           const completion = (i + p) / input.contexts.length
           progress(completion)
         }
@@ -317,13 +318,9 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
 
   const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = Math.max(100, Math.min(250, allUtterances.length))
+  const nbOfNoneUtterances = Math.max((allUtterances.length * 2) / 3, 20)
 
-  const vocabWords = _.chain(input.tfIdf)
-    .toPairs()
-    .filter(([word, tfidf]) => tfidf <= 0.5)
-    .map('0')
-    .value()
+  const vocabWords = getStopWordsForLang('en')
 
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
@@ -417,7 +414,7 @@ const trainOutOfScope = async (
       let progressCalls = 0
       const svm = new tools.mlToolkit.SVM.Trainer()
       const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
-        if (++progressCalls % 2 === 0) {
+        if (++progressCalls % 10 === 0) {
           const completion = _.round((p * (i + 1)) / input.contexts.length, 2)
           progress(completion)
         }
