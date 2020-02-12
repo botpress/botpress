@@ -41,7 +41,6 @@ export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
 
     runAllTests: async (): Promise<_.Dictionary<TestResult>> => {
       const { data } = await bp.axios.post(`/mod/nlu-testing/runAll`)
-      console.log(data.F1)
       return data
     },
 
