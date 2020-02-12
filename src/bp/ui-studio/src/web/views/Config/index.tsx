@@ -2,7 +2,7 @@ import { Button, Callout, Card, Collapse, Elevation, FileInput, FormGroup, Input
 import axios from 'axios'
 import { any } from 'bluebird'
 import { BotEditSchema } from 'common/validation'
-// import Joi from 'joi'
+import Joi from 'joi'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import Select from 'react-select'
@@ -41,7 +41,7 @@ class ConfigView extends Component {
     statuses: statusList,
     error: undefined,
     isSaving: false,
-    isDetailsOpen: false
+    isDetailsOpen: false,
     isPicturesOpen: false
   }
 
@@ -115,8 +115,7 @@ class ConfigView extends Component {
       }
     }
 
-    const { error } = { error: undefined } // Joi.validate(bot, BotEditSchema)
-    console.log(`Joi error : ${error}`)
+    const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
       toastFailure('The form contains errors')
       this.setState({ error: error, isSaving: false })
@@ -206,6 +205,150 @@ class ConfigView extends Component {
     this.setState({ isPicturesOpen: !this.state.isPicturesOpen })
   }
 
+  render() {
+    const statuses = []
+    for (const status of this.state.statuses) {
+      statuses.push(
+        <option key={status.value} value={status.value}>
+          {status.label}
+        </option>
+      )
+    }
+
+    return (
+      <Card className={style.container}>
+        {this.state.error && <div>{this.state.error.message}</div>}
+        <h1>Bot Config - {this.state.name}</h1>
+        <form>
+          <FormGroup label="Name" labelFor="name">
+            <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
+          </FormGroup>
+          <FormGroup label="Status" labelFor="status">
+            <select id="status" name="status" value={this.state.status} onChange={this.handleInputChanged}>
+              {statuses}
+            </select>
+          </FormGroup>
+          <FormGroup label="Description" labelFor="description">
+            <InputGroup
+              id="description"
+              name="description"
+              value={this.state.description}
+              onChange={this.handleInputChanged}
+            />
+          </FormGroup>
+          {this.renderLanguages()}
+          <FormGroup>
+            <Button onClick={this.handleDetailsCollapseClick}>
+              {this.state.isDetailsOpen ? 'Hide' : 'Show'} details
+            </Button>
+            <Collapse isOpen={this.state.isDetailsOpen}>
+              <Card elevation={Elevation.ONE}>
+                <FormGroup label="Website" labelFor="website">
+                  <InputGroup
+                    id="website"
+                    name="website"
+                    value={this.state.website}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+                <FormGroup label="Phone Number" labelFor="phone-number">
+                  <InputGroup
+                    id="phone-number"
+                    name="phoneNumber"
+                    value={this.state.phoneNumber}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+                <FormGroup label="Contact E-mail" labelFor="email-address">
+                  <InputGroup
+                    id="email-address"
+                    name="emailAddress"
+                    value={this.state.emailAddress}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+                <FormGroup label="Link to Terms &amp; Conditions" labelFor="terms-conditions">
+                  <InputGroup
+                    id="terms-conditions"
+                    name="termsConditions"
+                    value={this.state.termsConditions}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+                <FormGroup label="Link to Privacy Policy" labelFor="privacy-policy">
+                  <InputGroup
+                    id="privacy-policy"
+                    name="privacyPolicy"
+                    value={this.state.privacyPolicy}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+              </Card>
+            </Collapse>
+          </FormGroup>
+          <FormGroup>
+            <Button onClick={this.handlePicturesCollapseClick}>
+              {this.state.isPicturesOpen ? 'Hide' : 'Show'} pictures
+            </Button>
+            <Collapse isOpen={this.state.isPicturesOpen}>
+              <Card elevation={Elevation.ONE}>
+                <FormGroup label="Bot Avatar" labelFor="avatar-url">
+                  <FileInput
+                    text="Choose file"
+                    inputProps={{
+                      id: 'avatar-url',
+                      name: 'avatarUrl',
+                      accept: 'image/*',
+                      onChange: this.handleImageFileChanged
+                    }}
+                  />
+                  {this.state.avatarUrl !== this.initialFormState.avatarUrl && (
+                    <p className={style.configUploadSuccess}>
+                      The bot avatar has been uploaded successfully. You need to save the form in order for the changes
+                      to take effect.
+                    </p>
+                  )}
+                  {this.state.avatarUrl && (
+                    <img className={style.avatarPreview} alt="avatar" src={this.state.avatarUrl} />
+                  )}
+                </FormGroup>
+                <FormGroup label="Cover Picture" labelFor="cover-picture-url">
+                  <FileInput
+                    text="Choose file"
+                    inputProps={{
+                      id: 'cover-picture-url',
+                      name: 'coverPictureUrl',
+                      accept: 'image/*',
+                      onChange: this.handleImageFileChanged
+                    }}
+                  />
+                  {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && (
+                    <p className={style.configUploadSuccess}>
+                      The cover picture has been uploaded successfully. You need to save the form in order for the
+                      changes to take effect.
+                    </p>
+                  )}
+                  {this.state.coverPictureUrl && (
+                    <img className={style.coverPreview} alt="cover" src={this.state.coverPictureUrl} />
+                  )}
+                </FormGroup>
+              </Card>
+            </Collapse>
+          </FormGroup>
+          <FormGroup>
+            <Button
+              text="Save changes"
+              intent="primary"
+              icon="floppy-disk"
+              disabled={this.state.isSaving}
+              onClick={this.saveChanges}
+            />
+          </FormGroup>
+        </form>
+      </Card>
+    )
+  }
+
   renderLanguages() {
     const languages = []
     for (const lang of this.state.languages) {
@@ -255,138 +398,6 @@ class ConfigView extends Component {
         </FormGroup>
       )
     }
-  }
-
-  render() {
-    const statuses = []
-    for (const status of this.state.statuses) {
-      statuses.push(
-        <option key={status.value} value={status.value}>
-          {status.label}
-        </option>
-      )
-    }
-
-    return (
-      <Card className={style.container}>
-        <h1>Bot Config - {this.state.name}</h1>
-        <form>
-          <FormGroup label="Name" labelFor="name">
-            <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
-          </FormGroup>
-          <FormGroup label="Status" labelFor="status">
-            <select id="status" name="status" value={this.state.status} onChange={this.handleInputChanged}>
-              {statuses}
-            </select>
-          </FormGroup>
-          <FormGroup label="Description" labelFor="description">
-            <InputGroup
-              id="description"
-              name="description"
-              value={this.state.description}
-              onChange={this.handleInputChanged}
-            />
-          </FormGroup>
-          {this.renderLanguages()}
-          <FormGroup>
-          <Button onClick={this.handleDetailsCollapseClick}>{this.state.isDetailsOpen ? 'Hide' : 'Show'} more details</Button>
-          <Collapse isOpen={this.state.isDetailsOpen}>
-            <Card elevation={Elevation.ONE}>
-            <FormGroup label="Website" labelFor="website">
-              <InputGroup id="website" name="website" value={this.state.website} onChange={this.handleInputChanged} />
-            </FormGroup>
-            <FormGroup label="Phone Number" labelFor="phone-number">
-              <InputGroup
-                id="phone-number"
-                name="phoneNumber"
-                value={this.state.phoneNumber}
-                onChange={this.handleInputChanged}
-              />
-            </FormGroup>
-            <FormGroup label="Contact E-mail" labelFor="email-address">
-              <InputGroup
-                id="email-address"
-                name="emailAddress"
-                value={this.state.emailAddress}
-                onChange={this.handleInputChanged}
-              />
-            </FormGroup>
-            <FormGroup label="Link to Terms &amp; Conditions" labelFor="terms-conditions">
-              <InputGroup
-                id="terms-conditions"
-                name="termsConditions"
-                value={this.state.termsConditions}
-                onChange={this.handleInputChanged}
-              />
-            </FormGroup>
-            <FormGroup label="Link to Privacy Policy" labelFor="privacy-policy">
-              <InputGroup
-                id="privacy-policy"
-                name="privacyPolicy"
-                value={this.state.privacyPolicy}
-                onChange={this.handleInputChanged}
-              />
-            </FormGroup>
-            </Card>
-          </Collapse>
-          </FormGroup>
-          <FormGroup>
-          <Button onClick={this.handlePicturesCollapseClick}>{this.state.isPicturesOpen ? 'Hide' : 'Show'} pictures</Button>
-          <Collapse isOpen={this.state.isPicturesOpen}>
-            <Card elevation={Elevation.ONE}>
-            <FormGroup label="Bot Avatar" labelFor="avatar-url">
-              <FileInput
-                text="Choose file"
-                inputProps={{
-                  id: 'avatar-url',
-                  name: 'avatarUrl',
-                  accept: 'image/*',
-                  onChange: this.handleImageFileChanged
-                }}
-              />
-              {this.state.avatarUrl !== this.initialFormState.avatarUrl && (
-                <p className={style.configUploadSuccess}>
-                  The bot avatar has been uploaded successfully. You need to save the form in order for the changes to
-                  take effect.
-                </p>
-              )}
-              {this.state.avatarUrl && <img className={style.avatarPreview} alt="avatar" src={this.state.avatarUrl} />}
-            </FormGroup>
-            <FormGroup label="Cover Picture" labelFor="cover-picture-url">
-              <FileInput
-                text="Choose file"
-                inputProps={{
-                  id: 'cover-picture-url',
-                  name: 'coverPictureUrl',
-                  accept: 'image/*',
-                  onChange: this.handleImageFileChanged
-                }}
-              />
-              {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && (
-                <p className={style.configUploadSuccess}>
-                  The cover picture has been uploaded successfully. You need to save the form in order for the changes
-                  to take effect.
-                </p>
-              )}
-              {this.state.coverPictureUrl && (
-                <img className={style.coverPreview} alt="cover" src={this.state.coverPictureUrl} />
-              )}
-            </FormGroup>
-            </Card>
-          </Collapse>
-          </FormGroup>
-          <FormGroup>
-          <Button
-            text="Save changes"
-            intent="primary"
-            icon="floppy-disk"
-            disabled={this.state.isSaving}
-            onClick={this.saveChanges}
-          />
-          </FormGroup>
-        </form>
-      </Card>
-    )
   }
 }
 
