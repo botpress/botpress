@@ -1,7 +1,6 @@
 import { Button, Callout, Card, Collapse, Elevation, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import { any } from 'bluebird'
-import * as sdk from 'botpress/sdk'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -12,7 +11,7 @@ import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
 import style from './style.scss'
 
-const statusList: SelectItem[] = [
+const statusList = [
   { label: 'Published', value: 'public' },
   { label: 'Collaborators Only', value: 'private' },
   { label: 'Unmounted', value: 'disabled' }
@@ -22,53 +21,47 @@ const axiosConfig = {
   baseURL: 'api/v1/'
 }
 
-interface Props {}
-interface State {
-  id: string
-  name: string
-  status: string
-  description: string
-  selectedDefaultLang: string
-  selectedLanguages: SelectItem[]
-  website: string
-  phoneNumber: string
-  emailAddress: string
-  termsConditions: string
-  privacyPolicy: string
-  avatarUrl: string
-  coverPictureUrl: string
+class ConfigView extends Component {
+  initialFormState = {
+    name: '',
+    status: '',
+    description: '',
+    selectedDefaultLang: '',
+    selectedLanguages: [],
+    website: '',
+    phoneNumber: '',
+    emailAddress: '',
+    termsConditions: '',
+    privacyPolicy: '',
+    avatarUrl: '',
+    coverPictureUrl: ''
+  }
 
-  licensing: any
-  languages: SelectItem[]
-  statuses: SelectItem[]
-
-  error: any
-  isSaving: boolean
-  isDetailsOpen: boolean
-  isPicturesOpen: boolean
-}
-interface SelectItem {
-  label: string
-  value: string
-}
-
-class ConfigView extends Component<Props, State> {
-  initialFormState: State
+  state = {
+    botId: window.BOT_ID,
+    ...this.initialFormState,
+    licensing: any,
+    languages: [],
+    statuses: statusList,
+    error: undefined,
+    isSaving: false,
+    isDetailsOpen: false,
+    isPicturesOpen: false
+  }
 
   async componentDidMount() {
     const bots = await this.fetchBots()
     const languages = await this.fetchLanguages()
     const licensing = await this.fetchLicensing()
 
-    const bot = bots.find(x => x.id === window.BOT_ID)
+    const bot = bots.find(x => x.id === this.state.botId)
     const status = bot.disabled ? 'disabled' : bot.private ? 'private' : 'public'
 
     this.initialFormState = {
-      id: bot.id,
       name: bot.name || '',
       status,
       description: bot.description || '',
-      selectedDefaultLang: bot.defaultLanguage || '',
+      selectedDefaultLang: bot.defaultLanguage,
       selectedLanguages: languages.filter(x => bot.languages.includes(x.value)),
       website: bot.details.website || '',
       phoneNumber: bot.details.phoneNumber || '',
@@ -76,27 +69,22 @@ class ConfigView extends Component<Props, State> {
       termsConditions: bot.details.termsConditions || '',
       privacyPolicy: bot.details.privacyPolicy || '',
       avatarUrl: bot.details.avatarUrl || '',
-      coverPictureUrl: bot.details.coverPictureUrl || '',
-
-      licensing,
-      languages,
-      statuses: statusList,
-
-      error: undefined,
-      isSaving: false,
-      isDetailsOpen: false,
-      isPicturesOpen: false
+      coverPictureUrl: bot.details.coverPictureUrl || ''
     }
 
-    this.setState(this.initialFormState)
+    this.setState({
+      ...this.initialFormState,
+      licensing,
+      languages
+    })
   }
 
-  async fetchBots(): Promise<sdk.BotConfig> {
+  async fetchBots() {
     const res = await axios.get('admin/bots', axiosConfig)
     return res.data.payload.bots
   }
 
-  async fetchLanguages(): Promise<SelectItem[]> {
+  async fetchLanguages() {
     const { data } = await axios.get('admin/languages/available', axiosConfig)
     const languages = _.sortBy(data.languages, 'name').map(lang => ({
       label: lang.name,
@@ -105,7 +93,7 @@ class ConfigView extends Component<Props, State> {
     return languages
   }
 
-  async fetchLicensing(): Promise<sdk.Licensing> {
+  async fetchLicensing() {
     const { data } = await axios.get('admin/license/status', axiosConfig)
     return data.payload
   }
@@ -178,10 +166,7 @@ class ConfigView extends Component<Props, State> {
   }
 
   handleCommunityLanguageChanged = event => {
-    this.setState({
-      selectedDefaultLang: event.target.value,
-      selectedLanguages: [{ label: '', value: event.target.value }]
-    })
+    this.setState({ selectedDefaultLang: event.target.value, selectedLanguages: [{ value: event.target.value }] })
   }
 
   handleImageFileChanged = async event => {
@@ -205,7 +190,7 @@ class ConfigView extends Component<Props, State> {
     }
 
     try {
-      const res = await axios.post(`bots/${this.state.id}/media`, data, {
+      const res = await axios.post(`bots/${this.state.botId}/media`, data, {
         ...axiosConfig,
         headers: { 'Content-Type': 'multipart/form-data' }
       })
