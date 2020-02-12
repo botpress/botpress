@@ -1,8 +1,7 @@
 import { Logger, LoggerEntry } from 'botpress/sdk'
+import { BotpressConfig } from 'core/config/botpress.config'
 import fs from 'fs'
 import { injectable } from 'inversify'
-
-import { BotpressConfig } from 'core/config/botpress.config'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'

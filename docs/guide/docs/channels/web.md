@@ -214,10 +214,12 @@ How to configure them:
 window.botpressWebChat.init({
 ...
   overrides: {
-    before_container: {
-      module: 'extensions',
-      component: 'Debugger'
-    }
+    before_container: [
+      {
+        module: 'extensions',
+        component: 'Debugger'
+      }
+    ]
   }
 })
 ```

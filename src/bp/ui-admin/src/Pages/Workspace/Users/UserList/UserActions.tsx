@@ -12,8 +12,8 @@ import { AuthRole, AuthStrategyConfig, WorkspaceUser } from 'common/typings'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import api from '~/api'
-import confirmDialog from '~/App/ConfirmDialog'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
+import confirmDialog from '~/App/ConfirmDialog'
 
 interface OwnProps {
   user: WorkspaceUser
@@ -157,7 +157,4 @@ const mapStateToProps = state => ({
   authConfig: state.user.authConfig
 })
 
-export default connect<StateProps>(
-  mapStateToProps,
-  {}
-)(UserActions)
+export default connect<StateProps>(mapStateToProps, {})(UserActions)

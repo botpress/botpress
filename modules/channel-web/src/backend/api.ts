@@ -1,3 +1,4 @@
+import apicache from 'apicache'
 import aws from 'aws-sdk'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
@@ -5,7 +6,6 @@ import moment from 'moment'
 import multer from 'multer'
 import multers3 from 'multer-s3'
 import path from 'path'
-import apicache from 'apicache'
 
 import { Config } from '../config'
 

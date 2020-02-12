@@ -72,6 +72,7 @@ describe('Middleware', () => {
       throw err
     })
 
+    // tslint:disable-next-line: no-floating-promises
     expect(middleware.run({} as IO.Event)).rejects.toEqual(err)
   })
 })
