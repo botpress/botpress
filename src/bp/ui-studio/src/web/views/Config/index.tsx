@@ -1,10 +1,15 @@
-import { Button, FileInput, FormGroup, InputGroup, Menu, MenuItem } from '@blueprintjs/core'
-import { ItemRenderer, Select } from '@blueprintjs/select'
-import { stat } from 'fs'
+import { Button, Callout, Card, Collapse, Elevation, FileInput, FormGroup, InputGroup } from '@blueprintjs/core'
+import axios from 'axios'
+import { any } from 'bluebird'
+import { BotEditSchema } from 'common/validation'
+// import Joi from 'joi'
 import _ from 'lodash'
 import React, { Component } from 'react'
+import Select from 'react-select'
+import confirmDialog from '~/components/Shared/ConfirmDialog'
+import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
-import api from '../../../../../ui-admin/src/api'
+import style from './style.scss'
 
 const statusList = [
   { label: 'Published', value: 'public' },
@@ -13,66 +18,70 @@ const statusList = [
 ]
 
 class ConfigView extends Component {
-  /*
   initialFormState = {
     name: '',
+    status: '',
     description: '',
-    privacyPolicy: '',
-    avatarUrl: '',
-    coverPictureUrl: '',
-    // category: undefined,
+    selectedDefaultLang: '',
+    selectedLanguages: [],
     website: '',
     phoneNumber: '',
-    termsConditions: '',
     emailAddress: '',
-    status: '',
-    selectedLanguages: [],
-    selectedDefaultLang: ''
+    termsConditions: '',
+    privacyPolicy: '',
+    avatarUrl: '',
+    coverPictureUrl: ''
   }
 
   state = {
     botId: window.BOT_ID,
-    id: '',
     ...this.initialFormState,
+    licensing: any,
+    languages: [],
+    statuses: statusList,
     error: undefined,
-    languages: []
+    isSaving: false,
+    isDetailsOpen: false
+    isPicturesOpen: false
   }
 
   async componentDidMount() {
     const bots = await this.fetchBots()
     const languages = await this.fetchLanguages()
+    const licensing = await this.fetchLicensing()
 
     const bot = bots.find(x => x.id === this.state.botId)
     const status = bot.disabled ? 'disabled' : bot.private ? 'private' : 'public'
 
     this.initialFormState = {
       name: bot.name || '',
+      status,
       description: bot.description || '',
+      selectedDefaultLang: bot.defaultLanguage,
+      selectedLanguages: languages.filter(x => bot.languages.includes(x.value)),
       website: bot.details.website || '',
       phoneNumber: bot.details.phoneNumber || '',
+      emailAddress: bot.details.emailAddress || '',
       termsConditions: bot.details.termsConditions || '',
       privacyPolicy: bot.details.privacyPolicy || '',
-      emailAddress: bot.details.emailAddress || '',
-      status,
-      selectedLanguages: bot.languages || [],
-      selectedDefaultLang: bot.defaultLanguage,
       avatarUrl: bot.details.avatarUrl || '',
       coverPictureUrl: bot.details.coverPictureUrl || ''
     }
 
     this.setState({
       ...this.initialFormState,
+      licensing,
       languages
     })
   }
 
   async fetchBots() {
-    const { data } = await api.getSecured().get('/admin/bots')
-    return data.payload.bots
+    const res = await axios.get('api/v1/admin/bots')
+    return res.data.payload.bots
   }
 
   async fetchLanguages() {
-    const { data } = await api.getSecured().get('/admin/languages/available')
+    const { data } = await axios.get('api/v1/admin/languages/available')
     const languages = _.sortBy(data.languages, 'name').map(lang => ({
       label: lang.name,
       value: lang.code
@@ -80,38 +89,83 @@ class ConfigView extends Component {
     return languages
   }
 
+  async fetchLicensing() {
+    const { data } = await axios.get('api/v1/admin/license/status')
+    return data.payload
+  }
+
   saveChanges = async () => {
+    this.setState({ error: undefined, isSaving: true })
+
     const bot = {
       name: this.state.name,
+      disabled: this.state.status === 'disabled',
+      private: this.state.status === 'private',
       description: this.state.description,
-      // category: category && category.value,
       defaultLanguage: this.state.selectedDefaultLang,
-      languages: this.state.selectedLanguages,
+      languages: this.state.selectedLanguages.map(x => x.value),
       details: {
         website: this.state.website,
         phoneNumber: this.state.phoneNumber,
-        termsConditions: this.state.termsConditions,
         emailAddress: this.state.emailAddress,
+        termsConditions: this.state.termsConditions,
+        privacyPolicy: this.state.privacyPolicy,
         avatarUrl: this.state.avatarUrl,
-        coverPictureUrl: this.state.coverPictureUrl,
-        privacyPolicy: this.state.privacyPolicy
-      },
-      disabled: this.state.status === 'disabled',
-      private: this.state.status === 'private'
+        coverPictureUrl: this.state.coverPictureUrl
+      }
     }
 
-    await api
-      .getSecured()
-      .post(`/admin/bots/${this.state.botId}`, bot)
-      .catch(err => this.setState({ error: err, isSaving: false }))
+    const { error } = { error: undefined } // Joi.validate(bot, BotEditSchema)
+    console.log(`Joi error : ${error}`)
+    if (error) {
+      toastFailure('The form contains errors')
+      this.setState({ error: error, isSaving: false })
+      return
+    }
+
+    try {
+      await axios.post(`api/v1/admin/bots/${this.state.botId}`, bot)
+      toastSuccess('Bot configuration updated successfully')
+      this.setState({ error: undefined, isSaving: false })
+    } catch (err) {
+      this.setState({ error: err, isSaving: false })
+    }
   }
 
   handleInputChanged = event => {
     this.setState({ [event.target.name]: event.target.value })
   }
 
-  handleCommunityLanguageChanged = lang => {
-    this.setState({ selectedDefaultLang: lang.target.value, selectedLanguages: [lang.target.value] })
+  handleDefaultLangChanged = async event => {
+    const lang = event.target.value
+
+    if (!this.state.selectedDefaultLang) {
+      this.setState({ selectedDefaultLang: lang })
+      return
+    }
+
+    if (this.state.selectedDefaultLang !== lang) {
+      const currentName = this.state.languages.find(x => x.value === this.state.selectedDefaultLang).label
+      const newName = this.state.languages.find(x => x.value === lang).label
+      const conf = await confirmDialog(
+        `Are you sure you want to change the language of your bot from ${currentName} to ${newName}? All of your content elements will be copied, make sure you translate them.`,
+        {
+          acceptLabel: 'Change'
+        }
+      )
+
+      if (conf) {
+        this.setState({ selectedDefaultLang: lang })
+      }
+    }
+  }
+
+  handleLanguagesChanged = langs => {
+    this.setState({ selectedLanguages: langs })
+  }
+
+  handleCommunityLanguageChanged = event => {
+    this.setState({ selectedDefaultLang: event.target.value, selectedLanguages: [{ value: event.target.value }] })
   }
 
   handleImageFileChanged = async event => {
@@ -134,25 +188,25 @@ class ConfigView extends Component {
       this.setState({ error: null })
     }
 
-    await api
-      .getSecured()
-      .post(`/bots/${this.state.botId}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
-      .then(response => {
-        this.setState({ [targetProp]: response.data.url })
+    try {
+      const res = await axios.post(`api/v1/bots/${this.state.botId}/media`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       })
-      .catch(err => {
-        this.setState({ error: err })
-      })
+      this.setState({ [targetProp]: res.data.url })
+    } catch (err) {
+      this.setState({ error: err })
+    }
   }
 
-  render() {
-    const container = {
-      maxWidth: '1000px',
-      margin: '30px auto'
-    }
-    const block = {
-      display: 'block'
-    }
+  handleDetailsCollapseClick = () => {
+    this.setState({ isDetailsOpen: !this.state.isDetailsOpen })
+  }
+
+  handlePicturesCollapseClick = () => {
+    this.setState({ isPicturesOpen: !this.state.isPicturesOpen })
+  }
+
+  renderLanguages() {
     const languages = []
     for (const lang of this.state.languages) {
       languages.push(
@@ -161,8 +215,51 @@ class ConfigView extends Component {
         </option>
       )
     }
+
+    if (this.state.licensing && this.state.licensing.isPro) {
+      return (
+        <div>
+          <FormGroup label="Default language" labelFor="selected-default-lang">
+            <select
+              id="selected-default-lang"
+              name="selectedDefaultLang"
+              value={this.state.selectedDefaultLang}
+              onChange={this.handleDefaultLangChanged}
+            >
+              {languages}
+            </select>
+          </FormGroup>
+          <FormGroup label="Supported languages" labelFor="selected-languages">
+            <Select
+              id="selected-languages"
+              name="selectedLanguages"
+              options={this.state.languages}
+              value={this.state.selectedLanguages}
+              onChange={this.handleLanguagesChanged}
+              isMulti
+            ></Select>
+          </FormGroup>
+        </div>
+      )
+    } else {
+      return (
+        <FormGroup label="Language" labelFor="selected-default-lang">
+          <select
+            id="selected-default-lang"
+            name="selectedDefaultLang"
+            value={this.state.selectedDefaultLang}
+            onChange={this.handleCommunityLanguageChanged}
+          >
+            {languages}
+          </select>
+        </FormGroup>
+      )
+    }
+  }
+
+  render() {
     const statuses = []
-    for (const status of statusList) {
+    for (const status of this.state.statuses) {
       statuses.push(
         <option key={status.value} value={status.value}>
           {status.label}
@@ -170,20 +267,17 @@ class ConfigView extends Component {
       )
     }
 
-    console.log(this.state.avatarUrl)
-
     return (
-      <div style={container}>
+      <Card className={style.container}>
+        <h1>Bot Config - {this.state.name}</h1>
         <form>
           <FormGroup label="Name" labelFor="name">
             <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
           </FormGroup>
           <FormGroup label="Status" labelFor="status">
-            <div className="bp3-select">
-              <select id="status" name="status" value={this.state.status} onChange={this.handleInputChanged}>
-                {statuses}
-              </select>
-            </div>
+            <select id="status" name="status" value={this.state.status} onChange={this.handleInputChanged}>
+              {statuses}
+            </select>
           </FormGroup>
           <FormGroup label="Description" labelFor="description">
             <InputGroup
@@ -193,97 +287,107 @@ class ConfigView extends Component {
               onChange={this.handleInputChanged}
             />
           </FormGroup>
-          <FormGroup label="Language" labelFor="language">
-            <div className="bp3-select">
-              <select
-                id="language"
-                name="language"
-                value={this.state.selectedLanguages}
-                onChange={this.handleCommunityLanguageChanged}
-              >
-                {languages}
-              </select>
-            </div>
+          {this.renderLanguages()}
+          <FormGroup>
+          <Button onClick={this.handleDetailsCollapseClick}>{this.state.isDetailsOpen ? 'Hide' : 'Show'} more details</Button>
+          <Collapse isOpen={this.state.isDetailsOpen}>
+            <Card elevation={Elevation.ONE}>
+            <FormGroup label="Website" labelFor="website">
+              <InputGroup id="website" name="website" value={this.state.website} onChange={this.handleInputChanged} />
+            </FormGroup>
+            <FormGroup label="Phone Number" labelFor="phone-number">
+              <InputGroup
+                id="phone-number"
+                name="phoneNumber"
+                value={this.state.phoneNumber}
+                onChange={this.handleInputChanged}
+              />
+            </FormGroup>
+            <FormGroup label="Contact E-mail" labelFor="email-address">
+              <InputGroup
+                id="email-address"
+                name="emailAddress"
+                value={this.state.emailAddress}
+                onChange={this.handleInputChanged}
+              />
+            </FormGroup>
+            <FormGroup label="Link to Terms &amp; Conditions" labelFor="terms-conditions">
+              <InputGroup
+                id="terms-conditions"
+                name="termsConditions"
+                value={this.state.termsConditions}
+                onChange={this.handleInputChanged}
+              />
+            </FormGroup>
+            <FormGroup label="Link to Privacy Policy" labelFor="privacy-policy">
+              <InputGroup
+                id="privacy-policy"
+                name="privacyPolicy"
+                value={this.state.privacyPolicy}
+                onChange={this.handleInputChanged}
+              />
+            </FormGroup>
+            </Card>
+          </Collapse>
           </FormGroup>
-          <FormGroup label="Website" labelFor="website">
-            <InputGroup id="website" name="website" value={this.state.website} onChange={this.handleInputChanged} />
+          <FormGroup>
+          <Button onClick={this.handlePicturesCollapseClick}>{this.state.isPicturesOpen ? 'Hide' : 'Show'} pictures</Button>
+          <Collapse isOpen={this.state.isPicturesOpen}>
+            <Card elevation={Elevation.ONE}>
+            <FormGroup label="Bot Avatar" labelFor="avatar-url">
+              <FileInput
+                text="Choose file"
+                inputProps={{
+                  id: 'avatar-url',
+                  name: 'avatarUrl',
+                  accept: 'image/*',
+                  onChange: this.handleImageFileChanged
+                }}
+              />
+              {this.state.avatarUrl !== this.initialFormState.avatarUrl && (
+                <p className={style.configUploadSuccess}>
+                  The bot avatar has been uploaded successfully. You need to save the form in order for the changes to
+                  take effect.
+                </p>
+              )}
+              {this.state.avatarUrl && <img className={style.avatarPreview} alt="avatar" src={this.state.avatarUrl} />}
+            </FormGroup>
+            <FormGroup label="Cover Picture" labelFor="cover-picture-url">
+              <FileInput
+                text="Choose file"
+                inputProps={{
+                  id: 'cover-picture-url',
+                  name: 'coverPictureUrl',
+                  accept: 'image/*',
+                  onChange: this.handleImageFileChanged
+                }}
+              />
+              {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && (
+                <p className={style.configUploadSuccess}>
+                  The cover picture has been uploaded successfully. You need to save the form in order for the changes
+                  to take effect.
+                </p>
+              )}
+              {this.state.coverPictureUrl && (
+                <img className={style.coverPreview} alt="cover" src={this.state.coverPictureUrl} />
+              )}
+            </FormGroup>
+            </Card>
+          </Collapse>
           </FormGroup>
-          <FormGroup label="Phone Number" labelFor="phone-number">
-            <InputGroup
-              id="phone-number"
-              name="phoneNumber"
-              value={this.state.phoneNumber}
-              onChange={this.handleInputChanged}
-            />
+          <FormGroup>
+          <Button
+            text="Save changes"
+            intent="primary"
+            icon="floppy-disk"
+            disabled={this.state.isSaving}
+            onClick={this.saveChanges}
+          />
           </FormGroup>
-          <FormGroup label="Contact E-mail" labelFor="contact-email">
-            <InputGroup
-              id="contact-email"
-              name="emailAddress"
-              value={this.state.emailAddress}
-              onChange={this.handleInputChanged}
-            />
-          </FormGroup>
-          <FormGroup label="Link to Terms &amp; Conditions" labelFor="terms-and-conditions">
-            <InputGroup
-              id="terms-and-conditions"
-              name="termsConditions"
-              value={this.state.termsConditions}
-              onChange={this.handleInputChanged}
-            />
-          </FormGroup>
-          <FormGroup label="Link to Privacy Policy" labelFor="privacy-policy">
-            <InputGroup
-              id="privacy-policy"
-              name="privacyPolicy"
-              value={this.state.privacyPolicy}
-              onChange={this.handleInputChanged}
-            />
-          </FormGroup>
-          <FormGroup label="Bot Avatar" labelFor="avatar">
-            <FileInput
-              text="Choose file"
-              inputProps={{
-                id: 'avatarUrl',
-                name: 'avatarUrl',
-                accept: 'image/*',
-                onChange: this.handleImageFileChanged
-              }}
-            />
-            {this.state.avatarUrl !== this.initialFormState.avatarUrl && (
-              <p className="configUploadSuccess">
-                The bot avatar has been uploaded successfully. You need to save the form in order for the changes to
-                take effect.
-              </p>
-            )}
-            {this.state.avatarUrl && <img height={75} style={block} alt="avatar" src={this.state.avatarUrl} />}
-          </FormGroup>
-          <FormGroup label="Cover Picture" labelFor="cover">
-            <FileInput
-              text="Choose file"
-              inputProps={{
-                id: 'coverPictureUrl',
-                name: 'coverPictureUrl',
-                accept: 'image/*',
-                onChange: this.handleImageFileChanged
-              }}
-            />
-            {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && (
-              <p className="configUploadSuccess">
-                The cover picture has been uploaded successfully. You need to save the form in order for the changes to
-                take effect.
-              </p>
-            )}
-            {this.state.coverPictureUrl && (
-              <img height={200} style={block} className="coverImg" alt="cover" src={this.state.coverPictureUrl} />
-            )}
-          </FormGroup>
-          <Button text="Save changes" intent="primary" icon="floppy-disk" onClick={this.saveChanges} />
         </form>
-      </div>
+      </Card>
     )
   }
-  */
 }
 
 export default ConfigView
