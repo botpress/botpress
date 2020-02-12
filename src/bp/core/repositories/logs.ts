@@ -13,6 +13,7 @@ export interface LogsRepository {
 
 interface LogSearchParams {
   fromDate?: Date
+  toDate?: Date
   botIds?: string[]
   level?: LoggerLevel
   start?: number
@@ -58,13 +59,14 @@ export class KnexLogsRepository implements LogsRepository {
     level,
     botIds,
     fromDate,
+    toDate,
     count = this.MAX_ROWS,
     start = 0
   }: LogSearchParams): Promise<LoggerEntry[]> {
     let query = this.database.knex(this.TABLE_NAME).select('*')
 
-    if (fromDate) {
-      query = query.where(this.database.knex.date.isAfter('timestamp', fromDate))
+    if (fromDate && toDate) {
+      query = query.where(this.database.knex.date.isBetween('timestamp', fromDate, toDate))
     }
 
     if (botIds) {

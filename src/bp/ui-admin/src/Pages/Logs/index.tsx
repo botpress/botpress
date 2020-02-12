@@ -1,4 +1,6 @@
-import { Button, Checkbox, ControlGroup } from '@blueprintjs/core'
+import { Button, Checkbox, Popover, Tooltip } from '@blueprintjs/core'
+import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import { Select } from '@blueprintjs/select'
 import { BotConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
@@ -15,22 +17,14 @@ import PageContainer from '~/App/PageContainer'
 import api from '../../api'
 import { fetchBots } from '../../reducers/bots'
 
-import { dropdownRenderer, filterText, lowercaseFilter } from './utils'
+import { dropdownRenderer, filterText, getDateShortcuts, lowercaseFilter } from './utils'
 
 const LEVELS: Option[] = [
   { label: 'All', value: '' },
-  { label: 'Warning', value: 'warn' },
   { label: 'Info', value: 'info' },
+  { label: 'Warning', value: 'warn' },
   { label: 'Error', value: 'error' },
   { label: 'Critical', value: 'critical' }
-]
-
-const TIME_SPAN: TimeOption[] = [
-  { label: 'Last hour', value: moment.duration(1, 'h') },
-  { label: 'Last day', value: moment.duration(24, 'h') },
-  { label: 'Last week', value: moment.duration(7, 'd') },
-  { label: 'Last month', value: moment.duration(30, 'd') },
-  { label: 'Last year', value: moment.duration(365, 'd') }
 ]
 
 const SCOPE_ITEMS: Option[] = [{ label: 'Everything', value: '' }]
@@ -38,11 +32,6 @@ const SCOPE_ITEMS: Option[] = [{ label: 'Everything', value: '' }]
 interface Option {
   label: string
   value: string
-}
-
-interface TimeOption {
-  label: string
-  value: moment.Duration
 }
 
 interface Props {
@@ -53,13 +42,13 @@ interface Props {
 }
 
 const SelectDropdown = Select.ofType<Option>()
-const SelectTimeDropdown = Select.ofType<TimeOption>()
+const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 const Logs: FC<Props> = props => {
   const [data, setData] = useState<sdk.LoggerEntry[]>([])
-  const [timeFilter, setTimeFilter] = useState<TimeOption>(TIME_SPAN[0])
   const [levelFilter, setLevelFilter] = useState<Option>(LEVELS[0])
   const [botFilter, setBotFilter] = useState<Option>(SCOPE_ITEMS[0])
+  const [dateRange, setDateRange] = useState<DateRange>()
   const [filters, setFilters] = useState()
 
   const [onlyWorkspace, setOnlyWorkspace] = useState(!props.profile.isSuperAdmin)
@@ -70,9 +59,13 @@ const Logs: FC<Props> = props => {
       props.fetchBots()
     }
 
+    if (!dateRange) {
+      setDateRange(getDateShortcuts()[0].dateRange)
+    }
+
     // tslint:disable-next-line: no-floating-promises
     fetchLogs()
-  }, [timeFilter, onlyWorkspace, props.currentWorkspace])
+  }, [dateRange, onlyWorkspace, props.currentWorkspace])
 
   useEffect(() => {
     const params = queryString.parse(window.location.search)
@@ -96,12 +89,13 @@ const Logs: FC<Props> = props => {
   }
 
   const fetchLogs = async (isRefreshing?: boolean) => {
-    const date = moment()
-      .subtract(timeFilter.value)
-      .format('x')
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      return
+    }
 
     try {
-      const logs = (await api.getSecured().get(`/admin/logs?fromDate=${date}&onlyWorkspace=${onlyWorkspace}`)).data
+      const args = `fromDate=${dateRange[0].getTime()}&toDate=${dateRange[1].getTime()}&onlyWorkspace=${onlyWorkspace}`
+      const logs = (await api.getSecured().get(`/admin/logs?${args}`)).data
 
       setData(logs)
       setBotIds(_.uniq(logs.map(x => x.botId).filter(Boolean)))
@@ -112,20 +106,6 @@ const Logs: FC<Props> = props => {
     } catch (err) {
       console.error(err)
     }
-  }
-
-  const filterTimeSpan = () => {
-    return (
-      <SelectTimeDropdown
-        items={TIME_SPAN}
-        activeItem={timeFilter}
-        popoverProps={{ minimal: true }}
-        itemRenderer={dropdownRenderer}
-        onItemSelect={option => setTimeFilter(option)}
-      >
-        <Button text={timeFilter && timeFilter.label} rightIcon="double-caret-vertical" />
-      </SelectTimeDropdown>
-    )
   }
 
   const filterBot = ({ onChange }) => {
@@ -171,9 +151,9 @@ const Logs: FC<Props> = props => {
 
   const columns: Column[] = [
     {
-      Header: 'Timestamp',
-      Filter: filterTimeSpan,
-      Cell: ({ original: { timestamp } }) => moment(timestamp).format('YYYY-MM-DD HH:mm:ss'),
+      Header: 'Date',
+      filterable: false,
+      Cell: ({ original: { timestamp } }) => moment(timestamp).format(DATE_FORMAT),
       accessor: 'timestamp',
       width: 130
     },
@@ -211,15 +191,36 @@ const Logs: FC<Props> = props => {
     {
       Header: 'Message',
       Filter: filterText,
+      style: { whiteSpace: 'unset' },
       accessor: 'message'
     }
   ]
 
+  const getRangeLabel = () => {
+    if (dateRange) {
+      return `From ${moment(dateRange[0]).format(DATE_FORMAT)} to ${moment(dateRange[1]).format(DATE_FORMAT)}`
+    }
+  }
+
   return (
     <PageContainer title={<span>Logs </span>} fullWidth={true}>
-      <ControlGroup style={{ justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex' }}>
+        <Popover>
+          <Tooltip content={getRangeLabel()} hoverOpenDelay={500}>
+            <Button text="Change Time Frame" icon="calendar" small />
+          </Tooltip>
+          <DateRangePicker
+            allowSingleDayRange
+            value={dateRange}
+            shortcuts={getDateShortcuts()}
+            timePrecision="second"
+            onChange={val => setDateRange(val)}
+            maxDate={new Date()}
+          />
+        </Popover>
+
         <div>
-          <Button icon="refresh" text="Refresh logs" small={true} onClick={() => fetchLogs(true)}></Button>
+          <Button icon="refresh" text="Refresh logs" small onClick={() => fetchLogs(true)} style={{ marginLeft: 10 }} />
         </div>
         <Checkbox
           checked={onlyWorkspace}
@@ -228,7 +229,7 @@ const Logs: FC<Props> = props => {
           label={`Only bots from this workspace`}
           style={{ marginLeft: 10 }}
         />
-      </ControlGroup>
+      </div>
 
       <ReactTable
         columns={columns}

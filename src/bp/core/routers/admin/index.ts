@@ -141,15 +141,17 @@ export class AdminRouter extends CustomRouter {
       this.checkTokenHeader,
       this.needPermissions('read', 'admin.logs'),
       this.asyncMiddleware(async (req, res) => {
-        const { fromDate, onlyWorkspace } = req.query
+        const { fromDate, toDate, onlyWorkspace } = req.query
 
-        if (!fromDate) {
-          return res.status(400).send('fromDate must be specified')
+        if (!fromDate || !toDate) {
+          return res.status(400).send('fromDate and toDate must be specified')
         }
 
         const from = moment(parseInt(fromDate || ''))
-        if (!from.isValid() || moment().diff(from, 'd') > 365) {
-          return res.status(400).send('fromDate must be a valid timestamp and cannot be more than 365 days')
+        const to = moment(parseInt(toDate || ''))
+
+        if (!from.isValid() || !to.isValid()) {
+          return res.status(400).send('fromDate and toDate must be a valid unix timestamp')
         }
 
         let botIds
@@ -158,8 +160,14 @@ export class AdminRouter extends CustomRouter {
           botIds = (await this.botService.findBotsByIds(botsRefs)).filter(Boolean).map(x => x.id)
         }
 
-        const maxRows = req.tokenUser?.isSuperAdmin ? 5000 : 500
-        res.send(await this.logsRepository.searchLogs({ botIds, fromDate: from.toDate(), count: maxRows }))
+        const results = await this.logsRepository.searchLogs({
+          fromDate: from.toDate(),
+          toDate: to.toDate(),
+          botIds,
+          count: req.tokenUser?.isSuperAdmin ? 5000 : 500
+        })
+
+        res.send(results)
       })
     )
   }
