@@ -19,6 +19,7 @@ import api from '../../api'
 import PageContainer from '~/App/PageContainer'
 import StickyActionBar from '~/App/StickyActionBar'
 import { Button, Intent } from '@blueprintjs/core'
+import confirmDialog from '~/App/ConfirmDialog'
 
 const statusList = [
   { label: 'Published', value: 'public' },
@@ -137,7 +138,7 @@ class Bots extends Component {
     )
   }
 
-  cancel = () => {
+  cancel = async () => {
     const currentFormState = {
       name: this.state.name,
       description: this.state.description,
@@ -154,10 +155,12 @@ class Bots extends Component {
       selectedDefaultLang: this.state.selectedDefaultLang.value
     }
 
-    // [TODO] max.cloutier 2020.01.17 Implement and use a custom confirm popup and replace the window.confirm in this file/app-wide
     if (
       JSON.stringify(this.initialFormState) !== JSON.stringify(currentFormState) &&
-      !window.confirm(`There are unsaved changes in this form. Are you sure you want to cancel?`)
+      !(await confirmDialog('There are unsaved changes in this form. Are you sure you want to cancel?', {
+        acceptLabel: 'Cancel',
+        declineLabel: 'Continue editing'
+      }))
     ) {
       return
     }
@@ -233,18 +236,20 @@ class Bots extends Component {
   handleStatusChanged = status => this.setState({ status })
   handleCategoryChanged = category => this.setState({ category })
 
-  handleDefaultLangChanged = lang => {
+  handleDefaultLangChanged = async lang => {
     if (!this.state.selectedDefaultLang) {
       this.setState({ selectedDefaultLang: lang })
       return
     }
 
     if (this.state.selectedDefaultLang !== lang) {
-      // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
-      const conf = window.confirm(
+      const conf = await confirmDialog(
         `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${
           lang.label
-        }? All of your content elements will be copied, make sure you translate them.`
+        }? All of your content elements will be copied, make sure you translate them.`,
+        {
+          acceptLabel: 'Change'
+        }
       )
 
       if (conf) {
@@ -494,7 +499,7 @@ class Bots extends Component {
         </Row>
         <small>
           This information is displayed on the Bot Information page,{' '}
-          <a href="https://botpress.io/docs/tutorials/webchat-embedding" target="_blank" rel="noopener noreferrer">
+          <a href="https://botpress.com/docs/tutorials/webchat-embedding" target="_blank" rel="noopener noreferrer">
             check the documentation for more details
           </a>
         </small>

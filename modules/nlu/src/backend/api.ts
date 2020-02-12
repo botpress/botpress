@@ -30,10 +30,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
       delete syncByBots[botId]
     }
 
-    syncByBots[botId] = setTimeout(() => {
+    syncByBots[botId] = setTimeout(async () => {
       delete syncByBots[botId]
       const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
-      syncNLU(botEngine, false)
+      await syncNLU(botEngine, false)
     }, SYNC_INTERVAL_MS)
   }
 

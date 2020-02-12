@@ -63,4 +63,4 @@ If you want to store information differently, or when outside of a flow (e.g. fr
 
 The KVS works very similarly to the get/set actions except you have to decide on the storage key yourself. Think of the KVS as an oversimplified NoSQL store where all you need to know to store something is a unique key.
 
-The KVS is available from the [Botpress SDK (**`bp.sdk`**)](https://botpress.io/reference/modules/_botpress_sdk_.kvs.html) and supports expiry as well. In fact, the storage actions are simply wrappers for the KVS.
+The KVS is available from the [Botpress SDK (**`bp.sdk`**)](https://botpress.com/reference/modules/_botpress_sdk_.kvs.html) and supports expiry as well. In fact, the storage actions are simply wrappers for the KVS.

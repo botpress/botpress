@@ -6,7 +6,7 @@ import { isPOSAvailable, POS1_SET, POS2_SET, POS3_SET, POS_SET } from '../pos-ta
 import { averageVectors, scalarMultiply } from '../tools/math'
 import { getStopWordsForLang } from '../tools/stopWords'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { isSpace, SPACE } from '../tools/token-utils'
+import { convertToRealSpaces, isSpace, SPACE } from '../tools/token-utils'
 import {
   EntityExtractionResult,
   Intent,
@@ -98,7 +98,9 @@ const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
 
 const makeListEntityModel = async (entity: ListEntity, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
-  const allTokens = await tools.tokenize_utterances(allValues, languageCode)
+  const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
+    toks.map(convertToRealSpaces)
+  )
 
   return <ListEntityModel>{
     type: 'custom.list',

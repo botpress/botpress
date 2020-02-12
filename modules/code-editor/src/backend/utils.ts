@@ -3,7 +3,9 @@ import _ from 'lodash'
 import { FileDefinition, FileTypes } from './definitions'
 import { FILENAME_REGEX } from './editor'
 import { EditorError } from './editorError'
-import { EditableFile, FilePermissions } from './typings'
+import { EditableFile, FilePermissions, FileType } from './typings'
+
+export const RAW_TYPE: FileType = 'raw'
 
 export const BUILTIN_MODULES = [
   'analytics',
@@ -66,7 +68,9 @@ export const arePermissionsValid = (
   const isGlobalValid = def.allowGlobal && !editableFile.botId
   const isScopedValid = def.allowScoped && !!editableFile.botId
 
-  return (hasGlobalPerm && isGlobalValid) || (hasScopedPerm && isScopedValid)
+  const hasRootPerm = def.allowRoot && permissions[`root.${def.permission}`][actionType]
+
+  return (hasGlobalPerm && isGlobalValid) || (hasScopedPerm && isScopedValid) || hasRootPerm
 }
 
 export const validateFilePayload = async (
@@ -105,7 +109,10 @@ export const validateFilePayload = async (
     throw new EditorError(`Invalid file name. Must match ${def.filenames}`)
   }
 
-  assertValidFilename(name)
+  // Skip standard validation for raw, since you can set a complete folder path
+  if (type !== RAW_TYPE) {
+    assertValidFilename(name)
+  }
 }
 
 export const buildRestrictedProcessVars = () => {

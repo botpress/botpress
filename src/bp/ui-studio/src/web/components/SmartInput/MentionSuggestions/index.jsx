@@ -102,12 +102,12 @@ export class MentionSuggestions extends Component {
     focusedOptionIndex: 0
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.key = genKey()
     this.props.callbacks.onChange = this.onEditorStateChange
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.suggestions.length === 0 && this.state.isActive) {
       this.closeDropdown()
     } else if (

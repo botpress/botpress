@@ -30,7 +30,7 @@
     "multer": "^1.4.1",
     "nanoid": "^2.0.0",
     "react-dropzone": "^7.0.1",
-    "react-table": "^6.8.6",
+    "react-table": "^6.11.5",
     "tmp": "^0.0.33",
     "yn": "^2.0.0"
   }

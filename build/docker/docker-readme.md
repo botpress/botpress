@@ -1,4 +1,4 @@
-![botpress](https://botpress.io/blog/content/images/2017/06/xnobg_primary_black.png.pagespeed.ic.siY4jfFl48.png)
+![botpress](https://botpress.com/blog/content/images/2017/06/xnobg_primary_black.png.pagespeed.ic.siY4jfFl48.png)
 
 ### Installation
 
@@ -58,5 +58,5 @@ docker exec --interactive --tty botpress bash
 
 ---
 
-Full documentation resource is available on the [official website](https://botpress.io/docs/).
+Full documentation resource is available on the [official website](https://botpress.com/docs/).
 [Changelog resides here](https://github.com/botpress/botpress/blob/master/CHANGELOG.md).

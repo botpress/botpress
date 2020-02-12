@@ -5,7 +5,7 @@ import { getClosestToken } from '../pipelines/language/ft_featurizer'
 import { POS_CLASS } from '../pos-tagger'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
-import { isSpace, isWord, SPACE } from '../tools/token-utils'
+import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
 import { parseUtterance } from '../tools/utterance-parser'
 import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
 
@@ -93,7 +93,7 @@ export default class Utterance {
               result = result.toLowerCase()
             }
             if (options.realSpaces) {
-              result = result.replace(new RegExp(SPACE, 'g'), ' ')
+              result = convertToRealSpaces(result)
             }
             if (options.trim) {
               result = result.trim()

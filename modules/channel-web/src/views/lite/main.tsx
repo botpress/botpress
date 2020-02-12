@@ -10,7 +10,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { checkLocationOrigin, initializeAnalytics } from './utils'
+import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -44,6 +44,7 @@ class Web extends React.Component<MainProps> {
 
     // tslint:disable-next-line: no-floating-promises
     this.initialize()
+    // tslint:disable-next-line: no-floating-promises
     this.initializeIfChatDisplayed()
     this.props.setLoadingCompleted()
   }
@@ -53,6 +54,7 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidUpdate() {
+    // tslint:disable-next-line: no-floating-promises
     this.initializeIfChatDisplayed()
   }
 
@@ -91,6 +93,7 @@ class Web extends React.Component<MainProps> {
     config.reference && this.props.setReference()
 
     this.setupObserver()
+    // tslint:disable-next-line: no-floating-promises
     this.props.fetchBotInfo()
   }
 
@@ -149,11 +152,15 @@ class Web extends React.Component<MainProps> {
 
       if (type === 'show') {
         this.props.showChat()
+        trackWebchatState('show')
       } else if (type === 'hide') {
         this.props.hideChat()
+        trackWebchatState('hide')
       } else if (type === 'toggle') {
         this.props.displayWidgetView ? this.props.showChat() : this.props.hideChat()
+        trackWebchatState('toggle')
       } else if (type === 'message') {
+        trackMessage('sent')
         await this.props.sendMessage(text)
       } else if (type === 'toggleBotInfo') {
         this.props.toggleBotInfo()
@@ -169,6 +176,7 @@ class Web extends React.Component<MainProps> {
       return
     }
 
+    trackMessage('received')
     await this.props.addEventToConversation(event)
 
     // there's no focus on the actual conversation

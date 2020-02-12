@@ -12,6 +12,7 @@ import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
 import semver from 'semver'
+import yn from 'yn'
 
 import { container } from '../../app.inversify'
 import { GhostService } from '../ghost/service'
@@ -52,7 +53,7 @@ export class MigrationService {
     const configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
     debug(`Migration Check: %o`, { configVersion, currentVersion: this.currentVersion })
 
-    if (process.env.SKIP_MIGRATIONS) {
+    if (yn(process.env.SKIP_MIGRATIONS)) {
       debug(`Skipping Migrations`)
       return
     }
@@ -225,7 +226,7 @@ export class MigrationService {
   }
 
   private async _getCompletedMigrations(): Promise<string[]> {
-    if (process.env.TESTMIG_IGNORE_COMPLETED) {
+    if (yn(process.env.TESTMIG_IGNORE_COMPLETED)) {
       return []
     }
 

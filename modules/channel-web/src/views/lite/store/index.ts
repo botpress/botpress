@@ -7,7 +7,6 @@ import { InjectedIntl } from 'react-intl'
 import WebchatApi from '../core/api'
 import constants from '../core/constants'
 import { getUserLocale, initializeLocale, translations } from '../translations'
-
 import {
   BotInfo,
   Config,
@@ -17,7 +16,7 @@ import {
   MessageWrapper,
   StudioConnector
 } from '../typings'
-import { downloadFile } from '../utils'
+import { downloadFile, trackMessage } from '../utils'
 
 import ComposerStore from './composer'
 import ViewStore from './view'
@@ -217,7 +216,9 @@ class RootStore {
     if (!userMessage || !userMessage.length) {
       return
     }
+
     await this.sendData({ type: 'text', text: userMessage })
+    trackMessage('sent')
 
     this.composer.addMessageToHistory(userMessage)
     this.composer.updateMessage('')

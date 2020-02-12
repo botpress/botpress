@@ -74,6 +74,7 @@ const NLU: FC<Props> = props => {
   }
 
   const updateEntity = (targetEntity: string, entity) => {
+    // tslint:disable-next-line: no-floating-promises
     api.updateEntity(targetEntity, entity)
     const i = entities.findIndex(ent => ent.id == entity.id)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])

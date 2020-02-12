@@ -1,11 +1,12 @@
 import { Button, Classes } from '@blueprintjs/core'
-import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
 import { toastFailure } from 'botpress/utils'
-import { NluItem } from 'full'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
+
+import { NluItem } from '..'
+import { NLUApi } from '../../api'
 
 import NameModal from './NameModal'
 

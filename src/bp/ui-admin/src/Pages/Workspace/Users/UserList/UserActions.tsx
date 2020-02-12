@@ -8,13 +8,12 @@ import {
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
-import { CHAT_USER_ROLE } from 'common/defaults'
 import { AuthRole, AuthStrategyConfig, WorkspaceUser } from 'common/typings'
-import _ from 'lodash'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
+import confirmDialog from '~/App/ConfirmDialog'
 
 interface OwnProps {
   user: WorkspaceUser
@@ -33,8 +32,11 @@ const UserActions: FC<Props> = props => {
   const { user } = props
 
   const resetPassword = async () => {
-    // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
-    if (!window.confirm(`Are you sure you want to reset ${user.email}'s password?`)) {
+    if (
+      !(await confirmDialog(`Are you sure you want to reset ${user.email}'s password?`, {
+        acceptLabel: 'Reset'
+      }))
+    ) {
       return
     }
 
@@ -48,8 +50,11 @@ const UserActions: FC<Props> = props => {
   }
 
   const deleteUser = async () => {
-    // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
-    if (!window.confirm(`Are you sure you want to delete ${user.email}'s account?`)) {
+    if (
+      !(await confirmDialog(`Are you sure you want to delete ${user.email}'s account?`, {
+        acceptLabel: 'Delete'
+      }))
+    ) {
       return
     }
 
@@ -63,8 +68,11 @@ const UserActions: FC<Props> = props => {
   }
 
   const removeUser = async () => {
-    // [TODO] use ConfirmDialog instead of window.confirm, view example in src/bp/ui-admin/src/Pages/Workspace/Bots/index.tsx line 161
-    if (!window.confirm(`Are you sure you want to remove ${user.email} from this workspace?`)) {
+    if (
+      !(await confirmDialog(`Are you sure you want to remove ${user.email} from this workspace?`, {
+        acceptLabel: 'Remove'
+      }))
+    ) {
       return
     }
 
@@ -149,7 +157,4 @@ const mapStateToProps = state => ({
   authConfig: state.user.authConfig
 })
 
-export default connect<StateProps>(
-  mapStateToProps,
-  {}
-)(UserActions)
+export default connect<StateProps>(mapStateToProps, {})(UserActions)

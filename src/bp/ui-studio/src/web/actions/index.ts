@@ -8,6 +8,11 @@ import { getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '.
 import { FlowsAPI } from './api'
 import BatchRunner from './BatchRunner'
 
+export default function debounceAction(action: any, delay: number, options?: _.DebounceSettings) {
+  const debounced = _.debounce((dispatch, actionArgs) => dispatch(action(...actionArgs)), delay, options)
+  return (...actionArgs) => dispatch => debounced(dispatch, actionArgs)
+}
+
 // Flows
 export const receiveFlowsModification = createAction('FLOWS/MODIFICATIONS/RECEIVE')
 
@@ -169,7 +174,7 @@ export const openFlowNodeProps = createAction('FLOWS/FLOW/OPEN_NODE_PROPS')
 export const closeFlowNodeProps = createAction('FLOWS/FLOW/CLOSE_NODE_PROPS')
 
 export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
-export const refreshFlowsLinks = () => dispatch => setTimeout(() => dispatch(handleRefreshFlowLinks()), 10)
+export const refreshFlowsLinks = debounceAction(handleRefreshFlowLinks, 500, { leading: true })
 export const updateFlowProblems = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
 
 export const copyFlowNode = createAction('FLOWS/NODE/COPY')
@@ -385,5 +390,13 @@ export const refreshIntents = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/mod/nlu/intents`).then(({ data }) => {
     dispatch(intentsReceived(data))
+  })
+}
+
+export const receiveQNAContentElement = createAction('QNA/CONTENT_ELEMENT')
+export const getQNAContentElementUsage = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/mod/qna/contentElementUsage`).then(({ data }) => {
+    dispatch(receiveQNAContentElement(data))
   })
 }

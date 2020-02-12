@@ -167,3 +167,15 @@ export interface AuthPayload {
   inviteRequired?: boolean
   identity?: TokenUser
 }
+
+export interface ServerHealth {
+  serverId: string
+  hostname: string
+  bots: { [botId: string]: BotHealth }
+}
+
+export interface BotHealth {
+  status: 'mounted' | 'unmounted' | 'disabled' | 'error'
+  errorCount: number
+  warningCount: number
+}

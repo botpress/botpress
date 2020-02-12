@@ -3,7 +3,6 @@ import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
-import { style, ToastContainer } from 'react-toastify'
 import { bindActionCreators } from 'redux'
 import { toggleBottomPanel, updateDocumentationModal, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
@@ -171,7 +170,13 @@ class Layout extends React.Component<ILayoutProps> {
             <div>
               <main ref={el => (this.mainEl = el)} className={layout.main} id="main" tabIndex={9999}>
                 <Switch>
-                  <Route exact path="/" render={() => <Redirect to="/flows" />} />
+                  <Route
+                    exact
+                    path="/"
+                    render={() =>
+                      window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/modules/code-editor" />
+                    }
+                  />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
@@ -183,7 +188,6 @@ class Layout extends React.Component<ILayoutProps> {
             <BottomPanel />
           </SplitPane>
 
-          <ToastContainer position="bottom-right" />
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
@@ -214,7 +218,4 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ viewModeChanged, updateDocumentationModal, toggleBottomPanel }, dispatch)
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Layout)
+export default connect(mapStateToProps, mapDispatchToProps)(Layout)
