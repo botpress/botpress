@@ -2,8 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
-import { isPOSAvailable, POS1_SET, POS2_SET, POS3_SET, POS_SET } from '../pos-tagger'
-import { averageVectors, scalarMultiply } from '../tools/math'
+import { isPOSAvailable } from '../pos-tagger'
 import { getStopWordsForLang } from '../tools/stopWords'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, SPACE } from '../tools/token-utils'
@@ -323,15 +322,19 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
   const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
   const nbOfNoneUtterances = Math.max((allUtterances.length * 2) / 3, 20)
-
-  const stopWords = getStopWordsForLang('en')
+  const stopWords = getStopWordsForLang(input.languageCode)
+  const vocabWords = _.chain(input.tfIdf)
+    .toPairs()
+    .filter(([word, tfidf]) => tfidf <= 0.3)
+    .map('0')
+    .value()
 
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
   const vocabUtts = _.range(0, nbOfNoneUtterances).map(() => {
     const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize(stopWords, nbWords).join(joinChar)
+    return _.sampleSize([...stopWords, ...vocabWords], nbWords).join(joinChar)
   })
 
   const junkWordsUtts = _.range(0, nbOfNoneUtterances).map(() => {
