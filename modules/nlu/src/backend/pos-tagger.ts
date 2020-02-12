@@ -13,7 +13,6 @@ export function isPOSAvailable(lang: string): boolean {
 type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<infer ElementType> ? ElementType : never
 
 export type POS_CLASS = ElementType<typeof POS_CLASSES>
-export type POS_SET = POS_CLASS[]
 export const POS_CLASSES = [
   'ADJ',
   'ADP',
@@ -35,11 +34,6 @@ export const POS_CLASSES = [
   'X',
   SPACE
 ] as const
-
-export const POS1_SET: POS_SET = ['VERB', 'NOUN']
-export const POS2_SET: POS_SET = ['DET', 'PROPN', 'PRON', 'ADJ', 'AUX']
-export const POS3_SET: POS_SET = ['CONJ', 'CCONJ', 'INTJ', 'SCONJ', 'ADV']
-export const POS4_SET: POS_SET = ['PUNCT', 'SYM', 'X', 'NUM', 'PART']
 
 export function makePOSdic(): _.Dictionary<number> {
   return POS_CLASSES.reduce((dic, cls) => ({ ...dic, [cls]: 0 }), {})

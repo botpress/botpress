@@ -11,6 +11,7 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
+import { getUtteranceFeatures } from './out-of-scope-featurizer'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -314,20 +315,7 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
     return input
   }
   const utt = input.alternateUtterance || input.utterance
-
-  const averageByPOS = (...cls: string[]) => {
-    const tokens = utt.tokens.filter(t => cls.includes(t.POS))
-    const vectors = tokens.map(x => math.scalarMultiply(<number[]>x.vector, x.tfidf))
-    if (!vectors.length) {
-      return new Array(utt.tokens[0].vector.length).fill(0)
-    }
-    return math.averageVectors(vectors)
-  }
-
-  const pos1 = averageByPOS(...POS1_SET)
-  const pos2 = averageByPOS(...POS2_SET)
-  const pos3 = averageByPOS(...POS3_SET)
-  const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
+  const feats = getUtteranceFeatures(utt)
 
   const oosByCtx = await Promise.map(Object.entries(predictors.oos_classifier_by_ctx), async ([ctx, oos]) => {
     const preds = await oos.predict(feats)

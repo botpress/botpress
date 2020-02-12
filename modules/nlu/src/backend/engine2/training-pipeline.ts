@@ -22,6 +22,7 @@ import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
+import { featurizeOOSUtterances, featurizeInScopeUtterances } from './out-of-scope-featurizer'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -383,7 +384,11 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   return crfExtractor.serialized
 }
 
-const trainOOS = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
+const trainOutOfScope = async (
+  input: TrainOutput,
+  tools: Tools,
+  progress: progressCB
+): Promise<_.Dictionary<string>> => {
   debugTraining('Training out of scope classifier')
   if (!isPOSAvailable(input.languageCode)) {
     progress()
@@ -394,59 +399,24 @@ const trainOOS = async (input: TrainOutput, tools: Tools, progress: progressCB):
     classifier: 'C_SVC',
     reduce: true
   }
-  // TODO extract this in featurizer
-  const averageByPOS = (utt: Utterance, posClasses: POS_SET) => {
-    const tokens = utt.tokens.filter(t => posClasses.includes(t.POS))
-    const vectors = tokens.map(x => scalarMultiply(<number[]>x.vector, x.tfidf))
-    if (!vectors.length) {
-      return new Array(utt.tokens[0].vector.length).fill(0)
-    }
-    return averageVectors(vectors)
-  }
 
-  // TODO extract this in featurizer file
-  const noneEmbeddings = _.chain(input.intents)
+  const noneUtts = _.chain(input.intents)
     .filter(i => i.name === 'none')
-    .flatMap(i =>
-      i.utterances.map(utt => {
-        const pos1 = averageByPOS(utt, POS1_SET)
-        const pos2 = averageByPOS(utt, POS2_SET)
-        const pos3 = averageByPOS(utt, POS3_SET)
-        const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
-        return feats
-      })
-    )
+    .flatMap(i => i.utterances)
     .value()
-
-  const kmeans = tools.mlToolkit.KMeans.kmeans(noneEmbeddings, 3, KMEANS_OPTIONS)
-  const none_points: sdk.MLToolkit.SVM.DataPoint[] = noneEmbeddings.map(emb => {
-    const cluster = kmeans.nearest([emb])[0]
-    return {
-      label: `out_${cluster}`,
-      coordinates: emb
-    }
-  })
+  const oos_points = featurizeOOSUtterances(noneUtts, tools)
 
   const oosByCtx: _.Dictionary<string> = (
     await Promise.mapSeries(input.contexts, async (ctx, i) => {
-      const ctx_points = _.chain(input.intents)
+      const in_scope_points = _.chain(input.intents)
         .filter(i => i.contexts.includes(ctx))
         .filter(i => i.name !== 'none')
-        .flatMap(i =>
-          i.utterances.map(utt => {
-            const pos1 = averageByPOS(utt, POS1_SET)
-            const pos2 = averageByPOS(utt, POS2_SET)
-            const pos3 = averageByPOS(utt, POS3_SET)
-            const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
-
-            return { label: i.name, coordinates: feats }
-          })
-        )
+        .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
         .value()
 
       let progressCalls = 0
       const svm = new tools.mlToolkit.SVM.Trainer()
-      const model = await svm.train([...ctx_points, ...none_points], trainingOptions, p => {
+      const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
         if (++progressCalls % 2 === 0) {
           const completion = _.round((p * (i + 1)) / input.contexts.length, 2)
           progress(completion)
@@ -497,7 +467,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
 
-    const oos_by_ctx = await trainOOS(output, tools, reportProgress)
+    const oos_by_ctx = await trainOutOfScope(output, tools, reportProgress)
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
     reportProgress()
     const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
