@@ -4,6 +4,7 @@ import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 
+import ActionDialog from '../../nodeProps/ActionDialog'
 import { BaseNodeModel } from '../nodes/BaseNodeModel'
 import { StandardPortWidget } from '../nodes/Ports'
 
@@ -19,16 +20,7 @@ const ActionWidget: FC<{ node: ActionNodeModel; diagramEngine: any }> = props =>
     <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
       <Button onClick={() => setShowDialog(true)}>Edit</Button>
-      <Dialog isOpen={showDialog} title="Edit Action" icon="offline" onClose={() => setShowDialog(false)}>
-        <div>
-          <Label>
-            Action Server
-            <HTMLSelect>
-              <option>Server 1</option>
-            </HTMLSelect>
-          </Label>
-        </div>
-      </Dialog>
+      <ActionDialog isOpen={showDialog} onClose={() => setShowDialog(false)} />
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />
         <StandardPortWidget name="out0" node={node} className={style.out} />
