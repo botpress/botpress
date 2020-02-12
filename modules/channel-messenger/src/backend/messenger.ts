@@ -15,6 +15,21 @@ const debugHttpOut = debugHttp.sub('out')
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
 type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
+/**
+ * @see https://developers.facebook.com/docs/messenger-platform/reference/send-api/#message
+ */
+interface MessengerTextMessage {
+  text: string
+  quick_replies?: any[]
+  metadata?: string
+}
+
+interface MessengerAttachmentMessage {
+  attachment: any
+  quick_replies?: any[]
+  metadata?: string
+}
+
 type MountedBot = { pageId: string; botId: string; client: MessengerClient }
 
 export class MessengerService {
@@ -307,13 +322,19 @@ export class MessengerClient {
     await this._callEndpoint('/messages', body)
   }
 
-  async sendTextMessage(senderId: string, message: string) {
-    const body = {
-      recipient: {
-        id: senderId
-      },
-      message
-    }
+  /**
+   * @see https://developers.facebook.com/docs/messenger-platform/reference/send-api
+   */
+  async sendTextMessage(senderId: string, message: any) {
+    const okKeys = ['text', 'quick_replies', 'metadata', 'attachment']
+
+    const fbMessage: MessengerTextMessage | MessengerAttachmentMessage = okKeys.reduce(function(fbMessage, key) {
+      if (message[key]) {
+        fbMessage[key] = message[key]
+      }
+
+      return fbMessage
+    }, {})
 
     debugMessages('outgoing text message', { senderId, message, body })
     await this._callEndpoint('/messages', body)
