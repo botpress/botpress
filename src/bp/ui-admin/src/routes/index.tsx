@@ -6,6 +6,7 @@ import { ConnectedRouter } from 'react-router-redux'
 import ChatAuthResult from '~/Pages/Account/ChatAuthResult'
 import Details from '~/Pages/Bot/Details'
 import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
+import Logs from '~/Pages/Logs'
 import Alerting from '~/Pages/Server/Alerting'
 import Checklist from '~/Pages/Server/Checklist'
 import Languages from '~/Pages/Server/Languages'
@@ -75,6 +76,7 @@ export const makeMainRoutes = () => {
               <Route path="/workspace/:workspaceId?/users" component={Collaborators} />
               <Route path="/workspace/:workspaceId?/roles" component={Roles} />
               <Route path="/workspaces" component={Workspaces} />
+              <Route path="/logs" component={Logs} />
               <Route path="/debug" component={Debug} />
               <Route path="/modules" component={Modules} />
               <Route path="/" render={() => <Redirect from="/" to={`/workspace/${getActiveWorkspace()}/bots`} />} />

@@ -107,6 +107,10 @@ class Bots extends Component<Props> {
     }
   }
 
+  viewLogs(botId: string) {
+    this.props.history.push(`/logs?botId=${botId}`)
+  }
+
   renderCreateNewBotButton() {
     return (
       <AccessControl resource="admin.bots.*" operation="write">
@@ -190,6 +194,7 @@ class Bots extends Component<Props> {
               createRevision={this.createRevision.bind(this, bot.id)}
               rollback={this.toggleRollbackModal.bind(this, bot.id)}
               reloadBot={this.reloadBot.bind(this, bot.id)}
+              viewLogs={this.viewLogs.bind(this, bot.id)}
             />
           </Fragment>
         ))}
@@ -223,6 +228,7 @@ class Bots extends Component<Props> {
                       createRevision={this.createRevision.bind(this, bot.id)}
                       rollback={this.toggleRollbackModal.bind(this, bot.id)}
                       reloadBot={this.reloadBot.bind(this, bot.id)}
+                      viewLogs={this.viewLogs.bind(this, bot.id)}
                     />
                   </Fragment>
                 ))}

@@ -108,6 +108,8 @@ const Menu: FC<MenuProps> = props => {
           operation="read"
           isPro={true}
         />
+
+        <MenuItem id="btn-menu-logs" text="Logs" icon="manual" url="/logs" resource="admin.logs" operation="read" />
       </ControlGroup>
 
       <AccessControl superAdmin={true}>
@@ -151,9 +153,4 @@ const Menu: FC<MenuProps> = props => {
 const mapStateToProps = state => ({ licensing: state.license.licensing, version: state.version })
 const mapDispatchToProps = { fetchCurrentVersion, fetchLatestVersions }
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(Menu)
-)
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Menu))

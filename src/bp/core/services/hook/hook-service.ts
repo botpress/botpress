@@ -105,6 +105,12 @@ export namespace Hooks {
     }
   }
 
+  export class OnBotError extends BaseHook {
+    constructor(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[]) {
+      super('on_bot_error', { bp, botId, events })
+    }
+  }
+
   export class OnStageChangeRequest extends BaseHook {
     constructor(
       bp: typeof sdk,

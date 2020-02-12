@@ -493,6 +493,11 @@ export interface MonitoringConfig {
    * @default 15m
    */
   janitorInterval: string
+  /**
+   * The interval between which logs are accumulated before triggering the OnBotImportantLog hook. Set this value higher if the hook is triggered too often.
+   * @default 1m
+   */
+  botMonitorInterval: string
 }
 
 export interface AlertingConfig {

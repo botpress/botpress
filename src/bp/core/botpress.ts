@@ -328,6 +328,10 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
+    this.monitoringService.onBotError = async (botId: string, events: sdk.LoggerEntry[]) => {
+      await this.hookService.executeHook(new Hooks.OnBotError(this.api, botId, events))
+    }
+
     await this.dataRetentionService.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')

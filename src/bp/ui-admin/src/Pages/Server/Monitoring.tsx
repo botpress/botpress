@@ -1,4 +1,4 @@
-import { calculateOverviewForHost, groupEntriesByTime, mergeEntriesByTime } from 'common/monitoring'
+import { calculateOverviewForHost, groupEntriesByTime, mergeEntriesByTime, Metric } from 'common/monitoring'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
@@ -226,18 +226,33 @@ class Monitoring extends Component<Props, State> {
           <YAxis yAxisId="r" domain={[0, 'dataMax']} tick={tickSize} width={30} orientation="right" />
           <Tooltip content={this.renderTooltip} />
           <Legend />
-          <Bar stackId="stack" yAxisId="l" name="HTTP Requests" dataKey="summary.requests.count" fill="#1C4E80" />
-          <Bar stackId="stack" yAxisId="l" name="Events In" dataKey="summary.eventsIn.count" fill="#7E909A" />
-          <Bar stackId="stack" yAxisId="l" name="Events Out" dataKey="summary.eventsOut.count" fill="#6AB187" />
+          <Bar stackId="stack" yAxisId="l" name="HTTP Requests" dataKey={`summary.${Metric.Requests}`} fill="#1C4E80" />
+          <Bar stackId="stack" yAxisId="l" name="Events In" dataKey={`summary.${Metric.EventsIn}`} fill="#7E909A" />
+          <Bar stackId="stack" yAxisId="l" name="Events Out" dataKey={`summary.${Metric.EventsOut}`} fill="#6AB187" />
           <Line
             yAxisId="r"
             name="Warnings"
-            dataKey="summary.warnings.count"
+            dataKey={`summary.${Metric.Warnings}`}
             stroke="#DBAE58"
             strokeWidth={2}
             dot={false}
           />
-          <Line yAxisId="r" name="Errors" dataKey="summary.errors.count" stroke="#AC3E31" strokeWidth={2} dot={false} />
+          <Line
+            yAxisId="r"
+            name="Errors"
+            dataKey={`summary.${Metric.Errors}`}
+            stroke="#db3737"
+            strokeWidth={2}
+            dot={false}
+          />
+          <Line
+            yAxisId="r"
+            name="Criticals"
+            dataKey={`summary.${Metric.Criticals}`}
+            stroke="#AC3E31"
+            strokeWidth={2}
+            dot={false}
+          />
         </ComposedChart>
       </ResponsiveContainer>
     )
@@ -380,7 +395,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { fetchStats, refreshStats, fetchBotStatus: fetchBotHealth }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Monitoring)
+export default connect(mapStateToProps, mapDispatchToProps)(Monitoring)

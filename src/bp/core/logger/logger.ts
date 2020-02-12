@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios'
 import { Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
+import { Metric } from 'common/monitoring'
 import { IDisposable } from 'core/misc/disposable'
 import { BotService } from 'core/services/bot-service'
 import { incrementMetric } from 'core/services/monitoring'
@@ -50,6 +51,8 @@ export class PersistedConsoleLogger implements Logger {
     wildcard: true
   })
 
+  public onBotLog?: (events: LoggerEntry[]) => Promise<void>
+
   public static listenForAllLogs(fn: LoggerListener, botId: string = '*'): IDisposable {
     if (!_.isFunction(fn)) {
       throw new InvalidParameterError('"fn" listener must be a callback function')
@@ -97,6 +100,7 @@ export class PersistedConsoleLogger implements Logger {
     [LoggerLevel.Info]: 'green',
     [LoggerLevel.Warn]: 'yellow',
     [LoggerLevel.Error]: 'red',
+    [LoggerLevel.Critical]: 'red',
     [LoggerLevel.Debug]: 'blue'
   }
 
@@ -234,7 +238,7 @@ export class PersistedConsoleLogger implements Logger {
       BotService.incrementBotStats(this.botId, 'warning')
     }
 
-    incrementMetric('warnings.count')
+    incrementMetric(Metric.Warnings)
     this.print(LoggerLevel.Warn, message, metadata)
   }
 
@@ -247,7 +251,20 @@ export class PersistedConsoleLogger implements Logger {
       BotService.incrementBotStats(this.botId, 'error')
     }
 
-    incrementMetric('errors.count')
+    incrementMetric(Metric.Errors)
     this.print(LoggerLevel.Error, message, metadata)
+  }
+
+  critical(message: string, metadata?: any): void {
+    if (this.currentMessageLevel === undefined) {
+      this.currentMessageLevel = LogLevel.PRODUCTION
+    }
+
+    if (this.botId) {
+      BotService.incrementBotStats(this.botId, 'critical')
+    }
+
+    incrementMetric(Metric.Criticals)
+    this.print(LoggerLevel.Critical, message, metadata)
   }
 }

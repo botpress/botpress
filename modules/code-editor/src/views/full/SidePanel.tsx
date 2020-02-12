@@ -248,7 +248,9 @@ class PanelContent extends React.Component<Props> {
       },
       {
         label: 'Bot Hooks',
-        items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
+        items: hooks.filter(x =>
+          ['after_bot_mount', 'after_bot_unmount', 'before_bot_import', 'on_bot_error'].includes(x.id)
+        )
       }
     ]
 
