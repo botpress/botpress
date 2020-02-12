@@ -1,4 +1,4 @@
-import { Dialog, HTMLSelect, Label } from '@blueprintjs/core'
+import { Button, ControlGroup, Dialog, FormGroup, HTMLSelect, InputGroup, Label } from '@blueprintjs/core'
 import { ActionServer } from 'common/typings'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
@@ -22,6 +22,27 @@ const ActionDialog: FC<ActionDialogProps> = props => {
             ))}
           </HTMLSelect>
         </Label>
+
+        <FormGroup
+          helperText="This is the action that will be executed on the chosen Action Server"
+          label="Action Name"
+          labelFor="action-name"
+          labelInfo="(required)"
+        >
+          <InputGroup id="action-name" placeholder="Your action's name" />
+        </FormGroup>
+
+        <FormGroup
+          helperText="These parameters will be passed to the executed action"
+          label="Action Parameters"
+          labelFor="action-parameters"
+        >
+          <ControlGroup id="action-parameters">
+            <InputGroup id="action-parameters" placeholder="Name" />
+            <InputGroup id="action-parameters" placeholder="Value" />
+            <Button icon="remove" />
+          </ControlGroup>
+        </FormGroup>
       </div>
     </Dialog>
   )
