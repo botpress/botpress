@@ -3,13 +3,14 @@ import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { RouteComponentProps, withRouter } from 'react-router'
+import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import ReactTable from 'react-table'
 import api from '~/api'
 import { fetchBotHealth, fetchBotsByWorkspace } from '~/reducers/bots'
 import { switchWorkspace } from '~/reducers/user'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import confirmDialog from '~/App/ConfirmDialog'
+import { getActiveWorkspace } from '~/Auth'
 
 type Props = {
   health?: ServerHealth[]
@@ -58,7 +59,12 @@ const BotHealth: FC<Props> = props => {
       workspace && props.switchWorkspace(workspace)
     }
 
-    props.history.push(`/logs?botId=${botId}`)
+    props.history.push(
+      generatePath(`/workspace/:workspaceId?/logs?botId=:botId`, {
+        workspaceId: getActiveWorkspace() || undefined,
+        botId
+      })
+    )
   }
 
   const updateColumns = () => {

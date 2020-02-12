@@ -75,6 +75,7 @@ export const makeMainRoutes = () => {
               <Route path="/workspace/:workspaceId?/bots" component={Bots} />
               <Route path="/workspace/:workspaceId?/users" component={Collaborators} />
               <Route path="/workspace/:workspaceId?/roles" component={Roles} />
+              <Route path="/workspace/:workspaceId?/logs" component={Logs} />
               <Route path="/workspaces" component={Workspaces} />
               <Route path="/logs" component={Logs} />
               <Route path="/debug" component={Debug} />

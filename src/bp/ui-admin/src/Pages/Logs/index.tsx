@@ -49,6 +49,7 @@ interface Props {
   bots: BotConfig[]
   fetchBots: () => void
   profile: UserProfile
+  currentWorkspace: any
 }
 
 const SelectDropdown = Select.ofType<Option>()
@@ -71,21 +72,18 @@ const Logs: FC<Props> = props => {
 
     // tslint:disable-next-line: no-floating-promises
     fetchLogs()
-  }, [timeFilter, onlyWorkspace])
+  }, [timeFilter, onlyWorkspace, props.currentWorkspace])
 
   useEffect(() => {
     const params = queryString.parse(window.location.search)
-    if (params.botId && props.bots) {
-      if (props.bots.find(x => x.id === params.botId)) {
-        setBotFilter({ label: params.botId, value: params.botId })
-        setFilters([{ id: 'botId', value: params.botId }])
-      } else {
-        setBotFilter(SCOPE_ITEMS[0])
-        setFilters([])
-        updateBotIdUrl('')
-      }
+    if (params.botId) {
+      setBotFilter({ label: params.botId, value: params.botId })
+      setFilters([{ id: 'botId', value: params.botId }])
+    } else {
+      setBotFilter(SCOPE_ITEMS[0])
+      setFilters([])
     }
-  }, [props.bots])
+  }, [botIds, props.bots])
 
   const updateBotIdUrl = (botId: string) => {
     const url = new URL(window.location.href)
@@ -247,6 +245,10 @@ const Logs: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({ bots: state.bots.bots, profile: state.user.profile })
+const mapStateToProps = state => ({
+  bots: state.bots.bots,
+  profile: state.user.profile,
+  currentWorkspace: state.user.currentWorkspace
+})
 
 export default connect(mapStateToProps, { fetchBots })(Logs)

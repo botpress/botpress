@@ -109,7 +109,14 @@ const Menu: FC<MenuProps> = props => {
           isPro={true}
         />
 
-        <MenuItem id="btn-menu-logs" text="Logs" icon="manual" url="/logs" resource="admin.logs" operation="read" />
+        <MenuItem
+          id="btn-menu-logs"
+          text="Logs"
+          icon="manual"
+          url="/workspace/:workspaceId?/logs"
+          resource="admin.logs"
+          operation="read"
+        />
       </ControlGroup>
 
       <AccessControl superAdmin={true}>
