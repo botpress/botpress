@@ -1,6 +1,6 @@
 import { Button, ControlGroup, Dialog, FormGroup, HTMLSelect, InputGroup, Label } from '@blueprintjs/core'
 import { ActionServer } from 'common/typings'
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
 
 interface ActionDialogProps {
@@ -11,6 +11,8 @@ interface ActionDialogProps {
 
 const ActionDialog: FC<ActionDialogProps> = props => {
   const { actionServers, isOpen, onClose } = props
+  const [actionName, setActionName] = useState('')
+
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
       <div>
@@ -29,7 +31,14 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           labelFor="action-name"
           labelInfo="(required)"
         >
-          <InputGroup id="action-name" placeholder="Your action's name" />
+          <InputGroup
+            id="action-name"
+            value={actionName}
+            placeholder="Your action's name"
+            onChange={event => {
+              setActionName(event.target.value.replace(/[^a-z0-9-_]/gi, '_'))
+            }}
+          />
         </FormGroup>
 
         <FormGroup
