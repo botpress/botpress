@@ -15,44 +15,42 @@ const ActionDialog: FC<ActionDialogProps> = props => {
 
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
-      <div>
-        <Label>
-          Action Server
-          <HTMLSelect>
-            {actionServers.map(actionServer => (
-              <option key={actionServer.baseUrl}>{actionServer.baseUrl}</option>
-            ))}
-          </HTMLSelect>
-        </Label>
+      <Label>
+        Action Server
+        <HTMLSelect>
+          {actionServers.map(actionServer => (
+            <option key={actionServer.baseUrl}>{actionServer.baseUrl}</option>
+          ))}
+        </HTMLSelect>
+      </Label>
 
-        <FormGroup
-          helperText="This is the action that will be executed on the chosen Action Server"
-          label="Action Name"
-          labelFor="action-name"
-          labelInfo="(required)"
-        >
-          <InputGroup
-            id="action-name"
-            value={actionName}
-            placeholder="Your action's name"
-            onChange={event => {
-              setActionName(event.target.value.replace(/[^a-z0-9-_]/gi, '_'))
-            }}
-          />
-        </FormGroup>
+      <FormGroup
+        helperText="This is the action that will be executed on the chosen Action Server"
+        label="Action Name"
+        labelFor="action-name"
+        labelInfo="(required)"
+      >
+        <InputGroup
+          id="action-name"
+          value={actionName}
+          placeholder="Your action's name"
+          onChange={event => {
+            setActionName(event.target.value.replace(/[^a-z0-9-_]/gi, '_'))
+          }}
+        />
+      </FormGroup>
 
-        <FormGroup
-          helperText="These parameters will be passed to the executed action"
-          label="Action Parameters"
-          labelFor="action-parameters"
-        >
-          <ControlGroup id="action-parameters">
-            <InputGroup id="action-parameters" placeholder="Name" />
-            <InputGroup id="action-parameters" placeholder="Value" />
-            <Button icon="remove" />
-          </ControlGroup>
-        </FormGroup>
-      </div>
+      <FormGroup
+        helperText="These parameters will be passed to the executed action"
+        label="Action Parameters"
+        labelFor="action-parameters"
+      >
+        <ControlGroup id="action-parameters">
+          <InputGroup id="action-parameters" placeholder="Name" />
+          <InputGroup id="action-parameters" placeholder="Value" />
+          <Button icon="remove" />
+        </ControlGroup>
+      </FormGroup>
     </Dialog>
   )
 }
