@@ -239,6 +239,7 @@ export type BotpressConfig = {
    */
   autoRevision: boolean
   eventCollector: EventCollectorConfig
+  botMonitoring: BotMonitoringConfig
   /**
    * @default { "default": { "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
    */
@@ -493,11 +494,6 @@ export interface MonitoringConfig {
    * @default 15m
    */
   janitorInterval: string
-  /**
-   * The interval between which logs are accumulated before triggering the OnBotImportantLog hook. Set this value higher if the hook is triggered too often.
-   * @default 1m
-   */
-  botMonitorInterval: string
 }
 
 export interface AlertingConfig {
@@ -526,6 +522,20 @@ export interface AlertingConfig {
    * is called with the incident.
    */
   rules: IncidentRule[]
+}
+
+export interface BotMonitoringConfig {
+  /**
+   * This must be enabled for the hook OnBotError to work properly.
+   * @default true
+   */
+  enabled: boolean
+  /**
+   * The interval between which logs are accumulated before triggering the OnBotError hook.
+   * Set this value higher if the hook is triggered too often.
+   * @default 1m
+   */
+  interval: string
 }
 
 export interface EventCollectorConfig {

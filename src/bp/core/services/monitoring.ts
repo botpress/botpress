@@ -87,7 +87,6 @@ export interface MonitoringMetrics {
 }
 
 export interface MonitoringService {
-  onBotError?: (botId: string, events: sdk.LoggerEntry[]) => Promise<void>
   start(): Promise<void>
   stop(): void
   getStats(dateFrom, dateTo): any
@@ -97,7 +96,6 @@ export interface MonitoringService {
 
 @injectable()
 export class CEMonitoringService implements MonitoringService {
-  public onBotError?: (botId: string, events: sdk.LoggerEntry[]) => Promise<void>
   async start(): Promise<void> {}
   stop(): void {}
   getStats(dateFrom, dateTo): any {

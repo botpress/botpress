@@ -15,12 +15,7 @@ export const HOOK_SIGNATURES = {
     'async function hook(bp: typeof sdk, bot: sdk.BotConfig, users: Partial<sdk.AuthUser[]>, pipeline: sdk.Pipeline, hookResult: any)',
   after_stage_changed:
     'async function hook(bp: typeof sdk, previousBotConfig: sdk.BotConfig, bot: sdk.BotConfig, users: Partial<sdk.AuthUser[]>, pipeline: sdk.Pipeline)',
-  on_bot_error: `
-  /*
-   * The monitoring service must be enabled for this hook to work properly
-   * It will be triggered with a list of events which occurred during the configured interval
-   */
-  async function hook(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[])`
+  on_bot_error: `async function hook(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[])`
 }
 
 export const BOT_SCOPED_HOOKS = [
