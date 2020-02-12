@@ -248,7 +248,17 @@ export class ScopedActionService {
     })
 
     const knex = this.database.knex('tasks')
-    const taskId = (await knex.returning('id').insert({ eventId: incomingEvent.id, status: 'started' }))[0]
+    const taskId = (
+      await knex.returning('id').insert({
+        eventId: incomingEvent.id,
+        status: 'started',
+        actionName,
+        actionArgs: this.database.knex.json.set(actionArgs),
+        trusted: false,
+        actionServer: actionServer.baseUrl
+      })
+    )[0]
+
     const response = await axios.post(`${actionServer.baseUrl}/action/run`, {
       token,
       actionName,
