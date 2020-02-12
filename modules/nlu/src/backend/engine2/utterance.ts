@@ -331,9 +331,10 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
           POS: token.POS,
           isAlter: true
         } as AlternateToken
+      } else {
+        return uttTok2altTok(token)
       }
     })
-    .filter(Boolean)
     .thru((altToks: AlternateToken[]) => {
       const hasAlternate = altToks.length === utterance.tokens.length && altToks.some(t => t.isAlter)
       if (hasAlternate) {
