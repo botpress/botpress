@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { ActionServer } from 'common/typings'
 import { createForAction } from 'core/api'
 import Database from 'core/database'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
@@ -88,10 +89,6 @@ interface RunActionProps {
   actionServer?: ActionServer
   incomingEvent: IO.IncomingEvent
   actionArgs: any
-}
-
-interface ActionServer {
-  baseUrl: string
 }
 
 export class ScopedActionService {

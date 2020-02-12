@@ -179,3 +179,7 @@ export interface BotHealth {
   errorCount: number
   warningCount: number
 }
+
+export interface ActionServer {
+  baseUrl: string
+}

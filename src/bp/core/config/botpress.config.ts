@@ -1,5 +1,5 @@
 import { ConverseConfig } from 'botpress/sdk'
-import { UniqueUser } from 'common/typings'
+import { ActionServer, UniqueUser } from 'common/typings'
 import { IncidentRule } from 'core/services/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
@@ -258,6 +258,12 @@ export type BotpressConfig = {
    * @default []
    */
   additionalLanguages?: { name: string; code: string }[]
+
+  /**
+   * Custom Action Servers to be used when dispatching actions.
+   * @default []
+   */
+  customActionServers: ActionServer[]
 }
 
 export interface ExternalAuthConfig {
