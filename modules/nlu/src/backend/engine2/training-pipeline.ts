@@ -198,10 +198,12 @@ const trainIntentClassifier = async (
       const points = _.chain(input.intents)
         .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
         .flatMap(i =>
-          i.utterances.map(utt => ({
-            label: i.name,
-            coordinates: utt.sentenceEmbedding
-          }))
+          i.utterances
+            .filter(u => i.name !== NONE_INTENT || u.tokens.length > 2)
+            .map(utt => ({
+              label: i.name,
+              coordinates: utt.sentenceEmbedding
+            }))
         )
         .value()
         .filter(x => x.coordinates.filter(isNaN).length == 0)
@@ -307,7 +309,7 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
   return input
 }
 
-export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
+export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
   if (input.intents.length === 0) {
     return input
   }
@@ -322,14 +324,14 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
   const nbOfNoneUtterances = Math.max((allUtterances.length * 2) / 3, 20)
 
-  const vocabWords = getStopWordsForLang('en')
+  const stopWords = getStopWordsForLang('en')
 
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
   const vocabUtts = _.range(0, nbOfNoneUtterances).map(() => {
     const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize(vocabWords, nbWords).join(joinChar)
+    return _.sampleSize(stopWords, nbWords).join(joinChar)
   })
 
   const junkWordsUtts = _.range(0, nbOfNoneUtterances).map(() => {
@@ -339,13 +341,17 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
 
   const mixedUtts = _.range(0, nbOfNoneUtterances).map(() => {
     const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize([...junkWords, ...vocabWords], nbWords).join(joinChar)
+    return _.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
   })
 
   const intent: Intent<Utterance> = {
     name: NONE_INTENT,
     slot_definitions: [],
-    utterances: await buildUtteranceBatch([...mixedUtts, ...vocabUtts, ...junkWordsUtts], input.languageCode, tools),
+    utterances: await buildUtteranceBatch(
+      [...mixedUtts, ...vocabUtts, ...junkWordsUtts, ...stopWords],
+      input.languageCode,
+      tools
+    ),
     contexts: [...input.contexts],
     vocab: {},
     slot_entities: []
@@ -389,10 +395,6 @@ const trainOutOfScope = async (
   progress: progressCB
 ): Promise<_.Dictionary<string>> => {
   debugTraining('Training out of scope classifier')
-  if (!isPOSAvailable(input.languageCode)) {
-    progress()
-    return {}
-  }
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     kernel: 'LINEAR',
     classifier: 'C_SVC',
@@ -403,6 +405,11 @@ const trainOutOfScope = async (
     .filter(i => i.name === 'none')
     .flatMap(i => i.utterances)
     .value()
+
+  if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
+    progress()
+    return {}
+  }
   const oos_points = featurizeOOSUtterances(noneUtts, tools)
 
   const oosByCtx: _.Dictionary<string> = (
@@ -462,7 +469,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
     output = await ExtractEntities(output, tools)
-    output = await AppendNoneIntents(output, tools)
+    output = await AppendNoneIntent(output, tools)
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
 

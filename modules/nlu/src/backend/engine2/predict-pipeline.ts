@@ -267,19 +267,19 @@ function electIntent(input: PredictStep): PredictStep {
         return [{ label: NONE_INTENT, l0Confidence: ctxConf, context: ctx, confidence: 1 }, ...others]
       }
 
-      const lnstd = math.std(intentPreds.map(x => Math.log(x.confidence))) // because we want a lognormal distribution
+      const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
       let p1Conf = math.GetZPercent((Math.log(intentPreds[0].confidence) - Math.log(intentPreds[1].confidence)) / lnstd)
       if (isNaN(p1Conf)) {
         p1Conf = 0.5
       }
 
       return [
-        { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: _.round(ctxConf * p1Conf, 2) },
+        { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: _.round(ctxConf * p1Conf, 3) },
         {
           label: intentPreds[1].label,
           l0Confidence: ctxConf,
           context: ctx,
-          confidence: _.round(ctxConf * (1 - p1Conf), 2)
+          confidence: _.round(ctxConf * (1 - p1Conf), 3)
         }
       ]
     })
