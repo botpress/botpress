@@ -1,5 +1,6 @@
-import { IO, Logger } from 'botpress/sdk'
+import { AnalyticsMethod, AnalyticsMetric, IO, Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
+import { AnalyticsRouter } from 'core/routers/bots/analytics'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -47,10 +48,11 @@ export class DecisionEngine {
       if (action === 'send') {
         await this._sendSuggestion(data, sessionId, event)
       } else if (action === 'redirect') {
-        this.analytics.batch(this.analytics.incrementMetric, {
+        this.analytics.addMetric({
           botId: event.botId,
           channel: event.channel,
-          metric: 'goals_started_count'
+          metric: AnalyticsMetric.GoalsStartedCount,
+          method: AnalyticsMethod.DailyCount
         })
         await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
 
@@ -136,10 +138,11 @@ export class DecisionEngine {
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
 
         if (event.nlu?.intent.name === 'none') {
-          this.analytics.batch(this.analytics.incrementMetric, {
+          this.analytics.addMetric({
             botId: event.botId,
             channel: event.channel,
-            metric: 'msg_nlu_none'
+            metric: AnalyticsMetric.MsgNluNone,
+            method: AnalyticsMethod.DailyCount
           })
         }
 
@@ -215,10 +218,11 @@ export class DecisionEngine {
 
     if (payloads) {
       if (event.decision?.source === 'qna') {
-        this.analytics.batch(this.analytics.incrementMetric, {
+        this.analytics.addMetric({
           botId: event.botId,
           channel: event.channel,
-          metric: 'msg_sent_qna_count'
+          metric: AnalyticsMetric.MsgSentQnaCount,
+          method: AnalyticsMethod.DailyCount
         })
       }
 

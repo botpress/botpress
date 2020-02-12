@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import AnalyticsService from 'core/services/analytics-service'
+import { AnalyticsRepository } from 'core/repositories/analytics-repository'
 import { Migration, MigrationOpts } from 'core/services/migration'
 import { TYPES } from 'core/types'
 import _ from 'lodash'
@@ -38,15 +38,19 @@ const migration: Migration = {
           .where({ user_id: userBot['userId'] })
       })
 
-      const analytics = inversify.get<AnalyticsService>(TYPES.AnalyticsService)
-
       const updated_users = await bp
         .database('srv_channel_users')
         .select('user_id', 'channel', 'botId')
         .where({ channel: 'web' })
 
+      const analyticsRepo = inversify.get<AnalyticsRepository>(TYPES.AnalyticsRepository)
       await Promise.mapSeries(updated_users, user =>
-        analytics.incrementMetric({ botId: user['botId'], channel: user['channel'], metric: 'users_count' })
+        analyticsRepo.insertOrUpdate({
+          botId: user['botId'],
+          channel: user['channel'],
+          metric: sdk.AnalyticsMetric.UsersTotal,
+          method: sdk.AnalyticsMethod.TotalCount
+        })
       )
 
       return { success: true, message: 'Configuration updated successfully' }

@@ -1,21 +1,15 @@
-import { Analytics, AnalyticsFn, Logger, MetricDefinition } from 'botpress/sdk'
+import { Analytics, Logger, MetricDefinition } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AnalyticsRepository } from 'core/repositories/analytics-repository'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
-import moment from 'moment'
 import ms from 'ms'
-
-export interface BatchObject {
-  fn: AnalyticsFn
-  metricDef: MetricDefinition
-}
 
 @injectable()
 export default class AnalyticsService {
   private readonly BATCH_SIZE = 100
 
-  private metricsBatch: BatchObject[] = []
+  private batch: MetricDefinition[] = []
   private enabled = false
   private interval!: number
   private intervalRef
@@ -39,14 +33,6 @@ export default class AnalyticsService {
     this.enabled = config.enabled
   }
 
-  batch(fn: AnalyticsFn, metricDef: MetricDefinition) {
-    if (!this.enabled) {
-      return
-    }
-
-    this.metricsBatch.push({ fn, metricDef })
-  }
-
   start() {
     if (this.intervalRef || !this.enabled) {
       return
@@ -54,50 +40,12 @@ export default class AnalyticsService {
     this.intervalRef = setInterval(this._runTask, this.interval)
   }
 
-  async incrementMetric(metricDef: MetricDefinition): Promise<void> {
+  addMetric(metricDef: MetricDefinition): void {
     if (!this.enabled) {
       return
     }
 
-    const { botId, channel, metric, increment = 1 } = metricDef
-
-    try {
-      const analytics = await this.analyticsRepo.get({ botId, channel, metric })
-      const latest = moment(analytics.created_on).startOf('day')
-      const today = moment().startOf('day')
-
-      // Aggregate metrics per day
-      if (latest.isBefore(today)) {
-        await this.analyticsRepo.insert({ botId, channel, metric, value: increment })
-      } else {
-        await this.analyticsRepo.update(analytics.id, analytics.value + increment)
-      }
-    } catch (err) {
-      await this.analyticsRepo.insert({ botId, channel, metric, value: increment })
-    }
-  }
-
-  async incrementMetricTotal(metricDef: MetricDefinition): Promise<void> {
-    if (!this.enabled) {
-      return
-    }
-
-    const { botId, channel, metric, increment = 1 } = metricDef
-
-    try {
-      const analytics = await this.analyticsRepo.get({ botId, channel, metric })
-      const latest = moment(analytics.created_on).startOf('day')
-      const today = moment().startOf('day')
-
-      // Aggregate metrics per day
-      if (latest.isBefore(today)) {
-        await this.analyticsRepo.insert({ botId, channel, metric, value: analytics.value + increment })
-      } else {
-        await this.analyticsRepo.update(analytics.id, analytics.value + increment)
-      }
-    } catch (err) {
-      await this.analyticsRepo.insert({ botId, channel, metric, value: increment })
-    }
+    this.batch.push(metricDef)
   }
 
   async getDateRange(botId: string, startDate: Date, endDate: Date, channel?: string): Promise<Analytics[]> {
@@ -105,22 +53,20 @@ export default class AnalyticsService {
   }
 
   private _runTask = async () => {
-    if (this.currentPromise || !this.metricsBatch.length) {
+    if (this.currentPromise || !this.batch.length) {
       return
     }
 
-    const batchSize = Math.min(this.metricsBatch.length, this.BATCH_SIZE)
-    for (let i = 0; i < batchSize; i++) {
-      const metric = this.metricsBatch.shift()
-      this.currentPromise = metric?.fn
-        .call(this, metric.metricDef)
-        .catch(err => {
-          this.logger.attachError(err).error('Could not persist metrics. Re-queuing now.')
-          this.metricsBatch.push(metric)
-        })
-        .finally(() => {
-          this.currentPromise = undefined
-        })
-    }
+    const batchSize = Math.min(this.batch.length, this.BATCH_SIZE)
+    const metrics = this.batch.splice(0, batchSize)
+    this.currentPromise = this.analyticsRepo
+      .insertMany(metrics)
+      .catch(err => {
+        this.logger.attachError(err).error('Could not persist metrics. Re-queuing now.')
+        this.batch.push(...metrics)
+      })
+      .finally(() => {
+        this.currentPromise = undefined
+      })
   }
 }

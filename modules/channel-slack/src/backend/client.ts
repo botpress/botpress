@@ -87,11 +87,13 @@ export class SlackClient {
       const events = await this.bp.events.findEvents({ incomingEventId, direction: 'incoming' })
       const event = events[0]
       await this.bp.events.updateEvent(event.id, { feedback })
-      const feedbackMetric: sdk.MetricName = feedback === 1 ? 'feedback_positive_count' : 'feedback_negative_count'
-      this.bp.analytics.batch(this.bp.analytics.incrementMetric, {
+      const feedbackMetric =
+        feedback === 1 ? sdk.AnalyticsMetric.FeedbackPositiveCount : sdk.AnalyticsMetric.FeedbackNegativeCount
+      this.bp.analytics.addMetric({
         botId: event.botId,
         channel: event.channel,
-        metric: feedbackMetric
+        metric: feedbackMetric,
+        method: sdk.AnalyticsMethod.DailyCount
       })
     })
 

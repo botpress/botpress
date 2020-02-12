@@ -307,10 +307,11 @@ export class Botpress {
         return
       }
 
-      this.analyticService.batch(this.analyticService.incrementMetric, {
+      this.analyticService.addMetric({
         botId: event.botId,
         channel: event.channel,
-        metric: 'msg_received_count'
+        metric: sdk.AnalyticsMetric.MsgReceivedCount,
+        method: sdk.AnalyticsMethod.DailyCount
       })
 
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
@@ -321,10 +322,11 @@ export class Botpress {
 
     this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       this.eventCollector.storeEvent(event)
-      this.analyticService.batch(this.analyticService.incrementMetric, {
+      this.analyticService.addMetric({
         botId: event.botId,
         channel: event.channel,
-        metric: 'msg_sent_count'
+        metric: sdk.AnalyticsMetric.MsgSentCount,
+        method: sdk.AnalyticsMethod.DailyCount
       })
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }

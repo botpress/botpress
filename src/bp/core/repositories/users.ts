@@ -1,4 +1,4 @@
-import { Paging, User } from 'botpress/sdk'
+import { AnalyticsMethod, AnalyticsMetric, Paging, User } from 'botpress/sdk'
 import AnalyticsService from 'core/services/analytics-service'
 import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
@@ -74,8 +74,13 @@ export class KnexUserRepository implements UserRepository {
         }
       })
 
-    this.analytics.batch(this.analytics.incrementMetric, { botId, channel, metric: 'new_users_count' })
-    this.analytics.batch(this.analytics.incrementMetricTotal, { botId, channel, metric: 'users_count' })
+    this.analytics.addMetric({
+      botId,
+      channel,
+      metric: AnalyticsMetric.NewUsersCount,
+      method: AnalyticsMethod.DailyCount
+    })
+    this.analytics.addMetric({ botId, channel, metric: AnalyticsMetric.UsersTotal, method: AnalyticsMethod.TotalCount })
 
     return { result: newUser, created: true }
   }

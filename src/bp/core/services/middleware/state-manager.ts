@@ -141,10 +141,11 @@ export class StateManager {
 
     const { result: dialogSession, created } = await this.sessionRepo.getOrCreateSession(sessionId, event.botId, trx)
     if (created) {
-      this.analytics.batch(this.analytics.incrementMetric, {
+      this.analytics.addMetric({
         botId: event.botId,
         channel: event.channel,
-        metric: 'sessions_count'
+        metric: sdk.AnalyticsMetric.SessionsCount,
+        method: sdk.AnalyticsMethod.DailyCount
       })
     }
     const expiry = createExpiry(botConfig, botpressConfig)

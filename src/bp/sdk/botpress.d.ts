@@ -1700,25 +1700,32 @@ declare module 'botpress/sdk' {
   export interface MetricDefinition {
     botId: string
     channel: string
-    metric: MetricName
+    metric: AnalyticsMetric
+    method: AnalyticsMethod
     increment?: number
   }
 
-  export type MetricName =
-    | 'sessions_count'
-    | 'msg_received_count'
-    | 'goals_started_count'
-    | 'goals_completed_count'
-    | 'goals_failed_count'
-    | 'msg_sent_count'
-    | 'msg_sent_qna_count'
-    | 'new_users_count'
-    | 'users_count'
-    | 'returning_users_count'
-    | 'msg_nlu_none'
-    | 'sessions_start_nlu_none'
-    | 'feedback_positive'
-    | 'feedback_negative'
+  export enum AnalyticsMethod {
+    DailyCount = 'daily',
+    TotalCount = 'total'
+  }
+
+  export enum AnalyticsMetric {
+    SessionsCount = 'sessions_count',
+    MsgReceivedCount = 'msg_received_count',
+    MsgSentCount = 'msg_sent_count',
+    MsgSentQnaCount = 'msg_sent_qna_count',
+    MsgNluNone = 'msg_nlu_none',
+    GoalsStartedCount = 'goals_started_count',
+    GoalsCompletedCount = 'goals_completed_count',
+    GoalsFailedCount = 'goals_failed_count',
+    NewUsersCount = 'new_users_count',
+    UsersTotal = 'users_count',
+    ReturningUsersCount = 'returning_users_count',
+    SessionsStartNluNone = 'sessions_start_nlu_none',
+    FeedbackPositiveCount = 'feedback_positive_count',
+    FeedbackNegativeCount = 'feedback_negative_count'
+  }
 
   export interface Analytics {
     id: number
@@ -1730,12 +1737,8 @@ declare module 'botpress/sdk' {
     value: number
   }
 
-  export type AnalyticsFn = (metricDef: MetricDefinition) => Promise<void>
-
   export namespace analytics {
-    export function batch(fn: AnalyticsFn, def: MetricDefinition): void
-    export function incrementMetric(metricDef: MetricDefinition): Promise<void>
-    export function incrementMetricTotal(metricDef: MetricDefinition): Promise<void>
+    export function addMetric(metricDef: MetricDefinition): void
   }
 
   export namespace bots {

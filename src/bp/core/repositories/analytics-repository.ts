@@ -1,7 +1,8 @@
-import { Analytics, MetricName } from 'botpress/sdk'
+import { Analytics, AnalyticsMethod, MetricDefinition } from 'botpress/sdk'
 import Database from 'core/database'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import Knex from 'knex'
 import moment from 'moment'
 
 const TABLE_NAME = 'srv_analytics'
@@ -10,34 +11,78 @@ const TABLE_NAME = 'srv_analytics'
 export class AnalyticsRepository {
   constructor(@inject(TYPES.Database) private db: Database) {}
 
-  async insert(args: { botId: string; channel: string; metric: MetricName; value: number }) {
+  async insert(args: { botId: string; channel: string; metric: string; value: number }, trx?: Knex.Transaction) {
     const { botId, channel, metric, value } = args
-    await this.db
+    let query = this.db
       .knex(TABLE_NAME)
       .insert({ botId, channel, metric_name: metric, value, created_on: this.db.knex.date.now() })
+
+    if (trx) {
+      query = query.transacting(trx)
+    }
+    return query
   }
 
-  async update(id: number, value: number): Promise<void> {
-    await this.db
+  async update(id: number, value: number, trx?: Knex.Transaction) {
+    let query = this.db
       .knex(TABLE_NAME)
       .update({ value, updated_on: this.db.knex.date.now() })
       .where({ id })
+
+    if (trx) {
+      query = query.transacting(trx)
+    }
+    return query
   }
 
-  async get(args: { botId: string; channel: string; metric: string }): Promise<Analytics> {
+  async insertOrUpdate(def: MetricDefinition, trx?: Knex.Transaction) {
+    const { botId, channel, metric } = def
+    const increment = def.increment || 1
+    const analytics = await this.get({ botId, channel, metric }, trx)
+    if (!analytics) {
+      return this.insert({ botId, channel, metric, value: increment }, trx)
+    }
+
+    // Aggregate metrics per day
+    const latest = moment(analytics.created_on).startOf('day')
+    const today = moment().startOf('day')
+
+    if (latest.isBefore(today) && def.method === AnalyticsMethod.DailyCount) {
+      return this.insert({ botId, channel, metric, value: increment }, trx)
+    } else if (latest.isBefore(today) && def.method === AnalyticsMethod.TotalCount) {
+      return this.insert({ botId, channel, metric, value: analytics.value + increment }, trx)
+    } else {
+      return this.update(analytics.id, analytics.value + increment, trx)
+    }
+  }
+
+  async insertMany(metricDefs: MetricDefinition[]): Promise<void> {
+    const trx = await this.db.knex.transaction()
+    try {
+      await Promise.mapSeries(metricDefs, def => this.insertOrUpdate(def, trx))
+      await trx.commit()
+    } catch (err) {
+      await trx.rollback(err)
+    }
+  }
+
+  async get(
+    args: { botId: string; channel: string; metric: string },
+    trx?: Knex.Transaction
+  ): Promise<Analytics | undefined> {
     const { botId, channel, metric } = args
-    const analytics: Analytics = await this.db
+    let query = this.db
       .knex(TABLE_NAME)
       .select()
       .where({ botId, channel, metric_name: metric })
       .orderBy('created_on', 'desc')
       .first()
 
-    if (!analytics) {
-      throw new Error(`Could not find analytics for ${botId}-${channel}-${metric}`)
+    if (trx) {
+      query = query.transacting(trx)
     }
 
-    return analytics
+    return query
   }
 
   async getBetweenDates(botId: string, startDate: Date, endDate: Date, channel?: string): Promise<Analytics[]> {
@@ -53,7 +98,6 @@ export class AnalyticsRepository {
       query = query.andWhere({ channel })
     }
 
-    // nested promises
-    return await query
+    return query
   }
 }

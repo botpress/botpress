@@ -25,3 +25,25 @@ export const WellKnownFlags: typeof IO.WellKnownFlags = {
   SKIP_NATIVE_NLU: Symbol.for('skipNativeNLU'),
   FORCE_PERSIST_STATE: Symbol.for('forcePersistState')
 }
+
+export enum AnalyticsMethod {
+  DailyCount = 'daily',
+  TotalCount = 'total'
+}
+
+export enum AnalyticsMetric {
+  SessionsCount = 'sessions_count',
+  MsgReceivedCount = 'msg_received_count',
+  MsgSentCount = 'msg_sent_count',
+  MsgSentQnaCount = 'msg_sent_qna_count',
+  MsgNluNone = 'msg_nlu_none',
+  GoalsStartedCount = 'goals_started_count',
+  GoalsCompletedCount = 'goals_completed_count',
+  GoalsFailedCount = 'goals_failed_count',
+  NewUsersCount = 'new_users_count',
+  UsersTotal = 'users_count',
+  ReturningUsersCount = 'returning_users_count',
+  SessionsStartNluNone = 'sessions_start_nlu_none',
+  FeedbackPositiveCount = 'feedback_positive_count',
+  FeedbackNegativeCount = 'feedback_negative_count'
+}

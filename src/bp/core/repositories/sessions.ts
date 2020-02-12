@@ -42,10 +42,7 @@ export interface DialogSessionResult {
 export class KnexSessionRepository implements SessionRepository {
   private readonly tableName = 'dialog_sessions'
 
-  constructor(
-    @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
-  ) {}
+  constructor(@inject(TYPES.Database) private database: Database) {}
 
   async getOrCreateSession(
     sessionId: string,

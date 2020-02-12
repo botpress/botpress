@@ -75,9 +75,19 @@ export class EventCollector {
     // Once the goal is a success or failure, it becomes inactive
     if (goal?.success !== undefined) {
       if (goal?.success) {
-        this.analytics.batch(this.analytics.incrementMetric, { botId, channel, metric: 'goals_completed_count' })
+        this.analytics.addMetric({
+          botId,
+          channel,
+          metric: sdk.AnalyticsMetric.GoalsCompletedCount,
+          method: sdk.AnalyticsMethod.DailyCount
+        })
       } else {
-        this.analytics.batch(this.analytics.incrementMetric, { botId, channel, metric: 'goals_failed_count' })
+        this.analytics.addMetric({
+          botId,
+          channel,
+          metric: sdk.AnalyticsMetric.GoalsFailedCount,
+          method: sdk.AnalyticsMethod.DailyCount
+        })
       }
       goal.active = false
     }

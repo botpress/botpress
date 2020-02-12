@@ -114,9 +114,7 @@ const bots = (botService: BotService): typeof sdk.bots => {
 
 const analytics = (analytics: AnalyticsService): typeof sdk.analytics => {
   return {
-    batch: analytics.batch.bind(analytics),
-    incrementMetric: analytics.incrementMetric.bind(analytics),
-    incrementMetricTotal: analytics.incrementMetricTotal.bind(analytics)
+    addMetric: analytics.addMetric.bind(analytics)
   }
 }
 
@@ -346,7 +344,9 @@ export class BotpressAPIProvider {
       experimental: this.experimental,
       workspaces: this.workspaces,
       distributed: this.distributed,
-      analytics: this.analytics
+      analytics: this.analytics,
+      AnalyticsMethod: require('./sdk/enums').AnalyticsMethod,
+      AnalyticsMetric: require('./sdk/enums').AnalyticsMetric
     }
   }
 }
