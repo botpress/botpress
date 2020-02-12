@@ -48,6 +48,7 @@ import {
 import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
+import { ActionWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ActionNode'
 import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
 import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
@@ -78,6 +79,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
@@ -210,7 +212,8 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
     listenNode: (point: Point) =>
       this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
-    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' })
+    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
+    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action', next: [defaultTransition] })
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
@@ -236,6 +239,7 @@ class Diagram extends Component<Props> {
         <MenuItem text="Execute" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
         <MenuItem text="Listen" onClick={wrap(this.add.listenNode, point)} icon="hand" />
         <MenuItem text="Router" onClick={wrap(this.add.routerNode, point)} icon="search-around" />
+        <MenuItem text="Action" onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
         <MenuItem tagName="button" text="Skills" icon="add">
           {this.props.skills.map(skill => (
@@ -563,6 +567,9 @@ class Diagram extends Component<Props> {
         case 'router':
           this.add.routerNode(point)
           break
+        case 'action':
+          this.add.actionNode(point)
+          break
         default:
           this.add.flowNode(point)
           break
@@ -675,9 +682,4 @@ const mapDispatchToProps = {
   buildSkill: buildNewSkill
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  null,
-  { withRef: true }
-)(Diagram)
+export default connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(Diagram)

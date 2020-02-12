@@ -43,6 +43,7 @@ import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } 
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
+import { ActionWidgetFactory } from './nodes_v2/ActionNode'
 import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
@@ -71,6 +72,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     // This reference allows us to update flow nodes from widgets
@@ -197,7 +199,8 @@ class Diagram extends Component<Props> {
     executeNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition] }),
     listenNode: (point: Point) =>
       this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
-    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' })
+    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
+    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action', next: [defaultTransition] })
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
@@ -224,6 +227,7 @@ class Diagram extends Component<Props> {
             <MenuItem text="Execute" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
             <MenuItem text="Listen" onClick={wrap(this.add.listenNode, point)} icon="hand" />
             <MenuItem text="Router" onClick={wrap(this.add.routerNode, point)} icon="search-around" />
+            <MenuItem text="Action" onClick={wrap(this.add.actionNode, point)} icon="offline" />
           </Fragment>
         ) : null}
         <MenuItem tagName="button" text="Skills" icon="add">
@@ -519,6 +523,9 @@ class Diagram extends Component<Props> {
           break
         case 'router':
           this.add.routerNode(point)
+          break
+        case 'action':
+          this.add.actionNode(point)
           break
         default:
           this.add.flowNode(point)
