@@ -43,7 +43,7 @@ import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } 
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
-import { ActionWidgetFactory } from './nodes_v2/ActionNode'
+import { ActionNodeModel, ActionWidgetFactory } from './nodes_v2/ActionNode'
 import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
@@ -347,7 +347,8 @@ class Diagram extends Component<Props> {
     return (
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
-      target.model instanceof RouterNodeModel
+      targetModel instanceof RouterNodeModel ||
+      targetModel instanceof ActionNodeModel
     )
   }
 
