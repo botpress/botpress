@@ -13,9 +13,7 @@
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp",
-        "DEBUG": "bp:none",
-        "BP_EXPERIMENTAL_NLU_POS": "true",
-        "FORCE_TRAIN_ON_MOUNT": "true"
+        "DEBUG": "bp:none"
       },
       "smartStep": true,
       "outFiles": [

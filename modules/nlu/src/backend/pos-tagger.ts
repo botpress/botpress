@@ -1,14 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import path from 'path'
-import yn from 'yn'
 
 import { isSpace, SPACE } from './tools/token-utils'
 
-const USE_POS: boolean = yn(process.env.BP_EXPERIMENTAL_NLU_POS)
-
 export function isPOSAvailable(lang: string): boolean {
   // TODO check that language is part of supported languages once we support more
-  return USE_POS && lang === 'en'
+  return lang === 'en'
 }
 type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<infer ElementType> ? ElementType : never
 

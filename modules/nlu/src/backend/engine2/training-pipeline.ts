@@ -334,7 +334,7 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
 
   const vocabUtts = _.range(0, nbOfNoneUtterances).map(() => {
     const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize([...stopWords, ...vocabWords], nbWords).join(joinChar)
+    return _.sampleSize(_.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
   })
 
   const junkWordsUtts = _.range(0, nbOfNoneUtterances).map(() => {
