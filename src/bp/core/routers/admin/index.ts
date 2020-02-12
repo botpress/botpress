@@ -158,7 +158,8 @@ export class AdminRouter extends CustomRouter {
           botIds = (await this.botService.findBotsByIds(botsRefs)).filter(Boolean).map(x => x.id)
         }
 
-        res.send(await this.logsRepository.searchLogs({ botIds, fromDate: from.toDate() }))
+        const maxRows = req.tokenUser?.isSuperAdmin ? 5000 : 500
+        res.send(await this.logsRepository.searchLogs({ botIds, fromDate: from.toDate(), count: maxRows }))
       })
     )
   }
