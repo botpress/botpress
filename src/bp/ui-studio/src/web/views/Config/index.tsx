@@ -1,4 +1,4 @@
-import { Button, Callout, Card, Collapse, Elevation, FileInput, FormGroup, InputGroup } from '@blueprintjs/core'
+import { Button, Callout, Card, Collapse, Elevation, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import { any } from 'bluebird'
 import { BotEditSchema } from 'common/validation'
@@ -16,6 +16,10 @@ const statusList = [
   { label: 'Collaborators Only', value: 'private' },
   { label: 'Unmounted', value: 'disabled' }
 ]
+
+const axiosConfig = {
+  baseURL: 'api/v1/'
+}
 
 class ConfigView extends Component {
   initialFormState = {
@@ -76,12 +80,12 @@ class ConfigView extends Component {
   }
 
   async fetchBots() {
-    const res = await axios.get('api/v1/admin/bots')
+    const res = await axios.get('admin/bots', axiosConfig)
     return res.data.payload.bots
   }
 
   async fetchLanguages() {
-    const { data } = await axios.get('api/v1/admin/languages/available')
+    const { data } = await axios.get('admin/languages/available', axiosConfig)
     const languages = _.sortBy(data.languages, 'name').map(lang => ({
       label: lang.name,
       value: lang.code
@@ -90,7 +94,7 @@ class ConfigView extends Component {
   }
 
   async fetchLicensing() {
-    const { data } = await axios.get('api/v1/admin/license/status')
+    const { data } = await axios.get('admin/license/status', axiosConfig)
     return data.payload
   }
 
@@ -123,7 +127,7 @@ class ConfigView extends Component {
     }
 
     try {
-      await axios.post(`api/v1/admin/bots/${this.state.botId}`, bot)
+      await axios.post(`admin/bots/${this.state.botId}`, bot, axiosConfig)
       toastSuccess('Bot configuration updated successfully')
       this.setState({ error: undefined, isSaving: false })
     } catch (err) {
@@ -148,9 +152,7 @@ class ConfigView extends Component {
       const newName = this.state.languages.find(x => x.value === lang).label
       const conf = await confirmDialog(
         `Are you sure you want to change the language of your bot from ${currentName} to ${newName}? All of your content elements will be copied, make sure you translate them.`,
-        {
-          acceptLabel: 'Change'
-        }
+        { acceptLabel: 'Change' }
       )
 
       if (conf) {
@@ -188,7 +190,8 @@ class ConfigView extends Component {
     }
 
     try {
-      const res = await axios.post(`api/v1/bots/${this.state.botId}/media`, data, {
+      const res = await axios.post(`bots/${this.state.botId}/media`, data, {
+        ...axiosConfig,
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       this.setState({ [targetProp]: res.data.url })
@@ -217,7 +220,11 @@ class ConfigView extends Component {
 
     return (
       <Card className={style.container}>
-        {this.state.error && <div>{this.state.error.message}</div>}
+        {this.state.error && (
+          <Callout intent={Intent.DANGER} title="Error">
+            {this.state.error.message}
+          </Callout>
+        )}
         <h1>Bot Config - {this.state.name}</h1>
         <form>
           <FormGroup label="Name" labelFor="name">
@@ -380,7 +387,7 @@ class ConfigView extends Component {
               value={this.state.selectedLanguages}
               onChange={this.handleLanguagesChanged}
               isMulti
-            ></Select>
+            />
           </FormGroup>
         </div>
       )
