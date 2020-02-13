@@ -23,7 +23,6 @@ type Props = {
   flows: any
   deleteFlow: (flowName: string) => void
   renameFlow: any
-  history: any
   permissions: PanelPermissions[]
   dirtyFlows: any
   duplicateFlow: any
@@ -75,6 +74,7 @@ const SidePanelContent: FC<Props> = props => {
       <Toolbar mutexInfo={props.mutexInfo} />
 
       {props.showFlowNodeProps ? (
+        // @ts-ignore
         <Inspector />
       ) : (
         <React.Fragment>
@@ -131,7 +131,4 @@ const mapDispatchToProps = {
   renameFlow
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SidePanelContent)
+export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)

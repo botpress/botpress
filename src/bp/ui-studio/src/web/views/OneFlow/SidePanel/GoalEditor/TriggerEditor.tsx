@@ -140,6 +140,7 @@ const TriggerEditor: FC<Props> = props => {
             <h5>#{idx + 1} - This goal is triggered when a user event match those conditions:</h5>
             <div style={{ border: '1px solid lightgray', borderRadius: 10, padding: 3 }}>
               {(trigger.conditions || []).map(condition => (
+                // @ts-ignore
                 <ConditionItem
                   condition={condition}
                   onEdit={flowCondition => onConditionEdit(trigger, flowCondition)}
@@ -149,6 +150,8 @@ const TriggerEditor: FC<Props> = props => {
               ))}
 
               <ButtonGroup>
+                {/*
+  // @ts-ignore */}
                 <ConditionDropdown onChange={con => setCurrentCondition(con)} ignored={trigger.conditions} />
                 <Button
                   icon="add"
@@ -175,7 +178,4 @@ const TriggerEditor: FC<Props> = props => {
 
 const mapStateToProps = state => ({ conditions: state.ndu.conditions })
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  { updateFlow }
-)(TriggerEditor)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow })(TriggerEditor)

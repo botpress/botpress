@@ -138,7 +138,9 @@ class ContentPickerWidget extends Component<Props> {
 
 const mapDispatchToProps = { upsertContentItem, fetchContentItem }
 const mapStateToProps = ({ content: { itemsById } }, { itemId }) => ({ contentItem: itemsById[itemId] })
+
 const ConnectedContentPicker = connect<DispatchProps, StateProps, OwnProps>(
+  // @ts-ignore
   mapStateToProps,
   mapDispatchToProps
 )(withLanguage(ContentPickerWidget))

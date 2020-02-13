@@ -30,7 +30,7 @@ interface Props {
   onToggleGuidedTour: () => void
   toggleBottomPanel: () => void
   onToggleEmulator: () => void
-  toggleLangSwitcher: () => void
+  toggleLangSwitcher: (e: any) => void
 }
 
 const DEFAULT_STATE = {
@@ -216,7 +216,4 @@ const mapStateToProps = state => ({
   contentLang: state.language.contentLang
 })
 
-export default connect(
-  mapStateToProps,
-  { updateDocumentationModal }
-)(StatusBar)
+export default connect(mapStateToProps, { updateDocumentationModal })(StatusBar)
