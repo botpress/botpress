@@ -3,6 +3,7 @@
 interface CssExports {
   'active': string;
   'clickable': string;
+  'disabled': string;
   'flag': string;
   'flash': string;
   'item': string;

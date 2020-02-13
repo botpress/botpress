@@ -122,7 +122,7 @@ class Sidebar extends React.Component {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {this.props.modules.filter(m => m.name === 'code-editor').map(this.renderModuleItem)}
+                {BASIC_MENU_ITEMS.filter(m => m.name === 'Config').map(this.renderBasicItem)}
               </React.Fragment>
             )}
             <li className={classnames(style.empty, 'bp-empty')} />

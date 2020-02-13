@@ -130,6 +130,10 @@ class ConfigView extends Component {
       await axios.post(`admin/bots/${this.state.botId}`, bot, axiosConfig)
       toastSuccess('Bot configuration updated successfully')
       this.setState({ error: undefined, isSaving: false })
+
+      if (bot.disabled != (this.initialFormState.status === 'disabled')) {
+        window.location.reload()
+      }
     } catch (err) {
       this.setState({ error: err, isSaving: false })
     }

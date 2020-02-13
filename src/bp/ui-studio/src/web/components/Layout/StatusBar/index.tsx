@@ -157,21 +157,33 @@ class StatusBar extends React.Component<Props> {
 
   render() {
     return (
-      <footer ref={el => (this.pbRef = el)} className={style.statusBar}>
+      <footer
+        ref={el => (this.pbRef = el)}
+        className={window.IS_BOT_MOUNTED ? style.statusBar : classNames(style.statusBar, style.disabled)}
+      >
         <div className={style.list}>
-          <ActionItem
-            title="Show Emulator"
-            id={'statusbar_emulator'}
-            shortcut={keyMap['emulator-focus']}
-            onClick={this.props.onToggleEmulator}
-            className={classNames({ [style.active]: this.props.isEmulatorOpen }, style.right)}
-          >
-            <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
-            Emulator
-          </ActionItem>
-          <ActionItem title="Notification" description="View Notifications" className={style.right}>
-            <NotificationHub />
-          </ActionItem>
+          {!window.IS_BOT_MOUNTED && (
+            <ActionItem title="Unmounted" description="Bot is unmounted" className={style.right}>
+              BOT IS UNMOUNTED
+            </ActionItem>
+          )}
+          {window.IS_BOT_MOUNTED && (
+            <ActionItem
+              title="Show Emulator"
+              id={'statusbar_emulator'}
+              shortcut={keyMap['emulator-focus']}
+              onClick={this.props.onToggleEmulator}
+              className={classNames({ [style.active]: this.props.isEmulatorOpen }, style.right)}
+            >
+              <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
+              Emulator
+            </ActionItem>
+          )}
+          {window.IS_BOT_MOUNTED && (
+            <ActionItem title="Notification" description="View Notifications" className={style.right}>
+              <NotificationHub />
+            </ActionItem>
+          )}
           <AccessControl resource="bot.logs" operation="read">
             <ActionItem
               id="statusbar_logs"
@@ -184,14 +196,16 @@ class StatusBar extends React.Component<Props> {
               <Icon icon="console" />
             </ActionItem>
           </AccessControl>
-          <ActionItem
-            onClick={this.props.onToggleGuidedTour}
-            title="Toggle Guided Tour"
-            description=""
-            className={style.right}
-          >
-            <GoMortarBoard />
-          </ActionItem>
+          {window.IS_BOT_MOUNTED && (
+            <ActionItem
+              onClick={this.props.onToggleGuidedTour}
+              title="Toggle Guided Tour"
+              description=""
+              className={style.right}
+            >
+              <GoMortarBoard />
+            </ActionItem>
+          )}
           <div className={style.item}>
             <strong>{window.BOTPRESS_VERSION}</strong>
           </div>
@@ -216,7 +230,4 @@ const mapStateToProps = state => ({
   contentLang: state.language.contentLang
 })
 
-export default connect(
-  mapStateToProps,
-  { updateDocumentationModal }
-)(StatusBar)
+export default connect(mapStateToProps, { updateDocumentationModal })(StatusBar)

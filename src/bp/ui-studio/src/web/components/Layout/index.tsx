@@ -174,9 +174,7 @@ class Layout extends React.Component<ILayoutProps> {
                   <Route
                     exact
                     path="/"
-                    render={() =>
-                      window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/modules/code-editor" />
-                    }
+                    render={() => (window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/config" />)}
                   />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
