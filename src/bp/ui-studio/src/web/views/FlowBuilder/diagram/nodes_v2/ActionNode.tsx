@@ -23,6 +23,7 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
   const [showDialog, setShowDialog] = useState(false)
 
   const onSave = (action: Action) => {
+    setShowDialog(false)
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
     flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
