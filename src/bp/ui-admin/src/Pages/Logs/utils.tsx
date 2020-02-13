@@ -8,36 +8,37 @@ import { Filter } from 'react-table'
 export const getDateShortcuts = (): IDateRangeShortcut[] => {
   return [
     {
+      label: 'Last 1 hour',
       dateRange: [
         moment()
           .subtract(1, 'h')
           .toDate(),
         new Date()
       ],
-      label: 'Last 1 hour',
       includeTime: true
     },
     {
+      label: 'Last 6 hours',
       dateRange: [
         moment()
           .subtract(6, 'h')
           .toDate(),
         new Date()
       ],
-      label: 'Last 6 hours',
       includeTime: true
     },
     {
+      label: 'Today',
       dateRange: [
         moment()
           .startOf('day')
           .toDate(),
         new Date()
       ],
-      label: 'Today',
       includeTime: true
     },
     {
+      label: 'Yesterday',
       dateRange: [
         moment()
           .startOf('day')
@@ -47,20 +48,20 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
           .startOf('day')
           .toDate()
       ],
-      label: 'Yesterday',
       includeTime: true
     },
     {
+      label: 'This week',
       dateRange: [
         moment()
           .startOf('week')
           .toDate(),
         new Date()
       ],
-      label: 'This week',
       includeTime: true
     },
     {
+      label: 'Last week',
       dateRange: [
         moment()
           .startOf('week')
@@ -70,17 +71,16 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
           .startOf('week')
           .toDate()
       ],
-      label: 'Last week',
       includeTime: true
     },
     {
+      label: 'Last 30 days',
       dateRange: [
         moment()
           .subtract(30, 'd')
           .toDate(),
         new Date()
-      ],
-      label: 'Last 30 days'
+      ]
     }
   ]
 }
@@ -89,6 +89,7 @@ export const dropdownRenderer = (option, { modifiers, handleClick }) => {
   if (!modifiers.matchesPredicate) {
     return null
   }
+
   return (
     <MenuItem
       className={Classes.SMALL}

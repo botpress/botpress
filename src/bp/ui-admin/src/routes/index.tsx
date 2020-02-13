@@ -77,7 +77,6 @@ export const makeMainRoutes = () => {
               <Route path="/workspace/:workspaceId?/roles" component={Roles} />
               <Route path="/workspace/:workspaceId?/logs" component={Logs} />
               <Route path="/workspaces" component={Workspaces} />
-              <Route path="/logs" component={Logs} />
               <Route path="/debug" component={Debug} />
               <Route path="/modules" component={Modules} />
               <Route path="/" render={() => <Redirect from="/" to={`/workspace/${getActiveWorkspace()}/bots`} />} />

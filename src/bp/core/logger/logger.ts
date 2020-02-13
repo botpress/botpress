@@ -51,8 +51,6 @@ export class PersistedConsoleLogger implements Logger {
     wildcard: true
   })
 
-  public onBotLog?: (events: LoggerEntry[]) => Promise<void>
-
   public static listenForAllLogs(fn: LoggerListener, botId: string = '*'): IDisposable {
     if (!_.isFunction(fn)) {
       throw new InvalidParameterError('"fn" listener must be a callback function')

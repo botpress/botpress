@@ -164,7 +164,7 @@ export class AdminRouter extends CustomRouter {
           fromDate: from.toDate(),
           toDate: to.toDate(),
           botIds,
-          count: req.tokenUser?.isSuperAdmin ? 5000 : 500
+          count: req.tokenUser?.isSuperAdmin ? 2000 : 400
         })
 
         res.send(results)

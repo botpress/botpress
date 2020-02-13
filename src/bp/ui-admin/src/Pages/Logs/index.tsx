@@ -191,6 +191,9 @@ const Logs: FC<Props> = props => {
     {
       Header: 'Message',
       Filter: filterText,
+      Cell: ({ original: { message } }) => (
+        <span dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;') }}></span>
+      ),
       style: { whiteSpace: 'unset' },
       accessor: 'message'
     }

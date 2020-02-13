@@ -24,7 +24,7 @@ interface LogSearchParams {
 export class KnexLogsRepository implements LogsRepository {
   private readonly TABLE_NAME = 'srv_logs'
   private readonly DEFAULT_LIMIT = 25
-  private readonly MAX_ROWS = 5000
+  private readonly MAX_ROWS = 1000
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
