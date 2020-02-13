@@ -24,6 +24,7 @@ const IntentHint: FC<Props> = props => {
   const [recommendations, setRecommendations] = useState<NluMlRecommendations | undefined>()
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     fetchRecommendations(props.axios).then(setRecommendations)
   }, [props.intent.utterances, props.intent.slots])
 

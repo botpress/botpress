@@ -1,10 +1,10 @@
 import { Button, Position, ProgressBar, Tooltip } from '@blueprintjs/core'
 import React, { FC, SFC, useState } from 'react'
+import confirmDialog from '~/App/ConfirmDialog'
 
 import api from '../../../api'
 
 import { LanguageSource } from './typings'
-import confirmDialog from '~/App/ConfirmDialog'
 
 interface Props {
   language: {

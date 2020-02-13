@@ -103,7 +103,7 @@ They are defined globally as javascript files in the folder `data/global/hooks/$
 
 > Note: subfolders are allowed, but they are ignored in the ordering. If you have 02_hook.js and 03/01_hook.js, the order will be 01_hook.js then 02_hook.js
 
-They all have access to the (Botpress SDK) [https://botpress.io/reference/](https://botpress.io/reference/).
+They all have access to the (Botpress SDK) [https://botpress.com/reference/](https://botpress.com/reference/).
 
 ### After Server Starts
 

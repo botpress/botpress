@@ -190,7 +190,7 @@ class ContentView extends Component<Props, State> {
         <div className={classNames}>
           <Alert bsStyle="warning">
             <strong>We think you don&apos;t have any content types defined.</strong> Please&nbsp;
-            <a href="https://botpress.io/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
+            <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
               <strong>read the docs</strong>
             </a>
             &nbsp;to see how you can make use of this feature.

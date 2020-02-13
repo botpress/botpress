@@ -12,7 +12,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'builtin',
     menuIcon: 'fiber_smart_record',
     fullName: 'Botpress Builtins',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: true
   }
 }

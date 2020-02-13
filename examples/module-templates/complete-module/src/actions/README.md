@@ -5,4 +5,4 @@ They will overwrite existing files only if they haven't been edited manually.
 
 Actions added this way will be available on the flow editor using `complete-module/your-action-name`
 
-Check the documentation for more information about [Actions](https://botpress.io/docs/build/code#actions)
+Check the documentation for more information about [Actions](https://botpress.com/docs/build/code#actions)
