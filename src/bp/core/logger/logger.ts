@@ -43,6 +43,7 @@ export class PersistedConsoleLogger implements Logger {
   private currentMessageLevel: LogLevel | undefined
   private willPersistMessage: boolean = true
   private emitLogStream = true
+  private serverHostname: string = ''
 
   private static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
     delimiter: '::',
@@ -67,6 +68,7 @@ export class PersistedConsoleLogger implements Logger {
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister
   ) {
     this.displayLevel = process.VERBOSITY_LEVEL
+    this.serverHostname = os.hostname()
   }
 
   forBot(botId: string): this {
@@ -174,6 +176,7 @@ export class PersistedConsoleLogger implements Logger {
 
     const entry: LoggerEntry = {
       botId: this.botId,
+      hostname: this.serverHostname,
       level: level.toString(),
       scope: displayName,
       message: stripAnsi(indentedMessage),

@@ -46,6 +46,7 @@ declare module 'botpress/sdk' {
 
   export interface LoggerEntry {
     botId?: string
+    hostname?: string
     level: string
     scope: string
     message: string

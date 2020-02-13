@@ -27,7 +27,7 @@ const LEVELS: Option[] = [
   { label: 'Critical', value: 'critical' }
 ]
 
-const SCOPE_ITEMS: Option[] = [{ label: 'Everything', value: '' }]
+const EVERYTHING: Option[] = [{ label: 'Everything', value: '' }]
 
 interface Option {
   label: string
@@ -47,9 +47,11 @@ const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 const Logs: FC<Props> = props => {
   const [data, setData] = useState<sdk.LoggerEntry[]>([])
   const [levelFilter, setLevelFilter] = useState<Option>(LEVELS[0])
-  const [botFilter, setBotFilter] = useState<Option>(SCOPE_ITEMS[0])
+  const [botFilter, setBotFilter] = useState<Option>(EVERYTHING[0])
+  const [hostFilter, setHostFilter] = useState<Option>(EVERYTHING[0])
   const [dateRange, setDateRange] = useState<DateRange>()
   const [filters, setFilters] = useState()
+  const [hostNames, setHostNames] = useState<string[]>([])
 
   const [onlyWorkspace, setOnlyWorkspace] = useState(!props.profile.isSuperAdmin)
   const [botIds, setBotIds] = useState<string[]>([])
@@ -73,7 +75,7 @@ const Logs: FC<Props> = props => {
       setBotFilter({ label: params.botId, value: params.botId })
       setFilters([{ id: 'botId', value: params.botId }])
     } else {
-      setBotFilter(SCOPE_ITEMS[0])
+      setBotFilter(EVERYTHING[0])
       setFilters([])
     }
   }, [botIds, props.bots])
@@ -99,6 +101,7 @@ const Logs: FC<Props> = props => {
 
       setData(logs)
       setBotIds(_.uniq(logs.map(x => x.botId).filter(Boolean)))
+      setHostNames(_.uniq(logs.map(x => x.hostname).filter(Boolean)))
 
       if (isRefreshing) {
         toastSuccess('Logs refreshed')
@@ -108,12 +111,35 @@ const Logs: FC<Props> = props => {
     }
   }
 
+  const filterHostname = ({ onChange }): any => {
+    if (!hostNames) {
+      return null
+    }
+
+    const items = [...EVERYTHING, ...hostNames.map(id => ({ label: id, value: id }))]
+
+    return (
+      <SelectDropdown
+        items={items}
+        activeItem={hostFilter}
+        popoverProps={{ minimal: true }}
+        itemRenderer={dropdownRenderer}
+        onItemSelect={option => {
+          setHostFilter(option)
+          onChange(option.value)
+        }}
+      >
+        <Button text={hostFilter && hostFilter.label} rightIcon="double-caret-vertical" />
+      </SelectDropdown>
+    )
+  }
+
   const filterBot = ({ onChange }) => {
     if (!props.bots) {
       return null
     }
 
-    const items = [...SCOPE_ITEMS, ...botIds.map(id => ({ label: id, value: id }))]
+    const items = [...EVERYTHING, ...botIds.map(id => ({ label: id, value: id }))]
 
     return (
       <SelectDropdown
@@ -149,55 +175,70 @@ const Logs: FC<Props> = props => {
     )
   }
 
-  const columns: Column[] = [
-    {
-      Header: 'Date',
-      filterable: false,
-      Cell: ({ original: { timestamp } }) => moment(timestamp).format(DATE_FORMAT),
-      accessor: 'timestamp',
-      width: 130
-    },
-    {
-      Header: 'Bot ID',
-      Filter: filterBot,
-      accessor: 'botId',
-      width: 150
-    },
-    {
-      Header: 'Level',
-      Cell: ({ original: { level } }) => {
-        switch (level) {
-          case 'info':
-            return <span className="logInfo">Info</span>
-          case 'warn':
-            return <span className="logWarn">Warning</span>
-          case 'error':
-            return <span className="logError">Error</span>
-          case 'critical':
-            return <span className="logCritical">Critical</span>
-        }
-      },
-      Filter: filterLevel,
-      accessor: 'level',
-      width: 110,
-      className: 'center'
-    },
-    {
-      Header: 'Scope',
-      Filter: filterText,
-      accessor: 'scope',
-      width: 100
-    },
-    {
-      Header: 'Message',
-      Filter: filterText,
-      Cell: ({ original: { message } }) => (
-        <span dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;') }}></span>
-      ),
-      style: { whiteSpace: 'unset' },
-      accessor: 'message'
+  const getColumns = () => {
+    const columns: Column[] = [
+      {
+        Header: 'Date',
+        filterable: false,
+        Cell: ({ original: { timestamp } }) => moment(timestamp).format(DATE_FORMAT),
+        accessor: 'timestamp',
+        width: 130
+      }
+    ]
+
+    if (hostNames && hostNames.length > 1) {
+      columns.push({
+        Header: 'Hostname',
+        Filter: filterHostname,
+        accessor: 'hostname',
+        width: 130
+      })
     }
-  ]
+
+    return [
+      ...columns,
+      {
+        Header: 'Bot ID',
+        Filter: filterBot,
+        accessor: 'botId',
+        width: 150
+      },
+      {
+        Header: 'Level',
+        Cell: ({ original: { level } }) => {
+          switch (level) {
+            case 'info':
+              return <span className="logInfo">Info</span>
+            case 'warn':
+              return <span className="logWarn">Warning</span>
+            case 'error':
+              return <span className="logError">Error</span>
+            case 'critical':
+              return <span className="logCritical">Critical</span>
+          }
+        },
+        Filter: filterLevel,
+        accessor: 'level',
+        width: 110,
+        className: 'center'
+      },
+      {
+        Header: 'Scope',
+        Filter: filterText,
+        accessor: 'scope',
+        width: 100
+      },
+      {
+        Header: 'Message',
+        Filter: filterText,
+        Cell: ({ original: { message } }) => (
+          <span dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;') }}></span>
+        ),
+        style: { whiteSpace: 'unset' },
+        accessor: 'message'
+      }
+    ]
+  }
 
   const getRangeLabel = () => {
     if (dateRange) {
@@ -235,7 +276,7 @@ const Logs: FC<Props> = props => {
       </div>
 
       <ReactTable
-        columns={columns}
+        columns={getColumns()}
         data={data}
         defaultFilterMethod={lowercaseFilter}
         defaultPageSize={20}
