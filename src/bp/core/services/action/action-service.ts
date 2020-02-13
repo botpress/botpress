@@ -135,10 +135,7 @@ export class ScopedActionService {
   }
 
   async runAction(props: RunActionProps): Promise<any> {
-    const { actionName, incomingEvent, actionArgs } = props
-    // todo: fix this
-    const actionServer: ActionServer = { baseUrl: 'http://localhost:4000' }
-
+    const { actionName, incomingEvent, actionArgs, actionServer } = props
     process.ASSERT_LICENSED()
 
     if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
@@ -252,7 +249,7 @@ export class ScopedActionService {
         actionName,
         actionArgs: this.database.knex.json.set(actionArgs),
         trusted: false,
-        actionServer: actionServer.baseUrl
+        actionServerId: actionServer.id
       })
     )[0]
 
