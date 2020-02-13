@@ -28,8 +28,6 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
     flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
   }
 
-  console.log('Action:', node.action)
-
   const action: Action = node.action ? node.action : { name: '', actionServerId: '', parameters: {} }
 
   return (
@@ -62,14 +60,12 @@ export interface Action {
 
 const parseActionString = (actionString: string): Action => {
   const chunks = actionString.split(' ')
-  console.log('chunks:', chunks)
   const parametersString = chunks[1]
   const parameters = parametersString ? JSON.parse(parametersString) : {}
   return { name: chunks[0], parameters, actionServerId: chunks[3] }
 }
 
 const serializeAction = (action: Action): string => {
-  console.log('serializeAction action:', action)
   return [action.name, JSON.stringify(action.parameters), action.actionServerId].join(' ')
 }
 

@@ -21,8 +21,6 @@ const ActionDialog: FC<ActionDialogProps> = props => {
   const [actionServerId, setActionServerId] = useState(props.actionServerId || actionServers[0].id)
   const [parameters, setParameters] = useState(actionParameters)
 
-  console.log('name:', name)
-
   const valid = name && actionServerId
 
   return (
