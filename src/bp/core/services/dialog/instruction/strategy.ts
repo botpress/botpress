@@ -1,4 +1,5 @@
 import { IO, Logger } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config/config-loader'
 import ActionService from 'core/services/action/action-service'
 import { CMSService } from 'core/services/cms'
 import { EventEngine } from 'core/services/middleware/event-engine'
@@ -41,7 +42,8 @@ export class ActionStrategy implements InstructionStrategy {
     private logger: Logger,
     @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.CMSService) private cms: CMSService
+    @inject(TYPES.CMSService) private cms: CMSService,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
@@ -106,8 +108,8 @@ export class ActionStrategy implements InstructionStrategy {
 
   private async invokeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
     const chunks: string[] = instruction.fn.split(' ')
-    const argsStr = _.tail(chunks).join(' ')
     const actionName = _.first(chunks)!
+    const argsStr = chunks[1]
 
     let args: { [key: string]: any } = {}
     try {
@@ -128,6 +130,17 @@ export class ActionStrategy implements InstructionStrategy {
 
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
+    let actionServerId
+    if (chunks.length === 3) {
+      actionServerId = chunks[2]
+    }
+
+    let actionServer
+    if (actionServerId) {
+      const botpressConfig = await this.configProvider.getBotpressConfig()
+      actionServer = botpressConfig.customActionServers.find(s => s.id === actionServerId)
+    }
+
     debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)
     const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
 
@@ -135,7 +148,9 @@ export class ActionStrategy implements InstructionStrategy {
       if (!hasAction) {
         throw new Error(`Action "${actionName}" not found, `)
       }
-      await this.actionService.forBot(botId).runAction({ actionName, incomingEvent: event, actionArgs: args })
+      await this.actionService
+        .forBot(botId)
+        .runAction({ actionName, incomingEvent: event, actionArgs: args, actionServer })
     } catch (err) {
       event.state.__error = {
         type: 'action-execution',

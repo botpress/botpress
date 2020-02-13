@@ -20,7 +20,9 @@ const ActionDialog: FC<ActionDialogProps> = props => {
         Action Server
         <HTMLSelect>
           {actionServers.map(actionServer => (
-            <option key={actionServer.baseUrl}>{actionServer.baseUrl}</option>
+            <option key={actionServer.id} value={actionServer.id}>
+              {actionServer.id} ({actionServer.baseUrl})
+            </option>
           ))}
         </HTMLSelect>
       </Label>
