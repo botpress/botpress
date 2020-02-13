@@ -322,7 +322,7 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
   const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
   const nbOfNoneUtterances = Math.max((allUtterances.length * 2) / 3, 20)
-  const stopWords = getStopWordsForLang(input.languageCode)
+  const stopWords = await getStopWordsForLang(input.languageCode)
   const vocabWords = _.chain(input.tfIdf)
     .toPairs()
     .filter(([word, tfidf]) => tfidf <= 0.3)
