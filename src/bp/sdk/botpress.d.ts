@@ -1706,8 +1706,9 @@ declare module 'botpress/sdk' {
   }
 
   export enum AnalyticsMethod {
-    DailyCount = 'daily',
-    TotalCount = 'total'
+    IncrementDaily = 'daily',
+    IncrementTotal = 'total',
+    OverwriteDaily = 'overwrite'
   }
 
   export enum AnalyticsMetric {
@@ -1723,8 +1724,10 @@ declare module 'botpress/sdk' {
     UsersTotal = 'users_count',
     ReturningUsersCount = 'returning_users_count',
     SessionsStartNluNone = 'sessions_start_nlu_none',
-    FeedbackPositiveCount = 'feedback_positive_count',
-    FeedbackNegativeCount = 'feedback_negative_count'
+    FeedbackPositiveQna = 'feedback_positive_qna',
+    FeedbackNegativeQna = 'feedback_negative_qna',
+    FeedbackPositiveGoal = 'feedback_positive_goal',
+    FeedbackNegativeGoal = 'feedback_negative_goal'
   }
 
   export interface Analytics {

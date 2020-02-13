@@ -311,7 +311,7 @@ export class Botpress {
         botId: event.botId,
         channel: event.channel,
         metric: sdk.AnalyticsMetric.MsgReceivedCount,
-        method: sdk.AnalyticsMethod.DailyCount
+        method: sdk.AnalyticsMethod.IncrementDaily
       })
 
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
@@ -326,7 +326,7 @@ export class Botpress {
         botId: event.botId,
         channel: event.channel,
         metric: sdk.AnalyticsMetric.MsgSentCount,
-        method: sdk.AnalyticsMethod.DailyCount
+        method: sdk.AnalyticsMethod.IncrementDaily
       })
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }

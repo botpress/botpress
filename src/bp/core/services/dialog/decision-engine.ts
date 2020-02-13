@@ -52,7 +52,7 @@ export class DecisionEngine {
           botId: event.botId,
           channel: event.channel,
           metric: AnalyticsMetric.GoalsStartedCount,
-          method: AnalyticsMethod.DailyCount
+          method: AnalyticsMethod.IncrementDaily
         })
         await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
 
@@ -142,7 +142,7 @@ export class DecisionEngine {
             botId: event.botId,
             channel: event.channel,
             metric: AnalyticsMetric.MsgNluNone,
-            method: AnalyticsMethod.DailyCount
+            method: AnalyticsMethod.IncrementDaily
           })
         }
 
@@ -222,7 +222,7 @@ export class DecisionEngine {
           botId: event.botId,
           channel: event.channel,
           metric: AnalyticsMetric.MsgSentQnaCount,
-          method: AnalyticsMethod.DailyCount
+          method: AnalyticsMethod.IncrementDaily
         })
       }
 

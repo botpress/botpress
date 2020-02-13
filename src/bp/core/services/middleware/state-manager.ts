@@ -145,7 +145,7 @@ export class StateManager {
         botId: event.botId,
         channel: event.channel,
         metric: sdk.AnalyticsMetric.SessionsCount,
-        method: sdk.AnalyticsMethod.DailyCount
+        method: sdk.AnalyticsMethod.IncrementDaily
       })
     }
     const expiry = createExpiry(botConfig, botpressConfig)

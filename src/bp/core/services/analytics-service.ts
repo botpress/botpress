@@ -1,8 +1,10 @@
-import { Analytics, Logger, MetricDefinition } from 'botpress/sdk'
+import sdk, { Analytics, AnalyticsMethod, AnalyticsMetric, Logger, MetricDefinition } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
+import { EventRepository } from 'core/repositories'
 import { AnalyticsRepository } from 'core/repositories/analytics-repository'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
+import _ from 'lodash'
 import ms from 'ms'
 
 @injectable()
@@ -20,6 +22,7 @@ export default class AnalyticsService {
     @tagged('name', 'AnalyticsService')
     private logger: Logger,
     @inject(TYPES.AnalyticsRepository) private analyticsRepo: AnalyticsRepository,
+    @inject(TYPES.EventRepository) private eventRepo: EventRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
@@ -53,6 +56,10 @@ export default class AnalyticsService {
   }
 
   private _runTask = async () => {
+    const todaysEvents = await this.eventRepo.findByDate(new Date())
+    await this.compileFeedbackMetrics(todaysEvents)
+    await this.compileUsersCountMetric(todaysEvents)
+
     if (this.currentPromise || !this.batch.length) {
       return
     }
@@ -68,5 +75,57 @@ export default class AnalyticsService {
       .finally(() => {
         this.currentPromise = undefined
       })
+  }
+
+  private setQnaFeedbackCount(botId, channel, feedback, count) {
+    const metric = feedback > 0 ? AnalyticsMetric.FeedbackPositiveQna : AnalyticsMetric.FeedbackNegativeQna
+    this.addMetric({
+      botId,
+      channel,
+      metric,
+      method: AnalyticsMethod.OverwriteDaily,
+      increment: count
+    })
+  }
+
+  private setGoalFeedbackCount(botId, channel, feedback, count) {
+    const metric = feedback > 0 ? AnalyticsMetric.FeedbackPositiveGoal : AnalyticsMetric.FeedbackNegativeGoal
+    this.addMetric({
+      botId,
+      channel,
+      metric,
+      method: AnalyticsMethod.OverwriteDaily,
+      increment: count
+    })
+  }
+
+  private async compileFeedbackMetrics(events: sdk.IO.StoredEvent[]): Promise<void> {
+    const incomingEvents = events.filter(e => e.direction === 'incoming')
+
+    const qna = _.chain(incomingEvents)
+      .filter(e => !e.goalId && e.feedback)
+      .groupBy((e: sdk.IO.StoredEvent) => `${e.botId}-${e.channel}-${e.feedback}`)
+      .value()
+    _.forEach(qna, (value, key) =>
+      this.setQnaFeedbackCount(value[0]['botId'], value[0]['channel'], value[0]['feedback'], value.length)
+    )
+
+    const goals = _.chain(incomingEvents)
+      .filter(e => e.goalId && e.feedback)
+      .groupBy((e: sdk.IO.StoredEvent) => `${e.botId}-${e.channel}-${e.feedback}`)
+      .value()
+    _.forEach(goals, (value, key) =>
+      this.setGoalFeedbackCount(value[0]['botId'], value[0]['channel'], value[0]['feedback'], value.length)
+    )
+
+    console.log(this.batch)
+  }
+
+  private async compileUsersCountMetric(events: sdk.IO.StoredEvent[]) {
+    const eventsByUniqUsers = _.uniqBy(events, 'target')
+    eventsByUniqUsers.forEach(e => {
+      const { botId, channel } = e
+      this.addMetric({ botId, channel, metric: AnalyticsMetric.UsersTotal, method: AnalyticsMethod.IncrementDaily })
+    })
   }
 }

@@ -87,14 +87,6 @@ export class SlackClient {
       const events = await this.bp.events.findEvents({ incomingEventId, direction: 'incoming' })
       const event = events[0]
       await this.bp.events.updateEvent(event.id, { feedback })
-      const feedbackMetric =
-        feedback === 1 ? sdk.AnalyticsMetric.FeedbackPositiveCount : sdk.AnalyticsMetric.FeedbackNegativeCount
-      this.bp.analytics.addMetric({
-        botId: event.botId,
-        channel: event.channel,
-        metric: feedbackMetric,
-        method: sdk.AnalyticsMethod.DailyCount
-      })
     })
 
     this.router.use(`/bots/${this.botId}/callback`, this.interactive.requestListener())

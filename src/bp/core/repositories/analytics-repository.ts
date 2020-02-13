@@ -37,22 +37,26 @@ export class AnalyticsRepository {
 
   async insertOrUpdate(def: MetricDefinition, trx?: Knex.Transaction) {
     const { botId, channel, metric } = def
-    const increment = def.increment || 1
+    const value = def.increment || 1
     const analytics = await this.get({ botId, channel, metric }, trx)
     if (!analytics) {
-      return this.insert({ botId, channel, metric, value: increment }, trx)
+      return this.insert({ botId, channel, metric, value: value }, trx)
     }
 
     // Aggregate metrics per day
     const latest = moment(analytics.created_on).startOf('day')
     const today = moment().startOf('day')
 
-    if (latest.isBefore(today) && def.method === AnalyticsMethod.DailyCount) {
-      return this.insert({ botId, channel, metric, value: increment }, trx)
-    } else if (latest.isBefore(today) && def.method === AnalyticsMethod.TotalCount) {
-      return this.insert({ botId, channel, metric, value: analytics.value + increment }, trx)
+    if (latest.isBefore(today) && def.method === AnalyticsMethod.IncrementDaily) {
+      return this.insert({ botId, channel, metric, value }, trx)
+    } else if (latest.isBefore(today) && def.method === AnalyticsMethod.IncrementTotal) {
+      return this.insert({ botId, channel, metric, value: analytics.value + value }, trx)
+    } else if (latest.isBefore(today) && def.method === AnalyticsMethod.OverwriteDaily) {
+      return this.insert({ botId, channel, metric, value }, trx)
+    } else if (def.method === AnalyticsMethod.OverwriteDaily) {
+      return this.update(analytics.id, value, trx)
     } else {
-      return this.update(analytics.id, analytics.value + increment, trx)
+      return this.update(analytics.id, analytics.value + value, trx)
     }
   }
 

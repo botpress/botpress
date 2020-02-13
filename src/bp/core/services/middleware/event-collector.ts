@@ -79,14 +79,14 @@ export class EventCollector {
           botId,
           channel,
           metric: sdk.AnalyticsMetric.GoalsCompletedCount,
-          method: sdk.AnalyticsMethod.DailyCount
+          method: sdk.AnalyticsMethod.IncrementDaily
         })
       } else {
         this.analytics.addMetric({
           botId,
           channel,
           metric: sdk.AnalyticsMetric.GoalsFailedCount,
-          method: sdk.AnalyticsMethod.DailyCount
+          method: sdk.AnalyticsMethod.IncrementDaily
         })
       }
       goal.active = false

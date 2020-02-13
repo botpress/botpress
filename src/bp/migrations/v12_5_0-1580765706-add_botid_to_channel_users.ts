@@ -49,7 +49,7 @@ const migration: Migration = {
           botId: user['botId'],
           channel: user['channel'],
           metric: sdk.AnalyticsMetric.UsersTotal,
-          method: sdk.AnalyticsMethod.TotalCount
+          method: sdk.AnalyticsMethod.IncrementTotal
         })
       )
 

@@ -78,9 +78,14 @@ export class KnexUserRepository implements UserRepository {
       botId,
       channel,
       metric: AnalyticsMetric.NewUsersCount,
-      method: AnalyticsMethod.DailyCount
+      method: AnalyticsMethod.IncrementDaily
     })
-    this.analytics.addMetric({ botId, channel, metric: AnalyticsMetric.UsersTotal, method: AnalyticsMethod.TotalCount })
+    this.analytics.addMetric({
+      botId,
+      channel,
+      metric: AnalyticsMetric.UsersTotal,
+      method: AnalyticsMethod.IncrementTotal
+    })
 
     return { result: newUser, created: true }
   }

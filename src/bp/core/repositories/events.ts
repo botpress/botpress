@@ -1,12 +1,14 @@
 import * as sdk from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
+import moment from 'moment'
 
 import Database from '../database'
 import { TYPES } from '../types'
 
 export interface EventRepository {
   findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams)
+  findByDate(date: Date)
   pruneUntil(date: Date): Promise<void>
   updateEvent(id: number, fields: Partial<sdk.IO.StoredEvent>): Promise<void>
 }
@@ -53,6 +55,20 @@ export class KnexEventRepository implements EventRepository {
         event: this.database.knex.json.get(storedEvent.event)
       }))
     )
+  }
+
+  async findByDate(date: Date): Promise<sdk.IO.StoredEvent[]> {
+    const startOfDay = moment(date)
+      .startOf('day')
+      .toISOString()
+    const endOfDay = moment(date)
+      .endOf('day')
+      .toISOString()
+
+    return this.database
+      .knex(this.TABLE_NAME)
+      .select()
+      .whereBetween('createdOn', [startOfDay, endOfDay])
   }
 
   async updateEvent(id: number, fields: Partial<sdk.IO.StoredEvent>): Promise<void> {
