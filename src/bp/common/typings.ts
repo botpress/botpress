@@ -181,5 +181,6 @@ export interface BotHealth {
 }
 
 export interface ActionServer {
+  id: string
   baseUrl: string
 }
