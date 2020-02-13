@@ -1,6 +1,7 @@
 import { ConverseConfig } from 'botpress/sdk'
 import { ActionServer, UniqueUser } from 'common/typings'
 import { IncidentRule } from 'core/services/alerting-service'
+import { Algorithm } from 'jsonwebtoken'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
@@ -285,7 +286,7 @@ export interface ExternalAuthConfig {
    * The algorithms allowed to validate the JWT tokens.
    * @default ["HS256"]
    */
-  algorithms: string[]
+  algorithms: Algorithm[]
   /**
    * You need to provide the public key used to verify the JWT token authenticity.
    * If not provided, the public key will be read from `data/global/end_users_auth.key`
