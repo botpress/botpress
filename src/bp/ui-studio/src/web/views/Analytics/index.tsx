@@ -16,7 +16,7 @@ const colorTelegram = '#2EA6DA'
 
 export default class Analytics extends React.Component<{ bp: any }> {
   state = {
-    channels: ['all', 'web', 'slack', 'messenger', 'telegram'],
+    channels: ['all'],
     selectedChannel: 'all',
     metrics: [],
     startDate: undefined,
@@ -24,6 +24,20 @@ export default class Analytics extends React.Component<{ bp: any }> {
   }
 
   componentDidMount() {
+    void axios.get(`${window.API_PATH}/modules`).then(({ data }) => {
+      const channels = data
+        .filter(
+          x =>
+            x.name === 'channel-web' ||
+            x.name === 'channel-messenger' ||
+            x.name === 'channel-slack' ||
+            x.name === 'channel-telegram'
+        )
+        .map(x => x.name.substring(8))
+
+      this.setState({ channels: [...this.state.channels, ...channels] })
+    })
+
     const aWeekAgo = moment()
       .subtract(7, 'days')
       .startOf('day')
@@ -32,7 +46,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
       .startOf('day')
       .unix()
 
-    this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, today).then(({ data }) => {
+    void this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, today).then(({ data }) => {
       this.setState({ startDate: aWeekAgo, endDate: today, metrics: data })
     })
   }
