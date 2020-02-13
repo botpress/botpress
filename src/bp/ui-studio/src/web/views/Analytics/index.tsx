@@ -5,14 +5,15 @@ import axios from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
 import React from 'react'
-import { Area, AreaChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import style from './style.scss'
 
-const colorSlack = '#4A154B'
-const colorMessenger = '#0196FF'
-const colorWeb = '#FFA83A'
-const colorTelegram = '#2EA6DA'
+const COLOR_SLACK = '#4A154B'
+const COLOR_MESSENGER = '#0196FF'
+const COLOR_WEB = '#FFA83A'
+const COLOR_TELEGRAM = '#2EA6DA'
+const SECONDS_PER_DAY = 86400
 
 export default class Analytics extends React.Component<{ bp: any }> {
   state = {
@@ -152,9 +153,9 @@ export default class Analytics extends React.Component<{ bp: any }> {
   }
 
   getReturningUsers = () => {
-    const usersCount = this.getMetricCount('users_count')
+    const activeUsersCount = this.getMetricCount('active_users_count')
     const newUsersCount = this.getMetricCount('new_users_count')
-    return ((newUsersCount / usersCount) * 100).toFixed(2) + '%'
+    return ((newUsersCount / activeUsersCount) * 100).toFixed(2) + '%'
   }
 
   getMetric = metricName => this.state.metrics.filter(x => x.metric_name === metricName)
@@ -179,7 +180,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
       <div className={style.metricsSection}>
         <h3>Engagement & Retention</h3>
         <div className={style.metricsContainer}>
-          {this.renderTimeSeriesChart('Average Session Length', this.getAvgMsgPerSessions())}
+          {this.renderTimeSeriesChart('Average Messages Per Session', this.getAvgMsgPerSessions())}
           {this.renderTimeSeriesChart('Active Users', this.getMetric('active_users_count'))}
           {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
           {this.renderNumberMetric('Returning Users', this.getReturningUsers())}
@@ -195,10 +196,10 @@ export default class Analytics extends React.Component<{ bp: any }> {
       <div className={style.metricsSection}>
         <h3>Understanding</h3>
         <div className={style.metricsContainer}>
-          {this.renderNumberMetric('# Positive Goals Outcome', goalsOutcome)}
-          {this.renderNumberMetric('# Positive QNA Feedback', this.getMetricCount('feedback_positive_count'))}
-          {this.renderNumberMetric('# Understood Messages', this.getUnderstoodPercent())}
-          {this.renderNumberMetric('# Understood Top-Level Messages', 666)}
+          {this.renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
+          {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_count'))}
+          {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
+          {this.renderNumberMetric('Understood Top-Level Messages', 666)}
         </div>
       </div>
     )
@@ -227,8 +228,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
   formatTick = timestamp => moment.unix(timestamp).format('DD-MM')
 
   renderTimeSeriesChart(name: string, data) {
-    const seccondsIn24Hours = 86400
-    const tickCount = (this.state.endDate - this.state.startDate) / seccondsIn24Hours
+    const tickCount = (this.state.endDate - this.state.startDate) / SECONDS_PER_DAY
 
     return (
       <div className={style.chartMetric}>
@@ -238,10 +238,10 @@ export default class Analytics extends React.Component<{ bp: any }> {
             <Tooltip labelFormatter={this.formatTick} />
             <XAxis dataKey="time" tickFormatter={this.formatTick} tickCount={tickCount} />
             <YAxis />
-            <Area stackId={1} type="monotone" dataKey="web" stroke={colorWeb} fill={colorWeb} />
-            <Area stackId={2} type="monotone" dataKey="messenger" stroke={colorMessenger} fill={colorMessenger} />
-            <Area stackId={3} type="monotone" dataKey="slack" stroke={colorSlack} fill={colorSlack} />
-            <Area stackId={4} type="monotone" dataKey="telegram" stroke={colorTelegram} fill={colorTelegram} />
+            <Area stackId={1} type="monotone" dataKey="web" stroke={COLOR_WEB} fill={COLOR_WEB} />
+            <Area stackId={2} type="monotone" dataKey="messenger" stroke={COLOR_MESSENGER} fill={COLOR_MESSENGER} />
+            <Area stackId={3} type="monotone" dataKey="slack" stroke={COLOR_SLACK} fill={COLOR_SLACK} />
+            <Area stackId={4} type="monotone" dataKey="telegram" stroke={COLOR_TELEGRAM} fill={COLOR_TELEGRAM} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
