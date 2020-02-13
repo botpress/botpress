@@ -59,6 +59,7 @@ export default class AnalyticsService {
     const todaysEvents = await this.eventRepo.findByDate(new Date())
     await this.compileFeedbackMetrics(todaysEvents)
     await this.compileUsersCountMetric(todaysEvents)
+    console.log(this.batch)
 
     if (this.currentPromise || !this.batch.length) {
       return
@@ -102,30 +103,34 @@ export default class AnalyticsService {
   private async compileFeedbackMetrics(events: sdk.IO.StoredEvent[]): Promise<void> {
     const incomingEvents = events.filter(e => e.direction === 'incoming')
 
-    const qna = _.chain(incomingEvents)
+    _.chain(incomingEvents)
       .filter(e => !e.goalId && e.feedback)
       .groupBy((e: sdk.IO.StoredEvent) => `${e.botId}-${e.channel}-${e.feedback}`)
+      .forEach((value, _) =>
+        this.setQnaFeedbackCount(value[0]['botId'], value[0]['channel'], value[0]['feedback'], value.length)
+      )
       .value()
-    _.forEach(qna, (value, key) =>
-      this.setQnaFeedbackCount(value[0]['botId'], value[0]['channel'], value[0]['feedback'], value.length)
-    )
 
-    const goals = _.chain(incomingEvents)
+    _.chain(incomingEvents)
       .filter(e => e.goalId && e.feedback)
       .groupBy((e: sdk.IO.StoredEvent) => `${e.botId}-${e.channel}-${e.feedback}`)
+      .forEach((value, _) =>
+        this.setGoalFeedbackCount(value[0]['botId'], value[0]['channel'], value[0]['feedback'], value.length)
+      )
       .value()
-    _.forEach(goals, (value, key) =>
-      this.setGoalFeedbackCount(value[0]['botId'], value[0]['channel'], value[0]['feedback'], value.length)
-    )
-
-    console.log(this.batch)
   }
 
   private async compileUsersCountMetric(events: sdk.IO.StoredEvent[]) {
-    const eventsByUniqUsers = _.uniqBy(events, 'target')
-    eventsByUniqUsers.forEach(e => {
-      const { botId, channel } = e
-      this.addMetric({ botId, channel, metric: AnalyticsMetric.UsersTotal, method: AnalyticsMethod.IncrementDaily })
-    })
+    _.chain(events)
+      .groupBy(e => `${e.botId}-${e.channel}-${e.target}`)
+      .forEach((value, _) => {
+        this.addMetric({
+          botId: value[0]['botId'],
+          channel: value[0]['channel'],
+          metric: AnalyticsMetric.UsersTotal,
+          method: AnalyticsMethod.OverwriteDaily
+        })
+      })
+      .value()
   }
 }
