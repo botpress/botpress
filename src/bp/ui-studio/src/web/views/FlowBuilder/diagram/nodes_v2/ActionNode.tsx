@@ -11,16 +11,27 @@ import { StandardPortWidget } from '../nodes/Ports'
 import style from './style.scss'
 import { showHeader } from './utils'
 
-const ActionWidget: FC<{ node: ActionNodeModel; diagramEngine: any }> = props => {
-  const { node } = props
+interface ActionWidgetProps {
+  node: ActionNodeModel
+  diagramEngine: any
+}
+
+const ActionWidget: FC<ActionWidgetProps> = props => {
+  const { node, diagramEngine } = props
 
   const [showDialog, setShowDialog] = useState(false)
+
+  const onSave = (action: string) => {
+    const flowBuilder = diagramEngine.flowBuilder.props
+    flowBuilder.switchFlowNode(node.id)
+    flowBuilder.updateFlowNode({ onEnter: [action] })
+  }
 
   return (
     <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
       <Button onClick={() => setShowDialog(true)}>Edit</Button>
-      <ActionDialog isOpen={showDialog} onClose={() => setShowDialog(false)} />
+      <ActionDialog isOpen={showDialog} onClose={() => setShowDialog(false)} onSave={onSave} />
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />
         <StandardPortWidget name="out0" node={node} className={style.out} />

@@ -53,8 +53,8 @@ class ActionItem extends Component<Props> {
 
     if (action.indexOf(' ') >= 0) {
       const tokens = action.split(' ')
-      actionName = _.head(tokens) + ' (args)'
-      parameters = JSON.parse(_.tail(tokens).join(' '))
+      actionName = tokens[0] + ' (args)'
+      parameters = JSON.parse(tokens[1])
     }
 
     const callPreview = JSON.stringify(parameters, null, 2)

@@ -7,10 +7,11 @@ interface ActionDialogProps {
   actionServers: ActionServer[]
   isOpen: boolean
   onClose: () => void
+  onSave: (action: string) => void
 }
 
 const ActionDialog: FC<ActionDialogProps> = props => {
-  const { actionServers, isOpen, onClose } = props
+  const { actionServers, isOpen, onClose, onSave } = props
   const [actionName, setActionName] = useState('')
 
   return (
@@ -51,6 +52,7 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           <Button icon="remove" />
         </ControlGroup>
       </FormGroup>
+      <Button onClick={() => onSave(`someAction ${JSON.stringify({ a: 1 })} https://localhost:4000`)}>Save</Button>
     </Dialog>
   )
 }
