@@ -1,6 +1,7 @@
 import { Button, Callout, Card, Collapse, Elevation, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import { any } from 'bluebird'
+import { BotConfig } from 'botpress/sdk'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -11,7 +12,7 @@ import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
 import style from './style.scss'
 
-const statusList = [
+const statusList: SelectItem[] = [
   { label: 'Published', value: 'public' },
   { label: 'Collaborators Only', value: 'private' },
   { label: 'Unmounted', value: 'disabled' }
@@ -21,8 +22,45 @@ const axiosConfig = {
   baseURL: 'api/v1/'
 }
 
-class ConfigView extends Component {
-  initialFormState = {
+interface StateBot {
+  name: string
+  status: string
+  description: string
+  selectedDefaultLang: string
+  selectedLanguages: SelectItem[]
+  website: string
+  phoneNumber: string
+  emailAddress: string
+  termsConditions: string
+  privacyPolicy: string
+  avatarUrl: string
+  coverPictureUrl: string
+}
+
+interface StateVars {
+  botId: string
+  licensing: Licensing
+  languages: SelectItem[]
+  statuses: SelectItem[]
+  error: any
+  isSaving: boolean
+  isDetailsOpen: boolean
+  isPicturesOpen: boolean
+}
+
+type State = StateBot & StateVars
+
+interface Licensing {
+  isPro: boolean
+}
+
+interface SelectItem {
+  label: string
+  value: string
+}
+
+class ConfigView extends Component<any, State> {
+  initialFormState: StateBot = {
     name: '',
     status: '',
     description: '',
@@ -40,7 +78,7 @@ class ConfigView extends Component {
   state = {
     botId: window.BOT_ID,
     ...this.initialFormState,
-    licensing: any,
+    licensing: undefined,
     languages: [],
     statuses: statusList,
     error: undefined,
@@ -79,12 +117,12 @@ class ConfigView extends Component {
     })
   }
 
-  async fetchBots() {
+  async fetchBots(): Promise<BotConfig[]> {
     const res = await axios.get('admin/bots', axiosConfig)
     return res.data.payload.bots
   }
 
-  async fetchLanguages() {
+  async fetchLanguages(): Promise<SelectItem[]> {
     const { data } = await axios.get('admin/languages/available', axiosConfig)
     const languages = _.sortBy(data.languages, 'name').map(lang => ({
       label: lang.name,
@@ -93,7 +131,7 @@ class ConfigView extends Component {
     return languages
   }
 
-  async fetchLicensing() {
+  async fetchLicensing(): Promise<Licensing> {
     const { data } = await axios.get('admin/license/status', axiosConfig)
     return data.payload
   }
@@ -101,7 +139,7 @@ class ConfigView extends Component {
   saveChanges = async () => {
     this.setState({ error: undefined, isSaving: true })
 
-    const bot = {
+    const bot: BotConfig = {
       name: this.state.name,
       disabled: this.state.status === 'disabled',
       private: this.state.status === 'private',
