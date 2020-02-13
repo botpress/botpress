@@ -180,7 +180,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
         <h3>Engagement & Retention</h3>
         <div className={style.metricsContainer}>
           {this.renderTimeSeriesChart('Average Session Length', this.getAvgMsgPerSessions())}
-          {this.renderTimeSeriesChart('Total Users', this.getMetric('users_count'))}
+          {this.renderTimeSeriesChart('Active Users', this.getMetric('active_users_count'))}
           {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
           {this.renderNumberMetric('Returning Users', this.getReturningUsers())}
         </div>

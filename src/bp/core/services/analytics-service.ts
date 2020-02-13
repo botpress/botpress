@@ -59,7 +59,6 @@ export default class AnalyticsService {
     const todaysEvents = await this.eventRepo.findByDate(new Date())
     await this.compileFeedbackMetrics(todaysEvents)
     await this.compileUsersCountMetric(todaysEvents)
-    console.log(this.batch)
 
     if (this.currentPromise || !this.batch.length) {
       return
@@ -84,7 +83,7 @@ export default class AnalyticsService {
       botId,
       channel,
       metric,
-      method: AnalyticsMethod.OverwriteDaily,
+      method: AnalyticsMethod.Replace,
       increment: count
     })
   }
@@ -95,7 +94,7 @@ export default class AnalyticsService {
       botId,
       channel,
       metric,
-      method: AnalyticsMethod.OverwriteDaily,
+      method: AnalyticsMethod.Replace,
       increment: count
     })
   }
@@ -127,8 +126,8 @@ export default class AnalyticsService {
         this.addMetric({
           botId: value[0]['botId'],
           channel: value[0]['channel'],
-          metric: AnalyticsMetric.UsersTotal,
-          method: AnalyticsMethod.OverwriteDaily
+          metric: AnalyticsMetric.ActiveUsers,
+          method: AnalyticsMethod.Replace
         })
       })
       .value()

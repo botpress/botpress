@@ -51,9 +51,9 @@ export class AnalyticsRepository {
       return this.insert({ botId, channel, metric, value }, trx)
     } else if (latest.isBefore(today) && def.method === AnalyticsMethod.IncrementTotal) {
       return this.insert({ botId, channel, metric, value: analytics.value + value }, trx)
-    } else if (latest.isBefore(today) && def.method === AnalyticsMethod.OverwriteDaily) {
+    } else if (latest.isBefore(today) && def.method === AnalyticsMethod.Replace) {
       return this.insert({ botId, channel, metric, value }, trx)
-    } else if (def.method === AnalyticsMethod.OverwriteDaily) {
+    } else if (def.method === AnalyticsMethod.Replace) {
       return this.update(analytics.id, value, trx)
     } else {
       return this.update(analytics.id, analytics.value + value, trx)

@@ -48,7 +48,7 @@ const migration: Migration = {
         analyticsRepo.insertOrUpdate({
           botId: user['botId'],
           channel: user['channel'],
-          metric: sdk.AnalyticsMetric.UsersTotal,
+          metric: sdk.AnalyticsMetric.TotalUsers,
           method: sdk.AnalyticsMethod.IncrementTotal
         })
       )
