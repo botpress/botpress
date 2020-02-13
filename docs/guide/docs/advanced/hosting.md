@@ -43,6 +43,12 @@ By default, the Language Server is configured to get `100` dimensions for words.
 | ja           | Japanese   |
 | pt           | Portuguese |
 | ru           | Russian    |
+| de           | German     |
+| es           | Spanish    |
+| he           | Hebrew     |
+| it           | Italian    |
+| nl           | Dutch      |
+| pl           | Polish     |
 
 ## Binary
 
