@@ -10,10 +10,10 @@ import {
 } from '@blueprintjs/core'
 import { AuthRole, AuthStrategyConfig, WorkspaceUser } from 'common/typings'
 import React, { FC } from 'react'
+import { confirmDialog } from 'react-botpress-components'
 import { connect } from 'react-redux'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
-import { confirmDialog } from '../../../../../../react-botpress-components/dist'
 
 interface OwnProps {
   user: WorkspaceUser

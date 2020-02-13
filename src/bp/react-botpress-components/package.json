@@ -1,22 +1,14 @@
 {
-  "name": "botpress-react-botpress-components",
-  "version": "1.0.0",
-  "description": "",
-  "author": "Botpress",
-  "license": "AGPL3",
-  "repository": "Botpress/botpress-react-botpress-components",
+  "name": "react-botpress-components",
+  "version": "0.0.1",
+  "private": true,
+  "publisher": "botpress",
   "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "jsnext:main": "dist/index.es.js",
   "engines": {
-    "node": ">=8",
-    "npm": ">=5"
+    "node": ">=10"
   },
   "scripts": {
-    "test": "cross-env CI=1 react-scripts-ts test --env=jsdom",
-    "test:watch": "react-scripts-ts test --env=jsdom",
-    "build": "rollup -c",
-    "watch": "rollup -c -w"
+    "start": "rollup -c -w"
   },
   "dependencies": {},
   "peerDependencies": {
@@ -33,7 +25,6 @@
     "babel-core": "^6.26.3",
     "babel-runtime": "^6.26.0",
     "cross-env": "^5.1.4",
-    "gh-pages": "^1.2.0",
     "@blueprintjs/core": "^3.23.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",

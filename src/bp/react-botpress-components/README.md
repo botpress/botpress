@@ -1,29 +1,8 @@
-# botpress-react-botpress-components
+## README
 
->
+## Quick Start
 
-[![NPM](https://img.shields.io/npm/v/botpress-react-botpress-components.svg)](https://www.npmjs.com/package/botpress-react-botpress-components) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+Add "react-botpress-components": "link:\${PATH_TO}/react-botpress-components" in the dependencies section of the package.json of the module or section you want to use the shared react components
 
-## Install
-
-```bash
-npm install --save botpress-react-botpress-components
-```
-
-## Usage
-
-```tsx
-import * as React from 'react'
-
-import MyComponent from 'botpress-react-botpress-components'
-
-class Example extends React.Component {
-  render() {
-    return <MyComponent />
-  }
-}
-```
-
-## License
-
-AGPL3 © [Botpress](https://github.com/Botpress)
+1. Run `yarn cmd watch:shared` at the root of the main folder
+1. Run the watch command in the appropriated folder as usual and follow the usual steps to see new changes (Ex.: `yarn cmd watch:admin` for the ui-admin)
