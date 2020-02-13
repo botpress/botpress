@@ -3,19 +3,27 @@ import { ActionServer } from 'common/typings'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
 
+import { Action } from '../diagram/nodes_v2/ActionNode'
+
 interface ActionDialogProps {
+  actionName: string
+  actionServerId: string
+  actionParameters: any
   actionServers: ActionServer[]
   isOpen: boolean
   onClose: () => void
-  onSave: (action: string) => void
+  onSave: (action: Action) => void
 }
 
 const ActionDialog: FC<ActionDialogProps> = props => {
-  const { actionServers, isOpen, onClose, onSave } = props
-  const [actionName, setActionName] = useState('')
-  const [actionServerId, setActionServerId] = useState(actionServers[0].id)
+  const { actionParameters, actionServers, isOpen, onClose, onSave } = props
+  const [name, setName] = useState(props.actionName)
+  const [actionServerId, setActionServerId] = useState(props.actionServerId || actionServers[0].id)
+  const [parameters, setParameters] = useState(actionParameters)
 
-  const valid = actionName && actionServerId
+  console.log('name:', name)
+
+  const valid = name && actionServerId
 
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
@@ -38,10 +46,10 @@ const ActionDialog: FC<ActionDialogProps> = props => {
       >
         <InputGroup
           id="action-name"
-          value={actionName}
+          value={name}
           placeholder="Your action's name"
           onChange={event => {
-            setActionName(event.target.value.replace(/[^a-z0-9-_]/gi, '_'))
+            setName(event.target.value.replace(/[^a-z0-9-_]/gi, '_'))
           }}
         />
       </FormGroup>
@@ -57,7 +65,7 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           <Button icon="remove" />
         </ControlGroup>
       </FormGroup>
-      <Button disabled={!valid} onClick={() => onSave(`${actionName} ${JSON.stringify({ a: 1 })} ${actionServerId}`)}>
+      <Button disabled={!valid} onClick={() => onSave({ actionServerId, name, parameters })}>
         Save
       </Button>
     </Dialog>

@@ -1,5 +1,6 @@
 import { Button, Dialog, HTMLSelect, Label } from '@blueprintjs/core'
 import classnames from 'classnames'
+import { ActionServer } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
@@ -21,17 +22,28 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
 
   const [showDialog, setShowDialog] = useState(false)
 
-  const onSave = (action: string) => {
+  const onSave = (action: Action) => {
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
-    flowBuilder.updateFlowNode({ onEnter: [action] })
+    flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
   }
+
+  console.log('Action:', node.action)
+
+  const action: Action = node.action ? node.action : { name: '', actionServerId: '', parameters: {} }
 
   return (
     <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
       <Button onClick={() => setShowDialog(true)}>Edit</Button>
-      <ActionDialog isOpen={showDialog} onClose={() => setShowDialog(false)} onSave={onSave} />
+      <ActionDialog
+        actionName={action.name}
+        actionServerId={action.actionServerId}
+        actionParameters={action.parameters}
+        isOpen={showDialog}
+        onClose={() => setShowDialog(false)}
+        onSave={onSave}
+      />
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />
         <StandardPortWidget name="out0" node={node} className={style.out} />
@@ -40,13 +52,41 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
   )
 }
 
+type PropType<TObj, TProp extends keyof TObj> = TObj[TProp]
+
+export interface Action {
+  name: string
+  parameters: any
+  actionServerId: PropType<ActionServer, 'id'>
+}
+
+const parseActionString = (actionString: string): Action => {
+  const chunks = actionString.split(' ')
+  console.log('chunks:', chunks)
+  const parametersString = chunks[1]
+  const parameters = parametersString ? JSON.parse(parametersString) : {}
+  return { name: chunks[0], parameters, actionServerId: chunks[3] }
+}
+
+const serializeAction = (action: Action): string => {
+  console.log('serializeAction action:', action)
+  return [action.name, JSON.stringify(action.parameters), action.actionServerId].join(' ')
+}
+
 export class ActionNodeModel extends BaseNodeModel {
+  action?: Action
+
   constructor({ id, x, y, name, onEnter = [], next = [], isStartNode = false, isHighlighted = false }) {
     super('action', id)
     this.setData({ name, onEnter, next, isStartNode, isHighlighted })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
+
+    if (onEnter.length === 1) {
+      const actionString = onEnter[0]
+      this.action = parseActionString(actionString)
+    }
   }
 }
 

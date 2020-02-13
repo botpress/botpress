@@ -88,6 +88,7 @@
     "@types/lodash": "^4.14.133",
     "@types/node": "^12.0.4",
     "@types/react": "^16.8.19",
+    "@types/react-redux": "^7.1.7",
     "@types/react-dom": "^16.8.4",
     "@types/react-router-dom": "^4.3.3",
     "autoprefixer": "^6.5.3",

@@ -53,6 +53,7 @@ class ActionItem extends Component<Props> {
 
     if (action.indexOf(' ') >= 0) {
       const tokens = action.split(' ')
+      console.log(`tokens:`, tokens)
       actionName = tokens[0] + ' (args)'
       parameters = JSON.parse(tokens[1])
     }
