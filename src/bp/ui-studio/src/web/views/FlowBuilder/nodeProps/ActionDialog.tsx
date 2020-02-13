@@ -13,12 +13,19 @@ interface ActionDialogProps {
 const ActionDialog: FC<ActionDialogProps> = props => {
   const { actionServers, isOpen, onClose, onSave } = props
   const [actionName, setActionName] = useState('')
+  const [actionServerId, setActionServerId] = useState('')
+
+  if (!actionServerId) {
+    setActionServerId(actionServers[0].id)
+  }
+
+  const valid = actionName && actionServerId
 
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
       <Label>
         Action Server
-        <HTMLSelect>
+        <HTMLSelect value={actionServerId} onChange={e => setActionServerId(e.target.value)}>
           {actionServers.map(actionServer => (
             <option key={actionServer.id} value={actionServer.id}>
               {actionServer.id} ({actionServer.baseUrl})
@@ -54,7 +61,9 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           <Button icon="remove" />
         </ControlGroup>
       </FormGroup>
-      <Button onClick={() => onSave(`someAction ${JSON.stringify({ a: 1 })} https://localhost:4000`)}>Save</Button>
+      <Button disabled={!valid} onClick={() => onSave(`${actionName} ${JSON.stringify({ a: 1 })} ${actionServerId}`)}>
+        Save
+      </Button>
     </Dialog>
   )
 }
