@@ -165,13 +165,25 @@ class ConfigView extends Component<any, State> {
     }
 
     try {
-      await axios.post(`admin/bots/${this.state.botId}`, bot, axiosConfig)
-      toastSuccess('Bot configuration updated successfully')
-      this.setState({ error: undefined, isSaving: false })
+      const disableChanged = bot.disabled != (this.initialFormState.status === 'disabled')
+      let allow = true
 
-      if (bot.disabled != (this.initialFormState.status === 'disabled')) {
-        window.location.reload()
+      if (disableChanged && bot.disabled) {
+        allow = await confirmDialog(
+          `Are you sure want to unmount this bot? All of the functionalities of this bot will become unavailable.`,
+          { acceptLabel: 'Unmount' }
+        )
       }
+
+      if (allow) {
+        await axios.post(`admin/bots/${this.state.botId}`, bot, axiosConfig)
+        toastSuccess('Bot configuration updated successfully')
+        this.setState({ error: undefined, isSaving: false })
+
+        if (disableChanged) {
+          window.location.reload()
+        }
+      } else this.setState({ error: undefined, isSaving: false })
     } catch (err) {
       this.setState({ error: err, isSaving: false })
     }
