@@ -13,11 +13,7 @@ interface ActionDialogProps {
 const ActionDialog: FC<ActionDialogProps> = props => {
   const { actionServers, isOpen, onClose, onSave } = props
   const [actionName, setActionName] = useState('')
-  const [actionServerId, setActionServerId] = useState('')
-
-  if (!actionServerId) {
-    setActionServerId(actionServers[0].id)
-  }
+  const [actionServerId, setActionServerId] = useState(actionServers[0].id)
 
   const valid = actionName && actionServerId
 
