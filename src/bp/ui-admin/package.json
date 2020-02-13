@@ -28,7 +28,6 @@
     "bootstrap": "^4.3.1",
     "classnames": "^2.2.6",
     "element-closest-polyfill": "^1.0.0",
-    "firebase": "^5.9.1",
     "jdenticon": "^2.1.1",
     "joi-browser": "^13.4.0",
     "moment": "^2.24.0",
