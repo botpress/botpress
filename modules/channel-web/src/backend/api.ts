@@ -124,7 +124,11 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      const user = await bp.users.getOrCreateUser('web', userId, botId)
+      const { result: user, created } = await bp.users.getOrCreateUser('web', userId)
+      if (created) {
+        bp.analytics.addUserMetric(botId, 'channel-web')
+      }
+
       const payload = req.body || {}
 
       let { conversationId = undefined } = req.query || {}
@@ -142,7 +146,7 @@ export default async (bp: typeof sdk, db: Database) => {
       if (payload.type === 'visit') {
         const { timezone, language } = payload
         const isValidTimezone = _.isNumber(timezone) && timezone >= -12 && timezone <= 14 && timezone % 0.5 === 0
-        const isValidLanguage = language.length < 4 && !_.get(user, 'result.attributes.language')
+        const isValidLanguage = language.length < 4 && !_.get(user, 'attributes.language')
 
         const newAttributes = {
           ...(isValidTimezone && { timezone }),
@@ -176,7 +180,10 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      await bp.users.getOrCreateUser('web', userId, botId) // Just to create the user if it doesn't exist
+      const { created } = await bp.users.getOrCreateUser('web', userId) // Just to create the user if it doesn't exist
+      if (created) {
+        bp.analytics.addUserMetric(botId, 'channel-web')
+      }
 
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
@@ -277,7 +284,10 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncApi(async (req, res) => {
       const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
-      await bp.users.getOrCreateUser('web', userId, botId)
+      const { created } = await bp.users.getOrCreateUser('web', userId)
+      if (created) {
+        bp.analytics.addUserMetric(botId, 'channel-web')
+      }
       const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
 
       const event = bp.IO.Event({
@@ -315,7 +325,7 @@ export default async (bp: typeof sdk, db: Database) => {
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId, userId, conversationId } = req.params
-      await bp.users.getOrCreateUser('web', userId, botId)
+      await bp.users.getOrCreateUser('web', userId)
 
       const payload = {
         text: `Reset the conversation`,
@@ -385,7 +395,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.get('/preferences/:userId', async (req, res) => {
     const { userId, botId } = req.params
-    const { result } = await bp.users.getOrCreateUser('web', userId, botId)
+    const { result } = await bp.users.getOrCreateUser('web', userId)
 
     return res.send({ language: result.attributes.language })
   })
@@ -420,7 +430,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   const convertToTxtFile = async conversation => {
     const { messages } = conversation
-    const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId, conversation.botId)
+    const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
     const fullName = `${user.attributes['first_name'] || ''} ${user.attributes['last_name'] || ''}`
     const metadata = `Title: ${conversation.title}\r\nCreated on: ${moment(conversation.created_on).format(

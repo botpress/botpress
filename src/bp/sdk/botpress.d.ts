@@ -1519,7 +1519,7 @@ declare module 'botpress/sdk' {
     /**
      * Returns an existing user or create a new one with the specified keys
      */
-    export function getOrCreateUser(channel: string, userId: string, botId: string): GetOrCreateResult<User>
+    export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>
 
     /**
      * Merge the specified attributes to the existing attributes of the user
@@ -1742,6 +1742,11 @@ declare module 'botpress/sdk' {
 
   export namespace analytics {
     export function addMetric(metricDef: MetricDefinition): void
+    /**
+     * Helper function to increment the new user and total user count in a single call.
+     * @param metricDef
+     */
+    export function addUserMetric(botId: string, channel: string): void
   }
 
   export namespace bots {

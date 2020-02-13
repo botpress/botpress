@@ -1519,7 +1519,7 @@ declare module 'botpress/sdk' {
     /**
      * Returns an existing user or create a new one with the specified keys
      */
-    export function getOrCreateUser(channel: string, userId: string, botId: string): GetOrCreateResult<User>
+    export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>
 
     /**
      * Merge the specified attributes to the existing attributes of the user
@@ -1706,8 +1706,9 @@ declare module 'botpress/sdk' {
   }
 
   export enum AnalyticsMethod {
-    DailyCount = 'daily',
-    TotalCount = 'total'
+    IncrementDaily = 'daily',
+    IncrementTotal = 'total',
+    Replace = 'replace'
   }
 
   export enum AnalyticsMetric {
@@ -1720,11 +1721,13 @@ declare module 'botpress/sdk' {
     GoalsCompletedCount = 'goals_completed_count',
     GoalsFailedCount = 'goals_failed_count',
     NewUsersCount = 'new_users_count',
-    UsersTotal = 'users_count',
-    ReturningUsersCount = 'returning_users_count',
+    TotalUsers = 'total_users_count',
+    ActiveUsers = 'active_users_count',
     SessionsStartNluNone = 'sessions_start_nlu_none',
-    FeedbackPositiveCount = 'feedback_positive_count',
-    FeedbackNegativeCount = 'feedback_negative_count'
+    FeedbackPositiveQna = 'feedback_positive_qna',
+    FeedbackNegativeQna = 'feedback_negative_qna',
+    FeedbackPositiveGoal = 'feedback_positive_goal',
+    FeedbackNegativeGoal = 'feedback_negative_goal'
   }
 
   export interface Analytics {
@@ -1739,6 +1742,11 @@ declare module 'botpress/sdk' {
 
   export namespace analytics {
     export function addMetric(metricDef: MetricDefinition): void
+    /**
+     * Helper function to increment the new user and total user count in a single call.
+     * @param metricDef
+     */
+    export function addUserMetric(botId: string, channel: string): void
   }
 
   export namespace bots {

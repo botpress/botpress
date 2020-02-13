@@ -8,7 +8,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface UserRepository {
-  getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User>
+  getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
   get(channel: string, id: string): Promise<User>
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   setAttributes(channel: string, id: string, attributes: any, trx?: Knex.Transaction): Promise<void>
@@ -27,7 +27,7 @@ export class KnexUserRepository implements UserRepository {
     @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
   ) {}
 
-  async getOrCreate(channel: string, id: string, botId: string): Knex.GetOrCreateResult<User> {
+  async getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User> {
     channel = channel.toLowerCase()
 
     const ug = await this.database
@@ -57,7 +57,6 @@ export class KnexUserRepository implements UserRepository {
       .insertAndRetrieve<User>(
         this.tableName,
         {
-          botId,
           channel,
           user_id: id,
           attributes: this.database.knex.json.set({})
@@ -73,19 +72,6 @@ export class KnexUserRepository implements UserRepository {
           updatedOn: res['updated_at']
         }
       })
-
-    this.analytics.addMetric({
-      botId,
-      channel,
-      metric: AnalyticsMetric.NewUsersCount,
-      method: AnalyticsMethod.IncrementDaily
-    })
-    this.analytics.addMetric({
-      botId,
-      channel,
-      metric: AnalyticsMetric.TotalUsers,
-      method: AnalyticsMethod.IncrementTotal
-    })
 
     return { result: newUser, created: true }
   }

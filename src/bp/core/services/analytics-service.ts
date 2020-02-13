@@ -51,6 +51,21 @@ export default class AnalyticsService {
     this.batch.push(metricDef)
   }
 
+  addUserMetric(botId, channel) {
+    this.addMetric({
+      botId,
+      channel,
+      metric: AnalyticsMetric.NewUsersCount,
+      method: AnalyticsMethod.IncrementDaily
+    })
+    this.addMetric({
+      botId,
+      channel,
+      metric: AnalyticsMetric.TotalUsers,
+      method: AnalyticsMethod.IncrementTotal
+    })
+  }
+
   async getDateRange(botId: string, startDate: Date, endDate: Date, channel?: string): Promise<Analytics[]> {
     return this.analyticsRepo.getBetweenDates(botId, startDate, endDate, channel)
   }

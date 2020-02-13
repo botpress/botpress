@@ -94,7 +94,7 @@ export class DialogJanitor extends Janitor {
         botId: botId
       }) as IO.IncomingEvent
 
-      const { result: user } = await this.userRepo.getOrCreate(channel, target, botId)
+      const { result: user } = await this.userRepo.getOrCreate(channel, target)
 
       fakeEvent.state.context = session.context as IO.DialogContext
       fakeEvent.state.session = session.session_data as IO.CurrentSession

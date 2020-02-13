@@ -1,4 +1,4 @@
-import { IO } from 'botpress/sdk'
+import { AnalyticsMethod, AnalyticsMetric, IO } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
@@ -11,6 +11,7 @@ import ms from 'ms'
 
 import { Event } from '../sdk/impl'
 
+import AnalyticsService from './analytics-service'
 import { EventEngine } from './middleware/event-engine'
 
 export const converseApiEvents = new EventEmitter2()
@@ -30,7 +31,8 @@ export class ConverseService {
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository
+    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.AnalyticsService) private analyticsService: AnalyticsService
   ) {}
 
   @postConstruct()
@@ -84,7 +86,10 @@ export class ConverseService {
       throw new InvalidParameterError(`Text must be a valid string of less than ${maxMessageLength} chars`)
     }
 
-    await this.userRepository.getOrCreate('api', userId, botId)
+    const { created } = await this.userRepository.getOrCreate('api', userId)
+    if (created) {
+      this.analyticsService.addUserMetric(botId, 'api')
+    }
 
     const incomingEvent = Event({
       type: payload.type,

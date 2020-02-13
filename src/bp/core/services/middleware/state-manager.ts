@@ -83,7 +83,10 @@ export class StateManager {
     }
 
     const state = event.state
-    const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target, event.botId)
+    const { result: user, created } = await this.userRepo.getOrCreate(event.channel, event.target)
+    if (created) {
+      this.analytics.addUserMetric(event.botId, event.channel)
+    }
 
     state.user = user.attributes
 

@@ -16,8 +16,8 @@ export default class WebchatDb {
     this.knex = bp['database'] // TODO Fixme
   }
 
-  async getUserInfo(userId, botId) {
-    const { result: user } = await this.users.getOrCreateUser('web', userId, botId)
+  async getUserInfo(userId) {
+    const { result: user } = await this.users.getOrCreateUser('web', userId)
 
     let fullName = 'User'
 
@@ -65,7 +65,7 @@ export default class WebchatDb {
   }
 
   async appendUserMessage(botId, userId, conversationId, payload, incomingEventId) {
-    const { fullName, avatar_url } = await this.getUserInfo(userId, botId)
+    const { fullName, avatar_url } = await this.getUserInfo(userId)
     const { type, text, raw, data } = payload
 
     const convo = await this.knex('web_conversations')
