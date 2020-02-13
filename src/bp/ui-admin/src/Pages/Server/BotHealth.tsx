@@ -7,7 +7,7 @@ import ReactTable from 'react-table'
 import api from '~/api'
 import { fetchBotHealth } from '~/reducers/bots'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
-import confirmDialog from '~/App/ConfirmDialog'
+import { confirmDialog } from '../../../../react-botpress-components/dist'
 
 interface Props {
   health?: ServerHealth[]

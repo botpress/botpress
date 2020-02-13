@@ -50,7 +50,8 @@
     "recharts": "^1.5.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.3.0",
-    "snarkdown": "^1.2.2"
+    "snarkdown": "^1.2.2",
+    "react-botpress-components": "link:../react-botpress-components"
   },
   "devDependencies": {
     "@types/react": "^16.9.19",

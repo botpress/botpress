@@ -46,7 +46,7 @@ const compileTypescript = () => {
 }
 
 const watch = () => {
-  return gulp.watch(['./src/**/*.ts', '!./src/bp/ui-*/**/*.ts'], compileTypescript)
+  return gulp.watch(['./src/**/*.ts', '!./src/bp/ui-*/**/*.ts', '!./src/bp/react-botpress-components/**/*.ts'], compileTypescript)
 }
 
 const createOutputDirs = () => {
