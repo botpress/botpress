@@ -177,14 +177,14 @@ function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
   return stringify(records)
 }
 
-function isRunningFromSources(): string | null {
+function isRunningFromSources(): string | undefined {
   try {
     const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
     const latestResultsPath = path.resolve(sourceDirectory, `./modules/nlu-testing/latest-results.csv`)
     const exists = fs.existsSync(latestResultsPath)
-    return exists ? latestResultsPath : null
+    return exists ? latestResultsPath : undefined
   } catch {
-    return null
+    return undefined
   }
 }
 

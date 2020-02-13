@@ -1,5 +1,6 @@
-import { HitlApi } from 'full/api'
 import React, { FC, useState } from 'react'
+
+import { HitlApi } from '../api'
 
 interface Props {
   api: HitlApi

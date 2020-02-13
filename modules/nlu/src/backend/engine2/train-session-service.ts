@@ -33,5 +33,5 @@ export async function removeTrainingSession(
   botId: string,
   trainSession: TrainingSession
 ): Promise<void> {
-  bp.kvs.forBot(botId).removeStorageKeysStartingWith(makeTrainSessionKey(botId, trainSession.language))
+  await bp.kvs.forBot(botId).removeStorageKeysStartingWith(makeTrainSessionKey(botId, trainSession.language))
 }

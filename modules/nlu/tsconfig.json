@@ -1,8 +1,6 @@
 {
+  "extends": "../tsconfig.shared.json",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "target": "es6",
-    "typeRoots": ["./src/botpress.d.ts", "./node_modules/@types", "./node_modules"],
-    "exclude": ["./src/views/**"]
+    "baseUrl": "./"
   }
 }

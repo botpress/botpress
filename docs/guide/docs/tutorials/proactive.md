@@ -56,43 +56,6 @@ There's currently 3 events that can be caught in your page :
 
 Here are some examples of how can you use webchat events in your page.
 
-### Send message on page load
-
-This will send an event every time the page is loaded.
-
-Use this code in your `index.html`:
-
-```html
-<html>
-  <head>
-    <title>Embedded Webchat</title>
-    <script src="/assets/modules/channel-web/inject.js"></script>
-  </head>
-
-  <body>
-    This is an example of embedded webchat
-  </body>
-
-  <script>
-    // Initialize the chat widget
-    // Change the `botId` with the Id of the bot that should respond to the chat
-    window.botpressWebChat.init({
-      host: 'http://localhost:3000',
-      botId: 'welcome-bot'
-    })
-
-    // Wait for the chat to load
-    setTimeout(function() {
-      window.botpressWebChat.sendEvent({
-        type: 'proactive-trigger',
-        channel: 'web',
-        payload: { text: 'fake message' }
-      })
-    }, 1000)
-  </script>
-</html>
-```
-
 ### Send message when the webchat is loaded
 
 This will send an event when the webchat is loaded and ready to be opened.
