@@ -40,7 +40,7 @@ const ConfirmDialogComponent: FC<Props> = props => {
   return (
     <Dialog
       title={props.title}
-      icon="warning-sign"
+      icon='warning-sign'
       usePortal={false}
       isOpen={true}
       onClose={onDecline}
@@ -51,16 +51,16 @@ const ConfirmDialogComponent: FC<Props> = props => {
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
-            id="confirm-dialog-decline"
-            type="button"
+            id='confirm-dialog-decline'
+            type='button'
             onClick={onDecline}
             text={props.declineLabel}
             tabIndex={2}
             intent={Intent.NONE}
           />
           <Button
-            id="confirm-dialog-accept"
-            type="button"
+            id='confirm-dialog-accept'
+            type='button'
             onClick={onAccept}
             text={props.acceptLabel}
             tabIndex={3}

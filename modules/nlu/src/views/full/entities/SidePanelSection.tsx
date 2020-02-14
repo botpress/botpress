@@ -39,14 +39,15 @@ export const EntitySidePanelSection: FC<Props> = props => {
     setModalOpen(true)
   }
 
-  const deleteEntity = (entity: NLU.EntityDefinition) => {
+  const deleteEntity = async (entity: NLU.EntityDefinition) => {
     const confirmDelete = window.confirm(`Are you sure you want to delete the entity "${entity.name}" ?`)
     if (confirmDelete) {
       if (props.currentItem && props.currentItem.name === entity.name) {
         props.setCurrentItem(undefined)
       }
 
-      props.api.deleteEntity(entity.id).then(props.reloadEntities)
+      await props.api.deleteEntity(entity.id)
+      props.reloadEntities()
     }
   }
 
