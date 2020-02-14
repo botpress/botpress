@@ -6,6 +6,13 @@ const watch = cb => {
   shared.stderr.pipe(process.stderr)
 }
 
+const build = cb => {
+  const shared = exec('yarn && yarn build', { cwd: 'src/bp/ui-shared' }, err => cb(err))
+  shared.stdout.pipe(process.stdout)
+  shared.stderr.pipe(process.stderr)
+}
+
 module.exports = {
-  watch
+  watch,
+  build
 }

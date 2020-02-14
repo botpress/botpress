@@ -8,7 +8,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "\"node ./webpack.config.js --watch\""
+    "start": "rollup -c -w",
+    "build": "rollup -c"
   },
   "dependencies": {
     "node-sass": "^4.13.1"
