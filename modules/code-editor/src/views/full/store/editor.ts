@@ -100,11 +100,12 @@ class EditorStore {
   @action.bound
   async discardChanges() {
     if (this.isDirty && this.fileContent) {
-      if (await confirmDialog(`Do you want to save the changes you made to ${this.currentFile.name}?`,
-      {
-        acceptLabel: 'Save',
-        declineLabel: 'Discard'
-      })) {
+      if (
+        await confirmDialog(`Do you want to save the changes you made to ${this.currentFile.name}?`, {
+          acceptLabel: 'Save',
+          declineLabel: 'Discard'
+        })
+      ) {
         await this.saveChanges()
       }
     }
