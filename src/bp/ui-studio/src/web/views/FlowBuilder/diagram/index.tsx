@@ -57,10 +57,6 @@ class Diagram extends Component<Props> {
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
 
-  state = {
-    highlightFilter: ''
-  }
-
   constructor(props) {
     super(props)
 
@@ -76,6 +72,10 @@ class Diagram extends Component<Props> {
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
+
+    if (this.props.highlightFilter) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
+    }
 
     // @ts-ignore
     window.highlightNode = (flowName: string, nodeName: string) => {
@@ -139,9 +139,15 @@ class Diagram extends Component<Props> {
       this.manager.syncModel()
     }
 
+    // Refresh nodes when the filter is displayed
+    if (this.props.highlightFilter && this.props.showSearch) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.syncModel()
+    }
+
     // Refresh nodes when the filter is updated
-    if (this.state.highlightFilter !== prevState.highlightFilter) {
-      this.manager.setHighlightedNodes(this.state.highlightFilter)
+    if (this.props.highlightFilter !== prevProps.highlightFilter) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
@@ -149,11 +155,6 @@ class Diagram extends Component<Props> {
     if (!this.props.showSearch && prevProps.showSearch) {
       this.manager.setHighlightedNodes([])
       this.manager.syncModel()
-    }
-
-    // Reset search when toggled
-    if (this.props.showSearch && !prevProps.showSearch) {
-      this.setState({ highlightFilter: '' })
     }
   }
 
@@ -454,10 +455,6 @@ class Diagram extends Component<Props> {
     this.props.openFlowNodeProps()
   }
 
-  handleFilterChanged = event => {
-    this.setState({ highlightFilter: event.target.value })
-  }
-
   renderCatchAllInfo() {
     const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
     const nbReceive = _.get(this.props.currentFlow, 'catchAll.onReceive.length', 0)
@@ -478,8 +475,8 @@ class Diagram extends Component<Props> {
               id="input-highlight-name"
               tabIndex={1}
               placeholder="Highlight nodes by name"
-              value={this.state.highlightFilter}
-              onChange={this.handleFilterChanged}
+              value={this.props.highlightFilter}
+              onChange={this.props.handleFilterChanged}
               autoFocus={true}
             />
             <Button icon="small-cross" onClick={this.props.hideSearch} />
@@ -589,6 +586,8 @@ interface Props {
   flowPreview: boolean
   showSearch: boolean
   hideSearch: () => void
+  handleFilterChanged: (event: object) => void
+  highlightFilter: string,
   skills: SkillDefinition[]
 }
 
