@@ -1,5 +1,5 @@
 import { Classes, InputGroup, MenuItem } from '@blueprintjs/core'
-import { IDateRangeShortcut } from '@blueprintjs/datetime'
+import { DateRange, IDateRangeShortcut } from '@blueprintjs/datetime'
 import _ from 'lodash'
 import moment from 'moment'
 import React from 'react'
@@ -8,7 +8,17 @@ import { Filter } from 'react-table'
 export const getDateShortcuts = (): IDateRangeShortcut[] => {
   return [
     {
-      label: 'Last 1 hour',
+      label: 'Last 15 minutes',
+      dateRange: [
+        moment()
+          .subtract(15, 'm')
+          .toDate(),
+        new Date()
+      ],
+      includeTime: true
+    },
+    {
+      label: 'Last 60 minutes',
       dateRange: [
         moment()
           .subtract(1, 'h')
@@ -18,10 +28,20 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'Last 6 hours',
+      label: 'Last 4 hours',
       dateRange: [
         moment()
           .subtract(6, 'h')
+          .toDate(),
+        new Date()
+      ],
+      includeTime: true
+    },
+    {
+      label: 'Last 24 hours',
+      dateRange: [
+        moment()
+          .subtract(24, 'h')
           .toDate(),
         new Date()
       ],
@@ -83,6 +103,19 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       ]
     }
   ]
+}
+
+export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
+
+export const getRangeLabel = (dateRange?: DateRange) => {
+  if (!dateRange) {
+    return
+  }
+
+  const from = moment(dateRange[0])
+  const to = moment(dateRange[1])
+
+  return `${from.format(DATE_FORMAT)} to ${to.format(DATE_FORMAT)} - ${to.from(from, true)}`
 }
 
 export const dropdownRenderer = (option, { modifiers, handleClick }) => {

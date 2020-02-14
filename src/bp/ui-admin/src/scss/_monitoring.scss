@@ -69,3 +69,19 @@
   color: #ac3e31;
   font-weight: bold;
 }
+
+.logToolbar {
+  &-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &-left {
+    margin-right: auto;
+  }
+
+  &-right {
+    margin-right: 0px;
+    display: flex;
+  }
+}

@@ -17,7 +17,7 @@ import PageContainer from '~/App/PageContainer'
 import api from '../../api'
 import { fetchBots } from '../../reducers/bots'
 
-import { dropdownRenderer, filterText, getDateShortcuts, lowercaseFilter } from './utils'
+import { dropdownRenderer, filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
 
 const LEVELS: Option[] = [
   { label: 'All', value: '' },
@@ -62,7 +62,7 @@ const Logs: FC<Props> = props => {
     }
 
     if (!dateRange) {
-      setDateRange(getDateShortcuts()[0].dateRange)
+      setDateRange(getDateShortcuts()[1].dateRange)
     }
 
     // tslint:disable-next-line: no-floating-promises
@@ -240,39 +240,44 @@ const Logs: FC<Props> = props => {
     ]
   }
 
-  const getRangeLabel = () => {
-    if (dateRange) {
-      return `From ${moment(dateRange[0]).format(DATE_FORMAT)} to ${moment(dateRange[1]).format(DATE_FORMAT)}`
-    }
+  const renderRowHeader = () => {
+    const rows = (data && data.length) || 0
+    const { isSuperAdmin } = props.profile
+    const maxRowsReached = (isSuperAdmin && rows === 2000) || (!isSuperAdmin && rows === 400)
+
+    return (
+      <small>
+        {rows} rows ({getRangeLabel(dateRange)}){' '}
+        {maxRowsReached && <span className="logError">Row limit reached. Choose a different time range</span>}
+      </small>
+    )
   }
 
   return (
     <PageContainer title={<span>Logs </span>} fullWidth={true}>
-      <div style={{ display: 'flex' }}>
-        <Popover>
-          <Tooltip content={getRangeLabel()} hoverOpenDelay={500}>
-            <Button text="Change Time Frame" icon="calendar" small />
-          </Tooltip>
-          <DateRangePicker
-            allowSingleDayRange
-            value={dateRange}
-            shortcuts={getDateShortcuts()}
-            timePrecision="second"
-            onChange={val => setDateRange(val)}
-            maxDate={new Date()}
-          />
-        </Popover>
+      <div className="logToolbar-container">
+        <div className="logToolbar-left">{renderRowHeader()}</div>
+        <div className="logToolbar-right">
+          <Popover>
+            <Button text="Date Time Range" icon="calendar" small />
 
-        <div>
-          <Button icon="refresh" text="Refresh logs" small onClick={() => fetchLogs(true)} style={{ marginLeft: 10 }} />
+            <DateRangePicker
+              allowSingleDayRange
+              value={dateRange}
+              shortcuts={getDateShortcuts()}
+              timePrecision="second"
+              onChange={range => setDateRange(range)}
+              maxDate={new Date()}
+            />
+          </Popover>
+          <Checkbox
+            checked={onlyWorkspace}
+            onChange={e => setOnlyWorkspace(e.currentTarget.checked)}
+            disabled={!props.profile.isSuperAdmin}
+            label={`Only bots from this workspace`}
+            style={{ marginLeft: 10 }}
+          />
         </div>
-        <Checkbox
-          checked={onlyWorkspace}
-          onChange={e => setOnlyWorkspace(e.currentTarget.checked)}
-          disabled={!props.profile.isSuperAdmin}
-          label={`Only bots from this workspace`}
-          style={{ marginLeft: 10 }}
-        />
       </div>
 
       <ReactTable
