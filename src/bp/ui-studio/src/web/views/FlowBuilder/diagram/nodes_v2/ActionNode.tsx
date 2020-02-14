@@ -21,26 +21,46 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
   const { node, diagramEngine } = props
 
   const [showDialog, setShowDialog] = useState(false)
+  const [action, setAction] = useState(
+    node.action ? _.cloneDeep(node.action) : { name: '', actionServerId: '', parameters: {} }
+  )
 
-  const onSave = (action: Action) => {
+  const actionCopy = _.cloneDeep(node.action)
+  console.log('actionCopy:', actionCopy)
+  console.log('action:', action)
+
+  const onSave = () => {
     setShowDialog(false)
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
     flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
   }
 
-  const action: Action = node.action ? node.action : { name: '', actionServerId: '', parameters: {} }
+  const cancel = () => {
+    console.log('cancelling')
+    setAction(actionCopy)
+    // initializeAction()
+  }
+
+  // const initializeAction = () => {
+  //   action = node.action ? node.action : { name: '', actionServerId: '', parameters: {} }
+  // }
+
+  // initializeAction()
 
   return (
     <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
       <Button onClick={() => setShowDialog(true)}>Edit</Button>
       <ActionDialog
-        actionName={action.name}
-        actionServerId={action.actionServerId}
-        actionParameters={Object.entries(action.parameters).map(([key, value]) => ({ key, value }))}
+        action={action}
+        // actionParameters={Object.entries(action.parameters).map(([key, value]) => ({ key, value }))}
         isOpen={showDialog}
-        onClose={() => setShowDialog(false)}
+        onClose={() => {
+          setShowDialog(false)
+          cancel()
+        }}
+        onUpdate={action => setAction(action)}
         onSave={onSave}
       />
       <div className={style.ports}>

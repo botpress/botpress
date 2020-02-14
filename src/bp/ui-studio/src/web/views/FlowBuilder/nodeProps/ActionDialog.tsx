@@ -14,22 +14,19 @@ export interface Parameter {
 }
 
 interface ActionDialogProps {
-  actionName: string
-  actionServerId: string
-  actionParameters: Parameter[]
+  action: Action
   actionServers: ActionServer[]
   isOpen: boolean
   onClose: () => void
-  onSave: (action: Action) => void
+  onSave: () => void
+  onUpdate: (action: Action) => void
 }
 
 const ActionDialog: FC<ActionDialogProps> = props => {
-  const { actionParameters, actionServers, isOpen, onClose, onSave } = props
-  const [name, setName] = useState(props.actionName)
-  const [actionServerId, setActionServerId] = useState(props.actionServerId || actionServers[0].id)
-  const [parameters, setParameters] = useState(actionParameters)
+  const { action, actionServers, isOpen, onClose, onSave, onUpdate } = props
+  const [actionServerId, setActionServerId] = useState(action.actionServerId || actionServers[0].id)
 
-  const valid = name && actionServerId
+  // const valid = action.name && actionServerId
 
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
@@ -52,10 +49,13 @@ const ActionDialog: FC<ActionDialogProps> = props => {
       >
         <InputGroup
           id="action-name"
-          value={name}
+          value={action.name}
           placeholder="Your action's name"
           onChange={event => {
-            setName(event.target.value.replace(/[^a-z0-9-_]/gi, '_'))
+            const newName = event.target.value.replace(/[^a-z0-9-_]/gi, '_')
+            const copy = _.cloneDeep(action)
+            copy.name = newName
+            onUpdate(copy)
           }}
         />
       </FormGroup>
@@ -66,25 +66,26 @@ const ActionDialog: FC<ActionDialogProps> = props => {
         labelFor="action-parameters"
       >
         <ActionParameters
-          parameters={parameters}
+          parameters={Object.entries(action.parameters).map(([key, value]) => ({ key, value }))}
           onAdd={() => {
-            setParameters([...parameters, { key: '', value: '' }])
+            const copy = _.cloneDeep(action)
+            copy.parameters = _.merge(copy.parameters, { key: '', value: '' })
+            onUpdate(copy)
           }}
           onUpdate={parameters => {
-            setParameters([...parameters])
+            const copy = _.cloneDeep(action)
+            copy.parameters = parameters.reduce((previousValue, parameter) => {
+              previousValue[parameter.key] = parameter.value
+              return previousValue
+            }, {})
+            onUpdate(copy)
           }}
         />
       </FormGroup>
       <Button
-        disabled={!valid}
+        // disabled={!valid}
         onClick={() => {
-          const parametersObject = parameters.reduce((previous, parameter) => {
-            if (parameter.key && parameter.value) {
-              previous[parameter.key] = parameter.value
-            }
-            return previous
-          }, {})
-          onSave({ actionServerId, name, parameters: parametersObject })
+          onSave()
         }}
       >
         Save
