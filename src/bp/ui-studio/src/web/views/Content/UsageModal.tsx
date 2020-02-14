@@ -1,6 +1,7 @@
 import { Classes, Dialog } from '@blueprintjs/core'
 import React, { FC, useState } from 'react'
 import ReactTable from 'react-table'
+import { getFlowLabel } from '~/components/Shared/Utils'
 
 import { ContentUsage } from '.'
 import style from './style.scss'
@@ -25,12 +26,21 @@ export const UsageModal: FC<Props> = props => {
     {
       Header: 'Name',
       filterable: false,
-      accessor: 'name'
+      accessor: 'name',
+      Cell: x => {
+        const href = getHref(x)
+        const name = x.original.name
+        return <a href={href}>{x.original.type === 'Flow' ? getFlowLabel(name) : name}</a>
+      }
     },
     {
       Header: 'Node',
       filterable: false,
-      accessor: 'node'
+      accessor: 'node',
+      Cell: x => {
+        const href = getHref(x)
+        return <a href={href}>{x.original.node}</a>
+      }
     },
     {
       Header: 'Count',
@@ -40,6 +50,15 @@ export const UsageModal: FC<Props> = props => {
       className: style.centered
     }
   ]
+
+  const getHref = x => {
+    if (x.original.type === 'Flow') {
+      const flowName = x.original.name.replace(/\.flow\.json$/i, '')
+      return `/studio/${window.BOT_ID}/flows/${flowName}/#search:${x.original.node}`
+    } else {
+      return `/studio/${window.BOT_ID}/modules/qna?id=${x.original.id}`
+    }
+  }
 
   const onFetchData = ({ page, pageSize }) => {
     setPage(page)
