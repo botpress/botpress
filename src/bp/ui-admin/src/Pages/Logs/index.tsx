@@ -16,8 +16,9 @@ import PageContainer from '~/App/PageContainer'
 
 import api from '../../api'
 import { fetchBots } from '../../reducers/bots'
+import Dropdown, { Option } from '../Components/Dropdown'
 
-import { dropdownRenderer, filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
+import { filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
 
 const LEVELS: Option[] = [
   { label: 'All', value: '' },
@@ -29,11 +30,6 @@ const LEVELS: Option[] = [
 
 const EVERYTHING: Option[] = [{ label: 'Everything', value: '' }]
 
-interface Option {
-  label: string
-  value: string
-}
-
 interface Props {
   bots: BotConfig[]
   fetchBots: () => void
@@ -41,7 +37,6 @@ interface Props {
   currentWorkspace: any
 }
 
-const SelectDropdown = Select.ofType<Option>()
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 const Logs: FC<Props> = props => {
@@ -119,18 +114,14 @@ const Logs: FC<Props> = props => {
     const items = [...EVERYTHING, ...hostNames.map(id => ({ label: id, value: id }))]
 
     return (
-      <SelectDropdown
+      <Dropdown
         items={items}
-        activeItem={hostFilter}
-        popoverProps={{ minimal: true }}
-        itemRenderer={dropdownRenderer}
-        onItemSelect={option => {
+        defaultItem={hostFilter}
+        onChange={option => {
           setHostFilter(option)
           onChange(option.value)
         }}
-      >
-        <Button text={hostFilter && hostFilter.label} rightIcon="double-caret-vertical" />
-      </SelectDropdown>
+      />
     )
   }
 
@@ -142,36 +133,28 @@ const Logs: FC<Props> = props => {
     const items = [...EVERYTHING, ...botIds.map(id => ({ label: id, value: id }))]
 
     return (
-      <SelectDropdown
+      <Dropdown
         items={items}
-        activeItem={botFilter}
-        popoverProps={{ minimal: true }}
-        itemRenderer={dropdownRenderer}
-        onItemSelect={option => {
+        defaultItem={botFilter}
+        onChange={option => {
           setBotFilter(option)
           onChange(option.value)
           updateBotIdUrl(option.value)
         }}
-      >
-        <Button text={botFilter && botFilter.label} rightIcon="double-caret-vertical" />
-      </SelectDropdown>
+      />
     )
   }
 
   const filterLevel = ({ onChange }) => {
     return (
-      <SelectDropdown
+      <Dropdown
         items={LEVELS}
-        activeItem={levelFilter}
-        popoverProps={{ minimal: true }}
-        itemRenderer={dropdownRenderer}
-        onItemSelect={option => {
+        defaultItem={levelFilter}
+        onChange={option => {
           setLevelFilter(option)
           onChange(option.value)
         }}
-      >
-        <Button text={levelFilter && levelFilter.label} rightIcon="double-caret-vertical" />
-      </SelectDropdown>
+      />
     )
   }
 
