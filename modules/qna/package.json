@@ -39,7 +39,7 @@
     "multer": "^1.4.2",
     "nanoid": "^2.0.1",
     "react-select": "^2.4.2",
-    "react-botpress-components": "link:../../src/bp/react-botpress-components"
+    "ui-shared": "link:../../src/bp/ui-shared"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

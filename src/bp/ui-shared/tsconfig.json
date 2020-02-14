@@ -15,9 +15,8 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "noImplicitAny": false,
-    "noEmit": true
+    "noImplicitAny": false
   },
   "include": ["src"],
-  "exclude": ["node_modules", "build", "dist", "example", "rollup.config.js"]
+  "exclude": ["node_modules", "build", "dist", "example", "rollup.config.js", "webpack.config.js"]
 }

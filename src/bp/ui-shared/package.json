@@ -1,5 +1,5 @@
 {
-  "name": "react-botpress-components",
+  "name": "ui-shared",
   "version": "0.0.1",
   "private": true,
   "publisher": "botpress",
@@ -8,7 +8,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "rollup -c -w"
+    "start": "\"node ./webpack.config.js --watch\""
   },
   "dependencies": {
     "node-sass": "^4.13.1"
@@ -38,7 +38,21 @@
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "rollup-plugin-postcss": "^1.6.2",
     "rollup-plugin-typescript2": "^0.17.0",
-    "rollup-plugin-url": "^1.4.0",
+    "css-loader": "^0.28.11",
+    "css-modules-typescript-loader": "^2.0.3",
+    "hard-source-webpack-plugin": "^0.13.1",
+    "ts-loader": "^6.0.2",
+    "postcss-loader": "^2.0.8",
+    "sass-loader": "^6.0.6",
+    "script-loader": "^0.7.0",
+    "style-loader": "^0.13.1",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "thread-loader": "^1.1.5",
+    "terser-webpack-plugin": "^2.2.2",
+    "webpack": "4.12",
+    "webpack-bundle-analyzer": "^3.5.2",
+    "webpack-node-externals": "^1.7.2",
     "typescript": "^2.8.3"
   },
   "files": [

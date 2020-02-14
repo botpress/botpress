@@ -4,7 +4,7 @@ import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
-import { confirmDialog } from 'react-botpress-components'
+import { confirmDialog } from 'ui-shared'
 import Select from 'react-select'
 
 import './button.css'

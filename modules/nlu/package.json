@@ -21,8 +21,7 @@
     "@types/react-dom": "^16.9.5",
     "@types/slate": "^0.47.1",
     "@types/slate-react": "^0.22.5",
-    "module-builder": "../../build/module-builder",
-    "react-botpress-components": "link:../../src/bp/react-botpress-components"
+    "module-builder": "../../build/module-builder"
   },
   "dependencies": {
     "@blueprintjs/select": "^3.11.2",
@@ -49,7 +48,8 @@
     "tmp": "^0.0.33",
     "utility-types": "^3.7.0",
     "verror": "^1.10.0",
-    "yn": "^3.1.1"
+    "yn": "^3.1.1",
+    "ui-shared": "link:../../src/bp/ui-shared"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

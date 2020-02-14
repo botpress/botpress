@@ -11,7 +11,7 @@ import {
 } from '@blueprintjs/core'
 import { AccessControl } from 'botpress/utils'
 import React, { useEffect, useState } from 'react'
-import { confirmDialog } from 'react-botpress-components'
+import { confirmDialog } from 'ui-shared'
 
 import style from './style.scss'
 import Editor from './Editor'

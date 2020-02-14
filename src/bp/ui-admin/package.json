@@ -50,7 +50,7 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.3.0",
     "snarkdown": "^1.2.2",
-    "react-botpress-components": "link:../react-botpress-components"
+    "ui-shared": "link:../ui-shared"
   },
   "devDependencies": {
     "@types/react": "^16.9.19",

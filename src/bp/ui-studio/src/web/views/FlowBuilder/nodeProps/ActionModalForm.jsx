@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import _ from 'lodash'
-import { confirmDialog } from 'react-botpress-components'
+import { confirmDialog } from 'ui-shared'
 
 import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
 import { connect } from 'react-redux'

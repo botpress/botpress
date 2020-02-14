@@ -17,15 +17,15 @@
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
     "module-builder": "../../build/module-builder",
-    "monaco-editor-webpack-plugin": "^1.7.0",
-    "react-botpress-components": "link:../../src/bp/react-botpress-components"
+    "monaco-editor-webpack-plugin": "^1.7.0"
   },
   "dependencies": {
     "mobx": "^5.10.1",
     "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",
     "prettier": "^1.18.2",
-    "react-icons": "^3.8.0"
+    "react-icons": "^3.8.0",
+    "ui-shared": "link:../../src/bp/ui-shared"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

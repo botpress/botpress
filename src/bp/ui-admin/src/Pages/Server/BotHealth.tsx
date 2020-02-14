@@ -2,12 +2,12 @@ import { Button, Tooltip } from '@blueprintjs/core'
 import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
+import { confirmDialog } from 'ui-shared'
 import { connect } from 'react-redux'
 import ReactTable from 'react-table'
 import api from '~/api'
 import { fetchBotHealth } from '~/reducers/bots'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
-import { confirmDialog } from '../../../../react-botpress-components/dist'
 
 interface Props {
   health?: ServerHealth[]
