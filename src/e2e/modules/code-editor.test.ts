@@ -1,5 +1,6 @@
 import { clickOn } from '../expectPuppeteer'
 import {
+  autoAnswerConfirmDialog,
   autoAnswerDialog,
   clickOnTreeNode,
   expectBotApiCallSuccess,
@@ -61,7 +62,7 @@ describe('Module - Code Editor', () => {
 
   it('Delete file', async () => {
     await waitForFilesToLoad()
-    autoAnswerDialog()
+    await autoAnswerConfirmDialog()
     await clickOnTreeNode('.hello_copy.js', 'right')
     await clickOn('#btn-delete')
 

@@ -1,6 +1,6 @@
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatch, expectMatchElement, fillField } from '../expectPuppeteer'
-import { autoAnswerDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import { autoAnswerConfirmDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Users', () => {
   const testUserEmail = 'someguy@me.com'
@@ -41,7 +41,7 @@ describe('Admin - Users', () => {
     await clickOn('#div-role-dev')
     await page.waitFor(500) // Delay for the collapse animation
 
-    autoAnswerDialog()
+    await autoAnswerConfirmDialog()
 
     await Promise.all([
       expectAdminApiCallSuccess(`users/reset/default/${testUserEmail}`, 'GET'),
@@ -64,7 +64,7 @@ describe('Admin - Users', () => {
     await clickOn('#div-role-admin')
     await page.waitFor(500)
 
-    autoAnswerDialog()
+    await autoAnswerConfirmDialog()
 
     await Promise.all([
       expectAdminApiCallSuccess(`users/default/${testUserEmail}/delete`, 'POST'),

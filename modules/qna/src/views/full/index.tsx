@@ -4,6 +4,7 @@ import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
+import { confirmDialog } from 'react-botpress-components'
 import Select from 'react-select'
 
 import './button.css'
@@ -234,8 +235,10 @@ export default class QnaAdmin extends Component<Props> {
     }
   }
 
-  deleteItem = (id: string) => () => {
-    const needDelete = confirm('Do you want to delete the question?')
+  deleteItem = (id: string) => async () => {
+    const needDelete = await confirmDialog('Do you want to delete the question?', {
+      acceptLabel: 'Delete'
+    })
     const params = this.getQueryParams()
 
     if (needDelete) {

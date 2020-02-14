@@ -38,7 +38,8 @@
     "moment": "^2.24.0",
     "multer": "^1.4.2",
     "nanoid": "^2.0.1",
-    "react-select": "^2.4.2"
+    "react-select": "^2.4.2",
+    "react-botpress-components": "link:../../src/bp/react-botpress-components"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

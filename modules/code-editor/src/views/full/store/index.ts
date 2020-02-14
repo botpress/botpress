@@ -1,5 +1,6 @@
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
+import { confirmDialog } from 'react-botpress-components'
 
 import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
 import { FileFilters } from '../typings'
@@ -136,7 +137,10 @@ class RootStore {
 
   @action.bound
   async deleteFile(file: EditableFile): Promise<void> {
-    if (window.confirm(`Are you sure you want to delete the file named ${file.name}?`)) {
+    if (await confirmDialog(`Are you sure you want to delete the file named ${file.name}?`,
+    {
+      acceptLabel: 'Delete'
+    })) {
       if (await this.api.deleteFile(file)) {
         toastSuccess('File deleted successfully!')
         await this.fetchFiles()

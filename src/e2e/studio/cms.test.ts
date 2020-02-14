@@ -1,5 +1,5 @@
 import { clickOn, fillField } from '../expectPuppeteer'
-import { autoAnswerDialog, expectBotApiCallSuccess, gotoStudio, waitForBotApiResponse } from '../utils'
+import { autoAnswerConfirmDialog, expectBotApiCallSuccess, gotoStudio, waitForBotApiResponse } from '../utils'
 
 const getElementCount = async (): Promise<number> => {
   return (await page.$$('.icon-edit')).length
@@ -52,7 +52,7 @@ describe('Studio - CMS', () => {
   })
 
   it('Delete element', async () => {
-    autoAnswerDialog()
+    await autoAnswerConfirmDialog()
     await clickOn(`[id^='chk-builtin_text']`)
     await clickOn(`#btn-delete`)
     await expectBotApiCallSuccess('content/elements/bulk_delete', 'POST')

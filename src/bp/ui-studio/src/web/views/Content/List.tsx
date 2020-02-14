@@ -3,6 +3,7 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
+import { confirmDialog } from 'react-botpress-components'
 import Markdown from 'react-markdown'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
@@ -83,12 +84,15 @@ class ListView extends Component<Props, State> {
     })
   }
 
-  handleDeleteSelected = () => {
+  handleDeleteSelected = async () => {
     if (
-      window.confirm(
+      await confirmDialog(
         `Do you really want to delete ${this.state.checkedIds.length} item${
           this.state.checkedIds.length === 1 ? '' : 's'
-        }?`
+        }?`,
+        {
+          acceptLabel: 'Delete'
+        }
       )
     ) {
       this.props.handleDeleteSelected(this.state.checkedIds)

@@ -2,7 +2,7 @@ import path from 'path'
 
 import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
 import {
-  autoAnswerDialog,
+  autoAnswerConfirmDialog,
   expectBotApiCallSuccess,
   getElementCenter,
   gotoStudio,
@@ -57,7 +57,7 @@ describe('Module - QNA', () => {
   })
 
   it('Delete entry', async () => {
-    autoAnswerDialog()
+    await autoAnswerConfirmDialog()
     const element = await expectMatchElement('div[role="entry"]', { text: 'are you working' })
     const { x, y } = await getElementCenter(element)
     await page.mouse.move(x, y) // This makes the delete icon visible for the next step
