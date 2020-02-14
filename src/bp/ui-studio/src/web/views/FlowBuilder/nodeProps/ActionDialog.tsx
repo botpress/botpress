@@ -1,14 +1,22 @@
-import { Button, ControlGroup, Dialog, FormGroup, HTMLSelect, InputGroup, Label } from '@blueprintjs/core'
+import { Button, Dialog, FormGroup, HTMLSelect, InputGroup, Label } from '@blueprintjs/core'
 import { ActionServer } from 'common/typings'
+import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
 
 import { Action } from '../diagram/nodes_v2/ActionNode'
 
+import { ActionParameters } from './ActionParameters'
+
+export interface Parameter {
+  key: string
+  value: string
+}
+
 interface ActionDialogProps {
   actionName: string
   actionServerId: string
-  actionParameters: any
+  actionParameters: Parameter[]
   actionServers: ActionServer[]
   isOpen: boolean
   onClose: () => void
@@ -57,13 +65,28 @@ const ActionDialog: FC<ActionDialogProps> = props => {
         label="Action Parameters"
         labelFor="action-parameters"
       >
-        <ControlGroup id="action-parameters">
-          <InputGroup id="action-parameters" placeholder="Name" />
-          <InputGroup id="action-parameters" placeholder="Value" />
-          <Button icon="remove" />
-        </ControlGroup>
+        <ActionParameters
+          parameters={parameters}
+          onAdd={() => {
+            setParameters([...parameters, { key: '', value: '' }])
+          }}
+          onUpdate={parameters => {
+            setParameters([...parameters])
+          }}
+        />
       </FormGroup>
-      <Button disabled={!valid} onClick={() => onSave({ actionServerId, name, parameters })}>
+      <Button
+        disabled={!valid}
+        onClick={() => {
+          const parametersObject = parameters.reduce((previous, parameter) => {
+            if (parameter.key && parameter.value) {
+              previous[parameter.key] = parameter.value
+            }
+            return previous
+          }, {})
+          onSave({ actionServerId, name, parameters: parametersObject })
+        }}
+      >
         Save
       </Button>
     </Dialog>

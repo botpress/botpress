@@ -38,7 +38,7 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
       <ActionDialog
         actionName={action.name}
         actionServerId={action.actionServerId}
-        actionParameters={action.parameters}
+        actionParameters={Object.entries(action.parameters).map(([key, value]) => ({ key, value }))}
         isOpen={showDialog}
         onClose={() => setShowDialog(false)}
         onSave={onSave}
@@ -53,9 +53,13 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
 
 type PropType<TObj, TProp extends keyof TObj> = TObj[TProp]
 
+export interface Parameters {
+  [name: string]: string
+}
+
 export interface Action {
   name: string
-  parameters: any
+  parameters: Parameters
   actionServerId: PropType<ActionServer, 'id'>
 }
 
