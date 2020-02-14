@@ -11,7 +11,7 @@ import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Inte
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
-import Toolbar from '../../FlowBuilder/SidePanel/Toolbar'
+import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
 
 import EditGoalModal from './GoalEditor'
 import { exportCompleteGoal } from './GoalEditor/export'
