@@ -261,10 +261,10 @@ export type BotpressConfig = {
   additionalLanguages?: { name: string; code: string }[]
 
   /**
-   * Custom Action Servers to be used when dispatching actions.
+   * Action Servers to be used when dispatching actions.
    * @default [{"id":"local", "baseUrl":"http://localhost:4000"}]
    */
-  customActionServers: ActionServer[]
+  actionServers: ActionServer[]
 }
 
 export interface ExternalAuthConfig {

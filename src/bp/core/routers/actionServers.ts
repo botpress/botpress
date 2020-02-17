@@ -21,7 +21,7 @@ export class ActionServersRouter extends CustomRouter {
       this.checkTokenHeader,
       this.asyncMiddleware(async (_req, res, _next) => {
         const config = await this.configProvider.getBotpressConfig()
-        res.send(config.customActionServers)
+        res.send(config.actionServers)
       })
     )
   }

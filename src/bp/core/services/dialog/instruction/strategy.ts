@@ -138,7 +138,7 @@ export class ActionStrategy implements InstructionStrategy {
     let actionServer
     if (actionServerId) {
       const botpressConfig = await this.configProvider.getBotpressConfig()
-      actionServer = botpressConfig.customActionServers.find(s => s.id === actionServerId)
+      actionServer = botpressConfig.actionServers.find(s => s.id === actionServerId)
     }
 
     debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)
