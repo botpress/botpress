@@ -138,47 +138,28 @@ export class ScopedActionService {
     const { actionName, incomingEvent, actionArgs, actionServer } = props
     process.ASSERT_LICENSED()
 
-    if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
-      await this.checkActionRequires(actionName)
-    }
-
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
-
-    const { action, code, dirPath, lookups, trusted } = await this.getActionDetails(actionName)
-
-    const _require = prepareRequire(dirPath, lookups)
-
-    const api = await createForAction()
-
-    const args = {
-      bp: api,
-      event: incomingEvent,
-      user: incomingEvent.state.user,
-      temp: incomingEvent.state.temp,
-      session: incomingEvent.state.session,
-      args: actionArgs,
-      printObject: printObject,
-      process: UntrustedSandbox.getSandboxProcessArgs()
-    }
 
     try {
       let result
-      if (trusted) {
-        result = await this.runWithoutVm(code, args, _require)
+
+      if (actionServer) {
+        const response = await this.runInActionServer({
+          actionServer,
+          actionName,
+          actionArgs,
+          incomingEvent
+        })
+        result = response.result
+        _.merge(incomingEvent, response.incomingEvent)
       } else {
-        if (actionServer) {
-          const response = await this.runInActionServer({
-            actionServer,
-            actionName,
-            actionArgs,
-            botId: incomingEvent.botId,
-            incomingEvent
-          })
-          result = response.result
-          _.merge(incomingEvent, response.incomingEvent)
+        const trusted = this.isTrustedAction(actionName)
+
+        if (trusted) {
+          result = await this.runTrustedCode(actionName, actionArgs, incomingEvent)
         } else {
-          this.logger.warn('Running legacy JavaScript action. Please migrate to the new Action Server.')
-          result = await this.runInVm(code, dirPath, args, _require)
+          this.logger.warn('Running legacy JavaScript action. Please migrate to the new Action Server functionality.')
+          result = await this.runLegacyAction(actionName, actionArgs, incomingEvent)
         }
       }
 
@@ -194,48 +175,14 @@ export class ScopedActionService {
     }
   }
 
-  async runInVm(code: string, dirPath: string, args: any, _require: Function) {
-    const modRequire = new Proxy(
-      {},
-      {
-        get: (_obj, prop) => _require(prop)
-      }
-    )
-
-    const vm = new NodeVM({
-      wrapper: 'none',
-      sandbox: args,
-      require: {
-        external: true,
-        mock: modRequire
-      },
-      timeout: 5000
-    })
-
-    const runner = new VmRunner()
-    return runner.runInVm(vm, code, dirPath)
-  }
-
-  async getActionDetails(actionName: string) {
-    const action = await this.findAction(actionName)
-    const code = await this.getActionScript(action)
-
-    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
-    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
-    const lookups = getBaseLookupPaths(dirPath)
-
-    const trusted = this.isTrustedAction(actionName)
-    return { code, dirPath, lookups, action, trusted }
-  }
-
   private async runInActionServer(props: {
     actionServer: ActionServer
     actionName: string
     incomingEvent: IO.IncomingEvent
     actionArgs: any
-    botId: string
   }): Promise<{ result: any; incomingEvent: IO.IncomingEvent }> {
-    const { actionName, actionArgs, botId, actionServer, incomingEvent } = props
+    const { actionName, actionArgs, actionServer, incomingEvent } = props
+    const botId = incomingEvent.botId
 
     const token = jsonwebtoken.sign({ botId, allowedScopes: [], workspace: '', taskId: '' }, process.APP_SECRET, {
       expiresIn: '15m'
@@ -266,6 +213,89 @@ export class ScopedActionService {
       .update({ status: 'completed', response_status_code: response.status, updated_at: this.database.knex.date.now() })
 
     return { result: response.data.result, incomingEvent: response.data.incomingEvent }
+  }
+
+  private async runTrustedCode(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent) {
+    const { code, _require } = await this.loadLocalAction(actionName)
+
+    const api = await createForAction()
+
+    const args = {
+      bp: api,
+      event: incomingEvent,
+      user: incomingEvent.state.user,
+      temp: incomingEvent.state.temp,
+      session: incomingEvent.state.session,
+      args: actionArgs,
+      printObject,
+      process: UntrustedSandbox.getSandboxProcessArgs()
+    }
+
+    return await this.runWithoutVm(code, args, _require)
+  }
+
+  private async runLegacyAction(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent) {
+    const { code, _require, dirPath } = await this.loadLocalAction(actionName)
+
+    const api = await createForAction()
+
+    const args = {
+      bp: api,
+      event: incomingEvent,
+      user: incomingEvent.state.user,
+      temp: incomingEvent.state.temp,
+      session: incomingEvent.state.session,
+      args: actionArgs,
+      printObject,
+      process: UntrustedSandbox.getSandboxProcessArgs()
+    }
+
+    return await this.runInVm(code, dirPath, args, _require)
+  }
+
+  public async runInVm(code: string, dirPath: string, args: any, _require: Function) {
+    const modRequire = new Proxy(
+      {},
+      {
+        get: (_obj, prop) => _require(prop)
+      }
+    )
+
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: args,
+      require: {
+        external: true,
+        mock: modRequire
+      },
+      timeout: 5000
+    })
+
+    const runner = new VmRunner()
+    return runner.runInVm(vm, code, dirPath)
+  }
+
+  private async getActionDetails(actionName: string) {
+    const action = await this.findAction(actionName)
+    const code = await this.getActionScript(action)
+
+    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
+    const lookups = getBaseLookupPaths(dirPath)
+
+    return { code, dirPath, lookups, action }
+  }
+
+  public async loadLocalAction(actionName: string) {
+    if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
+      await this.checkActionRequires(actionName)
+    }
+
+    const { code, dirPath, lookups } = await this.getActionDetails(actionName)
+
+    const _require = prepareRequire(dirPath, lookups)
+
+    return { code, _require, dirPath }
   }
 
   private _listenForCacheInvalidation() {
