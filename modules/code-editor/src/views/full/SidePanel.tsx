@@ -3,10 +3,12 @@ import { SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
+import { FileType } from '../../backend/typings'
 import { HOOK_SIGNATURES } from '../../typings/hooks'
 
 import FileStatus from './components/FileStatus'
 import NameModal from './components/NameModal'
+import NewFileModal from './components/NewFileModal'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import { EXAMPLE_FOLDER_LABEL } from './utils/tree'
@@ -23,7 +25,10 @@ class PanelContent extends React.Component<Props> {
     rawFiles: [],
     selectedNode: '',
     selectedFile: undefined,
-    isMoveModalOpen: false
+    isMoveModalOpen: false,
+    isCreateModalOpen: false,
+    fileType: undefined,
+    hookType: undefined
   }
 
   componentDidMount() {
@@ -57,6 +62,7 @@ class PanelContent extends React.Component<Props> {
     this.addFiles('global.actions', `Global`, actionFiles)
 
     const hookFiles = []
+    this.addFiles('bot.hooks', `Bot (${window['BOT_NAME']})`, hookFiles)
     this.addFiles('global.hooks', 'Global', hookFiles)
 
     const botConfigFiles = []
@@ -85,9 +91,13 @@ class PanelContent extends React.Component<Props> {
     this.setState({ selectedNode: fullyQualifiedId })
   }
 
-  hasPermission(perm: string, isWrite?: boolean): boolean {
+  hasPermission = (perm: string, isWrite?: boolean): boolean => {
     const { permissions } = this.props
     return permissions && permissions[perm] && permissions[perm][isWrite ? 'write' : 'read']
+  }
+
+  createFilePrompt(type: FileType, hookType?: string) {
+    this.setState({ fileType: type, hookType, isCreateModalOpen: true })
   }
 
   renderSectionModuleConfig() {
@@ -131,28 +141,17 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionActions() {
-    const items: SectionAction[] = [
-      {
-        id: 'btn-add-action-bot',
-        label: 'Action - Bot',
-        icon: <Icon icon="new-text-box" />,
-        onClick: () => this.props.createFilePrompt('action', false)
-      }
-    ]
-
-    if (this.hasPermission('global.actions', true)) {
-      items.push({
-        id: `btn-add-action-global`,
-        label: 'Action - Global',
-        icon: <Icon icon="new-text-box" />,
-        onClick: () => this.props.createFilePrompt('action', true)
-      })
-    }
-
     return (
       <SidePanelSection
         label={'Actions'}
-        actions={[{ id: 'btn-add-action', icon: <Icon icon="add" />, key: 'add', items }]}
+        actions={[
+          {
+            id: 'btn-add-action',
+            icon: <Icon icon="add" />,
+            key: 'add',
+            onClick: () => this.createFilePrompt('action')
+          }
+        ]}
       >
         <FileNavigator
           id="actions"
@@ -167,14 +166,12 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionHooks() {
-    if (!this.hasPermission('global.hooks')) {
+    if (!this.hasPermission('global.hooks') && !this.hasPermission('bot.hooks')) {
       return null
     }
 
-    const actions = this.hasPermission('global.hooks', true) ? this._buildHooksActions() : []
-
     return (
-      <SidePanelSection label={'Hooks'} actions={actions}>
+      <SidePanelSection label={'Hooks'} actions={this._buildHooksActions(this.hasPermission('global.hooks', true))}>
         <FileNavigator
           id="hooks"
           files={this.state.hookFiles}
@@ -225,50 +222,55 @@ class PanelContent extends React.Component<Props> {
     )
   }
 
-  _buildHooksActions() {
+  _buildHooksActions(showGlobalHooks: boolean) {
     const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
       id: hookType,
       label: hookType
         .split('_')
         .map(x => x.charAt(0).toUpperCase() + x.slice(1))
         .join(' '),
-      onClick: () => this.props.createFilePrompt('hook', true, hookType)
+      onClick: () => this.createFilePrompt('hook', hookType)
     }))
+
+    const items = [
+      {
+        label: 'Event Hooks',
+        items: hooks.filter(x =>
+          [
+            'before_incoming_middleware',
+            'after_incoming_middleware',
+            'before_outgoing_middleware',
+            'after_event_processed',
+            'before_suggestions_election',
+            'before_session_timeout'
+          ].includes(x.id)
+        )
+      },
+      {
+        label: 'Bot Hooks',
+        items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
+      }
+    ]
+
+    if (showGlobalHooks) {
+      items.push(
+        {
+          label: 'General Hooks',
+          items: hooks.filter(x => ['after_server_start', 'on_incident_status_changed'].includes(x.id))
+        },
+        {
+          label: 'Pipeline Hooks',
+          items: hooks.filter(x => ['on_stage_request', 'after_stage_changed'].includes(x.id))
+        }
+      )
+    }
 
     return [
       {
         id: 'btn-add-hook',
         icon: <Icon icon="add" />,
         key: 'add',
-        items: [
-          {
-            label: 'Event Hooks',
-            items: hooks.filter(x =>
-              [
-                'before_incoming_middleware',
-                'after_incoming_middleware',
-                'before_outgoing_middleware',
-                'after_event_processed',
-                'before_suggestions_election',
-                'before_session_timeout'
-              ].includes(x.id)
-            )
-          },
-          {
-            label: 'Bot Hooks',
-            items: hooks.filter(x => ['after_bot_mount', 'after_bot_unmount', 'before_bot_import'].includes(x.id))
-          },
-          {
-            label: 'General Hooks',
-            items: hooks.filter(x => ['after_server_start'].includes(x.id))
-          },
-          {
-            label: 'Pipeline Hooks',
-            items: hooks.filter(x =>
-              ['on_incident_status_changed', 'on_stage_request', 'after_stage_changed'].includes(x.id)
-            )
-          }
-        ]
+        items
       }
     ]
   }
@@ -293,6 +295,15 @@ class PanelContent extends React.Component<Props> {
             )}
           </React.Fragment>
         )}
+        <NewFileModal
+          isOpen={this.state.isCreateModalOpen}
+          toggle={() => this.setState({ isCreateModalOpen: !this.state.isCreateModalOpen })}
+          openFile={this.props.editor.openFile}
+          selectedType={this.state.fileType}
+          selectedHookType={this.state.hookType}
+          hasPermission={this.hasPermission}
+          files={this.props.files}
+        />
       </SidePanel>
     )
   }
