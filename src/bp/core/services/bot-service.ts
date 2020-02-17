@@ -170,6 +170,10 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
     }
 
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     if (!process.IS_PRO_ENABLED && updatedBot.languages && updatedBot.languages.length > 1) {
       throw new Error('A single language is allowed on community edition.')
     }
@@ -470,6 +474,10 @@ export class BotService {
   async deleteBot(botId: string) {
     this.stats.track('bot', 'delete')
 
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     await this.unmountBot(botId)
     await this._cleanupRevisions(botId, true)
     await this.ghostService.forBot(botId).deleteFolder('/')
@@ -613,6 +621,10 @@ export class BotService {
 
   public async listRevisions(botId: string): Promise<string[]> {
     const globalGhost = this.ghostService.global()
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
 
     let stageID = ''
@@ -633,6 +645,10 @@ export class BotService {
   }
 
   public async createRevision(botId: string): Promise<void> {
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
     let revName = botId + REV_SPLIT_CHAR + Date.now()
 
@@ -648,6 +664,10 @@ export class BotService {
   }
 
   public async rollback(botId: string, revision: string): Promise<void> {
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
     const revParts = revision.replace(/\.tgz$/i, '').split(REV_SPLIT_CHAR)
     if (revParts.length < 2) {
