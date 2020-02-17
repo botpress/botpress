@@ -8,8 +8,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "node ./webpack.config.js --watch",
-    "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap"
+    "start": "rollup -c -w",
+    "build": "NODE_ENV=production rollup -c"
   },
   "dependencies": {
     "node-sass": "^4.13.1"
