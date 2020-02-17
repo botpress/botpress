@@ -177,5 +177,6 @@ export interface ServerHealth {
 export interface BotHealth {
   status: 'mounted' | 'unmounted' | 'disabled' | 'error'
   errorCount: number
+  criticalCount: number
   warningCount: number
 }

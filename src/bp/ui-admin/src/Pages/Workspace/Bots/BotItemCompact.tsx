@@ -27,9 +27,19 @@ interface Props {
   createRevision?: () => void
   rollback?: () => void
   reloadBot?: () => void
+  viewLogs?: () => void
 }
 
-const BotItemCompact: FC<Props> = ({ bot, hasError, deleteBot, exportBot, createRevision, rollback, reloadBot }) => {
+const BotItemCompact: FC<Props> = ({
+  bot,
+  hasError,
+  deleteBot,
+  exportBot,
+  createRevision,
+  rollback,
+  reloadBot,
+  viewLogs
+}) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
 
@@ -63,6 +73,10 @@ const BotItemCompact: FC<Props> = ({ bot, hasError, deleteBot, exportBot, create
               <CopyToClipboard text={botShortLink} onCopy={() => toastInfo('Copied to clipboard')}>
                 <MenuItem icon="link" text="Copy link to clipboard" />
               </CopyToClipboard>
+
+              <AccessControl resource="admin.logs" operation="read">
+                <MenuItem text="View Logs" icon="manual" id="btn-viewLogs" onClick={viewLogs} />
+              </AccessControl>
 
               <AccessControl resource="admin.bots.*" operation="write">
                 <MenuItem text="Create Revision" icon="cloud-upload" id="btn-createRevision" onClick={createRevision} />

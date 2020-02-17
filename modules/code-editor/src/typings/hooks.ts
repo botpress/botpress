@@ -14,7 +14,8 @@ export const HOOK_SIGNATURES = {
   on_stage_request:
     'async function hook(bp: typeof sdk, bot: sdk.BotConfig, users: Partial<sdk.AuthUser[]>, pipeline: sdk.Pipeline, hookResult: any)',
   after_stage_changed:
-    'async function hook(bp: typeof sdk, previousBotConfig: sdk.BotConfig, bot: sdk.BotConfig, users: Partial<sdk.AuthUser[]>, pipeline: sdk.Pipeline)'
+    'async function hook(bp: typeof sdk, previousBotConfig: sdk.BotConfig, bot: sdk.BotConfig, users: Partial<sdk.AuthUser[]>, pipeline: sdk.Pipeline)',
+  on_bot_error: `async function hook(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[])`
 }
 
 export const BOT_SCOPED_HOOKS = [
@@ -26,5 +27,6 @@ export const BOT_SCOPED_HOOKS = [
   'before_session_timeout',
   'after_bot_mount',
   'after_bot_unmount',
-  'before_bot_import'
+  'before_bot_import',
+  'on_bot_error'
 ]
