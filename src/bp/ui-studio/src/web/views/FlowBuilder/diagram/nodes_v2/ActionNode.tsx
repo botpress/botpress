@@ -22,12 +22,10 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
 
   const [showDialog, setShowDialog] = useState(false)
   const [action, setAction] = useState(
-    node.action ? _.cloneDeep(node.action) : { name: '', actionServerId: '', parameters: {} }
+    node.onEnter.length === 1 ? parseActionString(node.onEnter[0]) : { name: '', actionServerId: '', parameters: {} }
   )
 
-  const actionCopy = _.cloneDeep(node.action)
-  console.log('actionCopy:', actionCopy)
-  console.log('action:', action)
+  const actionCopy = parseActionString(node.onEnter[0])
 
   const onSave = () => {
     setShowDialog(false)
@@ -37,30 +35,30 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
   }
 
   const cancel = () => {
-    console.log('cancelling')
     setAction(actionCopy)
-    // initializeAction()
   }
 
-  // const initializeAction = () => {
-  //   action = node.action ? node.action : { name: '', actionServerId: '', parameters: {} }
-  // }
-
-  // initializeAction()
-
   return (
-    <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
+    <div
+      className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}
+      // TODO: check for a more elegant way to stop event propagation
+      onClick={e => e.stopPropagation()}
+      onMouseDown={e => e.stopPropagation()}
+      onMouseUp={e => e.stopPropagation()}
+      onDrag={e => e.stopPropagation()}
+    >
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
       <Button onClick={() => setShowDialog(true)}>Edit</Button>
       <ActionDialog
         action={action}
-        // actionParameters={Object.entries(action.parameters).map(([key, value]) => ({ key, value }))}
         isOpen={showDialog}
         onClose={() => {
           setShowDialog(false)
           cancel()
         }}
-        onUpdate={action => setAction(action)}
+        onUpdate={action => {
+          setAction(action)
+        }}
         onSave={onSave}
       />
       <div className={style.ports}>
@@ -95,19 +93,12 @@ const serializeAction = (action: Action): string => {
 }
 
 export class ActionNodeModel extends BaseNodeModel {
-  action?: Action
-
   constructor({ id, x, y, name, onEnter = [], next = [], isStartNode = false, isHighlighted = false }) {
     super('action', id)
     this.setData({ name, onEnter, next, isStartNode, isHighlighted })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
-
-    if (onEnter.length === 1) {
-      const actionString = onEnter[0]
-      this.action = parseActionString(actionString)
-    }
   }
 }
 

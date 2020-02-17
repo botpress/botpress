@@ -7,7 +7,6 @@ import { connect } from 'react-redux'
 import { Action } from '../diagram/nodes_v2/ActionNode'
 
 import { ActionParameters } from './ActionParameters'
-
 export interface Parameter {
   key: string
   value: string
@@ -24,7 +23,8 @@ interface ActionDialogProps {
 
 const ActionDialog: FC<ActionDialogProps> = props => {
   const { action, actionServers, isOpen, onClose, onSave, onUpdate } = props
-  const [actionServerId, setActionServerId] = useState(action.actionServerId || actionServers[0].id)
+
+  // const actionServerId = action.actionServerId || actionServers[0].id
 
   // const valid = action.name && actionServerId
 
@@ -32,7 +32,15 @@ const ActionDialog: FC<ActionDialogProps> = props => {
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
       <Label>
         Action Server
-        <HTMLSelect value={actionServerId} onChange={e => setActionServerId(e.target.value)}>
+        <HTMLSelect
+          value={action.actionServerId}
+          onChange={e => {
+            e.preventDefault()
+            const copy = _.cloneDeep(action)
+            copy.actionServerId = e.currentTarget.value
+            onUpdate(copy)
+          }}
+        >
           {actionServers.map(actionServer => (
             <option key={actionServer.id} value={actionServer.id}>
               {actionServer.id} ({actionServer.baseUrl})
@@ -51,8 +59,8 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           id="action-name"
           value={action.name}
           placeholder="Your action's name"
-          onChange={event => {
-            const newName = event.target.value.replace(/[^a-z0-9-_]/gi, '_')
+          onChange={e => {
+            const newName = e.target.value.replace(/[^a-z0-9-_]/gi, '_')
             const copy = _.cloneDeep(action)
             copy.name = newName
             onUpdate(copy)
