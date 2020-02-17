@@ -44,6 +44,7 @@ const ConfirmDialogComponent: FC<Props> = props => {
       title={props.title}
       icon="warning-sign"
       usePortal={false}
+      enforceFocus={false}
       isOpen={true}
       onClose={onDecline}
       transitionDuration={0}

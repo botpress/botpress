@@ -2,7 +2,7 @@ import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { autoAnswerConfirmDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import { closeToaster, CONFIRM_DIALOG, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
@@ -32,7 +32,9 @@ describe('Admin - Bot Management', () => {
 
   it('Delete imported bot', async () => {
     await clickButtonForBot('#btn-delete', importBotId)
-    await autoAnswerConfirmDialog()
+
+    await page.waitFor(1000)
+    await clickOn(CONFIRM_DIALOG.ACCEPT)
     await expectAdminApiCallSuccess(`bots/${importBotId}/delete`, 'POST')
     await page.waitFor(200)
   })
@@ -93,7 +95,8 @@ describe('Admin - Bot Management', () => {
 
   it('Delete temporary bot', async () => {
     await clickButtonForBot('#btn-delete', tempBotId)
-    await autoAnswerConfirmDialog()
+    await page.waitFor(1000)
+    await clickOn(CONFIRM_DIALOG.ACCEPT)
     await expectAdminApiCallSuccess(`bots/${tempBotId}/delete`, 'POST')
     await page.waitFor(200)
   })
