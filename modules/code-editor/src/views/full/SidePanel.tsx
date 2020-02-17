@@ -256,13 +256,11 @@ class PanelContent extends React.Component<Props> {
       items.push(
         {
           label: 'General Hooks',
-          items: hooks.filter(x => ['after_server_start'].includes(x.id))
+          items: hooks.filter(x => ['after_server_start', 'on_incident_status_changed'].includes(x.id))
         },
         {
           label: 'Pipeline Hooks',
-          items: hooks.filter(x =>
-            ['on_incident_status_changed', 'on_stage_request', 'after_stage_changed'].includes(x.id)
-          )
+          items: hooks.filter(x => ['on_stage_request', 'after_stage_changed'].includes(x.id))
         }
       )
     }
