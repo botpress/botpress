@@ -24,7 +24,7 @@ interface LogSearchParams {
 export class KnexLogsRepository implements LogsRepository {
   private readonly TABLE_NAME = 'srv_logs'
   private readonly DEFAULT_LIMIT = 25
-  private readonly MAX_ROWS = 1000
+  private readonly MAX_ROW_COUNT = 2000
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
@@ -60,7 +60,7 @@ export class KnexLogsRepository implements LogsRepository {
     botIds,
     fromDate,
     toDate,
-    count = this.MAX_ROWS,
+    count = this.MAX_ROW_COUNT,
     start = 0
   }: LogSearchParams): Promise<LoggerEntry[]> {
     let query = this.database.knex(this.TABLE_NAME).select('*')

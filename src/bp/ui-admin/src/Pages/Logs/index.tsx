@@ -225,13 +225,11 @@ const Logs: FC<Props> = props => {
 
   const renderRowHeader = () => {
     const rows = (data && data.length) || 0
-    const { isSuperAdmin } = props.profile
-    const maxRowsReached = (isSuperAdmin && rows === 2000) || (!isSuperAdmin && rows === 400)
 
     return (
       <small>
         {rows} rows ({getRangeLabel(dateRange)}){' '}
-        {maxRowsReached && <span className="logError">Row limit reached. Choose a different time range</span>}
+        {rows === 2000 && <span className="logError">Row limit reached. Choose a different time range</span>}
       </small>
     )
   }

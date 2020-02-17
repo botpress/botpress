@@ -160,14 +160,7 @@ export class AdminRouter extends CustomRouter {
           botIds = (await this.botService.findBotsByIds(botsRefs)).filter(Boolean).map(x => x.id)
         }
 
-        const results = await this.logsRepository.searchLogs({
-          fromDate: from.toDate(),
-          toDate: to.toDate(),
-          botIds,
-          count: req.tokenUser?.isSuperAdmin ? 2000 : 400
-        })
-
-        res.send(results)
+        res.send(await this.logsRepository.searchLogs({ fromDate: from.toDate(), toDate: to.toDate(), botIds }))
       })
     )
   }
