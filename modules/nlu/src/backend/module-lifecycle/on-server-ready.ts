@@ -11,7 +11,7 @@ export function getOnServerReady(state: NLUState) {
     const loadModel = async (botId: string, hash: string, language: string) => {
       const ghost = bp.ghost.forBot(botId)
       const model = await getModel(ghost, hash, language)
-      if (model) {
+      if (model && !!state.nluByBot[botId]) {
         await state.nluByBot[botId].engine.loadModel(model)
       }
     }
