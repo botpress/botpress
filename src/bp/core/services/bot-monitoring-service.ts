@@ -45,9 +45,7 @@ export class BotMonitoringService {
 
     if (this._redisClient) {
       this._redlock = new Redlock([this._redisClient], {
-        driftFactor: 0.01,
         retryCount: 0,
-        retryDelay: 200,
         retryJitter: 200
       })
     }

@@ -53,7 +53,7 @@ const BotHealth: FC<Props> = props => {
     setData(data)
   }
 
-  const gotoBotLogs = async (botId: string) => {
+  const goToBotLogs = async (botId: string) => {
     if (props.botsByWorkspace) {
       const workspace = _.findKey(props.botsByWorkspace, x => x.includes(botId))
       workspace && props.switchWorkspace(workspace)
@@ -127,7 +127,7 @@ const BotHealth: FC<Props> = props => {
           return (
             <span>
               <Tooltip hoverOpenDelay={1000} content="View logs for this bot">
-                <a onClick={() => gotoBotLogs(x.original.botId)} className="link">
+                <a onClick={() => goToBotLogs(x.original.botId)} className="link">
                   {x.original.botId}
                 </a>
               </Tooltip>
