@@ -24,7 +24,7 @@ const getUserLocale = (manualLocale?: 'browser' | string) => {
   const storageLocale = code(localStorage.getItem('bp/channel-web/user-lang') || '')
   manualLocale = code(manualLocale === 'browser' ? browserLocale : manualLocale || '')
 
-  return translations[manualLocale] ? manualLocale : translations[storageLocale] ? storageLocale : defaultLocale
+  return translations[storageLocale] ? storageLocale : translations[manualLocale] ? manualLocale : defaultLocale
 }
 
 const initializeLocale = () => {
