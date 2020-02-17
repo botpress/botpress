@@ -12,9 +12,9 @@ interface Props {
     name: string
     size?: number
   }
-  installed: boolean
+  installed?: boolean
   allowActions: boolean
-  loaded: boolean
+  loaded?: boolean
   languageSource: LanguageSource
   downloadProgress?: any
 }
