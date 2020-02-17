@@ -399,7 +399,7 @@ const trainOutOfScope = async (
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     kernel: 'LINEAR',
     classifier: 'C_SVC',
-    reduce: true
+    reduce: false
   }
 
   const noneUtts = _.chain(input.intents)
