@@ -13,9 +13,6 @@
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp",
-        "FORCE_TRAIN_ON_MOUNT": "true",
-        // "BPFS_STORAGE": "database",
-        // "DATABASE_URL": "postgres://localhost:5432/bp",
         "DEBUG": "bp:none"
       },
       "smartStep": true,
