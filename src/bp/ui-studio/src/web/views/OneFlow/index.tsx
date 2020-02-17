@@ -21,13 +21,13 @@ import { isInputFocused } from '~/keyboardShortcuts'
 import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
+import { PanelPermissions } from '../FlowBuilder/sidePanel'
+import { MutexInfo } from '../FlowBuilder/sidePanel/Toolbar'
 import SkillsBuilder from '../FlowBuilder/skills'
 import style from '../FlowBuilder/style.scss'
-import { PanelPermissions } from '../FlowBuilder/SidePanel'
-import { MutexInfo } from '../FlowBuilder/SidePanel/Toolbar'
 
 import Diagram from './diagram'
-import SidePanel from './SidePanel'
+import SidePanel from './sidePanel'
 
 type Props = {
   currentFlow: string
@@ -272,7 +272,4 @@ const mapDispatchToProps = {
   refreshIntents
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(FlowBuilder))
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(FlowBuilder))
