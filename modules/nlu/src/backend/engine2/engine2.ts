@@ -135,7 +135,7 @@ export default class E2 implements Engine2 {
     const { input, output, artefacts } = model.data
     const tools = E2.tools
 
-    if (_.flatMap(input.intents, i => i.utterances).length < 0) {
+    if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
       return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors

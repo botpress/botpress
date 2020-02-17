@@ -1,25 +1,20 @@
 import { createReadStream } from 'fs'
-import fs from 'fs-extra'
+import fse from 'fs-extra'
 import path from 'path'
 import readline from 'readline'
-
-fs.exists
 
 const StopWordsByLang: _.Dictionary<string[]> = {}
 
 async function loadStopWords(language: string): Promise<string[]> {
-  const fn = path.join(__dirname, `stopwords/${language}.txt`)
+  const filePath = path.join(__dirname, `stopwords/${language}.txt`)
 
-  const langSupported: boolean = await Promise.fromCallback(callback => {
-    fs.exists(fn, callback.bind(this, undefined))
-  })
-  if (!langSupported) {
+  if (!(await fse.pathExists(filePath))) {
     return []
   }
 
   return new Promise((resolve, reject) => {
     const stopWords = []
-    const stream = createReadStream(fn)
+    const stream = createReadStream(filePath)
     const rl = readline.createInterface({ input: stream, crlfDelay: Infinity })
 
     rl.on('line', l => {

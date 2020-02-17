@@ -3,13 +3,9 @@ import path from 'path'
 
 import { isSpace, SPACE } from './tools/token-utils'
 
-export function isPOSAvailable(lang: string): boolean {
-  // TODO check that language is part of supported languages once we support more
-  return lang === 'en'
-}
 type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<infer ElementType> ? ElementType : never
+export type POSClass = ElementType<typeof POS_CLASSES>
 
-export type POS_CLASS = ElementType<typeof POS_CLASSES>
 export const POS_CLASSES = [
   'ADJ',
   'ADP',
@@ -32,8 +28,9 @@ export const POS_CLASSES = [
   SPACE
 ] as const
 
-export function makePOSdic(): _.Dictionary<number> {
-  return POS_CLASSES.reduce((dic, cls) => ({ ...dic, [cls]: 0 }), {})
+export function isPOSAvailable(lang: string): boolean {
+  // TODO check that language is part of supported languages once we support more
+  return lang === 'en'
 }
 
 function n_alpha(word: string): number {
@@ -112,7 +109,7 @@ export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit
   return taggersByLang[languageCode]
 }
 
-export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]): POS_CLASS[] {
+export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]): POSClass[] {
   const [words, spaceIdx] = tokens.reduce(
     ([words, spaceIdx], token, idx) => {
       if (isSpace(token)) {
@@ -134,5 +131,5 @@ export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]):
     tags.splice(idx, 0, SPACE)
   }
 
-  return tags as POS_CLASS[]
+  return tags as POSClass[]
 }

@@ -1,12 +1,12 @@
 import { MLToolkit } from 'botpress/sdk'
 
-import { POS_CLASS } from '../pos-tagger'
+import { POSClass } from '../pos-tagger'
 import { averageVectors, scalarMultiply } from '../tools/math'
 import { Tools } from '../typings'
 
 import Utterance from './utterance'
 
-export type POS_SET = POS_CLASS[]
+export type POS_SET = POSClass[]
 const POS1_SET: POS_SET = ['VERB', 'NOUN']
 const POS2_SET: POS_SET = ['DET', 'PROPN', 'PRON', 'ADJ', 'AUX']
 const POS3_SET: POS_SET = ['CONJ', 'CCONJ', 'INTJ', 'SCONJ', 'ADV']

@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { getClosestToken } from '../pipelines/language/ft_featurizer'
-import { POS_CLASS } from '../pos-tagger'
+import { POSClass } from '../pos-tagger'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
@@ -32,7 +32,7 @@ export type UtteranceToken = Readonly<{
   isSpace: boolean
   isBOS: boolean
   isEOS: boolean
-  POS: POS_CLASS
+  POS: POSClass
   vector: ReadonlyArray<number>
   tfidf: number
   cluster: number
@@ -52,7 +52,7 @@ export default class Utterance {
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
   private _sentenceEmbedding?: number[]
 
-  constructor(tokens: string[], vectors: number[][], posTags: POS_CLASS[], public languageCode: Readonly<string>) {
+  constructor(tokens: string[], vectors: number[][], posTags: POSClass[], public languageCode: Readonly<string>) {
     const allSameLength = [tokens, vectors, posTags].every(arr => arr.length === tokens.length)
     if (!allSameLength) {
       throw Error(`Tokens, vectors and postTags dimensions must match`)
@@ -260,7 +260,7 @@ export async function buildUtteranceBatch(
     language,
     vocab
   )
-  const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language)
+  const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language) as POSClass[][]
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
   const vectors = await tools.vectorize_tokens(uniqTokens, language)
   const vectorMap = _.zipObject(uniqTokens, vectors)
@@ -294,7 +294,7 @@ export async function buildUtteranceBatch(
 interface AlternateToken {
   value: string
   vector: number[] | ReadonlyArray<number>
-  POS: string
+  POS: POSClass
   isAlter?: boolean
 }
 
