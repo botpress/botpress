@@ -1,12 +1,11 @@
 import { configure } from 'mobx'
-import { Provider, observer, inject } from 'mobx-react'
+import { inject, observer, Provider } from 'mobx-react'
 import DevTools from 'mobx-react-devtools'
 import React from 'react'
 import { IntlProvider } from 'react-intl'
 
 import Chat from './main'
 import { RootStore } from './store'
-
 import { defaultLocale, translations } from './translations'
 configure({ enforceActions: 'observed' })
 

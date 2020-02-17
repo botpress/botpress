@@ -4,16 +4,19 @@
     "sourceMap": true,
     "strict": false,
     "declarationMap": true,
-    "module": "commonjs",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "target": "es6",
-    "lib": ["es7"],
-    "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "typeRoots": ["typings", "../node_modules/@types"],
-    "types": ["reflect-metadata", "jest", "bluebird-global", "node"]
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es6",
+    "lib": ["es7"],
+    "typeRoots": ["./node_modules/@types", "./node_modules", "./src/botpress.d.ts", "./src/typings"],
+    "types": ["reflect-metadata", "jest", "bluebird-global", "node"],
+    "paths": {
+      "botpress/common/typings": ["../../out/bp/common/typings.d.ts"]
+    }
   },
-  "exclude": ["**/*.test.ts", "../out"]
+  "exclude": ["**/*.test.ts", "./src/views/**"]
 }

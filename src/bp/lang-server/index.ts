@@ -48,17 +48,17 @@ export default async function(options: ArgV) {
   }
 
   logger.info(chalk`========================================
-{bold ${center(`Botpress Language Server`, 40)}}
-{dim ${center(`OS ${process.distro}`, 40)}}
-========================================`)
+{bold ${center(`Botpress Language Server`, 40, 9)}}
+{dim ${center(`OS ${process.distro}`, 40, 9)}}
+${_.repeat(' ', 9)}========================================`)
 
-  if (options.authToken && options.authToken.length) {
+  if (options.authToken?.length) {
     logger.info(`authToken: ${chalk.greenBright('enabled')} (only users with this token can query your server)`)
   } else {
     logger.info(`authToken: ${chalk.redBright('disabled')} (anyone can query your language server)`)
   }
 
-  if (options.adminToken && options.adminToken.length) {
+  if (options.adminToken?.length) {
     logger.info(`adminToken: ${chalk.greenBright('enabled')} (only users using this token can manage the server)`)
   } else {
     logger.info(`adminToken: ${chalk.redBright('disabled')} (anyone can add, remove or change languages)`)

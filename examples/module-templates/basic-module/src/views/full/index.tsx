@@ -1,5 +1,3 @@
-import React from 'react'
-
 import {
   Container,
   InfoTooltip,
@@ -12,6 +10,7 @@ import {
   SidePanelSection,
   SplashScreen
 } from 'botpress/ui'
+import React from 'react'
 
 // This view is a sample including all the features of Botpress UI
 export default class MyMainView extends React.Component {

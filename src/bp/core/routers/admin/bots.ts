@@ -6,6 +6,7 @@ import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { CustomRouter } from '../customRouter'
 import { ConflictError, ForbiddenError } from '../errors'
@@ -204,7 +205,8 @@ export class BotsRouter extends CustomRouter {
         req.on('data', chunk => buffers.push(chunk))
         await Promise.fromCallback(cb => req.on('end', cb))
 
-        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), req.workspace!, false)
+        const overwrite = yn(req.query.overwrite)
+        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), req.workspace!, overwrite)
         res.sendStatus(200)
       })
     )
