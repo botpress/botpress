@@ -17,12 +17,17 @@ const config = {
   entry: ['./src/index.tsx'],
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: 'index2.js'
+    filename: 'index.js'
   },
   resolve: {
     extensions: ['.js', '.jsx', '.tsx', '.ts', '.css']
   },
-
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+    'react-bootstrap': 'ReactBootstrap',
+    '@blueprintjs/core': 'BlueprintJsCore'
+  },
   module: {
     rules: [
       { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
@@ -102,8 +107,9 @@ const postProcess = (err, stats) => {
 
   console.log(`[${moment().format('HH:mm:ss')}] Studio ${chalk.grey(stats.toString('minimal'))}`)
 }
-
-if (process.argv.indexOf('--watch') !== -1) {
+if (process.argv.indexOf('--compile') !== -1) {
+  compiler.run(postProcess)
+} else if (process.argv.indexOf('--watch') !== -1) {
   compiler.watch(
     {
       ignored: ['*', /!.\/src/]

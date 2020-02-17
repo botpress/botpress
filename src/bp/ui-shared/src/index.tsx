@@ -1,3 +1,3 @@
 import confirmDialog from './ConfirmDialog/ConfirmDialog'
 
-export { confirmDialog }
+exports.confirmDialog = confirmDialog

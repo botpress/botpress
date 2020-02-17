@@ -17,5 +17,7 @@
       "common/*": ["../../../out/bp/common/*"],
       "botpress/sdk": ["../sdk/botpress.d.ts"]
     }
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "build", "dist", "example", "rollup.config.js", "webpack.config.js"]
 }
