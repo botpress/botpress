@@ -192,38 +192,36 @@ const trainIntentClassifier = async (
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
   debugTraining('Training intent classifier')
-  const svmPerCtx: _.Dictionary<string> = (
-    await Promise.mapSeries(input.contexts, async (ctx, i) => {
-      const points = _.chain(input.intents)
-        .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
-        .flatMap(i =>
-          i.utterances
-            .filter(u => i.name !== NONE_INTENT || u.tokens.length > 2)
-            .map(utt => ({
-              label: i.name,
-              coordinates: utt.sentenceEmbedding
-            }))
-        )
-        .value()
-        .filter(x => x.coordinates.filter(isNaN).length == 0)
+  const svmPerCtx: _.Dictionary<string> = {}
+  for (let i = 0; i < input.contexts.length; i++) {
+    const ctx = input.contexts[i]
+    const points = _.chain(input.intents)
+      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
+      .flatMap(i =>
+        i.utterances
+          .filter(u => i.name !== NONE_INTENT || u.tokens.length > 2)
+          .map(utt => ({
+            label: i.name,
+            coordinates: utt.sentenceEmbedding
+          }))
+      )
+      .value()
+      .filter(x => x.coordinates.filter(isNaN).length == 0)
 
-      if (points.length < 0) {
-        progress(1 / input.contexts.length)
-        return
+    if (points.length < 0) {
+      progress(1 / input.contexts.length)
+      continue
+    }
+    const svm = new tools.mlToolkit.SVM.Trainer()
+    let progressCalls = 0
+    const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+      if (++progressCalls % 10 === 0) {
+        const completion = (i + p) / input.contexts.length
+        progress(completion)
       }
-      const svm = new tools.mlToolkit.SVM.Trainer()
-      let progressCalls = 0
-      const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-        if (++progressCalls % 10 === 0) {
-          const completion = (i + p) / input.contexts.length
-          progress(completion)
-        }
-      })
-      return [ctx, model]
     })
-  )
-    .filter(Boolean)
-    .reduce((ctxSvms, [ctx, model]) => ({ ...ctxSvms, [ctx]: model }), {})
+    svmPerCtx[ctx] = model
+  }
 
   return svmPerCtx
 }
@@ -413,28 +411,29 @@ const trainOutOfScope = async (
     progress()
     return {}
   }
+
   const oos_points = featurizeOOSUtterances(noneUtts, tools)
+  const oosByCtx: _.Dictionary<string> = {}
+  for (let i = 0; i < input.contexts.length; i++) {
+    const ctx = input.contexts[i]
 
-  const oosByCtx: _.Dictionary<string> = (
-    await Promise.mapSeries(input.contexts, async (ctx, i) => {
-      const in_scope_points = _.chain(input.intents)
-        .filter(i => i.contexts.includes(ctx))
-        .filter(i => i.name !== 'none')
-        .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
-        .value()
+    const in_scope_points = _.chain(input.intents)
+      .filter(i => i.contexts.includes(ctx))
+      .filter(i => i.name !== 'none')
+      .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
+      .value()
 
-      let progressCalls = 0
-      const svm = new tools.mlToolkit.SVM.Trainer()
-      const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
-        if (++progressCalls % 10 === 0) {
-          const completion = _.round((p * (i + 1)) / input.contexts.length, 2)
-          progress(completion)
-        }
-      })
-      return [ctx, model]
+    let progressCalls = 0
+    const svm = new tools.mlToolkit.SVM.Trainer()
+    const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
+      if (++progressCalls % 10 === 0) {
+        const completion = _.round((p * (i + 1)) / input.contexts.length, 2)
+        progress(completion)
+      }
     })
-  ).reduce((ctxOOs, [ctx, model]) => ({ ...ctxOOs, [ctx]: model }), {})
 
+    oosByCtx[ctx] = model
+  }
   return oosByCtx
 }
 
@@ -478,6 +477,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     const oos_by_ctx = await trainOutOfScope(output, tools, reportProgress)
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
+
     reportProgress()
     const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
     reportProgress()

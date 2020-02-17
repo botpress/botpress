@@ -79,8 +79,8 @@ export function getOnBotMount(state: NLUState) {
           // TODO remove training session from state, kvs will clear itself or not ?
         })
       },
-      4000,
-      { leading: true }
+      10000
+      // { leading: true }
     )
     // register trainOrLoad with ghost file watcher
     // we use local events so training occurs on the same node where the request for changes enters
@@ -92,7 +92,7 @@ export function getOnBotMount(state: NLUState) {
           await bp.distributed.clearLock(key)
           return state.broadcastCancelTraining(botId, lang)
         })
-        trainOrLoad()
+        await trainOrLoad()
       }
     })
 
