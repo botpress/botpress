@@ -262,7 +262,7 @@ export type BotpressConfig = {
 
   /**
    * Custom Action Servers to be used when dispatching actions.
-   * @default []
+   * @default [{"id":"builtin", "baseUrl":"http://localhost:4000"}]
    */
   customActionServers: ActionServer[]
 }
