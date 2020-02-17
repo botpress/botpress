@@ -88,8 +88,10 @@ export class WorkspaceService {
     }
 
     const index = workspace.bots.findIndex(x => x === botId)
+    if (index === -1) {
+      return
+    }
     workspace.bots.splice(index, 1)
-
     return this.save(workspaces)
   }
 

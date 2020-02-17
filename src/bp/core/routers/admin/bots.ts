@@ -165,7 +165,7 @@ export class BotsRouter extends CustomRouter {
             .forBot(req.params.botId)
             .attachError(err)
             .error(`Cannot request bot: ${req.params.botId} for stage change`)
-          res.status(400)
+          res.status(400).send(err.message)
         }
       })
     )
@@ -177,11 +177,19 @@ export class BotsRouter extends CustomRouter {
         const { botId } = req.params
         const bot = <BotConfig>req.body
 
-        await this.botService.updateBot(botId, bot)
+        try {
+          await this.botService.updateBot(botId, bot)
+          return sendSuccess(res, 'Updated bot', {
+            botId
+          })
+        } catch (err) {
+          this.logger
+            .forBot(req.params.botId)
+            .attachError(err)
+            .error(`Cannot update bot: ${botId}`)
 
-        return sendSuccess(res, 'Updated bot', {
-          botId
-        })
+          res.status(400).send(err.message)
+        }
       })
     )
 
@@ -191,10 +199,18 @@ export class BotsRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
 
-        await this.botService.deleteBot(botId)
-        await this.workspaceService.deleteBotRef(botId)
+        try {
+          await this.botService.deleteBot(botId)
+          await this.workspaceService.deleteBotRef(botId)
+          return sendSuccess(res, 'Removed bot from team', { botId })
+        } catch (err) {
+          this.logger
+            .forBot(botId)
+            .attachError(err)
+            .error(`Could not delete bot: ${botId}`)
 
-        return sendSuccess(res, 'Removed bot from team', { botId })
+          res.status(400).send(err.message)
+        }
       })
     )
 
@@ -237,11 +253,18 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const revisions = await this.botService.listRevisions(botId)
-
-        return sendSuccess(res, 'Bot revisions', {
-          revisions
-        })
+        try {
+          const revisions = await this.botService.listRevisions(botId)
+          return sendSuccess(res, 'Bot revisions', {
+            revisions
+          })
+        } catch (err) {
+          this.logger
+            .forBot(botId)
+            .attachError(err)
+            .error(`Could not list revisions for bot ${botId}`)
+          res.status(400).send(err.message)
+        }
       })
     )
 
@@ -250,8 +273,16 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        await this.botService.createRevision(botId)
-        return sendSuccess(res, `Created a new revision for bot ${botId}`)
+        try {
+          await this.botService.createRevision(botId)
+          return sendSuccess(res, `Created a new revision for bot ${botId}`)
+        } catch (err) {
+          this.logger
+            .forBot(botId)
+            .attachError(err)
+            .error(`Could not create revision for bot: ${botId}`)
+          res.status(400).send(err.message)
+        }
       })
     )
 
