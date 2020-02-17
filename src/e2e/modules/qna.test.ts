@@ -1,13 +1,7 @@
 import path from 'path'
 
 import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import {
-  CONFIRM_DIALOG,
-  expectBotApiCallSuccess,
-  getElementCenter,
-  gotoStudio,
-  waitForBotApiResponse
-} from '../utils'
+import { CONFIRM_DIALOG, expectBotApiCallSuccess, getElementCenter, gotoStudio, waitForBotApiResponse } from '../utils'
 
 const getQnaCount = async (): Promise<number> => (await page.$$('div[role="entry"]')).length
 
