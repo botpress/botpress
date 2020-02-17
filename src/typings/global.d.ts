@@ -106,12 +106,6 @@ declare type BotpressEnvironmentVariables = {
   readonly BP_LICENSE_KEY?: string
 
   /**
-   * Change the host of the licensing server
-   * @default https://license.botpress.io
-   */
-  readonly BP_LICENSE_SERVER_HOST?: string
-
-  /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
    * Read more: https://expressjs.com/en/guide/behind-proxies.html
    */
