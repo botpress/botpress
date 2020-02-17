@@ -1,9 +1,12 @@
 import bodyParser from 'body-parser'
+import { Logger } from 'botpress/sdk'
+import { Config } from 'core/app'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { TYPES } from 'core/types'
 import express from 'express'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
+import url from 'url'
 
 import ActionService from './action-service'
 
@@ -12,7 +15,12 @@ const port = 4000
 @injectable()
 export class LocalActionServer {
   private readonly app: express.Express
-  constructor(@inject(TYPES.ActionService) private actionService: ActionService) {
+  constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'LocalActionServer')
+    private logger: Logger,
+    @inject(TYPES.ActionService) private actionService: ActionService
+  ) {
     this.app = express()
     this.app.use(bodyParser.json())
 
@@ -43,6 +51,9 @@ export class LocalActionServer {
     })
   }
   async start() {
-    this.app.listen(port, () => console.log(`Local Action Server listening on port ${port}!`))
+    const config = await Config.getBotpressConfig()
+    const builtinServer = config.customActionServers.find(s => s.id === 'builtin')!
+    const serverUrl = url.parse(builtinServer.baseUrl)
+    this.app.listen(serverUrl.port, () => this.logger.info(`Local Action Server listening on port ${port}`))
   }
 }
