@@ -138,6 +138,7 @@ class RootStore {
   async deleteFile(file: EditableFile): Promise<void> {
     if (window.confirm(`Are you sure you want to delete the file named ${file.name}?`)) {
       if (await this.api.deleteFile(file)) {
+        this.editor.closeFile()
         toastSuccess('File deleted successfully!')
         await this.fetchFiles()
       }
