@@ -62,7 +62,6 @@ export class DialogEngine {
         ...queue.instructions,
         { type: 'transition', fn: 'true', node: 'Built-In/feedback.flow.json' }
       ]
-
     } else if (currentNode?.type === 'failure') {
       const goal = event.state.session.lastGoals.find(x => x.goal === context.currentFlow)
       goal && (goal.success = false)
