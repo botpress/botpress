@@ -61,6 +61,10 @@ export function getOnBotMount(state: NLUState) {
           }
           let model = await ModelService.getModel(ghost, hash, languageCode)
           if (forceTrain || !model) {
+            // bot got deleted
+            if (!state.nluByBot[botId]) {
+              return { succes: false }
+            }
             const trainSession = makeTrainingSession(languageCode, lock)
             state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
@@ -76,11 +80,10 @@ export function getOnBotMount(state: NLUState) {
           } finally {
             await lock.unlock()
           }
-          // TODO remove training session from state, kvs will clear itself or not ?
         })
       },
-      10000
-      // { leading: true }
+      10000,
+      { leading: true }
     )
     // register trainOrLoad with ghost file watcher
     // we use local events so training occurs on the same node where the request for changes enters
@@ -92,7 +95,7 @@ export function getOnBotMount(state: NLUState) {
           await bp.distributed.clearLock(key)
           return state.broadcastCancelTraining(botId, lang)
         })
-        await trainOrLoad()
+        trainOrLoad()
       }
     })
 
