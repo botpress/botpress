@@ -60,8 +60,6 @@ const LanguageManagement: FC<Props> = props => {
             <Language
               key={lang.code}
               language={lang}
-              installed={false}
-              loaded={false}
               allowActions={!props.readOnly}
               languageSource={props.languageSource}
               downloadProgress={languages.downloading.find(l => l.lang == lang.code)}
@@ -76,7 +74,7 @@ const LanguageManagement: FC<Props> = props => {
           <Language
             key={lang.code}
             language={lang}
-            installed={true}
+            installed
             loaded={lang.loaded}
             allowActions={!props.readOnly}
             languageSource={props.languageSource}

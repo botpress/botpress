@@ -1,0 +1,22 @@
+{
+  "name": "Botpress",
+  "description": "The Conversational Platform with built-in language understanding (NLU), beautiful graphical interface and Dialog Manager (DM).",
+  "repository": "https://github.com/botpress/botpress",
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "env": {
+    "BPFS_STORAGE": {
+      "description": "Tells botpress to use an external database (postgres). Should be left as is.",
+      "value": "database"
+    }
+  },
+  "success_url": "/",
+  "website": "https://botpress.com/",
+  "stack": "container",
+  "addons": [
+    "heroku-postgresql"
+  ]
+}
