@@ -21,11 +21,11 @@ import 'expose-loader?SmartInput!~/components/SmartInput'
 import 'expose-loader?ElementsList!~/components/Shared/ElementsList'
 import 'expose-loader?SelectActionDropdown!~/views/FlowBuilder/nodeProps/SelectActionDropdown'
 import 'expose-loader?BotpressTooltip!~/components/Shared/Tooltip'
-import 'expose-loader?BotpressShared!ui-shared'
 import 'expose-loader?BotpressUI!~/components/Shared/Interface'
 import 'expose-loader?BotpressUtils!~/components/Shared/Utils'
 import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
+import 'expose-loader?BotpressShared!ui-shared'
 /* eslint-enable */
 
 require('bootstrap/dist/css/bootstrap.css')

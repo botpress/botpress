@@ -9,6 +9,13 @@ module.exports = function override(config, env) {
   config.resolve.plugins = config.resolve.plugins.filter(p => !p instanceof ModuleScopePlugin)
   config.devtool = process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map'
 
+  config.externals = {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+    '@blueprintjs/core': 'BlueprintJsCore',
+    'botpress/shared': 'BotpressShared'
+  }
+
   /**
    * A bit counter-intuitive, but you don't want it when using the dev server (env === development)
    * and you don't want it when building the final release (isProductionBuild).

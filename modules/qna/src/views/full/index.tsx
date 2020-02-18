@@ -1,10 +1,10 @@
 import { Button, ControlGroup, Intent } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
-import { confirmDialog } from 'botpress/shared'
 import Select from 'react-select'
 
 import './button.css'

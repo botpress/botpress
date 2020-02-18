@@ -26,7 +26,6 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts-ts": "^2.16.0",
-    "expose-loader": "^0.7.1",
     "css-loader": "^0.28.11",
     "css-modules-typescript-loader": "^2.0.3",
     "hard-source-webpack-plugin": "^0.13.1",
