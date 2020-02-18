@@ -38,8 +38,7 @@
     "moment": "^2.24.0",
     "multer": "^1.4.2",
     "nanoid": "^2.0.1",
-    "react-select": "^2.4.2",
-    "ui-shared": "link:../../src/bp/ui-shared"
+    "react-select": "^2.4.2"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

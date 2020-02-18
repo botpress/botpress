@@ -1,6 +1,6 @@
+import { confirmDialog } from 'botpress/shared'
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
-import { confirmDialog } from 'ui-shared'
 
 import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
 import { FileFilters } from '../typings'

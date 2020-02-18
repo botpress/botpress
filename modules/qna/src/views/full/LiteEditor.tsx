@@ -9,9 +9,9 @@ import {
   Popover,
   Position
 } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { AccessControl } from 'botpress/utils'
 import React, { useEffect, useState } from 'react'
-import { confirmDialog } from 'ui-shared'
 
 import style from './style.scss'
 import Editor from './Editor'

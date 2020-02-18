@@ -1,8 +1,8 @@
 import { Button, Classes } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { confirmDialog } from 'botpress/shared'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
 import React, { FC, useState } from 'react'
-import { confirmDialog } from 'ui-shared'
 
 import { NluItem } from '..'
 import { NLUApi } from '../../api'

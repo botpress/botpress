@@ -1,6 +1,6 @@
+import { confirmDialog } from 'botpress/shared'
 import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import { confirmDialog } from 'ui-shared'
 
 import { EditableFile } from '../../../backend/typings'
 import { calculateHash, toastSuccess } from '../utils'

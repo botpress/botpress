@@ -14,6 +14,7 @@
     "paths": {
       "botpress/ui": ["../../../../src/bp/ui-studio/src/web/components/Shared/Interface/typings.d.ts"],
       "botpress/utils": ["../../../../src/bp/ui-studio/src/web/components/Shared/Utils/typings.d.ts"],
+      "botpress/shared": ["../../../../src/bp/ui-shared/src/Interface/typings.d.ts"],
       "botpress/sdk": ["../botpress.d.ts"],
       "botpress/common/typings": ["../../../../out/bp/common/typings.d.ts"]
     }

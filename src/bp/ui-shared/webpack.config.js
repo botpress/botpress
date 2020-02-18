@@ -3,8 +3,6 @@ process.traceDeprecation = true
 const chalk = require('chalk')
 const webpack = require('webpack')
 const path = require('path')
-const TerserPlugin = require('terser-webpack-plugin')
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const isProduction = process.env.NODE_ENV === 'production'
 const moment = require('moment')

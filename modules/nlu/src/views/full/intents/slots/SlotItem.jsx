@@ -1,7 +1,7 @@
 import React from 'react'
 import style from '../style.scss'
 import { Tag } from '@blueprintjs/core'
-import { confirmDialog } from 'ui-shared'
+import { confirmDialog } from 'botpress/shared'
 
 export default class SlotItem extends React.Component {
   handleDeleteClicked = async e => {

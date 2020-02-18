@@ -24,8 +24,7 @@
     "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",
     "prettier": "^1.18.2",
-    "react-icons": "^3.8.0",
-    "ui-shared": "link:../../src/bp/ui-shared"
+    "react-icons": "^3.8.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

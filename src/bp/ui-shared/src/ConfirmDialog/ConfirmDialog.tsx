@@ -2,23 +2,11 @@ import { Button, Classes, Dialog, Intent } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
+import { ConfirmDialogOptions, ConfirmDialogProps } from '../Interface/typings'
+
 import styles from './ConfirmDialog.module.scss'
 
-interface Options {
-  title?: string
-  accept?: () => void
-  decline?: () => void
-  acceptLabel?: string
-  declineLabel?: string
-}
-
-interface Props extends Options {
-  message: string
-  isOpen: boolean
-  resolve: (ok: boolean) => void
-}
-
-const ConfirmDialogComponent: FC<Props> = props => {
+const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   const onAccept = () => {
     removeDialog()
 
@@ -85,7 +73,7 @@ ConfirmDialogComponent.defaultProps = {
   decline: () => {}
 }
 
-const confirmDialog = (message: string, options: Options): Promise<boolean> => {
+const confirmDialog = (message: string, options: ConfirmDialogOptions): Promise<boolean> => {
   return new Promise((resolve, reject) => {
     addDialog({ message, ...options }, resolve)
   })
