@@ -52,7 +52,11 @@ export class LocalActionServer {
   }
   async start() {
     const config = await Config.getBotpressConfig()
-    const localServerConfig = config.actionServers.find(s => s.id === 'local')!
+    const localServerConfig = config.actionServers?.find(s => s.id === 'local')
+    if (!localServerConfig) {
+      this.logger.warn('Could not find Action Server with id "local"')
+      return
+    }
     const serverUrl = url.parse(localServerConfig.baseUrl)
     this.app.listen(serverUrl.port, () => this.logger.info(`Local Action Server listening on port ${port}`))
   }
