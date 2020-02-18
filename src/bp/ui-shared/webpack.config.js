@@ -18,7 +18,7 @@ const config = {
     filename: 'index.js'
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.tsx', '.ts', '.css']
+    extensions: ['.tsx', '.ts', '.css']
   },
   externals: {
     react: 'React',
@@ -45,24 +45,6 @@ const config = {
               cacheDirectory: true
             }
           }
-        ]
-      },
-      {
-        test: /\.styl$/,
-        exclude: /node_modules/,
-        use: [
-          { loader: 'style-loader' },
-          { loader: 'css-modules-typescript-loader' },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: '[name]__[local]___[hash:base64:5]'
-            }
-          },
-          { loader: 'postcss-loader' },
-          { loader: 'stylus-loader' }
         ]
       },
       {
