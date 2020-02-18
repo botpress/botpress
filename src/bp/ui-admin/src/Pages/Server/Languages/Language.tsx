@@ -20,7 +20,7 @@ interface Props {
 }
 
 const units = ['bytes', 'Kb', 'Mb', 'Gb', 'Tb']
-function bytesToFormatedString(bytes: number): string {
+function bytesToFormattedString(bytes: number): string {
   const power = Math.log2(bytes)
   const unitNumber = Math.min(Math.floor(power / 10), 4)
   const mantisse = bytes / Math.pow(2, unitNumber * 10)
@@ -29,9 +29,9 @@ function bytesToFormatedString(bytes: number): string {
 
 const DownloadProgress: SFC<{ current: number; total: number }> = props => {
   const value = props.current / props.total
-  const formatedLoadingState = `${bytesToFormatedString(props.current)} / ${bytesToFormatedString(props.total)}`
+  const formattedLoadingState = `${bytesToFormattedString(props.current)} / ${bytesToFormattedString(props.total)}`
   return (
-    <Tooltip content={formatedLoadingState} position={Position.TOP}>
+    <Tooltip content={formattedLoadingState} position={Position.TOP}>
       <div style={{ width: '250px' }}>
         <ProgressBar value={value} />
       </div>
@@ -67,7 +67,7 @@ const Language: FC<Props> = props => {
     }
   }
 
-  const requireFlag = code => {
+  const requireFlag = (code: string) => {
     try {
       return require(`../../../media/flags/${code}.svg`)
     } catch {
