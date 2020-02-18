@@ -42,11 +42,7 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
   }
 
   return (
-    <div
-      className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}
-      // TODO: check for a more elegant way to stop event propagation
-      onMouseDown={e => e.stopPropagation()}
-    >
+    <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
       <Button onClick={() => setShowDialog(true)}>Edit</Button>
       <ActionDialog
