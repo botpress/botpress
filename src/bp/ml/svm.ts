@@ -86,7 +86,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   }
 
   private serialize(): string {
-    return JSON.stringify({ ...this.model, labels_idx: this.labels }, undefined, 2)
+    return JSON.stringify({ ...this.model, labels_idx: this.labels })
   }
 }
 
