@@ -158,15 +158,17 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
 }
 
 const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
-  return _.chain(intents)
-    .filter(i => i.name !== NONE_INTENT)
-    .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
-    .reduce(
+  return (
+    _.chain(intents)
+      .filter(i => i.name !== NONE_INTENT)
+      .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
       // @ts-ignore
-      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vector }),
-      {} as Token2Vec
-    )
-    .value() as Token2Vec
+      .reduce((vocab, tok: UtteranceToken) => {
+        vocab[tok.toString({ lowerCase: true })] = <number[]>tok.vector
+        return vocab
+      }, {})
+      .value() as Token2Vec
+  )
 }
 
 export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
@@ -399,7 +401,7 @@ const trainOutOfScope = async (
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     kernel: 'LINEAR',
     classifier: 'C_SVC',
-    reduce: true
+    reduce: false
   }
 
   const noneUtts = _.chain(input.intents)
