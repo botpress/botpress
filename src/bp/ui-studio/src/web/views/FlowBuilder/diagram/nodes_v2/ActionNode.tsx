@@ -17,15 +17,18 @@ interface ActionWidgetProps {
   diagramEngine: any
 }
 
+const DEFAULT_ACTION = { name: '', actionServerId: '', parameters: {} }
 const ActionWidget: FC<ActionWidgetProps> = props => {
   const { node, diagramEngine } = props
 
   const [showDialog, setShowDialog] = useState(false)
   const [action, setAction] = useState(
-    node.onEnter.length === 1 ? parseActionString(node.onEnter[0]) : { name: '', actionServerId: '', parameters: {} }
+    node.onEnter.length === 1 ? parseActionString(node.onEnter[0]) : _.cloneDeep(DEFAULT_ACTION)
   )
 
-  const actionCopy = parseActionString(node.onEnter[0])
+  const actionCopy = _.cloneDeep(
+    node.onEnter.length === 1 ? parseActionString(node.onEnter[0]) : _.cloneDeep(DEFAULT_ACTION)
+  )
 
   const onSave = () => {
     setShowDialog(false)
