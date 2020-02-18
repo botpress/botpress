@@ -152,6 +152,13 @@ export default class Analytics extends React.Component<{ bp: any }> {
     return percent.toFixed(2) + '%'
   }
 
+  getTopLevelUnderstoodPercent = () => {
+    const received = this.getMetricCount('msg_received_count')
+    const none = this.getMetricCount('top_msg_nlu_none')
+    const percent = ((received - none) / received) * 100
+    return percent.toFixed(2) + '%'
+  }
+
   getReturningUsers = () => {
     const activeUsersCount = this.getMetricCount('active_users_count')
     const newUsersCount = this.getMetricCount('new_users_count')
@@ -199,7 +206,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
           {this.renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
           {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_count'))}
           {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
-          {this.renderNumberMetric('Understood Top-Level Messages', 666)}
+          {this.renderNumberMetric('Understood Top-Level Messages', this.getTopLevelUnderstoodPercent())}
         </div>
       </div>
     )

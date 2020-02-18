@@ -1,4 +1,4 @@
-import sdk, { Analytics, AnalyticsMethod, AnalyticsMetric, Logger, MetricDefinition } from 'botpress/sdk'
+import sdk, { Analytics, AnalyticsMethod, AnalyticsMetric, BotConfig, Logger, MetricDefinition } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { EventRepository } from 'core/repositories'
 import { AnalyticsRepository } from 'core/repositories/analytics-repository'
@@ -12,6 +12,7 @@ export default class AnalyticsService {
   private readonly BATCH_SIZE = 100
 
   private batch: MetricDefinition[] = []
+  private botConfigs: Map<string, BotConfig> = new Map()
   private enabled = false
   private interval!: number
   private intervalRef
@@ -43,22 +44,25 @@ export default class AnalyticsService {
     this.intervalRef = setInterval(this._runTask, this.interval)
   }
 
-  addMetric(metricDef: MetricDefinition): void {
-    if (!this.enabled) {
-      return
+  async addMetric(metricDef: MetricDefinition): Promise<void> {
+    if (!this.botConfigs.has(metricDef.botId)) {
+      const botConfig = await this.configProvider.getBotConfig(metricDef.botId)
+      this.botConfigs.set(metricDef.botId, botConfig)
     }
 
-    this.batch.push(metricDef)
+    if (this.enabled || this.botConfigs.get(metricDef.botId)?.analytics?.enabled) {
+      this.batch.push(metricDef)
+    }
   }
 
-  addUserMetric(botId, channel) {
-    this.addMetric({
+  async addUserMetric(botId, channel): Promise<void> {
+    await this.addMetric({
       botId,
       channel,
       metric: AnalyticsMetric.NewUsersCount,
       method: AnalyticsMethod.IncrementDaily
     })
-    this.addMetric({
+    await this.addMetric({
       botId,
       channel,
       metric: AnalyticsMetric.TotalUsers,
@@ -92,9 +96,9 @@ export default class AnalyticsService {
       })
   }
 
-  private setQnaFeedbackCount(botId, channel, feedback, count) {
+  private async setQnaFeedbackCount(botId, channel, feedback, count) {
     const metric = feedback > 0 ? AnalyticsMetric.FeedbackPositiveQna : AnalyticsMetric.FeedbackNegativeQna
-    this.addMetric({
+    await this.addMetric({
       botId,
       channel,
       metric,
@@ -103,9 +107,9 @@ export default class AnalyticsService {
     })
   }
 
-  private setGoalFeedbackCount(botId, channel, feedback, count) {
+  private async setGoalFeedbackCount(botId, channel, feedback, count) {
     const metric = feedback > 0 ? AnalyticsMetric.FeedbackPositiveGoal : AnalyticsMetric.FeedbackNegativeGoal
-    this.addMetric({
+    await this.addMetric({
       botId,
       channel,
       metric,

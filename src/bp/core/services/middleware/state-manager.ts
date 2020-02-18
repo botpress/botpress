@@ -85,7 +85,7 @@ export class StateManager {
     const state = event.state
     const { result: user, created } = await this.userRepo.getOrCreate(event.channel, event.target)
     if (created) {
-      this.analytics.addUserMetric(event.botId, event.channel)
+      await this.analytics.addUserMetric(event.botId, event.channel)
     }
 
     state.user = user.attributes
@@ -144,7 +144,7 @@ export class StateManager {
 
     const { result: dialogSession, created } = await this.sessionRepo.getOrCreateSession(sessionId, event.botId, trx)
     if (created) {
-      this.analytics.addMetric({
+      await this.analytics.addMetric({
         botId: event.botId,
         channel: event.channel,
         metric: sdk.AnalyticsMetric.SessionsCount,

@@ -48,7 +48,7 @@ export class DecisionEngine {
       if (action === 'send') {
         await this._sendSuggestion(data, sessionId, event)
       } else if (action === 'redirect') {
-        this.analytics.addMetric({
+        await this.analytics.addMetric({
           botId: event.botId,
           channel: event.channel,
           metric: AnalyticsMetric.GoalsStartedCount,
@@ -88,6 +88,25 @@ export class DecisionEngine {
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     if (event.ndu) {
       return this.processEventNDU(sessionId, event)
+    }
+
+    if (event.nlu?.intent.name === 'none') {
+      // We assume its a top-level message when the event has no previous messages
+      if (event.state.session.lastMessages?.length) {
+        await this.analytics.addMetric({
+          botId: event.botId,
+          channel: event.channel,
+          metric: AnalyticsMetric.MsgNluNone,
+          method: AnalyticsMethod.IncrementDaily
+        })
+      } else {
+        await this.analytics.addMetric({
+          botId: event.botId,
+          channel: event.channel,
+          metric: AnalyticsMetric.TopMsgNluNone,
+          method: AnalyticsMethod.IncrementDaily
+        })
+      }
     }
 
     const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
@@ -136,15 +155,6 @@ export class DecisionEngine {
         // In case there are no unknown errors, remove skills/ flow from the stacktrace
         processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
-
-        if (event.nlu?.intent.name === 'none') {
-          this.analytics.addMetric({
-            botId: event.botId,
-            channel: event.channel,
-            metric: AnalyticsMetric.MsgNluNone,
-            method: AnalyticsMethod.IncrementDaily
-          })
-        }
 
         await this.stateManager.persist(processedEvent, false)
         return
@@ -218,7 +228,7 @@ export class DecisionEngine {
 
     if (payloads) {
       if (event.decision?.source === 'qna') {
-        this.analytics.addMetric({
+        await this.analytics.addMetric({
           botId: event.botId,
           channel: event.channel,
           metric: AnalyticsMetric.MsgSentQnaCount,

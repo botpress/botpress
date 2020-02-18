@@ -126,7 +126,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       const { result: user, created } = await bp.users.getOrCreateUser('web', userId)
       if (created) {
-        bp.analytics.addUserMetric(botId, 'channel-web')
+        await bp.analytics.addUserMetric(botId, 'channel-web')
       }
 
       const payload = req.body || {}
@@ -182,7 +182,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       const { created } = await bp.users.getOrCreateUser('web', userId) // Just to create the user if it doesn't exist
       if (created) {
-        bp.analytics.addUserMetric(botId, 'channel-web')
+        await bp.analytics.addUserMetric(botId, 'channel-web')
       }
 
       let { conversationId = undefined } = req.query || {}
@@ -286,7 +286,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { botId = undefined, userId = undefined } = req.params || {}
       const { created } = await bp.users.getOrCreateUser('web', userId)
       if (created) {
-        bp.analytics.addUserMetric(botId, 'channel-web')
+        await bp.analytics.addUserMetric(botId, 'channel-web')
       }
       const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
 

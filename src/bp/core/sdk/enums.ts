@@ -38,6 +38,7 @@ export enum AnalyticsMetric {
   MsgSentCount = 'msg_sent_count',
   MsgSentQnaCount = 'msg_sent_qna_count',
   MsgNluNone = 'msg_nlu_none',
+  TopMsgNluNone = 'top_msg_nlu_none',
   GoalsStartedCount = 'goals_started_count',
   GoalsCompletedCount = 'goals_completed_count',
   GoalsFailedCount = 'goals_failed_count',

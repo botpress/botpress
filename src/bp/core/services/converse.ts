@@ -88,7 +88,7 @@ export class ConverseService {
 
     const { created } = await this.userRepository.getOrCreate('api', userId)
     if (created) {
-      this.analyticsService.addUserMetric(botId, 'api')
+      await this.analyticsService.addUserMetric(botId, 'api')
     }
 
     const incomingEvent = Event({

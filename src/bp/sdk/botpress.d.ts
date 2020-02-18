@@ -893,6 +893,7 @@ declare module 'botpress/sdk' {
       /** Defines the list of content types supported by the bot */
       contentTypes: string[]
     }
+    analytics?: AnalyticsConfig
     converse?: ConverseConfig
     dialog?: DialogConfig
     logs?: LogsConfig
@@ -900,6 +901,10 @@ declare module 'botpress/sdk' {
     languages: string[]
     locked: boolean
     pipeline_status: BotPipelineStatus
+  }
+
+  export interface AnalyticsConfig {
+    enabled: boolean
   }
 
   export type Pipeline = Stage[]
@@ -1717,6 +1722,7 @@ declare module 'botpress/sdk' {
     MsgSentCount = 'msg_sent_count',
     MsgSentQnaCount = 'msg_sent_qna_count',
     MsgNluNone = 'msg_nlu_none',
+    TopMsgNluNone = 'top_msg_nlu_none',
     GoalsStartedCount = 'goals_started_count',
     GoalsCompletedCount = 'goals_completed_count',
     GoalsFailedCount = 'goals_failed_count',
@@ -1741,12 +1747,12 @@ declare module 'botpress/sdk' {
   }
 
   export namespace analytics {
-    export function addMetric(metricDef: MetricDefinition): void
+    export function addMetric(metricDef: MetricDefinition): Promise<void>
     /**
      * Helper function to increment the new user and total user count in a single call.
      * @param metricDef
      */
-    export function addUserMetric(botId: string, channel: string): void
+    export function addUserMetric(botId: string, channel: string): Promise<void>
   }
 
   export namespace bots {

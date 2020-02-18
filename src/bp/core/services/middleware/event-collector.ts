@@ -55,7 +55,7 @@ export class EventCollector {
     this.enabled = true
   }
 
-  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent): void {
+  public async storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent): Promise<void> {
     if (!this.enabled || this.ignoredTypes.includes(event.type)) {
       return
     }
@@ -75,14 +75,14 @@ export class EventCollector {
     // Once the goal is a success or failure, it becomes inactive
     if (goal?.success !== undefined) {
       if (goal?.success) {
-        this.analytics.addMetric({
+        await this.analytics.addMetric({
           botId,
           channel,
           metric: sdk.AnalyticsMetric.GoalsCompletedCount,
           method: sdk.AnalyticsMethod.IncrementDaily
         })
       } else {
-        this.analytics.addMetric({
+        await this.analytics.addMetric({
           botId,
           channel,
           metric: sdk.AnalyticsMetric.GoalsFailedCount,

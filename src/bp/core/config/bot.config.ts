@@ -15,6 +15,7 @@ export type BotConfig = {
     /** Defines the list of content types supported by the bot */
     contentTypes: string[]
   }
+  analytics?: AnalyticsConfig
   converse?: ConverseConfig
   dialog?: DialogConfig
   logs?: LogsConfig
@@ -51,6 +52,13 @@ export interface BotDetails {
   termsConditions?: string
   privacyPolicy?: string
   emailAddress?: string
+}
+
+export interface AnalyticsConfig {
+  /**
+   * @default true
+   */
+  enabled: boolean
 }
 
 export interface LogsConfig {
