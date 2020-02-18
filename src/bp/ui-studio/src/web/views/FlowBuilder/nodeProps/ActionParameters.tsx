@@ -1,41 +1,25 @@
 import { Button, ControlGroup, InputGroup } from '@blueprintjs/core'
+import _ from 'lodash'
 import React, { FC } from 'react'
 
 import { Parameter } from './ActionDialog'
 
 interface ActionParameterProps {
   parameter: Parameter
-  onUpdate: (parameter: Parameter) => void
   onRemove: (parameter: Parameter) => void
+  onKeyUpdated: (key: string) => void
+  onValueUpdated: (value: string) => void
 }
 
 export const ActionParameter: FC<ActionParameterProps> = props => {
-  const { parameter, onUpdate, onRemove } = props
+  const { parameter, onRemove, onKeyUpdated, onValueUpdated } = props
 
   const id = `action-parameters-${parameter.key}`
 
   return (
     <ControlGroup id={id}>
-      <InputGroup
-        id={id}
-        placeholder="Name"
-        value={parameter.key}
-        onChange={e => {
-          const copy = { ...parameter }
-          copy.key = e.target.value
-          onUpdate(copy)
-        }}
-      />
-      <InputGroup
-        id={id}
-        placeholder="Value"
-        value={parameter.value}
-        onChange={e => {
-          const copy = { ...parameter }
-          copy.value = e.target.value
-          onUpdate(copy)
-        }}
-      />
+      <InputGroup id={id} placeholder="Name" value={parameter.key} onChange={e => onKeyUpdated(e.target.value)} />
+      <InputGroup id={id} placeholder="Value" value={parameter.value} onChange={e => onValueUpdated(e.target.value)} />
       <Button onClick={e => onRemove(parameter)} icon="remove" />
     </ControlGroup>
   )
@@ -43,36 +27,28 @@ export const ActionParameter: FC<ActionParameterProps> = props => {
 
 interface ActionParametersProps {
   parameters: Parameter[]
-  onAdd: () => void
   onUpdate: (parameters: Parameter[]) => void
 }
 
 export const ActionParameters: FC<ActionParametersProps> = props => {
-  const { parameters, onAdd, onUpdate } = props
-
-  // if (parameters.length === 0) {
-  //   return (
-  //     <React.Fragment>
-  //       {/* <ControlGroup id={`action-parameters-0`}>
-  //         <InputGroup id={`action-parameters-0`} placeholder="Name" />
-  //         <InputGroup id={`action-parameters-0`} placeholder="Value" />
-  //       </ControlGroup> */}
-  //       <NonIdealState title="No Parameters" />
-  //       <Button onClick={e => onAdd()}>Add Parameter</Button>
-  //     </React.Fragment>
-  //   )
-  // }
+  const { onUpdate, parameters } = props
 
   return (
     <React.Fragment>
       {parameters.map((parameter, idx) => {
+        const { key, value } = parameter
         return (
           <ActionParameter
             key={idx}
             parameter={parameter}
-            onUpdate={parameter => {
+            onKeyUpdated={newKey => {
               const copy = [...parameters]
-              copy[idx] = parameter
+              copy[idx] = { key: newKey, value }
+              onUpdate(copy)
+            }}
+            onValueUpdated={value => {
+              const copy = [...parameters]
+              copy[idx] = { key, value }
               onUpdate(copy)
             }}
             onRemove={parameter => {
@@ -83,7 +59,13 @@ export const ActionParameters: FC<ActionParametersProps> = props => {
           />
         )
       })}
-      <Button onClick={e => onAdd()}>Add Parameter</Button>
+      <Button
+        onClick={e => {
+          onUpdate([...parameters, { key: '', value: '' }])
+        }}
+      >
+        Add Parameter
+      </Button>
     </React.Fragment>
   )
 }

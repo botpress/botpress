@@ -24,10 +24,6 @@ interface ActionDialogProps {
 const ActionDialog: FC<ActionDialogProps> = props => {
   const { action, actionServers, isOpen, onClose, onSave, onUpdate } = props
 
-  // const actionServerId = action.actionServerId || actionServers[0].id
-
-  // const valid = action.name && actionServerId
-
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
       <Label>
@@ -75,18 +71,13 @@ const ActionDialog: FC<ActionDialogProps> = props => {
       >
         <ActionParameters
           parameters={Object.entries(action.parameters).map(([key, value]) => ({ key, value }))}
-          onAdd={() => {
-            const copy = _.cloneDeep(action)
-            copy.parameters = _.merge(copy.parameters, { key: '', value: '' })
-            onUpdate(copy)
-          }}
           onUpdate={parameters => {
-            const copy = _.cloneDeep(action)
-            copy.parameters = parameters.reduce((previousValue, parameter) => {
-              previousValue[parameter.key] = parameter.value
+            const paramsObj = parameters.reduce((previousValue, param) => {
+              previousValue[param.key] = param.value
               return previousValue
             }, {})
-            onUpdate(copy)
+
+            onUpdate({ ...action, parameters: paramsObj })
           }}
         />
       </FormGroup>
