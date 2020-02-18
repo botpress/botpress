@@ -164,9 +164,9 @@ class ListView extends Component<Props, State> {
     />
   )
 
-  onRowClick = (state, rowInfo, column, instance) => {
+  onRowClick = (_state, rowInfo, column, _instance) => {
     return {
-      onClick: (e, handleOriginal) => {
+      onClick: (_e, handleOriginal) => {
         if (rowInfo) {
           if (column.id === 'usage') {
             if (rowInfo.original.usage.length) {
@@ -282,7 +282,7 @@ class ListView extends Component<Props, State> {
         width: 100
       },
       {
-        Cell: x => (!this.props.readOnly ? <Button small icon="edit" className="icon-edit" /> : ''),
+        Cell: _x => (!this.props.readOnly ? <Button small icon="edit" className="icon-edit" /> : ''),
         filterable: false,
         width: 45
       }
