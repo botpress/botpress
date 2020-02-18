@@ -10,8 +10,8 @@ import {
 } from '@blueprintjs/core'
 import { AuthRole, AuthStrategyConfig, WorkspaceUser } from 'common/typings'
 import React, { FC } from 'react'
-import { confirmDialog } from 'ui-shared'
 import { connect } from 'react-redux'
+import { confirmDialog } from 'ui-shared'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 

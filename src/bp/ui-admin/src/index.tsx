@@ -6,7 +6,6 @@ import 'element-closest-polyfill'
 import 'expose-loader?React!react'
 import 'expose-loader?ReactDOM!react-dom'
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
-import 'expose-loader?BotpressShared!ui-shared'
 /* tslint:enable */
 
 import React from 'react'
