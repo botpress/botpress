@@ -399,7 +399,7 @@ const trainOutOfScope = async (
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     kernel: 'LINEAR',
     classifier: 'C_SVC',
-    reduce: false
+    reduce: true
   }
 
   const noneUtts = _.chain(input.intents)
@@ -449,11 +449,13 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
   let totalProgress = 0
   let normalizedProgress = 0
+  const debouncedProgress = _.debounce(tools.reportTrainingProgress, 50, { maxWait: 500 })
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (!input.trainingSession) {
       return
     }
     if (input.trainingSession.status === 'canceled') {
+      // Note that we don't use debouncedProgress here as we want the side effects probagated now
       tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
       throw new TrainingCanceledError()
     }
@@ -464,7 +466,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       return
     }
     normalizedProgress = scaledProgress
-    tools.reportTrainingProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
+    debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
     let output = await preprocessInput(input, tools)
@@ -474,10 +476,9 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     output = await AppendNoneIntent(output, tools)
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
-
     const oos_by_ctx = await trainOutOfScope(output, tools, reportProgress)
+    reportProgress()
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
-
     reportProgress()
     const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
     reportProgress()
