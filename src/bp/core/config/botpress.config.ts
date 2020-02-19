@@ -264,6 +264,7 @@ export type BotpressConfig = {
    * Action Servers to be used when dispatching actions.
    * @default [{"id":"local", "baseUrl":"http://localhost:4000"}]
    */
+  // TODO: set local action server config in external config
   actionServers: ActionServer[]
 }
 
