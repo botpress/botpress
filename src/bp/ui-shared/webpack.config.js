@@ -85,7 +85,7 @@ const postProcess = (err, stats) => {
     throw err
   }
 
-  console.log(`[${moment().format('HH:mm:ss')}] Studio ${chalk.grey(stats.toString('minimal'))}`)
+  console.log(`[${moment().format('HH:mm:ss')}] Shared ${chalk.grey(stats.toString('minimal'))}`)
 }
 if (process.argv.indexOf('--compile') !== -1) {
   compiler.run(postProcess)
