@@ -206,7 +206,7 @@ export class Botpress {
     bots.forEach(bot => {
       if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
         this._killServer(
-          `A bot has more than a single language (${bot.id}). To enable the multilangual feature, please upgrade to Botpress Pro.`
+          `A bot has more than a single language (${bot.id}). To enable the multilingual feature, please upgrade to Botpress Pro.`
         )
       }
     })

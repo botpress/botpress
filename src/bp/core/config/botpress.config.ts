@@ -183,7 +183,7 @@ export type BotpressConfig = {
   }
   /**
    * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
-   * @example: [admin@botpress.io]
+   * @example: [admin@botpress.com]
    */
   superAdmins: UniqueUser[]
   /**
