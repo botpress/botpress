@@ -1,19 +1,10 @@
 import axios from 'axios'
-import { ActionServer } from 'common/typings'
+import { ActionDefinition, ActionMetadata, ActionServer, ActionServersWithActions } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import allSettled from 'promise.allsettled'
 import { PromiseResolution } from 'promise.allsettled/types'
-
-import { ActionDefinition } from './action-service'
-import { ActionMetadata } from './metadata'
-
-interface ActionServersWithActions {
-  actionServer: ActionServer
-  actions: ActionDefinition[]
-  actionsFetchedSuccessfully: boolean
-}
 
 interface RemoteActionDefinition {
   name: string
@@ -44,7 +35,7 @@ const fetchActions = async (botId: string, actionServers: ActionServer[]): Promi
       actionsFetchedSuccessfully = false
     }
 
-    return { actionServer, actions, actionsFetchedSuccessfully }
+    return { id: actionServer.id, baseUrl: actionServer.baseUrl, actions, actionsFetchedSuccessfully }
   })
 }
 

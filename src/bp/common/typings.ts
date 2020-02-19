@@ -184,3 +184,31 @@ export interface ActionServer {
   id: string
   baseUrl: string
 }
+
+export type ActionLocation = 'local' | 'global'
+
+export type ActionMetadata = {
+  title: string
+  category: string
+  description: string
+  author: string
+  hidden: boolean
+  params: {
+    type: string
+    required: boolean
+    default: any
+    description: string
+  }[]
+}
+
+export type ActionDefinition = {
+  name: string
+  isRemote: boolean
+  location: ActionLocation
+  metadata?: ActionMetadata
+}
+
+export type ActionServersWithActions = ActionServer & {
+  actions: ActionDefinition[]
+  actionsFetchedSuccessfully: boolean
+}

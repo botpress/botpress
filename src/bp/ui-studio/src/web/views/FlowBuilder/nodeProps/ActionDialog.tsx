@@ -1,5 +1,5 @@
 import { Button, Dialog, FormGroup, HTMLSelect, InputGroup, Label } from '@blueprintjs/core'
-import { ActionServer } from 'common/typings'
+import { ActionDefinition, ActionServersWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
@@ -14,7 +14,7 @@ export interface Parameter {
 
 interface ActionDialogProps {
   action: Action
-  actionServers: ActionServer[]
+  actionServers: ActionServersWithActions[]
   isOpen: boolean
   onClose: () => void
   onSave: () => void
@@ -23,6 +23,13 @@ interface ActionDialogProps {
 
 const ActionDialog: FC<ActionDialogProps> = props => {
   const { action, actionServers, isOpen, onClose, onSave, onUpdate } = props
+
+  const currentActionServer = action.actionServerId
+    ? actionServers.find(s => s.id === action.actionServerId)
+    : actionServers[0]
+  const currentActionDefinition = action.name
+    ? currentActionServer.actions.find(a => a.name === action.name)
+    : currentActionServer.actions[0]
 
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
@@ -57,17 +64,21 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           labelFor="action-name"
           labelInfo="(required)"
         >
-          <InputGroup
+          <HTMLSelect
             id="action-name"
-            value={action.name}
-            placeholder="Your action's name"
+            value={currentActionDefinition.name}
             onChange={e => {
-              const newName = e.target.value.replace(/[^a-z0-9-_]/gi, '_')
               const copy = _.cloneDeep(action)
-              copy.name = newName
+              copy.name = e.target.value
               onUpdate(copy)
             }}
-          />
+          >
+            {currentActionServer.actions.map(actionDefinition => (
+              <option key={actionDefinition.name} value={actionDefinition.name}>
+                {actionDefinition.name}
+              </option>
+            ))}
+          </HTMLSelect>
         </FormGroup>
 
         <FormGroup
@@ -88,7 +99,6 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           />
         </FormGroup>
         <Button
-          // disabled={!valid}
           onClick={() => {
             onSave()
           }}

@@ -1,14 +1,14 @@
 import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
-import { ActionServer } from 'common/typings'
+import { ActionDefinition, ActionLocation, ActionServer } from 'common/typings'
 import { createForAction } from 'core/api'
 import Database from 'core/database'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { clearRequireCache, requireFromString } from 'core/modules/require'
 import { GhostService } from 'core/services'
-import { ActionMetadata, extractMetadata } from 'core/services/action/metadata'
+import { extractMetadata } from 'core/services/action/metadata'
 import {
   extractRequiredFiles,
   getBaseLookupPaths,
@@ -29,15 +29,6 @@ import yn from 'yn'
 
 const debug = DEBUG('action-server')
 const DEBOUNCE_DELAY = ms('2s')
-
-type ActionLocation = 'local' | 'global'
-
-export type ActionDefinition = {
-  name: string
-  isRemote: boolean
-  location: ActionLocation
-  metadata?: ActionMetadata
-}
 
 @injectable()
 export default class ActionService {

@@ -6,20 +6,6 @@ import yn from 'yn'
 // Credit: https://stackoverflow.com/questions/35905181/regex-for-jsdoc-comments
 const JSDocCommentRegex = /\/\*\*\s*\n([^\*]|(\*(?!\/)))*\*\//gi
 
-export type ActionMetadata = {
-  title: string
-  category: string
-  description: string
-  author: string
-  hidden: boolean
-  params: {
-    type: string
-    required: boolean
-    default: any
-    description: string
-  }[]
-}
-
 export const extractMetadata = (code: string) => {
   const match = code.match(JSDocCommentRegex)
   const metadata: ActionMetadata = {
