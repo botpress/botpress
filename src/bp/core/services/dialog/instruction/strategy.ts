@@ -138,7 +138,14 @@ export class ActionStrategy implements InstructionStrategy {
     let actionServer
     if (actionServerId) {
       const botpressConfig = await this.configProvider.getBotpressConfig()
-      actionServer = botpressConfig.actionServers.find(s => s.id === actionServerId)
+      const actionServersConfig = botpressConfig.actionServers
+      if (actionServerId === 'local' && !actionServersConfig.localActionServer.enabled) {
+        this.logger.warn(
+          `Attempting to run action ${actionName} on Local Action Server, but Local Action Server is disabled`
+        )
+        return ProcessingResult.none()
+      }
+      actionServer = botpressConfig.actionServers.remoteActionServers.find(s => s.id === actionServerId)
     }
 
     debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)

@@ -256,6 +256,33 @@
         },
         "required": ["code", "name"]
       }
+    },
+    "actionServers": {
+      "description": "Action Servers to be used when dispatching actions.",
+      "default": { "localActionServer": { "port": 4000, "enabled": true }, "remoteActionServers": [] },
+      "type": "object",
+      "properties": {
+        "localActionServer": {
+          "type": "object",
+          "properties": {
+            "port": { "type": "integer" },
+            "enabled": { "type": "boolean" }
+          },
+          "required": ["port", "enabled"],
+          "additionalProperties": false
+        },
+        "remoteActionServers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { "id": { "type": "string" }, "baseUrl": { "type": "string" } },
+            "required": ["id", "baseUrl"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["localActionServer", "remoteActionServers"],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -276,7 +303,8 @@
     "sendUsageStats",
     "showPoweredBy",
     "superAdmins",
-    "version"
+    "version",
+    "actionServers"
   ],
   "definitions": {
     "DialogConfig": {

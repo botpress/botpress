@@ -262,10 +262,9 @@ export type BotpressConfig = {
 
   /**
    * Action Servers to be used when dispatching actions.
-   * @default [{"id":"local", "baseUrl":"http://localhost:4000"}]
+   * @default {"localActionServer": {"port": 4000, "enabled": true}, "remoteActionServers": []}
    */
-  // TODO: set local action server config in external config
-  actionServers: ActionServer[]
+  actionServers: ActionServersConfig
 }
 
 export interface ExternalAuthConfig {
@@ -560,4 +559,12 @@ export interface EventCollectorConfig {
    * @default []
    */
   ignoredEventProperties: string[]
+}
+
+interface ActionServersConfig {
+  localActionServer: {
+    port: number
+    enabled: boolean
+  }
+  remoteActionServers: ActionServer[]
 }

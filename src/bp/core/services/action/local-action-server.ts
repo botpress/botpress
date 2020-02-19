@@ -25,6 +25,7 @@ export class LocalActionServer {
     this.app.use(bodyParser.json())
 
     this.app.get('/', (req, res) => res.send('Hello World!'))
+    // TODO: add route to return actions
     this.app.post('/action/run', async (req, res) => {
       const { incomingEvent, actionArgs, actionName, botId } = req.body
 
@@ -52,12 +53,12 @@ export class LocalActionServer {
   }
   async start() {
     const config = await Config.getBotpressConfig()
-    const localServerConfig = config.actionServers?.find(s => s.id === 'local')
-    if (!localServerConfig) {
-      this.logger.warn('Could not find Action Server with id "local"')
+
+    const localServerConfig = config.actionServers.localActionServer
+    if (!localServerConfig.enabled) {
+      this.logger.info('Local Action Server disabled')
       return
     }
-    const serverUrl = url.parse(localServerConfig.baseUrl)
-    this.app.listen(serverUrl.port, () => this.logger.info(`Local Action Server listening on port ${port}`))
+    this.app.listen(localServerConfig.port, () => this.logger.info(`Local Action Server listening on port ${port}`))
   }
 }
