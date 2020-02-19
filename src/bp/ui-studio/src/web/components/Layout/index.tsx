@@ -175,13 +175,12 @@ class Layout extends React.Component<ILayoutProps> {
                     exact
                     path="/"
                     render={() => {
-                        if (!window.IS_BOT_MOUNTED) {
-                          return <Redirect to="/modules/code-editor" />
-                        }
-
-                        return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                      if (!window.IS_BOT_MOUNTED) {
+                        return <Redirect to="/modules/code-editor" />
                       }
-                    }
+
+                      return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                    }}
                   />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />

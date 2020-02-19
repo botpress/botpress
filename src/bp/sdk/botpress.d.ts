@@ -1343,8 +1343,8 @@ declare module 'botpress/sdk' {
 
   export type EventSearchParams = {
     /** Returns the amount of elements from the starting position  */
-    from: number
-    count: number
+    from?: number
+    count?: number
     /** An array of columns with direction to sort results */
     sortOrder?: SortOrder[]
   }

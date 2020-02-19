@@ -103,7 +103,8 @@ export default class Storage {
 
     const leftOverQnaIntents = allIntents.filter(
       (intent: sdk.NLU.IntentDefinition) =>
-        intent.name.startsWith('__qna__') && !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
+        intent.name.startsWith(NLU_PREFIX) &&
+        !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
     )
     await Promise.map(leftOverQnaIntents, (intent: sdk.NLU.IntentDefinition) =>
       axios.post(`/mod/nlu/intents/${intent.name}/delete`, {}, axiosConfig)
