@@ -113,6 +113,10 @@ export class Botpress {
   }
 
   private async initialize(options: StartOptions) {
+    if (!process.IS_PRODUCTION) {
+      this.logger.info(`Running in DEVELOPMENT MODE`)
+    }
+
     this.config = await this.configProvider.getBotpressConfig()
 
     this.trackStart()
@@ -120,7 +124,7 @@ export class Botpress {
 
     setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
 
-    await AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
+    AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
     await this.restoreDebugScope()
     await this.checkJwtSecret()
@@ -138,7 +142,7 @@ export class Botpress {
       this.statsService.start()
     }
 
-    await AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
+    AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
 
     this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
@@ -228,7 +232,7 @@ export class Botpress {
 
       // Avoids overwriting the folder when developing locally on the studio
       if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
-        const studioPath = await fse.lstatSync(`${assets}/ui-studio/public`)
+        const studioPath = fse.lstatSync(`${assets}/ui-studio/public`)
         if (studioPath.isSymbolicLink()) {
           return
         }
@@ -351,12 +355,12 @@ export class Botpress {
       this.realtimeService.sendToSocket(payload)
     }
 
-    await this.stateManager.initialize()
+    this.stateManager.initialize()
     await this.logJanitor.start()
     await this.dialogJanitor.start()
     await this.monitoringService.start()
-    await this.alertingService.start()
-    await this.eventCollector.start()
+    this.alertingService.start()
+    this.eventCollector.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()
@@ -365,7 +369,7 @@ export class Botpress {
     // tslint:disable-next-line: no-floating-promises
     this.hintsService.refreshAll()
 
-    await AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
+    AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }
 
   private async loadModules(modules: sdk.ModuleEntryPoint[]): Promise<void> {

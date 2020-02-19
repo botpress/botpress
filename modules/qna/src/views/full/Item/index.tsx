@@ -97,17 +97,8 @@ const Item: FC<Props> = props => {
 
       <div className={style.itemAction}>
         <AccessControl resource="module.qna" operation="write">
-          <Button
-            icon="trash"
-            className={style.itemActionDelete}
-            onClick={() => props.onDeleteItem(id)}
-            minimal={true}
-          />
-          <Switch
-            checked={item.enabled}
-            onChange={e => props.onToggleItem(item, id, e.currentTarget.checked)}
-            large={true}
-          />
+          <Button icon="trash" className={style.itemActionDelete} onClick={() => props.onDeleteItem(id)} minimal />
+          <Switch checked={item.enabled} onChange={e => props.onToggleItem(item, id, e.currentTarget.checked)} large />
         </AccessControl>
       </div>
     </div>

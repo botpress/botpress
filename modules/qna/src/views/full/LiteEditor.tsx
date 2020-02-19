@@ -116,8 +116,8 @@ export const LiteEditor = props => {
           {/*
           TODO: Support for import/export scoped to a category
           <div>
-            <Popover minimal position={Position.BOTTOM} captureDismiss={true}>
-              <Button id="btn-menu" icon="menu" minimal={true} style={{ float: 'right' }} />
+            <Popover minimal position={Position.BOTTOM} captureDismiss>
+              <Button id="btn-menu" icon="menu" minimal style={{ float: 'right' }} />
               <Menu>
                 <MenuItem
                   icon="download"
@@ -126,7 +126,7 @@ export const LiteEditor = props => {
                   onClick={() => setImportDialogOpen(true)}
                 />
 
-                <ExportButton asMenu={true} />
+                <ExportButton asMenu />
               </Menu>
             </Popover>
             <ImportModal
@@ -146,7 +146,7 @@ export const LiteEditor = props => {
               key={item.id}
               id={item.id}
               item={item.data}
-              isVersion2={true}
+              isVersion2
               contentLang={props.contentLang}
               onEditItem={editItem}
               onDeleteItem={deleteItem}

@@ -64,7 +64,7 @@ const ToolItem: FC<ToolItemProps> = ({ label, type, id, icon }) => {
       id={`btn-tool-${id}`}
       className={style.toolItem}
       key={id}
-      draggable={true}
+      draggable
       onDragStart={event => {
         event.dataTransfer.setData('diagram-node', JSON.stringify({ type, id }))
       }}
@@ -85,7 +85,4 @@ const mapDispatchToProps = {
   buildSkill: buildNewSkill
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FlowTools)
+export default connect(mapStateToProps, mapDispatchToProps)(FlowTools)

@@ -143,6 +143,7 @@ class RootStore {
       })
     ) {
       if (await this.api.deleteFile(file)) {
+        this.editor.closeFile()
         toastSuccess('File deleted successfully!')
         await this.fetchFiles()
       }
