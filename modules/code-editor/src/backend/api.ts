@@ -83,7 +83,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
     }
   })
 
-  router.get('/typings', async (req, res, next) => {
+  router.get('/typings', async (_req, res, next) => {
     try {
       res.send(await editor.loadTypings())
     } catch (err) {

@@ -72,10 +72,10 @@ const FlowNameModal: FC<Props> = props => {
               id="input-flow-name"
               tabIndex={1}
               placeholder="Choose a name for your flow"
-              required={true}
+              required
               value={name}
               onChange={e => setName(sanitizeName(e.currentTarget.value))}
-              autoFocus={true}
+              autoFocus
             />
           </FormGroup>
 

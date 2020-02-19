@@ -30,7 +30,7 @@ class EditorStore {
   @observable
   private _originalHash: string
 
-  constructor(rootStore) {
+  constructor(rootStore: RootStore) {
     this.rootStore = rootStore
   }
 
@@ -116,7 +116,7 @@ class EditorStore {
   }
 
   @action.bound
-  setMonacoEditor(editor) {
+  setMonacoEditor(editor: monaco.editor.IStandaloneCodeEditor) {
     this._editorRef = editor
   }
 }

@@ -291,7 +291,7 @@ export default class Storage {
           if (values) {
             values.count++
           } else {
-            result[answer] = { qna: qna.id.substr(qna.id.indexOf('_') + 1), count: 1 }
+            result[answer] = { qna: qna.id, count: 1 }
           }
         })
         return result

@@ -7,7 +7,6 @@ import { InjectedIntl } from 'react-intl'
 import WebchatApi from '../core/api'
 import constants from '../core/constants'
 import { getUserLocale, initializeLocale, translations } from '../translations'
-
 import {
   BotInfo,
   Config,

@@ -216,7 +216,7 @@ class Bots extends Component<Props> {
                     <BotItemPipeline
                       bot={bot}
                       hasError={this.findBotError(bot.id)}
-                      allowStageChange={allowStageChange}
+                      allowStageChange={allowStageChange && !bot.disabled}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}
                       deleteBot={this.deleteBot.bind(this, bot.id)}
                       exportBot={this.exportBot.bind(this, bot.id)}
