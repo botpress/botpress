@@ -1,7 +1,7 @@
 import { Classes, ContextMenu, ITreeNode, Menu, MenuItem, Tree } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { isEqual } from 'lodash'
 import React, { Component } from 'react'
-import { confirmDialog } from 'ui-shared'
 
 import { buildFlowsTree } from './util'
 

@@ -12,7 +12,7 @@ import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
 import PageContainer from '~/App/PageContainer'
-import { confirmDialog } from 'ui-shared'
+import { confirmDialog } from 'botpress/shared'
 
 class LicenseStatus extends React.Component {
   state = {

@@ -19,7 +19,7 @@ import api from '../../api'
 import PageContainer from '~/App/PageContainer'
 import StickyActionBar from '~/App/StickyActionBar'
 import { Button, Intent } from '@blueprintjs/core'
-import { confirmDialog } from 'ui-shared'
+import { confirmDialog } from 'botpress/shared'
 
 const statusList = [
   { label: 'Published', value: 'public' },
