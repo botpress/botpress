@@ -22,12 +22,10 @@
   "devDependencies": {
     "@babel/helpers": "^7.4.3",
     "@blueprintjs/core": "^3.23.1",
+    "@types/node": "^10.11.0",
     "@types/nodemailer": "^6.2.1",
     "@types/react-bootstrap": "^0.32.20",
     "@types/reactstrap": "^8.4.1"
-  },
-  "peerDependencies": {
-    "@types/node": "^10.11.0"
   },
   "dependencies": {
     "bluebird": "^3.5.3",
