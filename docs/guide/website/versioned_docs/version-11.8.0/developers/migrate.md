@@ -99,7 +99,7 @@ Below is an example of a `workspaces.json`:
     "name": "Default",
     "users": [
       {
-        "email": "renaud@botpress.io",
+        "email": "renaud@botpress.com",
         "password": "<password>",
         "salt": "<salt>",
         "last_ip": "",
@@ -130,7 +130,10 @@ Below is an example of a `workspaces.json`:
         "id": "editor",
         "name": "Content Editor",
         "description": "Content Editors have read/write access to content and NLU, and read-only access to flows and actions.",
-        "rules": [{ "res": "*", "op": "+r" }, { "res": "admin.collaborators.*", "op": "-r" }]
+        "rules": [
+          { "res": "*", "op": "+r" },
+          { "res": "admin.collaborators.*", "op": "-r" }
+        ]
       }
     ],
     "defaultRole": "dev",
