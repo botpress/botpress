@@ -19,6 +19,7 @@ const TYPES = {
   DBStorageDriver: Symbol.for('DBStorageDriver'),
   ObjectCache: Symbol.for('ObjectCache'),
   ActionService: Symbol.for('ActionService'),
+  ActionServersService: Symbol.for('ActionServersService'),
   IsPackaged: Symbol.for('IsPackaged'),
   IncomingQueue: Symbol.for('IncomingQueue'),
   OutgoingQueue: Symbol.for('OutgoingQueue'),

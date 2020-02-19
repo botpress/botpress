@@ -25,7 +25,6 @@ import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
-import { ActionServersRouter } from './routers/actionServers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
@@ -34,6 +33,7 @@ import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
+import ActionServersService from './services/action/action-servers-service'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
@@ -80,7 +80,6 @@ export default class HTTPServer {
   private readonly botsRouter: BotsRouter
   private contentRouter!: ContentRouter
   private readonly modulesRouter: ModulesRouter
-  private readonly actionServersRouter: ActionServersRouter
   private readonly shortlinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
@@ -99,6 +98,7 @@ export default class HTTPServer {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
+    @inject(TYPES.ActionServersService) actionServersService: ActionServersService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MediaService) mediaService: MediaService,
@@ -136,8 +136,6 @@ export default class HTTPServer {
       this.configProvider
     )
 
-    this.actionServersRouter = new ActionServersRouter(this.logger, this.authService, this.configProvider)
-
     this.authRouter = new AuthRouter(
       this.logger,
       this.authService,
@@ -161,6 +159,7 @@ export default class HTTPServer {
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
+      actionServersService,
       botService,
       configProvider,
       flowService,
@@ -281,7 +280,6 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
-    this.app.use(`${BASE_API_PATH}/action-servers`, this.actionServersRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`/s`, this.shortlinksRouter.router)
 

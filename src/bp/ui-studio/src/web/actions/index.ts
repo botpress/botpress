@@ -327,7 +327,7 @@ export const insertNewSkill = wrapAction(requestInsertNewSkill, async (payload, 
 export const actionServersReceived = createAction('ACTION_SERVERS/RECEIVED')
 export const fetchActionServers = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.API_PATH}/action-servers`).then(res => {
+  axios.get(`${window.BOT_API_PATH}/actionServers`).then(res => {
     dispatch(actionServersReceived(res.data))
   })
 }

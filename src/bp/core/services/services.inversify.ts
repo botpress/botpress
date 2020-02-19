@@ -5,6 +5,7 @@ import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
 
+import ActionServersService from './action/action-servers-service'
 import ActionService from './action/action-service'
 import { AlertingService, CEAlertingService } from './alerting-service'
 import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
@@ -40,6 +41,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<ActionService>(TYPES.ActionService)
     .to(ActionService)
+    .inSingletonScope()
+
+  bind<ActionServersService>(TYPES.ActionServersService)
+    .to(ActionServersService)
     .inSingletonScope()
 
   bind<LicensingService>(TYPES.LicensingService)

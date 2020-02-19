@@ -25,7 +25,6 @@ export class LocalActionServer {
     this.app.use(bodyParser.json())
 
     this.app.get('/', (req, res) => res.send('Hello World!'))
-    // TODO: add route to return actions
     this.app.post('/action/run', async (req, res) => {
       const { incomingEvent, actionArgs, actionName, botId } = req.body
 
@@ -49,6 +48,15 @@ export class LocalActionServer {
       )
 
       res.status(200).send({ result, incomingEvent })
+    })
+
+    this.app.get('/actions/:botId', async (req, res) => {
+      const { botId } = req.params
+      const scopedActionService = this.actionService.forBot(botId)
+
+      const actions = await scopedActionService.listActions()
+
+      res.status(200).send(actions)
     })
   }
   async start() {
