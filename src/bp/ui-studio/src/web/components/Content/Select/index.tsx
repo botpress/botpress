@@ -184,6 +184,7 @@ class SelectContent extends Component<Props, State> {
 
   setCurrentCategory(contentType) {
     this.setState({ contentType }, () => {
+      // tslint:disable-next-line: no-floating-promises
       Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
         this.setState({ step: formSteps.MAIN })
       )
@@ -358,7 +359,4 @@ const mapDispatchToProps = {
   upsertContentItem
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withLanguage(SelectContent))
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(SelectContent))

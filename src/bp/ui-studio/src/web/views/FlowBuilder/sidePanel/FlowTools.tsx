@@ -65,7 +65,7 @@ const ToolItem: FC<ToolItemProps> = ({ label, type, id, icon }) => {
       id={`btn-tool-${id}`}
       className={style.toolItem}
       key={id}
-      draggable={true}
+      draggable
       onDragStart={event => {
         event.dataTransfer.setData('diagram-node', JSON.stringify({ type, id }))
       }}

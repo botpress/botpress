@@ -2,8 +2,9 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { predict } from './engines/dialogflow'
 import { Config } from '../config'
+
+import { predict } from './engines/dialogflow'
 
 const configPerBot: { [botId: string]: Config } = {}
 

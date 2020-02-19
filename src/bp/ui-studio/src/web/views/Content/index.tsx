@@ -16,7 +16,6 @@ import {
 } from '~/actions'
 import CreateOrEditModal from '~/components/Content/CreateOrEditModal'
 import { Container } from '~/components/Shared/Interface'
-import { getFlowLabel } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
@@ -80,11 +79,10 @@ class ContentView extends Component<Props, State> {
     this.props.contentItems.forEach(async (element: ContentElementUsage) => {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
-        const name = getFlowLabel(flow.name)
         flow.nodes.forEach((node: NodeView) => {
           const usage: ContentUsage = {
             type: 'Flow',
-            name,
+            name: flow.name,
             node: node.name,
             count: 0
           }
@@ -107,7 +105,8 @@ class ContentView extends Component<Props, State> {
         usage &&
           element.usage.push({
             type: 'Q&A',
-            name: usage.qna,
+            id: usage.qna,
+            name: usage.qna.substr(usage.qna.indexOf('_') + 1),
             count: usage.count
           })
       }
@@ -170,7 +169,7 @@ class ContentView extends Component<Props, State> {
   }
 
   handleRefresh = () => {
-    this.fetchCategoryItems(this.state.selectedId || 'all')
+    this.fetchCategoryItems(this.state.selectedId ?? 'all')
   }
 
   handleSearch = input => {
@@ -180,7 +179,7 @@ class ContentView extends Component<Props, State> {
 
   render() {
     const { selectedId = 'all', contentToEdit } = this.state
-    const categories = this.props.categories || []
+    const categories = this.props.categories ?? []
     const selectedCategory = _.find(categories, { id: this.currentContentType() })
 
     const classNames = classnames(style.content, 'bp-content')
@@ -226,8 +225,8 @@ class ContentView extends Component<Props, State> {
         {this.canEdit && (
           <CreateOrEditModal
             show={this.state.showModal}
-            schema={(selectedCategory && selectedCategory.schema.json) || {}}
-            uiSchema={(selectedCategory && selectedCategory.schema.ui) || {}}
+            schema={selectedCategory?.schema.json ?? {}}
+            uiSchema={selectedCategory?.schema.ui ?? {}}
             formData={contentToEdit}
             isEditing={this.state.modifyId !== null}
             handleCreateOrUpdate={this.handleUpsert}
@@ -258,10 +257,7 @@ const mapDispatchToProps = {
   deleteContentItems
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ContentView)
+export default connect(mapStateToProps, mapDispatchToProps)(ContentView)
 
 type Props = {
   fetchContentCategories: Function
@@ -292,6 +288,7 @@ type ContentElementUsage = {
 
 export interface ContentUsage {
   type: string
+  id?: string
   name: string
   node?: string
   count: number

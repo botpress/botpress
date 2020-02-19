@@ -25,7 +25,7 @@ export class ExecuteWidget extends Component<{ node: ExecuteNodeModel; diagramEn
       <div className={classnames(style.baseNode, style.nodeExecute, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeader({ nodeType: 'Execute', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
-          <ActionModalSmall text={actionText} onChange={this.handleItemChanged} layoutv2={true} />
+          <ActionModalSmall text={actionText} onChange={this.handleItemChanged} layoutv2 />
         </div>
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />

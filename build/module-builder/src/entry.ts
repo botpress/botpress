@@ -8,10 +8,12 @@ import watchCmd from './watch'
 require('yargs')
   .command('build', 'builds a botpress module', {}, argv => {
     configure(argv.verbose)
+    // tslint:disable-next-line: no-floating-promises
     buildCmd(argv)
   })
   .command('watch', 'watches and rebuilds a module', {}, argv => {
     configure(argv.verbose)
+    // tslint:disable-next-line: no-floating-promises
     watchCmd(argv)
   })
   .command(
@@ -26,6 +28,7 @@ require('yargs')
     },
     argv => {
       configure(argv.verbose)
+      // tslint:disable-next-line: no-floating-promises
       packageCmd(argv)
     }
   )

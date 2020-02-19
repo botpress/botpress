@@ -92,6 +92,7 @@ class StatusBar extends React.Component<Props> {
   }
 
   fetchTrainingSession = () => {
+    // tslint:disable-next-line: no-floating-promises
     axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${this.props.contentLang}`).then(({ data: session }) => {
       if (session && session.status === 'training') {
         this.setState({

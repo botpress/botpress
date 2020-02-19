@@ -6,7 +6,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface EventRepository {
-  findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams)
+  findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams): Promise<sdk.IO.StoredEvent[]>
   pruneUntil(date: Date): Promise<void>
   updateEvent(id: number, fields: Partial<sdk.IO.StoredEvent>): Promise<void>
 }
@@ -43,11 +43,15 @@ export class KnexEventRepository implements EventRepository {
         query = query.orderBy(sort.column, sort.desc ? 'desc' : 'asc')
       })
 
-    if (count !== UNLIMITED_ELEMENTS) {
+    if (count && count !== UNLIMITED_ELEMENTS) {
       query = query.limit(count)
     }
 
-    return query.offset(from).then(rows =>
+    if (from) {
+      query = query.offset(from)
+    }
+
+    return query.then(rows =>
       rows.map(storedEvent => ({
         ...storedEvent,
         event: this.database.knex.json.get(storedEvent.event)
