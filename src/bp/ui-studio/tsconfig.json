@@ -1,7 +1,14 @@
 {
   "compilerOptions": {
-    "outDir": "public",
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
     "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "target": "es5",
+    "lib": ["es7", "dom"],
+    "jsx": "react",
     "typeRoots": ["./node_modules/@types", "src/web/typings.d.ts"],
     "baseUrl": "./",
     "paths": {
@@ -12,7 +19,6 @@
       "botpress/sdk": ["../sdk/botpress.d.ts"]
     }
   },
-  "extends": "../tsconfig_ui.shared.json",
-  "include": ["src/web"],
-  "exclude": ["node_modules", "public", "webpack.web.js"]
+  "include": ["src"],
+  "exclude": ["node_modules", "build", "dist", "example", "rollup.config.js", "webpack.config.js"]
 }
