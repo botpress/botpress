@@ -12,12 +12,7 @@
     "package": "node ../../build/module-builder/bin/entry package"
   },
   "devDependencies": {
-    "@blueprintjs/core": "^3.23.1",
-    "@blueprintjs/select": "^3.11.2",
-    "@types/classnames": "^2.2.9",
-    "@types/node": "^10.11.3",
-    "@types/react": "^16.9.19",
-    "@types/react-dom": "^16.9.5"
+    "@types/classnames": "^2.2.9"
   },
   "dependencies": {
     "bluebird": "^3.7.0",

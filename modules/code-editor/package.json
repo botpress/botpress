@@ -12,10 +12,6 @@
     "package": "node ../../build/module-builder/bin/entry package"
   },
   "devDependencies": {
-    "@blueprintjs/core": "^3.23.1",
-    "@types/node": "^10.11.7",
-    "@types/react": "^16.9.19",
-    "@types/react-dom": "^16.9.5",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "webpack": "^4.20.2"
   },

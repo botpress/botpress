@@ -11,12 +11,7 @@
     "watch": "node ../../build/module-builder/bin/entry watch",
     "package": "node ../../build/module-builder/bin/entry package"
   },
-  "devDependencies": {
-    "@types/node": "^10.11.3",
-    "@types/react": "^16.9.19"
-  },
   "dependencies": {
-    "@blueprintjs/core": "^3.23.1",
     "classnames": "^2.2.6",
     "react-icons": "^3.8.0"
   },

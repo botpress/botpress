@@ -22,9 +22,6 @@
     "react-select": "^1.2.0",
     "recharts": "1.5.0"
   },
-  "devDependencies": {
-    "@types/node": "^10.11.0"
-  },
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.12"
