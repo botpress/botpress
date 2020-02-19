@@ -39,7 +39,7 @@ export function config(projectPath) {
       'botpress/utils': 'BotpressUtils'
     },
     resolveLoader: {
-      modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]
+      modules: ['node_modules', path.resolve(__dirname, '../node_modules')]
     },
     resolve: {
       extensions: ['.js', '.jsx', '.tsx', '.ts']
@@ -53,6 +53,7 @@ export function config(projectPath) {
           use: {
             loader: 'babel-loader',
             options: {
+              cwd: path.resolve(__dirname, '..'),
               presets: [['@babel/preset-env'], '@babel/preset-typescript', '@babel/preset-react'],
               plugins: [
                 ['@babel/plugin-proposal-decorators', { legacy: true }],

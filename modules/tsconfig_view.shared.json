@@ -10,7 +10,7 @@
     "lib": ["es7", "dom", "esnext"],
     "jsx": "react",
     "typeRoots": ["../../node_modules/@types"],
-    "types": ["jest", "bluebird-global", "node"],
+    "types": ["jest", "bluebird-global"],
     "paths": {
       "botpress/ui": ["../../../../src/bp/ui-studio/src/web/components/Shared/Interface/typings.d.ts"],
       "botpress/utils": ["../../../../src/bp/ui-studio/src/web/components/Shared/Utils/typings.d.ts"],
