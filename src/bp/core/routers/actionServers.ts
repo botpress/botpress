@@ -35,7 +35,6 @@ export class ActionServersRouter extends CustomRouter {
             baseUrl: `http://localhost:${actionServersConfig.localActionServer.port}`
           })
         }
-        console.log('RETURNING1')
         res.send(actionServers)
       })
     )
