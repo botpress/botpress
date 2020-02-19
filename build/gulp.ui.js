@@ -18,7 +18,7 @@ const build = () => {
 }
 
 const buildShared = () => {
-  gulp.task('build:shared', gulp.series([sharedBuild, cleanShared]))
+  gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
 
   return gulp.series(['build:shared'])
 }
