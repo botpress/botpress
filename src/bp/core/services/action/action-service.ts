@@ -158,7 +158,6 @@ export class ScopedActionService {
         if (trusted) {
           result = await this.runTrustedCode(actionName, actionArgs, incomingEvent)
         } else {
-          this.logger.warn('Running legacy JavaScript action. Please migrate to the new Action Server functionality.')
           result = await this.runLegacyAction(actionName, actionArgs, incomingEvent)
         }
       }
@@ -184,7 +183,9 @@ export class ScopedActionService {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
 
-    const token = jsonwebtoken.sign({ botId, allowedScopes: [], workspace: '', taskId: '' }, process.APP_SECRET, {
+    // TODO: scope examples: 'events', 'events.replyToEvent'
+    // workspace: workspace du bot
+    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace: '', taskId: '' }, process.APP_SECRET, {
       expiresIn: '15m'
     })
 
@@ -351,6 +352,7 @@ export class ScopedActionService {
 
   private isTrustedAction(actionName: string): boolean {
     // TODO: find more scalable approach
+    // TODO: adopt same strategy as code-editor, see BUILTIN_MODULES
     return ['analytics/increment', 'analytics/decrement', 'analytics/set'].includes(actionName)
   }
 
