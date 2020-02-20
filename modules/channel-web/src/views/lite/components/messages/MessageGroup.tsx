@@ -83,7 +83,11 @@ class MessageGroup extends React.Component<Props> {
                   }
                   inlineFeedback={
                     showInlineFeedback && (
-                      <InlineFeedback onFeedback={feedback => this.props.onFeedback(feedback, data.incomingEventId)} />
+                      <InlineFeedback
+                        incomingEventId={data.incomingEventId}
+                        onFeedback={this.props.onFeedback}
+                        eventFeedbacks={this.props.store.eventFeedbacks}
+                      />
                     )
                   }
                   isLastOfGroup={i >= this.props.messages.length - 1}

@@ -20,11 +20,13 @@ class LibraryList extends Component<any> {
   }
 
   componentDidMount() {
+    // tslint:disable-next-line: no-floating-promises
     this.updateFlows()
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.filter !== prevProps.filter) {
+      // tslint:disable-next-line: no-floating-promises
       this.updateFlows()
     }
   }
@@ -118,7 +120,4 @@ class LibraryList extends Component<any> {
 
 const mapStateToProps = state => ({ conditions: state.ndu.conditions })
 
-export default connect(
-  mapStateToProps,
-  undefined
-)(LibraryList)
+export default connect(mapStateToProps, undefined)(LibraryList)
