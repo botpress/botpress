@@ -168,21 +168,21 @@ class StatusBar extends React.Component<Props> {
             </ActionItem>
           )}
           {window.IS_BOT_MOUNTED && (
-            <ActionItem
-              title="Show Emulator"
-              id={'statusbar_emulator'}
-              shortcut={keyMap['emulator-focus']}
-              onClick={this.props.onToggleEmulator}
-              className={classNames({ [style.active]: this.props.isEmulatorOpen }, style.right)}
-            >
-              <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
-              Emulator
-            </ActionItem>
-          )}
-          {window.IS_BOT_MOUNTED && (
-            <ActionItem title="Notification" description="View Notifications" className={style.right}>
-              <NotificationHub />
-            </ActionItem>
+            <React.Fragment>
+              <ActionItem
+                title="Show Emulator"
+                id={'statusbar_emulator'}
+                shortcut={keyMap['emulator-focus']}
+                onClick={this.props.onToggleEmulator}
+                className={classNames({ [style.active]: this.props.isEmulatorOpen }, style.right)}
+              >
+                <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
+                Emulator
+              </ActionItem>
+              <ActionItem title="Notification" description="View Notifications" className={style.right}>
+                <NotificationHub />
+              </ActionItem>
+            </React.Fragment>
           )}
           <AccessControl resource="bot.logs" operation="read">
             <ActionItem

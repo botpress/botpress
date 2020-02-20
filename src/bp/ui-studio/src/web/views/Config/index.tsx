@@ -1,4 +1,15 @@
-import { Button, Callout, Card, Collapse, Elevation, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import {
+  Button,
+  Callout,
+  Card,
+  Collapse,
+  Elevation,
+  FileInput,
+  FormGroup,
+  InputGroup,
+  Intent,
+  TextArea
+} from '@blueprintjs/core'
 import axios from 'axios'
 import { any } from 'bluebird'
 import { BotConfig } from 'botpress/sdk'
@@ -24,9 +35,9 @@ const axiosConfig = {
 
 interface StateBot {
   name: string
-  status: string
+  status: SelectItem
   description: string
-  selectedDefaultLang: string
+  selectedDefaultLang: SelectItem
   selectedLanguages: SelectItem[]
   website: string
   phoneNumber: string
@@ -62,9 +73,9 @@ interface SelectItem {
 class ConfigView extends Component<any, State> {
   initialFormState: StateBot = {
     name: '',
-    status: '',
+    status: { value: '', label: '' },
     description: '',
-    selectedDefaultLang: '',
+    selectedDefaultLang: { value: '', label: '' },
     selectedLanguages: [],
     website: '',
     phoneNumber: '',
@@ -97,9 +108,9 @@ class ConfigView extends Component<any, State> {
 
     this.initialFormState = {
       name: bot.name || '',
-      status,
+      status: this.state.statuses.find(s => s.value === status),
       description: bot.description || '',
-      selectedDefaultLang: bot.defaultLanguage,
+      selectedDefaultLang: languages.find(l => l.value === bot.defaultLanguage),
       selectedLanguages: languages.filter(x => bot.languages.includes(x.value)),
       website: bot.details.website || '',
       phoneNumber: bot.details.phoneNumber || '',
@@ -141,10 +152,10 @@ class ConfigView extends Component<any, State> {
 
     const bot: BotConfig = {
       name: this.state.name,
-      disabled: this.state.status === 'disabled',
-      private: this.state.status === 'private',
+      disabled: this.state.status.value === 'disabled',
+      private: this.state.status.value === 'private',
       description: this.state.description,
-      defaultLanguage: this.state.selectedDefaultLang,
+      defaultLanguage: this.state.selectedDefaultLang.value,
       languages: this.state.selectedLanguages.map(x => x.value),
       details: {
         website: this.state.website,
@@ -165,7 +176,7 @@ class ConfigView extends Component<any, State> {
     }
 
     try {
-      const disableChanged = bot.disabled != (this.initialFormState.status === 'disabled')
+      const disableChanged = bot.disabled != (this.initialFormState.status.value === 'disabled')
       let allow = true
 
       if (disableChanged && bot.disabled) {
@@ -183,7 +194,9 @@ class ConfigView extends Component<any, State> {
         if (disableChanged) {
           window.location.reload()
         }
-      } else this.setState({ error: undefined, isSaving: false })
+      } else {
+        this.setState({ error: undefined, isSaving: false })
+      }
     } catch (err) {
       this.setState({ error: err, isSaving: false })
     }
@@ -193,17 +206,19 @@ class ConfigView extends Component<any, State> {
     this.setState({ [event.target.name]: event.target.value })
   }
 
-  handleDefaultLangChanged = async event => {
-    const lang = event.target.value
+  handleStatusChanged = status => {
+    this.setState({ status })
+  }
 
+  handleDefaultLangChanged = async lang => {
     if (!this.state.selectedDefaultLang) {
       this.setState({ selectedDefaultLang: lang })
       return
     }
 
     if (this.state.selectedDefaultLang !== lang) {
-      const currentName = this.state.languages.find(x => x.value === this.state.selectedDefaultLang).label
-      const newName = this.state.languages.find(x => x.value === lang).label
+      const currentName = this.state.languages.find(x => x.value === this.state.selectedDefaultLang.value).label
+      const newName = this.state.languages.find(x => x.value === lang.value).label
       const conf = await confirmDialog(
         `Are you sure you want to change the language of your bot from ${currentName} to ${newName}? All of your content elements will be copied, make sure you translate them.`,
         { acceptLabel: 'Change' }
@@ -263,15 +278,6 @@ class ConfigView extends Component<any, State> {
   }
 
   render() {
-    const statuses = []
-    for (const status of this.state.statuses) {
-      statuses.push(
-        <option key={status.value} value={status.value}>
-          {status.label}
-        </option>
-      )
-    }
-
     return (
       <Card className={style.container}>
         {this.state.error && (
@@ -285,14 +291,20 @@ class ConfigView extends Component<any, State> {
             <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
           </FormGroup>
           <FormGroup label="Status" labelFor="status">
-            <select id="status" name="status" value={this.state.status} onChange={this.handleInputChanged}>
-              {statuses}
-            </select>
+            <Select
+              id="status"
+              name="status"
+              options={this.state.statuses}
+              value={this.state.status}
+              onChange={this.handleStatusChanged}
+            />
           </FormGroup>
           <FormGroup label="Description" labelFor="description">
-            <InputGroup
+            <TextArea
               id="description"
               name="description"
+              rows={3}
+              className={style.textarea}
               value={this.state.description}
               onChange={this.handleInputChanged}
             />
@@ -411,27 +423,23 @@ class ConfigView extends Component<any, State> {
   }
 
   renderLanguages() {
-    const languages = []
-    for (const lang of this.state.languages) {
-      languages.push(
-        <option key={lang.value} value={lang.value}>
-          {lang.label}
-        </option>
-      )
-    }
+    const languages = this.state.languages.map(l => (
+      <option key={l.value} value={l.value}>
+        {l.label}
+      </option>
+    ))
 
     if (this.state.licensing && this.state.licensing.isPro) {
       return (
         <div>
           <FormGroup label="Default language" labelFor="selected-default-lang">
-            <select
+            <Select
               id="selected-default-lang"
               name="selectedDefaultLang"
+              options={this.state.languages}
               value={this.state.selectedDefaultLang}
               onChange={this.handleDefaultLangChanged}
-            >
-              {languages}
-            </select>
+            />
           </FormGroup>
           <FormGroup label="Supported languages" labelFor="selected-languages">
             <Select

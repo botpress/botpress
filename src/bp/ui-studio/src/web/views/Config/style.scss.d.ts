@@ -5,6 +5,7 @@ interface CssExports {
   'configUploadSuccess': string;
   'container': string;
   'coverPreview': string;
+  'textarea': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
