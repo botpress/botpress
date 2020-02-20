@@ -22,7 +22,7 @@ interface Props {
 
   canDelete: boolean
   goToFlow: Function
-  flows: { name: string }[]
+  flows: { name: string; label: string }[]
 
   duplicateFlow: Function
   deleteFlow: Function
@@ -46,6 +46,8 @@ interface NodeData {
 }
 
 export default class FlowsList extends Component<Props, State> {
+  private expandedNodes = {}
+
   state: State = {
     nodes: []
   }
@@ -70,6 +72,14 @@ export default class FlowsList extends Component<Props, State> {
     }
   }
 
+  updateNodeExpanded = (id: string, isExpanded: boolean) => {
+    if (isExpanded) {
+      this.expandedNodes[id] = true
+    } else {
+      delete this.expandedNodes[id]
+    }
+  }
+
   updateFlows() {
     const actions = {
       createGoal: this.props.createGoal,
@@ -78,7 +88,7 @@ export default class FlowsList extends Component<Props, State> {
     }
 
     const flows = this.props.flows.filter(x => x.name !== 'main.flow.json')
-    const nodes = buildFlowsTree(flows, this.props.filter, actions)
+    const nodes = buildFlowsTree(flows, this.expandedNodes, this.props.filter, actions)
 
     if (this.props.filter) {
       traverseTree(nodes, n => (n.isExpanded = true))
@@ -183,7 +193,7 @@ export default class FlowsList extends Component<Props, State> {
     if (type === TYPES.Goal) {
       this.props.goToFlow(name)
     } else {
-      node.isExpanded ? this.handleNodeCollapse(node) : this.handleNodeExpand(node)
+      this.handleNodeExpand(node, !node.isExpanded)
     }
 
     this.forceUpdate()
@@ -197,13 +207,9 @@ export default class FlowsList extends Component<Props, State> {
     this.forceUpdate()
   }
 
-  private handleNodeCollapse = (node: ITreeNode) => {
-    node.isExpanded = false
-    this.forceUpdate()
-  }
-
-  private handleNodeExpand = (node: ITreeNode) => {
-    node.isExpanded = true
+  private handleNodeExpand = (node: ITreeNode, isExpanded: boolean) => {
+    this.updateNodeExpanded(node.id as string, isExpanded)
+    node.isExpanded = isExpanded
     this.forceUpdate()
   }
 
@@ -214,8 +220,8 @@ export default class FlowsList extends Component<Props, State> {
         onNodeContextMenu={this.handleContextMenu}
         onNodeClick={this.handleNodeClick}
         onNodeDoubleClick={this.handleNodeDoubleClick}
-        onNodeCollapse={this.handleNodeCollapse}
-        onNodeExpand={this.handleNodeExpand}
+        onNodeCollapse={n => this.handleNodeExpand(n, false)}
+        onNodeExpand={n => this.handleNodeExpand(n, true)}
         className={Classes.ELEVATION_0}
       />
     )

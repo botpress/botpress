@@ -160,7 +160,7 @@ const EditGoalModal: FC<Props> = props => {
               className={style.tabs}
               panel={
                 <div style={{ width: '740px' }}>
-                  <TriggerEditor goalName={name} triggers={triggers} />
+                  <TriggerEditor goalName={name} triggers={triggers} closeModal={closeModal} />
                 </div>
               }
             />

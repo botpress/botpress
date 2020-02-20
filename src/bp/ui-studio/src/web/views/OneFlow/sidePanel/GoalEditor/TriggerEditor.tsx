@@ -16,6 +16,7 @@ import ConditionItem from './Condition/Item'
 interface OwnProps {
   goalName: string
   triggers?: FlowTrigger[]
+  closeModal: () => void
 }
 
 interface StateProps {
@@ -99,6 +100,7 @@ const TriggerEditor: FC<Props> = props => {
 
   const saveChanges = () => {
     props.updateFlow({ triggers })
+    props.closeModal()
     toastSuccess(`Changes saved successfully`)
   }
 
@@ -175,7 +177,4 @@ const TriggerEditor: FC<Props> = props => {
 
 const mapStateToProps = state => ({ conditions: state.ndu.conditions })
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  { updateFlow }
-)(TriggerEditor)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow })(TriggerEditor)

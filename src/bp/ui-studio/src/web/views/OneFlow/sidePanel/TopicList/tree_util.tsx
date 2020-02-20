@@ -42,7 +42,7 @@ const reorderFlows = flows => {
   ].filter(x => Boolean(x))
 }
 
-export const splitFlowPath = (flow, actions, flowData) => {
+export const splitFlowPath = (flow: string, actions, flowData, expandedNodeIds) => {
   const flowPath = flow.replace(/\.flow\.json$/, '').split('/')
   const flowName = flowPath[flowPath.length - 1]
   const flowFolders = flowPath.slice(0, flowPath.length - 1)
@@ -57,6 +57,7 @@ export const splitFlowPath = (flow, actions, flowData) => {
       icon: FOLDER_ICON,
       label: folderLabel(folder, actions),
       fullPath: currentPath.join('/'),
+      isExpanded: expandedNodeIds[folder],
       nodeData: { type: currentPath.length === 1 ? TYPES.Topic : TYPES.Folder }
     })
   }
@@ -76,10 +77,15 @@ export const splitFlowPath = (flow, actions, flowData) => {
   }
 }
 
-export const buildFlowsTree = (flows, filterName, actions) => {
+export const buildFlowsTree = (
+  flows: { name: string }[],
+  expandedNodeIds: object,
+  filterName: string | undefined,
+  actions
+) => {
   const tree = { icon: 'root', fullPath: '', label: '<root>', childNodes: [] }
   flows.forEach(flowData => {
-    const { folders, flow } = splitFlowPath(flowData.name, actions, flowData)
+    const { folders, flow } = splitFlowPath(flowData.name, actions, flowData, expandedNodeIds)
     if (!filterName || flow.id.includes(filterName)) {
       addNode(tree, folders, flow, { nodeData: { ...flowData, type: TYPES.Goal } })
     }
