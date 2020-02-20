@@ -1,11 +1,10 @@
 import { Checkbox, FormGroup, InputGroup, NumericInput } from '@blueprintjs/core'
-
 import { ConditionListOptions } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC } from 'react'
+import ContentPickerWidget from '~/components/Content/Select/Widget'
 
 import Dropdown from './Condition/Dropdown'
-import ContentPickerWidget from '~/components/Content/Select/Widget'
 
 interface Props {
   label: string

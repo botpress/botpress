@@ -2,22 +2,9 @@ import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { ActionDefinition, ActionLocation, ActionServer } from 'common/typings'
-import { createForAction } from 'core/api'
 import Database from 'core/database'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
-import { clearRequireCache, requireFromString } from 'core/modules/require'
-import { GhostService } from 'core/services'
-import { extractMetadata } from 'core/services/action/metadata'
-import {
-  extractRequiredFiles,
-  getBaseLookupPaths,
-  prepareRequire,
-  prepareRequireTester
-} from 'core/services/action/utils'
-import { VmRunner } from 'core/services/action/vm'
-import { ActionExecutionError } from 'core/services/dialog/errors'
-import { TYPES } from 'core/types'
 import { injectable } from 'inversify'
 import { inject, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
@@ -27,7 +14,17 @@ import path from 'path'
 import { NodeVM } from 'vm2'
 import yn from 'yn'
 
-const debug = DEBUG('action-server')
+import { GhostService } from '..'
+import { createForAction } from '../../api'
+import { clearRequireCache, requireFromString } from '../../modules/require'
+import { TYPES } from '../../types'
+import { ActionExecutionError } from '../dialog/errors'
+
+import { extractMetadata } from './metadata'
+import { extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
+import { VmRunner } from './vm'
+
+const debug = DEBUG('actions')
 const DEBOUNCE_DELAY = ms('2s')
 
 @injectable()
@@ -331,10 +328,8 @@ export class ScopedActionService {
     location: ActionLocation,
     includeMetadata: boolean
   ): Promise<ActionDefinition> {
-    const actionName = file.replace(/\.js$/i, '')
     let action: ActionDefinition = {
-      name: actionName,
-      module: actionName.split('/')[0],
+      name: file.replace(/\.js$/i, ''),
       isRemote: false,
       location: location
     }
@@ -390,7 +385,7 @@ export class ScopedActionService {
     ]
 
     const globalActions = await this.getGlobalActions()
-    return globalActions.filter(a => BUILTIN_MODULES.includes(a.module))
+    return globalActions.filter(a => BUILTIN_MODULES.includes(a.name.split('/')[0]))
   }
 
   // This method tries to load require() files from the FS and fallback on BPFS

@@ -1,5 +1,5 @@
+import { ActionMetadata } from 'common/typings'
 import doctrine from 'doctrine'
-import { meta } from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
 

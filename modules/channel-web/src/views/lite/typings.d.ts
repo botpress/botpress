@@ -288,3 +288,8 @@ interface MessageWrapper {
   /** Name of the component exposed by the module */
   component: string
 }
+
+export interface EventFeedback {
+  incomingEventId: string
+  feedback?: number
+}

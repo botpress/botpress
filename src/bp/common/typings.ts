@@ -177,6 +177,7 @@ export interface ServerHealth {
 export interface BotHealth {
   status: 'mounted' | 'unmounted' | 'disabled' | 'error'
   errorCount: number
+  criticalCount: number
   warningCount: number
 }
 
@@ -206,7 +207,6 @@ export type ActionMetadata = {
 
 export type ActionDefinition = {
   name: string
-  module: string
   isRemote: boolean
   location: ActionLocation
   metadata?: ActionMetadata

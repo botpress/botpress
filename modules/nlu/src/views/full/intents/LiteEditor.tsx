@@ -16,6 +16,7 @@ interface IntentParams {
 interface Props {
   bp: any
   contentLang: string
+  topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
 }
@@ -45,6 +46,7 @@ export const LiteEditor: FC<Props> = props => {
   const createIntent = async (sanitizedName: string, rawName: string) => {
     const intentDef = {
       name: sanitizedName,
+      contexts: [props.topicName || 'global'],
       utterances: { [props.contentLang]: [rawName] }
     }
 

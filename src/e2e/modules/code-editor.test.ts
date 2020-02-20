@@ -1,4 +1,4 @@
-import { clickOn } from '../expectPuppeteer'
+import { clickOn, fillField } from '../expectPuppeteer'
 import {
   autoAnswerDialog,
   clickOnTreeNode,
@@ -24,9 +24,9 @@ describe('Module - Code Editor', () => {
   })
 
   it('Create new action', async () => {
-    autoAnswerDialog('hello')
     await clickOn('#btn-add-action')
-    await clickOn('#btn-add-action-bot')
+    await fillField('#input-name', 'hello')
+    await clickOn('#btn-submit')
 
     await page.focus('#monaco-editor')
     await page.mouse.click(469, 297)

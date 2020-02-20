@@ -169,6 +169,7 @@ export const LiteEditor = props => {
               id={editId}
               isEditing={editId !== ''}
               page={{ offset: 0, limit: 500 }}
+              hideCategories
               categories={categories}
               updateQuestion={questions => setData(questions.items)}
               filters={{ question: filter, categories }}

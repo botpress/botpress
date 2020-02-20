@@ -24,6 +24,7 @@ interface Props {
   page: any
   filters: any
   id: string
+  hideCategories?: boolean
   isEditing: boolean
   contentLang: string
   categories?: any[]
@@ -271,7 +272,7 @@ export default class Editor extends Component<Props> {
             {this.alertMessage()}
             <QnaHint questions={this.itemQuestions} mlRecommendations={this.mlRecommendations} />
 
-            {categories && !!categories.length && (
+            {categories && !this.props.hideCategories && (
               <FormGroup label="Category">
                 <Select
                   id="select-category"
