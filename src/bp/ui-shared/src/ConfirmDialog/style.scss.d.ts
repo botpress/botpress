@@ -2,23 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'ConfirmDialogContainer': string;
-  'bp3-button': string;
-  'bp3-dark': string;
-  'bp3-dialog': string;
-  'bp3-dialog-body': string;
-  'bp3-dialog-container': string;
-  'bp3-dialog-footer': string;
-  'bp3-dialog-footer-actions': string;
-  'bp3-dialog-header': string;
-  'bp3-heading': string;
-  'bp3-icon': string;
-  'bp3-icon-large': string;
-  'bp3-overlay-appear': string;
-  'bp3-overlay-appear-active': string;
-  'bp3-overlay-enter': string;
-  'bp3-overlay-enter-active': string;
-  'bp3-overlay-exit': string;
-  'bp3-overlay-exit-active': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

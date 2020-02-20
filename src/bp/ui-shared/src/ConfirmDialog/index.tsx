@@ -38,12 +38,12 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
       transitionDuration={0}
       canOutsideClickClose={false}
     >
-      <div className={styles[Classes.DIALOG_BODY]}>{props.message}</div>
-      <div className={styles[Classes.DIALOG_FOOTER]}>
-        <div className={styles[Classes.DIALOG_FOOTER_ACTIONS]}>
+      <div className={Classes.DIALOG_BODY}>{props.message}</div>
+      <div className={Classes.DIALOG_FOOTER}>
+        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
             id="confirm-dialog-decline"
-            className={styles[Classes.BUTTON]}
+            className={Classes.BUTTON}
             type="button"
             onClick={onDecline}
             text={props.declineLabel}
@@ -52,7 +52,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
           />
           <Button
             id="confirm-dialog-accept"
-            className={styles[Classes.BUTTON]}
+            className={Classes.BUTTON}
             type="button"
             onClick={onAccept}
             text={props.acceptLabel}
