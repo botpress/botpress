@@ -118,7 +118,12 @@ declare module 'botpress/sdk' {
      */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => Promise<void>
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => Promise<void>
-    onFlowRenamed?: (bp: typeof import('botpress/sdk'), botId: string,  previousFlowName: string, newFlowName: string) => Promise<void>
+    onFlowRenamed?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      previousFlowName: string,
+      newFlowName: string
+    ) => Promise<void>
     /**
      * This method is called whenever a content element is created, updated or deleted.
      * Modules can act on these events if they need to update references, for example.
@@ -564,6 +569,13 @@ declare module 'botpress/sdk' {
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
+      readonly ctxPreds: { label: string; confidence: number }[]
+      readonly intentsCtx: {
+        [ctx: string]: {
+          label: string
+          confidence: number
+        }[]
+      }
       readonly ms: number
     }
 

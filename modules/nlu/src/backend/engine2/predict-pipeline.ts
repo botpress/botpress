@@ -339,6 +339,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     detectedLanguage: step.detectedLanguage,
     entities,
     errored: false,
+    ctxPreds: step.ctx_predictions,
+    intentsCtx: step.intent_predictions.per_ctx,
     includedContexts: step.includedContexts,
     intent: step.intent_predictions.elected,
     intents: step.intent_predictions.combined,

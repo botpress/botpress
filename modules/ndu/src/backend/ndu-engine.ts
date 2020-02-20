@@ -17,6 +17,26 @@ export class UnderstandingEngine {
     this.bp = bp
   }
 
+  preprocessEvent(event: sdk.IO.IncomingEvent) {
+    const activeGoal = _.get(
+      event.state.session.lastGoals.find(x => x.active),
+      'goal'
+    )
+    const activeContexts = (event.state.session.nluContexts || []).filter(x => x.context !== 'global')
+    const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
+
+    this._amendSuggestionsWithDecision(event.suggestions!, _.get(event, 'state.session.lastMessages', []))
+    const electedSuggestion = event.suggestions!.find(x => x.decision.status === 'elected')
+
+    return {
+      activeGoal,
+      activeContexts,
+      isInMiddleOfFlow,
+      electedSuggestion,
+      completedTriggers: this._getGoalsWithCompletedTriggers(event)
+    }
+  }
+
   async processEvent(event: sdk.IO.IncomingEvent) {
     Object.assign(event, {
       ndu: {
@@ -25,33 +45,32 @@ export class UnderstandingEngine {
       }
     })
 
-    this._amendSuggestionsWithDecision(event.suggestions!, _.get(event, 'state.session.lastMessages', []))
-
-    const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
-    // if (isInMiddleOfFlow) {
-    //   event.suggestions!.forEach(suggestion => {
-    //     if (suggestion.decision.status === 'elected') {
-    //       suggestion.decision.status = 'dropped'
-    //       suggestion.decision.reason = 'would have been elected, but already in the middle of a flow'
-    //     }
-    //   })
-    // }
-
     await this._processTriggers(event)
 
-    const elected = event.suggestions!.find(x => x.decision.status === 'elected')
+    const { activeGoal, activeContexts, isInMiddleOfFlow, electedSuggestion, completedTriggers } = this.preprocessEvent(
+      event
+    )
+
     const actions = []
 
-    if (elected) {
+    // No active goal or contexts. Enable the highest one
+    if (!activeGoal && !activeContexts.length && event.nlu.ctxPreds) {
+      const { label, confidence } = event.nlu.ctxPreds[0]
+      if (confidence > 70) {
+        event.state.session.nluContexts.push({ context: label, ttl: 3 })
+      }
+    }
+
+    if (electedSuggestion) {
       // QNA are always active
-      const payloads = _.filter(elected.payloads, p => p.type !== 'redirect')
+      const payloads = _.filter(electedSuggestion.payloads, p => p.type !== 'redirect')
       if (payloads) {
-        actions.push({ action: 'send', data: elected })
+        actions.push({ action: 'send', data: electedSuggestion })
       }
 
       // Ignore redirections when in middle of flow
       if (!isInMiddleOfFlow) {
-        const redirect = _.find(elected.payloads, p => p.type === 'redirect')
+        const redirect = _.find(electedSuggestion.payloads, p => p.type === 'redirect')
         if (redirect && redirect.flow && redirect.node) {
           actions.push({ action: 'redirect', data: redirect })
           actions.push({ action: 'continue' })
@@ -60,7 +79,6 @@ export class UnderstandingEngine {
     }
 
     // When not actively in a flow and a trigger is active, redirect the user
-    const completedTriggers = this._getGoalsWithCompletedTriggers(event)
     if (completedTriggers.length && !isInMiddleOfFlow) {
       const [topic] = completedTriggers[0].split('/')
       event.state.session.nluContexts = [
@@ -112,27 +130,13 @@ export class UnderstandingEngine {
   }
 
   protected _amendSuggestionsWithDecision(suggestions: sdk.IO.Suggestion[], turnsHistory: sdk.IO.DialogTurnHistory[]) {
-    // TODO Write unit tests
-    // TODO The ML-based decision unit will be inserted here
     const replies = _.orderBy(suggestions, ['confidence'], ['desc'])
-    const lastMsg = _.last(turnsHistory)
-    const lastMessageSource = lastMsg && lastMsg.replySource
 
     let bestReply: sdk.IO.Suggestion | undefined = undefined
 
     for (let i = 0; i < replies.length; i++) {
-      const replySource = replies[i].source + ' ' + replies[i].sourceDetails || Date.now()
-
-      const violatesRepeatPolicy =
-        replySource === lastMessageSource &&
-        moment(lastMsg!.replyDate)
-          .add(this.MIN_NO_REPEAT, 'ms')
-          .isAfter(moment())
-
       if (replies[i].confidence < this.MIN_CONFIDENCE) {
         replies[i].decision = { status: 'dropped', reason: `confidence lower than ${this.MIN_CONFIDENCE}` }
-      } else if (violatesRepeatPolicy) {
-        // replies[i].decision = { status: 'dropped', reason: `bot would repeat itself (within ${this.MIN_NO_REPEAT}ms)` }
       } else if (bestReply) {
         replies[i].decision = { status: 'dropped', reason: 'best suggestion already elected' }
       } else {
