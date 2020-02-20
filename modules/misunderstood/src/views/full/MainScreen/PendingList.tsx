@@ -2,6 +2,7 @@ import { Button, Intent } from '@blueprintjs/core'
 import React from 'react'
 
 import { DbFlaggedEvent } from '../../../types'
+import StickyActionBar from '../StickyActionBar'
 
 import style from './style.scss'
 import ResolvedEventsList from './ResolvedEventsList'
@@ -18,11 +19,13 @@ const PendingList = ({ events, totalEventsCount, applyAllPending, resetPendingEv
     <h3>Pending Misunderstood ({totalEventsCount})</h3>
 
     {events && events.length > 0 && (
-      <div className={style.applyAllButton}>
-        <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" fill>
-          Apply all pending
-        </Button>
-      </div>
+      <StickyActionBar>
+        <div className={style.applyAllButton}>
+          <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" fill>
+            Apply all pending
+          </Button>
+        </div>
+      </StickyActionBar>
     )}
 
     <ResolvedEventsList events={events} resetEvent={resetPendingEvent} />

@@ -3,6 +3,7 @@ import { AxiosStatic } from 'axios'
 import React from 'react'
 
 import { ApiFlaggedEvent, RESOLUTION_TYPE } from '../../../types'
+import StickyActionBar from '../StickyActionBar'
 
 import style from './style.scss'
 import IntentPicker from './IntentPicker'
@@ -37,9 +38,11 @@ const AmendForm = ({
 }: Props) => (
   <div className={style.amendForm}>
     <h4>
-      What is this message type?&nbsp;
-      <ButtonGroup>
+      What is this message type?
+      <br />
+      <ButtonGroup className={style.messageTypeBtnGroup}>
         <Button
+          disabled={mode !== RESOLUTION_TYPE.intent && !!resolution}
           onClick={() => {
             if (mode === RESOLUTION_TYPE.intent) {
               return
@@ -51,6 +54,7 @@ const AmendForm = ({
           Goal
         </Button>
         <Button
+          disabled={mode !== RESOLUTION_TYPE.qna && !!resolution}
           onClick={() => {
             if (mode === RESOLUTION_TYPE.qna) {
               return
@@ -65,6 +69,7 @@ const AmendForm = ({
           <Button
             onClick={() => {
               setMode(null)
+              onSelect(null)
             }}
             icon="undo"
           >
@@ -94,14 +99,14 @@ const AmendForm = ({
       </div>
     )}
 
-    <ButtonGroup large>
-      <Button onClick={onSave} icon="tick" intent={Intent.SUCCESS} disabled={!mode || !resolution}>
-        Save
-      </Button>
+    <StickyActionBar>
       <Button onClick={onCancel} icon="cross" intent={Intent.NONE}>
         Cancel
       </Button>
-    </ButtonGroup>
+      <Button onClick={onSave} icon="tick" intent={Intent.SUCCESS} disabled={!mode || !resolution}>
+        Save
+      </Button>
+    </StickyActionBar>
   </div>
 )
 
