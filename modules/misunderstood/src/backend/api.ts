@@ -85,6 +85,7 @@ export default async (bp: typeof sdk, db: Db) => {
       await db.applyChanges(botId)
       const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
       setTimeout(() => {
+        // tslint:disable-next-line: no-floating-promises
         axios.post('/mod/nlu/train', {}, axiosConfig)
       }, 1000)
       res.sendStatus(200)
