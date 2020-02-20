@@ -4,6 +4,7 @@ interface CssExports {
   'applyAllButton': string;
   'contentFixed': string;
   'contentStretch': string;
+  'headerTabs': string;
   'mainView': string;
   'padded': string;
   'sideList': string;
@@ -12,8 +13,10 @@ interface CssExports {
   'sideListItemText': string;
   'sideListList': string;
   'sidePanel': string;
-  'sidePanelContent': string;
   'sidePanelContentStretch': string;
+  'stickyActionBar': string;
+  'stickyActionBarContent': string;
+  'withStickyActionBar': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
