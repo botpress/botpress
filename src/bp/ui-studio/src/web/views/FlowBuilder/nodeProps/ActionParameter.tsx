@@ -24,7 +24,7 @@ export const ActionParameter: FC<ActionParameterProps> = props => {
       <InputGroup
         id={id}
         placeholder="Value"
-        value={parameterValue.value}
+        value={parameterValue.value || parameterValue.definition.default}
         onChange={e => onValueUpdated({ ...parameterValue, value: e.target.value })}
       />
     </FormGroup>
