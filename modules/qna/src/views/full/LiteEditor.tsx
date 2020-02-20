@@ -157,8 +157,8 @@ export const LiteEditor = props => {
           <div>
             <Breadcrumbs
               items={[
-                { onClick: cancelEditing, icon: 'folder-close', text: 'Q&A' },
-                { icon: 'folder-close', text: editId !== '' ? 'Edit Q&A' : 'Create a new Q&A' }
+                { onClick: cancelEditing, text: 'Q&A' },
+                { text: editId !== '' ? 'Edit Q&A' : 'Create a new Q&A' }
               ]}
             />
 

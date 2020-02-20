@@ -1078,7 +1078,7 @@ declare module 'botpress/sdk' {
       module: string
       component: string
     }
-    evaluate: (params: any, event: any) => number
+    evaluate: (event: IO.IncomingEvent, params: any) => number
   }
 
   export interface ConditionParams {

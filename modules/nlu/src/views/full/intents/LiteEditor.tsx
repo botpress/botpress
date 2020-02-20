@@ -19,6 +19,7 @@ interface Props {
   topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
+  forceSave?: boolean
 }
 
 export const sanitizeName = (text: string) =>
@@ -38,6 +39,19 @@ export const LiteEditor: FC<Props> = props => {
     // tslint:disable-next-line: no-floating-promises
     loadIntents()
   }, [])
+
+  useEffect(() => {
+    // Ensure the current topic is in the intent's contexts
+    if (props.forceSave) {
+      // tslint:disable-next-line: no-floating-promises
+      api.fetchIntent(currentIntent).then(async intent => {
+        if (!intent.contexts.includes(props.topicName)) {
+          intent.contexts.push(props.topicName)
+          await api.updateIntent(currentIntent, intent)
+        }
+      })
+    }
+  }, [props.forceSave])
 
   const loadIntents = async () => {
     setIntents(await api.fetchIntents())

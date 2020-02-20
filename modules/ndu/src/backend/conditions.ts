@@ -13,7 +13,7 @@ export const conditionsDefinitions: sdk.Condition[] = [
       module: 'nlu',
       component: 'LiteEditor'
     },
-    evaluate: (params, event) => {
+    evaluate: (event, params) => {
       return _.get(event, 'nlu.intent.name') === params.intentName ? event.nlu.intent.confidence : 0
     }
   },
@@ -24,7 +24,7 @@ export const conditionsDefinitions: sdk.Condition[] = [
     params: {
       channelName: { label: 'Name of the channel', type: 'string' }
     },
-    evaluate: (params, event) => {
+    evaluate: (event, params) => {
       return event.channel === params.channelName ? 1 : 0
     }
   },
@@ -44,14 +44,14 @@ export const conditionsDefinitions: sdk.Condition[] = [
         }
       }
     },
-    evaluate: (params, event) => {
+    evaluate: (event, params) => {
       return event.state.user.language === params.language ? 1 : 0
     }
   },
   {
     id: 'user_is_authenticated',
     label: 'The user is authenticated',
-    evaluate: (params, event) => {
+    evaluate: (_params, event) => {
       return event.state.session.isAuthenticated ? 1 : 0
     }
   },
@@ -67,43 +67,9 @@ export const conditionsDefinitions: sdk.Condition[] = [
   {
     id: 'user_already_spoke',
     label: 'User has already spoke with the bot',
-    evaluate: (params, event) => {
-      const topics = event.state.session.lastTopics
-      return topics[topics.length - 1] === params.topicName ? 1 : 0
-    }
-  },
-  {
-    id: 'multiple_fields',
-    label: 'Test multiple fields',
-    params: {
-      channelName: { label: 'Name of the channel', type: 'string' },
-      confidence: { label: 'Minimum confidence', type: 'number', defaultValue: 50 },
-      language: {
-        label: 'User language is',
-        type: 'list',
-        list: {
-          endpoint: 'API_PATH/admin/languages',
-          path: 'installed',
-          valueField: 'lang',
-          labelField: 'name'
-        }
-      },
-      libraryElements: {
-        label: 'Library',
-        type: 'list',
-        list: {
-          endpoint: 'BOT_API_PATH/mod/ndu/library',
-          valueField: 'elementPath',
-          labelField: 'elementPath'
-        }
-      },
-      isAuth: {
-        label: 'Is authenticated?',
-        type: 'boolean'
-      }
-    },
-    evaluate: (params, event) => {
-      return 1
+    evaluate: (_params, event) => {
+      const { lastMessages } = event.state.session
+      return lastMessages && lastMessages.length > 0 ? 1 : 0
     }
   }
 ]

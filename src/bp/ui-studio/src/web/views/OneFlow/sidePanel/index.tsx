@@ -110,7 +110,8 @@ const SidePanelContent: FC<Props> = props => {
 
   const duplicateFlow = (flowName: string) => {}
 
-  const editGoal = (goalId: string) => {
+  const editGoal = (goalId: string, data) => {
+    setSelectedTopic(data.name.split('/')[0])
     setSelectedGoal(goalId)
     setGoalModalOpen(!goalModalOpen)
   }

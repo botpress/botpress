@@ -6,6 +6,8 @@ import ms from 'ms'
 import { conditionsDefinitions } from './conditions'
 import { TriggerGoal } from './typings'
 
+const debug = DEBUG('ndu').sub('processing')
+
 export class UnderstandingEngine {
   private bp: typeof sdk
   private _allTriggers: Map<string, TriggerGoal[]> = new Map()
@@ -26,7 +28,7 @@ export class UnderstandingEngine {
     const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
 
     this._amendSuggestionsWithDecision(event.suggestions!, _.get(event, 'state.session.lastMessages', []))
-    const electedSuggestion = event.suggestions!.find(x => x.decision.status === 'elected')
+    const electedSuggestion = event.suggestions!.find(x => x.decision && x.decision.status === 'elected')
 
     return {
       activeGoal,
@@ -51,13 +53,18 @@ export class UnderstandingEngine {
       event
     )
 
+    debug('Processing %o', { activeGoal, activeContexts, isInMiddleOfFlow, electedSuggestion })
+
     const actions = []
 
     // No active goal or contexts. Enable the highest one
-    if (!activeGoal && !activeContexts.length && event.nlu.ctxPreds) {
+    if (!(activeGoal && isInMiddleOfFlow) && !activeContexts.length && event.nlu.ctxPreds) {
       const { label, confidence } = event.nlu.ctxPreds[0]
-      if (confidence > 70) {
-        event.state.session.nluContexts.push({ context: label, ttl: 3 })
+      if (confidence > 0.5) {
+        event.state.session.nluContexts = [...(event.state.session.nluContexts || []), { context: label, ttl: 3 }]
+        debug(`No active goal or context. Activate topic with highest confidence: ${label} `)
+      } else {
+        debug(`No active goal or context. Top context prediction too low `)
       }
     }
 
@@ -80,10 +87,11 @@ export class UnderstandingEngine {
 
     // When not actively in a flow and a trigger is active, redirect the user
     if (completedTriggers.length && !isInMiddleOfFlow) {
+      debug(`Not currently in a flow, redirecting to goal %o `, completedTriggers[0])
       const [topic] = completedTriggers[0].split('/')
       event.state.session.nluContexts = [
-        { context: 'global', ttl: 5 },
-        { context: topic, ttl: 5 }
+        { context: 'global', ttl: 2 },
+        { context: topic, ttl: 2 }
       ]
       actions.push({ action: 'redirect', data: { flow: completedTriggers[0] } })
       actions.push({ action: 'continue' })
@@ -121,7 +129,7 @@ export class UnderstandingEngine {
     return conditions.reduce((result, condition) => {
       const executer = conditionsDefinitions.find(x => x.id === condition.id)
       if (executer) {
-        result[condition.id] = executer.evaluate(condition.params, event)
+        result[condition.id] = executer.evaluate(event, condition.params)
       } else {
         console.error(`Unknown condition "${condition.id}"`)
       }

@@ -35,8 +35,10 @@ interface Props {
   exportTopic: (topicName: string) => void
 }
 
+type TreeNode = ITreeNode<NodeData> & { parent: TreeNode; id: string }
+
 interface State {
-  nodes: ITreeNode<NodeData>[]
+  nodes: TreeNode[]
 }
 
 interface NodeData {
@@ -57,17 +59,11 @@ export default class FlowsList extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps) {
-    if (!isEqual(prevProps.flows, this.props.flows)) {
-      this.updateFlows()
-    }
+    const flowsChanged = !isEqual(prevProps.flows, this.props.flows)
+    const currentFlowChanged = this.props.currentFlow && prevProps.currentFlow !== this.props.currentFlow
+    const filterChanged = this.props.filter !== prevProps.filter
 
-    if (this.props.currentFlow && prevProps.currentFlow !== this.props.currentFlow) {
-      traverseTree(this.state.nodes, (n: ITreeNode<NodeData>) => {
-        return (n.isSelected = n.nodeData && n.nodeData.name === this.props.currentFlow['name'])
-      })
-    }
-
-    if (this.props.filter !== prevProps.filter) {
+    if (flowsChanged || currentFlowChanged || filterChanged) {
       this.updateFlows()
     }
   }
@@ -90,9 +86,19 @@ export default class FlowsList extends Component<Props, State> {
     const flows = this.props.flows.filter(x => x.name !== 'main.flow.json')
     const nodes = buildFlowsTree(flows, this.expandedNodes, this.props.filter, actions)
 
-    if (this.props.filter) {
-      traverseTree(nodes, n => (n.isExpanded = true))
-    }
+    traverseTree(nodes, (n: TreeNode) => {
+      if (this.props.currentFlow && n.nodeData?.name === this.props.currentFlow?.name) {
+        this.updateNodeExpanded(n.parent.id, true)
+        n.parent.isExpanded = true
+        n.isSelected = true
+      }
+
+      if (this.props.filter) {
+        n.isExpanded = true
+      }
+
+      return n
+    })
 
     this.setState({ nodes })
   }
@@ -103,7 +109,7 @@ export default class FlowsList extends Component<Props, State> {
     }
   }
 
-  handleContextMenu = (node: ITreeNode<NodeData>, path, e) => {
+  handleContextMenu = (node: TreeNode, path, e) => {
     const { name, type } = node.nodeData
 
     e.preventDefault()
@@ -111,18 +117,13 @@ export default class FlowsList extends Component<Props, State> {
     if (type === TYPES.Topic) {
       ContextMenu.show(
         <Menu>
-          <MenuItem
-            id="btn-edit"
-            icon="edit"
-            text="Edit Topic"
-            onClick={() => this.props.editTopic(node.id as string)}
-          />
+          <MenuItem id="btn-edit" icon="edit" text="Edit Topic" onClick={() => this.props.editTopic(node.id)} />
           <MenuItem
             id="btn-export"
             disabled={this.props.readOnly}
             icon="upload"
             text="Export Topic"
-            onClick={() => this.props.exportTopic(node.id as string)}
+            onClick={() => this.props.exportTopic(node.id)}
           />
           <MenuDivider />
           <MenuItem
@@ -180,11 +181,11 @@ export default class FlowsList extends Component<Props, State> {
     }
   }
 
-  private handleNodeClick = (node: ITreeNode<NodeData>) => {
+  private handleNodeClick = (node: TreeNode) => {
     const { type, name } = node.nodeData
     const originallySelected = node.isSelected
 
-    traverseTree(this.state.nodes, n => (n.isSelected = false))
+    traverseTree(this.state.nodes, n => (n.isSelected = n.nodeData?.name === this.props.currentFlow?.name))
 
     if (type !== TYPES.Topic && type !== TYPES.Folder) {
       node.isSelected = originallySelected !== null
@@ -199,7 +200,7 @@ export default class FlowsList extends Component<Props, State> {
     this.forceUpdate()
   }
 
-  private handleNodeDoubleClick = (node: ITreeNode<NodeData>) => {
+  private handleNodeDoubleClick = (node: TreeNode) => {
     if (node.nodeData.type === TYPES.Goal) {
       this.props.editGoal(node.label, node.nodeData)
     }
@@ -207,7 +208,7 @@ export default class FlowsList extends Component<Props, State> {
     this.forceUpdate()
   }
 
-  private handleNodeExpand = (node: ITreeNode, isExpanded: boolean) => {
+  private handleNodeExpand = (node: TreeNode, isExpanded: boolean) => {
     this.updateNodeExpanded(node.id as string, isExpanded)
     node.isExpanded = isExpanded
     this.forceUpdate()
@@ -220,8 +221,8 @@ export default class FlowsList extends Component<Props, State> {
         onNodeContextMenu={this.handleContextMenu}
         onNodeClick={this.handleNodeClick}
         onNodeDoubleClick={this.handleNodeDoubleClick}
-        onNodeCollapse={n => this.handleNodeExpand(n, false)}
-        onNodeExpand={n => this.handleNodeExpand(n, true)}
+        onNodeCollapse={n => this.handleNodeExpand(n as TreeNode, false)}
+        onNodeExpand={n => this.handleNodeExpand(n as TreeNode, true)}
         className={Classes.ELEVATION_0}
       />
     )

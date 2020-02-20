@@ -6,6 +6,7 @@ import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { updateFlow } from '~/actions'
 import { toastSuccess } from '~/components/Shared/Utils/Toaster'
+import withLanguage from '~/components/Util/withLanguage'
 
 import style from '../style.scss'
 
@@ -15,12 +16,14 @@ import ConditionItem from './Condition/Item'
 
 interface OwnProps {
   goalName: string
+  selectedTopic: string
   triggers?: FlowTrigger[]
   closeModal: () => void
 }
 
 interface StateProps {
   conditions?: Condition[]
+  contentLang: string
 }
 
 interface DispatchProps {
@@ -36,6 +39,7 @@ const TriggerEditor: FC<Props> = props => {
   const [currentTrigger, setCurrentTrigger] = useState<FlowTrigger>()
   const [currentCondition, setCurrentCondition] = useState<Condition>()
   const [currentFlowCondition, setCurrentFlowCondition] = useState()
+  const [forceSave, setForceSave] = useState(false)
 
   useEffect(() => {
     setTriggers(props.triggers || [createEmptyTrigger()])
@@ -99,6 +103,7 @@ const TriggerEditor: FC<Props> = props => {
   }
 
   const saveChanges = () => {
+    setForceSave(true)
     props.updateFlow({ triggers })
     props.closeModal()
     toastSuccess(`Changes saved successfully`)
@@ -108,18 +113,17 @@ const TriggerEditor: FC<Props> = props => {
     return (
       <div>
         <Breadcrumbs
-          items={[
-            { onClick: () => setEditing(false), icon: 'folder-close', text: 'Triggers' },
-            { icon: 'folder-close', text: 'Condition' }
-          ]}
+          items={[{ onClick: () => setEditing(false), text: 'Triggers' }, { text: 'Condition' }]}
           minVisibleItems={3}
         />
 
         <ConditionEditor
-          topicName="HR"
+          topicName={props.selectedTopic}
           condition={currentCondition}
           params={currentFlowCondition && currentFlowCondition.params}
           updateParams={onParamsChanged}
+          contentLang={props.contentLang}
+          forceSave={forceSave}
         />
 
         <Button text="Save changes" onClick={saveChanges} intent={Intent.PRIMARY} className={style.modalFooter} />
@@ -129,10 +133,7 @@ const TriggerEditor: FC<Props> = props => {
 
   return (
     <div>
-      <Breadcrumbs
-        items={[{ onClick: () => setEditing(false), icon: 'folder-close', text: 'Triggers' }]}
-        minVisibleItems={3}
-      />
+      <Breadcrumbs items={[{ onClick: () => setEditing(false), text: 'Triggers' }]} minVisibleItems={3} />
 
       <br />
 
@@ -177,4 +178,6 @@ const TriggerEditor: FC<Props> = props => {
 
 const mapStateToProps = state => ({ conditions: state.ndu.conditions })
 
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow })(TriggerEditor)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow })(
+  withLanguage(TriggerEditor)
+)
