@@ -1,8 +1,9 @@
-import { Button, Dialog, HTMLSelect, Label } from '@blueprintjs/core'
+import { Button } from '@blueprintjs/core'
 import classnames from 'classnames'
-import { ActionServer } from 'common/typings'
+import { ActionServer, ActionServersWithActions } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
+import { connect } from 'react-redux'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 
 import ActionDialog from '../../nodeProps/ActionDialog'
@@ -14,24 +15,57 @@ import { showHeader } from './utils'
 
 interface ActionWidgetProps {
   node: ActionNodeModel
+  actionServers: ActionServersWithActions[]
   diagramEngine: any
 }
 
-const DEFAULT_ACTION = { name: '', actionServerId: '', parameters: {} }
 const ActionWidget: FC<ActionWidgetProps> = props => {
-  const { node, diagramEngine } = props
+  const { node, diagramEngine, actionServers } = props
+
+  const parseActionString = (actionString: string | undefined): Action => {
+    const defaultActionServer = actionServers[0]
+    const defaultAction = defaultActionServer.actions[0]
+
+    const defaultName = defaultAction.name
+    const defaultParameters = {}
+    const defaultActionServerId = defaultActionServer.id
+
+    let name = defaultName
+    let parameters = defaultParameters
+    let actionServerId = defaultActionServerId
+
+    if (actionString) {
+      const chunks = actionString.split(' ')
+      name = chunks[0] || defaultName
+
+      const parametersString = chunks[1]
+      parameters = parametersString ? JSON.parse(parametersString) : defaultParameters
+
+      actionServerId = chunks[2] || defaultActionServerId
+    }
+
+    return { name, parameters, actionServerId }
+  }
 
   const [showDialog, setShowDialog] = useState(false)
-  const [action, setAction] = useState(
-    node.onEnter.length === 1 ? parseActionString(node.onEnter[0]) : _.cloneDeep(DEFAULT_ACTION)
-  )
+  const [action, setAction] = useState(parseActionString(node.onEnter[0]))
 
-  const actionCopy = _.cloneDeep(
-    node.onEnter.length === 1 ? parseActionString(node.onEnter[0]) : _.cloneDeep(DEFAULT_ACTION)
-  )
+  const isNewNode = node.onEnter.length === 0
+
+  useEffect(() => {
+    if (isNewNode) {
+      saveNode()
+    }
+  }, [])
+
+  const actionCopy = _.cloneDeep(parseActionString(node.onEnter[0]))
 
   const onSave = () => {
     setShowDialog(false)
+    saveNode()
+  }
+
+  const saveNode = () => {
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
     flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
@@ -65,6 +99,14 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
   )
 }
 
+const mapStateToProps = state => ({
+  actionServers: state.actionServers
+})
+
+const mapDispatchToProps = {}
+
+const ConnectedActionWidget = connect(mapStateToProps, mapDispatchToProps)(ActionWidget)
+
 type PropType<TObj, TProp extends keyof TObj> = TObj[TProp]
 
 export interface Parameters {
@@ -75,13 +117,6 @@ export interface Action {
   name: string
   parameters: Parameters
   actionServerId: PropType<ActionServer, 'id'>
-}
-
-const parseActionString = (actionString: string): Action => {
-  const chunks = actionString.split(' ')
-  const parametersString = chunks[1]
-  const parameters = parametersString ? JSON.parse(parametersString) : {}
-  return { name: chunks[0], parameters, actionServerId: chunks[3] }
 }
 
 const serializeAction = (action: Action): string => {
@@ -104,7 +139,7 @@ export class ActionWidgetFactory extends AbstractNodeFactory {
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: ActionNodeModel) {
-    return <ActionWidget node={node} diagramEngine={diagramEngine} />
+    return <ConnectedActionWidget node={node} diagramEngine={diagramEngine} />
   }
 
   getNewInstance() {

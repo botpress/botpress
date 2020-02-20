@@ -24,12 +24,8 @@ interface ActionDialogProps {
 const ActionDialog: FC<ActionDialogProps> = props => {
   const { action, actionServers, isOpen, onClose, onSave, onUpdate } = props
 
-  const currentActionServer = action.actionServerId
-    ? actionServers.find(s => s.id === action.actionServerId)
-    : actionServers[0]
-  const currentActionDefinition = action.name
-    ? currentActionServer.actions.find(a => a.name === action.name)
-    : currentActionServer.actions[0]
+  const currentActionServer = actionServers.find(s => s.id === action.actionServerId)
+  const currentActionDefinition = currentActionServer.actions.find(a => a.name === action.name)
 
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
