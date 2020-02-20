@@ -73,7 +73,7 @@ class NewEventView extends React.Component<Props, State> {
     return (
       <>
         <h3>
-          Misunderstood | {eventIndex + 1} of {totalEventsCount}
+          New Misunderstood | {eventIndex + 1} of {totalEventsCount}
         </h3>
 
         {!isAmending && (
