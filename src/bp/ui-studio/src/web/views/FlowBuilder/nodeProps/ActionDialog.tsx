@@ -38,6 +38,10 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           // TODO: check for a more elegant way to stop event propagation
           e.stopPropagation()
         }}
+        onContextMenu={e => {
+          // TODO: check for a more elegant way to stop event propagation
+          e.stopPropagation()
+        }}
       >
         <Label>
           Action Server
