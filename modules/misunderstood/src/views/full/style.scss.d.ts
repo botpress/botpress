@@ -2,7 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'applyAllButton': string;
-  'bp3-icon-refresh': string;
   'contentFixed': string;
   'contentStretch': string;
   'headerTabs': string;
