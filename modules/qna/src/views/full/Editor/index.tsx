@@ -24,6 +24,7 @@ interface Props {
   page: any
   filters: any
   id: string
+  category?: any
   hideCategories?: boolean
   isEditing: boolean
   contentLang: string
@@ -46,7 +47,7 @@ export default class Editor extends Component<Props> {
         redirectFlow: { label: '', value: '' },
         redirectNode: { label: '', value: '' },
         action: ACTIONS.TEXT,
-        category: DEFAULT_CATEGORY,
+        category: this.props.category || DEFAULT_CATEGORY,
         enabled: true
       },
       invalidFields: {

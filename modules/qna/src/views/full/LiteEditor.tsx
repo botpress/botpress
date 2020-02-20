@@ -171,6 +171,7 @@ export const LiteEditor = props => {
               page={{ offset: 0, limit: 500 }}
               hideCategories
               categories={categories}
+              category={categories[0]}
               updateQuestion={questions => setData(questions.items)}
               filters={{ question: filter, categories }}
             />

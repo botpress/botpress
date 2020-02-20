@@ -569,8 +569,8 @@ declare module 'botpress/sdk' {
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
-      readonly ctxPreds: { label: string; confidence: number }[]
-      readonly intentsCtx: {
+      readonly ctxPreds?: { label: string; confidence: number }[]
+      readonly intentsCtx?: {
         [ctx: string]: {
           label: string
           confidence: number
