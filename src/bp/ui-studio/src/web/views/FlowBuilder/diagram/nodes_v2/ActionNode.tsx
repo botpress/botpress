@@ -26,7 +26,7 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
     const defaultActionServer = actionServers[0]
     const defaultAction = defaultActionServer.actions[0]
 
-    const defaultName = defaultAction.name
+    const defaultName = defaultAction?.name
     const defaultParameters = {}
     const defaultActionServerId = defaultActionServer.id
 
@@ -51,9 +51,10 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
   const [action, setAction] = useState(parseActionString(node.onEnter[0]))
 
   const isNewNode = node.onEnter.length === 0
+  const actionIsValid = !!action.name && !!action.actionServerId
 
   useEffect(() => {
-    if (isNewNode) {
+    if (isNewNode && actionIsValid) {
       saveNode()
     }
   }, [])
@@ -81,6 +82,7 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
       <Button onClick={() => setShowDialog(true)}>Edit</Button>
       <ActionDialog
         action={action}
+        actionIsValid={actionIsValid}
         isOpen={showDialog}
         onClose={() => {
           setShowDialog(false)

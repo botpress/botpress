@@ -102,8 +102,8 @@ export class ScopedActionService {
   private static excludes = ['**/node_modules/**', '**/node_production_modules/**']
 
   async listActions(): Promise<ActionDefinition[]> {
-    const globalActions = await this.getGlobalActions()
-    const localActions = await this.getLocalActions()
+    const globalActions = await this.listGlobalActions()
+    const localActions = await this.listLocalActions()
 
     return globalActions.concat(localActions)
   }
@@ -111,6 +111,20 @@ export class ScopedActionService {
   async hasAction(actionName: string): Promise<boolean> {
     const actions = await this.listActions()
     return !!actions.find(x => x.name === actionName)
+  }
+
+  public async listLocalActions() {
+    if (this._localActionsCache) {
+      return this._localActionsCache
+    }
+
+    const actionFiles = (
+      await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', ScopedActionService.excludes)
+    ).filter(ScopedActionService.enabled)
+    const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'local', true))
+
+    this._localActionsCache = actions
+    return actions
   }
 
   async runAction(props: RunActionProps): Promise<any> {
@@ -153,7 +167,7 @@ export class ScopedActionService {
     }
   }
 
-  private async getGlobalActions() {
+  private async listGlobalActions() {
     if (this._globalActionsCache) {
       return this._globalActionsCache
     }
@@ -164,20 +178,6 @@ export class ScopedActionService {
     const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'global', true))
 
     this._globalActionsCache = actions
-    return actions
-  }
-
-  private async getLocalActions() {
-    if (this._localActionsCache) {
-      return this._localActionsCache
-    }
-
-    const actionFiles = (
-      await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', ScopedActionService.excludes)
-    ).filter(ScopedActionService.enabled)
-    const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'local', true))
-
-    this._localActionsCache = actions
     return actions
   }
 
@@ -384,7 +384,7 @@ export class ScopedActionService {
       'testing'
     ]
 
-    const globalActions = await this.getGlobalActions()
+    const globalActions = await this.listGlobalActions()
     return globalActions.filter(a => BUILTIN_MODULES.includes(a.name.split('/')[0]))
   }
 

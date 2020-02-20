@@ -1,4 +1,4 @@
-import { Button, Dialog, FormGroup, HTMLSelect, Label } from '@blueprintjs/core'
+import { Button, Dialog, FormGroup, H3, HTMLSelect, Label, NonIdealState } from '@blueprintjs/core'
 import { ActionParameterDefinition, ActionServersWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC } from 'react'
@@ -14,6 +14,7 @@ export interface ParameterValue {
 
 interface ActionDialogProps {
   action: Action
+  actionIsValid: boolean
   actionServers: ActionServersWithActions[]
   isOpen: boolean
   onClose: () => void
@@ -22,7 +23,7 @@ interface ActionDialogProps {
 }
 
 const ActionDialog: FC<ActionDialogProps> = props => {
-  const { action, actionServers, isOpen, onClose, onSave, onUpdate } = props
+  const { action, actionServers, isOpen, onClose, onSave, onUpdate, actionIsValid } = props
 
   const currentActionServer = actionServers.find(s => s.id === action.actionServerId)
   const currentActionDefinition = currentActionServer.actions.find(a => a.name === action.name)
@@ -58,48 +59,58 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           </HTMLSelect>
         </Label>
 
-        <FormGroup
-          helperText="This is the action that will be executed on the chosen Action Server"
-          label="Action Name"
-          labelFor="action-name"
-          labelInfo="(required)"
-        >
-          <HTMLSelect
-            id="action-name"
-            value={currentActionDefinition.name}
-            onChange={e => {
-              const copy = _.cloneDeep(action)
-              copy.name = e.target.value
-              onUpdate(copy)
-            }}
-          >
-            {currentActionServer.actions.map(actionDefinition => (
-              <option key={actionDefinition.name} value={actionDefinition.name}>
-                {actionDefinition.name}
-              </option>
-            ))}
-          </HTMLSelect>
-        </FormGroup>
+        {currentActionDefinition && (
+          <>
+            <FormGroup
+              helperText="This is the action that will be executed on the chosen Action Server"
+              label="Action Name"
+              labelFor="action-name"
+              labelInfo="(required)"
+            >
+              <HTMLSelect
+                id="action-name"
+                value={currentActionDefinition.name}
+                onChange={e => {
+                  const copy = _.cloneDeep(action)
+                  copy.name = e.target.value
+                  onUpdate(copy)
+                }}
+              >
+                {currentActionServer.actions.map(actionDefinition => (
+                  <option key={actionDefinition.name} value={actionDefinition.name}>
+                    {actionDefinition.name}
+                  </option>
+                ))}
+              </HTMLSelect>
+            </FormGroup>
 
-        <FormGroup label="Action Parameters" labelFor="action-parameters">
-          <ActionParameters
-            parameterValues={currentActionDefinition.metadata.params.map(parameterDefinition => {
-              return { definition: parameterDefinition, value: action.parameters[parameterDefinition.name] || '' }
-            })}
-            onUpdate={parameterValues => {
-              const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
-                previousValue[parameterValue.definition.name] = parameterValue.value
-                return previousValue
-              }, {})
+            <FormGroup label="Action Parameters" labelFor="action-parameters">
+              <ActionParameters
+                parameterValues={currentActionDefinition.metadata.params.map(parameterDefinition => {
+                  return { definition: parameterDefinition, value: action.parameters[parameterDefinition.name] || '' }
+                })}
+                onUpdate={parameterValues => {
+                  const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
+                    previousValue[parameterValue.definition.name] = parameterValue.value
+                    return previousValue
+                  }, {})
 
-              onUpdate({ ...action, parameters: paramsObj })
-            }}
-          />
-        </FormGroup>
+                  onUpdate({ ...action, parameters: paramsObj })
+                }}
+              />
+            </FormGroup>
+          </>
+        )}
+
+        {!currentActionDefinition && (
+          <NonIdealState icon="warning-sign" title="No actions found on this Action Server" />
+        )}
+
         <Button
           onClick={() => {
             onSave()
           }}
+          disabled={!actionIsValid}
         >
           Save
         </Button>

@@ -54,7 +54,7 @@ export class LocalActionServer {
       const { botId } = req.params
       const scopedActionService = this.actionService.forBot(botId)
 
-      const actions = await scopedActionService.listActions()
+      const actions = await scopedActionService.listLocalActions()
 
       res.status(200).send(actions)
     })
