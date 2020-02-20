@@ -30,24 +30,6 @@ const config = {
     rules: [
       { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
       {
-        test: /\.jsx?$/i,
-        exclude: /node_modules/,
-        include: path.resolve(__dirname, 'src'),
-        use: [
-          { loader: 'thread-loader' },
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: ['stage-3', ['env', { targets: { browsers: ['last 2 versions'] } }], 'react'],
-              plugins: ['transform-class-properties'],
-              compact: true,
-              babelrc: false,
-              cacheDirectory: true
-            }
-          }
-        ]
-      },
-      {
         test: /\.scss$/,
         exclude: /node_modules/,
         use: [

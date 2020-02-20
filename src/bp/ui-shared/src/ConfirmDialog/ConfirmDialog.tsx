@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom'
 
 import { ConfirmDialogOptions, ConfirmDialogProps } from '../Interface/typings'
 
-import styles from './ConfirmDialog.module.scss'
+import styles from './style.scss'
 
 const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   const onAccept = () => {

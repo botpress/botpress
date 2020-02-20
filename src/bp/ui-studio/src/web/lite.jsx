@@ -12,9 +12,6 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { moduleViewNames } from '~/util/Modules'
 import { getToken } from '~/util/Auth'
 
-import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
-import 'expose-loader?BotpressShared!ui-shared'
-
 const token = getToken()
 if (token) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
