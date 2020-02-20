@@ -9,9 +9,13 @@ import { NLUState, TrainingSession } from '../typings'
 export function getOnServerReady(state: NLUState) {
   return async (bp: typeof sdk) => {
     const loadModel = async (botId: string, hash: string, language: string) => {
+      if (!state.nluByBot[botId]) {
+        return
+      }
+
       const ghost = bp.ghost.forBot(botId)
       const model = await getModel(ghost, hash, language)
-      if (model && !!state.nluByBot[botId]) {
+      if (model) {
         await state.nluByBot[botId].engine.loadModel(model)
       }
     }

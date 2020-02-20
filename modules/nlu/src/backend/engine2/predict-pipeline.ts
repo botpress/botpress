@@ -2,16 +2,16 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
-import { POS1_SET, POS2_SET, POS3_SET, isPOSAvailable } from '../pos-tagger'
+import { isPOSAvailable } from '../pos-tagger'
 import * as math from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { Intent, PatternEntity, Tools } from '../typings'
 
 import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
+import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
-import { getUtteranceFeatures } from './out-of-scope-featurizer'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -236,12 +236,12 @@ function electIntent(input: PredictStep): PredictStep {
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
       const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx])
         .thru(preds => {
-          if (input.oos_prediction_by_ctx && input.oos_prediction_by_ctx[ctx].label === 'out') {
+          if (input.oos_prediction_by_ctx && input.oos_prediction_by_ctx['all'].label === 'out') {
             return [
               ...preds,
               {
                 label: NONE_INTENT,
-                confidence: input.oos_prediction_by_ctx[ctx].confidence,
+                confidence: input.oos_prediction_by_ctx['all'].confidence,
                 context: ctx,
                 l0Confidence: ctxConf
               }
@@ -317,17 +317,22 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
   const utt = input.alternateUtterance || input.utterance
   const feats = getUtteranceFeatures(utt)
 
-  const oosByCtx = await Promise.map(Object.entries(predictors.oos_classifier_by_ctx), async ([ctx, oos]) => {
-    const preds = await oos.predict(feats)
-    const outConf = _.sumBy(
-      preds.filter(p => p.label.startsWith('out')),
-      'confidence'
-    )
-    const inConf = preds.filter(p => !p.label.startsWith('out'))[0].confidence
-    const confidence = Math.max(outConf, inConf)
-    const label = outConf > inConf ? 'out' : 'in'
-    return [ctx, { label, confidence }] as [string, sdk.MLToolkit.SVM.Prediction]
-  }).reduce((oosPreds, [ctx, pred]) => ({ ...oosPreds, [ctx]: pred }), {} as _.Dictionary<sdk.MLToolkit.SVM.Prediction>)
+  // const oosByCtx = await Promise.map(Object.entries(predictors.oos_classifier_by_ctx), async ([ctx, oos]) => {
+  // if (ctx === 'A') {
+  //   await linearSVM.predict(feats, {}, '')
+  // }
+  const oos = predictors.oos_classifier_by_ctx['all']
+  const preds = await oos.predict(feats)
+  const outConf = _.sumBy(
+    preds.filter(p => p.label.startsWith('out')),
+    'confidence'
+  )
+  const inConf = preds.filter(p => !p.label.startsWith('out'))[0].confidence
+  const confidence = Math.max(outConf, inConf)
+  const label = outConf > inConf ? 'out' : 'in'
+  const oosByCtx = { all: { label, confidence } }
+  // return [ctx, { label, confidence }] as [string, sdk.MLToolkit.SVM.Prediction]
+  // }).reduce((oosPreds, [ctx, pred]) => ({ ...oosPreds, [ctx]: pred }), {} as _.Dictionary<sdk.MLToolkit.SVM.Prediction>)
 
   return {
     ...input,

@@ -48,6 +48,10 @@ export function getOnBotMount(state: NLUState) {
     const engine = new Engine2(bot.defaultLanguage, bot.id)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
+        // bot got deleted
+        if (!state.nluByBot[botId]) {
+          return
+        }
         const ghost = bp.ghost.forBot(botId)
         const intentDefs = await (engine1 as ScopedEngine).storage.getIntents() // TODO replace this with intent service when implemented
         const entityDefs = await (engine1 as ScopedEngine).storage.getCustomEntities() // TODO: replace this with entities service once implemented
@@ -61,10 +65,6 @@ export function getOnBotMount(state: NLUState) {
           }
           let model = await ModelService.getModel(ghost, hash, languageCode)
           if (forceTrain || !model) {
-            // bot got deleted
-            if (!state.nluByBot[botId]) {
-              return { succes: false }
-            }
             const trainSession = makeTrainingSession(languageCode, lock)
             state.nluByBot[botId].trainSessions[languageCode] = trainSession
 

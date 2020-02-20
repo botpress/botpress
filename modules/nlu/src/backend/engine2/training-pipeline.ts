@@ -201,7 +201,7 @@ const trainIntentClassifier = async (
       .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
       .flatMap(i =>
         i.utterances
-          .filter(u => i.name !== NONE_INTENT || u.tokens.length > 2)
+          .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
           .map(utt => ({
             label: i.name,
             coordinates: utt.sentenceEmbedding
@@ -416,26 +416,27 @@ const trainOutOfScope = async (
 
   const oos_points = featurizeOOSUtterances(noneUtts, tools)
   const oosByCtx: _.Dictionary<string> = {}
-  for (let i = 0; i < input.contexts.length; i++) {
-    const ctx = input.contexts[i]
+  // for (let i = 0; i < input.contexts.length; i++) {
+  //   const ctx = input.contexts[i]
 
-    const in_scope_points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx))
-      .filter(i => i.name !== 'none')
-      .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
-      .value()
+  const in_scope_points = _.chain(input.intents)
+    // .filter(i => i.contexts.includes(ctx))
+    .filter(i => i.name !== NONE_INTENT)
+    .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
+    .value()
 
-    let progressCalls = 0
-    const svm = new tools.mlToolkit.SVM.Trainer()
-    const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
-      if (++progressCalls % 10 === 0) {
-        const completion = _.round((p * (i + 1)) / input.contexts.length, 2)
-        progress(completion)
-      }
-    })
+  let progressCalls = 0
+  const svm = new tools.mlToolkit.SVM.Trainer()
+  const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
+    if (++progressCalls % 10 === 0) {
+      const completion = _.round(p, 2)
+      // const completion = _.round((p * (i + 1)) / input.contexts.length, 2)
+      progress(completion)
+    }
+  })
 
-    oosByCtx[ctx] = model
-  }
+  oosByCtx['all'] = model
+  // }
   return oosByCtx
 }
 
@@ -451,7 +452,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
   let totalProgress = 0
   let normalizedProgress = 0
-  const debouncedProgress = _.debounce(tools.reportTrainingProgress, 50, { maxWait: 500 })
+  const debouncedProgress = _.debounce(tools.reportTrainingProgress, 100, { maxWait: 750 })
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (!input.trainingSession) {
       return
