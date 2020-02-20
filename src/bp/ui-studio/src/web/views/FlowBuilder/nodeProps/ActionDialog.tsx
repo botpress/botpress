@@ -1,14 +1,14 @@
-import { Button, Dialog, FormGroup, HTMLSelect, InputGroup, Label } from '@blueprintjs/core'
-import { ActionDefinition, ActionServersWithActions } from 'common/typings'
+import { Button, Dialog, FormGroup, HTMLSelect, Label } from '@blueprintjs/core'
+import { ActionParameterDefinition, ActionServersWithActions } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC } from 'react'
 import { connect } from 'react-redux'
 
 import { Action } from '../diagram/nodes_v2/ActionNode'
 
 import { ActionParameters } from './ActionParameters'
-export interface Parameter {
-  key: string
+export interface ParameterValue {
+  definition: ActionParameterDefinition
   value: string
 }
 
@@ -87,10 +87,12 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           labelFor="action-parameters"
         >
           <ActionParameters
-            parameters={Object.entries(action.parameters).map(([key, value]) => ({ key, value }))}
-            onUpdate={parameters => {
-              const paramsObj = parameters.reduce((previousValue, param) => {
-                previousValue[param.key] = param.value
+            parameterValues={currentActionDefinition.metadata.params.map(parameterDefinition => {
+              return { definition: parameterDefinition, value: action.parameters[parameterDefinition.name] || '' }
+            })}
+            onUpdate={parameterValues => {
+              const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
+                previousValue[parameterValue.definition.name] = parameterValue.value
                 return previousValue
               }, {})
 

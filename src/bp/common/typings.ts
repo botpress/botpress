@@ -187,18 +187,21 @@ export interface ActionServer {
 
 export type ActionLocation = 'local' | 'global'
 
+export interface ActionParameterDefinition {
+  type: string
+  required: boolean
+  default: any
+  description: string
+  name: string
+}
+
 export type ActionMetadata = {
   title: string
   category: string
   description: string
   author: string
   hidden: boolean
-  params: {
-    type: string
-    required: boolean
-    default: any
-    description: string
-  }[]
+  params: ActionParameterDefinition[]
 }
 
 export type ActionDefinition = {

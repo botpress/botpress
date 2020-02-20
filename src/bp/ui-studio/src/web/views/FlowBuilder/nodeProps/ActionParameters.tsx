@@ -1,71 +1,33 @@
-import { Button, ControlGroup, InputGroup } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
-import { Parameter } from './ActionDialog'
-
-interface ActionParameterProps {
-  parameter: Parameter
-  onRemove: (parameter: Parameter) => void
-  onKeyUpdated: (key: string) => void
-  onValueUpdated: (value: string) => void
-}
-
-export const ActionParameter: FC<ActionParameterProps> = props => {
-  const { parameter, onRemove, onKeyUpdated, onValueUpdated } = props
-
-  const id = `action-parameters-${parameter.key}`
-
-  return (
-    <ControlGroup id={id}>
-      <InputGroup id={id} placeholder="Name" value={parameter.key} onChange={e => onKeyUpdated(e.target.value)} />
-      <InputGroup id={id} placeholder="Value" value={parameter.value} onChange={e => onValueUpdated(e.target.value)} />
-      <Button onClick={e => onRemove(parameter)} icon="remove" />
-    </ControlGroup>
-  )
-}
+import { ParameterValue } from './ActionDialog'
+import { ActionParameter } from './ActionParameter'
 
 interface ActionParametersProps {
-  parameters: Parameter[]
-  onUpdate: (parameters: Parameter[]) => void
+  parameterValues: ParameterValue[]
+  onUpdate: (parameterValues: ParameterValue[]) => void
 }
 
 export const ActionParameters: FC<ActionParametersProps> = props => {
-  const { onUpdate, parameters } = props
+  const { onUpdate, parameterValues } = props
 
   return (
     <React.Fragment>
-      {parameters.map((parameter, idx) => {
-        const { key, value } = parameter
+      {parameterValues.map((parameterValue, idx) => {
+        const { name } = parameterValue.definition
         return (
           <ActionParameter
-            key={idx}
-            parameter={parameter}
-            onKeyUpdated={newKey => {
-              const copy = [...parameters]
-              copy[idx] = { key: newKey, value }
-              onUpdate(copy)
-            }}
-            onValueUpdated={value => {
-              const copy = [...parameters]
-              copy[idx] = { key, value }
-              onUpdate(copy)
-            }}
-            onRemove={parameter => {
-              const copy = [...parameters]
-              copy.splice(idx, 1)
+            key={name}
+            parameterValue={parameterValue}
+            onValueUpdated={parameterValue => {
+              const copy = [...parameterValues]
+              copy[idx] = { ...parameterValue }
               onUpdate(copy)
             }}
           />
         )
       })}
-      <Button
-        onClick={e => {
-          onUpdate([...parameters, { key: '', value: '' }])
-        }}
-      >
-        Add Parameter
-      </Button>
     </React.Fragment>
   )
 }
