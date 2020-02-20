@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { Request, Response } from 'express'
+import axios from 'axios'
 
 import { FLAGGED_MESSAGE_STATUSES, FlaggedEvent } from '../types'
 
@@ -82,6 +83,10 @@ export default async (bp: typeof sdk, db: Db) => {
 
     try {
       await db.applyChanges(botId)
+      const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+      setTimeout(() => {
+        axios.post('/mod/nlu/train', {}, axiosConfig)
+      }, 1000)
       res.sendStatus(200)
     } catch (err) {
       res.status(500).send(err.message)
