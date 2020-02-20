@@ -328,11 +328,16 @@ body {
 
 .bpw-bubble-session_reset {
   color: red !important;
-  background: none !important;
   border: none;
   border-top: 1px solid red;
   border-bottom: 1px solid red;
-  margin: 10px 0;
+}
+
+.bpw-bubble-session_reset .bpw-chat-bubble-content {
+  color: red !important;
+  background: none !important;
+  padding: 0;
+  margin: 5px 0;
 }
 
 .bpw-bubble-carousel {

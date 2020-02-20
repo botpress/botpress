@@ -1,18 +1,27 @@
+import { EventFeedback } from 'lite/typings'
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import ThumbsDown from '../../icons/ThumbsDown'
 import ThumbsUp from '../../icons/ThumbsUp'
 
-type Props = {
-  onFeedback: Function
+interface Props {
+  onFeedback: (feedback: number, eventId: string) => void
+  incomingEventId: string
+  eventFeedbacks: EventFeedback[]
 }
 
-export const InlineFeedback: FC<Props> = props => {
+export const InlineFeedback: FC<Props> = ({ eventFeedbacks, incomingEventId, onFeedback }) => {
   const [feedbackSent, setFeedbackSent] = useState(false)
 
+  useEffect(() => {
+    if (eventFeedbacks && eventFeedbacks.find(x => x.incomingEventId === incomingEventId && x.feedback != undefined)) {
+      setFeedbackSent(true)
+    }
+  }, [eventFeedbacks])
+
   const handleSendFeedback = feedback => {
-    props.onFeedback(feedback)
+    onFeedback(feedback, incomingEventId)
     setFeedbackSent(true)
   }
 

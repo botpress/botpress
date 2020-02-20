@@ -1,3 +1,4 @@
+import { EventFeedback } from 'lite/typings'
 import get from 'lodash/get'
 
 export default class WebchatApi {
@@ -135,8 +136,16 @@ export default class WebchatApi {
 
   async sendFeedback(feedback: number, eventId: string): Promise<void> {
     try {
-      const data = { feedback }
-      return this.axios.post(`/events/${eventId}/feedback`, data, this.axiosConfig)
+      return this.axios.post(`/saveFeedback`, { eventId, target: this.userId, feedback }, this.axiosConfig)
+    } catch (err) {
+      await this.handleApiError(err)
+    }
+  }
+
+  async getEventIdsFeedbackInfo(eventIds: string[]): Promise<EventFeedback[]> {
+    try {
+      const { data } = await this.axios.post(`/feedbackInfo`, { eventIds, target: this.userId }, this.axiosConfig)
+      return data
     } catch (err) {
       await this.handleApiError(err)
     }
