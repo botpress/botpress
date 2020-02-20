@@ -81,11 +81,7 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           </HTMLSelect>
         </FormGroup>
 
-        <FormGroup
-          helperText="These parameters will be passed to the executed action"
-          label="Action Parameters"
-          labelFor="action-parameters"
-        >
+        <FormGroup label="Action Parameters" labelFor="action-parameters">
           <ActionParameters
             parameterValues={currentActionDefinition.metadata.params.map(parameterDefinition => {
               return { definition: parameterDefinition, value: action.parameters[parameterDefinition.name] || '' }

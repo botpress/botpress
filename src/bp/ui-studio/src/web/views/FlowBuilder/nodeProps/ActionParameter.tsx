@@ -1,4 +1,4 @@
-import { ControlGroup, InputGroup } from '@blueprintjs/core'
+import { FormGroup, InputGroup } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -15,14 +15,18 @@ export const ActionParameter: FC<ActionParameterProps> = props => {
   const id = `action-parameters-${parameterValue.definition.name}`
 
   return (
-    <ControlGroup id={id}>
-      <InputGroup id={id} placeholder="Name" disabled value={parameterValue.definition.name} />
+    <FormGroup
+      label={parameterValue.definition.name + (parameterValue.definition.required ? ' *' : '')}
+      labelFor={id}
+      labelInfo={parameterValue.definition.type && `(${parameterValue.definition.type})`}
+      helperText={parameterValue.definition.description}
+    >
       <InputGroup
         id={id}
         placeholder="Value"
         value={parameterValue.value}
         onChange={e => onValueUpdated({ ...parameterValue, value: e.target.value })}
       />
-    </ControlGroup>
+    </FormGroup>
   )
 }
