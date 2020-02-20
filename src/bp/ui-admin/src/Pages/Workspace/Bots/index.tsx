@@ -14,7 +14,7 @@ import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { RouteComponentProps } from 'react-router'
+import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 import { toastSuccess } from '~/utils/toaster'
 import { toastFailure } from '~/utils/toaster'
@@ -22,6 +22,7 @@ import { filterList } from '~/utils/util'
 import confirmDialog from '~/App/ConfirmDialog'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
+import { getActiveWorkspace } from '~/Auth'
 import { Downloader } from '~/Pages/Components/Downloader'
 
 import api from '../../../api'
@@ -107,6 +108,15 @@ class Bots extends Component<Props> {
     }
   }
 
+  viewLogs(botId: string) {
+    this.props.history.push(
+      generatePath(`/workspace/:workspaceId?/logs?botId=:botId`, {
+        workspaceId: getActiveWorkspace() || undefined,
+        botId
+      })
+    )
+  }
+
   renderCreateNewBotButton() {
     return (
       <AccessControl resource="admin.bots.*" operation="write">
@@ -190,6 +200,7 @@ class Bots extends Component<Props> {
               createRevision={this.createRevision.bind(this, bot.id)}
               rollback={this.toggleRollbackModal.bind(this, bot.id)}
               reloadBot={this.reloadBot.bind(this, bot.id)}
+              viewLogs={this.viewLogs.bind(this, bot.id)}
             />
           </Fragment>
         ))}
@@ -223,6 +234,7 @@ class Bots extends Component<Props> {
                       createRevision={this.createRevision.bind(this, bot.id)}
                       rollback={this.toggleRollbackModal.bind(this, bot.id)}
                       reloadBot={this.reloadBot.bind(this, bot.id)}
+                      viewLogs={this.viewLogs.bind(this, bot.id)}
                     />
                   </Fragment>
                 ))}

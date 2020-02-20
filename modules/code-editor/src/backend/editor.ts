@@ -18,7 +18,7 @@ import {
 } from './utils'
 
 export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
-export const MAIN_GLOBAL_CONFIG_FILES = ['botpress.config.json', 'workspaces.json']
+
 const RAW_FILES_FILTERS = ['**/*.map']
 
 export default class Editor {
