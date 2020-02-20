@@ -145,6 +145,9 @@ export class LanguagesRouter extends CustomRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
+          const { modules } = await this.configProvider.getBotpressConfig()
+          const nluEnabled = _.find(modules, { location: 'MODULES_ROOT/nlu' })?.enabled
+          if (!nluEnabled) return res.send({ languages: [...(await this.getExtraLangs())] })
           const client = await this.getSourceClient()
           const { data } = await client.get('/languages')
 
