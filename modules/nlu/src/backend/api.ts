@@ -220,7 +220,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
       scheduleSyncNLU(req.params.botId)
       await state.nluByBot[botId].trainOrLoad(true)
     } catch {
-      res.sendStatus(500)
+      return res.sendStatus(500)
     }
     res.sendStatus(200)
   })
