@@ -16,7 +16,7 @@ import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utteran
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-  oos_classifier_by_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
+  oos_classifier: sdk.MLToolkit.SVM.Predictor
   kmeans: sdk.MLToolkit.KMeans.KmeansResult
   slot_tagger: CRFExtractor2 // TODO replace this by MlToolkit.CRF.Tagger
   pattern_entities: PatternEntity[]
@@ -43,7 +43,7 @@ export type PredictStep = {
     elected?: E1IntentPred // only to comply with E1
     ambiguous?: boolean
   }
-  oos_prediction_by_ctx?: _.Dictionary<sdk.MLToolkit.SVM.Prediction>
+  oos_predictions?: sdk.MLToolkit.SVM.Prediction
   // TODO slots predictions per intent
 }
 
@@ -236,12 +236,13 @@ function electIntent(input: PredictStep): PredictStep {
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
       const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx])
         .thru(preds => {
-          if (input.oos_prediction_by_ctx && input.oos_prediction_by_ctx['all'].label === 'out') {
+          const { oos_predictions } = input
+          if (oos_predictions && oos_predictions.label === 'out') {
             return [
               ...preds,
               {
                 label: NONE_INTENT,
-                confidence: input.oos_prediction_by_ctx['all'].confidence,
+                confidence: oos_predictions.confidence,
                 context: ctx,
                 l0Confidence: ctxConf
               }
@@ -293,13 +294,12 @@ function electIntent(input: PredictStep): PredictStep {
   const shouldConsiderOOS =
     predictions[0].name !== NONE_INTENT &&
     predictions[0].confidence < 0.4 &&
-    input.oos_prediction_by_ctx &&
-    input.oos_prediction_by_ctx[ctx].label == 'out'
+    _.get(input, 'oos_predictions.label') === 'out'
   if (!predictions.length || shouldConsiderOOS) {
     predictions = _.orderBy(
       [
         ...predictions.filter(p => p.name !== NONE_INTENT),
-        { name: NONE_INTENT, context: ctx, confidence: input.oos_prediction_by_ctx[ctx].confidence }
+        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions.confidence }
       ],
       'confidence'
     )
@@ -311,18 +311,12 @@ function electIntent(input: PredictStep): PredictStep {
 }
 
 async function predictOutOfScope(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  if (!isPOSAvailable(input.languageCode)) {
+  if (!isPOSAvailable(input.languageCode) || !predictors.oos_classifier) {
     return input
   }
   const utt = input.alternateUtterance || input.utterance
   const feats = getUtteranceFeatures(utt)
-
-  // const oosByCtx = await Promise.map(Object.entries(predictors.oos_classifier_by_ctx), async ([ctx, oos]) => {
-  // if (ctx === 'A') {
-  //   await linearSVM.predict(feats, {}, '')
-  // }
-  const oos = predictors.oos_classifier_by_ctx['all']
-  const preds = await oos.predict(feats)
+  const preds = await predictors.oos_classifier.predict(feats)
   const outConf = _.sumBy(
     preds.filter(p => p.label.startsWith('out')),
     'confidence'
@@ -330,13 +324,11 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
   const inConf = preds.filter(p => !p.label.startsWith('out'))[0].confidence
   const confidence = Math.max(outConf, inConf)
   const label = outConf > inConf ? 'out' : 'in'
-  const oosByCtx = { all: { label, confidence } }
-  // return [ctx, { label, confidence }] as [string, sdk.MLToolkit.SVM.Prediction]
-  // }).reduce((oosPreds, [ctx, pred]) => ({ ...oosPreds, [ctx]: pred }), {} as _.Dictionary<sdk.MLToolkit.SVM.Prediction>)
+  const oos_predictions = { label, confidence }
 
   return {
     ...input,
-    oos_prediction_by_ctx: oosByCtx
+    oos_predictions
   }
 }
 

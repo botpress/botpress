@@ -56,7 +56,7 @@ export interface TrainArtefacts {
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
-  oos_by_ctx: Dic<string>
+  oos_model: string
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -201,14 +201,14 @@ const trainIntentClassifier = async (
       .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
       .flatMap(i =>
         i.utterances
-          .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
+          .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 4 === 0))
           .map(utt => ({
             label: i.name,
             coordinates: utt.sentenceEmbedding
           }))
       )
+      .filter(x => !x.coordinates.some(isNaN))
       .value()
-      .filter(x => x.coordinates.filter(isNaN).length == 0)
 
     if (points.length < 0) {
       progress(1 / input.contexts.length)
@@ -392,11 +392,7 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer
   return crfExtractor.serialized
 }
 
-const trainOutOfScope = async (
-  input: TrainOutput,
-  tools: Tools,
-  progress: progressCB
-): Promise<_.Dictionary<string>> => {
+const trainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
   debugTraining('Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     kernel: 'LINEAR',
@@ -405,39 +401,28 @@ const trainOutOfScope = async (
   }
 
   const noneUtts = _.chain(input.intents)
-    .filter(i => i.name === 'none')
+    .filter(i => i.name === NONE_INTENT)
     .flatMap(i => i.utterances)
     .value()
 
   if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
-    progress()
-    return {}
+    return
   }
 
   const oos_points = featurizeOOSUtterances(noneUtts, tools)
-  const oosByCtx: _.Dictionary<string> = {}
-  // for (let i = 0; i < input.contexts.length; i++) {
-  //   const ctx = input.contexts[i]
 
   const in_scope_points = _.chain(input.intents)
-    // .filter(i => i.contexts.includes(ctx))
     .filter(i => i.name !== NONE_INTENT)
     .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
     .value()
 
   let progressCalls = 0
   const svm = new tools.mlToolkit.SVM.Trainer()
-  const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
+  return svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
     if (++progressCalls % 10 === 0) {
-      const completion = _.round(p, 2)
-      // const completion = _.round((p * (i + 1)) / input.contexts.length, 2)
-      progress(completion)
+      progress(_.round(p, 2))
     }
   })
-
-  oosByCtx['all'] = model
-  // }
-  return oosByCtx
 }
 
 const NB_STEPS = 6 // change this if the training pipeline changes
@@ -452,7 +437,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
   let totalProgress = 0
   let normalizedProgress = 0
-  const debouncedProgress = _.debounce(tools.reportTrainingProgress, 100, { maxWait: 750 })
+  const debouncedProgress = _.debounce(tools.reportTrainingProgress, 75, { maxWait: 750 })
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (!input.trainingSession) {
       return
@@ -479,7 +464,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     output = await AppendNoneIntent(output, tools)
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
-    const oos_by_ctx = await trainOutOfScope(output, tools, reportProgress)
+    const oos_model = await trainOutOfScope(output, tools, reportProgress)
     reportProgress()
     const ctx_model = await trainContextClassifier(output, tools, reportProgress)
     reportProgress()
@@ -490,7 +475,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
-      oos_by_ctx,
+      oos_model,
       tfidf: output.tfIdf,
       ctx_model,
       intent_model_by_ctx,

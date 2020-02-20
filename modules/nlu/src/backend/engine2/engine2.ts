@@ -141,18 +141,13 @@ export default class E2 implements Engine2 {
       return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
 
-    const { ctx_model, intent_model_by_ctx, oos_by_ctx } = artefacts
+    const { ctx_model, intent_model_by_ctx, oos_model } = artefacts
     const ctx_classifier = new tools.mlToolkit.SVM.Predictor(ctx_model)
     const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
-    const oos_classifier_by_ctx = isPOSAvailable(model.languageCode)
-      ? _.toPairs(oos_by_ctx).reduce(
-          (c, [ctx, oosModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(oosModel as string) }),
-          {} as _.Dictionary<MLToolkit.SVM.Predictor>
-        )
-      : {}
+    const oos_classifier = isPOSAvailable(model.languageCode) ? new tools.mlToolkit.SVM.Predictor(oos_model) : undefined
     const slot_tagger = new CRFExtractor2(tools.mlToolkit)
     slot_tagger.load(artefacts.slots_model)
 
@@ -161,7 +156,7 @@ export default class E2 implements Engine2 {
     return {
       ...artefacts,
       ctx_classifier,
-      oos_classifier_by_ctx,
+      oos_classifier,
       intent_classifier_per_ctx,
       slot_tagger,
       kmeans,
