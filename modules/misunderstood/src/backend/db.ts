@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
-import get from 'lodash/get'
+import { pick, get } from 'lodash'
 
 import {
   DbFlaggedEvent,

@@ -209,9 +209,20 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const { botId, id } = req.params
     const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
     await botEngine.storage.deleteEntity(id)
-    scheduleSyncNLU(req.params.botId)
+    scheduleSyncNLU(botId)
 
     res.sendStatus(204)
+  })
+
+  router.post('/train', async (req, res) => {
+    try {
+      const { botId } = req.params
+      scheduleSyncNLU(req.params.botId)
+      await state.nluByBot[botId].trainOrLoad(true)
+    } catch {
+      return res.sendStatus(500)
+    }
+    res.sendStatus(200)
   })
 
   // TODO move this in intent router
