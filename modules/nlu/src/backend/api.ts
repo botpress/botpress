@@ -217,9 +217,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
-      const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
       scheduleSyncNLU(req.params.botId)
-      await botEngine.trainOrLoad(true)
+      await state.nluByBot[botId].trainOrLoad(true)
     } catch {
       res.sendStatus(500)
     }
