@@ -83,7 +83,8 @@ interface RunActionProps {
 }
 
 export class ScopedActionService {
-  private _actionsCache: ActionDefinition[] | undefined
+  private _globalActionsCache: ActionDefinition[] | undefined
+  private _localActionsCache: ActionDefinition[] | undefined
   private _scriptsCache: Map<string, string> = new Map()
   // Keeps a quick index of files which have already been required
   private _validScripts: { [filename: string]: boolean } = {}
@@ -98,26 +99,16 @@ export class ScopedActionService {
     this._listenForCacheInvalidation()
   }
 
+  private static enabled = (filename: string) => !path.basename(filename).startsWith('.')
+
+  // node_production_modules are node_modules that are compressed for production
+  private static excludes = ['**/node_modules/**', '**/node_production_modules/**']
+
   async listActions(): Promise<ActionDefinition[]> {
-    if (this._actionsCache) {
-      return this._actionsCache
-    }
+    const globalActions = await this.getGlobalActions()
+    const localActions = await this.getLocalActions()
 
-    const filterDisabled = (filesPaths: string[]): string[] => filesPaths.filter(x => !path.basename(x).startsWith('.'))
-
-    // node_production_modules are node_modules that are compressed for production
-    const exclude = ['**/node_modules/**', '**/node_production_modules/**']
-    const globalActionsFiles = filterDisabled(await this.ghost.global().directoryListing('actions', '*.js', exclude))
-    const localActionsFiles = filterDisabled(
-      await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', exclude)
-    )
-
-    const actions: ActionDefinition[] = (
-      await Promise.map(globalActionsFiles, async file => this.getActionDefinition(file, 'global', true))
-    ).concat(await Promise.map(localActionsFiles, async file => this.getActionDefinition(file, 'local', true)))
-
-    this._actionsCache = actions
-    return actions
+    return globalActions.concat(localActions)
   }
 
   async hasAction(actionName: string): Promise<boolean> {
@@ -144,7 +135,7 @@ export class ScopedActionService {
         result = response.result
         _.merge(incomingEvent, response.incomingEvent)
       } else {
-        const trusted = this.isTrustedAction(actionName)
+        const trusted = await this.isTrustedAction(actionName)
 
         if (trusted) {
           result = await this.runTrustedCode(actionName, actionArgs, incomingEvent)
@@ -163,6 +154,34 @@ export class ScopedActionService {
         .error(`An error occurred while executing the action "${actionName}`)
       throw new ActionExecutionError(err.message, actionName, err.stack)
     }
+  }
+
+  private async getGlobalActions() {
+    if (this._globalActionsCache) {
+      return this._globalActionsCache
+    }
+
+    const actionFiles = (
+      await this.ghost.global().directoryListing('actions', '*.js', ScopedActionService.excludes)
+    ).filter(ScopedActionService.enabled)
+    const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'global', true))
+
+    this._globalActionsCache = actions
+    return actions
+  }
+
+  private async getLocalActions() {
+    if (this._localActionsCache) {
+      return this._localActionsCache
+    }
+
+    const actionFiles = (
+      await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', ScopedActionService.excludes)
+    ).filter(ScopedActionService.enabled)
+    const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'local', true))
+
+    this._localActionsCache = actions
+    return actions
   }
 
   private async runInActionServer(props: {
@@ -302,7 +321,8 @@ export class ScopedActionService {
 
   private _clearCache() {
     this._scriptsCache.clear()
-    this._actionsCache = undefined
+    this._globalActionsCache = undefined
+    this._localActionsCache = undefined
     this._validScripts = {}
   }
 
@@ -311,8 +331,10 @@ export class ScopedActionService {
     location: ActionLocation,
     includeMetadata: boolean
   ): Promise<ActionDefinition> {
+    const actionName = file.replace(/\.js$/i, '')
     let action: ActionDefinition = {
-      name: file.replace(/\.js$/i, ''),
+      name: actionName,
+      module: actionName.split('/')[0],
       isRemote: false,
       location: location
     }
@@ -341,10 +363,34 @@ export class ScopedActionService {
     return script
   }
 
-  private isTrustedAction(actionName: string): boolean {
-    // TODO: find more scalable approach
-    // TODO: adopt same strategy as code-editor, see BUILTIN_MODULES
-    return ['analytics/increment', 'analytics/decrement', 'analytics/set'].includes(actionName)
+  private async isTrustedAction(actionName: string): Promise<boolean> {
+    const trustedActions = await this.listTrustedActions()
+    return trustedActions.map(a => a.name).includes(actionName)
+  }
+
+  private async listTrustedActions(): Promise<ActionDefinition[]> {
+    const BUILTIN_MODULES = [
+      'analytics',
+      'basic-skills',
+      'builtin',
+      'builtin',
+      'channel-messenger',
+      'channel-slack',
+      'channel-teams',
+      'channel-telegram',
+      'channel-web',
+      'code-editor',
+      'examples',
+      'extensions',
+      'history',
+      'hitl',
+      'nlu',
+      'qna',
+      'testing'
+    ]
+
+    const globalActions = await this.getGlobalActions()
+    return globalActions.filter(a => BUILTIN_MODULES.includes(a.module))
   }
 
   // This method tries to load require() files from the FS and fallback on BPFS

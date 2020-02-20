@@ -206,6 +206,7 @@ export type ActionMetadata = {
 
 export type ActionDefinition = {
   name: string
+  module: string
   isRemote: boolean
   location: ActionLocation
   metadata?: ActionMetadata
