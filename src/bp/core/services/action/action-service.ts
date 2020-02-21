@@ -331,7 +331,8 @@ export class ScopedActionService {
     let action: ActionDefinition = {
       name: file.replace(/\.js$/i, ''),
       isRemote: false,
-      location: location
+      location: location,
+      legacy: file.includes('.legacy')
     }
 
     if (includeMetadata) {

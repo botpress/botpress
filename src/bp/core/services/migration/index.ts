@@ -22,7 +22,8 @@ const debug = DEBUG('migration')
 const types = {
   database: 'Database Changes',
   config: 'Config File Changes',
-  content: 'Changes to Content Files (*.json)'
+  content: 'Changes to Content Files (*.json)',
+  code: 'Changes to Custom Code Files (*.js)'
 }
 /**
  * Use a combination of these environment variables to easily test migrations.
@@ -281,7 +282,7 @@ export interface Migration {
   info: {
     description: string
     target?: 'core' | 'bot'
-    type: 'database' | 'config' | 'content'
+    type: 'database' | 'config' | 'content' | 'code'
   }
   up: (opts: MigrationOpts | sdk.ModuleMigrationOpts) => Promise<sdk.MigrationResult>
   down?: (opts: MigrationOpts | sdk.ModuleMigrationOpts) => Promise<sdk.MigrationResult>

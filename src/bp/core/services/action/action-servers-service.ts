@@ -15,8 +15,8 @@ const fetchActionsForServer = async (botId: string, actionServer: ActionServer):
   const actions: RemoteActionDefinition[] = (await axios.get(`${actionServer.baseUrl}/actions/${botId}`)).data
 
   return actions.map(
-    (a): ActionDefinition => {
-      return { name: a.name, isRemote: true, location: 'local', metadata: a.metadata }
+    (action): ActionDefinition => {
+      return { name: action.name, isRemote: true, location: 'local', metadata: action.metadata, legacy: false }
     }
   )
 }

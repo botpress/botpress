@@ -46,8 +46,12 @@ export class ActionStrategy implements InstructionStrategy {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
+  public static isSayInstruction(instructionFn: string): boolean {
+    return instructionFn.indexOf('say ') === 0
+  }
+
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    if (instruction.fn.indexOf('say ') === 0) {
+    if (ActionStrategy.isSayInstruction(instruction.fn)) {
       return this.invokeOutputProcessor(botId, instruction, event)
     } else {
       return this.invokeAction(botId, instruction, event)

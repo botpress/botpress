@@ -55,8 +55,9 @@ export class LocalActionServer {
       const scopedActionService = this.actionService.forBot(botId)
 
       const actions = await scopedActionService.listLocalActions()
+      const nonLegacyActions = actions.filter(a => !a.legacy)
 
-      res.status(200).send(actions)
+      res.status(200).send(nonLegacyActions)
     })
   }
   async start() {

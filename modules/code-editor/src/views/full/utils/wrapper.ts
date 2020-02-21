@@ -1,15 +1,26 @@
+import { EditableFile } from '../../../backend/typings'
 import { HOOK_SIGNATURES } from '../../../typings/hooks'
 
 const START_COMMENT = `/** Your code starts below */`
 const END_COMMENT = '/** Your code ends here */'
 
+// TODO: fix type of bp when JSON SDK is completed
 const ACTION_SIGNATURE =
+  'async function action(bp: any, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
+
+const LEGACY_ACTION_SIGNATURE =
   'async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 
 const wrapper = {
-  add: (content: string, type: string, hookType?: string) => {
+  add: (file: EditableFile, content: string) => {
+    const { type, hookType, botId } = file
+
     if (type === 'action') {
-      return `${ACTION_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+      if (botId) {
+        return `${ACTION_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+      } else {
+        return `${LEGACY_ACTION_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+      }
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
       let signature = HOOK_SIGNATURES[hookType]
       if (signature.includes('\n')) {
