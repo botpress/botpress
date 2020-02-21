@@ -108,7 +108,7 @@ module.exports = {
       }
     }
   },
-  computePreviewText: formData => formData.text && 'Text: ' + formData.text,
+  computePreviewText: formData => formData.text,
 
   renderElement: renderElement
 }
