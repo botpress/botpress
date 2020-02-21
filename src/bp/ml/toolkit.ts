@@ -1,9 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import cluster from 'cluster'
+import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
 
-import { registerMsgHandler } from '../cluster'
+import { registerMsgHandler, WorkerType } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
@@ -37,7 +38,7 @@ const MLToolkit: typeof sdk.MLToolkit = {
   SentencePiece: { createProcessor: processor }
 }
 
-if (cluster.isWorker) {
+function overloadTrainers() {
   MLToolkit.SVM.Trainer.prototype.train = (
     points: sdk.MLToolkit.SVM.DataPoint[],
     options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
@@ -75,23 +76,45 @@ if (cluster.isWorker) {
   }
 }
 
-if (cluster.isMaster) {
-  // cancel svm training once implemented in node binding
-  // registerMsgHandler('cancel', async (msg: Message, worder) => {
-  // })
+if (cluster.isWorker) {
+  if (process.env.WORKER_TYPE === <WorkerType>'WEB_WORKER') {
+    overloadTrainers()
+  }
+  if (process.env.WORKER_TYPE === <WorkerType>'ML_WORKER') {
+    async function messageHandler(msg: Message) {
+      if (msg.type === 'train') {
+        const svm = new SVMTrainer()
+        try {
+          let progressCalls = 0
+          const result = await svm.train(msg.payload.points, msg.payload.options, progress => {
+            if (++progressCalls % 5 === 0) {
+              process.send!({ type: 'progress', id: msg.id, payload: { progress } })
+            }
+          })
 
-  registerMsgHandler('train', async (msg: Message, worker) => {
-    const sendToWorker = (msg: Message) => worker.isConnected() && worker.send(msg)
-
-    const svm = new SVMTrainer()
-    try {
-      const result = await svm.train(msg.payload.points, msg.payload.options, progress =>
-        sendToWorker({ type: 'progress', id: msg.id, payload: { progress } })
-      )
-      sendToWorker({ type: 'done', id: msg.id, payload: { result } })
-    } catch (error) {
-      sendToWorker({ type: 'error', id: msg.id, payload: { error } })
+          process.send!({ type: 'done', id: msg.id, payload: { result } })
+        } catch (error) {
+          process.send!({ type: 'error', id: msg.id, payload: { error } })
+        }
+      }
     }
+
+    process.on('message', messageHandler)
+  }
+}
+
+if (cluster.isMaster) {
+  function sendToWebWorker(msg: Message) {
+    const webWorker = cluster.workers[process.WEB_WORKER]
+    webWorker?.isConnected() && webWorker.send(msg)
+  }
+
+  registerMsgHandler('done', msg => sendToWebWorker(msg))
+  registerMsgHandler('progress', msg => sendToWebWorker(msg))
+  registerMsgHandler('error', msg => sendToWebWorker(msg))
+  registerMsgHandler('train', async (msg: Message) => {
+    const workerID = _.sample(process.ML_WORKERS)
+    cluster.workers[workerID!]?.send(msg)
   })
 }
 

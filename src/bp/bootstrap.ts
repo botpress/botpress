@@ -14,7 +14,7 @@ import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
-import { setupMasterNode } from './cluster'
+import { setupMasterNode, WorkerType } from './cluster'
 import { FatalError } from './errors'
 
 async function setupEnv() {
@@ -65,9 +65,12 @@ async function start() {
 
   if (cluster.isMaster) {
     // The master process only needs getos and rewire
-    return setupMasterNode(await getLogger('Cluster'))
+    return setupMasterNode(await getLogger('Cluster'), await Config.getBotpressConfig())
   }
 
+  if (cluster.isWorker && <WorkerType>process.env.WORKER_TYPE !== 'WEB_WORKER') {
+    return
+  }
   // Server ID is provided by the master node
   process.SERVER_ID = process.env.SERVER_ID!
 

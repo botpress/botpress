@@ -51,6 +51,8 @@ declare namespace NodeJS {
      * When true, global hooks and actions will be executed outside of the sandbox.
      * This gives a boost in performances for code deemed "safe", while bot-specific content is executed in the sandbox
      */
+    WEB_WORKER: number
+    ML_WORKERS: number[]
     DISABLE_GLOBAL_SANDBOX: boolean
   }
 }
