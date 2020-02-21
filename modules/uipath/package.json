@@ -10,5 +10,8 @@
     "build": "node ../../build/module-builder/bin/entry build",
     "watch": "node ../../build/module-builder/bin/entry watch",
     "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^8.5.1"
   }
 }

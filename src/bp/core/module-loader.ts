@@ -8,13 +8,16 @@ import {
   ModuleEntryPoint,
   Skill
 } from 'botpress/sdk'
+import { ModuleInfo } from 'common/typings'
 import { ValidationError } from 'errors'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import path from 'path'
 
 import { createForModule } from './api' // TODO
+import { ConfigProvider } from './config/config-loader'
 import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
 import { BotService } from './services/bot-service'
@@ -57,6 +60,33 @@ const MODULE_SCHEMA = joi.object().keys({
   })
 })
 
+const extractModuleInfo = async ({ location, enabled }, resolver: ModuleResolver): Promise<ModuleInfo | undefined> => {
+  try {
+    const status = await resolver.getModuleInfo(location)
+    if (!status || !status.valid) {
+      return
+    }
+
+    const moduleInfo = {
+      name: path.basename(location),
+      fullPath: status.path,
+      archived: status.archived,
+      location,
+      enabled
+    }
+
+    if (status.archived) {
+      return moduleInfo
+    }
+
+    return {
+      ...moduleInfo,
+      ..._.pick(require(path.resolve(status.path, 'package.json')), ['name', 'fullName', 'description'])
+    }
+    // silent catch
+  } catch (err) {}
+}
+
 @injectable()
 export class ModuleLoader {
   private entryPoints = new Map<string, ModuleEntryPoint>()
@@ -66,7 +96,8 @@ export class ModuleLoader {
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   public get configReader() {
@@ -131,8 +162,12 @@ export class ModuleLoader {
   public async reloadModule(moduleLocation: string, moduleName: string) {
     const resolver = new ModuleResolver(this.logger)
     const absoluteLocation = await resolver.resolve(moduleLocation)
+    await this.unloadModule(absoluteLocation, moduleName)
 
-    await this._unloadModule(absoluteLocation, moduleName)
+    // Adds the global config file if missing. Must be done before loading in case config is referenced in onServerStarted
+    process.LOADED_MODULES[moduleName] = absoluteLocation
+
+    await this.configReader.loadModuleGlobalConfigFile(moduleName)
 
     const entryPoint = resolver.requireModule(absoluteLocation)
     const isModuleLoaded = await this._loadModule(entryPoint, moduleName)
@@ -168,7 +203,7 @@ export class ModuleLoader {
     return true
   }
 
-  private async _unloadModule(moduleLocation: string, moduleName: string) {
+  public async unloadModule(moduleLocation: string, moduleName: string) {
     const loadedModule = this.entryPoints.get(moduleName)
     if (!loadedModule) {
       return
@@ -182,8 +217,12 @@ export class ModuleLoader {
 
     await (loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api))
 
+    const resourceLoader = new ModuleResourceLoader(this.logger, moduleName, this.ghost)
+    await resourceLoader.disableResources()
+
     this.entryPoints.delete(moduleName)
     delete require.cache[require.resolve(moduleLocation)]
+    delete process.LOADED_MODULES[moduleName]
   }
 
   public async unloadModulesForBot(botId: string) {
@@ -306,5 +345,20 @@ export class ModuleLoader {
     }
 
     return this.entryPoints.get(module)!
+  }
+
+  public async getAllModules(): Promise<ModuleInfo[]> {
+    const configModules = (await this.configProvider.getBotpressConfig()).modules
+
+    // Add modules which are not listed in the config file
+    const fileModules = await this.configProvider.getModulesListConfig()
+    const missingModules = _.differenceBy(fileModules, configModules, 'location')
+
+    const resolver = new ModuleResolver(this.logger)
+    const allModules = await Promise.map([...configModules, ...missingModules], async mod =>
+      extractModuleInfo(mod, resolver)
+    )
+
+    return _.orderBy(allModules.filter(Boolean), 'name') as ModuleInfo[]
   }
 }
