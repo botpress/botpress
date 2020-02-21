@@ -5,7 +5,6 @@ import ModuleResolver from 'core/modules/resolver'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
-import path from 'path'
 import yn from 'yn'
 
 import { ModuleLoader } from '../module-loader'
@@ -14,33 +13,6 @@ import { SkillService } from '../services/dialog/skill/service'
 import { CustomRouter } from './customRouter'
 import { NotFoundError } from './errors'
 import { assertSuperAdmin, checkTokenHeader } from './util'
-
-const extractModuleInfo = async ({ location, enabled }, resolver: ModuleResolver): Promise<ModuleInfo | undefined> => {
-  try {
-    const status = await resolver.getModuleInfo(location)
-    if (!status || !status.valid) {
-      return
-    }
-
-    const moduleInfo = {
-      name: path.basename(location),
-      fullPath: status.path,
-      archived: status.archived,
-      location,
-      enabled
-    }
-
-    if (status.archived) {
-      return moduleInfo
-    }
-
-    return {
-      ...moduleInfo,
-      ..._.pick(require(path.resolve(status.path, 'package.json')), ['name', 'fullName', 'description'])
-    }
-    // silent catch
-  } catch (err) {}
-}
 
 export class ModulesRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
@@ -67,7 +39,7 @@ export class ModulesRouter extends CustomRouter {
       this.checkTokenHeader,
       assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
-        res.send(await this._getAllModules())
+        res.send(await this.moduleLoader.getAllModules())
       })
     )
 
@@ -177,23 +149,8 @@ export class ModulesRouter extends CustomRouter {
     )
   }
 
-  private async _getAllModules(): Promise<ModuleInfo[]> {
-    const configModules = (await this.configProvider.getBotpressConfig()).modules
-
-    // Add modules which are not listed in the config file
-    const fileModules = await this.configProvider.getModulesListConfig()
-    const missingModules = _.differenceBy(fileModules, configModules, 'location')
-
-    const resolver = new ModuleResolver(this.logger)
-    const allModules = await Promise.map([...configModules, ...missingModules], async mod =>
-      extractModuleInfo(mod, resolver)
-    )
-
-    return _.orderBy(allModules.filter(Boolean), 'name') as ModuleInfo[]
-  }
-
   private async _findModule(moduleName: string): Promise<ModuleInfo> {
-    const allModules = await this._getAllModules()
+    const allModules = await this.moduleLoader.getAllModules()
     const module = allModules.find(x => x.name === moduleName)
 
     if (!module) {

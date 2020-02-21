@@ -8,13 +8,16 @@ import {
   ModuleEntryPoint,
   Skill
 } from 'botpress/sdk'
+import { ModuleInfo } from 'common/typings'
 import { ValidationError } from 'errors'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import path from 'path'
 
 import { createForModule } from './api' // TODO
+import { ConfigProvider } from './config/config-loader'
 import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
 import { BotService } from './services/bot-service'
@@ -57,6 +60,33 @@ const MODULE_SCHEMA = joi.object().keys({
   })
 })
 
+const extractModuleInfo = async ({ location, enabled }, resolver: ModuleResolver): Promise<ModuleInfo | undefined> => {
+  try {
+    const status = await resolver.getModuleInfo(location)
+    if (!status || !status.valid) {
+      return
+    }
+
+    const moduleInfo = {
+      name: path.basename(location),
+      fullPath: status.path,
+      archived: status.archived,
+      location,
+      enabled
+    }
+
+    if (status.archived) {
+      return moduleInfo
+    }
+
+    return {
+      ...moduleInfo,
+      ..._.pick(require(path.resolve(status.path, 'package.json')), ['name', 'fullName', 'description'])
+    }
+    // silent catch
+  } catch (err) {}
+}
+
 @injectable()
 export class ModuleLoader {
   private entryPoints = new Map<string, ModuleEntryPoint>()
@@ -66,7 +96,8 @@ export class ModuleLoader {
     @inject(TYPES.Logger)
     @tagged('name', 'ModuleLoader')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   public get configReader() {
@@ -314,5 +345,20 @@ export class ModuleLoader {
     }
 
     return this.entryPoints.get(module)!
+  }
+
+  public async getAllModules(): Promise<ModuleInfo[]> {
+    const configModules = (await this.configProvider.getBotpressConfig()).modules
+
+    // Add modules which are not listed in the config file
+    const fileModules = await this.configProvider.getModulesListConfig()
+    const missingModules = _.differenceBy(fileModules, configModules, 'location')
+
+    const resolver = new ModuleResolver(this.logger)
+    const allModules = await Promise.map([...configModules, ...missingModules], async mod =>
+      extractModuleInfo(mod, resolver)
+    )
+
+    return _.orderBy(allModules.filter(Boolean), 'name') as ModuleInfo[]
   }
 }
