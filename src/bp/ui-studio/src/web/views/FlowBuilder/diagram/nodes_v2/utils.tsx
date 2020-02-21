@@ -14,9 +14,9 @@ export const showHeader: FC<HeaderProps> = props => {
   return (
     <div className={style.header}>
       <span>
-        {props.nodeType} (<small>{props.nodeName}</small>)
+        {props.nodeType} · {props.nodeName}
       </span>
-      {props.isStartNode && <Icon icon="star" color="white" iconSize={15} />}
+      {props.isStartNode && <Icon icon="star" color="#DAA520" iconSize={11} />}
     </div>
   )
 }

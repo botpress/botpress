@@ -68,7 +68,7 @@ class FlowBuilder extends Component<Props, State> {
     initialized: false,
     readOnly: false,
     panelPermissions: this.allPermissions,
-    flowPreview: false,
+    flowPreview: true,
     mutexInfo: undefined,
     showSearch: Boolean(this.highlightFilter),
     highlightFilter: this.highlightFilter
@@ -178,7 +178,7 @@ class FlowBuilder extends Component<Props, State> {
     this.props.history.replace(newUrl)
   }
 
-  pushFlowState = (flow) => {
+  pushFlowState = flow => {
     const hash = this.state.showSearch ? searchTag + this.state.highlightFilter : ''
     this.props.history.push(`/flows/${flow.replace(/\.flow\.json$/i, '')}${hash}`)
   }
@@ -291,7 +291,4 @@ const mapDispatchToProps = {
   refreshIntents
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(FlowBuilder))
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(FlowBuilder))
