@@ -75,19 +75,23 @@ export class EventCollector {
     // Once the goal is a success or failure, it becomes inactive
     if (goal?.success !== undefined) {
       if (goal?.success) {
-        await this.analytics.addMetric({
-          botId,
-          channel,
-          metric: sdk.AnalyticsMetric.GoalsCompletedCount,
-          method: sdk.AnalyticsMethod.IncrementDaily
-        })
+        process.BOTPRESS_EVENTS.emit('core.analytics', [
+          {
+            botId,
+            channel,
+            metric: sdk.AnalyticsMetric.GoalsCompletedCount,
+            method: sdk.AnalyticsMethod.IncrementDaily
+          }
+        ])
       } else {
-        await this.analytics.addMetric({
-          botId,
-          channel,
-          metric: sdk.AnalyticsMetric.GoalsFailedCount,
-          method: sdk.AnalyticsMethod.IncrementDaily
-        })
+        process.BOTPRESS_EVENTS.emit('core.analytics', [
+          {
+            botId,
+            channel,
+            metric: sdk.AnalyticsMetric.GoalsFailedCount,
+            method: sdk.AnalyticsMethod.IncrementDaily
+          }
+        ])
       }
       goal.active = false
     }

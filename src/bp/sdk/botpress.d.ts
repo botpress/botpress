@@ -1506,6 +1506,12 @@ declare module 'botpress/sdk' {
     ): Promise<IO.StoredEvent[]>
 
     /**
+     * Find events that were emitted on a particular date. All events from the beginning to the end of the day will be returned.
+     * @param date - Date of the events. The time will be ignored.
+     */
+    export function findByDate(date: Date): Promise<IO.StoredEvent[]>
+
+    /**
      * When Event Storage is enabled, you can use this API to update an event. You can use multiple fields
      * for your query, but at least one is required.
      *
@@ -1744,15 +1750,6 @@ declare module 'botpress/sdk' {
     created_on: string
     updated_on: string
     value: number
-  }
-
-  export namespace analytics {
-    export function addMetric(metricDef: MetricDefinition): Promise<void>
-    /**
-     * Helper function to increment the new user and total user count in a single call.
-     * @param metricDef
-     */
-    export function addUserMetric(botId: string, channel: string): Promise<void>
   }
 
   export namespace bots {

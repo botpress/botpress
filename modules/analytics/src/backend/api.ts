@@ -1,38 +1,42 @@
-import { SDK } from 'botpress'
+import { Analytics, http } from 'botpress/sdk'
+import _ from 'lodash'
+import moment from 'moment'
 
-import { AnalyticsByBot } from './typings'
+import { AnalyticsDatabase } from './db'
 
-export default async (bp: SDK, analytics: AnalyticsByBot) => {
-  const router = bp.http.createRouterForBot('analytics')
+export default (db: AnalyticsDatabase) => {
+  const router = http.createRouterForBot('analytics', { checkAuthentication: true, enableJsonBodyParser: true })
 
-  router.get('/graphs', async (req, res) => {
-    const graphData = await analytics[req.params.botId].getChartsGraphData()
-    res.send(graphData)
+  router.get('/channel/:channel', async (req, res) => {
+    const { botId, channel } = req.params
+    const { start, end } = req.query
+
+    const startDate = unixToDate(start)
+    const endDate = unixToDate(end)
+
+    try {
+      if (!channel || channel === 'all') {
+        const analytics = await db.getBetweenDates(botId, startDate, endDate, undefined)
+        res.send(analytics.map(toDto))
+      } else {
+        const analytics = await db.getBetweenDates(botId, startDate, endDate, channel)
+        res.send(analytics.map(toDto))
+      }
+    } catch (err) {
+      res.status(400).send(err.message)
+    }
   })
 
-  router.get('/metadata', async (req, res) => {
-    const metadata = await analytics[req.params.botId].getAnalyticsMetadata()
-    res.send(metadata)
-  })
+  const toDto = (analytics: Partial<Analytics>) => {
+    return _.pick(analytics, ['metric_name', 'value', 'created_on', 'channel'])
+  }
 
-  router.post('/graphs', async (req, res) => {
-    const fn = req.body.fn ? { fn: eval(req.body.fn) } : {}
-    const fnAvg = req.body.fnAvg ? { fnAvg: eval(req.body.fnAvg) } : {}
-    analytics[req.params.botId].custom.addGraph({ ...req.body, ...fn, ...fnAvg })
-    res.end()
-  })
+  const unixToDate = unix => {
+    const momentDate = moment.unix(unix)
+    if (!momentDate.isValid()) {
+      throw new Error(`Invalid unix timestamp format ${unix}.`)
+    }
 
-  router.get('/custom_metrics', async (req, res) => {
-    const metrics = await analytics[req.params.botId].custom.getAll(req.query.from, req.query.to)
-    res.send(metrics)
-  })
-
-  const methods = ['increment', 'decrement', 'set']
-  methods.map(method => {
-    router.post(`/custom_metrics/${method}`, async (req, res) => {
-      const params = [req.body.name, ...(typeof req.body.count === 'number' ? [req.body.count] : [])]
-      analytics[req.params.botId].custom[method](...params)
-      res.end()
-    })
-  })
+    return momentDate.toDate()
+  }
 }

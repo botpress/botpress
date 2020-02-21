@@ -18,7 +18,6 @@ import { EventRepository, SessionRepository, UserRepository } from './repositori
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
-import AnalyticsService from './services/analytics-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { DialogEngine } from './services/dialog/dialog-engine'
@@ -75,6 +74,7 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
     replyToEvent: eventEngine.replyToEvent.bind(eventEngine),
     isIncomingQueueEmpty: eventEngine.isIncomingQueueEmpty.bind(eventEngine),
     findEvents: eventRepo.findEvents.bind(eventRepo),
+    findByDate: eventRepo.findByDate.bind(eventRepo),
     updateEvent: eventRepo.updateEvent.bind(eventRepo)
   }
 }
@@ -109,13 +109,6 @@ const bots = (botService: BotService): typeof sdk.bots => {
       return botService.exportBot(botId)
     },
     importBot: botService.importBot.bind(botService)
-  }
-}
-
-const analytics = (analytics: AnalyticsService): typeof sdk.analytics => {
-  return {
-    addMetric: analytics.addMetric.bind(analytics),
-    addUserMetric: analytics.addUserMetric.bind(analytics)
   }
 }
 
@@ -270,7 +263,6 @@ export class BotpressAPIProvider {
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
   distributed: typeof sdk.distributed
-  analytics: typeof sdk.analytics
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -292,8 +284,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager,
-    @inject(TYPES.AnalyticsService) analytics: AnalyticsService
+    @inject(TYPES.StateManager) stateManager: StateManager
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -312,7 +303,6 @@ export class BotpressAPIProvider {
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
-    this.analytics = analytics
   }
 
   @Memoize()
@@ -345,7 +335,6 @@ export class BotpressAPIProvider {
       experimental: this.experimental,
       workspaces: this.workspaces,
       distributed: this.distributed,
-      analytics: this.analytics,
       AnalyticsMethod: require('./sdk/enums').AnalyticsMethod,
       AnalyticsMetric: require('./sdk/enums').AnalyticsMetric
     }

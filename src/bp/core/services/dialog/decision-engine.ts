@@ -48,12 +48,14 @@ export class DecisionEngine {
       if (action === 'send') {
         await this._sendSuggestion(data, sessionId, event)
       } else if (action === 'redirect') {
-        await this.analytics.addMetric({
-          botId: event.botId,
-          channel: event.channel,
-          metric: AnalyticsMetric.GoalsStartedCount,
-          method: AnalyticsMethod.IncrementDaily
-        })
+        process.BOTPRESS_EVENTS.emit('core.analytics', [
+          {
+            botId: event.botId,
+            channel: event.channel,
+            metric: AnalyticsMetric.GoalsStartedCount,
+            method: AnalyticsMethod.IncrementDaily
+          }
+        ])
         await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
 
         event.state.session.lastGoals = [
@@ -93,19 +95,23 @@ export class DecisionEngine {
     if (event.nlu?.intent.name === 'none') {
       // We assume its a top-level message when the event has no previous messages
       if (event.state.session.lastMessages?.length) {
-        await this.analytics.addMetric({
-          botId: event.botId,
-          channel: event.channel,
-          metric: AnalyticsMetric.MsgNluNone,
-          method: AnalyticsMethod.IncrementDaily
-        })
+        process.BOTPRESS_EVENTS.emit('core.analytics', [
+          {
+            botId: event.botId,
+            channel: event.channel,
+            metric: AnalyticsMetric.MsgNluNone,
+            method: AnalyticsMethod.IncrementDaily
+          }
+        ])
       } else {
-        await this.analytics.addMetric({
-          botId: event.botId,
-          channel: event.channel,
-          metric: AnalyticsMetric.TopMsgNluNone,
-          method: AnalyticsMethod.IncrementDaily
-        })
+        process.BOTPRESS_EVENTS.emit('core.analytics', [
+          {
+            botId: event.botId,
+            channel: event.channel,
+            metric: AnalyticsMetric.TopMsgNluNone,
+            method: AnalyticsMethod.IncrementDaily
+          }
+        ])
       }
     }
 
@@ -228,12 +234,14 @@ export class DecisionEngine {
 
     if (payloads) {
       if (event.decision?.source === 'qna') {
-        await this.analytics.addMetric({
-          botId: event.botId,
-          channel: event.channel,
-          metric: AnalyticsMetric.MsgSentQnaCount,
-          method: AnalyticsMethod.IncrementDaily
-        })
+        process.BOTPRESS_EVENTS.emit('core.analytics', [
+          {
+            botId: event.botId,
+            channel: event.channel,
+            metric: AnalyticsMetric.MsgSentQnaCount,
+            method: AnalyticsMethod.IncrementDaily
+          }
+        ])
       }
 
       await this.eventEngine.replyToEvent(event, payloads, event.id)

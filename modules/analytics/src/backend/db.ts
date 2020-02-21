@@ -1,73 +1,104 @@
-import _ from 'lodash'
+import { Analytics, AnalyticsMethod, AnalyticsMetric, database, MetricDefinition } from 'botpress/sdk'
+import Knex from 'knex'
+import moment from 'moment'
 
-import { SDK } from '.'
+const TABLE_NAME = 'srv_analytics'
 
-const MAX_CHAR_LEN = 254
-const extractText = event => ((event.payload && event.payload.text) || '').substr(0, MAX_CHAR_LEN)
+export class AnalyticsDatabase {
+  constructor(private db: typeof database) {}
 
-export default class AnalyticsDb {
-  knex: any
+  async insert(args: { botId: string; channel: string; metric: string; value: number }, trx?: Knex.Transaction) {
+    const { botId, channel, metric, value } = args
+    let query = this.db(TABLE_NAME).insert({
+      botId,
+      channel,
+      metric_name: metric,
+      value,
+      created_on: this.db.date.now()
+    })
 
-  constructor(bp: SDK) {
-    this.knex = bp.database
+    if (trx) {
+      query = query.transacting(trx)
+    }
+    return query
   }
 
-  initializeDb = () => {
-    if (!this.knex) {
-      throw new Error('you must initialize the database before')
-    }
+  async update(id: number, value: number, trx?: Knex.Transaction) {
+    let query = this.db(TABLE_NAME)
+      .update({ value, updated_on: this.db.date.now() })
+      .where({ id })
 
-    return this.knex
-      .createTableIfNotExists('analytics_interactions', table => {
-        table.increments('id').primary()
-        table.timestamp('ts')
-        table.string('type')
-        table.string('text')
-        table.string('channel')
-        table.string('user_id')
-        table.enu('direction', ['in', 'out'])
-      })
-      .then(() => {
-        return this.knex.createTableIfNotExists('analytics_runs', table => {
-          table.increments('id').primary()
-          table.timestamp('ts')
-        })
-      })
-      .then(() => {
-        return this.knex.createTableIfNotExists('analytics_custom', table => {
-          table.string('botId')
-          table.string('date')
-          table.string('name')
-          table.integer('count')
-          table.unique(['date', 'name'])
-        })
-      })
-      .then(() => this.knex)
+    if (trx) {
+      query = query.transacting(trx)
+    }
+    return query
   }
 
-  saveIncoming = event => {
-    const interactionRow = {
-      ts: this.knex.date.now(),
-      type: event.type,
-      text: extractText(event),
-      channel: event.channel,
-      user_id: event.target,
-      direction: 'in'
+  async insertOrUpdate(def: MetricDefinition, trx?: Knex.Transaction) {
+    const { botId, channel, metric } = def
+    const value = def.increment || 1
+    const analytics = await this.get({ botId, channel, metric }, trx)
+    if (!analytics) {
+      return this.insert({ botId, channel, metric, value: value }, trx)
     }
 
-    return this.knex('analytics_interactions').insert(interactionRow)
+    // Aggregate metrics per day
+    const latest = moment(analytics.created_on).startOf('day')
+    const today = moment().startOf('day')
+
+    if (latest.isBefore(today) && def.method === AnalyticsMethod.IncrementDaily) {
+      return this.insert({ botId, channel, metric, value }, trx)
+    } else if (latest.isBefore(today) && def.method === AnalyticsMethod.IncrementTotal) {
+      return this.insert({ botId, channel, metric, value: analytics.value + value }, trx)
+    } else if (latest.isBefore(today) && def.method === AnalyticsMethod.Replace) {
+      return this.insert({ botId, channel, metric, value }, trx)
+    } else if (def.method === AnalyticsMethod.Replace) {
+      return this.update(analytics.id, value, trx)
+    } else {
+      return this.update(analytics.id, analytics.value + value, trx)
+    }
   }
 
-  saveOutgoing = event => {
-    const interactionRow = {
-      ts: this.knex.date.now(),
-      type: event.type,
-      text: extractText(event),
-      channel: event.channel,
-      user_id: event.target,
-      direction: 'out'
+  async insertMany(metricDefs: MetricDefinition[]): Promise<void> {
+    const trx = await this.db.transaction()
+    try {
+      await Promise.mapSeries(metricDefs, def => this.insertOrUpdate(def, trx))
+      await trx.commit()
+    } catch (err) {
+      await trx.rollback(err)
+    }
+  }
+
+  async get(
+    args: { botId: string; channel: string; metric: string },
+    trx?: Knex.Transaction
+  ): Promise<Analytics | undefined> {
+    const { botId, channel, metric } = args
+    let query = this.db(TABLE_NAME)
+      .select()
+      .where({ botId, channel, metric_name: metric })
+      .orderBy('created_on', 'desc')
+      .first()
+
+    if (trx) {
+      query = query.transacting(trx)
     }
 
-    return this.knex('analytics_interactions').insert(interactionRow)
+    return query
+  }
+
+  async getBetweenDates(botId: string, startDate: Date, endDate: Date, channel?: string): Promise<Analytics[]> {
+    const includeEndDate = moment(endDate).add(1, 'day')
+
+    let query = this.db(TABLE_NAME)
+      .select()
+      .whereBetween('created_on', [startDate.toISOString(), includeEndDate.toISOString()])
+      .andWhere({ botId })
+
+    if (channel) {
+      query = query.andWhere({ channel })
+    }
+
+    return query
   }
 }

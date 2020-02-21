@@ -1,53 +1,31 @@
-import 'bluebird-global'
-import * as sdk from 'botpress'
-import _ from 'lodash'
+import * as sdk from 'botpress/sdk'
 
-import Analytics from './analytics'
-import api from './api'
-import setup from './setup'
-import { AnalyticsByBot } from './typings'
+import AnalyticsApi from './api'
+import { AnalyticsDatabase } from './db'
+import AnalyticsService from './job'
 
-const analyticsByBot: AnalyticsByBot = {}
-
-const interactionsToTrack = ['message', 'text', 'button', 'template', 'quick_reply', 'postback']
-
-const onServerStarted = async (bp: typeof sdk) => {
-  await setup(bp, interactionsToTrack)
-}
-
+const onServerStarted = async (bp: typeof sdk) => {}
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, analyticsByBot)
-}
+  const db = new AnalyticsDatabase(bp.database)
+  AnalyticsApi(db)
+  const job = new AnalyticsService(bp, db)
+  await job.initialize()
 
-const onBotMount = async (bp: typeof sdk, botId: string) => {
-  const analytics = new Analytics(bp, botId)
-  analyticsByBot[botId] = analytics
-  await analytics.start()
-}
+  process.BOTPRESS_EVENTS.on('core.analytics', async (arg: { botId; channel; metric; method }) => job.addMetric(arg))
 
-const onBotUnmount = async (bp: typeof sdk, botId: string) => {
-  await analyticsByBot[botId].stop()
-  delete analyticsByBot[botId]
-}
-
-const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.events.removeMiddleware('analytics.incoming')
-  bp.events.removeMiddleware('analytics.outgoing')
-  bp.http.deleteRouterForBot('analytics')
+  job.start()
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
-  onBotMount,
-  onBotUnmount,
-  onModuleUnmount,
   definition: {
     name: 'analytics',
-    fullName: 'Analytics',
-    homepage: 'https://botpress.com',
     menuIcon: 'timeline',
-    menuText: 'Analytics'
+    menuText: 'Analytics',
+    noInterface: false,
+    fullName: 'Analytics',
+    homepage: 'https://botpress.com'
   }
 }
 

@@ -307,12 +307,14 @@ export class Botpress {
         return
       }
 
-      await this.analyticService.addMetric({
-        botId: event.botId,
-        channel: event.channel,
-        metric: sdk.AnalyticsMetric.MsgReceivedCount,
-        method: sdk.AnalyticsMethod.IncrementDaily
-      })
+      process.BOTPRESS_EVENTS.emit('core.analytics', [
+        {
+          botId: event.botId,
+          channel: event.channel,
+          metric: sdk.AnalyticsMetric.MsgReceivedCount,
+          method: sdk.AnalyticsMethod.IncrementDaily
+        }
+      ])
 
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
@@ -322,12 +324,14 @@ export class Botpress {
 
     this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.eventCollector.storeEvent(event)
-      await this.analyticService.addMetric({
-        botId: event.botId,
-        channel: event.channel,
-        metric: sdk.AnalyticsMetric.MsgSentCount,
-        method: sdk.AnalyticsMethod.IncrementDaily
-      })
+      process.BOTPRESS_EVENTS.emit('core.analytics', [
+        {
+          botId: event.botId,
+          channel: event.channel,
+          metric: sdk.AnalyticsMetric.MsgSentCount,
+          method: sdk.AnalyticsMethod.IncrementDaily
+        }
+      ])
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
 

@@ -1,25 +1,6 @@
 {
   "type": "object",
-  "properties": {
-    "enabled": {
-      "description": "Use this flag to enable or disable analytics for this bot.",
-      "default": true,
-      "type": "boolean"
-    },
-    "interval": {
-      "description": "The time interval between each analytics round",
-      "default": "15s",
-      "type": "string"
-    },
-    "$schema": {
-      "type": "string"
-    }
-  },
   "additionalProperties": false,
-  "required": [
-    "enabled",
-    "interval"
-  ],
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
 

@@ -25,7 +25,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
   }
 
   componentDidMount() {
-    void axios.get(`${window.API_PATH}/modules`).then(({ data }) => {
+    void axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
       const channels = data
         .filter(
           x =>
@@ -53,7 +53,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
   }
 
   fetchAnalytics = (channel, startDate, endDate) => {
-    return axios.get(`${window.BOT_API_PATH}/analytics/channel/${channel}`, {
+    return this.props.bp.axios.get(`mod/analytics/channel/${channel}`, {
       params: {
         start: startDate,
         end: endDate
