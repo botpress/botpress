@@ -69,7 +69,7 @@ class FlowBuilder extends Component<Props, State> {
     initialized: false,
     readOnly: false,
     panelPermissions: this.allPermissions,
-    flowPreview: false,
+    flowPreview: true,
     mutexInfo: undefined,
     showSearch: Boolean(this.highlightFilter),
     highlightFilter: this.highlightFilter

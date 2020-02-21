@@ -3,32 +3,47 @@
 }
 
 .baseNode {
+  background-color: #FCFCFC;
+  border-radius: 3px;
+  border: 1px solid #000;
+  padding: 8px 18px;
   width: 200px;
-  background-color: #ededed;
-  border: 1px solid #dedede;
-  border-radius: 15px;
 
   :global(.port) {
-    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    height: 10px;
+    width: 10px;
+    background: #D1E5F2;
 
     &:global(.selected) {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(19, 124, 189, 0.5);
     }
   }
 
   .header {
-    background: #a1c6e8;
-    color: #ffffff;
-    height: 20px;
-    padding: 2px 10px;
-    font-size: 12px;
+    background: #D1E5F2;
     border-radius: 15px;
+    color: #000;
     display: flex;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1;
+    height: 20px;
     justify-content: space-between;
+    padding: 3px 8px 2px;
+
+    & > span + span {
+      margin-left: 4px;
+    }
+
+    span {
+      display: inline-block;
+      vertical-align: middle;
+    }
   }
 
   .content {
-    padding: 4px;
+    padding: 8px 0 0;
     word-wrap: break-word;
     text-overflow: ellipsis;
     max-height: 78px;
@@ -39,13 +54,15 @@
   .ports {
     .in {
       position: absolute;
-      bottom: 0px;
-      left: -8px;
+      bottom: 20%;
+      left: 0;
+      transform: translate(-50%, 0);
     }
     .out {
       position: absolute;
-      bottom: 0px;
-      right: -8px;
+      bottom: 20%;
+      right: 0;
+      transform: translate(50%, 0);
     }
     .outRouting {
       position: absolute;
@@ -61,29 +78,29 @@
 
 .nodeSaySomething {
   .header {
-    background: #a1c6e8;
-    color: #ffffff;
+    background: #D1E5F2;
+    color: #182026;
   }
 }
 
 .nodeExecute {
   .header {
     background: #d5a5bc;
-    color: #ffffff;
+    color: #182026;
   }
 }
 
 .nodeListen {
   .header {
     background: #ffe699;
-    color: #000000;
+    color: #182026;
   }
 }
 
 .nodeRouter {
   .header {
     background: #a1c4c9;
-    color: #000000;
+    color: #182026;
   }
 
   .content {
