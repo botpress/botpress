@@ -19,7 +19,7 @@
     "mobx": "^5.10.1",
     "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",
-    "prettier": "^1.18.2",
+    "prettier": "^1.19.1",
     "react-icons": "^3.8.0"
   },
   "resolutions": {

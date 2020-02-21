@@ -6,7 +6,7 @@ import { validateFilePayload } from './utils'
 
 export const getPermissionsMw = (bp: typeof sdk) => async (req: any, res, next): Promise<void> => {
   const hasPermission = req => async (op: string, res: string) =>
-    bp.http.hasPermission(req, op, 'module.code-editor.' + res)
+    bp.http.hasPermission(req, op, 'module.code-editor.' + res, true)
 
   const permissionsChecker = hasPermission(req)
 
