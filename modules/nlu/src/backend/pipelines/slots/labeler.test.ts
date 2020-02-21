@@ -114,7 +114,7 @@ describe('combineSlots', () => {
 
   test('existing "ANY slot" and a new "INSIDE & ENTITY slot"', () => {
     // Not sure this case is even possible.
-    // if yes, we might want to change this behaviour, leaving this as is for the moment
+    // if yes, we might want to change this behavior, leaving this as is for the moment
     const existing = {
       source: '2',
       value: '2'
@@ -139,7 +139,7 @@ describe('combineSlots', () => {
 
   test('existing "ENTITY slot" a new "INSIDE & ENTITY slot"', () => {
     // Not sure this case is even possible.
-    // if yes, we might want to change this behaviour, leaving this as is for the moment
+    // if yes, we might want to change this behavior, leaving this as is for the moment
     const existing = {
       source: '2',
       value: ms('2 hours'),

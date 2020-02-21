@@ -293,7 +293,7 @@ export class WorkspaceService {
   async getBotWorkspaceId(botId: string) {
     const workspaces = await this.getWorkspaces()
     const workspace = workspaces.find(x => !!x.bots.find(bot => bot === botId))
-    return (workspace && workspace.id) || 'default'
+    return workspace?.id ?? 'default'
   }
 
   async getRoleForUser(email: string, strategy: string, workspace: string): Promise<AuthRole | undefined> {
@@ -305,7 +305,7 @@ export class WorkspaceService {
     const workspaces = await this.getWorkspaces()
     const workspace = workspaces.find(x => x.id === workspaceId)
 
-    return workspace && workspace.pipeline
+    return workspace?.pipeline
   }
 
   async hasPipeline(workspaceId: string): Promise<boolean> {

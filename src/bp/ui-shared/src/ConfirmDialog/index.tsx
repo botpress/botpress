@@ -2,21 +2,11 @@ import { Button, Classes, Dialog, Intent } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
-interface Options {
-  title?: string
-  accept?: () => void
-  decline?: () => void
-  acceptLabel?: string
-  declineLabel?: string
-}
+import { ConfirmDialogOptions, ConfirmDialogProps } from '../Interface/typings'
 
-interface Props extends Options {
-  message: string
-  isOpen: boolean
-  resolve: (ok: boolean) => void
-}
+import styles from './style.scss'
 
-const ConfirmDialogComponent: FC<Props> = props => {
+const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   const onAccept = () => {
     removeDialog()
 
@@ -42,6 +32,7 @@ const ConfirmDialogComponent: FC<Props> = props => {
       title={props.title}
       icon="warning-sign"
       usePortal={false}
+      enforceFocus={false}
       isOpen={true}
       onClose={onDecline}
       transitionDuration={0}
@@ -52,6 +43,7 @@ const ConfirmDialogComponent: FC<Props> = props => {
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
             id="confirm-dialog-decline"
+            className={Classes.BUTTON}
             type="button"
             onClick={onDecline}
             text={props.declineLabel}
@@ -60,6 +52,7 @@ const ConfirmDialogComponent: FC<Props> = props => {
           />
           <Button
             id="confirm-dialog-accept"
+            className={Classes.BUTTON}
             type="button"
             onClick={onAccept}
             text={props.acceptLabel}
@@ -80,7 +73,7 @@ ConfirmDialogComponent.defaultProps = {
   decline: () => {}
 }
 
-const confirmDialog = (message: string, options: Options): Promise<boolean> => {
+const confirmDialog = (message: string, options: ConfirmDialogOptions): Promise<boolean> => {
   return new Promise((resolve, reject) => {
     addDialog({ message, ...options }, resolve)
   })
@@ -93,6 +86,7 @@ function addDialog(props, resolve) {
   const div = document.createElement('div')
 
   div.setAttribute('id', 'confirmDialog-container')
+  div.setAttribute('class', styles.ConfirmDialogContainer)
   body.appendChild(div)
 
   ReactDOM.render(<ConfirmDialogComponent {...props} resolve={resolve} />, div)
