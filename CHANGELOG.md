@@ -1,3 +1,30 @@
+# [12.6.0](https://github.com/botpress/botpress/compare/v12.5.0...v12.6.0) (2020-02-19)
+
+
+### Bug Fixes
+
+* **admin:** allow overwrite existing bot on import ([d02a5ed](https://github.com/botpress/botpress/commit/d02a5ed))
+* **admin:** remove unused dep & fix ts ([0adeaed](https://github.com/botpress/botpress/commit/0adeaed))
+* **cms:** fix image preview when name has space ([faabca3](https://github.com/botpress/botpress/commit/faabca3))
+* **code-editor:** fix formatting on loading file ([#2965](https://github.com/botpress/botpress/issues/2965)) ([4406dc7](https://github.com/botpress/botpress/commit/4406dc7))
+* **config:** remove misleading description for empty bot ([2fa1d9f](https://github.com/botpress/botpress/commit/2fa1d9f))
+* **core:** id validation on bot admin actions ([98d540e](https://github.com/botpress/botpress/commit/98d540e))
+* **docs:** before_container takes an array ([ac94ff6](https://github.com/botpress/botpress/commit/ac94ff6))
+* **docs:** changes ([54e5232](https://github.com/botpress/botpress/commit/54e5232))
+* **docs:** fix link to "hosting language server" ([e720173](https://github.com/botpress/botpress/commit/e720173))
+* **docs:** removed on page load section ([46f21a5](https://github.com/botpress/botpress/commit/46f21a5))
+* **ui-studio:** add node highlight after redirect ([35a8d6d](https://github.com/botpress/botpress/commit/35a8d6d))
+* **ui-studio:** fix highlighting nodes by URL-hash ([0ed2568](https://github.com/botpress/botpress/commit/0ed2568))
+
+
+### Features
+
+* **cms:** link to usage elements ([#2957](https://github.com/botpress/botpress/issues/2957)) ([eeff521](https://github.com/botpress/botpress/commit/eeff521))
+* **hook:** bot-scoped hooks ([fee2cea](https://github.com/botpress/botpress/commit/fee2cea))
+* **logs:** new log page & additional bot monitoring ([a945944](https://github.com/botpress/botpress/commit/a945944))
+
+
+
 # [12.5.0](https://github.com/botpress/botpress/compare/v12.4.2...v12.5.0) (2020-02-03)
 
 

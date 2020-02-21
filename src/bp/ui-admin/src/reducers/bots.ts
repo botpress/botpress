@@ -6,11 +6,13 @@ import api from '../api'
 export const FETCH_BOTS_REQUESTED = 'bots/FETCH_BOTS_REQUESTED'
 export const FETCH_BOTS_RECEIVED = 'bots/FETCH_BOTS_RECEIVED'
 export const FETCH_BOT_HEALTH_RECEIVED = 'bots/FETCH_BOT_STATUS_RECEIVED'
+export const FETCH_BOTS_BY_WORKSPACE = 'bots/FETCH_BOTS_BY_WORKSPACE'
 export const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
 export const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
 
 export interface BotState {
   bots?: BotConfig[]
+  botsByWorkspace?: { [workspaceId: string]: string[] }
   health?: ServerHealth
   loadingBots: boolean
   botTemplates?: BotTemplate[]
@@ -63,6 +65,12 @@ export default (state = initialState, action) => {
         health: action.health
       }
 
+    case FETCH_BOTS_BY_WORKSPACE:
+      return {
+        ...state,
+        botsByWorkspace: action.bots
+      }
+
     default:
       return state
   }
@@ -105,6 +113,17 @@ export const fetchBots = () => {
       bots: data.payload.bots,
       workspace: data.payload.workspace
     })
+  }
+}
+
+export const fetchBotsByWorkspace = () => {
+  return async dispatch => {
+    const { data } = await api.getSecured().get('/admin/bots/byWorkspaces')
+    if (!data || !data.payload) {
+      return
+    }
+
+    dispatch({ type: FETCH_BOTS_BY_WORKSPACE, bots: data.payload.bots })
   }
 }
 

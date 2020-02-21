@@ -1,12 +1,12 @@
-import { calculateOverviewForHost, groupEntriesByTime, mergeEntriesByTime } from 'common/monitoring'
+import { Button, Intent, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
+import { calculateOverviewForHost, groupEntriesByTime, mergeEntriesByTime, Metric } from 'common/monitoring'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import React, { Component, Fragment } from 'react'
 import { IoIosArchive } from 'react-icons/io'
 import { connect } from 'react-redux'
-import Select from 'react-select'
-import { Col, Jumbotron, Label, Row } from 'reactstrap'
+import { Col, Jumbotron, Row } from 'reactstrap'
 import {
   Bar,
   CartesianGrid,
@@ -24,6 +24,7 @@ import PageContainer from '~/App/PageContainer'
 
 import { fetchStats, refreshStats } from '../../reducers/monitoring'
 import CheckRequirements from '../Components/CheckRequirements'
+import Dropdown from '../Components/Dropdown'
 import LoadingSection from '../Components/LoadingSection'
 import ChartTooltip from '../Components/Monitoring/ChartTooltip'
 import SummaryTable from '../Components/Monitoring/SummaryTable'
@@ -157,6 +158,18 @@ class Monitoring extends Component<Props, State> {
     this.setState({ autoRefresh, intervalId })
   }
 
+  toggleAutoRefresh = () => {
+    const autoRefresh = !this.state.autoRefresh
+    let intervalId: any = undefined
+
+    if (autoRefresh && !this.state.intervalId) {
+      intervalId = setInterval(() => this.refreshStats(), 10000)
+    } else if (!autoRefresh && this.state.intervalId) {
+      clearInterval(this.state.intervalId)
+    }
+    this.setState({ autoRefresh, intervalId })
+  }
+
   renderTooltip = ({ active, payload, label }) => {
     if (active && payload) {
       return <ChartTooltip payload={payload} uniqueHosts={this.state.uniqueHosts} date={label} />
@@ -226,18 +239,33 @@ class Monitoring extends Component<Props, State> {
           <YAxis yAxisId="r" domain={[0, 'dataMax']} tick={tickSize} width={30} orientation="right" />
           <Tooltip content={this.renderTooltip} />
           <Legend />
-          <Bar stackId="stack" yAxisId="l" name="HTTP Requests" dataKey="summary.requests.count" fill="#1C4E80" />
-          <Bar stackId="stack" yAxisId="l" name="Events In" dataKey="summary.eventsIn.count" fill="#7E909A" />
-          <Bar stackId="stack" yAxisId="l" name="Events Out" dataKey="summary.eventsOut.count" fill="#6AB187" />
+          <Bar stackId="stack" yAxisId="l" name="HTTP Requests" dataKey={`summary.${Metric.Requests}`} fill="#1C4E80" />
+          <Bar stackId="stack" yAxisId="l" name="Events In" dataKey={`summary.${Metric.EventsIn}`} fill="#7E909A" />
+          <Bar stackId="stack" yAxisId="l" name="Events Out" dataKey={`summary.${Metric.EventsOut}`} fill="#6AB187" />
           <Line
             yAxisId="r"
             name="Warnings"
-            dataKey="summary.warnings.count"
+            dataKey={`summary.${Metric.Warnings}`}
             stroke="#DBAE58"
             strokeWidth={2}
             dot={false}
           />
-          <Line yAxisId="r" name="Errors" dataKey="summary.errors.count" stroke="#AC3E31" strokeWidth={2} dot={false} />
+          <Line
+            yAxisId="r"
+            name="Errors"
+            dataKey={`summary.${Metric.Errors}`}
+            stroke="#db3737"
+            strokeWidth={2}
+            dot={false}
+          />
+          <Line
+            yAxisId="r"
+            name="Criticals"
+            dataKey={`summary.${Metric.Criticals}`}
+            stroke="#AC3E31"
+            strokeWidth={2}
+            dot={false}
+          />
         </ComposedChart>
       </ResponsiveContainer>
     )
@@ -277,49 +305,41 @@ class Monitoring extends Component<Props, State> {
   }
 
   renderHeader() {
-    const reactSelectStyle = {
-      control: base => ({ ...base, minHeight: 30 }),
-      dropdownIndicator: base => ({ ...base, padding: 4 }),
-      clearIndicator: base => ({ ...base, padding: 4 }),
-      valueContainer: base => ({ ...base, padding: '0px 6px' }),
-      input: base => ({ ...base, margin: 0, padding: 0 })
-    }
-
     return (
-      <div className="monitoring-toolbar">
-        <div className="monitoring-toolbar-item" style={{ marginLeft: 'auto' }}>
-          <strong>Time Frame</strong>
-          <Select
-            styles={reactSelectStyle}
-            options={timeFrameOptions}
-            value={this.state.timeFrame}
-            onChange={this.handleTimeFrameChanged}
-            isSearchable={false}
-          />
-        </div>
-        <div className="monitoring-toolbar-item">
-          <strong>Resolution</strong>
-          <Select
-            styles={reactSelectStyle}
-            options={resolutionOptions}
-            value={this.state.resolution}
-            onChange={this.handleResolutionChanged}
-            isSearchable={false}
-          />
-        </div>
-        <div>
-          <strong>Auto-Refresh</strong>
-          <br />
-          <Label>
-            <input
-              style={{ marginTop: 8 }}
-              name="autoRefresh"
-              type="checkbox"
-              checked={this.state.autoRefresh}
-              onChange={this.handleAutoRefreshChanged}
-            />{' '}
-            <strong>Enabled</strong>
-          </Label>
+      <div className="logToolbar-container">
+        <div className="logToolbar-left"></div>
+        <div className="logToolbar-right">
+          <BpTooltip content="Time Frame" position={Position.BOTTOM}>
+            <Dropdown
+              items={timeFrameOptions}
+              defaultItem={this.state.timeFrame}
+              onChange={option => this.setState({ timeFrame: option }, this.queryData)}
+              icon="calendar"
+              small
+              spaced
+            />
+          </BpTooltip>
+
+          <BpTooltip content="Resolution" position={Position.BOTTOM}>
+            <Dropdown
+              items={resolutionOptions}
+              defaultItem={this.state.resolution}
+              onChange={option => this.handleResolutionChanged(option)}
+              icon="key-tab"
+              small
+              spaced
+            />
+          </BpTooltip>
+
+          <BpTooltip content="Auto-Refresh" position={Position.BOTTOM}>
+            <Button
+              icon="automatic-updates"
+              intent={this.state.autoRefresh ? Intent.PRIMARY : Intent.NONE}
+              onClick={this.toggleAutoRefresh}
+              style={{ marginLeft: 10 }}
+              small
+            />
+          </BpTooltip>
         </div>
       </div>
     )
@@ -380,7 +400,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { fetchStats, refreshStats, fetchBotStatus: fetchBotHealth }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Monitoring)
+export default connect(mapStateToProps, mapDispatchToProps)(Monitoring)
