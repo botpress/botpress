@@ -17,6 +17,13 @@ const build = () => {
   return gulp.series(['build:studio', 'build:admin'])
 }
 
+// Required since modules are using some dependencies from the studio
+const initStudio = cb => {
+  const studio = exec('yarn', { cwd: 'src/bp/ui-studio' }, err => cb(err))
+  verbose && studio.stdout.pipe(process.stdout)
+  studio.stderr.pipe(process.stderr)
+}
+
 const buildStudio = cb => {
   const cmd = process.argv.includes('--prod') ? 'yarn && yarn build:prod --nomap' : 'yarn && yarn build'
 
@@ -75,5 +82,6 @@ module.exports = {
   build,
   watchAll,
   watchStudio,
-  watchAdmin
+  watchAdmin,
+  initStudio
 }

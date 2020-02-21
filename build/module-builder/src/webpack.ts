@@ -42,6 +42,7 @@ export function config(projectPath) {
       modules: ['node_modules', path.resolve(__dirname, '../node_modules')]
     },
     resolve: {
+      modules: ['node_modules', path.resolve(__dirname, '../../../src/bp/ui-studio/node_modules')],
       extensions: ['.js', '.jsx', '.tsx', '.ts']
     },
     plugins: [new CleanWebpackPlugin()],
