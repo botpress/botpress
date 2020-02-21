@@ -17,6 +17,13 @@ const build = () => {
   return gulp.series(['build:studio', 'build:admin'])
 }
 
+// Required since modules are using some dependencies from the studio
+const initStudio = cb => {
+  const studio = exec('yarn', { cwd: 'src/bp/ui-studio' }, err => cb(err))
+  verbose && studio.stdout.pipe(process.stdout)
+  studio.stderr.pipe(process.stderr)
+}
+
 const buildShared = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
 
@@ -101,6 +108,7 @@ module.exports = {
   watchAll,
   watchStudio,
   watchAdmin,
+  initStudio,
   watchShared,
   buildShared
 }
