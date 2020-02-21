@@ -279,7 +279,7 @@ export class CMSService implements IDisposeOnExit {
     await Promise.mapSeries(contentTypes, contentTypeId => this._writeElementsToFile(botId, contentTypeId))
   }
 
-  deleteMedia(botId: string, elements: ContentElement[]) {
+  getMediaFiles(formData): string[] {
     const iterator = (result: string[], value, key: string) => {
       if (key.startsWith('image') && value.includes('/media/')) {
         result.push(value.substr(value.indexOf('/media/') + 7))
@@ -288,9 +288,12 @@ export class CMSService implements IDisposeOnExit {
       }
       return result
     }
+    return _.reduce(formData, iterator, []).filter(Boolean)
+  }
 
+  deleteMedia(botId: string, elements: ContentElement[]) {
     _.map(elements, 'formData').forEach(formData => {
-      const filesToDelete = _.reduce(formData, iterator, []).filter(Boolean)
+      const filesToDelete = this.getMediaFiles(formData)
       filesToDelete.forEach(e => this.mediaService.deleteFile(botId, e))
     })
   }

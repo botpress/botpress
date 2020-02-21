@@ -3,7 +3,13 @@ import classnames from 'classnames'
 import React, { Component } from 'react'
 import { Alert, Button, Modal } from 'react-bootstrap'
 import { connect } from 'react-redux'
-import { fetchContentCategories, fetchContentItems, fetchContentItemsCount, upsertContentItem } from '~/actions'
+import {
+  deleteMedia,
+  fetchContentCategories,
+  fetchContentItems,
+  fetchContentItemsCount,
+  upsertContentItem
+} from '~/actions'
 import Loading from '~/components/Util/Loading'
 
 import withLanguage from '../../Util/withLanguage'
@@ -20,13 +26,14 @@ const formSteps = {
 }
 
 interface Props {
-  fetchContentCategories: any
+  fetchContentCategories: Function
   container: any
-  fetchContentItems: any
-  fetchContentItemsCount: any
+  deleteMedia: Function
+  fetchContentItems: Function
+  fetchContentItemsCount: Function
   contentItems: any
   categories: any
-  upsertContentItem: any
+  upsertContentItem: Function
   onSelect: any
   onClose: any
   contentType: any
@@ -136,7 +143,7 @@ class SelectContent extends Component<Props, State> {
   }
 
   handlePick(item) {
-    this.props.onSelect && this.props.onSelect(item)
+    this.props.onSelect?.(item)
     this.onClose()
   }
 
@@ -145,8 +152,12 @@ class SelectContent extends Component<Props, State> {
   }
 
   resetCreateContent = (resetSearch = false) => response => {
-    // @ts-ignore
     const { data: id } = response || {}
+
+    if (!id && ['builtin_card', 'builtin_carousel', 'builtin_image'].includes(this.state.newItemCategory.id)) {
+      this.props.deleteMedia(this.state.newItemData)
+    }
+
     const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
       Object.assign(stateUpdate, {
@@ -168,7 +179,7 @@ class SelectContent extends Component<Props, State> {
 
   onClose = () => {
     this.setState({ show: false }, () => {
-      this.props.onClose && this.props.onClose()
+      this.props.onClose?.()
     })
   }
 
@@ -319,14 +330,7 @@ class SelectContent extends Component<Props, State> {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal
-        animation={false}
-        show={show}
-        onHide={this.onClose}
-        container={container}
-        style={{ zIndex: 1051 }}
-        backdrop={'static'}
-      >
+      <Modal show={show} onHide={this.onClose} container={container} style={{ zIndex: 1051 }} backdrop={'static'}>
         <Modal.Header closeButton>
           <Modal.Title>Pick Content</Modal.Title>
         </Modal.Header>
@@ -353,6 +357,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
+  deleteMedia,
   fetchContentItems,
   fetchContentItemsCount,
   fetchContentCategories,

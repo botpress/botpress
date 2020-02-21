@@ -3,7 +3,7 @@ import { ContentElement } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { fetchContentItem, upsertContentItem } from '~/actions'
+import { deleteMedia, fetchContentItem, upsertContentItem } from '~/actions'
 import store from '~/store'
 import ActionItem from '~/views/FlowBuilder/common/action'
 
@@ -13,6 +13,7 @@ import CreateOrEditModal from '../CreateOrEditModal'
 import style from './style.scss'
 
 interface DispatchProps {
+  deleteMedia: (formData: any) => Promise<void>
   fetchContentItem: (itemId: string, query?: any) => Promise<void>
   upsertContentItem: (item: any) => Promise<void>
 }
@@ -67,8 +68,19 @@ class ContentPickerWidget extends Component<Props> {
   }
 
   onChange = async (item: ContentElement) => {
-    await this.props.fetchContentItem(item && item.id)
+    await this.props.fetchContentItem(item?.id)
     this.props.onChange(item)
+  }
+
+  handleClose = async () => {
+    if (
+      ['builtin_card', 'builtin_carousel', 'builtin_image'].includes(this.props.contentItem.contentType) &&
+      !_.isEqual(this.state.contentToEdit, this.props.contentItem.formData)
+    ) {
+      await this.props.deleteMedia(this.state.contentToEdit)
+    }
+
+    this.setState({ showItemEdit: false, contentToEdit: null })
   }
 
   renderModal() {
@@ -80,7 +92,7 @@ class ContentPickerWidget extends Component<Props> {
         schema={schema.json}
         uiSchema={schema.ui}
         isEditing={this.state.contentToEdit !== null}
-        handleClose={() => this.setState({ showItemEdit: false, contentToEdit: null })}
+        handleClose={this.handleClose}
         formData={this.state.contentToEdit}
         handleEdit={contentToEdit => this.setState({ contentToEdit })}
         handleCreateOrUpdate={this.handleUpdate}
@@ -99,11 +111,10 @@ class ContentPickerWidget extends Component<Props> {
       return (
         <div onDoubleClick={() => window.botpress.pickContent({ contentType }, this.onChange)}>
           {contentItem ? (
-            <ActionItem text={actionText} layoutv2={true} />
+            <ActionItem text={actionText} layoutv2 />
           ) : (
             <div
               className={style.actionBtn}
-              // @ts-ignore
               onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}
             >
               &lt; Select Content &gt;
@@ -115,8 +126,9 @@ class ContentPickerWidget extends Component<Props> {
       )
     }
 
+    console.info('src/bp/ui-studio/src/web/components/Content/Select/Widget.tsx')
     return (
-      <ControlGroup fill={true} vertical={false}>
+      <ControlGroup fill>
         <InputGroup
           placeholder={placeholder}
           value={textContent}
@@ -136,7 +148,7 @@ class ContentPickerWidget extends Component<Props> {
   }
 }
 
-const mapDispatchToProps = { upsertContentItem, fetchContentItem }
+const mapDispatchToProps = { deleteMedia, fetchContentItem, upsertContentItem }
 const mapStateToProps = ({ content: { itemsById } }, { itemId }) => ({ contentItem: itemsById[itemId] })
 const ConnectedContentPicker = connect<DispatchProps, StateProps, OwnProps>(
   mapStateToProps,

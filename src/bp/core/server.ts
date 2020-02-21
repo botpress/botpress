@@ -166,6 +166,7 @@ export default class HTTPServer {
     this.botsRouter = new BotsRouter({
       actionService,
       botService,
+      cmsService,
       configProvider,
       flowService,
       mediaService,
