@@ -24,6 +24,7 @@ import { URL } from 'url'
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
+import { LogsRepository } from './repositories/logs'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
@@ -112,7 +113,8 @@ export default class HTTPServer {
     @inject(TYPES.AuthStrategies) private authStrategies: AuthStrategies,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.LogsRepository) private logsRepo: LogsRepository
   ) {
     this.app = express()
 
@@ -152,7 +154,8 @@ export default class HTTPServer {
       this.monitoringService,
       this.alertingService,
       moduleLoader,
-      this.jobService
+      this.jobService,
+      this.logsRepo
     )
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -295,7 +298,7 @@ export default class HTTPServer {
       const statusCode = err.statusCode || 500
       const errorCode = err.errorCode || 'BP_000'
       const message = (err.errorCode && err.message) || 'Unexpected error'
-      const docs = err.docs || 'https://botpress.io/docs'
+      const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
       res.status(statusCode).json({

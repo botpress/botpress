@@ -60,7 +60,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'channel-teams',
     menuIcon: 'none', // no interface = true
     fullName: 'Teams',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: true,
     plugins: []
   }

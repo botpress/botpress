@@ -45,13 +45,11 @@ export class MessengerService {
       enableJsonBodyParser: false // we use our custom json body parser instead, see below
     })
 
-    this.router.getPublicPath().then(publicPath => {
-      if (publicPath.indexOf('https://') !== 0) {
-        this.bp.logger.warn('Messenger requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.')
-      }
-
-      this.bp.logger.info(`Messenger Webhook URL is ${publicPath.replace('BOT_ID', '___')}/webhook`)
-    })
+    const publicPath = await this.router.getPublicPath()
+    if (publicPath.indexOf('https://') !== 0) {
+      this.bp.logger.warn('Messenger requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.')
+    }
+    this.bp.logger.info(`Messenger Webhook URL is ${publicPath.replace('BOT_ID', '___')}/webhook`)
 
     this.router.use(
       expressJson({

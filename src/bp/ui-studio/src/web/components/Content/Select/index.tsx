@@ -184,6 +184,7 @@ class SelectContent extends Component<Props, State> {
 
   setCurrentCategory(contentType) {
     this.setState({ contentType }, () => {
+      // tslint:disable-next-line: no-floating-promises
       Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
         this.setState({ step: formSteps.MAIN })
       )
@@ -256,7 +257,7 @@ class SelectContent extends Component<Props, State> {
       return (
         <Alert bsStyle="warning">
           <strong>We think you don&apos;t have any content types defined.</strong> Please&nbsp;
-          <a href="https://botpress.io/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
+          <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
             <strong>read the docs</strong>
           </a>
           &nbsp;to see how you can make use of this feature.
@@ -358,7 +359,4 @@ const mapDispatchToProps = {
   upsertContentItem
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withLanguage(SelectContent))
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(SelectContent))

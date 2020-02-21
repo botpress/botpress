@@ -1,4 +1,5 @@
 import { AnchorButton, Button, Divider, InputGroup, Position, Tooltip } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
@@ -83,12 +84,15 @@ class ListView extends Component<Props, State> {
     })
   }
 
-  handleDeleteSelected = () => {
+  handleDeleteSelected = async () => {
     if (
-      window.confirm(
+      await confirmDialog(
         `Do you really want to delete ${this.state.checkedIds.length} item${
           this.state.checkedIds.length === 1 ? '' : 's'
-        }?`
+        }?`,
+        {
+          acceptLabel: 'Delete'
+        }
       )
     ) {
       this.props.handleDeleteSelected(this.state.checkedIds)
@@ -164,9 +168,9 @@ class ListView extends Component<Props, State> {
     />
   )
 
-  onRowClick = (state, rowInfo, column, instance) => {
+  onRowClick = (_state, rowInfo, column, _instance) => {
     return {
-      onClick: (e, handleOriginal) => {
+      onClick: (_e, handleOriginal) => {
         if (rowInfo) {
           if (column.id === 'usage') {
             if (rowInfo.original.usage.length) {
@@ -282,7 +286,7 @@ class ListView extends Component<Props, State> {
         width: 100
       },
       {
-        Cell: x => (!this.props.readOnly ? <Button small icon="edit" className="icon-edit" /> : ''),
+        Cell: _x => (!this.props.readOnly ? <Button small icon="edit" className="icon-edit" /> : ''),
         filterable: false,
         width: 45
       }

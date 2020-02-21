@@ -1,13 +1,7 @@
 import path from 'path'
 
 import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import {
-  autoAnswerDialog,
-  expectBotApiCallSuccess,
-  getElementCenter,
-  gotoStudio,
-  waitForBotApiResponse
-} from '../utils'
+import { CONFIRM_DIALOG, expectBotApiCallSuccess, getElementCenter, gotoStudio, waitForBotApiResponse } from '../utils'
 
 const getQnaCount = async (): Promise<number> => (await page.$$('div[role="entry"]')).length
 
@@ -57,12 +51,13 @@ describe('Module - QNA', () => {
   })
 
   it('Delete entry', async () => {
-    autoAnswerDialog()
+    await page.waitFor(500)
     const element = await expectMatchElement('div[role="entry"]', { text: 'are you working' })
     const { x, y } = await getElementCenter(element)
     await page.mouse.move(x, y) // This makes the delete icon visible for the next step
 
     await clickOn('.bp3-icon-trash')
+    await clickOn(CONFIRM_DIALOG.ACCEPT)
     await expectBotApiCallSuccess('mod/qna/questions', 'POST')
   })
 

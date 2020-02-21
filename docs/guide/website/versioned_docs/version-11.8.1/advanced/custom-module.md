@@ -104,7 +104,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'some-icon',
     menuText: '',
     fullName: 'My Module',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: false,
     plugins: []
   }
@@ -203,7 +203,7 @@ const botTemplates: sdk.BotTemplate[] = [
 
 The definition is used by Botpress to setup your module.
 
-Please refer to the [API Reference](https://botpress.io/reference/) for information on the possible options
+Please refer to the [API Reference](https://botpress.com/reference/) for information on the possible options
 
 The only way to communicate with modules (or between them) is by using the API endpoint.
 All modules are isolated and receives their own instance of `bp`

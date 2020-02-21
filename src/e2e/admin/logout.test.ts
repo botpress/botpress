@@ -1,6 +1,6 @@
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatchElement } from '../expectPuppeteer'
-import { autoAnswerConfirmDialog, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import { CONFIRM_DIALOG, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Logout', () => {
   const clickButtonForBot = async (buttonId: string) => {
@@ -16,7 +16,7 @@ describe('Admin - Logout', () => {
   it('Delete test bot', async () => {
     if (bpConfig.recreateBot) {
       await clickButtonForBot('#btn-delete')
-      await autoAnswerConfirmDialog()
+      await clickOn(CONFIRM_DIALOG.ACCEPT)
       await expectAdminApiCallSuccess(`bots/${bpConfig.botId}/delete`, 'POST')
     }
   })

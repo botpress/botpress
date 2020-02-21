@@ -13,10 +13,6 @@
   @include padded;
 }
 
-.sidePanelContent {
-  @include padded;
-}
-
 .contentFixed {
   flex-grow: 0;
   flex-shrink: 0;
@@ -41,50 +37,122 @@
 .sideListList {
   height: 100%;
   overflow-y: auto;
-  margin-bottom: 0;
-  margin-top: 10px;
+  margin: 0;
   padding-left: 0;
   list-style: none;
 }
 
 .sideListItem {
-  padding: 0 0 5px 10px;
-  font-size: 120%;
   display: flex;
+  padding: 7px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background 0.3s;
+
+  &:first-child {
+    border-top: 1px solid #eee;
+  }
+
+  &:hover {
+    background: #eee;
+  }
+
+  &.sideListItemSelected {
+    font-weight: bold;
+    background: #eee;
+  }
+
   svg {
     width: 12px;
     height: 12px;
     position: relative;
-    bottom: -7px;
+    bottom: -3px;
+    margin-right: 3px;
   }
 }
 
 .sideListItemText {
-  cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  &:hover {
-    text-decoration: underline;
-  }
 }
 
-.sideListItemSelected {
-  .sideListItemText {
-    cursor: default;
-    font-weight: bold;
-    text-decoration: underline;
+.headerTabs {
+  :global(.bp3-tab-list) {
+    background: #fefefe;
+    border-bottom: 1px solid #eee;
+  }
+
+  :global(.bp3-tab-indicator-wrapper) {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  :global(.bp3-tab-panel) {
+    margin-top: 5px;
+  }
+
+  :global(.bp3-tab) {
+    padding: 2px 8px;
+    border-right: 1px solid #eee;
+    flex-grow: 1;
+  }
+
+  :global(.bp3-tab-list > *:not(:last-child)) {
+    margin-right: 0;
   }
 }
 
 .mainView {
   height: 100%;
-  padding-bottom: 40px;
   overflow-y: auto;
+
+  & > h3 {
+    margin-top: 0;
+  }
+
+  &Table {
+    width: 100%;
+  }
+}
+
+.thPhrase {
+  width: 35%
+}
+
+.thUpdated {
+  width: 160px;
+}
+
+.thAction {
+  width: 85px;
 }
 
 .applyAllButton {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  padding: 12px 24px;
+}
+
+.withStickyActionBar {
+  // Height of the sticky action bar
+  padding-bottom: 50px;
+}
+
+.stickyActionBar {
+  background: #fcfcfc;
+  bottom: 0;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  left: 0;
+  padding: 10px 15px;
+  position: absolute;
+  right: 0;
+  text-align: right;
+  z-index: 9;
+
+  button {
+    margin-left: 5px;
+  }
+
+  &Content {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
 }

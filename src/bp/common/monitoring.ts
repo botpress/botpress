@@ -2,8 +2,17 @@ import { MonitoringStats } from 'core/services/monitoring'
 import _ from 'lodash'
 import ms from 'ms'
 
+export enum Metric {
+  Requests = 'requests.count',
+  EventsIn = 'eventsIn.count',
+  EventsOut = 'eventsOut.count',
+  Warnings = 'warnings.count',
+  Errors = 'errors.count',
+  Criticals = 'criticals.count'
+}
+
 const AVG_KEYS = ['cpu.usage', 'mem.usage']
-const SUM_KEYS = ['requests.count', 'errors.count', 'warnings.count', 'eventsIn.count', 'eventsOut.count']
+const SUM_KEYS = [Metric.Requests, Metric.Errors, Metric.Criticals, Metric.Warnings, Metric.EventsIn, Metric.EventsOut]
 
 /**
  * This object groups all statistics entries by their 'resolution group'. For example, if the resolution is 30 seconds,

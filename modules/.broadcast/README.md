@@ -72,7 +72,7 @@ Schedules a new broadcast.
 
 ```js
 {
-  botId: string, // *required* 
+  botId: string, // *required*
   date: string, // *required*, 'YYYY-MM-DD'
   time: string, // *required*, 'HH:mm'
   timezone: null|int, // null (users timezone), or integer (absolute timezone)
@@ -99,9 +99,9 @@ Delete an existing broadcast. You can't delete a processing broadcast.
 ## Community
 
 Pull requests are welcomed! We believe that it takes all of us to create something big and impactful.
-There's a [Botpress Help Forum](https://help.botpress.io/) where you are welcome to join us, ask any question and even help others.
+There's a [Botpress Help Forum](https://forum.botpress.com/) where you are welcome to join us, ask any question and even help others.
 
-Get an invite and join us now! 👉[https://help.botpress.io/](https://help.botpress.io/)
+Get an invite and join us now! 👉[https://forum.botpress.com/](https://forum.botpress.com/)
 
 ## License
 

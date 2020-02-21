@@ -13,7 +13,9 @@ interface CssExports {
   'chatPreviewMessage_Outgoing': string;
   'chatPreviewText': string;
   'filter': string;
+  'messageTypeBtnGroup': string;
   'newEventPreview': string;
+  'newEventPreviewMessage': string;
   'paramsForm': string;
   'popover': string;
   'selectInput': string;

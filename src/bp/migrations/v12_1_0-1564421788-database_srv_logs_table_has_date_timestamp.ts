@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
-import { Migration, MigrationOpts } from 'core/services/migration'
 import Database from 'core/database'
+import { Migration, MigrationOpts } from 'core/services/migration'
 
 const TABLE_NAME = 'srv_logs'
 const COLUMN_NAME = 'timestamp'

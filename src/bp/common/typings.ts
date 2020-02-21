@@ -180,3 +180,16 @@ export interface ModuleInfo {
   fullPath: string
   enabled: boolean
 }
+
+export interface ServerHealth {
+  serverId: string
+  hostname: string
+  bots: { [botId: string]: BotHealth }
+}
+
+export interface BotHealth {
+  status: 'mounted' | 'unmounted' | 'disabled' | 'error'
+  errorCount: number
+  criticalCount: number
+  warningCount: number
+}

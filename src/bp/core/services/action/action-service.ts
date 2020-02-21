@@ -7,6 +7,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
+import yn from 'yn'
 
 import { GhostService } from '..'
 import { createForAction } from '../../api'
@@ -15,7 +16,7 @@ import { TYPES } from '../../types'
 import { ActionExecutionError } from '../dialog/errors'
 
 import { ActionMetadata, extractMetadata } from './metadata'
-import { extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
+import { extractRequiredFiles, filterDisabled, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
@@ -104,8 +105,6 @@ export class ScopedActionService {
     if (this._actionsCache) {
       return this._actionsCache
     }
-
-    const filterDisabled = (filesPaths: string[]): string[] => filesPaths.filter(x => !path.basename(x).startsWith('.'))
 
     // node_production_modules are node_modules that are compressed for production
     const exclude = ['**/node_modules/**', '**/node_production_modules/**']
@@ -212,7 +211,7 @@ export class ScopedActionService {
   async runAction(actionName: string, incomingEvent: any, actionArgs: any): Promise<any> {
     process.ASSERT_LICENSED()
 
-    if (process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS) {
+    if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
       await this.checkActionRequires(actionName)
     }
 

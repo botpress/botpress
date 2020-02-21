@@ -289,10 +289,10 @@ export default class Editor extends Component<Props> {
               <TextArea
                 id="input-questions"
                 tabIndex={1}
-                autoFocus={true}
+                autoFocus
                 value={this.itemQuestions.join('\n')}
                 onChange={this.updateQuestions}
-                fill={true}
+                fill
                 rows={5}
                 className={classnames({
                   qnaCategoryError:
@@ -312,7 +312,7 @@ export default class Editor extends Component<Props> {
             <ElementsList
               placeholder="Type and press enter to add an answer. Use ALT+Enter for a new line"
               elements={this.itemAnswers}
-              allowMultiline={true}
+              allowMultiline
               onInvalid={this.state.invalidFields.answer}
               onCreate={this.createAnswer}
               onUpdate={this.updateAnswer}

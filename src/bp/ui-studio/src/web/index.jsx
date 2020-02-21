@@ -25,6 +25,7 @@ import 'expose-loader?BotpressUI!~/components/Shared/Interface'
 import 'expose-loader?BotpressUtils!~/components/Shared/Utils'
 import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
+import 'expose-loader?BotpressShared!ui-shared'
 /* eslint-enable */
 
 require('bootstrap/dist/css/bootstrap.css')
@@ -37,14 +38,19 @@ if (token) {
   axios.defaults.headers.common['X-BP-Workspace'] = window.WORKSPACE_ID
 }
 
-// Do not use "import App from ..." as hoisting will screw up styling
-const App = require('./components/App').default
+if (!window.BOT_ID) {
+  console.error(`This bot doesn't exist. Redirecting to admin `)
+  window.location.href = `${window.ROOT_PATH}/admin`
+} else {
+  // Do not use "import App from ..." as hoisting will screw up styling
+  const App = require('./components/App').default
 
-ReactDOM.render(
-  <Provider store={store}>
-    <HotKeys keyMap={keyMap}>
-      <App />
-    </HotKeys>
-  </Provider>,
-  document.getElementById('app')
-)
+  ReactDOM.render(
+    <Provider store={store}>
+      <HotKeys keyMap={keyMap}>
+        <App />
+      </HotKeys>
+    </Provider>,
+    document.getElementById('app')
+  )
+}

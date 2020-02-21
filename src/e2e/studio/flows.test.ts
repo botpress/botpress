@@ -1,5 +1,5 @@
 import { clickOn, fillField } from '../expectPuppeteer'
-import { autoAnswerDialog, clickOnTreeNode, expectBotApiCallSuccess, gotoStudio } from '../utils'
+import { clickOnTreeNode, CONFIRM_DIALOG, expectBotApiCallSuccess, gotoStudio } from '../utils'
 
 describe('Studio - Flows', () => {
   beforeAll(async () => {
@@ -27,12 +27,12 @@ describe('Studio - Flows', () => {
   })
 
   it('Delete flow', async () => {
-    autoAnswerDialog()
     await clickOnTreeNode('test_flow_renamed', 'right')
 
     await Promise.all([
       expectBotApiCallSuccess('flow/test_flow_renamed.flow.json/delete', 'POST'),
-      clickOn('#btn-delete')
+      clickOn('#btn-delete'),
+      clickOn(CONFIRM_DIALOG.ACCEPT)
     ])
   })
 

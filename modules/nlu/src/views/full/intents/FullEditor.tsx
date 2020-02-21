@@ -25,6 +25,7 @@ export const IntentEditor: FC<Props> = props => {
   const [intent, setIntent] = useState<NLU.IntentDefinition>()
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     props.api.fetchIntent(props.intent).then(setIntent)
   }, [props.intent])
 
@@ -35,6 +36,7 @@ export const IntentEditor: FC<Props> = props => {
 
   const saveIntent = (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
+    // tslint:disable-next-line: no-floating-promises
     props.api.createIntent(newIntent)
   }
 

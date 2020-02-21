@@ -86,7 +86,8 @@ export function getClosestToken(
 
     // Space (vector) distance is for close-meaning detection
     const d = useSpacial ? ndistance(<number[]>tokenVec, vec) : Number.POSITIVE_INFINITY
-    if (d <= dist) {
+    // stricly smaller, we want letter distance to take precedence over spacial
+    if (d < dist) {
       token = t
       dist = d
     }

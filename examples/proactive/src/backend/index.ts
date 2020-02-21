@@ -17,7 +17,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuText: 'Proactive Module',
     noInterface: true,
     fullName: 'Proactive Module',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 

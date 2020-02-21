@@ -17,6 +17,7 @@ declare global {
     BOT_ID: string
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
+    IS_BOT_MOUNTED: boolean
     BOT_LOCKED: boolean
     WORKSPACE_ID: string
     BOTPRESS_FLOW_EDITOR_DISABLED: boolean

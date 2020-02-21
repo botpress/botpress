@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
-
 import { Button, Collapse, FormGroup, Icon, InputGroup, Intent, TextArea } from '@blueprintjs/core'
+import React, { useState } from 'react'
 
 export default props => {
   const [showDetails, setShowDetails] = useState(false)

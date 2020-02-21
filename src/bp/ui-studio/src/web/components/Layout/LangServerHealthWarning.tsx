@@ -5,6 +5,7 @@ import React, { useEffect } from 'react'
 
 export default () => {
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     axios.get(`${window.BOT_API_PATH}/mod/nlu/health`).then(({ data }) => {
       if (data.isEnabled) {
         return
@@ -32,7 +33,7 @@ export default () => {
             <H5 className={Classes.DARK}>Languge server is not reachable</H5>
             <p>
               Language server is unreachable, bots wont work properly. Check &nbsp;
-              <a href="https://botpress.io/docs/main/nlu#language-server" target="_blank">
+              <a href="https://botpress.com/docs/main/nlu#language-server" target="_blank">
                 the docs
               </a>
               &nbsp; to learn how to run and manage your own language server.

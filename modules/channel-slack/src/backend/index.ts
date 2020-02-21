@@ -51,7 +51,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuText: 'Channel Slack',
     noInterface: true,
     fullName: 'Slack',
-    homepage: 'https://botpress.io'
+    homepage: 'https://botpress.com'
   }
 }
 

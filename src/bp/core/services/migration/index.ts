@@ -12,6 +12,7 @@ import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
 import semver from 'semver'
+import yn from 'yn'
 
 import { container } from '../../app.inversify'
 import { GhostService } from '../ghost/service'
@@ -52,7 +53,7 @@ export class MigrationService {
     const configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
     debug(`Migration Check: %o`, { configVersion, currentVersion: this.currentVersion })
 
-    if (process.env.SKIP_MIGRATIONS) {
+    if (yn(process.env.SKIP_MIGRATIONS)) {
       debug(`Skipping Migrations`)
       return
     }
@@ -115,8 +116,8 @@ export class MigrationService {
     const opts = await this.getMigrationOpts()
 
     this.logger.info(chalk`========================================
-{bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40)}}
-========================================`)
+{bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40, 9)}}
+${_.repeat(' ', 9)}========================================`)
 
     const completed = await this._getCompletedMigrations()
     let hasFailures = false
@@ -137,10 +138,7 @@ export class MigrationService {
         return this.logger.info(`Skipping already migrated file "${filename}"`)
       }
 
-      if (
-        process.env.TESTMIG_IGNORE_LIST &&
-        process.env.TESTMIG_IGNORE_LIST.split(',').filter(x => filename.includes(x)).length
-      ) {
+      if (process.env.TESTMIG_IGNORE_LIST?.split(',').filter(x => filename.includes(x)).length) {
         return this.logger.info(`Skipping ignored migration file "${filename}"`)
       }
 
@@ -167,7 +165,7 @@ export class MigrationService {
     }
 
     await this.updateAllVersions()
-    this.logger.info(`Migrations completed successfully! `)
+    this.logger.info(`Migration${missingMigrations.length === 1 ? '' : 's'} completed successfully! `)
   }
 
   private async updateAllVersions() {
@@ -183,10 +181,10 @@ export class MigrationService {
     const migrations = missingMigrations.map(x => this.loadedMigrations[x.filename].info)
 
     logger.warn(chalk`========================================
-{bold ${center(`Migration Required`, 40)}}
-{dim ${center(`Version ${configVersion} => ${this.currentVersion} `, 40)}}
-{dim ${center(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40)}}
-========================================`)
+{bold ${center(`Migration${migrations.length === 1 ? '' : 's'} Required`, 40, 9)}}
+{dim ${center(`Version ${configVersion} => ${this.currentVersion} `, 40, 9)}}
+{dim ${center(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40, 9)}}
+${_.repeat(' ', 9)}========================================`)
 
     Object.keys(types).map(type => {
       logger.warn(chalk`{bold ${types[type]}}`)
@@ -225,7 +223,7 @@ export class MigrationService {
   }
 
   private async _getCompletedMigrations(): Promise<string[]> {
-    if (process.env.TESTMIG_IGNORE_COMPLETED) {
+    if (yn(process.env.TESTMIG_IGNORE_COMPLETED)) {
       return []
     }
 

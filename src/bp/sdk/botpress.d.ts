@@ -46,6 +46,7 @@ declare module 'botpress/sdk' {
 
   export interface LoggerEntry {
     botId?: string
+    hostname?: string
     level: string
     scope: string
     message: string
@@ -57,6 +58,7 @@ declare module 'botpress/sdk' {
     Info = 'info',
     Warn = 'warn',
     Error = 'error',
+    Critical = 'critical',
     Debug = 'debug'
   }
 
@@ -91,6 +93,7 @@ declare module 'botpress/sdk' {
     info(message: string, metadata?: any): void
     warn(message: string, metadata?: any): void
     error(message: string, metadata?: any): void
+    critical(message: string, metadata?: any): void
   }
 
   export type ElementChangedAction = 'create' | 'update' | 'delete'
@@ -107,17 +110,23 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     /** Called once the core is initialized. Usually for middlewares / database init */
-    onServerStarted?: (bp: typeof import('botpress/sdk')) => void
+    onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
-    onServerReady?: (bp: typeof import('botpress/sdk')) => void
-    onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => void
-    onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => void
+    onServerReady?: (bp: typeof import('botpress/sdk')) => Promise<void>
+    onBotMount?: (bp: typeof import('botpress/sdk'), botId: string) => Promise<void>
+    onBotUnmount?: (bp: typeof import('botpress/sdk'), botId: string) => Promise<void>
     /**
      * Called when the module is unloaded, before being reloaded
      * onBotUnmount is called for each bots before this one is called
      */
-    onModuleUnmount?: (bp: typeof import('botpress/sdk')) => void
-    onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => void
+    onModuleUnmount?: (bp: typeof import('botpress/sdk')) => Promise<void>
+    onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => Promise<void>
+    onFlowRenamed?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      previousFlowName: string,
+      newFlowName: string
+    ) => Promise<void>
     /**
      * This method is called whenever a content element is created, updated or deleted.
      * Modules can act on these events if they need to update references, for example.
@@ -128,7 +137,7 @@ declare module 'botpress/sdk' {
       action: ElementChangedAction,
       element: ContentElement,
       oldElement?: ContentElement
-    ) => void
+    ) => Promise<void>
   }
 
   /**
@@ -1308,7 +1317,7 @@ declare module 'botpress/sdk' {
 
     /**
      * This method is meant to unregister a router before unloading a module. It is meant to be used in a development environment.
-     * It could cause unpredictable behaviour in production
+     * It could cause unpredictable behavior in production
      * @param routerName The name of the router (must have been registered with createRouterForBot)
      */
     export function deleteRouterForBot(routerName: string)
