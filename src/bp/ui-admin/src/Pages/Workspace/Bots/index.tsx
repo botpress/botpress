@@ -77,16 +77,16 @@ class Bots extends Component<Props> {
     this.setState({ isImportBotModalOpen: !this.state.isImportBotModalOpen })
   }
 
-  async exportBot(botId) {
+  async exportBot(botId: string) {
     this.setState({
       archiveUrl: `/admin/bots/${botId}/export`,
       archiveName: `bot_${botId}_${Date.now()}.tgz`
     })
   }
 
-  async deleteBot(botId) {
+  async deleteBot(botId: string) {
     if (
-      await confirmDialog("Are you sure you want to delete this bot? This can't be undone.", {
+      await confirmDialog(`Are you sure you want to delete bot "${botId}"? This can't be undone.`, {
         acceptLabel: 'Delete'
       })
     ) {
@@ -144,7 +144,7 @@ class Bots extends Component<Props> {
     return this.props.bots.reduce((hasUnlangedBots, bot) => hasUnlangedBots || !bot.defaultLanguage, false)
   }
 
-  async requestStageChange(botId) {
+  async requestStageChange(botId: string) {
     await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stage`)
     this.props.fetchBots()
     toastSuccess('Bot promoted to next stage')
@@ -178,7 +178,7 @@ class Bots extends Component<Props> {
 
     return _.some(
       this.props.health.map(x => x.bots[botId]),
-      s => s && s.status === 'unhealthy'
+      s => s?.status === 'unhealthy'
     )
   }
 

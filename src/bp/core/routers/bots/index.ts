@@ -133,7 +133,7 @@ export class BotsRouter extends CustomRouter {
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
 
-      if (options && options.checkMethodPermissions) {
+      if (options?.checkMethodPermissions) {
         router.use(this.checkMethodPermissions(identity))
       } else {
         router.use(this.needPermissions('write', identity))
@@ -159,7 +159,7 @@ export class BotsRouter extends CustomRouter {
     return router
   }
 
-  private studioParams(botId) {
+  private studioParams(botId: string) {
     return {
       botId,
       authentication: {
@@ -286,7 +286,7 @@ export class BotsRouter extends CustomRouter {
         const botsRefs = await this.workspaceService.getBotRefs(req.workspace)
         const bots = await this.botService.findBotsByIds(botsRefs)
 
-        return res.send(bots && bots.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
+        return res.send(bots?.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
       })
     )
 
@@ -372,7 +372,7 @@ export class BotsRouter extends CustomRouter {
         let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
 
         const uploadConfig = this.botpressConfig!.fileUpload
-        if (uploadConfig && uploadConfig.allowedMimeTypes) {
+        if (uploadConfig?.allowedMimeTypes) {
           allowedMimeTypes = uploadConfig.allowedMimeTypes
         }
 
