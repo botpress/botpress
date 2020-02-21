@@ -73,7 +73,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'channel-smooch',
     menuIcon: 'none',
     fullName: 'Smooch',
-    homepage: 'https://botpress.io',
+    homepage: 'https://botpress.com',
     noInterface: true,
     plugins: [],
     experimental: true

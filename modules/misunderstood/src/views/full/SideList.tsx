@@ -23,7 +23,7 @@ const SideList = ({
   return (
     <div className={style.sideList}>
       <Tabs
-        className={style.contentFixed}
+        className={classnames(style.contentFixed, style.headerTabs)}
         id="StatusSelect"
         onChange={onSelectedStatusChange}
         selectedTabId={selectedStatus}

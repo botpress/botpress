@@ -1,8 +1,15 @@
 .newEventPreview {
-  background-color: #e99;
-  border: 1px solid #999;
-  padding: 10px;
-  border-radius: 1px;
+  font-weight: normal;
+  margin: 24px 0;
+
+  &Message {
+    color: #db3737;
+    font-weight: bold;
+  }
+}
+
+.messageTypeBtnGroup {
+  margin-top: 8px;
 }
 
 .chatPreview {
@@ -52,6 +59,7 @@
   .chatPreviewText {
     order: 1;
     background: #333;
+    border: 1px solid #333;
     color: white;
   }
 }
@@ -71,8 +79,33 @@
 
 .chatPreviewMessage_Current {
   .chatPreviewText {
-    background: orange;
-    border: 2px solid orangered;
+    position: relative;
+    background: #db3737;
+    border: 1px solid #db3737;
+
+    &:before {
+      position: absolute;
+      content: "";
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-left: 14px solid #db3737;
+      left: 0;
+      top: 50%;
+      transform: translate(-160%, -50%);
+    }
+
+    &:after {
+      position: absolute;
+      content: "";
+      width: 15px;
+      height: 3px;
+      left: 0;
+      top: 50%;
+      transform: translate(-240%, -50%);
+      background: #db3737;
+    }
   }
 }
 
@@ -111,8 +144,7 @@
 }
 
 .applyAllButton {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  display: inline-block;
 }
 
 .paramsForm {
