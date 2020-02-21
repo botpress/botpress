@@ -181,10 +181,10 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
         intent: i.name
       }))
     )
-    .reduce(
-      (index, { utterance, contexts, intent }) => ({ ...index, [utterance]: { intent, contexts } }),
-      {} as ExactMatchIndex
-    )
+    .reduce((index, { utterance, contexts, intent }) => {
+      index[utterance] = { intent, contexts }
+      return index
+    }, {} as ExactMatchIndex)
     .value()
 }
 
@@ -201,7 +201,7 @@ const trainIntentClassifier = async (
       .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
       .flatMap(i =>
         i.utterances
-          .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 4 === 0))
+          .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
           .map(utt => ({
             label: i.name,
             coordinates: utt.sentenceEmbedding
@@ -464,14 +464,12 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     output = await AppendNoneIntent(output, tools)
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
-    const oos_model = await trainOutOfScope(output, tools, reportProgress)
-    reportProgress()
-    const ctx_model = await trainContextClassifier(output, tools, reportProgress)
-    reportProgress()
-    const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
-    reportProgress()
-    const slots_model = await trainSlotTagger(output, tools)
-    reportProgress()
+    const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
+      trainOutOfScope(output, tools, reportProgress),
+      trainContextClassifier(output, tools, reportProgress),
+      trainIntentClassifier(output, tools, reportProgress),
+      trainSlotTagger(output, tools)
+    ])
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
