@@ -15,6 +15,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
+import SaySomethingForm from '../nodeProps/SaySomethingForm'
 import SkillCallNode from '../nodeProps/SkillCallNode'
 import StandardNode from '../nodeProps/StandardNode'
 
@@ -61,7 +62,10 @@ class Inspector extends Component<Props> {
 
   renderNodeProperties() {
     const { readOnly } = this.props
-    const subflows = _.filter(_.map(this.props.flows, f => f.name), f => f !== _.get(this.props, 'currentFlow.name'))
+    const subflows = _.filter(
+      _.map(this.props.flows, f => f.name),
+      f => f !== _.get(this.props, 'currentFlow.name')
+    )
     const flowType = _.get(this.props, 'currentFlowNode.type') || (this.props.currentFlowNode ? 'standard' : null)
 
     const updateNodeAndRefresh = (...args) => {
@@ -126,7 +130,4 @@ const mapDispatchToProps = {
   refreshFlowsLinks
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Inspector)
+export default connect(mapStateToProps, mapDispatchToProps)(Inspector)

@@ -1,3 +1,7 @@
+:global(.srd-node--selected)>.baseNode.nodeSaySomething {
+  border: 1px solid #52B1EE !important;
+}
+
 .baseNode {
   width: 200px;
   background-color: #ededed;
@@ -42,6 +46,11 @@
       position: absolute;
       bottom: 0px;
       right: -8px;
+    }
+    .outRouting {
+      position: absolute;
+      right: 0;
+      transform: translate(50%, 25%);
     }
   }
 }

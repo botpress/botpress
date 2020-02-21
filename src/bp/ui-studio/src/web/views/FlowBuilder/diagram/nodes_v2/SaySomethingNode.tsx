@@ -23,6 +23,7 @@ export class SaySomethingWidget extends Component<{ node: SaySomethingNodeModel;
 
     return (
       <div
+        onClick={() => this.props.diagramEngine.flowBuilder.props.switchFlowNode(this.props.node.id)}
         className={classnames(style.baseNode, style.nodeSaySomething, { [style.highlightedNode]: node.isHighlighted })}
       >
         {showHeader({ nodeType: 'Say', nodeName: node.name, isStartNode: node.isStartNode })}

@@ -24,6 +24,7 @@ import {
   createFlowNode,
   fetchFlows,
   insertNewSkillNode,
+  openFlowNode2Props,
   openFlowNodeProps,
   pasteFlowNode,
   removeFlowNode,
@@ -46,7 +47,7 @@ import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
 import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
-import { SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
+import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
 import style from './style.scss'
 
 class Diagram extends Component<Props> {
@@ -348,6 +349,15 @@ class Diagram extends Component<Props> {
     )
   }
 
+  canTargetOpenInspectorV2 = target => {
+    if (!target) {
+      return false
+    }
+
+    const targetModel = target.model
+    return targetModel instanceof SaySomethingNodeModel
+  }
+
   onDiagramClick = (event: MouseEvent) => {
     const selectedNode = this.manager.getSelectedNode() as BpNodeModel
     const currentNode = this.props.currentFlowNode
@@ -361,7 +371,11 @@ class Diagram extends Component<Props> {
       this.handleContextMenu(event as any)
     }
 
-    this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
+    this.canTargetOpenInspector(target)
+      ? this.props.openFlowNodeProps()
+      : this.canTargetOpenInspectorV2(target)
+      ? this.props.openFlowNode2Props()
+      : this.props.closeFlowNodeProps()
 
     if (!selectedNode) {
       this.props.closeFlowNodeProps()
@@ -566,6 +580,7 @@ interface Props {
   switchFlow: (flowName: string) => void
   switchFlowNode: (nodeId: string) => any
   updateFlowProblems: (problems: NodeProblem[]) => void
+  openFlowNode2Props: () => void
   openFlowNodeProps: () => void
   closeFlowNodeProps: () => void
   updateFlow: any
@@ -587,7 +602,7 @@ interface Props {
   showSearch: boolean
   hideSearch: () => void
   handleFilterChanged: (event: object) => void
-  highlightFilter: string,
+  highlightFilter: string
   skills: SkillDefinition[]
 }
 
@@ -615,6 +630,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   fetchFlows,
   switchFlowNode,
+  openFlowNode2Props,
   openFlowNodeProps,
   closeFlowNodeProps,
   setDiagramAction,

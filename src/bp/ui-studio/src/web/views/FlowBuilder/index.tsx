@@ -33,6 +33,7 @@ const searchTag = '#search:'
 type Props = {
   currentFlow: string
   showFlowNodeProps: boolean
+  layoutv2: boolean
   dirtyFlows: string[]
   user: UserReducer
   setDiagramAction: (action: string) => void
@@ -178,7 +179,7 @@ class FlowBuilder extends Component<Props, State> {
     this.props.history.replace(newUrl)
   }
 
-  pushFlowState = (flow) => {
+  pushFlowState = flow => {
     const hash = this.state.showSearch ? searchTag + this.state.highlightFilter : ''
     this.props.history.push(`/flows/${flow.replace(/\.flow\.json$/i, '')}${hash}`)
   }
@@ -275,6 +276,7 @@ const mapStateToProps = (state: RootReducer) => ({
   currentFlow: state.flows.currentFlow,
   flowsByName: state.flows.flowsByName,
   showFlowNodeProps: state.flows.showFlowNodeProps,
+  layoutv2: state.flows.layoutv2,
   dirtyFlows: getDirtyFlows(state),
   user: state.user,
   errorSavingFlows: state.flows.errorSavingFlows
@@ -291,7 +293,4 @@ const mapDispatchToProps = {
   refreshIntents
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(FlowBuilder))
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(FlowBuilder))

@@ -10,6 +10,7 @@ import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Inte
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
 
 import Inspector from '../inspector'
+import InspectorV2 from '../inspector_v2'
 
 import FlowsList from './FlowsList'
 import FlowNameModal from './FlowNameModal'
@@ -32,6 +33,7 @@ type Props = {
   mutexInfo: string
   readOnly: boolean
   showFlowNodeProps: boolean
+  layoutv2: boolean
 }
 
 const SidePanelContent: FC<Props> = props => {
@@ -72,10 +74,12 @@ const SidePanelContent: FC<Props> = props => {
 
   return (
     <SidePanel>
-      <Toolbar mutexInfo={props.mutexInfo} />
+      {!(props.showFlowNodeProps && props.layoutv2) && <Toolbar mutexInfo={props.mutexInfo} />}
 
-      {props.showFlowNodeProps ? (
+      {props.showFlowNodeProps && !props.layoutv2 ? (
         <Inspector />
+      ) : props.showFlowNodeProps && props.layoutv2 ? (
+        <InspectorV2 />
       ) : (
         <React.Fragment>
           <SearchBar icon="filter" placeholder="Filter flows" onChange={setFilter} />
@@ -122,7 +126,8 @@ const mapStateToProps = state => ({
   dirtyFlows: getDirtyFlows(state),
   flowProblems: state.flows.flowProblems,
   flowsNames: _.keys(state.flows.flowsByName),
-  showFlowNodeProps: state.flows.showFlowNodeProps
+  showFlowNodeProps: state.flows.showFlowNodeProps,
+  layoutv2: state.flows.layoutv2
 })
 
 const mapDispatchToProps = {
@@ -131,7 +136,4 @@ const mapDispatchToProps = {
   renameFlow
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SidePanelContent)
+export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)

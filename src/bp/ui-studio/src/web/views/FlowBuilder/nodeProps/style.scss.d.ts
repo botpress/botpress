@@ -5,6 +5,7 @@ interface CssExports {
   'actions': string;
   'bottomSection': string;
   'endBloc': string;
+  'formHeader': string;
   'item': string;
   'name': string;
   'node': string;

@@ -12,6 +12,7 @@ import {
   handleFlowEditorRedo,
   handleFlowEditorUndo,
   handleRefreshFlowLinks,
+  openFlowNode2Props,
   openFlowNodeProps,
   receiveFlows,
   receiveFlowsModification,
@@ -40,6 +41,7 @@ import { hashCode, prettyId } from '~/util'
 export interface FlowReducer {
   currentFlow: FlowView | undefined
   showFlowNodeProps: boolean
+  layoutv2: boolean
   dirtyFlows: string[]
   errorSavingFlows: any
   flowsByName: _.Dictionary<FlowView>
@@ -54,6 +56,7 @@ const defaultState = {
   currentFlow: null,
   currentFlowNode: null,
   showFlowNodeProps: false,
+  layoutv2: false,
   currentDiagramAction: null,
   currentSnapshot: null,
   undoStack: [],
@@ -366,14 +369,22 @@ let reducer = handleActions(
       currentFlowNode: payload
     }),
 
+    [openFlowNode2Props]: state => ({
+      ...state,
+      showFlowNodeProps: true,
+      layoutv2: true
+    }),
+
     [openFlowNodeProps]: state => ({
       ...state,
-      showFlowNodeProps: true
+      showFlowNodeProps: true,
+      layoutv2: false
     }),
 
     [closeFlowNodeProps]: state => ({
       ...state,
-      showFlowNodeProps: false
+      showFlowNodeProps: false,
+      layoutv2: false
     }),
 
     [switchFlow]: (state, { payload }) => {
