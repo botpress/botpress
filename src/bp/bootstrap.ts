@@ -100,7 +100,7 @@ async function start() {
     return setupMasterNode(await getLogger('Cluster'))
   }
 
-  if (process.env.ENV_TYPE === 'ACTION_SERVER') {
+  if (process.env.WORKER_TYPE === 'ACTION_WORKER') {
     await LocalActionServer.start()
     return
   }
