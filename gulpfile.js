@@ -14,9 +14,9 @@ process.on('uncaughtException', err => {
 })
 
 if (yn(process.env.GULP_PARALLEL)) {
-  gulp.task('build', gulp.series([core.build(), gulp.parallel(modules.build(), ui.build())]))
+  gulp.task('build', gulp.series([core.build(), ui.buildShared(), gulp.parallel(modules.build(), ui.build())]))
 } else {
-  gulp.task('build', gulp.series([core.build(), modules.build(), ui.build()]))
+  gulp.task('build', gulp.series([core.build(), ui.buildShared(), modules.build(), ui.build()]))
 }
 
 gulp.task('default', cb => {
@@ -28,12 +28,14 @@ gulp.task('default', cb => {
     yarn cmd watch:core   Recompiles the server on file modification (restart server to apply)
     yarn cmd watch:studio Recompiles the bundle on file modification (no restart required - refresh page manually)
     yarn cmd watch:admin  Recompiles the bundle on file modification (no restart required - page refresh automatically)
+    yarn cmd watch:shared Recompiles the bundle on file modification (no restart required - refresh page manually)
   `)
   cb()
 })
 
 gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
+gulp.task('build:shared', ui.buildShared())
 gulp.task('build:modules', gulp.series([modules.build()]))
 gulp.task('build:sdk', gulp.series([modules.buildSdk()]))
 
@@ -49,6 +51,7 @@ gulp.task('watch:core', core.watch)
 gulp.task('watch:studio', ui.watchStudio)
 gulp.task('watch:admin', ui.watchAdmin)
 gulp.task('watch:ui', ui.watchAll)
+gulp.task('watch:shared', ui.watchShared)
 
 gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
 gulp.task('clean:out', cb => rimraf('out', cb))

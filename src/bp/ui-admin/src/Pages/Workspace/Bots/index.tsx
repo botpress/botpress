@@ -16,10 +16,10 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
+import { confirmDialog } from 'botpress/shared'
 import { toastSuccess } from '~/utils/toaster'
 import { toastFailure } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
-import confirmDialog from '~/App/ConfirmDialog'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 import { getActiveWorkspace } from '~/Auth'
@@ -87,8 +87,7 @@ class Bots extends Component<Props> {
   async deleteBot(botId) {
     if (
       await confirmDialog("Are you sure you want to delete this bot? This can't be undone.", {
-        acceptLabel: 'Delete',
-        declineLabel: 'Cancel'
+        acceptLabel: 'Delete'
       })
     ) {
       await api.getSecured().post(`/admin/bots/${botId}/delete`)

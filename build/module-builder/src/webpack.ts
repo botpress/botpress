@@ -36,7 +36,8 @@ export function config(projectPath) {
       'botpress/ui': 'BotpressUI',
       'botpress/content-picker': 'BotpressContentPicker',
       'botpress/documentation': 'DocumentationProvider',
-      'botpress/utils': 'BotpressUtils'
+      'botpress/utils': 'BotpressUtils',
+      'botpress/shared': 'BotpressShared'
     },
     resolveLoader: {
       modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]

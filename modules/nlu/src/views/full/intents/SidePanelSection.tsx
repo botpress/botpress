@@ -1,5 +1,6 @@
 import { Button, Classes } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { confirmDialog } from 'botpress/shared'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
 import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
@@ -34,8 +35,11 @@ export const IntentSidePanelSection: FC<Props> = props => {
   }
 
   const deleteIntent = async (intentName: string) => {
-    const confirmDelete = window.confirm(`Are you sure you want to delete the intent "${intentName}" ?`)
-    if (confirmDelete) {
+    if (
+      await confirmDialog(`Are you sure you want to delete the intent "${intentName}" ?`, {
+        acceptLabel: 'Delete'
+      })
+    ) {
       if (props.currentItem && props.currentItem.name === intentName) {
         props.setCurrentItem(undefined)
       }
