@@ -87,7 +87,12 @@ export default class HTTPServer {
     operation: string,
     resource: string
   ) => (req: RequestWithUser, res: Response, next: NextFunction) => Promise<void>
-  private _hasPermissions: (req: RequestWithUser, operation: string, resource: string) => Promise<boolean>
+  private _hasPermissions: (
+    req: RequestWithUser,
+    operation: string,
+    resource: string,
+    noAudit?: boolean
+  ) => Promise<boolean>
   private indexCache: { [pageUrl: string]: string } = {}
 
   constructor(
@@ -396,8 +401,8 @@ export default class HTTPServer {
     return this._needPermissions(operation, resource)
   }
 
-  hasPermission(req: RequestWithUser, operation: string, resource: string) {
-    return this._hasPermissions(req, operation, resource)
+  hasPermission(req: RequestWithUser, operation: string, resource: string, noAudit?: boolean) {
+    return this._hasPermissions(req, operation, resource, noAudit)
   }
 
   deleteRouterForBot(router: string): void {

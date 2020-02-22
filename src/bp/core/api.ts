@@ -46,21 +46,11 @@ const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => 
       return httpServer.createRouterForBot(routerName, identity, options || defaultRouterOptions)
     },
     deleteRouterForBot: httpServer.deleteRouterForBot.bind(httpServer),
-    async getAxiosConfigForBot(botId: string, options?: sdk.AxiosOptions): Promise<any> {
-      return httpServer.getAxiosConfigForBot(botId, options)
-    },
-    extractExternalToken(req: Request, res: Response, next: NextFunction): Promise<void> {
-      return httpServer.extractExternalToken(req, res, next)
-    },
-    decodeExternalToken(token: string): Promise<any> {
-      return httpServer.decodeExternalToken(token)
-    },
-    needPermission(operation: string, resource: string): (req: any, res: any, next: any) => Promise<void> {
-      return httpServer.needPermission(operation, resource)
-    },
-    hasPermission(req: any, operation: string, resource: string): Promise<boolean> {
-      return httpServer.hasPermission(req, operation, resource)
-    }
+    getAxiosConfigForBot: httpServer.getAxiosConfigForBot.bind(httpServer),
+    extractExternalToken: httpServer.extractExternalToken.bind(httpServer),
+    decodeExternalToken: httpServer.decodeExternalToken.bind(httpServer),
+    needPermission: httpServer.needPermission.bind(httpServer),
+    hasPermission: httpServer.hasPermission.bind(httpServer)
   }
 }
 
