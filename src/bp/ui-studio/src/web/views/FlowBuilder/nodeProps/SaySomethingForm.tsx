@@ -1,8 +1,10 @@
-import { Icon } from '@blueprintjs/core'
-import React, { FC, useState } from 'react'
-import { Panel } from 'react-bootstrap'
+import { Icon, Position, Toaster } from '@blueprintjs/core'
+import classnames from 'classnames'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
+import Button from '../../../components/Button'
 import MoreOptions from '../../../components/MoreOptions'
+import MoreOptionsStyles from '../../../components/MoreOptions/style.scss'
 import EditableInput from '../common/EditableInput'
 
 import style from './style.scss'
@@ -14,15 +16,24 @@ interface Props {
   flow: any
   subflows: any
   requestEditSkill: any
-  copyFlowNodeElement: any
-  pasteFlowNodeElement: any
+  copyFlowNode: any
+  fetchContentCategories: any
+  fetchContentItem: any
+  pasteFlowNode: any
   buffer: any
+  categories: any
   updateFlow: any
   user: any
 }
 
 const SaySomethingForm: FC<Props> = props => {
   const [showOptions, setShowOptions] = useState(false)
+
+  useEffect(() => {
+    props.fetchContentItem(props.node.id)
+    props.fetchContentCategories()
+  }, [])
+
   const renameNode = text => {
     if (text) {
       const alreadyExists = props.flow.nodes.find(x => x.name === text)
@@ -36,35 +47,70 @@ const SaySomethingForm: FC<Props> = props => {
     return text.replace(/[^a-z0-9-_\.]/gi, '_')
   }
 
-  const { node, readOnly } = props
+  const onCopy = () => {
+    props.copyFlowNode()
+    setShowOptions(false)
+    Toaster.create({
+      className: 'recipe-toaster',
+      position: Position.TOP_RIGHT
+    }).show({ message: 'Copied to buffer' })
+  }
+
+  const { node, readOnly, categories } = props
 
   return (
-    <div className={style.node}>
+    <Fragment>
       <div className={style.formHeader}>
         <h4>Say Something</h4>
         <MoreOptions show={showOptions} onToggle={setShowOptions}>
           <li>
-            <button type="button">
-              <Icon icon="duplicate" /> Copy
-            </button>
+            <Button className={MoreOptionsStyles.moreMenuItem} onClick={onCopy.bind(this)}>
+              <Icon icon="duplicate" iconSize={20} /> Copy
+            </Button>
           </li>
           <li>
-            <button type="button">
-              <Icon icon="trash" /> Delete
-            </button>
+            <Button className={classnames(MoreOptionsStyles.moreMenuItem, MoreOptionsStyles.delete)}>
+              <Icon icon="trash" iconSize={20} /> Delete
+            </Button>
           </li>
         </MoreOptions>
       </div>
-      <Panel>
-        <EditableInput
-          readOnly={readOnly}
-          value={node.name}
-          className={style.name}
-          onChanged={renameNode}
-          transform={transformText}
-        />
-      </Panel>
-    </div>
+      <form className={style.sidePanelForm}>
+        <label>
+          <span className={style.formLabel}>Node name</span>
+          <EditableInput
+            readOnly={readOnly}
+            value={node.name}
+            className={style.textInput}
+            onChanged={renameNode}
+            transform={transformText}
+          />
+        </label>
+        <label>
+          <span className={style.formLabel}>Content type</span>
+          <div className={style.formSelect}>
+            <select>
+              {categories &&
+                categories
+                  .filter(cat => !cat.hidden)
+                  .map((category, i) => (
+                    <option
+                      key={i}
+                      value={category.id}
+                      className={classnames('list-group-item', 'list-group-item-action')}
+                    >
+                      {category.title}
+                    </option>
+                  ))}
+            </select>
+          </div>
+        </label>
+        <label>
+          <span className={style.formLabel}>Message*</span>
+          <textarea className={style.textarea} value="" onChange={this.handleInputChange}></textarea>
+        </label>
+      </form>
+    </Fragment>
   )
 }
 

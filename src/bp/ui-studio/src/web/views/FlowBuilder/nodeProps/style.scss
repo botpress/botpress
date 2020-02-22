@@ -1,3 +1,5 @@
+@import '../../../palette.scss';
+
 h5 {
   font-weight: 500;
 }
@@ -146,7 +148,92 @@ h5 {
   h4 {
     font-size: 22px;
     font-weight: 500;
-    color: #182026;
-    margin: 0;
+    color: $main-dark-color;
+    margin: 0 0 5px;
+  }
+}
+
+.sidePanelForm {
+  label {
+    display: block;
+  }
+
+  .formSelect {
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 3px;
+    display: block;
+    padding: 0;
+    position: relative;
+
+    &:before {
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #464646;
+      content: "";
+      height: 0;
+      position: absolute;
+      pointer-events: none;
+      right: 10px;
+      top: 50%;
+      transform: translate(0, -50%);
+      width: 0;
+    }
+
+    &, > * {
+      cursor: pointer;
+    }
+
+    select {
+      color: $main-dark-color;
+      background: transparent;
+      border: 0;
+      font-size: 16px;
+      font-weight: 300;
+      height: 38px;
+      line-height: 1.25;
+      padding: 8px 10px;
+      text-shadow: 1px 1px rgba(255, 255, 255, 0.7);
+      width: 100%;
+
+      // removes default browser dropdown arrow
+      -webkit-user-select: none;
+         -moz-user-select: -moz-none;
+          -ms-user-select: none;
+              user-select: none;
+
+      -webkit-appearance: none;
+         -moz-appearance: radio-container;
+              appearance: none;
+
+      &:focus, :-moz-focusring {
+        outline: 0;
+      }
+    }
+  }
+
+  .formLabel {
+    color: $main-dark-color;
+    display: block;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.28;
+    margin: 20px 0 6px;
+  }
+
+  .textInput, .textarea {
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 3px;
+    color: $main-dark-color;
+    font-size: 16px;
+    line-height: 1.25;
+    padding: 8px 10px;
+    width: 100% !important;
+  }
+
+  .textarea {
+    height: 60px;
+    resize: none;
   }
 }

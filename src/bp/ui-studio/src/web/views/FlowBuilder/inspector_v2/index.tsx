@@ -3,8 +3,10 @@ import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import {
   closeFlowNodeProps,
-  copyFlowNodeElement,
-  pasteFlowNodeElement,
+  copyFlowNode,
+  fetchContentCategories,
+  fetchContentItem,
+  pasteFlowNode,
   refreshFlowsLinks,
   requestEditSkill,
   updateFlow,
@@ -28,8 +30,11 @@ interface Props {
   flows: any
   currentFlow: any
   requestEditSkill: any
-  copyFlowNodeElement: any
-  pasteFlowNodeElement: any
+  copyFlowNode: any
+  fetchContentCategories: any
+  fetchContentItem: any
+  categories: any
+  pasteFlowNode: any
   buffer: any
   updateFlow: any
   user: any
@@ -46,8 +51,11 @@ const InspectorV2: FC<Props> = props => {
       currentFlow,
       updateFlow,
       requestEditSkill,
-      copyFlowNodeElement,
-      pasteFlowNodeElement,
+      copyFlowNode,
+      fetchContentCategories,
+      fetchContentItem,
+      categories,
+      pasteFlowNode,
       buffer
     } = props
     const subflows = _.filter(
@@ -61,6 +69,8 @@ const InspectorV2: FC<Props> = props => {
       refreshFlowsLinks()
     }
 
+    console.log(props)
+
     if (flowType === 'say_something') {
       return (
         <SaySomethingForm
@@ -72,8 +82,11 @@ const InspectorV2: FC<Props> = props => {
           updateNode={updateNodeAndRefresh}
           updateFlow={updateFlow}
           requestEditSkill={requestEditSkill}
-          copyFlowNodeElement={copyFlowNodeElement}
-          pasteFlowNodeElement={pasteFlowNodeElement}
+          fetchContentCategories={fetchContentCategories}
+          fetchContentItem={fetchContentItem}
+          categories={categories}
+          copyFlowNode={copyFlowNode}
+          pasteFlowNode={pasteFlowNode}
           buffer={buffer}
         />
       )
@@ -90,14 +103,17 @@ const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   buffer: state.flows.buffer,
-  user: state.user
+  user: state.user,
+  categories: state.content.categories
 })
 
 const mapDispatchToProps = {
   updateFlow,
   requestEditSkill,
-  copyFlowNodeElement,
-  pasteFlowNodeElement,
+  fetchContentCategories,
+  fetchContentItem,
+  copyFlowNode,
+  pasteFlowNode,
   closeFlowNodeProps,
   updateFlowNode,
   refreshFlowsLinks

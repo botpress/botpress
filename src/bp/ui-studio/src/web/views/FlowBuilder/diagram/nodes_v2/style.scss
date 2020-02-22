@@ -1,11 +1,13 @@
+@import '../../../../palette.scss';
+
 :global(.srd-node--selected)>.baseNode.nodeSaySomething {
   border: 1px solid #52B1EE !important;
 }
 
 .baseNode {
-  background-color: #FCFCFC;
+  background-color: $node-bg;
   border-radius: 3px;
-  border: 1px solid #000;
+  border: 1px solid $main-dark-color;
   padding: 8px 18px;
   width: 200px;
 
@@ -13,7 +15,7 @@
     border-radius: 3px;
     height: 10px;
     width: 10px;
-    background: #D1E5F2;
+    background: $node-say-something;
 
     &:global(.selected) {
       background: rgba(19, 124, 189, 0.5);
@@ -21,9 +23,9 @@
   }
 
   .header {
-    background: #D1E5F2;
+    background: $node-say-something;
     border-radius: 15px;
-    color: #000;
+    color: $main-dark-color;
     display: flex;
     display: inline-block;
     font-size: 12px;
@@ -78,29 +80,29 @@
 
 .nodeSaySomething {
   .header {
-    background: #D1E5F2;
-    color: #182026;
+    background: $node-say-something;
+    color: $main-dark-color;
   }
 }
 
 .nodeExecute {
   .header {
-    background: #d5a5bc;
-    color: #182026;
+    background: $node-execute;
+    color: $main-dark-color;
   }
 }
 
 .nodeListen {
   .header {
-    background: #ffe699;
-    color: #182026;
+    background: $node-listen;
+    color: $main-dark-color;
   }
 }
 
 .nodeRouter {
   .header {
-    background: #a1c4c9;
-    color: #182026;
+    background: $node-router;
+    color: $main-dark-color;
   }
 
   .content {

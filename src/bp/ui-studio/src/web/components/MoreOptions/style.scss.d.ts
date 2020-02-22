@@ -6,6 +6,8 @@ interface CssExports {
   'moreBtn': string;
   'moreBtnDots': string;
   'moreMenu': string;
+  'moreMenuItem': string;
+  'overlay': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

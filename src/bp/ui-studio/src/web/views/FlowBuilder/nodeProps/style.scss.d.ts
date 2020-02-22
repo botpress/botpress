@@ -6,6 +6,8 @@ interface CssExports {
   'bottomSection': string;
   'endBloc': string;
   'formHeader': string;
+  'formLabel': string;
+  'formSelect': string;
   'item': string;
   'name': string;
   'node': string;
@@ -13,8 +15,11 @@ interface CssExports {
   'returnBloc': string;
   'returnToNodeSection': string;
   'section': string;
+  'sidePanelForm': string;
   'subflowBloc': string;
   'textFields': string;
+  'textInput': string;
+  'textarea': string;
   'tip': string;
 }
 declare var cssExports: CssExports;

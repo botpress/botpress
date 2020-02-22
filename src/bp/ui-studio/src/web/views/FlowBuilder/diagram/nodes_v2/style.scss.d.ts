@@ -15,7 +15,6 @@ interface CssExports {
   'outRouting': string;
   'ports': string;
   'section-next': string;
-  'srd-node--selected': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

@@ -1,3 +1,5 @@
+@import '../../palette.scss';
+
 .moreBtn {
   background: none;
   padding: 0;
@@ -9,9 +11,7 @@
   height: 24px;
 
   &:hover .moreBtnDots, &.active .moreBtnDots {
-    &, &:before, &:after {
-      background: #3c4248;
-    }
+    opacity: 1;
   }
 }
 
@@ -19,13 +19,14 @@
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
+  opacity: 0.6;
 
   &, &:before, &:after {
-    background: #5C7080;
+    background: $main-dark-color;
     border-radius: 50%;
     display: inline-block;
     height: 4px;
-    transition: background-color 0.3s;
+    transition: opacity 0.3s;
     width: 4px;
   }
 
@@ -56,7 +57,7 @@
   right: -18px;
   top: 100%;
   min-width: 200px;
-  z-index: 900;
+  z-index: 9999;
 
   &:before,
   &:after {
@@ -86,15 +87,15 @@
     top: -9px;
   }
 
-  button {
+  &Item {
     background: transparent;
     border-radius: 2px;
     border: 0;
-    color: #182026;
+    color: $main-dark-color;
     cursor: pointer;
-    display: block;
+    display: flex;
     font-size: 16px;
-    line-height: 20px;
+    line-height: 1.25;
     margin: 5px 0 0;
     min-width: 100%;
     padding: 10px;
@@ -110,12 +111,29 @@
       background-color: #E5EAEC;
     }
 
+    & > span {
+      margin-right: 10px;
+    }
+
+    svg {
+      fill: $main-dark-color !important;
+    }
+
     &.delete {
-      color: #DE4343;
+      color: $main-warning;
 
       svg {
-        fill: #DE4343;
+        fill: $main-warning !important;
       }
     }
   }
+}
+
+.overlay {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 9998;
 }
