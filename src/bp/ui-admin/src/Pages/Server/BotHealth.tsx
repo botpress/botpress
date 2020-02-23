@@ -12,6 +12,9 @@ import { switchWorkspace } from '~/reducers/user'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 
+import Dropdown, { Option } from '../Components/Dropdown'
+import { filterText } from '../Logs/utils'
+
 type Props = {
   health?: ServerHealth[]
   botsByWorkspace?: { [workspaceId: string]: string[] }
@@ -21,6 +24,14 @@ type Props = {
 } & RouteComponentProps
 
 const getKey = entry => `${entry.hostname} (${entry.serverId})`
+
+const STATUS: Option[] = [
+  { label: 'All', value: '' },
+  { label: 'Healthy', value: 'healthy' },
+  { label: 'Unhealthy', value: 'unhealthy' },
+  { label: 'Disabled', value: 'disabled' },
+  { label: 'Unmounted', value: 'unmounted' }
+]
 
 const BotHealth: FC<Props> = props => {
   const [data, setData] = useState<any>()
@@ -53,6 +64,10 @@ const BotHealth: FC<Props> = props => {
     setData(data)
   }
 
+  const filterStatus = ({ onChange }) => {
+    return <Dropdown items={STATUS} defaultItem={STATUS[0]} onChange={option => onChange(option.value)} small />
+  }
+
   const goToBotLogs = async (botId: string) => {
     if (props.botsByWorkspace) {
       const workspace = _.findKey(props.botsByWorkspace, x => x.includes(botId))
@@ -76,17 +91,12 @@ const BotHealth: FC<Props> = props => {
           {
             Header: 'Status',
             Cell: cell => {
-              const hasCriticalIssue = !!Object.values(cell.original.data).find((x: any) => x.criticalCount > 0)
-              if (hasCriticalIssue) {
-                return <span className="logCritical">Unhealthy</span>
-              }
-
               switch (_.get(cell.original, `data[${key}].status`)) {
                 default:
                   return 'N/A'
-                case 'error':
-                  return <span className="logError">Error</span>
-                case 'mounted':
+                case 'unhealthy':
+                  return <span className="logCritical">Unhealthy</span>
+                case 'healthy':
                   return <span className="logInfo">Healthy</span>
                 case 'disabled':
                   return 'Disabled'
@@ -94,7 +104,9 @@ const BotHealth: FC<Props> = props => {
                   return 'Unmounted'
               }
             },
-            width: 80,
+            Filter: filterStatus,
+            filterable: true,
+            width: 100,
             accessor: `data[${key}].status`
           },
           {
@@ -134,7 +146,9 @@ const BotHealth: FC<Props> = props => {
             </span>
           )
         },
-        width: 250
+        width: 250,
+        Filter: filterText,
+        filterable: true
       },
       ...hostColumns,
       {
@@ -168,7 +182,13 @@ const BotHealth: FC<Props> = props => {
   }
 
   return (
-    <ReactTable columns={columns} data={data} defaultPageSize={10} className="-striped -highlight monitoringOverview" />
+    <ReactTable
+      columns={columns}
+      data={data}
+      defaultPageSize={10}
+      defaultSorted={[{ id: 'botId', desc: false }]}
+      className="-striped -highlight monitoringOverview"
+    />
   )
 }
 

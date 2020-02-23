@@ -589,11 +589,9 @@ export class BotService {
         }, botId)
       )
 
-      BotService.setBotStatus(botId, 'mounted')
+      BotService.setBotStatus(botId, 'healthy')
       return true
     } catch (err) {
-      BotService.setBotStatus(botId, 'error')
-
       this.logger
         .forBot(botId)
         .attachError(err)
@@ -758,17 +756,21 @@ export class BotService {
   }
 
   public static incrementBotStats(botId: string, type: 'error' | 'warning' | 'critical') {
-    const info = this._botHealth[botId] || DEFAULT_BOT_HEALTH
+    if (!this._botHealth[botId]) {
+      this._botHealth[botId] = DEFAULT_BOT_HEALTH
+    }
 
-    this._botHealth[botId] = {
-      ...info,
-      errorCount: info.errorCount + (type === 'error' ? 1 : 0),
-      criticalCount: info.criticalCount + (type === 'critical' ? 1 : 0),
-      warningCount: info.warningCount + (type === 'warning' ? 1 : 0)
+    if (type === 'error') {
+      this._botHealth[botId].errorCount++
+    } else if (type === 'warning') {
+      this._botHealth[botId].warningCount++
+    } else if (type === 'critical') {
+      this._botHealth[botId].criticalCount++
+      this._botHealth[botId].status = 'unhealthy'
     }
   }
 
-  public static setBotStatus(botId: string, status: 'mounted' | 'unmounted' | 'disabled' | 'error') {
+  public static setBotStatus(botId: string, status: 'healthy' | 'unhealthy' | 'unmounted' | 'disabled') {
     this._botHealth[botId] = {
       ...(this._botHealth[botId] || DEFAULT_BOT_HEALTH),
       status
