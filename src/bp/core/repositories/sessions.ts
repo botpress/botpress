@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import AnalyticsService from 'core/services/analytics-service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'

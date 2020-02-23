@@ -18,7 +18,6 @@ import { ServicesContainerModules } from './services/services.inversify'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
-import AnalyticsService from './services/analytics-service'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -113,11 +112,6 @@ container
 container
   .bind<MigrationService>(TYPES.MigrationService)
   .to(MigrationService)
-  .inSingletonScope()
-
-container
-  .bind<AnalyticsService>(TYPES.AnalyticsService)
-  .to(AnalyticsService)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')

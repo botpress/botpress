@@ -1,6 +1,5 @@
 import { AnalyticsMethod, AnalyticsMetric, IO, Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
-import { AnalyticsRouter } from 'core/routers/bots/analytics'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -8,7 +7,6 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import AnalyticsService from '../analytics-service'
 import { CMSService } from '../cms'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
@@ -32,8 +30,7 @@ export class DecisionEngine {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.StateManager) private stateManager: StateManager,
-    @inject(TYPES.CMSService) private cms: CMSService,
-    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
+    @inject(TYPES.CMSService) private cms: CMSService
   ) {}
 
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5

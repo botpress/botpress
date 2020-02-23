@@ -2,6 +2,8 @@ import sdk, { Analytics, AnalyticsMethod, AnalyticsMetric, BotConfig, Logger, Me
 import _ from 'lodash'
 import ms from 'ms'
 
+import { Config } from '../config'
+
 import { AnalyticsDatabase } from './db'
 
 export default class AnalyticsService {
@@ -17,13 +19,17 @@ export default class AnalyticsService {
   constructor(private bp: typeof sdk, private db: AnalyticsDatabase) {}
 
   async initialize() {
-    const config = (await this.bp.config.getModuleConfig('analytics')).analytics
-    if (!config || !config.enabled) {
-      return
-    }
+    try {
+      const config = (await this.bp.config.getModuleConfig('analytics')) as Config
+      if (!config || !config.enabled) {
+        return
+      }
 
-    this.interval = ms(config.interval as string)
-    this.enabled = config.enabled
+      this.interval = ms(config.interval as string)
+      this.enabled = config.enabled
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   start() {

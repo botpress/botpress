@@ -1,5 +1,4 @@
-import { AnalyticsMethod, AnalyticsMetric, Paging, User } from 'botpress/sdk'
-import AnalyticsService from 'core/services/analytics-service'
+import { Paging, User } from 'botpress/sdk'
 import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
@@ -23,8 +22,7 @@ export class KnexUserRepository implements UserRepository {
 
   constructor(
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
-    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
   ) {}
 
   async getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User> {

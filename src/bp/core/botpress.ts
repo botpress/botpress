@@ -22,7 +22,6 @@ import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { AlertingService } from './services/alerting-service'
-import AnalyticsService from './services/analytics-service'
 import AuthService from './services/auth/auth-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
@@ -95,8 +94,7 @@ export class Botpress {
     @inject(TYPES.EventCollector) private eventCollector: EventCollector,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
-    @inject(TYPES.StatsService) private statsService: StatsService,
-    @inject(TYPES.AnalyticsService) private analyticService: AnalyticsService
+    @inject(TYPES.StatsService) private statsService: StatsService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -295,7 +293,6 @@ export class Botpress {
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
     await this.eventCollector.initialize(this.database)
-    await this.analyticService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
@@ -377,7 +374,6 @@ export class Botpress {
     await this.monitoringService.start()
     await this.alertingService.start()
     await this.eventCollector.start()
-    await this.analyticService.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()

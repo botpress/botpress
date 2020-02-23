@@ -9,7 +9,6 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import AnalyticsService from '../analytics-service'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
@@ -37,8 +36,7 @@ export class EventCollector {
     @tagged('name', 'EventCollector')
     private logger: sdk.Logger,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   async initialize(database: Database) {

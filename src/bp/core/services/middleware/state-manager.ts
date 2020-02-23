@@ -13,7 +13,6 @@ import yn from 'yn'
 
 import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
-import AnalyticsService from '../analytics-service'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
@@ -40,8 +39,7 @@ export class StateManager {
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.AnalyticsService) private analytics: AnalyticsService
+    @inject(TYPES.JobService) private jobService: JobService
   ) {
     // Temporarily opt-in until thoroughly tested
     this.useRedis = process.CLUSTER_ENABLED && yn(process.env.USE_REDIS_STATE)
@@ -85,7 +83,20 @@ export class StateManager {
     const state = event.state
     const { result: user, created } = await this.userRepo.getOrCreate(event.channel, event.target)
     if (created) {
-      await this.analytics.addUserMetric(event.botId, event.channel)
+      process.BOTPRESS_EVENTS.emit('core.analytics', [
+        {
+          botId: event.botId,
+          channel: event.channel,
+          metric: sdk.AnalyticsMetric.NewUsersCount,
+          method: sdk.AnalyticsMethod.IncrementDaily
+        },
+        {
+          botId: event.botId,
+          channel: event.channel,
+          metric: sdk.AnalyticsMetric.TotalUsers,
+          method: sdk.AnalyticsMethod.IncrementTotal
+        }
+      ])
     }
 
     state.user = user.attributes

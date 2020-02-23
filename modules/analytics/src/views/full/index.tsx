@@ -204,7 +204,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
         <h3>Understanding</h3>
         <div className={style.metricsContainer}>
           {this.renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
-          {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_count'))}
+          {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'))}
           {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
           {this.renderNumberMetric('Understood Top-Level Messages', this.getTopLevelUnderstoodPercent())}
         </div>

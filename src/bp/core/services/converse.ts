@@ -11,7 +11,6 @@ import ms from 'ms'
 
 import { Event } from '../sdk/impl'
 
-import AnalyticsService from './analytics-service'
 import { EventEngine } from './middleware/event-engine'
 
 export const converseApiEvents = new EventEmitter2()
@@ -31,8 +30,7 @@ export class ConverseService {
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository,
-    @inject(TYPES.AnalyticsService) private analyticsService: AnalyticsService
+    @inject(TYPES.UserRepository) private userRepository: UserRepository
   ) {}
 
   @postConstruct()
@@ -88,7 +86,20 @@ export class ConverseService {
 
     const { created } = await this.userRepository.getOrCreate('api', userId)
     if (created) {
-      await this.analyticsService.addUserMetric(botId, 'api')
+      process.BOTPRESS_EVENTS.emit('core.analytics', [
+        {
+          botId,
+          channel: 'api',
+          metric: AnalyticsMetric.NewUsersCount,
+          method: AnalyticsMethod.IncrementDaily
+        },
+        {
+          botId,
+          channel: 'api',
+          metric: AnalyticsMetric.TotalUsers,
+          method: AnalyticsMethod.IncrementTotal
+        }
+      ])
     }
 
     const incomingEvent = Event({
