@@ -97,6 +97,9 @@ export default class Database {
     }
 
     this.knex = patchKnex(Knex(config))
+    this.knex.on('error', err => {
+      this.logger.attachError(err).error(err)
+    })
 
     await this.bootstrap()
   }

@@ -216,7 +216,7 @@ export class PersistedConsoleLogger implements Logger {
 
   debug(message: string, metadata?: any): void {
     if (this.currentMessageLevel === undefined) {
-      this.currentMessageLevel = LogLevel.DEV
+      this.currentMessageLevel = LogLevel.DEBUG
     }
 
     this.print(LoggerLevel.Debug, message, metadata)

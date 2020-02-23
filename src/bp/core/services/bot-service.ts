@@ -57,6 +57,7 @@ const STATUS_EXPIRY = ms('20s')
 const DEFAULT_BOT_HEALTH: BotHealth = { status: 'unmounted', errorCount: 0, warningCount: 0, criticalCount: 0 }
 
 const getBotStatusKey = (serverId: string) => `bp_server_${serverId}_bots`
+const debug = DEBUG('services:bots')
 
 @injectable()
 export class BotService {
@@ -549,6 +550,7 @@ export class BotService {
 
   // Do not use directly use the public version instead due to broadcasting
   private async _localMount(botId: string): Promise<boolean> {
+    const startTime = Date.now()
     if (this.isBotMounted(botId)) {
       return true
     }
@@ -600,11 +602,13 @@ export class BotService {
       return false
     } finally {
       await this._updateBotHealthDebounce()
+      debug(`Mount bot ${botId} took ${Date.now() - startTime}ms`)
     }
   }
 
   // Do not use directly use the public version instead due to broadcasting
   private async _localUnmount(botId: string, isDisabled?: boolean) {
+    const startTime = Date.now()
     if (!this.isBotMounted(botId)) {
       this._invalidateBotIds()
       return
@@ -621,6 +625,7 @@ export class BotService {
 
     await this._updateBotHealthDebounce()
     this._invalidateBotIds()
+    debug(`Unmount bot ${botId} took ${Date.now() - startTime}ms`)
   }
 
   private _invalidateBotIds(): void {
