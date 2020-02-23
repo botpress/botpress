@@ -359,6 +359,7 @@ export class ModuleLoader {
       extractModuleInfo(mod, resolver)
     )
 
-    return _.orderBy(allModules.filter(Boolean), 'name') as ModuleInfo[]
+    const filtered = _.uniqBy(allModules.filter(Boolean), 'location')
+    return _.orderBy(filtered, 'name') as ModuleInfo[]
   }
 }
