@@ -282,7 +282,7 @@ export class Botpress {
 
     disabledBots.forEach(botId => BotService.setBotStatus(botId, 'disabled'))
 
-    await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
+    await Promise.map(botsToMount, botId => this.botService.mountBot(botId), { concurrency: 5 })
   }
 
   private async initializeServices() {
