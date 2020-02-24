@@ -215,12 +215,9 @@ const trainIntentClassifier = async (
       continue
     }
     const svm = new tools.mlToolkit.SVM.Trainer()
-    let progressCalls = 0
     const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-      if (++progressCalls % 10 === 0) {
-        const completion = (i + p) / input.contexts.length
-        progress(completion)
-      }
+      const completion = (i + p) / input.contexts.length
+      progress(completion)
     })
     svmPerCtx[ctx] = model
   }
@@ -245,15 +242,15 @@ const trainContextClassifier = async (
       )
   }).filter(x => x.coordinates.filter(isNaN).length == 0)
 
-  if (points.length > 0) {
-    let progressCalls = 0
-    const svm = new tools.mlToolkit.SVM.Trainer()
-    return svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-      if (++progressCalls % 5 === 0) {
-        progress(_.round(p, 1))
-      }
-    })
+  if (points.length == 0) {
+    progress()
+    return
   }
+
+  const svm = new tools.mlToolkit.SVM.Trainer()
+  return svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+    progress(_.round(p, 1))
+  })
 }
 
 export const ProcessIntents = async (
@@ -378,16 +375,18 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
   return copy
 }
 
-const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer> => {
+const trainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<Buffer> => {
   const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
 
   if (!hasSlots) {
+    progress()
     return Buffer.from('')
   }
 
   debugTraining('Training slot tagger')
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
   await crfExtractor.train(input.intents)
+  progress()
 
   return crfExtractor.serialized
 }
@@ -406,6 +405,7 @@ const trainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progr
     .value()
 
   if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
+    progress()
     return
   }
 
@@ -416,16 +416,13 @@ const trainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progr
     .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
     .value()
 
-  let progressCalls = 0
   const svm = new tools.mlToolkit.SVM.Trainer()
   return svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
-    if (++progressCalls % 10 === 0) {
-      progress(_.round(p, 2))
-    }
+    progress(_.round(p, 2))
   })
 }
 
-const NB_STEPS = 6 // change this if the training pipeline changes
+const NB_STEPS = 5 // change this if the training pipeline changes
 export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<Model> => {
   const model: Partial<Model> = {
     startedAt: new Date(),
@@ -468,7 +465,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       trainOutOfScope(output, tools, reportProgress),
       trainContextClassifier(output, tools, reportProgress),
       trainIntentClassifier(output, tools, reportProgress),
-      trainSlotTagger(output, tools)
+      trainSlotTagger(output, tools, reportProgress)
     ])
 
     const artefacts: TrainArtefacts = {
@@ -482,7 +479,6 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
-    reportProgress()
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {

@@ -87,7 +87,7 @@ if (cluster.isWorker) {
         try {
           let progressCalls = 0
           const result = await svm.train(msg.payload.points, msg.payload.options, progress => {
-            if (++progressCalls % 5 === 0) {
+            if (++progressCalls % 5 === 0 || progress === 1) {
               process.send!({ type: 'progress', id: msg.id, payload: { progress } })
             }
           })
