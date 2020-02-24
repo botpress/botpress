@@ -13,14 +13,13 @@ class LoginPromptClass extends Component<Renderer.Message & InjectedIntlProps> {
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
 
   handleFormSubmit = event => {
-    this.props.onSendData &&
-      this.props.onSendData({
-        type: 'login_prompt',
-        text: 'Provided login information',
-        username: this.state.username,
-        password: this.state.password,
-        sensitive: ['password']
-      })
+    void this.props.onSendData?.({
+      type: 'login_prompt',
+      text: 'Provided login information',
+      username: this.state.username,
+      password: this.state.password,
+      sensitive: ['password']
+    })
 
     event.preventDefault()
   }
