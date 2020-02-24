@@ -2,14 +2,12 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
 
+import { Analytics } from '..'
+
 import { AnalyticsDatabase } from './db'
 
 export default (bp: typeof sdk, db: AnalyticsDatabase) => {
-  const router = bp.http.createRouterForBot('analytics')
-
-  router.get('/test', async (req, res) => {
-    res.send('lol')
-  })
+  const router = bp.http.createRouterForBot('analytics-v2')
 
   router.get('/channel/:channel', async (req, res) => {
     const { botId, channel } = req.params

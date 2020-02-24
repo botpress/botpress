@@ -1742,16 +1742,6 @@ declare module 'botpress/sdk' {
     FeedbackNegativeGoal = 'feedback_negative_goal'
   }
 
-  export interface Analytics {
-    id: number
-    botId: string
-    metric_name: string
-    channel: string
-    created_on: string
-    updated_on: string
-    value: number
-  }
-
   export namespace bots {
     export function getAllBots(): Promise<Map<string, BotConfig>>
     export function getBotById(botId: string): Promise<BotConfig | undefined>

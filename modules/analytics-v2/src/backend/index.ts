@@ -23,7 +23,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   definition: {
-    name: 'analytics',
+    name: 'analytics-v2',
     menuIcon: 'timeline',
     menuText: 'Analytics',
     noInterface: false,

@@ -1,7 +1,8 @@
-import sdk, { Analytics, AnalyticsMethod, AnalyticsMetric, BotConfig, Logger, MetricDefinition } from 'botpress/sdk'
+import sdk, { AnalyticsMethod, AnalyticsMetric, BotConfig, MetricDefinition } from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 
+import { Analytics } from '..'
 import { Config } from '../config'
 
 import { AnalyticsDatabase } from './db'

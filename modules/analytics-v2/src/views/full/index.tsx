@@ -53,7 +53,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
   }
 
   fetchAnalytics = (channel, startDate, endDate) => {
-    return this.props.bp.axios.get(`mod/analytics/channel/${channel}`, {
+    return this.props.bp.axios.get(`mod/analytics-v2/channel/${channel}`, {
       params: {
         start: startDate,
         end: endDate
