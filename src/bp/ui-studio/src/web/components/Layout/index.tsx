@@ -17,6 +17,7 @@ import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 
+import BotUmountedWarning from './BotUnmountedWarning'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.styl'
@@ -57,6 +58,8 @@ class Layout extends React.Component<ILayoutProps> {
     setImmediate(() => {
       this.props.viewModeChanged(Number(viewMode) || 0)
     })
+
+    setTimeout(() => BotUmountedWarning(), 500)
   }
 
   toggleEmulator = () => {
