@@ -26,7 +26,7 @@ const BASIC_MENU_ITEMS = [
   {
     name: 'Config',
     path: '/config',
-    rule: { res: 'bot.config', op: 'read' },
+    rule: { res: 'admin.bots.*', op: 'write' },
     icon: 'settings'
   }
 ].filter(Boolean)

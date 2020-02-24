@@ -8,7 +8,10 @@ import {
   FormGroup,
   InputGroup,
   Intent,
-  TextArea
+  ITreeNode,
+  ITreeNodeProps,
+  TextArea,
+  Tree
 } from '@blueprintjs/core'
 import axios from 'axios'
 import { any } from 'bluebird'
@@ -19,6 +22,7 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 import Select from 'react-select'
 import confirmDialog from '~/components/Shared/ConfirmDialog'
+import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
 import style from './style.scss'
@@ -55,8 +59,10 @@ interface StateVars {
   statuses: SelectItem[]
   error: any
   isSaving: boolean
+  isMainOpen: boolean
   isDetailsOpen: boolean
   isPicturesOpen: boolean
+  nodes: ITreeNode[]
 }
 
 type State = StateBot & StateVars
@@ -86,6 +92,28 @@ class ConfigView extends Component<any, State> {
     coverPictureUrl: ''
   }
 
+  sideBarNodes: ITreeNode[] = [
+    {
+      id: 0,
+      icon: 'cog',
+      label: 'Main',
+      isSelected: true,
+      nodeData: 'main'
+    },
+    {
+      id: 1,
+      icon: 'list-detail-view',
+      label: 'Details',
+      nodeData: 'details'
+    },
+    {
+      id: 2,
+      icon: 'media',
+      label: 'Pictures',
+      nodeData: 'pictures'
+    }
+  ]
+
   state = {
     botId: window.BOT_ID,
     ...this.initialFormState,
@@ -94,8 +122,10 @@ class ConfigView extends Component<any, State> {
     statuses: statusList,
     error: undefined,
     isSaving: false,
+    isMainOpen: true,
     isDetailsOpen: false,
-    isPicturesOpen: false
+    isPicturesOpen: false,
+    nodes: this.sideBarNodes
   }
 
   async componentDidMount() {
@@ -269,53 +299,65 @@ class ConfigView extends Component<any, State> {
     }
   }
 
-  handleDetailsCollapseClick = () => {
-    this.setState({ isDetailsOpen: !this.state.isDetailsOpen })
-  }
-
-  handlePicturesCollapseClick = () => {
-    this.setState({ isPicturesOpen: !this.state.isPicturesOpen })
+  handleNodeClick = (nodeData: ITreeNode) => {
+    const originallySelected = nodeData.isSelected
+    for (const node of this.state.nodes) {
+      node.isSelected = false
+    }
+    nodeData.isSelected = originallySelected == null ? true : !originallySelected
+    this.setState({
+      isMainOpen: nodeData.nodeData === 'main',
+      isDetailsOpen: nodeData.nodeData === 'details',
+      isPicturesOpen: nodeData.nodeData === 'pictures'
+    })
   }
 
   render() {
     return (
-      <Card className={style.container}>
-        {this.state.error && (
-          <Callout intent={Intent.DANGER} title="Error">
-            {this.state.error.message}
-          </Callout>
-        )}
-        <h1>Bot Config - {this.state.name}</h1>
-        <form>
-          <FormGroup label="Name" labelFor="name">
-            <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
-          </FormGroup>
-          <FormGroup label="Status" labelFor="status">
-            <Select
-              id="status"
-              name="status"
-              options={this.state.statuses}
-              value={this.state.status}
-              onChange={this.handleStatusChanged}
-            />
-          </FormGroup>
-          <FormGroup label="Description" labelFor="description">
-            <TextArea
-              id="description"
-              name="description"
-              rows={3}
-              className={style.textarea}
-              value={this.state.description}
-              onChange={this.handleInputChanged}
-            />
-          </FormGroup>
-          {this.renderLanguages()}
-          <FormGroup>
-            <Button onClick={this.handleDetailsCollapseClick}>
-              {this.state.isDetailsOpen ? 'Hide' : 'Show'} details
-            </Button>
-            <Collapse isOpen={this.state.isDetailsOpen}>
-              <Card elevation={Elevation.ONE}>
+      <Container>
+        <SidePanel>
+          <SidePanelSection label={'Configs'}>
+            <Tree contents={this.state.nodes} onNodeClick={this.handleNodeClick} />
+          </SidePanelSection>
+        </SidePanel>
+        <div className={style.container}>
+          {this.state.error && (
+            <Callout className={style.callout} intent={Intent.DANGER} title="Error">
+              {this.state.error.message}
+            </Callout>
+          )}
+          <form>
+            {this.state.isMainOpen && (
+              <div>
+                <h1>Config</h1>
+                <FormGroup label="Name" labelFor="name">
+                  <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
+                </FormGroup>
+                <FormGroup label="Status" labelFor="status">
+                  <Select
+                    id="status"
+                    name="status"
+                    options={this.state.statuses}
+                    value={this.state.status}
+                    onChange={this.handleStatusChanged}
+                  />
+                </FormGroup>
+                <FormGroup label="Description" labelFor="description">
+                  <TextArea
+                    id="description"
+                    name="description"
+                    rows={3}
+                    className={style.textarea}
+                    value={this.state.description}
+                    onChange={this.handleInputChanged}
+                  />
+                </FormGroup>
+                {this.renderLanguages()}
+              </div>
+            )}
+            {this.state.isDetailsOpen && (
+              <div>
+                <h1>Details</h1>
                 <FormGroup label="Website" labelFor="website">
                   <InputGroup
                     id="website"
@@ -356,15 +398,11 @@ class ConfigView extends Component<any, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-              </Card>
-            </Collapse>
-          </FormGroup>
-          <FormGroup>
-            <Button onClick={this.handlePicturesCollapseClick}>
-              {this.state.isPicturesOpen ? 'Hide' : 'Show'} pictures
-            </Button>
-            <Collapse isOpen={this.state.isPicturesOpen}>
-              <Card elevation={Elevation.ONE}>
+              </div>
+            )}
+            {this.state.isPicturesOpen && (
+              <div>
+                <h1>Pictures</h1>
                 <FormGroup label="Bot Avatar" labelFor="avatar-url">
                   <FileInput
                     text="Choose file"
@@ -405,20 +443,20 @@ class ConfigView extends Component<any, State> {
                     <img className={style.coverPreview} alt="cover" src={this.state.coverPictureUrl} />
                   )}
                 </FormGroup>
-              </Card>
-            </Collapse>
-          </FormGroup>
-          <FormGroup>
-            <Button
-              text="Save changes"
-              intent="primary"
-              icon="floppy-disk"
-              disabled={this.state.isSaving}
-              onClick={this.saveChanges}
-            />
-          </FormGroup>
-        </form>
-      </Card>
+              </div>
+            )}
+            <FormGroup>
+              <Button
+                text="Save changes"
+                intent="primary"
+                icon="floppy-disk"
+                disabled={this.state.isSaving}
+                onClick={this.saveChanges}
+              />
+            </FormGroup>
+          </form>
+        </div>
+      </Container>
     )
   }
 

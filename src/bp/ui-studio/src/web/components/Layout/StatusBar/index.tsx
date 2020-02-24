@@ -157,16 +157,8 @@ class StatusBar extends React.Component<Props> {
 
   render() {
     return (
-      <footer
-        ref={el => (this.pbRef = el)}
-        className={window.IS_BOT_MOUNTED ? style.statusBar : classNames(style.statusBar, style.disabled)}
-      >
+      <footer ref={el => (this.pbRef = el)} className={style.statusBar}>
         <div className={style.list}>
-          {!window.IS_BOT_MOUNTED && (
-            <ActionItem title="Unmounted" description="Bot is unmounted" className={style.right}>
-              BOT IS UNMOUNTED
-            </ActionItem>
-          )}
           {window.IS_BOT_MOUNTED && (
             <React.Fragment>
               <ActionItem

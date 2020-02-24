@@ -131,7 +131,4 @@ const mapDispatchToProps = {
   renameFlow
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SidePanelContent)
+export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)

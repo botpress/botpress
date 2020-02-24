@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'avatarPreview': string;
+  'callout': string;
   'configUploadSuccess': string;
   'container': string;
   'coverPreview': string;
