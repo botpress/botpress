@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
-import cluster from 'cluster'
+import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
 
-import { registerMsgHandler, WorkerType } from '../cluster'
+import { registerMsgHandler, WorkerType, spawnMLWorkers } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
@@ -109,13 +109,31 @@ if (cluster.isMaster) {
     webWorker?.isConnected() && webWorker.send(msg)
   }
 
-  registerMsgHandler('done', msg => sendToWebWorker(msg))
-  registerMsgHandler('progress', msg => sendToWebWorker(msg))
-  registerMsgHandler('error', msg => sendToWebWorker(msg))
-  registerMsgHandler('train', async (msg: Message) => {
-    const workerID = _.sample(process.ML_WORKERS)
-    cluster.workers[workerID!]?.send(msg)
-  })
+  let spawnPromise: Promise<void> | undefined
+  async function pickMLWorker(): Promise<Worker> {
+    if (_.isEmpty(process.ML_WORKERS) && !spawnPromise) {
+      spawnPromise = spawnMLWorkers()
+    }
+    if (spawnPromise) {
+      await spawnPromise
+      spawnPromise = undefined
+    }
+
+    const idx = Math.floor(Math.random() * process.ML_WORKERS.length)
+    const workerID = process.ML_WORKERS[idx]
+    const worker = cluster.workers[workerID!]
+    if (worker?.isDead() || !worker?.isConnected()) {
+      process.ML_WORKERS.splice(idx, 1)
+      return pickMLWorker()
+    }
+
+    return worker
+  }
+
+  registerMsgHandler('done', sendToWebWorker)
+  registerMsgHandler('progress', sendToWebWorker)
+  registerMsgHandler('error', sendToWebWorker)
+  registerMsgHandler('train', async (msg: Message) => (await pickMLWorker()).send(msg))
 }
 
 export default MLToolkit

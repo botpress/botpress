@@ -2,6 +2,7 @@ import sdk from 'botpress/sdk'
 import cluster from 'cluster'
 import { BotpressConfig } from 'core/config/botpress.config'
 import _ from 'lodash'
+import ms from 'ms'
 import nanoid from 'nanoid/generate'
 import os from 'os'
 import yn from 'yn'
@@ -35,13 +36,13 @@ export const setupMasterNode = (logger: sdk.Logger, config: BotpressConfig) => {
     worker.kill()
   })
 
-  cluster.on('exit', (worker, code, signal) => {
-    const mlWrkIdx = process.ML_WORKERS.indexOf(worker.id)
-    if (mlWrkIdx !== -1) {
+  cluster.on('exit', async (worker, code, signal) => {
+    const workerIdx = process.ML_WORKERS.indexOf(worker.id)
+    if (workerIdx !== -1) {
       debug(`Machine learning worker ${worker.id} died`)
-      process.ML_WORKERS.splice(mlWrkIdx, 1)
+      process.ML_WORKERS.splice(workerIdx, 1)
       if (process.ML_WORKERS.length === 0) {
-        spawnMLWorkers()
+        await spawnMLWorkers(logger)
       }
       return
     }
@@ -63,7 +64,7 @@ export const setupMasterNode = (logger: sdk.Logger, config: BotpressConfig) => {
         )
         process.exit(0)
       }
-      spawnWebWoker()
+      spawnWebWorker()
       rebootCount++
     }
   })
@@ -81,21 +82,31 @@ export const setupMasterNode = (logger: sdk.Logger, config: BotpressConfig) => {
     }
   })
 
-  const nluEnabled = !!config.modules.find(m => m.location.endsWith('nlu'))?.enabled
-  if (nluEnabled) {
-    spawnMLWorkers()
-  }
-  spawnWebWoker()
+  spawnWebWorker()
 }
 
-function spawnWebWoker() {
+function spawnWebWorker() {
   const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: <WorkerType>'WEB_WORKER' })
   process.WEB_WORKER = id
 }
 
-function spawnMLWorkers() {
+let spawnMLWorkersCount = 0
+setTimeout(() => {
+  spawnMLWorkersCount = 0
+}, ms('2m'))
+
+export async function spawnMLWorkers(logger?: sdk.Logger) {
+  if (spawnMLWorkersCount > 2) {
+    logger?.error(`Exceeded the number of automatic ml worker reboot`)
+    process.exit(0)
+  }
   const maxMLWorkers = Math.max(os.cpus().length - 1, 1) // ncpus - webworker
-  const numMLWorkers = parseInt(process.env.NUM_ML_WORKERS || '', 10) || maxMLWorkers
-  process.ML_WORKERS = _.range(numMLWorkers).map(() => cluster.fork({ WORKER_TYPE: <WorkerType>'ML_WORKER' }).id)
+  const numMLWorkers = Math.min(maxMLWorkers, process.core_env.BP_NUM_ML_WORKERS || 4)
+
+  process.ML_WORKERS = await Promise.map(_.range(numMLWorkers), () => {
+    const worker = cluster.fork({ WORKER_TYPE: <WorkerType>'ML_WORKER' })
+    return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, worker.id)))
+  })
+  spawnMLWorkersCount++
   debug(`Spawned ${numMLWorkers} machine learning workers`)
 }

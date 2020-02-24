@@ -51,9 +51,9 @@ declare namespace NodeJS {
      * When true, global hooks and actions will be executed outside of the sandbox.
      * This gives a boost in performances for code deemed "safe", while bot-specific content is executed in the sandbox
      */
+    DISABLE_GLOBAL_SANDBOX: boolean
     WEB_WORKER: number
     ML_WORKERS: number[]
-    DISABLE_GLOBAL_SANDBOX: boolean
   }
 }
 
@@ -201,6 +201,13 @@ declare type BotpressEnvironmentVariables = {
 
   /** Prevent running migrations (to allow manual fix of an issue which prevents server startup) */
   readonly SKIP_MIGRATIONS?: boolean
+
+  /**
+   * Indicates how many child process to spawn as Machibe Learning workers.
+   * Defaults to 4 if supported by CPU
+   * @default 4
+   */
+  readonly BP_NUM_ML_WORKERS?: number
 }
 
 interface IDebug {
