@@ -1,8 +1,8 @@
-import { HitlApi } from 'full/api'
 import _ from 'lodash'
 import React from 'react'
 
 import { HitlSessionOverview, Message as HitlMessage } from '../../../../backend/typings'
+import { HitlApi } from '../../api'
 
 import { ConversationHeader } from './ConversationHeader'
 import { MessageList } from './MessageList'

@@ -9,6 +9,7 @@ import {
   Popover,
   Position
 } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { AccessControl } from 'botpress/utils'
 import React, { useEffect, useState } from 'react'
 
@@ -66,7 +67,9 @@ export const LiteEditor = props => {
   const cancelEditing = () => setEditing(false)
 
   const deleteItem = async (id: string) => {
-    const needDelete = confirm('Do you want to delete the question?')
+    const needDelete = await confirmDialog('Do you want to delete the question?', {
+      acceptLabel: 'Delete'
+    })
 
     if (needDelete) {
       const { data } = await props.bp.axios.post(`/mod/qna/questions/${id}/delete`, getQueryParams())
@@ -113,8 +116,8 @@ export const LiteEditor = props => {
           {/*
           TODO: Support for import/export scoped to a category
           <div>
-            <Popover minimal position={Position.BOTTOM} captureDismiss={true}>
-              <Button id="btn-menu" icon="menu" minimal={true} style={{ float: 'right' }} />
+            <Popover minimal position={Position.BOTTOM} captureDismiss>
+              <Button id="btn-menu" icon="menu" minimal style={{ float: 'right' }} />
               <Menu>
                 <MenuItem
                   icon="download"
@@ -123,7 +126,7 @@ export const LiteEditor = props => {
                   onClick={() => setImportDialogOpen(true)}
                 />
 
-                <ExportButton asMenu={true} />
+                <ExportButton asMenu />
               </Menu>
             </Popover>
             <ImportModal
@@ -143,7 +146,7 @@ export const LiteEditor = props => {
               key={item.id}
               id={item.id}
               item={item.data}
-              isVersion2={true}
+              isVersion2
               contentLang={props.contentLang}
               onEditItem={editItem}
               onDeleteItem={deleteItem}

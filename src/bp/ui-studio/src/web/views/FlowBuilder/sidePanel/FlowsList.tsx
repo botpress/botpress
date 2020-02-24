@@ -1,4 +1,5 @@
 import { Classes, ContextMenu, ITreeNode, Menu, MenuItem, Tree } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { isEqual } from 'lodash'
 import React, { Component } from 'react'
 
@@ -66,8 +67,12 @@ export default class FlowsList extends Component<Props, State> {
     console.log(nodes)
   }
 
-  handleDelete = flow => {
-    if (confirm(`Are you sure you want to delete the flow ${flow.name}?`)) {
+  handleDelete = async flow => {
+    if (
+      await confirmDialog(`Are you sure you want to delete the flow ${flow.name}?`, {
+        acceptLabel: 'Delete'
+      })
+    ) {
       this.props.deleteFlow(flow.name)
     }
   }

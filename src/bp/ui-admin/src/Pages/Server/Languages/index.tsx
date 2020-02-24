@@ -40,7 +40,7 @@ export default () => {
   }, [])
 
   return (
-    <PageContainer title="Language Management" superAdmin={true}>
+    <PageContainer title="Language Management" superAdmin>
       {langSource && langServerInfo ? (
         <div className="languages-grid">
           <div>

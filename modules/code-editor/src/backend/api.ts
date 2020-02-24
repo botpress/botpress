@@ -5,9 +5,29 @@ import Editor from './editor'
 import { RequestWithPerms } from './typings'
 import { getPermissionsMw, validateFilePayloadMw } from './utils_router'
 
+const debugRead = DEBUG('audit:code-editor:read')
+const debugWrite = DEBUG('audit:code-editor:write')
+
 export default async (bp: typeof sdk, editor: Editor) => {
   const loadPermsMw = getPermissionsMw(bp)
   const router = bp.http.createRouterForBot('code-editor')
+
+  const audit = (debugMethod: Function, label: string, req: RequestWithPerms, args?: any) => {
+    debugMethod(
+      `${label} %o`,
+      _.merge(
+        {
+          ip: req.ip,
+          user: _.pick(req.tokenUser, ['email', 'strategy', 'isSuperAdmin']),
+          file: {
+            ..._.pick(req.body.file || req.body, ['location', 'botId', 'type', 'hookType']),
+            size: (req.body.file || req.body)?.content?.length
+          }
+        },
+        args
+      )
+    )
+  }
 
   router.get('/files', loadPermsMw, async (req: RequestWithPerms, res, next) => {
     try {
@@ -21,6 +41,8 @@ export default async (bp: typeof sdk, editor: Editor) => {
 
   router.post('/save', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
+      audit(debugWrite, 'saveFile', req)
+
       await editor.forBot(req.params.botId).saveFile(req.body)
       res.sendStatus(200)
     } catch (err) {
@@ -31,7 +53,11 @@ export default async (bp: typeof sdk, editor: Editor) => {
 
   router.post('/readFile', loadPermsMw, validateFilePayloadMw('read'), async (req: RequestWithPerms, res, next) => {
     try {
-      res.send({ fileContent: await editor.forBot(req.params.botId).readFileContent(req.body) })
+      const fileContent = await editor.forBot(req.params.botId).readFileContent(req.body)
+
+      audit(debugRead, 'readFile', req, { file: { size: fileContent?.length } })
+
+      res.send({ fileContent })
     } catch (err) {
       next(err)
     }
@@ -55,6 +81,8 @@ export default async (bp: typeof sdk, editor: Editor) => {
 
   router.post('/rename', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
+      audit(debugWrite, 'renameFile', req, { newName: req.body.newName })
+
       await editor.forBot(req.params.botId).renameFile(req.body.file, req.body.newName)
       res.sendStatus(200)
     } catch (err) {
@@ -65,6 +93,8 @@ export default async (bp: typeof sdk, editor: Editor) => {
 
   router.post('/remove', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
     try {
+      audit(debugWrite, 'deleteFile', req)
+
       await editor.forBot(req.params.botId).deleteFile(req.body)
       res.sendStatus(200)
     } catch (err) {
@@ -82,7 +112,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
     }
   })
 
-  router.get('/typings', async (req, res, next) => {
+  router.get('/typings', async (_req, res, next) => {
     try {
       res.send(await editor.loadTypings())
     } catch (err) {

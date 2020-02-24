@@ -1,12 +1,17 @@
 import React from 'react'
 import style from '../style.scss'
 import { Tag } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 
 export default class SlotItem extends React.Component {
-  handleDeleteClicked = e => {
+  handleDeleteClicked = async e => {
     e.preventDefault()
 
-    if (confirm('Are you sure you want to delete this slot and all associated tagging from all utterances?')) {
+    if (
+      await confirmDialog('Are you sure you want to delete this slot and all associated tagging from all utterances?', {
+        acceptLabel: 'Delete'
+      })
+    ) {
       this.props.onDelete && this.props.onDelete(this.props.slot)
     }
   }

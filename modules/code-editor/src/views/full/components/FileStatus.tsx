@@ -1,8 +1,9 @@
 import { Collapse, Icon } from '@blueprintjs/core'
 import { SidePanelSection } from 'botpress/ui'
-import { RootStore } from 'full/store'
 import { inject, observer } from 'mobx-react'
 import React, { useState } from 'react'
+
+import { RootStore } from '../store'
 
 const FileStatus = props => {
   const [showErrors, setErrorDisplayed] = useState(false)

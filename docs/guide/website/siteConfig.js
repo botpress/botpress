@@ -11,7 +11,7 @@
 const siteConfig = {
   title: "| Developer's Guide",
   tagline: 'Guides and references for all you need to know about Botpress',
-  url: 'https://botpress.io/docs',
+  url: 'https://botpress.com/docs',
   baseUrl: '/',
   repoUrl: 'https://github.com/botpress/botpress',
   projectName: 'botpress-docs',
@@ -28,8 +28,8 @@ const siteConfig = {
   docsSideNavCollapsible: true,
   headerLinks: [
     { doc: 'introduction', label: 'Docs' },
-    { href: 'https://botpress.io/reference/', label: 'SDK' },
-    { href: 'https://help.botpress.io/', label: 'Community' },
+    { href: 'https://botpress.com/reference/', label: 'SDK' },
+    { href: 'https://forum.botpress.com/', label: 'Community' },
     { href: 'https://github.com/botpress/botpress', label: 'Github' },
     { search: true }
   ],

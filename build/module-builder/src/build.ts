@@ -45,7 +45,7 @@ export async function buildBackend(modulePath: string) {
     },
     plugins: ['@babel/plugin-proposal-class-properties', '@babel/plugin-proposal-function-bind'],
     sourceType: 'module',
-    cwd: modulePath
+    cwd: path.resolve(__dirname, '..')
   }
 
   const babelFile = path.join(modulePath, 'babel.backend.js')

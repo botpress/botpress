@@ -12,7 +12,7 @@ import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
 import PageContainer from '~/App/PageContainer'
-import confirmDialog from '~/App/ConfirmDialog'
+import { confirmDialog } from 'botpress/shared'
 
 class LicenseStatus extends React.Component {
   state = {
@@ -276,7 +276,4 @@ class LicenseStatus extends React.Component {
 const mapStateToProps = state => ({ loading: state.license.loading, licensing: state.license.licensing })
 const mapDispatchToProps = { fetchLicensing }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LicenseStatus)
+export default connect(mapStateToProps, mapDispatchToProps)(LicenseStatus)

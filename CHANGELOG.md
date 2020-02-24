@@ -1,3 +1,83 @@
+# [12.6.0](https://github.com/botpress/botpress/compare/v12.5.0...v12.6.0) (2020-02-24)
+
+
+### Bug Fixes
+
+* **admin:** allow overwrite existing bot on import ([d02a5ed](https://github.com/botpress/botpress/commit/d02a5ed))
+* **admin:** remove unused dep & fix ts ([c23be66](https://github.com/botpress/botpress/commit/c23be66))
+* **bots:** normalized bot status & added filters ([a3c0d71](https://github.com/botpress/botpress/commit/a3c0d71))
+* **cms:** fix image preview when name has space ([faabca3](https://github.com/botpress/botpress/commit/faabca3))
+* **code-editor:** fix formatting on loading file ([#2965](https://github.com/botpress/botpress/issues/2965)) ([4406dc7](https://github.com/botpress/botpress/commit/4406dc7))
+* **config:** remove misleading description for empty bot ([2fa1d9f](https://github.com/botpress/botpress/commit/2fa1d9f))
+* **core:** added more logging ([581758d](https://github.com/botpress/botpress/commit/581758d))
+* **core:** better audit traces ([6e9d082](https://github.com/botpress/botpress/commit/6e9d082))
+* **core:** creating schema when missing ([939d27e](https://github.com/botpress/botpress/commit/939d27e))
+* **core:** id validation on bot admin actions ([d55d6c8](https://github.com/botpress/botpress/commit/d55d6c8))
+* **core:** limit number of concurrent bot mount ([17c69e4](https://github.com/botpress/botpress/commit/17c69e4))
+* **docs:** before_container takes an array ([ac94ff6](https://github.com/botpress/botpress/commit/ac94ff6))
+* **docs:** changes ([54e5232](https://github.com/botpress/botpress/commit/54e5232))
+* **docs:** fix link to "hosting language server" ([e9a68b2](https://github.com/botpress/botpress/commit/e9a68b2))
+* **docs:** removed on page load section ([46f21a5](https://github.com/botpress/botpress/commit/46f21a5))
+* **misunderstood:** applying changed retrain the nlu ([6ea2d3f](https://github.com/botpress/botpress/commit/6ea2d3f))
+* **ui-studio:** add node highlight after redirect ([35a8d6d](https://github.com/botpress/botpress/commit/35a8d6d))
+* **ui-studio:** fix highlighting nodes by URL-hash ([0ed2568](https://github.com/botpress/botpress/commit/0ed2568))
+
+
+### Features
+
+* **admin:** basic module management ([#2917](https://github.com/botpress/botpress/issues/2917)) ([2370a53](https://github.com/botpress/botpress/commit/2370a53))
+* **cms:** link to usage elements ([#2957](https://github.com/botpress/botpress/issues/2957)) ([eeff521](https://github.com/botpress/botpress/commit/eeff521))
+* **core:** support for redis cluster ([78acae7](https://github.com/botpress/botpress/commit/78acae7))
+* **hook:** bot-scoped hooks ([fee2cea](https://github.com/botpress/botpress/commit/fee2cea))
+* **logs:** new log page & additional bot monitoring ([a945944](https://github.com/botpress/botpress/commit/a945944))
+* **ui-shared:** shared component library ([#2954](https://github.com/botpress/botpress/issues/2954)) ([5cbb50b](https://github.com/botpress/botpress/commit/5cbb50b))
+
+
+
+# [12.5.0](https://github.com/botpress/botpress/compare/v12.4.2...v12.5.0) (2020-02-03)
+
+
+### Bug Fixes
+
+* **admin:** fix error message for non super admins ([482fd5b](https://github.com/botpress/botpress/commit/482fd5b))
+* **builtin:** handle markdown property ([0f3f071](https://github.com/botpress/botpress/commit/0f3f071))
+* **cms:** markdown property ([1a52d8b](https://github.com/botpress/botpress/commit/1a52d8b))
+* **code-editor:** ignore bot mount errors ([79d7522](https://github.com/botpress/botpress/commit/79d7522))
+* **code-editor:** module schemas ([0d14dd6](https://github.com/botpress/botpress/commit/0d14dd6))
+* **core:** add module name when bot fails to mount ([8333f81](https://github.com/botpress/botpress/commit/8333f81))
+* **core:** added missing env var definition in global defs ([8e4d24c](https://github.com/botpress/botpress/commit/8e4d24c))
+* **core:** better error message when bot fails to load ([fa2cd25](https://github.com/botpress/botpress/commit/fa2cd25))
+* **core:** clear message when the workspace property is missing ([7c881bf](https://github.com/botpress/botpress/commit/7c881bf))
+* **core:** missing import ([6dc85be](https://github.com/botpress/botpress/commit/6dc85be))
+* **deps:** rollback react ([069e806](https://github.com/botpress/botpress/commit/069e806))
+* **flow:** better fix for links refresh ([b2e804a](https://github.com/botpress/botpress/commit/b2e804a))
+* **flow:** lag issue with a lot of content ([e372d5b](https://github.com/botpress/botpress/commit/e372d5b))
+* **flow:** no update when read only ([8dd1600](https://github.com/botpress/botpress/commit/8dd1600))
+* **nlu:** real spaces in list entity extraction ([1df97b0](https://github.com/botpress/botpress/commit/1df97b0))
+* **nlu-testing:** none compare ([f508fd6](https://github.com/botpress/botpress/commit/f508fd6))
+* code-style ([b10daec](https://github.com/botpress/botpress/commit/b10daec))
+* **qna:** fix redirection and incorrect message ([38518be](https://github.com/botpress/botpress/commit/38518be))
+* **qna:** update items on renaming flow ([88d4049](https://github.com/botpress/botpress/commit/88d4049))
+* **settings:** vs code settings for ts intellisens ([394da8f](https://github.com/botpress/botpress/commit/394da8f))
+* **studio:** allow access to code editor when bot unmounted ([d0b9b92](https://github.com/botpress/botpress/commit/d0b9b92))
+
+
+### Features
+
+* **channel:** smooch integration ([2ce1ccb](https://github.com/botpress/botpress/commit/2ce1ccb))
+* **channel-web:** allow setting webchat locale ([3d9c7b0](https://github.com/botpress/botpress/commit/3d9c7b0))
+* **code-editor:** raw editor to manage any files on the bpfs ([76c271e](https://github.com/botpress/botpress/commit/76c271e))
+* **core:** bot health monitor for clusters ([7a8b6b6](https://github.com/botpress/botpress/commit/7a8b6b6))
+* **core:** reboot individual servers ([9d2a7bf](https://github.com/botpress/botpress/commit/9d2a7bf))
+* **nlu:** merge latin token only if oov ([4421e21](https://github.com/botpress/botpress/commit/4421e21))
+* **NLU:** alternate input to account for typos ([648d20e](https://github.com/botpress/botpress/commit/648d20e))
+* **NLU:** only merge latin tokens when OOV ([0c8e17f](https://github.com/botpress/botpress/commit/0c8e17f))
+* **nlu-testing:** batch run ([a61024a](https://github.com/botpress/botpress/commit/a61024a))
+* **nlu-testing:** run & delete single test ([f27a1e5](https://github.com/botpress/botpress/commit/f27a1e5))
+* **studio:** add Content Usage count in CMS ([4d99101](https://github.com/botpress/botpress/commit/4d99101))
+
+
+
 ## [12.4.2](https://github.com/botpress/botpress/compare/v12.4.1...v12.4.2) (2020-01-22)
 
 

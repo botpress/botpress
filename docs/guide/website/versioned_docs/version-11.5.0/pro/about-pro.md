@@ -6,7 +6,7 @@ original_id: about-pro
 
 ## Features
 
-[TODO] List pro features meanwhile see [list on pricing page](https://botpress.io/pricing/)
+[TODO] List pro features meanwhile see [list on pricing page](https://botpress.com/pricing/)
 
 ## Activate pro
 

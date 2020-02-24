@@ -80,7 +80,7 @@ Here you go, you can now still use the Botpress NLU UI to define your intents/en
 
 ### Use your 3rd Party NLU for classification and extraction
 
-We will use a similar strategy for prediction time. Basically, what we want to do is call our 3rd party NLU for each incoming user message. We will use a [before incoming hook](../main/code#before-incoming-middleware) which is fired when a user message gets in Botpress. The code is not complex, just keep in mind that Botpress works with a precise data structure, so you'll need to map the response data of your NLU provider to [Botpress NLU data format](https://botpress.io/reference/interfaces/_botpress_sdk_.io.eventunderstanding.html). The hook will look like the following:
+We will use a similar strategy for prediction time. Basically, what we want to do is call our 3rd party NLU for each incoming user message. We will use a [before incoming hook](../main/code#before-incoming-middleware) which is fired when a user message gets in Botpress. The code is not complex, just keep in mind that Botpress works with a precise data structure, so you'll need to map the response data of your NLU provider to [Botpress NLU data format](https://botpress.com/reference/interfaces/_botpress_sdk_.io.eventunderstanding.html). The hook will look like the following:
 
 ```js
   const axios = require('axios')

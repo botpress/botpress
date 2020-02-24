@@ -1,7 +1,7 @@
 ## Overview
 
 This example includes a lot of "boilerplate" to create a module with almost all features you can implement from the documentation
-Please check the [official documentation](https://botpress.io/docs/developers/create-module/) for more information
+Please check the [official documentation](https://botpress.com/docs/developers/create-module/) for more information
 
 ## Quick Start
 
