@@ -893,7 +893,6 @@ declare module 'botpress/sdk' {
       /** Defines the list of content types supported by the bot */
       contentTypes: string[]
     }
-    analytics?: AnalyticsConfig
     converse?: ConverseConfig
     dialog?: DialogConfig
     logs?: LogsConfig
@@ -901,10 +900,6 @@ declare module 'botpress/sdk' {
     languages: string[]
     locked: boolean
     pipeline_status: BotPipelineStatus
-  }
-
-  export interface AnalyticsConfig {
-    enabled: boolean
   }
 
   export type Pipeline = Stage[]
