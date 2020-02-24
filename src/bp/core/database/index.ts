@@ -54,9 +54,14 @@ export default class Database {
 
   async initialize(databaseType?: DatabaseType, databaseUrl?: string) {
     const { DATABASE_URL, DATABASE_POOL } = process.env
-    let poolOptions = {}
+
+    let poolOptions = {
+      log: message => this.logger.warn(`[pool] ${message}`)
+    }
+
     try {
-      poolOptions = DATABASE_POOL ? JSON.parse(DATABASE_POOL) : {}
+      const customPoolOptions = DATABASE_POOL ? JSON.parse(DATABASE_POOL) : {}
+      poolOptions = { ...poolOptions, ...customPoolOptions }
     } catch (err) {
       this.logger.warn('Database pool option is not valid json')
     }
@@ -71,7 +76,12 @@ export default class Database {
     }
 
     const config: Knex.Config = {
-      useNullAsDefault: true
+      useNullAsDefault: true,
+      log: {
+        error: this.logger.error,
+        warn: this.logger.warn,
+        debug: this.logger.debug
+      }
     }
 
     if (databaseType === 'postgres') {
@@ -97,9 +107,6 @@ export default class Database {
     }
 
     this.knex = patchKnex(Knex(config))
-    this.knex.on('error', err => {
-      this.logger.attachError(err).error(err)
-    })
 
     await this.bootstrap()
   }

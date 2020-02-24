@@ -600,7 +600,7 @@ export class BotService {
       return false
     } finally {
       await this._updateBotHealthDebounce()
-      debug(`Mount bot ${botId} took ${Date.now() - startTime}ms`)
+      debug.forBot(botId, `Mount took ${Date.now() - startTime}ms`)
     }
   }
 
