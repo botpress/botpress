@@ -1,4 +1,4 @@
-import { Intent, Position, Toaster } from '@blueprintjs/core'
+import { Classes, H5, Intent, Position, Toaster } from '@blueprintjs/core'
 import React, { useEffect } from 'react'
 
 export default () => {
@@ -6,16 +6,17 @@ export default () => {
   if (!window.IS_BOT_MOUNTED) {
     const toastContent = (
       <div>
-        <p>
-          Language server is unreachable, bots wont work properly. Check &nbsp;
-          <a href="https://botpress.io/docs/main/nlu#language-server" target="_blank">
-            the docs
-          </a>
-        </p>
+        <div>
+          <H5 className={Classes.DARK}>Bot is unmounted</H5>
+          <p>
+            Most functionalities of the bot are disabled. You can re-enable your bot by changing the status in the
+            config menu.
+          </p>
+        </div>
       </div>
     )
 
-    Toaster.create({ position: Position.TOP }).show({
+    Toaster.create({ position: Position.TOP_RIGHT }).show({
       message: toastContent,
       intent: Intent.DANGER,
       timeout: 0
