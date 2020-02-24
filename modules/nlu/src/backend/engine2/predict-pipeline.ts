@@ -334,13 +334,23 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       } as sdk.NLU.Slot
     }
   }, {} as sdk.NLU.SlotCollection)
+
+  const predictions = step.ctx_predictions?.reduce((preds, { label, confidence }) => {
+    return {
+      ...preds,
+      [label]: {
+        confidence: confidence,
+        intents: step.intent_predictions.per_ctx[label]
+      }
+    }
+  }, {})
+
   return {
     ambiguous: step.intent_predictions.ambiguous,
     detectedLanguage: step.detectedLanguage,
     entities,
     errored: false,
-    ctxPreds: step.ctx_predictions,
-    intentsCtx: step.intent_predictions.per_ctx,
+    predictions,
     includedContexts: step.includedContexts,
     intent: step.intent_predictions.elected,
     intents: step.intent_predictions.combined,

@@ -13,7 +13,6 @@ export class UnderstandingEngine {
   private _allTriggers: Map<string, TriggerGoal[]> = new Map()
 
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
-  private readonly MIN_NO_REPEAT = ms(process.env.BP_DECISION_MIN_NO_REPEAT || '20s')
 
   constructor(bp: typeof sdk) {
     this.bp = bp
@@ -58,8 +57,8 @@ export class UnderstandingEngine {
     const actions = []
 
     // No active goal or contexts. Enable the highest one
-    if (!(activeGoal && isInMiddleOfFlow) && !activeContexts.length && event.nlu.ctxPreds) {
-      const { label, confidence } = event.nlu.ctxPreds[0]
+    if (!(activeGoal && isInMiddleOfFlow) && !activeContexts.length && event.nlu.predictions) {
+      const { label, confidence } = event.nlu.predictions[0]
       if (confidence > 0.5) {
         event.state.session.nluContexts = [...(event.state.session.nluContexts || []), { context: label, ttl: 3 }]
         debug(`No active goal or context. Activate topic with highest confidence: ${label} `)
