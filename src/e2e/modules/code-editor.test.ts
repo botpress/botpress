@@ -2,6 +2,7 @@ import { clickOn, fillField } from '../expectPuppeteer'
 import {
   autoAnswerDialog,
   clickOnTreeNode,
+  CONFIRM_DIALOG,
   expectBotApiCallSuccess,
   gotoStudio,
   triggerKeyboardShortcut,
@@ -61,9 +62,9 @@ describe('Module - Code Editor', () => {
 
   it('Delete file', async () => {
     await waitForFilesToLoad()
-    autoAnswerDialog()
     await clickOnTreeNode('.hello_copy.js', 'right')
     await clickOn('#btn-delete')
+    await clickOn(CONFIRM_DIALOG.ACCEPT)
 
     await expectBotApiCallSuccess('mod/code-editor/remove', 'POST')
     const response = await waitForBotApiResponse('mod/code-editor/files')

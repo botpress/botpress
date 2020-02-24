@@ -54,9 +54,10 @@ const DEFAULT_BOT_CONFIGS = {
 
 const STATUS_REFRESH_INTERVAL = ms('15s')
 const STATUS_EXPIRY = ms('20s')
-const DEFAULT_BOT_HEALTH: BotHealth = { status: 'unmounted', errorCount: 0, warningCount: 0, criticalCount: 0 }
+const DEFAULT_BOT_HEALTH: BotHealth = { status: 'disabled', errorCount: 0, warningCount: 0, criticalCount: 0 }
 
 const getBotStatusKey = (serverId: string) => `bp_server_${serverId}_bots`
+const debug = DEBUG('services:bots')
 
 @injectable()
 export class BotService {
@@ -221,7 +222,7 @@ export class BotService {
     }
 
     if (!actualBot.disabled && updatedBot.disabled) {
-      await this.unmountBot(botId, true)
+      await this.unmountBot(botId)
     }
   }
 
@@ -235,6 +236,7 @@ export class BotService {
   }
 
   async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
+    const startTime = Date.now()
     if (!isValidBotId(botId)) {
       throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
     }
@@ -313,6 +315,7 @@ export class BotService {
     } finally {
       this._invalidateBotIds()
       tmpDir.removeCallback()
+      debug.forBot(botId, `Bot import took ${Date.now() - startTime}ms`)
     }
   }
 
@@ -549,6 +552,7 @@ export class BotService {
 
   // Do not use directly use the public version instead due to broadcasting
   private async _localMount(botId: string): Promise<boolean> {
+    const startTime = Date.now()
     if (this.isBotMounted(botId)) {
       return true
     }
@@ -587,11 +591,9 @@ export class BotService {
         }, botId)
       )
 
-      BotService.setBotStatus(botId, 'mounted')
+      BotService.setBotStatus(botId, 'healthy')
       return true
     } catch (err) {
-      BotService.setBotStatus(botId, 'error')
-
       this.logger
         .forBot(botId)
         .attachError(err)
@@ -600,11 +602,13 @@ export class BotService {
       return false
     } finally {
       await this._updateBotHealthDebounce()
+      debug.forBot(botId, `Mount took ${Date.now() - startTime}ms`)
     }
   }
 
   // Do not use directly use the public version instead due to broadcasting
-  private async _localUnmount(botId: string, isDisabled?: boolean) {
+  private async _localUnmount(botId: string) {
+    const startTime = Date.now()
     if (!this.isBotMounted(botId)) {
       this._invalidateBotIds()
       return
@@ -617,10 +621,11 @@ export class BotService {
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
 
     BotService._mountedBots.set(botId, false)
-    BotService.setBotStatus(botId, isDisabled ? 'disabled' : 'unmounted')
+    BotService.setBotStatus(botId, 'disabled')
 
     await this._updateBotHealthDebounce()
     this._invalidateBotIds()
+    debug.forBot(botId, `Unmount took ${Date.now() - startTime}ms`)
   }
 
   private _invalidateBotIds(): void {
@@ -753,23 +758,27 @@ export class BotService {
   }
 
   public static incrementBotStats(botId: string, type: 'error' | 'warning' | 'critical') {
-    const info = this._botHealth[botId] || DEFAULT_BOT_HEALTH
+    if (!this._botHealth[botId]) {
+      this._botHealth[botId] = DEFAULT_BOT_HEALTH
+    }
 
-    this._botHealth[botId] = {
-      ...info,
-      errorCount: info.errorCount + (type === 'error' ? 1 : 0),
-      criticalCount: info.criticalCount + (type === 'critical' ? 1 : 0),
-      warningCount: info.warningCount + (type === 'warning' ? 1 : 0)
+    if (type === 'error') {
+      this._botHealth[botId].errorCount++
+    } else if (type === 'warning') {
+      this._botHealth[botId].warningCount++
+    } else if (type === 'critical') {
+      this._botHealth[botId].criticalCount++
+      this._botHealth[botId].status = 'unhealthy'
     }
   }
 
-  public static setBotStatus(botId: string, status: 'mounted' | 'unmounted' | 'disabled' | 'error') {
+  public static setBotStatus(botId: string, status: 'healthy' | 'unhealthy' | 'disabled') {
     this._botHealth[botId] = {
       ...(this._botHealth[botId] || DEFAULT_BOT_HEALTH),
       status
     }
 
-    if (['unmounted', 'disabled'].includes(status)) {
+    if (['disabled'].includes(status)) {
       this._botHealth[botId].errorCount = 0
       this._botHealth[botId].warningCount = 0
       this._botHealth[botId].criticalCount = 0

@@ -34,7 +34,7 @@ Replace the following content with `"users": []`
 ```js
 "users": [
   {
-    "email": "admin@botpress.io",
+    "email": "admin@botpress.com",
     "password": "713f2a9c8382c8bec72dced71c787adf4ba3d0aa635a8201b0ee78700758919b4eb042ac4f2c8848bbdde05a734185f85903426b6fbc0fe8c76493e28bbcc7b3",
     "salt": "2af382287ebef39d",
     "firstname": "",

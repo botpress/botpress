@@ -214,24 +214,35 @@ export const checkMethodPermissions = (workspaceService: WorkspaceService) => (r
 export const hasPermissions = (workspaceService: WorkspaceService) => async (
   req: RequestWithUser,
   operation: string,
-  resource: string
+  resource: string,
+  noAudit?: boolean
 ) => {
-  const err = await checkPermissions(workspaceService)(operation, resource)(req)
+  const err = await checkPermissions(workspaceService)(operation, resource, noAudit)(req)
   return !err
 }
 
-const checkPermissions = (workspaceService: WorkspaceService) => (operation: string, resource: string) => async (
-  req: RequestWithUser
-) => {
-  if (!req.tokenUser) {
-    debugFailure(`${req.originalUrl} %o`, {
+const checkPermissions = (workspaceService: WorkspaceService) => (
+  operation: string,
+  resource: string,
+  noAudit?: boolean
+) => async (req: RequestWithUser) => {
+  const audit = (debugMethod: Function, args?: any) => {
+    if (noAudit) {
+      return
+    }
+
+    debugMethod(`${req.originalUrl} %o`, {
       method: req.method,
-      email: 'n/a',
+      email: req.tokenUser?.email,
       operation,
       resource,
       ip: req.ip,
-      reason: 'unauthenticated'
+      ...args
     })
+  }
+
+  if (!req.tokenUser) {
+    audit(debugFailure, { email: 'n/a', reason: 'unauthenticated' })
     return new ForbiddenError(`Unauthorized`)
   }
 
@@ -247,62 +258,28 @@ const checkPermissions = (workspaceService: WorkspaceService) => (operation: str
 
   // The server user is used internally, and has all the permissions
   if (email === SERVER_USER || isSuperAdmin) {
-    debugSuccess(`${req.originalUrl} %o`, {
-      method: req.method,
-      email,
-      operation,
-      resource,
-      userRole: 'superAdmin',
-      ip: req.ip
-    })
+    audit(debugSuccess, { userRole: 'superAdmin' })
     return
   }
 
   if (!email || !strategy) {
-    debugFailure(`${req.originalUrl} %o`, {
-      method: req.method,
-      email,
-      operation,
-      resource,
-      ip: req.ip,
-      reason: 'missing auth parameter'
-    })
+    audit(debugFailure, { reason: 'missing auth parameter' })
     return new NotFoundError(`Missing one of the required parameters: email or strategy`)
   }
 
   const user = await workspaceService.findUser(email, strategy, req.workspace)
 
   if (!user) {
-    debugFailure(`${req.originalUrl} %o`, {
-      method: req.method,
-      email,
-      operation,
-      resource,
-      ip: req.ip
-    })
+    audit(debugFailure, { reason: 'missing workspace access' })
     return new ForbiddenError(`User "${email}" doesn't have access to workspace "${req.workspace}"`)
   }
 
   const role = await workspaceService.getRoleForUser(email, strategy, req.workspace)
 
   if (!role || !checkRule(role.rules, operation, resource)) {
-    debugFailure(req.originalUrl, {
-      method: req.method,
-      email,
-      operation,
-      resource,
-      userRole: role && role.id,
-      ip: req.ip
-    })
+    audit(debugFailure, { userRole: role?.id, reason: 'lack sufficient permissions' })
     return new ForbiddenError(`user does not have sufficient permissions to "${operation}" on resource "${resource}"`)
   }
 
-  debugSuccess(`${req.originalUrl} %o`, {
-    method: req.method,
-    email,
-    operation,
-    resource,
-    userRole: role && role.id,
-    ip: req.ip
-  })
+  audit(debugSuccess, { userRole: role?.id })
 }

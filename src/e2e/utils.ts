@@ -57,13 +57,9 @@ export const waitForBotApiResponse = async (endOfUrl: string, method?: HttpMetho
   return response.json()
 }
 
-export const autoAnswerConfirmDialog = async (promptText?: string, repeat?: boolean) => {
-  const confirm = await page.$('#confirm-dialog-accept')
-  try {
-    await confirm.click()
-  } catch (err) {
-    console.error(err.message)
-  }
+export enum CONFIRM_DIALOG {
+  ACCEPT = '#confirm-dialog-accept',
+  DECLINE = '#confirm-dialog-decline'
 }
 
 export const autoAnswerDialog = (promptText?: string, repeat?: boolean) => {
