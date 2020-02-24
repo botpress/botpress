@@ -51,7 +51,7 @@ const Dropdown: FC<Props> = props => {
       }}
     >
       <Button
-        text={activeItem && activeItem.label}
+        text={props.small ? <small>{activeItem && activeItem.label}</small> : activeItem && activeItem.label}
         icon={props.icon}
         rightIcon={props.rightIcon || 'double-caret-vertical'}
         small={props.small}

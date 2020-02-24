@@ -90,9 +90,10 @@ export class ModulesRouter extends CustomRouter {
           } else {
             await this.moduleLoader.reloadModule(fullPath, moduleName)
           }
+          return res.send({ rebootRequired: false })
+        } else {
+          return res.send({ rebootRequired: true })
         }
-
-        res.sendStatus(200)
       })
     )
 

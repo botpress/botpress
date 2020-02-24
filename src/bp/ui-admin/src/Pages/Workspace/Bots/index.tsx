@@ -10,13 +10,13 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
+import { confirmDialog } from 'botpress/shared'
 import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
-import { confirmDialog } from 'botpress/shared'
 import { toastSuccess } from '~/utils/toaster'
 import { toastFailure } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
@@ -178,7 +178,7 @@ class Bots extends Component<Props> {
 
     return _.some(
       this.props.health.map(x => x.bots[botId]),
-      s => s && s.status === 'error'
+      s => s && s.status === 'unhealthy'
     )
   }
 

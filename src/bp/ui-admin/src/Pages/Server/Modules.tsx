@@ -1,6 +1,7 @@
-import { Button, Switch, Tooltip } from '@blueprintjs/core'
+import { Button, Callout, Intent, Switch } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { ModuleInfo } from 'common/typings'
-import React, { FC, useEffect } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
@@ -14,6 +15,9 @@ interface Props {
 }
 
 const Modules: FC<Props> = props => {
+  const [rebootRequired, setRebootRequired] = useState(false)
+  const [isRestarting, setRestart] = useState(false)
+
   useEffect(() => {
     props.fetchModules()
   }, [])
@@ -22,9 +26,40 @@ const Modules: FC<Props> = props => {
     return null
   }
 
+  useEffect(() => {
+    if (!isRestarting) {
+      return
+    }
+
+    const interval = setInterval(async () => {
+      try {
+        await api.getSecured({ toastErrors: false }).get('/status', { timeout: 500, baseURL: '/' })
+        window.location.reload()
+      } catch (err) {} // silent intended
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [isRestarting])
+
+  const restartServer = async () => {
+    try {
+      if (
+        await confirmDialog(
+          'Are you sure? If you have multiple servers, they will all be restarted at the same time.',
+          { acceptLabel: 'Restart server(s) now' }
+        )
+      ) {
+        await api.getSecured().post(`/admin/server/rebootServer`)
+        setRestart(true)
+      }
+    } catch (err) {
+      toastFailure(err.message)
+    }
+  }
+
   const updateModuleStatus = async (moduleName: string, enabled: boolean) => {
     try {
-      await api.getSecured().post(`/modules/${moduleName}/enabled/${enabled}`)
+      const { data } = await api.getSecured().post(`/modules/${moduleName}/enabled/${enabled}`)
+      setRebootRequired(data.rebootRequired)
       props.fetchModules()
       toastSuccess('Module status updated successfully')
     } catch (err) {
@@ -53,6 +88,22 @@ const Modules: FC<Props> = props => {
       }
       superAdmin={true}
     >
+      {rebootRequired && (
+        <Callout intent={Intent.SUCCESS} style={{ marginBottom: 20 }}>
+          Your Botpress configuration file was updated successfully. The server must be restarted for changes to take
+          effect.
+          <br />
+          <br />
+          <Button
+            id="btn-restart"
+            text={isRestarting ? 'Please wait...' : 'Restart server now'}
+            disabled={isRestarting}
+            onClick={restartServer}
+            intent={Intent.PRIMARY}
+            small
+          />
+        </Callout>
+      )}
       {props.modules.map(module => (
         <div className="moduleItem" key={module.name}>
           <div className="moduleItemSwitch">
@@ -88,7 +139,4 @@ const mapStateToProps = state => ({
   ...state.modules
 })
 
-export default connect(
-  mapStateToProps,
-  { fetchModules }
-)(Modules)
+export default connect(mapStateToProps, { fetchModules })(Modules)
