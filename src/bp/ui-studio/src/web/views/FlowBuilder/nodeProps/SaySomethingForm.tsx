@@ -1,4 +1,4 @@
-import { Icon, Position, Toaster } from '@blueprintjs/core'
+import { Button as BPButton, Icon, Position, Toaster } from '@blueprintjs/core'
 import classnames from 'classnames'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
@@ -76,7 +76,7 @@ const SaySomethingForm: FC<Props> = props => {
         </MoreOptions>
       </div>
       <form className={style.sidePanelForm}>
-        <label>
+        <label className={style.fieldWrapper}>
           <span className={style.formLabel}>Node name</span>
           <EditableInput
             readOnly={readOnly}
@@ -86,10 +86,11 @@ const SaySomethingForm: FC<Props> = props => {
             transform={transformText}
           />
         </label>
-        <label>
+        <label className={style.fieldWrapper}>
           <span className={style.formLabel}>Content type</span>
           <div className={style.formSelect}>
             <select>
+              <option value={null}>Select</option>
               {categories &&
                 categories
                   .filter(cat => !cat.hidden)
@@ -105,10 +106,17 @@ const SaySomethingForm: FC<Props> = props => {
             </select>
           </div>
         </label>
-        <label>
+        <label className={style.fieldWrapper}>
           <span className={style.formLabel}>Message*</span>
           <textarea className={style.textarea} value="" onChange={this.handleInputChange}></textarea>
         </label>
+        <div className={style.fieldWrapper}>
+          <span className={style.formLabel}>Alternates</span>
+          <textarea className={style.textarea} value="" onChange={this.handleInputChange}></textarea>
+          <BPButton className={style.addContentBtn} icon="plus" large={true}>
+            Add Alternates
+          </BPButton>
+        </div>
       </form>
     </Fragment>
   )

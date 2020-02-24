@@ -3,8 +3,10 @@
 interface CssExports {
   'actionIcons': string;
   'actions': string;
+  'addContentBtn': string;
   'bottomSection': string;
   'endBloc': string;
+  'fieldWrapper': string;
   'formHeader': string;
   'formLabel': string;
   'formSelect': string;

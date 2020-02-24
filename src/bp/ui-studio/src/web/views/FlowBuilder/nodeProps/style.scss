@@ -154,8 +154,9 @@ h5 {
 }
 
 .sidePanelForm {
-  label {
+  .fieldWrapper {
     display: block;
+    line-height: 0;
   }
 
   .formSelect {
@@ -235,5 +236,11 @@ h5 {
   .textarea {
     height: 60px;
     resize: none;
+  }
+
+  .addContentBtn {
+    cursor: pointer;
+    margin-top: 8px;
+    width: 100%;
   }
 }
