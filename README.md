@@ -1,4 +1,4 @@
-<a href='http://botpress.io'><img src='.github/assets/train_bar.gif'></a>
+<a href='http://botpress.com'><img src='.github/assets/train_bar.gif'></a>
 
 # [Botpress](https://botpress.com) — The open-source Virtual Assistant platform
 
@@ -27,7 +27,7 @@ Botpress is:
 ##### Learn Botpress
 
 | 📖 [**Documentation**](https://botpress.com/docs) | 🍿 [**Tutorials**](https://www.youtube.com/c/botpress) | 💘 [**Community Forum**](https://forum.botpress.com) |
-| ------------------------------------------------ | ------------------------------------------------------ | ---------------------------------------------------- |
+| ------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
 
 
 ## Deploy in the Cloud

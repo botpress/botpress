@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios'
 import { Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
+import { Metric } from 'common/monitoring'
 import { IDisposable } from 'core/misc/disposable'
 import { BotService } from 'core/services/bot-service'
 import { incrementMetric } from 'core/services/monitoring'
@@ -42,6 +43,7 @@ export class PersistedConsoleLogger implements Logger {
   private currentMessageLevel: LogLevel | undefined
   private willPersistMessage: boolean = true
   private emitLogStream = true
+  private serverHostname: string = ''
 
   private static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
     delimiter: '::',
@@ -66,6 +68,7 @@ export class PersistedConsoleLogger implements Logger {
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister
   ) {
     this.displayLevel = process.VERBOSITY_LEVEL
+    this.serverHostname = os.hostname()
   }
 
   forBot(botId: string): this {
@@ -97,6 +100,7 @@ export class PersistedConsoleLogger implements Logger {
     [LoggerLevel.Info]: 'green',
     [LoggerLevel.Warn]: 'yellow',
     [LoggerLevel.Error]: 'red',
+    [LoggerLevel.Critical]: 'red',
     [LoggerLevel.Debug]: 'blue'
   }
 
@@ -172,6 +176,7 @@ export class PersistedConsoleLogger implements Logger {
 
     const entry: LoggerEntry = {
       botId: this.botId,
+      hostname: this.serverHostname,
       level: level.toString(),
       scope: displayName,
       message: stripAnsi(indentedMessage),
@@ -211,7 +216,7 @@ export class PersistedConsoleLogger implements Logger {
 
   debug(message: string, metadata?: any): void {
     if (this.currentMessageLevel === undefined) {
-      this.currentMessageLevel = LogLevel.DEV
+      this.currentMessageLevel = LogLevel.DEBUG
     }
 
     this.print(LoggerLevel.Debug, message, metadata)
@@ -234,7 +239,7 @@ export class PersistedConsoleLogger implements Logger {
       BotService.incrementBotStats(this.botId, 'warning')
     }
 
-    incrementMetric('warnings.count')
+    incrementMetric(Metric.Warnings)
     this.print(LoggerLevel.Warn, message, metadata)
   }
 
@@ -247,7 +252,20 @@ export class PersistedConsoleLogger implements Logger {
       BotService.incrementBotStats(this.botId, 'error')
     }
 
-    incrementMetric('errors.count')
+    incrementMetric(Metric.Errors)
     this.print(LoggerLevel.Error, message, metadata)
+  }
+
+  critical(message: string, metadata?: any): void {
+    if (this.currentMessageLevel === undefined) {
+      this.currentMessageLevel = LogLevel.PRODUCTION
+    }
+
+    if (this.botId) {
+      BotService.incrementBotStats(this.botId, 'critical')
+    }
+
+    incrementMetric(Metric.Criticals)
+    this.print(LoggerLevel.Critical, message, metadata)
   }
 }
