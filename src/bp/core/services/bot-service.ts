@@ -54,7 +54,7 @@ const DEFAULT_BOT_CONFIGS = {
 
 const STATUS_REFRESH_INTERVAL = ms('15s')
 const STATUS_EXPIRY = ms('20s')
-const DEFAULT_BOT_HEALTH: BotHealth = { status: 'unmounted', errorCount: 0, warningCount: 0, criticalCount: 0 }
+const DEFAULT_BOT_HEALTH: BotHealth = { status: 'disabled', errorCount: 0, warningCount: 0, criticalCount: 0 }
 
 const getBotStatusKey = (serverId: string) => `bp_server_${serverId}_bots`
 const debug = DEBUG('services:bots')
@@ -222,7 +222,7 @@ export class BotService {
     }
 
     if (!actualBot.disabled && updatedBot.disabled) {
-      await this.unmountBot(botId, true)
+      await this.unmountBot(botId)
     }
   }
 
@@ -607,7 +607,7 @@ export class BotService {
   }
 
   // Do not use directly use the public version instead due to broadcasting
-  private async _localUnmount(botId: string, isDisabled?: boolean) {
+  private async _localUnmount(botId: string) {
     const startTime = Date.now()
     if (!this.isBotMounted(botId)) {
       this._invalidateBotIds()
@@ -621,7 +621,7 @@ export class BotService {
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
 
     BotService._mountedBots.set(botId, false)
-    BotService.setBotStatus(botId, isDisabled ? 'disabled' : 'unmounted')
+    BotService.setBotStatus(botId, 'disabled')
 
     await this._updateBotHealthDebounce()
     this._invalidateBotIds()
@@ -772,13 +772,13 @@ export class BotService {
     }
   }
 
-  public static setBotStatus(botId: string, status: 'healthy' | 'unhealthy' | 'unmounted' | 'disabled') {
+  public static setBotStatus(botId: string, status: 'healthy' | 'unhealthy' | 'disabled') {
     this._botHealth[botId] = {
       ...(this._botHealth[botId] || DEFAULT_BOT_HEALTH),
       status
     }
 
-    if (['unmounted', 'disabled'].includes(status)) {
+    if (['disabled'].includes(status)) {
       this._botHealth[botId].errorCount = 0
       this._botHealth[botId].warningCount = 0
       this._botHealth[botId].criticalCount = 0

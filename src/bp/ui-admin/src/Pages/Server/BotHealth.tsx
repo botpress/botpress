@@ -29,8 +29,7 @@ const STATUS: Option[] = [
   { label: 'All', value: '' },
   { label: 'Healthy', value: 'healthy' },
   { label: 'Unhealthy', value: 'unhealthy' },
-  { label: 'Disabled', value: 'disabled' },
-  { label: 'Unmounted', value: 'unmounted' }
+  { label: 'Disabled', value: 'disabled' }
 ]
 
 const BotHealth: FC<Props> = props => {
@@ -100,8 +99,6 @@ const BotHealth: FC<Props> = props => {
                   return <span className="logInfo">Healthy</span>
                 case 'disabled':
                   return 'Disabled'
-                case 'unmounted':
-                  return 'Unmounted'
               }
             },
             Filter: filterStatus,
