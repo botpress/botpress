@@ -283,7 +283,9 @@ export class Botpress {
     disabledBots.forEach(botId => BotService.setBotStatus(botId, 'disabled'))
 
     this.logger.info(`Discovered ${botsToMount.length} bots, mounting them...`)
-    await Promise.map(botsToMount, botId => this.botService.mountBot(botId), { concurrency: 5 })
+
+    const maxConcurrentMount = parseInt(process.env.MAX_CONCURRENT_MOUNT || '5')
+    await Promise.map(botsToMount, botId => this.botService.mountBot(botId), { concurrency: maxConcurrentMount })
   }
 
   private async initializeServices() {
