@@ -236,6 +236,7 @@ export class BotService {
   }
 
   async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
+    const startTime = Date.now()
     if (!isValidBotId(botId)) {
       throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
     }
@@ -314,6 +315,7 @@ export class BotService {
     } finally {
       this._invalidateBotIds()
       tmpDir.removeCallback()
+      debug.forBot(botId, `Bot import took ${Date.now() - startTime}ms`)
     }
   }
 
@@ -623,7 +625,7 @@ export class BotService {
 
     await this._updateBotHealthDebounce()
     this._invalidateBotIds()
-    debug(`Unmount bot ${botId} took ${Date.now() - startTime}ms`)
+    debug.forBot(botId, `Unmount took ${Date.now() - startTime}ms`)
   }
 
   private _invalidateBotIds(): void {

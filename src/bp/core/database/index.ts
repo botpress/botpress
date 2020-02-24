@@ -53,10 +53,11 @@ export default class Database {
   }
 
   async initialize(databaseType?: DatabaseType, databaseUrl?: string) {
+    const logger = this.logger
     const { DATABASE_URL, DATABASE_POOL } = process.env
 
     let poolOptions = {
-      log: message => this.logger.warn(`[pool] ${message}`)
+      log: message => logger.warn(`[pool] ${message}`)
     }
 
     try {
@@ -78,9 +79,9 @@ export default class Database {
     const config: Knex.Config = {
       useNullAsDefault: true,
       log: {
-        error: this.logger.error,
-        warn: this.logger.warn,
-        debug: this.logger.debug
+        error: message => logger.error(`[knex] ${message}`),
+        warn: message => logger.warn(`[knex] ${message}`),
+        debug: message => logger.debug(`[knex] ${message}`)
       }
     }
 
