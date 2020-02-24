@@ -14,50 +14,52 @@ import {
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
+import { textToItemId } from '../diagram/nodes_v2/utils'
 import FlowInformation from '../nodeProps/FlowInformation'
 import SaySomethingForm from '../nodeProps/SaySomethingForm'
 
 import style from './style.scss'
 
 interface Props {
-  currentFlowNode: any
+  buffer: any
+  categories: any
   closeFlowNodeProps: any
-  show: any
-  history: any
-  readOnly: any
-  updateFlowNode: any
-  refreshFlowsLinks: any
-  flows: any
-  currentFlow: any
-  requestEditSkill: any
   copyFlowNode: any
+  currentFlow: any
+  currentFlowNode: any
   fetchContentCategories: any
   fetchContentItem: any
-  categories: any
+  flows: any
+  history: any
   pasteFlowNode: any
-  buffer: any
+  readOnly: any
+  refreshFlowsLinks: any
+  requestEditSkill: any
+  show: any
   updateFlow: any
+  updateFlowNode: any
   user: any
 }
 
 const InspectorV2: FC<Props> = props => {
   const renderNodeProperties = props => {
     const {
-      readOnly,
-      currentFlowNode,
-      updateFlowNode,
-      refreshFlowsLinks,
-      user,
-      currentFlow,
-      updateFlow,
-      requestEditSkill,
+      buffer,
+      categories,
+      contentItem,
       copyFlowNode,
+      currentFlow,
+      currentFlowNode,
       fetchContentCategories,
       fetchContentItem,
-      contentItem,
-      categories,
+      itemId,
       pasteFlowNode,
-      buffer
+      readOnly,
+      refreshFlowsLinks,
+      requestEditSkill,
+      updateFlow,
+      updateFlowNode,
+      user
     } = props
     const subflows = _.filter(
       _.map(props.flows, f => f.name),
@@ -73,21 +75,22 @@ const InspectorV2: FC<Props> = props => {
     if (flowType === 'say_something') {
       return (
         <SaySomethingForm
-          readOnly={readOnly}
-          user={user}
-          flow={currentFlow}
-          subflows={subflows}
-          node={currentFlowNode}
-          updateNode={updateNodeAndRefresh}
-          updateFlow={updateFlow}
-          requestEditSkill={requestEditSkill}
+          buffer={buffer}
+          categories={categories}
+          contentItem={contentItem}
+          copyFlowNode={copyFlowNode}
           fetchContentCategories={fetchContentCategories}
           fetchContentItem={fetchContentItem}
-          contentItem={contentItem}
-          categories={categories}
-          copyFlowNode={copyFlowNode}
+          flow={currentFlow}
+          itemId={itemId}
+          node={currentFlowNode}
           pasteFlowNode={pasteFlowNode}
-          buffer={buffer}
+          readOnly={readOnly}
+          requestEditSkill={requestEditSkill}
+          subflows={subflows}
+          updateFlow={updateFlow}
+          updateNode={updateNodeAndRefresh}
+          user={user}
         />
       )
     }
@@ -98,26 +101,38 @@ const InspectorV2: FC<Props> = props => {
   return <div className={style.inspector}>{renderNodeProperties(props)}</div>
 }
 
-const mapStateToProps = state => ({
-  flows: _.values(state.flows.flowsByName),
-  currentFlow: getCurrentFlow(state),
-  currentFlowNode: getCurrentFlowNode(state),
-  buffer: state.flows.buffer,
-  user: state.user,
-  categories: state.content.categories,
-  contentItem: { ...state.content.itemsById[state.itemId] }
-})
+const mapStateToProps = state => {
+  const node = getCurrentFlowNode(state)
+  let itemId
+
+  if (node) {
+    const { onEnter } = node
+
+    itemId = textToItemId((onEnter && onEnter.length && onEnter[0]) || '')
+  }
+
+  return {
+    buffer: state.flows.buffer,
+    categories: state.content.categories,
+    contentItem: itemId && { ...state.content.itemsById[itemId] },
+    currentFlow: getCurrentFlow(state),
+    currentFlowNode: getCurrentFlowNode(state),
+    flows: _.values(state.flows.flowsByName),
+    itemId,
+    user: state.user
+  }
+}
 
 const mapDispatchToProps = {
-  updateFlow,
-  requestEditSkill,
+  closeFlowNodeProps,
+  copyFlowNode,
   fetchContentCategories,
   fetchContentItem,
-  copyFlowNode,
   pasteFlowNode,
-  closeFlowNodeProps,
-  updateFlowNode,
-  refreshFlowsLinks
+  refreshFlowsLinks,
+  requestEditSkill,
+  updateFlow,
+  updateFlowNode
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(InspectorV2)

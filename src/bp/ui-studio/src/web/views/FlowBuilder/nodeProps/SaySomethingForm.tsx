@@ -7,25 +7,25 @@ import Button from '../../../components/Button'
 import MoreOptions from '../../../components/MoreOptions'
 import MoreOptionsStyles from '../../../components/MoreOptions/style.scss'
 import EditableInput from '../common/EditableInput'
-import { textToItemId } from '../diagram/nodes_v2/utils'
 
 import style from './style.scss'
 
 interface Props {
-  node: any
-  readOnly: boolean
-  updateNode: any
-  flow: any
-  subflows: any
-  requestEditSkill: any
+  buffer: any
+  categories: any
+  contentItem: any
   copyFlowNode: any
   fetchContentCategories: any
   fetchContentItem: any
-  contentItem: any
+  flow: any
+  itemId: string
+  node: any
   pasteFlowNode: any
-  buffer: any
-  categories: any
+  readOnly: boolean
+  requestEditSkill: any
+  subflows: any
   updateFlow: any
+  updateNode: any
   user: any
 }
 
@@ -35,11 +35,7 @@ const SaySomethingForm: FC<Props> = props => {
   const [variantions, setVariantions] = useState([''])
 
   useEffect(() => {
-    const { node } = props
-    const itemId = textToItemId((node.onEnter && node.onEnter.length && node.onEnter[0]) || '')
-
-    console.log(props.fetchContentItem)
-    props.fetchContentItem(itemId).then(useContentData)
+    props.fetchContentItem(props.itemId).then(useContentData)
     props.fetchContentCategories()
   }, [])
 
