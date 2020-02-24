@@ -1,19 +1,24 @@
-# [12.6.0](https://github.com/botpress/botpress/compare/v12.5.0...v12.6.0) (2020-02-21)
+# [12.6.0](https://github.com/botpress/botpress/compare/v12.5.0...v12.6.0) (2020-02-24)
 
 
 ### Bug Fixes
 
-* **admin:** allow overwrite existing bot on import ([f2a82fe](https://github.com/botpress/botpress/commit/f2a82fe))
+* **admin:** allow overwrite existing bot on import ([d02a5ed](https://github.com/botpress/botpress/commit/d02a5ed))
 * **admin:** remove unused dep & fix ts ([c23be66](https://github.com/botpress/botpress/commit/c23be66))
+* **bots:** normalized bot status & added filters ([a3c0d71](https://github.com/botpress/botpress/commit/a3c0d71))
 * **cms:** fix image preview when name has space ([faabca3](https://github.com/botpress/botpress/commit/faabca3))
 * **code-editor:** fix formatting on loading file ([#2965](https://github.com/botpress/botpress/issues/2965)) ([4406dc7](https://github.com/botpress/botpress/commit/4406dc7))
 * **config:** remove misleading description for empty bot ([2fa1d9f](https://github.com/botpress/botpress/commit/2fa1d9f))
+* **core:** added more logging ([581758d](https://github.com/botpress/botpress/commit/581758d))
+* **core:** better audit traces ([6e9d082](https://github.com/botpress/botpress/commit/6e9d082))
+* **core:** creating schema when missing ([939d27e](https://github.com/botpress/botpress/commit/939d27e))
 * **core:** id validation on bot admin actions ([d55d6c8](https://github.com/botpress/botpress/commit/d55d6c8))
+* **core:** limit number of concurrent bot mount ([17c69e4](https://github.com/botpress/botpress/commit/17c69e4))
 * **docs:** before_container takes an array ([ac94ff6](https://github.com/botpress/botpress/commit/ac94ff6))
 * **docs:** changes ([54e5232](https://github.com/botpress/botpress/commit/54e5232))
-* **docs:** fix link to "hosting language server" ([e720173](https://github.com/botpress/botpress/commit/e720173))
+* **docs:** fix link to "hosting language server" ([e9a68b2](https://github.com/botpress/botpress/commit/e9a68b2))
 * **docs:** removed on page load section ([46f21a5](https://github.com/botpress/botpress/commit/46f21a5))
-* **misunderstood:** applying changed retrain the nlu ([ff9f598](https://github.com/botpress/botpress/commit/ff9f598))
+* **misunderstood:** applying changed retrain the nlu ([6ea2d3f](https://github.com/botpress/botpress/commit/6ea2d3f))
 * **ui-studio:** add node highlight after redirect ([35a8d6d](https://github.com/botpress/botpress/commit/35a8d6d))
 * **ui-studio:** fix highlighting nodes by URL-hash ([0ed2568](https://github.com/botpress/botpress/commit/0ed2568))
 
