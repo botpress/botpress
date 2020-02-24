@@ -14,6 +14,7 @@ import path from 'path'
 import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
+import jsonlint from 'jsonlint'
 
 import { createArchive } from '../../misc/archive'
 import { TYPES } from '../../types'
@@ -559,6 +560,11 @@ export class ScopedGhostService {
 
     if (!(await this.cache.has(cacheKey))) {
       const value = await this.readFileAsString(rootFolder, file)
+      try {
+        jsonlint.parse(value)
+      } catch (e) {
+        throw new Error(`SyntaxError in your JSON: ${file}: \n ${e}`)
+      }
       const obj = <T>JSON.parse(value)
       await this.cache.set(cacheKey, obj)
       return obj

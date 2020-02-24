@@ -152,20 +152,8 @@ export default class Storage {
     }
 
     const filename = `${intent}.json`
-    const jsonContent = await this.botGhost.readFileAsString(this.intentsDir, filename).catch(err => {
-      this.logger.attachError(err).error(`An error occurred while loading ${intent}`)
-    })
-
-    try {
-      if (jsonContent) {
-        const content = JSON.parse(jsonContent)
-        return this._migrate_intentDef_11_12(intent, filename, content)
-      }
-    } catch (err) {
-      throw new Error(
-        `Could not parse intent properties (invalid JSON, enable NLU errors for more information). JSON = "${jsonContent}" in file "${filename}"`
-      )
-    }
+    const content = await this.botGhost.readFileAsObject(this.intentsDir, filename)
+    return this._migrate_intentDef_11_12(intent, filename, content)
   }
 
   /**
