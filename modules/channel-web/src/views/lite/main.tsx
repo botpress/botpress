@@ -10,7 +10,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { checkLocationOrigin, initializeAnalytics, trackWebchatState, trackMessage } from './utils'
+import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -44,6 +44,7 @@ class Web extends React.Component<MainProps> {
 
     // tslint:disable-next-line: no-floating-promises
     this.initialize()
+    // tslint:disable-next-line: no-floating-promises
     this.initializeIfChatDisplayed()
     this.props.setLoadingCompleted()
   }
@@ -53,6 +54,7 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidUpdate() {
+    // tslint:disable-next-line: no-floating-promises
     this.initializeIfChatDisplayed()
   }
 
@@ -91,6 +93,7 @@ class Web extends React.Component<MainProps> {
     config.reference && this.props.setReference()
 
     this.setupObserver()
+    // tslint:disable-next-line: no-floating-promises
     this.props.fetchBotInfo()
   }
 

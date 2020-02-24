@@ -27,11 +27,8 @@ interface Props {
 const LanguageManagement: FC<Props> = props => {
   const [languages, setLanguages] = useState<LanguageData | undefined>()
   useEffect(() => {
-    const init = async () => {
-      await fetchLanguages(setLanguages)
-    }
-
-    init()
+    // tslint:disable-next-line: no-floating-promises
+    fetchLanguages(setLanguages)
   }, [])
 
   // TODO extract this as a custom hook
@@ -63,8 +60,6 @@ const LanguageManagement: FC<Props> = props => {
             <Language
               key={lang.code}
               language={lang}
-              installed={false}
-              loaded={false}
               allowActions={!props.readOnly}
               languageSource={props.languageSource}
               downloadProgress={languages.downloading.find(l => l.lang == lang.code)}
@@ -79,7 +74,7 @@ const LanguageManagement: FC<Props> = props => {
           <Language
             key={lang.code}
             language={lang}
-            installed={true}
+            installed
             loaded={lang.loaded}
             allowActions={!props.readOnly}
             languageSource={props.languageSource}

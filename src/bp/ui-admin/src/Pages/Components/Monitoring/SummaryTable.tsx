@@ -1,4 +1,5 @@
 import { Button, Tooltip } from '@blueprintjs/core'
+import { Metric } from 'common/monitoring'
 import moment from 'moment'
 import React, { useState } from 'react'
 import ReactTable from 'react-table'
@@ -46,32 +47,38 @@ const SummaryTable = ({ data }) => {
       Header: 'Requests',
       width: 120,
       className: 'center',
-      accessor: 'requests.count'
+      accessor: Metric.Requests
     },
     {
       Header: 'Events In',
       width: 120,
       className: 'center',
-      accessor: 'eventsIn.count',
+      accessor: Metric.EventsIn,
       align: 'right'
     },
     {
       Header: 'Events Out',
       width: 120,
       className: 'center',
-      accessor: 'eventsOut.count'
+      accessor: Metric.EventsOut
     },
     {
       Header: 'Warnings',
       width: 120,
       className: 'center',
-      accessor: 'warnings.count'
+      accessor: Metric.Warnings
     },
     {
       Header: 'Errors',
       width: 120,
       className: 'center',
-      accessor: 'errors.count'
+      accessor: Metric.Errors
+    },
+    {
+      Header: 'Criticals',
+      width: 120,
+      className: 'center',
+      accessor: Metric.Criticals
     },
     {
       Cell: x => (

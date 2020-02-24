@@ -83,7 +83,7 @@ Output: ${stdout}`
 
 const packageModule = (modulePath, cb) => {
   exec(
-    `cross-env ./node_modules/.bin/module-builder package -v --out ../../out/binaries/modules/%name%.tgz`,
+    `node ../../build/module-builder/bin/entry package -v --out ../../out/binaries/modules/%name%.tgz`,
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {

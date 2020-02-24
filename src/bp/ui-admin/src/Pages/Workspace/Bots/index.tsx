@@ -10,18 +10,19 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
+import { confirmDialog } from 'botpress/shared'
 import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { RouteComponentProps } from 'react-router'
+import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 import { toastSuccess } from '~/utils/toaster'
 import { toastFailure } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
-import confirmDialog from '~/App/ConfirmDialog'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
+import { getActiveWorkspace } from '~/Auth'
 import { Downloader } from '~/Pages/Components/Downloader'
 
 import api from '../../../api'
@@ -86,8 +87,7 @@ class Bots extends Component<Props> {
   async deleteBot(botId) {
     if (
       await confirmDialog("Are you sure you want to delete this bot? This can't be undone.", {
-        acceptLabel: 'Delete',
-        declineLabel: 'Cancel'
+        acceptLabel: 'Delete'
       })
     ) {
       await api.getSecured().post(`/admin/bots/${botId}/delete`)
@@ -105,6 +105,15 @@ class Bots extends Component<Props> {
       console.log(err)
       toastFailure(`Could not mount bot. Check server logs for details`)
     }
+  }
+
+  viewLogs(botId: string) {
+    this.props.history.push(
+      generatePath(`/workspace/:workspaceId?/logs?botId=:botId`, {
+        workspaceId: getActiveWorkspace() || undefined,
+        botId
+      })
+    )
   }
 
   renderCreateNewBotButton() {
@@ -169,7 +178,7 @@ class Bots extends Component<Props> {
 
     return _.some(
       this.props.health.map(x => x.bots[botId]),
-      s => s && s.status === 'error'
+      s => s && s.status === 'unhealthy'
     )
   }
 
@@ -190,6 +199,7 @@ class Bots extends Component<Props> {
               createRevision={this.createRevision.bind(this, bot.id)}
               rollback={this.toggleRollbackModal.bind(this, bot.id)}
               reloadBot={this.reloadBot.bind(this, bot.id)}
+              viewLogs={this.viewLogs.bind(this, bot.id)}
             />
           </Fragment>
         ))}
@@ -216,13 +226,14 @@ class Bots extends Component<Props> {
                     <BotItemPipeline
                       bot={bot}
                       hasError={this.findBotError(bot.id)}
-                      allowStageChange={allowStageChange}
+                      allowStageChange={allowStageChange && !bot.disabled}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}
                       deleteBot={this.deleteBot.bind(this, bot.id)}
                       exportBot={this.exportBot.bind(this, bot.id)}
                       createRevision={this.createRevision.bind(this, bot.id)}
                       rollback={this.toggleRollbackModal.bind(this, bot.id)}
                       reloadBot={this.reloadBot.bind(this, bot.id)}
+                      viewLogs={this.viewLogs.bind(this, bot.id)}
                     />
                   </Fragment>
                 ))}

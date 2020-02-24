@@ -99,7 +99,7 @@ export const validateFilePayload = async (
   }
 
   if (def.validate) {
-    const result = await def.validate(editableFile)
+    const result = await def.validate(editableFile, actionType === 'write')
     if (result) {
       throw new Error(result)
     }

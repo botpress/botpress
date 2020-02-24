@@ -5,7 +5,6 @@ import './sdk/rewire'
 import './common/polyfills'
 
 import chalk from 'chalk'
-import { FatalError } from 'errors'
 import fs from 'fs'
 import { mkdirpSync } from 'fs-extra'
 import path from 'path'
@@ -24,7 +23,7 @@ export default async (argv, action) => {
     database = container.get<Database>(TYPES.Database)
 
     const useDbDriver = process.env.BPFS_STORAGE === 'database'
-    ghost.initialize(useDbDriver)
+    await ghost.initialize(useDbDriver)
 
     await database.initialize()
   } catch (err) {

@@ -2,6 +2,7 @@ import { Button, HTMLTable, Intent } from '@blueprintjs/core'
 import React from 'react'
 
 import { DbFlaggedEvent } from '../../../types'
+import style from '../style.scss'
 
 interface Props {
   events: DbFlaggedEvent[]
@@ -13,12 +14,12 @@ const DeletedList = ({ events, totalEventsCount, undeleteEvent }: Props) => (
   <>
     <h3>Ignored Misunderstood ({totalEventsCount})</h3>
     {events && !!events.length && (
-      <HTMLTable condensed interactive striped>
+      <HTMLTable className={style.mainViewTable} condensed interactive striped>
         <thead>
           <tr>
             <th>Phrase</th>
-            <th>Deleted</th>
-            <th>&nbsp;</th>
+            <th className={style.thUpdated}>Deleted</th>
+            <th className={style.thAction}>&nbsp;</th>
           </tr>
         </thead>
         <tbody>

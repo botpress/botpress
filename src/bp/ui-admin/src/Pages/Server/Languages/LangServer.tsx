@@ -7,7 +7,7 @@ interface Props {
   langServer: LangServerInfo
 }
 
-// TODO display somthing better than this
+// TODO display something better than this
 const LangServer: FC<Props> = props => {
   return (
     <div>
@@ -18,7 +18,7 @@ const LangServer: FC<Props> = props => {
       <p style={{ marginTop: 50, width: 240, textAlign: 'center' }}>
         <small>
           To run your own language server, follow the instructions{' '}
-          <a href="https://botpress.com/docs/advanced/hosting#running-your-own-language-server" target="_blank">
+          <a href="https://botpress.com/docs/advanced/hosting#hosting-duckling-and-the-language-server" target="_blank">
             in the documentation
           </a>
         </small>

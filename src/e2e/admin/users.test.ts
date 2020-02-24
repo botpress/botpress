@@ -1,6 +1,6 @@
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatch, expectMatchElement, fillField } from '../expectPuppeteer'
-import { autoAnswerDialog, closeToaster, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import { closeToaster, CONFIRM_DIALOG, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Users', () => {
   const testUserEmail = 'someguy@me.com'
@@ -41,11 +41,10 @@ describe('Admin - Users', () => {
     await clickOn('#div-role-dev')
     await page.waitFor(500) // Delay for the collapse animation
 
-    autoAnswerDialog()
-
     await Promise.all([
       expectAdminApiCallSuccess(`users/reset/default/${testUserEmail}`, 'GET'),
-      clickButtonForUser('#btn-resetPassword', testUserEmail)
+      clickButtonForUser('#btn-resetPassword', testUserEmail),
+      clickOn(CONFIRM_DIALOG.ACCEPT)
     ])
 
     await expectMatch('Your password has been reset')
@@ -64,11 +63,10 @@ describe('Admin - Users', () => {
     await clickOn('#div-role-admin')
     await page.waitFor(500)
 
-    autoAnswerDialog()
-
     await Promise.all([
       expectAdminApiCallSuccess(`users/default/${testUserEmail}/delete`, 'POST'),
-      clickButtonForUser('#btn-deleteUser', testUserEmail)
+      clickButtonForUser('#btn-deleteUser', testUserEmail),
+      clickOn(CONFIRM_DIALOG.ACCEPT)
     ])
   })
 })

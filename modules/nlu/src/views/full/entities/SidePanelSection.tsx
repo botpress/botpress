@@ -1,9 +1,11 @@
 import { Button, Classes } from '@blueprintjs/core'
-import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
+import { confirmDialog } from 'botpress/shared'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
-import { NluItem } from 'full'
 import React, { FC, useState } from 'react'
+
+import { NluItem } from '..'
+import { NLUApi } from '../../api'
 
 import { EntityNameModal } from './EntityNameModal'
 
@@ -38,14 +40,18 @@ export const EntitySidePanelSection: FC<Props> = props => {
     setModalOpen(true)
   }
 
-  const deleteEntity = (entity: NLU.EntityDefinition) => {
-    const confirmDelete = window.confirm(`Are you sure you want to delete the entity "${entity.name}" ?`)
-    if (confirmDelete) {
+  const deleteEntity = async (entity: NLU.EntityDefinition) => {
+    if (
+      await confirmDialog(`Are you sure you want to delete the entity "${entity.name}" ?`, {
+        acceptLabel: 'Delete'
+      })
+    ) {
       if (props.currentItem && props.currentItem.name === entity.name) {
         props.setCurrentItem(undefined)
       }
 
-      props.api.deleteEntity(entity.id).then(props.reloadEntities)
+      await props.api.deleteEntity(entity.id)
+      await props.reloadEntities()
     }
   }
 
