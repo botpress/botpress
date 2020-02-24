@@ -15,7 +15,6 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
-import SaySomethingForm from '../nodeProps/SaySomethingForm'
 import SkillCallNode from '../nodeProps/SkillCallNode'
 import StandardNode from '../nodeProps/StandardNode'
 

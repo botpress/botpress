@@ -167,6 +167,10 @@ h5 {
     padding: 0;
     position: relative;
 
+    &:active, &:focus {
+      border-color: $border-active
+    }
+
     &:before {
       border-left: 6px solid transparent;
       border-right: 6px solid transparent;
@@ -190,7 +194,7 @@ h5 {
       background: transparent;
       border: 0;
       font-size: 16px;
-      font-weight: 300;
+      font-weight: 400;
       height: 38px;
       line-height: 1.25;
       padding: 8px 10px;
@@ -228,19 +232,28 @@ h5 {
     border-radius: 3px;
     color: $main-dark-color;
     font-size: 16px;
+    font-weight: 400;
     line-height: 1.25;
     padding: 8px 10px;
+    transition: border 0.3s;
     width: 100% !important;
+
+    &:focus {
+      border-color: $border-active
+    }
   }
 
   .textarea {
-    height: 60px;
+    max-height: 100px;
     resize: none;
+  }
+
+  .multipleInputs {
+    margin-bottom: 8px;
   }
 
   .addContentBtn {
     cursor: pointer;
-    margin-top: 8px;
     width: 100%;
   }
 }

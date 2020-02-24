@@ -11,6 +11,7 @@ interface CssExports {
   'formLabel': string;
   'formSelect': string;
   'item': string;
+  'multipleInputs': string;
   'name': string;
   'node': string;
   'nodeBloc': string;

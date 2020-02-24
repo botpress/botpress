@@ -29,6 +29,11 @@ export default class EditableInput extends Component {
   }
 
   onKeyDown = event => {
+    // Cmd or ctrl + A to select all text
+    if ((event.ctrlKey || event.metaKey) && event.keyCode === 65) {
+      event.target.select()
+    }
+
     if (event.keyCode === 13) {
       // Enter
       event.target.blur()

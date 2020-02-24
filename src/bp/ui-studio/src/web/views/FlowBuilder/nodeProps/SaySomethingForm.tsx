@@ -1,11 +1,13 @@
 import { Button as BPButton, Icon, Position, Toaster } from '@blueprintjs/core'
 import classnames from 'classnames'
 import React, { FC, Fragment, useEffect, useState } from 'react'
+import TextareaAutosize from 'react-autosize-textarea'
 
 import Button from '../../../components/Button'
 import MoreOptions from '../../../components/MoreOptions'
 import MoreOptionsStyles from '../../../components/MoreOptions/style.scss'
 import EditableInput from '../common/EditableInput'
+import { textToItemId } from '../diagram/nodes_v2/utils'
 
 import style from './style.scss'
 
@@ -19,6 +21,7 @@ interface Props {
   copyFlowNode: any
   fetchContentCategories: any
   fetchContentItem: any
+  contentItem: any
   pasteFlowNode: any
   buffer: any
   categories: any
@@ -28,11 +31,21 @@ interface Props {
 
 const SaySomethingForm: FC<Props> = props => {
   const [showOptions, setShowOptions] = useState(false)
+  const [message, setMessage] = useState('')
+  const [variantions, setVariantions] = useState([''])
 
   useEffect(() => {
-    props.fetchContentItem(props.node.id)
+    const { node } = props
+    const itemId = textToItemId((node.onEnter && node.onEnter.length && node.onEnter[0]) || '')
+
+    console.log(props.fetchContentItem)
+    props.fetchContentItem(itemId).then(useContentData)
     props.fetchContentCategories()
   }, [])
+
+  const useContentData = data => {
+    console.log(props.contentItem)
+  }
 
   const renameNode = text => {
     if (text) {
@@ -54,6 +67,26 @@ const SaySomethingForm: FC<Props> = props => {
       className: 'recipe-toaster',
       position: Position.TOP_RIGHT
     }).show({ message: 'Copied to buffer' })
+  }
+
+  const addVariantion = () => {
+    setVariantions(prevVariantions => [...prevVariantions, ''])
+  }
+
+  const updateVariantions = (value, index) => {
+    setVariantions(prevState => {
+      prevState[index] = value
+
+      return [...prevState]
+    })
+  }
+
+  const handleInputChange = () => {}
+
+  const handleKeyDown = e => {
+    if ((e.ctrlKey || e.metaKey) && e.keyCode === 65) {
+      e.target.select()
+    }
   }
 
   const { node, readOnly, categories } = props
@@ -89,7 +122,7 @@ const SaySomethingForm: FC<Props> = props => {
         <label className={style.fieldWrapper}>
           <span className={style.formLabel}>Content type</span>
           <div className={style.formSelect}>
-            <select>
+            <select onChange={this.handleInputChange}>
               <option value={null}>Select</option>
               {categories &&
                 categories
@@ -108,12 +141,30 @@ const SaySomethingForm: FC<Props> = props => {
         </label>
         <label className={style.fieldWrapper}>
           <span className={style.formLabel}>Message*</span>
-          <textarea className={style.textarea} value="" onChange={this.handleInputChange}></textarea>
+          <TextareaAutosize
+            className={style.textarea}
+            onKeyDown={handleKeyDown}
+            value={message}
+            rows={1}
+            maxRows={4}
+            onChange={e => setMessage(e.currentTarget.value)}
+          ></TextareaAutosize>
         </label>
         <div className={style.fieldWrapper}>
           <span className={style.formLabel}>Alternates</span>
-          <textarea className={style.textarea} value="" onChange={this.handleInputChange}></textarea>
-          <BPButton className={style.addContentBtn} icon="plus" large={true}>
+          {variantions &&
+            variantions.map((variantion, index) => (
+              <TextareaAutosize
+                key={index}
+                rows={1}
+                maxRows={4}
+                onKeyDown={handleKeyDown}
+                className={classnames(style.textarea, style.multipleInputs)}
+                value={variantion}
+                onChange={e => updateVariantions(e.currentTarget.value, index)}
+              ></TextareaAutosize>
+            ))}
+          <BPButton onClick={addVariantion} className={style.addContentBtn} icon="plus" large={true}>
             Add Alternates
           </BPButton>
         </div>

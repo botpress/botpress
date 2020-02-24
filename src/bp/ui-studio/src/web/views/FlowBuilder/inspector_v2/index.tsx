@@ -54,6 +54,7 @@ const InspectorV2: FC<Props> = props => {
       copyFlowNode,
       fetchContentCategories,
       fetchContentItem,
+      contentItem,
       categories,
       pasteFlowNode,
       buffer
@@ -69,8 +70,6 @@ const InspectorV2: FC<Props> = props => {
       refreshFlowsLinks()
     }
 
-    console.log(props)
-
     if (flowType === 'say_something') {
       return (
         <SaySomethingForm
@@ -84,6 +83,7 @@ const InspectorV2: FC<Props> = props => {
           requestEditSkill={requestEditSkill}
           fetchContentCategories={fetchContentCategories}
           fetchContentItem={fetchContentItem}
+          contentItem={contentItem}
           categories={categories}
           copyFlowNode={copyFlowNode}
           pasteFlowNode={pasteFlowNode}
@@ -104,7 +104,8 @@ const mapStateToProps = state => ({
   currentFlowNode: getCurrentFlowNode(state),
   buffer: state.flows.buffer,
   user: state.user,
-  categories: state.content.categories
+  categories: state.content.categories,
+  contentItem: { ...state.content.itemsById[state.itemId] }
 })
 
 const mapDispatchToProps = {
