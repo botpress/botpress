@@ -134,6 +134,7 @@ export class ScopedActionService {
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 
     try {
+      // todo: remove result
       let result
 
       if (actionServer) {

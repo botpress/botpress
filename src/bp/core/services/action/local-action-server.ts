@@ -36,6 +36,7 @@ export class LocalActionServer {
         code,
         dirPath,
         {
+          // todo: remove sdk, only http
           event: incomingEvent,
           user: incomingEvent.state.user,
           temp: incomingEvent.state.temp,
