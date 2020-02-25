@@ -478,6 +478,36 @@ declare module 'botpress/sdk' {
 
     export type SlotCollection = Dic<Slot>
   }
+
+  export namespace NDU {
+    export interface DialogUnderstanding {
+      triggers: {
+        [triggerId: string]: {
+          goal: string
+          result: any
+        }
+      }
+      /** List of actions that needs to be executed by the decision engine */
+      actions: Actions[]
+    }
+
+    export interface Actions {
+      action: 'send' | 'startGoal' | 'redirect' | 'continue'
+      data?: SendContent | StartGoal | FlowRedirect
+    }
+
+    export interface FlowRedirect {
+      flow: string
+      node: string
+    }
+
+    export interface StartGoal {
+      goal: string
+    }
+
+    export type SendContent = Pick<IO.Suggestion, 'confidence' | 'payloads' | 'source' | 'sourceDetails'>
+  }
+
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
@@ -560,10 +590,10 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventUnderstanding {
-      readonly intent: NLU.Intent
+      intent: NLU.Intent
       /** Predicted intents needs disambiguation */
       readonly ambiguous: boolean
-      readonly intents: NLU.Intent[]
+      intents: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
@@ -572,13 +602,15 @@ declare module 'botpress/sdk' {
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
-      readonly predictions?: {
-        [context: string]: {
-          confidence: number
-          intents: { label: string; confidence: number }[]
-        }
-      }
+      readonly predictions?: Predictions
       readonly ms: number
+    }
+
+    export interface Predictions {
+      [context: string]: {
+        confidence: number
+        intents: { label: string; confidence: number }[]
+      }
     }
 
     export interface IncomingEvent extends Event {
@@ -592,23 +624,7 @@ declare module 'botpress/sdk' {
       readonly decision?: Suggestion
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
-      readonly ndu?: DialogUnderstanding
-    }
-
-    export interface DialogUnderstanding {
-      triggers: {
-        [trigid: string]: {
-          goal: string
-          result: any
-        }
-      }
-      /** List of actions that needs to be executed by the decision engine */
-      actions: NDUActions[]
-    }
-
-    export interface NDUActions {
-      action: 'send' | 'redirect' | 'continue'
-      data: any
+      readonly ndu?: NDU.DialogUnderstanding
     }
 
     export interface OutgoingEvent extends Event {

@@ -1,7 +1,6 @@
+import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import moment from 'moment'
-import ms from 'ms'
 
 import { conditionsDefinitions } from './conditions'
 import { TriggerGoal } from './typings'
@@ -18,6 +17,17 @@ export class UnderstandingEngine {
     this.bp = bp
   }
 
+  queryQna = async (intentName: string, event): Promise<sdk.NDU.Actions[]> => {
+    try {
+      const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+      const { data } = await axios.post('/mod/qna/intentActions', { intentName, event }, axiosConfig)
+      return data as sdk.NDU.Actions[]
+    } catch (err) {
+      this.bp.logger.warn('Could not query qna', err)
+      return []
+    }
+  }
+
   preprocessEvent(event: sdk.IO.IncomingEvent) {
     const activeGoal = _.get(
       event.state.session.lastGoals.find(x => x.active),
@@ -26,15 +36,10 @@ export class UnderstandingEngine {
     const activeContexts = (event.state.session.nluContexts || []).filter(x => x.context !== 'global')
     const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
 
-    this._amendSuggestionsWithDecision(event.suggestions!, _.get(event, 'state.session.lastMessages', []))
-    const electedSuggestion = event.suggestions!.find(x => x.decision && x.decision.status === 'elected')
-
     return {
       activeGoal,
       activeContexts,
-      isInMiddleOfFlow,
-      electedSuggestion,
-      completedTriggers: this._getGoalsWithCompletedTriggers(event)
+      isInMiddleOfFlow
     }
   }
 
@@ -46,53 +51,68 @@ export class UnderstandingEngine {
       }
     })
 
-    await this._processTriggers(event)
+    const { activeGoal, activeContexts, isInMiddleOfFlow } = this.preprocessEvent(event)
 
-    const { activeGoal, activeContexts, isInMiddleOfFlow, electedSuggestion, completedTriggers } = this.preprocessEvent(
-      event
-    )
-
-    debug('Processing %o', { activeGoal, activeContexts, isInMiddleOfFlow, electedSuggestion })
+    debug('Processing %o', { activeGoal, activeContexts, isInMiddleOfFlow })
 
     const actions = []
 
-    // No active goal or contexts. Enable the highest one
+    // Need some magic to get the best topic (maybe it's the second one with better scoring intents? )
+    const bestTopic = _.findKey(event.nlu.predictions, x => x.confidence > this.MIN_CONFIDENCE)
+
+    // No active goal or contexts, so we'll add the top as context
     if (!(activeGoal && isInMiddleOfFlow) && !activeContexts.length && event.nlu.predictions) {
-      const { label, confidence } = event.nlu.predictions[0]
-      if (confidence > 0.5) {
-        event.state.session.nluContexts = [...(event.state.session.nluContexts || []), { context: label, ttl: 3 }]
-        debug(`No active goal or context. Activate topic with highest confidence: ${label} `)
+      if (bestTopic) {
+        event.state.session.nluContexts = [...(event.state.session.nluContexts || []), { context: bestTopic, ttl: 3 }]
+        debug(`No active goal or context. Activate topic with highest confidence: ${bestTopic} `)
       } else {
         debug(`No active goal or context. Top context prediction too low `)
       }
     }
 
-    if (electedSuggestion) {
-      // QNA are always active
-      const payloads = _.filter(electedSuggestion.payloads, p => p.type !== 'redirect')
-      if (payloads) {
-        actions.push({ action: 'send', data: electedSuggestion })
-      }
+    const bestIntents = event.nlu.predictions?.[bestTopic]?.intents?.map(x => ({
+      name: x.label,
+      confidence: x.confidence,
+      context: bestTopic
+    }))
 
-      // Ignore redirections when in middle of flow
-      if (!isInMiddleOfFlow) {
-        const redirect = _.find(electedSuggestion.payloads, p => p.type === 'redirect')
-        if (redirect && redirect.flow && redirect.node) {
-          actions.push({ action: 'redirect', data: redirect })
-          actions.push({ action: 'continue' })
-        }
-      }
+    // Overwrite the NLU detected intents
+    event.nlu.intent = bestIntents?.[0]
+    event.nlu.intents = bestIntents
+
+    // Then process triggers on what the NDU decided
+    await this._processTriggers(event)
+
+    const possibleGoals = this._getGoalsWithCompletedTriggers(event)
+    possibleGoals.length && debug(`Possible goals: %o`, possibleGoals)
+
+    // If it's a QNA, we query the module to get the actions to execute
+    if (event.nlu.intent?.name?.startsWith('__qna__')) {
+      debug(`Sending knowledge for %o`, event.nlu.intent)
+      const qnaActions = await this.queryQna(event.nlu.intent.name, event)
+
+      // if (isInMiddleOfFlow && qnaActions.find(x => x.action === 'redirect')) {
+      //   qnaActions = qnaActions.filter(x => x.action === 'redirect')
+      //   // actions.push({ action: 'continue' })
+      // }
+
+      actions.push(...qnaActions)
     }
 
-    // When not actively in a flow and a trigger is active, redirect the user
-    if (completedTriggers.length && !isInMiddleOfFlow) {
-      debug(`Not currently in a flow, redirecting to goal %o `, completedTriggers[0])
-      const [topic] = completedTriggers[0].split('/')
+    // When not actively in a flow and a trigger is active, redirect the user to a goal
+    if (possibleGoals.length && !isInMiddleOfFlow) {
+      // Need some magic to pick the best goal based on parameters
+      const goal = possibleGoals[0]
+
+      debug(`Not currently in a flow, redirecting to goal %o `, goal)
+      const [topic] = goal.split('/')
+
       event.state.session.nluContexts = [
         { context: 'global', ttl: 2 },
         { context: topic, ttl: 2 }
       ]
-      actions.push({ action: 'redirect', data: { flow: completedTriggers[0] } })
+
+      actions.push({ action: 'startGoal', data: { goal } })
       actions.push({ action: 'continue' })
     }
 

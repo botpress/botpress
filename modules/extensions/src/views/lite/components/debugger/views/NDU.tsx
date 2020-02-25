@@ -1,5 +1,5 @@
 import { H5, Pre } from '@blueprintjs/core'
-import { IO } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -17,7 +17,7 @@ const sortTriggersByScore = triggers => {
   return _.orderBy(result, 'score', 'desc')
 }
 
-export const NDU: FC<{ ndu: IO.DialogUnderstanding }> = ({ ndu }) => {
+export const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
   if (!ndu || !ndu.triggers) {
     return null
   }
@@ -44,9 +44,11 @@ export const NDU: FC<{ ndu: IO.DialogUnderstanding }> = ({ ndu }) => {
         {ndu.actions.map(({ action, data }) => {
           let result = ''
           if (action === 'send') {
-            result = `Send knowledge ${data.sourceDetails}`
+            result = `Send knowledge ${(data as sdk.NDU.SendContent).sourceDetails}`
+          } else if (action === 'startGoal') {
+            result = `Start Goal ${(data as sdk.NDU.StartGoal).goal}`
           } else if (action === 'redirect') {
-            result = `Redirect to ${data.flow}`
+            result = `Redirect to ${(data as sdk.NDU.FlowRedirect).flow}`
           } else if (action === 'continue') {
             result = 'Continue flow execution'
           }

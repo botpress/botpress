@@ -70,7 +70,7 @@ const CreateTopicModal: FC<Props> = props => {
         </FormGroup>
       </DialogBody>
       <DialogFooter>
-        <Button text="Create topic" intent={Intent.PRIMARY} type="submit" disabled={!goal && !name} />
+        <Button text="Create topic" intent={Intent.PRIMARY} type="submit" disabled={!goal || !name} />
       </DialogFooter>
     </BaseDialog>
   )
