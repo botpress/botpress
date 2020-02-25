@@ -5,7 +5,6 @@ import './sdk/rewire'
 import './common/polyfills'
 
 import chalk from 'chalk'
-import { FatalError } from 'errors'
 import fs from 'fs'
 import { mkdirpSync } from 'fs-extra'
 import path from 'path'

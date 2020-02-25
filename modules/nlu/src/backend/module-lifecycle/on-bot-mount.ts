@@ -104,6 +104,7 @@ export function getOnBotMount(state: NLUState) {
       engine,
       engine1,
       trainWatcher,
+      trainOrLoad,
       trainSessions: {}
     }
 

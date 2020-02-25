@@ -1,5 +1,5 @@
 import Editor from './editor'
-
+import { RequestWithUser } from 'botpress/common/typings'
 export type EditorByBot = { [botId: string]: Editor }
 
 export interface TypingDefinitions {
@@ -46,7 +46,7 @@ export interface FilePermissions {
   }
 }
 
-interface RequestWithPerms {
+type RequestWithPerms = RequestWithUser & {
   permissions: FilePermissions
   params: any
   query?: any

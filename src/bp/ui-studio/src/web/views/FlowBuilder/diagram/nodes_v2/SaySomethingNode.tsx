@@ -27,7 +27,7 @@ export class SaySomethingWidget extends Component<{ node: SaySomethingNodeModel;
       >
         {showHeader({ nodeType: 'Say', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
-          <ContentPickerWidget itemId={itemId} onChange={this.handleItemChanged} layoutv2={true} />
+          <ContentPickerWidget itemId={itemId} onChange={this.handleItemChanged} layoutv2 />
         </div>
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />

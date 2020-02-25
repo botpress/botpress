@@ -29,6 +29,7 @@ interface Props {
   requestStageChange?: () => void
   allowStageChange?: boolean
   reloadBot?: () => void
+  viewLogs?: () => void
 }
 
 const BotItemPipeline: FC<Props> = ({
@@ -40,7 +41,8 @@ const BotItemPipeline: FC<Props> = ({
   allowStageChange,
   createRevision,
   rollback,
-  reloadBot
+  reloadBot,
+  viewLogs
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
@@ -63,6 +65,10 @@ const BotItemPipeline: FC<Props> = ({
                 <MenuItem icon="link" text="Copy link to clipboard" />
               </CopyToClipboard>
               <MenuDivider />
+
+              <AccessControl resource="admin.logs" operation="read">
+                <MenuItem text="View Logs" icon="manual" id="btn-viewLogs" onClick={viewLogs} />
+              </AccessControl>
 
               {allowStageChange && (
                 <MenuItem

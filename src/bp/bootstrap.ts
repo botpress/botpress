@@ -12,6 +12,7 @@ import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
+import _ from 'lodash'
 import os from 'os'
 
 import { setupMasterNode, WORKER_TYPES } from './cluster'
@@ -78,10 +79,10 @@ async function start() {
 
   const logger = await getLogger('Launcher')
   logger.info(chalk`========================================
-{bold ${center(`Botpress Server`, 40)}}
-{dim ${center(`Version ${sdk.version}`, 40)}}
-{dim ${center(`OS ${process.distro}`, 40)}}
-========================================`)
+{bold ${center(`Botpress Server`, 40, 9)}}
+{dim ${center(`Version ${sdk.version}`, 40, 9)}}
+{dim ${center(`OS ${process.distro}`, 40, 9)}}
+${_.repeat(' ', 9)}========================================`)
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {
     try {

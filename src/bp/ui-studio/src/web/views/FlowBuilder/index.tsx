@@ -28,6 +28,8 @@ import { MutexInfo } from './sidePanel/Toolbar'
 import SkillsBuilder from './skills'
 import style from './style.scss'
 
+const searchTag = '#search:'
+
 type Props = {
   currentFlow: string
   showFlowNodeProps: boolean
@@ -53,11 +55,14 @@ interface State {
   flowPreview: boolean
   mutexInfo: MutexInfo
   showSearch: boolean
+  highlightFilter: string
 }
 
 class FlowBuilder extends Component<Props, State> {
   private diagram
   private userAllowed = false
+  private hash = this.props.location.hash
+  private highlightFilter = this.hash.startsWith(searchTag) ? this.hash.replace(searchTag, '') : ''
 
   state = {
     initialized: false,
@@ -65,7 +70,8 @@ class FlowBuilder extends Component<Props, State> {
     panelPermissions: this.allPermissions,
     flowPreview: false,
     mutexInfo: undefined,
-    showSearch: false
+    showSearch: Boolean(this.highlightFilter),
+    highlightFilter: this.highlightFilter
   }
 
   get allPermissions(): PanelPermissions[] {
@@ -166,11 +172,21 @@ class FlowBuilder extends Component<Props, State> {
     })
   }
 
-  pushFlowState = flow => {
-    this.props.history.push(`/flows/${flow.replace(/\.flow\.json$/i, '')}`)
+  handleFilterChanged = ({ target: { value: highlightFilter } }) => {
+    const newUrl = this.props.location.pathname + searchTag + highlightFilter
+    this.setState({ highlightFilter })
+    this.props.history.replace(newUrl)
   }
 
-  hideSearch = () => this.setState({ showSearch: false })
+  pushFlowState = (flow) => {
+    const hash = this.state.showSearch ? searchTag + this.state.highlightFilter : ''
+    this.props.history.push(`/flows/${flow.replace(/\.flow\.json$/i, '')}${hash}`)
+  }
+
+  hideSearch = () => {
+    this.setState({ showSearch: false })
+    this.props.history.replace(this.props.location.pathname)
+  }
 
   render() {
     if (!this.state.initialized) {
@@ -195,6 +211,8 @@ class FlowBuilder extends Component<Props, State> {
       find: e => {
         e.preventDefault()
         this.setState({ showSearch: !this.state.showSearch })
+        const { pathname } = this.props.location
+        this.props.history.replace(this.state.showSearch ? pathname + searchTag + this.state.highlightFilter : pathname)
       },
       'preview-flow': e => {
         e.preventDefault()
@@ -241,6 +259,8 @@ class FlowBuilder extends Component<Props, State> {
                 this.diagram = el.getWrappedInstance()
               }
             }}
+            handleFilterChanged={this.handleFilterChanged}
+            highlightFilter={this.state.highlightFilter}
           />
         </div>
 

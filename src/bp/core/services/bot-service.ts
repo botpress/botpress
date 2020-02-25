@@ -54,9 +54,10 @@ const DEFAULT_BOT_CONFIGS = {
 
 const STATUS_REFRESH_INTERVAL = ms('15s')
 const STATUS_EXPIRY = ms('20s')
-const DEFAULT_BOT_HEALTH: BotHealth = { status: 'unmounted', errorCount: 0, warningCount: 0 }
+const DEFAULT_BOT_HEALTH: BotHealth = { status: 'disabled', errorCount: 0, warningCount: 0, criticalCount: 0 }
 
 const getBotStatusKey = (serverId: string) => `bp_server_${serverId}_bots`
+const debug = DEBUG('services:bots')
 
 @injectable()
 export class BotService {
@@ -99,7 +100,7 @@ export class BotService {
 
   async findBotById(botId: string): Promise<BotConfig | undefined> {
     if (!(await this.ghostService.forBot(botId).fileExists('/', 'bot.config.json'))) {
-      this.logger.warn(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
+      this.logger.forBot(botId).warn(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)
       return
     }
 
@@ -129,7 +130,10 @@ export class BotService {
         const bot = await this.findBotById(botId)
         bot && bots.set(botId, bot)
       } catch (err) {
-        this.logger.attachError(err).error(`Bot configuration file not found for bot "${botId}"`)
+        this.logger
+          .forBot(botId)
+          .attachError(err)
+          .error(`Bot configuration file not found for bot "${botId}"`)
       }
     }
 
@@ -168,6 +172,10 @@ export class BotService {
     const { error } = Joi.validate(updatedBot, BotEditSchema)
     if (error) {
       throw new InvalidOperationError(`An error occurred while updating the bot: ${error.message}`)
+    }
+
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
     }
 
     if (!process.IS_PRO_ENABLED && updatedBot.languages && updatedBot.languages.length > 1) {
@@ -214,7 +222,7 @@ export class BotService {
     }
 
     if (!actualBot.disabled && updatedBot.disabled) {
-      await this.unmountBot(botId, true)
+      await this.unmountBot(botId)
     }
   }
 
@@ -228,6 +236,7 @@ export class BotService {
   }
 
   async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
+    const startTime = Date.now()
     if (!isValidBotId(botId)) {
       throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
     }
@@ -238,7 +247,9 @@ export class BotService {
           `Cannot import the bot ${botId}, it already exists, and overwriting is not allowed`
         )
       } else {
-        this.logger.warn(`The bot ${botId} already exists, files in the archive will overwrite existing ones`)
+        this.logger
+          .forBot(botId)
+          .warn(`The bot ${botId} already exists, files in the archive will overwrite existing ones`)
       }
     }
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
@@ -304,6 +315,7 @@ export class BotService {
     } finally {
       this._invalidateBotIds()
       tmpDir.removeCallback()
+      debug.forBot(botId, `Bot import took ${Date.now() - startTime}ms`)
     }
   }
 
@@ -470,6 +482,10 @@ export class BotService {
   async deleteBot(botId: string) {
     this.stats.track('bot', 'delete')
 
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     await this.unmountBot(botId)
     await this._cleanupRevisions(botId, true)
     await this.ghostService.forBot(botId).deleteFolder('/')
@@ -511,7 +527,10 @@ export class BotService {
         throw new Error("Bot template doesn't exist")
       }
     } catch (err) {
-      this.logger.attachError(err).error(`Error creating bot ${botConfig.id} from template "${template.name}"`)
+      this.logger
+        .forBot(botConfig.id)
+        .attachError(err)
+        .error(`Error creating bot ${botConfig.id} from template "${template.name}"`)
     }
   }
 
@@ -533,12 +552,15 @@ export class BotService {
 
   // Do not use directly use the public version instead due to broadcasting
   private async _localMount(botId: string): Promise<boolean> {
+    const startTime = Date.now()
     if (this.isBotMounted(botId)) {
       return true
     }
 
     if (!(await this.ghostService.forBot(botId).fileExists('/', 'bot.config.json'))) {
-      this.logger.error(`Cannot mount bot "${botId}". Make sure it exists on the filesystem or the database.`)
+      this.logger
+        .forBot(botId)
+        .error(`Cannot mount bot "${botId}". Make sure it exists on the filesystem or the database.`)
       return false
     }
 
@@ -569,20 +591,24 @@ export class BotService {
         }, botId)
       )
 
-      BotService.setBotStatus(botId, 'mounted')
+      BotService.setBotStatus(botId, 'healthy')
       return true
     } catch (err) {
-      BotService.setBotStatus(botId, 'error')
+      this.logger
+        .forBot(botId)
+        .attachError(err)
+        .critical(`Cannot mount bot "${botId}"`)
 
-      this.logger.attachError(err).error(`Cannot mount bot "${botId}"`)
       return false
     } finally {
       await this._updateBotHealthDebounce()
+      debug.forBot(botId, `Mount took ${Date.now() - startTime}ms`)
     }
   }
 
   // Do not use directly use the public version instead due to broadcasting
-  private async _localUnmount(botId: string, isDisabled?: boolean) {
+  private async _localUnmount(botId: string) {
+    const startTime = Date.now()
     if (!this.isBotMounted(botId)) {
       this._invalidateBotIds()
       return
@@ -595,10 +621,11 @@ export class BotService {
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
 
     BotService._mountedBots.set(botId, false)
-    BotService.setBotStatus(botId, isDisabled ? 'disabled' : 'unmounted')
+    BotService.setBotStatus(botId, 'disabled')
 
     await this._updateBotHealthDebounce()
     this._invalidateBotIds()
+    debug.forBot(botId, `Unmount took ${Date.now() - startTime}ms`)
   }
 
   private _invalidateBotIds(): void {
@@ -613,6 +640,10 @@ export class BotService {
 
   public async listRevisions(botId: string): Promise<string[]> {
     const globalGhost = this.ghostService.global()
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
 
     let stageID = ''
@@ -633,6 +664,10 @@ export class BotService {
   }
 
   public async createRevision(botId: string): Promise<void> {
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
     let revName = botId + REV_SPLIT_CHAR + Date.now()
 
@@ -648,6 +683,10 @@ export class BotService {
   }
 
   public async rollback(botId: string, revision: string): Promise<void> {
+    if (!(await this.botExists(botId))) {
+      throw new Error(`Bot "${botId}" doesn't exist`)
+    }
+
     const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
     const revParts = revision.replace(/\.tgz$/i, '').split(REV_SPLIT_CHAR)
     if (revParts.length < 2) {
@@ -718,25 +757,31 @@ export class BotService {
     return Promise.mapSeries(servers, data => JSON.parse(data as string))
   }
 
-  public static incrementBotStats(botId: string, type: 'error' | 'warning') {
-    const info = this._botHealth[botId] || DEFAULT_BOT_HEALTH
+  public static incrementBotStats(botId: string, type: 'error' | 'warning' | 'critical') {
+    if (!this._botHealth[botId]) {
+      this._botHealth[botId] = DEFAULT_BOT_HEALTH
+    }
 
-    this._botHealth[botId] = {
-      ...info,
-      errorCount: info.errorCount + (type === 'error' ? 1 : 0),
-      warningCount: info.warningCount + (type === 'warning' ? 1 : 0)
+    if (type === 'error') {
+      this._botHealth[botId].errorCount++
+    } else if (type === 'warning') {
+      this._botHealth[botId].warningCount++
+    } else if (type === 'critical') {
+      this._botHealth[botId].criticalCount++
+      this._botHealth[botId].status = 'unhealthy'
     }
   }
 
-  public static setBotStatus(botId: string, status: 'mounted' | 'unmounted' | 'disabled' | 'error') {
+  public static setBotStatus(botId: string, status: 'healthy' | 'unhealthy' | 'disabled') {
     this._botHealth[botId] = {
       ...(this._botHealth[botId] || DEFAULT_BOT_HEALTH),
       status
     }
 
-    if (['unmounted', 'disabled'].includes(status)) {
+    if (['disabled'].includes(status)) {
       this._botHealth[botId].errorCount = 0
       this._botHealth[botId].warningCount = 0
+      this._botHealth[botId].criticalCount = 0
     }
   }
 }

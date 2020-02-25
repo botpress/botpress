@@ -18,7 +18,7 @@ import {
 } from './utils'
 
 export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
-export const MAIN_GLOBAL_CONFIG_FILES = ['botpress.config.json', 'workspaces.json']
+
 const RAW_FILES_FILTERS = ['**/*.map']
 
 export default class Editor {
@@ -179,12 +179,10 @@ export default class Editor {
 
     const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
     const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.js`), 'utf-8')
-    // Ideally we should fetch them locally, but for now it's safer to bundle it
-    const botSchema = fs.readFileSync(path.join(__dirname, '/../typings/bot.config.schema.json'), 'utf-8')
-    const botpressConfigSchema = fs.readFileSync(
-      path.join(__dirname, '/../typings/botpress.config.schema.json'),
-      'utf-8'
-    )
+
+    const ghost = this.bp.ghost.forRoot()
+    const botConfigSchema = await ghost.readFileAsString('/', 'bot.config.schema.json')
+    const botpressConfigSchema = await ghost.readFileAsString('/', 'botpress.config.schema.json')
 
     // Required so array.includes() can be used without displaying an error
     const es6include = fs.readFileSync(path.join(__dirname, '/../typings/es6include.txt'), 'utf-8')
@@ -195,8 +193,8 @@ export default class Editor {
       'process.d.ts': buildRestrictedProcessVars(),
       'node.d.ts': nodeTyping.toString(),
       'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`),
-      'bot.config.schema.json': botSchema.toString(),
-      'botpress.config.schema.json': botpressConfigSchema.toString(),
+      'bot.config.schema.json': botConfigSchema,
+      'botpress.config.schema.json': botpressConfigSchema,
       'es6include.d.ts': es6include.toString(),
       ...moduleTypings
     }
