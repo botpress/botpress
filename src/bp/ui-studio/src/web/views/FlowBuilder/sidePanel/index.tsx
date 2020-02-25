@@ -101,7 +101,6 @@ const SidePanelContent: FC<Props> = props => {
           </SidePanelSection>
         </React.Fragment>
       )}
-
       <FlowNameModal
         action={flowAction}
         originalName={flowName}
@@ -131,7 +130,4 @@ const mapDispatchToProps = {
   renameFlow
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SidePanelContent)
+export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)

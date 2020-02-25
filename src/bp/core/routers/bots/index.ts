@@ -128,7 +128,7 @@ export class BotsRouter extends CustomRouter {
     }
   }
 
-  getNewRouter(path: string, identity: string, options?: RouterOptions) {
+  getNewRouter(path: string, identity: string, options?: RouterOptions): Router {
     const router = Router({ mergeParams: true })
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
