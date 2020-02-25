@@ -13,7 +13,8 @@ class LoginPromptClass extends Component<Renderer.Message & InjectedIntlProps> {
   handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
 
   handleFormSubmit = event => {
-    void this.props.onSendData?.({
+    // tslint:disable-next-line: no-floating-promises
+    this.props.onSendData?.({
       type: 'login_prompt',
       text: 'Provided login information',
       username: this.state.username,

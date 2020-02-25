@@ -29,7 +29,8 @@ export class Button extends Component<Renderer.Button> {
       return
     }
 
-    void this.props.onFileUpload?.(this.props.label, this.props.payload, event.target.files[0])
+    // tslint:disable-next-line: no-floating-promises
+    this.props.onFileUpload?.(this.props.label, this.props.payload, event.target.files[0])
   }
 
   renderFileUpload(accept) {
