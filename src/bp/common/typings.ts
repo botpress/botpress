@@ -226,7 +226,20 @@ export type ActionDefinition = {
   metadata?: ActionMetadata
 }
 
+export type HttpActionDefinition = {
+  name: string
+  description: string
+  category: string
+  parameters: {
+    name: string
+    description: string
+    type: 'string' | 'number' | 'boolean'
+    required: boolean
+    default: string | number | boolean | undefined
+  }[]
+}
+
 export type ActionServersWithActions = ActionServer & {
-  actions: ActionDefinition[]
+  actions: HttpActionDefinition[]
   actionsFetchedSuccessfully: boolean
 }

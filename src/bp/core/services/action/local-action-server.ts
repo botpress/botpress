@@ -1,12 +1,12 @@
 import bodyParser from 'body-parser'
 import { Logger } from 'botpress/sdk'
+import { HttpActionDefinition } from 'common/typings'
 import { Config } from 'core/app'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { TYPES } from 'core/types'
 import express from 'express'
 import { inject, injectable, tagged } from 'inversify'
-import url from 'url'
 
 import ActionService from './action-service'
 
@@ -59,7 +59,34 @@ export class LocalActionServer {
       const actions = await scopedActionService.listLocalActions()
       const nonLegacyActions = actions.filter(a => !a.legacy)
 
-      res.status(200).send(nonLegacyActions)
+      const getParamType = (paramType: string): 'string' | 'number' | 'boolean' => {
+        if (paramType === 'string') {
+          return 'string'
+        } else if (paramType === 'number') {
+          return 'number'
+        } else if (paramType === 'boolean') {
+          return 'boolean'
+        } else if (paramType === 'any') {
+          return 'string'
+        } else {
+          throw `Unexpected paramType: ${paramType}`
+        }
+      }
+
+      const body: HttpActionDefinition[] = nonLegacyActions.map(a => ({
+        name: a.name,
+        description: a.metadata?.description || '',
+        category: a.metadata?.category || '',
+        parameters: (a.metadata?.params || []).map(p => ({
+          name: p.name,
+          type: getParamType(p.type),
+          required: p.required,
+          default: p.default,
+          description: p.description
+        }))
+      }))
+
+      res.status(200).send(body)
     })
   }
   async start() {
