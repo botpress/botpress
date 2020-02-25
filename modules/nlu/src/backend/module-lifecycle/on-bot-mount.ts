@@ -2,11 +2,11 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
-
 import { Config } from '../../config'
 import ConfusionEngine from '../confusion-engine'
 import ScopedEngine from '../engine'
 import Engine2 from '../engine2/engine2'
+import { getIntents } from '../engine2/intents/intent-service'
 import * as ModelService from '../engine2/model-service'
 import { makeTrainingSession, makeTrainSessionKey } from '../engine2/train-session-service'
 import { NLUState } from '../typings'
@@ -20,6 +20,7 @@ export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
     const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
     const bot = await bp.bots.getBotById(botId)
+    const ghost = bp.ghost.forBot(botId)
 
     const languages = _.intersection(bot.languages, state.languageProvider.languages)
     if (bot.languages.length !== languages.length) {
@@ -52,8 +53,8 @@ export function getOnBotMount(state: NLUState) {
         if (!state.nluByBot[botId]) {
           return
         }
-        const ghost = bp.ghost.forBot(botId)
-        const intentDefs = await (engine1 as ScopedEngine).storage.getIntents() // TODO replace this with intent service when implemented
+
+        const intentDefs = await getIntents(ghost)
         const entityDefs = await (engine1 as ScopedEngine).storage.getCustomEntities() // TODO: replace this with entities service once implemented
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 

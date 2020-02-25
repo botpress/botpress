@@ -3,13 +3,13 @@ import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
-
 import ConfusionEngine from './confusion-engine'
-import { crossValidate } from './cross-validation'
 import ScopedEngine from './engine'
+import { deleteIntent, getIntent, getIntents, saveIntent, updateIntent } from './engine2/intents/intent-service'
 import { getTrainingSession } from './engine2/train-session-service'
 import { EntityDefCreateSchema } from './entities'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
+import { crossValidate } from './tools/intent-cross-validation'
 import { NLUState } from './typings'
 import { IntentDefCreateSchema, PredictSchema } from './validation'
 
@@ -73,7 +73,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/cross-validation/:lang', async (req, res) => {
     const { botId, lang } = req.params
     const botEngine = state.nluByBot[botId].engine1 as ScopedEngine
-    const intentDefs = await botEngine.storage.getIntents()
+    const ghost = bp.ghost.forBot(botId)
+    const intentDefs = await getIntents(ghost)
     const entityDefs = await botEngine.storage.getCustomEntities()
 
     bp.logger.forBot(botId).info('Started cross validation')
@@ -109,54 +110,78 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   // TODO move this in intent router
   router.get('/intents', async (req, res) => {
-    res.send(await (state.nluByBot[req.params.botId].engine1 as ScopedEngine).storage.getIntents())
+    const { botId } = req.params
+    const ghost = bp.ghost.forBot(botId)
+    const intentDefs = await getIntents(ghost)
+    res.send(intentDefs)
   })
 
   // TODO move this in intent router
   router.get('/intents/:intent', async (req, res) => {
-    res.send(await (state.nluByBot[req.params.botId].engine1 as ScopedEngine).storage.getIntent(req.params.intent))
+    const { botId, intent } = req.params
+    const ghost = bp.ghost.forBot(botId)
+    const intentDef = await getIntent(ghost, intent)
+    res.send(intentDef)
   })
 
   // TODO move this in intent router
   router.post('/intents/:intent/delete', async (req, res) => {
-    const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
-
-    await botEngine.storage.deleteIntent(req.params.intent)
-    scheduleSyncNLU(req.params.botId)
-
-    res.sendStatus(204)
+    const { botId, intent } = req.params
+    const ghost = bp.ghost.forBot(botId)
+    try {
+      await deleteIntent(ghost, intent)
+      res.sendStatus(204)
+    } catch (err) {
+      bp.logger
+        .forBot(botId)
+        .attachError(err)
+        .warn('Could not delete intent')
+      res.status(400).send(err.message)
+    }
   })
 
   // TODO move this in intent router
   router.post('/intents', async (req, res) => {
+    const { botId } = req.params
+    const ghost = bp.ghost.forBot(botId)
     try {
       const intentDef = await validate(req.body, IntentDefCreateSchema, {
         stripUnknown: true
       })
 
-      const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
-      await botEngine.storage.saveIntent(intentDef.name, intentDef)
-      scheduleSyncNLU(req.params.botId)
+      await saveIntent(ghost, intentDef)
 
-      res.sendStatus(200)
+      res.sendStatus(201)
     } catch (err) {
-      bp.logger.attachError(err).warn('Cannot create intent, invalid schema')
-      res.status(400).send('Invalid schema')
+      bp.logger
+        .forBot(botId)
+        .attachError(err)
+        .warn('Cannot create intent')
+      res.status(400).send(err.message)
     }
   })
 
   // TODO move this in intent router
   router.post('/intents/:intentName', async (req, res) => {
-    const botEngine = state.nluByBot[req.params.botId].engine1 as ScopedEngine
-    await botEngine.storage.updateIntent(req.params.intentName, req.body)
-    scheduleSyncNLU(req.params.botId)
-
-    res.sendStatus(200)
+    const { botId, intentName } = req.params
+    const ghost = bp.ghost.forBot(botId)
+    try {
+      // TODO validate the shit out of it here
+      await updateIntent(ghost, intentName, req.body)
+      res.sendStatus(200)
+    } catch (err) {
+      bp.logger
+        .forBot(botId)
+        .attachError(err)
+        .error('Could not update intent')
+      res.sendStatus(400)
+    }
   })
 
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
-    const intents = await (state.nluByBot[botId].engine1 as ScopedEngine).storage.getIntents()
+    const ghost = bp.ghost.forBot(botId)
+    const intents = await getIntents(ghost)
     const ctxs = _.chain(intents)
       .flatMap(i => i.contexts)
       .uniq()
