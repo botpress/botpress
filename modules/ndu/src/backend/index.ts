@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import api from './api'
+import Database from './db'
 import { registerMiddleware } from './middleware'
 import { UnderstandingEngine } from './ndu-engine'
 import Storage from './storage'
@@ -8,9 +9,13 @@ import { BotStorage } from './typings'
 
 let nduEngine: UnderstandingEngine
 const bots: BotStorage = {}
+let db: Database
 
 const onServerStarted = async (bp: typeof sdk) => {
-  nduEngine = new UnderstandingEngine(bp)
+  db = new Database(bp)
+  await db.initialize()
+
+  nduEngine = new UnderstandingEngine(bp, db)
   await registerMiddleware(bp, nduEngine, bots)
 }
 
@@ -35,11 +40,17 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, flow: sdk.Flow) => {
   await nduEngine.invalidateGoals(botId)
 }
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.events.removeMiddleware('ndu.incoming')
+  bp.http.deleteRouterForBot('ndu')
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,
+  onModuleUnmount,
   onFlowChanged,
   botTemplates,
   definition: {

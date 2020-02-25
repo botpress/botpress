@@ -3,19 +3,16 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { conditionsDefinitions } from './conditions'
+import Database, { nbRankingIntent } from './db'
 import { TriggerGoal } from './typings'
 
 const debug = DEBUG('ndu').sub('processing')
 
 export class UnderstandingEngine {
-  private bp: typeof sdk
   private _allTriggers: Map<string, TriggerGoal[]> = new Map()
-
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
 
-  constructor(bp: typeof sdk) {
-    this.bp = bp
-  }
+  constructor(private bp: typeof sdk, private db: Database) {}
 
   queryQna = async (intentName: string, event): Promise<sdk.NDU.Actions[]> => {
     try {
@@ -29,18 +26,37 @@ export class UnderstandingEngine {
   }
 
   preprocessEvent(event: sdk.IO.IncomingEvent) {
-    const activeGoal = _.get(
+    const currentFlow = _.get(
       event.state.session.lastGoals.find(x => x.active),
       'goal'
     )
+    const currentTopic = currentFlow?.split('/')[0]
+    const currentGoal = currentFlow?.replace(currentTopic, '').substr(1)
     const activeContexts = (event.state.session.nluContexts || []).filter(x => x.context !== 'global')
     const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
 
     return {
-      activeGoal,
+      currentTopic,
+      currentGoal,
+      currentFlow,
       activeContexts,
       isInMiddleOfFlow
     }
+  }
+
+  getPredictionScores(predictions: sdk.IO.Predictions) {
+    const results = _.flatMap(predictions, ({ confidence, intents }, key) =>
+      intents.map(intent => ({
+        topicName: key,
+        topicConfidence: confidence,
+        topicIntentName: intent.label,
+        topicIntentConfidence: intent.confidence,
+        topicIntentConfidenceAdjusted: confidence * intent.confidence,
+        topicIntentType: intent.label.startsWith('__qna__') ? 'QNA' : 'NLU'
+      }))
+    )
+
+    return _.orderBy(results, 'topicIntentConfidenceAdj', 'desc')
   }
 
   async processEvent(event: sdk.IO.IncomingEvent) {
@@ -51,9 +67,9 @@ export class UnderstandingEngine {
       }
     })
 
-    const { activeGoal, activeContexts, isInMiddleOfFlow } = this.preprocessEvent(event)
+    const { currentTopic, currentGoal, currentFlow, activeContexts, isInMiddleOfFlow } = this.preprocessEvent(event)
 
-    debug('Processing %o', { activeGoal, activeContexts, isInMiddleOfFlow })
+    debug('Processing %o', { currentFlow, activeContexts, isInMiddleOfFlow })
 
     const actions = []
 
@@ -61,7 +77,7 @@ export class UnderstandingEngine {
     const bestTopic = _.findKey(event.nlu.predictions, x => x.confidence > this.MIN_CONFIDENCE)
 
     // No active goal or contexts, so we'll add the top as context
-    if (!(activeGoal && isInMiddleOfFlow) && !activeContexts.length && event.nlu.predictions) {
+    if (!(currentFlow && isInMiddleOfFlow) && !activeContexts.length && event.nlu.predictions) {
       if (bestTopic) {
         event.state.session.nluContexts = [...(event.state.session.nluContexts || []), { context: bestTopic, ttl: 3 }]
         debug(`No active goal or context. Activate topic with highest confidence: ${bestTopic} `)
@@ -69,6 +85,8 @@ export class UnderstandingEngine {
         debug(`No active goal or context. Top context prediction too low `)
       }
     }
+
+    const predictionScores = this.getPredictionScores(event.nlu.predictions)
 
     const bestIntents = event.nlu.predictions?.[bestTopic]?.intents?.map(x => ({
       name: x.label,
@@ -122,6 +140,22 @@ export class UnderstandingEngine {
     }
 
     event.ndu.actions = actions
+
+    await this.db.insertData({
+      incomingEventId: event.id,
+      currentTopicName: currentTopic,
+      currentTopicGoal: currentGoal,
+      currentTopicLastActionName: undefined,
+      currentTopicLastActionSince: undefined,
+      nduDecisionActions: event.ndu.actions,
+      nduDecisionConfidence: event.nlu.intent?.confidence,
+      ..._.take(predictionScores, nbRankingIntent).reduce((acc, pred, idx) => {
+        return {
+          ...acc,
+          ..._.mapKeys(pred, (_val, key) => `ranking${idx + 1}${key}`)
+        }
+      }, {})
+    })
   }
 
   private _getGoalsWithCompletedTriggers(event: sdk.IO.IncomingEvent) {
@@ -156,23 +190,6 @@ export class UnderstandingEngine {
     }, {})
   }
 
-  protected _amendSuggestionsWithDecision(suggestions: sdk.IO.Suggestion[], turnsHistory: sdk.IO.DialogTurnHistory[]) {
-    const replies = _.orderBy(suggestions, ['confidence'], ['desc'])
-
-    let bestReply: sdk.IO.Suggestion | undefined = undefined
-
-    for (let i = 0; i < replies.length; i++) {
-      if (replies[i].confidence < this.MIN_CONFIDENCE) {
-        replies[i].decision = { status: 'dropped', reason: `confidence lower than ${this.MIN_CONFIDENCE}` }
-      } else if (bestReply) {
-        replies[i].decision = { status: 'dropped', reason: 'best suggestion already elected' }
-      } else {
-        bestReply = replies[i]
-        replies[i].decision = { status: 'elected', reason: 'best remaining suggestion available' }
-      }
-    }
-  }
-
   async invalidateGoals(botId: string) {
     this._allTriggers.delete(botId)
   }
@@ -180,7 +197,7 @@ export class UnderstandingEngine {
   private async _loadBotGoals(botId: string) {
     const flowsPaths = await this.bp.ghost.forBot(botId).directoryListing('flows', '*.flow.json')
     const flows: any[] = await Promise.map(flowsPaths, async (flowPath: string) => {
-      return { name: flowPath, ...(await this.bp.ghost.forBot(botId).readFileAsObject('flows', flowPath)) }
+      return { name: flowPath, ...((await this.bp.ghost.forBot(botId).readFileAsObject('flows', flowPath)) as any) }
     })
 
     const triggers = _.flatMap(flows, x => (x.triggers || []).map(tr => ({ ...tr, goal: x.name }))) as TriggerGoal[]
