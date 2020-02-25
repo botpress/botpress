@@ -103,7 +103,8 @@ export default class Storage {
 
     const leftOverQnaIntents = allIntents.filter(
       (intent: sdk.NLU.IntentDefinition) =>
-        intent.name.startsWith('__qna__') && !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
+        intent.name.startsWith(NLU_PREFIX) &&
+        !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
     )
     await Promise.map(leftOverQnaIntents, (intent: sdk.NLU.IntentDefinition) =>
       axios.post(`/mod/nlu/intents/${intent.name}/delete`, {}, axiosConfig)
@@ -290,7 +291,7 @@ export default class Storage {
           if (values) {
             values.count++
           } else {
-            result[answer] = { qna: qna.id.substr(qna.id.indexOf('_') + 1), count: 1 }
+            result[answer] = { qna: qna.id, count: 1 }
           }
         })
         return result

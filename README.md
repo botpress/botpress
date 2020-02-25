@@ -1,4 +1,4 @@
-<a href='http://botpress.io'><img src='.github/assets/train_bar.gif'></a>
+<a href='http://botpress.com'><img src='.github/assets/train_bar.gif'></a>
 
 # [Botpress](https://botpress.com) — The open-source Virtual Assistant platform
 
@@ -27,7 +27,7 @@ Botpress is:
 ##### Learn Botpress
 
 | 📖 [**Documentation**](https://botpress.com/docs) | 🍿 [**Tutorials**](https://www.youtube.com/c/botpress) | 💘 [**Community Forum**](https://forum.botpress.com) |
-| ------------------------------------------------ | ------------------------------------------------------ | ---------------------------------------------------- |
+| ------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
 
 
 ## Deploy in the Cloud
@@ -35,6 +35,10 @@ Botpress is:
 Botpress can be easily deployed on DigitalOcean as a 1-Click App [here](https://marketplace.digitalocean.com/apps/botpress).
 
 [![DigitalOcean](.github/do_button.svg)](https://marketplace.digitalocean.com/apps/botpress)
+
+Botpress can also be deployed for free on Heroku. However, this is not the most optimal botpress experience, you may want to host your own [language server](https://botpress.com/docs/advanced/hosting#running-your-own-language-server)
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ## Deploy using Binaries
 

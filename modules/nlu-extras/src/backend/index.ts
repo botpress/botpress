@@ -4,13 +4,9 @@ import _ from 'lodash'
 
 import { Config } from '../config'
 
-import { registerMiddleware, removeForBot, enableForBot } from './middleware'
-
-import {} from './typings'
-
-import { createZip, restoreAgent } from './engines/dialogflow'
-
 import { getDataset } from './dataset'
+import { createZip, restoreAgent } from './engines/dialogflow'
+import { enableForBot, registerMiddleware, removeForBot } from './middleware'
 
 const dfListenerByBot: any = {}
 

@@ -16,7 +16,7 @@ import { TYPES } from '../../types'
 import { ActionExecutionError } from '../dialog/errors'
 
 import { ActionMetadata, extractMetadata } from './metadata'
-import { extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
+import { extractRequiredFiles, filterDisabled, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
@@ -105,8 +105,6 @@ export class ScopedActionService {
     if (this._actionsCache) {
       return this._actionsCache
     }
-
-    const filterDisabled = (filesPaths: string[]): string[] => filesPaths.filter(x => !path.basename(x).startsWith('.'))
 
     // node_production_modules are node_modules that are compressed for production
     const exclude = ['**/node_modules/**', '**/node_production_modules/**']

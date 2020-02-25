@@ -1,8 +1,7 @@
 import { injectable } from 'inversify'
 
-import { StrategyFactory } from './strategy'
-
 import { ProcessingResult } from '.'
+import { StrategyFactory } from './strategy'
 
 @injectable()
 export class InstructionProcessor {

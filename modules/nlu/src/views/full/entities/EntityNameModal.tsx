@@ -1,8 +1,9 @@
 import { Button, Callout, Classes, Dialog, FormGroup, HTMLSelect, Intent } from '@blueprintjs/core'
-import { NLUApi } from 'api'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useEffect, useRef, useState } from 'react'
+
+import { NLUApi } from '../../api'
 
 const AVAILABLE_TYPES = [
   {
@@ -43,33 +44,33 @@ export const EntityNameModal: FC<Props> = props => {
     e.preventDefault()
 
     if (props.action === 'create') {
-      onCreateEntity()
+      await onCreateEntity()
     } else if (props.action === 'duplicate') {
-      onDuplicateEntity()
+      await onDuplicateEntity()
     } else if (props.action === 'rename') {
-      onRenameEntity()
+      await onRenameEntity()
     }
 
     props.closeModal()
   }
 
-  const onCreateEntity = () => {
+  const onCreateEntity = async () => {
     const entity = {
       id: getEntityId(name),
       name: name.trim(),
       type: type as NLU.EntityType,
       occurrences: []
     }
-    props.api.createEntity(entity).then(() => {
-      props.onEntityModified(entity)
-    })
+    await props.api.createEntity(entity)
+    props.onEntityModified(entity)
   }
 
   const onRenameEntity = async () => {
     const entity = _.cloneDeep(props.originalEntity)
     entity.name = name.trim()
     entity.id = getEntityId(name)
-    props.api.updateEntity(props.originalEntity.id, entity).then(() => props.onEntityModified(entity))
+    await props.api.updateEntity(props.originalEntity.id, entity)
+    props.onEntityModified(entity)
   }
 
   const getEntityId = (entityName: string) =>
@@ -82,7 +83,8 @@ export const EntityNameModal: FC<Props> = props => {
     const clone = _.cloneDeep(props.originalEntity)
     clone.name = name.trim()
     clone.id = getEntityId(name)
-    props.api.createEntity(clone).then(() => props.onEntityModified(clone))
+    await props.api.createEntity(clone)
+    props.onEntityModified(clone)
   }
 
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name

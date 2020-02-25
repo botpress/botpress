@@ -33,7 +33,7 @@ const onServerReady = async (bp: typeof sdk) => {
 }
 
 const onServerStarted = async (bp: typeof sdk) => {
-  setupMiddleware(bp, clients)
+  await setupMiddleware(bp, clients)
 
   const config = (await bp.config.getModuleConfig('channel-telegram')) as Config
   useWebhooks = config.forceWebhook || process.CLUSTER_ENABLED

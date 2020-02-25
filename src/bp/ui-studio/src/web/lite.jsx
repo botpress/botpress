@@ -60,10 +60,7 @@ class LiteView extends React.Component {
 
 const mapDispatchToProps = { fetchModules }
 const mapStateToProps = state => ({ modules: state.modules })
-const LiteViewConnected = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LiteView)
+const LiteViewConnected = connect(mapStateToProps, mapDispatchToProps)(LiteView)
 
 ReactDOM.render(
   <Provider store={store}>

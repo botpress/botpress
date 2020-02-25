@@ -1,6 +1,6 @@
 {
   "$schema": "../../bot.config.schema.json",
-  "description": "Empty bot",
+  "description": "",
   "active": true,
   "version": "1.0.0",
   "author": "Botpress, Inc.",

@@ -126,7 +126,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       const { result: user, created } = await bp.users.getOrCreateUser('web', userId)
       if (created) {
-        await bp.analytics.addUserMetric(botId, 'channel-web')
+        incrementUserMetric(botId)
       }
 
       const payload = req.body || {}
@@ -182,7 +182,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       const { created } = await bp.users.getOrCreateUser('web', userId) // Just to create the user if it doesn't exist
       if (created) {
-        await bp.analytics.addUserMetric(botId, 'channel-web')
+        incrementUserMetric(botId)
       }
 
       let { conversationId = undefined } = req.query || {}
@@ -228,7 +228,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    await bp.users.getOrCreateUser('web', userId, botId)
+    await bp.users.getOrCreateUser('web', userId)
 
     const conversations = await db.listConversations(userId, botId)
 
@@ -286,7 +286,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { botId = undefined, userId = undefined } = req.params || {}
       const { created } = await bp.users.getOrCreateUser('web', userId)
       if (created) {
-        await bp.analytics.addUserMetric(botId, 'channel-web')
+        incrementUserMetric(botId)
       }
       const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
 
@@ -307,16 +307,40 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/events/:eventId/feedback',
+    '/saveFeedback',
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
-      const eventId = req.params.eventId
-      const { feedback } = req.body
+      const { eventId, target, feedback } = req.body
 
-      const events = await bp.events.findEvents({ incomingEventId: eventId, direction: 'incoming' })
-      const event = events[0]
-      await bp.events.updateEvent(event.id, { feedback })
-      res.sendStatus(200)
+      if (!target || !eventId || !feedback) {
+        return res.status(400).send('Missing required fields')
+      }
+
+      try {
+        const events = await bp.events.findEvents({ incomingEventId: eventId, direction: 'incoming', target })
+        if (!events || !events.length) {
+          return res.sendStatus(404)
+        }
+
+        await bp.events.updateEvent(events[0].id, { feedback })
+        res.sendStatus(200)
+      } catch (err) {
+        res.status(400).send(err)
+      }
+    })
+  )
+
+  router.post(
+    '/feedbackInfo',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const { target, eventIds } = req.body
+
+      if (!target || !eventIds) {
+        return res.status(400).send('Missing required fields')
+      }
+
+      res.send(await db.getFeedbackInfoForEventIds(target, eventIds))
     })
   )
 
@@ -351,7 +375,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { botId, userId, reference } = req.params
       let { conversationId } = req.params
 
-      await bp.users.getOrCreateUser('web', userId, botId)
+      await bp.users.getOrCreateUser('web', userId)
 
       if (typeof reference !== 'string' || !reference.length || reference.indexOf('=') === -1) {
         throw new Error('Invalid reference')
@@ -461,4 +485,21 @@ export default async (bp: typeof sdk, db: Database) => {
 
     res.send({ txt, name: `${conversation.title}.txt` })
   })
+}
+
+function incrementUserMetric(botId: string) {
+  process.BOTPRESS_EVENTS.emit('core.analytics', [
+    {
+      botId,
+      channel: 'channel-web',
+      metric: sdk.AnalyticsMetric.NewUsersCount,
+      method: sdk.AnalyticsMethod.IncrementDaily
+    },
+    {
+      botId,
+      channel: 'channel-web',
+      metric: sdk.AnalyticsMetric.TotalUsers,
+      method: sdk.AnalyticsMethod.IncrementTotal
+    }
+  ])
 }

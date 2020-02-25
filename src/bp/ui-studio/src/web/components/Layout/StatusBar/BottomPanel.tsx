@@ -47,6 +47,7 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    // tslint:disable-next-line: no-floating-promises
     this.queryLogs()
     this.setupListener()
   }
@@ -216,7 +217,4 @@ class BottomPanel extends React.Component<Props, State> {
 
 const mapDispatchToProps = dispatch => bindActionCreators({ toggleBottomPanel }, dispatch)
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(BottomPanel)
+export default connect(null, mapDispatchToProps)(BottomPanel)

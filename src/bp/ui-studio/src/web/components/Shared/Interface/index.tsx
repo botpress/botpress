@@ -20,6 +20,7 @@ import SplitPane from 'react-split-pane'
 
 import style from './style.scss'
 import {
+  BaseDialogProps,
   ContainerProps,
   InfoTooltipProps,
   ItemListProps,
@@ -30,8 +31,7 @@ import {
   SidePanelSectionProps,
   SplashScreenProps,
   ToolbarButtonsProps,
-  ToolbarProps,
-  BaseDialogProps
+  ToolbarProps
 } from './typings'
 import { buildMenu, showContextMenu } from './utils'
 

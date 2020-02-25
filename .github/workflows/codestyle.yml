@@ -13,3 +13,15 @@ jobs:
       - name: Run Prettier
         run: |
           ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.ts' '!**/*.d.ts'
+  tslint:
+    name: Run TSLint on codebase
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Install Dependencies
+        run: |
+          yarn
+      - name: Run TSLint
+        run: |
+          yarn run tslint

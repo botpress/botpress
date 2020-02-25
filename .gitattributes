@@ -1,1 +1,13 @@
 *        text=auto eol=lf
+
+*.png   -text
+*.jpg   -text
+*.gif   -text
+*.mp3   -text
+*.tgz   -text
+*.sfx   -text
+*.woff2 -text
+*.node  -text
+
+modules/nlu/src/backend/tools/pretrained/* -text
+modules/.knowledge/src/backend/tools/bin/* -text

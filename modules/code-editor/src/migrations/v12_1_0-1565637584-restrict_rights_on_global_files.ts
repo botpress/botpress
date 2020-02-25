@@ -21,7 +21,7 @@ const migration: sdk.ModuleMigration = {
     if (await ghost.fileExists('config', 'code-editor.json')) {
       const currentConfig = await ghost.readFileAsObject<any>('config', 'code-editor.json')
       const newConfig = _.omit(currentConfig, 'allowGlobal', 'includeBotConfig')
-      await ghost.upsertFile('config', 'code-editor.json', JSON.stringify(newConfig, null, 2))
+      await ghost.upsertFile('config', 'code-editor.json', JSON.stringify(newConfig, undefined, 2))
       const { allowGlobal, includeBotConfig } = currentConfig
       enableGlobal = !!allowGlobal
       enableConfig = !!includeBotConfig
