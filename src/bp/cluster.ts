@@ -1,20 +1,22 @@
 import sdk from 'botpress/sdk'
 import cluster from 'cluster'
-import { BotpressConfig } from 'core/config/botpress.config'
 import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid/generate'
 import os from 'os'
 import yn from 'yn'
 
-export type WorkerType = 'ML_WORKER' | 'WEB_WORKER'
+export enum WORKER_TYPES {
+  WEB = 'WEB_WORKER',
+  ML = 'ML_WORKER'
+}
 
 const debug = DEBUG('cluster')
 
 const msgHandlers: { [messageType: string]: (message: any, worker: cluster.Worker) => void } = {}
 
-const maxReboots = process.core_env.BP_MAX_SERVER_REBOOT || 2
-let rebootCount = 0
+const maxServerReebots = process.core_env.BP_MAX_SERVER_REBOOT || 2
+let webServerRebootCount = 0
 
 /**
  * The master process handles training and rebooting the server.
@@ -27,7 +29,7 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
   msgHandlers[messageType] = handler
 }
 
-export const setupMasterNode = (logger: sdk.Logger, config: BotpressConfig) => {
+export const setupMasterNode = (logger: sdk.Logger) => {
   process.SERVER_ID = process.env.SERVER_ID || nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
 
   registerMsgHandler('reboot_server', (_message, worker) => {
@@ -51,21 +53,21 @@ export const setupMasterNode = (logger: sdk.Logger, config: BotpressConfig) => {
     debug(`Process exiting %o`, { workerId: id, code, signal, exitedAfterDisconnect })
     // Reset the counter when the reboot was intended
     if (exitedAfterDisconnect) {
-      rebootCount = 0
+      webServerRebootCount = 0
       // Clean exit
     } else if (code === 0) {
       process.exit(0)
     }
 
     if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
-      if (rebootCount >= maxReboots) {
+      if (webServerRebootCount >= maxServerReebots) {
         logger.error(
-          `Exceeded the maximum number of automatic server reboot (${maxReboots}). Set the "BP_MAX_SERVER_REBOOT" environment variable to change that`
+          `Exceeded the maximum number of automatic server reboot (${maxServerReebots}). Set the "BP_MAX_SERVER_REBOOT" environment variable to change that`
         )
         process.exit(0)
       }
       spawnWebWorker()
-      rebootCount++
+      webServerRebootCount++
     }
   })
 
@@ -86,17 +88,18 @@ export const setupMasterNode = (logger: sdk.Logger, config: BotpressConfig) => {
 }
 
 function spawnWebWorker() {
-  const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: <WorkerType>'WEB_WORKER' })
+  const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB })
   process.WEB_WORKER = id
 }
 
 let spawnMLWorkersCount = 0
+const MAX_ML_WORKER_REBOOT = 2
 setTimeout(() => {
   spawnMLWorkersCount = 0
 }, ms('2m'))
 
 export async function spawnMLWorkers(logger?: sdk.Logger) {
-  if (spawnMLWorkersCount > 2) {
+  if (spawnMLWorkersCount > MAX_ML_WORKER_REBOOT) {
     logger?.error(`Exceeded the number of automatic ml worker reboot`)
     process.exit(0)
   }
@@ -104,7 +107,7 @@ export async function spawnMLWorkers(logger?: sdk.Logger) {
   const numMLWorkers = Math.min(maxMLWorkers, process.core_env.BP_NUM_ML_WORKERS || 4)
 
   process.ML_WORKERS = await Promise.map(_.range(numMLWorkers), () => {
-    const worker = cluster.fork({ WORKER_TYPE: <WorkerType>'ML_WORKER' })
+    const worker = cluster.fork({ WORKER_TYPE: WORKER_TYPES.ML })
     return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, worker.id)))
   })
   spawnMLWorkersCount++

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
 
-import { registerMsgHandler, WorkerType, spawnMLWorkers } from '../cluster'
+import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
@@ -77,17 +77,17 @@ function overloadTrainers() {
 }
 
 if (cluster.isWorker) {
-  if (process.env.WORKER_TYPE === <WorkerType>'WEB_WORKER') {
+  if (process.env.WORKER_TYPE === WORKER_TYPES.WEB) {
     overloadTrainers()
   }
-  if (process.env.WORKER_TYPE === <WorkerType>'ML_WORKER') {
+  if (process.env.WORKER_TYPE === WORKER_TYPES.ML) {
     async function messageHandler(msg: Message) {
       if (msg.type === 'train') {
         const svm = new SVMTrainer()
         try {
           let progressCalls = 0
           const result = await svm.train(msg.payload.points, msg.payload.options, progress => {
-            if (++progressCalls % 5 === 0 || progress === 1) {
+            if (++progressCalls % 10 === 0 || progress === 1) {
               process.send!({ type: 'progress', id: msg.id, payload: { progress } })
             }
           })
