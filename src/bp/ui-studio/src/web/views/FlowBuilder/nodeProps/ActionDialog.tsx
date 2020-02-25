@@ -1,10 +1,10 @@
-import { Button, Dialog, FormGroup, H3, HTMLSelect, Label, NonIdealState } from '@blueprintjs/core'
-import { ActionParameterDefinition, ActionServersWithActions } from 'common/typings'
+import { Button, Dialog, FormGroup, HTMLSelect, Label, NonIdealState } from '@blueprintjs/core'
+import axios from 'axios'
+import { ActionParameterDefinition } from 'common/typings'
 import _ from 'lodash'
-import React, { FC } from 'react'
-import { connect } from 'react-redux'
+import React, { FC, useEffect, useState } from 'react'
 
-import { Action } from '../diagram/nodes_v2/ActionNode'
+import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
 
 import { ActionParameters } from './ActionParameters'
 export interface ParameterValue {
@@ -13,20 +13,59 @@ export interface ParameterValue {
 }
 
 interface ActionDialogProps {
-  action: Action
-  actionIsValid: boolean
-  actionServers: ActionServersWithActions[]
+  name: string
+  parameters: Parameters
+  actionServerId: string
   isOpen: boolean
   onClose: () => void
-  onSave: () => void
-  onUpdate: (action: Action) => void
+  onSave: (action: Action) => void
 }
 
 const ActionDialog: FC<ActionDialogProps> = props => {
-  const { action, actionServers, isOpen, onClose, onSave, onUpdate, actionIsValid } = props
+  const { isOpen, onClose, onSave } = props
 
-  const currentActionServer = actionServers.find(s => s.id === action.actionServerId)
-  const currentActionDefinition = currentActionServer.actions.find(a => a.name === action.name)
+  const [actionServers, setActionServers] = useState([])
+  const [name, setName] = useState(props.name)
+  const [parameters, setParameters] = useState(props.parameters)
+  const [actionServerId, setActionServerId] = useState(props.actionServerId)
+
+  useEffect(() => {
+    const fetchActionServers = async () => {
+      const response = await axios.get(`${window.BOT_API_PATH}/actionServers`)
+      setActionServers(response.data)
+    }
+
+    // tslint:disable-next-line: no-floating-promises
+    fetchActionServers()
+  }, [])
+
+  if (actionServers.length === 0) {
+    return null
+  }
+
+  const actionIsValid = () => {
+    return !!name && !!actionServerId
+  }
+
+  const isNewNode = name === '' && _.isEmpty(parameters) && actionServerId === ''
+  if (isNewNode) {
+    const defaultActionServer = actionServers[0]
+    const defaultAction = defaultActionServer.actions[0]
+
+    const defaultName = defaultAction?.name
+    const defaultParameters = {}
+    const defaultActionServerId = defaultActionServer.id
+
+    setName(defaultName)
+    setParameters(defaultParameters)
+    setActionServerId(defaultActionServerId)
+    if (actionIsValid()) {
+      onSave({ name: defaultName, parameters: defaultParameters, actionServerId: defaultActionServerId })
+    }
+    return null
+  }
+  const currentActionServer = actionServers.find(s => s.id === actionServerId)
+  const currentActionDefinition = currentActionServer.actions.find(a => a.name === name)
 
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
@@ -43,12 +82,10 @@ const ActionDialog: FC<ActionDialogProps> = props => {
         <Label>
           Action Server
           <HTMLSelect
-            value={action.actionServerId}
+            value={actionServerId}
             onChange={e => {
               e.preventDefault()
-              const copy = _.cloneDeep(action)
-              copy.actionServerId = e.currentTarget.value
-              onUpdate(copy)
+              setActionServerId(e.target.value)
             }}
           >
             {actionServers.map(actionServer => (
@@ -71,9 +108,7 @@ const ActionDialog: FC<ActionDialogProps> = props => {
                 id="action-name"
                 value={currentActionDefinition.name}
                 onChange={e => {
-                  const copy = _.cloneDeep(action)
-                  copy.name = e.target.value
-                  onUpdate(copy)
+                  setName(e.target.value)
                 }}
               >
                 {currentActionServer.actions.map(actionDefinition => (
@@ -87,7 +122,7 @@ const ActionDialog: FC<ActionDialogProps> = props => {
             <FormGroup label="Action Parameters" labelFor="action-parameters">
               <ActionParameters
                 parameterValues={currentActionDefinition.metadata.params.map(parameterDefinition => {
-                  return { definition: parameterDefinition, value: action.parameters[parameterDefinition.name] || '' }
+                  return { definition: parameterDefinition, value: parameters[parameterDefinition.name] || '' }
                 })}
                 onUpdate={parameterValues => {
                   const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
@@ -95,7 +130,7 @@ const ActionDialog: FC<ActionDialogProps> = props => {
                     return previousValue
                   }, {})
 
-                  onUpdate({ ...action, parameters: paramsObj })
+                  setParameters(paramsObj)
                 }}
               />
             </FormGroup>
@@ -108,9 +143,9 @@ const ActionDialog: FC<ActionDialogProps> = props => {
 
         <Button
           onClick={() => {
-            onSave()
+            onSave({ name, actionServerId, parameters })
           }}
-          disabled={!actionIsValid}
+          disabled={!actionIsValid()}
         >
           Save
         </Button>
@@ -119,10 +154,4 @@ const ActionDialog: FC<ActionDialogProps> = props => {
   )
 }
 
-const mapStateToProps = state => ({
-  actionServers: state.actionServers
-})
-
-const mapDispatchToProps = {}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ActionDialog)
+export default ActionDialog

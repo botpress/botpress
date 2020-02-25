@@ -1,6 +1,5 @@
 import { combineReducers } from 'redux'
 
-import actionServers from './actionServers'
 import bot from './bot'
 import bots from './bots'
 import content, { ContentReducer } from './content'
@@ -23,7 +22,6 @@ const bpApp = combineReducers({
   user,
   bot,
   modules,
-  actionServers,
   notifications,
   skills,
   language,

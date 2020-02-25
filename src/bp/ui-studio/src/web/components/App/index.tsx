@@ -2,7 +2,6 @@ import { Component } from 'react'
 import { connect } from 'react-redux'
 import {
   addNotifications,
-  fetchActionServers,
   fetchBotInformation,
   fetchModules,
   fetchNotifications,
@@ -19,7 +18,6 @@ import routes, { history } from '../Routes'
 
 interface Props {
   fetchModules: () => void
-  fetchActionServers: () => void
   fetchSkills: () => void
   refreshHints: () => void
   fetchNotifications: () => void
@@ -34,7 +32,6 @@ interface Props {
 class App extends Component<Props> {
   fetchData = () => {
     this.props.fetchModules()
-    this.props.fetchActionServers()
     this.props.fetchSkills()
     this.props.refreshHints()
     this.props.fetchNotifications()
@@ -103,7 +100,6 @@ const mapDispatchToProps = {
   fetchUser,
   fetchBotInformation,
   fetchModules,
-  fetchActionServers,
   fetchSkills,
   refreshHints,
   fetchNotifications,

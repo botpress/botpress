@@ -1,9 +1,8 @@
 import { Button } from '@blueprintjs/core'
 import classnames from 'classnames'
-import { ActionServer, ActionServersWithActions } from 'common/typings'
+import { ActionServer } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 
 import ActionDialog from '../../nodeProps/ActionDialog'
@@ -15,83 +14,62 @@ import { showHeader } from './utils'
 
 interface ActionWidgetProps {
   node: ActionNodeModel
-  actionServers: ActionServersWithActions[]
   diagramEngine: any
 }
 
 const ActionWidget: FC<ActionWidgetProps> = props => {
-  const { node, diagramEngine, actionServers } = props
+  const { node, diagramEngine } = props
 
   const parseActionString = (actionString: string | undefined): Action => {
-    const defaultActionServer = actionServers[0]
-    const defaultAction = defaultActionServer.actions[0]
-
-    const defaultName = defaultAction?.name
-    const defaultParameters = {}
-    const defaultActionServerId = defaultActionServer.id
-
-    let name = defaultName
-    let parameters = defaultParameters
-    let actionServerId = defaultActionServerId
+    let name = ''
+    let parameters = {}
+    let actionServerId = ''
 
     if (actionString) {
       const chunks = actionString.split(' ')
-      name = chunks[0] || defaultName
+      name = chunks[0]
 
       const parametersString = chunks[1]
-      parameters = parametersString ? JSON.parse(parametersString) : defaultParameters
+      parameters = JSON.parse(parametersString)
 
-      actionServerId = chunks[2] || defaultActionServerId
+      actionServerId = chunks[2]
     }
 
     return { name, parameters, actionServerId }
   }
 
   const [showDialog, setShowDialog] = useState(false)
-  const [action, setAction] = useState(parseActionString(node.onEnter[0]))
+  const [actionString, setActionString] = useState(node.onEnter[0])
+  const actionStringCopy = node.onEnter[0]
 
-  const isNewNode = node.onEnter.length === 0
-  const actionIsValid = !!action.name && !!action.actionServerId
-
-  useEffect(() => {
-    if (isNewNode && actionIsValid) {
-      saveNode()
-    }
-  }, [])
-
-  const actionCopy = _.cloneDeep(parseActionString(node.onEnter[0]))
-
-  const onSave = () => {
+  const onSave = action => {
     setShowDialog(false)
-    saveNode()
-  }
-
-  const saveNode = () => {
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
-    flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
+    const actionString = serializeAction(action)
+    flowBuilder.updateFlowNode({ onEnter: [actionString] })
+    setActionString(actionString)
   }
 
   const cancel = () => {
-    setAction(actionCopy)
+    setActionString(actionStringCopy)
   }
 
+  const action = parseActionString(actionString)
   return (
     <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
       <Button onClick={() => setShowDialog(true)}>Edit</Button>
       <ActionDialog
-        action={action}
-        actionIsValid={actionIsValid}
+        name={action.name}
+        parameters={action.parameters}
+        actionServerId={action.actionServerId}
         isOpen={showDialog}
         onClose={() => {
           setShowDialog(false)
           cancel()
         }}
-        onUpdate={action => {
-          setAction(action)
-        }}
-        onSave={onSave}
+        onSave={action => onSave(action)}
       />
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />
@@ -100,14 +78,6 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
     </div>
   )
 }
-
-const mapStateToProps = state => ({
-  actionServers: state.actionServers
-})
-
-const mapDispatchToProps = {}
-
-const ConnectedActionWidget = connect(mapStateToProps, mapDispatchToProps)(ActionWidget)
 
 type PropType<TObj, TProp extends keyof TObj> = TObj[TProp]
 
@@ -141,7 +111,7 @@ export class ActionWidgetFactory extends AbstractNodeFactory {
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: ActionNodeModel) {
-    return <ConnectedActionWidget node={node} diagramEngine={diagramEngine} />
+    return <ActionWidget node={node} diagramEngine={diagramEngine} />
   }
 
   getNewInstance() {
