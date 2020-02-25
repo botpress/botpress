@@ -18,7 +18,7 @@ title: Clustering
 - Load Balancer with a public address
 - Botpress license registered with a public address
 
-## Enable redis sentinel
+## Enable Redis Sentinel
 
 Start Botpress on a single node with these environment variables:
 
@@ -54,9 +54,9 @@ botpress/server:$TAG
 
 Once the first node is started, use the same command to start Botpress on the other nodes.
 
-## Enable redis cluster
+## Enable Redis Cluster
 
-To configure botpress to use a redis cluster set the REDIS_URL environment variable as a json array of ports and hosts
+To configure Botpress to use a Redis cluster set the REDIS_URL environment variable as a json array of ports and hosts
 
 ```bash
 PRO_ENABLED=true
@@ -67,4 +67,14 @@ EXTERNAL_URL=<public_url> \
 REDIS_URL=[{"host":"localhost","port":7004},{"host":"localhost","port":7001},{"host":"localhost","port":7002}]
 DATABASE_URL=postgres://login:password@host:port/database \
 ./bp
+```
+
+## Advanced Redis Options
+
+You can further configure you Redis Sentinel/Cluster using the REDIS_OPTIONS envionment variable. Refer to de ioredis documentation : https://github.com/luin/ioredis/blob/master/API.md
+
+Example :
+
+```bash
+REDIS_OPTIONS={"password":"admin123"}
 ```
