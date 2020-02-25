@@ -34,7 +34,6 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { Timeout, toastInfo } from '~/components/Shared/Utils'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
@@ -43,7 +42,7 @@ import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } 
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
-import { ActionNodeModel, ActionWidgetFactory } from './nodes_v2/ActionNode'
+import { ActionWidgetFactory } from './nodes_v2/ActionNode'
 import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
@@ -348,8 +347,7 @@ class Diagram extends Component<Props> {
     return (
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
-      targetModel instanceof RouterNodeModel ||
-      targetModel instanceof ActionNodeModel
+      targetModel instanceof RouterNodeModel
     )
   }
 
@@ -595,7 +593,7 @@ interface Props {
   showSearch: boolean
   hideSearch: () => void
   handleFilterChanged: (event: object) => void
-  highlightFilter: string,
+  highlightFilter: string
   skills: SkillDefinition[]
 }
 
