@@ -10,6 +10,7 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
+import { confirmDialog } from 'botpress/shared'
 import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -19,7 +20,6 @@ import { Alert, Col, Row } from 'reactstrap'
 import { toastSuccess } from '~/utils/toaster'
 import { toastFailure } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
-import confirmDialog from '~/App/ConfirmDialog'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 import { getActiveWorkspace } from '~/Auth'
@@ -87,8 +87,7 @@ class Bots extends Component<Props> {
   async deleteBot(botId) {
     if (
       await confirmDialog("Are you sure you want to delete this bot? This can't be undone.", {
-        acceptLabel: 'Delete',
-        declineLabel: 'Cancel'
+        acceptLabel: 'Delete'
       })
     ) {
       await api.getSecured().post(`/admin/bots/${botId}/delete`)
@@ -179,7 +178,7 @@ class Bots extends Component<Props> {
 
     return _.some(
       this.props.health.map(x => x.bots[botId]),
-      s => s && s.status === 'error'
+      s => s && s.status === 'unhealthy'
     )
   }
 

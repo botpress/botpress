@@ -21,7 +21,7 @@ jobs:
           scrapy runspider \
           -o errors.csv \
           -a site="https://botpress.com/docs" \
-          -a domain="botpress.io" \
+          -a domain="botpress.com" \
           .github/workflows/code/validate-docs/spider.py \
           -s AUTOTHROTTLE_ENABLED=true \
           -s CONCURRENT_REQUESTS_PER_DOMAIN=32 \

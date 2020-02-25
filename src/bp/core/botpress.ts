@@ -208,7 +208,7 @@ export class Botpress {
     bots.forEach(bot => {
       if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
         this._killServer(
-          `A bot has more than a single language (${bot.id}). To enable the multilangual feature, please upgrade to Botpress Pro.`
+          `A bot has more than a single language (${bot.id}). To enable the multilingual feature, please upgrade to Botpress Pro.`
         )
       }
     })
@@ -282,7 +282,10 @@ export class Botpress {
 
     disabledBots.forEach(botId => BotService.setBotStatus(botId, 'disabled'))
 
-    await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
+    this.logger.info(`Discovered ${botsToMount.length} bots, mounting them...`)
+
+    const maxConcurrentMount = parseInt(process.env.MAX_CONCURRENT_MOUNT || '5')
+    await Promise.map(botsToMount, botId => this.botService.mountBot(botId), { concurrency: maxConcurrentMount })
   }
 
   private async initializeServices() {

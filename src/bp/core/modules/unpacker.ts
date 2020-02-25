@@ -27,12 +27,17 @@ async function fileHash(filePath: string) {
 export default class ModuleUnpacker {
   constructor(@inject(TYPES.Logger) private logger: Logger) {}
 
-  async unpack(modulePath: string) {
+  async getUnpackPaths(modulePath: string) {
     const hash = await fileHash(modulePath)
-    const tempDirectory = this.createModulePath(modulePath, '.temp_cache')
-    const temporaryDestination = this.createDestination(tempDirectory, hash)
-    const finalDirectory = this.createModulePath(modulePath, '.cache')
-    const finalDestination = this.createDestination(finalDirectory, hash)
+    const temporaryDestination = path.join(path.dirname(modulePath), `.temp_cache/module__${hash}`)
+    const finalDestination = path.join(path.dirname(modulePath), `.cache/module__${hash}`)
+
+    return { temporaryDestination, finalDestination }
+  }
+
+  async unpack(modulePath: string) {
+    const { temporaryDestination, finalDestination } = await this.getUnpackPaths(modulePath)
+    const cacheDirectory = this.createModulePath(modulePath, '.cache')
 
     if (fs.existsSync(finalDestination)) {
       return finalDestination
@@ -47,7 +52,7 @@ export default class ModuleUnpacker {
       cwd: temporaryDestination
     })
 
-    mkdirp.sync(finalDirectory) // Create the `.cache` directory if doesn't exist
+    mkdirp.sync(cacheDirectory) // Create the `.cache` directory if doesn't exist
     // We move in case the extraction failed and .cache is corrupted
     try {
       // Trying to rename first, since moving is very slow on windows

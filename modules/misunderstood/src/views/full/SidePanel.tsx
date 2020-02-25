@@ -14,7 +14,7 @@ const SidePanel = ({
   applyAllPending
 }) => (
   <div className={style.sidePanel}>
-    <div className={classnames(style.sidePanelContent, style.contentStretch, style.sidePanelContentStretch)}>
+    <div className={classnames(style.contentStretch, style.sidePanelContentStretch)}>
       <SideList
         eventCounts={eventCounts}
         selectedStatus={selectedStatus}
