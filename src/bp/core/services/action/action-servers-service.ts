@@ -43,6 +43,17 @@ const fetchActions = async (botId: string, actionServers: ActionServer[]): Promi
 export default class ActionServersService {
   constructor(@inject(TYPES.ConfigProvider) private configProvider: ConfigProvider) {}
   public async getServersWithActionsForBot(botId: string): Promise<ActionServersWithActions[]> {
+    const actionServers = await this.getServers()
+
+    return fetchActions(botId, actionServers)
+  }
+
+  public async getServer(serverId: string): Promise<ActionServer | undefined> {
+    const servers = await this.getServers()
+    return servers.find(s => s.id === serverId)
+  }
+
+  public async getServers(): Promise<ActionServer[]> {
     const config = await this.configProvider.getBotpressConfig()
     const actionServersConfig = config.actionServers
     const actionServers = [...actionServersConfig.remoteActionServers]
@@ -53,6 +64,6 @@ export default class ActionServersService {
       })
     }
 
-    return fetchActions(botId, actionServers)
+    return actionServers
   }
 }

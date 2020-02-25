@@ -1,5 +1,7 @@
 import { IO, Logger } from 'botpress/sdk'
+import { ActionServer } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
+import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
 import { CMSService } from 'core/services/cms'
 import { EventEngine } from 'core/services/middleware/event-engine'
@@ -43,7 +45,7 @@ export class ActionStrategy implements InstructionStrategy {
     @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cms: CMSService,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ActionServersService) private actionServersService: ActionServersService
   ) {}
 
   public static isSayInstruction(instructionFn: string): boolean {
@@ -139,17 +141,13 @@ export class ActionStrategy implements InstructionStrategy {
       actionServerId = chunks[2]
     }
 
-    let actionServer
+    let actionServer: ActionServer | undefined
     if (actionServerId) {
-      const botpressConfig = await this.configProvider.getBotpressConfig()
-      const actionServersConfig = botpressConfig.actionServers
-      if (actionServerId === 'local' && !actionServersConfig.localActionServer.enabled) {
-        this.logger.warn(
-          `Attempting to run action ${actionName} on Local Action Server, but Local Action Server is disabled`
-        )
+      actionServer = await this.actionServersService.getServer(actionServerId)
+      if (!actionServer) {
+        this.logger.warn(`Could not find Action Server with ID: ${actionServerId}`)
         return ProcessingResult.none()
       }
-      actionServer = botpressConfig.actionServers.remoteActionServers.find(s => s.id === actionServerId)
     }
 
     debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)

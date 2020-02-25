@@ -26,7 +26,7 @@ export class LocalActionServer {
 
     this.app.get('/', (req, res) => res.send('Hello World!'))
     this.app.post('/action/run', async (req, res) => {
-      const { incomingEvent, actionArgs, actionName, botId } = req.body
+      const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
       const scopedActionService = this.actionService.forBot(botId)
 
@@ -41,6 +41,7 @@ export class LocalActionServer {
           user: incomingEvent.state.user,
           temp: incomingEvent.state.temp,
           session: incomingEvent.state.session,
+          token,
           args: actionArgs,
           printObject,
           process: UntrustedSandbox.getSandboxProcessArgs()

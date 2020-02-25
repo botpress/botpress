@@ -19,6 +19,7 @@ import { createForAction } from '../../api'
 import { clearRequireCache, requireFromString } from '../../modules/require'
 import { TYPES } from '../../types'
 import { ActionExecutionError } from '../dialog/errors'
+import { WorkspaceService } from '../workspace-service'
 
 import { extractMetadata } from './metadata'
 import { extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
@@ -36,6 +37,7 @@ export default class ActionService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
     private logger: Logger
@@ -49,7 +51,14 @@ export default class ActionService {
       return this._scopedActions.get(botId)!
     }
 
-    const scopedActionService = new ScopedActionService(this.ghost, this.logger, botId, this.cache, this.database)
+    const scopedActionService = new ScopedActionService(
+      this.ghost,
+      this.logger,
+      botId,
+      this.cache,
+      this.database,
+      this.workspaceService
+    )
     this._scopedActions.set(botId, scopedActionService)
     return scopedActionService
   }
@@ -91,7 +100,8 @@ export class ScopedActionService {
     private logger: Logger,
     private botId: string,
     private cache: ObjectCache,
-    private database: Database
+    private database: Database,
+    private workspaceService: WorkspaceService
   ) {
     this._listenForCacheInvalidation()
   }
@@ -190,12 +200,7 @@ export class ScopedActionService {
   }): Promise<{ result: any; incomingEvent: IO.IncomingEvent }> {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
-
-    // TODO: scope examples: 'events', 'events.replyToEvent'
-    // workspace: workspace du bot
-    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace: '', taskId: '' }, process.APP_SECRET, {
-      expiresIn: '15m'
-    })
+    const workspace = await this.workspaceService.getBotWorkspaceId(botId)
 
     const knex = this.database.knex('tasks')
     const taskId = (
@@ -208,6 +213,11 @@ export class ScopedActionService {
         actionServerId: actionServer.id
       })
     )[0]
+
+    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace, taskId }, process.APP_SECRET, {
+      expiresIn: '5m',
+      audience: 'api_user'
+    })
 
     const response = await axios.post(`${actionServer.baseUrl}/action/run`, {
       token,
