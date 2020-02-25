@@ -1,10 +1,13 @@
-import { Card, HTMLSelect } from '@blueprintjs/core'
+import { Button, Card, HTMLSelect, Tooltip as BPTooltip } from '@blueprintjs/core'
 import { DateRange, DateRangeInput } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
+import { BotpressTooltip } from 'botpress/tooltip'
+import { Container, SidePanel } from 'botpress/ui'
+import classnames from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import style from './style.scss'
@@ -14,6 +17,12 @@ const COLOR_MESSENGER = '#0196FF'
 const COLOR_WEB = '#FFA83A'
 const COLOR_TELEGRAM = '#2EA6DA'
 const SECONDS_PER_DAY = 86400
+const sideList = [
+  { key: 'dashboard', label: 'Dashboard' },
+  { key: 'agentUsage', label: 'Agent Usage' },
+  { key: 'engagement', label: 'Engagement & Retention' },
+  { key: 'understanding', label: 'Understanding' }
+]
 
 export default class Analytics extends React.Component<{ bp: any }> {
   state = {
@@ -21,7 +30,10 @@ export default class Analytics extends React.Component<{ bp: any }> {
     selectedChannel: 'all',
     metrics: [],
     startDate: undefined,
-    endDate: undefined
+    endDate: undefined,
+    shownSection: 'dashboard',
+    showFilters: false,
+    pageTitle: 'Dashboard'
   }
 
   componentDidMount() {
@@ -36,7 +48,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
         )
         .map(x => x.name.substring(8))
 
-      this.setState({ channels: [...this.state.channels, ...channels] })
+      this.setState((prevState: any) => ({ channels: [...prevState.channels, ...channels] }))
     })
 
     const aWeekAgo = moment()
@@ -61,9 +73,9 @@ export default class Analytics extends React.Component<{ bp: any }> {
     })
   }
 
-  handleFilterChange = event => {
-    this.fetchAnalytics(event.target.value, this.state.startDate, this.state.endDate).then(({ data }) => {
-      this.setState({ metrics: data })
+  handleFilterChange = ({ target: { value: selectedChannel } }) => {
+    this.fetchAnalytics(selectedChannel, this.state.startDate, this.state.endDate).then(({ data }) => {
+      this.setState({ metrics: data, selectedChannel })
     })
   }
 
@@ -85,38 +97,84 @@ export default class Analytics extends React.Component<{ bp: any }> {
     const startDate = moment.unix(this.state.startDate).toDate()
     const endDate = moment.unix(this.state.endDate).toDate()
     return (
-      <DateRangeInput
-        closeOnSelection={false}
-        formatDate={date => moment(date).format('MMMM Do YYYY')}
-        maxDate={new Date()}
-        parseDate={str => new Date(str)}
-        onChange={this.handleDateChange}
-        value={[startDate, endDate]}
-      />
+      <div className={style.filtersInputWrapper}>
+        <span className={style.inputLabel}>Date Range</span>
+        <DateRangeInput
+          closeOnSelection={true}
+          formatDate={date => moment(date).format('MM-DD-YYYY')}
+          maxDate={new Date()}
+          parseDate={str => new Date(str)}
+          onChange={this.handleDateChange}
+          value={[startDate, endDate]}
+        />
+      </div>
     )
   }
 
   render() {
-    if (this.isLoaded()) {
-      return (
-        <div>
-          <div className={style.header}>
-            Filter by&nbsp;
-            <HTMLSelect onChange={this.handleFilterChange} defaultValue="all">
-              {this.state.channels.map(channel => {
-                return <option value={channel}>{this.capitalize(channel)}</option>
-              })}
-            </HTMLSelect>
-            {this.renderDateInput()}
-          </div>
-          {this.renderAgentUsage()}
-          {this.renderEngagement()}
-          {this.renderUnderstanding()}
-        </div>
-      )
+    if (!this.isLoaded()) {
+      return null
     }
 
-    return null
+    const { channels, shownSection, pageTitle, selectedChannel, showFilters } = this.state
+    const startDate = moment(moment.unix(this.state.startDate).toDate()).format('MMMM Do YYYY')
+    const endDate = moment(moment.unix(this.state.endDate).toDate()).format('MMMM Do YYYY')
+
+    return (
+      <Container>
+        <SidePanel>
+          <ul className={classnames(style.sideListList)}>
+            {sideList.map(item => (
+              <li
+                onClick={() => this.setState({ shownSection: item.key, pageTitle: item.label })}
+                key={item.key}
+                className={classnames(style.sideListItem, {
+                  [style.sideListItemSelected]: item.key === shownSection
+                })}
+              >
+                {item.label}
+              </li>
+            ))}
+          </ul>
+        </SidePanel>
+        <div className={style.mainWrapper}>
+          <div className={style.header}>
+            <h1 className={style.pageTitle}>{pageTitle}</h1>
+            <Button
+              onClick={() => this.setState(({ showFilters }: any) => ({ showFilters: !showFilters }))}
+              icon="filter"
+              className={style.filtersButton}
+            >
+              Filters
+            </Button>
+          </div>
+          {showFilters && (
+            <div className={style.filtersWrapper}>
+              <label className={style.filtersInputWrapper}>
+                <span className={style.inputLabel}>Channel</span>
+                <HTMLSelect onChange={this.handleFilterChange} defaultValue="all">
+                  {channels.map(channel => {
+                    return (
+                      <option key={channel} value={channel}>
+                        {this.capitalize(channel)}
+                      </option>
+                    )
+                  })}
+                </HTMLSelect>
+              </label>
+              {this.renderDateInput()}
+            </div>
+          )}
+          <h2 className={classnames(style.appliedFilters, showFilters && style.filtersShowing)}>
+            {this.capitalize(selectedChannel)} - {startDate} to {endDate}
+          </h2>
+          {shownSection === 'dashboard' && this.renderDashboard()}
+          {shownSection === 'agentUsage' && this.renderAgentUsage()}
+          {shownSection === 'engagement' && this.renderEngagement()}
+          {shownSection === 'understanding' && this.renderUnderstanding()}
+        </div>
+      </Container>
+    )
   }
 
   getMetricCount = metricName =>
@@ -149,49 +207,58 @@ export default class Analytics extends React.Component<{ bp: any }> {
     const received = this.getMetricCount('msg_received_count')
     const none = this.getMetricCount('msg_nlu_none')
     const percent = ((received - none) / received) * 100
-    return percent.toFixed(2) + '%'
+    return `${this.getNotNaN(percent)}%`
   }
 
   getTopLevelUnderstoodPercent = () => {
     const received = this.getMetricCount('msg_received_count')
     const none = this.getMetricCount('top_msg_nlu_none')
     const percent = ((received - none) / received) * 100
-    return percent.toFixed(2) + '%'
+    return `${this.getNotNaN(percent)}%`
   }
 
   getReturningUsers = () => {
     const activeUsersCount = this.getMetricCount('active_users_count')
     const newUsersCount = this.getMetricCount('new_users_count')
-    return ((newUsersCount / activeUsersCount) * 100).toFixed(2) + '%'
+    const percent = (newUsersCount / activeUsersCount) * 100
+    return `${this.getNotNaN(percent)}%`
   }
+
+  getNotNaN = value => (Number.isNaN(value) ? 0 : value.toFixed(2))
 
   getMetric = metricName => this.state.metrics.filter(x => x.metric_name === metricName)
 
+  renderDashboard() {
+    return (
+      <div className={style.metricsContainer}>
+        {this.renderTimeSeriesChart('Average Messages Per Session', this.getAvgMsgPerSessions())}
+        {this.renderTimeSeriesChart('Active Users', this.getMetric('active_users_count'))}
+        {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
+        {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'))}
+        {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
+      </div>
+    )
+  }
+
   renderAgentUsage() {
     return (
-      <div className={style.metricsSection}>
-        <h3>Agent Usage</h3>
-        <div className={style.metricsContainer}>
-          {this.renderTimeSeriesChart('Sessions', this.getMetric('sessions_count'))}
-          {this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count'))}
-          {this.renderTimeSeriesChart('Goals Started', this.getMetric('goals_started_count'))}
-          {this.renderTimeSeriesChart('Goals Completed', this.getMetric('goals_completed_count'))}
-          {this.renderTimeSeriesChart('QNA Sent', this.getMetric('msg_sent_qna_count'))}
-        </div>
+      <div className={style.metricsContainer}>
+        {this.renderTimeSeriesChart('Sessions', this.getMetric('sessions_count'))}
+        {this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count'))}
+        {this.renderTimeSeriesChart('Goals Started', this.getMetric('goals_started_count'))}
+        {this.renderTimeSeriesChart('Goals Completed', this.getMetric('goals_completed_count'))}
+        {this.renderTimeSeriesChart('QNA Sent', this.getMetric('msg_sent_qna_count'))}
       </div>
     )
   }
 
   renderEngagement() {
     return (
-      <div className={style.metricsSection}>
-        <h3>Engagement & Retention</h3>
-        <div className={style.metricsContainer}>
-          {this.renderTimeSeriesChart('Average Messages Per Session', this.getAvgMsgPerSessions())}
-          {this.renderTimeSeriesChart('Active Users', this.getMetric('active_users_count'))}
-          {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
-          {this.renderNumberMetric('Returning Users', this.getReturningUsers())}
-        </div>
+      <div className={style.metricsContainer}>
+        {this.renderTimeSeriesChart('Average Messages Per Session', this.getAvgMsgPerSessions())}
+        {this.renderTimeSeriesChart('Active Users', this.getMetric('active_users_count'))}
+        {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
+        {this.renderNumberMetric('Returning Users', this.getReturningUsers())}
       </div>
     )
   }
@@ -200,24 +267,24 @@ export default class Analytics extends React.Component<{ bp: any }> {
     const goalsOutcome = this.getMetricCount('goals_completed_count') / this.getMetricCount('goals_started_count') || 0
 
     return (
-      <div className={style.metricsSection}>
-        <h3>Understanding</h3>
-        <div className={style.metricsContainer}>
-          {this.renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
-          {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'))}
-          {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
-          {this.renderNumberMetric('Understood Top-Level Messages', this.getTopLevelUnderstoodPercent())}
-        </div>
+      <div className={style.metricsContainer}>
+        {this.renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
+        {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'))}
+        {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
+        {this.renderNumberMetric('Understood Top-Level Messages', this.getTopLevelUnderstoodPercent())}
       </div>
     )
   }
 
   renderNumberMetric(name, value) {
     return (
-      <Card className={style.numberMetric}>
-        <h4 className={style.numberMetricName}>{name}</h4>
-        <h2 className={style.numberMetricValue}>{value}</h2>
-      </Card>
+      <div className={classnames(style.metricWrapper, style.number)}>
+        <BPTooltip content={name}></BPTooltip>
+        <h4 className={style.metricName}>{name}</h4>
+        <Card className={style.numberMetric}>
+          <h2 className={style.numberMetricValue}>{value}</h2>
+        </Card>
+      </div>
     )
   }
 
@@ -238,19 +305,25 @@ export default class Analytics extends React.Component<{ bp: any }> {
     const tickCount = (this.state.endDate - this.state.startDate) / SECONDS_PER_DAY
 
     return (
-      <div className={style.chartMetric}>
-        <h4 className={style.chartMetricName}>{name}</h4>
-        <ResponsiveContainer>
-          <AreaChart data={this.mapDataForCharts(data)}>
-            <Tooltip labelFormatter={this.formatTick} />
-            <XAxis dataKey="time" tickFormatter={this.formatTick} tickCount={tickCount} />
-            <YAxis />
-            <Area stackId={1} type="monotone" dataKey="web" stroke={COLOR_WEB} fill={COLOR_WEB} />
-            <Area stackId={2} type="monotone" dataKey="messenger" stroke={COLOR_MESSENGER} fill={COLOR_MESSENGER} />
-            <Area stackId={3} type="monotone" dataKey="slack" stroke={COLOR_SLACK} fill={COLOR_SLACK} />
-            <Area stackId={4} type="monotone" dataKey="telegram" stroke={COLOR_TELEGRAM} fill={COLOR_TELEGRAM} />
-          </AreaChart>
-        </ResponsiveContainer>
+      <div className={classnames(style.metricWrapper, !data.length && style.empty)}>
+        <BPTooltip content={name}></BPTooltip>
+        <h4 className={style.metricName}>{name}</h4>
+        <div className={classnames(style.chartMetric, !data.length && style.empty)}>
+          {!data.length && <p className={style.emptyState}>No data available</p>}
+          {!!data.length && (
+            <ResponsiveContainer>
+              <AreaChart data={this.mapDataForCharts(data)}>
+                <Tooltip labelFormatter={this.formatTick} />
+                <XAxis height={18} dataKey="time" tickFormatter={this.formatTick} tickCount={tickCount} />
+                <YAxis width={30} />
+                <Area stackId={1} type="monotone" dataKey="web" stroke={COLOR_WEB} fill={COLOR_WEB} />
+                <Area stackId={2} type="monotone" dataKey="messenger" stroke={COLOR_MESSENGER} fill={COLOR_MESSENGER} />
+                <Area stackId={3} type="monotone" dataKey="slack" stroke={COLOR_SLACK} fill={COLOR_SLACK} />
+                <Area stackId={4} type="monotone" dataKey="telegram" stroke={COLOR_TELEGRAM} fill={COLOR_TELEGRAM} />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </div>
       </div>
     )
   }

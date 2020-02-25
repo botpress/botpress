@@ -4,6 +4,12 @@
   "description": "",
   "private": true,
   "main": "dist/backend/index.js",
+  "webpack": {
+    "externals": {
+      "reactstrap": "Reactstrap",
+      "botpress/tooltip": "BotpressTooltip"
+    }
+  },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
   "scripts": {

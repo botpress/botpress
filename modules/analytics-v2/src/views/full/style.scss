@@ -2,50 +2,175 @@ $colorWeb: #ffdd98;
 $colorMessenger: #83aeee;
 $colorTelegram: #463cff;
 $colorSlack: #ff8989;
+$textColor: #182026;
 
-.header {
-  margin: 15px 50px 15px 50px;
-  display: inline-block;
+.mainWrapper {
+  background: #fff;
+  height: 100%;
+  overflow-y: scroll;
+  padding: 15px 20px;
 }
 
-.metricsSection {
-  margin-top: 50px;
-  margin-left: 50px;
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 10px;
+}
+
+.pageTitle {
+  color: $textColor;
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.filters {
+  &Button {
+    font-size: 16px;
+    font-weight: 300;
+  }
+
+  &InputWrapper {
+    display: block;
+    font-weight: 400;
+    margin: 10px 10px 0 0;
+  }
+
+  &Wrapper {
+    display: flex;
+    justify-content: flex-end;
+
+    .inputLabel {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+  }
+}
+
+.emptyState {
+  color: #757575;
+  font-size: 14px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.appliedFilters {
+  color: $textColor;
+  font-size: 20px;
+  font-weight: 400;
+  margin: 50px 0 30px;
+  text-align: center;
+
+  &.filtersShowing {
+    margin-top: 30px;
+  }
 }
 
 .metricsContainer {
   display: flex;
   flex-wrap: wrap;
+  margin: 0 -1%;
   width: 100%;
 }
 
-.numberMetric {
+.metricName {
+  color: $textColor;
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0 0 10px;
+  overflow: hidden;
   text-align: center;
-  display: inline-block;
-  width: 150px;
-  padding: 5px;
-  margin: 10px 0 10px 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.numberMetricName {
-  margin-top: 10px;
-  height: 50px;
+.numberMetric {
+  align-items: center;
+  background: #f3f3f3;
+  border-radius: 4px;
+  box-shadow: none;
+  color: $textColor;
+  display: flex;
+  height: 125px;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 20px 15px;
+  width: 100%;
 }
 
 .numberMetricValue {
-  margin-top: 10px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metricWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 1% 20px;
+  width: 48%;
+
+  &.number, &.empty {
+    width: 16%;
+  }
 }
 
 .chartMetric {
-  margin-top: 50px;
-  display: inline-block;
-  width: 300px;
-  height: 150px;
+  background: #f3f3f3;
+  border-radius: 4px;
+  height: 190px;
+  padding: 20px 15px;
+  width: 100%;
+
+  &.empty {
+    align-items: center;
+    box-shadow: none;
+    color: $textColor;
+    display: flex;
+    height: 125px;
+    justify-content: center;
+    margin: 0 auto;
+    width: 100%;
+  }
 }
 
-.chartMetricName {
-  text-align: center;
-  margin: 0 auto;
-  height: 50px;
-  padding-left: 50px;
+.sideListList {
+  height: 100%;
+  overflow-y: auto;
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.sideListItem {
+  color: $textColor;
+  display: flex;
+  padding: 7px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background 0.3s;
+
+  &:first-child {
+    border-top: 1px solid #eee;
+  }
+
+  &:hover {
+    background: #eee;
+  }
+
+  &.sideListItemSelected {
+    font-weight: bold;
+    background: #eee;
+  }
+
+  svg {
+    width: 12px;
+    height: 12px;
+    position: relative;
+    bottom: -3px;
+    margin-right: 3px;
+  }
 }
