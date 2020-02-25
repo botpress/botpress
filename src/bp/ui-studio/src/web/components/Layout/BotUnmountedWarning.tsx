@@ -2,7 +2,6 @@ import { Classes, H5, Intent, Position, Toaster } from '@blueprintjs/core'
 import React, { useEffect } from 'react'
 
 export default () => {
-  console.log(`window : ${window.IS_BOT_MOUNTED}`)
   if (!window.IS_BOT_MOUNTED) {
     const toastContent = (
       <div>

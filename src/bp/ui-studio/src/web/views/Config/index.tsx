@@ -1,26 +1,13 @@
-import {
-  Button,
-  Callout,
-  Card,
-  Collapse,
-  Elevation,
-  FileInput,
-  FormGroup,
-  InputGroup,
-  Intent,
-  ITreeNode,
-  ITreeNodeProps,
-  TextArea,
-  Tree
-} from '@blueprintjs/core'
+import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, ITreeNode, TextArea, Tree } from '@blueprintjs/core'
 import axios from 'axios'
-import { any } from 'bluebird'
 import { BotConfig } from 'botpress/sdk'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import Select from 'react-select'
+import { fetchBotInformation } from '~/actions'
 import confirmDialog from '~/components/Shared/ConfirmDialog'
 import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
@@ -76,7 +63,7 @@ interface SelectItem {
   value: string
 }
 
-class ConfigView extends Component<any, State> {
+class ConfigView extends Component<Props, State> {
   initialFormState: StateBot = {
     name: '',
     status: { value: '', label: '' },
@@ -129,11 +116,14 @@ class ConfigView extends Component<any, State> {
   }
 
   async componentDidMount() {
-    const bots = await this.fetchBots()
     const languages = await this.fetchLanguages()
     const licensing = await this.fetchLicensing()
 
-    const bot = bots.find(x => x.id === this.state.botId)
+    if (!this.props.bot) {
+      this.props.fetchBotInformation()
+    }
+
+    const bot = this.props.bot
     const status = bot.disabled ? 'disabled' : bot.private ? 'private' : 'public'
 
     this.initialFormState = {
@@ -156,11 +146,6 @@ class ConfigView extends Component<any, State> {
       licensing,
       languages
     })
-  }
-
-  async fetchBots(): Promise<BotConfig[]> {
-    const res = await axios.get('admin/bots', axiosConfig)
-    return res.data.payload.bots
   }
 
   async fetchLanguages(): Promise<SelectItem[]> {
@@ -508,4 +493,15 @@ class ConfigView extends Component<any, State> {
   }
 }
 
-export default ConfigView
+const mapStateToProps = state => ({ bot: state.bot })
+
+const mapDispatchToProps = {
+  fetchBotInformation
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConfigView)
+
+type Props = {
+  fetchBotInformation: Function
+  bot: any
+}
