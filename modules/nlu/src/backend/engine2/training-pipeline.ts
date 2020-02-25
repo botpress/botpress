@@ -240,9 +240,9 @@ const trainContextClassifier = async (
           coordinates: utt.sentenceEmbedding
         }))
       )
-  }).filter(x => x.coordinates.filter(isNaN).length == 0)
+  }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
-  if (points.length == 0) {
+  if (points.length === 0) {
     progress()
     return
   }
