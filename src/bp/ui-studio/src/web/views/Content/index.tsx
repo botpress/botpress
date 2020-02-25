@@ -117,11 +117,11 @@ class ContentView extends Component<Props, State> {
   }
 
   handleCloseModal = () => {
-    if (this.state.modifyId === null) {
-      const contentType = this.currentContentType()
-      if (['builtin_card', 'builtin_carousel', 'builtin_image'].includes(contentType)) {
-        this.props.deleteMedia(this.state.contentToEdit)
-      }
+    if (
+      this.state.modifyId === null &&
+      ['builtin_card', 'builtin_carousel', 'builtin_image'].includes(this.currentContentType())
+    ) {
+      this.props.deleteMedia(this.state.contentToEdit)
     }
 
     this.setState({

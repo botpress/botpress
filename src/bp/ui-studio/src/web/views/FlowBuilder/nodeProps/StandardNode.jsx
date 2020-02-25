@@ -37,7 +37,7 @@ export default class StandardNodePropertiesPanel extends Component {
             transform={this.transformText}
           />
         </Panel>
-        <Tabs id="node-props-modal-standard-node-tabs">
+        <Tabs animation={false} id="node-props-modal-standard-node-tabs">
           {!this.props.transitionOnly && (
             <Tab
               eventKey="on_enter"

@@ -178,11 +178,7 @@ class Bots extends Component<Props> {
 
     return _.some(
       this.props.health.map(x => x.bots[botId]),
-<<<<<<< HEAD
-      s => s?.status === 'unhealthy'
-=======
-      s => s && s.status === 'error'
->>>>>>> redundant values
+      s => s && s.status === 'unhealthy'
     )
   }
 

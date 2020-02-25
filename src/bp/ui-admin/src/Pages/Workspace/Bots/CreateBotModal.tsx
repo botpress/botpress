@@ -168,10 +168,10 @@ class CreateBotModal extends Component<Props, State> {
                 tabIndex={1}
                 placeholder="The name of your bot"
                 minLength={3}
-                required={true}
+                required
                 value={this.state.botName}
                 onChange={this.handleNameChanged}
-                autoFocus={true}
+                autoFocus
               />
             </FormGroup>
 
@@ -187,7 +187,7 @@ class CreateBotModal extends Component<Props, State> {
                 tabIndex={2}
                 placeholder="The ID of your bot (must be unique)"
                 minLength={3}
-                required={true}
+                required
                 value={this.state.botId}
                 onChange={this.handleBotIdChanged}
               />
@@ -245,7 +245,4 @@ const mapDispatchToProps = {
   fetchBotCategories
 }
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateBotModal)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(CreateBotModal)

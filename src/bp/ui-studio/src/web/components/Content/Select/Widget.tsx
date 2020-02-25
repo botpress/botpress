@@ -126,7 +126,6 @@ class ContentPickerWidget extends Component<Props> {
       )
     }
 
-    console.info('src/bp/ui-studio/src/web/components/Content/Select/Widget.tsx')
     return (
       <ControlGroup fill>
         <InputGroup
