@@ -26,7 +26,7 @@ class BotInfoPage extends React.Component<BotInfoProps> {
   private btnEl: HTMLElement
 
   componentDidMount() {
-    this.btnEl && this.btnEl.focus()
+    this.btnEl?.focus()
   }
 
   renderDescription(text) {
@@ -140,7 +140,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   isConversationStarted: store.isConversationStarted,
   updatePreferredLanguage: store.updatePreferredLanguage,
   preferredLanguage: store.preferredLanguage,
-  escapeHTML: store.escapeHTML,
+  escapeHTML: store.escapeHTML
 }))(injectIntl(observer(BotInfoPage)))
 
 type BotInfoProps = InjectedIntlProps &
