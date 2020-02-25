@@ -89,6 +89,7 @@ export class ModulesRouter extends CustomRouter {
             await this.moduleLoader.unloadModule(fullPath, moduleName)
           } else {
             await this.moduleLoader.reloadModule(fullPath, moduleName)
+            this.logger.info(`Module ${moduleName} reloaded successfully!`)
           }
           return res.send({ rebootRequired: false })
         } else {

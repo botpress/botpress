@@ -98,3 +98,16 @@ export const buildLookupPaths = (module: string, locations: string[]) => {
     })
   )
 }
+
+export const clearModuleScriptCache = (moduleLocation: string) => {
+  const cacheKey = require.resolve(moduleLocation)
+  const file = require.cache[cacheKey]
+
+  if (file) {
+    for (const { filename } of file.children) {
+      clearModuleScriptCache(filename)
+    }
+
+    delete require.cache[cacheKey]
+  }
+}
