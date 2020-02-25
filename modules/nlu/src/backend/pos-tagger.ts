@@ -1,10 +1,37 @@
 import * as sdk from 'botpress/sdk'
 import path from 'path'
-import yn from 'yn'
 
 import { isSpace, SPACE } from './tools/token-utils'
 
-const USE_POS = yn(process.env.BP_EXPERIMENTAL_NLU_POS)
+type ElementType<T extends ReadonlyArray<unknown>> = T extends ReadonlyArray<infer ElementType> ? ElementType : never
+export type POSClass = ElementType<typeof POS_CLASSES>
+
+export const POS_CLASSES = [
+  'ADJ',
+  'ADP',
+  'ADV',
+  'AUX',
+  'CONJ',
+  'CCONJ',
+  'DET',
+  'INTJ',
+  'NOUN',
+  'NUM',
+  'PART',
+  'PRON',
+  'PROPN',
+  'PUNCT',
+  'SCONJ',
+  'SYM',
+  'VERB',
+  'X',
+  SPACE
+] as const
+
+export function isPOSAvailable(lang: string): boolean {
+  // TODO check that language is part of supported languages once we support more
+  return lang === 'en'
+}
 
 function n_alpha(word: string): number {
   // TODO support more alphabets
@@ -68,8 +95,7 @@ export const fallbackTagger: sdk.MLToolkit.CRF.Tagger = {
 const taggersByLang: { [lang: string]: sdk.MLToolkit.CRF.Tagger } = {}
 
 export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit): sdk.MLToolkit.CRF.Tagger {
-  // TODO check that language is part of supported languages once we support more
-  if (!USE_POS || languageCode !== 'en') {
+  if (!isPOSAvailable(languageCode)) {
     return fallbackTagger
   }
 
@@ -83,7 +109,7 @@ export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit
   return taggersByLang[languageCode]
 }
 
-export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]): string[] {
+export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]): POSClass[] {
   const [words, spaceIdx] = tokens.reduce(
     ([words, spaceIdx], token, idx) => {
       if (isSpace(token)) {
@@ -105,5 +131,5 @@ export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]):
     tags.splice(idx, 0, SPACE)
   }
 
-  return tags
+  return tags as POSClass[]
 }

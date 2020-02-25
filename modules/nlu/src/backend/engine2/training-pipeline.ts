@@ -2,6 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import tfidf from '../pipelines/intents/tfidf'
+import { isPOSAvailable } from '../pos-tagger'
+import { getStopWordsForLang } from '../tools/stopWords'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, SPACE } from '../tools/token-utils'
 import {
@@ -19,6 +21,7 @@ import {
 import CRFExtractor2 from './crf-extractor2'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
 import { Model } from './model-service'
+import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
@@ -53,6 +56,7 @@ export interface TrainArtefacts {
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
+  oos_model: string
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -60,7 +64,6 @@ export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] 
 type progressCB = (p?: number) => void
 
 const debugTraining = DEBUG('nlu').sub('training')
-const debugIntentsTrain = debugTraining.sub('intents')
 const NONE_INTENT = 'none'
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
@@ -69,8 +72,6 @@ export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   entities: 'ignore'
 }
 export const MIN_NB_UTTERANCES = 3
-const SVM_OPTIONS = { kernel: 'LINEAR', classifier: 'C_SVC' } as sdk.MLToolkit.SVM.SVMOptions
-// TODO grid search / optimization for those hyperparams
 const NUM_CLUSTERS = 8
 const KMEANS_OPTIONS = {
   iterations: 250,
@@ -79,6 +80,7 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+  debugTraining('preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
     makeListEntityModel(list, input.languageCode, tools)
@@ -156,15 +158,17 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
 }
 
 const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
-  return _.chain(intents)
-    .filter(i => i.name !== NONE_INTENT)
-    .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
-    .reduce(
+  return (
+    _.chain(intents)
+      .filter(i => i.name !== NONE_INTENT)
+      .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
       // @ts-ignore
-      (vocab, tok: UtteranceToken) => ({ ...vocab, [tok.toString({ lowerCase: true })]: tok.vector }),
-      {} as Token2Vec
-    )
-    .value() as Token2Vec
+      .reduce((vocab, tok: UtteranceToken) => {
+        vocab[tok.toString({ lowerCase: true })] = <number[]>tok.vector
+        return vocab
+      }, {})
+      .value() as Token2Vec
+  )
 }
 
 export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
@@ -177,10 +181,10 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
         intent: i.name
       }))
     )
-    .reduce(
-      (index, { utterance, contexts, intent }) => ({ ...index, [utterance]: { intent, contexts } }),
-      {} as ExactMatchIndex
-    )
+    .reduce((index, { utterance, contexts, intent }) => {
+      index[utterance] = { intent, contexts }
+      return index
+    }, {} as ExactMatchIndex)
     .value()
 }
 
@@ -189,32 +193,33 @@ const trainIntentClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
+  debugTraining('Training intent classifier')
   const svmPerCtx: _.Dictionary<string> = {}
-  const n_ctx = input.contexts.length
-  for (const ctx of input.contexts) {
+  for (let i = 0; i < input.contexts.length; i++) {
+    const ctx = input.contexts[i]
     const points = _.chain(input.intents)
       .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
       .flatMap(i =>
-        i.utterances.map(utt => ({
-          label: i.name,
-          coordinates: utt.sentenceEmbedding
-        }))
+        i.utterances
+          .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
+          .map(utt => ({
+            label: i.name,
+            coordinates: utt.sentenceEmbedding
+          }))
       )
+      .filter(x => !x.coordinates.some(isNaN))
       .value()
-      .filter(x => x.coordinates.filter(isNaN).length == 0)
 
-    if (points.length > 0) {
-      const svm = new tools.mlToolkit.SVM.Trainer()
-      let progressCalls = 0
-      svmPerCtx[ctx] = await svm.train(points, SVM_OPTIONS, p => {
-        if (++progressCalls % 5 === 0) {
-          debugIntentsTrain('svm progress ==> %d', p)
-          progress(_.round(p / n_ctx, 1))
-        }
-      })
-    } else {
-      progress(1 / n_ctx)
+    if (points.length < 0) {
+      progress(1 / input.contexts.length)
+      continue
     }
+    const svm = new tools.mlToolkit.SVM.Trainer()
+    const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+      const completion = (i + p) / input.contexts.length
+      progress(completion)
+    })
+    svmPerCtx[ctx] = model
   }
 
   return svmPerCtx
@@ -225,6 +230,7 @@ const trainContextClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<string | undefined> => {
+  debugTraining('Training context classifier')
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
@@ -234,18 +240,17 @@ const trainContextClassifier = async (
           coordinates: utt.sentenceEmbedding
         }))
       )
-  }).filter(x => x.coordinates.filter(isNaN).length == 0)
+  }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
-  if (points.length > 0) {
-    const svm = new tools.mlToolkit.SVM.Trainer()
-    let progressCalls = 0
-    return svm.train(points, SVM_OPTIONS, p => {
-      if (++progressCalls % 5 === 0) {
-        progress(_.round(p, 1))
-        debugIntentsTrain('svm progress ==> %d', p)
-      }
-    })
+  if (points.length === 0) {
+    progress()
+    return
   }
+
+  const svm = new tools.mlToolkit.SVM.Trainer()
+  return svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+    progress(_.round(p, 1))
+  })
 }
 
 export const ProcessIntents = async (
@@ -300,7 +305,7 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
   return input
 }
 
-export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
+export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
   if (input.intents.length === 0) {
     return input
   }
@@ -312,22 +317,41 @@ export const AppendNoneIntents = async (input: TrainOutput, tools: Tools): Promi
     .value()
 
   const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
-  const avgUtterances = _.meanBy(input.intents, x => x.utterances.length)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = Math.max(5, avgUtterances)
+  const nbOfNoneUtterances = Math.max((allUtterances.length * 2) / 3, 20)
+  const stopWords = await getStopWordsForLang(input.languageCode)
+  const vocabWords = _.chain(input.tfIdf)
+    .toPairs()
+    .filter(([word, tfidf]) => tfidf <= 0.3)
+    .map('0')
+    .value()
 
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
-  const noneUtterances = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(avgTokens / 2, avgTokens * 2, false))
+  const vocabUtts = _.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
+    return _.sampleSize(_.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
+  })
+
+  const junkWordsUtts = _.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
     return _.sampleSize(junkWords, nbWords).join(joinChar)
+  })
+
+  const mixedUtts = _.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
+    return _.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
   })
 
   const intent: Intent<Utterance> = {
     name: NONE_INTENT,
     slot_definitions: [],
-    utterances: await buildUtteranceBatch(noneUtterances, input.languageCode, tools),
+    utterances: await buildUtteranceBatch(
+      [...mixedUtts, ...vocabUtts, ...junkWordsUtts, ...stopWords],
+      input.languageCode,
+      tools
+    ),
     contexts: [...input.contexts],
     vocab: {},
     slot_entities: []
@@ -351,16 +375,51 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
   return copy
 }
 
-const trainSlotTagger = async (input: TrainOutput, tools: Tools): Promise<Buffer> => {
+const trainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<Buffer> => {
   const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
 
   if (!hasSlots) {
+    progress()
     return Buffer.from('')
   }
+
+  debugTraining('Training slot tagger')
   const crfExtractor = new CRFExtractor2(tools.mlToolkit)
   await crfExtractor.train(input.intents)
+  progress()
 
   return crfExtractor.serialized
+}
+
+const trainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
+  debugTraining('Training out of scope classifier')
+  const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
+    kernel: 'LINEAR',
+    classifier: 'C_SVC',
+    reduce: false
+  }
+
+  const noneUtts = _.chain(input.intents)
+    .filter(i => i.name === NONE_INTENT)
+    .flatMap(i => i.utterances)
+    .value()
+
+  if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
+    progress()
+    return
+  }
+
+  const oos_points = featurizeOOSUtterances(noneUtts, tools)
+
+  const in_scope_points = _.chain(input.intents)
+    .filter(i => i.name !== NONE_INTENT)
+    .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
+    .value()
+
+  const svm = new tools.mlToolkit.SVM.Trainer()
+  return svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
+    progress(_.round(p, 2))
+  })
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
@@ -373,37 +432,45 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     }
   }
 
-  let progress = 0
+  let totalProgress = 0
+  let normalizedProgress = 0
+  const debouncedProgress = _.debounce(tools.reportTrainingProgress, 75, { maxWait: 750 })
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (!input.trainingSession) {
       return
     }
     if (input.trainingSession.status === 'canceled') {
+      // Note that we don't use debouncedProgress here as we want the side effects probagated now
       tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
       throw new TrainingCanceledError()
     }
-    progress = Math.floor(progress) + stepProgress
-    const scaledProgress = Math.min(1, _.round(progress / NB_STEPS, 2))
-    tools.reportTrainingProgress(input.botId, 'Training', { ...input.trainingSession, progress: scaledProgress })
+
+    totalProgress = Math.max(totalProgress, Math.floor(totalProgress) + _.round(stepProgress, 2))
+    const scaledProgress = Math.min(1, _.round(totalProgress / NB_STEPS, 2))
+    if (scaledProgress === normalizedProgress) {
+      return
+    }
+    normalizedProgress = scaledProgress
+    debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
     let output = await preprocessInput(input, tools)
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
     output = await ExtractEntities(output, tools)
-    output = await AppendNoneIntents(output, tools)
+    output = await AppendNoneIntent(output, tools)
     const exact_match_index = buildExactMatchIndex(output)
     reportProgress()
-
-    const ctx_model = await trainContextClassifier(output, tools, reportProgress)
-    reportProgress()
-    const intent_model_by_ctx = await trainIntentClassifier(output, tools, reportProgress)
-    reportProgress()
-    const slots_model = await trainSlotTagger(output, tools)
-    reportProgress()
+    const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
+      trainOutOfScope(output, tools, reportProgress),
+      trainContextClassifier(output, tools, reportProgress),
+      trainIntentClassifier(output, tools, reportProgress),
+      trainSlotTagger(output, tools, reportProgress)
+    ])
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
+      oos_model,
       tfidf: output.tfIdf,
       ctx_model,
       intent_model_by_ctx,
@@ -412,7 +479,6 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
-    reportProgress()
 
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
