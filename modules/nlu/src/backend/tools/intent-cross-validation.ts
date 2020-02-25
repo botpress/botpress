@@ -1,12 +1,11 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import Engine2 from '../engine2/engine2'
+import { MIN_NB_UTTERANCES } from '../engine2/training-pipeline'
+import Utterance, { buildUtteranceBatch } from '../engine2/utterance/utterance'
+import { BIO } from '../typings'
+import MultiClassF1Scorer, { F1 } from './f1-scorer'
 const seedrandom = require('seedrandom')
-
-import Engine2 from './engine2/engine2'
-import { MIN_NB_UTTERANCES } from './engine2/training-pipeline'
-import Utterance, { buildUtteranceBatch } from './engine2/utterance/utterance'
-import MultiClassF1Scorer, { F1 } from './tools/f1-scorer'
-import { BIO } from './typings'
 
 interface CrossValidationResults {
   intents: Dic<F1> //
