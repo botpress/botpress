@@ -137,16 +137,13 @@ export class ScopedActionService {
     return actions
   }
 
-  async runAction(props: RunActionProps): Promise<any> {
+  async runAction(props: RunActionProps): Promise<void> {
     const { actionName, incomingEvent, actionArgs, actionServer } = props
     process.ASSERT_LICENSED()
 
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 
     try {
-      // todo: remove result
-      let result
-
       if (actionServer) {
         const response = await this.runInActionServer({
           actionServer,
@@ -154,21 +151,18 @@ export class ScopedActionService {
           actionArgs,
           incomingEvent
         })
-        result = response.result
         _.merge(incomingEvent, response.incomingEvent)
       } else {
         const trusted = await this.isTrustedAction(actionName)
 
         if (trusted) {
-          result = await this.runTrustedCode(actionName, actionArgs, incomingEvent)
+          await this.runTrustedCode(actionName, actionArgs, incomingEvent)
         } else {
-          result = await this.runLegacyAction(actionName, actionArgs, incomingEvent)
+          await this.runLegacyAction(actionName, actionArgs, incomingEvent)
         }
       }
 
-      debug.forBot(incomingEvent.botId, 'done running', { result, actionName, actionArgs })
-
-      return result
+      debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
     } catch (err) {
       this.logger
         .forBot(this.botId)
@@ -197,7 +191,7 @@ export class ScopedActionService {
     actionName: string
     incomingEvent: IO.IncomingEvent
     actionArgs: any
-  }): Promise<{ result: any; incomingEvent: IO.IncomingEvent }> {
+  }): Promise<{ incomingEvent: IO.IncomingEvent }> {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
     const workspace = await this.workspaceService.getBotWorkspaceId(botId)
@@ -231,7 +225,7 @@ export class ScopedActionService {
       .where({ id: taskId })
       .update({ status: 'completed', response_status_code: response.status, updated_at: this.database.knex.date.now() })
 
-    return { result: response.data.result, incomingEvent: response.data.incomingEvent }
+    return { incomingEvent: response.data.incomingEvent }
   }
 
   private async runTrustedCode(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent) {
