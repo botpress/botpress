@@ -6,13 +6,13 @@ import { hashCode } from '~/util'
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
+import { ActionNodeModel } from './nodes_v2/ActionNode'
 import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
 import { FailureNodeModel } from './nodes_v2/FailureNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
-import { ActionNodeModel } from './nodes_v2/ActionNode'
 
 const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill']
 export const DIAGRAM_PADDING: number = 100
