@@ -118,10 +118,11 @@ class RootStore {
 
     name = name.endsWith('.js') ? name : name + '.js'
 
+    const content = ['action_legacy', 'action_http'].includes(type) ? baseAction : baseHook
     await this.editor.openFile({
       name,
       location: name,
-      content: type === 'action' ? baseAction : baseHook,
+      content: content,
       type,
       hookType,
       botId: isGlobal ? undefined : window.BOT_ID
@@ -131,7 +132,7 @@ class RootStore {
   @action.bound
   createNewAction() {
     // This is called by the code editor & the shortcut, so it's the default create
-    return this.createFilePrompt('action', false)
+    return this.createFilePrompt('action_http', false)
   }
 
   @action.bound

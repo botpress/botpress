@@ -235,10 +235,7 @@ class ActionModalForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  actions: state.skills.actions
+  actions: state.skills.actions.filter(a => a.legacy)
 })
 
-export default connect(
-  mapStateToProps,
-  undefined
-)(ActionModalForm)
+export default connect(mapStateToProps, undefined)(ActionModalForm)

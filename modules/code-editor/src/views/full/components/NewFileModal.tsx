@@ -1,4 +1,4 @@
-import { Button, Callout, Checkbox, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { Button, Checkbox, Classes, Dialog, FormGroup, InputGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -39,7 +39,7 @@ const NewFileModal: FC<Props> = props => {
     await props.openFile({
       name: finalName,
       location: finalName,
-      content: props.selectedType === 'action' ? baseAction : ' ',
+      content: ['action_legacy', 'action_http'].includes(props.selectedType) ? baseAction : ' ',
       type: props.selectedType,
       hookType: props.selectedHookType,
       botId: canBeBotScoped() && isScoped ? window.BOT_ID : undefined

@@ -54,7 +54,7 @@ export default class Editor {
     })
 
     const examples = await this._getExamples()
-    files['action_example'] = examples.filter(x => x.type === 'action')
+    files['action_example'] = examples.filter(x => x.type === 'action_legacy')
     files['hook_example'] = examples.filter(x => x.type === 'hook')
 
     return files
@@ -128,7 +128,7 @@ export default class Editor {
 
       return {
         name: path.basename(filepath),
-        type: (isHook ? 'hook' : 'action') as FileType,
+        type: (isHook ? 'hook' : 'action_legacy') as FileType,
         location,
         readOnly: true,
         isExample: true,

@@ -15,12 +15,10 @@ const wrapper = {
   add: (file: EditableFile, content: string) => {
     const { type, hookType, botId } = file
 
-    if (type === 'action') {
-      if (botId) {
-        return `${ACTION_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
-      } else {
-        return `${LEGACY_ACTION_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
-      }
+    if (type === 'action_legacy') {
+      return `${LEGACY_ACTION_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+    } else if (type === 'action_http') {
+      return `${ACTION_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
       let signature = HOOK_SIGNATURES[hookType]
       if (signature.includes('\n')) {

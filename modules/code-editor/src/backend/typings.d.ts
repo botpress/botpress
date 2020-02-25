@@ -7,7 +7,8 @@ export interface TypingDefinitions {
 }
 
 export type FileType =
-  | 'action'
+  | 'action_legacy'
+  | 'action_http'
   | 'hook'
   | 'bot_config'
   | 'main_config'

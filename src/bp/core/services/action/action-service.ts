@@ -330,10 +330,10 @@ export class ScopedActionService {
     includeMetadata: boolean
   ): Promise<ActionDefinition> {
     let action: ActionDefinition = {
-      name: file.replace(/\.js$/i, ''),
+      name: file.replace(/\.js|\.http\.js$/i, ''),
       isRemote: false,
       location: location,
-      legacy: file.includes('.legacy')
+      legacy: !file.includes('.http.js')
     }
 
     if (includeMetadata) {
@@ -353,10 +353,11 @@ export class ScopedActionService {
     if (action.location === 'global') {
       script = await this.ghost.global().readFileAsString('actions', action.name + '.js')
     } else {
-      script = await this.ghost.forBot(this.botId).readFileAsString('actions', action.name + '.js')
+      const filename = action.legacy ? action.name + '.js' : action.name + '.http.js'
+      script = await this.ghost.forBot(this.botId).readFileAsString('actions', filename)
     }
 
-    this._scriptsCache.set(action.name, script)
+    this._scriptsCache.set(`${action.name}_${action.legacy}_${action.location}`, script)
     return script
   }
 

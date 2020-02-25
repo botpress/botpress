@@ -149,7 +149,10 @@ class PanelContent extends React.Component<Props> {
             id: 'btn-add-action',
             icon: <Icon icon="add" />,
             key: 'add',
-            onClick: () => this.createFilePrompt('action')
+            items: [
+              { label: 'Action (HTTP)', onClick: () => this.createFilePrompt('action_http') },
+              { label: 'Action (Legacy)', onClick: () => this.createFilePrompt('action_legacy') }
+            ]
           }
         ]}
       >
