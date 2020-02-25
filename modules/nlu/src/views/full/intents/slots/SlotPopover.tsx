@@ -23,7 +23,7 @@ export const TagSlotPopover = props => {
 
   return ReactDOM.createPortal(
     <div id="slot-menu" className={style['slotMenu']} style={{ top, left, width: MENU_WIDTH }}>
-      {props.slots.length == 0 && (
+      {props.slots.length === 0 && (
         <React.Fragment>
           <p>Selection can't be tagged</p>
           <p>Define a slot first</p>

@@ -14,7 +14,7 @@ import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
 import os from 'os'
 
-import { setupMasterNode } from './cluster'
+import { setupMasterNode, WORKER_TYPES } from './cluster'
 import { FatalError } from './errors'
 
 async function setupEnv() {
@@ -68,6 +68,9 @@ async function start() {
     return setupMasterNode(await getLogger('Cluster'))
   }
 
+  if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
+    return
+  }
   // Server ID is provided by the master node
   process.SERVER_ID = process.env.SERVER_ID!
 

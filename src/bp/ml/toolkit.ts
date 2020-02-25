@@ -1,9 +1,10 @@
 import * as sdk from 'botpress/sdk'
-import cluster from 'cluster'
+import cluster, { Worker } from 'cluster'
+import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
 
-import { registerMsgHandler } from '../cluster'
+import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
@@ -37,7 +38,7 @@ const MLToolkit: typeof sdk.MLToolkit = {
   SentencePiece: { createProcessor: processor }
 }
 
-if (cluster.isWorker) {
+function overloadTrainers() {
   MLToolkit.SVM.Trainer.prototype.train = (
     points: sdk.MLToolkit.SVM.DataPoint[],
     options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
@@ -75,24 +76,64 @@ if (cluster.isWorker) {
   }
 }
 
-if (cluster.isMaster) {
-  // cancel svm training once implemented in node binding
-  // registerMsgHandler('cancel', async (msg: Message, worder) => {
-  // })
+if (cluster.isWorker) {
+  if (process.env.WORKER_TYPE === WORKER_TYPES.WEB) {
+    overloadTrainers()
+  }
+  if (process.env.WORKER_TYPE === WORKER_TYPES.ML) {
+    async function messageHandler(msg: Message) {
+      if (msg.type === 'train') {
+        const svm = new SVMTrainer()
+        try {
+          let progressCalls = 0
+          const result = await svm.train(msg.payload.points, msg.payload.options, progress => {
+            if (++progressCalls % 10 === 0 || progress === 1) {
+              process.send!({ type: 'progress', id: msg.id, payload: { progress } })
+            }
+          })
 
-  registerMsgHandler('train', async (msg: Message, worker) => {
-    const sendToWorker = (msg: Message) => worker.isConnected() && worker.send(msg)
-
-    const svm = new SVMTrainer()
-    try {
-      const result = await svm.train(msg.payload.points, msg.payload.options, progress =>
-        sendToWorker({ type: 'progress', id: msg.id, payload: { progress } })
-      )
-      sendToWorker({ type: 'done', id: msg.id, payload: { result } })
-    } catch (error) {
-      sendToWorker({ type: 'error', id: msg.id, payload: { error } })
+          process.send!({ type: 'done', id: msg.id, payload: { result } })
+        } catch (error) {
+          process.send!({ type: 'error', id: msg.id, payload: { error } })
+        }
+      }
     }
-  })
+
+    process.on('message', messageHandler)
+  }
+}
+
+if (cluster.isMaster) {
+  function sendToWebWorker(msg: Message) {
+    const webWorker = cluster.workers[process.WEB_WORKER]
+    webWorker?.isConnected() && webWorker.send(msg)
+  }
+
+  let spawnPromise: Promise<void> | undefined
+  async function pickMLWorker(): Promise<Worker> {
+    if (_.isEmpty(process.ML_WORKERS) && !spawnPromise) {
+      spawnPromise = spawnMLWorkers()
+    }
+    if (spawnPromise) {
+      await spawnPromise
+      spawnPromise = undefined
+    }
+
+    const idx = Math.floor(Math.random() * process.ML_WORKERS.length)
+    const workerID = process.ML_WORKERS[idx]
+    const worker = cluster.workers[workerID!]
+    if (worker?.isDead() || !worker?.isConnected()) {
+      process.ML_WORKERS.splice(idx, 1)
+      return pickMLWorker()
+    }
+
+    return worker
+  }
+
+  registerMsgHandler('done', sendToWebWorker)
+  registerMsgHandler('progress', sendToWebWorker)
+  registerMsgHandler('error', sendToWebWorker)
+  registerMsgHandler('train', async (msg: Message) => (await pickMLWorker()).send(msg))
 }
 
 export default MLToolkit
