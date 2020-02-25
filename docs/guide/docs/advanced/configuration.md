@@ -37,19 +37,47 @@ Logs are very useful to debug and understand what happens when the bot doesn't b
 
 When you start Botpress from the binary (or using the Docker image), the bot is in `debug` mode. This means that a lot of information will be displayed in the console to understand what happens.
 
-There are 4 different levels of logs:
+There are 5 different levels of logs:
 
 - Debug: display very detailed information about the bot operations
 - Info: gives general information or "good to know" stuff
 - Warn: means that something didn't go as expected, but the bot was able to recover
 - Error: there was an error that should be addressed
+- Critical: something prevents the bot or the server from behaving correctly (may not work at all)
 
-By default, you will see `debug` with all other log levels in the console, and `errors` will be saved in the database (useful to keep track of them).
-When you start Botpress in `production` mode, `debug` logs will be disabled for better performances.
+### Change Log Verbosity
 
-It is also possible to send log output to a file in a specific folder. Check below for the required configuration
+There are three different configuration of verbosity for the logger:
+
+- Production (verbosity: 0)
+- Developer (verbosity: 1)
+- Debug (verbosity: 2)
+
+By default, Botpress uses the `Debug` configuration.
+When you run Botpress in production `BP_PRODUCTION=true` or with cluster mode `CLUSTER_ENABLED=true`, logs will be configured as `Production`
+
+You can configure the level of verbosity using an environment variable (`VERBOSITY_LEVEL=0` for production) or using command line (ex: `-vv` for Debug)
+
+#### Production
+
+- The console will display `info`, `warn`, `error` and `critical` logs
+- In the studio's log console, bot developers will see `debug` logs for their bot
+- No stack traces\* will be displayed in the console
+
+#### Developer
+
+- Same thing as `Production`, but the console will also include stack traces\*
+
+#### Debug
+
+- Includes everything from `Production` and `Developer`
+- Debug logs will be displayed in the main console
+
+\* Stack traces are additional information used by developers to identify the source of an error. They are useful when developing, but in production they can hide important log messages.
 
 ### How to save logs on the file system
+
+It is also possible to send log output to a file in a specific folder. Check below for the required configuration
 
 Edit your `botpress.config.json` file and change your file to match the following:
 

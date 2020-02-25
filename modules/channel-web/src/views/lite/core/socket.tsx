@@ -11,7 +11,7 @@ export default class BpSocket {
   public onUserIdChanged: (userId: string) => void
 
   constructor(bp, config: Config) {
-    this.events = bp && bp.events
+    this.events = bp?.events
     this.userIdScope = config.userIdScope
   }
 
@@ -33,7 +33,7 @@ export default class BpSocket {
 
   public postToParent = (type: string, payload: any) => {
     // we could filter on event type if necessary
-    window.parent && window.parent.postMessage(payload, '*')
+    window.parent?.postMessage(payload, '*')
   }
 
   public changeUserId(newId: string): Promise<void> {

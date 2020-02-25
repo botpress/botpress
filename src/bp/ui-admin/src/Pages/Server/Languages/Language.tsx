@@ -1,6 +1,6 @@
 import { Button, Position, ProgressBar, Tooltip } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import React, { FC, SFC, useState } from 'react'
-import confirmDialog from '~/App/ConfirmDialog'
 
 import api from '../../../api'
 

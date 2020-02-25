@@ -48,3 +48,6 @@ export const extractRequiredFiles = (code: string) => {
 
   return files
 }
+
+export const filterDisabled = (filesPaths: string[]): string[] =>
+  filesPaths.filter(x => !path.basename(x).startsWith('.'))
