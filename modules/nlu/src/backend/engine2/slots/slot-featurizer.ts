@@ -1,12 +1,11 @@
 import _ from 'lodash'
+import { Intent } from 'src/backend/typings'
 
-import { MAX_TFIDF, MIN_TFIDF } from '../pipelines/intents/tfidf'
-import { sanitize } from '../pipelines/language/sanitizer'
-import { computeQuantile } from '../tools/math'
-import { countAlpha, countNum, countSpecial } from '../tools/strings'
-
-import { Intent } from './training-pipeline'
-import Utterance, { UtteranceToken } from './utterance'
+import { MAX_TFIDF, MIN_TFIDF } from '../../pipelines/intents/tfidf'
+import { sanitize } from '../../pipelines/language/sanitizer'
+import { computeQuantile } from '../../tools/math'
+import { countAlpha, countNum, countSpecial } from '../../tools/strings'
+import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 type FeatureValue = string | number | boolean
 

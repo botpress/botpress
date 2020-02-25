@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-import { SPACE, tokenizeLatinTextForTests } from '../tools/token-utils'
-import { ExtractedEntity, ExtractedSlot } from '../typings'
+import { SPACE, tokenizeLatinTextForTests } from '../../tools/token-utils'
+import { ExtractedEntity, ExtractedSlot } from '../../typings'
 
 import Utterance, { UtteranceToStringOptions } from './utterance'
 

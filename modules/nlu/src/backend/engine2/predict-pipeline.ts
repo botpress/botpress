@@ -1,24 +1,24 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-
 import LanguageIdentifierProvider, { NA_LANG } from '../pipelines/language/ft_lid'
 import { isPOSAvailable } from '../pos-tagger'
 import * as math from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { Intent, PatternEntity, Tools } from '../typings'
-
-import CRFExtractor2 from './crf-extractor2'
-import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
+import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/entity-extractor'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
-import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance'
+import SlotTagger from './slots/slot-tagger'
+import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainArtefacts } from './training-pipeline'
+import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
+
+
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   oos_classifier: sdk.MLToolkit.SVM.Predictor
   kmeans: sdk.MLToolkit.KMeans.KmeansResult
-  slot_tagger: CRFExtractor2 // TODO replace this by MlToolkit.CRF.Tagger
+  slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
 }

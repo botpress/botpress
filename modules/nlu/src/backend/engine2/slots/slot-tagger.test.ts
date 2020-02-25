@@ -1,8 +1,7 @@
-import { TagResult } from '../pipelines/slots/labeler'
-import { BIO, ExtractedEntity, ExtractedSlot, Intent } from '../typings'
-
-import { labelizeUtterance, makeExtractedSlots } from './labeler2'
-import Utterance, { makeTestUtterance } from './utterance'
+import { TagResult } from '../../pipelines/slots/labeler'
+import { BIO, ExtractedEntity, ExtractedSlot, Intent } from '../../typings'
+import Utterance, { makeTestUtterance } from '../utterance/utterance'
+import { labelizeUtterance, makeExtractedSlots } from './slot-tagger'
 
 describe('Slot tagger labels for utterance', () => {
   test('without slots', () => {

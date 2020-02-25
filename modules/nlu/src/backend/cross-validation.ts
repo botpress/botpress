@@ -4,7 +4,7 @@ const seedrandom = require('seedrandom')
 
 import Engine2 from './engine2/engine2'
 import { MIN_NB_UTTERANCES } from './engine2/training-pipeline'
-import Utterance, { buildUtteranceBatch } from './engine2/utterance'
+import Utterance, { buildUtteranceBatch } from './engine2/utterance/utterance'
 import MultiClassF1Scorer, { F1 } from './tools/f1-scorer'
 import { BIO } from './typings'
 

@@ -1,13 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getClosestToken } from '../pipelines/language/ft_featurizer'
-import { POSClass } from '../pos-tagger'
-import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
-import { replaceConsecutiveSpaces } from '../tools/strings'
-import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
-import { parseUtterance } from '../tools/utterance-parser'
-import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
+import { getClosestToken } from '../../pipelines/language/ft_featurizer'
+import { POSClass } from '../../pos-tagger'
+import { computeNorm, scalarDivide, vectorAdd } from '../../tools/math'
+import { replaceConsecutiveSpaces } from '../../tools/strings'
+import { convertToRealSpaces, isSpace, isWord, SPACE } from '../../tools/token-utils'
+import { parseUtterance } from '../../tools/utterance-parser'
+import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../../typings'
 
 export type UtteranceToStringOptions = {
   lowerCase?: boolean

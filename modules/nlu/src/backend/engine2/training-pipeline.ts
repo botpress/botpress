@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-
 import tfidf from '../pipelines/intents/tfidf'
 import { isPOSAvailable } from '../pos-tagger'
 import { getStopWordsForLang } from '../tools/stopWords'
@@ -17,12 +16,11 @@ import {
   Tools,
   TrainingSession
 } from '../typings'
-
-import CRFExtractor2 from './crf-extractor2'
-import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entity-extractor'
+import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/entity-extractor'
 import { Model } from './model-service'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
-import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance'
+import SlotTagger from './slots/slot-tagger'
+import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
@@ -384,7 +382,7 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
   }
 
   debugTraining('Training slot tagger')
-  const crfExtractor = new CRFExtractor2(tools.mlToolkit)
+  const crfExtractor = new SlotTagger(tools.mlToolkit)
   await crfExtractor.train(input.intents)
   progress()
 

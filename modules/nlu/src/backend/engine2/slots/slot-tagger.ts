@@ -1,13 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
+import { TagResult } from 'src/backend/pipelines/slots/labeler'
 import tmp from 'tmp'
-
-import { Intent, SlotExtractionResult } from '../typings'
-
-import * as featurizer from './featurizer2'
-import * as labeler from './labeler2'
-import Utterance, { UtteranceToken } from './utterance'
+import { BIO, Intent, SlotExtractionResult } from '../../typings'
+import Utterance, { UtteranceToken } from '../utterance/utterance'
+import * as featurizer from './slot-featurizer'
 
 const debug = DEBUG('nlu').sub('slots')
 const debugTrain = debug.sub('train')
@@ -21,7 +19,109 @@ const CRF_TRAINER_PARAMS = {
   'feature.possible_states': '1'
 }
 
-export default class CRFExtractor2 {
+const MIN_SLOT_CONFIDENCE = 0.15
+
+export function labelizeUtterance(utterance: Utterance): string[] {
+  return utterance.tokens
+    .filter(x => !x.isSpace)
+    .map(token => {
+      if (_.isEmpty(token.slots)) {
+        return BIO.OUT
+      }
+
+      const slot = token.slots[0]
+      const tag = slot.startTokenIdx === token.index ? BIO.BEGINNING : BIO.INSIDE
+      const any = _.isEmpty(token.entities) ? '/any' : ''
+
+      return `${tag}-${slot.name}${any}`
+    })
+}
+
+export function predictionLabelToTagResult(prediction: { [label: string]: number }): TagResult {
+  const [label, probability] = _.chain(prediction)
+    .mapValues((value, key) => value + (prediction[key + '/any'] || 0))
+    .toPairs()
+    .maxBy('1')
+    .value()
+
+  return {
+    tag: label[0],
+    name: label.slice(2).replace('/any', ''),
+    probability
+  } as TagResult
+}
+
+export function removeInvalidTagsForIntent(intent: Intent<Utterance>, tag: TagResult): TagResult {
+  if (tag.tag === BIO.OUT) {
+    return tag
+  }
+
+  const foundInSlotDef = !!intent.slot_definitions.find(s => s.name === tag.name)
+
+  if (tag.probability < MIN_SLOT_CONFIDENCE || !foundInSlotDef) {
+    tag = {
+      tag: BIO.OUT,
+      name: '',
+      probability: 1 - tag.probability // anything would do here
+    }
+  }
+
+  return tag
+}
+
+export function makeExtractedSlots(
+  intent: Intent<Utterance>,
+  utterance: Utterance,
+  slotTagResults: TagResult[]
+): SlotExtractionResult[] {
+  return _.zip(
+    utterance.tokens.filter(t => !t.isSpace),
+    slotTagResults
+  )
+    .filter(([token, tagRes]) => tagRes.tag !== BIO.OUT)
+    .reduce((combined, [token, tagRes]) => {
+      const last = _.last(combined)
+      const shouldConcatWithPrev = tagRes.tag === BIO.INSIDE && _.get(last, 'slot.name') === tagRes.name
+
+      if (shouldConcatWithPrev) {
+        const newEnd = token.offset + token.value.length
+        const newSource = utterance.toString({ entities: 'keep-default' }).slice(last.start, newEnd) // we use slice in case tokens are space split
+        last.slot.source = newSource
+        last.slot.value = newSource
+        last.end = newEnd
+
+        return [...combined.slice(0, -1), last]
+      } else {
+        return [
+          ...combined,
+          {
+            slot: {
+              name: tagRes.name,
+              confidence: tagRes.probability,
+              source: token.toString(),
+              value: token.toString()
+            },
+            start: token.offset,
+            end: token.offset + token.value.length
+          }
+        ]
+      }
+    }, [])
+    .map((extracted: SlotExtractionResult) => {
+      const associatedEntityInRange = utterance.entities.find(
+        e =>
+          ((e.startPos <= extracted.start && e.endPos >= extracted.end) || // entity is fully within the tagged slot
+            (e.startPos >= extracted.start && e.endPos <= extracted.end)) && // slot is fully contained by an entity
+          _.includes(intent.slot_entities, e.type) // entity is part of the possible entities
+      )
+      if (associatedEntityInRange) {
+        extracted.slot.value = associatedEntityInRange.value
+      }
+      return extracted
+    })
+}
+
+export default class SlotTagger {
   private _crfModelFn = ''
   private _crfTagger!: sdk.MLToolkit.CRF.Tagger
 
@@ -69,7 +169,7 @@ export default class CRFExtractor2 {
         const features: string[][] = utterance.tokens
           .filter(x => !x.isSpace)
           .map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
-        const labels = labeler.labelizeUtterance(utterance)
+        const labels = labelizeUtterance(utterance)
 
         trainer.append(features, labels)
       }
@@ -160,9 +260,9 @@ export default class CRFExtractor2 {
     debugExtract('slot crf predictions', predictions)
 
     return _.chain(predictions)
-      .map(labeler.predictionLabelToTagResult)
-      .map(tagRes => labeler.removeInvalidTagsForIntent(intent, tagRes))
-      .thru(tagRess => labeler.makeExtractedSlots(intent, utterance, tagRess))
+      .map(predictionLabelToTagResult)
+      .map(tagRes => removeInvalidTagsForIntent(intent, tagRes))
+      .thru(tagRess => makeExtractedSlots(intent, utterance, tagRess))
       .value() as SlotExtractionResult[]
   }
 }

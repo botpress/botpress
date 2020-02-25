@@ -1,13 +1,11 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
-
 import { isPOSAvailable } from '../pos-tagger'
 import { isPatternValid } from '../tools/patterns-utils'
 import { Engine2, ListEntity, Tools, TrainingSession } from '../typings'
-
-import CRFExtractor2 from './crf-extractor2'
 import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
+import SlotTagger from './slots/slot-tagger'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -148,7 +146,7 @@ export default class E2 implements Engine2 {
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
     const oos_classifier = isPOSAvailable(model.languageCode) ? new tools.mlToolkit.SVM.Predictor(oos_model) : undefined
-    const slot_tagger = new CRFExtractor2(tools.mlToolkit)
+    const slot_tagger = new SlotTagger(tools.mlToolkit)
     slot_tagger.load(artefacts.slots_model)
 
     const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted

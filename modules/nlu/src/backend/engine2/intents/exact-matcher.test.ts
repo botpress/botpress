@@ -1,5 +1,5 @@
-import { findExactIntentForCtx } from './predict-pipeline'
-import { buildExactMatchIndex, Intent } from './training-pipeline'
+import { findExactIntentForCtx } from '../predict-pipeline'
+import { buildExactMatchIndex, Intent } from '../training-pipeline'
 import Utterance from './utterance'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'

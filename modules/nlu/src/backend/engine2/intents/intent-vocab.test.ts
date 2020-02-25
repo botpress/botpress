@@ -1,8 +1,8 @@
-import { SPACE } from '../tools/token-utils'
-import { ExtractedSlot, ListEntityModel } from '../typings'
+import { SPACE } from '../../tools/token-utils'
+import { ExtractedSlot, ListEntityModel } from '../../typings'
 
-import { buildIntentVocab } from './training-pipeline'
-import Utterance from './utterance'
+import { buildIntentVocab } from '../training-pipeline'
+import Utterance from '../utterance/utterance'
 
 const LIST_ENTITIES: ListEntityModel[] = [
   {

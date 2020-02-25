@@ -1,10 +1,7 @@
 import 'bluebird-global'
-import _ from 'lodash'
-
-import { FuzzyTolerance } from '../entities'
-import { parseUtterance } from '../tools/utterance-parser'
-import { EntityExtractionResult, ListEntityModel } from '../typings'
-
+import { FuzzyTolerance } from '../../entities'
+import { parseUtterance } from '../../tools/utterance-parser'
+import { EntityExtractionResult, ListEntityModel } from '../../typings'
 import { extractListEntities } from './entity-extractor'
 import Utterance from './utterance'
 

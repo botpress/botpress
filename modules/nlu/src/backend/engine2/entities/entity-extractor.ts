@@ -1,12 +1,10 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
-
-import jaroDistance from '../tools/jaro'
-import levenDistance from '../tools/levenshtein'
-import { extractPattern } from '../tools/patterns-utils'
-import { EntityExtractionResult, ListEntityModel, PatternEntity } from '../typings'
-
-import Utterance, { UtteranceToken } from './utterance'
+import jaroDistance from '../../tools/jaro'
+import levenDistance from '../../tools/levenshtein'
+import { extractPattern } from '../../tools/patterns-utils'
+import { EntityExtractionResult, ListEntityModel, PatternEntity } from '../../typings'
+import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 const ENTITY_SCORE_THRESHOLD = 0.6
 

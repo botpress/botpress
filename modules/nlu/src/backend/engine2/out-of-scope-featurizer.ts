@@ -4,7 +4,7 @@ import { POSClass } from '../pos-tagger'
 import { averageVectors, scalarMultiply } from '../tools/math'
 import { Tools } from '../typings'
 
-import Utterance from './utterance'
+import Utterance from './utterance/utterance'
 
 export type POS_SET = POSClass[]
 const POS1_SET: POS_SET = ['VERB', 'NOUN']

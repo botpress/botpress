@@ -1,7 +1,7 @@
-import { SPACE } from '../tools/token-utils'
+import { SPACE } from '../../tools/token-utils'
+import { UtteranceToken } from '../utterance/utterance'
 
-import * as featurizer from './featurizer2'
-import { UtteranceToken } from './utterance'
+import * as featurizer from './slot-featurizer'
 
 describe('CRF Featurizer 2', () => {
   test('featToCRFsuiteAttr', () => {

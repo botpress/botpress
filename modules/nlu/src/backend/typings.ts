@@ -2,10 +2,10 @@ import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 
 export const BIO = {
-  INSIDE: 'I' as Tag,
-  BEGINNING: 'B' as Tag,
-  OUT: 'o' as Tag
-}
+  INSIDE: 'I',
+  BEGINNING: 'B',
+  OUT: 'o'
+} as _.Dictionary<Tag>
 
 export type Tag = 'o' | 'B' | 'I'
 
