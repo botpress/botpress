@@ -40,8 +40,8 @@ class ComposerStore {
       this._sentHistory.push(text)
       this._sentHistoryIndex = 0
 
-      if (window.BP_STORAGE && this.rootStore.config.enablePersistHistory) {
-        window.BP_STORAGE.set(
+      if (this.rootStore.config.enablePersistHistory) {
+        window.BP_STORAGE?.set(
           SENT_HISTORY_KEY,
           JSON.stringify(takeRight(this._sentHistory, constants.SENT_HISTORY_SIZE))
         )

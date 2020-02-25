@@ -15,10 +15,9 @@ export const FileMessage = (props: Renderer.FileMessage) => {
 
   const extension = path.extname(url)
   const mime = mimeTypes.getType(extension)
-  const basename = path.basename(url, extension)
 
   if (text) {
-    return <Text text={text} markdown={true} escapeHTML={props.escapeTextHTML} />
+    return <Text text={text} markdown escapeHTML={props.escapeTextHTML} />
   }
 
   if (storage === 'local') {
