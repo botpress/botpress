@@ -560,12 +560,12 @@ export class ScopedGhostService {
 
     if (!(await this.cache.has(cacheKey))) {
       const value = await this.readFileAsString(rootFolder, file)
+      let obj
       try {
-        jsonlint.parse(value)
+        obj = <T>jsonlint.parse(value)
       } catch (e) {
         throw new Error(`SyntaxError in your JSON: ${file}: \n ${e}`)
       }
-      const obj = <T>JSON.parse(value)
       await this.cache.set(cacheKey, obj)
       return obj
     }

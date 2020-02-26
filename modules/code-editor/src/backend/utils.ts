@@ -4,6 +4,7 @@ import { FileDefinition, FileTypes } from './definitions'
 import { FILENAME_REGEX } from './editor'
 import { EditorError } from './editorError'
 import { EditableFile, FilePermissions, FileType } from './typings'
+import jsonlint from 'jsonlint'
 
 export const RAW_TYPE: FileType = 'raw'
 
@@ -43,7 +44,7 @@ export const getFileLocation = (file: EditableFile): { folder: string; filename:
 
 export const assertValidJson = (content: string): boolean => {
   try {
-    JSON.parse(content)
+    jsonlint.parse(content)
     return true
   } catch (err) {
     throw new EditorError(`Invalid JSON file. ${err}`)
