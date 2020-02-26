@@ -12,11 +12,13 @@
     "moduleResolution": "node",
     "target": "es6",
     "lib": ["es7"],
-    "typeRoots": ["./node_modules/@types", "./node_modules", "./src/botpress.d.ts", "./src/typings"],
-    "types": ["reflect-metadata", "jest", "bluebird-global", "node"],
+    "typeRoots": ["./node_modules/@types", "./node_modules", "./src/typings"],
+    "types": ["reflect-metadata", "jest", "bluebird-global"],
     "paths": {
-      "botpress/common/typings": ["../../out/bp/common/typings.d.ts"]
+      "botpress/common/typings": ["../../out/bp/common/typings.d.ts"],
+      "botpress/sdk": ["../../src/bp/sdk/botpress.d.ts"]
     }
   },
-  "exclude": ["**/*.test.ts", "./src/views/**"]
+  "exclude": ["**/*.test.ts", "./src/views/**"],
+  "include": ["**/*.ts", "../../src/typings/global.d.ts"]
 }
