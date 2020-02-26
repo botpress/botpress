@@ -13,16 +13,16 @@ export default (bp: typeof sdk, db: AnalyticsDatabase) => {
     const { botId, channel } = req.params
     const { start, end } = req.query
 
-    const startDate = unixToDate(start)
-    const endDate = unixToDate(end)
-
     try {
+      const startDate = unixToDate(start)
+      const endDate = unixToDate(end)
+
       if (!channel || channel === 'all') {
         const analytics = await db.getBetweenDates(botId, startDate, endDate, undefined)
-        res.send(analytics.map(toDto))
+        res.send({ metrics: analytics.map(toDto) })
       } else {
         const analytics = await db.getBetweenDates(botId, startDate, endDate, channel)
-        res.send(analytics.map(toDto))
+        res.send({ metrics: analytics.map(toDto) })
       }
     } catch (err) {
       res.status(400).send(err.message)
