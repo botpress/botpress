@@ -17,6 +17,19 @@ const build = () => {
   return gulp.series(['build:studio', 'build:admin'])
 }
 
+// Required since modules are using some dependencies from the studio
+const initStudio = cb => {
+  const studio = exec('yarn', { cwd: 'src/bp/ui-studio' }, err => cb(err))
+  verbose && studio.stdout.pipe(process.stdout)
+  studio.stderr.pipe(process.stderr)
+}
+
+const buildShared = () => {
+  gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
+
+  return gulp.series(['build:shared'])
+}
+
 const buildStudio = cb => {
   const cmd = process.argv.includes('--prod') ? 'yarn && yarn build:prod --nomap' : 'yarn && yarn build'
 
@@ -69,11 +82,33 @@ const watchStudio = gulp.series([
   }
 ])
 
-const watchAll = gulp.parallel([watchStudio, watchAdmin])
+const cleanShared = () => {
+  return gulp.src('./out/bp/ui-shared/dist', { allowEmpty: true }).pipe(rimraf())
+}
+
+const watchShared = gulp.series([
+  cleanShared,
+  cb => {
+    const shared = exec('yarn && yarn start', { cwd: 'src/bp/ui-shared' }, err => cb(err))
+    shared.stdout.pipe(process.stdout)
+    shared.stderr.pipe(process.stderr)
+  }
+])
+
+const sharedBuild = cb => {
+  const shared = exec('yarn && yarn build', { cwd: 'src/bp/ui-shared' }, err => cb(err))
+  shared.stdout.pipe(process.stdout)
+  shared.stderr.pipe(process.stderr)
+}
+
+const watchAll = gulp.parallel([watchShared, watchStudio, watchAdmin])
 
 module.exports = {
   build,
   watchAll,
   watchStudio,
-  watchAdmin
+  watchAdmin,
+  initStudio,
+  watchShared,
+  buildShared
 }

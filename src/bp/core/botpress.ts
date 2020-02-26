@@ -23,6 +23,7 @@ import HTTPServer from './server'
 import { GhostService } from './services'
 import { AlertingService } from './services/alerting-service'
 import AuthService from './services/auth/auth-service'
+import { BotMonitoringService } from './services/bot-monitoring-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
@@ -94,7 +95,8 @@ export class Botpress {
     @inject(TYPES.EventCollector) private eventCollector: EventCollector,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
-    @inject(TYPES.StatsService) private statsService: StatsService
+    @inject(TYPES.StatsService) private statsService: StatsService,
+    @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -280,7 +282,10 @@ export class Botpress {
 
     disabledBots.forEach(botId => BotService.setBotStatus(botId, 'disabled'))
 
-    await Promise.map(botsToMount, botId => this.botService.mountBot(botId))
+    this.logger.info(`Discovered ${botsToMount.length} bots, mounting them...`)
+
+    const maxConcurrentMount = parseInt(process.env.MAX_CONCURRENT_MOUNT || '5')
+    await Promise.map(botsToMount, botId => this.botService.mountBot(botId), { concurrency: maxConcurrentMount })
   }
 
   private async initializeServices() {
@@ -332,6 +337,10 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
     }
 
+    this.botMonitor.onBotError = async (botId: string, events: sdk.LoggerEntry[]) => {
+      await this.hookService.executeHook(new Hooks.OnBotError(this.api, botId, events))
+    }
+
     await this.dataRetentionService.initialize()
 
     const dialogEngineLogger = await this.loggerProvider('DialogEngine')
@@ -361,6 +370,7 @@ export class Botpress {
     await this.monitoringService.start()
     this.alertingService.start()
     this.eventCollector.start()
+    await this.botMonitor.start()
 
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()

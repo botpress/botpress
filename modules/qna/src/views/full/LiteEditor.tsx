@@ -9,6 +9,7 @@ import {
   Popover,
   Position
 } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { AccessControl } from 'botpress/utils'
 import React, { useEffect, useState } from 'react'
 
@@ -66,7 +67,9 @@ export const LiteEditor = props => {
   const cancelEditing = () => setEditing(false)
 
   const deleteItem = async (id: string) => {
-    const needDelete = confirm('Do you want to delete the question?')
+    const needDelete = await confirmDialog('Do you want to delete the question?', {
+      acceptLabel: 'Delete'
+    })
 
     if (needDelete) {
       const { data } = await props.bp.axios.post(`/mod/qna/questions/${id}/delete`, getQueryParams())
