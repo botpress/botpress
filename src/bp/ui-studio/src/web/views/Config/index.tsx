@@ -42,7 +42,6 @@ interface StateBot {
 }
 
 interface StateVars {
-  botId: string
   licensing: Licensing
   languages: SelectItem[]
   statuses: SelectItem[]
@@ -107,8 +106,7 @@ class ConfigView extends Component<Props, State> {
     }
   ]
 
-  state = {
-    botId: window.BOT_ID,
+  state: State = {
     ...this.initialFormState,
     licensing: undefined,
     languages: [],
@@ -208,12 +206,14 @@ class ConfigView extends Component<Props, State> {
       }
 
       if (allow) {
-        await axios.post(`admin/bots/${this.state.botId}`, bot, axiosConfig)
+        await axios.post(`admin/bots/${this.props.bot.id}`, bot, axiosConfig)
         toastSuccess('Bot configuration updated successfully')
         this.setState({ error: undefined, isSaving: false })
 
         if (disableChanged) {
           window.location.reload()
+        } else {
+          this.props.fetchBotInformation()
         }
       } else {
         this.setState({ error: undefined, isSaving: false })
@@ -280,7 +280,7 @@ class ConfigView extends Component<Props, State> {
     }
 
     try {
-      const res = await axios.post(`bots/${this.state.botId}/media`, data, {
+      const res = await axios.post(`bots/${this.props.bot.id}/media`, data, {
         ...axiosConfig,
         headers: { 'Content-Type': 'multipart/form-data' }
       })
