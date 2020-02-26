@@ -27,7 +27,6 @@ const sideList = [
 const fetchReducer = (state, action) => {
   if (action.type === 'datesSuccess') {
     const { startDate, endDate, metrics } = action.data
-    console.log(metrics)
     return {
       ...state,
       startDate,
@@ -327,7 +326,7 @@ const Analytics: FC<any> = ({ bp }) => {
       <div className={style.mainWrapper}>
         <div className={style.header}>
           <h1 className={style.pageTitle}>{state.pageTitle}</h1>
-          <Button onClick={() => setShowFilters(prevState => !prevState)} icon="filter" className={style.filtersButton}>
+          <Button onClick={() => setShowFilters(!showFilters)} icon="filter" className={style.filtersButton}>
             Filters
           </Button>
         </div>
