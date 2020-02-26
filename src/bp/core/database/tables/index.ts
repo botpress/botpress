@@ -12,7 +12,6 @@ import {
   NotificationsTable
 } from './bot-specific'
 import {
-  AnalyticsTable,
   ChannelUsersTable,
   DataRetentionTable,
   ServerMetadataTable,
@@ -27,7 +26,6 @@ const tables: typeof Table[] = [
   WorkspaceInviteCodesTable,
 
   LogsTable,
-  AnalyticsTable,
   ChannelUsersTable,
   DialogSessionTable,
   GhostFilesTable,

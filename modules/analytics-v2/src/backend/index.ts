@@ -7,12 +7,12 @@ import AnalyticsService from './job'
 const onServerStarted = async (bp: typeof sdk) => {}
 const onServerReady = async (bp: typeof sdk) => {
   const db = new AnalyticsDatabase(bp.database)
+  await db.init()
   AnalyticsApi(bp, db)
   const job = new AnalyticsService(bp, db)
   await job.initialize()
 
   process.BOTPRESS_EVENTS.on('core.analytics', async args => {
-    bp.logger.debug('Receiving analytic event', args)
     await Promise.mapSeries(args, arg => job.addMetric(arg as sdk.MetricDefinition))
   })
 

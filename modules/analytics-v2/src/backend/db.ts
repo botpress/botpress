@@ -9,6 +9,18 @@ const TABLE_NAME = 'srv_analytics'
 export class AnalyticsDatabase {
   constructor(private db: typeof database) {}
 
+  async init() {
+    await this.db.createTableIfNotExists(TABLE_NAME, table => {
+      table.increments('id').primary()
+      table.string('botId')
+      table.string('metric_name')
+      table.string('channel')
+      table.timestamp('created_on')
+      table.timestamp('updated_on')
+      table.decimal('value')
+    })
+  }
+
   async insert(args: { botId: string; channel: string; metric: string; value: number }, trx?: Knex.Transaction) {
     const { botId, channel, metric, value } = args
     let query = this.db(TABLE_NAME).insert({
