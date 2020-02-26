@@ -203,21 +203,28 @@ export class ScopedActionService {
       audience: 'api_user'
     })
 
-    const response = await axios.post(`${actionServer.baseUrl}/action/run`, {
-      token,
-      actionName,
-      incomingEvent: props.incomingEvent,
-      actionArgs,
-      botId
+    const response = await axios({
+      method: 'post',
+      url: `${actionServer.baseUrl}/action/run`,
+      data: {
+        token,
+        actionName,
+        incomingEvent: props.incomingEvent,
+        actionArgs,
+        botId
+      },
+      // I override validateStatus in order for axios to not throw upon 500 errors from the Action Server.
+      // See https://github.com/axios/axios/issues/1143#issuecomment-340331822
+      validateStatus: status => {
+        return true
+      }
     })
 
     await this.tasksRepository.completeTask(taskId, response.status)
 
-    const returnedIncomingEvent: IO.IncomingEvent = response.data.incomingEvent
+    incomingEvent.state.temp.responseStatusCode = response.status
 
-    returnedIncomingEvent.state.temp.response_status_code = response.status
-
-    return returnedIncomingEvent
+    return response.data.incomingEvent
   }
 
   private async runTrustedCode(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent) {
