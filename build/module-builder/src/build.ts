@@ -1,4 +1,5 @@
 import * as babel from '@babel/core'
+import chalk from 'chalk'
 import fs from 'fs'
 import fse from 'fs-extra'
 import glob from 'glob'
@@ -6,6 +7,7 @@ import mkdirp from 'mkdirp'
 import os from 'os'
 import path from 'path'
 import rimraf from 'rimraf'
+import * as ts from 'typescript'
 import { generateSchema, getProgramFromFiles } from 'typescript-json-schema'
 
 import { debug, error, normal } from './log'
@@ -60,6 +62,9 @@ export async function buildBackend(modulePath: string) {
     dot: true,
     ignore: ['**/*.d.ts', '**/views/**/*.*', '**/config.ts']
   })
+
+  const skipCheck = process.argv.find(x => x.toLowerCase() === '--skip-check')
+  !skipCheck && runTypeChecker(modulePath)
 
   rimraf.sync(path.join(modulePath, 'dist'))
 
@@ -145,4 +150,57 @@ export async function buildConfigSchema(modulePath: string) {
 
   mkdirp.sync(path.resolve(modulePath, 'assets'))
   fs.writeFileSync(path.resolve(modulePath, 'assets', 'config.schema.json'), schema)
+}
+
+export const getTsConfig = (rootFolder: string): ts.ParsedCommandLine => {
+  const parseConfigHost: ts.ParseConfigHost = {
+    fileExists: ts.sys.fileExists,
+    readFile: ts.sys.readFile,
+    readDirectory: ts.sys.readDirectory,
+    useCaseSensitiveFileNames: true
+  }
+
+  const configFileName = ts.findConfigFile(rootFolder, ts.sys.fileExists, 'tsconfig.json')
+  const { config } = ts.readConfigFile(configFileName, ts.sys.readFile)
+
+  // These 3 objects are identical for all modules, but can't be in tsconfig.shared because the root folder is not processed correctly
+  const fixedModuleConfig = {
+    ...config,
+    compilerOptions: {
+      ...config.compilerOptions,
+      typeRoots: ['./node_modules/@types', './node_modules', './src/typings']
+    },
+    exclude: ['**/*.test.ts', './src/views/**', '**/node_modules/**'],
+    include: ['../../src/typings/*.d.ts', '**/*.ts']
+  }
+
+  return ts.parseJsonConfigFileContent(fixedModuleConfig, parseConfigHost, rootFolder)
+}
+
+const runTypeChecker = (rootFolder: string): void => {
+  const { options, fileNames } = getTsConfig(rootFolder)
+
+  const program = ts.createProgram(fileNames, options)
+  const diagnostics = ts.getPreEmitDiagnostics(program).concat(program.emit().diagnostics)
+
+  for (const { file, start, messageText, code } of diagnostics) {
+    if (file) {
+      const { line, character } = file.getLineAndCharacterOfPosition(start!)
+      const message = ts.flattenDiagnosticMessageText(messageText, '\n')
+
+      error(
+        chalk.bold(
+          `[ERROR] in ${chalk.cyan(file.fileName)} (${line + 1},${character + 1})
+                 TS${code}: ${message}
+                 `
+        )
+      )
+    } else {
+      error(ts.flattenDiagnosticMessageText(messageText, '\n'))
+    }
+  }
+
+  if (diagnostics.length) {
+    process.exit(1)
+  }
 }
