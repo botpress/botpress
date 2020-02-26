@@ -123,9 +123,11 @@ $textColor: #182026;
   flex-wrap: wrap;
   justify-content: center;
   margin: 0 1% 20px;
+  min-width: 439px;
   width: 48%;
 
   &.number, &.empty {
+    min-width: 152px;
     width: 16%;
   }
 }
