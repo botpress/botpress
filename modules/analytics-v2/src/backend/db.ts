@@ -2,7 +2,7 @@ import { AnalyticsMethod, database, MetricDefinition } from 'botpress/sdk'
 import Knex from 'knex'
 import moment from 'moment'
 
-import { Analytics } from '..'
+import { Analytics } from '../typings'
 
 const TABLE_NAME = 'srv_analytics'
 

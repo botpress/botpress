@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
 
-import { Analytics } from '..'
+import { Analytics } from '../typings'
 
 import { AnalyticsDatabase } from './db'
 

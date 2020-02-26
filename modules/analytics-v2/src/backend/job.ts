@@ -2,8 +2,8 @@ import sdk, { AnalyticsMethod, AnalyticsMetric, BotConfig, MetricDefinition } fr
 import _ from 'lodash'
 import ms from 'ms'
 
-import { Analytics } from '..'
 import { Config } from '../config'
+import { Analytics } from '../typings'
 
 import { AnalyticsDatabase } from './db'
 
