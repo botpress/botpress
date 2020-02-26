@@ -16,12 +16,12 @@ import { Button } from './Button'
  */
 export class QuickReplies extends Component<Renderer.QuickReply> {
   handleButtonClicked = (title, payload) => {
-    this.props.onSendData &&
-      this.props.onSendData({
-        type: 'quick_reply',
-        text: title,
-        payload
-      })
+    // tslint:disable-next-line: no-floating-promises
+    this.props.onSendData?.({
+      type: 'quick_reply',
+      text: title,
+      payload
+    })
   }
 
   renderKeyboard(buttons: Renderer.QuickReplyButton[]) {

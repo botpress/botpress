@@ -14,7 +14,7 @@ class Message extends Component<MessageProps> {
     hasError: false
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     return { hasError: true }
   }
 
@@ -88,10 +88,10 @@ class Message extends Component<MessageProps> {
       ...sanitizedProps,
       ...messageDataProps,
       keyboard: Keyboard,
-      children: wrapped && <Message {...sanitizedProps} keyboard={Keyboard} noBubble={true} payload={wrapped} />
+      children: wrapped && <Message {...sanitizedProps} keyboard={Keyboard} noBubble payload={wrapped} />
     }
 
-    return <InjectedModuleView moduleName={module} componentName={component} lite={true} extraProps={props} />
+    return <InjectedModuleView moduleName={module} componentName={component} lite extraProps={props} />
   }
 
   render_session_reset() {

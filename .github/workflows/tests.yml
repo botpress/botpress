@@ -32,7 +32,7 @@ jobs:
           NODE_OPTIONS="--max-old-space-size=6000" yarn build
       - name: Run Tests
         run: |
-          yarn start &
+          yarn start & sleep 5s &&
           HEADLESS=true JEST_TIMEOUT=30000 yarn itest
       - name: Upload Screenshots
         uses: actions/upload-artifact@master
