@@ -25,8 +25,12 @@ export default class Analytics extends React.Component<{ bp: any }> {
   }
 
   componentDidMount() {
-    void axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
-      const channels = data.filter(x => x.startsWith('channel')).map(x => x.replace('channel-', ''))
+    // tslint:disable-next-line: no-floating-promises
+    axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
+      const channels = data
+        .map(x => x.name)
+        .filter(x => x.startsWith('channel'))
+        .map(x => x.replace('channel-', ''))
       this.setState({ channels: [...this.state.channels, ...channels] })
     })
 
@@ -38,7 +42,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
       .startOf('day')
       .unix()
 
-    void this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, today).then(({ data }) => {
+    this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, today).then(({ data }) => {
       this.setState({ startDate: aWeekAgo, endDate: today, metrics: data.metrics })
     })
   }
@@ -93,7 +97,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
         <div>
           <div className={style.header}>
             Filter by&nbsp;
-            <HTMLSelect onChange={this.handleFilterChange} defaultValue="all">
+            <HTMLSelect onChange={this.handleFilterChange} value={this.state.selectedChannel}>
               {this.state.channels.map(channel => {
                 return <option value={channel}>{this.capitalize(channel)}</option>
               })}
@@ -111,7 +115,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
   }
 
   getMetricCount = metricName =>
-    this.state.metrics.filter(m => m.metric_name === metricName).reduce((acc, cur) => acc + cur.value, 0)
+    this.state.metrics.filter(m => m.metric === metricName).reduce((acc, cur) => acc + cur.value, 0)
 
   getAvgMsgPerSessions = () => {
     const augmentedMetrics = this.state.metrics.map(m => ({
@@ -119,14 +123,14 @@ export default class Analytics extends React.Component<{ bp: any }> {
       day: moment(m.created_on).format('DD-MM')
     }))
     const metricsByDate = _.sortBy(augmentedMetrics, 'day')
-    const sessionsCountPerDay = metricsByDate.filter(m => m.metric_name === 'sessions_count')
+    const sessionsCountPerDay = metricsByDate.filter(m => m.metric === 'sessions_count')
 
     return sessionsCountPerDay.map(s => {
       const sentCount = augmentedMetrics.find(
-        m => m.metric_name === 'msg_sent_count' && s.day === m.day && s.channel === m.channel
+        m => m.metric === 'msg_sent_count' && s.day === m.day && s.channel === m.channel
       )
       const receivedCount = augmentedMetrics.find(
-        m => m.metric_name === 'msg_received_count' && s.day === m.day && s.channel === m.channel
+        m => m.metric === 'msg_received_count' && s.day === m.day && s.channel === m.channel
       )
       return {
         value: Math.round((_.get(sentCount, 'value', 0) + _.get(receivedCount, 'value', 0)) / s.value),
@@ -156,7 +160,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
     return ((newUsersCount / activeUsersCount) * 100).toFixed(2) + '%'
   }
 
-  getMetric = metricName => this.state.metrics.filter(x => x.metric_name === metricName)
+  getMetric = metricName => this.state.metrics.filter(x => x.metric === metricName)
 
   renderAgentUsage() {
     return (

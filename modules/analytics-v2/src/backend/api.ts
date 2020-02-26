@@ -30,7 +30,7 @@ export default (bp: typeof sdk, db: AnalyticsDatabase) => {
   })
 
   const toDto = (analytics: Partial<Analytics>) => {
-    return _.pick(analytics, ['metric_name', 'value', 'created_on', 'channel'])
+    return _.pick(analytics, ['metric', 'value', 'created_on', 'channel'])
   }
 
   const unixToDate = unix => {

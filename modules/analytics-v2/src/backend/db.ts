@@ -13,7 +13,7 @@ export class AnalyticsDatabase {
     await this.db.createTableIfNotExists(TABLE_NAME, table => {
       table.increments('id').primary()
       table.string('botId')
-      table.string('metric_name')
+      table.string('metric')
       table.string('channel')
       table.timestamp('created_on')
       table.timestamp('updated_on')
@@ -26,7 +26,7 @@ export class AnalyticsDatabase {
     let query = this.db(TABLE_NAME).insert({
       botId,
       channel,
-      metric_name: metric,
+      metric,
       value,
       created_on: this.db.date.now()
     })
@@ -90,7 +90,7 @@ export class AnalyticsDatabase {
     const { botId, channel, metric } = args
     let query = this.db(TABLE_NAME)
       .select()
-      .where({ botId, channel, metric_name: metric })
+      .where({ botId, channel, metric })
       .orderBy('created_on', 'desc')
       .first()
 
