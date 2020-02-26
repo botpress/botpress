@@ -4,9 +4,8 @@ import { HOOK_SIGNATURES } from '../../../typings/hooks'
 const START_COMMENT = `/** Your code starts below */`
 const END_COMMENT = '/** Your code ends here */'
 
-// TODO: fix type of bp when JSON SDK is completed
 const ACTION_SIGNATURE =
-  'async function action(bp: any, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
+  'async function action(event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 
 const LEGACY_ACTION_SIGNATURE =
   'async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
