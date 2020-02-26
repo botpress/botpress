@@ -5,6 +5,7 @@ interface CssExports {
   'contentInput': string;
   'createItem': string;
   'editButton': string;
+  'imagePreview': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
