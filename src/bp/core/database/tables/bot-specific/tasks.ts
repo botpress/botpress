@@ -12,9 +12,8 @@ export class TasksTable extends Table {
       table.string('actionName').notNullable()
       table.json('actionArgs')
       table.string('actionServerId')
-      table.boolean('trusted').notNullable()
-      table.string('response_status_code')
-      table.timestamp('response_received_at')
+      table.string('responseStatusCode')
+      table.timestamp('responseReceivedAt')
       table.timestamps(true, true)
       created = true
     })

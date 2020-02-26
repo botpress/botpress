@@ -78,6 +78,7 @@ const TYPES = {
   EventCollector: Symbol.for('EventCollector'),
   StatsService: Symbol.for('StatsService'),
   StrategyUsersRepository: Symbol.for('StrategyUsersRepository'),
+  TasksRepository: Symbol.for('TasksRepository'),
   WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
   WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository'),
   LocalActionServer: Symbol.for('LocalActionServer')

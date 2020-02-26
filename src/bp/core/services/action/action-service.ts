@@ -2,9 +2,9 @@ import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { ActionDefinition, ActionLocation, ActionServer } from 'common/typings'
-import Database from 'core/database'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
+import { TasksRepository } from 'core/repositories/tasks'
 import { injectable } from 'inversify'
 import { inject, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
@@ -36,7 +36,7 @@ export default class ActionService {
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
-    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.TasksRepository) private tasksRepository: TasksRepository,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
@@ -56,7 +56,7 @@ export default class ActionService {
       this.logger,
       botId,
       this.cache,
-      this.database,
+      this.tasksRepository,
       this.workspaceService
     )
     this._scopedActions.set(botId, scopedActionService)
@@ -100,7 +100,7 @@ export class ScopedActionService {
     private logger: Logger,
     private botId: string,
     private cache: ObjectCache,
-    private database: Database,
+    private tasksRepository: TasksRepository,
     private workspaceService: WorkspaceService
   ) {
     this._listenForCacheInvalidation()
@@ -196,17 +196,7 @@ export class ScopedActionService {
     const botId = incomingEvent.botId
     const workspace = await this.workspaceService.getBotWorkspaceId(botId)
 
-    const knex = this.database.knex('tasks')
-    const taskId = (
-      await knex.returning('id').insert({
-        eventId: incomingEvent.id,
-        status: 'started',
-        actionName,
-        actionArgs: this.database.knex.json.set(actionArgs),
-        trusted: false,
-        actionServerId: actionServer.id
-      })
-    )[0]
+    const taskId = await this.tasksRepository.createTask(incomingEvent.id, actionName, actionArgs, actionServer.id)
 
     const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace, taskId }, process.APP_SECRET, {
       expiresIn: '5m',
@@ -221,9 +211,7 @@ export class ScopedActionService {
       botId
     })
 
-    await knex
-      .where({ id: taskId })
-      .update({ status: 'completed', response_status_code: response.status, updated_at: this.database.knex.date.now() })
+    await this.tasksRepository.completeTask(taskId, response.status)
 
     return { incomingEvent: response.data.incomingEvent }
   }
