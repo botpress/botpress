@@ -220,6 +220,8 @@ class FlowBuilder extends Component<Props, State> {
 
     return (
       <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
+        {/*
+  // @ts-ignore */}
         <SidePanel
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
@@ -236,6 +238,7 @@ class FlowBuilder extends Component<Props, State> {
             flowPreview={this.state.flowPreview}
             showSearch={this.state.showSearch}
             hideSearch={this.hideSearch}
+            // @ts-ignore
             ref={el => {
               if (!!el) {
                 // @ts-ignore
