@@ -1,4 +1,4 @@
-import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, ITreeNode, TextArea, Tree } from '@blueprintjs/core'
+import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotConfig } from 'botpress/sdk'
 import { BotEditSchema } from 'common/validation'
@@ -8,9 +8,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import { fetchBotInformation } from '~/actions'
-import confirmDialog from '~/components/Shared/ConfirmDialog'
 import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
+
+import confirmDialog from '../../../../../ui-shared/src/ConfirmDialog'
+import { ItemList } from '../../components/Shared/Interface'
 
 import style from './style.scss'
 
@@ -49,7 +51,7 @@ interface StateVars {
   isMainOpen: boolean
   isDetailsOpen: boolean
   isPicturesOpen: boolean
-  nodes: ITreeNode[]
+  items: SideBarItem[]
 }
 
 type State = StateBot & StateVars
@@ -61,6 +63,13 @@ interface Licensing {
 interface SelectItem {
   label: string
   value: string
+}
+
+interface SideBarItem {
+  label: string
+  value: string
+  icon: string
+  selected?: boolean
 }
 
 class ConfigView extends Component<Props, State> {
@@ -79,25 +88,22 @@ class ConfigView extends Component<Props, State> {
     coverPictureUrl: ''
   }
 
-  sideBarNodes: ITreeNode[] = [
+  sideBarItems: SideBarItem[] = [
     {
-      id: 0,
-      icon: 'cog',
       label: 'Main',
-      isSelected: true,
-      nodeData: 'main'
+      value: 'main',
+      icon: 'cog',
+      selected: true
     },
     {
-      id: 1,
-      icon: 'list-detail-view',
       label: 'Details',
-      nodeData: 'details'
+      value: 'details',
+      icon: 'list-detail-view'
     },
     {
-      id: 2,
-      icon: 'media',
       label: 'Pictures',
-      nodeData: 'pictures'
+      value: 'pictures',
+      icon: 'media'
     }
   ]
 
@@ -112,7 +118,7 @@ class ConfigView extends Component<Props, State> {
     isMainOpen: true,
     isDetailsOpen: false,
     isPicturesOpen: false,
-    nodes: this.sideBarNodes
+    items: this.sideBarItems
   }
 
   async componentDidMount() {
@@ -131,7 +137,7 @@ class ConfigView extends Component<Props, State> {
       status: this.state.statuses.find(s => s.value === status),
       description: bot.description || '',
       selectedDefaultLang: languages.find(l => l.value === bot.defaultLanguage),
-      selectedLanguages: languages.filter(x => bot.languages.includes(x.value)),
+      selectedLanguages: languages.filter(x => bot.languages && bot.languages.includes(x.value)),
       website: bot.details.website || '',
       phoneNumber: bot.details.phoneNumber || '',
       emailAddress: bot.details.emailAddress || '',
@@ -191,7 +197,7 @@ class ConfigView extends Component<Props, State> {
     }
 
     try {
-      const disableChanged = bot.disabled != (this.initialFormState.status.value === 'disabled')
+      const disableChanged = bot.disabled !== (this.initialFormState.status.value === 'disabled')
       let allow = true
 
       if (disableChanged && bot.disabled) {
@@ -249,8 +255,8 @@ class ConfigView extends Component<Props, State> {
     this.setState({ selectedLanguages: langs })
   }
 
-  handleCommunityLanguageChanged = event => {
-    this.setState({ selectedDefaultLang: event.target.value, selectedLanguages: [{ value: event.target.value }] })
+  handleCommunityLanguageChanged = lang => {
+    this.setState({ selectedDefaultLang: lang, selectedLanguages: [lang] })
   }
 
   handleImageFileChanged = async event => {
@@ -284,16 +290,16 @@ class ConfigView extends Component<Props, State> {
     }
   }
 
-  handleNodeClick = (nodeData: ITreeNode) => {
-    const originallySelected = nodeData.isSelected
-    for (const node of this.state.nodes) {
-      node.isSelected = false
+  handleElementClicked = (item: SideBarItem) => {
+    for (const node of this.state.items) {
+      node.selected = false
     }
-    nodeData.isSelected = originallySelected == null ? true : !originallySelected
+    const originallySelected = item.selected
+    item.selected = originallySelected == null ? true : !originallySelected
     this.setState({
-      isMainOpen: nodeData.nodeData === 'main',
-      isDetailsOpen: nodeData.nodeData === 'details',
-      isPicturesOpen: nodeData.nodeData === 'pictures'
+      isMainOpen: item.value === 'main',
+      isDetailsOpen: item.value === 'details',
+      isPicturesOpen: item.value === 'pictures'
     })
   }
 
@@ -302,7 +308,7 @@ class ConfigView extends Component<Props, State> {
       <Container>
         <SidePanel>
           <SidePanelSection label={'Configs'}>
-            <Tree contents={this.state.nodes} onNodeClick={this.handleNodeClick} />
+            <ItemList items={this.state.items} onElementClicked={this.handleElementClicked} />
           </SidePanelSection>
         </SidePanel>
         <div className={style.container}>
@@ -446,12 +452,6 @@ class ConfigView extends Component<Props, State> {
   }
 
   renderLanguages() {
-    const languages = this.state.languages.map(l => (
-      <option key={l.value} value={l.value}>
-        {l.label}
-      </option>
-    ))
-
     if (this.state.licensing && this.state.licensing.isPro) {
       return (
         <div>
@@ -479,14 +479,13 @@ class ConfigView extends Component<Props, State> {
     } else {
       return (
         <FormGroup label="Language" labelFor="selected-default-lang">
-          <select
+          <Select
             id="selected-default-lang"
             name="selectedDefaultLang"
+            options={this.state.languages}
             value={this.state.selectedDefaultLang}
             onChange={this.handleCommunityLanguageChanged}
-          >
-            {languages}
-          </select>
+          />
         </FormGroup>
       )
     }
@@ -501,7 +500,7 @@ const mapDispatchToProps = {
 
 export default connect(mapStateToProps, mapDispatchToProps)(ConfigView)
 
-type Props = {
+interface Props {
   fetchBotInformation: Function
-  bot: any
+  bot: BotConfig
 }

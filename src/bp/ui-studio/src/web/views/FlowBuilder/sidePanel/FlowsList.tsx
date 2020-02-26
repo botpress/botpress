@@ -64,7 +64,6 @@ export default class FlowsList extends Component<Props, State> {
     }
 
     this.setState({ nodes })
-    console.log(nodes)
   }
 
   handleDelete = async flow => {
