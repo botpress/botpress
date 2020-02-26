@@ -4,12 +4,10 @@ import React, { FC } from 'react'
 import { ParameterValue } from './ActionDialog'
 import { ActionParameter } from './ActionParameter'
 
-interface ActionParametersProps {
+export const ActionParameters: FC<{
   parameterValues: ParameterValue[]
   onUpdate: (parameterValues: ParameterValue[]) => void
-}
-
-export const ActionParameters: FC<ActionParametersProps> = props => {
+}> = props => {
   const { onUpdate, parameterValues } = props
 
   return (
