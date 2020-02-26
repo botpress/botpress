@@ -99,15 +99,19 @@ export const buildLookupPaths = (module: string, locations: string[]) => {
   )
 }
 
-export const clearModuleScriptCache = (moduleLocation: string) => {
+export const clearModuleScriptCache = (moduleLocation: string, depth: number = 0) => {
   const cacheKey = require.resolve(moduleLocation)
   const file = require.cache[cacheKey]
 
   if (file) {
     for (const { filename } of file.children) {
-      clearModuleScriptCache(filename)
+      // Circular reference protection, we only unload the user's module files
+      if (depth < 3 && !filename.includes('node_modules')) {
+        clearModuleScriptCache(filename, depth++)
+      }
     }
 
+    DEBUG('cache')(`Clear cached file ${cacheKey}`)
     delete require.cache[cacheKey]
   }
 }
