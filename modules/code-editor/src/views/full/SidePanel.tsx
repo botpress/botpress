@@ -141,21 +141,30 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionActions() {
+    let actions: any = [
+      {
+        id: 'btn-add-action',
+        icon: <Icon icon="add" />,
+        key: 'add',
+        onClick: () => this.createFilePrompt('action_legacy')
+      }
+    ]
+    if (this.props.previewFlowActivated) {
+      actions = [
+        {
+          id: 'btn-add-action',
+          icon: <Icon icon="add" />,
+          key: 'add',
+          items: [
+            { label: 'Action (HTTP)', onClick: () => this.createFilePrompt('action_http') },
+            { label: 'Action (Legacy)', onClick: () => this.createFilePrompt('action_legacy') }
+          ]
+        }
+      ]
+    }
+
     return (
-      <SidePanelSection
-        label={'Actions'}
-        actions={[
-          {
-            id: 'btn-add-action',
-            icon: <Icon icon="add" />,
-            key: 'add',
-            items: [
-              { label: 'Action (HTTP)', onClick: () => this.createFilePrompt('action_http') },
-              { label: 'Action (Legacy)', onClick: () => this.createFilePrompt('action_legacy') }
-            ]
-          }
-        ]}
-      >
+      <SidePanelSection label={'Actions'} actions={actions}>
         <FileNavigator
           id="actions"
           files={this.state.actionFiles}
@@ -321,10 +330,11 @@ export default inject(({ store }: { store: RootStore }) => ({
   isDirty: store.editor.isDirty,
   setFilenameFilter: store.setFilenameFilter,
   createFilePrompt: store.createFilePrompt,
-  permissions: store.permissions
+  permissions: store.permissions,
+  previewFlowActivated: store.previewFlowActivated
 }))(observer(PanelContent))
 
 type Props = { store?: RootStore; editor?: EditorStore } & Pick<
   StoreDef,
-  'files' | 'permissions' | 'createFilePrompt' | 'setFilenameFilter'
+  'files' | 'permissions' | 'createFilePrompt' | 'setFilenameFilter' | 'previewFlowActivated'
 >

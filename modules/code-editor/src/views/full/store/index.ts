@@ -37,6 +37,9 @@ class RootStore {
   @observable
   public useRawEditor: boolean = false
 
+  @observable
+  public previewFlowActivated: boolean = false
+
   constructor({ bp }) {
     this.api = new CodeEditorApi(bp.axios)
     this.editor = new EditorStore(this)
@@ -56,6 +59,15 @@ class RootStore {
     } else {
       console.error(`Only Super Admins can use the raw file editor`)
     }
+  }
+
+  @action.bound
+  async previewFlow(e) {
+    e.preventDefault()
+
+    console.log('im amazing')
+
+    this.previewFlowActivated = true
   }
 
   @action.bound
