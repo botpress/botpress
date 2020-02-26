@@ -220,8 +220,6 @@ class FlowBuilder extends Component<Props, State> {
 
     return (
       <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
-        {/*
-  // @ts-ignore */}
         <SidePanel
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
