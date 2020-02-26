@@ -113,7 +113,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
       await saveIntent(ghost, intentDef)
 
-      res.sendStatus(201)
+      res.sendStatus(200)
     } catch (err) {
       bp.logger
         .forBot(botId)
