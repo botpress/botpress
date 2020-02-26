@@ -223,7 +223,7 @@ export class ScopedActionService {
         }
       })
     } catch (e) {
-      if (e.isAxiosError && e.code === 'ECONNABORTED') {
+      if (e.isAxiosError) {
         this.tasksRepository.createTask({
           eventId: incomingEvent.id,
           actionName,
@@ -232,7 +232,7 @@ export class ScopedActionService {
           startedAt,
           endedAt: new Date(),
           status: 'failed',
-          failureReason: 'connection_aborted'
+          failureReason: `axios:${e.code}`
         })
       }
 
