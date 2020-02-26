@@ -1,4 +1,3 @@
-import { Button } from '@blueprintjs/core'
 import classnames from 'classnames'
 import { ActionServer } from 'common/typings'
 import _ from 'lodash'
@@ -12,12 +11,46 @@ import { StandardPortWidget } from '../nodes/Ports'
 import style from './style.scss'
 import { showHeader } from './utils'
 
-interface ActionWidgetProps {
-  node: ActionNodeModel
-  diagramEngine: any
+const ActionInfo: FC<{ action: Action }> = props => {
+  const { action } = props
+
+  return (
+    <div>
+      {action.name} ({action.actionServerId})
+    </div>
+  )
 }
 
-const ActionWidget: FC<ActionWidgetProps> = props => {
+const ActionNodeContent: FC<{ action: Action; cancel: () => void; onSave: (action: Action) => void }> = props => {
+  const [showDialog, setShowDialog] = useState(false)
+
+  const { action, cancel, onSave } = props
+  return (
+    <div className={style.content} onDoubleClick={() => setShowDialog(true)}>
+      {/* <Button onClick={() => setShowDialog(true)}>Edit</Button> */}
+      <ActionInfo action={action} />
+      <ActionDialog
+        name={action.name}
+        parameters={action.parameters}
+        actionServerId={action.actionServerId}
+        isOpen={showDialog}
+        onClose={() => {
+          setShowDialog(false)
+          cancel()
+        }}
+        onSave={action => {
+          setShowDialog(false)
+          onSave(action)
+        }}
+      />
+    </div>
+  )
+}
+
+const ActionWidget: FC<{
+  node: ActionNodeModel
+  diagramEngine: any
+}> = props => {
   const { node, diagramEngine } = props
 
   const parseActionString = (actionString: string | undefined): Action => {
@@ -38,12 +71,11 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
     return { name, parameters, actionServerId }
   }
 
-  const [showDialog, setShowDialog] = useState(false)
   const [actionString, setActionString] = useState(node.onEnter[0])
   const actionStringCopy = node.onEnter[0]
 
   const onSave = action => {
-    setShowDialog(false)
+    // setShowDialog(false)
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
     const actionString = serializeAction(action)
@@ -59,18 +91,7 @@ const ActionWidget: FC<ActionWidgetProps> = props => {
   return (
     <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
-      <Button onClick={() => setShowDialog(true)}>Edit</Button>
-      <ActionDialog
-        name={action.name}
-        parameters={action.parameters}
-        actionServerId={action.actionServerId}
-        isOpen={showDialog}
-        onClose={() => {
-          setShowDialog(false)
-          cancel()
-        }}
-        onSave={action => onSave(action)}
-      />
+      <ActionNodeContent action={action} cancel={cancel} onSave={onSave} />
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />
         <StandardPortWidget name="out0" node={node} className={style.out} />
