@@ -93,6 +93,7 @@ export class LocalActionServer {
       this.logger.info('Local Action Server disabled')
       return
     }
-    this.app.listen(localServerConfig.port, () => this.logger.info(`Local Action Server listening on port ${port}`))
+    const port = localServerConfig.port
+    this.app.listen(port, () => this.logger.info(`Local Action Server listening on port ${port}`))
   }
 }
