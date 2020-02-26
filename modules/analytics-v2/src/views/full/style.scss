@@ -1,0 +1,152 @@
+$colorWeb: #ffdd98;
+$colorMessenger: #83aeee;
+$colorTelegram: #463cff;
+$colorSlack: #ff8989;
+$textColor: #182026;
+
+.mainWrapper {
+  background: #fff;
+  height: 100%;
+  overflow-y: scroll;
+  padding: 15px 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 10px;
+}
+
+.pageTitle {
+  color: $textColor;
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.filters {
+  &Button {
+    font-size: 16px;
+    font-weight: 300;
+  }
+
+  &InputWrapper {
+    display: block;
+    font-weight: 400;
+    margin: 10px 10px 0 0;
+  }
+
+  &Wrapper {
+    display: flex;
+    justify-content: flex-end;
+
+    .inputLabel {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+  }
+}
+
+.emptyState {
+  color: #757575;
+  font-size: 14px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.appliedFilters {
+  color: $textColor;
+  font-size: 20px;
+  font-weight: 400;
+  margin: 50px 0 30px;
+  text-align: center;
+
+  &.filtersShowing {
+    margin-top: 30px;
+  }
+}
+
+.metricsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -1%;
+  width: 100%;
+}
+
+.metricName {
+  color: $textColor;
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0 0 10px;
+  text-align: center;
+  width: 100%;
+
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.numberMetric {
+  align-items: center;
+  background: #f3f3f3;
+  border-radius: 4px;
+  box-shadow: none;
+  color: $textColor;
+  display: flex;
+  height: 125px;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 20px 15px;
+  width: 100%;
+}
+
+.numberMetricValue {
+  margin: 0;
+  text-align: center;
+  width: 100%;
+
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.metricWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 1% 20px;
+  min-width: 439px;
+  width: 48%;
+
+  &.number, &.empty {
+    min-width: 152px;
+    width: 16%;
+  }
+}
+
+.chartMetric {
+  background: #f3f3f3;
+  border-radius: 4px;
+  height: 190px;
+  padding: 20px 15px;
+  width: 100%;
+
+  &.empty {
+    align-items: center;
+    box-shadow: none;
+    color: $textColor;
+    display: flex;
+    height: 125px;
+    justify-content: center;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
