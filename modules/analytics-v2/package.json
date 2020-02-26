@@ -11,14 +11,6 @@
     "watch": "node ../../build/module-builder/bin/entry watch",
     "package": "node ../../build/module-builder/bin/entry package"
   },
-  "devDependencies": {
-    "@blueprintjs/core": "^3.23.1",
-    "@types/node": "^10.11.3",
-    "@types/react": "^16.9.19",
-    "@types/react-dom": "^16.9.5",
-    "@types/reactstrap": "^8.4.1",
-    "module-builder": "../../build/module-builder"
-  },
   "dependencies": {
     "@blueprintjs/datetime": "^3.15.2",
     "recharts": "^2.0.0-beta.1"

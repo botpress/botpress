@@ -19,9 +19,6 @@ interface CssExports {
   'numberMetric': string;
   'numberMetricValue': string;
   'pageTitle': string;
-  'sideListItem': string;
-  'sideListItemSelected': string;
-  'sideListList': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

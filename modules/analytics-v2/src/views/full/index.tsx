@@ -3,11 +3,11 @@ import { DateRange, DateRangeInput } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
 import { TooltipStyle } from 'botpress/shared'
-import { Container, SidePanel } from 'botpress/ui'
-import classnames from 'classnames'
+import { Container, ItemList, SidePanel } from 'botpress/ui'
+import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { Fragment } from 'react'
+import React, { FC, useEffect, useReducer, useState } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import style from './style.scss'
@@ -24,19 +24,48 @@ const sideList = [
   { key: 'understanding', label: 'Understanding' }
 ]
 
-export default class Analytics extends React.Component<{ bp: any }> {
-  state = {
-    channels: ['all'],
-    selectedChannel: 'all',
-    metrics: [],
-    startDate: undefined,
-    endDate: undefined,
-    shownSection: 'dashboard',
-    showFilters: false,
-    pageTitle: 'Dashboard'
+const fetchReducer = (state, action) => {
+  if (action.type === 'datesSuccess') {
+    const { startDate, endDate, metrics } = action.data
+    return {
+      ...state,
+      startDate,
+      endDate,
+      metrics
+    }
+  } else if (action.type === 'channelSuccess') {
+    const { selectedChannel, metrics } = action.data
+    return {
+      ...state,
+      selectedChannel,
+      metrics
+    }
+  } else if (action.type === 'sectionChange') {
+    const { shownSection, pageTitle } = action.data
+    return {
+      ...state,
+      shownSection,
+      pageTitle
+    }
+  } else {
+    throw new Error(`That action type isn't supported.`)
   }
+}
 
-  componentDidMount() {
+const Analytics: FC<any> = ({ bp }) => {
+  const [channels, setChannels] = useState(['all'])
+  const [showFilters, setShowFilters] = useState(false)
+
+  const [state, dispatch] = React.useReducer(fetchReducer, {
+    endDate: undefined,
+    metrics: [],
+    pageTitle: 'Dashboard',
+    selectedChannel: 'all',
+    shownSection: 'dashboard',
+    startDate: undefined
+  })
+
+  useEffect(() => {
     void axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
       const channels = data
         .filter(
@@ -48,24 +77,24 @@ export default class Analytics extends React.Component<{ bp: any }> {
         )
         .map(x => x.name.substring(8))
 
-      this.setState((prevState: any) => ({ channels: [...prevState.channels, ...channels] }))
+      setChannels(prevState => [...prevState, ...channels])
     })
 
-    const aWeekAgo = moment()
+    const startDate = moment()
       .subtract(7, 'days')
       .startOf('day')
       .unix()
-    const today = moment()
+    const endDate = moment()
       .startOf('day')
       .unix()
 
-    void this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, today).then(({ data }) => {
-      this.setState({ startDate: aWeekAgo, endDate: today, metrics: data })
+    void fetchAnalytics(state.selectedChannel, startDate, endDate).then(({ data: metrics }) => {
+      dispatch({ type: 'datesSuccess', data: { startDate, endDate, metrics } })
     })
-  }
+  }, [])
 
-  fetchAnalytics = (channel, startDate, endDate) => {
-    return this.props.bp.axios.get(`mod/analytics-v2/channel/${channel}`, {
+  const fetchAnalytics = (channel, startDate, endDate) => {
+    return bp.axios.get(`mod/analytics-v2/channel/${channel}`, {
       params: {
         start: startDate,
         end: endDate
@@ -73,29 +102,29 @@ export default class Analytics extends React.Component<{ bp: any }> {
     })
   }
 
-  handleFilterChange = ({ target: { value: selectedChannel } }) => {
-    this.fetchAnalytics(selectedChannel, this.state.startDate, this.state.endDate).then(({ data }) => {
-      this.setState({ metrics: data, selectedChannel })
+  const handleChannelChange = ({ target: { value: selectedChannel } }) => {
+    fetchAnalytics(selectedChannel, state.startDate, state.endDate).then(({ data: metrics }) => {
+      dispatch({ type: 'channelSuccess', data: { metrics, selectedChannel } })
     })
   }
 
-  handleDateChange = async (dateRange: DateRange) => {
+  const handleDateChange = async (dateRange: DateRange) => {
     const startDate = moment(dateRange[0]).unix()
     const endDate = moment(dateRange[1]).unix()
 
-    const { data } = await this.fetchAnalytics(this.state.selectedChannel, startDate, endDate)
-    this.setState({ startDate, endDate, metrics: data })
+    const { data: metrics } = await fetchAnalytics(state.selectedChannel, startDate, endDate)
+    dispatch({ type: 'datesSuccess', data: { startDate, endDate, metrics } })
   }
 
-  isLoaded = () => {
-    return this.state.metrics && this.state.startDate && this.state.endDate
+  const isLoaded = () => {
+    return state.metrics && state.startDate && state.endDate
   }
 
-  capitalize = str => str.substring(0, 1).toUpperCase() + str.substring(1)
+  const capitalize = str => str.substring(0, 1).toUpperCase() + str.substring(1)
 
-  renderDateInput() {
-    const startDate = moment.unix(this.state.startDate).toDate()
-    const endDate = moment.unix(this.state.endDate).toDate()
+  const renderDateInput = () => {
+    const startDate = moment.unix(state.startDate).toDate()
+    const endDate = moment.unix(state.endDate).toDate()
     return (
       <div className={style.filtersInputWrapper}>
         <span className={style.inputLabel}>Date Range</span>
@@ -104,84 +133,18 @@ export default class Analytics extends React.Component<{ bp: any }> {
           formatDate={date => moment(date).format('MM-DD-YYYY')}
           maxDate={new Date()}
           parseDate={str => new Date(str)}
-          onChange={this.handleDateChange}
+          onChange={handleDateChange}
           value={[startDate, endDate]}
         />
       </div>
     )
   }
 
-  render() {
-    if (!this.isLoaded()) {
-      return null
-    }
+  const getMetricCount = metricName =>
+    state.metrics.filter(m => m.metric_name === metricName).reduce((acc, cur) => acc + cur.value, 0)
 
-    const { channels, shownSection, pageTitle, selectedChannel, showFilters } = this.state
-    const startDate = moment(moment.unix(this.state.startDate).toDate()).format('MMMM Do YYYY')
-    const endDate = moment(moment.unix(this.state.endDate).toDate()).format('MMMM Do YYYY')
-
-    return (
-      <Container>
-        <SidePanel>
-          <ul className={classnames(style.sideListList)}>
-            {sideList.map(item => (
-              <li
-                onClick={() => this.setState({ shownSection: item.key, pageTitle: item.label })}
-                key={item.key}
-                className={classnames(style.sideListItem, {
-                  [style.sideListItemSelected]: item.key === shownSection
-                })}
-              >
-                {item.label}
-              </li>
-            ))}
-          </ul>
-        </SidePanel>
-        <div className={style.mainWrapper}>
-          <div className={style.header}>
-            <h1 className={style.pageTitle}>{pageTitle}</h1>
-            <Button
-              onClick={() => this.setState(({ showFilters }: any) => ({ showFilters: !showFilters }))}
-              icon="filter"
-              className={style.filtersButton}
-            >
-              Filters
-            </Button>
-          </div>
-          {showFilters && (
-            <div className={style.filtersWrapper}>
-              <label className={style.filtersInputWrapper}>
-                <span className={style.inputLabel}>Channel</span>
-                <HTMLSelect onChange={this.handleFilterChange} defaultValue="all">
-                  {channels.map(channel => {
-                    return (
-                      <option key={channel} value={channel}>
-                        {this.capitalize(channel)}
-                      </option>
-                    )
-                  })}
-                </HTMLSelect>
-              </label>
-              {this.renderDateInput()}
-            </div>
-          )}
-          <h2 className={classnames(style.appliedFilters, showFilters && style.filtersShowing)}>
-            {this.capitalize(selectedChannel)} - {startDate} to {endDate}
-          </h2>
-          {shownSection === 'dashboard' && this.renderDashboard()}
-          {shownSection === 'agentUsage' && this.renderAgentUsage()}
-          {shownSection === 'engagement' && this.renderEngagement()}
-          {shownSection === 'understanding' && this.renderUnderstanding()}
-        </div>
-      </Container>
-    )
-  }
-
-  getMetricCount = metricName =>
-    this.state.metrics.filter(m => m.metric_name === metricName).reduce((acc, cur) => acc + cur.value, 0)
-
-  getAvgMsgPerSessions = () => {
-    const augmentedMetrics = this.state.metrics.map(m => ({
+  const getAvgMsgPerSessions = () => {
+    const augmentedMetrics = state.metrics.map(m => ({
       ...m,
       day: moment(m.created_on).format('DD-MM')
     }))
@@ -203,91 +166,90 @@ export default class Analytics extends React.Component<{ bp: any }> {
     })
   }
 
-  getUnderstoodPercent = () => {
-    const received = this.getMetricCount('msg_received_count')
-    const none = this.getMetricCount('msg_nlu_none')
+  const getUnderstoodPercent = () => {
+    const received = getMetricCount('msg_received_count')
+    const none = getMetricCount('msg_nlu_none')
     const percent = ((received - none) / received) * 100
-    return `${this.getNotNaN(percent)}%`
+    return getNotNaN(percent, '%')
   }
 
-  getTopLevelUnderstoodPercent = () => {
-    const received = this.getMetricCount('msg_received_count')
-    const none = this.getMetricCount('top_msg_nlu_none')
+  const getTopLevelUnderstoodPercent = () => {
+    const received = getMetricCount('msg_received_count')
+    const none = getMetricCount('top_msg_nlu_none')
     const percent = ((received - none) / received) * 100
-    return `${this.getNotNaN(percent)}%`
+    return getNotNaN(percent, '%')
   }
 
-  getReturningUsers = () => {
-    const activeUsersCount = this.getMetricCount('active_users_count')
-    const newUsersCount = this.getMetricCount('new_users_count')
-    const percent = (newUsersCount / activeUsersCount) * 100
-    return `${this.getNotNaN(percent)}%`
+  const getReturningUsers = () => {
+    const activeUsersCount = getMetricCount('active_users_count')
+    const newUsersCount = getMetricCount('new_users_count')
+    const percent = activeUsersCount && (newUsersCount / activeUsersCount) * 100
+    return getNotNaN(percent, '%')
   }
 
-  getNotNaN = value => (Number.isNaN(value) ? 0 : value.toFixed(2))
+  const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${value.toFixed(2)}${suffix}`)
 
-  getMetric = metricName => this.state.metrics.filter(x => x.metric_name === metricName)
+  const getMetric = metricName => state.metrics.filter(x => x.metric_name === metricName)
 
-  renderDashboard() {
+  const renderDashboard = () => {
     return (
       <div className={style.metricsContainer}>
-        {this.renderTimeSeriesChart('Average Messages Per Session', this.getAvgMsgPerSessions())}
-        {this.renderTimeSeriesChart('Active Users', this.getMetric('active_users_count'))}
-        {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
-        {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'), true)}
-        {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
+        {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
+        {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
+        {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
+        {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)}
+        {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
       </div>
     )
   }
 
-  renderAgentUsage() {
+  const renderAgentUsage = () => {
     return (
       <div className={style.metricsContainer}>
-        {this.renderTimeSeriesChart('Sessions', this.getMetric('sessions_count'))}
-        {this.renderTimeSeriesChart('Messages Received', this.getMetric('msg_received_count'))}
-        {this.renderTimeSeriesChart('Goals Started', this.getMetric('goals_started_count'))}
-        {this.renderTimeSeriesChart('Goals Completed', this.getMetric('goals_completed_count'))}
-        {this.renderTimeSeriesChart('QNA Sent', this.getMetric('msg_sent_qna_count'))}
+        {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
+        {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
+        {renderTimeSeriesChart('Goals Started', getMetric('goals_started_count'))}
+        {renderTimeSeriesChart('Goals Completed', getMetric('goals_completed_count'))}
+        {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
       </div>
     )
   }
 
-  renderEngagement() {
+  const renderEngagement = () => {
     return (
       <div className={style.metricsContainer}>
-        {this.renderTimeSeriesChart('Average Messages Per Session', this.getAvgMsgPerSessions())}
-        {this.renderTimeSeriesChart('Active Users', this.getMetric('active_users_count'))}
-        {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
-        {this.renderNumberMetric('Returning Users', this.getReturningUsers())}
+        {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
+        {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
+        {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
+        {renderNumberMetric('Returning Users', getReturningUsers())}
       </div>
     )
   }
 
-  renderUnderstanding() {
-    const goalsOutcome = this.getMetricCount('goals_completed_count') / this.getMetricCount('goals_started_count') || 0
+  const renderUnderstanding = () => {
+    const goalsOutcome = getMetricCount('goals_completed_count') / getMetricCount('goals_started_count') || 0
 
     return (
       <div className={style.metricsContainer}>
-        {this.renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
-        {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'), true)}
-        {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
-        {this.renderNumberMetric('Understood Top-Level Messages', this.getTopLevelUnderstoodPercent())}
+        {renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
+        {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)}
+        {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
+        {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
       </div>
     )
   }
 
-  renderNumberMetric(name, value, isPercentage = false) {
+  const renderNumberMetric = (name, value, isPercentage = false) => {
     return (
-      <div className={classnames(style.metricWrapper, style.number)}>
-        <h4 className={classnames(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
+      <div className={cx(style.metricWrapper, style.number)}>
+        <h4 className={cx(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
           <span>{name}</span>
         </h4>
         <Card className={style.numberMetric}>
           <h2
-            className={classnames(
-              style.numberMetricValue,
-              isPercentage && value.toString().length > 6 && TooltipStyle.botpressTooltip
-            )}
+            className={cx(style.numberMetricValue, {
+              [TooltipStyle.botpressTooltip]: isPercentage && value.toString().length > 6
+            })}
             data-tooltip={value}
           >
             <span>{value}</span>
@@ -297,7 +259,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
     )
   }
 
-  mapDataForCharts(data: any[]) {
+  const mapDataForCharts = (data: any[]) => {
     const chartsData = data.map(metric => ({
       time: moment(metric.created_on)
         .startOf('day')
@@ -308,23 +270,23 @@ export default class Analytics extends React.Component<{ bp: any }> {
     return _.sortBy(chartsData, 'time')
   }
 
-  formatTick = timestamp => moment.unix(timestamp).format('DD-MM')
+  const formatTick = timestamp => moment.unix(timestamp).format('DD-MM')
 
-  renderTimeSeriesChart(name: string, data) {
-    const tickCount = (this.state.endDate - this.state.startDate) / SECONDS_PER_DAY
+  const renderTimeSeriesChart = (name: string, data) => {
+    const tickCount = (state.endDate - state.startDate) / SECONDS_PER_DAY
 
     return (
-      <div className={classnames(style.metricWrapper, !data.length && style.empty)}>
-        <h4 className={classnames(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
+      <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
+        <h4 className={cx(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
           <span>{name}</span>
         </h4>
-        <div className={classnames(style.chartMetric, !data.length && style.empty)}>
+        <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
           {!data.length && <p className={style.emptyState}>No data available</p>}
           {!!data.length && (
             <ResponsiveContainer>
-              <AreaChart data={this.mapDataForCharts(data)}>
-                <Tooltip labelFormatter={this.formatTick} />
-                <XAxis height={18} dataKey="time" tickFormatter={this.formatTick} tickCount={tickCount} />
+              <AreaChart data={mapDataForCharts(data)}>
+                <Tooltip labelFormatter={formatTick} />
+                <XAxis height={18} dataKey="time" tickFormatter={formatTick} tickCount={tickCount} />
                 <YAxis width={30} />
                 <Area stackId={1} type="monotone" dataKey="web" stroke={COLOR_WEB} fill={COLOR_WEB} />
                 <Area stackId={2} type="monotone" dataKey="messenger" stroke={COLOR_MESSENGER} fill={COLOR_MESSENGER} />
@@ -337,4 +299,66 @@ export default class Analytics extends React.Component<{ bp: any }> {
       </div>
     )
   }
+
+  const mapSideListToListItem = ({ key, label }) => {
+    return {
+      key,
+      label,
+      value: key,
+      selected: key === state.shownSection
+    }
+  }
+
+  const onSideItemClick = item => {
+    dispatch({ type: 'sectionChange', data: { shownSection: item.key, pageTitle: item.label } })
+  }
+
+  if (!isLoaded()) {
+    return null
+  }
+
+  const startDate = moment(moment.unix(state.startDate).toDate()).format('MMMM Do YYYY')
+  const endDate = moment(moment.unix(state.endDate).toDate()).format('MMMM Do YYYY')
+
+  return (
+    <Container>
+      <SidePanel>
+        <ItemList items={sideList.map(mapSideListToListItem)} onElementClicked={onSideItemClick} />
+      </SidePanel>
+      <div className={style.mainWrapper}>
+        <div className={style.header}>
+          <h1 className={style.pageTitle}>{state.pageTitle}</h1>
+          <Button onClick={() => setShowFilters(prevState => !prevState)} icon="filter" className={style.filtersButton}>
+            Filters
+          </Button>
+        </div>
+        {showFilters && (
+          <div className={style.filtersWrapper}>
+            <label className={style.filtersInputWrapper}>
+              <span className={style.inputLabel}>Channel</span>
+              <HTMLSelect onChange={handleChannelChange} defaultValue="all">
+                {channels.map(channel => {
+                  return (
+                    <option key={channel} value={channel}>
+                      {capitalize(channel)}
+                    </option>
+                  )
+                })}
+              </HTMLSelect>
+            </label>
+            {renderDateInput()}
+          </div>
+        )}
+        <h2 className={cx(style.appliedFilters, { [style.filtersShowing]: showFilters })}>
+          {capitalize(state.selectedChannel)} - {startDate} to {endDate}
+        </h2>
+        {state.shownSection === 'dashboard' && renderDashboard()}
+        {state.shownSection === 'agentUsage' && renderAgentUsage()}
+        {state.shownSection === 'engagement' && renderEngagement()}
+        {state.shownSection === 'understanding' && renderUnderstanding()}
+      </div>
+    </Container>
+  )
 }
+
+export default Analytics
