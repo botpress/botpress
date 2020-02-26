@@ -32,7 +32,6 @@ export async function getIntent(ghost: sdk.ScopedGhostService, intentName: strin
   return ghost.readFileAsObject(INTENTS_DIR, `${intentName}.json`)
 }
 
-// TODO you are at testing that this works fine and then replace usage from storage everywhere
 export async function saveIntent(
   ghost: sdk.ScopedGhostService,
   intent: sdk.NLU.IntentDefinition
@@ -79,4 +78,26 @@ export async function deleteIntent(ghost: sdk.ScopedGhostService, intentName: st
   }
 
   return ghost.deleteFile(INTENTS_DIR, `${intentName}.json`)
+}
+
+// ideally this would be a filewatcher
+export async function updateIntentsSlotsEntities(
+  ghost: sdk.ScopedGhostService,
+  prevEntityName: string,
+  newEntityName: string
+): Promise<void> {
+  _.each(await getIntents(ghost), async intent => {
+    let modified = false
+    _.each(intent.slots, slot => {
+      _.forEach(slot.entities, (e, index, arr) => {
+        if (e === prevEntityName) {
+          arr[index] = newEntityName
+          modified = true
+        }
+      })
+    })
+    if (modified) {
+      await updateIntent(ghost, intent.name, intent)
+    }
+  })
 }
