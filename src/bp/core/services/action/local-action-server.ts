@@ -10,8 +10,6 @@ import { inject, injectable, tagged } from 'inversify'
 
 import ActionService from './action-service'
 
-const port = 4000
-
 @injectable()
 export class LocalActionServer {
   private readonly app: express.Express
