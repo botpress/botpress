@@ -30,8 +30,11 @@ describe('Studio - UI', () => {
   }
 
   it('Load Analytics', async () => {
-    await clickOn('#bp-menu_analytics')
-    await expectBotApiCallSuccess('mod/analytics/graphs')
-    await expectMatch(/Generic Analytics|There are no analytics available yet/)
+    await clickOn('#bp-menu_analytics-v2')
+    await expectBotApiCallSuccess('mod/analytics-v2/channel/all')
+    await expectMatch(/Dashboard/)
+    await expectMatch(/Agent Usage/)
+    await expectMatch(/Engagement & Retention/)
+    await expectMatch(/Understanding/)
   })
 })
