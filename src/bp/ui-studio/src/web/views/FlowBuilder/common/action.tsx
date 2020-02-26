@@ -87,12 +87,12 @@ class ActionItem extends Component<Props> {
 
     const item = this.props.items[this.state.itemId]
 
-    const preview = item && item.previews && item.previews[this.props.contentLang]
+    const preview = item?.previews?.[this.props.contentLang]
     const className = classnames(style.name, {
-      [style.missingTranslation]: preview && preview.startsWith('(missing translation) ')
+      [style.missingTranslation]: preview?.startsWith('(missing translation) ')
     })
 
-    if (preview && item && item.schema && item.schema.title === 'Image') {
+    if (preview && item?.schema?.title === 'Image') {
       const markdownRender = (
         <Markdown
           source={preview}
@@ -125,7 +125,7 @@ class ActionItem extends Component<Props> {
       )
     }
 
-    const textContent = (item && `${item.schema && item.schema.title} | ${preview}`) || ''
+    const textContent = (item && `${item.schema?.title} | ${preview}`) || ''
     const vars = {}
 
     const stripDots = str => str.replace(/\./g, '--dot--')

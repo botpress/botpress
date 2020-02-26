@@ -71,7 +71,7 @@ export default class StandardNodePropertiesPanel extends Component {
                 readOnly={readOnly}
                 items={node.onReceive}
                 header="On Receive"
-                waitable={true}
+                waitable
                 onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
                 copyItem={item => this.props.copyFlowNodeElement({ action: item })}
                 pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
