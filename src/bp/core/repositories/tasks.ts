@@ -28,10 +28,13 @@ export class TasksRepository {
   }
 
   public async completeTask(taskId: number, responseStatusCode: number) {
-    await this.database.knex.where({ id: taskId }).update({
-      status: 'completed',
-      responseStatusCode: responseStatusCode,
-      responseReceivedAt: this.database.knex.date.now()
-    })
+    await this.database
+      .knex(this.tableName)
+      .where({ id: taskId })
+      .update({
+        status: 'completed',
+        responseStatusCode: responseStatusCode,
+        responseReceivedAt: this.database.knex.date.now()
+      })
   }
 }
