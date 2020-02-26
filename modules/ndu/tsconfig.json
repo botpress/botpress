@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig_view.shared.json",
+  "extends": "../tsconfig.shared.json",
   "compilerOptions": {
     "baseUrl": "./"
   }
