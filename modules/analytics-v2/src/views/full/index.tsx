@@ -234,7 +234,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
         {this.renderTimeSeriesChart('Average Messages Per Session', this.getAvgMsgPerSessions())}
         {this.renderTimeSeriesChart('Active Users', this.getMetric('active_users_count'))}
         {this.renderTimeSeriesChart('New Users', this.getMetric('new_users_count'))}
-        {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'))}
+        {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'), true)}
         {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
       </div>
     )
@@ -269,21 +269,29 @@ export default class Analytics extends React.Component<{ bp: any }> {
     return (
       <div className={style.metricsContainer}>
         {this.renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
-        {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'))}
+        {this.renderNumberMetric('Positive QNA Feedback', this.getMetricCount('feedback_positive_qna'), true)}
         {this.renderNumberMetric('Understood Messages', this.getUnderstoodPercent())}
         {this.renderNumberMetric('Understood Top-Level Messages', this.getTopLevelUnderstoodPercent())}
       </div>
     )
   }
 
-  renderNumberMetric(name, value) {
+  renderNumberMetric(name, value, isPercentage = false) {
     return (
       <div className={classnames(style.metricWrapper, style.number)}>
         <h4 className={classnames(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
           <span>{name}</span>
         </h4>
         <Card className={style.numberMetric}>
-          <h2 className={style.numberMetricValue}>{value}</h2>
+          <h2
+            className={classnames(
+              style.numberMetricValue,
+              isPercentage && value.toString().length > 6 && TooltipStyle.botpressTooltip
+            )}
+            data-tooltip={value}
+          >
+            <span>{value}</span>
+          </h2>
         </Card>
       </div>
     )

@@ -107,8 +107,15 @@ $textColor: #182026;
 
 .numberMetricValue {
   margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: center;
+  width: 100%;
+
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .metricWrapper {
