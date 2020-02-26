@@ -196,33 +196,63 @@ export class ScopedActionService {
     const botId = incomingEvent.botId
     const workspace = await this.workspaceService.getBotWorkspaceId(botId)
 
-    const taskId = await this.tasksRepository.createTask(incomingEvent.id, actionName, actionArgs, actionServer.id)
-
-    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace, taskId }, process.APP_SECRET, {
+    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace }, process.APP_SECRET, {
       expiresIn: '5m',
       audience: 'api_user'
     })
 
-    const response = await axios({
-      method: 'post',
-      url: `${actionServer.baseUrl}/action/run`,
-      data: {
-        token,
-        actionName,
-        incomingEvent: props.incomingEvent,
-        actionArgs,
-        botId
-      },
-      // I override validateStatus in order for axios to not throw upon 500 errors from the Action Server.
-      // See https://github.com/axios/axios/issues/1143#issuecomment-340331822
-      validateStatus: status => {
-        return true
+    const startedAt = new Date()
+
+    let response
+    try {
+      response = await axios({
+        method: 'post',
+        url: `${actionServer.baseUrl}/action/run`,
+        timeout: ms('5s'),
+        data: {
+          token,
+          actionName,
+          incomingEvent: props.incomingEvent,
+          actionArgs,
+          botId
+        },
+        // I override validateStatus in order for axios to not throw the Action Server returns a 500 error.
+        // See https://github.com/axios/axios/issues/1143#issuecomment-340331822
+        validateStatus: status => {
+          return true
+        }
+      })
+    } catch (e) {
+      if (e.isAxiosError && e.code === 'ECONNABORTED') {
+        this.tasksRepository.createTask({
+          eventId: incomingEvent.id,
+          actionName,
+          actionArgs,
+          actionServerId: actionServer.id,
+          startedAt,
+          endedAt: new Date(),
+          status: 'failed',
+          failureReason: 'connection_aborted'
+        })
       }
+
+      throw e
+    }
+
+    const responseStatusCode = response.status
+
+    this.tasksRepository.createTask({
+      eventId: incomingEvent.id,
+      actionName,
+      actionArgs,
+      actionServerId: actionServer.id,
+      responseStatusCode,
+      startedAt,
+      endedAt: new Date(),
+      status: 'completed'
     })
 
-    await this.tasksRepository.completeTask(taskId, response.status)
-
-    incomingEvent.state.temp.responseStatusCode = response.status
+    incomingEvent.state.temp.responseStatusCode = responseStatusCode
 
     return response.data.incomingEvent
   }

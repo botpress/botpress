@@ -1,40 +1,76 @@
+import { Logger } from 'botpress/sdk'
 import Database from 'core/database'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
+import ms = require('ms')
+
+export interface TaskInfo {
+  eventId: string
+  actionName: string
+  actionArgs: any
+  actionServerId: string
+  responseStatusCode?: number
+  startedAt: Date
+  endedAt: Date
+  status: 'completed' | 'failed'
+  failureReason?: string
+}
 
 @injectable()
 export class TasksRepository {
-  private readonly tableName = 'tasks'
+  private readonly TABLE_NAME = 'tasks'
+  private readonly BATCH_SIZE = 100
+  private readonly INTERVAL = ms('5s')
+  private batch: TaskInfo[] = []
+  private currentPromise
+  private initialized = false
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.Logger) @tagged('name', 'TasksRepository') private logger: Logger
+  ) {}
 
-  public async createTask(
-    eventId: string,
-    actionName: string,
-    actionArgs: any,
-    actionServerId: string
-  ): Promise<number> {
-    return await this.database.knex.insertAndRetrieve(
-      this.tableName,
-      {
-        eventId,
-        status: 'started',
-        actionName,
-        actionArgs: this.database.knex.json.set(actionArgs),
-        actionServerId
-      },
-      ['id']
-    )
+  private runTask = () => {
+    if (this.currentPromise || this.batch.length === 0) {
+      return
+    }
+
+    const batchCount = this.batch.length >= this.BATCH_SIZE ? this.BATCH_SIZE : this.batch.length
+    const elements = this.batch.splice(0, batchCount)
+
+    this.currentPromise = this.database.knex
+      .batchInsert(
+        this.TABLE_NAME,
+        elements.map(e => ({
+          event_id: e.eventId,
+          status: e.status,
+          action_name: e.actionName,
+          action_args: this.database.knex.json.set(e.actionArgs),
+          action_server_id: e.actionServerId,
+          response_status_code: e.responseStatusCode,
+          started_at: e.startedAt,
+          ended_at: e.endedAt,
+          failure_reason: e.failureReason
+        })),
+        this.BATCH_SIZE
+      )
+      .catch(err => {
+        this.logger
+          .attachError(err)
+          .persist(false)
+          .error('Error persisting tasks')
+        this.batch.push(...elements)
+      })
+      .finally(() => {
+        this.currentPromise = undefined
+      })
   }
 
-  public async completeTask(taskId: number, responseStatusCode: number) {
-    await this.database
-      .knex(this.tableName)
-      .where({ id: taskId })
-      .update({
-        status: 'completed',
-        responseStatusCode: responseStatusCode,
-        responseReceivedAt: this.database.knex.date.now()
-      })
+  public createTask(taskInfo: TaskInfo) {
+    if (!this.initialized) {
+      setInterval(this.runTask, this.INTERVAL)
+    }
+
+    this.batch.push(taskInfo)
   }
 }
