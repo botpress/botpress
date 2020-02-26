@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import makeApi from '../api'
-import { getModel } from '../engine2/model-service'
-import { setTrainingSession } from '../engine2/train-session-service'
+import { getModel } from '../model-service'
+import { setTrainingSession } from '../train-session-service'
 import { NLUState, TrainingSession } from '../typings'
 
 export function getOnServerReady(state: NLUState) {

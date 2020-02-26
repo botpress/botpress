@@ -155,7 +155,6 @@ export interface NLUState {
 
 export interface BotState {
   botId: string
-  engine1: Engine
   engine: Engine2
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>

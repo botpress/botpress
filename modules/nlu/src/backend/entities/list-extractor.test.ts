@@ -1,9 +1,11 @@
 import 'bluebird-global'
-import { FuzzyTolerance } from '../../entities/validation'
+
+import { EntityExtractionResult, ListEntityModel } from '../typings'
+import Utterance from '../utterance/utterance'
 import { parseUtterance } from '../utterance/utterance-parser'
-import { EntityExtractionResult, ListEntityModel } from '../../typings'
+
 import { extractListEntities } from './custom-entity-extractor'
-import Utterance from './utterance'
+import { FuzzyTolerance } from './validation'
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)
 

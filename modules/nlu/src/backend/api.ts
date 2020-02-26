@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
-import { validate } from 'joi'
+import Joi, { validate } from 'joi'
 import _ from 'lodash'
+
 import {
   deleteEntity,
   getCustomEntities,
@@ -8,15 +9,22 @@ import {
   getEntity,
   saveEntity,
   updateEntity
-} from './engine2/entities/entities-service'
-import { deleteIntent, getIntent, getIntents, saveIntent, updateIntent } from './engine2/intents/intent-service'
-import recommendations from './engine2/intents/recommendations'
-import { getTrainingSession } from './engine2/train-session-service'
-import { EntityDefCreateSchema } from './entities'
+} from './entities/entities-service'
+import { EntityDefCreateSchema } from './entities/validation'
+import { deleteIntent, getIntent, getIntents, saveIntent, updateIntent } from './intents/intent-service'
+import recommendations from './intents/recommendations'
+import { IntentDefCreateSchema } from './intents/validation'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { crossValidate } from './tools/cross-validation'
+import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
-import { IntentDefCreateSchema, PredictSchema } from './validation'
+
+export const PredictSchema = Joi.object().keys({
+  contexts: Joi.array()
+    .items(Joi.string())
+    .default(['global']),
+  text: Joi.string().required()
+})
 
 export default async (bp: typeof sdk, state: NLUState) => {
   const router = bp.http.createRouterForBot('nlu')
