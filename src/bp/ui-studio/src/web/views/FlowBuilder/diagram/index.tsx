@@ -200,7 +200,7 @@ class Diagram extends Component<Props> {
     listenNode: (point: Point) =>
       this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
-    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' })
+    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action', next: [defaultTransition] })
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
