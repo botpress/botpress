@@ -51,7 +51,7 @@ export const conditionsDefinitions: sdk.Condition[] = [
   {
     id: 'user_is_authenticated',
     label: 'The user is authenticated',
-    evaluate: (_params, event) => {
+    evaluate: event => {
       return event.state.session.isAuthenticated ? 1 : 0
     }
   },
@@ -59,7 +59,7 @@ export const conditionsDefinitions: sdk.Condition[] = [
     id: 'user_topic_source',
     label: 'User is coming from a specific topic',
     params: { topicName: { label: 'Name of the topic', type: 'string' } },
-    evaluate: (params, event) => {
+    evaluate: (event, params) => {
       const topics = event.state.session.lastTopics
       return topics && topics[topics.length - 1] === params.topicName ? 1 : 0
     }
@@ -67,7 +67,7 @@ export const conditionsDefinitions: sdk.Condition[] = [
   {
     id: 'user_already_spoke',
     label: 'User has already spoke with the bot',
-    evaluate: (_params, event) => {
+    evaluate: event => {
       const { lastMessages } = event.state.session
       return lastMessages && lastMessages.length > 0 ? 1 : 0
     }
