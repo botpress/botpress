@@ -107,7 +107,7 @@ class ListView extends Component<Props, State> {
 
   handleSearchChanged = event => {
     this.setState({ searchTerm: event.target.value })
-    this.debouncedHandleSearch && this.debouncedHandleSearch()
+    this.debouncedHandleSearch?.()
   }
 
   onImportCompleted = () => {
@@ -153,7 +153,7 @@ class ListView extends Component<Props, State> {
         filters
       },
       () => {
-        hasTextChanged ? this.debouncedHandleSearch && this.debouncedHandleSearch() : this.launchSearch()
+        hasTextChanged ? this.debouncedHandleSearch?.() : this.launchSearch()
       }
     )
   }
@@ -239,7 +239,7 @@ class ListView extends Component<Props, State> {
         accessor: 'previews',
         filterable: false,
         Cell: x => {
-          const preview = x.original.previews && x.original.previews[this.props.contentLang]
+          const preview = x.original.previews?.[this.props.contentLang]
           const className = classnames({ [style.missingTranslation]: preview.startsWith('(missing translation) ') })
           return (
             <React.Fragment>
