@@ -145,13 +145,13 @@ export class ScopedActionService {
 
     try {
       if (actionServer) {
-        const response = await this.runInActionServer({
+        const returnedIncomingEvent = await this.runInActionServer({
           actionServer,
           actionName,
           actionArgs,
           incomingEvent
         })
-        _.merge(incomingEvent, response.incomingEvent)
+        _.merge(incomingEvent, returnedIncomingEvent)
       } else {
         const trusted = await this.isTrustedAction(actionName)
 
@@ -191,7 +191,7 @@ export class ScopedActionService {
     actionName: string
     incomingEvent: IO.IncomingEvent
     actionArgs: any
-  }): Promise<{ incomingEvent: IO.IncomingEvent }> {
+  }): Promise<IO.IncomingEvent> {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
     const workspace = await this.workspaceService.getBotWorkspaceId(botId)
@@ -213,7 +213,11 @@ export class ScopedActionService {
 
     await this.tasksRepository.completeTask(taskId, response.status)
 
-    return { incomingEvent: response.data.incomingEvent }
+    const returnedIncomingEvent: IO.IncomingEvent = response.data.incomingEvent
+
+    returnedIncomingEvent.state.temp.response_status_code = response.status
+
+    return returnedIncomingEvent
   }
 
   private async runTrustedCode(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent) {
