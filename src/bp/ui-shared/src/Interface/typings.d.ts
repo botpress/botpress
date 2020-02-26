@@ -18,5 +18,5 @@ export interface ConfirmDialogProps extends ConfirmDialogOptions {
 
 declare module 'botpress/shared' {
   export function confirmDialog(message: string, options: ConfirmDialogOptions): Promise<boolean>
-  export const TooltipStyle: TooltipStyle
+  export const style: { TooltipStyle: TooltipStyle }
 }

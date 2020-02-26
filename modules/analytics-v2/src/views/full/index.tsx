@@ -2,7 +2,7 @@ import { Button, Card, HTMLSelect } from '@blueprintjs/core'
 import { DateRange, DateRangeInput } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
-import { TooltipStyle } from 'botpress/shared'
+import { style as sharedStyle } from 'botpress/shared'
 import { Container, ItemList, SidePanel } from 'botpress/ui'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -12,6 +12,9 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'rec
 
 import style from './style.scss'
 
+const {
+  TooltipStyle: { botpressTooltip }
+} = sharedStyle
 const COLOR_SLACK = '#4A154B'
 const COLOR_MESSENGER = '#0196FF'
 const COLOR_WEB = '#FFA83A'
@@ -240,13 +243,13 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderNumberMetric = (name, value, isPercentage = false) => {
     return (
       <div className={cx(style.metricWrapper, style.number)}>
-        <h4 className={cx(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
+        <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
           <span>{name}</span>
         </h4>
         <Card className={style.numberMetric}>
           <h2
             className={cx(style.numberMetricValue, {
-              [TooltipStyle.botpressTooltip]: isPercentage && value.toString().length > 6
+              [botpressTooltip]: isPercentage && value.toString().length > 6
             })}
             data-tooltip={value}
           >
@@ -275,7 +278,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return (
       <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
-        <h4 className={cx(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
+        <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
           <span>{name}</span>
         </h4>
         <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
