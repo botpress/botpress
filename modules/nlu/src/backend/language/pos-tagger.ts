@@ -33,6 +33,10 @@ export function isPOSAvailable(lang: string): boolean {
   return lang === 'en'
 }
 
+function getPretrainedModelFilePath(languageCode: string): string {
+  return path.join(__dirname, `./pre-trained/pos.${languageCode}.model`)
+}
+
 function n_alpha(word: string): number {
   // TODO support more alphabets
   return (word.match(/[a-zA-z]/g) || []).length
@@ -101,8 +105,7 @@ export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit
 
   if (!taggersByLang[languageCode]) {
     const tagger = toolkit.CRF.createTagger()
-    const filepath = path.join(__dirname, `tools/pretrained/pos.${languageCode}.model`)
-    tagger.open(filepath)
+    tagger.open(getPretrainedModelFilePath(languageCode))
     taggersByLang[languageCode] = tagger
   }
 

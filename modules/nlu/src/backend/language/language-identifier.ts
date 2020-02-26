@@ -5,7 +5,7 @@ import tmp from 'tmp'
 
 import { LanguageIdentifier } from '../typings'
 
-const PRETRAINED_LID_176 = join(__dirname, '../../tools/pretrained/lid.176.ftz')
+const PRETRAINED_LID_176 = join(__dirname, './pre-trained/lid.176.ftz')
 export const NA_LANG = 'n/a'
 
 export class FastTextLanguageId implements LanguageIdentifier {
