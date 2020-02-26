@@ -18,5 +18,7 @@
       "botpress/common/typings": ["../../out/bp/common/typings.d.ts"],
       "botpress/sdk": ["../../src/bp/sdk/botpress.d.ts"]
     }
-  }
+  },
+  "exclude": ["**/*.test.ts", "**/views/**"],
+  "include": ["../src/typings/*.d.ts", "**/*.ts"]
 }
