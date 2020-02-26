@@ -1,6 +1,6 @@
-<a href='http://botpress.com'><img src='.github/assets/train_bar.gif'></a>
+<a href='https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme'><img src='.github/assets/train_bar.gif'></a>
 
-# [Botpress](https://botpress.com) — The open-source Virtual Assistant platform
+# [Botpress](https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme) — The open-source Virtual Assistant platform
 
 [![CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNTZoU0wzRmRQd29iWTFqVjliUzlvN0gzUUtoN25QVHlHMUhWYkZCWHpPQ3ZKQzFOMFh6Wm5EcHkxQW5SUmJuTFpLSDJXdURDVzNtRjM5d1BaU2pNUHhJPSIsIml2UGFyYW1ldGVyU3BlYyI6Iitoa0RBM091SnlXNTJwK2MiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codesuite/codebuild/projects/botpress-ce-tests/history?region=us-east-1)
 
@@ -42,7 +42,7 @@ Botpress can also be deployed for free on Heroku. However, this is not the most 
 
 ## Deploy using Binaries
 
-You can download the binaries [here](https://botpress.com/download).
+You can download the binaries [here](https://botpress.com/download?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme).
 
 ## Building from source
 
