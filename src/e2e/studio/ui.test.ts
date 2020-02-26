@@ -29,12 +29,13 @@ describe('Studio - UI', () => {
     })
   }
 
-  it('Load Analytics', async () => {
+  // Uncomment once the analytics v2 is enabled by default
+  /*it('Load Analytics', async () => {
     await clickOn('#bp-menu_analytics-v2')
     await expectBotApiCallSuccess('mod/analytics-v2/channel/all')
     await expectMatch(/Dashboard/)
     await expectMatch(/Agent Usage/)
     await expectMatch(/Engagement & Retention/)
     await expectMatch(/Understanding/)
-  })
+  })*/
 })
