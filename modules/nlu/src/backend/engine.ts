@@ -7,11 +7,11 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { Engine2, ListEntity, Tools, TrainingSession } from './typings'
+import { ListEntity, NLUEngine, Tools, TrainingSession } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
-export default class Engine implements Engine2 {
+export default class Engine implements NLUEngine {
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   static tools: Tools
   private predictorsByLang: _.Dictionary<Predictors> = {}
