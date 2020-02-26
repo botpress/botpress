@@ -1,4 +1,4 @@
-import { SPACE } from '../../tools/token-utils'
+import { SPACE } from '../tools/token-utils'
 import { UtteranceToken } from '../utterance/utterance'
 
 import * as featurizer from './slot-featurizer'
