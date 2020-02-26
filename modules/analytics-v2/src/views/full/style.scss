@@ -80,10 +80,15 @@ $textColor: #182026;
   font-size: 14px;
   font-weight: 400;
   margin: 0 0 10px;
-  overflow: hidden;
   text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
+
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .numberMetric {

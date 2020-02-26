@@ -2,6 +2,7 @@ import { Button, Card, HTMLSelect } from '@blueprintjs/core'
 import { DateRange, DateRangeInput } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
+import { TooltipStyle } from 'botpress/shared'
 import { Container, SidePanel } from 'botpress/ui'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -278,8 +279,9 @@ export default class Analytics extends React.Component<{ bp: any }> {
   renderNumberMetric(name, value) {
     return (
       <div className={classnames(style.metricWrapper, style.number)}>
-        {/*<BPTooltip content={name}></BPTooltip>*/}
-        <h4 className={style.metricName}>{name}</h4>
+        <h4 className={classnames(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
+          <span>{name}</span>
+        </h4>
         <Card className={style.numberMetric}>
           <h2 className={style.numberMetricValue}>{value}</h2>
         </Card>
@@ -305,8 +307,9 @@ export default class Analytics extends React.Component<{ bp: any }> {
 
     return (
       <div className={classnames(style.metricWrapper, !data.length && style.empty)}>
-        {/*<BPTooltip content={name}></BPTooltip>*/}
-        <h4 className={style.metricName}>{name}</h4>
+        <h4 className={classnames(style.metricName, TooltipStyle.botpressTooltip)} data-tooltip={name}>
+          <span>{name}</span>
+        </h4>
         <div className={classnames(style.chartMetric, !data.length && style.empty)}>
           {!data.length && <p className={style.emptyState}>No data available</p>}
           {!!data.length && (
