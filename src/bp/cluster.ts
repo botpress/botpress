@@ -39,16 +39,6 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   })
 
   cluster.on('exit', async (worker, code, signal) => {
-    const workerIdx = process.ML_WORKERS.indexOf(worker.id)
-    if (workerIdx !== -1) {
-      debug(`Machine learning worker ${worker.id} died`)
-      process.ML_WORKERS.splice(workerIdx, 1)
-      if (process.ML_WORKERS.length === 0) {
-        await spawnMLWorkers(logger)
-      }
-      return
-    }
-
     const { exitedAfterDisconnect, id } = worker
     debug(`Process exiting %o`, { workerId: id, code, signal, exitedAfterDisconnect })
     // Reset the counter when the reboot was intended
@@ -57,6 +47,16 @@ export const setupMasterNode = (logger: sdk.Logger) => {
       // Clean exit
     } else if (code === 0) {
       process.exit(0)
+    }
+
+    const workerIdx = process.ML_WORKERS?.indexOf(worker.id)
+    if (workerIdx !== -1) {
+      debug(`Machine learning worker ${worker.id} died`)
+      process.ML_WORKERS.splice(workerIdx, 1)
+      if (process.ML_WORKERS.length === 0) {
+        await spawnMLWorkers(logger)
+      }
+      return
     }
 
     if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
