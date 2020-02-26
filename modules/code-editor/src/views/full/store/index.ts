@@ -65,8 +65,6 @@ class RootStore {
   async previewFlow(e) {
     e.preventDefault()
 
-    console.log('im amazing')
-
     this.previewFlowActivated = true
   }
 
