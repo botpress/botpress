@@ -133,7 +133,7 @@ class RootStore {
     await this.editor.openFile({
       name,
       location: name,
-      content: content,
+      content,
       type,
       hookType,
       botId: isGlobal ? undefined : window.BOT_ID
