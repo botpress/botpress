@@ -6,6 +6,7 @@ import React, { FC, useEffect, useState } from 'react'
 
 import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
 
+import style from './style.scss'
 import { ActionParameters } from './ActionParameters'
 export interface ParameterValue {
   definition: ActionParameterDefinition
@@ -71,6 +72,7 @@ const ActionDialog: FC<ActionDialogProps> = props => {
   return (
     <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
       <div
+        className={style.actionDialogContent}
         onMouseDown={e => {
           // TODO: check for a more elegant way to stop event propagation
           e.stopPropagation()
