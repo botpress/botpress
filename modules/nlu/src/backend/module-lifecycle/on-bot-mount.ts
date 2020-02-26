@@ -4,8 +4,8 @@ import ms from 'ms'
 import yn from 'yn'
 import { Config } from '../../config'
 import ConfusionEngine from '../confusion-engine'
-import ScopedEngine from '../engine'
 import Engine2 from '../engine2/engine2'
+import { getCustomEntities } from '../engine2/entities/entities-service'
 import { getIntents } from '../engine2/intents/intent-service'
 import * as ModelService from '../engine2/model-service'
 import { makeTrainingSession, makeTrainSessionKey } from '../engine2/train-session-service'
@@ -55,7 +55,7 @@ export function getOnBotMount(state: NLUState) {
         }
 
         const intentDefs = await getIntents(ghost)
-        const entityDefs = await (engine1 as ScopedEngine).storage.getCustomEntities() // TODO: replace this with entities service once implemented
+        const entityDefs = await getCustomEntities(ghost)
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         await Promise.mapSeries(languages, async languageCode => {

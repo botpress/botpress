@@ -12,9 +12,7 @@ const EntityDefOccurrenceSchema = Joi.object().keys({
 })
 
 export const EntityDefCreateSchema = Joi.object().keys({
-  id: Joi.string()
-    .regex(/\t\s/gi, { invert: true })
-    .required(),
+  id: Joi.string().regex(/\t\s/gi, { invert: true }),
   name: Joi.string().required(),
   type: Joi.string()
     .valid(['system', 'pattern', 'list'])
