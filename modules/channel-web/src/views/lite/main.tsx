@@ -171,7 +171,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleNewMessage = async event => {
-    if ((event.payload && event.payload.type === 'visit') || event.message_type === 'visit') {
+    if (event.payload?.type === 'visit' || event.message_type === 'visit') {
       // don't do anything, it's the system message
       return
     }
@@ -217,7 +217,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleResetUnreadCount = () => {
-    if (document.hasFocus && document.hasFocus() && this.props.activeView === 'side') {
+    if (document.hasFocus?.() && this.props.activeView === 'side') {
       this.props.resetUnread()
     }
   }
@@ -250,7 +250,7 @@ class Web extends React.Component<MainProps> {
     })
 
     if (this.parentClass !== parentClass) {
-      window.parent && window.parent.postMessage({ type: 'setClass', value: parentClass }, '*')
+      window.parent?.postMessage({ type: 'setClass', value: parentClass }, '*')
       this.parentClass = parentClass
     }
 
@@ -258,8 +258,8 @@ class Web extends React.Component<MainProps> {
 
     return (
       <div onFocus={this.handleResetUnreadCount}>
-        {stylesheet && stylesheet.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
-        {extraStylesheet && extraStylesheet.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
+        {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
+        {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
         {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )

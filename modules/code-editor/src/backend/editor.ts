@@ -178,7 +178,7 @@ export default class Editor {
     }
 
     const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
-    const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.js`), 'utf-8')
+    const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.txt`), 'utf-8')
 
     const ghost = this.bp.ghost.forRoot()
     const botConfigSchema = await ghost.readFileAsString('/', 'bot.config.schema.json')
