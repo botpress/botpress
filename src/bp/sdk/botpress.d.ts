@@ -478,6 +478,13 @@ declare module 'botpress/sdk' {
     }
 
     export type SlotCollection = Dic<Slot>
+
+    export interface Predictions {
+      [context: string]: {
+        confidence: number
+        intents: { label: string; confidence: number }[]
+      }
+    }
   }
 
   export namespace NDU {
@@ -488,7 +495,6 @@ declare module 'botpress/sdk' {
           result: any
         }
       }
-      /** List of actions that needs to be executed by the decision engine */
       actions: Actions[]
     }
 
@@ -603,15 +609,8 @@ declare module 'botpress/sdk' {
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
-      readonly predictions?: Predictions
+      readonly predictions?: NLU.Predictions
       readonly ms: number
-    }
-
-    export interface Predictions {
-      [context: string]: {
-        confidence: number
-        intents: { label: string; confidence: number }[]
-      }
     }
 
     export interface IncomingEvent extends Event {

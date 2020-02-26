@@ -44,7 +44,7 @@ export class UnderstandingEngine {
     }
   }
 
-  getPredictionScores(predictions: sdk.IO.Predictions) {
+  getPredictionScores(predictions: sdk.NLU.Predictions) {
     const results = _.flatMap(predictions, ({ confidence, intents }, key) =>
       intents.map(intent => ({
         topicName: key,

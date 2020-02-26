@@ -20,13 +20,16 @@ export default class Database {
   }
 
   async initialize() {
-    /// await this.knex.schema.dropTable('ndu')
+    // The schema of this table is subject to change often while in development.
+    // await this.knex.schema.dropTable('ndu')
 
     return this.knex.createTableIfNotExists('ndu', table => {
       table.increments('id').primary()
       table.string('incomingEventId')
       table.string('currentTopicName')
       table.string('currentTopicGoal')
+
+      // Unsure of the value of those two
       table.string('currentTopicLastActionName')
       table.string('currentTopicLastActionSince')
 
@@ -35,12 +38,14 @@ export default class Database {
       }
 
       table.jsonb('nduDecisionActions')
+
       table.string('nduDecisionConfidence')
       table.string('feedbackUser').nullable()
       table.string('adminDecisionOverride').nullable()
       table.string('adminDecisionWho').nullable()
-      table.timestamp('created_on')
+
       table.timestamp('adminDecisionTs')
+      table.timestamp('created_on')
     })
   }
 

@@ -58,7 +58,7 @@ export const getIntentActions = async (
   intentName: string,
   event: sdk.IO.IncomingEvent,
   { bp, storage, config, defaultLang }
-): Promise<sdk.IO.NDUActions[]> => {
+): Promise<sdk.NDU.Actions[]> => {
   const actions = []
 
   const qnaEntry = await getQuestionForIntent(storage, intentName)
@@ -66,7 +66,7 @@ export const getIntentActions = async (
   if (qnaEntry?.enabled) {
     if (qnaEntry.action.includes('text')) {
       const payloads = await getQnaEntryPayloads(qnaEntry, event, config.textRenderer, defaultLang, bp)
-      actions.push({ action: 'send', data: { payloads } })
+      actions.push({ action: 'send', data: { payloads, source: 'qna', sourceDetails: intentName } })
     }
 
     if (qnaEntry.action.includes('redirect')) {
