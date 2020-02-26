@@ -22,7 +22,6 @@ export class LocalActionServer {
     this.app = express()
     this.app.use(bodyParser.json())
 
-    this.app.get('/', (req, res) => res.send('Hello World!'))
     this.app.post('/action/run', async (req, res) => {
       const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
@@ -34,7 +33,6 @@ export class LocalActionServer {
         code,
         dirPath,
         {
-          // todo: remove sdk, only http
           event: incomingEvent,
           user: incomingEvent.state.user,
           temp: incomingEvent.state.temp,
