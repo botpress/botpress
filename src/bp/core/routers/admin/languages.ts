@@ -9,6 +9,7 @@ import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
 import { needPermissions } from '../util'
+import { GhostService } from 'core/services'
 
 export class LanguagesRouter extends CustomRouter {
   private needPermissions: (operation: string, resource: string) => RequestHandler
@@ -18,7 +19,8 @@ export class LanguagesRouter extends CustomRouter {
     private logger: Logger,
     private moduleLoader: ModuleLoader,
     private workspaceService: WorkspaceService,
-    private configProvider: ConfigProvider
+    private configProvider: ConfigProvider,
+    private ghostService: GhostService
   ) {
     super('Languages', logger, Router({ mergeParams: true }))
     this.needPermissions = needPermissions(this.workspaceService)
@@ -144,26 +146,27 @@ export class LanguagesRouter extends CustomRouter {
       '/available',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        let languagesData
         try {
-          const { modules } = await this.configProvider.getBotpressConfig()
-          const nluEnabled = _.find(modules, { location: 'MODULES_ROOT/nlu' })?.enabled
-          if (!nluEnabled) return res.send({ languages: [...(await this.getExtraLangs())] })
           const client = await this.getSourceClient()
-          const { data } = await client.get('/languages')
-
-          const languages = [
-            ...data.installed
-              .filter(x => x.loaded)
-              .map(x => ({
-                ...data.available.find(l => l.code === x.lang)
-              })),
-            ...(await this.getExtraLangs())
-          ]
-
-          res.send({ languages })
-        } catch (err) {
-          res.status(500).send(err)
+          languagesData = (await client.get('/languages')).data
+        } catch (e) {
+          languagesData = { installed: [], available: [] }
+          const { languageSources } = await this.ghostService.global().readFileAsObject('/config/', 'nlu.json')
+          if (languageSources.length && languageSources[0].endpoint)
+            this.logger.warn(`Please remove the languageSources from nlu.json if you don't want to use it`)
         }
+
+        const languages = [
+          ...languagesData.installed
+            .filter(x => x.loaded)
+            .map(x => ({
+              ...languagesData.available.find(l => l.code === x.lang)
+            })),
+          ...(await this.getExtraLangs())
+        ]
+
+        res.send({ languages })
       })
     )
   }
