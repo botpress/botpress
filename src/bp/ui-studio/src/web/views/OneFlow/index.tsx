@@ -236,7 +236,6 @@ class FlowBuilder extends Component<Props, State> {
             flowPreview={this.state.flowPreview}
             showSearch={this.state.showSearch}
             hideSearch={this.hideSearch}
-            // @ts-ignore
             ref={el => {
               if (!!el) {
                 // @ts-ignore
