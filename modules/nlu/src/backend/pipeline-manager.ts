@@ -146,6 +146,7 @@ export const initNLUStruct = (rawText: string, lastMessages: string[], includedC
     language: '',
     entities: [],
     ambiguous: false,
+    errored: false,
     intent: {} as sdk.NLU.Intent,
     intents: [],
     tokens: [],
