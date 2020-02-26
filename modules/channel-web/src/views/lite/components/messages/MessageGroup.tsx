@@ -25,7 +25,7 @@ class MessageGroup extends React.Component<Props> {
   convertPayloadFromOldFormat = data => {
     let payload = data.payload || data.message_data || data.message_raw || { text: data.message_text }
     if (!payload.type) {
-      payload.type = data.message_type || (data.message_data && data.message_data.type) || 'text'
+      payload.type = data.message_type || data.message_data?.type || 'text'
     }
 
     // Keeping compatibility with old schema for the quick reply
@@ -34,7 +34,7 @@ class MessageGroup extends React.Component<Props> {
     }
 
     if (data.message_type === 'file' && !payload.url) {
-      payload.url = (data.message_data && data.message_data.url) || (data.message_raw && data.message_raw.url)
+      payload.url = data.message_data?.url || data.message_raw?.url
     }
 
     if (this.props.messageWrapper && payload.type !== 'session_reset') {

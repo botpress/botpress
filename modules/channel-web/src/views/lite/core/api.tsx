@@ -25,7 +25,7 @@ export default class WebchatApi {
     this.axiosConfig = this.updateAxiosConfig()
   }
 
-  updateUserId(userId) {
+  updateUserId(userId: string) {
     this.userId = userId
   }
 
@@ -94,7 +94,7 @@ export default class WebchatApi {
     try {
       this.axios.post(`/conversations/${this.userId}/${convoId}/reset`, {}, this.axiosConfig)
     } catch (err) {
-      console.log(`Error while reseting convo`, err)
+      console.log(`Error while resetting convo`, err)
     }
   }
 

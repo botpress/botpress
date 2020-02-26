@@ -2,6 +2,7 @@ import { Button, HTMLTable, Intent } from '@blueprintjs/core'
 import React from 'react'
 
 import { DbFlaggedEvent } from '../../../types'
+import style from '../style.scss'
 import { RESOLUTION } from '../util'
 
 interface Props {
@@ -12,13 +13,13 @@ interface Props {
 const ResolvedEventsList = ({ events, resetEvent }: Props) =>
   events &&
   !!events.length && (
-    <HTMLTable condensed interactive striped>
+    <HTMLTable className={style.mainViewTable} condensed interactive striped>
       <thead>
         <tr>
-          <th>Phrase</th>
+          <th className={style.thPhrase}>Phrase</th>
           <th>Resolution</th>
-          <th>Updated</th>
-          <th />
+          <th className={style.thUpdated}>Updated</th>
+          <th className={style.thAction} />
         </tr>
       </thead>
       <tbody>

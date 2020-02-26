@@ -159,12 +159,16 @@ export default class ConfigReader {
    */
   private async bootstrapGlobalConfigurationFiles() {
     for (const moduleId of this.modules.keys()) {
-      if (await this.isGlobalConfigurationFileMissing(moduleId)) {
-        const config = await this.getModuleDefaultConfigFile(moduleId)
-        const fileName = `${moduleId}.json`
-        await this.ghost.global().upsertFile('config', fileName, config)
-        this.logger.debug(`Added missing "${fileName}" configuration file`)
-      }
+      await this.loadModuleGlobalConfigFile(moduleId)
+    }
+  }
+
+  public async loadModuleGlobalConfigFile(moduleId: string) {
+    if (await this.isGlobalConfigurationFileMissing(moduleId)) {
+      const config = await this.getModuleDefaultConfigFile(moduleId)
+      const fileName = `${moduleId}.json`
+      await this.ghost.global().upsertFile('config', fileName, config)
+      this.logger.debug(`Added missing "${fileName}" configuration file`)
     }
   }
 
