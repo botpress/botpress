@@ -282,7 +282,11 @@ export class Botpress {
 
     disabledBots.forEach(botId => BotService.setBotStatus(botId, 'disabled'))
 
-    this.logger.info(`Discovered ${botsToMount.length} bots, mounting them...`)
+    this.logger.info(
+      `Discovered ${botsToMount.length} bot${botsToMount.length === 1 ? '' : 's'}${
+        botsToMount.length ? `, mounting ${botsToMount.length === 1 ? 'it' : 'them'}...` : ''
+      }`
+    )
 
     const maxConcurrentMount = parseInt(process.env.MAX_CONCURRENT_MOUNT || '5')
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId), { concurrency: maxConcurrentMount })
@@ -404,7 +408,7 @@ export class Botpress {
   }
 
   private formatProcessingError(err: ProcessingError) {
-    return `Error processing "${err.instruction}"
+    return `Error processing '${err.instruction}'
 Err: ${err.message}
 BotId: ${err.botId}
 Flow: ${err.flowName}
