@@ -26,16 +26,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
 
   componentDidMount() {
     void axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
-      const channels = data
-        .filter(
-          x =>
-            x.name === 'channel-web' ||
-            x.name === 'channel-messenger' ||
-            x.name === 'channel-slack' ||
-            x.name === 'channel-telegram'
-        )
-        .map(x => x.name.substring(8))
-
+      const channels = data.filter(x => x.startsWith('channel')).map(x => x.replace('channel-', ''))
       this.setState({ channels: [...this.state.channels, ...channels] })
     })
 
@@ -48,7 +39,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
       .unix()
 
     void this.fetchAnalytics(this.state.selectedChannel, aWeekAgo, today).then(({ data }) => {
-      this.setState({ startDate: aWeekAgo, endDate: today, metrics: data })
+      this.setState({ startDate: aWeekAgo, endDate: today, metrics: data.metrics })
     })
   }
 
@@ -63,7 +54,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
 
   handleFilterChange = event => {
     this.fetchAnalytics(event.target.value, this.state.startDate, this.state.endDate).then(({ data }) => {
-      this.setState({ metrics: data })
+      this.setState({ metrics: data.metrics })
     })
   }
 
@@ -72,7 +63,7 @@ export default class Analytics extends React.Component<{ bp: any }> {
     const endDate = moment(dateRange[1]).unix()
 
     const { data } = await this.fetchAnalytics(this.state.selectedChannel, startDate, endDate)
-    this.setState({ startDate, endDate, metrics: data })
+    this.setState({ startDate, endDate, metrics: data.metrics })
   }
 
   isLoaded = () => {
