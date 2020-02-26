@@ -100,46 +100,50 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           </HTMLSelect>
         </Label>
 
-        <FormGroup
-          helperText="This is the action that will be executed on the chosen Action Server"
-          label="Action Name"
-          labelFor="action-name"
-          labelInfo="(required)"
-        >
-          <HTMLSelect
-            id="action-name"
-            value={currentActionDefinition.name}
-            onChange={e => {
-              setName(e.target.value)
-            }}
-          >
-            {currentActionServer.actions.map(actionDefinition => (
-              <option key={actionDefinition.name} value={actionDefinition.name}>
-                {actionDefinition.name}
-              </option>
-            ))}
-          </HTMLSelect>
-        </FormGroup>
+        {currentActionDefinition && (
+          <>
+            <FormGroup
+              helperText="This is the action that will be executed on the chosen Action Server"
+              label="Action Name"
+              labelFor="action-name"
+              labelInfo="(required)"
+            >
+              <HTMLSelect
+                id="action-name"
+                value={currentActionDefinition.name}
+                onChange={e => {
+                  setName(e.target.value)
+                }}
+              >
+                {currentActionServer.actions.map(actionDefinition => (
+                  <option key={actionDefinition.name} value={actionDefinition.name}>
+                    {actionDefinition.name}
+                  </option>
+                ))}
+              </HTMLSelect>
+            </FormGroup>
 
-        <FormGroup
-          label="Action Parameters"
-          labelFor="action-parameters"
-          helperText={currentActionDefinition.parameters.length === 0 ? 'This action has no parameters' : undefined}
-        >
-          <ActionParameters
-            parameterValues={currentActionDefinition.parameters.map(parameterDefinition => {
-              return { definition: parameterDefinition, value: parameters[parameterDefinition.name] || '' }
-            })}
-            onUpdate={parameterValues => {
-              const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
-                previousValue[parameterValue.definition.name] = parameterValue.value
-                return previousValue
-              }, {})
+            <FormGroup
+              label="Action Parameters"
+              labelFor="action-parameters"
+              helperText={currentActionDefinition.parameters.length === 0 ? 'This action has no parameters' : undefined}
+            >
+              <ActionParameters
+                parameterValues={currentActionDefinition.parameters.map(parameterDefinition => {
+                  return { definition: parameterDefinition, value: parameters[parameterDefinition.name] || '' }
+                })}
+                onUpdate={parameterValues => {
+                  const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
+                    previousValue[parameterValue.definition.name] = parameterValue.value
+                    return previousValue
+                  }, {})
 
-              setParameters(paramsObj)
-            }}
-          />
-        </FormGroup>
+                  setParameters(paramsObj)
+                }}
+              />
+            </FormGroup>
+          </>
+        )}
 
         {currentActionServer.actions.length === 0 && (
           <NonIdealState icon="warning-sign" title="No actions found on this Action Server" />
