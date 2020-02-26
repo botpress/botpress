@@ -1,11 +1,10 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.tabSize": 2,
-  "editor.formatOnSave": true,
   "files.eol": "\n",
   "editor.codeActionsOnSave": {
-    "source.fixAll.tslint": true,
-    "source.organizeImports": true
+    "source.fixAll.tslint": true
+    // "source.organizeImports": true
   },
   "files.associations": {
     "*.styl": "scss",
