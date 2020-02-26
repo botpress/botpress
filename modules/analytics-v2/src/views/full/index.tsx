@@ -27,6 +27,7 @@ const sideList = [
 const fetchReducer = (state, action) => {
   if (action.type === 'datesSuccess') {
     const { startDate, endDate, metrics } = action.data
+    console.log(metrics)
     return {
       ...state,
       startDate,
@@ -68,14 +69,9 @@ const Analytics: FC<any> = ({ bp }) => {
   useEffect(() => {
     void axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
       const channels = data
-        .filter(
-          x =>
-            x.name === 'channel-web' ||
-            x.name === 'channel-messenger' ||
-            x.name === 'channel-slack' ||
-            x.name === 'channel-telegram'
-        )
-        .map(x => x.name.substring(8))
+        .map(x => x.name)
+        .filter(x => x.startsWith('channel'))
+        .map(x => x.replace('channel-', ''))
 
       setChannels(prevState => [...prevState, ...channels])
     })
@@ -88,7 +84,7 @@ const Analytics: FC<any> = ({ bp }) => {
       .startOf('day')
       .unix()
 
-    void fetchAnalytics(state.selectedChannel, startDate, endDate).then(({ data: metrics }) => {
+    fetchAnalytics(state.selectedChannel, startDate, endDate).then(({ data: { metrics } }) => {
       dispatch({ type: 'datesSuccess', data: { startDate, endDate, metrics } })
     })
   }, [])
@@ -102,17 +98,20 @@ const Analytics: FC<any> = ({ bp }) => {
     })
   }
 
-  const handleChannelChange = ({ target: { value: selectedChannel } }) => {
-    fetchAnalytics(selectedChannel, state.startDate, state.endDate).then(({ data: metrics }) => {
-      dispatch({ type: 'channelSuccess', data: { metrics, selectedChannel } })
-    })
+  const handleChannelChange = async ({ target: { value: selectedChannel } }) => {
+    const {
+      data: { metrics }
+    } = await fetchAnalytics(selectedChannel, state.startDate, state.endDate)
+    dispatch({ type: 'channelSuccess', data: { metrics, selectedChannel } })
   }
 
   const handleDateChange = async (dateRange: DateRange) => {
     const startDate = moment(dateRange[0]).unix()
     const endDate = moment(dateRange[1]).unix()
 
-    const { data: metrics } = await fetchAnalytics(state.selectedChannel, startDate, endDate)
+    const {
+      data: { metrics }
+    } = await fetchAnalytics(state.selectedChannel, startDate, endDate)
     dispatch({ type: 'datesSuccess', data: { startDate, endDate, metrics } })
   }
 
@@ -141,7 +140,7 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getMetricCount = metricName =>
-    state.metrics.filter(m => m.metric_name === metricName).reduce((acc, cur) => acc + cur.value, 0)
+    state.metrics.filter(m => m.metric === metricName).reduce((acc, cur) => acc + cur.value, 0)
 
   const getAvgMsgPerSessions = () => {
     const augmentedMetrics = state.metrics.map(m => ({
@@ -149,14 +148,14 @@ const Analytics: FC<any> = ({ bp }) => {
       day: moment(m.created_on).format('DD-MM')
     }))
     const metricsByDate = _.sortBy(augmentedMetrics, 'day')
-    const sessionsCountPerDay = metricsByDate.filter(m => m.metric_name === 'sessions_count')
+    const sessionsCountPerDay = metricsByDate.filter(m => m.metric === 'sessions_count')
 
     return sessionsCountPerDay.map(s => {
       const sentCount = augmentedMetrics.find(
-        m => m.metric_name === 'msg_sent_count' && s.day === m.day && s.channel === m.channel
+        m => m.metric === 'msg_sent_count' && s.day === m.day && s.channel === m.channel
       )
       const receivedCount = augmentedMetrics.find(
-        m => m.metric_name === 'msg_received_count' && s.day === m.day && s.channel === m.channel
+        m => m.metric === 'msg_received_count' && s.day === m.day && s.channel === m.channel
       )
       return {
         value: Math.round((_.get(sentCount, 'value', 0) + _.get(receivedCount, 'value', 0)) / s.value),
@@ -189,7 +188,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${value.toFixed(2)}${suffix}`)
 
-  const getMetric = metricName => state.metrics.filter(x => x.metric_name === metricName)
+  const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
   const renderDashboard = () => {
     return (
@@ -336,7 +335,7 @@ const Analytics: FC<any> = ({ bp }) => {
           <div className={style.filtersWrapper}>
             <label className={style.filtersInputWrapper}>
               <span className={style.inputLabel}>Channel</span>
-              <HTMLSelect onChange={handleChannelChange} defaultValue="all">
+              <HTMLSelect onChange={handleChannelChange} value={state.selectedChannel}>
                 {channels.map(channel => {
                   return (
                     <option key={channel} value={channel}>

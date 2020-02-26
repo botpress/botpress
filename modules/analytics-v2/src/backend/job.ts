@@ -2,8 +2,8 @@ import sdk, { AnalyticsMethod, AnalyticsMetric, BotConfig, MetricDefinition } fr
 import _ from 'lodash'
 import ms from 'ms'
 
-import { Analytics } from '..'
 import { Config } from '../config'
+import { Analytics } from '../typings'
 
 import { AnalyticsDatabase } from './db'
 
@@ -11,7 +11,7 @@ export default class AnalyticsService {
   private readonly BATCH_SIZE = 100
 
   private batch: MetricDefinition[] = []
-  private botConfigs: Map<string, BotConfig> = new Map()
+  private botConfigs: Map<string, Config> = new Map()
   private enabled = false
   private interval!: number
   private intervalRef
@@ -20,17 +20,13 @@ export default class AnalyticsService {
   constructor(private bp: typeof sdk, private db: AnalyticsDatabase) {}
 
   async initialize() {
-    try {
-      const config = (await this.bp.config.getModuleConfig('analytics')) as Config
-      if (!config || !config.enabled) {
-        return
-      }
-
-      this.interval = ms(config.interval as string)
-      this.enabled = config.enabled
-    } catch (err) {
-      console.log(err)
+    const config = (await this.bp.config.getModuleConfig('analytics-v2')) as Config
+    if (!config || !config.enabled) {
+      return
     }
+
+    this.interval = ms(config.interval as string)
+    this.enabled = config.enabled
   }
 
   start() {
@@ -42,11 +38,11 @@ export default class AnalyticsService {
 
   async addMetric(metricDef: MetricDefinition): Promise<void> {
     if (!this.botConfigs.has(metricDef.botId)) {
-      const botConfig = await this.bp.config.getModuleConfigForBot('analytics', metricDef.botId)
+      const botConfig = (await this.bp.config.getModuleConfigForBot('analytics-v2', metricDef.botId)) as Config
       this.botConfigs.set(metricDef.botId, botConfig)
     }
 
-    if (this.enabled || this.botConfigs.get(metricDef.botId)?.analytics?.enabled) {
+    if (this.enabled || this.botConfigs.get(metricDef.botId).enabled) {
       this.batch.push(metricDef)
     }
   }

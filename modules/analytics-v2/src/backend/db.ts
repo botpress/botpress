@@ -2,19 +2,31 @@ import { AnalyticsMethod, database, MetricDefinition } from 'botpress/sdk'
 import Knex from 'knex'
 import moment from 'moment'
 
-import { Analytics } from '..'
+import { Analytics } from '../typings'
 
 const TABLE_NAME = 'srv_analytics'
 
 export class AnalyticsDatabase {
   constructor(private db: typeof database) {}
 
+  async init() {
+    await this.db.createTableIfNotExists(TABLE_NAME, table => {
+      table.increments('id').primary()
+      table.string('botId')
+      table.string('metric')
+      table.string('channel')
+      table.timestamp('created_on')
+      table.timestamp('updated_on')
+      table.decimal('value')
+    })
+  }
+
   async insert(args: { botId: string; channel: string; metric: string; value: number }, trx?: Knex.Transaction) {
     const { botId, channel, metric, value } = args
     let query = this.db(TABLE_NAME).insert({
       botId,
       channel,
-      metric_name: metric,
+      metric,
       value,
       created_on: this.db.date.now()
     })
@@ -78,7 +90,7 @@ export class AnalyticsDatabase {
     const { botId, channel, metric } = args
     let query = this.db(TABLE_NAME)
       .select()
-      .where({ botId, channel, metric_name: metric })
+      .where({ botId, channel, metric })
       .orderBy('created_on', 'desc')
       .first()
 
