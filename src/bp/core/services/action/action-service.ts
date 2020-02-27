@@ -119,7 +119,7 @@ export class ScopedActionService {
   }
 
   async listActions(): Promise<ActionDefinition[]> {
-    const globalActions = await this.listGlobalActions()
+    const globalActions = await this._listGlobalActions()
     const localActions = await this.listLocalActions()
 
     return globalActions.concat(localActions)
@@ -138,7 +138,7 @@ export class ScopedActionService {
     const actionFiles = (await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', EXCLUDES)).filter(
       enabled
     )
-    const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'local', true))
+    const actions = await Promise.map(actionFiles, async file => this._getActionDefinition(file, 'local', true))
 
     this._localActionsCache = actions
     return actions
@@ -153,10 +153,10 @@ export class ScopedActionService {
 
     try {
       if (actionServer) {
-        incomingEvent = await this.runInActionServer({ ...props, actionServer })
+        incomingEvent = await this._runInActionServer({ ...props, actionServer })
       } else {
         const trusted = isTrustedAction(actionName)
-        await this.runLocalAction(actionName, actionArgs, incomingEvent, trusted)
+        await this._runLocalAction(actionName, actionArgs, incomingEvent, trusted)
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
@@ -169,19 +169,19 @@ export class ScopedActionService {
     }
   }
 
-  private async listGlobalActions() {
+  private async _listGlobalActions() {
     if (this._globalActionsCache) {
       return this._globalActionsCache
     }
 
     const actionFiles = (await this.ghost.global().directoryListing('actions', '*.js', EXCLUDES)).filter(enabled)
-    const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'global', true))
+    const actions = await Promise.map(actionFiles, async file => this._getActionDefinition(file, 'global', true))
 
     this._globalActionsCache = actions
     return actions
   }
 
-  private async runInActionServer(props: {
+  private async _runInActionServer(props: {
     actionServer: ActionServer
     actionName: string
     incomingEvent: IO.IncomingEvent
@@ -190,7 +190,7 @@ export class ScopedActionService {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
 
-    const workspaceId = await this.getWorkspaceIdForBot(botId)
+    const workspaceId = await this._getWorkspaceIdForBot(botId)
 
     const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace: workspaceId }, process.APP_SECRET, {
       expiresIn: '5m',
@@ -247,7 +247,12 @@ export class ScopedActionService {
     return responseIncomingEvent
   }
 
-  private async runLocalAction(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent, trusted: boolean) {
+  private async _runLocalAction(
+    actionName: string,
+    actionArgs: any,
+    incomingEvent: IO.IncomingEvent,
+    trusted: boolean
+  ) {
     const { code, _require, dirPath } = await this.loadLocalAction(actionName)
 
     const api = await createForAction()
@@ -264,7 +269,7 @@ export class ScopedActionService {
     }
 
     if (trusted) {
-      return await this.runWithoutVm(code, args, _require)
+      return await this._runWithoutVm(code, args, _require)
     } else {
       return await this.runInVm(code, dirPath, args, _require)
     }
@@ -292,9 +297,9 @@ export class ScopedActionService {
     return runner.runInVm(vm, code, dirPath)
   }
 
-  private async getActionDetails(actionName: string) {
-    const action = await this.findAction(actionName)
-    const code = await this.getActionScript(action)
+  private async _getActionDetails(actionName: string) {
+    const action = await this._findAction(actionName)
+    const code = await this._getActionScript(action)
 
     const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
@@ -305,10 +310,10 @@ export class ScopedActionService {
 
   public async loadLocalAction(actionName: string) {
     if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
-      await this.checkActionRequires(actionName)
+      await this._checkActionRequires(actionName)
     }
 
-    const { code, dirPath, lookups } = await this.getActionDetails(actionName)
+    const { code, dirPath, lookups } = await this._getActionDetails(actionName)
 
     const _require = prepareRequire(dirPath, lookups)
 
@@ -333,7 +338,7 @@ export class ScopedActionService {
     this._botsWorkspaceIdsCache.clear()
   }
 
-  private async getActionDefinition(
+  private async _getActionDefinition(
     file: string,
     location: ActionLocation,
     includeMetadata: boolean
@@ -346,14 +351,14 @@ export class ScopedActionService {
     }
 
     if (includeMetadata) {
-      const script = await this.getActionScript(action)
+      const script = await this._getActionScript(action)
       action = { ...action, metadata: extractMetadata(script) }
     }
 
     return action
   }
 
-  private async getActionScript(action: ActionDefinition): Promise<string> {
+  private async _getActionScript(action: ActionDefinition): Promise<string> {
     if (this._scriptsCache.has(action.name)) {
       return this._scriptsCache.get(action.name)!
     }
@@ -371,12 +376,12 @@ export class ScopedActionService {
   }
 
   // This method tries to load require() files from the FS and fallback on BPFS
-  private async checkActionRequires(actionName: string): Promise<boolean> {
+  private async _checkActionRequires(actionName: string): Promise<boolean> {
     if (this._validScripts[actionName]) {
       return true
     }
 
-    const { code, dirPath: parentScript, lookups } = await this.getActionDetails(actionName)
+    const { code, dirPath: parentScript, lookups } = await this._getActionDetails(actionName)
 
     const isRequireValid = prepareRequireTester(parentScript, lookups)
     const files = extractRequiredFiles(code)
@@ -388,9 +393,9 @@ export class ScopedActionService {
 
       try {
         // Ensures the required files are available before compiling the action
-        await this.checkActionRequires(file)
+        await this._checkActionRequires(file)
 
-        const { code, dirPath, lookups } = await this.getActionDetails(file)
+        const { code, dirPath, lookups } = await this._getActionDetails(file)
         const exports = requireFromString(code, file, parentScript, prepareRequire(dirPath, lookups))
 
         if (_.isEmpty(exports)) {
@@ -406,7 +411,7 @@ export class ScopedActionService {
     return true
   }
 
-  private async runWithoutVm(code: string, args: any, _require: Function) {
+  private async _runWithoutVm(code: string, args: any, _require: Function) {
     args = {
       ...args,
       require: _require
@@ -416,7 +421,7 @@ export class ScopedActionService {
     return fn(...Object.values(args))
   }
 
-  private async findAction(actionName: string): Promise<ActionDefinition> {
+  private async _findAction(actionName: string): Promise<ActionDefinition> {
     const actions = await this.listActions()
     const action = actions.find(x => x.name === actionName)
 
@@ -427,7 +432,7 @@ export class ScopedActionService {
     return action
   }
 
-  private async getWorkspaceIdForBot(botId: string): Promise<string> {
+  private async _getWorkspaceIdForBot(botId: string): Promise<string> {
     let workspaceId
     if (this._botsWorkspaceIdsCache.has(botId)) {
       workspaceId = this._botsWorkspaceIdsCache.get(botId)
