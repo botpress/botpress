@@ -2,27 +2,113 @@ import bodyParser from 'body-parser'
 import { Logger } from 'botpress/sdk'
 import { HttpActionDefinition } from 'common/typings'
 import { Config } from 'core/app'
+import { ConfigProvider } from 'core/config/config-loader'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
+import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
+import { AUDIENCE } from 'core/routers/sdk/utils'
 import { TYPES } from 'core/types'
-import express from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import { inject, injectable, tagged } from 'inversify'
+import Joi from 'joi'
+import jsonwebtoken from 'jsonwebtoken'
+
+import { BotService } from '../bot-service'
 
 import ActionService from './action-service'
+
+const _validateRunRequest = (botService: BotService) => async (req: Request, res: Response, next: NextFunction) => {
+  const { appSecret } = await Config.getBotpressConfig()
+
+  try {
+    await Joi.validate(
+      req.body,
+      Joi.object().keys({
+        incomingEvent: Joi.object().required(),
+        actionArgs: Joi.object().required(),
+        actionName: Joi.string().required(),
+        botId: Joi.string().required(),
+        token: Joi.string().required()
+      })
+    )
+  } catch (err) {
+    return next(new BadRequestError(err))
+  }
+
+  const { botId, token } = req.body
+
+  if (!(await botService.botExists(botId))) {
+    return next(new BadRequestError('Unexisting bot'))
+  }
+
+  try {
+    jsonwebtoken.verify(token, appSecret, { audience: AUDIENCE })
+  } catch (err) {
+    return next(new UnauthorizedError('Invalid token'))
+  }
+
+  next()
+}
+
+const _validateListActionsRequest = (botService: BotService) => async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await Joi.validate(
+      req.params,
+      Joi.object().keys({
+        botId: Joi.string().required()
+      })
+    )
+  } catch (err) {
+    return next(new BadRequestError(err))
+  }
+
+  const { botId } = req.params
+
+  if (!(await botService.botExists(botId))) {
+    return next(new BadRequestError('Unexisting bot'))
+  }
+
+  next()
+}
 
 @injectable()
 export class LocalActionServer {
   private readonly app: express.Express
+  private appSecret: string | undefined
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'LocalActionServer')
     private logger: Logger,
-    @inject(TYPES.ActionService) private actionService: ActionService
+    @inject(TYPES.ActionService) private actionService: ActionService,
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {
     this.app = express()
+  }
+
+  public async start() {
+    const config = await Config.getBotpressConfig()
+
+    const localServerConfig = config.actionServers.localActionServer
+    if (!localServerConfig.enabled) {
+      this.logger.info('Local Action Server disabled')
+      return
+    }
+    const port = localServerConfig.port
+
+    this._initializeApp()
+    this.app.listen(port, () => this.logger.info(`Local Action Server listening on port ${port}`))
+  }
+
+  private _initializeApp() {
     this.app.use(bodyParser.json())
 
-    this.app.post('/action/run', async (req, res) => {
+    this.app.post('/action/run', _validateRunRequest(this.botService), async (req, res) => {
       const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
       const scopedActionService = this.actionService.forBot(botId)
@@ -48,7 +134,7 @@ export class LocalActionServer {
       res.send({ result, incomingEvent })
     })
 
-    this.app.get('/actions/:botId', async (req, res) => {
+    this.app.get('/actions/:botId', _validateListActionsRequest(this.botService), async (req, res) => {
       const { botId } = req.params
       const scopedActionService = this.actionService.forBot(botId)
 
@@ -84,16 +170,5 @@ export class LocalActionServer {
 
       res.send(body)
     })
-  }
-  async start() {
-    const config = await Config.getBotpressConfig()
-
-    const localServerConfig = config.actionServers.localActionServer
-    if (!localServerConfig.enabled) {
-      this.logger.info('Local Action Server disabled')
-      return
-    }
-    const port = localServerConfig.port
-    this.app.listen(port, () => this.logger.info(`Local Action Server listening on port ${port}`))
   }
 }
