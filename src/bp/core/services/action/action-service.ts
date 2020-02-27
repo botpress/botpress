@@ -203,13 +203,7 @@ export class ScopedActionService {
         method: 'post',
         url: `${actionServer.baseUrl}/action/run`,
         timeout: ms('5s'),
-        data: {
-          token,
-          actionName,
-          incomingEvent: props.incomingEvent,
-          actionArgs,
-          botId
-        },
+        data: { token, botId, ..._.omit(props, ['actionServer']) },
         // I override validateStatus in order for axios to not throw the Action Server returns a 500 error.
         // See https://github.com/axios/axios/issues/1143#issuecomment-340331822
         validateStatus: status => {
