@@ -263,7 +263,6 @@ export type BotpressConfig = {
 
   /**
    * Action Servers to be used when dispatching actions.
-   * @default {"localActionServer": {"port": 4000, "enabled": true}, "remoteActionServers": []}
    */
   actionServers: ActionServersConfig
 }
@@ -578,8 +577,20 @@ export interface EventCollectorConfig {
 
 interface ActionServersConfig {
   localActionServer: {
+    /**
+     * Port on which the local Action Server listens
+     * @default 4000
+     */
     port: number
+    /**
+     * Whether or not the enable the local Action Server
+     * @default true
+     */
     enabled: boolean
   }
+  /**
+   * The list of remote Action Servers
+   * @default []
+   */
   remoteActionServers: ActionServer[]
 }
