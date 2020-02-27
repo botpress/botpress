@@ -4,8 +4,8 @@ import { MAX_TFIDF, MIN_TFIDF } from '../pipelines/intents/tfidf'
 import { sanitize } from '../pipelines/language/sanitizer'
 import { computeQuantile } from '../tools/math'
 import { countAlpha, countNum, countSpecial } from '../tools/strings'
+import { Intent } from '../typings'
 
-import { Intent } from './training-pipeline'
 import Utterance, { UtteranceToken } from './utterance'
 
 type FeatureValue = string | number | boolean

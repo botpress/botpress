@@ -1,5 +1,5 @@
 import 'bluebird-global'
-import * as sdk from 'botpress'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import Analytics from './analytics'

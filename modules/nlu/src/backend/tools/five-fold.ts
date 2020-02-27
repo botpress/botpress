@@ -96,6 +96,7 @@ export class FiveFolder<T> {
   }
 
   getResults(): Result {
+    // @ts-ignore
     const ret: Result = {}
     for (const suite in this.results) {
       const classes = _.uniq([

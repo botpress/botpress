@@ -1468,7 +1468,7 @@ declare module 'botpress/sdk' {
       resource: string
     ): (req: Request, res: Response, next: NextFunction) => Promise<void>
 
-    export function hasPermission(req: any, operation: string, resource: string): Promise<boolean>
+    export function hasPermission(req: any, operation: string, resource: string, noAudit?: boolean): Promise<boolean>
 
     export type RouterExtension = { getPublicPath(): Promise<string> } & Router
   }
@@ -1622,11 +1622,7 @@ declare module 'botpress/sdk' {
      * @param partialConfig
      * @param ignoreLock
      */
-    export function mergeBotConfig(
-      botId: string,
-      partialConfig: _.PartialDeep<BotConfig>,
-      ignoreLock?: boolean
-    ): Promise<any>
+    export function mergeBotConfig(botId: string, partialConfig: Partial<BotConfig>, ignoreLock?: boolean): Promise<any>
   }
 
   /**
