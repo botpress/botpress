@@ -209,7 +209,7 @@ export interface ActionParameterDefinition {
   name: string
 }
 
-export type ActionMetadata = {
+export interface ActionMetadata {
   title: string
   category: string
   description: string
@@ -218,7 +218,7 @@ export type ActionMetadata = {
   params: ActionParameterDefinition[]
 }
 
-export type ActionDefinition = {
+export interface ActionDefinition {
   name: string
   isRemote: boolean
   location: ActionLocation
@@ -226,7 +226,7 @@ export type ActionDefinition = {
   metadata?: ActionMetadata
 }
 
-export type HttpActionDefinition = {
+export interface HttpActionDefinition {
   name: string
   description: string
   category: string
