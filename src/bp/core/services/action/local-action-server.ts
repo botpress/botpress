@@ -45,7 +45,7 @@ export class LocalActionServer {
         _require
       )
 
-      res.status(200).send({ result, incomingEvent })
+      res.send({ result, incomingEvent })
     })
 
     this.app.get('/actions/:botId', async (req, res) => {
@@ -82,7 +82,7 @@ export class LocalActionServer {
         }))
       }))
 
-      res.status(200).send(body)
+      res.send(body)
     })
   }
   async start() {
