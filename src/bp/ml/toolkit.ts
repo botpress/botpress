@@ -54,7 +54,7 @@ function overloadTrainers() {
             if (err.name === 'CancelError') {
               process.off('message', messageHandler)
               // process.send!({ type: 'cancel', id })
-              completedCb(undefined)
+              completedCb(err)
             }
           }
         }
