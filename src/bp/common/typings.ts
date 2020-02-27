@@ -199,45 +199,44 @@ export interface ActionServer {
   baseUrl: string
 }
 
-export type ActionLocation = 'local' | 'global'
-
-export interface ActionParameterDefinition {
-  type: string
-  required: boolean
-  default: any
-  description: string
-  name: string
-}
-
-export interface ActionMetadata {
-  title: string
-  category: string
-  description: string
-  author: string
-  hidden: boolean
-  params: ActionParameterDefinition[]
-}
+export type ActionScope = 'bot' | 'global'
 
 export interface ActionDefinition {
   name: string
-  isRemote: boolean
-  location: ActionLocation
-  legacy: boolean
-  metadata?: ActionMetadata
+  category: string
+  description: string
+  author: string
 }
 
-export interface HttpActionDefinition {
+export type LocalActionDefinition = ActionDefinition & {
+  title: string
+  scope: ActionScope
+  legacy: boolean
+  params: LocalActionParameterDefinition[]
+  hidden: boolean
+}
+
+export type HttpActionDefinition = ActionDefinition & {
+  parameters: HttpActionParameterDefinition[]
+}
+
+export interface ActionParameterDefinition {
   name: string
   description: string
-  category: string
-  parameters: {
-    name: string
-    description: string
-    type: 'string' | 'number' | 'boolean'
-    required: boolean
-    default: string | number | boolean | undefined
-  }[]
+  required: boolean
 }
+
+export type LocalActionParameterDefinition = ActionParameterDefinition & {
+  type: string
+  default: any
+}
+
+export type HttpActionParameterDefinition = ActionParameterDefinition & {
+  type: HttpActionParameterType
+  default: string | number | boolean | undefined
+}
+
+export type HttpActionParameterType = 'string' | 'number' | 'boolean'
 
 export type ActionServerWithActions = ActionServer & {
   actions: HttpActionDefinition[] | undefined

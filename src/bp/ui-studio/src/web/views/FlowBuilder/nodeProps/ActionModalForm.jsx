@@ -52,7 +52,11 @@ class ActionModalForm extends Component {
 
     this.setState({
       avActions: (this.props.actions || []).map(x => {
-        return { label: x.name, value: x.name, metadata: x.metadata }
+        return {
+          label: x.name,
+          value: x.name,
+          metadata: { params: x.params, title: x.title, description: x.description, category: x.category }
+        }
       })
     })
   }

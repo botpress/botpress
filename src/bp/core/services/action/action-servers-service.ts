@@ -12,6 +12,7 @@ const HttpActionSchema = joi.array().items(
     name: joi.string(),
     description: joi.string(),
     category: joi.string(),
+    author: joi.string().optional(),
     parameters: joi.array().items({
       name: joi.string(),
       description: joi.string(),

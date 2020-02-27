@@ -1,6 +1,6 @@
 import { Button, Dialog, FormGroup, HTMLSelect, Label, NonIdealState } from '@blueprintjs/core'
 import axios from 'axios'
-import { ActionParameterDefinition, ActionServerWithActions } from 'common/typings'
+import { ActionServerWithActions, HttpActionParameterDefinition } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -9,7 +9,7 @@ import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
 import style from './style.scss'
 import { ActionParameters } from './ActionParameters'
 export interface ParameterValue {
-  definition: ActionParameterDefinition
+  definition: HttpActionParameterDefinition
   value: string
 }
 

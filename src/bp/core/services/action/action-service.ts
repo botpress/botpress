@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
-import { ActionDefinition, ActionLocation, ActionServer } from 'common/typings'
+import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { TasksRepository } from 'core/repositories/tasks'
@@ -100,8 +100,8 @@ interface RunActionProps {
 }
 
 export class ScopedActionService {
-  private _globalActionsCache: ActionDefinition[] | undefined
-  private _localActionsCache: ActionDefinition[] | undefined
+  private _globalActionsCache: LocalActionDefinition[] | undefined
+  private _localActionsCache: LocalActionDefinition[] | undefined
   private _scriptsCache: Map<string, string> = new Map()
   // Keeps a quick index of files which have already been required
   private _validScripts: { [filename: string]: boolean } = {}
@@ -118,7 +118,7 @@ export class ScopedActionService {
     this._listenForCacheInvalidation()
   }
 
-  async listActions(): Promise<ActionDefinition[]> {
+  async listActions(): Promise<LocalActionDefinition[]> {
     const globalActions = await this._listGlobalActions()
     const localActions = await this.listLocalActions()
 
@@ -138,7 +138,7 @@ export class ScopedActionService {
     const actionFiles = (await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', EXCLUDES)).filter(
       enabled
     )
-    const actions = await Promise.map(actionFiles, async file => this._getActionDefinition(file, 'local', true))
+    const actions = await Promise.map(actionFiles, async file => this._getActionDefinition(file, 'bot'))
 
     this._localActionsCache = actions
     return actions
@@ -179,7 +179,7 @@ export class ScopedActionService {
     }
 
     const actionFiles = (await this.ghost.global().directoryListing('actions', '*.js', EXCLUDES)).filter(enabled)
-    const actions = await Promise.map(actionFiles, async file => this._getActionDefinition(file, 'global', true))
+    const actions = await Promise.map(actionFiles, async file => this._getActionDefinition(file, 'global'))
 
     this._globalActionsCache = actions
     return actions
@@ -311,7 +311,7 @@ export class ScopedActionService {
     const action = await this._findAction(actionName)
     const code = await this._getActionScript(action)
 
-    const botFolder = action.location === 'global' ? 'global' : 'bots/' + this.botId
+    const botFolder = action.scope === 'global' ? 'global' : 'bots/' + this.botId
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
     const lookups = getBaseLookupPaths(dirPath)
 
@@ -348,40 +348,31 @@ export class ScopedActionService {
     this._botsWorkspaceIdsCache.clear()
   }
 
-  private async _getActionDefinition(
-    file: string,
-    location: ActionLocation,
-    includeMetadata: boolean
-  ): Promise<ActionDefinition> {
-    let action: ActionDefinition = {
-      name: file.replace(/\.js|\.http\.js$/i, ''),
-      isRemote: false,
-      location: location,
-      legacy: !file.includes('.http.js')
-    }
+  private async _getActionDefinition(file: string, scope: ActionScope): Promise<LocalActionDefinition> {
+    const name = file.replace(/\.js|\.http\.js$/i, '')
+    const legacy = !file.includes('.http.js')
+    const script = await this._getActionScript({ name, legacy, scope })
 
-    if (includeMetadata) {
-      const script = await this._getActionScript(action)
-      action = { ...action, metadata: extractMetadata(script) }
-    }
+    const { category, description, author, params, title, hidden } = extractMetadata(script)
 
-    return action
+    return { name, scope, legacy, category, description, author, params, title, hidden }
   }
 
-  private async _getActionScript(action: ActionDefinition): Promise<string> {
-    if (this._scriptsCache.has(action.name)) {
-      return this._scriptsCache.get(action.name)!
+  private async _getActionScript(props: { name: string; scope: ActionScope; legacy: boolean }): Promise<string> {
+    const { name, scope, legacy } = props
+    if (this._scriptsCache.has(name)) {
+      return this._scriptsCache.get(name)!
     }
 
     let script: string
-    if (action.location === 'global') {
-      script = await this.ghost.global().readFileAsString('actions', action.name + '.js')
+    if (scope === 'global') {
+      script = await this.ghost.global().readFileAsString('actions', name + '.js')
     } else {
-      const filename = action.legacy ? action.name + '.js' : action.name + '.http.js'
+      const filename = legacy ? name + '.js' : name + '.http.js'
       script = await this.ghost.forBot(this.botId).readFileAsString('actions', filename)
     }
 
-    this._scriptsCache.set(`${action.name}_${action.legacy}_${action.location}`, script)
+    this._scriptsCache.set(`${name}_${legacy}_${scope}`, script)
     return script
   }
 
@@ -431,7 +422,7 @@ export class ScopedActionService {
     return fn(...Object.values(args))
   }
 
-  private async _findAction(actionName: string): Promise<ActionDefinition> {
+  private async _findAction(actionName: string): Promise<LocalActionDefinition> {
     const actions = await this.listActions()
     const action = actions.find(x => x.name === actionName)
 

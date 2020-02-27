@@ -1,6 +1,6 @@
 import bodyParser from 'body-parser'
 import { Logger } from 'botpress/sdk'
-import { HttpActionDefinition } from 'common/typings'
+import { HttpActionDefinition, HttpActionParameterDefinition, HttpActionParameterType } from 'common/typings'
 import { Config } from 'core/app'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
@@ -122,31 +122,39 @@ export class LocalActionServer {
       const actions = await this.actionService.forBot(botId).listLocalActions()
       const nonLegacyActions = actions.filter(a => !a.legacy)
 
-      const getParamType = (paramType: string): 'string' | 'number' | 'boolean' => {
+      const getParamType = (paramType: string): 'string' | 'number' | 'boolean' | undefined => {
         if (paramType === 'string') {
           return 'string'
         } else if (paramType === 'number') {
           return 'number'
         } else if (paramType === 'boolean') {
           return 'boolean'
-        } else if (paramType === 'any') {
-          return 'string'
         } else {
-          throw `Unexpected paramType: ${paramType}`
+          return undefined
         }
       }
 
       const body: HttpActionDefinition[] = nonLegacyActions.map(a => ({
         name: a.name,
-        description: a.metadata?.description || '',
-        category: a.metadata?.category || '',
-        parameters: (a.metadata?.params || []).map(p => ({
-          name: p.name,
-          type: getParamType(p.type),
-          required: p.required,
-          default: p.default,
-          description: p.description
-        }))
+        description: a.description || '',
+        category: a.category || '',
+        author: a.author || '',
+        parameters: (a.params || []).reduce<HttpActionParameterDefinition[]>((acc, p) => {
+          const paramType: HttpActionParameterType | undefined = getParamType(p.type)
+          if (paramType) {
+            acc.push({
+              name: p.name,
+              type: paramType!,
+              required: p.required,
+              default: p.default,
+              description: p.description
+            })
+          } else {
+            this.logger.warn(`Ignoring parameter ${p.name} of type ${p.type} for action ${a.name}`)
+          }
+
+          return acc
+        }, [])
       }))
 
       res.send(body)

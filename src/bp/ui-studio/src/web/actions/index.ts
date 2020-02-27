@@ -377,8 +377,8 @@ export const refreshActions = () => dispatch => {
     dispatch(
       actionsReceived(
         _.sortBy(
-          data.filter(action => !action.metadata.hidden),
-          ['metadata.category', 'name']
+          data.filter(action => !action.hidden),
+          ['category', 'name']
         )
       )
     )
