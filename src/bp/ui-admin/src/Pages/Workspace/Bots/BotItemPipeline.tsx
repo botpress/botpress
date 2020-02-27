@@ -98,7 +98,7 @@ const BotItemPipeline: FC<Props> = ({
             &nbsp;
           </span>
         )}
-        {bot.disabled ? <span>{bot.name}</span> : <a href={botStudioLink}>{bot.name}</a>}
+        <a href={botStudioLink}>{bot.name}</a>
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
