@@ -44,7 +44,9 @@ export default class Storage {
     if (content.slots) {
       for (const slot of content.slots) {
         // @deprecated > 11 graceful migration
+        // @ts-ignore
         if (!slot.entities && slot.entity) {
+          // @ts-ignore
           slot.entities = [slot.entity]
         }
 
