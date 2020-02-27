@@ -5,6 +5,7 @@ import { ActionDefinition, ActionLocation, ActionServer } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { TasksRepository } from 'core/repositories/tasks'
+import { AUDIENCE } from 'core/routers/sdk/utils'
 import { injectable } from 'inversify'
 import { inject, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
@@ -191,7 +192,7 @@ export class ScopedActionService {
 
     const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace: workspaceId }, process.APP_SECRET, {
       expiresIn: '5m',
-      audience: 'api_user'
+      audience: AUDIENCE
     })
 
     const startedAt = new Date()
