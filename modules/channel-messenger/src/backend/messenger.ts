@@ -28,14 +28,12 @@ export class MessengerService {
   async initialize() {
     const config = (await this.bp.config.getModuleConfig('channel-messenger')) as Config
 
-    if (!config.verifyToken?.length) {
-      throw new Error(
-        'You need to set a non-empty value for "verifyToken" in data/global/config/channel-messenger.json'
-      )
+    if (!config.verifyToken?.length || config.verifyToken === 'verify_token') {
+      throw new Error('You need to set a valid value for "verifyToken" in data/global/config/channel-messenger.json')
     }
 
-    if (!config.appSecret?.length) {
-      throw new Error(`You need to set a non-empty value for "appSecret" in data/global/config/channel-messenger.json`)
+    if (!config.appSecret?.length || config.appSecret === 'app_secret') {
+      throw new Error(`You need to set a valid value for "appSecret" in data/global/config/channel-messenger.json`)
     }
 
     this.appSecret = config.appSecret
