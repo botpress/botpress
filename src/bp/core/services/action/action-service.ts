@@ -155,8 +155,12 @@ export class ScopedActionService {
       if (actionServer) {
         incomingEvent = await this._runInActionServer({ ...props, actionServer })
       } else {
-        const trusted = isTrustedAction(actionName)
-        await this._runLocalAction(actionName, actionArgs, incomingEvent, trusted)
+        await this.runLocalAction({
+          actionName,
+          actionArgs,
+          incomingEvent,
+          runType: isTrustedAction(actionName) ? 'trusted' : 'legacy'
+        })
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
@@ -242,18 +246,18 @@ export class ScopedActionService {
     return responseIncomingEvent
   }
 
-  private async _runLocalAction(
-    actionName: string,
-    actionArgs: any,
-    incomingEvent: IO.IncomingEvent,
-    trusted: boolean
-  ) {
+  public async runLocalAction(props: {
+    actionName: string
+    actionArgs: any
+    incomingEvent: IO.IncomingEvent
+    token?: string
+    runType: 'trusted' | 'legacy' | 'http'
+  }) {
+    const { actionName, actionArgs, incomingEvent, runType } = props
+
     const { code, _require, dirPath } = await this.loadLocalAction(actionName)
 
-    const api = await createForAction()
-
     const args = {
-      bp: api,
       event: incomingEvent,
       user: incomingEvent.state.user,
       temp: incomingEvent.state.temp,
@@ -263,14 +267,25 @@ export class ScopedActionService {
       process: UntrustedSandbox.getSandboxProcessArgs()
     }
 
-    if (trusted) {
-      return await this._runWithoutVm(code, args, _require)
-    } else {
-      return await this.runInVm(code, dirPath, args, _require)
+    switch (runType) {
+      case 'trusted': {
+        // bp is created here because it cannot be created in the Local Action Server thread
+        return await this._runWithoutVm(code, { bp: await createForAction(), ...args }, _require)
+      }
+      case 'legacy': {
+        // bp is created here because it cannot be created in the Local Action Server thread
+        return await this._runInVm(code, dirPath, { bp: await createForAction(), ...args }, _require)
+      }
+      case 'http': {
+        return await this._runInVm(code, dirPath, { token: props.token, ...args }, _require)
+      }
+      default: {
+        throw `Unexpected runType: ${runType}`
+      }
     }
   }
 
-  public async runInVm(code: string, dirPath: string, args: any, _require: Function) {
+  private async _runInVm(code: string, dirPath: string, args: any, _require: Function) {
     const modRequire = new Proxy(
       {},
       {

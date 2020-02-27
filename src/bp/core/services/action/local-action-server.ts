@@ -3,8 +3,6 @@ import { Logger } from 'botpress/sdk'
 import { HttpActionDefinition } from 'common/typings'
 import { Config } from 'core/app'
 import { ConfigProvider } from 'core/config/config-loader'
-import { UntrustedSandbox } from 'core/misc/code-sandbox'
-import { printObject } from 'core/misc/print'
 import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
 import { AUDIENCE } from 'core/routers/sdk/utils'
 import { TYPES } from 'core/types'
@@ -111,34 +109,17 @@ export class LocalActionServer {
     this.app.post('/action/run', _validateRunRequest(this.botService), async (req, res) => {
       const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
-      const scopedActionService = this.actionService.forBot(botId)
-
-      const { code, _require, dirPath } = await scopedActionService.loadLocalAction(actionName)
-
-      await scopedActionService.runInVm(
-        code,
-        dirPath,
-        {
-          event: incomingEvent,
-          user: incomingEvent.state.user,
-          temp: incomingEvent.state.temp,
-          session: incomingEvent.state.session,
-          token,
-          args: actionArgs,
-          printObject,
-          process: UntrustedSandbox.getSandboxProcessArgs()
-        },
-        _require
-      )
+      await this.actionService
+        .forBot(botId)
+        .runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
 
       res.send({ incomingEvent })
     })
 
     this.app.get('/actions/:botId', _validateListActionsRequest(this.botService), async (req, res) => {
       const { botId } = req.params
-      const scopedActionService = this.actionService.forBot(botId)
 
-      const actions = await scopedActionService.listLocalActions()
+      const actions = await this.actionService.forBot(botId).listLocalActions()
       const nonLegacyActions = actions.filter(a => !a.legacy)
 
       const getParamType = (paramType: string): 'string' | 'number' | 'boolean' => {
