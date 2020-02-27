@@ -1,3 +1,4 @@
+import { BUILTIN_MODULES } from 'common/defaults'
 import { requireAtPaths } from 'core/modules/require'
 import path from 'path'
 
@@ -52,3 +53,6 @@ export const extractRequiredFiles = (code: string) => {
 export const filterDisabled = (filesPaths: string[]): string[] => filesPaths.filter(enabled)
 
 export const enabled = (filename: string) => !path.basename(filename).startsWith('.')
+
+export const isTrustedAction = (actionName: string) =>
+  !!BUILTIN_MODULES.find(module => actionName.startsWith(`${module}/`))

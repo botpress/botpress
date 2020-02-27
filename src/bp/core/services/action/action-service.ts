@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
-import { BUILTIN_MODULES } from 'common/defaults'
 import { ObjectCache } from 'common/object-cache'
 import { ActionDefinition, ActionLocation, ActionServer } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
@@ -24,7 +23,14 @@ import { ActionExecutionError } from '../dialog/errors'
 import { WorkspaceService } from '../workspace-service'
 
 import { extractMetadata } from './metadata'
-import { enabled, extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
+import {
+  enabled,
+  extractRequiredFiles,
+  getBaseLookupPaths,
+  isTrustedAction,
+  prepareRequire,
+  prepareRequireTester
+} from './utils'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
@@ -149,7 +155,7 @@ export class ScopedActionService {
       if (actionServer) {
         incomingEvent = await this.runInActionServer({ ...props, actionServer })
       } else {
-        const trusted = await this.isTrustedAction(actionName)
+        const trusted = isTrustedAction(actionName)
         await this.runLocalAction(actionName, actionArgs, incomingEvent, trusted)
       }
 
@@ -362,16 +368,6 @@ export class ScopedActionService {
 
     this._scriptsCache.set(`${action.name}_${action.legacy}_${action.location}`, script)
     return script
-  }
-
-  private async isTrustedAction(actionName: string): Promise<boolean> {
-    const trustedActions = await this.listTrustedActions()
-    return trustedActions.map(a => a.name).includes(actionName)
-  }
-
-  private async listTrustedActions(): Promise<ActionDefinition[]> {
-    const globalActions = await this.listGlobalActions()
-    return globalActions.filter(a => BUILTIN_MODULES.includes(a.name.split('/')[0]))
   }
 
   // This method tries to load require() files from the FS and fallback on BPFS
