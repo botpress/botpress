@@ -240,6 +240,5 @@ export interface HttpActionDefinition {
 }
 
 export type ActionServerWithActions = ActionServer & {
-  actions: HttpActionDefinition[]
-  actionsFetchedSuccessfully: boolean
+  actions: HttpActionDefinition[] | undefined
 }

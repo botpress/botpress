@@ -4,9 +4,8 @@ import { ActionServer, ActionServerWithActions, HttpActionDefinition } from 'com
 import { ConfigProvider } from 'core/config/config-loader'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
-import { validate } from 'joi'
-import joi from 'joi'
-import allSettled from 'promise.allsettled'
+import joi, { validate } from 'joi'
+import _ from 'lodash'
 
 const HttpActionSchema = joi.array().items(
   joi.object().keys({
@@ -37,7 +36,13 @@ export default class ActionServersService {
   public async getServersWithActionsForBot(botId: string): Promise<ActionServerWithActions[]> {
     const actionServers = await this.getServers()
 
-    return this.fetchActions(botId, actionServers)
+    const actionServersWithActions: ActionServerWithActions[] = []
+    for (const actionServer of actionServers) {
+      const actions = await this.fetchActions(botId, actionServer)
+      actionServersWithActions.push({ ...actionServer, actions })
+    }
+
+    return actionServersWithActions
   }
 
   public async getServer(serverId: string): Promise<ActionServer | undefined> {
@@ -59,31 +64,22 @@ export default class ActionServersService {
     return actionServers
   }
 
-  private async fetchActions(botId: string, actionServers: ActionServer[]): Promise<ActionServerWithActions[]> {
-    const results = await allSettled(actionServers.map(s => axios.get(`${s.baseUrl}/actions/${botId}`)))
-
-    return results.map((r, idx) => {
-      const actionServer = actionServers[idx]
-
-      let actions: HttpActionDefinition[] = []
-      let actionsFetchedSuccessfully = false
-
-      if (r.status === 'fulfilled') {
-        actions = r.value.data as HttpActionDefinition[]
-        const { value, error } = validate(actions, HttpActionSchema)
-        if (error && error.name === 'ValidationError') {
-          this.logger.error(
-            `Action Server ${actionServer.id} returned invalid Action definitions: ${error.details.map(d => d.message)}`
-          )
-          actions = []
-        } else {
-          actionsFetchedSuccessfully = true
-        }
+  private async fetchActions(botId, actionServer: ActionServer): Promise<HttpActionDefinition[] | undefined> {
+    let actionDefinitions: HttpActionDefinition[] | undefined = undefined
+    try {
+      const { data } = await axios.get(`${actionServer.baseUrl}/actions/${botId}`)
+      const { value, error } = validate(data, HttpActionSchema)
+      if (error && error.name === 'ValidationError') {
+        this.logger.error(
+          `Action Server ${actionServer.id} returned invalid Action definitions: ${error.details.map(d => d.message)}`
+        )
       } else {
-        this.logger.error(`Could not fetch actions for Action Server ${actionServer.id}`)
+        actionDefinitions = data
       }
+    } catch (e) {
+      this.logger.attachError(e).error(`Could not fetch actions for Action Server ${actionServer.id}`)
+    }
 
-      return { id: actionServer.id, baseUrl: actionServer.baseUrl, actions, actionsFetchedSuccessfully }
-    })
+    return actionDefinitions
   }
 }
