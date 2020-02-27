@@ -128,5 +128,4 @@ const mapStateToProps = ({ hints: { inputs } }) => ({ hints: inputs })
 const ConnectedSmartInput = connect(mapStateToProps, mapDispatchToProps)(SmartInput)
 
 // Passing store explicitly since this component may be imported from another botpress-module
-// @ts-ignore
 export default (props: ExposedProps) => <ConnectedSmartInput {...props} store={store} />

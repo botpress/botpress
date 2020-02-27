@@ -199,7 +199,6 @@ class Layout extends React.Component<ILayoutProps> {
           <SelectContentManager />
 
           <StatusBar
-            // @ts-ignore
             botName={this.botName || this.botId}
             onToggleEmulator={this.toggleEmulator}
             emitter={this.statusBarEmitter}

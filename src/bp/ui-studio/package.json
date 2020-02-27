@@ -91,7 +91,6 @@
     "@types/axios": "^0.14.0",
     "@types/node": "^10.10.3",
     "@types/react": "^16.8.6",
-    "@types/react-redux": "^7.1.7",
     "@types/react-dom": "^16.8.6",
     "@types/classnames": "^2.2.6",
     "@types/react-router-dom": "^4.3.3",

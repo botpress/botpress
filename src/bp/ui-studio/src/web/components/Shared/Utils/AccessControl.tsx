@@ -40,10 +40,6 @@ const PermissionsChecker = (props: AccessControlProps) => {
 
 const mapStateToProps = state => ({ user: state.user })
 
-const ConnectedAccessControl = connect(
-  mapStateToProps,
-  undefined
-  // @ts-ignore
-)(PermissionsChecker)
+const ConnectedAccessControl = connect(mapStateToProps, undefined)(PermissionsChecker)
 
 export default props => <ConnectedAccessControl {...props} store={store} />

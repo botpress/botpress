@@ -148,7 +148,6 @@ const SidePanelContent: FC<Props> = props => {
       <Toolbar mutexInfo={props.mutexInfo} />
 
       {props.showFlowNodeProps ? (
-        // @ts-ignore
         <Inspector />
       ) : (
         <React.Fragment>
