@@ -27,7 +27,6 @@ const ActionNodeContent: FC<{ action: Action; cancel: () => void; onSave: (actio
   const { action, cancel, onSave } = props
   return (
     <div className={style.content} onDoubleClick={() => setShowDialog(true)}>
-      {/* <Button onClick={() => setShowDialog(true)}>Edit</Button> */}
       <ActionInfo action={action} />
       <ActionDialog
         name={action.name}
