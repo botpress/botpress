@@ -56,6 +56,11 @@ export default class FlowsList extends Component<Props, State> {
 
   componentDidMount() {
     this.updateFlows()
+    const storedExpandedNodes = JSON.parse(window.BP_STORAGE.get('expandedNodes'))
+
+    if (storedExpandedNodes) {
+      this.expandedNodes = storedExpandedNodes
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -74,6 +79,8 @@ export default class FlowsList extends Component<Props, State> {
     } else {
       delete this.expandedNodes[id]
     }
+
+    window.BP_STORAGE.set('expandedNodes', JSON.stringify(this.expandedNodes))
   }
 
   updateFlows() {

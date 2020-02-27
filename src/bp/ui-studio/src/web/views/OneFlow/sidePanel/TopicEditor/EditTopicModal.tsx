@@ -92,7 +92,7 @@ const EditTopicModal: FC<Props> = props => {
 
                 <FormGroup label="Description">
                   <TextArea
-                    id="input-flow-name"
+                    id="input-flow-description"
                     rows={3}
                     value={description}
                     maxLength={250}

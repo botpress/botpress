@@ -37,6 +37,7 @@ type Props = StateProps & DispatchProps & OwnProps
 const EditGoalModal: FC<Props> = props => {
   const [tab, setTab] = useState('overview')
 
+  const [dir, setDir] = useState<string>('')
   const [name, setName] = useState<string>('')
   const [label, setLabel] = useState<string>('')
   const [description, setDescription] = useState<string>('')
@@ -48,17 +49,32 @@ const EditGoalModal: FC<Props> = props => {
     if (props.currentFlow && props.selectedGoal) {
       const { name, label, description, triggers } = props.currentFlow
 
-      setName(name.replace(/\.flow\.json$/i, ''))
+      console.log(name, getDirOnly(name), getNameOnly(name))
+
+      setDir(getDirOnly(name))
+      setName(getNameOnly(name))
       setLabel(label)
       setDescription(description)
       setTriggers(triggers)
     } else {
-      setName(props.selectedTopic ? props.selectedTopic + '/' : '')
-      setLabel('')
-      setDescription('')
-      setTriggers([])
+      console.log(name)
+      setDir(props.selectedTopic + '/')
     }
+    console.log(dir)
   }, [props.isOpen])
+
+  const getNameOnly = (name: string): string => {
+    const explodedName = name.split('/')
+
+    return explodedName[explodedName.length - 1].replace(/\.flow\.json$/i, '')
+  }
+
+  const getDirOnly = (name: string): string => {
+    const explodedName: string[] = name.split('/')
+    explodedName.pop()
+
+    return explodedName.join('/')
+  }
 
   const submit = async () => {
     const fullName = `${name}.flow.json`
@@ -113,7 +129,7 @@ const EditGoalModal: FC<Props> = props => {
                       id="input-flow-name"
                       tabIndex={1}
                       required={true}
-                      value={name}
+                      value={name || ''}
                       onChange={e => setName(sanitizeName(e.currentTarget.value))}
                       autoFocus={true}
                     />
@@ -126,17 +142,17 @@ const EditGoalModal: FC<Props> = props => {
                     <InputGroup
                       id="input-flow-label"
                       tabIndex={2}
-                      value={label}
+                      value={label || ''}
                       onChange={e => setLabel(e.currentTarget.value)}
                     />
                   </FormGroup>
 
                   <FormGroup label="Description">
                     <TextArea
-                      id="input-flow-name"
+                      id="input-flow-description"
                       rows={3}
                       tabIndex={3}
-                      value={description}
+                      value={description || ''}
                       fill={true}
                       onChange={e => setDescription(e.currentTarget.value)}
                     />

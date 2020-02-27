@@ -61,7 +61,7 @@ const CreateTopicModal: FC<Props> = props => {
           helperText="To get started, choose one goal you'd like your users to achieve, for example: hire_new_employee"
         >
           <InputGroup
-            id="input-flow-name"
+            id="input-flow-goal"
             tabIndex={1}
             value={goal}
             maxLength={100}
