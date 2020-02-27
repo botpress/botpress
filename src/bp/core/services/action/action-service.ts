@@ -149,12 +149,7 @@ export class ScopedActionService {
         incomingEvent = await this.runInActionServer({ ...props, actionServer })
       } else {
         const trusted = await this.isTrustedAction(actionName)
-
-        if (trusted) {
-          await this.runTrustedCode(actionName, actionArgs, incomingEvent)
-        } else {
-          await this.runLegacyAction(actionName, actionArgs, incomingEvent)
-        }
+        await this.runLocalAction(actionName, actionArgs, incomingEvent, trusted)
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
@@ -245,26 +240,7 @@ export class ScopedActionService {
     return responseIncomingEvent
   }
 
-  private async runTrustedCode(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent) {
-    const { code, _require } = await this.loadLocalAction(actionName)
-
-    const api = await createForAction()
-
-    const args = {
-      bp: api,
-      event: incomingEvent,
-      user: incomingEvent.state.user,
-      temp: incomingEvent.state.temp,
-      session: incomingEvent.state.session,
-      args: actionArgs,
-      printObject,
-      process: UntrustedSandbox.getSandboxProcessArgs()
-    }
-
-    return await this.runWithoutVm(code, args, _require)
-  }
-
-  private async runLegacyAction(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent) {
+  private async runLocalAction(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent, trusted: boolean) {
     const { code, _require, dirPath } = await this.loadLocalAction(actionName)
 
     const api = await createForAction()
@@ -280,7 +256,11 @@ export class ScopedActionService {
       process: UntrustedSandbox.getSandboxProcessArgs()
     }
 
-    return await this.runInVm(code, dirPath, args, _require)
+    if (trusted) {
+      return await this.runWithoutVm(code, args, _require)
+    } else {
+      return await this.runInVm(code, dirPath, args, _require)
+    }
   }
 
   public async runInVm(code: string, dirPath: string, args: any, _require: Function) {
