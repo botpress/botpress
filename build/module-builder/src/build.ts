@@ -152,7 +152,7 @@ export async function buildConfigSchema(modulePath: string) {
   fs.writeFileSync(path.resolve(modulePath, 'assets', 'config.schema.json'), schema)
 }
 
-export const getTsConfig = (rootFolder: string): ts.ParsedCommandLine => {
+const getTsConfig = (rootFolder: string): ts.ParsedCommandLine => {
   const parseConfigHost: ts.ParseConfigHost = {
     fileExists: ts.sys.fileExists,
     readFile: ts.sys.readFile,
