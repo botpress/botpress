@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import { parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
@@ -58,13 +59,13 @@ const ActionWidget: FC<{
     let actionServerId = ''
 
     if (actionString) {
-      const chunks = actionString.split(' ')
-      name = chunks[0]
+      const result = parseActionInstruction(actionString)
+      name = result.actionName
 
-      const parametersString = chunks[1]
+      const parametersString = result.argsStr
       parameters = JSON.parse(parametersString)
 
-      actionServerId = chunks[2]
+      actionServerId = result.actionServerId
     }
 
     return { name, parameters, actionServerId }
@@ -112,7 +113,8 @@ export interface Action {
 }
 
 const serializeAction = (action: Action): string => {
-  return [action.name, JSON.stringify(action.parameters), action.actionServerId].join(' ')
+  const firstPart = action.actionServerId ? `${action.actionServerId}:${action.name}` : action.name
+  return [firstPart, JSON.stringify(action.parameters)].join(' ')
 }
 
 export class ActionNodeModel extends BaseNodeModel {

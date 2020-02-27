@@ -1,6 +1,6 @@
 import { IO, Logger } from 'botpress/sdk'
+import { parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
 import { CMSService } from 'core/services/cms'
@@ -113,9 +113,7 @@ export class ActionStrategy implements InstructionStrategy {
   }
 
   private async invokeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
-    const chunks: string[] = instruction.fn.split(' ')
-    const actionName = _.first(chunks)!
-    const argsStr = chunks[1]
+    const { actionName, argsStr, actionServerId } = parseActionInstruction(instruction.fn)
 
     let args: { [key: string]: any } = {}
     try {
@@ -135,11 +133,6 @@ export class ActionStrategy implements InstructionStrategy {
     }
 
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
-
-    let actionServerId
-    if (chunks.length === 3) {
-      actionServerId = chunks[2]
-    }
 
     let actionServer: ActionServer | undefined
     if (actionServerId) {
