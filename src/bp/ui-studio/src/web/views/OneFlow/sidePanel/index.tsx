@@ -5,7 +5,15 @@ import reject from 'lodash/reject'
 import values from 'lodash/values'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, refreshConditions, renameFlow } from '~/actions'
+import {
+  deleteFlow,
+  duplicateFlow,
+  fetchFlows,
+  fetchTopics,
+  refreshConditions,
+  renameFlow,
+  switchFlow
+} from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
@@ -58,6 +66,7 @@ interface DispatchProps {
   fetchTopics: () => void
   fetchFlows: () => void
   deleteFlow: (flowName: string) => void
+  switchFlow: (flowName: string) => void
   renameFlow: any
   duplicateFlow: any
 }
@@ -111,6 +120,7 @@ const SidePanelContent: FC<Props> = props => {
   const duplicateFlow = (flowName: string) => {}
 
   const editGoal = (goalId: string, data) => {
+    props.switchFlow(goalId)
     setSelectedTopic(data.name.split('/')[0])
     setSelectedGoal(goalId)
     setGoalModalOpen(!goalModalOpen)
@@ -227,6 +237,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
+  switchFlow,
   deleteFlow,
   duplicateFlow,
   renameFlow,

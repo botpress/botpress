@@ -23,7 +23,6 @@ class LibraryList extends Component<any> {
   }
 
   componentDidUpdate(prevProps) {
-    console.log(this.props)
     if (this.props.filter !== prevProps.filter || this.props.library !== prevProps.library) {
       // tslint:disable-next-line: no-floating-promises
       this.updateFlows()
