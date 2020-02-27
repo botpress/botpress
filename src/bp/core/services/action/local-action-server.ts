@@ -115,7 +115,7 @@ export class LocalActionServer {
 
       const { code, _require, dirPath } = await scopedActionService.loadLocalAction(actionName)
 
-      const result = await scopedActionService.runInVm(
+      await scopedActionService.runInVm(
         code,
         dirPath,
         {
@@ -131,7 +131,7 @@ export class LocalActionServer {
         _require
       )
 
-      res.send({ result, incomingEvent })
+      res.send({ incomingEvent })
     })
 
     this.app.get('/actions/:botId', _validateListActionsRequest(this.botService), async (req, res) => {
