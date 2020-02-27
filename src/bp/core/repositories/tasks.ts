@@ -2,7 +2,7 @@ import { Logger } from 'botpress/sdk'
 import Database from 'core/database'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
-import ms = require('ms')
+import ms from 'ms'
 
 export interface TaskInfo {
   eventId: string
@@ -45,7 +45,7 @@ export class TasksRepository {
           event_id: e.eventId,
           status: e.status,
           action_name: e.actionName,
-          action_args: this.database.knex.json.set(e.actionArgs),
+          action_args: this.database.knex.json.set(e.actionArgs || {}),
           action_server_id: e.actionServerId,
           response_status_code: e.responseStatusCode,
           started_at: e.startedAt,
