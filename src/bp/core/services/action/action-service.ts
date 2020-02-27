@@ -238,9 +238,11 @@ export class ScopedActionService {
       status: 'completed'
     })
 
-    incomingEvent.state.temp.responseStatusCode = responseStatusCode
+    const responseIncomingEvent = response.data.incomingEvent
 
-    return response.data.incomingEvent
+    responseIncomingEvent.state.temp.responseStatusCode = responseStatusCode
+
+    return responseIncomingEvent
   }
 
   private async runTrustedCode(actionName: string, actionArgs: any, incomingEvent: IO.IncomingEvent) {
