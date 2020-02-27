@@ -9,7 +9,7 @@ const baseAction = `
    */
   const myAction = async (name, value) => {\n    \n    \n  }
 
-  myAction(args.name, args.value)
+  return myAction(args.name, args.value)
 `
 
 const baseHook = `
