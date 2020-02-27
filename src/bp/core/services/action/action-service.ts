@@ -196,6 +196,13 @@ export class ScopedActionService {
     })
 
     const startedAt = new Date()
+    const taskInfo = {
+      eventId: incomingEvent.id,
+      actionName,
+      actionArgs,
+      actionServerId: actionServer.id,
+      startedAt
+    }
 
     let response
     try {
@@ -213,11 +220,7 @@ export class ScopedActionService {
     } catch (e) {
       if (e.isAxiosError) {
         this.tasksRepository.createTask({
-          eventId: incomingEvent.id,
-          actionName,
-          actionArgs,
-          actionServerId: actionServer.id,
-          startedAt,
+          ...taskInfo,
           endedAt: new Date(),
           status: 'failed',
           failureReason: `axios:${e.code}`
@@ -230,12 +233,7 @@ export class ScopedActionService {
     const responseStatusCode = response.status
 
     this.tasksRepository.createTask({
-      eventId: incomingEvent.id,
-      actionName,
-      actionArgs,
-      actionServerId: actionServer.id,
-      responseStatusCode,
-      startedAt,
+      ...taskInfo,
       endedAt: new Date(),
       status: 'completed'
     })
