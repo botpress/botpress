@@ -49,5 +49,6 @@ export const extractRequiredFiles = (code: string) => {
   return files
 }
 
-export const filterDisabled = (filesPaths: string[]): string[] =>
-  filesPaths.filter(x => !path.basename(x).startsWith('.'))
+export const filterDisabled = (filesPaths: string[]): string[] => filesPaths.filter(enabled)
+
+export const enabled = (filename: string) => !path.basename(filename).startsWith('.')

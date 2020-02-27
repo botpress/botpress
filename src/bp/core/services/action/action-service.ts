@@ -22,11 +22,14 @@ import { ActionExecutionError } from '../dialog/errors'
 import { WorkspaceService } from '../workspace-service'
 
 import { extractMetadata } from './metadata'
-import { extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
+import { enabled, extractRequiredFiles, getBaseLookupPaths, prepareRequire, prepareRequireTester } from './utils'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('actions')
 const DEBOUNCE_DELAY = ms('2s')
+
+// node_production_modules are node_modules that are compressed for production
+const EXCLUDES = ['**/node_modules/**', '**/node_production_modules/**']
 
 @injectable()
 export default class ActionService {
@@ -107,11 +110,6 @@ export class ScopedActionService {
     this._listenForCacheInvalidation()
   }
 
-  private static enabled = (filename: string) => !path.basename(filename).startsWith('.')
-
-  // node_production_modules are node_modules that are compressed for production
-  private static excludes = ['**/node_modules/**', '**/node_production_modules/**']
-
   async listActions(): Promise<ActionDefinition[]> {
     const globalActions = await this.listGlobalActions()
     const localActions = await this.listLocalActions()
@@ -129,9 +127,9 @@ export class ScopedActionService {
       return this._localActionsCache
     }
 
-    const actionFiles = (
-      await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', ScopedActionService.excludes)
-    ).filter(ScopedActionService.enabled)
+    const actionFiles = (await this.ghost.forBot(this.botId).directoryListing('actions', '*.js', EXCLUDES)).filter(
+      enabled
+    )
     const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'local', true))
 
     this._localActionsCache = actions
@@ -178,9 +176,7 @@ export class ScopedActionService {
       return this._globalActionsCache
     }
 
-    const actionFiles = (
-      await this.ghost.global().directoryListing('actions', '*.js', ScopedActionService.excludes)
-    ).filter(ScopedActionService.enabled)
+    const actionFiles = (await this.ghost.global().directoryListing('actions', '*.js', EXCLUDES)).filter(enabled)
     const actions = await Promise.map(actionFiles, async file => this.getActionDefinition(file, 'global', true))
 
     this._globalActionsCache = actions
