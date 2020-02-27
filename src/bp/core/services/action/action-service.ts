@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
+import { BUILTIN_MODULES } from 'common/defaults'
 import { ObjectCache } from 'common/object-cache'
 import { ActionDefinition, ActionLocation, ActionServer } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
@@ -369,26 +370,6 @@ export class ScopedActionService {
   }
 
   private async listTrustedActions(): Promise<ActionDefinition[]> {
-    const BUILTIN_MODULES = [
-      'analytics',
-      'basic-skills',
-      'builtin',
-      'builtin',
-      'channel-messenger',
-      'channel-slack',
-      'channel-teams',
-      'channel-telegram',
-      'channel-web',
-      'code-editor',
-      'examples',
-      'extensions',
-      'history',
-      'hitl',
-      'nlu',
-      'qna',
-      'testing'
-    ]
-
     const globalActions = await this.listGlobalActions()
     return globalActions.filter(a => BUILTIN_MODULES.includes(a.name.split('/')[0]))
   }
