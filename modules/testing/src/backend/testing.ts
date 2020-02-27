@@ -101,7 +101,7 @@ export class Testing {
     this._runner.startReplay()
 
     // TODO perform scenario validation here
-    const scenario = await this.bp.ghost
+    const scenario: Scenario = await this.bp.ghost
       .forBot(this.botId)
       .readFileAsObject(SCENARIO_FOLDER, liteScenario.name + '.json')
 

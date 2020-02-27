@@ -40,7 +40,6 @@ gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
 gulp.task('build:shared', ui.buildShared())
 gulp.task('build:modules', gulp.series([modules.build()]))
-gulp.task('build:sdk', gulp.series([modules.buildSdk()]))
 
 gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide())
