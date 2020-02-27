@@ -48,6 +48,16 @@ const BotItemCompact: FC<Props> = ({
       <div className="actions">
         {hasError && <AnchorButton text="Reload" icon="refresh" onClick={reloadBot} minimal={true} />}
 
+        <AccessControl resource="admin.bots.*" operation="write">
+          <Button
+            text="Config"
+            icon="cog"
+            minimal={true}
+            className="configBtn"
+            onClick={() => history.push(`bots/${bot.id}`)}
+          />
+        </AccessControl>
+
         {!bot.disabled && !hasError && (
           <AnchorButton text="Open chat" icon="chat" href={botShortLink} target="_blank" minimal={true} />
         )}
