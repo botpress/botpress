@@ -1,3 +1,4 @@
+import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
@@ -149,7 +150,10 @@ export class UnderstandingEngine {
   private async _loadBotGoals(botId: string) {
     const flowsPaths = await this.bp.ghost.forBot(botId).directoryListing('flows', '*.flow.json')
     const flows: any[] = await Promise.map(flowsPaths, async (flowPath: string) => {
-      return { name: flowPath, ...(await this.bp.ghost.forBot(botId).readFileAsObject('flows', flowPath)) }
+      return {
+        name: flowPath,
+        ...((await this.bp.ghost.forBot(botId).readFileAsObject('flows', flowPath)) as FlowView)
+      }
     })
 
     const triggers = _.flatMap(flows, x => (x.triggers || []).map(tr => ({ ...tr, goal: x.name }))) as TriggerGoal[]

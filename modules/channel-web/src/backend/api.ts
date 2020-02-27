@@ -407,7 +407,7 @@ export default async (bp: typeof sdk, db: Database) => {
         threadId: conversationId,
         type: payload.type,
         payload,
-        credentials: req.credentials
+        credentials: req['credentials']
       })
 
       await bp.events.sendEvent(event)
