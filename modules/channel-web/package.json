@@ -13,8 +13,6 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/bluebird-global": "^3.5.7",
-    "@types/express": "^4.16.0",
-    "@types/lodash": "^4.14.116",
     "@types/react-intl": "^2.3.17"
   },
   "dependencies": {

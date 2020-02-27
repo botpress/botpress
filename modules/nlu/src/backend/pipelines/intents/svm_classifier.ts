@@ -403,7 +403,7 @@ export default class SVMClassifier {
         .flatten()
         .orderBy('confidence', 'desc')
         .uniqBy(x => x.label)
-        .map(x => ({ name: x.label, context: x.context, confidence: x.confidence }))
+        .map(x => ({ name: x.label, context: x['context'], confidence: x.confidence }))
         .value()
     } catch (e) {
       throw new VError(e, `Error predicting intent for "${input}"`)
