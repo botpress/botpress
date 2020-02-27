@@ -181,12 +181,7 @@ export class ScopedActionService {
     return actions
   }
 
-  private async _runInActionServer(props: {
-    actionServer: ActionServer
-    actionName: string
-    incomingEvent: IO.IncomingEvent
-    actionArgs: any
-  }): Promise<IO.IncomingEvent> {
+  private async _runInActionServer(props: RunActionProps & { actionServer: ActionServer }): Promise<IO.IncomingEvent> {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
 
