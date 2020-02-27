@@ -137,20 +137,15 @@ export class ScopedActionService {
   }
 
   async runAction(props: RunActionProps): Promise<void> {
-    const { actionName, incomingEvent, actionArgs, actionServer } = props
+    const { actionName, actionArgs, actionServer } = props
+    let { incomingEvent } = props
     process.ASSERT_LICENSED()
 
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 
     try {
       if (actionServer) {
-        const returnedIncomingEvent = await this.runInActionServer({
-          actionServer,
-          actionName,
-          actionArgs,
-          incomingEvent
-        })
-        _.merge(incomingEvent, returnedIncomingEvent)
+        incomingEvent = await this.runInActionServer({ ...props, actionServer })
       } else {
         const trusted = await this.isTrustedAction(actionName)
 
