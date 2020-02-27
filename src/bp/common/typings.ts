@@ -239,7 +239,7 @@ export interface HttpActionDefinition {
   }[]
 }
 
-export type ActionServersWithActions = ActionServer & {
+export type ActionServerWithActions = ActionServer & {
   actions: HttpActionDefinition[]
   actionsFetchedSuccessfully: boolean
 }

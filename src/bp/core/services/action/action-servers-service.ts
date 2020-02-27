@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
-import { ActionServer, ActionServersWithActions, HttpActionDefinition } from 'common/typings'
+import { ActionServer, ActionServerWithActions, HttpActionDefinition } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -34,7 +34,7 @@ export default class ActionServersService {
     private logger: Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
-  public async getServersWithActionsForBot(botId: string): Promise<ActionServersWithActions[]> {
+  public async getServersWithActionsForBot(botId: string): Promise<ActionServerWithActions[]> {
     const actionServers = await this.getServers()
 
     return this.fetchActions(botId, actionServers)
@@ -59,7 +59,7 @@ export default class ActionServersService {
     return actionServers
   }
 
-  private async fetchActions(botId: string, actionServers: ActionServer[]): Promise<ActionServersWithActions[]> {
+  private async fetchActions(botId: string, actionServers: ActionServer[]): Promise<ActionServerWithActions[]> {
     const results = await allSettled(actionServers.map(s => axios.get(`${s.baseUrl}/actions/${botId}`)))
 
     return results.map((r, idx) => {

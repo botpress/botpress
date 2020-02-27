@@ -1,6 +1,6 @@
 import { Button, Dialog, FormGroup, HTMLSelect, Label, NonIdealState } from '@blueprintjs/core'
 import axios from 'axios'
-import { ActionParameterDefinition, ActionServersWithActions } from 'common/typings'
+import { ActionParameterDefinition, ActionServerWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -25,7 +25,7 @@ interface ActionDialogProps {
 const ActionDialog: FC<ActionDialogProps> = props => {
   const { isOpen, onClose, onSave } = props
 
-  const [actionServers, setActionServers] = useState<ActionServersWithActions[]>([])
+  const [actionServers, setActionServers] = useState<ActionServerWithActions[]>([])
   const [name, setName] = useState(props.name)
   const [parameters, setParameters] = useState(props.parameters)
   const [actionServerId, setActionServerId] = useState(props.actionServerId)
