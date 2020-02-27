@@ -181,6 +181,12 @@ export interface ModuleInfo {
   enabled: boolean
 }
 
+export interface LibraryElement {
+  contentId: string
+  type: 'say_something' | 'execute'
+  path: string
+}
+
 export interface ServerHealth {
   serverId: string
   hostname: string

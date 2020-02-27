@@ -2,7 +2,6 @@ import {
   Button,
   ContextMenu,
   ControlGroup,
-  Icon,
   InputGroup,
   Intent,
   Menu,
@@ -12,12 +11,14 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { FlowView, LibraryElement } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
 import {
+  addElementToLibrary,
   buildNewSkill,
   closeFlowNodeProps,
   copyFlowNode,
@@ -28,16 +29,14 @@ import {
   openFlowNodeProps,
   pasteFlowNode,
   removeFlowNode,
-  setDiagramAction,
   switchFlow,
   switchFlowNode,
   updateFlow,
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { Timeout, toastInfo } from '~/components/Shared/Utils'
+import { Timeout, toastInfo, toastSuccess } from '~/components/Shared/Utils'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
-import { prettyId } from '~/util'
 import {
   defaultTransition,
   DIAGRAM_PADDING,
@@ -48,6 +47,7 @@ import {
 import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
+import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
 import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
@@ -55,6 +55,57 @@ import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagra
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
+
+interface OwnProps {
+  library: any
+  addToLibrary: (elementId: string) => void
+  showSearch: boolean
+  hideSearch: () => void
+  readOnly: boolean
+  canPasteNode: boolean
+  flowPreview: boolean
+}
+
+interface StateProps {
+  library: LibraryElement[]
+  currentFlow: FlowView
+  currentDiagramAction: any
+  skills: any[]
+  currentFlowNode: any
+}
+
+interface DispatchProps {
+  updateFlow: (flow: any) => void
+  switchFlow: (flowName: string) => void
+  switchFlowNode: (nodeId: string) => any
+  updateFlowProblems: (problems: NodeProblem[]) => void
+  openFlowNodeProps: () => void
+  closeFlowNodeProps: () => void
+  createFlowNode: (props: any) => void
+  createFlow: (name: string) => void
+  addElementToLibrary: (elementId: string) => void
+  insertNewSkillNode: any
+  updateFlowNode: any
+  fetchFlows: any
+  pasteFlowNode: ({ x, y }) => void
+  copyFlowNode: () => void
+  removeFlowNode: (nodeId: string) => void
+  buildSkill: ({ location: any, id: string }) => void
+}
+
+type Props = DispatchProps & StateProps & OwnProps
+
+interface NodeProblem {
+  nodeName: string
+  missingPorts: any
+}
+
+type BpNodeModel = StandardNodeModel | SkillCallNodeModel
+
+type ExtendedDiagramEngine = {
+  enableLinkPoints?: boolean
+  flowBuilder?: any
+} & DiagramEngine
 
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
@@ -334,7 +385,9 @@ class Diagram extends Component<Props> {
                 icon="book"
                 text="Add to library"
                 onClick={() => {
-                  console.log(targetModel)
+                  const elementId = textToItemId((targetModel as SaySomethingNodeModel).onEnter?.[0])
+                  this.props.addElementToLibrary(elementId)
+                  toastSuccess(`Added to library`)
                 }}
               />
             )}
@@ -607,53 +660,14 @@ class Diagram extends Component<Props> {
   }
 }
 
-interface Props {
-  currentFlow: any
-  switchFlow: (flowName: string) => void
-  switchFlowNode: (nodeId: string) => any
-  updateFlowProblems: (problems: NodeProblem[]) => void
-  openFlowNodeProps: () => void
-  closeFlowNodeProps: () => void
-  updateFlow: any
-  createFlowNode: (props: any) => void
-  createFlow: (name: string) => void
-  insertNewSkillNode: any
-  updateFlowNode: any
-  fetchFlows: any
-  setDiagramAction: any
-  pasteFlowNode: ({ x, y }) => void
-  currentDiagramAction: any
-  copyFlowNode: () => void
-  currentFlowNode: any
-  removeFlowNode: any
-  buildSkill: any
-  readOnly: boolean
-  canPasteNode: boolean
-  flowPreview: boolean
-  showSearch: boolean
-  hideSearch: () => void
-  skills: any[]
-}
-
-interface NodeProblem {
-  nodeName: string
-  missingPorts: any
-}
-
-type BpNodeModel = StandardNodeModel | SkillCallNodeModel
-
-type ExtendedDiagramEngine = {
-  enableLinkPoints?: boolean
-  flowBuilder?: any
-} & DiagramEngine
-
 const mapStateToProps = state => ({
   flows: state.flows,
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
-  skills: state.skills.installed
+  skills: state.skills.installed,
+  library: state.content.library
 })
 
 const mapDispatchToProps = {
@@ -661,7 +675,6 @@ const mapDispatchToProps = {
   switchFlowNode,
   openFlowNodeProps,
   closeFlowNodeProps,
-  setDiagramAction,
   createFlowNode,
   removeFlowNode,
   createFlow,
@@ -672,12 +685,10 @@ const mapDispatchToProps = {
   pasteFlowNode,
   insertNewSkillNode,
   updateFlowProblems,
-  buildSkill: buildNewSkill
+  buildSkill: buildNewSkill,
+  addElementToLibrary
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  null,
-  { withRef: true }
-)(Diagram)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {
+  withRef: true
+})(Diagram)

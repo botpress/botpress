@@ -1,17 +1,15 @@
 import { Classes, ContextMenu, ITreeNode, Menu, MenuItem, Tree } from '@blueprintjs/core'
-import axios from 'axios'
+import { confirmDialog } from 'botpress/shared'
+import { LibraryElement } from 'common/typings'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { refreshLibrary, removeElementFromLibrary } from '~/actions'
 import { traverseTree } from '~/util/tree_common'
 
 import { buildFlowsTree } from './tree_util'
 
 interface State {
-  nodes: ITreeNode<NodeData>[]
-}
-
-interface NodeData {
-  name: string
+  nodes: ITreeNode<LibraryElement>[]
 }
 
 class LibraryList extends Component<any> {
@@ -25,16 +23,19 @@ class LibraryList extends Component<any> {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.filter !== prevProps.filter) {
+    console.log(this.props)
+    if (this.props.filter !== prevProps.filter || this.props.library !== prevProps.library) {
       // tslint:disable-next-line: no-floating-promises
       this.updateFlows()
     }
   }
 
   async updateFlows() {
-    const { data } = await axios.get(`${window.BOT_API_PATH}/mod/ndu/library`)
-    const entries = data.map(x => ({ ...x, name: x.elementPath }))
-    const nodes = buildFlowsTree(entries, this.props.filter, {})
+    if (!this.props.library?.length) {
+      return
+    }
+
+    const nodes = buildFlowsTree(this.props.library, this.props.filter, {})
 
     if (this.props.filter) {
       traverseTree(nodes, n => (n.isExpanded = true))
@@ -43,17 +44,13 @@ class LibraryList extends Component<any> {
     this.setState({ nodes })
   }
 
-  handleDelete = itemId => {
-    if (
-      confirm(
-        `Are you sure you want to remove this element from your library? The element will still be available elsewhere`
-      )
-    ) {
+  handleDelete = async itemId => {
+    if (await confirmDialog(`Removing an element from your library doesn't delete it from your conte`, {})) {
       this.props.removeFromLibrary(itemId)
     }
   }
 
-  handleContextMenu = (node: ITreeNode<NodeData>, path, e) => {
+  handleContextMenu = (node: ITreeNode<LibraryElement>, path, e) => {
     if (!node.nodeData) {
       return null
     }
@@ -66,14 +63,17 @@ class LibraryList extends Component<any> {
           id="btn-remove"
           icon="remove"
           text="Remove from library"
-          onClick={() => this.handleDelete(node.nodeData)}
+          onClick={() => {
+            this.props.removeElementFromLibrary(node.nodeData.contentId)
+            this.props.refreshLibrary()
+          }}
         />
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )
   }
 
-  private handleNodeClick = (node: ITreeNode<NodeData>) => {
+  private handleNodeClick = (node: ITreeNode<LibraryElement>) => {
     const originallySelected = node.isSelected
 
     traverseTree(this.state.nodes, n => (n.isSelected = false))
@@ -118,6 +118,9 @@ class LibraryList extends Component<any> {
   }
 }
 
-const mapStateToProps = state => ({ conditions: state.ndu.conditions })
+const mapStateToProps = state => ({
+  conditions: state.ndu.conditions,
+  library: state.content.library
+})
 
-export default connect(mapStateToProps, undefined)(LibraryList)
+export default connect(mapStateToProps, { removeElementFromLibrary, refreshLibrary })(LibraryList)

@@ -30,10 +30,8 @@ export const splitFlowPath = (flow, actions, flowData) => {
       className={style.grabbable}
       draggable={true}
       onDragStart={event => {
-        const { elementId } = flowData
-        const type = elementId && elementId.startsWith('#!') ? 'say_something' : 'execute'
-
-        event.dataTransfer.setData('diagram-node', JSON.stringify({ contentId: elementId, type: 'node', id: type }))
+        const { contentId, type } = flowData
+        event.dataTransfer.setData('diagram-node', JSON.stringify({ contentId, type: 'node', id: type }))
       }}
     >
       {flowName}
@@ -55,7 +53,7 @@ export const splitFlowPath = (flow, actions, flowData) => {
 export const buildFlowsTree = (flows, filterName, actions) => {
   const tree = { icon: 'root', fullPath: '', label: '<root>', childNodes: [] }
   flows.forEach(flowData => {
-    const { folders, flow } = splitFlowPath(flowData.name, actions, flowData)
+    const { folders, flow } = splitFlowPath(flowData.path, actions, flowData)
     if (!filterName || flow.id.includes(filterName)) {
       addNode(tree, folders, flow, { nodeData: flowData })
     }

@@ -37,7 +37,7 @@ export default class Database {
         rankingColumns.forEach(col => table.string(`ranking${i}${col}`))
       }
 
-      table.jsonb('nduDecisionActions')
+      table.json('nduDecisionActions')
 
       table.string('nduDecisionConfidence')
       table.string('feedbackUser').nullable()

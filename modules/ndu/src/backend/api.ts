@@ -35,7 +35,7 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
 
     try {
       const topic = await validate(req.body, TopicSchema)
-      const topics = await storage.getTopics()
+      const topics: any = await storage.getTopics()
 
       if (!topicName) {
         await storage.saveTopics([...topics, topic])
@@ -47,9 +47,5 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
     } catch (err) {
       res.status(400).send(err)
     }
-  })
-
-  router.get('/library', async (req, res) => {
-    res.send(await bots[req.params.botId].getLibrary())
   })
 }

@@ -409,6 +409,20 @@ export const fetchTopics = () => dispatch => {
   })
 }
 
+export const receiveLibrary = createAction('LIBRARY/RECEIVED')
+export const refreshLibrary = () => (dispatch, getState) => {
+  const contentLang = getState().language.contentLang
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/content/library/${contentLang}`).then(({ data }) => {
+    dispatch(receiveLibrary(data))
+  })
+}
+
+export const addElementToLibrary = elementId => () => axios.post(`${window.BOT_API_PATH}/content/library/${elementId}`)
+
+export const removeElementFromLibrary = elementId => () =>
+  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}/delete`)
+
 export const receiveQNAContentElement = createAction('QNA/CONTENT_ELEMENT')
 export const getQNAContentElementUsage = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises

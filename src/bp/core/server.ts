@@ -206,7 +206,13 @@ export default class HTTPServer {
     this.httpServer = createServer(app)
 
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
+    this.contentRouter = new ContentRouter(
+      this.logger,
+      this.authService,
+      this.cmsService,
+      this.workspaceService,
+      this.ghostService
+    )
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
