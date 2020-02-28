@@ -1,6 +1,6 @@
 import bodyParser from 'body-parser'
 import { Logger } from 'botpress/sdk'
-import { ActionDefinition, ActionParameterDefinition } from 'common/typings'
+import { ActionDefinition, ActionParameterDefinition, LocalActionDefinition } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
 import { AUDIENCE } from 'core/routers/sdk/utils'
@@ -108,20 +108,31 @@ export class LocalActionServer {
   private _initializeApp(appSecret: string) {
     this.app.use(bodyParser.json())
 
-    this.app.post('/action/run', _validateRunRequest(this.botService, appSecret), async (req, res) => {
+    this.app.post('/action/run', _validateRunRequest(this.botService, appSecret), async (req, res, next) => {
       const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
-      await this.actionService
-        .forBot(botId)
-        .runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
+      try {
+        await this.actionService
+          .forBot(botId)
+          .runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
+      } catch (e) {
+        this.logger.attachError(e).error(`Error while executing action ${actionName}`)
+        return next(e)
+      }
 
       res.send({ incomingEvent })
     })
 
-    this.app.get('/actions/:botId', _validateListActionsRequest(this.botService), async (req, res) => {
+    this.app.get('/actions/:botId', _validateListActionsRequest(this.botService), async (req, res, next) => {
       const { botId } = req.params
 
-      const actions = await this.actionService.forBot(botId).listLocalActions()
+      let actions: LocalActionDefinition[]
+      try {
+        actions = await this.actionService.forBot(botId).listLocalActions()
+      } catch (e) {
+        this.logger.attachError(e).error(`Error while listing actions for bot ${botId}`)
+        return next(e)
+      }
 
       const body: ActionDefinition[] = actions
         .filter(a => !a.legacy)
