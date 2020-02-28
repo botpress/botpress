@@ -577,7 +577,7 @@ export interface EventCollectorConfig {
 }
 
 interface ActionServersConfig {
-  localActionServer: {
+  local: {
     /**
      * Port on which the local Action Server listens
      * @default 4000
@@ -593,5 +593,5 @@ interface ActionServersConfig {
    * The list of remote Action Servers
    * @default []
    */
-  remoteActionServers: ActionServer[]
+  remotes: ActionServer[]
 }

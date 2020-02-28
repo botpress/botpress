@@ -94,7 +94,7 @@ export class LocalActionServer {
 
   public async start() {
     const { actionServers, appSecret } = await this.configProvider.getBotpressConfig()
-    const { enabled, port } = actionServers.localActionServer
+    const { enabled, port } = actionServers.local
 
     if (!enabled) {
       this.logger.info('Local Action Server disabled')

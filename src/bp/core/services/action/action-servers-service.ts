@@ -54,14 +54,15 @@ export default class ActionServersService {
   }
 
   public async getServers(): Promise<ActionServer[]> {
-    const { remoteActionServers, localActionServer } = (await this.configProvider.getBotpressConfig()).actionServers
+    const { remotes, local } = (await this.configProvider.getBotpressConfig()).actionServers
+    const { enabled, port } = local
 
-    const actionServers = [...remoteActionServers]
+    const actionServers = [...remotes]
 
-    if (localActionServer.enabled) {
+    if (enabled) {
       actionServers.unshift({
         id: 'local',
-        baseUrl: `http://localhost:${localActionServer.port}`
+        baseUrl: `http://localhost:${port}`
       })
     }
 
