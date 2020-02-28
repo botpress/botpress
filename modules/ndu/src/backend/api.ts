@@ -35,7 +35,7 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
 
     try {
       const topic = await validate(req.body, TopicSchema)
-      const topics = await storage.getTopics()
+      const topics: any = await storage.getTopics()
 
       if (!topicName) {
         await storage.saveTopics([...topics, topic])

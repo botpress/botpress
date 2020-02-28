@@ -133,7 +133,7 @@ export class SlackClient {
     return userCache.get(userId) || {}
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type === 'typing') {
       await this.rtm.sendTyping(event.threadId || event.target)
       await new Promise(resolve => setTimeout(() => resolve(), 1000))
