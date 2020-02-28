@@ -51,11 +51,9 @@ function overloadTrainers() {
           try {
             progressCb(msg.payload.progress)
           } catch (err) {
-            if (err.name === 'CancelError') {
-              process.off('message', messageHandler)
-              // process.send!({ type: 'cancel', id })
-              completedCb(err)
-            }
+            process.off('message', messageHandler)
+            completedCb(err)
+            // TODO once svm binding supports cancelation,if error is Cancel Error send cancel message
           }
         }
 
