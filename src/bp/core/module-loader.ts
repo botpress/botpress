@@ -18,6 +18,7 @@ import path from 'path'
 
 import { createForModule } from './api' // TODO
 import { ConfigProvider } from './config/config-loader'
+import { clearModuleScriptCache } from './modules/require'
 import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
 import { BotService } from './services/bot-service'
@@ -221,7 +222,7 @@ export class ModuleLoader {
     await resourceLoader.disableResources()
 
     this.entryPoints.delete(moduleName)
-    delete require.cache[require.resolve(moduleLocation)]
+    clearModuleScriptCache(moduleLocation)
     delete process.LOADED_MODULES[moduleName]
   }
 

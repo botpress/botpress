@@ -6,7 +6,7 @@ import { InjectedIntl } from 'react-intl'
 
 import WebchatApi from '../core/api'
 import constants from '../core/constants'
-import { getUserLocale, initializeLocale, translations } from '../translations'
+import { getUserLocale, initializeLocale } from '../translations'
 import {
   BotInfo,
   Config,
@@ -76,39 +76,37 @@ class RootStore {
 
   @computed
   get isConversationStarted(): boolean {
-    return this.currentConversation && !!this.currentConversation.messages.length
+    return !!this.currentConversation?.messages.length
   }
 
   @computed
   get botName(): string {
-    return (this.config && this.config.botName) || (this.botInfo && this.botInfo.name) || 'Bot'
+    return this.config?.botName || this.botInfo?.name || 'Bot'
   }
 
   @computed
   get hasBotInfoDescription(): boolean {
-    return this.config.botConvoDescription && !!this.config.botConvoDescription.length
+    return !!this.config.botConvoDescription?.length
   }
 
   @computed
   get botAvatarUrl(): string {
-    return (
-      (this.botInfo && this.botInfo.details && this.botInfo.details.avatarUrl) || (this.config && this.config.avatarUrl)
-    )
+    return this.botInfo?.details?.avatarUrl || this.config?.avatarUrl
   }
 
   @computed
   get escapeHTML(): boolean {
-    return this.botInfo && this.botInfo.security && this.botInfo.security.escapeHTML
+    return this.botInfo?.security?.escapeHTML
   }
 
   @computed
   get currentMessages(): Message[] {
-    return this.currentConversation && this.currentConversation.messages
+    return this.currentConversation?.messages
   }
 
   @computed
   get currentConversationId(): number | undefined {
-    return this.currentConversation && this.currentConversation.id
+    return this.currentConversation?.id
   }
 
   @action.bound

@@ -1,6 +1,7 @@
 ---
-id: smooch
+id: version-12.6.1-smooch
 title: Smooch (Sunshine Conversations)
+original_id: smooch
 ---
 
 ## Prerequisite

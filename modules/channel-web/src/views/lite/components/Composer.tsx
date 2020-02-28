@@ -6,7 +6,7 @@ import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 import { RootStore, StoreDef } from '../store'
 
 class Composer extends React.Component<ComposerProps> {
-  private textInput: any
+  private textInput: React.RefObject<HTMLTextAreaElement>
   constructor(props) {
     super(props)
     this.textInput = React.createRef()

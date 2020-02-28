@@ -10,11 +10,11 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
   private ref
 
   public state = {
-    ajustedWidth: 0
+    adjustedWidth: 0
   }
 
   componentDidMount() {
-    this.setState({ ajustedWidth: this.ref.offsetWidth - window.innerWidth })
+    this.setState({ adjustedWidth: this.ref.offsetWidth - window.innerWidth })
   }
 
   renderCarousel() {
@@ -22,17 +22,17 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
     const elements = carousel.elements || []
 
     // Breakpoints must be adjusted since the carousel is based on the page width, and not its parent component
-    const ajustBreakpoint = size => size - this.state.ajustedWidth
+    const adjustBreakpoint = size => size - this.state.adjustedWidth
 
     const defaultSettings = {
       dots: false,
       infinite: false,
       responsive: [
-        { breakpoint: ajustBreakpoint(550), settings: { slidesToShow: 1 } },
-        { breakpoint: ajustBreakpoint(1024), settings: { slidesToShow: 2 } },
-        { breakpoint: ajustBreakpoint(1548), settings: { slidesToShow: 3 } },
-        { breakpoint: ajustBreakpoint(2072), settings: { slidesToShow: 4 } },
-        { breakpoint: ajustBreakpoint(10000), settings: 'unslick' }
+        { breakpoint: adjustBreakpoint(550), settings: { slidesToShow: 1 } },
+        { breakpoint: adjustBreakpoint(1024), settings: { slidesToShow: 2 } },
+        { breakpoint: adjustBreakpoint(1548), settings: { slidesToShow: 3 } },
+        { breakpoint: adjustBreakpoint(2072), settings: { slidesToShow: 4 } },
+        { breakpoint: adjustBreakpoint(10000), settings: 'unslick' }
       ],
       slidesToScroll: 1,
       autoplay: false,
@@ -54,7 +54,7 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
   render() {
     return (
       <div ref={el => (this.ref = el)} style={{ width: '100%' }}>
-        {this.state.ajustedWidth && this.renderCarousel()}
+        {this.state.adjustedWidth && this.renderCarousel()}
       </div>
     )
   }
@@ -88,7 +88,7 @@ export const Card = props => {
             } else if (btn.type == 'postback' || btn.payload) {
               return (
                 <a
-                  onClick={props.onSendData && props.onSendData.bind(this, { type: 'postback', payload: btn.payload })}
+                  onClick={props.onSendData?.bind(this, { type: 'postback', payload: btn.payload })}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}
                 >
@@ -98,7 +98,7 @@ export const Card = props => {
             } else if (btn.type == 'say_something' || btn.text) {
               return (
                 <a
-                  onClick={props.onSendData && props.onSendData.bind(this, { type: 'say_something', text: btn.text })}
+                  onClick={props.onSendData?.bind(this, { type: 'say_something', text: btn.text })}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}
                 >
@@ -126,5 +126,5 @@ interface ICarouselProps {
 }
 
 interface ICarouselState {
-  ajustedWidth: number
+  adjustedWidth: number
 }

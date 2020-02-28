@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.shared.json",
   "compilerOptions": {
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "lib": ["es7", "dom"]
   }
 }

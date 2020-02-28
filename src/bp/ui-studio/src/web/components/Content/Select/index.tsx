@@ -2,6 +2,7 @@ import axios from 'axios'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { Alert, Button, Modal } from 'react-bootstrap'
+import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
 import {
   deleteMedia,
@@ -112,7 +113,7 @@ class SelectContent extends Component<Props, State> {
       this.setState({ activeItemIndex: index > 0 ? index - 1 : index })
     } else if (e.key === 'ArrowDown') {
       const { contentItems } = this.props
-      const itemsCount = contentItems ? contentItems.length : 0
+      const itemsCount = contentItems?.length ?? 0
       this.setState({ activeItemIndex: index < itemsCount - 1 ? index + 1 : index })
     } else if (e.key === 'Enter' && this.state.step === formSteps.PICK_CATEGORY) {
       this.setCurrentCategory(this.props.categories.filter(cat => !cat.hidden)[this.state.activeItemIndex].id)
@@ -276,6 +277,27 @@ class SelectContent extends Component<Props, State> {
       )
     }
 
+    const renderContentItem = contentItem => {
+      const preview = contentItem.previews[this.props.contentLang]
+      if (preview && contentItem?.schema?.title === 'Image') {
+        return (
+          <Markdown
+            source={`\\[${contentItem.contentType}\\] ${preview}`}
+            renderers={{
+              image: props => <img {...props} className={style.imagePreview} />,
+              link: props => (
+                <a href={props.href} target="_blank">
+                  {props.children}
+                </a>
+              )
+            }}
+          />
+        )
+      } else {
+        return `[${contentItem.contentType}] ${preview}`
+      }
+    }
+
     return (
       <div>
         {this.renderCurrentCategoryInfo()}
@@ -305,7 +327,7 @@ class SelectContent extends Component<Props, State> {
               className={`list-group-item list-group-item-action ${i === this.state.activeItemIndex ? 'active' : ''}`}
               onClick={() => this.handlePick(contentItem)}
             >
-              {`[${contentItem.contentType}] ${contentItem.previews[this.props.contentLang]}`}
+              {renderContentItem(contentItem)}
             </a>
           ))}
         </div>

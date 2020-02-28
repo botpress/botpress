@@ -1,11 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { SDK } from '.'
 import Database from './db'
 import seed from './seed'
 
-export default async (bp: SDK, interactionsToTrack: any) => {
+export default async (bp: typeof sdk, interactionsToTrack: any) => {
   const db: Database = new Database(bp)
   await db.initializeDb()
 

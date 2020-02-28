@@ -160,8 +160,7 @@ class CreateBotModal extends Component<Props, State> {
               label="Bot Name"
               labelFor="bot-name"
               labelInfo="*"
-              helperText={`It will be displayed to your visitors. You can change it anytime. If you put nothing, it will be named
-            "Bot" by default.`}
+              helperText={`It will be displayed to your visitors. You can change it anytime.`}
             >
               <InputGroup
                 id="input-bot-name"
