@@ -12,6 +12,7 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
+import { spawn } from 'child_process'
 import React, { FC, Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/history'
@@ -46,6 +47,10 @@ const BotItemPipeline: FC<Props> = ({
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
+
+  const requiresApproval = () => false
+  const rejectStagePromotion = () => console.log('Stage promotion rejected')
+  const approveStagePromotion = () => console.log('Stage promotion approved')
 
   return (
     <div className="pipeline_bot" key={bot.id}>
@@ -98,7 +103,14 @@ const BotItemPipeline: FC<Props> = ({
             &nbsp;
           </span>
         )}
-        {bot.disabled ? <span>{bot.name}</span> : <a href={botStudioLink}>{bot.name}</a>}
+        {bot.disabled ? (
+          <span className="bot-name">{bot.name}</span>
+        ) : (
+          <a className="bot-name" href={botStudioLink}>
+            {bot.name}
+          </a>
+        )}
+        {requiresApproval() && <span className="review-needed">Needs your review</span>}
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
@@ -106,7 +118,7 @@ const BotItemPipeline: FC<Props> = ({
         )}
       </div>
       <p>{bot.description}</p>
-      <div>
+      <div className="bottomRow">
         {bot.disabled && (
           <Tag intent={Intent.WARNING} className="botbadge">
             disabled
@@ -139,6 +151,16 @@ const BotItemPipeline: FC<Props> = ({
               {bot.pipeline_status.stage_request.status}
             </Tag>
           </Tooltip>
+        )}
+        {requiresApproval() && (
+          <div className="stage-approval-btns">
+            <Button onClick={rejectStagePromotion} small={true} intent="danger">
+              Reject
+            </Button>
+            <Button onClick={approveStagePromotion} small={true} intent="success">
+              Approve
+            </Button>
+          </div>
         )}
       </div>
     </div>

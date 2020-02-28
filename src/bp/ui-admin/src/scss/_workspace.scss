@@ -17,6 +17,19 @@
     display: flex;
     align-items: center;
     font-weight: bold;
+
+    .bot-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .review-needed {
+      font-size: 12px;
+      color: $danger-color;
+      line-height: 1.2;
+      margin-left: 10px;
+      white-space: nowrap;
+    }
   }
 }
 
@@ -75,9 +88,30 @@
     }
 
     .botbadge {
+      font-size: 12px;
+      line-height: 2;
       margin-right: 5px;
-      padding: 2px;
-      font-size: 70%;
+      padding: 0 6px;
+    }
+
+    .bottomRow {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stage-approval-btns {
+      line-height: 0;
+      margin-left: auto;
+      text-align: right;
+
+      button {
+        font-size: 12px;
+
+        & + button {
+          margin-left: 5px;
+        }
+      }
     }
   }
 }
