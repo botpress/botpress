@@ -52,11 +52,12 @@ const EditStageModal: FC<Props> = props => {
   useEffect(() => {
     if (props.stage) {
       const { id, label, action, reviewers, minimumApprovals, reviewSequence } = props.stage
+      const formatedReviewers = formatedUsers.filter(user => reviewers && reviewers.includes(user.value))
 
       setIsLastPipeline(pipeline[pipeline.length - 1].id === id)
       setLabel(label || '')
       setAction(isLastPipeline ? 'noop' : action || 'promote_copy')
-      setReviewers(reviewers || [])
+      setReviewers(formatedReviewers)
       setMinimumApprovals(minimumApprovals || 0)
       setReviewSequence(reviewSequence || 'serial')
     }
@@ -95,7 +96,7 @@ const EditStageModal: FC<Props> = props => {
               ...p,
               label,
               action,
-              reviewers,
+              reviewers: reviewers.map(r => r.value),
               minimumApprovals,
               reviewSequence
             }
@@ -221,7 +222,6 @@ const EditStageModal: FC<Props> = props => {
 }
 
 const mapStateToProps = state => ({
-  profile: state.user.profile,
   roles: state.roles.roles,
   users: state.user.users,
   loading: state.user.loadingUsers

@@ -21,6 +21,7 @@ import AccessControl, { isChatUser } from '../../../App/AccessControl'
 
 interface Props {
   bot: BotConfig
+  isApprover: boolean
   hasError: boolean
   deleteBot?: () => void
   exportBot?: () => void
@@ -34,6 +35,7 @@ interface Props {
 
 const BotItemPipeline: FC<Props> = ({
   bot,
+  isApprover,
   hasError,
   requestStageChange,
   deleteBot,
@@ -46,9 +48,9 @@ const BotItemPipeline: FC<Props> = ({
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
+  const requiresApproval = isApprover && bot.pipeline_status.stage_request
 
   // These need to be implemented once backend for approval is implemented
-  const requiresApproval = () => false
   const rejectStagePromotion = () => console.log('Stage promotion rejected')
   const approveStagePromotion = () => console.log('Stage promotion approved')
 
@@ -110,7 +112,7 @@ const BotItemPipeline: FC<Props> = ({
             {bot.name}
           </a>
         )}
-        {requiresApproval() && (
+        {requiresApproval && (
           <Tag intent={Intent.DANGER} className="botbadge reviewNeeded">
             Needs your review
           </Tag>
@@ -156,7 +158,7 @@ const BotItemPipeline: FC<Props> = ({
             </Tag>
           </Tooltip>
         )}
-        {requiresApproval() && (
+        {requiresApproval && (
           <div className="stage-approval-btns">
             <Button onClick={rejectStagePromotion} small minimal intent="danger">
               Reject

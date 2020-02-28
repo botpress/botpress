@@ -13,7 +13,7 @@ import {
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
 import { confirmDialog } from 'botpress/shared'
-import { ServerHealth } from 'common/typings'
+import { ServerHealth, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
@@ -50,6 +50,7 @@ interface Props extends RouteComponentProps {
   fetchLicensing: () => void
   fetchBotHealth: () => void
   licensing: any
+  profile: UserProfile
 }
 
 class Bots extends Component<Props> {
@@ -230,7 +231,10 @@ class Bots extends Component<Props> {
   }
 
   renderPipelineView(bots: BotConfig[]) {
-    const pipeline = this.props.workspace.pipeline
+    const {
+      workspace: { pipeline },
+      profile: { email }
+    } = this.props
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
 
@@ -256,6 +260,7 @@ class Bots extends Component<Props> {
                   <Fragment key={bot.id}>
                     <BotItemPipeline
                       bot={bot}
+                      isApprover={stage.reviewers.includes(email)}
                       hasError={this.findBotError(bot.id)}
                       allowStageChange={allowStageChange && !bot.disabled}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}
@@ -277,9 +282,12 @@ class Bots extends Component<Props> {
   }
 
   renderBots() {
-    // Change needsYourApproval to the field implemented by the backend and change it in BotConfig interface too
+    const { pipeline } = this.props.workspace
     const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter).filter(
-      bot => !this.state.needApprovalFilter || bot.needsYourApproval
+      bot =>
+        !this.state.needApprovalFilter ||
+        (bot.pipeline_status.stage_request &&
+          pipeline[bot.pipeline_status.current_stage.id].reviewers.includes(this.props.profile.email))
     )
     const hasBots = !!this.props.bots.length
     const botsView = this.isPipelineView ? this.renderPipelineView(filteredBots) : this.renderCompactView(filteredBots)
@@ -297,12 +305,7 @@ class Bots extends Component<Props> {
                 autoComplete="off"
                 className="filterField"
               />
-              {false && (
-                /* Remove condition once needApprovalFilter is implemented with backend */ <Button
-                  icon="filter"
-                  onClick={this.toggleFilters}
-                ></Button>
-              )}
+              {this.isPipelineView && <Button icon="filter" onClick={this.toggleFilters}></Button>}
             </div>
             {this.state.showFilters && (
               <div className="extraFilters">
@@ -396,7 +399,8 @@ const mapStateToProps = state => ({
   health: state.bots.health,
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
-  licensing: state.license.licensing
+  licensing: state.license.licensing,
+  profile: state.user.profile
 })
 
 const mapDispatchToProps = {
