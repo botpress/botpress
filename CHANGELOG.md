@@ -1,3 +1,19 @@
+## [12.6.1](https://github.com/botpress/botpress/compare/v12.6.0...v12.6.1) (2020-02-27)
+
+
+### Bug Fixes
+
+* **channel-messenger:** fix initialization ([3c2f669](https://github.com/botpress/botpress/commit/3c2f669))
+* **core:** better log message ([e1d2f47](https://github.com/botpress/botpress/commit/e1d2f47))
+* **core:** module was not unloaded correctly ([e61ab76](https://github.com/botpress/botpress/commit/e61ab76))
+* **dev:** fix missing module backend type check ([6affc87](https://github.com/botpress/botpress/commit/6affc87))
+* **module:** typings for sdk, knex & router ([#2995](https://github.com/botpress/botpress/issues/2995)) ([fc61430](https://github.com/botpress/botpress/commit/fc61430))
+* **studio:** fix image preview ([c1c8685](https://github.com/botpress/botpress/commit/c1c8685))
+* **tests:** add delay before starting tests ([#3002](https://github.com/botpress/botpress/issues/3002)) ([f8a2a87](https://github.com/botpress/botpress/commit/f8a2a87))
+* **ui-studio:** change helper in create bot form ([8fff5f7](https://github.com/botpress/botpress/commit/8fff5f7))
+
+
+
 # [12.6.0](https://github.com/botpress/botpress/compare/v12.5.0...v12.6.0) (2020-02-24)
 
 
