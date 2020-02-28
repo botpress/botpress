@@ -30,18 +30,6 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
       pathProps
     })
 
-    refreshNodes(nodes)
-  }, [elements, filterText])
-
-  useEffect(() => {
-    props.nodes && setNodes(props.nodes)
-  }, [props.nodes])
-
-  useEffect(() => {
-    setExpanded(props.expandedPaths || [])
-  }, [props.expandedPaths])
-
-  const refreshNodes = nodes => {
     traverseTree(nodes, node => {
       if (props.visibleElements?.find(x => node.nodeData?.[x.field] === x.value)) {
         handleNodeExpansion(node.parent!, true)
@@ -55,7 +43,15 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
     })
 
     setNodes(nodes)
-  }
+  }, [elements, filterText])
+
+  useEffect(() => {
+    props.nodes && setNodes(props.nodes)
+  }, [props.nodes])
+
+  useEffect(() => {
+    setExpanded(props.expandedPaths || [])
+  }, [props.expandedPaths])
 
   const handleNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
     isExpanded ? setExpanded([...expanded, node.fullPath]) : setExpanded(expanded.filter(x => x !== node.fullPath))
@@ -114,11 +110,11 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   return (
     <Tree
       contents={nodes}
-      onNodeClick={node => handleNodeClick(node as TreeNode<T>)}
+      onNodeClick={handleNodeClick}
+      onNodeContextMenu={handleContextMenu}
       onNodeDoubleClick={handleNodeDoubleClick}
       onNodeCollapse={node => handleNodeExpansion(node as TreeNode<T>, false)}
       onNodeExpand={node => handleNodeExpansion(node as TreeNode<T>, true)}
-      onNodeContextMenu={(node, _p, e) => handleContextMenu(node as TreeNode<T>, _p, e)}
       className={Classes.ELEVATION_0}
     />
   )
