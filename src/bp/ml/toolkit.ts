@@ -47,26 +47,27 @@ function overloadTrainers() {
     return Promise.fromCallback(completedCb => {
       const id = nanoid()
       const messageHandler = (msg: Message) => {
-        if (progressCb && msg.type === 'progress' && msg.id === id) {
+        if (msg.id !== id) {
+          return
+        }
+        if (progressCb && msg.type === 'progress') {
           try {
             progressCb(msg.payload.progress)
           } catch (err) {
-            if (err.name === 'CancelError') {
-              process.off('message', messageHandler)
-              // process.send!({ type: 'cancel', id })
-              completedCb(undefined)
-            }
+            completedCb(err)
+            process.off('message', messageHandler)
+            // TODO once svm binding supports cancelation,if error is Cancel Error send cancel message
           }
         }
 
-        if (msg.type === 'done' && msg.id === id) {
-          process.off('message', messageHandler)
+        if (msg.type === 'done') {
           completedCb(undefined, msg.payload.result)
+          process.off('message', messageHandler)
         }
 
-        if (msg.type === 'error' && msg.id === id) {
-          process.off('message', messageHandler)
+        if (msg.type === 'error') {
           completedCb(msg.payload.error)
+          process.off('message', messageHandler)
         }
       }
 

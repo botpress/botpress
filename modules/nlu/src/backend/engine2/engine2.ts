@@ -91,7 +91,6 @@ export default class E2 implements Engine2 {
         })
 
       trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
-      await this.loadModel(model)
     }
 
     return model
