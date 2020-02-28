@@ -56,7 +56,7 @@ interface StateProps {
   flowPreview: boolean
   mutexInfo: string
   topics: any
-  flowsName: { name: string; label: string }
+  flowsName: { name: string; label: string }[]
 }
 
 interface DispatchProps {

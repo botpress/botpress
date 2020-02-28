@@ -5,7 +5,6 @@ import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, renameFlow, updateFlow } from '~/actions'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
-import { getCurrentFlow } from '~/reducers'
 import { sanitizeName } from '~/util'
 
 import style from '../style.scss'
@@ -55,10 +54,8 @@ const EditGoalModal: FC<Props> = props => {
       setDescription(description || '')
       setTriggers(triggers)
     } else {
-      console.log(name)
       setDir(props.selectedTopic + '/')
     }
-    console.log(dir)
   }, [props.isOpen])
 
   const getNameOnly = (name: string): string => {
