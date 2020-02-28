@@ -1,6 +1,6 @@
 import { Button, Dialog, FormGroup, HTMLSelect, Label, NonIdealState } from '@blueprintjs/core'
 import axios from 'axios'
-import { ActionParameterDefinition, ActionServerWithActions } from 'common/typings'
+import { ActionDefinition, ActionParameterDefinition, ActionServer, ActionServerWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -13,22 +13,106 @@ export interface ParameterValue {
   value: string
 }
 
-interface ActionDialogProps {
+const ActionNameSelect: FC<{
+  name: string
+  actions: ActionDefinition[]
+  onUpdate: (name: string) => void
+}> = props => {
+  const { name, actions, onUpdate } = props
+  return (
+    <FormGroup
+      helperText="This is the action that will be executed on the chosen Action Server"
+      label="Action Name"
+      labelFor="action-name"
+      labelInfo="(required)"
+    >
+      <HTMLSelect
+        id="action-name"
+        value={name}
+        onChange={e => {
+          onUpdate(e.target.value)
+        }}
+      >
+        {actions.map(actionDefinition => (
+          <option key={actionDefinition.name} value={actionDefinition.name}>
+            {actionDefinition.name}
+          </option>
+        ))}
+      </HTMLSelect>
+    </FormGroup>
+  )
+}
+
+const ActionParametersComponent: FC<{
+  actionDefinitionParams: ActionParameterDefinition[]
+  actionParams: Parameters
+  onUpdate: (params: Parameters) => void
+}> = props => {
+  const { actionDefinitionParams, actionParams, onUpdate } = props
+  return (
+    <FormGroup
+      label="Action Parameters"
+      labelFor="action-parameters"
+      helperText={actionDefinitionParams.length === 0 ? 'This action has no parameters' : undefined}
+    >
+      <ActionParameters
+        parameterValues={actionDefinitionParams.map(parameterDefinition => {
+          return { definition: parameterDefinition, value: actionParams[parameterDefinition.name] || '' }
+        })}
+        onUpdate={parameterValues => {
+          const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
+            previousValue[parameterValue.definition.name] = parameterValue.value
+            return previousValue
+          }, {})
+
+          onUpdate(paramsObj)
+        }}
+      />
+    </FormGroup>
+  )
+}
+
+const ActionServers: FC<{
+  actionServerId: string
+  actionServers: ActionServer[]
+  onUpdate: (actionServerId: string) => void
+}> = props => {
+  const { actionServerId, actionServers, onUpdate } = props
+  return (
+    <Label>
+      Action Server
+      <HTMLSelect
+        value={actionServerId}
+        onChange={e => {
+          e.preventDefault()
+          onUpdate(e.target.value)
+        }}
+      >
+        {actionServers.map(actionServer => (
+          <option key={actionServer.id} value={actionServer.id}>
+            {actionServer.id} ({actionServer.baseUrl})
+          </option>
+        ))}
+      </HTMLSelect>
+    </Label>
+  )
+}
+
+const ActionDialog: FC<{
   name: string
   parameters: Parameters
   actionServerId: string
   isOpen: boolean
   onClose: () => void
   onSave: (action: Action) => void
-}
-
-const ActionDialog: FC<ActionDialogProps> = props => {
+}> = props => {
   const { isOpen, onClose, onSave } = props
 
   const [actionServers, setActionServers] = useState<ActionServerWithActions[]>([])
   const [name, setName] = useState(props.name)
   const [parameters, setParameters] = useState(props.parameters)
   const [actionServerId, setActionServerId] = useState(props.actionServerId)
+  const [opening, setOpening] = useState(false)
 
   useEffect(() => {
     const fetchActionServers = async () => {
@@ -36,41 +120,42 @@ const ActionDialog: FC<ActionDialogProps> = props => {
       setActionServers(response.data)
     }
 
-    // tslint:disable-next-line: no-floating-promises
-    fetchActionServers()
-  }, [])
-
-  if (actionServers.length === 0) {
-    return null
-  }
-
-  const actionIsValid = () => {
-    return !!name && !!actionServerId
-  }
-
-  const isNewNode = name === '' && _.isEmpty(parameters) && actionServerId === ''
-  if (isNewNode) {
-    const defaultActionServer = actionServers[0]
-    const defaultAction = defaultActionServer.actions[0]
-
-    const defaultName = defaultAction?.name
-    const defaultParameters = {}
-    const defaultActionServerId = defaultActionServer.id
-
-    setName(defaultName)
-    setParameters(defaultParameters)
-    setActionServerId(defaultActionServerId)
-    if (actionIsValid()) {
-      onSave({ name: defaultName, parameters: defaultParameters, actionServerId: defaultActionServerId })
+    if (opening) {
+      // tslint:disable-next-line: no-floating-promises
+      fetchActionServers()
     }
-    return null
+  }, [opening])
+
+  const currentActionServer: ActionServerWithActions | undefined =
+    actionServers.find(s => s.id === actionServerId) || actionServers[0]
+  if (actionServerId === '' && currentActionServer) {
+    setActionServerId(currentActionServer.id)
   }
-  const currentActionServer = actionServers.find(s => s.id === actionServerId)
-  const currentActionDefinition =
-    currentActionServer.actions.find(a => a.name === name) || currentActionServer.actions[0]
+
+  let currentActionDefinition: ActionDefinition | undefined
+  if (currentActionServer) {
+    currentActionDefinition = currentActionServer.actions.find(a => a.name === name) || currentActionServer.actions[0]
+    if (name === '' && currentActionDefinition) {
+      setName(currentActionDefinition.name)
+    }
+  }
+
+  const isActionValid = !!name && !!actionServerId
 
   return (
-    <Dialog isOpen={isOpen} title="Edit Action" icon="offline" onClose={() => onClose()}>
+    <Dialog
+      isOpen={isOpen}
+      title="Edit Action"
+      icon="offline"
+      onClose={() => {
+        setOpening(false)
+        setName(props.name)
+        setParameters(props.parameters)
+        setActionServerId(props.actionServerId)
+        onClose()
+      }}
+      onOpening={() => setOpening(true)}
+    >
       <div
         className={style.actionDialogContent}
         onMouseDown={e => {
@@ -82,72 +167,35 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           e.stopPropagation()
         }}
       >
-        <Label>
-          Action Server
-          <HTMLSelect
-            value={actionServerId}
-            onChange={e => {
-              e.preventDefault()
-              const actionServerId = e.target.value
-              setActionServerId(actionServerId)
-              const actionServer = actionServers.find(s => s.id === actionServerId)
-              setName(actionServer.actions[0].name)
+        <ActionServers
+          actionServers={actionServers}
+          actionServerId={actionServerId}
+          onUpdate={actionServerId => {
+            setActionServerId(actionServerId)
+            const actionServer = actionServers.find(s => s.id === actionServerId)
+            setName(actionServer.actions[0]?.name || '')
+          }}
+        />
+
+        {currentActionServer && currentActionDefinition && (
+          <ActionNameSelect
+            actions={currentActionServer.actions}
+            name={currentActionDefinition.name}
+            onUpdate={name => {
+              setName(name)
             }}
-          >
-            {actionServers.map(actionServer => (
-              <option key={actionServer.id} value={actionServer.id}>
-                {actionServer.id} ({actionServer.baseUrl})
-              </option>
-            ))}
-          </HTMLSelect>
-        </Label>
-
-        {currentActionDefinition && (
-          <>
-            <FormGroup
-              helperText="This is the action that will be executed on the chosen Action Server"
-              label="Action Name"
-              labelFor="action-name"
-              labelInfo="(required)"
-            >
-              <HTMLSelect
-                id="action-name"
-                value={currentActionDefinition.name}
-                onChange={e => {
-                  setName(e.target.value)
-                }}
-              >
-                {currentActionServer.actions.map(actionDefinition => (
-                  <option key={actionDefinition.name} value={actionDefinition.name}>
-                    {actionDefinition.name}
-                  </option>
-                ))}
-              </HTMLSelect>
-            </FormGroup>
-
-            <FormGroup
-              label="Action Parameters"
-              labelFor="action-parameters"
-              helperText={currentActionDefinition.params.length === 0 ? 'This action has no parameters' : undefined}
-            >
-              <ActionParameters
-                parameterValues={currentActionDefinition.params.map(parameterDefinition => {
-                  return { definition: parameterDefinition, value: parameters[parameterDefinition.name] || '' }
-                })}
-                onUpdate={parameterValues => {
-                  const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
-                    previousValue[parameterValue.definition.name] = parameterValue.value
-                    return previousValue
-                  }, {})
-
-                  setParameters(paramsObj)
-                }}
-              />
-            </FormGroup>
-          </>
+          />
         )}
 
-        {currentActionServer.actions.length === 0 && (
+        {currentActionDefinition && (
+          <ActionParametersComponent
+            actionDefinitionParams={currentActionDefinition.params}
+            actionParams={parameters}
+            onUpdate={parameters => setParameters(parameters)}
+          />
+        )}
+
+        {currentActionServer?.actions?.length === 0 && (
           <NonIdealState icon="warning-sign" title="No actions found on this Action Server" />
         )}
 
@@ -155,7 +203,7 @@ const ActionDialog: FC<ActionDialogProps> = props => {
           onClick={() => {
             onSave({ name, actionServerId, parameters })
           }}
-          disabled={!actionIsValid()}
+          disabled={!isActionValid}
         >
           Save
         </Button>

@@ -22,10 +22,10 @@ const ActionInfo: FC<{ action: Action }> = props => {
   )
 }
 
-const ActionNodeContent: FC<{ action: Action; cancel: () => void; onSave: (action: Action) => void }> = props => {
+const ActionNodeContent: FC<{ action: Action; onSave: (action: Action) => void }> = props => {
   const [showDialog, setShowDialog] = useState(false)
 
-  const { action, cancel, onSave } = props
+  const { action, onSave } = props
   return (
     <div className={style.content} onDoubleClick={() => setShowDialog(true)}>
       <ActionInfo action={action} />
@@ -36,7 +36,6 @@ const ActionNodeContent: FC<{ action: Action; cancel: () => void; onSave: (actio
         isOpen={showDialog}
         onClose={() => {
           setShowDialog(false)
-          cancel()
         }}
         onSave={action => {
           setShowDialog(false)
@@ -53,45 +52,18 @@ const ActionWidget: FC<{
 }> = props => {
   const { node, diagramEngine } = props
 
-  const parseActionString = (actionString: string | undefined): Action => {
-    let name = ''
-    let parameters = {}
-    let actionServerId = ''
-
-    if (actionString) {
-      const result = parseActionInstruction(actionString)
-      name = result.actionName
-
-      const parametersString = result.argsStr
-      parameters = JSON.parse(parametersString)
-
-      actionServerId = result.actionServerId
-    }
-
-    return { name, parameters, actionServerId }
-  }
-
-  const [actionString, setActionString] = useState(node.onEnter[0])
-  const actionStringCopy = node.onEnter[0]
+  // const [action, setAction] = useState()
 
   const onSave = action => {
-    // setShowDialog(false)
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
-    const actionString = serializeAction(action)
-    flowBuilder.updateFlowNode({ onEnter: [actionString] })
-    setActionString(actionString)
+    flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
   }
 
-  const cancel = () => {
-    setActionString(actionStringCopy)
-  }
-
-  const action = parseActionString(actionString)
   return (
     <div className={classnames(style.baseNode, style.nodeAction, { [style.highlightedNode]: node.isHighlighted })}>
       {showHeader({ nodeType: 'Action', nodeName: node.name, isStartNode: node.isStartNode })}
-      <ActionNodeContent action={action} cancel={cancel} onSave={onSave} />
+      <ActionNodeContent action={parseActionString(node.onEnter[0])} onSave={onSave} />
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />
         <StandardPortWidget name="out0" node={node} className={style.out} />
@@ -115,6 +87,24 @@ export interface Action {
 const serializeAction = (action: Action): string => {
   const firstPart = action.actionServerId ? `${action.actionServerId}:${action.name}` : action.name
   return [firstPart, JSON.stringify(action.parameters)].join(' ')
+}
+
+const parseActionString = (actionString: string | undefined): Action => {
+  let name = ''
+  let parameters = {}
+  let actionServerId = ''
+
+  if (actionString) {
+    const result = parseActionInstruction(actionString)
+    name = result.actionName
+
+    const parametersString = result.argsStr
+    parameters = JSON.parse(parametersString)
+
+    actionServerId = result.actionServerId
+  }
+
+  return { name, parameters, actionServerId }
 }
 
 export class ActionNodeModel extends BaseNodeModel {
