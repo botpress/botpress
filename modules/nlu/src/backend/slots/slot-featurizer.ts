@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { sanitize } from '../language/sanitizer'
 import { computeQuantile } from '../tools/math'
 import { countAlpha, countNum, countSpecial } from '../tools/strings'
+import { MAX_TFIDF, MIN_TFIDF } from '../tools/tfidf'
 import { Intent } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
