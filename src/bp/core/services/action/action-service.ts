@@ -193,7 +193,7 @@ export class ScopedActionService {
       this._botWorkspaceId = await this.workspaceService.getBotWorkspaceId(botId)
     }
 
-    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace: this._botWorkspaceId }, process.APP_SECRET, {
+    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspaceId: this._botWorkspaceId }, process.APP_SECRET, {
       expiresIn: '5m',
       audience: AUDIENCE
     })
