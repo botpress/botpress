@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser'
 import { Logger } from 'botpress/sdk'
 import { ActionDefinition, ActionParameterDefinition } from 'common/typings'
-import { Config } from 'core/app'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
 import { AUDIENCE } from 'core/routers/sdk/utils'
@@ -17,9 +16,11 @@ import { BotService } from '../bot-service'
 import ActionService from './action-service'
 import { HTTP_ACTIONS_PARAM_TYPES } from './utils'
 
-const _validateRunRequest = (botService: BotService) => async (req: Request, res: Response, next: NextFunction) => {
-  const { appSecret } = await Config.getBotpressConfig()
-
+const _validateRunRequest = (botService: BotService, appSecret: string) => async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     await Joi.validate(
       req.body,
@@ -92,23 +93,23 @@ export class LocalActionServer {
   }
 
   public async start() {
-    const config = await Config.getBotpressConfig()
+    const { actionServers, appSecret } = await this.configProvider.getBotpressConfig()
+    const localActionServer = actionServers.localActionServer
 
-    const localServerConfig = config.actionServers.localActionServer
-    if (!localServerConfig.enabled) {
+    if (!localActionServer.enabled) {
       this.logger.info('Local Action Server disabled')
       return
     }
-    const port = localServerConfig.port
+    const port = localActionServer.port
 
-    this._initializeApp()
+    this._initializeApp(appSecret)
     this.app.listen(port, () => this.logger.info(`Local Action Server listening on port ${port}`))
   }
 
-  private _initializeApp() {
+  private _initializeApp(appSecret: string) {
     this.app.use(bodyParser.json())
 
-    this.app.post('/action/run', _validateRunRequest(this.botService), async (req, res) => {
+    this.app.post('/action/run', _validateRunRequest(this.botService, appSecret), async (req, res) => {
       const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
       await this.actionService
