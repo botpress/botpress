@@ -488,7 +488,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       // TODO use bp.logger once this is moved in Engine2
       console.log('Could not finish training NLU model', err)
     }
-    _.merge(model, { success: false })
+    model.success = false
   } finally {
     model.finishedAt = new Date()
     return model as Model
