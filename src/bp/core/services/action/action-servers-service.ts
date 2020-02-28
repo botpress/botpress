@@ -1,11 +1,13 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
-import { ActionServer, ActionServerWithActions, HttpActionDefinition } from 'common/typings'
+import { ActionDefinition, ActionServer, ActionServerWithActions } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import joi, { validate } from 'joi'
 import _ from 'lodash'
+
+import { HTTP_ACTIONS_PARAM_TYPES } from './utils'
 
 const HttpActionSchema = joi.array().items(
   joi.object().keys({
@@ -13,10 +15,10 @@ const HttpActionSchema = joi.array().items(
     description: joi.string(),
     category: joi.string(),
     author: joi.string().optional(),
-    parameters: joi.array().items({
+    params: joi.array().items({
       name: joi.string(),
       description: joi.string(),
-      type: joi.string().allow('string', 'number', 'boolean'),
+      type: joi.string().allow(...HTTP_ACTIONS_PARAM_TYPES),
       required: joi.bool(),
       default: joi
         .alternatives()
@@ -65,8 +67,8 @@ export default class ActionServersService {
     return actionServers
   }
 
-  private async fetchActions(botId, actionServer: ActionServer): Promise<HttpActionDefinition[] | undefined> {
-    let actionDefinitions: HttpActionDefinition[] | undefined = undefined
+  private async fetchActions(botId, actionServer: ActionServer): Promise<ActionDefinition[] | undefined> {
+    let actionDefinitions: ActionDefinition[] | undefined = undefined
     try {
       const { data } = await axios.get(`${actionServer.baseUrl}/actions/${botId}`)
       const { value, error } = validate(data, HttpActionSchema)

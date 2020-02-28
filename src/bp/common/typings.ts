@@ -206,38 +206,24 @@ export interface ActionDefinition {
   category: string
   description: string
   author: string
+  params: ActionParameterDefinition[]
 }
 
 export type LocalActionDefinition = ActionDefinition & {
   title: string
   scope: ActionScope
   legacy: boolean
-  params: LocalActionParameterDefinition[]
   hidden: boolean
-}
-
-export type HttpActionDefinition = ActionDefinition & {
-  parameters: HttpActionParameterDefinition[]
 }
 
 export interface ActionParameterDefinition {
   name: string
   description: string
   required: boolean
-}
-
-export type LocalActionParameterDefinition = ActionParameterDefinition & {
   type: string
   default: any
 }
 
-export type HttpActionParameterDefinition = ActionParameterDefinition & {
-  type: HttpActionParameterType
-  default: string | number | boolean | undefined
-}
-
-export type HttpActionParameterType = 'string' | 'number' | 'boolean'
-
 export type ActionServerWithActions = ActionServer & {
-  actions: HttpActionDefinition[] | undefined
+  actions: ActionDefinition[] | undefined
 }

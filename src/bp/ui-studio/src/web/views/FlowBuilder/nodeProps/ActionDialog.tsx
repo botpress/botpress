@@ -1,6 +1,6 @@
 import { Button, Dialog, FormGroup, HTMLSelect, Label, NonIdealState } from '@blueprintjs/core'
 import axios from 'axios'
-import { ActionServerWithActions, HttpActionParameterDefinition } from 'common/typings'
+import { ActionParameterDefinition, ActionServerWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -9,7 +9,7 @@ import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
 import style from './style.scss'
 import { ActionParameters } from './ActionParameters'
 export interface ParameterValue {
-  definition: HttpActionParameterDefinition
+  definition: ActionParameterDefinition
   value: string
 }
 
@@ -128,10 +128,10 @@ const ActionDialog: FC<ActionDialogProps> = props => {
             <FormGroup
               label="Action Parameters"
               labelFor="action-parameters"
-              helperText={currentActionDefinition.parameters.length === 0 ? 'This action has no parameters' : undefined}
+              helperText={currentActionDefinition.params.length === 0 ? 'This action has no parameters' : undefined}
             >
               <ActionParameters
-                parameterValues={currentActionDefinition.parameters.map(parameterDefinition => {
+                parameterValues={currentActionDefinition.params.map(parameterDefinition => {
                   return { definition: parameterDefinition, value: parameters[parameterDefinition.name] || '' }
                 })}
                 onUpdate={parameterValues => {
