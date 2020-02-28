@@ -443,7 +443,7 @@ export interface AuthStrategyOauth2 {
      * The algorithms allowed to validate the JWT tokens.
      * @default ["HS256"]
      */
-    algorithms: string[]
+    algorithms: Algorithm[]
     /**
      * The public certificate starting with "-----BEGIN CERTIFICATE-----"
      * The string should be provided as one line (use \n for new lines)
