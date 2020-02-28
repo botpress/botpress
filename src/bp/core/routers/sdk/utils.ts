@@ -8,7 +8,7 @@ import { BadRequestError, UnauthorizedError } from '../errors'
 
 import { validations } from './validation'
 
-export const AUDIENCE = 'api_user'
+export const ACTION_SERVER_AUDIENCE = 'api_user'
 
 export interface TypedRequest<T> extends Request {
   body: T
@@ -38,7 +38,7 @@ export const validateSdkApiPayload = (fnScope: string, validationSchema?: Joi.Ob
 
   try {
     const apiPayload = await Promise.fromCallback<SdkApiPayload>(cb => {
-      jsonwebtoken.verify(token, process.APP_SECRET, { audience: AUDIENCE }, (err, user) => {
+      jsonwebtoken.verify(token, process.APP_SECRET, { audience: ACTION_SERVER_AUDIENCE }, (err, user) => {
         cb(err, !err ? (user as SdkApiPayload) : undefined)
       })
     })
