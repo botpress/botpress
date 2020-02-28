@@ -3,6 +3,7 @@ import {
   Button,
   ButtonGroup,
   Callout,
+  Icon,
   InputGroup,
   Intent,
   Popover,
@@ -34,6 +35,7 @@ import LoadingSection from '../../Components/LoadingSection'
 import BotItemCompact from './BotItemCompact'
 import BotItemPipeline from './BotItemPipeline'
 import CreateBotModal from './CreateBotModal'
+import EditStageModal from './EditStageModal'
 import ImportBotModal from './ImportBotModal'
 import RollbackBotModal from './RollbackBotModal'
 
@@ -54,7 +56,9 @@ class Bots extends Component<Props> {
     isCreateBotModalOpen: false,
     isRollbackModalOpen: false,
     isImportBotModalOpen: false,
+    isEditStageModalOpen: false,
     focusedBot: null,
+    selectedStage: null,
     archiveUrl: undefined,
     archiveName: '',
     filter: ''
@@ -171,6 +175,18 @@ class Bots extends Component<Props> {
     toastSuccess('Rollback success')
   }
 
+  handleEditStageSuccess = () => {
+    this.props.fetchBots()
+    toastSuccess('Stage saved successfully')
+  }
+
+  toggleEditStage = (stage?) => {
+    this.setState({
+      selectedStage: stage ? stage : null,
+      isEditStageModalOpen: !this.state.isEditStageModalOpen
+    })
+  }
+
   findBotError(botId: string) {
     if (!this.props.health) {
       return false
@@ -219,7 +235,16 @@ class Bots extends Component<Props> {
             const allowStageChange = this.isLicensed() && idx !== pipeline.length - 1
             return (
               <Col key={stage.id} md={colSize}>
-                {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
+                {pipeline.length > 1 && (
+                  <div className="pipeline_title">
+                    <h3>{stage.label}</h3>
+                    <AccessControl resource="admin.bots.*" operation="write">
+                      <Button className="pipeline_edit-button" onClick={() => this.toggleEditStage(stage)}>
+                        <Icon icon="edit" />
+                      </Button>
+                    </AccessControl>
+                  </div>
+                )}
                 {idx === 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
                 {(botsByStage[stage.id] || []).map(bot => (
                   <Fragment key={bot.id}>
@@ -313,6 +338,13 @@ class Bots extends Component<Props> {
                 isOpen={this.state.isRollbackModalOpen}
                 toggle={this.toggleRollbackModal}
                 onRollbackSuccess={this.handleRollbackSuccess}
+              />
+              <EditStageModal
+                workspace={this.props.workspace}
+                stage={this.state.selectedStage}
+                isOpen={this.state.isEditStageModalOpen}
+                toggle={this.toggleEditStage}
+                onEditSuccess={this.handleEditStageSuccess}
               />
               <CreateBotModal
                 isOpen={this.state.isCreateBotModalOpen}

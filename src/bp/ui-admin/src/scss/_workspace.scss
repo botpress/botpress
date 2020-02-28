@@ -1,10 +1,12 @@
 .bot_views {
   .actions {
     float: right;
+
     .more {
       margin-left: 5px;
       cursor: pointer;
       color: #555;
+
       &:hover {
         color: #000;
       }
@@ -24,19 +26,48 @@
     margin: auto;
     align-items: center;
   }
+
   .pipeline_title {
-    text-align: center;
     background-color: #f7f7f7;
     line-height: 2.5;
+    margin-bottom: 15px;
+    padding: 15px 0;
+    position: relative;
+    text-align: center;
+
+    h3 {
+      margin: 0;
+    }
   }
+
+  .pipeline_edit-button {
+    background: none;
+    border: none;
+    box-shadow: none;
+    line-height: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 5px;
+    text-align: center;
+    top: 5px;
+    transition: all 0.3s;
+
+    &:focus, &:active {
+      outline: none;
+    }
+  }
+
   .pipeline_bot {
     border: solid 1px #e1e4e8;
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 10px;
+
     &:hover {
       border-color: #ced2d6;
     }
+
     &.create {
       text-align: center;
       border-style: dashed;
@@ -56,6 +87,7 @@
     margin-left: 10px;
     font-size: 65%;
   }
+
   .actions button {
     margin-right: 10px;
   }
