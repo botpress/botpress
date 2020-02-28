@@ -78,11 +78,9 @@ export class WorkspacesRouter extends CustomRouter {
       '/:workspaceId/pipeline',
       this.asyncMiddleware(async (req, res) => {
         const { workspaceId } = req.params
-        const { pipelineId, resetStage, updateCustom } = req.body
+        const { pipelineId, resetStage, updateCustom, pipeline } = req.body
 
-        if (updateCustom) {
-          const { pipeline } = req.body
-
+        if (updateCustom && pipeline) {
           await this.workspaceService.mergeWorkspaceConfig(workspaceId, { pipeline })
         } else if (pipelineId !== 'custom') {
           if (!defaultPipelines[pipelineId]) {

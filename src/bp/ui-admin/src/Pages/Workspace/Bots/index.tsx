@@ -3,6 +3,7 @@ import {
   Button,
   ButtonGroup,
   Callout,
+  Checkbox,
   Icon,
   InputGroup,
   Intent,
@@ -61,7 +62,9 @@ class Bots extends Component<Props> {
     selectedStage: null,
     archiveUrl: undefined,
     archiveName: '',
-    filter: ''
+    filter: '',
+    showFilters: false,
+    needApprovalFilter: false
   }
 
   componentDidMount() {
@@ -187,6 +190,10 @@ class Bots extends Component<Props> {
     })
   }
 
+  toggleFilters = () => {
+    this.setState({ showFilters: !this.state.showFilters })
+  }
+
   findBotError(botId: string) {
     if (!this.props.health) {
       return false
@@ -271,7 +278,10 @@ class Bots extends Component<Props> {
   }
 
   renderBots() {
-    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter)
+    // Change needsYourApproval to the field implemented by the backend and change it in BotConfig interface too
+    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter).filter(
+      bot => !this.state.needApprovalFilter || bot.needsYourApproval
+    )
     const hasBots = !!this.props.bots.length
     const botsView = this.isPipelineView ? this.renderPipelineView(filteredBots) : this.renderCompactView(filteredBots)
 
@@ -279,14 +289,32 @@ class Bots extends Component<Props> {
       <div>
         {hasBots && (
           <Fragment>
-            <InputGroup
-              id="input-filter"
-              placeholder="Filter bots"
-              value={this.state.filter}
-              onChange={e => this.setState({ filter: e.target.value.toLowerCase() })}
-              autoComplete="off"
-              className="filterField"
-            />
+            <div className="filterWrapper">
+              <InputGroup
+                id="input-filter"
+                placeholder="Filter bots"
+                value={this.state.filter}
+                onChange={e => this.setState({ filter: e.target.value.toLowerCase() })}
+                autoComplete="off"
+                className="filterField"
+              />
+              {false && (
+                /* Remove condition once needApprovalFilter is implemented with backend */ <Button
+                  icon="filter"
+                  onClick={this.toggleFilters}
+                ></Button>
+              )}
+            </div>
+            {this.state.showFilters && (
+              <div className="extraFilters">
+                <h2>Extra filters</h2>
+                <Checkbox
+                  label="Need your approval"
+                  checked={this.state.needApprovalFilter}
+                  onChange={e => this.setState({ needApprovalFilter: e.currentTarget.checked })}
+                ></Checkbox>
+              </div>
+            )}
 
             {this.state.filter && !filteredBots.length && (
               <Callout title="No bot matches your query" className="filterCallout" />

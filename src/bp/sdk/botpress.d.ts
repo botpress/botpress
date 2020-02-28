@@ -864,6 +864,7 @@ declare module 'botpress/sdk' {
     author?: string
     disabled?: boolean
     private?: boolean
+    needsYourApproval?: boolean
     version: string
     imports: {
       /** Defines the list of content types supported by the bot */

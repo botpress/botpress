@@ -127,8 +127,31 @@
   }
 }
 
-.filterField {
+.filterWrapper {
+  display: flex;
   margin-bottom: 10px;
+}
+
+.filterField {
+  flex-grow: 1;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.extraFilters {
+  border: 1px solid #e1e4e8;
+  border-radius: 3px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+
+  h2 {
+    font-size: 18px;
+    margin: 0 0 10px;
+  }
+
+  label {
+    margin: 0;
+  }
 }
 
 .filterCallout {

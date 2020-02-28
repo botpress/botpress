@@ -12,7 +12,6 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { spawn } from 'child_process'
 import React, { FC, Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/history'
@@ -57,7 +56,7 @@ const BotItemPipeline: FC<Props> = ({
       <div className="actions">
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
               {!bot.disabled && !hasError && (
                 <Fragment>
@@ -154,10 +153,10 @@ const BotItemPipeline: FC<Props> = ({
         )}
         {requiresApproval() && (
           <div className="stage-approval-btns">
-            <Button onClick={rejectStagePromotion} small={true} intent="danger">
+            <Button onClick={rejectStagePromotion} small intent="danger">
               Reject
             </Button>
-            <Button onClick={approveStagePromotion} small={true} intent="success">
+            <Button onClick={approveStagePromotion} small intent="success">
               Approve
             </Button>
           </div>

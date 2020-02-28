@@ -1,8 +1,17 @@
-import { Button, Classes, Dialog, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
-import React, { FC, useEffect, useState } from 'react'
+import {
+  Button,
+  Classes,
+  Dialog,
+  FormGroup,
+  InputGroup,
+  Intent,
+  NumericInput,
+  Radio,
+  RadioGroup
+} from '@blueprintjs/core'
+import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
-import { Input } from 'reactstrap'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
@@ -38,6 +47,7 @@ const EditStageModal: FC<Props> = props => {
   const [reviewSequence, setReviewSequence] = useState('serial')
   const [pipeline, setPipeline] = useState<any[]>([])
   const [isLastPipeline, setIsLastPipeline] = useState(false)
+  const [formatedUsers, setFormatedUsers] = useState<any>([])
 
   useEffect(() => {
     if (props.stage) {
@@ -51,6 +61,14 @@ const EditStageModal: FC<Props> = props => {
       setReviewSequence(reviewSequence || 'serial')
     }
   }, [props.stage])
+
+  useEffect(() => {
+    const { users } = props
+
+    if (users) {
+      setFormatedUsers(users.map(formatUser))
+    }
+  }, [props.users])
 
   useEffect(() => {
     if (props.workspace) {
@@ -123,17 +141,23 @@ const EditStageModal: FC<Props> = props => {
     }
   }
 
-  const { stage, toggle, users } = props
+  const onMinimumApprovalsChange = value => {
+    value = Number.isNaN(value) ? 0 : value
+
+    setMinimumApprovals(value)
+  }
+
+  const { toggle } = props
 
   return (
     <Dialog isOpen={props.isOpen} icon="undo" onClose={closeModal} transitionDuration={0} title={label}>
       <div className={Classes.DIALOG_BODY}>
         <FormGroup label="Label">
-          <Input
+          <InputGroup
             id="input-label"
             type="text"
             value={label}
-            onChange={({ target: { value } }) => setLabel(value)}
+            onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => setLabel(value)}
             autoFocus={true}
           />
         </FormGroup>
@@ -150,20 +174,20 @@ const EditStageModal: FC<Props> = props => {
             id="select-reviewers"
             isMulti={true}
             value={reviewers}
-            options={users && users.map(formatUser)}
+            options={formatedUsers}
             onChange={onReviewersChange}
             autoFocus={true}
           />
         </FormGroup>
         <FormGroup label="Number of approvals required">
-          <Input
+          <NumericInput
             id="input-minimumApprovals"
-            type="number"
             min={0}
+            fill
+            clampValueOnBlur
             max={reviewers.length}
             value={minimumApprovals}
-            onChange={({ target: { value } }) => setMinimumApprovals(parseInt(value, 10))}
-            autoFocus={true}
+            onValueChange={onMinimumApprovalsChange}
           />
         </FormGroup>
         <FormGroup label="Approval order">
