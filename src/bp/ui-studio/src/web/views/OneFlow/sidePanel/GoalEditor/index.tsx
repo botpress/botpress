@@ -23,7 +23,7 @@ interface OwnProps {
 
 interface StateProps {
   conditions: Condition[]
-  currentFlow: Flow
+  flows: Flow[]
 }
 
 interface DispatchProps {
@@ -46,15 +46,13 @@ const EditGoalModal: FC<Props> = props => {
   useEffect(() => {
     setTab('overview')
 
-    if (props.currentFlow && props.selectedGoal) {
-      const { name, label, description, triggers } = props.currentFlow
+    const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
+    if (originalFlow) {
+      const { name, label, description, triggers } = originalFlow
 
-      console.log(name, getDirOnly(name), getNameOnly(name))
-
-      setDir(getDirOnly(name))
-      setName(getNameOnly(name))
-      setLabel(label)
-      setDescription(description)
+      setName(name.replace(/\.flow\.json$/i, ''))
+      setLabel(label || '')
+      setDescription(description || '')
       setTriggers(triggers)
     } else {
       console.log(name)
@@ -82,9 +80,11 @@ const EditGoalModal: FC<Props> = props => {
     if (isCreate) {
       props.createFlow(fullName)
     } else {
+      const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
+
       // TODO: fix flow edition
-      if (props.currentFlow.name !== fullName) {
-        props.renameFlow({ targetFlow: props.currentFlow.name, name: fullName })
+      if (originalFlow.name !== fullName) {
+        props.renameFlow({ targetFlow: originalFlow.name, name: fullName })
       }
       props.updateFlow({ name: fullName, description, label })
     }
@@ -194,7 +194,7 @@ const EditGoalModal: FC<Props> = props => {
 
 const mapStateToProps = state => ({
   conditions: state.ndu.conditions,
-  currentFlow: getCurrentFlow(state)
+  flows: _.values(state.flows.flowsByName)
 })
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow, renameFlow, createFlow })(

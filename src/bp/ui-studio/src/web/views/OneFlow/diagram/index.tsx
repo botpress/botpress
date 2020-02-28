@@ -605,7 +605,8 @@ class Diagram extends Component<Props> {
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'say_something':
-          this.add.sayNode(point, data.contentId ? { onEnter: [`say ${data.contentId}`] } : {})
+          const contentId = data.contentId?.startsWith('#!') ? data.contentId : `#!${data.contentId}`
+          this.add.sayNode(point, contentId ? { onEnter: [`say ${contentId}`] } : {})
           break
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})

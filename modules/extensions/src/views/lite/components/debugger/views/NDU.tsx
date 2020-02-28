@@ -42,17 +42,16 @@ export const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
       <H5>Actions</H5>
       <ul>
         {ndu.actions.map(({ action, data }) => {
-          let result = ''
-          if (action === 'send') {
-            result = `Send knowledge ${(data as sdk.NDU.SendContent).sourceDetails}`
-          } else if (action === 'startGoal') {
-            result = `Start Goal ${(data as sdk.NDU.StartGoal).goal}`
-          } else if (action === 'redirect') {
-            result = `Redirect to ${(data as sdk.NDU.FlowRedirect).flow}`
-          } else if (action === 'continue') {
-            result = 'Continue flow execution'
+          switch (action) {
+            case 'send':
+              return <li>Send knowledge {(data as sdk.NDU.SendContent).sourceDetails}</li>
+            case 'startGoal':
+              return <li>Start Goal {(data as sdk.NDU.StartGoal).goal}</li>
+            case 'redirect':
+              return <li>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</li>
+            case 'continue':
+              return <li>Continue flow execution</li>
           }
-          return <li>{result}</li>
         })}
       </ul>
       <H5>Triggers</H5>

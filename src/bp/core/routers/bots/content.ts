@@ -161,11 +161,15 @@ export class ContentRouter extends CustomRouter {
         }, {})
 
         return res.send(
-          elements.map(x => ({
-            path: `Content/${contentTypes[x.contentType]}/${x.previews[lang]}`,
-            type: 'say_something',
-            contentId: x.id
-          })) as LibraryElement[]
+          elements.map(x => {
+            const contentType = contentTypes[x.contentType]
+            return {
+              path: `Content/${contentType}/${x.id}`,
+              preview: x.previews[lang]?.replace(`${contentType}: `, ''),
+              type: 'say_something',
+              contentId: x.id
+            }
+          }) as LibraryElement[]
         )
       })
     )

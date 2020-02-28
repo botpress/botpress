@@ -1,120 +1,74 @@
-import { Classes, ContextMenu, ITreeNode, Menu, MenuItem, Tree } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { Menu, MenuItem } from '@blueprintjs/core'
+import { TreeView } from 'botpress/shared'
 import { LibraryElement } from 'common/typings'
-import React, { Component } from 'react'
+import React, { useCallback, useState } from 'react'
 import { connect } from 'react-redux'
-import { refreshLibrary, removeElementFromLibrary } from '~/actions'
-import { traverseTree } from '~/util/tree_common'
+import { removeElementFromLibrary } from '~/actions'
+import MarkdownRenderer from '~/components/Shared/MarkdownRenderer'
 
-import { buildFlowsTree } from './tree_util'
+import style from '../style.scss'
 
-interface State {
-  nodes: ITreeNode<LibraryElement>[]
+import Editor from './LiteEditor'
+
+const nodeRenderer = ({ contentId, type, preview }: LibraryElement) => {
+  return {
+    label: (
+      <div
+        className={style.grabbable}
+        draggable={true}
+        onDragStart={event => {
+          event.dataTransfer.setData('diagram-node', JSON.stringify({ contentId, type: 'node', id: type }))
+        }}
+      >
+        <MarkdownRenderer content={preview} noLink={true} size="sm"></MarkdownRenderer>
+      </div>
+    )
+  }
 }
 
-class LibraryList extends Component<any> {
-  state: State = {
-    nodes: []
-  }
+const Library = props => {
+  const [isEditOpen, setEditOpen] = useState(false)
+  const [editItem, setEditItem] = useState('')
 
-  componentDidMount() {
-    // tslint:disable-next-line: no-floating-promises
-    this.updateFlows()
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.filter !== prevProps.filter || this.props.library !== prevProps.library) {
-      // tslint:disable-next-line: no-floating-promises
-      this.updateFlows()
-    }
-  }
-
-  async updateFlows() {
-    if (!this.props.library?.length) {
-      return
-    }
-
-    const nodes = buildFlowsTree(this.props.library, this.props.filter, {})
-
-    if (this.props.filter) {
-      traverseTree(nodes, n => (n.isExpanded = true))
-    }
-
-    this.setState({ nodes })
-  }
-
-  handleDelete = async itemId => {
-    if (await confirmDialog(`Removing an element from your library doesn't delete it from your conte`, {})) {
-      this.props.removeFromLibrary(itemId)
-    }
-  }
-
-  handleContextMenu = (node: ITreeNode<LibraryElement>, path, e) => {
-    if (!node.nodeData) {
-      return null
-    }
-
-    e.preventDefault()
-
-    ContextMenu.show(
+  const getContextMenu = (element: LibraryElement) => {
+    return (
       <Menu>
         <MenuItem
           id="btn-remove"
           icon="remove"
           text="Remove from library"
           onClick={() => {
-            this.props.removeElementFromLibrary(node.nodeData.contentId)
-            this.props.refreshLibrary()
+            props.removeElementFromLibrary(element.contentId)
+            props.refreshLibrary()
           }}
         />
-      </Menu>,
-      { left: e.clientX, top: e.clientY }
+      </Menu>
     )
   }
 
-  private handleNodeClick = (node: ITreeNode<LibraryElement>) => {
-    const originallySelected = node.isSelected
-
-    traverseTree(this.state.nodes, n => (n.isSelected = false))
-
-    if (node['type'] !== 'folder') {
-      node.isSelected = originallySelected !== null
+  const onDoubleClick = (element: LibraryElement, elementType) => {
+    if (elementType === 'document') {
+      setEditItem(element.contentId)
+      setEditOpen(true)
     }
-
-    if (!node.nodeData) {
-      node.isExpanded ? this.handleNodeCollapse(node) : this.handleNodeExpand(node)
-    }
-
-    this.forceUpdate()
   }
 
-  private handleNodeCollapse = (node: ITreeNode) => {
-    node.isExpanded = false
-    this.forceUpdate()
-  }
+  const filters = { text: props.filter, field: 'preview' }
+  const toggle = () => setEditOpen(false)
 
-  private handleNodeExpand = (node: ITreeNode) => {
-    node.isExpanded = true
-    this.forceUpdate()
-  }
-
-  handleDoubleClick(node) {
-    console.log(node)
-  }
-
-  render() {
-    return (
-      <Tree
-        contents={this.state.nodes}
-        onNodeClick={this.handleNodeClick}
-        onNodeDoubleClick={this.handleDoubleClick}
-        onNodeCollapse={this.handleNodeCollapse}
-        onNodeExpand={this.handleNodeExpand}
-        onNodeContextMenu={this.handleContextMenu}
-        className={Classes.ELEVATION_0}
+  return (
+    <div>
+      <TreeView<LibraryElement>
+        elements={props.library}
+        nodeRenderer={nodeRenderer}
+        onContextMenu={getContextMenu}
+        onDoubleClick={onDoubleClick}
+        filterText={props.filter}
+        filterProps="preview"
       />
-    )
-  }
+      <Editor itemId={editItem} isOpen={isEditOpen} toggle={toggle}></Editor>
+    </div>
+  )
 }
 
 const mapStateToProps = state => ({
@@ -122,4 +76,4 @@ const mapStateToProps = state => ({
   library: state.content.library
 })
 
-export default connect(mapStateToProps, { removeElementFromLibrary, refreshLibrary })(LibraryList)
+export default connect(mapStateToProps, { removeElementFromLibrary })(Library)

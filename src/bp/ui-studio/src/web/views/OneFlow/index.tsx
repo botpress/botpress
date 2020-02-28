@@ -19,11 +19,10 @@ import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { isInputFocused } from '~/keyboardShortcuts'
-import { getDirtyFlows, RootReducer } from '~/reducers'
+import { RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
 import { PanelPermissions } from '../FlowBuilder/sidePanel'
-import { MutexInfo } from '../FlowBuilder/sidePanel/Toolbar'
 import SkillsBuilder from '../FlowBuilder/skills'
 import style from '../FlowBuilder/style.scss'
 
@@ -32,8 +31,7 @@ import SidePanel from './sidePanel'
 
 type Props = {
   currentFlow: string
-  showFlowNodeProps: boolean
-  dirtyFlows: string[]
+  currentMutex: any
   user: UserReducer
   setDiagramAction: (action: string) => void
   switchFlow: (flowName: string) => void
@@ -48,15 +46,6 @@ type Props = {
   refreshLibrary: () => void
   flowsByName: _.Dictionary<FlowView>
 } & RouteComponentProps
-
-interface State {
-  initialized: any
-  readOnly: boolean
-  panelPermissions: PanelPermissions[]
-  flowPreview: boolean
-  mutexInfo: MutexInfo
-  showSearch: boolean
-}
 
 const allActions: PanelPermissions[] = ['create', 'rename', 'delete']
 
@@ -171,6 +160,18 @@ const FlowBuilder = (props: Props) => {
     }
   }
 
+  const createFlow = name => {
+    diagram.current.createFlow(name)
+    props.switchFlow(`${name}.flow.json`)
+  }
+
+  const setReference = el => {
+    if (!!el) {
+      // @ts-ignore
+      diagram = el.getWrappedInstance()
+    }
+  }
+
   return (
     <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
       <SidePanel
@@ -178,10 +179,7 @@ const FlowBuilder = (props: Props) => {
         mutexInfo={mutex}
         permissions={actions}
         flowPreview={flowPreview}
-        onCreateFlow={name => {
-          diagram.current.createFlow(name)
-          props.switchFlow(`${name}.flow.json`)
-        }}
+        onCreateFlow={createFlow}
       />
       <div className={style.diagram}>
         <Diagram
@@ -189,12 +187,7 @@ const FlowBuilder = (props: Props) => {
           flowPreview={flowPreview}
           showSearch={showSearch}
           hideSearch={() => setShowSearch(false)}
-          ref={el => {
-            if (!!el) {
-              // @ts-ignore
-              diagram = el.getWrappedInstance()
-            }
-          }}
+          ref={setReference}
         />
       </div>
 
@@ -207,8 +200,6 @@ const FlowBuilder = (props: Props) => {
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: state.flows.currentFlow,
   flowsByName: state.flows.flowsByName,
-  showFlowNodeProps: state.flows.showFlowNodeProps,
-  dirtyFlows: getDirtyFlows(state),
   user: state.user,
   errorSavingFlows: state.flows.errorSavingFlows
 })
