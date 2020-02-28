@@ -90,7 +90,6 @@ export default class Engine implements NLUEngine {
         })
 
       trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
-      await this.loadModel(model)
     }
 
     return model
