@@ -39,6 +39,8 @@ const DEBOUNCE_DELAY = ms('2s')
 // node_production_modules are node_modules that are compressed for production
 const EXCLUDES = ['**/node_modules/**', '**/node_production_modules/**']
 
+export type RunType = 'trusted' | 'legacy' | 'http'
+
 @injectable()
 export default class ActionService {
   private _scopedActions: Map<string, ScopedActionService> = new Map()
@@ -253,7 +255,7 @@ export class ScopedActionService {
     actionArgs: any
     incomingEvent: IO.IncomingEvent
     token?: string
-    runType: 'trusted' | 'legacy' | 'http'
+    runType: RunType
   }) {
     const { actionName, actionArgs, incomingEvent, runType } = props
 
