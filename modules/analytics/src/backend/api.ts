@@ -1,8 +1,8 @@
-import { SDK } from 'botpress'
+import * as sdk from 'botpress/sdk'
 
 import { AnalyticsByBot } from './typings'
 
-export default async (bp: SDK, analytics: AnalyticsByBot) => {
+export default async (bp: typeof sdk, analytics: AnalyticsByBot) => {
   const router = bp.http.createRouterForBot('analytics')
 
   router.get('/graphs', async (req, res) => {

@@ -22,6 +22,12 @@ const BASIC_MENU_ITEMS = [
     path: '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'device_hub'
+  },
+  {
+    name: 'Config',
+    path: '/config',
+    rule: { res: 'admin.bots.*', op: 'write' },
+    icon: 'settings'
   }
 ].filter(Boolean)
 
@@ -116,6 +122,7 @@ class Sidebar extends React.Component {
               </React.Fragment>
             ) : (
               <React.Fragment>
+                {BASIC_MENU_ITEMS.filter(m => m.name === 'Config').map(this.renderBasicItem)}
                 {this.props.modules.filter(m => m.name === 'code-editor').map(this.renderModuleItem)}
               </React.Fragment>
             )}

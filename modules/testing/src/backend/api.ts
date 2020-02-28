@@ -73,7 +73,7 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     const rendered = elements.map(element => {
       return {
         id: `#!${element.id}`,
-        preview: element.previews.en // TODO: Use the bot's default language instead of hardcoded english
+        preview: element.previews['en'] // TODO: Use the bot's default language instead of hardcoded english
       }
     })
 

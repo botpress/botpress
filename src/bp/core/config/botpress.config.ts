@@ -1,6 +1,7 @@
 import { ConverseConfig } from 'botpress/sdk'
-import { UniqueUser } from 'common/typings'
-import { IncidentRule } from 'core/services/alerting-service'
+
+import { UniqueUser } from '../../common/typings'
+import { IncidentRule } from '../services/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
