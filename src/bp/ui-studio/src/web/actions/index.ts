@@ -232,8 +232,8 @@ export const fetchContentItem = (id, { force = false, batched = false } = {}) =>
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(data =>
-    dispatch(receiveContentItem(data))
+  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(
+    data => data && dispatch(receiveContentItem(data))
   )
 }
 
