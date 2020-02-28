@@ -6,11 +6,9 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "build": "./node_modules/.bin/module-builder build",
-    "watch": "./node_modules/.bin/module-builder watch"
-  },
-  "devDependencies": {
-    "module-builder": "../../build/module-builder"
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
   },
   "dependencies": {
     "passport": "^0.4.0",
