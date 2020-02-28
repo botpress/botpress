@@ -76,7 +76,7 @@ export function getClosestToken(
   let token = ''
   let dist = Number.POSITIVE_INFINITY
   _.forEach(token2Vec, (vec, t) => {
-    // Leveinshtein is for typo detection (takes precedence over spacial)
+    // Leveinshtein is for typo detection
     const lev = levenshtein(tokenStr, t)
     const maxLevOps = getMaxLevOps(tokenStr)
     if (lev <= maxLevOps) {

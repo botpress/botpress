@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { getClosestToken } from '../pipelines/language/ft_featurizer'
+import { POSClass } from '../pos-tagger'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
@@ -31,7 +32,7 @@ export type UtteranceToken = Readonly<{
   isSpace: boolean
   isBOS: boolean
   isEOS: boolean
-  POS: string
+  POS: POSClass
   vector: ReadonlyArray<number>
   tfidf: number
   cluster: number
@@ -51,7 +52,7 @@ export default class Utterance {
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
   private _sentenceEmbedding?: number[]
 
-  constructor(tokens: string[], vectors: number[][], posTags: string[], public languageCode: Readonly<string>) {
+  constructor(tokens: string[], vectors: number[][], posTags: POSClass[], public languageCode: Readonly<string>) {
     const allSameLength = [tokens, vectors, posTags].every(arr => arr.length === tokens.length)
     if (!allSameLength) {
       throw Error(`Tokens, vectors and postTags dimensions must match`)
@@ -259,7 +260,7 @@ export async function buildUtteranceBatch(
     language,
     vocab
   )
-  const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language)
+  const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language) as POSClass[][]
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
   const vectors = await tools.vectorize_tokens(uniqTokens, language)
   const vectorMap = _.zipObject(uniqTokens, vectors)
@@ -293,7 +294,7 @@ export async function buildUtteranceBatch(
 interface AlternateToken {
   value: string
   vector: number[] | ReadonlyArray<number>
-  POS: string
+  POS: POSClass
   isAlter?: boolean
 }
 
@@ -318,7 +319,7 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
   return _.chain(utterance.tokens)
     .map(token => {
       const strTok = token.toString({ lowerCase: true })
-      if (vocabVectors[strTok]) {
+      if (!token.isWord || vocabVectors[strTok]) {
         return uttTok2altTok(token)
       }
 
@@ -330,20 +331,20 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
           POS: token.POS,
           isAlter: true
         } as AlternateToken
+      } else {
+        return uttTok2altTok(token)
       }
     })
-    .filter(Boolean)
     .thru((altToks: AlternateToken[]) => {
       const hasAlternate = altToks.length === utterance.tokens.length && altToks.some(t => t.isAlter)
-      return (
-        hasAlternate &&
-        new Utterance(
+      if (hasAlternate) {
+        return new Utterance(
           altToks.map(t => t.value),
           altToks.map(t => <number[]>t.vector),
           altToks.map(t => t.POS),
           utterance.languageCode
         )
-      )
+      }
     })
     .value()
 }

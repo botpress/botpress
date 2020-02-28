@@ -48,7 +48,7 @@ const BotItemPipeline: FC<Props> = ({
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
 
   // These need to be implemented once backend for approval is implemented
-  const requiresApproval = () => true
+  const requiresApproval = () => false
   const rejectStagePromotion = () => console.log('Stage promotion rejected')
   const approveStagePromotion = () => console.log('Stage promotion approved')
 
