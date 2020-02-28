@@ -5,6 +5,7 @@ import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { TasksRepository } from 'core/repositories/tasks'
+import { NotFoundError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { injectable } from 'inversify'
 import { inject, tagged } from 'inversify'
@@ -19,6 +20,7 @@ import { GhostService } from '..'
 import { createForAction } from '../../api'
 import { clearRequireCache, requireFromString } from '../../modules/require'
 import { TYPES } from '../../types'
+import { BotService } from '../bot-service'
 import { ActionExecutionError } from '../dialog/errors'
 import { WorkspaceService } from '../workspace-service'
 
@@ -51,6 +53,7 @@ export default class ActionService {
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.TasksRepository) private tasksRepository: TasksRepository,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
     private logger: Logger
@@ -59,9 +62,13 @@ export default class ActionService {
     this._invalidateDebounce = _.debounce(this._invalidateRequire, DEBOUNCE_DELAY, { leading: true, trailing: false })
   }
 
-  forBot(botId: string): ScopedActionService {
+  public async forBot(botId: string): Promise<ScopedActionService> {
     if (this._scopedActions.has(botId)) {
       return this._scopedActions.get(botId)!
+    }
+
+    if (!(await this.botService.botExists(botId, true))) {
+      throw new NotFoundError(`This bot does not exist`)
     }
 
     const scopedActionService = new ScopedActionService(

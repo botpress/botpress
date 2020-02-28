@@ -4,6 +4,7 @@ import { ActionDefinition, ActionParameterDefinition, LocalActionDefinition } fr
 import { ConfigProvider } from 'core/config/config-loader'
 import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
+import { asyncMiddleware } from 'core/routers/util'
 import { TYPES } from 'core/types'
 import express, { NextFunction, Request, Response } from 'express'
 import { inject, injectable, tagged } from 'inversify'
@@ -16,11 +17,7 @@ import { BotService } from '../bot-service'
 import ActionService from './action-service'
 import { HTTP_ACTIONS_PARAM_TYPES } from './utils'
 
-const _validateRunRequest = (botService: BotService, appSecret: string) => async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const _validateRunRequest = (appSecret: string) => async (req: Request, res: Response, next: NextFunction) => {
   try {
     await Joi.validate(
       req.body,
@@ -36,11 +33,7 @@ const _validateRunRequest = (botService: BotService, appSecret: string) => async
     return next(new BadRequestError(err))
   }
 
-  const { botId, token } = req.body
-
-  if (!(await botService.botExists(botId))) {
-    return next(new BadRequestError('Unexisting bot'))
-  }
+  const { token } = req.body
 
   try {
     jsonwebtoken.verify(token, appSecret, { audience: ACTION_SERVER_AUDIENCE })
@@ -51,11 +44,7 @@ const _validateRunRequest = (botService: BotService, appSecret: string) => async
   next()
 }
 
-const _validateListActionsRequest = (botService: BotService) => async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const _validateListActionsRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await Joi.validate(
       req.params,
@@ -67,12 +56,6 @@ const _validateListActionsRequest = (botService: BotService) => async (
     return next(new BadRequestError(err))
   }
 
-  const { botId } = req.params
-
-  if (!(await botService.botExists(botId))) {
-    return next(new BadRequestError('Unexisting bot'))
-  }
-
   next()
 }
 
@@ -80,6 +63,7 @@ const _validateListActionsRequest = (botService: BotService) => async (
 export class LocalActionServer {
   private readonly app: express.Express
   private appSecret: string | undefined
+  private asyncMiddleware: Function
 
   constructor(
     @inject(TYPES.Logger)
@@ -90,6 +74,7 @@ export class LocalActionServer {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {
     this.app = express()
+    this.asyncMiddleware = asyncMiddleware(logger, 'LocalActionServer')
   }
 
   public async start() {
@@ -108,48 +93,45 @@ export class LocalActionServer {
   private _initializeApp(appSecret: string) {
     this.app.use(bodyParser.json())
 
-    this.app.post('/action/run', _validateRunRequest(this.botService, appSecret), async (req, res, next) => {
-      const { incomingEvent, actionArgs, actionName, botId, token } = req.body
+    this.app.post(
+      '/action/run',
+      _validateRunRequest(appSecret),
+      this.asyncMiddleware(async (req, res) => {
+        const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
-      try {
-        await this.actionService
-          .forBot(botId)
-          .runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
-      } catch (e) {
-        this.logger.attachError(e).error(`Error while executing action ${actionName}`)
-        return next(e)
-      }
+        const scopedActionService = await this.actionService.forBot(botId)
+        await scopedActionService.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
 
-      res.send({ incomingEvent })
-    })
+        res.send({ incomingEvent })
+      })
+    )
 
-    this.app.get('/actions/:botId', _validateListActionsRequest(this.botService), async (req, res, next) => {
-      const { botId } = req.params
+    this.app.get(
+      '/actions/:botId',
+      _validateListActionsRequest,
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.params
 
-      let actions: LocalActionDefinition[]
-      try {
-        actions = await this.actionService.forBot(botId).listLocalActions()
-      } catch (e) {
-        this.logger.attachError(e).error(`Error while listing actions for bot ${botId}`)
-        return next(e)
-      }
+        const scopedActionService = await this.actionService.forBot(botId)
+        const actions = await scopedActionService.listLocalActions()
 
-      const body: ActionDefinition[] = actions
-        .filter(a => !a.legacy)
-        .map(a => ({
-          params: a.params.reduce<ActionParameterDefinition[]>((acc, p) => {
-            if (HTTP_ACTIONS_PARAM_TYPES.includes(p.type)) {
-              acc.push(p)
-            } else {
-              this.logger.warn(`Ignoring parameter ${p.name} of type ${p.type} for action ${a.name}`)
-            }
+        const body: ActionDefinition[] = actions
+          .filter(a => !a.legacy)
+          .map(a => ({
+            params: a.params.reduce<ActionParameterDefinition[]>((acc, p) => {
+              if (HTTP_ACTIONS_PARAM_TYPES.includes(p.type)) {
+                acc.push(p)
+              } else {
+                this.logger.warn(`Ignoring parameter ${p.name} of type ${p.type} for action ${a.name}`)
+              }
 
-            return acc
-          }, []),
-          ..._.pick(a, ['name', 'category', 'description', 'author'])
-        }))
+              return acc
+            }, []),
+            ..._.pick(a, ['name', 'category', 'description', 'author'])
+          }))
 
-      res.send(body)
-    })
+        res.send(body)
+      })
+    )
   }
 }
