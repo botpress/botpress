@@ -313,7 +313,7 @@ export class ScopedActionService {
 
   private async _getActionDetails(actionName: string) {
     const action = await this._findAction(actionName)
-    const code = await this._getActionScript(action)
+    const code = await this._getActionScript(action.name, action.scope, action.legacy)
 
     const botFolder = action.scope === 'global' ? 'global' : 'bots/' + this.botId
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
@@ -355,15 +355,14 @@ export class ScopedActionService {
   private async _getActionDefinition(file: string, scope: ActionScope): Promise<LocalActionDefinition> {
     const name = file.replace(/\.js|\.http\.js$/i, '')
     const legacy = !file.includes('.http.js')
-    const script = await this._getActionScript({ name, legacy, scope })
+    const script = await this._getActionScript(name, scope, legacy)
 
     const { category, description, author, params, title, hidden } = extractMetadata(script)
 
     return { name, scope, legacy, category, description, author, params, title, hidden }
   }
 
-  private async _getActionScript(props: { name: string; scope: ActionScope; legacy: boolean }): Promise<string> {
-    const { name, scope, legacy } = props
+  private async _getActionScript(name: string, scope: ActionScope, legacy: boolean): Promise<string> {
     if (this._scriptsCache.has(name)) {
       return this._scriptsCache.get(name)!
     }
