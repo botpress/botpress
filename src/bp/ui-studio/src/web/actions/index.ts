@@ -418,10 +418,19 @@ export const refreshLibrary = () => (dispatch, getState) => {
   })
 }
 
-export const addElementToLibrary = elementId => () => axios.post(`${window.BOT_API_PATH}/content/library/${elementId}`)
+export const addElementToLibrary = elementId => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}`).then(() => {
+    dispatch(refreshLibrary())
+  })
+}
 
-export const removeElementFromLibrary = elementId => () =>
-  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}/delete`)
+export const removeElementFromLibrary = elementId => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}/delete`).then(() => {
+    dispatch(refreshLibrary())
+  })
+}
 
 export const receiveQNAContentElement = createAction('QNA/CONTENT_ELEMENT')
 export const getQNAContentElementUsage = () => dispatch => {

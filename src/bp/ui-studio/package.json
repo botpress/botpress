@@ -29,7 +29,6 @@
     "lodash": ">=4.17.12"
   },
   "dependencies": {
-    "@blueprintjs/select": "^3.11.2",
     "@blueprintjs/core": "^3.23.1",
     "@blueprintjs/select": "^3.11.2",
     "anser": "^1.4.8",
@@ -78,21 +77,22 @@
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "redux-thunk": "^2.2.0",
+    "reselect": "^4.0.0",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "socketio-jwt": "^4.5.0",
     "storm-react-diagrams": "^5.2.1",
     "styled-components": "^4.2.0",
-    "yn": "^3.1.0",
-    "ui-shared": "link:../ui-shared"
+    "ui-shared": "link:../ui-shared",
+    "yn": "^3.1.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.133",
     "@types/axios": "^0.14.0",
+    "@types/classnames": "^2.2.6",
+    "@types/lodash": "^4.14.133",
     "@types/node": "^10.10.3",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.8.6",
-    "@types/classnames": "^2.2.6",
     "@types/react-router-dom": "^4.3.3",
     "autoprefixer": "^6.5.3",
     "babel-cli": "^6.26.0",

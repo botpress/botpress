@@ -1,8 +1,6 @@
 import { Icon } from '@blueprintjs/core'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
-import reject from 'lodash/reject'
-import values from 'lodash/values'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -16,7 +14,7 @@ import {
 } from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
-import { getCurrentFlow, getDirtyFlows } from '~/reducers'
+import { getAllFlows, getCurrentFlow, getFlowNamesList } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
@@ -51,7 +49,6 @@ interface OwnProps {
 }
 
 interface StateProps {
-  flowsNames: string[]
   showFlowNodeProps: boolean
   flows: FlowView[]
   currentFlow: any
@@ -59,6 +56,7 @@ interface StateProps {
   flowPreview: boolean
   mutexInfo: string
   topics: any
+  flowsName: { name: string; label: string }
 }
 
 interface DispatchProps {
@@ -92,9 +90,6 @@ const SidePanelContent: FC<Props> = props => {
   }, [])
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
-
-  const normalFlows = reject(props.flows, x => x.name && x.name.startsWith('skills/'))
-  const flowsName = normalFlows.map(x => ({ name: x.name, label: x.label }))
 
   const createTopicAction = {
     id: 'btn-add-flow',
@@ -154,6 +149,10 @@ const SidePanelContent: FC<Props> = props => {
     props.fetchTopics()
   }
 
+  const topicActions = props.permissions.includes('create') && [createTopicAction, importAction]
+  const importGoal = () => setImportGoalModalOpen(!importGoalModalOpen)
+  const canDelete = props.permissions.includes('delete')
+
   return (
     <SidePanel>
       <Toolbar mutexInfo={props.mutexInfo} />
@@ -164,14 +163,11 @@ const SidePanelContent: FC<Props> = props => {
         <React.Fragment>
           <SearchBar icon="filter" placeholder="Filter topics and goals" onChange={setGoalFilter} />
 
-          <SidePanelSection
-            label="Topics"
-            actions={props.permissions.includes('create') && [createTopicAction, importAction]}
-          >
+          <SidePanelSection label="Topics" actions={topicActions}>
             <TopicList
               readOnly={props.readOnly}
-              canDelete={props.permissions.includes('delete')}
-              flows={flowsName}
+              canDelete={canDelete}
+              flows={props.flowsName}
               goToFlow={goToFlow}
               deleteFlow={props.deleteFlow}
               duplicateFlow={duplicateFlow}
@@ -179,7 +175,7 @@ const SidePanelContent: FC<Props> = props => {
               editGoal={editGoal}
               createGoal={createGoal}
               exportGoal={exportGoal}
-              importGoal={() => setImportGoalModalOpen(!importGoalModalOpen)}
+              importGoal={importGoal}
               filter={goalFilter}
               editTopic={editTopic}
               exportTopic={exportTopic}
@@ -228,10 +224,8 @@ const SidePanelContent: FC<Props> = props => {
 
 const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state),
-  flows: values(state.flows.flowsByName),
-  dirtyFlows: getDirtyFlows(state),
-  flowProblems: state.flows.flowProblems,
-  flowsNames: _.keys(state.flows.flowsByName),
+  flows: getAllFlows(state),
+  flowsName: getFlowNamesList(state),
   showFlowNodeProps: state.flows.showFlowNodeProps,
   topics: state.ndu.topics
 })

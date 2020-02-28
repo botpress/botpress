@@ -1,10 +1,10 @@
-import { Classes, ContextMenu, ITreeNode, Menu, MenuDivider, MenuItem, Tree } from '@blueprintjs/core'
+import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { Flow } from 'botpress/sdk'
-import { isEqual } from 'lodash'
-import React, { Component } from 'react'
-import { traverseTree } from '~/util/tree_common'
+import { TreeView } from 'botpress/shared'
+import _ from 'lodash'
+import React from 'react'
 
-import { buildFlowsTree } from './tree_util'
+import style from '../style.scss'
 
 const lockedFlows = ['main.flow.json', 'error.flow.json']
 
@@ -35,196 +35,142 @@ interface Props {
   exportTopic: (topicName: string) => void
 }
 
-type TreeNode = ITreeNode<NodeData> & { parent: TreeNode; id: string }
-
-interface State {
-  nodes: TreeNode[]
-}
-
 interface NodeData {
   name: string
   type: 'goal' | 'folder' | 'topic'
   label?: string
+  id?: any
 }
 
-export default class FlowsList extends Component<Props, State> {
-  private expandedNodes = {}
+const TopicList = props => {
+  const folderRenderer = (folder: string) => {
+    const createGoal = e => {
+      e.stopPropagation()
+      props.createGoal(folder)
+    }
 
-  state: State = {
-    nodes: []
-  }
+    const editTopic = e => {
+      e.stopPropagation()
+      props.editTopic(folder)
+    }
 
-  componentDidMount() {
-    this.updateFlows()
-  }
-
-  componentDidUpdate(prevProps) {
-    const flowsChanged = !isEqual(prevProps.flows, this.props.flows)
-    const currentFlowChanged = this.props.currentFlow && prevProps.currentFlow !== this.props.currentFlow
-    const filterChanged = this.props.filter !== prevProps.filter
-
-    if (flowsChanged || currentFlowChanged || filterChanged) {
-      this.updateFlows()
+    return {
+      label: (
+        <div className={style.treeNode}>
+          <span>{folder}</span>
+          <div className={style.overhidden} id="actions">
+            <Tooltip content={<span>Edit topic</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+              <Button icon="edit" minimal={true} onClick={editTopic} />
+            </Tooltip>
+            <Tooltip content={<span>Create new goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+              <Button icon="insert" minimal={true} onClick={createGoal} />
+            </Tooltip>
+          </div>
+        </div>
+      )
     }
   }
 
-  updateNodeExpanded = (id: string, isExpanded: boolean) => {
-    if (isExpanded) {
-      this.expandedNodes[id] = true
-    } else {
-      delete this.expandedNodes[id]
-    }
-  }
-
-  updateFlows() {
-    const actions = {
-      createGoal: this.props.createGoal,
-      editTopic: this.props.editTopic,
-      importGoal: this.props.importGoal
-    }
-
-    const flows = this.props.flows.filter(x => x.name !== 'main.flow.json')
-    const nodes = buildFlowsTree(flows, this.expandedNodes, this.props.filter, actions)
-
-    traverseTree(nodes, (n: TreeNode) => {
-      if (this.props.currentFlow && n.nodeData?.name === this.props.currentFlow?.name) {
-        this.updateNodeExpanded(n.parent.id, true)
-        n.parent.isExpanded = true
-        n.isSelected = true
-      }
-
-      if (this.props.filter) {
-        n.isExpanded = true
-      }
-
-      return n
-    })
-
-    this.setState({ nodes })
-  }
-
-  handleDelete = flow => {
-    if (confirm(`Are you sure you want to delete the flow ${flow.name}?`)) {
-      this.props.deleteFlow(flow.name)
-    }
-  }
-
-  handleContextMenu = (node: TreeNode, path, e) => {
-    const { name, type } = node.nodeData
-
-    e.preventDefault()
-
-    if (type === TYPES.Topic) {
-      ContextMenu.show(
+  const handleContextMenu = (element: NodeData | string, elementType) => {
+    if (elementType === 'folder') {
+      return (
         <Menu>
-          <MenuItem id="btn-edit" icon="edit" text="Edit Topic" onClick={() => this.props.editTopic(node.id)} />
+          <MenuItem id="btn-edit" icon="edit" text="Edit Topic" onClick={() => props.editTopic(element)} />
           <MenuItem
             id="btn-export"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="upload"
             text="Export Topic"
-            onClick={() => this.props.exportTopic(node.id)}
+            onClick={() => props.exportTopic(element)}
           />
           <MenuDivider />
           <MenuItem
             id="btn-create"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="add"
             text="Create new Goal"
-            onClick={() => this.props.createGoal(name)}
+            onClick={() => props.createGoal(name)}
           />
           <MenuItem
             id="btn-import"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="download"
             text="Import existing Goal"
-            onClick={() => this.props.importGoal(name)}
+            onClick={() => props.importGoal(name)}
           />
-        </Menu>,
-        { left: e.clientX, top: e.clientY }
+        </Menu>
       )
-    } else if (type === TYPES.Goal) {
-      ContextMenu.show(
+    } else {
+      const { id, name, type } = element as NodeData
+
+      return (
         <Menu>
           <MenuItem
             id="btn-edit"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="edit"
             text="Edit Goal"
-            onClick={() => this.props.editGoal(name, node.nodeData)}
+            onClick={() => props.editGoal(name, element)}
           />
           <MenuItem
             id="btn-duplicate"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="duplicate"
             text="Duplicate"
-            onClick={() => this.props.duplicateFlow(name)}
+            onClick={() => props.duplicateFlow(name)}
           />
           <MenuItem
             id="btn-export"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="export"
             text="Export"
-            onClick={() => this.props.exportGoal(name)}
+            onClick={() => props.exportGoal(name)}
           />
           <MenuDivider />
           <MenuItem
             id="btn-delete"
-            disabled={lockedFlows.includes(name) || !this.props.canDelete || this.props.readOnly}
+            disabled={lockedFlows.includes(name) || !props.canDelete || props.readOnly}
             icon="delete"
             text="Delete"
-            onClick={() => this.handleDelete(node.nodeData)}
+            onClick={() => {
+              if (confirm(`Are you sure you want to delete the flow ${name}?`)) {
+                props.deleteFlow(name)
+              }
+            }}
           />
-        </Menu>,
-        { left: e.clientX, top: e.clientY }
+        </Menu>
       )
     }
   }
 
-  private handleNodeClick = (node: TreeNode) => {
-    const { type, name } = node.nodeData
-    const originallySelected = node.isSelected
+  const nodeRenderer = el => ({ label: el.label || el.name })
 
-    traverseTree(this.state.nodes, n => (n.isSelected = n.nodeData?.name === this.props.currentFlow?.name))
-
-    if (type !== TYPES.Topic && type !== TYPES.Folder) {
-      node.isSelected = originallySelected !== null
+  const onClick = (element: NodeData | string, type) => {
+    if (type === 'document') {
+      props.goToFlow((element as NodeData).name)
     }
+  }
 
-    if (type === TYPES.Goal) {
-      this.props.goToFlow(name)
-    } else {
-      this.handleNodeExpand(node, !node.isExpanded)
+  const onDoubleClick = (element: NodeData, type) => {
+    if (type === 'document') {
+      props.editGoal(element.name, element)
     }
-
-    this.forceUpdate()
   }
 
-  private handleNodeDoubleClick = (node: TreeNode) => {
-    if (node.nodeData.type === TYPES.Goal) {
-      this.props.editGoal(node.label, node.nodeData)
-    }
-
-    this.forceUpdate()
-  }
-
-  private handleNodeExpand = (node: TreeNode, isExpanded: boolean) => {
-    this.updateNodeExpanded(node.id as string, isExpanded)
-    node.isExpanded = isExpanded
-    this.forceUpdate()
-  }
-
-  render() {
-    return (
-      <Tree
-        contents={this.state.nodes}
-        onNodeContextMenu={this.handleContextMenu}
-        onNodeClick={this.handleNodeClick}
-        onNodeDoubleClick={this.handleNodeDoubleClick}
-        onNodeCollapse={n => this.handleNodeExpand(n as TreeNode, false)}
-        onNodeExpand={n => this.handleNodeExpand(n as TreeNode, true)}
-        className={Classes.ELEVATION_0}
-      />
-    )
-  }
+  return (
+    <TreeView<NodeData>
+      elements={props.flows}
+      nodeRenderer={nodeRenderer}
+      folderRenderer={folderRenderer}
+      onContextMenu={handleContextMenu}
+      onClick={onClick}
+      visibleElements={[{ field: 'name', value: props.currentFlow?.name }]}
+      onDoubleClick={onDoubleClick}
+      filterText={props.filter}
+      pathProps="name"
+      filterProps="name"
+    />
+  )
 }
+
+export default TopicList

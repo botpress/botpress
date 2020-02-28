@@ -184,6 +184,7 @@ export interface ModuleInfo {
 export interface LibraryElement {
   contentId: string
   type: 'say_something' | 'execute'
+  preview: string
   path: string
 }
 
