@@ -418,22 +418,15 @@ export class BotsRouter extends CustomRouter {
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.media'),
       this.asyncMiddleware(async (req, res) => {
-        mediaUploadMulter(req, res, async err => {
-          const email = req.tokenUser!.email
-          if (err) {
-            debugMedia(`failed deletion (${email} from ${req.ip})`, err.message)
-            return res.sendStatus(400)
-          }
-
-          const botId = req.params.botId
-          const files = this.cmsService.getMediaFiles(req.body)
-          files.forEach(async f => {
-            await this.mediaService.deleteFile(botId, f)
-            debugMedia(`successful deletion (${email} from ${req.ip}). file: ${f}`)
-          })
-
-          res.sendStatus(200)
+        const email = req.tokenUser!.email
+        const botId = req.params.botId
+        const files = this.cmsService.getMediaFiles(req.body)
+        files.forEach(async f => {
+          await this.mediaService.deleteFile(botId, f)
+          debugMedia(`successful deletion (${email} from ${req.ip}). file: ${f}`)
         })
+
+        res.sendStatus(200)
       })
     )
 

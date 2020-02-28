@@ -22,6 +22,7 @@ import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
 import { FlowReducer } from '~/reducers/flows'
 import { UserReducer } from '~/reducers/user'
+import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 import style from './style.scss'
 import List from './List'
@@ -117,10 +118,7 @@ class ContentView extends Component<Props, State> {
   }
 
   handleCloseModal = () => {
-    if (
-      this.state.modifyId === null &&
-      ['builtin_card', 'builtin_carousel', 'builtin_image'].includes(this.currentContentType())
-    ) {
+    if (this.state.modifyId === null && CONTENT_TYPES_MEDIA.includes(this.currentContentType())) {
       this.props.deleteMedia(this.state.contentToEdit)
     }
 

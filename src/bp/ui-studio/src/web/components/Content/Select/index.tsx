@@ -12,6 +12,7 @@ import {
   upsertContentItem
 } from '~/actions'
 import Loading from '~/components/Util/Loading'
+import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
@@ -155,7 +156,7 @@ class SelectContent extends Component<Props, State> {
   resetCreateContent = (resetSearch = false) => response => {
     const { data: id } = response || {}
 
-    if (!id && ['builtin_card', 'builtin_carousel', 'builtin_image'].includes(this.state.newItemCategory.id)) {
+    if (!id && CONTENT_TYPES_MEDIA.includes(this.state.newItemCategory.id)) {
       this.props.deleteMedia(this.state.newItemData)
     }
 

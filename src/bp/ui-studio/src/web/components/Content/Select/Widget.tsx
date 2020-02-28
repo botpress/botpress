@@ -11,6 +11,7 @@ import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
 
 import style from './style.scss'
+import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 interface DispatchProps {
   deleteMedia: (formData: any) => Promise<void>
@@ -74,7 +75,7 @@ class ContentPickerWidget extends Component<Props> {
 
   handleClose = async () => {
     if (
-      ['builtin_card', 'builtin_carousel', 'builtin_image'].includes(this.props.contentItem.contentType) &&
+      CONTENT_TYPES_MEDIA.includes(this.props.contentItem.contentType) &&
       !_.isEqual(this.state.contentToEdit, this.props.contentItem.formData)
     ) {
       await this.props.deleteMedia(this.state.contentToEdit)
