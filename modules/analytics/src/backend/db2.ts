@@ -51,10 +51,10 @@ export default class Db {
 
   async initialize() {
     await this.knex.createTableIfNotExists(TABLE_NAME, table => {
-      table.string('bot_id').notNullable()
+      table.string('botId').notNullable()
       table.string('date').notNullable()
       table.string('channel').notNullable()
-      table.primary(['bot_id', 'date', 'channel'])
+      table.primary(['botId', 'date', 'channel'])
 
       Metric.forEach(element => {
         table
@@ -96,7 +96,7 @@ export default class Db {
           delete this.cache_entries[key]
 
           const parts = key.split('/')
-          const filter = { bot_id: parts[1], date: parts[0], channel: parts[2] }
+          const filter = { botId: parts[1], date: parts[0], channel: parts[2] }
 
           if (!this.cache_rows[key]) {
             await this.knex(TABLE_NAME)
@@ -130,11 +130,11 @@ export default class Db {
       .where({ botId })
       .andWhere(this.knex.date.isBetween('date', startDate, endDate))
 
-    let queryNewUsers = this.knex(TABLE_NAME)
+    let queryNewUsers = this.knex('bot_chat_users')
       .where({ botId })
       .andWhere(this.knex.date.isBetween('createdOn', startDate, endDate))
 
-    let queryActiveUsers = this.knex(TABLE_NAME)
+    let queryActiveUsers = this.knex('bot_chat_users')
       .where({ botId })
       .andWhere(this.knex.date.isBetween('lastSeenOn', startDate, endDate))
 
@@ -144,10 +144,15 @@ export default class Db {
       queryActiveUsers = queryActiveUsers.andWhere({ channel: options.channel })
     }
 
-    const metrics = await queryMetrics
-    const newUsersCount = await queryNewUsers.count('*')
-    const activeUsersCount = await queryActiveUsers.count('*')
+    try {
+      const metrics = await queryMetrics
+      const newUsersCount = await queryNewUsers.count('*')
+      const activeUsersCount = await queryActiveUsers.count('*')
 
-    return [] // TODO transform results
+      return [] // TODO transform results
+    } catch (err) {
+      console.log(err)
+      //
+    }
   }
 }
