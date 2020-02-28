@@ -3,12 +3,10 @@ import { readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import tmp from 'tmp'
 
-import { LanguageIdentifier } from '../typings'
-
 const PRETRAINED_LID_176 = join(__dirname, './pre-trained/lid.176.ftz')
 export const NA_LANG = 'n/a'
 
-export class FastTextLanguageId implements LanguageIdentifier {
+export class FastTextLanguageId {
   private static model: sdk.MLToolkit.FastText.Model
   private static toolkit: typeof sdk.MLToolkit
 
@@ -44,7 +42,7 @@ export class FastTextLanguageId implements LanguageIdentifier {
 }
 
 export default class LanguageIdentifierProvider {
-  private static __instance: LanguageIdentifier
+  private static __instance: FastTextLanguageId
 
   public static getLanguageIdentifier(toolkit: typeof sdk.MLToolkit) {
     if (!LanguageIdentifierProvider.__instance) {
