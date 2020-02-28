@@ -47,7 +47,8 @@ const BotItemPipeline: FC<Props> = ({
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
 
-  const requiresApproval = () => false
+  // These need to be implemented once backend for approval is implemented
+  const requiresApproval = () => true
   const rejectStagePromotion = () => console.log('Stage promotion rejected')
   const approveStagePromotion = () => console.log('Stage promotion approved')
 
@@ -109,7 +110,11 @@ const BotItemPipeline: FC<Props> = ({
             {bot.name}
           </a>
         )}
-        {requiresApproval() && <span className="review-needed">Needs your review</span>}
+        {requiresApproval() && (
+          <Tag intent={Intent.DANGER} className="botbadge reviewNeeded">
+            Needs your review
+          </Tag>
+        )}
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
