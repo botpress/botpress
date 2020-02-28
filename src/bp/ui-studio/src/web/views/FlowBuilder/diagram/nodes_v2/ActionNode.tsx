@@ -15,10 +15,14 @@ import { showHeader } from './utils'
 const ActionInfo: FC<{ action: Action }> = props => {
   const { action } = props
 
+  if (!action.name || !action.actionServerId) {
+    return <>⚠️ No action chosen</>
+  }
+
   return (
-    <div>
+    <>
       {action.name} ({action.actionServerId})
-    </div>
+    </>
   )
 }
 
