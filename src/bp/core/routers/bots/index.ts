@@ -367,8 +367,9 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('read', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const scopedActionService = await this.actionService.forBot(botId)
-        const actions = await scopedActionService.listActions()
+
+        const service = await this.actionService.forBot(botId)
+        const actions = await service.listActions()
         res.send(Serialize(actions))
       })
     )

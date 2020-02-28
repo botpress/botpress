@@ -71,7 +71,7 @@ export default class ActionService {
       throw new NotFoundError(`This bot does not exist`)
     }
 
-    const scopedActionService = new ScopedActionService(
+    const service = new ScopedActionService(
       this.ghost,
       this.logger,
       botId,
@@ -79,8 +79,8 @@ export default class ActionService {
       this.tasksRepository,
       this.workspaceService
     )
-    this._scopedActions.set(botId, scopedActionService)
-    return scopedActionService
+    this._scopedActions.set(botId, service)
+    return service
   }
 
   private _listenForCacheInvalidation() {

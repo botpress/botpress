@@ -89,8 +89,8 @@ export class LocalActionServer {
       this.asyncMiddleware(async (req, res) => {
         const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
-        const scopedActionService = await this.actionService.forBot(botId)
-        await scopedActionService.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
+        const service = await this.actionService.forBot(botId)
+        await service.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
 
         res.send({ incomingEvent })
       })
@@ -102,8 +102,8 @@ export class LocalActionServer {
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
 
-        const scopedActionService = await this.actionService.forBot(botId)
-        const actions = await scopedActionService.listLocalActions()
+        const service = await this.actionService.forBot(botId)
+        const actions = await service.listLocalActions()
 
         const body: ActionDefinition[] = actions
           .filter(a => !a.legacy)
