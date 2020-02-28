@@ -105,7 +105,7 @@ export class ScopedActionService {
   private _scriptsCache: Map<string, string> = new Map()
   // Keeps a quick index of files which have already been required
   private _validScripts: { [filename: string]: boolean } = {}
-  private _botsWorkspaceIdsCache: Map<string, string> = new Map()
+  private _botWorkspaceId: string | undefined
 
   constructor(
     private ghost: GhostService,
@@ -189,9 +189,11 @@ export class ScopedActionService {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
 
-    const workspaceId = await this._getWorkspaceIdForBot(botId)
+    if (!this._botWorkspaceId) {
+      this._botWorkspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+    }
 
-    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace: workspaceId }, process.APP_SECRET, {
+    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspace: this._botWorkspaceId }, process.APP_SECRET, {
       expiresIn: '5m',
       audience: AUDIENCE
     })
@@ -345,7 +347,7 @@ export class ScopedActionService {
     this._globalActionsCache = undefined
     this._localActionsCache = undefined
     this._validScripts = {}
-    this._botsWorkspaceIdsCache.clear()
+    this._botWorkspaceId = undefined
   }
 
   private async _getActionDefinition(file: string, scope: ActionScope): Promise<LocalActionDefinition> {
@@ -431,17 +433,5 @@ export class ScopedActionService {
     }
 
     return action
-  }
-
-  private async _getWorkspaceIdForBot(botId: string): Promise<string> {
-    let workspaceId
-    if (this._botsWorkspaceIdsCache.has(botId)) {
-      workspaceId = this._botsWorkspaceIdsCache.get(botId)
-    } else {
-      workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
-      this._botsWorkspaceIdsCache.set(botId, workspaceId)
-    }
-
-    return workspaceId
   }
 }
