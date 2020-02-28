@@ -1,6 +1,7 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+import { isPOSAvailable } from '../pos-tagger'
 import { isPatternValid } from '../tools/patterns-utils'
 import { Engine2, ListEntity, Tools, TrainingSession } from '../typings'
 
@@ -90,7 +91,6 @@ export default class E2 implements Engine2 {
         })
 
       trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
-      await this.loadModel(model)
     }
 
     return model
@@ -115,12 +115,6 @@ export default class E2 implements Engine2 {
     if (this.modelAlreadyLoaded(model)) {
       return
     }
-    // TODO if model or predictor not valid, throw and retry
-    this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
-    this.modelsByLang[model.languageCode] = model
-  }
-
-  private async _makePredictors(model: Model): Promise<Predictors> {
     if (!model.data.output) {
       const intents = await ProcessIntents(
         model.data.input.intents,
@@ -131,33 +125,42 @@ export default class E2 implements Engine2 {
       model.data.output = { intents } as TrainOutput
     }
 
+    // TODO if model or predictor not valid, throw and retry
+    this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
+    this.modelsByLang[model.languageCode] = model
+  }
+
+  private async _makePredictors(model: Model): Promise<Predictors> {
     const { input, output, artefacts } = model.data
     const tools = E2.tools
 
-    if (_.flatMap(input.intents, i => i.utterances).length > 0) {
-      const ctx_classifier = new tools.mlToolkit.SVM.Predictor(artefacts.ctx_model)
-      const intent_classifier_per_ctx = _.toPairs(artefacts.intent_model_by_ctx).reduce(
-        (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
-        {} as _.Dictionary<MLToolkit.SVM.Predictor>
-      )
-      const slot_tagger = new CRFExtractor2(tools.mlToolkit) // TODO change this for MLToolkit.CRF.Tagger
-      slot_tagger.load(artefacts.slots_model)
-
-      const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted
-
-      return {
-        ...artefacts,
-        ctx_classifier,
-        intent_classifier_per_ctx,
-        slot_tagger,
-        kmeans,
-        pattern_entities: input.pattern_entities,
-        intents: output.intents
-      }
-    } else {
+    if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
       return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
+    }
+
+    const { ctx_model, intent_model_by_ctx, oos_model } = artefacts
+    const ctx_classifier = new tools.mlToolkit.SVM.Predictor(ctx_model)
+    const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
+      (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
+      {} as _.Dictionary<MLToolkit.SVM.Predictor>
+    )
+    const oos_classifier = isPOSAvailable(model.languageCode) ? new tools.mlToolkit.SVM.Predictor(oos_model) : undefined
+    const slot_tagger = new CRFExtractor2(tools.mlToolkit)
+    slot_tagger.load(artefacts.slots_model)
+
+    const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted
+
+    return {
+      ...artefacts,
+      ctx_classifier,
+      oos_classifier,
+      intent_classifier_per_ctx,
+      slot_tagger,
+      kmeans,
+      pattern_entities: input.pattern_entities,
+      intents: output.intents
     }
   }
 
@@ -168,7 +171,7 @@ export default class E2 implements Engine2 {
       includedContexts
     }
 
-    // error handled a level higher
+    // error handled a level highr
     return Predict(input, E2.tools, this.predictorsByLang)
   }
 }
