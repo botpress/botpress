@@ -157,6 +157,7 @@ const TopicList = props => {
     }
   }
 
+  const activeFlow = props.currentFlow?.name
   return (
     <TreeView<NodeData>
       elements={props.flows}
@@ -164,7 +165,7 @@ const TopicList = props => {
       folderRenderer={folderRenderer}
       onContextMenu={handleContextMenu}
       onClick={onClick}
-      visibleElements={[{ field: 'name', value: props.currentFlow?.name }]}
+      visibleElements={activeFlow && [{ field: 'name', value: activeFlow }]}
       onDoubleClick={onDoubleClick}
       filterText={props.filter}
       pathProps="name"
