@@ -318,10 +318,17 @@ export default class HTTPServer {
 
     this.setupStaticRoutes(this.app)
 
+    const getHref = (url: string) => {
+      const { href } = new URL(url)
+      return href.substr(0, href.length - 1)
+    }
+
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
-    process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
-    process.LOCAL_URL = `http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`
+    process.EXTERNAL_URL = getHref(
+      process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
+    )
+    process.LOCAL_URL = getHref(`http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`)
 
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
