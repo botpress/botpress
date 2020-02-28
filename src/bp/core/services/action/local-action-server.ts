@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser'
 import { Logger } from 'botpress/sdk'
-import { ActionDefinition, ActionParameterDefinition, LocalActionDefinition } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
+import cluster from 'cluster'
+import { ActionDefinition, ActionParameterDefinition } from 'common/typings'
 import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { asyncMiddleware } from 'core/routers/util'
@@ -12,12 +12,12 @@ import Joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 
-import { BotService } from '../bot-service'
+import { registerMsgHandler } from '../../../cluster'
 
 import ActionService from './action-service'
 import { HTTP_ACTIONS_PARAM_TYPES } from './utils'
 
-const _validateRunRequest = (appSecret: string) => async (req: Request, res: Response, next: NextFunction) => {
+const _validateRunRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await Joi.validate(
       req.body,
@@ -36,7 +36,7 @@ const _validateRunRequest = (appSecret: string) => async (req: Request, res: Res
   const { token } = req.body
 
   try {
-    jsonwebtoken.verify(token, appSecret, { audience: ACTION_SERVER_AUDIENCE })
+    jsonwebtoken.verify(token, process.env.APP_SECRET!, { audience: ACTION_SERVER_AUDIENCE })
   } catch (err) {
     return next(new UnauthorizedError('Invalid token'))
   }
@@ -62,40 +62,30 @@ const _validateListActionsRequest = async (req: Request, res: Response, next: Ne
 @injectable()
 export class LocalActionServer {
   private readonly app: express.Express
-  private appSecret: string | undefined
   private asyncMiddleware: Function
 
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'LocalActionServer')
     private logger: Logger,
-    @inject(TYPES.ActionService) private actionService: ActionService,
-    @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ActionService) private actionService: ActionService
   ) {
     this.app = express()
     this.asyncMiddleware = asyncMiddleware(logger, 'LocalActionServer')
   }
 
-  public async start() {
-    const { actionServers, appSecret } = await this.configProvider.getBotpressConfig()
-    const { enabled, port } = actionServers.local
+  public listen() {
+    const port = process.env.PORT
 
-    if (!enabled) {
-      this.logger.info('Local Action Server disabled')
-      return
-    }
-
-    this._initializeApp(appSecret)
+    this._initializeApp()
     this.app.listen(port, () => this.logger.info(`Local Action Server listening on port ${port}`))
   }
 
-  private _initializeApp(appSecret: string) {
+  private _initializeApp() {
     this.app.use(bodyParser.json())
-
     this.app.post(
       '/action/run',
-      _validateRunRequest(appSecret),
+      _validateRunRequest,
       this.asyncMiddleware(async (req, res) => {
         const { incomingEvent, actionArgs, actionName, botId, token } = req.body
 
@@ -134,4 +124,23 @@ export class LocalActionServer {
       })
     )
   }
+}
+
+const MESSAGE_TYPE = 'start_local_action_server'
+export const WORKER_TYPE = 'ACTION_WORKER'
+
+export interface StartMessage {
+  appSecret: string
+  port: number
+}
+
+export const startLocalActionServer = (message: StartMessage) => {
+  process.send!({ type: MESSAGE_TYPE, ...message })
+}
+
+if (cluster.isMaster) {
+  registerMsgHandler(MESSAGE_TYPE, (message: StartMessage) => {
+    const { appSecret, port } = message
+    cluster.fork({ WORKER_TYPE, APP_SECRET: appSecret, PORT: port })
+  })
 }

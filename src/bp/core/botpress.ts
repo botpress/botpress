@@ -21,6 +21,7 @@ import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { startLocalActionServer } from './services/action/local-action-server'
 import { AlertingService } from './services/alerting-service'
 import AuthService from './services/auth/auth-service'
 import { BotMonitoringService } from './services/bot-monitoring-service'
@@ -130,6 +131,7 @@ export class Botpress {
 
     await this.restoreDebugScope()
     await this.checkJwtSecret()
+    await this.maybeStartLocalActionServer()
     await this.loadModules(options.modules)
     await this.migrationService.initialize()
     await this.cleanDisabledModules()
@@ -158,6 +160,15 @@ export class Botpress {
       } catch (err) {
         this.logger.attachError(err).error(`Couldn't load debug scopes. Check the syntax of debug.json`)
       }
+    }
+  }
+
+  private maybeStartLocalActionServer() {
+    const { enabled, port } = this.config!.actionServers.local
+    if (enabled) {
+      startLocalActionServer({ appSecret: process.APP_SECRET, port })
+    } else {
+      this.logger.info('Local Action Server disabled')
     }
   }
 
