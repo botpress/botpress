@@ -357,9 +357,7 @@ export class ScopedActionService {
     const legacy = !file.includes('.http.js')
     const script = await this._getActionScript(name, scope, legacy)
 
-    const { category, description, author, params, title, hidden } = extractMetadata(script)
-
-    return { name, scope, legacy, category, description, author, params, title, hidden }
+    return { name, scope, legacy, ...extractMetadata(script) }
   }
 
   private async _getActionScript(name: string, scope: ActionScope, legacy: boolean): Promise<string> {
