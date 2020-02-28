@@ -161,15 +161,8 @@ const FlowBuilder = (props: Props) => {
   }
 
   const createFlow = name => {
-    diagram.current.createFlow(name)
+    diagram.createFlow(name)
     props.switchFlow(`${name}.flow.json`)
-  }
-
-  const setReference = el => {
-    if (!!el) {
-      // @ts-ignore
-      diagram = el.getWrappedInstance()
-    }
   }
 
   return (
@@ -187,7 +180,12 @@ const FlowBuilder = (props: Props) => {
           flowPreview={flowPreview}
           showSearch={showSearch}
           hideSearch={() => setShowSearch(false)}
-          ref={setReference}
+          ref={el => {
+            if (!!el) {
+              // @ts-ignore
+              diagram = el.getWrappedInstance()
+            }
+          }}
         />
       </div>
 
