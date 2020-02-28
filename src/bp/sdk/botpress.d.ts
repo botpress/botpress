@@ -1412,7 +1412,7 @@ declare module 'botpress/sdk' {
     /**
      * Returns an existing user or create a new one with the specified keys
      */
-    export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>
+    export function getOrCreateUser(channel: string, userId: string, botId?: string): GetOrCreateResult<User>
 
     /**
      * Merge the specified attributes to the existing attributes of the user

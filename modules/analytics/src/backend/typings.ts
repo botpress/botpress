@@ -1,6 +1,6 @@
-import Analytics from './analytics'
+// import Analytics from './analytics'
 
-export type AnalyticsByBot = { [botId: string]: Analytics }
+// export type AnalyticsByBot = { [botId: string]: Analytics }
 
 export type CustomAnalytics = {
   getAll: Function

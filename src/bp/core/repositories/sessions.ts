@@ -5,6 +5,7 @@ import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
+import { SessionIdFactory } from 'core/services/dialog/session/id-factory'
 
 export class DialogSession {
   constructor(
@@ -55,6 +56,8 @@ export class KnexSessionRepository implements SessionRepository {
     trx?: Knex.Transaction
   ): Promise<DialogSession> {
     const session = new DialogSession(sessionId, botId, context, temp_data, session_data)
+    const { channel } = SessionIdFactory.extractDestinationFromId(sessionId)
+    BOTPRESS_CORE_EVENT('bp_core_session_created', { botId, channel })
     return this.insert(session, trx)
   }
 
