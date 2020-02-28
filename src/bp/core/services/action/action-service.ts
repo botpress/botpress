@@ -274,14 +274,14 @@ export class ScopedActionService {
     switch (runType) {
       case 'trusted': {
         // bp is created here because it cannot be created in the Local Action Server thread
-        return await this._runWithoutVm(code, { bp: await createForAction(), ...args }, _require)
+        return this._runWithoutVm(code, { bp: await createForAction(), ...args }, _require)
       }
       case 'legacy': {
         // bp is created here because it cannot be created in the Local Action Server thread
-        return await this._runInVm(code, dirPath, { bp: await createForAction(), ...args }, _require)
+        return this._runInVm(code, dirPath, { bp: await createForAction(), ...args }, _require)
       }
       case 'http': {
-        return await this._runInVm(code, dirPath, { token: props.token, ...args }, _require)
+        return this._runInVm(code, dirPath, { token: props.token, ...args }, _require)
       }
       default: {
         throw `Unexpected runType: ${runType}`
