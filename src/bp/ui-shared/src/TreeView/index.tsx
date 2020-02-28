@@ -1,6 +1,6 @@
 import { Classes, ContextMenu, ITreeNode, Tree } from '@blueprintjs/core'
 import _ from 'lodash'
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useRef, useState } from 'react'
 
 export const FOLDER_ICON = 'folder-close'
 export const DOCUMENT_ICON = 'document'
@@ -25,11 +25,13 @@ export interface TreeViewProps<T> {
   /** Whether or not to highlight the folder's name on click */
   highlightFolders?: boolean
 
-  onDoubleClick?: (element: T) => void
-  onClick?: (element: T) => void
+  onDoubleClick?: (element: T | string, elementType: ElementType) => void
+  onClick?: (element: T | string, elementType: ElementType) => void
+  onContextMenu?: (element: T | string, elementType: ElementType) => JSX.Element | undefined
   onExpandToggle?: (node: TreeNode<T>, isExpanded: boolean) => void
-  onContextMenu?: (element: T) => JSX.Element | undefined
 }
+
+type ElementType = 'document' | 'folder'
 
 type TreeNode<T> = ITreeNode<T> & {
   id: string
@@ -57,19 +59,38 @@ interface BuildTreeParams<T> {
   pathProps?: string
 }
 
+const usePrevious = value => {
+  const ref = useRef()
+
+  useEffect(() => {
+    ref.current = value
+  }, [value])
+
+  return ref.current
+}
+
 const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   const [nodes, setNodes] = useState<TreeNode<T>[]>([])
   const [expanded, setExpanded] = useState(props.expandedPaths || [])
+  const prevElements = usePrevious(props.elements)
   const [, forceUpdate] = useReducer(x => x + 1, 0)
 
-  const { elements, filter, nodeRenderer, folderRenderer, postProcessing } = props
+  const { elements, filter, nodeRenderer, folderRenderer, postProcessing, pathProps } = props
 
   useEffect(() => {
-    if (!elements || (elements && !nodeRenderer)) {
+    if (!elements || (!!elements?.length && _.isEqual(props.elements, prevElements))) {
       return
     }
 
-    const nodes = buildTree({ elements, nodeRenderer, filter, folderRenderer, postProcessing })
+    const nodes = buildTree({
+      elements,
+      filter,
+      nodeRenderer,
+      folderRenderer,
+      postProcessing,
+      pathProps
+    })
+
     traverseTree(nodes, node => {
       if (props.visibleElements?.find(x => node.nodeData?.[x.field] === x.value)) {
         handleNodeExpansion(node.parent!, true)
@@ -77,7 +98,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         node.isSelected = true
       }
 
-      if (filter?.text) {
+      if (filter?.text || expanded.find(path => path === node.fullPath)) {
         node.isExpanded = true
       }
     })
@@ -102,13 +123,15 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
   const handleNodeClick = (selectedNode: TreeNode<T>) => {
     if (selectedNode.nodeData) {
-      props.onClick?.(selectedNode.nodeData)
+      props.onClick?.(selectedNode.nodeData, 'document')
+    } else {
+      props.onClick?.(selectedNode.fullPath, 'folder')
     }
 
     traverseTree(nodes, node => {
       if (node === selectedNode) {
         if (props.highlightFolders || (!props.highlightFolders && node.type !== 'folder')) {
-          node.isSelected = !node.isSelected
+          node.isSelected = true
         }
 
         if (!node.nodeData) {
@@ -124,23 +147,21 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
   const handleNodeDoubleClick = (selectedNode: TreeNode<T>) => {
     if (selectedNode.nodeData) {
-      props.onDoubleClick?.(selectedNode.nodeData)
+      props.onDoubleClick?.(selectedNode.nodeData, 'document')
+    } else {
+      props.onDoubleClick?.(selectedNode.fullPath, 'folder')
     }
   }
 
   const handleContextMenu = (node: TreeNode<T>, _path, e) => {
-    if (!node.nodeData) {
-      return
+    const contextMenu = node.nodeData
+      ? props.onContextMenu?.(node.nodeData, 'document')
+      : props.onContextMenu?.(node.fullPath, 'folder')
+
+    if (contextMenu) {
+      e.preventDefault()
+      ContextMenu.show(contextMenu, { left: e.clientX, top: e.clientY })
     }
-
-    e.preventDefault()
-
-    const contextMenu = props.onContextMenu?.(node.nodeData)
-    if (!contextMenu) {
-      return
-    }
-
-    ContextMenu.show(contextMenu, { left: e.clientX, top: e.clientY })
   }
 
   if (!nodes) {
@@ -232,7 +253,7 @@ function buildTree<T>({
     }
 
     const { folders, leafNode } = splitPath(nodePath, nodeData, nodeRenderer, folderRenderer!)
-    if (!filter?.text || leafNode[filter.field || 'id']?.toLowerCase().includes(lowerCaseFilter)) {
+    if (!filter?.text || nodeData[filter.field || 'id']?.toLowerCase().includes(lowerCaseFilter)) {
       addNode(tree, folders, leafNode, { nodeData })
     }
   }
