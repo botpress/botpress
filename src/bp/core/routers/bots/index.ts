@@ -1,8 +1,3 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Botpress, Inc. All rights reserved.
- *  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
- *--------------------------------------------------------------------------------------------*/
-
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { gaId, machineUUID } from 'common/stats'
