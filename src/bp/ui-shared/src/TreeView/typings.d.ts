@@ -3,7 +3,9 @@ export interface TreeViewProps<T> {
   elements?: T[]
   /** Name of the property to use on elements to get the full path. Defaults to "path" */
   pathProps?: string
-  nodeRenderer: ElementRenderer<T>
+  /** Custom renderer to choose the label and the icon for the leaf node. Defaults to "label" */
+  nodeRenderer?: ElementRenderer<T>
+  /** Each / segments will be passed through this renderer to customize the display */
   folderRenderer?: ElementRenderer<string>
   /** Called after the tree has been built. Can be used to reorder elements before display */
   postProcessing?: PostProcessing<T>
@@ -11,7 +13,7 @@ export interface TreeViewProps<T> {
   nodes?: TreeNode<T>[]
   /** Filters the displayed nodes (expands all folders when filtering) */
   filterText?: string
-  /** The name of the property where to check the filter (default: id) */
+  /** The name of the property where to check the filter (Defaults to "path") */
   filterProps?: string
   /** The full paths of nodes which should be expanded */
   expandedPaths?: string[]
@@ -24,6 +26,14 @@ export interface TreeViewProps<T> {
   onClick?: (element: T | string, elementType: ElementType) => void
   onContextMenu?: (element: T | string, elementType: ElementType) => JSX.Element | undefined
   onExpandToggle?: (node: TreeNode<T>, isExpanded: boolean) => void
+}
+
+/** These are the default properties required if you want to avoid providing any renderers */
+interface SampleElement {
+  /** Text displayed on the child node */
+  label: string
+  /** The complete path of the element (including all folders) */
+  path: string
 }
 
 type ElementType = 'document' | 'folder'
@@ -43,7 +53,7 @@ interface BuildTreeParams<T> {
   elements: T[]
   filterText?: string
   filterProps?: string
-  nodeRenderer: ElementRenderer<T>
+  nodeRenderer?: ElementRenderer<T>
   folderRenderer?: ElementRenderer<string>
   postProcessing?: PostProcessing<T>
   pathProps?: string

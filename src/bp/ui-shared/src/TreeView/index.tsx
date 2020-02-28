@@ -3,7 +3,7 @@ import _ from 'lodash'
 import React, { useEffect, useReducer, useState } from 'react'
 
 import { TreeNode, TreeViewProps } from './typings'
-import { buildTree, traverseTree, usePrevious } from './utils'
+import { buildTree, traverseTree } from './utils'
 
 export const FOLDER_ICON = 'folder-close'
 export const DOCUMENT_ICON = 'document'
@@ -11,13 +11,12 @@ export const DOCUMENT_ICON = 'document'
 const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   const [nodes, setNodes] = useState<TreeNode<T>[]>([])
   const [expanded, setExpanded] = useState(props.expandedPaths || [])
-  const prevElements = usePrevious(props.elements)
   const [, forceUpdate] = useReducer(x => x + 1, 0)
 
   const { elements, filterText, filterProps, nodeRenderer, folderRenderer, postProcessing, pathProps } = props
 
   useEffect(() => {
-    if (!elements || (elements?.length && _.isEqual(props.elements, prevElements))) {
+    if (!elements) {
       return
     }
 
@@ -33,10 +32,6 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
     refreshNodes(nodes)
   }, [elements, filterText])
-
-  useEffect(() => {
-    nodes && refreshNodes(nodes)
-  }, [props.visibleElements])
 
   useEffect(() => {
     props.nodes && setNodes(props.nodes)

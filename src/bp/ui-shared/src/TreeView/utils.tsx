@@ -44,12 +44,12 @@ function splitPath<T>(
 
 export function buildTree<T>({
   elements,
-  nodeRenderer,
   filterText,
-  filterProps,
-  folderRenderer = label => ({ label }),
+  nodeRenderer = (element: T) => ({ label: element['label'] }),
+  folderRenderer = (label: string) => ({ label }),
   postProcessing,
-  pathProps
+  filterProps = 'path',
+  pathProps = 'path'
 }: BuildTreeParams<T>): TreeNode<T>[] {
   if (!elements) {
     return []
@@ -66,14 +66,14 @@ export function buildTree<T>({
   const lowerCaseFilter = filterText?.toLowerCase()
 
   for (const nodeData of elements) {
-    const nodePath = nodeData[pathProps || 'path']
+    const nodePath = nodeData[pathProps]
     if (!nodePath) {
       console.error(`Invalid path`)
       return []
     }
 
     const { folders, leafNode } = splitPath(nodePath, nodeData, nodeRenderer, folderRenderer!)
-    if (!filterText || nodeData[filterProps || 'id']?.toLowerCase().includes(lowerCaseFilter)) {
+    if (!filterText || nodeData[filterProps]?.toLowerCase().includes(lowerCaseFilter)) {
       addNode(tree, folders, leafNode, { nodeData })
     }
   }
