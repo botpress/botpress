@@ -317,7 +317,7 @@ class Bots extends Component<Props> {
   }
 
   get isPipelineView() {
-    return this.props.workspace.pipeline.length > 1
+    return this.props.workspace && this.props.workspace.pipeline && this.props.workspace.pipeline.length > 1
   }
 
   render() {
