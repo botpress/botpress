@@ -21,6 +21,7 @@ import AccessControl, { isChatUser } from '../../../App/AccessControl'
 
 interface Props {
   bot: BotConfig
+  isApprover: boolean
   hasError: boolean
   deleteBot?: () => void
   exportBot?: () => void
@@ -34,6 +35,7 @@ interface Props {
 
 const BotItemPipeline: FC<Props> = ({
   bot,
+  isApprover,
   hasError,
   requestStageChange,
   deleteBot,
@@ -46,13 +48,18 @@ const BotItemPipeline: FC<Props> = ({
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
+  const requiresApproval = isApprover && bot.pipeline_status.stage_request
+
+  // These need to be implemented once backend for approval is implemented
+  const rejectStagePromotion = () => console.log('Stage promotion rejected')
+  const approveStagePromotion = () => console.log('Stage promotion approved')
 
   return (
     <div className="pipeline_bot" key={bot.id}>
       <div className="actions">
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
               {!bot.disabled && !hasError && (
                 <Fragment>
@@ -98,7 +105,18 @@ const BotItemPipeline: FC<Props> = ({
             &nbsp;
           </span>
         )}
-        <a href={botStudioLink}>{bot.name}</a>
+        {bot.disabled ? (
+          <span className="bot-name">{bot.name}</span>
+        ) : (
+          <a className="bot-name" href={botStudioLink}>
+            {bot.name}
+          </a>
+        )}
+        {requiresApproval && (
+          <Tag intent={Intent.DANGER} className="botbadge reviewNeeded">
+            Needs your review
+          </Tag>
+        )}
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
@@ -106,7 +124,7 @@ const BotItemPipeline: FC<Props> = ({
         )}
       </div>
       <p>{bot.description}</p>
-      <div>
+      <div className="bottomRow">
         {bot.disabled && (
           <Tag intent={Intent.WARNING} className="botbadge">
             disabled
@@ -139,6 +157,16 @@ const BotItemPipeline: FC<Props> = ({
               {bot.pipeline_status.stage_request.status}
             </Tag>
           </Tooltip>
+        )}
+        {requiresApproval && (
+          <div className="stage-approval-btns">
+            <Button onClick={rejectStagePromotion} small minimal intent="danger">
+              Reject
+            </Button>
+            <Button onClick={approveStagePromotion} small minimal intent="success">
+              Approve
+            </Button>
+          </div>
         )}
       </div>
     </div>

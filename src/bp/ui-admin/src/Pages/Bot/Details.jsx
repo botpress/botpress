@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import { Route } from 'react-router'
 
 import { MdInfoOutline } from 'react-icons/md'
 import { connect } from 'react-redux'
@@ -21,7 +20,6 @@ import PageContainer from '~/App/PageContainer'
 import StickyActionBar from '~/App/StickyActionBar'
 import { Button, Intent, Callout } from '@blueprintjs/core'
 import { confirmDialog } from 'botpress/shared'
-import history from '~/history'
 
 const statusList = [
   { label: 'Published', value: 'public' },
