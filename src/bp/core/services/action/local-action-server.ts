@@ -3,7 +3,7 @@ import { Logger } from 'botpress/sdk'
 import { ActionDefinition, ActionParameterDefinition, LocalActionDefinition } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
-import { AUDIENCE } from 'core/routers/sdk/utils'
+import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { TYPES } from 'core/types'
 import express, { NextFunction, Request, Response } from 'express'
 import { inject, injectable, tagged } from 'inversify'
@@ -43,7 +43,7 @@ const _validateRunRequest = (botService: BotService, appSecret: string) => async
   }
 
   try {
-    jsonwebtoken.verify(token, appSecret, { audience: AUDIENCE })
+    jsonwebtoken.verify(token, appSecret, { audience: ACTION_SERVER_AUDIENCE })
   } catch (err) {
     return next(new UnauthorizedError('Invalid token'))
   }
