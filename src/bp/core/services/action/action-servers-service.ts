@@ -54,13 +54,14 @@ export default class ActionServersService {
   }
 
   public async getServers(): Promise<ActionServer[]> {
-    const config = await this.configProvider.getBotpressConfig()
-    const actionServersConfig = config.actionServers
-    const actionServers = [...actionServersConfig.remoteActionServers]
-    if (actionServersConfig.localActionServer.enabled) {
+    const { remoteActionServers, localActionServer } = (await this.configProvider.getBotpressConfig()).actionServers
+
+    const actionServers = [...remoteActionServers]
+
+    if (localActionServer.enabled) {
       actionServers.unshift({
         id: 'local',
-        baseUrl: `http://localhost:${actionServersConfig.localActionServer.port}`
+        baseUrl: `http://localhost:${localActionServer.port}`
       })
     }
 
