@@ -108,6 +108,7 @@ const EditStageModal: FC<Props> = props => {
         .post(`/admin/workspaces/${getActiveWorkspace()}/pipeline`, { updateCustom: true, pipeline: newPipeline })
 
       props.onEditSuccess()
+      toastSuccess('Stage saved successfully')
       closeModal()
     } catch (error) {
       toastFailure(`Error while updating pipeline: ${error.message}`)

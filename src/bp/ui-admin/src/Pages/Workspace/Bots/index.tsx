@@ -180,7 +180,6 @@ class Bots extends Component<Props> {
 
   handleEditStageSuccess = () => {
     this.props.fetchBots()
-    toastSuccess('Stage saved successfully')
   }
 
   toggleEditStage = (stage?) => {
