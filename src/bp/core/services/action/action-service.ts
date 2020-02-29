@@ -215,16 +215,12 @@ export class ScopedActionService {
       audience: ACTION_SERVER_AUDIENCE
     })
 
-    const startedAt = new Date()
-    const taskInfo: Pick<
-      TaskInfo,
-      'eventId' | 'actionName' | 'actionArgs' | 'actionServerId' | 'startedAt' | 'failureReason'
-    > = {
+    const taskInfo: any = {
       eventId: incomingEvent.id,
       actionName,
       actionArgs,
       actionServerId: actionServer.id,
-      startedAt
+      startedAt: new Date()
     }
 
     let response
@@ -254,14 +250,23 @@ export class ScopedActionService {
     }
 
     const responseStatusCode = response.status
+    taskInfo.endedAt = new Date()
+    taskInfo.responseStatusCode = responseStatusCode
+
+    if (responseStatusCode != 200) {
+      this.tasksRepository.createTask({
+        ...taskInfo,
+        status: 'failed',
+        failureReason: `http:bad_status_code`
+      })
+      return
+    }
 
     const { error } = joi.validate(response.data, ACTION_SERVER_RESPONSE_SCHEMA)
     if (error) {
       this.tasksRepository.createTask({
         ...taskInfo,
-        endedAt: new Date(),
         status: 'failed',
-        responseStatusCode,
         failureReason: `validation:${error.name}`
       })
 
@@ -276,9 +281,7 @@ export class ScopedActionService {
 
     this.tasksRepository.createTask({
       ...taskInfo,
-      endedAt: new Date(),
-      status: 'completed',
-      responseStatusCode
+      status: 'completed'
     })
   }
 

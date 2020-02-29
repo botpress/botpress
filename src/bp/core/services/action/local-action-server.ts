@@ -2,7 +2,7 @@ import bodyParser from 'body-parser'
 import { IO, Logger } from 'botpress/sdk'
 import cluster from 'cluster'
 import { ActionDefinition, ActionParameterDefinition } from 'common/typings'
-import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
+import { BadRequestError, InternalServerError, UnauthorizedError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { asyncMiddleware, AsyncMiddleware } from 'core/routers/util'
 import { TYPES } from 'core/types'
@@ -98,7 +98,11 @@ export class LocalActionServer {
         const { actionArgs, actionName, botId, token, incomingEvent } = req.body
 
         const service = await this.actionService.forBot(botId)
-        await service.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
+        try {
+          await service.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
+        } catch (e) {
+          throw new InternalServerError(e)
+        }
 
         const { temp, user, session } = incomingEvent.state
         res.send({ event: { state: { temp, user, session } } })
