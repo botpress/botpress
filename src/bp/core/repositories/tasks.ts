@@ -11,7 +11,7 @@ export interface TaskInfo {
   actionName: string
   actionArgs: any
   actionServerId: string
-  responseStatusCode?: number
+  statusCode?: number
   startedAt: Date
   endedAt: Date
   status: TaskInfoStatus
@@ -49,7 +49,7 @@ export class TasksRepository {
           action_name: e.actionName,
           action_args: this.database.knex.json.set(e.actionArgs || {}),
           action_server_id: e.actionServerId,
-          response_status_code: e.responseStatusCode,
+          status_code: e.statusCode,
           started_at: e.startedAt,
           ended_at: e.endedAt,
           failure_reason: e.failureReason

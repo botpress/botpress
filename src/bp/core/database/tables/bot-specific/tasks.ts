@@ -12,7 +12,7 @@ export class TasksTable extends Table {
       table.string('action_name').notNullable()
       table.json('action_args').notNullable()
       table.string('action_server_id').notNullable()
-      table.integer('response_status_code')
+      table.integer('status_code')
       table.timestamp('started_at').notNullable()
       table.timestamp('ended_at').notNullable()
       table.string('failure_reason')

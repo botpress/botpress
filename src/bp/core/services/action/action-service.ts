@@ -246,11 +246,11 @@ export class ScopedActionService {
       throw e
     }
 
-    const responseStatusCode = response.status
+    const statusCode = response.status
     taskInfo.endedAt = new Date()
-    taskInfo.responseStatusCode = responseStatusCode
+    taskInfo.statusCode = statusCode
 
-    if (responseStatusCode != 200) {
+    if (statusCode != 200) {
       this.tasksRepository.createTask({
         ...taskInfo,
         status: 'failed',
@@ -272,7 +272,7 @@ export class ScopedActionService {
 
     const { temp, user, session } = (response.data as ActionServerResponse).event.state
 
-    incomingEvent.state.temp = { responseStatusCode, ...temp }
+    incomingEvent.state.temp = { responseStatusCode: statusCode, ...temp }
     incomingEvent.state.user = user
     incomingEvent.state.session = session
 
