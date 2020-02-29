@@ -4,7 +4,7 @@ import { ObjectCache } from 'common/object-cache'
 import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
-import { TaskInfo, TasksRepository } from 'core/repositories/tasks'
+import { TasksRepository } from 'core/repositories/tasks'
 import { NotFoundError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { injectable } from 'inversify'
@@ -80,13 +80,15 @@ export default class ActionService {
       throw new NotFoundError(`This bot does not exist`)
     }
 
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+
     const service = new ScopedActionService(
       this.ghost,
       this.logger,
       botId,
       this.cache,
       this.tasksRepository,
-      this.workspaceService
+      workspaceId
     )
     this._scopedActions.set(botId, service)
     return service
@@ -123,7 +125,6 @@ export class ScopedActionService {
   private _scriptsCache: Map<string, string> = new Map()
   // Keeps a quick index of files which have already been required
   private _validScripts: { [filename: string]: boolean } = {}
-  private _botWorkspaceId: string | undefined
 
   constructor(
     private ghost: GhostService,
@@ -131,7 +132,7 @@ export class ScopedActionService {
     private botId: string,
     private cache: ObjectCache,
     private tasksRepository: TasksRepository,
-    private workspaceService: WorkspaceService
+    private workspaceId: string
   ) {
     this._listenForCacheInvalidation()
   }
@@ -206,11 +207,7 @@ export class ScopedActionService {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
 
-    if (!this._botWorkspaceId) {
-      this._botWorkspaceId = await this.workspaceService.getBotWorkspaceId(botId)
-    }
-
-    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspaceId: this._botWorkspaceId }, process.APP_SECRET, {
+    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspaceId: this.workspaceId }, process.APP_SECRET, {
       expiresIn: '5m',
       audience: ACTION_SERVER_AUDIENCE
     })
