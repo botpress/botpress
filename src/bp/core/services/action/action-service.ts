@@ -381,7 +381,6 @@ export class ScopedActionService {
     this._globalActionsCache = undefined
     this._localActionsCache = undefined
     this._validScripts = {}
-    this._botWorkspaceId = undefined
   }
 
   private async _getActionDefinition(file: string, scope: ActionScope): Promise<LocalActionDefinition> {
