@@ -4,11 +4,12 @@ import { ObjectCache } from 'common/object-cache'
 import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
-import { TasksRepository } from 'core/repositories/tasks'
+import { TaskInfo, TasksRepository } from 'core/repositories/tasks'
 import { NotFoundError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { injectable } from 'inversify'
 import { inject, tagged } from 'inversify'
+import joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import ms from 'ms'
@@ -42,6 +43,14 @@ const DEBOUNCE_DELAY = ms('2s')
 const EXCLUDES = ['**/node_modules/**', '**/node_production_modules/**']
 
 export type RunType = 'trusted' | 'legacy' | 'http'
+
+export interface ActionServerResponse {
+  event: { state: Pick<IO.EventState, 'temp' | 'user' | 'session'> }
+}
+
+const ACTION_SERVER_RESPONSE_SCHEMA = joi.object({
+  event: joi.object({ state: joi.object({ temp: joi.object(), session: joi.object(), user: joi.object() }) })
+})
 
 @injectable()
 export default class ActionService {
@@ -161,8 +170,7 @@ export class ScopedActionService {
 
     try {
       if (actionServer) {
-        const responseIncomingEvent = await this._runInActionServer({ ...props, actionServer })
-        _.merge(incomingEvent, responseIncomingEvent)
+        await this._runInActionServer({ ...props, actionServer })
       } else {
         await this.runLocalAction({
           actionName,
@@ -194,7 +202,7 @@ export class ScopedActionService {
     return actions
   }
 
-  private async _runInActionServer(props: RunActionProps & { actionServer: ActionServer }): Promise<IO.IncomingEvent> {
+  private async _runInActionServer(props: RunActionProps & { actionServer: ActionServer }): Promise<void> {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     const botId = incomingEvent.botId
 
@@ -208,7 +216,10 @@ export class ScopedActionService {
     })
 
     const startedAt = new Date()
-    const taskInfo = {
+    const taskInfo: Pick<
+      TaskInfo,
+      'eventId' | 'actionName' | 'actionArgs' | 'actionServerId' | 'startedAt' | 'failureReason'
+    > = {
       eventId: incomingEvent.id,
       actionName,
       actionArgs,
@@ -235,7 +246,7 @@ export class ScopedActionService {
           ...taskInfo,
           endedAt: new Date(),
           status: 'failed',
-          failureReason: `axios:${e.code}`
+          failureReason: `http:${e.code}`
         })
       }
 
@@ -244,17 +255,31 @@ export class ScopedActionService {
 
     const responseStatusCode = response.status
 
+    const { error } = joi.validate(response.data, ACTION_SERVER_RESPONSE_SCHEMA)
+    if (error) {
+      this.tasksRepository.createTask({
+        ...taskInfo,
+        endedAt: new Date(),
+        status: 'failed',
+        responseStatusCode,
+        failureReason: `validation:${error.name}`
+      })
+
+      throw error
+    }
+
+    const { temp, user, session } = (response.data as ActionServerResponse).event.state
+
+    incomingEvent.state.temp = { responseStatusCode, ...temp }
+    incomingEvent.state.user = user
+    incomingEvent.state.session = session
+
     this.tasksRepository.createTask({
       ...taskInfo,
       endedAt: new Date(),
-      status: 'completed'
+      status: 'completed',
+      responseStatusCode
     })
-
-    const responseIncomingEvent = response.data.incomingEvent
-
-    responseIncomingEvent.state.temp.responseStatusCode = responseStatusCode
-
-    return responseIncomingEvent
   }
 
   public async runLocalAction(props: {

@@ -4,6 +4,8 @@ import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import ms from 'ms'
 
+export type TaskInfoStatus = 'completed' | 'failed'
+
 export interface TaskInfo {
   eventId: string
   actionName: string
@@ -12,7 +14,7 @@ export interface TaskInfo {
   responseStatusCode?: number
   startedAt: Date
   endedAt: Date
-  status: 'completed' | 'failed'
+  status: TaskInfoStatus
   failureReason?: string
 }
 

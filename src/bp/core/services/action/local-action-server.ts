@@ -1,10 +1,10 @@
 import bodyParser from 'body-parser'
-import { Logger } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import cluster from 'cluster'
 import { ActionDefinition, ActionParameterDefinition } from 'common/typings'
 import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
-import { asyncMiddleware } from 'core/routers/util'
+import { asyncMiddleware, AsyncMiddleware } from 'core/routers/util'
 import { TYPES } from 'core/types'
 import express, { NextFunction, Request, Response } from 'express'
 import { inject, injectable, tagged } from 'inversify'
@@ -14,7 +14,7 @@ import _ from 'lodash'
 
 import { registerMsgHandler } from '../../../cluster'
 
-import ActionService from './action-service'
+import ActionService, { ActionServerResponse } from './action-service'
 import { HTTP_ACTIONS_PARAM_TYPES } from './utils'
 
 const _validateRunRequest = async (req: Request, res: Response, next: NextFunction) => {
@@ -59,10 +59,18 @@ const _validateListActionsRequest = async (req: Request, res: Response, next: Ne
   next()
 }
 
+interface RunActionResponse extends Response {
+  send: (body: ActionServerResponse) => RunActionResponse
+}
+
+interface RunActionRequest extends Request {
+  body: { actionArgs: any; actionName: string; botId: string; token: string; incomingEvent: IO.IncomingEvent }
+}
+
 @injectable()
 export class LocalActionServer {
   private readonly app: express.Express
-  private asyncMiddleware: Function
+  private asyncMiddleware: AsyncMiddleware
 
   constructor(
     @inject(TYPES.Logger)
@@ -86,13 +94,14 @@ export class LocalActionServer {
     this.app.post(
       '/action/run',
       _validateRunRequest,
-      this.asyncMiddleware(async (req, res) => {
-        const { incomingEvent, actionArgs, actionName, botId, token } = req.body
+      this.asyncMiddleware(async (req: RunActionRequest, res: RunActionResponse) => {
+        const { actionArgs, actionName, botId, token, incomingEvent } = req.body
 
         const service = await this.actionService.forBot(botId)
         await service.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
 
-        res.send({ incomingEvent })
+        const { temp, user, session } = incomingEvent.state
+        res.send({ event: { state: { temp, user, session } } })
       })
     )
 
