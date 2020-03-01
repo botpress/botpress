@@ -13,13 +13,13 @@ export class BotUsersTable extends Table {
       table.primary(['botId', 'channel', 'userId'])
 
       table
-        .timestamp('createdOn')
+        .date('createdOn')
         .notNullable()
-        .defaultTo(this.knex.fn.now())
+        .defaultTo(this.knex.date.today())
       table
-        .timestamp('lastSeenOn')
+        .date('lastSeenOn')
         .notNullable()
-        .defaultTo(this.knex.fn.now())
+        .defaultTo(this.knex.date.today())
       created = true
     })
     return created

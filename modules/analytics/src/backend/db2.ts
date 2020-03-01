@@ -1,10 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
-import { mergeWith } from 'lodash'
+import { mergeWith, take, omit } from 'lodash'
 import ms from 'ms'
 import moment from 'moment'
 
 const TABLE_NAME = 'bot_analytics'
+const dateFormat = 'YYYY-MM-DD'
 
 const Metric = <const>[
   'sessions_count',
@@ -25,60 +26,46 @@ const Metric = <const>[
   'feedback_negative_goal'
 ]
 type MetricTypes = typeof Metric[number]
-type Entry = { [key in MetricTypes]: number }
 
-const createEntry = (): Entry =>
-  Metric.reduce((acc, curr) => {
-    acc[curr] = 0
-    return acc
-  }, {} as any)
-
-const mergeEntries = (a: Entry, b: Entry): Entry => {
-  return mergeWith(createEntry(), a, b, (v1, v2) => v1 + v2)
+const mergeEntries = (a: Dic<number>, b: Dic<number>): Dic<number> => {
+  return mergeWith({}, a, b, (v1, v2) => v1 + v2)
 }
 
 export default class Db {
   private knex: Knex & sdk.KnexExtension
-  private cache_rows: Dic<boolean> = {}
-  private cache_entries: Dic<Entry> = {}
+  private cache_entries: Dic<number> = {}
   private flush_lock: boolean
 
   constructor(private bp: typeof sdk) {
     this.knex = bp.database
     setInterval(() => this.flushMetrics(), ms('10s'))
-    setInterval(() => (this.cache_rows = {}), ms('1h')) // to prevent this object from getting too big
   }
 
   async initialize() {
     await this.knex.createTableIfNotExists(TABLE_NAME, table => {
       table.string('botId').notNullable()
-      table.string('date').notNullable()
+      table
+        .date('date')
+        .notNullable()
+        .defaultTo(this.knex.date.today())
       table.string('channel').notNullable()
-      table.primary(['botId', 'date', 'channel'])
-
-      Metric.forEach(element => {
-        table
-          .integer(element)
-          .notNullable()
-          .defaultTo(0)
-      })
+      table.string('metric').notNullable()
+      table
+        .integer('value')
+        .notNullable()
+        .defaultTo(0)
+      table.primary(['botId', 'date', 'channel', 'metric'])
     })
   }
 
-  private getDate() {
-    return `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`
-  }
-
-  private getCacheKey(botId: string, channel: string) {
-    return `${this.getDate()}/${botId}/${channel}`
+  private getCacheKey(botId: string, channel: string, metric: string) {
+    const today = moment().format('YYYY-MM-DD')
+    return `${today}/${botId}/${channel}/${metric}`
   }
 
   incrementMetric(botId: string, channel: string, metric: MetricTypes) {
-    const key = this.getCacheKey(botId, channel)
-    if (!this.cache_entries[key]) {
-      this.cache_entries[key] = createEntry()
-    }
-    this.cache_entries[key][metric]++
+    const key = this.getCacheKey(botId, channel, metric)
+    this.cache_entries[key] = (this.cache_entries[key] || 0) + 1
   }
 
   private async flushMetrics() {
@@ -89,41 +76,63 @@ export default class Db {
     this.flush_lock = true
 
     try {
-      for (let key in this.cache_entries) {
-        let numbers = this.cache_entries[key]
-        try {
-          // the cache clears itself out so there's no memory leak
-          delete this.cache_entries[key]
-
-          const parts = key.split('/')
-          const filter = { botId: parts[1], date: parts[0], channel: parts[2] }
-
-          if (!this.cache_rows[key]) {
-            await this.knex(TABLE_NAME)
-              .insert(filter)
-              .then(() => (this.cache_rows[key] = true))
-              .catch(err => {
-                /* the row already exists */
-              })
-          }
-
-          await this.knex(TABLE_NAME)
-            .increment(numbers as any)
-            .where(filter)
-        } catch {
-          // We restore previous analytics to increment
-          // And we also make sure that we don't lose new increments that might have been added during the DB query failure
-          this.cache_entries[key] = this.cache_entries[key] ? mergeEntries(this.cache_entries[key], numbers) : numbers
-        }
+      // we batch maximum 1000 rows in the same query
+      const original = this.cache_entries
+      const keys = take(Object.keys(this.cache_entries), 1000)
+      if (!keys.length) {
+        return
       }
+      this.cache_entries = omit(this.cache_entries, keys)
+      // build a master query
+
+      const values = keys
+        .map(key => {
+          const [date, botId, channel, metric] = key.split('/')
+          const value = original[key]
+          return this.knex
+            .raw(`(:date:, :botId, :channel, :metric, :value)`, {
+              date: this.knex.raw(`date('${date}')`),
+              botId,
+              channel,
+              metric,
+              value
+            })
+            .toQuery()
+        })
+        .join(',')
+
+      const query = this.knex
+        .raw(
+          // careful if changing this query, make sure it works in both SQLite and Postgres
+          `insert into ${TABLE_NAME}
+(date, botId, channel, metric, value) values ${values}
+  on conflict(date, botId, channel, metric)
+  do update set value = value + EXCLUDED.value`
+        )
+        .toQuery()
+
+      await this.knex
+        .transaction(async trx => {
+          await trx.raw(query)
+        })
+        .catch(_err => {
+          // we restore rows we couldn't insert
+          this.cache_entries = mergeEntries(original, this.cache_entries)
+        })
     } finally {
+      // release the lock
       this.flush_lock = false
     }
   }
 
   async getMetrics(botId: string, options?: { startDate: Date; endDate: Date; channel: string }) {
-    let startDate = options?.startDate ?? new Date()
-    let endDate = options?.endDate ?? new Date()
+    let startDate = moment(options?.startDate ?? new Date())
+      .startOf('day')
+      .toDate()
+
+    let endDate = moment(options?.endDate ?? new Date())
+      .endOf('day')
+      .toDate()
 
     let queryMetrics = this.knex(TABLE_NAME)
       .select()
@@ -133,10 +142,12 @@ export default class Db {
     let queryNewUsers = this.knex('bot_chat_users')
       .where({ botId })
       .andWhere(this.knex.date.isBetween('createdOn', startDate, endDate))
+      .groupBy('createdOn')
 
     let queryActiveUsers = this.knex('bot_chat_users')
       .where({ botId })
       .andWhere(this.knex.date.isBetween('lastSeenOn', startDate, endDate))
+      .groupBy('lastSeenOn')
 
     if (options?.channel !== 'all') {
       queryMetrics = queryMetrics.andWhere({ channel: options.channel })
@@ -146,10 +157,22 @@ export default class Db {
 
     try {
       const metrics = await queryMetrics
-      const newUsersCount = await queryNewUsers.count('*')
-      const activeUsersCount = await queryActiveUsers.count('*')
+      const newUsersCount = await queryNewUsers.select(
+        'channel',
+        'createdOn as date',
+        this.knex.raw('count(*) as value')
+      )
+      const activeUsersCount = await queryActiveUsers.select(
+        'channel',
+        'lastSeenOn as date',
+        this.knex.raw('count(*) as value')
+      )
 
-      return [] // TODO transform results
+      return [
+        ...metrics,
+        ...newUsersCount.map(x => ({ ...x, metric: 'new_users_count' })),
+        ...activeUsersCount.map(x => ({ ...x, metric: 'active_users_count' }))
+      ].map(x => ({ ...x, created_on: x.date }))
     } catch (err) {
       console.log(err)
       //

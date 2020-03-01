@@ -49,7 +49,7 @@ export class KnexUserRepository implements UserRepository {
       }
       this.batches = _.omit(this.batches, keys)
       // build a master query
-      const now = this.database.knex.date.format(new Date()).toQuery()
+      const today = this.database.knex.date.today().toQuery()
       const values = keys.map(k => this.database.knex.raw(`(:botId, :channel, :userId)`, original[k])).join(',')
       const query = this.database.knex
         .raw(
@@ -57,7 +57,7 @@ export class KnexUserRepository implements UserRepository {
           `insert into ${this.botUsersTableName}
 (botId, channel, userId) values ${values}
   on conflict(userId, botId, channel) 
-  do update set lastSeenOn = ${now}`
+  do update set lastSeenOn = ${today}`
         )
         .toQuery()
 
