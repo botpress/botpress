@@ -5,7 +5,6 @@ import ms from 'ms'
 import moment from 'moment'
 
 const TABLE_NAME = 'bot_analytics'
-const dateFormat = 'YYYY-MM-DD'
 
 const Metric = <const>[
   'sessions_count',

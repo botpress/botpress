@@ -2,8 +2,8 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import api from './api2'
-import Database from './db2'
+import api from './api'
+import Database from './db'
 import setup from './setup'
 
 let db: Database

@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import Database2 from './db2'
+import Database2 from './db'
 
 export default async (bp: typeof sdk, db: Database2, interactionsToTrack: string[]) => {
   await db.initialize()

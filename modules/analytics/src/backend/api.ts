@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
 
-import Database from './db2'
+import Database from './db'
 
 export default (bp: typeof sdk, db: Database) => {
   const router = bp.http.createRouterForBot('analytics-v2')
