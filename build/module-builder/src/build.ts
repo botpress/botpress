@@ -63,8 +63,10 @@ export async function buildBackend(modulePath: string) {
     ignore: ['**/*.d.ts', '**/views/**/*.*', '**/config.ts']
   })
 
+  const tsConfigFile = ts.findConfigFile(modulePath, ts.sys.fileExists, 'tsconfig.json')
   const skipCheck = process.argv.find(x => x.toLowerCase() === '--skip-check')
-  !skipCheck && runTypeChecker(modulePath)
+
+  !skipCheck && tsConfigFile && runTypeChecker(modulePath)
 
   rimraf.sync(path.join(modulePath, 'dist'))
 
