@@ -74,13 +74,7 @@ export class AdminRouter extends CustomRouter {
       ghostService,
       jobService
     )
-    this.languagesRouter = new LanguagesRouter(
-      logger,
-      moduleLoader,
-      this.workspaceService,
-      configProvider,
-      this.ghostService
-    )
+    this.languagesRouter = new LanguagesRouter(logger, moduleLoader, this.workspaceService, configProvider)
     this.loadUser = loadUser(this.authService)
     this.needPermissions = needPermissions(this.workspaceService)
 

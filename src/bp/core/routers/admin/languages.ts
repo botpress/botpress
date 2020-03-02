@@ -9,7 +9,6 @@ import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
 import { needPermissions } from '../util'
-import { GhostService } from 'core/services'
 
 export class LanguagesRouter extends CustomRouter {
   private needPermissions: (operation: string, resource: string) => RequestHandler
@@ -19,8 +18,7 @@ export class LanguagesRouter extends CustomRouter {
     private logger: Logger,
     private moduleLoader: ModuleLoader,
     private workspaceService: WorkspaceService,
-    private configProvider: ConfigProvider,
-    private ghostService: GhostService
+    private configProvider: ConfigProvider
   ) {
     super('Languages', logger, Router({ mergeParams: true }))
     this.needPermissions = needPermissions(this.workspaceService)
@@ -146,15 +144,18 @@ export class LanguagesRouter extends CustomRouter {
       '/available',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        let languagesData
+        let languagesData: any = { installed: [], available: [] }
         try {
           const client = await this.getSourceClient()
           languagesData = (await client.get('/languages')).data
         } catch (e) {
-          languagesData = { installed: [], available: [] }
-          const { languageSources } = await this.ghostService.global().readFileAsObject('/config/', 'nlu.json')
-          if (languageSources.length && languageSources[0].endpoint)
-            this.logger.warn(`Please remove the languageSources from nlu.json if you don't want to use it`)
+          try {
+            const { languageSources } = await this.moduleLoader.configReader.getGlobal('nlu')
+            if (languageSources.length && languageSources[0].endpoint)
+              this.logger.warn(`Please remove the languageSources from nlu.json if you don't want to use it`)
+          } catch (e) {
+            this.logger.warn('NLU module is disabled')
+          }
         }
 
         const languages = [
