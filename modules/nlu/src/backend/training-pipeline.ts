@@ -245,7 +245,7 @@ const TrainContextClassifier = async (
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
-  if (points.length === 0) {
+  if (points.length === 0 || input.contexts.length <= 1) {
     progress()
     return
   }
