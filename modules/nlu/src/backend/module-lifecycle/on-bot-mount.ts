@@ -3,58 +3,36 @@ import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
 
-import { Config } from '../../config'
-import ConfusionEngine from '../confusion-engine'
-import ScopedEngine from '../engine'
-import Engine2 from '../engine2/engine2'
-import * as ModelService from '../engine2/model-service'
-import { makeTrainingSession, makeTrainSessionKey } from '../engine2/train-session-service'
+import Engine from '../engine'
+import { getCustomEntities } from '../entities/entities-service'
+import { getIntents } from '../intents/intent-service'
+import * as ModelService from '../model-service'
+import { makeTrainingSession, makeTrainSessionKey } from '../train-session-service'
 import { NLUState } from '../typings'
-
-const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 
 const missingLangMsg = botId =>
   `Bot ${botId} has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`
 
 export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
-    const moduleBotConfig = (await bp.config.getModuleConfigForBot('nlu', botId)) as Config
     const bot = await bp.bots.getBotById(botId)
+    const ghost = bp.ghost.forBot(botId)
 
     const languages = _.intersection(bot.languages, state.languageProvider.languages)
     if (bot.languages.length !== languages.length) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine1 = new ConfusionEngine(
-      bp.logger,
-      botId,
-      moduleBotConfig,
-      bp.MLToolkit,
-      languages,
-      bot.defaultLanguage,
-      state.languageProvider,
-      bp.realtime,
-      bp.RealTimePayload
-    )
-
-    if (USE_E1) {
-      await engine1.init()
-      // @ts-ignore
-      state.nluByBot[botId] = { engine1 }
-      return
-    }
-
-    const engine = new Engine2(bot.defaultLanguage, bot.id)
+    const engine = new Engine(bot.defaultLanguage, bot.id)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
         if (!state.nluByBot[botId]) {
           return
         }
-        const ghost = bp.ghost.forBot(botId)
-        const intentDefs = await (engine1 as ScopedEngine).storage.getIntents() // TODO replace this with intent service when implemented
-        const entityDefs = await (engine1 as ScopedEngine).storage.getCustomEntities() // TODO: replace this with entities service once implemented
+
+        const intentDefs = await getIntents(ghost)
+        const entityDefs = await getCustomEntities(ghost)
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         await Promise.mapSeries(languages, async languageCode => {
@@ -102,7 +80,6 @@ export function getOnBotMount(state: NLUState) {
     state.nluByBot[botId] = {
       botId,
       engine,
-      engine1,
       trainWatcher,
       trainOrLoad,
       trainSessions: {}

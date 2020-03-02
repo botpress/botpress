@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { removeTrainingSession } from '../engine2/train-session-service'
+import { removeTrainingSession } from '../train-session-service'
 import { NLUState, TrainingSession } from '../typings'
 
 export function getOnBotUnmount(state: NLUState) {
