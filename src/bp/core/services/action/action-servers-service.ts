@@ -4,8 +4,10 @@ import { ActionDefinition, ActionServer, ActionServerWithActions } from 'common/
 import { ConfigProvider } from 'core/config/config-loader'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
-import joi, { validate } from 'joi'
+import joi, { boolean, number, validate } from 'joi'
 import _ from 'lodash'
+
+import { actionServerIdRegex } from './utils'
 
 const HttpActionSchema = joi.array().items(
   joi.object().keys({
@@ -25,6 +27,12 @@ const HttpActionSchema = joi.array().items(
     })
   })
 )
+
+const ActionServerSchema = joi.object().keys({ id: joi.string().regex(actionServerIdRegex), baseUrl: joi.string() })
+export const ActionServersConfigSchema = joi.object().keys({
+  local: joi.object().keys({ enabled: joi.bool(), port: joi.number().port() }),
+  remotes: joi.array().items(ActionServerSchema)
+})
 
 @injectable()
 export default class ActionServersService {
@@ -55,7 +63,15 @@ export default class ActionServersService {
     const { remotes, local } = (await this.configProvider.getBotpressConfig()).actionServers
     const { enabled, port } = local
 
-    const actionServers = [...remotes]
+    const actionServers = [...remotes].filter(r => {
+      const { error } = joi.validate(r, ActionServerSchema)
+
+      if (error) {
+        this.logger.error(`Invalid Action Server configuration: ${error.message}`)
+      }
+
+      return !error
+    })
 
     if (enabled) {
       actionServers.unshift({
@@ -71,7 +87,7 @@ export default class ActionServersService {
     let actionDefinitions: ActionDefinition[] | undefined = undefined
     try {
       const { data } = await axios.get(`${actionServer.baseUrl}/actions/${botId}`)
-      const { value, error } = validate(data, HttpActionSchema)
+      const { error } = validate(data, HttpActionSchema)
       if (error && error.name === 'ValidationError') {
         this.logger.error(
           `Action Server ${actionServer.id} returned invalid Action definitions: ${error.details.map(d => d.message)}`

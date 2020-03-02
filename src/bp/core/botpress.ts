@@ -3,6 +3,7 @@ import { copyDir } from 'core/misc/pkg-fs'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
+import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
@@ -21,6 +22,7 @@ import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { ActionServersConfigSchema } from './services/action/action-servers-service'
 import { startLocalActionServer } from './services/action/local-action-server'
 import { AlertingService } from './services/alerting-service'
 import AuthService from './services/auth/auth-service'
@@ -165,11 +167,17 @@ export class Botpress {
 
   private maybeStartLocalActionServer() {
     if (this.config?.actionServers) {
-      const { enabled, port } = this.config!.actionServers.local
-      if (enabled) {
-        startLocalActionServer({ appSecret: process.APP_SECRET, port })
+      const config = this.config!.actionServers
+      const { error } = joi.validate(config, ActionServersConfigSchema)
+      if (!error) {
+        const { enabled, port } = config.local
+        if (enabled) {
+          startLocalActionServer({ appSecret: process.APP_SECRET, port })
+        } else {
+          this.logger.info('Local Action Server disabled')
+        }
       } else {
-        this.logger.info('Local Action Server disabled')
+        this.logger.error(`Invalid actionServers configuration: ${error}`)
       }
     } else {
       this.logger.warn('No config ("actionServers") found for Action Servers')
