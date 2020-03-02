@@ -165,12 +165,12 @@ export class Botpress {
     }
   }
 
-  private maybeStartLocalActionServer() {
-    if (this.config?.actionServers) {
-      const config = this.config!.actionServers
-      const { error } = joi.validate(config, ActionServersConfigSchema)
+  private async maybeStartLocalActionServer() {
+    const { actionServers } = await this.configProvider.getBotpressConfig()
+    if (actionServers) {
+      const { error } = joi.validate(actionServers, ActionServersConfigSchema)
       if (!error) {
-        const { enabled, port } = config.local
+        const { enabled, port } = actionServers.local
         if (enabled) {
           startLocalActionServer({ appSecret: process.APP_SECRET, port })
         } else {
