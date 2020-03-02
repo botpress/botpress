@@ -107,6 +107,9 @@ export interface Stage {
   id: string
   label: string
   action: StageAction
+  reviewers: string[]
+  minimumApprovals: number
+  reviewSequence: 'serial' | 'parallel'
 }
 
 export interface UserProfile {
