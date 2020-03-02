@@ -113,11 +113,17 @@ const ActionDialog: FC<{
   const [parameters, setParameters] = useState(props.parameters)
   const [actionServerId, setActionServerId] = useState(props.actionServerId)
   const [opening, setOpening] = useState(false)
+  const [errorFetchingServers, setErrorFetchingServers] = useState(false)
 
   useEffect(() => {
     const fetchActionServers = async () => {
-      const response = await axios.get(`${window.BOT_API_PATH}/actionServers`)
-      setActionServers(response.data)
+      try {
+        const response = await axios.get(`${window.BOT_API_PATH}/actionServers`)
+        setActionServers(response.data)
+        setErrorFetchingServers(false)
+      } catch (e) {
+        setErrorFetchingServers(true)
+      }
     }
 
     if (opening) {
@@ -140,7 +146,7 @@ const ActionDialog: FC<{
     }
   }
 
-  const isActionValid = !!name && !!actionServerId
+  const isActionValid = !!name && !!actionServerId && !errorFetchingServers
 
   return (
     <Dialog
@@ -167,15 +173,24 @@ const ActionDialog: FC<{
           e.stopPropagation()
         }}
       >
-        <ActionServers
-          actionServers={actionServers}
-          actionServerId={actionServerId}
-          onUpdate={actionServerId => {
-            setActionServerId(actionServerId)
-            const actionServer = actionServers.find(s => s.id === actionServerId)
-            setName(actionServer.actions[0]?.name || '')
-          }}
-        />
+        {errorFetchingServers && (
+          <NonIdealState
+            title="Could not retrieve Action Servers"
+            description="There seems to be an error in your Botpress server. Please contact your administrator."
+            icon="warning-sign"
+          />
+        )}
+        {!errorFetchingServers && (
+          <ActionServers
+            actionServers={actionServers}
+            actionServerId={actionServerId}
+            onUpdate={actionServerId => {
+              setActionServerId(actionServerId)
+              const actionServer = actionServers.find(s => s.id === actionServerId)
+              setName(actionServer.actions[0]?.name || '')
+            }}
+          />
+        )}
 
         {currentActionServer && currentActionDefinition && (
           <ActionNameSelect

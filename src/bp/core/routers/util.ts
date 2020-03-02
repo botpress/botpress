@@ -38,6 +38,13 @@ export type AsyncMiddleware = (
 
 export const asyncMiddleware = (logger: Logger, routerName: string): AsyncMiddleware => fn => (req, res, next) => {
   Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
+    if (typeof err === 'string') {
+      err = {
+        skipLogging: false,
+        message: err
+      }
+    }
+
     err.router = routerName
     if (!err.skipLogging && !process.IS_PRODUCTION) {
       logger.attachError(err).debug(`[${routerName}] Async request error ${err.message}`)

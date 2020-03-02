@@ -56,8 +56,6 @@ const ActionWidget: FC<{
 }> = props => {
   const { node, diagramEngine } = props
 
-  // const [action, setAction] = useState()
-
   const onSave = action => {
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)

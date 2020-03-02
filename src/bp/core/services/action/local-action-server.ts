@@ -100,11 +100,7 @@ export class LocalActionServer {
           const { actionArgs, actionName, botId, token, incomingEvent } = req.body
 
           const service = await this.actionService.forBot(botId)
-          try {
-            await service.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
-          } catch (e) {
-            throw new InternalServerError(e)
-          }
+          await service.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
 
           const { temp, user, session } = incomingEvent.state
           res.send({ event: { state: { temp, user, session } } })
