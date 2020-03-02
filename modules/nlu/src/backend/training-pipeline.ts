@@ -64,6 +64,10 @@ type progressCB = (p?: number) => void
 
 const debugTraining = DEBUG('nlu').sub('training')
 const NONE_INTENT = 'none'
+const NONE_UTTERANCES_BOUNDS = {
+  MIN: 20,
+  MAX: 250
+}
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
   onlyWords: true,
@@ -78,7 +82,7 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-const preprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
   debugTraining('preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
@@ -170,7 +174,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
   )
 }
 
-export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
+export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
   return _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap(i =>
@@ -187,7 +191,7 @@ export const buildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
-const trainIntentClassifier = async (
+const TrainIntentClassifier = async (
   input: TrainOutput,
   tools: Tools,
   progress: progressCB
@@ -224,7 +228,7 @@ const trainIntentClassifier = async (
   return svmPerCtx
 }
 
-const trainContextClassifier = async (
+const TrainContextClassifier = async (
   input: TrainOutput,
   tools: Tools,
   progress: progressCB
@@ -317,7 +321,11 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
 
   const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = Math.max((allUtterances.length * 2) / 3, 20)
+  const nbOfNoneUtterances = _.clamp(
+    (allUtterances.length * 2) / 3,
+    NONE_UTTERANCES_BOUNDS.MIN,
+    NONE_UTTERANCES_BOUNDS.MAX
+  )
   const stopWords = await getStopWordsForLang(input.languageCode)
   const vocabWords = _.chain(input.tfIdf)
     .toPairs()
@@ -374,7 +382,7 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
   return copy
 }
 
-const trainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<Buffer> => {
+const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<Buffer> => {
   const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
 
   if (!hasSlots) {
@@ -390,7 +398,7 @@ const trainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
   return crfExtractor.serialized
 }
 
-const trainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
+const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
   debugTraining('Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     kernel: 'LINEAR',
@@ -453,18 +461,18 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
-    let output = await preprocessInput(input, tools)
+    let output = await PreprocessInput(input, tools)
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
     output = await ExtractEntities(output, tools)
     output = await AppendNoneIntent(output, tools)
-    const exact_match_index = buildExactMatchIndex(output)
+    const exact_match_index = BuildExactMatchIndex(output)
     reportProgress()
     const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
-      trainOutOfScope(output, tools, reportProgress),
-      trainContextClassifier(output, tools, reportProgress),
-      trainIntentClassifier(output, tools, reportProgress),
-      trainSlotTagger(output, tools, reportProgress)
+      TrainOutOfScope(output, tools, reportProgress),
+      TrainContextClassifier(output, tools, reportProgress),
+      TrainIntentClassifier(output, tools, reportProgress),
+      TrainSlotTagger(output, tools, reportProgress)
     ])
 
     const artefacts: TrainArtefacts = {
