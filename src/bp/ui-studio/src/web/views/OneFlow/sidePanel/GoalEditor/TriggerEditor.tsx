@@ -1,5 +1,6 @@
 import { Breadcrumbs, Button, ButtonGroup, ControlGroup, Intent } from '@blueprintjs/core'
 import { Condition, FlowCondition, FlowTrigger } from 'botpress/sdk'
+import { confirmDialog } from 'botpress/shared'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 import React, { FC, useEffect, useState } from 'react'
@@ -83,8 +84,8 @@ const TriggerEditor: FC<Props> = props => {
     setEditing(true)
   }
 
-  const onConditionDeleted = (trigger: FlowTrigger, condition: FlowCondition) => {
-    if (confirm('Are you sure to delete this condition ?')) {
+  const onConditionDeleted = async (trigger: FlowTrigger, condition: FlowCondition) => {
+    if (await confirmDialog('Are you sure to delete this condition?', { acceptLabel: 'Delete' })) {
       const selected = triggers.find(x => x === trigger)
       if (selected) {
         selected.conditions = _.without(selected.conditions, condition)

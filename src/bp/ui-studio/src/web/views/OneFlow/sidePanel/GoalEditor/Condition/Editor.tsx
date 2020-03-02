@@ -17,6 +17,8 @@ interface Props {
 const ConditionEditor: FC<Props> = props => {
   const editor = props.condition && props.condition.editor
 
+  console.log(editor)
+
   return (
     <div style={{ maxHeight: 500 }}>
       {editor ? (
