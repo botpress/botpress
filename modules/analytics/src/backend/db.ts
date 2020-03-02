@@ -165,8 +165,8 @@ export default class Database {
         ...activeUsersCount.map(x => ({ ...x, metric: 'active_users_count' }))
       ].map(x => ({ ...x, created_on: x.date }))
     } catch (err) {
-      console.log(err)
-      //
+      this.bp.logger.attachError(err).warn('Could not retrieve analytics')
+      return []
     }
   }
 }
