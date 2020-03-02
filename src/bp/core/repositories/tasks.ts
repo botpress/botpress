@@ -44,15 +44,8 @@ export class TasksRepository {
       .batchInsert(
         this.TABLE_NAME,
         elements.map(e => ({
-          event_id: e.eventId,
-          status: e.status,
-          action_name: e.actionName,
-          action_args: this.database.knex.json.set(e.actionArgs || {}),
-          action_server_id: e.actionServerId,
-          status_code: e.statusCode,
-          started_at: e.startedAt,
-          ended_at: e.endedAt,
-          failure_reason: e.failureReason
+          ...e,
+          actionArgs: this.database.knex.json.set(e.actionArgs || {})
         })),
         this.BATCH_SIZE
       )

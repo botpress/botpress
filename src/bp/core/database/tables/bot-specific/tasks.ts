@@ -7,15 +7,15 @@ export class TasksTable extends Table {
     let created = false
     await this.knex.createTableIfNotExists(this.name, table => {
       table.increments('id')
-      table.string('event_id').notNullable()
+      table.string('eventId').notNullable()
       table.string('status').notNullable()
-      table.string('action_name').notNullable()
-      table.json('action_args').notNullable()
-      table.string('action_server_id').notNullable()
-      table.integer('status_code')
-      table.timestamp('started_at').notNullable()
-      table.timestamp('ended_at').notNullable()
-      table.string('failure_reason')
+      table.string('actionName').notNullable()
+      table.json('actionArgs').notNullable()
+      table.string('actionServerId').notNullable()
+      table.integer('statusCode')
+      table.timestamp('startedAt').notNullable()
+      table.timestamp('endedAt').notNullable()
+      table.string('failureReason')
       created = true
     })
     return created
