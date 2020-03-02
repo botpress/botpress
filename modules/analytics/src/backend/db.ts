@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
-import { mergeWith, take, omit } from 'lodash'
-import ms from 'ms'
+import { mergeWith, omit, take } from 'lodash'
 import moment from 'moment'
+import ms from 'ms'
 
 const TABLE_NAME = 'bot_analytics'
 
@@ -125,11 +125,11 @@ export default class Database {
   }
 
   async getMetrics(botId: string, options?: { startDate: Date; endDate: Date; channel: string }) {
-    let startDate = moment(options?.startDate ?? new Date())
+    const startDate = moment(options?.startDate ?? new Date())
       .startOf('day')
       .toDate()
 
-    let endDate = moment(options?.endDate ?? new Date())
+    const endDate = moment(options?.endDate ?? new Date())
       .endOf('day')
       .toDate()
 

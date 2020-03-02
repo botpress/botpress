@@ -5,7 +5,7 @@ import moment from 'moment'
 import Database from './db'
 
 export default (bp: typeof sdk, db: Database) => {
-  const router = bp.http.createRouterForBot('analytics-v2')
+  const router = bp.http.createRouterForBot('analytics')
 
   router.get('/channel/:channel', async (req, res) => {
     const { botId, channel } = req.params

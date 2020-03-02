@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
+import { SessionIdFactory } from 'core/services/dialog/session/id-factory'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
-import { SessionIdFactory } from 'core/services/dialog/session/id-factory'
 
 export class DialogSession {
   constructor(

@@ -92,7 +92,7 @@ const Analytics: FC<any> = ({ bp }) => {
   }, [])
 
   const fetchAnalytics = (channel, startDate, endDate) => {
-    return bp.axios.get(`mod/analytics-v2/channel/${channel}`, {
+    return bp.axios.get(`mod/analytics/channel/${channel}`, {
       params: {
         start: startDate,
         end: endDate
