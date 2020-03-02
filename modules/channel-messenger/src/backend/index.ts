@@ -5,7 +5,7 @@ import { MessengerService } from './messenger'
 
 let service: MessengerService
 
-const onServerStarted = async (bp: typeof sdk) => {
+const onServerReady = async (bp: typeof sdk) => {
   service = new MessengerService(bp)
   try {
     await service.initialize()
@@ -28,7 +28,7 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerStarted,
+  onServerReady,
   onBotMount,
   onBotUnmount,
   onModuleUnmount,

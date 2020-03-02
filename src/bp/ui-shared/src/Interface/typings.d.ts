@@ -1,5 +1,6 @@
 import { IconName, MaybeElement, Position } from '@blueprintjs/core'
 import React from 'react'
+import { TreeViewProps } from '../TreeView'
 
 export interface ConfirmDialogOptions {
   title?: string
@@ -17,4 +18,5 @@ export interface ConfirmDialogProps extends ConfirmDialogOptions {
 
 declare module 'botpress/shared' {
   export function confirmDialog(message: string, options: ConfirmDialogOptions): Promise<boolean>
+  export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
 }

@@ -136,7 +136,7 @@ export function config(projectPath) {
   return [full, lite]
 }
 
-function writeStats(err, stats, exitOnError = true) {
+function writeStats(err, stats, exitOnError = true, callback?) {
   if (err || stats.hasErrors()) {
     error(stats.toString('minimal'))
 
@@ -148,6 +148,8 @@ function writeStats(err, stats, exitOnError = true) {
   for (const child of stats.toJson().children) {
     normal(`Generated frontend bundle (${child.time} ms)`)
   }
+
+  callback?.()
 }
 
 export function watch(projectPath: string) {
@@ -156,7 +158,10 @@ export function watch(projectPath: string) {
   compiler.watch({}, (err, stats) => writeStats(err, stats, false))
 }
 
-export function build(projectPath: string) {
+export async function build(projectPath: string): Promise<void> {
   const confs = config(projectPath)
-  webpack(confs, (err, stats) => writeStats(err, stats, true))
+
+  await new Promise(resolve => {
+    webpack(confs, (err, stats) => writeStats(err, stats, true, resolve))
+  })
 }
