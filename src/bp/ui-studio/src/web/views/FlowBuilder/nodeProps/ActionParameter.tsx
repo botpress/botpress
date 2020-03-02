@@ -4,28 +4,28 @@ import React, { FC } from 'react'
 
 import { ParameterValue } from './ActionDialog'
 
-interface ActionParameterProps {
+export const ActionParameter: FC<{
   parameterValue: ParameterValue
+  unknownType: boolean
   onValueUpdated: (parameterValue: ParameterValue) => void
-}
-
-export const ActionParameter: FC<ActionParameterProps> = props => {
-  const { parameterValue, onValueUpdated } = props
-
+}> = ({ parameterValue, onValueUpdated, unknownType }) => {
   const id = `action-parameters-${parameterValue.definition.name}`
 
+  const { name, type, required, description } = parameterValue.definition
   return (
     <FormGroup
-      label={parameterValue.definition.name + (parameterValue.definition.required ? ' *' : '')}
+      label={name + (required ? ' *' : '')}
       labelFor={id}
-      labelInfo={parameterValue.definition.type && `(${parameterValue.definition.type})`}
-      helperText={parameterValue.definition.description}
+      labelInfo={type && `(${type})`}
+      helperText={unknownType ? `⚠️ Unknown parameter type (${type}). This parameter will be ignored.` : description}
+      intent={unknownType ? 'warning' : 'none'}
     >
       <InputGroup
         id={id}
         placeholder="Value"
         value={parameterValue.value || parameterValue.definition.default?.toString()}
         onChange={e => onValueUpdated({ ...parameterValue, value: e.target.value })}
+        disabled={unknownType}
       />
     </FormGroup>
   )

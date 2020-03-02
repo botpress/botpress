@@ -15,7 +15,6 @@ import _ from 'lodash'
 import { registerMsgHandler } from '../../../cluster'
 
 import ActionService, { ActionServerResponse } from './action-service'
-import { HTTP_ACTIONS_PARAM_TYPES } from './utils'
 
 const _validateRunRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -120,16 +119,11 @@ export class LocalActionServer {
         const body: ActionDefinition[] = actions
           .filter(a => !a.legacy)
           .map(a => ({
-            params: a.params.reduce<ActionParameterDefinition[]>((acc, p) => {
-              if (HTTP_ACTIONS_PARAM_TYPES.includes(p.type)) {
-                acc.push(p)
-              } else {
-                this.logger.warn(`Ignoring parameter ${p.name} of type ${p.type} for action ${a.name}`)
-              }
-
-              return acc
-            }, []),
-            ..._.pick(a, ['name', 'category', 'description', 'author'])
+            name: a.name,
+            category: a.category,
+            params: a.params,
+            description: a.description,
+            author: a.author
           }))
 
         res.send(body)

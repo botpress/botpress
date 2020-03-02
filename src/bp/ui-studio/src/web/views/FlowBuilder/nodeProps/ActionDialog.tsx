@@ -149,9 +149,9 @@ const ActionDialog: FC<{
   if (actionServerId === '' && currentActionServer) {
     setActionServerId(currentActionServer.id)
   }
-
+  const currentActionServerHasActions = currentActionServer?.actions && currentActionServer.actions.length > 0
   let currentActionDefinition: ActionDefinition | undefined
-  if (currentActionServer) {
+  if (currentActionServerHasActions) {
     currentActionDefinition = currentActionServer.actions.find(a => a.name === name) || currentActionServer.actions[0]
     if (name === '' && currentActionDefinition) {
       setName(currentActionDefinition.name)
@@ -201,6 +201,14 @@ const ActionDialog: FC<{
               const actionServer = actionServers.find(s => s.id === actionServerId)
               setName(actionServer.actions[0]?.name || '')
             }}
+          />
+        )}
+
+        {!currentActionServerHasActions && (
+          <NonIdealState
+            title="Could not retrieve actions for current Action Server"
+            description="There seems to be an error in your Botpress server. Please contact your administrator."
+            icon="warning-sign"
           />
         )}
 

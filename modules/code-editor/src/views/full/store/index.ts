@@ -5,7 +5,7 @@ import path from 'path'
 import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
 import { FileFilters } from '../typings'
 import { FILENAME_REGEX, toastFailure, toastSuccess } from '../utils'
-import { baseAction, baseHook } from '../utils/templates'
+import { baseHook, httpAction, legacyAction } from '../utils/templates'
 
 import CodeEditorApi from './api'
 import { EditorStore } from './editor'
@@ -129,7 +129,19 @@ class RootStore {
 
     name = name.endsWith('.js') ? name : name + '.js'
 
-    const content = ['action_legacy', 'action_http'].includes(type) ? baseAction : baseHook
+    let content
+    switch (type) {
+      case 'action_legacy':
+        content = legacyAction
+        break
+      case 'action_http':
+        content = httpAction
+        break
+      default:
+        content = baseHook
+        break
+    }
+
     await this.editor.openFile({
       name,
       location: name,

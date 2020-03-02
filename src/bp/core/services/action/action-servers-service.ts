@@ -7,8 +7,6 @@ import { inject, injectable, tagged } from 'inversify'
 import joi, { validate } from 'joi'
 import _ from 'lodash'
 
-import { HTTP_ACTIONS_PARAM_TYPES } from './utils'
-
 const HttpActionSchema = joi.array().items(
   joi.object().keys({
     name: joi.string(),
@@ -18,7 +16,7 @@ const HttpActionSchema = joi.array().items(
     params: joi.array().items({
       name: joi.string(),
       description: joi.string(),
-      type: joi.string().allow(...HTTP_ACTIONS_PARAM_TYPES),
+      type: joi.string(),
       required: joi.bool(),
       default: joi
         .alternatives()

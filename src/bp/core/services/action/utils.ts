@@ -56,5 +56,3 @@ export const enabled = (filename: string) => !path.basename(filename).startsWith
 
 export const isTrustedAction = (actionName: string) =>
   !!BUILTIN_MODULES.find(module => actionName.startsWith(`${module}/`))
-
-export const HTTP_ACTIONS_PARAM_TYPES = ['string', 'number', 'boolean']
