@@ -283,3 +283,11 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
 
   audit(debugSuccess, { userRole: role?.id })
 }
+
+export interface TypedRequest<T> extends Request {
+  body: T
+}
+
+export interface TypedResponse<T> extends Response {
+  send: (body: T) => TypedResponse<T>
+}

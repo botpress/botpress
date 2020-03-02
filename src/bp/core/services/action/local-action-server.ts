@@ -4,7 +4,7 @@ import cluster from 'cluster'
 import { ActionDefinition, ActionParameterDefinition } from 'common/typings'
 import { BadRequestError, InternalServerError, UnauthorizedError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
-import { asyncMiddleware, AsyncMiddleware } from 'core/routers/util'
+import { asyncMiddleware, AsyncMiddleware, TypedRequest, TypedResponse } from 'core/routers/util'
 import { TYPES } from 'core/types'
 import express, { NextFunction, Request, Response } from 'express'
 import { inject, injectable, tagged } from 'inversify'
@@ -59,14 +59,6 @@ const _validateListActionsRequest = async (req: Request, res: Response, next: Ne
   next()
 }
 
-interface RunActionResponse extends Response {
-  send: (body: ActionServerResponse) => RunActionResponse
-}
-
-interface RunActionRequest extends Request {
-  body: { actionArgs: any; actionName: string; botId: string; token: string; incomingEvent: IO.IncomingEvent }
-}
-
 @injectable()
 export class LocalActionServer {
   private readonly app: express.Express
@@ -94,19 +86,30 @@ export class LocalActionServer {
     this.app.post(
       '/action/run',
       _validateRunRequest,
-      this.asyncMiddleware(async (req: RunActionRequest, res: RunActionResponse) => {
-        const { actionArgs, actionName, botId, token, incomingEvent } = req.body
+      this.asyncMiddleware(
+        async (
+          req: TypedRequest<{
+            actionArgs: any
+            actionName: string
+            botId: string
+            token: string
+            incomingEvent: IO.IncomingEvent
+          }>,
+          res: TypedResponse<ActionServerResponse>
+        ) => {
+          const { actionArgs, actionName, botId, token, incomingEvent } = req.body
 
-        const service = await this.actionService.forBot(botId)
-        try {
-          await service.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
-        } catch (e) {
-          throw new InternalServerError(e)
+          const service = await this.actionService.forBot(botId)
+          try {
+            await service.runLocalAction({ actionName, actionArgs, incomingEvent, token, runType: 'http' })
+          } catch (e) {
+            throw new InternalServerError(e)
+          }
+
+          const { temp, user, session } = incomingEvent.state
+          res.send({ event: { state: { temp, user, session } } })
         }
-
-        const { temp, user, session } = incomingEvent.state
-        res.send({ event: { state: { temp, user, session } } })
-      })
+      )
     )
 
     this.app.get(

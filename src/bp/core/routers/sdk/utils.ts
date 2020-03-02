@@ -1,5 +1,5 @@
 import { SdkApiPayload } from 'botpress/apiSdk'
-import { NextFunction, Request, Response, Router } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
@@ -9,10 +9,6 @@ import { BadRequestError, UnauthorizedError } from '../errors'
 import { validations } from './validation'
 
 export const ACTION_SERVER_AUDIENCE = 'api_user'
-
-export interface TypedRequest<T> extends Request {
-  body: T
-}
 
 export type RequestWithApiUser = Request & {
   apiPayload?: SdkApiPayload
