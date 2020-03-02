@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import Database2 from './db'
+import Database from './db'
 
-export default async (bp: typeof sdk, db: Database2, interactionsToTrack: string[]) => {
+export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[]) => {
   await db.initialize()
 
   process.BOTPRESS_EVENTS.on('bp_core_decision_elected', ({ channel, botId, source }) => {

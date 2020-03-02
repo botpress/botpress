@@ -27,10 +27,10 @@ const Metric = <const>[
 type MetricTypes = typeof Metric[number]
 
 const mergeEntries = (a: Dic<number>, b: Dic<number>): Dic<number> => {
-  return mergeWith({}, a, b, (v1, v2) => v1 + v2)
+  return mergeWith(a, b, (v1, v2) => (v1 || 0) + (v2 || 0))
 }
 
-export default class Db {
+export default class Database {
   private knex: Knex & sdk.KnexExtension
   private cache_entries: Dic<number> = {}
   private flush_lock: boolean
@@ -104,9 +104,9 @@ export default class Db {
         .raw(
           // careful if changing this query, make sure it works in both SQLite and Postgres
           `insert into ${TABLE_NAME}
-(date, botId, channel, metric, value) values ${values}
-  on conflict(date, botId, channel, metric)
-  do update set value = value + EXCLUDED.value`
+(date, "botId", channel, metric, value) values ${values}
+  on conflict(date, "botId", channel, metric)
+  do update set value = ${TABLE_NAME}.value + EXCLUDED.value`
         )
         .toQuery()
 
@@ -141,12 +141,12 @@ export default class Db {
     let queryNewUsers = this.knex('bot_chat_users')
       .where({ botId })
       .andWhere(this.knex.date.isBetween('createdOn', startDate, endDate))
-      .groupBy('createdOn')
+      .groupBy(['createdOn', 'channel'])
 
     let queryActiveUsers = this.knex('bot_chat_users')
       .where({ botId })
       .andWhere(this.knex.date.isBetween('lastSeenOn', startDate, endDate))
-      .groupBy('lastSeenOn')
+      .groupBy(['lastSeenOn', 'channel'])
 
     if (options?.channel !== 'all') {
       queryMetrics = queryMetrics.andWhere({ channel: options.channel })
@@ -156,16 +156,8 @@ export default class Db {
 
     try {
       const metrics = await queryMetrics
-      const newUsersCount = await queryNewUsers.select(
-        'channel',
-        'createdOn as date',
-        this.knex.raw('count(*) as value')
-      )
-      const activeUsersCount = await queryActiveUsers.select(
-        'channel',
-        'lastSeenOn as date',
-        this.knex.raw('count(*) as value')
-      )
+      const newUsersCount = await queryNewUsers.select('createdOn as date', this.knex.raw('count(*) as value'))
+      const activeUsersCount = await queryActiveUsers.select('lastSeenOn as date', this.knex.raw('count(*) as value'))
 
       return [
         ...metrics,

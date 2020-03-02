@@ -55,9 +55,9 @@ export class KnexUserRepository implements UserRepository {
         .raw(
           // careful if changing this query, make sure it works in both SQLite and Postgres
           `insert into ${this.botUsersTableName}
-(botId, channel, userId) values ${values}
-  on conflict(userId, botId, channel) 
-  do update set lastSeenOn = ${today}`
+("botId", channel, "userId") values ${values}
+  on conflict("userId", "botId", channel) 
+  do update set "lastSeenOn" = ${today}`
         )
         .toQuery()
 
