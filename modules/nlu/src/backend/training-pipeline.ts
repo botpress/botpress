@@ -283,7 +283,10 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  const utterances = _.flatMap(input.intents.map(i => i.utterances))
+  const utterances = _.chain(input.intents)
+    .filter(i => i.name !== NONE_INTENT)
+    .flatMap('utterances')
+    .value()
 
   const allSysEntities = (
     await tools.duckling.extractMultiple(
