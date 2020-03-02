@@ -158,6 +158,12 @@ class Bots extends Component<Props> {
     toastSuccess('Bot promoted to next stage')
   }
 
+  async approveStageChange(botId) {
+    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stageapprove`)
+    this.props.fetchBots()
+    toastSuccess('Approved bot promotion to next stage')
+  }
+
   isLicensed = () => {
     return _.get(this.props.licensing, 'status') === 'licensed'
   }
@@ -261,9 +267,11 @@ class Bots extends Component<Props> {
                     <BotItemPipeline
                       bot={bot}
                       isApprover={stage.reviewers.includes(email)}
+                      email={email}
                       hasError={this.findBotError(bot.id)}
                       allowStageChange={allowStageChange && !bot.disabled}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}
+                      approveStageChange={this.approveStageChange.bind(this, bot.id)}
                       deleteBot={this.deleteBot.bind(this, bot.id)}
                       exportBot={this.exportBot.bind(this, bot.id)}
                       createRevision={this.createRevision.bind(this, bot.id)}

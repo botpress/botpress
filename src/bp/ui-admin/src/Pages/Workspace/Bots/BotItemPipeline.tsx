@@ -22,12 +22,14 @@ import AccessControl, { isChatUser } from '../../../App/AccessControl'
 interface Props {
   bot: BotConfig
   isApprover: boolean
+  email: string
   hasError: boolean
   deleteBot?: () => void
   exportBot?: () => void
   createRevision?: () => void
   rollback?: () => void
   requestStageChange?: () => void
+  approveStageChange?: () => void
   allowStageChange?: boolean
   reloadBot?: () => void
   viewLogs?: () => void
@@ -36,8 +38,10 @@ interface Props {
 const BotItemPipeline: FC<Props> = ({
   bot,
   isApprover,
+  email,
   hasError,
   requestStageChange,
+  approveStageChange,
   deleteBot,
   exportBot,
   allowStageChange,
@@ -48,11 +52,15 @@ const BotItemPipeline: FC<Props> = ({
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
-  const requiresApproval = isApprover && bot.pipeline_status.stage_request
+  const requiresApproval =
+    isApprover &&
+    bot.pipeline_status.stage_request &&
+    (!bot.pipeline_status.stage_request.approvals || !bot.pipeline_status.stage_request.approvals.includes(email))
 
   // These need to be implemented once backend for approval is implemented
-  const rejectStagePromotion = () => console.log('Stage promotion rejected')
-  const approveStagePromotion = () => console.log('Stage promotion approved')
+  const rejectStagePromotion = () => {
+    console.log('Stage promotion rejected')
+  }
 
   return (
     <div className="pipeline_bot" key={bot.id}>
@@ -163,7 +171,7 @@ const BotItemPipeline: FC<Props> = ({
             <Button onClick={rejectStagePromotion} small minimal intent="danger">
               Reject
             </Button>
-            <Button onClick={approveStagePromotion} small minimal intent="success">
+            <Button onClick={approveStageChange} small minimal intent="success">
               Approve
             </Button>
           </div>
