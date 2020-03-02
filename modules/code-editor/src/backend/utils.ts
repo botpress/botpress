@@ -47,7 +47,11 @@ export const assertValidJson = (content: string): boolean => {
     JSON.parse(content)
     return true
   } catch (err) {
-    jsonlintMod.parse(content)
+    try {
+      jsonlintMod.parse(content)
+    } catch (e) {
+      throw new Error(`Invalid JSON file. ${e.message.split(':')[0]}`)
+    }
   }
 }
 
