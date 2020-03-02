@@ -131,7 +131,6 @@ export class Botpress {
 
     await this.restoreDebugScope()
     await this.checkJwtSecret()
-    await this.maybeStartLocalActionServer()
     await this.loadModules(options.modules)
     await this.migrationService.initialize()
     await this.cleanDisabledModules()
@@ -141,6 +140,7 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
+    await this.maybeStartLocalActionServer()
 
     if (this.config.sendUsageStats) {
       this.statsService.start()
@@ -164,11 +164,15 @@ export class Botpress {
   }
 
   private maybeStartLocalActionServer() {
-    const { enabled, port } = this.config!.actionServers.local
-    if (enabled) {
-      startLocalActionServer({ appSecret: process.APP_SECRET, port })
+    if (this.config?.actionServers) {
+      const { enabled, port } = this.config!.actionServers.local
+      if (enabled) {
+        startLocalActionServer({ appSecret: process.APP_SECRET, port })
+      } else {
+        this.logger.info('Local Action Server disabled')
+      }
     } else {
-      this.logger.info('Local Action Server disabled')
+      this.logger.warn('No config ("actionServers") found for Action Servers')
     }
   }
 
