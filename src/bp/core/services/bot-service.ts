@@ -366,6 +366,29 @@ export class BotService {
     await this._executeStageChangeHooks(botConfig, newConfig)
   }
 
+  async approveStageChange(botId: string, requested_by: string) {
+    const botConfig = (await this.findBotById(botId)) as BotConfig
+    if (!botConfig) {
+      throw Error('bot does not exist')
+    }
+
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+    const pipeline = await this.workspaceService.getPipeline(workspaceId)
+    if (!pipeline) {
+      return
+    }
+
+    const approvals = botConfig.pipeline_status.stage_request?.approvals || []
+    if (!approvals.includes(requested_by)) {
+      approvals.push(requested_by)
+    }
+
+    const newConfig = await this.configProvider.mergeBotConfig(botId, {
+      pipeline_status: { stage_request: { approvals } }
+    })
+    await this._executeStageChangeHooks(botConfig, newConfig)
+  }
+
   async duplicateBot(sourceBotId: string, destBotId: string, overwriteDest: boolean = false) {
     if (!(await this.botExists(sourceBotId))) {
       throw new Error('Source bot does not exist')

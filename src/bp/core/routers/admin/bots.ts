@@ -171,6 +171,25 @@ export class BotsRouter extends CustomRouter {
     )
 
     router.post(
+      '/:botId/stageapprove',
+      this.assertBotpressPro,
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        try {
+          await this.botService.approveStageChange(req.params.botId, req.tokenUser!.email)
+
+          return res.sendStatus(200)
+        } catch (err) {
+          this.logger
+            .forBot(req.params.botId)
+            .attachError(err)
+            .error(`Cannot request bot: ${req.params.botId} for stage change`)
+          res.status(400).send(err.message)
+        }
+      })
+    )
+
+    router.post(
       '/:botId',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
