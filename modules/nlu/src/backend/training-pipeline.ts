@@ -67,7 +67,7 @@ const debugTraining = DEBUG('nlu').sub('training')
 const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
   MIN: 20,
-  MAX: 150
+  MAX: 200
 }
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
