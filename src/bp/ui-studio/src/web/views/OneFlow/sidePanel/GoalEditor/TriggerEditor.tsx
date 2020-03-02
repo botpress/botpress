@@ -10,6 +10,7 @@ import withLanguage from '~/components/Util/withLanguage'
 
 import style from '../style.scss'
 
+import triggerStyles from './style.scss'
 import ConditionDropdown from './Condition/ConditionDropdown'
 import ConditionEditor from './Condition/Editor'
 import ConditionItem from './Condition/Item'
@@ -133,43 +134,38 @@ const TriggerEditor: FC<Props> = props => {
 
   return (
     <div>
-      <Breadcrumbs items={[{ onClick: () => setEditing(false), text: 'Triggers' }]} minVisibleItems={3} />
+      <div className={style.modalHeader}>
+        <Breadcrumbs items={[{ onClick: () => setEditing(false), text: 'Triggers' }]} minVisibleItems={3} />
+        <Button icon="add" text="Add new trigger" intent="success" onClick={addTrigger} />
+      </div>
 
-      <br />
+      {!triggers.length && <p className={style.emptyState}>No triggers</p>}
 
       {triggers.map((trigger, idx) => {
         return (
-          <div key={trigger.id}>
-            <h5>#{idx + 1} - This goal is triggered when a user event match those conditions:</h5>
-            <div style={{ border: '1px solid lightgray', borderRadius: 10, padding: 3 }}>
-              {(trigger.conditions || []).map(condition => (
-                <ConditionItem
-                  condition={condition}
-                  onEdit={flowCondition => onConditionEdit(trigger, flowCondition)}
-                  onDelete={flowCondition => onConditionDeleted(trigger, flowCondition)}
-                  key={condition.id}
-                />
-              ))}
+          <div className={triggerStyles.triggerWrapper} key={trigger.id}>
+            <h5>{idx + 1} - This goal is triggered when a user event match those conditions:</h5>
+            {!!trigger.conditions?.length && (
+              <div className={triggerStyles.triggerConditionsWrapper}>
+                {trigger.conditions.map((condition, index) => (
+                  <ConditionItem
+                    condition={condition}
+                    className={!trigger.conditions[index + 1] && triggerStyles.last}
+                    onEdit={flowCondition => onConditionEdit(trigger, flowCondition)}
+                    onDelete={flowCondition => onConditionDeleted(trigger, flowCondition)}
+                    key={condition.id}
+                  />
+                ))}
+              </div>
+            )}
 
-              <ButtonGroup>
-                <ConditionDropdown onChange={con => setCurrentCondition(con)} ignored={trigger.conditions} />
-                <Button
-                  icon="add"
-                  minimal={true}
-                  text="Add condition"
-                  onClick={() => addCondition(trigger, currentCondition)}
-                />
-              </ButtonGroup>
-            </div>
+            <ButtonGroup>
+              <ConditionDropdown onChange={con => setCurrentCondition(con)} ignored={trigger.conditions} />
+              <Button icon="add" minimal text="Add condition" onClick={() => addCondition(trigger, currentCondition)} />
+            </ButtonGroup>
           </div>
         )
       })}
-
-      <div style={{ paddingTop: 30 }}>
-        <ControlGroup>
-          <Button icon="add" text="Add new trigger" minimal={true} onClick={addTrigger} />
-        </ControlGroup>
-      </div>
 
       <Button text="Save changes" onClick={saveChanges} intent={Intent.PRIMARY} className={style.modalFooter} />
     </div>

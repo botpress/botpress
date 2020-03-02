@@ -1,3 +1,5 @@
+@import '../../../palette.scss';
+
 .treeNode {
   display: flex;
   justify-content: space-between;
@@ -70,6 +72,19 @@
 
 .tabs {
   width: 100%;
+}
+
+.emptyState {
+  color: $content-color-light;
+  font-size: 14px;
+  margin: 20px 0 0;
+}
+
+.modalHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .modalFooter {

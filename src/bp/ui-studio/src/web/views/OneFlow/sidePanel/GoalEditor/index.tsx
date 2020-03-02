@@ -34,7 +34,7 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps & OwnProps
 
 const EditGoalModal: FC<Props> = props => {
-  const [tab, setTab] = useState('overview')
+  const [tab, setTab] = useState('triggers')
 
   const [dir, setDir] = useState<string>('')
   const [name, setName] = useState<string>('')
@@ -43,7 +43,7 @@ const EditGoalModal: FC<Props> = props => {
   const [triggers, setTriggers] = useState<FlowTrigger[]>([])
 
   useEffect(() => {
-    setTab('overview')
+    setTab('triggers')
 
     const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
     if (originalFlow) {
@@ -114,7 +114,23 @@ const EditGoalModal: FC<Props> = props => {
     >
       <DialogBody>
         <div style={{ minHeight: 300 }}>
-          <Tabs id="tabs" vertical={true} onChange={tab => setTab(tab as string)} selectedTabId={tab}>
+          <Tabs id="tabs" vertical onChange={tab => setTab(tab as string)} selectedTabId={tab}>
+            <Tab
+              id="triggers"
+              title="Triggers"
+              className={style.tabs}
+              panel={
+                <div style={{ width: '740px' }}>
+                  <TriggerEditor
+                    goalName={name}
+                    selectedTopic={props.selectedTopic}
+                    triggers={triggers}
+                    closeModal={closeModal}
+                  />
+                </div>
+              }
+            />
+
             <Tab
               id="overview"
               title="Overview"
@@ -125,10 +141,10 @@ const EditGoalModal: FC<Props> = props => {
                     <InputGroup
                       id="input-flow-name"
                       tabIndex={1}
-                      required={true}
+                      required
                       value={name || ''}
                       onChange={e => setName(sanitizeName(e.currentTarget.value))}
-                      autoFocus={true}
+                      autoFocus
                     />
                   </FormGroup>
 
@@ -150,7 +166,7 @@ const EditGoalModal: FC<Props> = props => {
                       rows={3}
                       tabIndex={3}
                       value={description || ''}
-                      fill={true}
+                      fill
                       onChange={e => setDescription(e.currentTarget.value)}
                     />
                   </FormGroup>
@@ -162,22 +178,6 @@ const EditGoalModal: FC<Props> = props => {
                     text="Save changes"
                     intent={Intent.PRIMARY}
                     className={style.modalFooter}
-                  />
-                </div>
-              }
-            />
-
-            <Tab
-              id="triggers"
-              title="Triggers"
-              className={style.tabs}
-              panel={
-                <div style={{ width: '740px' }}>
-                  <TriggerEditor
-                    goalName={name}
-                    selectedTopic={props.selectedTopic}
-                    triggers={triggers}
-                    closeModal={closeModal}
                   />
                 </div>
               }
