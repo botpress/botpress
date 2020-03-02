@@ -37,7 +37,7 @@ export default class ActionServersService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
   public async getServersWithActionsForBot(botId: string): Promise<ActionServerWithActions[]> {
-    const actionServers = await this.getServers()
+    const actionServers = await this._getServers()
 
     const actionServersWithActions: ActionServerWithActions[] = []
     for (const actionServer of actionServers) {
@@ -49,11 +49,11 @@ export default class ActionServersService {
   }
 
   public async getServer(serverId: string): Promise<ActionServer | undefined> {
-    const servers = await this.getServers()
+    const servers = await this._getServers()
     return servers.find(s => s.id === serverId)
   }
 
-  public async getServers(): Promise<ActionServer[]> {
+  private async _getServers(): Promise<ActionServer[]> {
     const { remotes, local } = (await this.configProvider.getBotpressConfig()).actionServers
     const { enabled, port } = local
 
