@@ -1,4 +1,5 @@
-import { Button, Dialog, FormGroup, HTMLSelect, Label, NonIdealState } from '@blueprintjs/core'
+import { Button, Dialog, FormGroup, HTMLSelect, Label, MenuItem, NonIdealState } from '@blueprintjs/core'
+import { ItemRenderer, Select } from '@blueprintjs/select'
 import axios from 'axios'
 import { ActionDefinition, ActionParameterDefinition, ActionServer, ActionServerWithActions } from 'common/typings'
 import _ from 'lodash'
@@ -8,6 +9,7 @@ import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
 
 import style from './style.scss'
 import { ActionParameters } from './ActionParameters'
+
 export interface ParameterValue {
   definition: ActionParameterDefinition
   value: string
@@ -19,27 +21,38 @@ const ActionNameSelect: FC<{
   onUpdate: (name: string) => void
 }> = props => {
   const { name, actions, onUpdate } = props
+  const ActionSelect = Select.ofType<ActionDefinition>()
+
+  const ActionItemRenderer: ItemRenderer<ActionDefinition> = (item, { handleClick }) => {
+    return (
+      <div key={item.name} onClick={handleClick} className={style.actionSelectItem}>
+        <div>
+          <span className={style.category}>{item.category}</span> - {item.name}
+        </div>
+        <div className={style.description}>{item.description}</div>
+      </div>
+    )
+  }
+
   return (
-    <FormGroup
-      helperText="This is the action that will be executed on the chosen Action Server"
-      label="Action Name"
-      labelFor="action-name"
-      labelInfo="(required)"
-    >
-      <HTMLSelect
-        id="action-name"
-        value={name}
-        onChange={e => {
-          onUpdate(e.target.value)
-        }}
+    <>
+      <FormGroup
+        helperText="This is the action that will be executed on the chosen Action Server"
+        label="Action"
+        labelFor="action-name"
       >
-        {actions.map(actionDefinition => (
-          <option key={actionDefinition.name} value={actionDefinition.name}>
-            {actionDefinition.name}
-          </option>
-        ))}
-      </HTMLSelect>
-    </FormGroup>
+        <ActionSelect
+          items={actions}
+          itemRenderer={ActionItemRenderer}
+          onItemSelect={item => {
+            onUpdate(item.name)
+          }}
+          filterable={false}
+        >
+          <Button text={name} rightIcon="double-caret-vertical" />
+        </ActionSelect>
+      </FormGroup>
+    </>
   )
 }
 
@@ -79,8 +92,7 @@ const ActionServers: FC<{
 }> = props => {
   const { actionServerId, actionServers, onUpdate } = props
   return (
-    <Label>
-      Action Server
+    <FormGroup label="Action Server" helperText="This is the Action Server on which the action will be executed">
       <HTMLSelect
         value={actionServerId}
         onChange={e => {
@@ -94,7 +106,7 @@ const ActionServers: FC<{
           </option>
         ))}
       </HTMLSelect>
-    </Label>
+    </FormGroup>
   )
 }
 

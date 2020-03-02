@@ -3,8 +3,11 @@
 interface CssExports {
   'actionDialogContent': string;
   'actionIcons': string;
+  'actionSelectItem': string;
   'actions': string;
   'bottomSection': string;
+  'category': string;
+  'description': string;
   'endBloc': string;
   'item': string;
   'name': string;
