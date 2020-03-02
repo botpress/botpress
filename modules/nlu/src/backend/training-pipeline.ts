@@ -37,6 +37,7 @@ export type TrainInput = Readonly<{
 }>
 
 export type TrainOutput = Readonly<{
+  botId: string
   languageCode: string
   list_entities: ListEntityModel[]
   pattern_entities: PatternEntity[]
@@ -66,7 +67,7 @@ const debugTraining = DEBUG('nlu').sub('training')
 const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
   MIN: 20,
-  MAX: 250
+  MAX: 150
 }
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
@@ -83,7 +84,7 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
-  debugTraining('preprocessing intents')
+  debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
     makeListEntityModel(list, input.languageCode, tools)
@@ -196,7 +197,7 @@ const TrainIntentClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
-  debugTraining('Training intent classifier')
+  debugTraining.forBot(input.botId, 'Training intent classifier')
   const svmPerCtx: _.Dictionary<string> = {}
   for (let i = 0; i < input.contexts.length; i++) {
     const ctx = input.contexts[i]
@@ -225,6 +226,7 @@ const TrainIntentClassifier = async (
     svmPerCtx[ctx] = model
   }
 
+  debugTraining.forBot(input.botId, 'Done training intent classifier')
   return svmPerCtx
 }
 
@@ -233,7 +235,7 @@ const TrainContextClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<string | undefined> => {
-  debugTraining('Training context classifier')
+  debugTraining.forBot(input.botId, 'Training context classifier')
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
@@ -247,13 +249,16 @@ const TrainContextClassifier = async (
 
   if (points.length === 0 || input.contexts.length <= 1) {
     progress()
+    debugTraining.forBot(input.botId, 'No context to train')
     return
   }
 
   const svm = new tools.mlToolkit.SVM.Trainer()
-  return svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+  const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
     progress(_.round(p, 1))
   })
+  debugTraining.forBot(input.botId, 'Done training context classifier')
+  return model
 }
 
 export const ProcessIntents = async (
@@ -393,16 +398,17 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
     return Buffer.from('')
   }
 
-  debugTraining('Training slot tagger')
+  debugTraining.forBot(input.botId, 'Training slot tagger')
   const crfExtractor = new SlotTagger(tools.mlToolkit)
-  await crfExtractor.train(input.intents)
+  await crfExtractor.train(input.intents.filter(i => i.name !== NONE_INTENT))
+  debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()
 
   return crfExtractor.serialized
 }
 
 const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
-  debugTraining('Training out of scope classifier')
+  debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     kernel: 'LINEAR',
     classifier: 'C_SVC',
@@ -427,9 +433,11 @@ const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progr
     .value()
 
   const svm = new tools.mlToolkit.SVM.Trainer()
-  return svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
+  const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
     progress(_.round(p, 2))
   })
+  debugTraining.forBot(input.botId, 'Done training out of scope')
+  return model
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
@@ -493,7 +501,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      debugTraining('Training aborted')
+      debugTraining.forBot(input.botId, 'Training aborted')
     } else {
       // TODO use bp.logger once this is moved in Engine2
       console.log('Could not finish training NLU model', err)
