@@ -170,7 +170,7 @@ const BotItemPipeline: FC<Props> = ({
         )}
         {requiresApproval && (
           <div className="stage-approval-btns">
-            <Button onClick={approveStageChange} small minimal intent="success">
+            <Button onClick={approveStageChange} small intent="success">
               Approve
             </Button>
           </div>

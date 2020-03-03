@@ -192,6 +192,7 @@ const EditStageModal: FC<Props> = props => {
             max={reviewers.length}
             value={minimumApprovals}
             onValueChange={onMinimumApprovalsChange}
+            disabled={reviewers.length === 0}
           />
         </FormGroup>
       </div>
