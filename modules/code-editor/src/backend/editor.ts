@@ -18,7 +18,7 @@ import {
 } from './utils'
 
 export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
-export const MAIN_GLOBAL_CONFIG_FILES = ['botpress.config.json', 'workspaces.json']
+
 const RAW_FILES_FILTERS = ['**/*.map']
 
 export default class Editor {
@@ -178,7 +178,7 @@ export default class Editor {
     }
 
     const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
-    const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.js`), 'utf-8')
+    const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.txt`), 'utf-8')
 
     const ghost = this.bp.ghost.forRoot()
     const botConfigSchema = await ghost.readFileAsString('/', 'bot.config.schema.json')

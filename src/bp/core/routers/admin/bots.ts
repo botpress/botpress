@@ -10,7 +10,14 @@ import yn from 'yn'
 
 import { CustomRouter } from '../customRouter'
 import { ConflictError, ForbiddenError } from '../errors'
-import { assertBotpressPro, assertWorkspace, hasPermissions, needPermissions, success as sendSuccess } from '../util'
+import {
+  assertBotpressPro,
+  assertSuperAdmin,
+  assertWorkspace,
+  hasPermissions,
+  needPermissions,
+  success as sendSuccess
+} from '../util'
 
 const chatUserBotFields = [
   'id',
@@ -68,6 +75,20 @@ export class BotsRouter extends CustomRouter {
           bots: isBotAdmin ? bots : bots.map(b => _.pick(b, chatUserBotFields)),
           workspace: _.pick(workspace, ['name', 'pipeline'])
         })
+      })
+    )
+
+    router.get(
+      '/byWorkspaces',
+      assertSuperAdmin,
+      this.asyncMiddleware(async (_req, res) => {
+        const workspaces = await this.workspaceService.getWorkspaces()
+        const bots = workspaces.reduce((obj, workspace) => {
+          obj[workspace.id] = workspace.bots
+          return obj
+        }, {})
+
+        return sendSuccess(res, 'Retrieved bots', { bots })
       })
     )
 

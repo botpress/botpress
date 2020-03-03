@@ -1,3 +1,4 @@
+import { confirmDialog } from 'botpress/shared'
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
@@ -136,7 +137,11 @@ class RootStore {
 
   @action.bound
   async deleteFile(file: EditableFile): Promise<void> {
-    if (window.confirm(`Are you sure you want to delete the file named ${file.name}?`)) {
+    if (
+      await confirmDialog(`Are you sure you want to delete the file named ${file.name}?`, {
+        acceptLabel: 'Delete'
+      })
+    ) {
       if (await this.api.deleteFile(file)) {
         this.editor.closeFile()
         toastSuccess('File deleted successfully!')

@@ -1,4 +1,4 @@
-import { SDK } from 'botpress'
+import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
 import moment from 'moment'
@@ -15,7 +15,7 @@ export default class Analytics {
   private _task
   public custom: CustomAnalyticsType
 
-  constructor(private bp: SDK, private botId: string) {
+  constructor(private bp: typeof sdk, private botId: string) {
     this._knex = bp['database']
     this._stats = new Stats(this._knex)
     this._task = new UpdateTask(this.bp, this._getInterval())

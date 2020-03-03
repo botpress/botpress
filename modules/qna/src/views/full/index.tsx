@@ -1,4 +1,5 @@
 import { Button, ControlGroup, Intent } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import classnames from 'classnames'
@@ -234,8 +235,10 @@ export default class QnaAdmin extends Component<Props> {
     }
   }
 
-  deleteItem = (id: string) => () => {
-    const needDelete = confirm('Do you want to delete the question?')
+  deleteItem = (id: string) => async () => {
+    const needDelete = await confirmDialog('Do you want to delete the question?', {
+      acceptLabel: 'Delete'
+    })
     const params = this.getQueryParams()
 
     if (needDelete) {

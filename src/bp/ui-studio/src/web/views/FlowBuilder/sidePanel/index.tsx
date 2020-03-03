@@ -105,7 +105,6 @@ const SidePanelContent: FC<Props> = props => {
           </SidePanelSection>
         </React.Fragment>
       )}
-
       <FlowNameModal
         action={flowAction}
         originalName={flowName}

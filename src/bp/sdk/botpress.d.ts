@@ -6,6 +6,7 @@
  */
 declare module 'botpress/sdk' {
   import Knex from 'knex'
+  import { Router, Request, Response, NextFunction } from 'express'
 
   export interface KnexExtension {
     isLite: boolean
@@ -46,6 +47,7 @@ declare module 'botpress/sdk' {
 
   export interface LoggerEntry {
     botId?: string
+    hostname?: string
     level: string
     scope: string
     message: string
@@ -57,6 +59,7 @@ declare module 'botpress/sdk' {
     Info = 'info',
     Warn = 'warn',
     Error = 'error',
+    Critical = 'critical',
     Debug = 'debug'
   }
 
@@ -91,6 +94,7 @@ declare module 'botpress/sdk' {
     info(message: string, metadata?: any): void
     warn(message: string, metadata?: any): void
     error(message: string, metadata?: any): void
+    critical(message: string, metadata?: any): void
   }
 
   export type ElementChangedAction = 'create' | 'update' | 'delete'
@@ -1310,7 +1314,7 @@ declare module 'botpress/sdk' {
      * @param options - Additional options to apply to the router
      * @param router - The router
      */
-    export function createRouterForBot(routerName: string, options?: RouterOptions): any & RouterExtension
+    export function createRouterForBot(routerName: string, options?: RouterOptions): RouterExtension
 
     /**
      * This method is meant to unregister a router before unloading a module. It is meant to be used in a development environment.
@@ -1336,18 +1340,16 @@ declare module 'botpress/sdk' {
     /**
      * This Express middleware tries to decode the X-BP-ExternalAuth header and adds a credentials header in the request if it's valid.
      */
-    export function extractExternalToken(req: any, res: any, next: any): Promise<void>
+    export function extractExternalToken(req: Request, res: Response, next: NextFunction): Promise<void>
 
     export function needPermission(
       operation: string,
       resource: string
-    ): (req: any, res: any, next: any) => Promise<void>
+    ): (req: Request, res: Response, next: NextFunction) => Promise<void>
 
-    export function hasPermission(req: any, operation: string, resource: string): Promise<boolean>
+    export function hasPermission(req: any, operation: string, resource: string, noAudit?: boolean): Promise<boolean>
 
-    export interface RouterExtension {
-      getPublicPath(): Promise<string>
-    }
+    export type RouterExtension = { getPublicPath(): Promise<string> } & Router
   }
 
   /**
@@ -1490,11 +1492,7 @@ declare module 'botpress/sdk' {
      * @param partialConfig
      * @param ignoreLock
      */
-    export function mergeBotConfig(
-      botId: string,
-      partialConfig: _.PartialDeep<BotConfig>,
-      ignoreLock?: boolean
-    ): Promise<any>
+    export function mergeBotConfig(botId: string, partialConfig: Partial<BotConfig>, ignoreLock?: boolean): Promise<any>
   }
 
   /**

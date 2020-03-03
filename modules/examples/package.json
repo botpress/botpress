@@ -7,18 +7,10 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
   "scripts": {
-    "build": "./node_modules/.bin/module-builder build",
-    "watch": "./node_modules/.bin/module-builder watch",
-    "package": "./node_modules/.bin/module-builder package"
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
   },
-  "devDependencies": {
-    "@types/node": "^10.11.3",
-    "@types/react": "^16.9.19",
-    "@types/react-dom": "^16.9.5",
-    "@blueprintjs/core": "^3.23.1",
-    "module-builder": "../../build/module-builder"
-  },
-  "dependencies": {},
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.12"

@@ -1,6 +1,7 @@
+import * as sdk from 'botpress/sdk'
+import { Metric } from 'common/monitoring'
 import { injectable } from 'inversify'
 import _ from 'lodash'
-
 /**
  * These methods are exposed outside the class to add minimal overhead when collecting metrics
  * It also avoids possible circular reference (the logger class can't access monitoring service, for example)
@@ -10,11 +11,12 @@ let metricsContainer: MetricsContainer = {}
 
 export const resetMetrics = () => {
   metricsContainer = {
-    'requests.count': 0,
-    'eventsIn.count': 0,
-    'eventsOut.count': 0,
-    'warnings.count': 0,
-    'errors.count': 0
+    [Metric.Requests]: 0,
+    [Metric.EventsIn]: 0,
+    [Metric.EventsOut]: 0,
+    [Metric.Warnings]: 0,
+    [Metric.Errors]: 0,
+    [Metric.Criticals]: 0
   }
 }
 
@@ -81,6 +83,7 @@ export interface MonitoringMetrics {
   eventsOut: { count: number }
   warnings: { count: number }
   errors: { count: number }
+  criticals: { count: number }
 }
 
 export interface MonitoringService {

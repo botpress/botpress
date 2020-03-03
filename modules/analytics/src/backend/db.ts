@@ -1,6 +1,5 @@
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-
-import { SDK } from '.'
 
 const MAX_CHAR_LEN = 254
 const extractText = event => ((event.payload && event.payload.text) || '').substr(0, MAX_CHAR_LEN)
@@ -8,7 +7,7 @@ const extractText = event => ((event.payload && event.payload.text) || '').subst
 export default class AnalyticsDb {
   knex: any
 
-  constructor(bp: SDK) {
+  constructor(bp: typeof sdk) {
     this.knex = bp.database
   }
 

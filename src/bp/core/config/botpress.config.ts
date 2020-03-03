@@ -1,6 +1,7 @@
 import { ConverseConfig } from 'botpress/sdk'
-import { UniqueUser } from 'common/typings'
-import { IncidentRule } from 'core/services/alerting-service'
+
+import { UniqueUser } from '../../common/typings'
+import { IncidentRule } from '../services/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
@@ -239,6 +240,7 @@ export type BotpressConfig = {
    */
   autoRevision: boolean
   eventCollector: EventCollectorConfig
+  botMonitoring: BotMonitoringConfig
   /**
    * @default { "default": { "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
    */
@@ -521,6 +523,20 @@ export interface AlertingConfig {
    * is called with the incident.
    */
   rules: IncidentRule[]
+}
+
+export interface BotMonitoringConfig {
+  /**
+   * This must be enabled for the hook OnBotError to work properly.
+   * @default true
+   */
+  enabled: boolean
+  /**
+   * The interval between which logs are accumulated before triggering the OnBotError hook.
+   * Set this value higher if the hook is triggered too often.
+   * @default 1m
+   */
+  interval: string
 }
 
 export interface EventCollectorConfig {

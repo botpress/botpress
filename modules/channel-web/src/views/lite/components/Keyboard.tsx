@@ -27,9 +27,9 @@ class KeyboardElements extends React.Component<KeyboardElementsProps> {
 
   componentWillUnmount() {
     if (this.props.append) {
-      Default.appendRef.current && Default.appendRef.current.removeChild(this.container)
+      Default.appendRef.current?.removeChild(this.container)
     } else {
-      Default.prependRef.current && Default.prependRef.current.removeChild(this.container)
+      Default.prependRef.current?.removeChild(this.container)
     }
   }
 
@@ -53,7 +53,7 @@ export class Append extends React.Component<Partial<KeyboardElementsProps>> {
   render() {
     return (
       <div>
-        {this.props.visible && <KeyboardElements append={true}>{this.props.keyboard}</KeyboardElements>}
+        {this.props.visible && <KeyboardElements append>{this.props.keyboard}</KeyboardElements>}
         {this.props.children}
       </div>
     )
