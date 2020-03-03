@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
 import LanguageIdentifierProvider, { NA_LANG } from './language/language-identifier'
 import { isPOSAvailable } from './language/pos-tagger'
-import { getUtteranceFeatures } from './out-of-scope-featurizer'
+import { averageByPOS, getUtteranceFeatures, POS1_SET } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import * as math from './tools/math'
 import { replaceConsecutiveSpaces } from './tools/strings'
@@ -169,7 +169,11 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       if (!predictor) {
         return
       }
-      const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
+      const features = [
+        ...input.utterance.sentenceEmbedding,
+        input.utterance.tokens.length,
+        ...(isPOSAvailable(input.languageCode) ? averageByPOS(input.utterance, POS1_SET) : [])
+      ]
       let preds = await predictor.predict(features)
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
@@ -178,7 +182,11 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
       if (input.alternateUtterance) {
         // Do we want exact preds as well ?
-        const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
+        const alternateFeats = [
+          ...input.alternateUtterance.sentenceEmbedding,
+          input.alternateUtterance.tokens.length,
+          ...(isPOSAvailable(input.languageCode) ? averageByPOS(input.alternateUtterance, POS1_SET) : [])
+        ]
         const alternatePreds = await predictor.predict(alternateFeats)
         // we might want to do this in intent election intead
 

@@ -5,7 +5,7 @@ import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
-import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
+import { averageByPOS, featurizeInScopeUtterances, featurizeOOSUtterances, POS1_SET } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
@@ -66,7 +66,7 @@ type progressCB = (p?: number) => void
 const debugTraining = DEBUG('nlu').sub('training')
 const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
-  MIN: 20,
+  MIN: 15,
   MAX: 200
 }
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
@@ -208,7 +208,11 @@ const TrainIntentClassifier = async (
           .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
           .map(utt => ({
             label: i.name,
-            coordinates: utt.sentenceEmbedding
+            coordinates: [
+              ...utt.sentenceEmbedding,
+              utt.tokens.length,
+              ...(isPOSAvailable(input.languageCode) ? averageByPOS(utt, POS1_SET) : [])
+            ]
           }))
       )
       .filter(x => !x.coordinates.some(isNaN))
@@ -469,6 +473,14 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       return
     }
     normalizedProgress = scaledProgress
+    if (normalizedProgress === 1) {
+      // Note that we don't use debouncedProgress here as we want to notify for completion now
+      tools.reportTrainingProgress(input.botId, 'Training completed', {
+        ...input.trainingSession,
+        progress: normalizedProgress,
+        status: 'done'
+      })
+    }
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {

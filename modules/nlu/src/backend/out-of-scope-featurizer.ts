@@ -6,9 +6,9 @@ import { Tools } from './typings'
 import Utterance from './utterance/utterance'
 
 export type POS_SET = POSClass[]
-const POS1_SET: POS_SET = ['VERB', 'NOUN']
-const POS2_SET: POS_SET = ['DET', 'PROPN', 'PRON', 'ADJ', 'AUX']
-const POS3_SET: POS_SET = ['CONJ', 'CCONJ', 'INTJ', 'SCONJ', 'ADV']
+export const POS1_SET: POS_SET = ['VERB', 'NOUN']
+export const POS2_SET: POS_SET = ['DET', 'PROPN', 'PRON', 'ADJ', 'AUX']
+export const POS3_SET: POS_SET = ['CONJ', 'CCONJ', 'INTJ', 'SCONJ', 'ADV']
 
 const K_CLUSTERS = 3
 const KMEANS_OPTIONS = {
@@ -17,7 +17,7 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as MLToolkit.KMeans.KMeansOptions
 
-function averageByPOS(utt: Utterance, posClasses: POS_SET) {
+export function averageByPOS(utt: Utterance, posClasses: POS_SET) {
   const tokens = utt.tokens.filter(t => posClasses.includes(t.POS))
   const vectors = tokens.map(x => scalarMultiply(<number[]>x.vector, x.tfidf))
   if (!vectors.length) {
