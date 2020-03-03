@@ -359,7 +359,7 @@ export class BotService {
       id: pipeline[nextStageIdx].id,
       status: 'pending',
       requested_on: new Date(),
-      requestedBy
+      requested_by: requestedBy
     }
 
     const newConfig = await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
