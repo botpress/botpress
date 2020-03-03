@@ -16,6 +16,10 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     db.incrementMetric(botId, channel, 'sessions_count')
   })
 
+  process.BOTPRESS_EVENTS.on('bp_core_enter_flow', ({ channel, botId, flowName }) => {
+    db.incrementMetric(botId, channel, 'enter_flow_count', flowName)
+  })
+
   bp.events.registerMiddleware({
     name: 'analytics.incoming',
     direction: 'incoming',
@@ -40,11 +44,14 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     db.incrementMetric(event.botId, event.channel, 'msg_received_count')
 
     // misunderstood messages
-    if (event?.nlu?.intent?.name === 'none' || event?.nlu?.ambiguous) {
-      db.incrementMetric(event.botId, event.channel, 'msg_nlu_none')
+    const intentName = event?.nlu?.intent?.name
+    if (intentName === 'none' || event?.nlu?.ambiguous) {
       if (!event?.state?.session?.lastMessages?.length) {
         db.incrementMetric(event.botId, event.channel, 'sessions_start_nlu_none')
       }
+    }
+    if (!!intentName?.length) {
+      db.incrementMetric(event.botId, event.channel, 'msg_nlu_intent', event.nlu?.intent?.name)
     }
 
     next()

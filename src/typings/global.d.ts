@@ -242,6 +242,7 @@ declare type BOTPRESS_CORE_EVENTS = {
   bp_core_goal_started: { botId: string; channel: string; goalName: string }
   bp_core_goal_completed: { botId: string; channel: string; goalName: string }
   bp_core_goal_failed: { botId: string; channel: string; goalName: string }
+  bp_core_enter_flow: { botId: string; channel: string; flowName: string }
 }
 
 interface IEmitCoreEvent {
