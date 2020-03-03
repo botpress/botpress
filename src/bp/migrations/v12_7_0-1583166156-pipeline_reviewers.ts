@@ -1,16 +1,14 @@
-import * as sdk from 'botpress/sdk'
-import { BotService } from 'core/services/bot-service'
 import { Migration, MigrationOpts } from 'core/services/migration'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { TYPES } from 'core/types'
 
 const migration: Migration = {
   info: {
-    description: '',
+    description: 'Update stage properties of workspaces.json',
     target: 'core',
     type: 'config'
   },
-  up: async ({ bp, configProvider, inversify }: MigrationOpts) => {
+  up: async ({ inversify }: MigrationOpts) => {
     const workspaceService = inversify.get<WorkspaceService>(TYPES.WorkspaceService)
     const workspaces = await workspaceService.getWorkspaces()
 
