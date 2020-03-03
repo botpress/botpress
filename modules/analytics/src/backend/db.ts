@@ -12,8 +12,9 @@ const Metric = <const>[
   'msg_received_count',
   'msg_sent_count',
   'msg_sent_qna_count',
-  'msg_nlu_none',
   'top_msg_nlu_none',
+  'enter_flow_count',
+  'msg_nlu_intent',
 
   // TODO: implement these below in 12.8+
   'goals_started_count',
@@ -50,20 +51,24 @@ export default class Database {
       table.string('channel').notNullable()
       table.string('metric').notNullable()
       table
+        .string('subMetric')
+        .notNullable()
+        .defaultTo('')
+      table
         .integer('value')
         .notNullable()
         .defaultTo(0)
-      table.primary(['botId', 'date', 'channel', 'metric'])
+      table.primary(['botId', 'date', 'channel', 'metric', 'subMetric'])
     })
   }
 
-  private getCacheKey(botId: string, channel: string, metric: string) {
+  private getCacheKey(botId: string, channel: string, metric: string, subMetric?: string) {
     const today = moment().format('YYYY-MM-DD')
-    return `${today}/${botId}/${channel}/${metric}`
+    return `${today}/${botId}/${channel}/${metric}/${subMetric || ''}`
   }
 
-  incrementMetric(botId: string, channel: string, metric: MetricTypes) {
-    const key = this.getCacheKey(botId, channel, metric)
+  incrementMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string) {
+    const key = this.getCacheKey(botId, channel, metric, subMetric)
     this.cache_entries[key] = (this.cache_entries[key] || 0) + 1
   }
 
@@ -86,14 +91,15 @@ export default class Database {
 
       const values = keys
         .map(key => {
-          const [date, botId, channel, metric] = key.split('/')
+          const [date, botId, channel, metric, subMetric] = key.split('/')
           const value = original[key]
           return this.knex
-            .raw(`(:date:, :botId, :channel, :metric, :value)`, {
+            .raw(`(:date:, :botId, :channel, :metric, :subMetric, :value)`, {
               date: this.knex.raw(`date('${date}')`),
               botId,
               channel,
               metric,
+              subMetric,
               value
             })
             .toQuery()
@@ -104,8 +110,8 @@ export default class Database {
         .raw(
           // careful if changing this query, make sure it works in both SQLite and Postgres
           `insert into ${TABLE_NAME}
-(date, "botId", channel, metric, value) values ${values}
-  on conflict(date, "botId", channel, metric)
+(date, "botId", channel, metric, "subMetric", value) values ${values}
+  on conflict(date, "botId", channel, metric, "subMetric")
   do update set value = ${TABLE_NAME}.value + EXCLUDED.value`
         )
         .toQuery()
@@ -156,8 +162,16 @@ export default class Database {
 
     try {
       const metrics = await queryMetrics
-      const newUsersCount = await queryNewUsers.select('createdOn as date', this.knex.raw('count(*) as value'))
-      const activeUsersCount = await queryActiveUsers.select('lastSeenOn as date', this.knex.raw('count(*) as value'))
+      const newUsersCount = await queryNewUsers.select(
+        'createdOn as date',
+        'channel',
+        this.knex.raw('count(*) as value')
+      )
+      const activeUsersCount = await queryActiveUsers.select(
+        'lastSeenOn as date',
+        'channel',
+        this.knex.raw('count(*) as value')
+      )
 
       return [
         ...metrics,

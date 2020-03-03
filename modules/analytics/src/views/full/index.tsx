@@ -1,5 +1,5 @@
-import { Button, Card, HTMLSelect } from '@blueprintjs/core'
-import { DateRange, DateRangeInput } from '@blueprintjs/datetime'
+import { Button, Card, HTMLSelect, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
+import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
 import { style as sharedStyle } from 'botpress/shared'
@@ -10,38 +10,49 @@ import moment from 'moment'
 import React, { FC, useEffect, useReducer, useState } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
+import { MetricEntry } from '../../backend/typings'
+
 import style from './style.scss'
 
 const {
   TooltipStyle: { botpressTooltip }
 } = sharedStyle
-const COLOR_SLACK = '#4A154B'
-const COLOR_MESSENGER = '#0196FF'
-const COLOR_WEB = '#FFA83A'
-const COLOR_TELEGRAM = '#2EA6DA'
-const SECONDS_PER_DAY = 86400
-const sideList = [
-  { key: 'dashboard', label: 'Dashboard' },
-  { key: 'agentUsage', label: 'Agent Usage' },
-  { key: 'engagement', label: 'Engagement & Retention' },
-  { key: 'understanding', label: 'Understanding' }
-]
 
-const fetchReducer = (state, action) => {
+const SECONDS_PER_DAY = 86400
+
+const CHANNEL_COLORS = {
+  web: '#FFA83A',
+  messenger: '#0196FF',
+  slack: '#4A154B',
+  telegram: '#2EA6DA'
+}
+
+interface State {
+  metrics: MetricEntry[]
+  dateRange?: DateRange
+  pageTitle: string
+  selectedChannel: string
+  shownSection: string
+}
+
+const fetchReducer = (state: State, action): State => {
   if (action.type === 'datesSuccess') {
-    const { startDate, endDate, metrics } = action.data
+    const { dateRange } = action.data
     return {
       ...state,
-      startDate,
-      endDate,
+      dateRange
+    }
+  } else if (action.type === 'receivedMetrics') {
+    const { metrics } = action.data
+    return {
+      ...state,
       metrics
     }
   } else if (action.type === 'channelSuccess') {
-    const { selectedChannel, metrics } = action.data
+    const { selectedChannel } = action.data
     return {
       ...state,
-      selectedChannel,
-      metrics
+      selectedChannel
     }
   } else if (action.type === 'sectionChange') {
     const { shownSection, pageTitle } = action.data
@@ -56,16 +67,14 @@ const fetchReducer = (state, action) => {
 }
 
 const Analytics: FC<any> = ({ bp }) => {
-  const [channels, setChannels] = useState(['all'])
-  const [showFilters, setShowFilters] = useState(false)
+  const [channels, setChannels] = useState(['all', 'api'])
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
-    endDate: undefined,
+    dateRange: undefined,
     metrics: [],
     pageTitle: 'Dashboard',
     selectedChannel: 'all',
-    shownSection: 'dashboard',
-    startDate: undefined
+    shownSection: 'dashboard'
   })
 
   useEffect(() => {
@@ -81,73 +90,61 @@ const Analytics: FC<any> = ({ bp }) => {
     const startDate = moment()
       .subtract(7, 'days')
       .startOf('day')
-      .unix()
+      .toDate()
     const endDate = moment()
       .startOf('day')
-      .unix()
+      .toDate()
 
-    fetchAnalytics(state.selectedChannel, startDate, endDate).then(({ data: { metrics } }) => {
-      dispatch({ type: 'datesSuccess', data: { startDate, endDate, metrics } })
-    })
+    dispatch({ type: 'datesSuccess', data: { dateRange: [startDate, endDate] } })
   }, [])
 
-  const fetchAnalytics = (channel, startDate, endDate) => {
-    return bp.axios.get(`mod/analytics/channel/${channel}`, {
+  useEffect(() => {
+    if (!state.dateRange?.[0] || !state.dateRange?.[1]) {
+      return
+    }
+
+    // tslint:disable-next-line: no-floating-promises
+    fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
+      dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
+    })
+  }, [state.dateRange, state.selectedChannel])
+
+  const fetchAnalytics = async (channel, dateRange): Promise<MetricEntry[]> => {
+    const startDate = moment(dateRange[0]).unix()
+    const endDate = moment(dateRange[1]).unix()
+
+    const { data } = await bp.axios.get(`mod/analytics/channel/${channel}`, {
       params: {
         start: startDate,
         end: endDate
       }
     })
+    return data.metrics
   }
 
   const handleChannelChange = async ({ target: { value: selectedChannel } }) => {
-    const {
-      data: { metrics }
-    } = await fetchAnalytics(selectedChannel, state.startDate, state.endDate)
-    dispatch({ type: 'channelSuccess', data: { metrics, selectedChannel } })
+    dispatch({ type: 'channelSuccess', data: { selectedChannel } })
   }
 
   const handleDateChange = async (dateRange: DateRange) => {
-    const startDate = moment(dateRange[0]).unix()
-    const endDate = moment(dateRange[1]).unix()
-
-    const {
-      data: { metrics }
-    } = await fetchAnalytics(state.selectedChannel, startDate, endDate)
-    dispatch({ type: 'datesSuccess', data: { startDate, endDate, metrics } })
+    dispatch({ type: 'datesSuccess', data: { dateRange } })
   }
 
   const isLoaded = () => {
-    return state.metrics && state.startDate && state.endDate
+    return state.metrics && state.dateRange
   }
 
   const capitalize = str => str.substring(0, 1).toUpperCase() + str.substring(1)
 
-  const renderDateInput = () => {
-    const startDate = moment.unix(state.startDate).toDate()
-    const endDate = moment.unix(state.endDate).toDate()
-    return (
-      <div className={style.filtersInputWrapper}>
-        <span className={style.inputLabel}>Date Range</span>
-        <DateRangeInput
-          closeOnSelection={true}
-          formatDate={date => moment(date).format('MM-DD-YYYY')}
-          maxDate={new Date()}
-          parseDate={str => new Date(str)}
-          onChange={handleDateChange}
-          value={[startDate, endDate]}
-        />
-      </div>
-    )
+  const getMetricCount = (metricName: string, subMetric?: string) => {
+    const metrics = state.metrics.filter(m => m.metric === metricName && (!subMetric || m.subMetric === subMetric))
+    return _.sumBy(metrics, 'value')
   }
-
-  const getMetricCount = metricName =>
-    state.metrics.filter(m => m.metric === metricName).reduce((acc, cur) => acc + cur.value, 0)
 
   const getAvgMsgPerSessions = () => {
     const augmentedMetrics = state.metrics.map(m => ({
       ...m,
-      day: moment(m.created_on).format('DD-MM')
+      day: moment(m.date).format('DD-MM')
     }))
     const metricsByDate = _.sortBy(augmentedMetrics, 'day')
     const sessionsCountPerDay = metricsByDate.filter(m => m.metric === 'sessions_count')
@@ -162,14 +159,14 @@ const Analytics: FC<any> = ({ bp }) => {
       return {
         value: Math.round((_.get(sentCount, 'value', 0) + _.get(receivedCount, 'value', 0)) / s.value),
         channel: s.channel,
-        created_on: s.created_on
+        date: s.date
       }
     })
   }
 
   const getUnderstoodPercent = () => {
     const received = getMetricCount('msg_received_count')
-    const none = getMetricCount('msg_nlu_none')
+    const none = getMetricCount('msg_nlu_intent', 'none')
     const percent = ((received - none) / received) * 100
     return getNotNaN(percent, '%')
   }
@@ -195,52 +192,57 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderDashboard = () => {
     return (
       <div className={style.metricsContainer}>
-        {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
         {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
         {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
-        {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)}
-        {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
-      </div>
-    )
-  }
-
-  const renderAgentUsage = () => {
-    return (
-      <div className={style.metricsContainer}>
         {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
-        {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
-        {renderTimeSeriesChart('Goals Started', getMetric('goals_started_count'))}
-        {renderTimeSeriesChart('Goals Completed', getMetric('goals_completed_count'))}
-        {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
-      </div>
-    )
-  }
-
-  const renderEngagement = () => {
-    return (
-      <div className={style.metricsContainer}>
         {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
-        {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
-        {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
+        {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
         {renderNumberMetric('Returning Users', getReturningUsers())}
-      </div>
-    )
-  }
-
-  const renderUnderstanding = () => {
-    const goalsOutcome = getMetricCount('goals_completed_count') / getMetricCount('goals_started_count') || 0
-
-    return (
-      <div className={style.metricsContainer}>
-        {renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
-        {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)}
+        {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
         {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
         {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
+        {/* {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)} */}
       </div>
     )
   }
 
-  const renderNumberMetric = (name, value, isPercentage = false) => {
+  // const renderAgentUsage = () => {
+  //   return (
+  //     <div className={style.metricsContainer}>
+  //       {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
+  //       {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
+  //       {/* {renderTimeSeriesChart('Goals Started', getMetric('goals_started_count'))}
+  //       {renderTimeSeriesChart('Goals Completed', getMetric('goals_completed_count'))} */}
+  //     </div>
+  //   )
+  // }
+
+  // const renderEngagement = () => {
+  //   return (
+  //     <div className={style.metricsContainer}>
+  //       {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
+  //       {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
+  //       {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
+  //       {renderNumberMetric('Returning Users', getReturningUsers())}
+  //     </div>
+  //   )
+  // }
+
+  // const renderUnderstanding = () => {
+  //   const goalsOutcome = getMetricCount('goals_completed_count') / getMetricCount('goals_started_count') || 0
+
+  //   return (
+  //     <div className={style.metricsContainer}>
+  //       {/* {renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
+  //       {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)} */}
+  //       {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
+  //       {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
+  //       {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
+  //     </div>
+  //   )
+  // }
+
+  const renderNumberMetric = (name: string, value: number | string, isPercentage?: boolean) => {
     return (
       <div className={cx(style.metricWrapper, style.number)}>
         <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
@@ -260,9 +262,9 @@ const Analytics: FC<any> = ({ bp }) => {
     )
   }
 
-  const mapDataForCharts = (data: any[]) => {
+  const mapDataForCharts = (data: MetricEntry[]) => {
     const chartsData = data.map(metric => ({
-      time: moment(metric.created_on)
+      time: moment(metric.date)
         .startOf('day')
         .unix(),
       [metric.channel]: metric.value
@@ -273,8 +275,14 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const formatTick = timestamp => moment.unix(timestamp).format('DD-MM')
 
-  const renderTimeSeriesChart = (name: string, data) => {
-    const tickCount = (state.endDate - state.startDate) / SECONDS_PER_DAY
+  const getTickCount = () => {
+    const startDate = moment(state.dateRange[0]).unix()
+    const endDate = moment(state.dateRange[1]).unix()
+    return (startDate - endDate) / SECONDS_PER_DAY
+  }
+
+  const renderTimeSeriesChart = (name: string, data: MetricEntry[] | any, desc?: string) => {
+    const tickCount = getTickCount()
 
     return (
       <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
@@ -289,10 +297,17 @@ const Analytics: FC<any> = ({ bp }) => {
                 <Tooltip labelFormatter={formatTick} />
                 <XAxis height={18} dataKey="time" tickFormatter={formatTick} tickCount={tickCount} />
                 <YAxis width={30} />
-                <Area stackId={1} type="monotone" dataKey="web" stroke={COLOR_WEB} fill={COLOR_WEB} />
-                <Area stackId={2} type="monotone" dataKey="messenger" stroke={COLOR_MESSENGER} fill={COLOR_MESSENGER} />
-                <Area stackId={3} type="monotone" dataKey="slack" stroke={COLOR_SLACK} fill={COLOR_SLACK} />
-                <Area stackId={4} type="monotone" dataKey="telegram" stroke={COLOR_TELEGRAM} fill={COLOR_TELEGRAM} />
+                {channels
+                  .filter(x => x !== 'all')
+                  .map((channel, idx) => (
+                    <Area
+                      stackId={idx}
+                      type="monotone"
+                      dataKey={channel}
+                      stroke={CHANNEL_COLORS[channel]}
+                      fill={CHANNEL_COLORS[channel]}
+                    />
+                  ))}
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -301,62 +316,45 @@ const Analytics: FC<any> = ({ bp }) => {
     )
   }
 
-  const mapSideListToListItem = ({ key, label }) => {
-    return {
-      key,
-      label,
-      value: key,
-      selected: key === state.shownSection
-    }
-  }
-
-  const onSideItemClick = item => {
-    dispatch({ type: 'sectionChange', data: { shownSection: item.key, pageTitle: item.label } })
-  }
-
   if (!isLoaded()) {
     return null
   }
 
-  const startDate = moment(moment.unix(state.startDate).toDate()).format('MMMM Do YYYY')
-  const endDate = moment(moment.unix(state.endDate).toDate()).format('MMMM Do YYYY')
+  const startDate = moment(state.dateRange?.[0]).format('MMMM Do YYYY')
+  const endDate = moment(state.dateRange?.[1]).format('MMMM Do YYYY')
 
   return (
-    <Container>
-      <SidePanel>
-        <ItemList items={sideList.map(mapSideListToListItem)} onElementClicked={onSideItemClick} />
-      </SidePanel>
+    <Container sidePanelHidden={true}>
+      <div></div>
       <div className={style.mainWrapper}>
         <div className={style.header}>
           <h1 className={style.pageTitle}>{state.pageTitle}</h1>
-          <Button onClick={() => setShowFilters(!showFilters)} icon="filter" className={style.filtersButton}>
-            Filters
-          </Button>
-        </div>
-        {showFilters && (
-          <div className={style.filtersWrapper}>
-            <label className={style.filtersInputWrapper}>
-              <span className={style.inputLabel}>Channel</span>
-              <HTMLSelect onChange={handleChannelChange} value={state.selectedChannel}>
-                {channels.map(channel => {
-                  return (
-                    <option key={channel} value={channel}>
-                      {capitalize(channel)}
-                    </option>
-                  )
-                })}
-              </HTMLSelect>
-            </label>
-            {renderDateInput()}
+          <div>
+            <BpTooltip content="Filter channels" position={Position.LEFT}>
+              <div style={{ marginRight: 5 }}>
+                <HTMLSelect onChange={handleChannelChange} value={state.selectedChannel}>
+                  {channels.map(channel => {
+                    return (
+                      <option key={channel} value={channel}>
+                        {capitalize(channel)}
+                      </option>
+                    )
+                  })}
+                </HTMLSelect>
+              </div>
+            </BpTooltip>
+
+            <Popover>
+              <Button icon="calendar">Date Range</Button>
+              <DateRangePicker onChange={handleDateChange} maxDate={new Date()} value={state.dateRange} />
+            </Popover>
           </div>
-        )}
-        <h2 className={cx(style.appliedFilters, { [style.filtersShowing]: showFilters })}>
+        </div>
+
+        <h2 className={cx(style.appliedFilters)}>
           {capitalize(state.selectedChannel)} - {startDate} to {endDate}
         </h2>
-        {state.shownSection === 'dashboard' && renderDashboard()}
-        {state.shownSection === 'agentUsage' && renderAgentUsage()}
-        {state.shownSection === 'engagement' && renderEngagement()}
-        {state.shownSection === 'understanding' && renderUnderstanding()}
+        {renderDashboard()}
       </div>
     </Container>
   )

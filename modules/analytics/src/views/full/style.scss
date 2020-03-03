@@ -37,6 +37,7 @@ $textColor: #182026;
   }
 
   &Wrapper {
+    padding: 10px;
     display: flex;
     justify-content: flex-end;
 
@@ -60,7 +61,7 @@ $textColor: #182026;
   color: $textColor;
   font-size: 20px;
   font-weight: 400;
-  margin: 50px 0 30px;
+
   text-align: center;
 
   &.filtersShowing {
@@ -124,7 +125,7 @@ $textColor: #182026;
   justify-content: center;
   margin: 0 1% 20px;
   min-width: 439px;
-  width: 48%;
+  width: 30%;
 
   &.number,
   &.empty {
