@@ -9,6 +9,7 @@ import { connect } from 'react-redux'
 import Select from 'react-select'
 import { fetchBotInformation } from '~/actions'
 import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
+import { Item } from '~/components/Shared/Interface/typings'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
 import confirmDialog from '../../../../../ui-shared/src/ConfirmDialog'
@@ -47,10 +48,8 @@ interface StateVars {
   statuses: SelectItem[]
   error: any
   isSaving: boolean
-  isMainOpen: boolean
-  isDetailsOpen: boolean
-  isPicturesOpen: boolean
-  items: SideBarItem[]
+  items: Item[]
+  activeTab?: string
 }
 
 type State = StateBot & StateVars
@@ -62,13 +61,6 @@ interface Licensing {
 interface SelectItem {
   label: string
   value: string
-}
-
-interface SideBarItem {
-  label: string
-  value: string
-  icon: string
-  selected?: boolean
 }
 
 class ConfigView extends Component<Props, State> {
@@ -87,22 +79,24 @@ class ConfigView extends Component<Props, State> {
     coverPictureUrl: ''
   }
 
-  sideBarItems: SideBarItem[] = [
+  sideBarItems: Item[] = [
     {
-      label: 'Main',
+      label: 'General',
       value: 'main',
       icon: 'cog',
       selected: true
     },
     {
-      label: 'Details',
+      label: 'Additional Details',
       value: 'details',
-      icon: 'list-detail-view'
+      icon: 'list-detail-view',
+      selected: false
     },
     {
-      label: 'Pictures',
+      label: 'Avatar & Cover picture',
       value: 'pictures',
-      icon: 'media'
+      icon: 'media',
+      selected: false
     }
   ]
 
@@ -113,10 +107,8 @@ class ConfigView extends Component<Props, State> {
     statuses: statusList,
     error: undefined,
     isSaving: false,
-    isMainOpen: true,
-    isDetailsOpen: false,
-    isPicturesOpen: false,
-    items: this.sideBarItems
+    items: this.sideBarItems,
+    activeTab: 'main'
   }
 
   async componentDidMount() {
@@ -169,7 +161,7 @@ class ConfigView extends Component<Props, State> {
   saveChanges = async () => {
     this.setState({ error: undefined, isSaving: true })
 
-    const bot: BotConfig = {
+    const bot: Partial<BotConfig> = {
       name: this.state.name,
       disabled: this.state.status.value === 'disabled',
       private: this.state.status.value === 'private',
@@ -224,6 +216,7 @@ class ConfigView extends Component<Props, State> {
   }
 
   handleInputChanged = event => {
+    // @ts-ignore
     this.setState({ [event.target.name]: event.target.value })
   }
 
@@ -284,30 +277,27 @@ class ConfigView extends Component<Props, State> {
         ...axiosConfig,
         headers: { 'Content-Type': 'multipart/form-data' }
       })
+      // @ts-ignore
       this.setState({ [targetProp]: res.data.url })
     } catch (err) {
       this.setState({ error: err })
     }
   }
 
-  handleElementClicked = (item: SideBarItem) => {
+  handleElementClicked = (item: Item) => {
     for (const node of this.state.items) {
       node.selected = false
     }
     const originallySelected = item.selected
     item.selected = originallySelected == null ? true : !originallySelected
-    this.setState({
-      isMainOpen: item.value === 'main',
-      isDetailsOpen: item.value === 'details',
-      isPicturesOpen: item.value === 'pictures'
-    })
+    this.setState({ activeTab: item.value })
   }
 
   render() {
     return (
       <Container>
         <SidePanel>
-          <SidePanelSection label={'Configs'}>
+          <SidePanelSection label="Bot Configuration">
             <ItemList items={this.state.items} onElementClicked={this.handleElementClicked} />
           </SidePanelSection>
         </SidePanel>
@@ -318,9 +308,9 @@ class ConfigView extends Component<Props, State> {
             </Callout>
           )}
           <form>
-            {this.state.isMainOpen && (
+            {this.state.activeTab === 'main' && (
               <div>
-                <h1>Config</h1>
+                <h1>General</h1>
                 <FormGroup label="Name" labelFor="name">
                   <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
                 </FormGroup>
@@ -346,12 +336,14 @@ class ConfigView extends Component<Props, State> {
                 {this.renderLanguages()}
               </div>
             )}
-            {this.state.isDetailsOpen && (
+            {this.state.activeTab === 'details' && (
               <div>
                 <h1>Details</h1>
                 <FormGroup label="Website" labelFor="website">
                   <InputGroup
                     id="website"
+                    leftIcon="globe"
+                    placeholder="https://botpress.com"
                     name="website"
                     value={this.state.website}
                     onChange={this.handleInputChanged}
@@ -360,7 +352,9 @@ class ConfigView extends Component<Props, State> {
                 <FormGroup label="Phone Number" labelFor="phone-number">
                   <InputGroup
                     id="phone-number"
+                    leftIcon="phone"
                     name="phoneNumber"
+                    placeholder="(555) 555-5555"
                     value={this.state.phoneNumber}
                     onChange={this.handleInputChanged}
                   />
@@ -368,6 +362,8 @@ class ConfigView extends Component<Props, State> {
                 <FormGroup label="Contact E-mail" labelFor="email-address">
                   <InputGroup
                     id="email-address"
+                    leftIcon="envelope"
+                    placeholder="email@botpress.com"
                     name="emailAddress"
                     value={this.state.emailAddress}
                     onChange={this.handleInputChanged}
@@ -377,6 +373,7 @@ class ConfigView extends Component<Props, State> {
                   <InputGroup
                     id="terms-conditions"
                     name="termsConditions"
+                    placeholder="https://botpress.com/terms"
                     value={this.state.termsConditions}
                     onChange={this.handleInputChanged}
                   />
@@ -384,6 +381,7 @@ class ConfigView extends Component<Props, State> {
                 <FormGroup label="Link to Privacy Policy" labelFor="privacy-policy">
                   <InputGroup
                     id="privacy-policy"
+                    placeholder="https://botpress.com/privacy-policy"
                     name="privacyPolicy"
                     value={this.state.privacyPolicy}
                     onChange={this.handleInputChanged}
@@ -391,7 +389,7 @@ class ConfigView extends Component<Props, State> {
                 </FormGroup>
               </div>
             )}
-            {this.state.isPicturesOpen && (
+            {this.state.activeTab === 'pictures' && (
               <div>
                 <h1>Pictures</h1>
                 <FormGroup label="Bot Avatar" labelFor="avatar-url">
