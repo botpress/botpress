@@ -473,14 +473,6 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       return
     }
     normalizedProgress = scaledProgress
-    if (normalizedProgress === 1) {
-      // Note that we don't use debouncedProgress here as we want to notify for completion now
-      tools.reportTrainingProgress(input.botId, 'Training completed', {
-        ...input.trainingSession,
-        progress: normalizedProgress,
-        status: 'done'
-      })
-    }
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
