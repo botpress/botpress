@@ -6,6 +6,9 @@ import path from 'path'
 let requireCache = {}
 const getRequireCacheKey = (scriptPath, module) => `req-${scriptPath}_${module}`
 
+// Clears index.js from cache & all its dependencies recursively, stopping after this number of iterations
+const MAX_CHILD_DEPS_LEVEL = 3
+
 export const explodePath = (location: string): string[] => {
   const parts: string[] = location.split(path.sep)
   const paths: string[] = []
@@ -97,4 +100,21 @@ export const buildLookupPaths = (module: string, locations: string[]) => {
       return paths
     })
   )
+}
+
+export const clearModuleScriptCache = (moduleLocation: string, depth: number = 0) => {
+  const cacheKey = require.resolve(moduleLocation)
+  const file = require.cache[cacheKey]
+
+  if (file) {
+    for (const { filename } of file.children) {
+      // Circular reference protection, we only unload the user's module files
+      if (depth < MAX_CHILD_DEPS_LEVEL && !filename.includes('node_modules')) {
+        clearModuleScriptCache(filename, depth++)
+      }
+    }
+
+    DEBUG('cache')(`Clear cached file ${cacheKey}`)
+    delete require.cache[cacheKey]
+  }
 }

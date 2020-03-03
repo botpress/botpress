@@ -5,15 +5,12 @@
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
-    "build": "./node_modules/.bin/module-builder build",
-    "watch": "./node_modules/.bin/module-builder watch"
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
-  "devDependencies": {
-    "@types/node": "^10.11.3",
-    "module-builder": "../../build/module-builder"
-  },
   "dependencies": {
     "react-select": "^2.4.2"
   }

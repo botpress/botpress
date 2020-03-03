@@ -15,12 +15,14 @@ export interface Config {
    * This this in the GLOBAL config (same for all bots)
    * Your app's "App Secret"
    * Find this secret in your developers.facebook.com -> your app -> Settings -> Basic -> App Secret -> Show
+   * @default app_secret
    */
   appSecret: string
   /**
    * Set this in the GLOBAL config (same for all the bots)
    * The verify token, should be a random string unique to your server. This is a random (hard to guess) string of your choosing.
    * Docs: https://developers.facebook.com/docs/messenger-platform/getting-started/webhook-setup/#verify_webhook
+   * @default verify_token
    */
   verifyToken: string
   /**

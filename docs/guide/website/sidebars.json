@@ -34,6 +34,7 @@
       "channels/teams",
       "channels/converse",
       "channels/slack",
+      "channels/smooch",
       "channels/faq"
     ],
     "Tutorials": [

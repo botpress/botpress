@@ -13,6 +13,7 @@ import { NodeVM } from 'vm2'
 import { GhostService } from '..'
 import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
+import { filterDisabled } from '../action/utils'
 import { VmRunner } from '../action/vm'
 import { Incident } from '../alerting-service'
 
@@ -104,6 +105,12 @@ export namespace Hooks {
     }
   }
 
+  export class OnBotError extends BaseHook {
+    constructor(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[]) {
+      super('on_bot_error', { bp, botId, events })
+    }
+  }
+
   export class OnStageChangeRequest extends BaseHook {
     constructor(
       bp: typeof sdk,
@@ -130,7 +137,7 @@ export namespace Hooks {
 }
 
 class HookScript {
-  constructor(public path: string, public filename: string, public code: string) {}
+  constructor(public path: string, public filename: string, public code: string, public botId?: string) {}
 }
 
 @injectable()
@@ -168,7 +175,8 @@ export class HookService {
   }
 
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
-    const scripts = await this.extractScripts(hook)
+    const botId = hook.args?.event?.botId || hook.args?.botId
+    const scripts = await this.extractScripts(hook, botId)
     await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script, hook))
   }
 
@@ -194,27 +202,40 @@ export class HookService {
     }
   }
 
-  private async extractScripts(hook: Hooks.BaseHook): Promise<HookScript[]> {
-    if (this._scriptsCache.has(hook.folder)) {
-      return this._scriptsCache.get(hook.folder)!
+  private async extractScripts(hook: Hooks.BaseHook, botId?: string): Promise<HookScript[]> {
+    const scriptKey = botId ? `${hook.folder}_${botId}` : hook.folder
+
+    if (this._scriptsCache.has(scriptKey)) {
+      return this._scriptsCache.get(scriptKey)!
     }
 
     try {
-      const filesPaths = await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js')
-      const enabledFiles = filesPaths.filter(x => !path.basename(x).startsWith('.'))
+      const globalHooks = filterDisabled(await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js'))
+      const scripts = await Promise.map(globalHooks, async path => this._getHookScript(hook.folder, path))
 
-      const scripts = await Promise.map(enabledFiles, async path => {
-        const script = await this.ghost.global().readFileAsString('hooks/' + hook.folder, path)
-        const filename = path.replace(/^.*[\\\/]/, '')
-        return new HookScript(path, filename, script)
-      })
+      if (botId) {
+        const botHooks = filterDisabled(await this.ghost.forBot(botId).directoryListing('hooks/' + hook.folder, '*.js'))
+        scripts.push(...(await Promise.map(botHooks, async path => this._getHookScript(hook.folder, path, botId))))
+      }
 
-      this._scriptsCache.set(hook.folder, scripts)
+      this._scriptsCache.set(scriptKey, scripts)
       return scripts
     } catch (err) {
-      this._scriptsCache.delete(hook.folder)
+      this._scriptsCache.delete(scriptKey)
       return []
     }
+  }
+
+  private async _getHookScript(hookFolder: string, path: string, botId?: string) {
+    let script: string
+    if (!botId) {
+      script = await this.ghost.global().readFileAsString('hooks/' + hookFolder, path)
+    } else {
+      script = await this.ghost.forBot(botId).readFileAsString('hooks/' + hookFolder, path)
+    }
+
+    const filename = path.replace(/^.*[\\\/]/, '')
+    return new HookScript(path, filename, script, botId)
   }
 
   private _prepareRequire(fullPath: string, hookType: string) {
@@ -234,7 +255,9 @@ export class HookService {
   }
 
   private async runScript(hookScript: HookScript, hook: Hooks.BaseHook) {
-    const hookPath = `/data/global/hooks/${hook.folder}/${hookScript.path}.js`
+    const scope = hookScript.botId ? `bots/${hookScript.botId}` : 'global'
+    const hookPath = `/data/${scope}/hooks/${hook.folder}/${hookScript.path}.js`
+
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, hookPath))
 
     const _require = this._prepareRequire(dirPath, hook.folder)

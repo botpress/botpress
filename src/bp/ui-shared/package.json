@@ -1,0 +1,39 @@
+{
+  "name": "ui-shared",
+  "version": "0.0.1",
+  "private": true,
+  "publisher": "botpress",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "node ./webpack.config.js --watch",
+    "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap"
+  },
+  "devDependencies": {
+    "@blueprintjs/core": "^3.23.1",
+    "@types/react": "^16.8.19",
+    "@types/react-dom": "^16.8.4",
+    "cross-env": "^5.2.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "css-loader": "^0.28.11",
+    "css-modules-typescript-loader": "^2.0.3",
+    "hard-source-webpack-plugin": "^0.13.1",
+    "prop-types": "^15.6.0",
+    "ts-loader": "^6.0.2",
+    "postcss-loader": "^2.0.8",
+    "sass-loader": "^6.0.6",
+    "node-sass": "^4.8.3",
+    "script-loader": "^0.7.0",
+    "style-loader": "^0.13.1",
+    "terser-webpack-plugin": "^2.2.2",
+    "webpack": "4.12",
+    "webpack-bundle-analyzer": "^3.5.2",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "files": [
+    "dist"
+  ]
+}

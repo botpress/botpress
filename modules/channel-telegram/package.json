@@ -5,16 +5,15 @@
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
-    "build": "./node_modules/.bin/module-builder build",
-    "watch": "./node_modules/.bin/module-builder watch",
-    "package": "./node_modules/.bin/module-builder package"
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/bluebird-global": "^3.5.7",
-    "@types/lodash": "^4.14.116",
-    "module-builder": "../../build/module-builder"
+    "@types/lodash": "^4.14.116"
   },
   "dependencies": {
     "axios": "^0.19.0",

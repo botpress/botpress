@@ -2,7 +2,7 @@ import ReactGA from 'react-ga'
 import snarkdown from 'snarkdown'
 
 export const getOverridedComponent = (overrides, componentName) => {
-  if (overrides && overrides[componentName]) {
+  if (overrides?.[componentName]) {
     const { module, component } = overrides[componentName]
     if (module && component) {
       return window.botpress[module][component]
