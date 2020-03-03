@@ -44,22 +44,22 @@ const EditStageModal: FC<Props> = props => {
   const [action, setAction] = useState('promote_copy')
   const [reviewers, setReviewers] = useState<any>([])
   const [minimumApprovals, setMinimumApprovals] = useState(0)
-  const [reviewSequence, setReviewSequence] = useState('serial')
   const [pipeline, setPipeline] = useState<any[]>([])
   const [isLastPipeline, setIsLastPipeline] = useState(false)
   const [formatedUsers, setFormatedUsers] = useState<any>([])
 
   useEffect(() => {
     if (props.stage) {
-      const { id, label, action, reviewers, minimumApprovals, reviewSequence } = props.stage
-      const formatedReviewers = formatedUsers.filter(user => reviewers && reviewers.includes(user.value))
+      const { id, label, action, reviewers, minimumApprovals } = props.stage
+      const formatedReviewers = formatedUsers.filter(
+        user => reviewers && reviewers.find(x => user.user.email == x.email && user.user.strategy == x.strategy)
+      )
 
       setIsLastPipeline(pipeline[pipeline.length - 1].id === id)
       setLabel(label || '')
       setAction(isLastPipeline ? 'noop' : action || 'promote_copy')
       setReviewers(formatedReviewers)
       setMinimumApprovals(minimumApprovals || 0)
-      setReviewSequence(reviewSequence || 'serial')
     }
   }, [props.stage])
 
@@ -96,9 +96,8 @@ const EditStageModal: FC<Props> = props => {
               ...p,
               label,
               action,
-              reviewers: reviewers.map(r => r.value),
-              minimumApprovals,
-              reviewSequence
+              reviewers: reviewers.map(r => r.user),
+              minimumApprovals
             }
       )
     }
@@ -126,12 +125,14 @@ const EditStageModal: FC<Props> = props => {
   const formatUser = user => {
     const {
       email,
+      strategy,
       attributes: { firstname, lastname }
     } = user
 
     return {
       label: firstname || lastname ? `${firstname} ${lastname} · ${email}` : email,
-      value: email
+      value: email + strategy,
+      user: { email, strategy }
     }
   }
 
@@ -152,7 +153,7 @@ const EditStageModal: FC<Props> = props => {
   const { toggle } = props
 
   return (
-    <Dialog isOpen={props.isOpen} icon="undo" onClose={closeModal} transitionDuration={0} title={label}>
+    <Dialog isOpen={props.isOpen} onClose={closeModal} transitionDuration={0} title={`Configure Stage: ${label}`}>
       <div className={Classes.DIALOG_BODY}>
         <FormGroup label="Label">
           <InputGroup
@@ -190,17 +191,8 @@ const EditStageModal: FC<Props> = props => {
             max={reviewers.length}
             value={minimumApprovals}
             onValueChange={onMinimumApprovalsChange}
+            disabled={reviewers.length === 0}
           />
-        </FormGroup>
-        <FormGroup label="Approval order">
-          <RadioGroup
-            onChange={({ currentTarget: { value } }) => setReviewSequence(value)}
-            selectedValue={reviewSequence}
-            inline
-          >
-            <Radio label="Serial" value="serial" />
-            <Radio label="Parallel" value="parallel" />
-          </RadioGroup>
         </FormGroup>
       </div>
 

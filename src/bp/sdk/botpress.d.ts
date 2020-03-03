@@ -903,7 +903,13 @@ declare module 'botpress/sdk' {
       status: string
       requested_by: string
       id: string
+      approvals?: StageRequestApprovers[]
     }
+  }
+
+  export interface StageRequestApprovers {
+    email: string
+    strategy: string
   }
 
   export interface BotDetails {

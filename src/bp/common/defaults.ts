@@ -59,24 +59,36 @@ export const defaultPipelines: { [id: string]: Pipeline } = {
     {
       id: 'prod',
       label: 'Production',
-      action: 'promote_copy'
+      action: 'promote_copy',
+      reviewers: [],
+      minimumApprovals: 0,
+      reviewSequence: 'parallel'
     }
   ],
   botpress: [
     {
       id: 'dev',
       label: 'Dev',
-      action: 'promote_copy'
+      action: 'promote_copy',
+      reviewers: [],
+      minimumApprovals: 0,
+      reviewSequence: 'parallel'
     },
     {
       id: 'review',
       label: 'Review',
-      action: 'promote_copy'
+      action: 'promote_copy',
+      reviewers: [],
+      minimumApprovals: 0,
+      reviewSequence: 'parallel'
     },
     {
       id: 'prod',
       label: 'Production',
-      action: 'promote_copy'
+      action: 'promote_copy',
+      reviewers: [],
+      minimumApprovals: 0,
+      reviewSequence: 'parallel'
     }
   ]
 }
