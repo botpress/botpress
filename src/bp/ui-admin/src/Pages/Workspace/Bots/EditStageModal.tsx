@@ -9,7 +9,6 @@ import {
   Radio,
   RadioGroup
 } from '@blueprintjs/core'
-import e from 'express'
 import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
@@ -154,7 +153,7 @@ const EditStageModal: FC<Props> = props => {
   const { toggle } = props
 
   return (
-    <Dialog isOpen={props.isOpen} icon="undo" onClose={closeModal} transitionDuration={0} title={label}>
+    <Dialog isOpen={props.isOpen} onClose={closeModal} transitionDuration={0} title={`Configure Stage: ${label}`}>
       <div className={Classes.DIALOG_BODY}>
         <FormGroup label="Label">
           <InputGroup
