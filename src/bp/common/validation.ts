@@ -102,7 +102,7 @@ export const PipelineSchema = Joi.array().items({
   id: Joi.string().required(),
   label: Joi.string().required(),
   action: Joi.string().required(),
-  reviewers: Joi.array().items(Joi.string()),
+  reviewers: Joi.array().items({ email: Joi.string(), strategy: Joi.string() }),
   minimumApprovals: Joi.number(),
-  reviewSequence: Joi.string()
+  reviewSequence: Joi.string().valid(['serial', 'parallel'])
 })

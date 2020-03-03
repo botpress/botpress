@@ -22,7 +22,8 @@ import AccessControl, { isChatUser } from '../../../App/AccessControl'
 interface Props {
   bot: BotConfig
   isApprover: boolean
-  email: string
+  userEmail: string
+  userStrategy: string
   hasError: boolean
   deleteBot?: () => void
   exportBot?: () => void
@@ -38,7 +39,8 @@ interface Props {
 const BotItemPipeline: FC<Props> = ({
   bot,
   isApprover,
-  email,
+  userEmail,
+  userStrategy,
   hasError,
   requestStageChange,
   approveStageChange,
@@ -55,7 +57,7 @@ const BotItemPipeline: FC<Props> = ({
   const requiresApproval =
     isApprover &&
     bot.pipeline_status.stage_request &&
-    (!bot.pipeline_status.stage_request.approvals || !bot.pipeline_status.stage_request.approvals.includes(email))
+    !(bot.pipeline_status.stage_request.approvals || []).find(x => x.email === userEmail && x.strategy === userStrategy)
 
   return (
     <div className="pipeline_bot" key={bot.id}>
@@ -122,7 +124,7 @@ const BotItemPipeline: FC<Props> = ({
         )}
         {bot.pipeline_status.stage_request && isApprover && !requiresApproval && (
           <Tag intent={Intent.SUCCESS} className="botbadge reviewNeeded">
-            You approved this stage change
+            Approved
           </Tag>
         )}
         {!bot.defaultLanguage && (

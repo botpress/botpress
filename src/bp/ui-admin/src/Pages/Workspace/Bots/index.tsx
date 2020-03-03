@@ -159,7 +159,7 @@ class Bots extends Component<Props> {
   }
 
   async approveStageChange(botId) {
-    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stageapprove`)
+    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/approve-stage`)
     this.props.fetchBots()
     toastSuccess('Approved bot promotion to next stage')
   }
@@ -239,7 +239,7 @@ class Bots extends Component<Props> {
   renderPipelineView(bots: BotConfig[]) {
     const {
       workspace: { pipeline },
-      profile: { email }
+      profile: { email, strategy }
     } = this.props
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
@@ -266,8 +266,9 @@ class Bots extends Component<Props> {
                   <Fragment key={bot.id}>
                     <BotItemPipeline
                       bot={bot}
-                      isApprover={stage.reviewers.includes(email)}
-                      email={email}
+                      isApprover={stage.reviewers.find(r => r.email === email && r.strategy === strategy) !== undefined}
+                      userEmail={email}
+                      userStrategy={strategy}
                       hasError={this.findBotError(bot.id)}
                       allowStageChange={allowStageChange && !bot.disabled}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}

@@ -171,12 +171,12 @@ export class BotsRouter extends CustomRouter {
     )
 
     router.post(
-      '/:botId/stageapprove',
+      '/:botId/approve-stage',
       this.assertBotpressPro,
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
-          await this.botService.approveStageChange(req.params.botId, req.tokenUser!.email)
+          await this.botService.approveStageChange(req.params.botId, req.tokenUser!.email, req.tokenUser!.strategy)
 
           return res.sendStatus(200)
         } catch (err) {
