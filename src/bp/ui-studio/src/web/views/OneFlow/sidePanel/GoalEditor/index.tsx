@@ -17,6 +17,7 @@ interface OwnProps {
   readOnly: boolean
   canRename: boolean
   selectedTopic?: string
+  initialTab?: string
   toggle: () => void
 }
 
@@ -34,16 +35,14 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps & OwnProps
 
 const EditGoalModal: FC<Props> = props => {
-  const [tab, setTab] = useState('triggers')
-
-  const [dir, setDir] = useState<string>('')
+  const [tab, setTab] = useState(props.initialTab || 'triggers')
   const [name, setName] = useState<string>('')
   const [label, setLabel] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [triggers, setTriggers] = useState<FlowTrigger[]>([])
 
   useEffect(() => {
-    setTab('triggers')
+    setTab(props.initialTab || 'triggers')
 
     const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
     if (originalFlow) {
@@ -54,7 +53,10 @@ const EditGoalModal: FC<Props> = props => {
       setDescription(description || '')
       setTriggers(triggers)
     } else {
-      setDir(props.selectedTopic + '/')
+      setName(props.selectedTopic ? props.selectedTopic + '/' : '')
+      setLabel('')
+      setDescription('')
+      setTriggers([])
     }
   }, [props.isOpen])
 

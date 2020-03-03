@@ -42,13 +42,7 @@ const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, cla
     <div className={cx(style.triggerConditionItemWrapper, className)}>
       <p>{description || definition.label}</p>
       <div>
-        <Button
-          icon="edit"
-          color={Colors.GRAY3}
-          onClick={() => onEdit(condition)}
-          minimal={true}
-          disabled={!definition.params}
-        />
+        {definition.params && <Button icon="edit" color={Colors.GRAY3} onClick={() => onEdit(condition)} minimal />}
         <Button icon="trash" intent="danger" onClick={() => onDelete(condition)} minimal />
       </div>
     </div>

@@ -30,7 +30,6 @@ const RedirectInfo: FC<Props> = ({ id, redirectFlow, redirectNode, flows, onEdit
   return (
     <React.Fragment>
       <div className={style.itemRedirectTitle}>
-        Redirect to:
         {incorrectRedirection && (
           <a onClick={() => onEditItem(id)}>
             <Tooltip content="Incorrect redirection">

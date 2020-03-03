@@ -2,8 +2,8 @@ import { Button, ControlGroup, Intent } from '@blueprintjs/core'
 import { confirmDialog } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
-import classnames from 'classnames'
-import React, { Component } from 'react'
+import cx from 'classnames'
+import React, { Component, Fragment } from 'react'
 import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
 import Select from 'react-select'
 
@@ -194,7 +194,7 @@ export default class QnaAdmin extends Component<Props> {
   )
 
   renderSearch = () => (
-    <React.Fragment>
+    <Fragment>
       <FormControl
         id="input-search"
         value={this.state.filterQuestion}
@@ -222,7 +222,7 @@ export default class QnaAdmin extends Component<Props> {
           onClick={() => this.setState({ isEditing: false, currentItemId: null, showQnAModal: true })}
         />
       </AccessControl>
-    </React.Fragment>
+    </Fragment>
   )
 
   getQueryParams = (overridePage?: number) => {
@@ -278,18 +278,36 @@ export default class QnaAdmin extends Component<Props> {
       return <h3>No questions have been added yet.</h3>
     }
 
-    return this.state.items.map(({ id, data }) => (
-      <Item
-        key={id}
-        id={id}
-        item={data}
-        flows={this.state.flows}
-        contentLang={this.props.contentLang}
-        onEditItem={this.editItem(id)}
-        onToggleItem={this.toggleEnableItem.bind(this)}
-        onDeleteItem={this.deleteItem(id)}
-      />
-    ))
+    this.state.items = this.state.items
+      .concat(this.state.items)
+      .concat(this.state.items)
+      .concat(this.state.items)
+      .concat(this.state.items)
+
+    return (
+      <div className={style.questionTable}>
+        <div className={cx(style.questionTableRow, style.header)}>
+          <div className={style.questionTableCell}>Question</div>
+          <div className={style.questionTableCell}>Answer</div>
+          <div className={style.questionTableCell}>Category</div>
+          <div className={cx(style.questionTableCell, style.redirect)}>Redirect To</div>
+          <div className={cx(style.questionTableCell, style.actions)}></div>
+        </div>
+        {this.state.items.map(({ id, data }, index) => (
+          <Item
+            key={id}
+            id={id}
+            item={data}
+            last={!this.state.items[index + 1]}
+            flows={this.state.flows}
+            contentLang={this.props.contentLang}
+            onEditItem={this.editItem(id)}
+            onToggleItem={this.toggleEnableItem.bind(this)}
+            onDeleteItem={this.deleteItem(id)}
+          />
+        ))}
+      </div>
+    )
   }
 
   updateQuestion = ({ items }) => this.setState({ items })
@@ -298,7 +316,7 @@ export default class QnaAdmin extends Component<Props> {
     return (
       <Container sidePanelHidden>
         <div />
-        <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
+        <Panel className={cx(style.qnaContainer, 'qnaContainer')}>
           <Panel.Body>
             {this.renderQnAHeader()}
             {this.renderPagination()}
