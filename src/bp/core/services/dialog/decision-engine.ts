@@ -41,6 +41,14 @@ export class DecisionEngine {
       return
     }
 
+    let eventProcessedCalled = false
+    const processEvent = async (event: IO.IncomingEvent) => {
+      if (!eventProcessedCalled) {
+        eventProcessedCalled = true
+        this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
+      }
+    }
+
     for (const { action, data } of event.ndu.actions) {
       if (action === 'send' && data) {
         await this._sendContent(data as NDU.SendContent, event)
@@ -67,16 +75,17 @@ export class DecisionEngine {
 
       // In case there are no unknown errors, remove skills/ flow from the stacktrace
       processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
-      this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
-
+      await processEvent(processedEvent)
       await this.stateManager.persist(processedEvent, false)
       return
     }
 
     if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
-      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
+      await processEvent(event)
       await this.stateManager.persist(event, false)
     }
+
+    await processEvent(event)
   }
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
