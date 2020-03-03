@@ -4910,10 +4910,9 @@ har-validator@~5.1.0:
     ajv "^6.5.5"
     har-schema "^2.0.0"
 
-hard-source-webpack-plugin@^0.13.1:
+"hard-source-webpack-plugin@git+https://github.com/botpress/hard-source-webpack-plugin.git":
   version "0.13.1"
-  resolved "https://registry.yarnpkg.com/hard-source-webpack-plugin/-/hard-source-webpack-plugin-0.13.1.tgz#a99071e25b232f1438a5bc3c99f10a3869e4428e"
-  integrity sha512-r9zf5Wq7IqJHdVAQsZ4OP+dcUSvoHqDMxJlIzaE2J0TZWn3UjMMrHqwDHR8Jr/pzPfG7XxSe36E7Y8QGNdtuAw==
+  resolved "git+https://github.com/botpress/hard-source-webpack-plugin.git#320854a142661294dd4ecf8ab6a8a1eee9b9fddf"
   dependencies:
     chalk "^2.4.1"
     find-cache-dir "^2.0.0"
