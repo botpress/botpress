@@ -254,7 +254,7 @@ class Bots extends Component<Props> {
                 {pipeline.length > 1 && (
                   <div className="pipeline_title">
                     <h3>{stage.label}</h3>
-                    <AccessControl resource="admin.bots.*" operation="write">
+                    <AccessControl resource="admin.bots.*" operation="write" superAdmin>
                       <Button className="pipeline_edit-button" onClick={() => this.toggleEditStage(stage)}>
                         <Icon icon="edit" />
                       </Button>
