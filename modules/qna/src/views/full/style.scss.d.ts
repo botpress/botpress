@@ -10,11 +10,11 @@ interface CssExports {
   'elementTitle': string;
   'firstQuestionTitle': string;
   'header': string;
+  'headerBtns': string;
   'hint': string;
   'itemAction': string;
   'itemAnswer': string;
   'itemAnswerContainer': string;
-  'itemAnswerText': string;
   'itemContainer': string;
   'itemFlow': string;
   'itemFlowName': string;
@@ -24,6 +24,7 @@ interface CssExports {
   'itemRedirect': string;
   'itemRedirectTitle': string;
   'last': string;
+  'lite': string;
   'liteHeader': string;
   'liteItemContainer': string;
   'liteSearch': string;
@@ -43,8 +44,8 @@ interface CssExports {
   'qnaRedirect': string;
   'qnaRedirectNode': string;
   'qnaRedirectToFlow': string;
+  'question': string;
   'questionCategory': string;
-  'questionCategoryTitle': string;
   'questionTable': string;
   'questionTableCell': string;
   'questionTableRow': string;

@@ -17,7 +17,7 @@ interface Props {
   last?: boolean
   flows?: Flow[]
   // Hides category and redirect info
-  isVersion2?: boolean
+  isLite?: boolean
   onEditItem: (id: string) => void
   onDeleteItem: (id: string) => void
   onToggleItem: (item: any, id: string, checked: boolean) => void
@@ -28,17 +28,17 @@ const Item: FC<Props> = props => {
     return null
   }
 
-  const { id, item, contentLang, last } = props
+  const { id, item, contentLang, last, isLite } = props
 
   const questions = item.questions[contentLang] || []
   const answers = item.answers[contentLang] || []
   const missingTranslations = !questions.length || (item.action !== ACTIONS.REDIRECT && !answers.length)
-  console.log(last)
+
   return (
     <div className={cx(style.questionTableRow, { [style.last]: last })} key={id}>
-      <div className={style.questionTableCell}>
+      <div className={cx(style.questionTableCell, style.question)}>
         {missingTranslations && (
-          <a className={style.firstQuestionTitle} onClick={() => props.onEditItem(id)}>
+          <Fragment>
             <Tooltip content="Missing translation">
               <Icon icon="warning-sign" intent={Intent.DANGER} />
             </Tooltip>
@@ -47,36 +47,29 @@ const Item: FC<Props> = props => {
               .split('_')
               .slice(1)
               .join(' ')}{' '}
-            &nbsp;
-          </a>
+          </Fragment>
         )}
         {!missingTranslations && (
           <Fragment>
-            <a className={style.firstQuestionTitle} onClick={() => props.onEditItem(id)}>
-              {questions[0]}
-            </a>
-            {<Variations elements={questions} />}
+            {questions[0]}
+            {<Variations isLite={isLite} elements={questions} />}
           </Fragment>
         )}
       </div>
 
       <div className={style.questionTableCell}>
         {answers[0] && (
-          <div className={style.itemAnswerText}>
+          <Fragment>
             {answers[0]}
-            {<Variations elements={answers} />}
-          </div>
+            {<Variations isLite={isLite} elements={answers} />}
+          </Fragment>
         )}
       </div>
 
-      <div className={style.questionTableCell}>
-        {item.category && !props.isVersion2 ? (
-          <span className={style.questionCategoryTitle}>{item.category}</span>
-        ) : null}
-      </div>
+      {!isLite && <div className={style.questionTableCell}>{item.category && item.category}</div>}
 
-      <div className={cx(style.questionTableCell, style.redirect)}>
-        {!props.isVersion2 && (
+      {!isLite && (
+        <div className={cx(style.questionTableCell, style.redirect)}>
           <RedirectInfo
             id={props.id}
             redirectFlow={item.redirectFlow}
@@ -84,8 +77,8 @@ const Item: FC<Props> = props => {
             flows={props.flows}
             onEditItem={props.onEditItem}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       <div className={cx(style.questionTableCell, style.actions)}>
         <div className={style.itemAction}>

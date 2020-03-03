@@ -4,7 +4,7 @@ import { Container } from 'botpress/ui'
 import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import React, { Component, Fragment } from 'react'
-import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
+import { FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
 import Select from 'react-select'
 
 import './button.css'
@@ -16,7 +16,7 @@ import Item from './Item'
 
 export { LiteEditor } from './LiteEditor'
 
-const ITEMS_PER_PAGE = 5
+const ITEMS_PER_PAGE = 20
 const QNA_PARAM_NAME = 'id'
 
 interface Props {
@@ -168,10 +168,10 @@ export default class QnaAdmin extends Component<Props> {
   }
 
   renderQnAHeader = () => (
-    <FormGroup className={style.qnaHeader}>
-      <ButtonToolbar>
+    <Fragment>
+      <FormGroup className={style.qnaHeader}>
         <div className={style.searchBar}>{this.renderSearch()}</div>
-        <ControlGroup style={{ float: 'right' }}>
+        <div className={style.headerBtns}>
           <AccessControl resource="module.qna" operation="write">
             <Button
               text="Import JSON"
@@ -181,16 +181,25 @@ export default class QnaAdmin extends Component<Props> {
             />
           </AccessControl>
           <ExportButton />
-        </ControlGroup>
-      </ButtonToolbar>
 
+          <AccessControl resource="module.qna" operation="write">
+            <Button
+              id="btn-create-qna"
+              text="Add new"
+              icon="add"
+              intent={Intent.PRIMARY}
+              onClick={() => this.setState({ isEditing: false, currentItemId: null, showQnAModal: true })}
+            />
+          </AccessControl>
+        </div>
+      </FormGroup>
       <ImportModal
         axios={this.props.bp.axios}
         onImportCompleted={this.fetchData}
         isOpen={this.state.importDialogOpen}
         toggle={() => this.setState({ importDialogOpen: !this.state.importDialogOpen })}
       />
-    </FormGroup>
+    </Fragment>
   )
 
   renderSearch = () => (
@@ -212,16 +221,6 @@ export default class QnaAdmin extends Component<Props> {
         onChange={this.onCategoriesFilter}
         placeholder="Search for a category"
       />
-
-      <AccessControl resource="module.qna" operation="write">
-        <Button
-          id="btn-create-qna"
-          text="Add new"
-          icon="add"
-          intent={Intent.PRIMARY}
-          onClick={() => this.setState({ isEditing: false, currentItemId: null, showQnAModal: true })}
-        />
-      </AccessControl>
     </Fragment>
   )
 
@@ -278,16 +277,10 @@ export default class QnaAdmin extends Component<Props> {
       return <h3>No questions have been added yet.</h3>
     }
 
-    this.state.items = this.state.items
-      .concat(this.state.items)
-      .concat(this.state.items)
-      .concat(this.state.items)
-      .concat(this.state.items)
-
     return (
       <div className={style.questionTable}>
         <div className={cx(style.questionTableRow, style.header)}>
-          <div className={style.questionTableCell}>Question</div>
+          <div className={cx(style.questionTableCell, style.question)}>Question</div>
           <div className={style.questionTableCell}>Answer</div>
           <div className={style.questionTableCell}>Category</div>
           <div className={cx(style.questionTableCell, style.redirect)}>Redirect To</div>
