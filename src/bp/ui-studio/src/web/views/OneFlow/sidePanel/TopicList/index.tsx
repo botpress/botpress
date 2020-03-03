@@ -143,7 +143,9 @@ const TopicList = props => {
     }
   }
 
-  const nodeRenderer = el => ({ label: el.label || el.name })
+  const nodeRenderer = ({ label, name }: NodeData) => {
+    return { label: label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '') }
+  }
 
   const onClick = (element: NodeData | string, type) => {
     if (type === 'document') {
