@@ -8,6 +8,8 @@ declare namespace NodeJS {
   export interface Global {
     printErrorDefault(err: Error): void
     DEBUG: IDebug
+    BOTPRESS_CORE_EVENT: IEmitCoreEvent
+    BOTPRESS_CORE_EVENT_TYPES: BOTPRESS_CORE_EVENTS
     require: ExtraRequire
     rewire: (name: string) => string
     printBotLog(botId: string, args: any[]): void
@@ -242,3 +244,21 @@ declare interface OSDistribution {
 declare interface Dic<T> {
   [Key: string]: T
 }
+
+declare type BOTPRESS_CORE_EVENTS = {
+  bp_core_session_created: { botId: string; channel: string }
+  bp_core_decision_elected: { botId: string; channel: string; source: string }
+  bp_core_goal_started: { botId: string; channel: string; goalName: string }
+  bp_core_goal_completed: { botId: string; channel: string; goalName: string }
+  bp_core_goal_failed: { botId: string; channel: string; goalName: string }
+  bp_core_enter_flow: { botId: string; channel: string; flowName: string }
+}
+
+interface IEmitCoreEvent {
+  <T extends keyof BOTPRESS_CORE_EVENTS>(
+    event: T,
+    args: { [key in keyof BOTPRESS_CORE_EVENTS[T]]: BOTPRESS_CORE_EVENTS[T][key] }
+  ): void
+}
+
+declare var BOTPRESS_CORE_EVENT: IEmitCoreEvent
