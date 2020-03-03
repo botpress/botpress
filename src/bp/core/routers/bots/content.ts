@@ -210,13 +210,13 @@ export class ContentRouter extends CustomRouter {
         const { botId, contentId } = req.params
 
         const ghost = this.ghost.forBot(botId)
-        if (!(await ghost.fileExists(CONTENT_FOLDER, LIBRARY_FILE))) {
-          return res.sendStatus(404)
+
+        let contentIds: string[] = []
+        if (await ghost.fileExists(CONTENT_FOLDER, LIBRARY_FILE)) {
+          contentIds = await ghost.readFileAsObject<string[]>(CONTENT_FOLDER, LIBRARY_FILE)
         }
 
-        const ids = await ghost.readFileAsObject<string[]>(CONTENT_FOLDER, LIBRARY_FILE)
-
-        await ghost.upsertFile(CONTENT_FOLDER, LIBRARY_FILE, JSON.stringify([...ids, contentId], undefined, 2))
+        await ghost.upsertFile(CONTENT_FOLDER, LIBRARY_FILE, JSON.stringify([...contentIds, contentId], undefined, 2))
 
         res.sendStatus(200)
       })

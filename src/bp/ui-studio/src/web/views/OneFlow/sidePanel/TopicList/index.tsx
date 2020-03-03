@@ -154,10 +154,12 @@ const TopicList: FC<Props> = props => {
       await deleteFlow(el.name)
     }
 
+    const name = el.label || el.name.substr(el.name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
+
     return {
       label: (
         <div className={style.treeNode}>
-          <span>{el.label || el.name}</span>
+          <span>{name}</span>
           <div className={style.overhidden} id="actions">
             <Tooltip content={<span>Edit goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
               <Button icon="edit" minimal onClick={editGoal} />
