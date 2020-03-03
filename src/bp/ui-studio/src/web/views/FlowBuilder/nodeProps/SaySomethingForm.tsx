@@ -1,11 +1,13 @@
 import { Button as BPButton, Icon, Position, Toaster } from '@blueprintjs/core'
 import classnames from 'classnames'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import _ from 'lodash'
+import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
 import TextareaAutosize from 'react-autosize-textarea'
 
 import Button from '../../../components/Button'
 import MoreOptions from '../../../components/MoreOptions'
 import MoreOptionsStyles from '../../../components/MoreOptions/style.scss'
+import withLanguage from '../../../components/Util/withLanguage'
 import EditableInput from '../common/EditableInput'
 
 import style from './style.scss'
@@ -13,6 +15,8 @@ import style from './style.scss'
 interface Props {
   buffer: any
   categories: any
+  contentLang: string
+  defaultLanguage: string
   contentItem: any
   copyFlowNode: any
   fetchContentCategories: any
@@ -29,18 +33,71 @@ interface Props {
   user: any
 }
 
+function formReducer(state, action) {
+  if (action.type === 'resetData') {
+    return {
+      ...state,
+      error: null,
+      contentType: '',
+      text: '',
+      variations: ['']
+    }
+  } else if (action.type === 'newData') {
+    const { text, variations, contentType } = action.data
+    return {
+      error: null,
+      contentType,
+      text,
+      variations
+    }
+  } else if (action.type === 'addVariation') {
+    return {
+      ...state,
+      variations: [...state.variations, '']
+    }
+  } else if (action.type === 'updateData') {
+    const { value, field } = action.data
+
+    return {
+      ...state,
+      [field]: value
+    }
+  } else {
+    throw new Error(`That action type isn't supported.`)
+  }
+}
+
 const SaySomethingForm: FC<Props> = props => {
+  const [formState, dispatchForm] = useReducer(formReducer, {
+    contentType: '',
+    text: '',
+    variations: [''],
+    error: null
+  })
   const [showOptions, setShowOptions] = useState(false)
-  const [message, setMessage] = useState('')
-  const [variantions, setVariantions] = useState([''])
 
   useEffect(() => {
+    dispatchForm({ type: 'resetData' })
     props.fetchContentItem(props.itemId).then(useContentData)
     props.fetchContentCategories()
-  }, [])
+  }, [props.itemId])
 
-  const useContentData = data => {
-    console.log(props.contentItem)
+  const useContentData = contentItem => {
+    let data = {}
+
+    if (props?.contentItem?.formData) {
+      data = getFormDataForLang(props?.contentItem, props.contentLang)
+
+      if (isFormEmpty(data)) {
+        data = getFormDataForLang(props?.contentItem, props.defaultLanguage)
+      }
+    }
+
+    if (!isFormEmpty(data)) {
+      dispatchForm({ type: 'newData', data: { ...data, contentType: props?.contentItem?.contentType } })
+    } else {
+      handleContentTypeChange(props?.contentItem?.contentType)
+    }
   }
 
   const renameNode = text => {
@@ -65,19 +122,21 @@ const SaySomethingForm: FC<Props> = props => {
     }).show({ message: 'Copied to buffer' })
   }
 
-  const addVariantion = () => {
-    setVariantions(prevVariantions => [...prevVariantions, ''])
+  const handleContentTypeChange = value => {
+    dispatchForm({ type: 'updateData', data: { field: 'contentType', value } })
   }
 
-  const updateVariantions = (value, index) => {
-    setVariantions(prevState => {
-      prevState[index] = value
+  const getFormDataForLang = (contentItem: any, language: string) => {
+    const { formData, contentType } = contentItem
+    const languageKeys = Object.keys(formData).filter(x => x.includes('$' + language))
 
-      return [...prevState]
-    })
+    const data: any = languageKeys.reduce((obj, key) => {
+      obj[key.replace('$' + language, '')] = formData[key]
+      return obj
+    }, {})
+
+    return { ...data, contentType }
   }
-
-  const handleInputChange = () => {}
 
   const handleKeyDown = e => {
     if ((e.ctrlKey || e.metaKey) && e.keyCode === 65) {
@@ -85,7 +144,35 @@ const SaySomethingForm: FC<Props> = props => {
     }
   }
 
+  const updateVariations = (value, index) => {
+    const newVariations = formState.variations
+
+    newVariations[index] = value
+
+    dispatchForm({ type: 'updateData', data: { value: newVariations, field: 'variations' } })
+  }
+
+  const isFormEmpty = formData => {
+    return _.every(
+      Object.keys(formData).map(x => {
+        // Ignore undefined and booleans, since they are set by default
+        if (!formData[x] || _.isBoolean(formData[x])) {
+          return
+        }
+
+        // Ignore array with empty objects (eg: skill choice)
+        if (_.isArray(formData[x]) && !formData[x].filter(_.isEmpty).length) {
+          return
+        }
+
+        return formData[x]
+      }),
+      _.isEmpty
+    )
+  }
+
   const { node, readOnly, categories } = props
+  const { contentType, text, variations } = formState
 
   return (
     <Fragment>
@@ -118,7 +205,7 @@ const SaySomethingForm: FC<Props> = props => {
         <label className={style.fieldWrapper}>
           <span className={style.formLabel}>Content type</span>
           <div className={style.formSelect}>
-            <select onChange={this.handleInputChange}>
+            <select value={contentType} onChange={e => handleContentTypeChange(e.currentTarget.value)}>
               <option value={null}>Select</option>
               {categories &&
                 categories
@@ -140,16 +227,16 @@ const SaySomethingForm: FC<Props> = props => {
           <TextareaAutosize
             className={style.textarea}
             onKeyDown={handleKeyDown}
-            value={message}
+            value={text}
             rows={1}
             maxRows={4}
-            onChange={e => setMessage(e.currentTarget.value)}
+            onChange={e => dispatchForm({ type: 'updateData', data: { field: 'text', value: e.currentTarget.value } })}
           ></TextareaAutosize>
         </label>
         <div className={style.fieldWrapper}>
           <span className={style.formLabel}>Alternates</span>
-          {variantions &&
-            variantions.map((variantion, index) => (
+          {variations &&
+            variations.map((variantion, index) => (
               <TextareaAutosize
                 key={index}
                 rows={1}
@@ -157,10 +244,15 @@ const SaySomethingForm: FC<Props> = props => {
                 onKeyDown={handleKeyDown}
                 className={classnames(style.textarea, style.multipleInputs)}
                 value={variantion}
-                onChange={e => updateVariantions(e.currentTarget.value, index)}
+                onChange={e => updateVariations(e.currentTarget.value, index)}
               ></TextareaAutosize>
             ))}
-          <BPButton onClick={addVariantion} className={style.addContentBtn} icon="plus" large={true}>
+          <BPButton
+            onClick={() => dispatchForm({ type: 'addVariation' })}
+            className={style.addContentBtn}
+            icon="plus"
+            large={true}
+          >
             Add Alternates
           </BPButton>
         </div>
@@ -169,4 +261,4 @@ const SaySomethingForm: FC<Props> = props => {
   )
 }
 
-export default SaySomethingForm
+export default withLanguage(SaySomethingForm)
