@@ -14,9 +14,8 @@ export interface TagResult {
   probability: number
 }
 
-const debug = DEBUG('nlu').sub('slots')
-const debugTrain = debug.sub('train')
-const debugExtract = debug.sub('extract')
+const debugTrain = DEBUG('nlu').sub('training')
+const debugExtract = DEBUG('nlu').sub('extract')
 
 const CRF_TRAINER_PARAMS = {
   c1: '0.0001',
@@ -141,22 +140,18 @@ export default class SlotTagger {
   }
 
   private _readTagger() {
-    debugTrain('reading tagger')
     this._crfTagger = this.mlToolkit.CRF.createTagger()
     this._crfTagger.open(this._crfModelFn)
   }
 
   async train(intents: Intent<Utterance>[]): Promise<void> {
     if (intents.length < 2) {
-      debugTrain('training set too small, skipping training')
+      debugTrain('Slot Tagger training set too small, skipping training')
       return
     }
-    debugTrain('start training')
 
     this._trainCrf(intents)
     this._readTagger()
-
-    debugTrain('done training')
   }
 
   get serialized(): Promise<Buffer> {
@@ -164,7 +159,6 @@ export default class SlotTagger {
   }
 
   private _trainCrf(intents: Intent<Utterance>[]) {
-    debugTrain('training CRF')
     this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
     const trainer = this.mlToolkit.CRF.createTrainer()
 
