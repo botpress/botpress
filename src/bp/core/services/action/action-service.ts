@@ -112,9 +112,8 @@ export default class ActionService {
   }
 }
 
-interface RunActionProps {
+export interface RunActionProps {
   actionName: string
-  actionServer?: ActionServer
   incomingEvent: IO.IncomingEvent
   actionArgs: any
 }
@@ -163,7 +162,7 @@ export class ScopedActionService {
     return actions
   }
 
-  async runAction(props: RunActionProps): Promise<void> {
+  async runAction(props: RunActionProps & { actionServer?: ActionServer }): Promise<void> {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
     process.ASSERT_LICENSED()
 
@@ -282,13 +281,12 @@ export class ScopedActionService {
     })
   }
 
-  public async runLocalAction(props: {
-    actionName: string
-    actionArgs: any
-    incomingEvent: IO.IncomingEvent
-    token?: string
-    runType: RunType
-  }) {
+  public async runLocalAction(
+    props: RunActionProps & {
+      token?: string
+      runType: RunType
+    }
+  ) {
     const { actionName, actionArgs, incomingEvent, runType } = props
 
     const { code, _require, dirPath } = await this.loadLocalAction(actionName)

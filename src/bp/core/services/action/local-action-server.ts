@@ -14,7 +14,7 @@ import _ from 'lodash'
 
 import { registerMsgHandler } from '../../../cluster'
 
-import ActionService, { ActionServerResponse } from './action-service'
+import ActionService, { ActionServerResponse, RunActionProps } from './action-service'
 
 const _validateRunRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -87,13 +87,12 @@ export class LocalActionServer {
       _validateRunRequest,
       this.asyncMiddleware(
         async (
-          req: TypedRequest<{
-            actionArgs: any
-            actionName: string
-            botId: string
-            token: string
-            incomingEvent: IO.IncomingEvent
-          }>,
+          req: TypedRequest<
+            RunActionProps & {
+              botId: string
+              token: string
+            }
+          >,
           res: TypedResponse<ActionServerResponse>
         ) => {
           const { actionArgs, actionName, botId, token, incomingEvent } = req.body
