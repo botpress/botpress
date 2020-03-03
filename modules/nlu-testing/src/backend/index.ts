@@ -25,6 +25,11 @@ const botTemplates: sdk.BotTemplate[] = [
     name: 'BPDS - NLU regression testing ',
     desc:
       'BPDS are handcrafted datasets. Intents in each contexts are built with a specific distribution in mind, making intent classification hard to achieve.'
+  },
+  {
+    id: 'bp-nlu-qna-dataset',
+    name: 'QNADS - NLU regression testing ',
+    desc: ''
   }
 ]
 

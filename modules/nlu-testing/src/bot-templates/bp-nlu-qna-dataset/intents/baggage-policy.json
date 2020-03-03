@@ -1,0 +1,8 @@
+{
+  "name": "baggage-policy",
+  "utterances": {
+    "en": ["What is your baggage policy", "How many luggage can I bring", "What is the maximum suitcase size"]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}

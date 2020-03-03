@@ -1,0 +1,158 @@
+[
+  {
+    "id": "1583250143516",
+    "utterance": "What types of bags are allowed",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583250164193",
+    "utterance": "What kind of bags are allowed",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583250175297",
+    "utterance": "I have a normal suitcase with wheels, will it fit in the plane",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583251533601",
+    "utterance": "How many kilos can I bring on board",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583251540755",
+    "utterance": "How many kilos can I bring on the plane",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583251548553",
+    "utterance": "How many kilos can I bring",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583251558339",
+    "utterance": "What is the max allowed total weight",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583251566406",
+    "utterance": "How many bags can I bring on the flight",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583251573549",
+    "utterance": "How many bags allowed on the flight",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583251580198",
+    "utterance": "How heavy can my bag be",
+    "context": "global",
+    "conditions": [["intent", "is", "baggage-policy"]]
+  },
+  {
+    "id": "1583251597715",
+    "utterance": "What aircraft model are we using",
+    "context": "global",
+    "conditions": [["intent", "is", "plane-information"]]
+  },
+  {
+    "id": "1583251608312",
+    "utterance": "How many seats on the aircraft",
+    "context": "global",
+    "conditions": [["intent", "is", "plane-information"]]
+  },
+  {
+    "id": "1583251617762",
+    "utterance": "How many people can our vessel cary",
+    "context": "global",
+    "conditions": [["intent", "is", "plane-information"]]
+  },
+  {
+    "id": "1583251628090",
+    "utterance": "Is our aircraft a Boeing 737Max",
+    "context": "global",
+    "conditions": [["intent", "is", "plane-information"]]
+  },
+  {
+    "id": "1583251643907",
+    "utterance": "Who manufactured the plane",
+    "context": "global",
+    "conditions": [["intent", "is", "plane-information"]]
+  },
+  {
+    "id": "1583251652332",
+    "utterance": "Can I know more on the plane",
+    "context": "global",
+    "conditions": [["intent", "is", "plane-information"]]
+  },
+  {
+    "id": "1583251661321",
+    "utterance": "What is the maximum number of passengers on the plane",
+    "context": "global",
+    "conditions": [["intent", "is", "plane-information"]]
+  },
+  {
+    "id": "1583251687795",
+    "utterance": "Who do I speak to on board",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  },
+  {
+    "id": "1583251696367",
+    "utterance": "Is there a help if I need any",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  },
+  {
+    "id": "1583251704064",
+    "utterance": "What’s the best way to ask for help",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  },
+  {
+    "id": "1583251710316",
+    "utterance": "What is the best way to ask for help",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  },
+  {
+    "id": "1583251721175",
+    "utterance": "Who do I talk to if I have request during the flight",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  },
+  {
+    "id": "1583251729453",
+    "utterance": "How to ask for help while in the air",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  },
+  {
+    "id": "1583251736260",
+    "utterance": "If I need assistance, who do I talk to",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  },
+  {
+    "id": "1583251743686",
+    "utterance": "If I need assistance, how can I ask for help",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  },
+  {
+    "id": "1583251753901",
+    "utterance": "How many flight attendants on the flight",
+    "context": "global",
+    "conditions": [["intent", "is", "flight-crew"]]
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "name": "flight-crew",
+  "utterances": {
+    "en": [
+      "How can I talk to a flight attendant",
+      "I want to I ask for help during the flight",
+      "Is there anyone to assist passengers on board"
+    ]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}

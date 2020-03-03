@@ -1,0 +1,8 @@
+{
+  "name": "plane-information",
+  "utterances": {
+    "en": ["What is the plane size", "How many passengers in the plane", "What is the type of the plane"]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}

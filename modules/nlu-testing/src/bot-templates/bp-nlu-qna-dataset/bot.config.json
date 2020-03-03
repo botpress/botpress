@@ -1,6 +1,6 @@
 {
   "$schema": "../../bot.config.schema.json",
-  "description": "BPDS are handcrafted datasets. Intents in each contexts are built with a specific distribution in mind, making intent classification hard to achieve.",
+  "description": "",
   "active": true,
   "version": "12.7.0",
   "author": "Botpress, Inc.",
@@ -17,5 +17,5 @@
     "expiration": "1 week"
   },
   "defaultLanguage": "en",
-  "languages": ["en", "ar", "ru", "fr"]
+  "languages": ["en"]
 }
