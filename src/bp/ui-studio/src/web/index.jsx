@@ -26,8 +26,7 @@ import 'expose-loader?BotpressUtils!~/components/Shared/Utils'
 import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
 import 'expose-loader?BotpressShared!ui-shared'
-import { IntlProvider } from 'react-intl'
-import { defaultLocale, translations, getUserLocale, initializeLocale } from './translations'
+import { initializeTranslations } from './translations'
 /* eslint-enable */
 
 require('bootstrap/dist/css/bootstrap.css')
@@ -47,16 +46,13 @@ if (!window.BOT_ID) {
   // Do not use "import App from ..." as hoisting will screw up styling
   const App = require('./components/App').default
 
-  const locale = getUserLocale()
-  initializeLocale()
+  initializeTranslations()
 
   ReactDOM.render(
     <Provider store={store}>
-      <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>
-        <HotKeys keyMap={keyMap}>
-          <App />
-        </HotKeys>
-      </IntlProvider>
+      <HotKeys keyMap={keyMap}>
+        <App />
+      </HotKeys>
     </Provider>,
     document.getElementById('app')
   )

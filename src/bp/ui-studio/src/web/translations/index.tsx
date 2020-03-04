@@ -1,4 +1,4 @@
-import { addLocaleData, injectIntl } from 'react-intl'
+import { addLocaleData, InjectedIntl, IntlProvider, MessageValue } from 'react-intl'
 import localeAr from 'react-intl/locale-data/ar'
 import localeEn from 'react-intl/locale-data/en'
 import localeEs from 'react-intl/locale-data/es'
@@ -17,6 +17,8 @@ import uk from './uk.json'
 
 const defaultLocale = 'en'
 const translations = { en, fr, pt, es, ar, ru, uk }
+let locale: string
+let intl: InjectedIntl
 
 const getUserLocale = (manualLocale?: 'browser' | string) => {
   const code = str => str.split('-')[0]
@@ -27,8 +29,14 @@ const getUserLocale = (manualLocale?: 'browser' | string) => {
   return translations[manualLocale] ? manualLocale : translations[storageLocale] ? storageLocale : defaultLocale
 }
 
-const initializeLocale = () => {
+const initializeTranslations = () => {
+  locale = getUserLocale()
+  intl = new IntlProvider({ locale, defaultLocale, messages: translations[locale] }, {}).getChildContext().intl
   addLocaleData([...localeEn, ...localeFr, ...localePt, ...localeEs, ...localeAr, ...localeRu, ...localeUk])
 }
 
-export { initializeLocale, translations, defaultLocale, getUserLocale, lang }
+const lang = (id: string, values?: { [key: string]: MessageValue }): string => {
+  return intl.formatMessage({ id }, values)
+}
+
+export { initializeTranslations, lang }
