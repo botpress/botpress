@@ -42,7 +42,7 @@ function deserializeModel(str: string): Model {
   return model
 }
 
-async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: string): Promise<void | void[]> {
+export async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: string): Promise<void | void[]> {
   const models = await listModelsForLang(ghost, languageCode)
   if (models.length > MAX_MODELS_TO_KEEP) {
     return Promise.map(models.slice(MAX_MODELS_TO_KEEP), file => ghost.deleteFile(MODELS_DIR, file))
