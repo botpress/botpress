@@ -1,8 +1,8 @@
 import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { Flow } from 'botpress/sdk'
-import { TreeView } from 'botpress/shared'
+import { confirmDialog, TreeView } from 'botpress/shared'
 import _ from 'lodash'
-import React from 'react'
+import React, { FC } from 'react'
 
 import style from '../style.scss'
 
@@ -31,8 +31,8 @@ interface Props {
   importGoal: (topicId: string) => void
   createGoal: (topicId: string) => void
   editGoal: (goalId: any, data: any) => void
-  editTopic: (topicName: string) => void
-  exportTopic: (topicName: string) => void
+  editTopic: (topicName: string | NodeData) => void
+  exportTopic: (topicName: string | NodeData) => void
 }
 
 interface NodeData {
@@ -42,7 +42,12 @@ interface NodeData {
   id?: any
 }
 
-const TopicList = props => {
+const TopicList: FC<Props> = props => {
+  const deleteFlow = async (name: string) => {
+    if (await confirmDialog(`Are you sure you want to delete the flow ${name}?`, {})) {
+      props.deleteFlow(name)
+    }
+  }
   const folderRenderer = (folder: string) => {
     const createGoal = e => {
       e.stopPropagation()
@@ -60,10 +65,10 @@ const TopicList = props => {
           <span>{folder}</span>
           <div className={style.overhidden} id="actions">
             <Tooltip content={<span>Edit topic</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-              <Button icon="edit" minimal={true} onClick={editTopic} />
+              <Button icon="edit" minimal onClick={editTopic} />
             </Tooltip>
             <Tooltip content={<span>Create new goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-              <Button icon="insert" minimal={true} onClick={createGoal} />
+              <Button icon="insert" minimal onClick={createGoal} />
             </Tooltip>
           </div>
         </div>
@@ -132,19 +137,40 @@ const TopicList = props => {
             disabled={lockedFlows.includes(name) || !props.canDelete || props.readOnly}
             icon="delete"
             text="Delete"
-            onClick={() => {
-              if (confirm(`Are you sure you want to delete the flow ${name}?`)) {
-                props.deleteFlow(name)
-              }
-            }}
+            onClick={() => deleteFlow(name)}
           />
         </Menu>
       )
     }
   }
 
-  const nodeRenderer = ({ label, name }: NodeData) => {
-    return { label: label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '') }
+  const nodeRenderer = el => {
+    const editGoal = e => {
+      e.stopPropagation()
+      props.editGoal(el.name, el)
+    }
+    const deleteGoal = async e => {
+      e.stopPropagation()
+      await deleteFlow(el.name)
+    }
+
+    const name = el.label || el.name.substr(el.name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
+
+    return {
+      label: (
+        <div className={style.treeNode}>
+          <span>{name}</span>
+          <div className={style.overhidden} id="actions">
+            <Tooltip content={<span>Edit goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+              <Button icon="edit" minimal onClick={editGoal} />
+            </Tooltip>
+            <Tooltip content={<span>Delete goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+              <Button icon="trash" minimal onClick={deleteGoal} />
+            </Tooltip>
+          </div>
+        </div>
+      )
+    }
   }
 
   const onClick = (element: NodeData | string, type) => {

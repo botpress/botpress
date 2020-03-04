@@ -56,7 +56,7 @@ interface StateProps {
   flowPreview: boolean
   mutexInfo: string
   topics: any
-  flowsName: { name: string; label: string }
+  flowsName: { name: string; label: string }[]
 }
 
 interface DispatchProps {
@@ -77,6 +77,7 @@ const SidePanelContent: FC<Props> = props => {
   const [goalModalOpen, setGoalModalOpen] = useState(false)
   const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
+  const [initialTab, setInitialTab] = useState('triggers')
 
   const [selectedGoal, setSelectedGoal] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
@@ -118,12 +119,14 @@ const SidePanelContent: FC<Props> = props => {
     props.switchFlow(data.name)
     setSelectedTopic(data.name.split('/')[0])
     setSelectedGoal(goalId)
-    setGoalModalOpen(!goalModalOpen)
+    setInitialTab('triggers')
+    setGoalModalOpen(true)
   }
 
   const createGoal = (topicName: string) => {
     setSelectedTopic(topicName)
     setSelectedGoal('')
+    setInitialTab('overview')
     setGoalModalOpen(true)
   }
 
@@ -205,6 +208,7 @@ const SidePanelContent: FC<Props> = props => {
         isOpen={goalModalOpen}
         toggle={() => setGoalModalOpen(!goalModalOpen)}
         selectedGoal={selectedGoal}
+        initialTab={initialTab}
         selectedTopic={selectedTopic}
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}
