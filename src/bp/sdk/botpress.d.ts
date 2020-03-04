@@ -794,6 +794,12 @@ declare module 'botpress/sdk' {
     ignoreLock?: boolean
   }
 
+  export interface DirectoryListingOptions {
+    excludes?: string | string[]
+    includeDotFiles?: boolean
+    sortOrder?: SortOrder & { column: 'filePath' | 'modifiedOn' }
+  }
+
   export interface ScopedGhostService {
     /**
      * Insert or Update the file at the specified location
@@ -808,18 +814,20 @@ declare module 'botpress/sdk' {
     renameFile(rootFolder: string, fromName: string, toName: string): Promise<void>
     deleteFile(rootFolder: string, file: string): Promise<void>
     /**
-     * List all the files matching the ending pattern in the folder
+     * List all the files matching the ending pattern in the folder.
+     * DEPRECATE WARNING: exclude and includedDotFiles must be defined in options in future versions
      * @example bp.ghost.forBot('welcome-bot').directoryListing('./questions', '*.json')
      * @param rootFolder - Folder relative to the scoped parent
      * @param fileEndingPattern - The pattern to match. Don't forget to include wildcards!
-     * @param exclude - The pattern to match excluded files.
-     * @param includeDotFiles - Whether or not to include files starting with a dot (normally disabled files)
+     * @param @deprecated exclude - The pattern to match excluded files.
+     * @param @deprecated includeDotFiles - Whether or not to include files starting with a dot (normally disabled files)
      */
     directoryListing(
       rootFolder: string,
       fileEndingPattern: string,
       exclude?: string | string[],
-      includeDotFiles?: boolean
+      includeDotFiles?: boolean,
+      options?: DirectoryListingOptions
     ): Promise<string[]>
     /**
      * Starts listening on all file changes (deletion, inserts and updates)

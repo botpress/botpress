@@ -1,4 +1,4 @@
-import { ListenHandle, Logger, UpsertOptions } from 'botpress/sdk'
+import { DirectoryListingOptions, ListenHandle, Logger, UpsertOptions } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { BotConfig } from 'core/config/bot.config'
@@ -635,12 +635,14 @@ export class ScopedGhostService {
     rootFolder: string,
     fileEndingPattern: string = '*.*',
     excludes?: string | string[],
-    includeDotFiles?: boolean
+    includeDotFiles?: boolean,
+    options: DirectoryListingOptions = {}
   ): Promise<string[]> {
     try {
       const files = await this.primaryDriver.directoryListing(this._normalizeFolderName(rootFolder), {
         excludes,
-        includeDotFiles
+        includeDotFiles,
+        ...options
       })
 
       return (files || []).filter(
