@@ -1,4 +1,4 @@
-import { Button, Classes, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
+import { Button, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { Topic } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
@@ -25,11 +25,11 @@ interface Props {
 const EditTopicModal: FC<Props> = props => {
   const [name, setName] = useState<string>('')
   const [description, setDescription] = useState<string>('')
-  const [tab, setTab] = useState<string>('overview')
+  const [tab, setTab] = useState<string>('knowledge')
 
   useEffect(() => {
     setName(props.selectedTopic)
-    setTab('overview')
+    setTab('knowledge')
 
     if (props.topics) {
       const topic = props.topics.find(x => x && x.name === props.selectedTopic)
@@ -73,6 +73,19 @@ const EditTopicModal: FC<Props> = props => {
       <DialogBody>
         <Tabs id="tabs" vertical={true} onChange={tab => setTab(tab as string)} selectedTabId={tab}>
           <Tab
+            id="knowledge"
+            title="Knowledge"
+            className={style.tabs}
+            panel={
+              <InjectedModuleView
+                moduleName="qna"
+                componentName="LiteEditor"
+                contentLang="en"
+                extraProps={{ topicName: name }}
+              />
+            }
+          />
+          <Tab
             id="overview"
             title="Overview"
             className={style.tabs}
@@ -92,7 +105,7 @@ const EditTopicModal: FC<Props> = props => {
 
                 <FormGroup label="Description">
                   <TextArea
-                    id="input-flow-name"
+                    id="input-flow-description"
                     rows={3}
                     value={description}
                     maxLength={250}
@@ -109,20 +122,6 @@ const EditTopicModal: FC<Props> = props => {
                   className={style.modalFooter}
                 />
               </div>
-            }
-          />
-
-          <Tab
-            id="knowledge"
-            title="Knowledge"
-            className={style.tabs}
-            panel={
-              <InjectedModuleView
-                moduleName="qna"
-                componentName="LiteEditor"
-                contentLang="en"
-                extraProps={{ topicName: name }}
-              />
             }
           />
         </Tabs>

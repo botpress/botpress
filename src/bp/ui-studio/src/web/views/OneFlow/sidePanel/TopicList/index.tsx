@@ -2,7 +2,7 @@ import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@bluepri
 import { Flow } from 'botpress/sdk'
 import { TreeView, confirmDialog } from 'botpress/shared'
 import _ from 'lodash'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -32,8 +32,8 @@ interface Props {
   createGoal: (topicId: string) => void
   editQnA: (topicName: string) => void
   editGoal: (goalId: any, data: any) => void
-  editTopic: (topicName: string) => void
-  exportTopic: (topicName: string) => void
+  editTopic: (topicName: string | NodeData) => void
+  exportTopic: (topicName: string | NodeData) => void
 }
 
 interface NodeData {
@@ -50,11 +50,15 @@ interface IFlow {
 }
 
 const TopicList = props => {
-  const [ flows, setFlows ] = useState<IFlow[]>([])
+  const [flows, setFlows] = useState<IFlow[]>([])
 
   useEffect(() => {
-    const qna = _.uniq(props.flows.map(flow => flow.name?.split('/')?.[0]))
-      .map(topic => ({ name: `${topic}/qna`, label: 'Q&A', type: 'qna', icon: 'chat' }))
+    const qna = _.uniq(props.flows.map(flow => flow.name?.split('/')?.[0])).map(topic => ({
+      name: `${topic}/qna`,
+      label: 'Q&A',
+      type: 'qna',
+      icon: 'chat'
+    }))
 
     setFlows([...qna, ...props.flows])
   }, [props.flows])
@@ -82,10 +86,10 @@ const TopicList = props => {
           <span>{folder}</span>
           <div className={style.overhidden} id="actions">
             <Tooltip content={<span>Edit topic</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-              <Button icon="edit" minimal={true} onClick={editTopic} />
+              <Button icon="edit" minimal onClick={editTopic} />
             </Tooltip>
             <Tooltip content={<span>Create new goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-              <Button icon="insert" minimal={true} onClick={createGoal} />
+              <Button icon="insert" minimal onClick={createGoal} />
             </Tooltip>
           </div>
         </div>
@@ -169,20 +173,12 @@ const TopicList = props => {
             disabled={lockedFlows.includes(name) || !props.canDelete || props.readOnly}
             icon="delete"
             text="Delete"
-            onClick={() => {
-              if (confirm(`Are you sure you want to delete the flow ${name}?`)) {
-                props.deleteFlow(name)
-              }
-            }}
+            onClick={() => deleteFlow(name)}
           />
         </Menu>
       )
     }
   }
-
-  /*const nodeRenderer = ({ label, name, icon }: NodeData) => {
-    return { label: label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, ''), icon }
-  }*/
 
   const nodeRenderer = (el: NodeData) => {
     const { name, label, icon, type } = el

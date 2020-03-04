@@ -70,7 +70,12 @@ export const IntentEditor: FC<Props> = props => {
               api={props.api}
             />
           )}
-          <IntentHint intent={intent} contentLang={props.contentLang} axios={props.axios} />
+          <IntentHint
+            intent={intent}
+            liteEditor={props.liteEditor}
+            contentLang={props.contentLang}
+            axios={props.axios}
+          />
         </div>
         <UtterancesEditor
           intentName={intent.name}
