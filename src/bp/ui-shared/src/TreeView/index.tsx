@@ -32,7 +32,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
     traverseTree(nodes, node => {
       if (props.visibleElements?.find(x => node.nodeData?.[x.field] === x.value)) {
-        handleNodeExpansion(node.parent!, true)
+        handleInitialNodeExpansion(node.parent!, true)
         node.parent!.isExpanded = true
         node.isSelected = true
       }
@@ -53,7 +53,15 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
     setExpanded(props.expandedPaths || [])
   }, [props.expandedPaths])
 
-  const handleNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
+  const handleInitialNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
+    changeNodeExpansion(node, isExpanded)
+
+    if (node.parent) {
+      handleInitialNodeExpansion(node.parent!, isExpanded)
+    }
+  }
+
+  const changeNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
     isExpanded ? setExpanded([...expanded, node.fullPath]) : setExpanded(expanded.filter(x => x !== node.fullPath))
     node.isExpanded = isExpanded
 
@@ -74,7 +82,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         }
 
         if (!node.nodeData) {
-          node.isExpanded ? handleNodeExpansion(node, false) : handleNodeExpansion(node, true)
+          node.isExpanded ? changeNodeExpansion(node, false) : changeNodeExpansion(node, true)
         }
       } else {
         node.isSelected = false
@@ -94,7 +102,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
   const handleContextMenu = (node: TreeNode<T>, _path, e) => {
     const contextMenu = node.nodeData
-      ? props.onContextMenu?.(node.nodeData, 'document')
+      ? props.onContextMenu?.(node.nodeData, node.nodeData.type || 'document')
       : props.onContextMenu?.(node.fullPath, 'folder')
 
     if (contextMenu) {
@@ -113,8 +121,8 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
       onNodeClick={handleNodeClick}
       onNodeContextMenu={handleContextMenu}
       onNodeDoubleClick={handleNodeDoubleClick}
-      onNodeCollapse={node => handleNodeExpansion(node as TreeNode<T>, false)}
-      onNodeExpand={node => handleNodeExpansion(node as TreeNode<T>, true)}
+      onNodeCollapse={node => changeNodeExpansion(node as TreeNode<T>, false)}
+      onNodeExpand={node => changeNodeExpansion(node as TreeNode<T>, true)}
       className={Classes.ELEVATION_0}
     />
   )

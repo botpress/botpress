@@ -107,6 +107,11 @@ const SidePanelContent: FC<Props> = props => {
     onClick: () => setImportModalOpen(true)
   }
 
+  const editQnA = (topicName: string) => {
+    setSelectedTopic(topicName)
+    setTopicModalOpen(true)
+  }
+
   const editTopic = (topicName: string) => {
     setSelectedTopic(topicName)
     setTopicModalOpen(true)
@@ -178,6 +183,7 @@ const SidePanelContent: FC<Props> = props => {
               importGoal={importGoal}
               filter={goalFilter}
               editTopic={editTopic}
+              editQnA={editQnA}
               exportTopic={exportTopic}
             />
           </SidePanelSection>
