@@ -16,7 +16,7 @@ import { Predictor, Trainer as SVMTrainer } from './svm'
 
 // those messgages are global preprend with svm_ if we ever come up with more message types
 type MsgTypeSVM = 'train' | 'progress' | 'done' | 'error' | 'crf_train' | 'crf_done' | 'crf_error'
-const debugTrain = DEBUG('nlu').sub('training')
+
 interface Message {
   type: MsgTypeSVM
   id: string
