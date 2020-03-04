@@ -18,6 +18,7 @@ export interface Model {
 }
 
 const MODELS_DIR = './models'
+const MAX_MODELS_TO_KEEP = 2
 
 function makeFileName(hash: string, lang: string): string {
   return `${hash}.${lang}.model`
@@ -31,14 +32,26 @@ export function computeModelHash(intents: any, entities: any): string {
     .digest('hex')
 }
 
-export function serializeModel(model: Model): string {
+function serializeModel(model: Model): string {
   return JSON.stringify(_.omit(model, ['data.output', 'data.input.trainingSession']))
 }
 
-export function deserializeModel(str: string): Model {
+function deserializeModel(str: string): Model {
   const model = JSON.parse(str) as Model
   model.data.artefacts.slots_model = Buffer.from(model.data.artefacts.slots_model)
   return model
+}
+
+async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: string): Promise<void | void[]> {
+  const models = await listModelsForLang(ghost, languageCode)
+  if (models.length > MAX_MODELS_TO_KEEP) {
+    return Promise.map(models.slice(MAX_MODELS_TO_KEEP - 1), file => ghost.deleteFile(MODELS_DIR, file))
+  }
+}
+
+async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: string): Promise<string[]> {
+  const endingPattern = makeFileName('*', languageCode)
+  return await ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined {orderBy: 'modifiedOn', order: 'desc'})
 }
 
 export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | void> {
@@ -50,18 +63,16 @@ export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang
 }
 
 export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<Model | void> {
-  const endingPattern = makeFileName('*', lang)
-  const availableModels = await ghost.directoryListing(MODELS_DIR, endingPattern)
+  const availableModels = await listModelsForLang(ghost, lang)
   if (availableModels.length === 0) {
     return
   }
-
-  const models = await Promise.map(availableModels, fname => getModel(ghost, fname.split('.')[0], lang))
-  return _.head(_.orderBy(models, 'finishedAt', 'desc'))
+  return getModel(ghost, availableModels[0].split('.')[0], lang)
 }
 
-export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void> {
+export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void | void[]> {
   const serialized = serializeModel(model)
   const fname = makeFileName(hash, model.languageCode)
-  return ghost.upsertFile(MODELS_DIR, fname, serialized)
+  await ghost.upsertFile(MODELS_DIR, fname, serialized)
+  return pruneModels(ghost, model.languageCode)
 }
