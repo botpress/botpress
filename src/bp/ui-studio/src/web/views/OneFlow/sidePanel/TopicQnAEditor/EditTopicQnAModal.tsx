@@ -10,10 +10,7 @@ import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 interface Props {
   selectedTopic: string
   isOpen: boolean
-  topics: Topic[]
-  flows: FlowView[]
   toggle: () => void
-  fetchTopics: () => void
 }
 
 const EditTopicQnAModal: FC<Props> = props => {
@@ -48,13 +45,4 @@ const EditTopicQnAModal: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({
-  flows: _.values(state.flows.flowsByName),
-  topics: state.ndu.topics
-})
-
-const mapDispatchToProps = {
-  fetchTopics
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditTopicQnAModal)
+export default EditTopicQnAModal
