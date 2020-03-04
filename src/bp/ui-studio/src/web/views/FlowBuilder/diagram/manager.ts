@@ -12,12 +12,13 @@ import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
+import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
 const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill']
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = ['standard', 'skill-call', 'say_something', 'execute', 'listen', 'router']
+export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
@@ -44,6 +45,8 @@ const createNodeModel = (node, modelProps) => {
     return new RouterNodeModel(modelProps)
   } else if (type === 'success') {
     return new SuccessNodeModel(modelProps)
+  } else if (type === 'trigger') {
+    return new TriggerNodeModel(modelProps)
   } else if (type === 'failure') {
     return new FailureNodeModel(modelProps)
   } else {
@@ -377,6 +380,7 @@ export class DiagramManager {
         })
 
         const targetPort = targetNode.ports['in']
+        console.log('TARGET PORT', targetPort)
         const link = new DefaultLinkModel()
         link.setSourcePort(sourcePort)
         link.setTargetPort(targetPort)

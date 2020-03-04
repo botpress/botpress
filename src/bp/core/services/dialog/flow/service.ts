@@ -117,7 +117,7 @@ export class FlowService {
       location: flowPath,
       nodes: nodeViews,
       links: uiEq.links,
-      currentMutex,
+      currentMutex, // TODO: NDU Remove triggers
       ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description'])
     }
   }
@@ -323,6 +323,7 @@ export class FlowService {
     }
 
     const flowContent = {
+      // TODO: NDU Remove triggers
       ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description']),
       nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
     }

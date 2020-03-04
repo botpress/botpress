@@ -34,7 +34,6 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { Timeout, toastInfo } from '~/components/Shared/Utils'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
@@ -587,7 +586,7 @@ interface Props {
   showSearch: boolean
   hideSearch: () => void
   handleFilterChanged: (event: object) => void
-  highlightFilter: string,
+  highlightFilter: string
   skills: SkillDefinition[]
 }
 

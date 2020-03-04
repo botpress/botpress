@@ -173,6 +173,9 @@ export class UnderstandingEngine {
       await this._loadBotGoals(event.botId)
     }
 
+    // TODO: NDU Add node-level triggers depending on context {currentFlow, currentNode}
+    // globalTriggers: []
+    // localTriggers: []
     event.ndu.triggers = this._allTriggers.get(event.botId).reduce((result, trigger) => {
       result[trigger.id] = { goal: trigger.goal, result: this._testConditions(event, trigger.conditions) }
       return result
@@ -204,6 +207,7 @@ export class UnderstandingEngine {
       }
     })
 
+    // TODO: NDU Change to loop over nodes
     const triggers = _.flatMap(flows, x => (x.triggers || []).map(tr => ({ ...tr, goal: x.name }))) as TriggerGoal[]
 
     this._allTriggers.set(botId, triggers)

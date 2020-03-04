@@ -1069,7 +1069,7 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
-    triggers?: FlowTrigger[]
+    triggers?: FlowTrigger[] // TODO: NDU Change to be nodes insteads
   }
 
   export interface FlowTrigger {
