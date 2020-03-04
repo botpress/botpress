@@ -42,6 +42,14 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  async fileExists(filePath: string): Promise<boolean> {
+    try {
+      return fse.pathExists(this.resolvePath(filePath))
+    } catch (e) {
+      throw new VError(e, `[Disk Storage] Error deleting file "${filePath}"`)
+    }
+  }
+
   async deleteFile(filePath: string): Promise<void>
   async deleteFile(filePath: string, recordRevision: boolean = false): Promise<void> {
     try {

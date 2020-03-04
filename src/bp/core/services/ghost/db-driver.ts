@@ -60,6 +60,21 @@ export default class DBStorageDriver implements StorageDriver {
     }
   }
 
+  async fileExists(filePath: string): Promise<boolean> {
+    try {
+      const exists = await this.database
+        .knex('srv_ghost_files')
+        .where({ file_path: filePath, deleted: false })
+        .select('file_path')
+        .limit(1)
+        .first()
+
+      return !!exists
+    } catch (e) {
+      throw new VError(e, `[DB Driver] Error checking if file  exists "${filePath}"`)
+    }
+  }
+
   async readFile(filePath: string): Promise<Buffer> {
     try {
       const file = await this.database
