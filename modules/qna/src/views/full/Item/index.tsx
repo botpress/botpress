@@ -7,7 +7,6 @@ import React, { FC, Fragment } from 'react'
 import style from '../style.scss'
 import { ACTIONS } from '../Editor'
 
-import RedirectInfo from './RedirectInfo'
 import Variations from './Variations'
 
 interface Props {
@@ -29,14 +28,13 @@ const Item: FC<Props> = props => {
   }
 
   const { id, item, contentLang, last, isLite } = props
-
   const questions = item.questions[contentLang] || []
   const answers = item.answers[contentLang] || []
   const missingTranslations = !questions.length || (item.action !== ACTIONS.REDIRECT && !answers.length)
 
   return (
     <div className={cx(style.questionTableRow, { [style.last]: last })} key={id}>
-      <div className={cx(style.questionTableCell, style.question)}>
+      <div className={cx(style.questionTableCell, style.question)}  onClick={() => props.onEditItem(id)}>
         {missingTranslations && (
           <Fragment>
             <Tooltip content="Missing translation">
@@ -57,28 +55,19 @@ const Item: FC<Props> = props => {
         )}
       </div>
 
-      <div className={style.questionTableCell}>
+      <div className={style.questionTableCell} onClick={() => props.onEditItem(id)}>
         {answers[0] && (
           <Fragment>
             {answers[0]}
             {<Variations isLite={isLite} elements={answers} />}
           </Fragment>
         )}
+        {(!isLite && (item.redirectFlow || item.redirectNode)) && (<Tooltip className={style.redirectTooltip} content="There are redirects associated to this questions, you can view them in the edit form">
+          <Icon icon="pivot" />
+        </Tooltip>)}
       </div>
 
-      {!isLite && <div className={style.questionTableCell}>{item.category && item.category}</div>}
-
-      {!isLite && (
-        <div className={cx(style.questionTableCell, style.redirect)}>
-          <RedirectInfo
-            id={props.id}
-            redirectFlow={item.redirectFlow}
-            redirectNode={item.redirectNode}
-            flows={props.flows}
-            onEditItem={props.onEditItem}
-          />
-        </div>
-      )}
+      {!isLite && <div className={style.questionTableCell} onClick={() => props.onEditItem(id)}>{item.category && item.category}</div>}
 
       <div className={cx(style.questionTableCell, style.actions)}>
         <div className={style.itemAction}>

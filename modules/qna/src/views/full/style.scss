@@ -131,7 +131,7 @@ $elementHeight: 40px;
 }
 
 .questionTable {
-  background: #f5f5f5;
+  background: #fff;
   border: 1px solid #e3e3e3;
   border-top: none;
   border-radius: 3px;
@@ -141,6 +141,15 @@ $elementHeight: 40px;
 
 .questionTableRow {
   display: table-row;
+  transition: background 0.3s;
+
+  &:not(.header) {
+    cursor: pointer;
+  }
+
+  &:hover {
+    background: #f5f5f5;
+  }
 
   &.header .questionTableCell {
     background: #f5f5f5;
@@ -159,6 +168,10 @@ $elementHeight: 40px;
   }
 }
 
+.redirectTooltip {
+  margin-left: 5px;
+}
+
 .questionTableCell {
   border-bottom: 1px solid #e3e3e3;
   color: var(--c-text);
@@ -174,7 +187,7 @@ $elementHeight: 40px;
     width: 115px;
   }
 
-  &.question, &.redirect {
+  &.question {
     width: 30%;
   }
 }

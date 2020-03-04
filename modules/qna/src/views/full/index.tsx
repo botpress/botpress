@@ -1,4 +1,4 @@
-import { Button, ControlGroup, Intent } from '@blueprintjs/core'
+import { Button, Intent } from '@blueprintjs/core'
 import { confirmDialog } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
@@ -283,7 +283,6 @@ export default class QnaAdmin extends Component<Props> {
           <div className={cx(style.questionTableCell, style.question)}>Question</div>
           <div className={style.questionTableCell}>Answer</div>
           <div className={style.questionTableCell}>Category</div>
-          <div className={cx(style.questionTableCell, style.redirect)}>Redirect To</div>
           <div className={cx(style.questionTableCell, style.actions)}></div>
         </div>
         {this.state.items.map(({ id, data }, index) => (

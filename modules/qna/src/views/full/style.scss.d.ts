@@ -50,7 +50,7 @@ interface CssExports {
   'questionTableCell': string;
   'questionTableRow': string;
   'questionToolbar': string;
-  'redirect': string;
+  'redirectTooltip': string;
   'searchBar': string;
   'searchBarLite': string;
   'searchField': string;
