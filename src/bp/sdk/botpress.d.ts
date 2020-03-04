@@ -382,13 +382,13 @@ declare module 'botpress/sdk' {
         (message: string): void
       }
 
-      interface CrfTrainElement {
+      interface DataPoint {
         features: Array<string[]>
         labels: string[]
       }
 
       export interface Trainer {
-        train(elements: CrfTrainElement[], options: TrainerOptions): Promise<string>
+        train(elements: DataPoint[], options: TrainerOptions): Promise<string>
       }
 
       export const createTrainer: () => Trainer

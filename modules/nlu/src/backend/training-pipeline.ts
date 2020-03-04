@@ -399,12 +399,12 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
   }
 
   debugTraining.forBot(input.botId, 'Training slot tagger')
-  const crfExtractor = new SlotTagger(tools.mlToolkit)
-  await crfExtractor.train(input.intents.filter(i => i.name !== NONE_INTENT))
+  const slotTagger = new SlotTagger(tools.mlToolkit)
+  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
   debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()
 
-  return crfExtractor.serialized
+  return slotTagger.serialized
 }
 
 const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
