@@ -33,7 +33,7 @@ const Item: FC<Props> = props => {
   const missingTranslations = !questions.length || (item.action !== ACTIONS.REDIRECT && !answers.length)
 
   return (
-    <div className={cx(style.questionTableRow, { [style.last]: last })} key={id}>
+    <div role="entry" className={cx(style.questionTableRow, { [style.last]: last })} key={id}>
       <div className={cx(style.questionTableCell, style.question)}  onClick={() => props.onEditItem(id)}>
         {missingTranslations && (
           <Fragment>
