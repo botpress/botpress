@@ -291,13 +291,16 @@ class Bots extends Component<Props> {
   }
 
   filterStageApproval(bot: BotConfig, email: string, strategy: string) {
+    if (!this.props.workspace || !this.state.needApprovalFilter) {
+      return true
+    }
     const { pipeline } = this.props.workspace
     const { current_stage, stage_request } = bot.pipeline_status
 
     const reviewers = _.get(current_stage && pipeline.find(x => x.id === current_stage.id), 'reviewers', [])
     const isReviewer = reviewers.find(x => x.strategy === strategy && x.email === email)
 
-    return !this.state.needApprovalFilter || (stage_request && isReviewer)
+    return stage_request && isReviewer
   }
 
   renderBots() {
