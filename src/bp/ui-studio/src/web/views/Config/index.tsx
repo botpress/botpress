@@ -5,6 +5,7 @@ import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
 import React, { Component } from 'react'
+import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import { fetchBotInformation } from '~/actions'
@@ -17,11 +18,7 @@ import { ItemList } from '../../components/Shared/Interface'
 
 import style from './style.scss'
 
-const statusList: SelectItem[] = [
-  { label: 'Published', value: 'public' },
-  { label: 'Collaborators Only', value: 'private' },
-  { label: 'Unmounted', value: 'disabled' }
-]
+const statusList = ['public', 'private', 'disabled']
 
 const axiosConfig = {
   baseURL: 'api/v1/'
@@ -81,19 +78,19 @@ class ConfigView extends Component<Props, State> {
 
   sideBarItems: Item[] = [
     {
-      label: 'General',
+      label: this.props.intl.formatMessage({ id: 'general' }),
       value: 'main',
       icon: 'cog',
       selected: true
     },
     {
-      label: 'Additional Details',
+      label: this.props.intl.formatMessage({ id: 'additionalDetails' }),
       value: 'details',
       icon: 'list-detail-view',
       selected: false
     },
     {
-      label: 'Avatar & Cover picture',
+      label: this.props.intl.formatMessage({ id: 'avatarAndCover' }),
       value: 'pictures',
       icon: 'media',
       selected: false
@@ -104,7 +101,7 @@ class ConfigView extends Component<Props, State> {
     ...this.initialFormState,
     licensing: undefined,
     languages: [],
-    statuses: statusList,
+    statuses: [],
     error: undefined,
     isSaving: false,
     items: this.sideBarItems,
@@ -114,6 +111,10 @@ class ConfigView extends Component<Props, State> {
   async componentDidMount() {
     const languages = await this.fetchLanguages()
     const licensing = await this.fetchLicensing()
+    const statuses = statusList.map<SelectItem>(x => ({
+      label: this.props.intl.formatMessage({ id: `${x}Status` }),
+      value: x
+    }))
 
     if (!this.props.bot) {
       this.props.fetchBotInformation()
@@ -124,7 +125,7 @@ class ConfigView extends Component<Props, State> {
 
     this.initialFormState = {
       name: bot.name || '',
-      status: this.state.statuses.find(s => s.value === status),
+      status: statuses.find(s => s.value === status),
       description: bot.description || '',
       selectedDefaultLang: languages.find(l => l.value === bot.defaultLanguage),
       selectedLanguages: languages.filter(x => bot.languages && bot.languages.includes(x.value)),
@@ -140,14 +141,15 @@ class ConfigView extends Component<Props, State> {
     this.setState({
       ...this.initialFormState,
       licensing,
-      languages
+      languages,
+      statuses
     })
   }
 
   async fetchLanguages(): Promise<SelectItem[]> {
     const { data } = await axios.get('admin/languages/available', axiosConfig)
     const languages = _.sortBy(data.languages, 'name').map(lang => ({
-      label: lang.name,
+      label: this.props.intl.formatMessage({ id: `language${lang.name}` }),
       value: lang.code
     }))
     return languages
@@ -181,7 +183,7 @@ class ConfigView extends Component<Props, State> {
 
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
-      toastFailure('The form contains errors')
+      toastFailure(this.props.intl.formatMessage({ id: 'formContainsErrors' }))
       this.setState({ error: error, isSaving: false })
       return
     }
@@ -191,15 +193,14 @@ class ConfigView extends Component<Props, State> {
       let allow = true
 
       if (disableChanged && bot.disabled) {
-        allow = await confirmDialog(
-          `Are you sure want to unmount this bot? All of the functionalities of this bot will become unavailable.`,
-          { acceptLabel: 'Unmount' }
-        )
+        allow = await confirmDialog(this.props.intl.formatMessage({ id: 'confirmUnmount' }), {
+          acceptLabel: 'Unmount'
+        })
       }
 
       if (allow) {
         await axios.post(`admin/bots/${this.props.bot.id}`, bot, axiosConfig)
-        toastSuccess('Bot configuration updated successfully')
+        toastSuccess(this.props.intl.formatMessage({ id: 'configUpdated' }))
         this.setState({ error: undefined, isSaving: false })
 
         if (disableChanged) {
@@ -234,7 +235,7 @@ class ConfigView extends Component<Props, State> {
       const currentName = this.state.languages.find(x => x.value === this.state.selectedDefaultLang.value).label
       const newName = this.state.languages.find(x => x.value === lang.value).label
       const conf = await confirmDialog(
-        `Are you sure you want to change the language of your bot from ${currentName} to ${newName}? All of your content elements will be copied, make sure you translate them.`,
+        this.props.intl.formatMessage({ id: 'confirmChangeLanguage' }, { currentName, newName }),
         { acceptLabel: 'Change' }
       )
 
@@ -260,7 +261,7 @@ class ConfigView extends Component<Props, State> {
 
     if (!event.target.files[0].type.includes('image/')) {
       this.setState({
-        error: `${targetProp} requires an image file`
+        error: this.props.intl.formatMessage({ id: 'requireImageFile' }, { targetProp })
       })
       return
     }
@@ -297,7 +298,7 @@ class ConfigView extends Component<Props, State> {
     return (
       <Container>
         <SidePanel>
-          <SidePanelSection label="Bot Configuration">
+          <SidePanelSection label={this.props.intl.formatMessage({ id: 'botConfiguration' })}>
             <ItemList items={this.state.items} onElementClicked={this.handleElementClicked} />
           </SidePanelSection>
         </SidePanel>
@@ -310,11 +311,11 @@ class ConfigView extends Component<Props, State> {
           <form>
             {this.state.activeTab === 'main' && (
               <div>
-                <h1>General</h1>
-                <FormGroup label="Name" labelFor="name">
+                <h1>{this.props.intl.formatMessage({ id: 'general' })}</h1>
+                <FormGroup label={this.props.intl.formatMessage({ id: 'name' })} labelFor="name">
                   <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
                 </FormGroup>
-                <FormGroup label="Status" labelFor="status">
+                <FormGroup label={this.props.intl.formatMessage({ id: 'status' })} labelFor="status">
                   <Select
                     id="status"
                     name="status"
@@ -323,7 +324,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleStatusChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Description" labelFor="description">
+                <FormGroup label={this.props.intl.formatMessage({ id: 'description' })} labelFor="description">
                   <TextArea
                     id="description"
                     name="description"
@@ -338,8 +339,8 @@ class ConfigView extends Component<Props, State> {
             )}
             {this.state.activeTab === 'details' && (
               <div>
-                <h1>Details</h1>
-                <FormGroup label="Website" labelFor="website">
+                <h1>{this.props.intl.formatMessage({ id: 'details' })}</h1>
+                <FormGroup label={this.props.intl.formatMessage({ id: 'website' })} labelFor="website">
                   <InputGroup
                     id="website"
                     leftIcon="globe"
@@ -349,7 +350,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Phone Number" labelFor="phone-number">
+                <FormGroup label={this.props.intl.formatMessage({ id: 'phoneNumber' })} labelFor="phone-number">
                   <InputGroup
                     id="phone-number"
                     leftIcon="phone"
@@ -359,7 +360,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Contact E-mail" labelFor="email-address">
+                <FormGroup label={this.props.intl.formatMessage({ id: 'contactEmail' })} labelFor="email-address">
                   <InputGroup
                     id="email-address"
                     leftIcon="envelope"
@@ -369,7 +370,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Link to Terms &amp; Conditions" labelFor="terms-conditions">
+                <FormGroup label={this.props.intl.formatMessage({ id: 'linkToTerms' })} labelFor="terms-conditions">
                   <InputGroup
                     id="terms-conditions"
                     name="termsConditions"
@@ -378,7 +379,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Link to Privacy Policy" labelFor="privacy-policy">
+                <FormGroup label={this.props.intl.formatMessage({ id: 'linkToPolicy' })} labelFor="privacy-policy">
                   <InputGroup
                     id="privacy-policy"
                     placeholder="https://botpress.com/privacy-policy"
@@ -391,10 +392,10 @@ class ConfigView extends Component<Props, State> {
             )}
             {this.state.activeTab === 'pictures' && (
               <div>
-                <h1>Pictures</h1>
-                <FormGroup label="Bot Avatar" labelFor="avatar-url">
+                <h1>{this.props.intl.formatMessage({ id: 'pictures' })}</h1>
+                <FormGroup label={this.props.intl.formatMessage({ id: 'botAvatar' })} labelFor="avatar-url">
                   <FileInput
-                    text="Choose file"
+                    text={this.props.intl.formatMessage({ id: 'chooseFile' })}
                     inputProps={{
                       id: 'avatar-url',
                       name: 'avatarUrl',
@@ -404,17 +405,16 @@ class ConfigView extends Component<Props, State> {
                   />
                   {this.state.avatarUrl !== this.initialFormState.avatarUrl && (
                     <p className={style.configUploadSuccess}>
-                      The bot avatar has been uploaded successfully. You need to save the form in order for the changes
-                      to take effect.
+                      {this.props.intl.formatMessage({ id: 'avatarUploadSuccess' })}
                     </p>
                   )}
                   {this.state.avatarUrl && (
                     <img className={style.avatarPreview} alt="avatar" src={this.state.avatarUrl} />
                   )}
                 </FormGroup>
-                <FormGroup label="Cover Picture" labelFor="cover-picture-url">
+                <FormGroup label={this.props.intl.formatMessage({ id: 'coverPicture' })} labelFor="cover-picture-url">
                   <FileInput
-                    text="Choose file"
+                    text={this.props.intl.formatMessage({ id: 'chooseFile' })}
                     inputProps={{
                       id: 'cover-picture-url',
                       name: 'coverPictureUrl',
@@ -424,8 +424,7 @@ class ConfigView extends Component<Props, State> {
                   />
                   {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && (
                     <p className={style.configUploadSuccess}>
-                      The cover picture has been uploaded successfully. You need to save the form in order for the
-                      changes to take effect.
+                      {this.props.intl.formatMessage({ id: 'coverUploadSuccess' })}
                     </p>
                   )}
                   {this.state.coverPictureUrl && (
@@ -436,7 +435,7 @@ class ConfigView extends Component<Props, State> {
             )}
             <FormGroup>
               <Button
-                text="Save changes"
+                text={this.props.intl.formatMessage({ id: 'saveChanges' })}
                 intent="primary"
                 icon="floppy-disk"
                 disabled={this.state.isSaving}
@@ -453,7 +452,7 @@ class ConfigView extends Component<Props, State> {
     if (this.state.licensing && this.state.licensing.isPro) {
       return (
         <div>
-          <FormGroup label="Default language" labelFor="selected-default-lang">
+          <FormGroup label={this.props.intl.formatMessage({ id: 'defaultLanguage' })} labelFor="selected-default-lang">
             <Select
               id="selected-default-lang"
               name="selectedDefaultLang"
@@ -462,7 +461,7 @@ class ConfigView extends Component<Props, State> {
               onChange={this.handleDefaultLangChanged}
             />
           </FormGroup>
-          <FormGroup label="Supported languages" labelFor="selected-languages">
+          <FormGroup label={this.props.intl.formatMessage({ id: 'supportedLanguages' })} labelFor="selected-languages">
             <Select
               id="selected-languages"
               name="selectedLanguages"
@@ -476,7 +475,7 @@ class ConfigView extends Component<Props, State> {
       )
     } else {
       return (
-        <FormGroup label="Language" labelFor="selected-default-lang">
+        <FormGroup label={this.props.intl.formatMessage({ id: 'language' })} labelFor="selected-default-lang">
           <Select
             id="selected-default-lang"
             name="selectedDefaultLang"
@@ -496,9 +495,9 @@ const mapDispatchToProps = {
   fetchBotInformation
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ConfigView)
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ConfigView))
 
-interface Props {
+type Props = {
   fetchBotInformation: Function
   bot: BotConfig
-}
+} & InjectedIntlProps
