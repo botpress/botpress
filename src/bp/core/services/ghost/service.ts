@@ -575,9 +575,14 @@ export class ScopedGhostService {
 
   async fileExists(rootFolder: string, file: string): Promise<boolean> {
     const fileName = this._normalizeFileName(rootFolder, file)
+    const cacheKey = this.objectCacheKey(fileName)
+
     try {
-      await this.primaryDriver.readFile(fileName)
-      return true
+      if (await this.cache.has(cacheKey)) {
+        return true
+      }
+
+      return this.primaryDriver.fileExists(fileName)
     } catch (err) {
       return false
     }
