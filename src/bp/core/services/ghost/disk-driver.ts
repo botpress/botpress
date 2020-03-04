@@ -1,3 +1,4 @@
+import { DirectoryListingOptions } from 'botpress/sdk'
 import { forceForwardSlashes } from 'core/misc/utils'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
@@ -74,7 +75,10 @@ export default class DiskStorageDriver implements StorageDriver {
 
   async directoryListing(
     folder: string,
-    options: { excludes?: string | string[]; includeDotFiles?: boolean } = { excludes: [], includeDotFiles: false }
+    options: DirectoryListingOptions = {
+      excludes: [],
+      includeDotFiles: false
+    }
   ): Promise<string[]> {
     try {
       await fse.access(this.resolvePath(folder), fse.constants.R_OK)
@@ -88,7 +92,7 @@ export default class DiskStorageDriver implements StorageDriver {
     }
 
     const ghostIgnorePatterns = await this._getGhostIgnorePatterns(this.resolvePath('data/.ghostignore'))
-    const globOptions = {
+    const globOptions: glob.IOptions = {
       cwd: this.resolvePath(folder),
       dot: options.includeDotFiles
     }
@@ -104,7 +108,18 @@ export default class DiskStorageDriver implements StorageDriver {
 
     try {
       const files = await Promise.fromCallback<string[]>(cb => glob('**/*.*', globOptions, cb))
-      return files.map(filePath => forceForwardSlashes(filePath))
+      if (!options.sortOrder) {
+        return files.map(filePath => forceForwardSlashes(filePath))
+      }
+
+      const { column, desc } = options.sortOrder
+
+      const filesWithDate = await Promise.map(files, async filePath => ({
+        filePath,
+        modifiedOn: (await fse.stat(path.join(this.resolvePath(folder), filePath))).mtime
+      }))
+
+      return _.orderBy(filesWithDate, [column], [desc ? 'desc' : 'asc']).map(x => forceForwardSlashes(x.filePath))
     } catch (e) {
       return []
     }
