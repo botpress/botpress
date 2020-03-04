@@ -1,6 +1,6 @@
 import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { Flow } from 'botpress/sdk'
-import { TreeView, confirmDialog } from 'botpress/shared'
+import { confirmDialog, TreeView } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
@@ -128,7 +128,6 @@ const TopicList = props => {
       )
     } else if (elementType === 'qna') {
       const { name } = element as NodeData
-      console.log(element)
 
       return (
         <Menu>
@@ -137,7 +136,7 @@ const TopicList = props => {
             disabled={props.readOnly}
             icon="edit"
             text="Edit Q&A"
-            onClick={() => props.editQnA(name)}
+            onClick={() => props.editQnA(name.replace('/qna', ''))}
           />
         </Menu>
       )
@@ -191,9 +190,8 @@ const TopicList = props => {
       await deleteFlow(name)
     }
     const editQnA = e => {
-      console.log(el)
       e.stopPropagation()
-      props.editQnA(el)
+      props.editQnA(name.replace('/qna', ''))
     }
 
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
@@ -225,15 +223,17 @@ const TopicList = props => {
     }
   }
 
-  const onClick = (element: NodeData | string, type) => {
+  const onClick = (el: NodeData | string, type) => {
     if (type === 'document') {
-      props.goToFlow((element as NodeData).name)
+      props.goToFlow((el as NodeData).name)
     }
   }
 
-  const onDoubleClick = (element: NodeData, type) => {
-    if (type === 'document') {
-      props.editGoal(element.name, element)
+  const onDoubleClick = (el: NodeData, type) => {
+    if (type === 'qna') {
+      props.editQnA(el.name.replace('/qna', ''))
+    } else if (type === 'document') {
+      props.editGoal(el.name, el)
     }
   }
 

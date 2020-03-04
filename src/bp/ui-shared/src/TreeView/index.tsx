@@ -69,6 +69,10 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   }
 
   const handleNodeClick = (selectedNode: TreeNode<T>) => {
+    if (selectedNode?.nodeData?.type === 'qna') {
+      return
+    }
+
     if (selectedNode.nodeData) {
       props.onClick?.(selectedNode.nodeData, 'document')
     } else {
@@ -94,7 +98,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
   const handleNodeDoubleClick = (selectedNode: TreeNode<T>) => {
     if (selectedNode.nodeData) {
-      props.onDoubleClick?.(selectedNode.nodeData, 'document')
+      props.onDoubleClick?.(selectedNode.nodeData, selectedNode.nodeData?.type || 'document')
     } else {
       props.onDoubleClick?.(selectedNode.fullPath, 'folder')
     }
@@ -102,7 +106,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
   const handleContextMenu = (node: TreeNode<T>, _path, e) => {
     const contextMenu = node.nodeData
-      ? props.onContextMenu?.(node.nodeData, node.nodeData.type || 'document')
+      ? props.onContextMenu?.(node.nodeData, node.nodeData?.type || 'document')
       : props.onContextMenu?.(node.fullPath, 'folder')
 
     if (contextMenu) {
