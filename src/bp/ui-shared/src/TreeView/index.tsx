@@ -86,7 +86,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         }
 
         if (!node.nodeData) {
-          node.isExpanded ? changeNodeExpansion(node, false) : changeNodeExpansion(node, true)
+          changeNodeExpansion(node, node.isExpanded)
         }
       } else {
         node.isSelected = false
