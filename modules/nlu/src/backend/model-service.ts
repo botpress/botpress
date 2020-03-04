@@ -45,13 +45,15 @@ function deserializeModel(str: string): Model {
 async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: string): Promise<void | void[]> {
   const models = await listModelsForLang(ghost, languageCode)
   if (models.length > MAX_MODELS_TO_KEEP) {
-    return Promise.map(models.slice(MAX_MODELS_TO_KEEP - 1), file => ghost.deleteFile(MODELS_DIR, file))
+    return Promise.map(models.slice(MAX_MODELS_TO_KEEP), file => ghost.deleteFile(MODELS_DIR, file))
   }
 }
 
 async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: string): Promise<string[]> {
   const endingPattern = makeFileName('*', languageCode)
-  return await ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined {orderBy: 'modifiedOn', order: 'desc'})
+  return await ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
+    sortOrder: { column: 'modifiedOn', desc: true }
+  })
 }
 
 export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | void> {
