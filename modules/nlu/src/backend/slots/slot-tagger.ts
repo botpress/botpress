@@ -158,8 +158,8 @@ export default class SlotTagger {
     return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
   }
 
-  private _trainCrf(intents: Intent<Utterance>[]) {
-    const elements = []
+  private _trainCrf(intents: Intent<Utterance>[]): Promise<string> {
+    const elements: sdk.MLToolkit.CRF.CrfTrainElement[] = []
 
     for (const intent of intents) {
       for (const utterance of intent.utterances) {
@@ -173,7 +173,6 @@ export default class SlotTagger {
     }
 
     const trainer = this.mlToolkit.CRF.createTrainer()
-    // @ts-ignore
     return trainer.train(elements, CRF_TRAINER_PARAMS)
   }
 

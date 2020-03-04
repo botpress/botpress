@@ -126,6 +126,7 @@ if (cluster.isWorker) {
       }
 
       if (msg.type === 'crf_train') {
+        const debugTrain = DEBUG('nlu').sub('training')
         const trainer = new CRFTrainer()
 
         try {
