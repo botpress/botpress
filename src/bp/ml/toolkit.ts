@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
-import fs from 'fs'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
@@ -14,11 +13,10 @@ import computeLevenshteinDistance from './homebrew/levenshtein'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 
-// those messgages are global preprend with svm_ if we ever come up with more message types
-type MsgTypeSVM = 'train' | 'progress' | 'done' | 'error' | 'crf_train' | 'crf_done' | 'crf_error'
+type MsgType = 'svm_train' | 'svm_progress' | 'svm_done' | 'svm_error' | 'crf_train' | 'crf_done' | 'crf_error'
 
 interface Message {
-  type: MsgTypeSVM
+  type: MsgType
   id: string
   payload: any
 }
@@ -52,7 +50,7 @@ function overloadTrainers() {
         if (msg.id !== id) {
           return
         }
-        if (progressCb && msg.type === 'progress') {
+        if (progressCb && msg.type === 'svm_progress') {
           try {
             progressCb(msg.payload.progress)
           } catch (err) {
@@ -62,18 +60,18 @@ function overloadTrainers() {
           }
         }
 
-        if (msg.type === 'done') {
+        if (msg.type === 'svm_done') {
           completedCb(undefined, msg.payload.result)
           process.off('message', messageHandler)
         }
 
-        if (msg.type === 'error') {
+        if (msg.type === 'svm_error') {
           completedCb(msg.payload.error)
           process.off('message', messageHandler)
         }
       }
 
-      process.send!({ type: 'train', id, payload: { points, options } })
+      process.send!({ type: 'svm_train', id, payload: { points, options } })
       process.on('message', messageHandler)
     })
   }
@@ -109,19 +107,19 @@ if (cluster.isWorker) {
   }
   if (process.env.WORKER_TYPE === WORKER_TYPES.ML) {
     async function messageHandler(msg: Message) {
-      if (msg.type === 'train') {
+      if (msg.type === 'svm_train') {
         const svm = new SVMTrainer()
         try {
           let progressCalls = 0
           const result = await svm.train(msg.payload.points, msg.payload.options, progress => {
             if (++progressCalls % 10 === 0 || progress === 1) {
-              process.send!({ type: 'progress', id: msg.id, payload: { progress } })
+              process.send!({ type: 'svm_progress', id: msg.id, payload: { progress } })
             }
           })
 
-          process.send!({ type: 'done', id: msg.id, payload: { result } })
+          process.send!({ type: 'svm_done', id: msg.id, payload: { result } })
         } catch (error) {
-          process.send!({ type: 'error', id: msg.id, payload: { error } })
+          process.send!({ type: 'svm_error', id: msg.id, payload: { error } })
         }
       }
 
@@ -178,10 +176,10 @@ if (cluster.isMaster) {
     return worker
   }
 
-  registerMsgHandler('done', sendToWebWorker)
-  registerMsgHandler('progress', sendToWebWorker)
-  registerMsgHandler('error', sendToWebWorker)
-  registerMsgHandler('train', async (msg: Message) => (await pickMLWorker()).send(msg))
+  registerMsgHandler('svm_done', sendToWebWorker)
+  registerMsgHandler('svm_progress', sendToWebWorker)
+  registerMsgHandler('svm_error', sendToWebWorker)
+  registerMsgHandler('svm_train', async (msg: Message) => (await pickMLWorker()).send(msg))
 
   registerMsgHandler('crf_train', async (msg: Message) => (await pickMLWorker()).send(msg))
   registerMsgHandler('crf_done', sendToWebWorker)
