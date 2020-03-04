@@ -46,14 +46,14 @@ if (!window.BOT_ID) {
   // Do not use "import App from ..." as hoisting will screw up styling
   const App = require('./components/App').default
 
-  initializeTranslations()
-
-  ReactDOM.render(
-    <Provider store={store}>
-      <HotKeys keyMap={keyMap}>
-        <App />
-      </HotKeys>
-    </Provider>,
-    document.getElementById('app')
-  )
+  initializeTranslations().then(() => {
+    ReactDOM.render(
+      <Provider store={store}>
+        <HotKeys keyMap={keyMap}>
+          <App />
+        </HotKeys>
+      </Provider>,
+      document.getElementById('app')
+    )
+  })
 }
