@@ -1,8 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
+import fs from 'fs'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
+import tmp from 'tmp'
 
 import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
 const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
@@ -13,8 +15,8 @@ import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 
 // those messgages are global preprend with svm_ if we ever come up with more message types
-type MsgTypeSVM = 'train' | 'progress' | 'done' | 'error'
-
+type MsgTypeSVM = 'train' | 'progress' | 'done' | 'error' | 'crf_train' | 'crf_done' | 'crf_error'
+const debugTrain = DEBUG('nlu').sub('training')
 interface Message {
   type: MsgTypeSVM
   id: string
@@ -75,6 +77,30 @@ function overloadTrainers() {
       process.on('message', messageHandler)
     })
   }
+
+  MLToolkit.CRF.createTrainer.prototype.train = (elements: any, params?: any): any => {
+    return Promise.fromCallback(completedCb => {
+      const id = nanoid()
+      const messageHandler = (msg: Message) => {
+        if (msg.id !== id) {
+          return
+        }
+
+        if (msg.type === 'crf_done') {
+          completedCb(undefined, msg.payload.crfModelFilename)
+          process.off('message', messageHandler)
+        }
+
+        if (msg.type === 'crf_error') {
+          completedCb(msg.payload.error)
+          process.off('message', messageHandler)
+        }
+      }
+
+      process.send!({ type: 'crf_train', id, payload: { elements, params } })
+      process.on('message', messageHandler)
+    })
+  }
 }
 
 if (cluster.isWorker) {
@@ -96,6 +122,26 @@ if (cluster.isWorker) {
           process.send!({ type: 'done', id: msg.id, payload: { result } })
         } catch (error) {
           process.send!({ type: 'error', id: msg.id, payload: { error } })
+        }
+      }
+
+      if (msg.type === 'crf_train') {
+        const trainer = new CRFTrainer()
+
+        try {
+          trainer.set_params(msg.payload.params)
+          trainer.set_callback(str => debugTrain('CRFSUITE', str))
+
+          for (const { features, labels } of msg.payload.elements) {
+            trainer.append(features, labels)
+          }
+
+          const crfModelFilename = tmp.fileSync({ postfix: '.bin' }).name
+          trainer.train(crfModelFilename)
+
+          process.send!({ type: 'crf_done', id: msg.id, payload: { crfModelFilename } })
+        } catch (error) {
+          process.send!({ type: 'crf_error', id: msg.id, payload: { error } })
         }
       }
     }
@@ -135,6 +181,10 @@ if (cluster.isMaster) {
   registerMsgHandler('progress', sendToWebWorker)
   registerMsgHandler('error', sendToWebWorker)
   registerMsgHandler('train', async (msg: Message) => (await pickMLWorker()).send(msg))
+
+  registerMsgHandler('crf_train', async (msg: Message) => (await pickMLWorker()).send(msg))
+  registerMsgHandler('crf_done', sendToWebWorker)
+  registerMsgHandler('crf_error', sendToWebWorker)
 }
 
 export default MLToolkit

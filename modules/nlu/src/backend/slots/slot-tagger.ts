@@ -150,7 +150,7 @@ export default class SlotTagger {
       return
     }
 
-    this._trainCrf(intents)
+    this._crfModelFn = await this._trainCrf(intents)
     this._readTagger()
   }
 
@@ -159,11 +159,7 @@ export default class SlotTagger {
   }
 
   private _trainCrf(intents: Intent<Utterance>[]) {
-    this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
-    const trainer = this.mlToolkit.CRF.createTrainer()
-
-    trainer.set_params(CRF_TRAINER_PARAMS)
-    trainer.set_callback(str => debugTrain('CRFSUITE', str))
+    const elements = []
 
     for (const intent of intents) {
       for (const utterance of intent.utterances) {
@@ -172,11 +168,13 @@ export default class SlotTagger {
           .map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
         const labels = labelizeUtterance(utterance)
 
-        trainer.append(features, labels)
+        elements.push({ features, labels })
       }
     }
 
-    trainer.train(this._crfModelFn)
+    const trainer = this.mlToolkit.CRF.createTrainer()
+    // @ts-ignore
+    return trainer.train(elements, CRF_TRAINER_PARAMS)
   }
 
   private tokenSliceFeatures(
