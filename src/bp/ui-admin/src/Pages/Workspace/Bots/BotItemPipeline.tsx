@@ -22,12 +22,15 @@ import AccessControl, { isChatUser } from '../../../App/AccessControl'
 interface Props {
   bot: BotConfig
   isApprover: boolean
+  userEmail: string
+  userStrategy: string
   hasError: boolean
   deleteBot?: () => void
   exportBot?: () => void
   createRevision?: () => void
   rollback?: () => void
   requestStageChange?: () => void
+  approveStageChange?: () => void
   allowStageChange?: boolean
   reloadBot?: () => void
   viewLogs?: () => void
@@ -36,8 +39,11 @@ interface Props {
 const BotItemPipeline: FC<Props> = ({
   bot,
   isApprover,
+  userEmail,
+  userStrategy,
   hasError,
   requestStageChange,
+  approveStageChange,
   deleteBot,
   exportBot,
   allowStageChange,
@@ -48,11 +54,10 @@ const BotItemPipeline: FC<Props> = ({
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
-  const requiresApproval = isApprover && bot.pipeline_status.stage_request
-
-  // These need to be implemented once backend for approval is implemented
-  const rejectStagePromotion = () => console.log('Stage promotion rejected')
-  const approveStagePromotion = () => console.log('Stage promotion approved')
+  const requiresApproval =
+    isApprover &&
+    bot.pipeline_status.stage_request &&
+    !(bot.pipeline_status.stage_request.approvals || []).find(x => x.email === userEmail && x.strategy === userStrategy)
 
   return (
     <div className="pipeline_bot" key={bot.id}>
@@ -117,6 +122,11 @@ const BotItemPipeline: FC<Props> = ({
             Needs your review
           </Tag>
         )}
+        {bot.pipeline_status.stage_request && isApprover && !requiresApproval && (
+          <Tag intent={Intent.SUCCESS} className="botbadge reviewNeeded">
+            Approved
+          </Tag>
+        )}
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
@@ -160,10 +170,7 @@ const BotItemPipeline: FC<Props> = ({
         )}
         {requiresApproval && (
           <div className="stage-approval-btns">
-            <Button onClick={rejectStagePromotion} small minimal intent="danger">
-              Reject
-            </Button>
-            <Button onClick={approveStagePromotion} small minimal intent="success">
+            <Button onClick={approveStageChange} small intent="success">
               Approve
             </Button>
           </div>

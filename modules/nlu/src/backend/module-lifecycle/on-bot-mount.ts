@@ -41,6 +41,7 @@ export function getOnBotMount(state: NLUState) {
           if (!lock) {
             return
           }
+          await ModelService.pruneModels(ghost, languageCode)
           let model = await ModelService.getModel(ghost, hash, languageCode)
           if (forceTrain || !model) {
             const trainSession = makeTrainingSession(languageCode, lock)

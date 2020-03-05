@@ -158,6 +158,12 @@ class Bots extends Component<Props> {
     toastSuccess('Bot promoted to next stage')
   }
 
+  async approveStageChange(botId) {
+    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/approve-stage`)
+    this.props.fetchBots()
+    toastSuccess('Approved bot promotion to next stage')
+  }
+
   isLicensed = () => {
     return _.get(this.props.licensing, 'status') === 'licensed'
   }
@@ -233,7 +239,7 @@ class Bots extends Component<Props> {
   renderPipelineView(bots: BotConfig[]) {
     const {
       workspace: { pipeline },
-      profile: { email }
+      profile: { email, strategy }
     } = this.props
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
@@ -248,7 +254,7 @@ class Bots extends Component<Props> {
                 {pipeline.length > 1 && (
                   <div className="pipeline_title">
                     <h3>{stage.label}</h3>
-                    <AccessControl resource="admin.bots.*" operation="write">
+                    <AccessControl resource="admin.bots.*" operation="write" superAdmin>
                       <Button className="pipeline_edit-button" onClick={() => this.toggleEditStage(stage)}>
                         <Icon icon="edit" />
                       </Button>
@@ -260,10 +266,13 @@ class Bots extends Component<Props> {
                   <Fragment key={bot.id}>
                     <BotItemPipeline
                       bot={bot}
-                      isApprover={stage.reviewers.includes(email)}
+                      isApprover={stage.reviewers.find(r => r.email === email && r.strategy === strategy) !== undefined}
+                      userEmail={email}
+                      userStrategy={strategy}
                       hasError={this.findBotError(bot.id)}
                       allowStageChange={allowStageChange && !bot.disabled}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}
+                      approveStageChange={this.approveStageChange.bind(this, bot.id)}
                       deleteBot={this.deleteBot.bind(this, bot.id)}
                       exportBot={this.exportBot.bind(this, bot.id)}
                       createRevision={this.createRevision.bind(this, bot.id)}
@@ -281,14 +290,26 @@ class Bots extends Component<Props> {
     )
   }
 
-  renderBots() {
+  filterStageApproval(bot: BotConfig, email: string, strategy: string) {
+    if (!this.props.workspace || !this.state.needApprovalFilter) {
+      return true
+    }
     const { pipeline } = this.props.workspace
-    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter).filter(
-      bot =>
-        !this.state.needApprovalFilter ||
-        (bot.pipeline_status.stage_request &&
-          pipeline[bot.pipeline_status.current_stage.id].reviewers.includes(this.props.profile.email))
+    const { current_stage, stage_request } = bot.pipeline_status
+
+    const reviewers = _.get(current_stage && pipeline.find(x => x.id === current_stage.id), 'reviewers', [])
+    const isReviewer = reviewers.find(x => x.strategy === strategy && x.email === email)
+
+    return stage_request && isReviewer
+  }
+
+  renderBots() {
+    const { email, strategy } = this.props.profile
+
+    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter).filter(x =>
+      this.filterStageApproval(x, email, strategy)
     )
+
     const hasBots = !!this.props.bots.length
     const botsView = this.isPipelineView ? this.renderPipelineView(filteredBots) : this.renderCompactView(filteredBots)
 
