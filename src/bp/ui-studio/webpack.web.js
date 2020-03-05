@@ -88,10 +88,6 @@ const webConfig = {
     }),
     new CopyWebpackPlugin([
       {
-        from: path.resolve(__dirname, './src/web/translations'),
-        to: path.resolve(__dirname, './public/translations')
-      },
-      {
         from: path.resolve(__dirname, './src/web/img'),
         to: path.resolve(__dirname, './public/img')
       },

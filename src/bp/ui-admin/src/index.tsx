@@ -18,7 +18,7 @@ import * as BlueprintJsCore from 'expose-loader?BlueprintJsCore!@blueprintjs/cor
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { initializeTranslations } from '~/translation'
+import { initializeTranslations } from '~/translations'
 import './index.css'
 import { makeMainRoutes } from './routes'
 
@@ -27,6 +27,5 @@ const routes = makeMainRoutes()
 // @ts-ignore
 window.BlueprintJsCore = BlueprintJsCore
 
-initializeTranslations().then(() => {
-  ReactDOM.render(<div>{routes}</div>, document.getElementById('root'))
-})
+initializeTranslations()
+ReactDOM.render(<div>{routes}</div>, document.getElementById('root'))
