@@ -254,7 +254,7 @@ class Bots extends Component<Props> {
                 {pipeline.length > 1 && (
                   <div className="pipeline_title">
                     <h3>{stage.label}</h3>
-                    <AccessControl resource="admin.bots.*" operation="write">
+                    <AccessControl resource="admin.bots.*" operation="write" superAdmin>
                       <Button className="pipeline_edit-button" onClick={() => this.toggleEditStage(stage)}>
                         <Icon icon="edit" />
                       </Button>
@@ -290,14 +290,26 @@ class Bots extends Component<Props> {
     )
   }
 
-  renderBots() {
+  filterStageApproval(bot: BotConfig, email: string, strategy: string) {
+    if (!this.props.workspace || !this.state.needApprovalFilter) {
+      return true
+    }
     const { pipeline } = this.props.workspace
-    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter).filter(
-      bot =>
-        !this.state.needApprovalFilter ||
-        (bot.pipeline_status.stage_request &&
-          pipeline[bot.pipeline_status.current_stage.id].reviewers.includes(this.props.profile.email))
+    const { current_stage, stage_request } = bot.pipeline_status
+
+    const reviewers = _.get(current_stage && pipeline.find(x => x.id === current_stage.id), 'reviewers', [])
+    const isReviewer = reviewers.find(x => x.strategy === strategy && x.email === email)
+
+    return stage_request && isReviewer
+  }
+
+  renderBots() {
+    const { email, strategy } = this.props.profile
+
+    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter).filter(x =>
+      this.filterStageApproval(x, email, strategy)
     )
+
     const hasBots = !!this.props.bots.length
     const botsView = this.isPipelineView ? this.renderPipelineView(filteredBots) : this.renderCompactView(filteredBots)
 
