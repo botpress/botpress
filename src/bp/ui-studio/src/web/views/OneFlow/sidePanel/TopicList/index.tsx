@@ -2,7 +2,7 @@ import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@bluepri
 import { Flow } from 'botpress/sdk'
 import { confirmDialog, TreeView } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -42,6 +42,7 @@ interface NodeData {
   label?: string
   id?: any
   icon?: string
+  isClickable?: boolean
 }
 
 interface IFlow {
@@ -57,7 +58,8 @@ const TopicList = props => {
       name: `${topic}/qna`,
       label: 'Q&A',
       type: 'qna',
-      icon: 'chat'
+      icon: 'chat',
+      isClickable: false
     }))
 
     setFlows([...qna, ...props.flows])
@@ -126,7 +128,7 @@ const TopicList = props => {
           />
         </Menu>
       )
-    } else if (elementType === 'qna') {
+    } else if (_.isObject(element) && (element as NodeData).type === 'qna') {
       const { name } = element as NodeData
 
       return (
@@ -230,7 +232,7 @@ const TopicList = props => {
   }
 
   const onDoubleClick = (el: NodeData, type) => {
-    if (type === 'qna') {
+    if (el.type === 'qna') {
       props.editQnA(el.name.replace('/qna', ''))
     } else if (type === 'document') {
       props.editGoal(el.name, el)

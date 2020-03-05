@@ -1,5 +1,4 @@
 import { Classes, ContextMenu, Tree } from '@blueprintjs/core'
-import _ from 'lodash'
 import React, { useEffect, useReducer, useState } from 'react'
 
 import { TreeNode, TreeViewProps } from './typings'
@@ -69,7 +68,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   }
 
   const handleNodeClick = (selectedNode: TreeNode<T>) => {
-    if (selectedNode?.nodeData?.type === 'qna') {
+    if (typeof selectedNode?.nodeData?.isClickable !== 'undefined' && !selectedNode?.nodeData?.isClickable) {
       return
     }
 
@@ -98,7 +97,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
   const handleNodeDoubleClick = (selectedNode: TreeNode<T>) => {
     if (selectedNode.nodeData) {
-      props.onDoubleClick?.(selectedNode.nodeData, selectedNode.nodeData?.type || 'document')
+      props.onDoubleClick?.(selectedNode.nodeData, 'document')
     } else {
       props.onDoubleClick?.(selectedNode.fullPath, 'folder')
     }
@@ -106,7 +105,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
   const handleContextMenu = (node: TreeNode<T>, _path, e) => {
     const contextMenu = node.nodeData
-      ? props.onContextMenu?.(node.nodeData, node.nodeData?.type || 'document')
+      ? props.onContextMenu?.(node.nodeData, 'document')
       : props.onContextMenu?.(node.fullPath, 'folder')
 
     if (contextMenu) {

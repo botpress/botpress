@@ -1,9 +1,4 @@
-import { Topic } from 'botpress/sdk'
-import { FlowView } from 'common/typings'
-import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { fetchTopics } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 
@@ -14,22 +9,12 @@ interface Props {
 }
 
 const EditTopicQnAModal: FC<Props> = props => {
-  const [name, setName] = useState<string>('')
-
-  useEffect(() => {
-    setName(props.selectedTopic)
-  }, [props.isOpen])
-
-  const closeModal = () => {
-    props.toggle()
-  }
-
   return (
     <BaseDialog
       title={`Edit topic - ${name}`}
       icon="edit"
       isOpen={props.isOpen}
-      onClose={closeModal}
+      onClose={props.toggle}
       size="md"
       style={{ width: 900, minHeight: 475 }}
     >
@@ -38,7 +23,7 @@ const EditTopicQnAModal: FC<Props> = props => {
           moduleName="qna"
           componentName="LiteEditor"
           contentLang="en"
-          extraProps={{ topicName: name }}
+          extraProps={{ topicName: props.selectedTopic }}
         />
       </DialogBody>
     </BaseDialog>
