@@ -29,6 +29,9 @@ class EditorStore {
   private _isFileLoaded: boolean
 
   @observable
+  public isAdvanced: boolean = false
+
+  @observable
   private _originalHash: string
 
   constructor(rootStore: RootStore) {
@@ -79,6 +82,16 @@ class EditorStore {
   @action.bound
   setFileProblems(problems) {
     this.fileProblems = problems
+  }
+
+  @action.bound
+  async setAdvanced(isAdvanced) {
+    if (this.rootStore.permissions?.['root.raw']?.read) {
+      this.isAdvanced = isAdvanced
+      await this.rootStore.fetchFiles()
+    } else {
+      console.error(`Only Super Admins can use the raw file editor`)
+    }
   }
 
   @action.bound
