@@ -57,8 +57,7 @@ const TopicList = props => {
       name: `${topic}/qna`,
       label: 'Q&A',
       type: 'qna',
-      icon: 'chat',
-      isNotClickable: true
+      icon: 'chat'
     }))
 
     setFlows([...qna, ...props.flows])
