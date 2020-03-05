@@ -13,6 +13,7 @@ import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import api from '~/api'
+import lang from '~/translations'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 
@@ -87,7 +88,7 @@ const EditStageModal: FC<Props> = props => {
     let newPipeline
 
     if (!pipeline.find(p => p.id === id)) {
-      toastFailure('Could not find the pipeline to save')
+      toastFailure(lang('couldNotFindPipeline'))
     } else {
       newPipeline = pipeline.map(p =>
         p.id !== id
@@ -109,10 +110,10 @@ const EditStageModal: FC<Props> = props => {
         .post(`/admin/workspaces/${getActiveWorkspace()}/pipeline`, { updateCustom: true, pipeline: newPipeline })
 
       props.onEditSuccess()
-      toastSuccess('Stage saved successfully')
+      toastSuccess(lang('stageSaved'))
       closeModal()
     } catch (error) {
-      toastFailure(`Error while updating pipeline: ${error.message}`)
+      toastFailure(lang('errorUpdatingPipeline', { message: error.message }))
     } finally {
       setProcessing(false)
     }
@@ -154,7 +155,7 @@ const EditStageModal: FC<Props> = props => {
   return (
     <Dialog isOpen={props.isOpen} icon="undo" onClose={closeModal} transitionDuration={0} title={label}>
       <div className={Classes.DIALOG_BODY}>
-        <FormGroup label="Label">
+        <FormGroup label={lang('label')}>
           <InputGroup
             id="input-label"
             type="text"
@@ -164,14 +165,14 @@ const EditStageModal: FC<Props> = props => {
           />
         </FormGroup>
         {!isLastPipeline && (
-          <FormGroup label="Action">
+          <FormGroup label={lang('action')}>
             <RadioGroup onChange={({ currentTarget: { value } }) => setAction(value)} selectedValue={action} inline>
-              <Radio label="Copy" value="promote_copy" />
-              <Radio label="Move" value="promote_move" />
+              <Radio label={lang('copy')} value="promote_copy" />
+              <Radio label={lang('move')} value="promote_move" />
             </RadioGroup>
           </FormGroup>
         )}
-        <FormGroup label="Reviewers">
+        <FormGroup label={lang('reviewers')}>
           <Select
             id="select-reviewers"
             isMulti={true}
@@ -181,7 +182,7 @@ const EditStageModal: FC<Props> = props => {
             autoFocus={true}
           />
         </FormGroup>
-        <FormGroup label="Number of approvals required">
+        <FormGroup label={lang('approvalsRequired')}>
           <NumericInput
             id="input-minimumApprovals"
             min={0}
@@ -192,24 +193,24 @@ const EditStageModal: FC<Props> = props => {
             onValueChange={onMinimumApprovalsChange}
           />
         </FormGroup>
-        <FormGroup label="Approval order">
+        <FormGroup label={lang('approvalOrder')}>
           <RadioGroup
             onChange={({ currentTarget: { value } }) => setReviewSequence(value)}
             selectedValue={reviewSequence}
             inline
           >
-            <Radio label="Serial" value="serial" />
-            <Radio label="Parallel" value="parallel" />
+            <Radio label={lang('serial')} value="serial" />
+            <Radio label={lang('parallel')} value="parallel" />
           </RadioGroup>
         </FormGroup>
       </div>
 
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button id="btn-cancel" text="Cancel" tabIndex={3} onClick={toggle} disabled={isProcessing} />
+          <Button id="btn-cancel" text={lang('cancel')} tabIndex={3} onClick={toggle} disabled={isProcessing} />
           <Button
             id="btn-submit"
-            text={isProcessing ? 'Please wait...' : 'Save'}
+            text={isProcessing ? lang('pleaseWait') : lang('save')}
             tabIndex={3}
             onClick={submit}
             disabled={isProcessing}

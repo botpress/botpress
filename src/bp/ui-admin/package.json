@@ -40,6 +40,7 @@
     "react-copy-to-clipboard": "^5.0.2",
     "react-dom": "16.8.6",
     "react-icons": "^3.8.0",
+    "react-intl": "^3.12.1",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^5.0.0-alpha.9",
