@@ -2,6 +2,8 @@ import { Button } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import React, { FC, useEffect, useState } from 'react'
 
+import style from '../style.scss'
+
 const AutotrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
   const [autotrain, setAutotrain] = useState(false)
 
@@ -21,7 +23,7 @@ const AutotrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
   }
 
   return (
-    <Button icon={autotrain ? 'pause' : 'play'} onClick={() => toggleAutotrain()}>
+    <Button className={style.autotrainToggle} icon={autotrain ? 'pause' : 'play'} onClick={() => toggleAutotrain()}>
       Autotrain
     </Button>
   )

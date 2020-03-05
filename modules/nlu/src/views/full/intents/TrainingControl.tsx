@@ -7,7 +7,7 @@ import TrainNow from './TrainNow'
 const TrainingControl: FC<{ api: NLUApi }> = ({ api }) => {
   return (
     <div>
-      <h6>Training</h6>
+      <h5>Training</h5>
       <AutotrainToggle api={api} />
       <TrainNow api={api} />
     </div>
