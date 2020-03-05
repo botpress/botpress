@@ -26,7 +26,7 @@ import 'expose-loader?BotpressUtils!~/components/Shared/Utils'
 import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
 import 'expose-loader?BotpressShared!ui-shared'
-import { initializeTranslations } from './translations'
+import { initializeTranslations } from './translation'
 /* eslint-enable */
 
 require('bootstrap/dist/css/bootstrap.css')

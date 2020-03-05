@@ -18,7 +18,7 @@ import * as BlueprintJsCore from 'expose-loader?BlueprintJsCore!@blueprintjs/cor
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { initializeTranslations } from '~/translations'
+import { initializeTranslations } from '~/translation'
 import './index.css'
 import { makeMainRoutes } from './routes'
 

@@ -13,7 +13,7 @@ import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import api from '~/api'
-import lang from '~/translations'
+import lang from '~/translation'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 

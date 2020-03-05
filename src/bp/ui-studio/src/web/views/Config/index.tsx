@@ -11,7 +11,7 @@ import { fetchBotInformation } from '~/actions'
 import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
 import { Item } from '~/components/Shared/Interface/typings'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
-import lang from '~/translations'
+import lang from '~/translation'
 
 import confirmDialog from '../../../../../ui-shared/src/ConfirmDialog'
 import { ItemList } from '../../components/Shared/Interface'
