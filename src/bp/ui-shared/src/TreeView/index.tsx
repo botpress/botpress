@@ -68,14 +68,12 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   }
 
   const handleNodeClick = (selectedNode: TreeNode<T>) => {
-    if (selectedNode?.nodeData?.isNotClickable) {
-      return
-    }
+    const preventClick = selectedNode.nodeData
+      ? props.onClick?.(selectedNode.nodeData, 'document')
+      : props.onClick?.(selectedNode.fullPath, 'folder')
 
-    if (selectedNode.nodeData) {
-      props.onClick?.(selectedNode.nodeData, 'document')
-    } else {
-      props.onClick?.(selectedNode.fullPath, 'folder')
+    if (preventClick) {
+      return
     }
 
     traverseTree(nodes, node => {

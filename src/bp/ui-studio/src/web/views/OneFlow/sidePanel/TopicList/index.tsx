@@ -226,6 +226,11 @@ const TopicList = props => {
   }
 
   const onClick = (el: NodeData | string, type) => {
+    if (_.isObject(el) && (el as NodeData).type === 'qna') {
+      // Return true will mimic preventDefault for TreeView's onClick
+      return true
+    }
+
     if (type === 'document') {
       props.goToFlow((el as NodeData).name)
     }
