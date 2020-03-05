@@ -68,7 +68,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   }
 
   const handleNodeClick = (selectedNode: TreeNode<T>) => {
-    if (typeof selectedNode?.nodeData?.isClickable !== 'undefined' && !selectedNode?.nodeData?.isClickable) {
+    if (selectedNode?.nodeData?.isNotClickable) {
       return
     }
 

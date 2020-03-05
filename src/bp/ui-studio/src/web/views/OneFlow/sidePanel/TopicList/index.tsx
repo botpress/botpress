@@ -42,7 +42,7 @@ interface NodeData {
   label?: string
   id?: any
   icon?: string
-  isClickable?: boolean
+  isNotClickable?: boolean
 }
 
 interface IFlow {
@@ -59,7 +59,7 @@ const TopicList = props => {
       label: 'Q&A',
       type: 'qna',
       icon: 'chat',
-      isClickable: false
+      isNotClickable: true
     }))
 
     setFlows([...qna, ...props.flows])
