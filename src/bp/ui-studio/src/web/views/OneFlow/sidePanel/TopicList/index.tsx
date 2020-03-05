@@ -42,7 +42,6 @@ interface NodeData {
   label?: string
   id?: any
   icon?: string
-  isNotClickable?: boolean
 }
 
 interface IFlow {
@@ -226,7 +225,7 @@ const TopicList = props => {
   }
 
   const onClick = (el: NodeData | string, type) => {
-    if (_.isObject(el) && (el as NodeData).type === 'qna') {
+    if ((el as NodeData)?.type === 'qna') {
       // Return true will mimic preventDefault for TreeView's onClick
       return true
     }
