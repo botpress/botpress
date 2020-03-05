@@ -1,3 +1,4 @@
+import { ControlGroup } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import React, { FC } from 'react'
 
@@ -8,7 +9,6 @@ import TrainNow from './TrainNow'
 const TrainingControl: FC<{ api: NLUApi }> = ({ api }) => {
   return (
     <div className={style.trainingControl}>
-      <h5>Training</h5>
       <AutotrainToggle api={api} />
       <TrainNow api={api} />
     </div>
