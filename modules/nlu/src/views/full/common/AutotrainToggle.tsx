@@ -6,11 +6,14 @@ import style from './style.scss'
 
 const AutotrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
   const [autotrain, setAutotrain] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchAutotrain = async () => {
+      setLoading(true)
       const isOn = await api.isAutotrainOn()
       setAutotrain(isOn)
+      setLoading(false)
     }
 
     // tslint:disable-next-line: no-floating-promises
@@ -23,7 +26,13 @@ const AutotrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
   }
 
   return (
-    <Button className={style.autotrainToggle} icon={autotrain ? 'pause' : 'play'} onClick={() => toggleAutotrain()}>
+    <Button
+      disabled={loading}
+      loading={loading}
+      className={style.autotrainToggle}
+      icon={autotrain ? 'pause' : 'play'}
+      onClick={() => toggleAutotrain()}
+    >
       Autotrain
     </Button>
   )
