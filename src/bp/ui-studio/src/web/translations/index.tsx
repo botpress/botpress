@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { PrimitiveType } from 'intl-messageFormat'
 import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
 const defaultLocale = 'en'
@@ -25,8 +26,9 @@ const initializeTranslations = async () => {
   )
 }
 
-const lang = (id: string, values?: Record<string, string | number>): string => {
+const lang = (id: string, values?: Record<string, string | PrimitiveType>): string => {
   return intl.formatMessage({ id }, values)
 }
 
-export { initializeTranslations, lang }
+export default lang
+export { initializeTranslations }
