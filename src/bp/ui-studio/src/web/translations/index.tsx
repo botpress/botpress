@@ -1,12 +1,12 @@
 import axios from 'axios'
-import { addLocaleData, InjectedIntl, IntlProvider, MessageValue } from 'react-intl'
+import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
 const defaultLocale = 'en'
 let locale: string
-let intl: InjectedIntl
+let intl: IntlShape
+const cache = createIntlCache()
 
 const getUserLocale = () => {
-  return 'en'
   const code = str => str.split('-')[0]
   const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
   return browserLocale
@@ -15,10 +15,17 @@ const getUserLocale = () => {
 const initializeTranslations = async () => {
   locale = getUserLocale()
   const { data } = await axios.get(`/assets/ui-studio/public/translations/${locale}.json`)
-  intl = new IntlProvider({ locale, defaultLocale, messages: data }, {}).getChildContext().intl
+  intl = createIntl(
+    {
+      locale,
+      messages: data,
+      defaultLocale
+    },
+    cache
+  )
 }
 
-const lang = (id: string, values?: { [key: string]: MessageValue }): string => {
+const lang = (id: string, values?: Record<string, string | number>): string => {
   return intl.formatMessage({ id }, values)
 }
 
