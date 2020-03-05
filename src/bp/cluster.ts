@@ -50,7 +50,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     }
 
     const workerIdx = process.ML_WORKERS?.indexOf(worker.id)
-    if (workerIdx !== -1) {
+    if (workerIdx > -1) {
       debug(`Machine learning worker ${worker.id} died`)
       process.ML_WORKERS.splice(workerIdx, 1)
       if (process.ML_WORKERS.length === 0) {
@@ -90,6 +90,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
 function spawnWebWorker() {
   const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB })
   process.WEB_WORKER = id
+  debug(`Spawned Web Worker`)
 }
 
 let spawnMLWorkersCount = 0

@@ -1,4 +1,4 @@
-import { BotDetails, Flow, FlowNode, RolloutStrategy } from 'botpress/sdk'
+import { BotDetails, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -107,6 +107,9 @@ export interface Stage {
   id: string
   label: string
   action: StageAction
+  reviewers: StageRequestApprovers[]
+  minimumApprovals: number
+  reviewSequence: 'serial' | 'parallel'
 }
 
 export interface UserProfile {

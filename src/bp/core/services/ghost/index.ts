@@ -1,14 +1,13 @@
+import { DirectoryListingOptions } from 'botpress/sdk'
 import { ReplaceInFileConfig } from 'replace-in-file'
 
 export interface StorageDriver {
   upsertFile(filePath: string, content: Buffer | string, recordRevision: boolean): Promise<void>
   readFile(filePath: string): Promise<Buffer>
+  fileExists(filePath: string): Promise<boolean>
   deleteFile(filePath: string, recordRevision: boolean): Promise<void>
   deleteDir(dirPath: string): Promise<void>
-  directoryListing(
-    folder: string,
-    options: { excludes?: string | string[]; includeDotFiles?: boolean }
-  ): Promise<string[]>
+  directoryListing(folder: string, options: DirectoryListingOptions): Promise<string[]>
   listRevisions(pathPrefix: string): Promise<FileRevision[]>
   deleteRevision(filePath: string, revision: string): Promise<void>
   moveFile(fromPath: string, toPath: string): Promise<void>

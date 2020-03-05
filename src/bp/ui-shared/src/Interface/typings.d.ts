@@ -1,5 +1,6 @@
 import { IconName, MaybeElement, Position } from '@blueprintjs/core'
 import React from 'react'
+import TooltipStyle from '../style/tooltip.scss'
 import { TreeViewProps } from '../TreeView'
 
 export interface ConfirmDialogOptions {
@@ -18,5 +19,6 @@ export interface ConfirmDialogProps extends ConfirmDialogOptions {
 
 declare module 'botpress/shared' {
   export function confirmDialog(message: string, options: ConfirmDialogOptions): Promise<boolean>
+  export const style: { TooltipStyle: TooltipStyle }
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
 }
