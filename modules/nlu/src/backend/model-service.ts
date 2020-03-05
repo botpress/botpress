@@ -1,6 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
+import fse from 'fs-extra'
 import _ from 'lodash'
+import path from 'path'
+import tar from 'tar'
+import tmp from 'tmp'
 
 import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
 
@@ -59,8 +63,23 @@ async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: st
 export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | void> {
   const fname = makeFileName(hash, lang)
   if (await ghost.fileExists(MODELS_DIR, fname)) {
-    const strMod = await ghost.readFileAsString(MODELS_DIR, fname)
-    return deserializeModel(strMod)
+    const tarBuff = await ghost.readFileAsBuffer(MODELS_DIR, fname)
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    const archiveName = path.join(tmpDir.name, 'archive')
+
+    await fse.writeFile(archiveName, tarBuff)
+    tar.x(
+      {
+        file: archiveName,
+        cwd: tmpDir.name,
+        sync: true,
+        strict: true
+      },
+      ['model']
+    )
+
+    const modelBuff = await fse.readFile(path.join(tmpDir.name, 'model'))
+    return deserializeModel(modelBuff.toString())
   }
 }
 
@@ -74,7 +93,22 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
 
 export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void | void[]> {
   const serialized = serializeModel(model)
-  const fname = makeFileName(hash, model.languageCode)
-  await ghost.upsertFile(MODELS_DIR, fname, serialized)
+  const modelName = makeFileName(hash, model.languageCode)
+  const tmpDir = tmp.dirSync({ unsafeCleanup: false })
+  const tmpFileName = path.join(tmpDir.name, 'model')
+  await fse.writeFile(tmpFileName, serialized)
+
+  const archiveName = path.join(tmpDir.name, modelName)
+  await tar.create(
+    {
+      cwd: tmpDir.name,
+      file: archiveName,
+      portable: true,
+      gzip: true
+    },
+    ['model']
+  )
+  const buffer = await fse.readFile(archiveName)
+  await ghost.upsertFile(MODELS_DIR, modelName, buffer)
   return pruneModels(ghost, model.languageCode)
 }
