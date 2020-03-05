@@ -27,6 +27,7 @@ import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
+import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -56,7 +57,7 @@ interface StateProps {
   flowPreview: boolean
   mutexInfo: string
   topics: any
-  flowsName: { name: string; label: string }
+  flowsName: { name: string; label: string }[]
 }
 
 interface DispatchProps {
@@ -74,9 +75,11 @@ type Props = StateProps & DispatchProps & OwnProps
 const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
   const [topicModalOpen, setTopicModalOpen] = useState(false)
+  const [topicQnAModalOpen, setTopicQnAModalOpen] = useState(false)
   const [goalModalOpen, setGoalModalOpen] = useState(false)
   const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
+  const [initialTab, setInitialTab] = useState('triggers')
 
   const [selectedGoal, setSelectedGoal] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
@@ -107,6 +110,11 @@ const SidePanelContent: FC<Props> = props => {
     onClick: () => setImportModalOpen(true)
   }
 
+  const editQnA = (topicName: string) => {
+    setSelectedTopic(topicName)
+    setTopicQnAModalOpen(true)
+  }
+
   const editTopic = (topicName: string) => {
     setSelectedTopic(topicName)
     setTopicModalOpen(true)
@@ -118,12 +126,14 @@ const SidePanelContent: FC<Props> = props => {
     props.switchFlow(data.name)
     setSelectedTopic(data.name.split('/')[0])
     setSelectedGoal(goalId)
-    setGoalModalOpen(!goalModalOpen)
+    setInitialTab('triggers')
+    setGoalModalOpen(true)
   }
 
   const createGoal = (topicName: string) => {
     setSelectedTopic(topicName)
     setSelectedGoal('')
+    setInitialTab('overview')
     setGoalModalOpen(true)
   }
 
@@ -178,6 +188,7 @@ const SidePanelContent: FC<Props> = props => {
               importGoal={importGoal}
               filter={goalFilter}
               editTopic={editTopic}
+              editQnA={editQnA}
               exportTopic={exportTopic}
             />
           </SidePanelSection>
@@ -195,6 +206,12 @@ const SidePanelContent: FC<Props> = props => {
         toggle={() => setTopicModalOpen(!topicModalOpen)}
       />
 
+      <EditTopicQnAModal
+        selectedTopic={selectedTopic}
+        isOpen={topicQnAModalOpen}
+        toggle={() => setTopicQnAModalOpen(!topicQnAModalOpen)}
+      />
+
       <CreateTopicModal
         isOpen={createTopicOpen}
         toggle={() => setCreateTopicOpen(!createTopicOpen)}
@@ -205,6 +222,7 @@ const SidePanelContent: FC<Props> = props => {
         isOpen={goalModalOpen}
         toggle={() => setGoalModalOpen(!goalModalOpen)}
         selectedGoal={selectedGoal}
+        initialTab={initialTab}
         selectedTopic={selectedTopic}
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}

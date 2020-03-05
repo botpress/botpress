@@ -91,7 +91,7 @@ export const LiteEditor: FC<Props> = props => {
       />
       {currentIntent && (
         <IntentEditor
-          liteEditor={true}
+          liteEditor
           intent={currentIntent}
           api={api}
           contentLang={props.contentLang}
