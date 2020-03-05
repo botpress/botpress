@@ -196,3 +196,10 @@ $status-bar-height: 24px;
 .autotrainToggle {
   margin-right: 6px;
 }
+
+.trainingControlContainer {
+  display: flex;
+  flex-direction: row-reverse;
+  border-bottom: 1px solid#eee;
+  padding-right: 5vw;
+}

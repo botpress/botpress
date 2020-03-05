@@ -22,6 +22,7 @@ interface CssExports {
   'sync': string;
   'synonym': string;
   'trainingControl': string;
+  'trainingControlContainer': string;
   'workspace': string;
 }
 declare var cssExports: CssExports;

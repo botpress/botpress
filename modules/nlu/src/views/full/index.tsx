@@ -10,6 +10,7 @@ import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
+import TrainingControl from './intents/TrainingControl'
 import style from './style.scss'
 
 export interface NluItem {
@@ -130,6 +131,9 @@ const NLU: FC<Props> = props => {
         </Tabs>
       </SidePanel>
       <div className={style.container}>
+        <div className={style.trainingControlContainer}>
+          <TrainingControl api={api} />
+        </div>
         {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
