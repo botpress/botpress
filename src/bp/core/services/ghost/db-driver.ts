@@ -165,7 +165,7 @@ export default class DBStorageDriver implements StorageDriver {
 
       if (options.sortOrder) {
         const { column, desc } = options.sortOrder
-        query = query.orderBy(column, desc ? 'desc' : 'asc')
+        query = query.orderBy(column === 'modifiedOn' ? 'modified_on' : 'file_path', desc ? 'desc' : 'asc')
       }
 
       const paths = await query
