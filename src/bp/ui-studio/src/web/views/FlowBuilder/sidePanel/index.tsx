@@ -28,7 +28,6 @@ type Props = {
   dirtyFlows: any
   duplicateFlow: any
   currentFlow: any
-  flowPreview: boolean
   mutexInfo: string
   readOnly: boolean
   showFlowNodeProps: boolean
@@ -97,7 +96,7 @@ const SidePanelContent: FC<Props> = props => {
           </SidePanelSection>
 
           <SidePanelSection label="Tools">
-            <FlowTools flowPreview={props.flowPreview} />
+            <FlowTools />
           </SidePanelSection>
         </React.Fragment>
       )}
