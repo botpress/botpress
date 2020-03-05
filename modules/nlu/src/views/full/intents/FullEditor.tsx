@@ -63,7 +63,7 @@ export const IntentEditor: FC<Props> = props => {
   return (
     <div className={style.intentEditor}>
       <div>
-        <TrainingControl />
+        <TrainingControl api={props.api} />
         <div className={style.header}>
           {!props.liteEditor && (
             <ContextSelector

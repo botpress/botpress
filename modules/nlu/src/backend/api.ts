@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
 
+import { isOn as isAutotrainOn, set as setAutotrain } from './autotrain'
 import {
   deleteEntity,
   getCustomEntities,
@@ -236,5 +237,22 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/ml-recommendations', async (req, res) => {
     res.send(recommendations)
+  })
+
+  router.post('/autotrain', async (req, res) => {
+    const { botId } = req.params
+    const { autotrain } = req.body
+
+    await setAutotrain(bp, botId, autotrain)
+
+    res.sendStatus(200)
+  })
+
+  router.get('/autotrain', async (req, res) => {
+    const { botId } = req.params
+
+    const isOn = await isAutotrainOn(bp, botId)
+
+    res.send({ isOn })
   })
 }

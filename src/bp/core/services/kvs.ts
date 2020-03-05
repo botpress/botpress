@@ -149,6 +149,21 @@ export class KvsService implements sdk.KvsService {
     return this.get(key).then(original => this._upsert(key, setValue(original || {})))
   }
 
+  delete = async (key: string) => {
+    const { botId } = this
+
+    await this.database
+      .knex(TABLE_NAME)
+      .where({ botId })
+      .andWhere({ key })
+      .del()
+  }
+
+  exists = async (key: string) => {
+    const result = await this.get(key)
+    return !!result
+  }
+
   private boxWithExpiry = (value, expiry = 'never') => {
     const expiryDate = expiry === 'never' ? 'never' : moment().add(ms(expiry), 'milliseconds')
 

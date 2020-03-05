@@ -841,15 +841,27 @@ declare module 'botpress/sdk' {
   export interface KvsService {
     /**
      * Returns the specified key as JSON object
-     * @example bp.kvs.get('bot123', 'hello/whatsup')
+     * @example bp.kvs.forBot('bot123').get('hello/whatsup')
      */
     get(key: string, path?: string): Promise<any>
 
     /**
      * Saves the specified key as JSON object
-     * @example bp.kvs.set('bot123', 'hello/whatsup', { msg: 'i love you' })
+     * @example bp.kvs.forBot('bot123').set('hello/whatsup', { msg: 'i love you' })
      */
     set(key: string, value: any, path?: string): Promise<void>
+
+    /**
+     * Deletes the specified key
+     * @example bp.kvs.forBot('bot123').delete('hello/whatsup')
+     */
+    delete(key: string): Promise<void>
+
+    /**
+     * Whether or not the specified key exists
+     * @example bp.kvs.forBot('bot123').exists('hello/whatsup')
+     */
+    exists(key: string): Promise<boolean>
     setStorageWithExpiry(key: string, value, expiryInMs?: string)
     getStorageWithExpiry(key: string)
     getConversationStorageKey(sessionId: string, variable: string): string
