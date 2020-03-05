@@ -2,7 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
-  'autotrainToggle': string;
   'checkboxContainer': string;
   'chooseContainer': string;
   'container': string;
@@ -21,7 +20,6 @@ interface CssExports {
   'out': string;
   'sync': string;
   'synonym': string;
-  'trainingControl': string;
   'trainingControlContainer': string;
   'workspace': string;
 }

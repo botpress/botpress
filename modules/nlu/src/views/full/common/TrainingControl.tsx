@@ -1,8 +1,7 @@
 import { NLUApi } from 'api'
 import React, { FC } from 'react'
 
-import style from '../style.scss'
-
+import style from './style.scss'
 import AutotrainToggle from './AutotrainToggle'
 import TrainNow from './TrainNow'
 
