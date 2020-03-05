@@ -82,7 +82,7 @@ export class StateManager {
 
     const state = event.state
 
-    const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
+    const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target, event.botId)
     state.user = user.attributes
 
     const session = await this.sessionRepo.get(sessionId)

@@ -3,11 +3,16 @@ import _ from 'lodash'
 
 const binding = require('./svm-js/index.js')
 
+export const OneClassSVM = binding.OneClassSVM
+export const KernelTypes = binding.kernelTypes
+
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],
   classifier: 'C_SVC',
   gamma: [0.01, 0.1, 0.25, 0.5, 0.75],
-  kernel: 'LINEAR'
+  kernel: 'LINEAR',
+  probability: true,
+  reduce: false
 }
 
 export class Trainer implements sdk.MLToolkit.SVM.Trainer {
@@ -25,13 +30,17 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   ): Promise<string> {
     const args = { ...DefaultTrainArgs, ...options }
 
+    if (args.classifier === 'ONE_CLASS') {
+      args.probability = false // not supported
+    }
+
     this.clf = new binding.SVM({
       svmType: args.classifier,
       kernelType: args.kernel,
       c: args.c,
       gamma: args.gamma,
-      reduce: false,
-      probability: true,
+      probability: args.probability,
+      reduce: args.reduce,
       kFold: 4
     })
 
@@ -77,18 +86,20 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   }
 
   private serialize(): string {
-    return JSON.stringify({ ...this.model, labels_idx: this.labels }, undefined, 2)
+    return JSON.stringify({ ...this.model, labels_idx: this.labels })
   }
 }
 
 export class Predictor implements sdk.MLToolkit.SVM.Predictor {
   private clf: any
   private labels: string[]
+  private config: any
 
   constructor(model: string) {
     const options = JSON.parse(model)
     this.labels = options.labels_idx
     delete options.labels_idx
+    this.config = options.params
     this.clf = binding.restore({ ...options, kFold: 1 })
   }
 
@@ -102,8 +113,15 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
   }
 
   async predict(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
-    const results = await this.clf.predictProbabilities(coordinates)
+    if (this.config.probability) {
+      return this._predictProb(coordinates)
+    } else {
+      return await this._predictOne(coordinates)
+    }
+  }
 
+  private async _predictProb(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
+    const results = await this.clf.predictProbabilities(coordinates)
     const reducedResults = _.reduce(
       Object.keys(results),
       (acc, curr) => {
@@ -119,6 +137,17 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
       'confidence',
       'desc'
     )
+  }
+
+  private async _predictOne(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
+    // might simply use oneclass instead
+    const results = await this.clf.predict(coordinates)
+    return [
+      {
+        label: results,
+        confidence: 0
+      }
+    ]
   }
 
   isLoaded(): boolean {

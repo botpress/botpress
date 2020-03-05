@@ -2,32 +2,21 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import Analytics from './analytics'
 import api from './api'
+import Database from './db'
 import setup from './setup'
-import { AnalyticsByBot } from './typings'
 
-const analyticsByBot: AnalyticsByBot = {}
+let db: Database
 
 const interactionsToTrack = ['message', 'text', 'button', 'template', 'quick_reply', 'postback']
 
 const onServerStarted = async (bp: typeof sdk) => {
-  await setup(bp, interactionsToTrack)
+  db = new Database(bp)
+  await setup(bp, db, interactionsToTrack)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, analyticsByBot)
-}
-
-const onBotMount = async (bp: typeof sdk, botId: string) => {
-  const analytics = new Analytics(bp, botId)
-  analyticsByBot[botId] = analytics
-  await analytics.start()
-}
-
-const onBotUnmount = async (bp: typeof sdk, botId: string) => {
-  await analyticsByBot[botId].stop()
-  delete analyticsByBot[botId]
+  await api(bp, db)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
@@ -39,8 +28,6 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
-  onBotMount,
-  onBotUnmount,
   onModuleUnmount,
   definition: {
     name: 'analytics',

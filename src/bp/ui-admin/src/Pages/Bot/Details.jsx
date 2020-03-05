@@ -18,7 +18,7 @@ import { toastSuccess, toastFailure } from '../../utils/toaster'
 import api from '../../api'
 import PageContainer from '~/App/PageContainer'
 import StickyActionBar from '~/App/StickyActionBar'
-import { Button, Intent } from '@blueprintjs/core'
+import { Button, Intent, Callout } from '@blueprintjs/core'
 import { confirmDialog } from 'botpress/shared'
 
 const statusList = [
@@ -586,6 +586,9 @@ class Bots extends Component {
         title={`Bot - ${this.state.name || this.state.botId}`}
         helpText="This page shows the details you can configure for a desired bot."
       >
+        <Callout title="This menu is moving" intent="warning">
+          This menu will be permanently moving to <a href={`studio/${this.state.botId}/config`}>the studio.</a>
+        </Callout>
         {this.renderDetails()}
         <StickyActionBar>
           <Button

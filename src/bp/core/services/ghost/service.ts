@@ -1,4 +1,4 @@
-import { ListenHandle, Logger, UpsertOptions } from 'botpress/sdk'
+import { DirectoryListingOptions, ListenHandle, Logger, UpsertOptions } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { BotConfig } from 'core/config/bot.config'
@@ -12,7 +12,7 @@ import minimatch from 'minimatch'
 import mkdirp from 'mkdirp'
 import path from 'path'
 import replace from 'replace-in-file'
-import tmp from 'tmp'
+import tmp, { file } from 'tmp'
 import { VError } from 'verror'
 
 import { createArchive } from '../../misc/archive'
@@ -40,7 +40,7 @@ export interface FileChange {
 
 export type FileChangeAction = 'add' | 'edit' | 'del'
 
-const MAX_GHOST_FILE_SIZE = asBytes('100mb')
+const MAX_GHOST_FILE_SIZE = '100mb'
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
@@ -396,6 +396,13 @@ export class ScopedGhostService {
     }
   }
 
+  // temporary until we implement a large file storage system
+  // size is increased because NLU models are getting bigger
+  private getFileSizeLimit(fileName: string): number {
+    const humanSize = fileName.endsWith('.model') ? '500mb' : MAX_GHOST_FILE_SIZE
+    return asBytes(humanSize)
+  }
+
   async upsertFile(
     rootFolder: string,
     file: string,
@@ -415,8 +422,7 @@ export class ScopedGhostService {
     }
 
     const fileName = this._normalizeFileName(rootFolder, file)
-
-    if (content.length > MAX_GHOST_FILE_SIZE) {
+    if (content.length > this.getFileSizeLimit(fileName)) {
       throw new Error(`The size of the file ${fileName} is over the 100mb limit`)
     }
 
@@ -569,9 +575,14 @@ export class ScopedGhostService {
 
   async fileExists(rootFolder: string, file: string): Promise<boolean> {
     const fileName = this._normalizeFileName(rootFolder, file)
+    const cacheKey = this.objectCacheKey(fileName)
+
     try {
-      await this.primaryDriver.readFile(fileName)
-      return true
+      if (await this.cache.has(cacheKey)) {
+        return true
+      }
+
+      return this.primaryDriver.fileExists(fileName)
     } catch (err) {
       return false
     }
@@ -624,12 +635,14 @@ export class ScopedGhostService {
     rootFolder: string,
     fileEndingPattern: string = '*.*',
     excludes?: string | string[],
-    includeDotFiles?: boolean
+    includeDotFiles?: boolean,
+    options: DirectoryListingOptions = {}
   ): Promise<string[]> {
     try {
       const files = await this.primaryDriver.directoryListing(this._normalizeFolderName(rootFolder), {
         excludes,
-        includeDotFiles
+        includeDotFiles,
+        ...options
       })
 
       return (files || []).filter(

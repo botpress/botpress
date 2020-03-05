@@ -62,6 +62,11 @@ export class DecisionEngine {
 
     if (elected) {
       Object.assign(event, { decision: elected })
+      BOTPRESS_CORE_EVENT('bp_core_decision_elected', {
+        botId: event.botId,
+        channel: event.channel,
+        source: elected.source || 'none'
+      })
       sendSuggestionResult = await this._sendSuggestion(elected, sessionId, event)
     }
 

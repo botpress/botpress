@@ -61,18 +61,6 @@ describe('Admin - Bot Management', () => {
     expect(responseSize).toBeGreaterThan(100)
   })
 
-  it('Configure bot', async () => {
-    const botRow = await expectMatchElement('.bp_table-row', { text: tempBotId })
-    await clickOn('.configBtn', undefined, botRow)
-
-    await fillField('#input-name', `${tempBotId} - testing my fabulous bot`)
-    await clickOn('#select-status')
-    await page.keyboard.press('ArrowDown')
-    await page.keyboard.press('Enter')
-    await Promise.all([expectAdminApiCallSuccess(`bots/${tempBotId}`, 'POST'), clickOn('#btn-save')])
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
-  })
-
   it('Create revision', async () => {
     await Promise.all([
       expectAdminApiCallSuccess(`bots/${tempBotId}/revisions`, 'POST'),

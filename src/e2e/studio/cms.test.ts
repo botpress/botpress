@@ -30,6 +30,7 @@ describe('Studio - CMS', () => {
   it('Create text element', async () => {
     const before = await getElementCount()
     await clickOn('#btn-add-content')
+    await page.waitFor(200)
     await clickOn('#btn-create-builtin_text')
 
     await page.keyboard.press('Tab')

@@ -97,6 +97,11 @@ export class BotsRouter extends CustomRouter {
 
     const config = await this.configProvider.getBotConfig(req.params.botId)
     if (config.disabled) {
+      // The user must be able to get the config to change the bot status
+      if (req.originalUrl.endsWith(`/api/v1/bots/${req.params.botId}`)) {
+        return next()
+      }
+
       return next(new NotFoundError('Bot is disabled'))
     }
 
