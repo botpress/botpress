@@ -1,8 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
-import fse from 'fs-extra'
+import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
+import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
@@ -63,20 +64,14 @@ async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: st
 export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | void> {
   const fname = makeFileName(hash, lang)
   if (await ghost.fileExists(MODELS_DIR, fname)) {
-    const tarBuff = await ghost.readFileAsBuffer(MODELS_DIR, fname)
-    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
-    const archiveName = path.join(tmpDir.name, 'archive')
+    const buffStream = new Stream.PassThrough()
+    buffStream.end(await ghost.readFileAsBuffer(MODELS_DIR, fname))
+    const tmpDir = tmp.dirSync()
 
-    await fse.writeFile(archiveName, tarBuff)
-    tar.x(
-      {
-        file: archiveName,
-        cwd: tmpDir.name,
-        sync: true,
-        strict: true
-      },
-      ['model']
-    )
+    // @ts-ignore
+    const tarStream = tar.x({ cwd: tmpDir.name, strict: true }, ['model']) as WriteStream
+    buffStream.pipe(tarStream)
+    await new Promise(resolve => tarStream.on('close', resolve))
 
     const modelBuff = await fse.readFile(path.join(tmpDir.name, 'model'))
     return deserializeModel(modelBuff.toString())
@@ -101,8 +96,8 @@ export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, has
   const archiveName = path.join(tmpDir.name, modelName)
   await tar.create(
     {
-      cwd: tmpDir.name,
       file: archiveName,
+      cwd: tmpDir.name,
       portable: true,
       gzip: true
     },
