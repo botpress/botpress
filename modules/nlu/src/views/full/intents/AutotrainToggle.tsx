@@ -20,7 +20,11 @@ const AutotrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
     setAutotrain(!autotrain)
   }
 
-  return <Button onClick={() => toggleAutotrain()}>{autotrain ? 'Pause autotrain' : 'Resume autotrain'}</Button>
+  return (
+    <Button icon={autotrain ? 'pause' : 'play'} onClick={() => toggleAutotrain()}>
+      Autotrain
+    </Button>
+  )
 }
 
 export default AutotrainToggle
