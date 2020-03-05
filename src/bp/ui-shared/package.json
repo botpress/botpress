@@ -12,12 +12,7 @@
     "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap"
   },
   "devDependencies": {
-    "@blueprintjs/core": "^3.23.1",
-    "@types/react": "^16.8.19",
-    "@types/react-dom": "^16.8.4",
     "cross-env": "^5.2.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
     "css-loader": "^0.28.11",
     "css-modules-typescript-loader": "^2.0.3",
     "hard-source-webpack-plugin": "^0.13.1",
