@@ -27,6 +27,7 @@ import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
+import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -74,6 +75,7 @@ type Props = StateProps & DispatchProps & OwnProps
 const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
   const [topicModalOpen, setTopicModalOpen] = useState(false)
+  const [topicQnAModalOpen, setTopicQnAModalOpen] = useState(false)
   const [goalModalOpen, setGoalModalOpen] = useState(false)
   const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
@@ -106,6 +108,11 @@ const SidePanelContent: FC<Props> = props => {
     key: 'import',
     tooltip: 'Import content',
     onClick: () => setImportModalOpen(true)
+  }
+
+  const editQnA = (topicName: string) => {
+    setSelectedTopic(topicName)
+    setTopicQnAModalOpen(true)
   }
 
   const editTopic = (topicName: string) => {
@@ -181,6 +188,7 @@ const SidePanelContent: FC<Props> = props => {
               importGoal={importGoal}
               filter={goalFilter}
               editTopic={editTopic}
+              editQnA={editQnA}
               exportTopic={exportTopic}
             />
           </SidePanelSection>
@@ -196,6 +204,12 @@ const SidePanelContent: FC<Props> = props => {
         selectedTopic={selectedTopic}
         isOpen={topicModalOpen}
         toggle={() => setTopicModalOpen(!topicModalOpen)}
+      />
+
+      <EditTopicQnAModal
+        selectedTopic={selectedTopic}
+        isOpen={topicQnAModalOpen}
+        toggle={() => setTopicQnAModalOpen(!topicQnAModalOpen)}
       />
 
       <CreateTopicModal

@@ -2,7 +2,7 @@ import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@bluepri
 import { Flow } from 'botpress/sdk'
 import { confirmDialog, TreeView } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -22,7 +22,7 @@ interface Props {
 
   canDelete: boolean
   goToFlow: Function
-  flows: { name: string; label: string }[]
+  flows: IFlow[]
 
   duplicateFlow: Function
   deleteFlow: Function
@@ -30,6 +30,7 @@ interface Props {
 
   importGoal: (topicId: string) => void
   createGoal: (topicId: string) => void
+  editQnA: (topicName: string) => void
   editGoal: (goalId: any, data: any) => void
   editTopic: (topicName: string | NodeData) => void
   exportTopic: (topicName: string | NodeData) => void
@@ -37,17 +38,38 @@ interface Props {
 
 interface NodeData {
   name: string
-  type: 'goal' | 'folder' | 'topic'
+  type: 'goal' | 'folder' | 'topic' | 'qna'
   label?: string
   id?: any
+  icon?: string
 }
 
-const TopicList: FC<Props> = props => {
+interface IFlow {
+  name: string
+  label: string
+}
+
+const TopicList = props => {
+  const [flows, setFlows] = useState<IFlow[]>([])
+
+  useEffect(() => {
+    const qna = _.uniq(props.flows.map(flow => flow.name?.split('/')?.[0])).map(topic => ({
+      name: `${topic}/qna`,
+      label: 'Q&A',
+      type: 'qna',
+      icon: 'chat',
+      isNotClickable: true
+    }))
+
+    setFlows([...qna, ...props.flows])
+  }, [props.flows])
+
   const deleteFlow = async (name: string) => {
     if (await confirmDialog(`Are you sure you want to delete the flow ${name}?`, {})) {
       props.deleteFlow(name)
     }
   }
+
   const folderRenderer = (folder: string) => {
     const createGoal = e => {
       e.stopPropagation()
@@ -105,8 +127,22 @@ const TopicList: FC<Props> = props => {
           />
         </Menu>
       )
+    } else if (_.isObject(element) && (element as NodeData).type === 'qna') {
+      const { name } = element as NodeData
+
+      return (
+        <Menu>
+          <MenuItem
+            id="btn-edit"
+            disabled={props.readOnly}
+            icon="edit"
+            text="Edit Q&A"
+            onClick={() => props.editQnA(name.replace('/qna', ''))}
+          />
+        </Menu>
+      )
     } else {
-      const { id, name, type } = element as NodeData
+      const { name } = element as NodeData
 
       return (
         <Menu>
@@ -144,51 +180,73 @@ const TopicList: FC<Props> = props => {
     }
   }
 
-  const nodeRenderer = el => {
+  const nodeRenderer = (el: NodeData) => {
+    const { name, label, icon, type } = el
     const editGoal = e => {
       e.stopPropagation()
-      props.editGoal(el.name, el)
+      props.editGoal(name, el)
     }
     const deleteGoal = async e => {
       e.stopPropagation()
-      await deleteFlow(el.name)
+      await deleteFlow(name)
+    }
+    const editQnA = e => {
+      e.stopPropagation()
+      props.editQnA(name.replace('/qna', ''))
     }
 
-    const name = el.label || el.name.substr(el.name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
+    const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
 
     return {
       label: (
         <div className={style.treeNode}>
-          <span>{name}</span>
+          <span>{displayName}</span>
           <div className={style.overhidden} id="actions">
-            <Tooltip content={<span>Edit goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-              <Button icon="edit" minimal onClick={editGoal} />
-            </Tooltip>
-            <Tooltip content={<span>Delete goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-              <Button icon="trash" minimal onClick={deleteGoal} />
-            </Tooltip>
+            {type !== 'qna' && (
+              <Fragment>
+                <Tooltip content={<span>Edit goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+                  <Button icon="edit" minimal onClick={editGoal} />
+                </Tooltip>
+                <Tooltip content={<span>Delete goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+                  <Button icon="trash" minimal onClick={deleteGoal} />
+                </Tooltip>
+              </Fragment>
+            )}
+            {type === 'qna' && (
+              <Tooltip content={<span>Edit Q&A</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+                <Button icon="edit" minimal onClick={editQnA} />
+              </Tooltip>
+            )}
           </div>
         </div>
-      )
+      ),
+      icon
     }
   }
 
-  const onClick = (element: NodeData | string, type) => {
+  const onClick = (el: NodeData | string, type) => {
+    if ((el as NodeData)?.type === 'qna') {
+      // Return true will mimic preventDefault for TreeView's onClick
+      return true
+    }
+
     if (type === 'document') {
-      props.goToFlow((element as NodeData).name)
+      props.goToFlow((el as NodeData).name)
     }
   }
 
-  const onDoubleClick = (element: NodeData, type) => {
-    if (type === 'document') {
-      props.editGoal(element.name, element)
+  const onDoubleClick = (el: NodeData, type) => {
+    if (el.type === 'qna') {
+      props.editQnA(el.name.replace('/qna', ''))
+    } else if (type === 'document') {
+      props.editGoal(el.name, el)
     }
   }
 
   const activeFlow = props.currentFlow?.name
   return (
     <TreeView<NodeData>
-      elements={props.flows}
+      elements={flows}
       nodeRenderer={nodeRenderer}
       folderRenderer={folderRenderer}
       onContextMenu={handleContextMenu}
