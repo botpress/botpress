@@ -10,6 +10,7 @@ import style from './style.scss'
 import { removeSlotFromUtterances, renameSlotInUtterances } from './utterances-state-utils'
 import { ContextSelector } from './ContextSelector'
 import IntentHint from './IntentHint'
+import TrainingControl from './TrainingControl'
 import { UtterancesEditor } from './UtterancesEditor'
 
 interface Props {
@@ -62,6 +63,7 @@ export const IntentEditor: FC<Props> = props => {
   return (
     <div className={style.intentEditor}>
       <div>
+        <TrainingControl />
         <div className={style.header}>
           {!props.liteEditor && (
             <ContextSelector
