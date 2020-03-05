@@ -21,6 +21,8 @@ export class TriggerWidget extends Component<{ node: TriggerNodeModel; diagramEn
       flowBuilder.updateFlowNode({ onEnter: [`say #!${currentItem.id}`] })
     }
 
+    console.log(node)
+
     return (
       <div className={classnames(style.baseNode, style.nodeTrigger, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeaderV2({ nodeType: 'NLU Trigger', nodeName: node.name, isStartNode: node.isStartNode })}

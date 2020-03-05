@@ -54,7 +54,7 @@ import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/Listen
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
-import { TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
+import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
 interface OwnProps {
@@ -329,6 +329,7 @@ class Diagram extends Component<Props> {
     const point = this.manager.getRealPosition(event)
 
     const isNodeTargeted = targetModel instanceof NodeModel
+    const isTriggerNode = targetModel instanceof TriggerNodeModel
     const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
 
     const isSuccessNode = targetModel instanceof SuccessNodeModel
@@ -353,6 +354,7 @@ class Diagram extends Component<Props> {
         )}
         {isNodeTargeted && (
           <Fragment>
+            {isTriggerNode && <MenuItem icon="edit" text="Edit" onClick={() => this.editTriggers(targetModel)} />}
             <MenuItem
               icon="trash"
               text="Delete"
@@ -449,6 +451,11 @@ class Diagram extends Component<Props> {
 
     this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
 
+    console.log(event, selectedNode, target)
+    if (target?.model instanceof TriggerNodeModel) {
+      this.editTriggers(target.model)
+    }
+
     if (!selectedNode) {
       this.props.closeFlowNodeProps()
       this.props.switchFlowNode(null)
@@ -472,6 +479,10 @@ class Diagram extends Component<Props> {
     }
 
     this.checkForProblems()
+  }
+
+  editTriggers(node) {
+    // console.log(node)
   }
 
   deleteSelectedElements() {
