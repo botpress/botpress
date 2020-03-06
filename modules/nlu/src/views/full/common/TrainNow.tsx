@@ -2,7 +2,7 @@ import { Button } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import React, { FC, useEffect, useState } from 'react'
 
-const TrainNow: FC<{ api: NLUApi }> = ({ api }) => {
+const TrainNow: FC<{ api: NLUApi; eventBus: any }> = ({ api, eventBus }) => {
   const [loading, setLoading] = useState(true)
   const [training, setTraining] = useState(false)
 
@@ -18,21 +18,13 @@ const TrainNow: FC<{ api: NLUApi }> = ({ api }) => {
     fetchIsTraining()
   }, [])
 
-  const waitForTrainingToEnd = async () => {
-    return new Promise(resolve => {
-      let startedTraining = false
-      const handle = setInterval(async () => {
-        const isTraining = await api.isTraining()
-        if (isTraining) {
-          startedTraining = true
-        }
-        if (startedTraining && !isTraining) {
-          clearInterval(handle)
-          resolve()
-        }
-      }, 500)
+  useEffect(() => {
+    eventBus.on('statusbar.event', event => {
+      if (event.type === 'nlu' && event.message === 'Training complete') {
+        setTraining(false)
+      }
     })
-  }
+  }, [])
 
   const onClick = async () => {
     if (training) {
@@ -40,10 +32,7 @@ const TrainNow: FC<{ api: NLUApi }> = ({ api }) => {
       setTraining(false)
     } else {
       setTraining(true)
-      // tslint:disable-next-line: no-floating-promises
-      api.train()
-      await waitForTrainingToEnd()
-      setTraining(false)
+      await api.train()
     }
   }
 

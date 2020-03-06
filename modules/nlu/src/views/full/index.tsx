@@ -19,7 +19,7 @@ export interface NluItem {
 }
 
 interface Props {
-  bp: { axios: AxiosInstance }
+  bp: { axios: AxiosInstance; events: any }
   contentLang: string
 }
 
@@ -132,7 +132,7 @@ const NLU: FC<Props> = props => {
       </SidePanel>
       <div className={style.container}>
         <div className={style.trainingControlContainer}>
-          <TrainingControl api={api} />
+          <TrainingControl api={api} eventBus={props.bp.events} />
         </div>
         {!currentItemExists() && (
           <SplashScreen
