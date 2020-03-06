@@ -51,8 +51,8 @@ export class KeyValueStore {
     return this.forBot(botId).set(key, value, path)
   }
 
-  setStorageWithExpiry = async (botId: string, key: string, value, expiryInMs?: string) => {
-    return this.forBot(botId).setStorageWithExpiry(key, value, expiryInMs)
+  setStorageWithExpiry = async (botId: string, key: string, value, expiry?: string) => {
+    return this.forBot(botId).setStorageWithExpiry(key, value, expiry)
   }
 
   getStorageWithExpiry = async (botId: string, key: string) => {
@@ -134,10 +134,10 @@ export class KvsService implements sdk.KvsService {
       })
   }
 
-  set = async (key: string, value, path?: string, expiryInMs?: string) => {
-    const expireOn = expiryInMs
+  set = async (key: string, value, path?: string, expiry?: string) => {
+    const expireOn = expiry
       ? moment()
-          .add(ms(expiryInMs), 'milliseconds')
+          .add(ms(expiry), 'milliseconds')
           .toDate()
       : undefined
 
@@ -186,8 +186,8 @@ export class KvsService implements sdk.KvsService {
     return undefined
   }
 
-  setStorageWithExpiry = async (key: string, value, expiryInMs?: string) => {
-    await this.set(key, this.boxWithExpiry(value, expiryInMs))
+  setStorageWithExpiry = async (key: string, value, expiry?: string) => {
+    await this.set(key, this.boxWithExpiry(value, expiry))
   }
 
   getStorageWithExpiry = async (key: string) => {

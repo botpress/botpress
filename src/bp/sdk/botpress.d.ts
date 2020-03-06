@@ -848,9 +848,9 @@ declare module 'botpress/sdk' {
     /**
      * Saves the specified key as JSON object
      * @example bp.kvs.forBot('bot123').set('hello/whatsup', { msg: 'i love you' })
-     * @param expiryInMs The key will expire in X (eg: 10m, 1d, 30 days)
+     * @param expiry The key will expire in X (eg: 10m, 1d, 30 days) - refer to https://www.npmjs.com/package/ms for options
      */
-    set(key: string, value: any, path?: string, expiryInMs?: string): Promise<void>
+    set(key: string, value: any, path?: string, expiry?: string): Promise<void>
 
     /**
      * Deletes the specified key
@@ -866,7 +866,7 @@ declare module 'botpress/sdk' {
     /**
      * @deprecated Use bp.kvs.forBot().set() and set an expiry as the last parameter
      */
-    setStorageWithExpiry(key: string, value, expiryInMs?: string)
+    setStorageWithExpiry(key: string, value, expiry?: string)
     /**
      * @deprecated Use bp.kvs.forBot().get() which handles expiry automatically
      */
@@ -1592,12 +1592,12 @@ declare module 'botpress/sdk' {
      * @example bp.kvs.set('bot123', 'hello/whatsup', { msg: 'i love you' })
      * @deprecated will be removed, use global or forBot
      */
-    export function set(botId: string, key: string, value: any, path?: string, expiryInMs?: string): Promise<void>
+    export function set(botId: string, key: string, value: any, path?: string, expiry?: string): Promise<void>
 
     /**
      * @deprecated will be removed, use global or forBot
      */
-    export function setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string)
+    export function setStorageWithExpiry(botId: string, key: string, value, expiry?: string)
 
     /**
      * @deprecated will be removed, use global or forBot
