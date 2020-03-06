@@ -309,11 +309,12 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
 
   // only extract list entities referenced in slots
   const listEntitiesToExtract = input.list_entities.filter(ent => customReferencedInSlots.includes(ent.entityName))
+  const pattenEntitiesToExtract = input.pattern_entities.filter(ent => customReferencedInSlots.includes(ent.name))
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
       const listEntities = extractListEntities(utt, listEntitiesToExtract)
-      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
+      const patternEntities = extractPatternEntities(utt, pattenEntitiesToExtract)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
