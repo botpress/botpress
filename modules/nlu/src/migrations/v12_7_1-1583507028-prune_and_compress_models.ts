@@ -24,6 +24,7 @@ const migration: sdk.ModuleMigration = {
             }
             return saveModel(ghost, model, model.hash) // Triggers model compression
           } catch (err) {
+            // model is probably an archive
             return
           }
         })
