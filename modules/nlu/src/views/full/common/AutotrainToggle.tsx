@@ -4,30 +4,30 @@ import React, { FC, useEffect, useState } from 'react'
 
 import style from './style.scss'
 
-const AutotrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
-  const [autotrain, setAutotrain] = useState(false)
+const AutoTrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
+  const [autoTrain, setAutoTrain] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchAutotrain = async () => {
+    const fetchAutoTrain = async () => {
       setLoading(true)
-      const isOn = await api.isAutotrainOn()
-      setAutotrain(isOn)
+      const isOn = await api.isAutoTrainOn()
+      setAutoTrain(isOn)
       setLoading(false)
     }
 
     // tslint:disable-next-line: no-floating-promises
-    fetchAutotrain()
+    fetchAutoTrain()
   }, [])
 
-  const toggleAutotrain = async () => {
-    await api.setAutotrain(!autotrain)
-    setAutotrain(!autotrain)
+  const toggleAutoTrain = async () => {
+    await api.setAutoTrain(!autoTrain)
+    setAutoTrain(!autoTrain)
   }
 
   return (
-    <Switch label="Autotrain" disabled={loading} className={style.autotrainToggle} onClick={() => toggleAutotrain()} />
+    <Switch label="AutoTrain" disabled={loading} className={style.autoTrainToggle} onClick={() => toggleAutoTrain()} />
   )
 }
 
-export default AutotrainToggle
+export default AutoTrainToggle

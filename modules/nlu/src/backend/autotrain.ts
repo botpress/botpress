@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
 
-const KVS_KEY = 'nlu-autotrain'
+const KVS_KEY = 'nlu-autoTrain'
 
-export const set = async (bp: typeof sdk, botId: string, autotrain: boolean) => {
+export const set = async (bp: typeof sdk, botId: string, autoTrain: boolean) => {
   const kvs = bp.kvs.forBot(botId)
-  if (autotrain) {
+  if (autoTrain) {
     await kvs.delete(KVS_KEY)
   } else {
     await kvs.set(KVS_KEY, 'pause')

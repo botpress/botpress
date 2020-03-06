@@ -3,7 +3,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
 
-import { isOn as isAutotrainOn } from '../autotrain'
+import { isOn as isAutoTrainOn } from '../autoTrain'
 import Engine from '../engine'
 import { getCustomEntities } from '../entities/entities-service'
 import { getIntents } from '../intents/intent-service'
@@ -69,7 +69,7 @@ export function getOnBotMount(state: NLUState) {
     // we use local events so training occurs on the same node where the request for changes enters
     const trainWatcher = bp.ghost.forBot(botId).onFileChanged(async f => {
       if (f.includes('intents') || f.includes('entities')) {
-        if (await isAutotrainOn(bp, botId)) {
+        if (await isAutoTrainOn(bp, botId)) {
           // eventually cancel & restart training only for given language
           await Promise.map(languages, async lang => {
             const key = makeTrainSessionKey(botId, lang)
