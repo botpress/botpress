@@ -14,6 +14,8 @@ import 'expose-loader?ReactDOM!react-dom'
 */
 // @ts-ignore
 import * as BlueprintJsCore from 'expose-loader?BlueprintJsCore!@blueprintjs/core'
+// @ts-ignore
+import * as BlueprintJsSelect from 'expose-loader?BlueprintJsSelect!@blueprintjs/select'
 
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -23,7 +25,7 @@ import { makeMainRoutes } from './routes'
 
 const routes = makeMainRoutes()
 
-// @ts-ignore
-window.BlueprintJsCore = BlueprintJsCore
+window['BlueprintJsCore'] = BlueprintJsCore
+window['BlueprintJsSelect'] = BlueprintJsSelect
 
 ReactDOM.render(<div>{routes}</div>, document.getElementById('root'))
