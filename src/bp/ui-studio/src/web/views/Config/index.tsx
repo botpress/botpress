@@ -158,7 +158,15 @@ class ConfigView extends Component<Props, State> {
     return data.payload
   }
 
-  saveChanges = async () => {
+  saveChanges = async (event?) => {
+    if (this.state.isSaving) {
+      return
+    }
+
+    if (event) {
+      event.preventDefault()
+    }
+
     this.setState({ error: undefined, isSaving: true })
 
     const bot: Partial<BotConfig> = {
@@ -294,8 +302,10 @@ class ConfigView extends Component<Props, State> {
   }
 
   render() {
+    const keyMap = { save: 'ctrl+s' }
+    const keyHandlers = { save: this.saveChanges }
     return (
-      <Container>
+      <Container keyHandlers={keyHandlers} keyMap={keyMap}>
         <SidePanel>
           <SidePanelSection label="Bot Configuration">
             <ItemList items={this.state.items} onElementClicked={this.handleElementClicked} />
@@ -440,7 +450,7 @@ class ConfigView extends Component<Props, State> {
                 intent="primary"
                 icon="floppy-disk"
                 disabled={this.state.isSaving}
-                onClick={this.saveChanges}
+                onClick={() => this.saveChanges()}
               />
             </FormGroup>
           </form>
