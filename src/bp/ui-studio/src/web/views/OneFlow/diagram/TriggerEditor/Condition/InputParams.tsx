@@ -2,6 +2,7 @@ import { Condition } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
+import style from '../style.scss'
 import SingleParam from '../SingleParam'
 
 interface Props {
@@ -16,7 +17,7 @@ const InputParams: FC<Props> = props => {
   }
 
   return (
-    <div style={{ padding: 10 }}>
+    <div className={style.inputParamWrapper}>
       {Object.keys(props.condition.params).map(key => {
         const { defaultValue, label, type, list } = props.condition.params[key]
         const value = (props.params && props.params[key]) || defaultValue

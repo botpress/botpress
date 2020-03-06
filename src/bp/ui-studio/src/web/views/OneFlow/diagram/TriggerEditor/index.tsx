@@ -1,11 +1,12 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
 import { Condition, FlowCondition } from 'botpress/sdk'
 import { confirmDialog } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
+import { connect } from 'react-redux'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 
-import { toastSuccess } from '../../../../components/Shared/Utils'
 import withLanguage from '../../../../components/Util/withLanguage'
 import { TriggerNodeModel } from '../../../FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '../../sidePanel/style.scss'
@@ -24,6 +25,7 @@ interface OwnProps {
 }
 
 interface StateProps {
+  backendConditions?: Condition[]
   contentLang: string
 }
 
@@ -49,8 +51,8 @@ const EditGoalModal: FC<Props> = props => {
     setCurrentCondition(condition)
 
     const newCondition = { id: condition.id, params: {} } as Condition
-    setConditions([...conditions, newCondition])
     setCurrentFlowCondition(newCondition)
+    save([...conditions, newCondition])
 
     if (condition.params) {
       setEditing(true)
@@ -58,8 +60,7 @@ const EditGoalModal: FC<Props> = props => {
   }
 
   const onConditionEdit = (condition: FlowCondition) => {
-    setCurrentCondition(conditions.find(x => x.id === condition.id))
-    console.log(condition)
+    setCurrentCondition(props.backendConditions.find(x => x.id === condition.id))
     setCurrentFlowCondition(condition)
     setEditing(true)
   }
@@ -68,53 +69,61 @@ const EditGoalModal: FC<Props> = props => {
     const selCond = conditions.find(x => x.id === currentFlowCondition.id)
 
     selCond.params = _.merge(selCond.params, newParams)
-    setConditions([...conditions])
+    save([...conditions])
   }
 
   const onConditionDeleted = async ({ id }: Condition) => {
     if (await confirmDialog('Are you sure to delete this condition?', { acceptLabel: 'Delete' })) {
-      setConditions([...conditions.filter(condition => condition.id !== id)])
+      save([...conditions.filter(condition => condition.id !== id)])
     }
   }
 
-  const submit = currentItem => {
-    // TODO: Update
-    const { node, toggle, diagramEngine } = props
+  const save = updatedConditions => {
+    const { node, diagramEngine } = props
     const flowBuilder = diagramEngine.flowBuilder.props
+    console.log(updatedConditions)
 
     flowBuilder.switchFlowNode(node.id)
-    flowBuilder.updateFlowNode({ onEnter: [`say #!${currentItem.id}`], conditions })
-    toggle()
-    toastSuccess(`Changes saved successfully`)
+    flowBuilder.updateFlowNode({ conditions: updatedConditions })
+    setConditions(updatedConditions)
   }
+
+  const { isOpen, toggle, contentLang, backendConditions } = props
 
   return (
     <BaseDialog
-      isOpen={props.isOpen}
-      onClose={props.toggle}
-      style={{ width: 900, minHeight: 450 }}
+      isOpen={isOpen}
+      onClose={toggle}
+      className={triggerStyles.dialog}
+      style={{ width: 750, minHeight: 380 }}
       icon="edit"
-      title={`Edit Trigger`}
+      title={`Edit Triggers`}
     >
       <DialogBody>
+        <div className={cx(triggerStyles.formHeader, { [triggerStyles.editing]: isEditing })}>
+          {isEditing && (
+            <Button icon="arrow-left" small minimal onClick={() => setEditing(false)}>
+              Back to list
+            </Button>
+          )}
+          <p className={triggerStyles.tip}>Changes will be saved automatically</p>
+        </div>
         {isEditing && (
           <div>
             <ConditionEditor
               condition={currentCondition}
-              contentLang={props.contentLang}
-              forceSave={forceSave}
               params={currentFlowCondition && currentFlowCondition.params}
               updateParams={onParamsChanged}
+              contentLang={contentLang}
+              forceSave={forceSave}
             />
-
-            <Button text="Save changes" onClick={submit} intent={Intent.PRIMARY} className={style.modalFooter} />
           </div>
         )}
 
         {!isEditing && (
           <div>
             {!!conditions.length && (
-              <div className={triggerStyles.triggerWrapper}>
+              <div className={triggerStyles.triggerConditionsWrapper}>
                 {conditions.map((condition, index) => (
                   <ConditionItem
                     condition={condition}
@@ -127,12 +136,12 @@ const EditGoalModal: FC<Props> = props => {
               </div>
             )}
 
-            <ButtonGroup>
-              <ConditionDropdown onChange={con => setCurrentCondition(con)} ignored={conditions} />
-              <Button icon="add" minimal text="Add condition" onClick={() => addCondition(currentCondition)} />
-            </ButtonGroup>
-
-            <Button text="Save changes" onClick={submit} intent={Intent.PRIMARY} className={style.modalFooter} />
+            {conditions?.length !== backendConditions?.length && (
+              <ButtonGroup>
+                <ConditionDropdown onChange={con => setCurrentCondition(con)} ignored={conditions} />
+                <Button icon="add" minimal text="Add condition" onClick={() => addCondition(currentCondition)} />
+              </ButtonGroup>
+            )}
           </div>
         )}
       </DialogBody>
@@ -140,4 +149,6 @@ const EditGoalModal: FC<Props> = props => {
   )
 }
 
-export default withLanguage(EditGoalModal)
+const mapStateToProps = state => ({ backendConditions: state.ndu.conditions })
+
+export default connect<StateProps, OwnProps>(mapStateToProps)(withLanguage(EditGoalModal))
