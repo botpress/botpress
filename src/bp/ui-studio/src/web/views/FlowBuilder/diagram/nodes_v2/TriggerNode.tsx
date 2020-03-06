@@ -1,5 +1,5 @@
 import classnames from 'classnames'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 
 import ConditionItem from '../../../OneFlow/diagram/TriggerEditor/Condition/Item'
@@ -18,15 +18,17 @@ export class TriggerWidget extends Component<{ node: TriggerNodeModel; diagramEn
       <div className={classnames(style.baseNode, style.nodeTrigger, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeaderV2({ nodeType: 'NLU Trigger', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
-          {!conditions?.length && <p>Add conditions to get started</p>}
-          {!!conditions?.length && (
-            <ul className={style.nodeTriggerConditions}>
-              {conditions.slice(0, 2).map(condition => (
-                <ConditionItem diagramNodeView condition={condition} key={condition.id} />
-              ))}
-              {conditions.length > 2 && <li>+ {conditions.length - 2} conditions</li>}
-            </ul>
-          )}
+          <ul className={style.nodeTriggerConditions}>
+            {!conditions?.length && <li>Add conditions to get started</li>}
+            {!!conditions?.length && (
+              <Fragment>
+                {conditions.slice(0, 2).map(condition => (
+                  <ConditionItem diagramNodeView condition={condition} key={condition.id} />
+                ))}
+                {conditions.length > 2 && <li>+ {conditions.length - 2} conditions</li>}
+              </Fragment>
+            )}
+          </ul>
         </div>
         <div className={style.ports}>
           <StandardPortWidget name="out0" node={node} className={style.out} />

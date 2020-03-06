@@ -81,7 +81,6 @@ const EditGoalModal: FC<Props> = props => {
   const save = updatedConditions => {
     const { node, diagramEngine } = props
     const flowBuilder = diagramEngine.flowBuilder.props
-    console.log(updatedConditions)
 
     flowBuilder.switchFlowNode(node.id)
     flowBuilder.updateFlowNode({ conditions: updatedConditions })
