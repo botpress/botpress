@@ -266,6 +266,12 @@ export type BotpressConfig = {
    * @default []
    */
   additionalLanguages?: { name: string; code: string }[]
+  /**
+   * Whether or not to display experimental features throughout the UI. These are subject
+   * to change and can be unstable.
+   * @default false
+   */
+  experimental: boolean
 }
 
 export interface ExternalAuthConfig {
