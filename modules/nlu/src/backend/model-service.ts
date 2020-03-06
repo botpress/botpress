@@ -1,6 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
+import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
+import path from 'path'
+import { Stream } from 'stream'
+import tar from 'tar'
+import tmp from 'tmp'
 
 import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
 
@@ -17,7 +22,7 @@ export interface Model {
   }
 }
 
-const MODELS_DIR = './models'
+export const MODELS_DIR = './models'
 const MAX_MODELS_TO_KEEP = 2
 
 function makeFileName(hash: string, lang: string): string {
@@ -49,18 +54,35 @@ export async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: s
   }
 }
 
-async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: string): Promise<string[]> {
+export async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: string): Promise<string[]> {
   const endingPattern = makeFileName('*', languageCode)
   return await ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
     sortOrder: { column: 'modifiedOn', desc: true }
   })
 }
 
-export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | void> {
+export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | undefined> {
   const fname = makeFileName(hash, lang)
-  if (await ghost.fileExists(MODELS_DIR, fname)) {
-    const strMod = await ghost.readFileAsString(MODELS_DIR, fname)
-    return deserializeModel(strMod)
+  if (!(await ghost.fileExists(MODELS_DIR, fname))) {
+    return
+  }
+  const buffStream = new Stream.PassThrough()
+  buffStream.end(await ghost.readFileAsBuffer(MODELS_DIR, fname))
+  const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+
+  const tarStream = tar.x({ cwd: tmpDir.name, strict: true }, ['model']) as WriteStream
+  buffStream.pipe(tarStream)
+  await new Promise(resolve => tarStream.on('close', resolve))
+
+  const modelBuff = await fse.readFile(path.join(tmpDir.name, 'model'))
+  let mod
+  try {
+    mod = deserializeModel(modelBuff.toString())
+  } catch (err) {
+    await ghost.deleteFile(MODELS_DIR, fname)
+  } finally {
+    tmpDir.removeCallback()
+    return mod
   }
 }
 
@@ -74,7 +96,23 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
 
 export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void | void[]> {
   const serialized = serializeModel(model)
-  const fname = makeFileName(hash, model.languageCode)
-  await ghost.upsertFile(MODELS_DIR, fname, serialized)
+  const modelName = makeFileName(hash, model.languageCode)
+  const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+  const tmpFileName = path.join(tmpDir.name, 'model')
+  await fse.writeFile(tmpFileName, serialized)
+
+  const archiveName = path.join(tmpDir.name, modelName)
+  await tar.create(
+    {
+      file: archiveName,
+      cwd: tmpDir.name,
+      portable: true,
+      gzip: true
+    },
+    ['model']
+  )
+  const buffer = await fse.readFile(archiveName)
+  await ghost.upsertFile(MODELS_DIR, modelName, buffer)
+  tmpDir.removeCallback()
   return pruneModels(ghost, model.languageCode)
 }
