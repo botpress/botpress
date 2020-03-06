@@ -245,7 +245,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
-  router.delete('/train', async (req, res) => {
+  router.post('/train/delete', async (req, res) => {
     try {
       const { botId } = req.params
       await state.nluByBot[botId].cancelTraining()

@@ -41,5 +41,5 @@ export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   setAutoTrain: (autoTrain: boolean) => bp.axios.post(`/mod/nlu/autoTrain`, { autoTrain: autoTrain }),
   isTraining: () => bp.axios.get(`/mod/nlu/train`).then(res => res.data.isTraining),
   train: () => bp.axios.post(`/mod/nlu/train`),
-  cancelTraining: () => bp.axios.delete(`/mod/nlu/train`)
+  cancelTraining: () => bp.axios.post(`/mod/nlu/train/delete`)
 })
