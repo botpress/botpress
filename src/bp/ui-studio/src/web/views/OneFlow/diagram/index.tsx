@@ -411,7 +411,12 @@ class Diagram extends Component<Props> {
     if (event) {
       // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
       const target = this.diagramWidget.getMouseElement(event)
-      if (
+
+      if (target?.model instanceof TriggerNodeModel) {
+        this.editTriggers(target.model)
+
+        return
+      } else if (
         target &&
         !(
           target.model instanceof StandardNodeModel ||
@@ -454,10 +459,6 @@ class Diagram extends Component<Props> {
     }
 
     this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
-
-    if (target?.model instanceof TriggerNodeModel) {
-      this.editTriggers(target.model)
-    }
 
     if (!selectedNode) {
       this.props.closeFlowNodeProps()

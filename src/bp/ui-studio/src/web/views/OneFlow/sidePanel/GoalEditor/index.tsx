@@ -4,10 +4,8 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, renameFlow, updateFlow } from '~/actions'
-import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
+import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
-
-import style from '../style.scss'
 
 interface OwnProps {
   isOpen: boolean
@@ -119,17 +117,11 @@ const EditGoalModal: FC<Props> = props => {
               onChange={e => setDescription(e.currentTarget.value)}
             />
           </FormGroup>
-
-          <Button
-            type="submit"
-            id="btn-submit"
-            tabIndex={4}
-            text="Save changes"
-            intent={Intent.PRIMARY}
-            className={style.modalFooter}
-          />
         </div>
       </DialogBody>
+      <DialogFooter>
+        <Button type="submit" id="btn-submit" tabIndex={4} text="Save changes" intent={Intent.PRIMARY} />
+      </DialogFooter>
     </BaseDialog>
   )
 }
