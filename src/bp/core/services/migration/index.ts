@@ -50,7 +50,8 @@ export class MigrationService {
   }
 
   async initialize() {
-    const configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
+    let configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
+
     debug(`Migration Check: %o`, { configVersion, currentVersion: this.currentVersion })
 
     if (yn(process.env.SKIP_MIGRATIONS)) {
@@ -58,7 +59,16 @@ export class MigrationService {
       return
     }
 
-    const missingMigrations = this.filterMissing(this.getAllMigrations(), configVersion)
+    const allMigrations = this.getAllMigrations()
+
+    if (process.env.RUNMIG) {
+      const versions = allMigrations.map(x => x.version).sort(semver.compare)
+
+      this.currentVersion = versions[versions.length - 1]
+      configVersion = process.BOTPRESS_VERSION
+    }
+
+    const missingMigrations = this.filterMissing(allMigrations, configVersion)
     if (!missingMigrations.length) {
       return
     }
@@ -223,7 +233,7 @@ ${_.repeat(' ', 9)}========================================`)
   }
 
   private async _getCompletedMigrations(): Promise<string[]> {
-    if (yn(process.env.TESTMIG_IGNORE_COMPLETED)) {
+    if (yn(process.env.TESTMIG_IGNORE_COMPLETED) || yn(process.env.RUNMIG)) {
       return []
     }
 
