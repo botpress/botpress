@@ -19,8 +19,10 @@ const migration: sdk.ModuleMigration = {
         return Promise.map(modNames, async mod => {
           try {
             const model: Model = await ghost.readFileAsObject(MODELS_DIR, mod)
-            // Triggers model compression
-            return saveModel(ghost, model, model.hash)
+            if (!model.hash) {
+              return ghost.deleteFile(MODELS_DIR, mod) // model is really outdated
+            }
+            return saveModel(ghost, model, model.hash) // Triggers model compression
           } catch (err) {
             return
           }
