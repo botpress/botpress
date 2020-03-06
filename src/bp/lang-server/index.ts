@@ -3,6 +3,8 @@ import _ from 'lodash'
 import path from 'path'
 
 import center from '../core/logger/center'
+import { LogLevel } from '../core/sdk/enums'
+
 // tslint:disable-next-line:ordered-imports
 import rewire from '../sdk/rewire'
 // tslint:disable-next-line:ordered-imports
@@ -32,9 +34,17 @@ export interface ArgV {
 export default async function(options: ArgV) {
   options.langDir = options.langDir || path.join(process.APP_DATA_PATH, 'embeddings')
 
-  debug('Language Server Options ', options)
-
   const logger = new LangServerLogger('Launcher')
+
+  global.printLog = args => {
+    const message = args[0]
+    const rest = args.slice(1)
+
+    logger.level(LogLevel.DEV).debug(message.trim(), rest)
+  }
+
+  debug('Language Server Options %o', options)
+
   const langService = new LanguageService(options.dim, options.domain, options.langDir)
   const downloadManager = new DownloadManager(options.dim, options.domain, options.langDir, options.metadataLocation)
 
