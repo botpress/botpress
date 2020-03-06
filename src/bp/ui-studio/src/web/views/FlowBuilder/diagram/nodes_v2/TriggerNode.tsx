@@ -5,7 +5,7 @@ import React, { Component } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 
 import { BaseNodeModel } from '../nodes/BaseNodeModel'
-import { StandardPortWidget } from '../nodes/Ports'
+import { StandardIncomingPortModel, StandardOutgoingPortModel, StandardPortWidget } from '../nodes/Ports'
 
 import style from './style.scss'
 import { showHeaderV2 } from './utils'
@@ -20,8 +20,6 @@ export class TriggerWidget extends Component<{ node: TriggerNodeModel; diagramEn
       flowBuilder.switchFlowNode(this.props.node.id)
       flowBuilder.updateFlowNode({ onEnter: [`say #!${currentItem.id}`] })
     }
-
-    console.log(node)
 
     return (
       <div className={classnames(style.baseNode, style.nodeTrigger, { [style.highlightedNode]: node.isHighlighted })}>
@@ -42,12 +40,30 @@ export class TriggerWidget extends Component<{ node: TriggerNodeModel; diagramEn
 }
 
 export class TriggerNodeModel extends BaseNodeModel {
-  constructor({ id, x, y, name, onEnter = [], next = [], isStartNode = false, isHighlighted = false }) {
+  public conditions = []
+
+  constructor({
+    id,
+    x,
+    y,
+    name,
+    onEnter = [],
+    next = [],
+    conditions = [],
+    isStartNode = false,
+    isHighlighted = false
+  }) {
     super('trigger', id)
-    this.setData({ name, onEnter, next, isStartNode, isHighlighted })
+    this.setData({ name, onEnter, next, isStartNode, isHighlighted, conditions })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
+  }
+
+  setData({ conditions = [], ...data }) {
+    this.conditions = conditions
+
+    super.setData(data as any)
   }
 }
 
