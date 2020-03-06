@@ -1,9 +1,8 @@
-import { Button } from '@blueprintjs/core'
 import classnames from 'classnames'
-import _ from 'lodash'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 
+import ConditionItem from '../../../OneFlow/diagram/TriggerEditor/Condition/Item'
 import { BaseNodeModel } from '../nodes/BaseNodeModel'
 import { StandardPortWidget } from '../nodes/Ports'
 
@@ -13,22 +12,22 @@ import { showHeaderV2 } from './utils'
 export class TriggerWidget extends Component<{ node: TriggerNodeModel; diagramEngine: any }> {
   render() {
     const node = this.props.node
-
-    const handleItemChanged = currentItem => {
-      // TODO: Update
-      const flowBuilder = this.props.diagramEngine.flowBuilder.props
-      flowBuilder.switchFlowNode(this.props.node.id)
-      flowBuilder.updateFlowNode({ onEnter: [`say #!${currentItem.id}`] })
-    }
+    const { conditions } = node
 
     return (
       <div className={classnames(style.baseNode, style.nodeTrigger, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeaderV2({ nodeType: 'NLU Trigger', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
-          <ul>
-            <li>Request access</li>
-            <li>Request access like @theman</li>
-            <li>request trello access for @theman like @deepanchu</li>
+          <ul className={style.nodeTriggerConditions}>
+            {!conditions?.length && <li>Add conditions to get started</li>}
+            {!!conditions?.length && (
+              <Fragment>
+                {conditions.slice(0, 2).map(condition => (
+                  <ConditionItem diagramNodeView condition={condition} key={condition.id} />
+                ))}
+                {conditions.length > 2 && <li>+ {conditions.length - 2} conditions</li>}
+              </Fragment>
+            )}
           </ul>
         </div>
         <div className={style.ports}>
@@ -40,12 +39,30 @@ export class TriggerWidget extends Component<{ node: TriggerNodeModel; diagramEn
 }
 
 export class TriggerNodeModel extends BaseNodeModel {
-  constructor({ id, x, y, name, onEnter = [], next = [], isStartNode = false, isHighlighted = false }) {
+  public conditions = []
+
+  constructor({
+    id,
+    x,
+    y,
+    name,
+    onEnter = [],
+    next = [],
+    conditions = [],
+    isStartNode = false,
+    isHighlighted = false
+  }) {
     super('trigger', id)
-    this.setData({ name, onEnter, next, isStartNode, isHighlighted })
+    this.setData({ name, onEnter, next, isStartNode, isHighlighted, conditions })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
+  }
+
+  setData({ conditions = [], ...data }) {
+    this.conditions = conditions
+
+    super.setData(data as any)
   }
 }
 

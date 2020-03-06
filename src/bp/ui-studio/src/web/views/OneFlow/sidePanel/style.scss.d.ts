@@ -4,7 +4,6 @@ interface CssExports {
   'emptyState': string;
   'grabbable': string;
   'mainoverlay': string;
-  'modalFooter': string;
   'modalHeader': string;
   'overhidden': string;
   'section': string;

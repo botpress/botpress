@@ -7,7 +7,7 @@ import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { fetchTopics, renameFlow } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
+import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
 
 import style from '../style.scss'
@@ -84,16 +84,12 @@ const EditTopicModal: FC<Props> = props => {
               onChange={e => setDescription(e.currentTarget.value)}
             />
           </FormGroup>
-
-          <Button
-            type="submit"
-            id="btn-submit"
-            text="Save changes"
-            intent={Intent.PRIMARY}
-            className={style.modalFooter}
-          />
         </div>
       </DialogBody>
+
+      <DialogFooter>
+        <Button type="submit" id="btn-submit" text="Save changes" intent={Intent.PRIMARY} />
+      </DialogFooter>
     </BaseDialog>
   )
 }

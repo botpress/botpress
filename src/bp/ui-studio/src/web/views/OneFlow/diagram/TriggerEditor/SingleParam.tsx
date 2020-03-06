@@ -20,13 +20,13 @@ const SingleParam: FC<Props> = props => {
   if (type === 'string') {
     return (
       <FormGroup key={label} label={label}>
-        <InputGroup value={value} onChange={e => updateValue(e.currentTarget.value)} />
+        <InputGroup value={value || ''} onChange={e => updateValue(e.currentTarget.value)} />
       </FormGroup>
     )
   } else if (type === 'number') {
     return (
       <FormGroup key={label} label={label}>
-        <NumericInput value={value} onValueChange={value => updateValue(value)} />
+        <NumericInput value={value || 0} onValueChange={value => updateValue(value)} />
       </FormGroup>
     )
   } else if (type === 'list') {

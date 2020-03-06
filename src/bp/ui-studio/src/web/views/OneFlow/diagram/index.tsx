@@ -54,8 +54,10 @@ import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/Listen
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
-import { TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
+import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
+
+import TriggerEditor from './TriggerEditor'
 
 interface OwnProps {
   library: any
@@ -117,7 +119,9 @@ class Diagram extends Component<Props> {
   private dragPortSource: any
 
   state = {
-    highlightFilter: ''
+    highlightFilter: '',
+    currentTriggerNode: null,
+    isTriggerEditOpen: false
   }
 
   constructor(props) {
@@ -329,6 +333,7 @@ class Diagram extends Component<Props> {
     const point = this.manager.getRealPosition(event)
 
     const isNodeTargeted = targetModel instanceof NodeModel
+    const isTriggerNode = targetModel instanceof TriggerNodeModel
     const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
 
     const isSuccessNode = targetModel instanceof SuccessNodeModel
@@ -353,6 +358,7 @@ class Diagram extends Component<Props> {
         )}
         {isNodeTargeted && (
           <Fragment>
+            {isTriggerNode && <MenuItem icon="edit" text="Edit" onClick={() => this.editTriggers(targetModel)} />}
             <MenuItem
               icon="trash"
               text="Delete"
@@ -405,7 +411,12 @@ class Diagram extends Component<Props> {
     if (event) {
       // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
       const target = this.diagramWidget.getMouseElement(event)
-      if (
+
+      if (target?.model instanceof TriggerNodeModel) {
+        this.editTriggers(target.model)
+
+        return
+      } else if (
         target &&
         !(
           target.model instanceof StandardNodeModel ||
@@ -472,6 +483,13 @@ class Diagram extends Component<Props> {
     }
 
     this.checkForProblems()
+  }
+
+  editTriggers(node) {
+    this.setState({
+      currentTriggerNode: node,
+      isTriggerEditOpen: true
+    })
   }
 
   deleteSelectedElements() {
@@ -624,24 +642,33 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <div
-        id="diagramContainer"
-        ref={ref => (this.diagramContainer = ref)}
-        tabIndex={1}
-        style={{ outline: 'none', width: '100%', height: '100%' }}
-        onContextMenu={this.handleContextMenu}
-        onDrop={this.handleToolDropped}
-        onDragOver={event => event.preventDefault()}
-      >
-        <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+      <Fragment>
+        <div
+          id="diagramContainer"
+          ref={ref => (this.diagramContainer = ref)}
+          tabIndex={1}
+          style={{ outline: 'none', width: '100%', height: '100%' }}
+          onContextMenu={this.handleContextMenu}
+          onDrop={this.handleToolDropped}
+          onDragOver={event => event.preventDefault()}
+        >
+          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
 
-        <DiagramWidget
-          ref={w => (this.diagramWidget = w)}
-          deleteKeys={[]}
+          <DiagramWidget
+            ref={w => (this.diagramWidget = w)}
+            deleteKeys={[]}
+            diagramEngine={this.diagramEngine}
+            inverseZoom={true}
+          />
+        </div>
+
+        <TriggerEditor
+          node={this.state.currentTriggerNode}
+          isOpen={this.state.isTriggerEditOpen}
           diagramEngine={this.diagramEngine}
-          inverseZoom={true}
+          toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
         />
-      </div>
+      </Fragment>
     )
   }
 }
