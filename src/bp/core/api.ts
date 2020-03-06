@@ -113,36 +113,16 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
 
 const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   return {
-    forBot(botId: string): sdk.KvsService {
-      return kvs.forBot(botId)
-    },
-    global(): sdk.KvsService {
-      return kvs.global()
-    },
-    async get(botId: string, key: string, path?: string): Promise<any> {
-      return kvs.get(botId, key, path)
-    },
-    async set(botId: string, key: string, value: string, path?: string) {
-      return kvs.set(botId, key, value, path)
-    },
-    async getStorageWithExpiry(botId, key): Promise<any> {
-      return kvs.getStorageWithExpiry(botId, key)
-    },
-    async setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string): Promise<void> {
-      return kvs.setStorageWithExpiry(botId, key, value, expiryInMs)
-    },
-    async removeStorageKeysStartingWith(key): Promise<void> {
-      return kvs.removeStorageKeysStartingWith(key)
-    },
-    getConversationStorageKey(sessionId, variable): string {
-      return kvs.getConversationStorageKey(sessionId, variable)
-    },
-    getUserStorageKey(userId, variable): string {
-      return kvs.getUserStorageKey(userId, variable)
-    },
-    getGlobalStorageKey(variable): string {
-      return kvs.getGlobalStorageKey(variable)
-    }
+    forBot: kvs.forBot.bind(kvs),
+    global: kvs.global.bind(kvs),
+    get: kvs.get.bind(kvs),
+    set: kvs.set.bind(kvs),
+    getStorageWithExpiry: kvs.getStorageWithExpiry.bind(kvs),
+    setStorageWithExpiry: kvs.setStorageWithExpiry.bind(kvs),
+    removeStorageKeysStartingWith: kvs.removeStorageKeysStartingWith.bind(kvs),
+    getConversationStorageKey: kvs.getConversationStorageKey.bind(kvs),
+    getUserStorageKey: kvs.getUserStorageKey.bind(kvs),
+    getGlobalStorageKey: kvs.getGlobalStorageKey.bind(kvs)
   }
 }
 

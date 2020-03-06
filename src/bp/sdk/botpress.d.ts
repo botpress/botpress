@@ -848,8 +848,9 @@ declare module 'botpress/sdk' {
     /**
      * Saves the specified key as JSON object
      * @example bp.kvs.forBot('bot123').set('hello/whatsup', { msg: 'i love you' })
+     * @param expiryInMs The key will expire in X (eg: 10m, 1d, 30 days)
      */
-    set(key: string, value: any, path?: string): Promise<void>
+    set(key: string, value: any, path?: string, expiryInMs?: string): Promise<void>
 
     /**
      * Deletes the specified key
@@ -862,7 +863,13 @@ declare module 'botpress/sdk' {
      * @example bp.kvs.forBot('bot123').exists('hello/whatsup')
      */
     exists(key: string): Promise<boolean>
+    /**
+     * @deprecated Use bp.kvs.forBot().set() and set an expiry as the last parameter
+     */
     setStorageWithExpiry(key: string, value, expiryInMs?: string)
+    /**
+     * @deprecated Use bp.kvs.forBot().get() which handles expiry automatically
+     */
     getStorageWithExpiry(key: string)
     getConversationStorageKey(sessionId: string, variable: string): string
     getUserStorageKey(userId: string, variable: string): string
@@ -1585,7 +1592,7 @@ declare module 'botpress/sdk' {
      * @example bp.kvs.set('bot123', 'hello/whatsup', { msg: 'i love you' })
      * @deprecated will be removed, use global or forBot
      */
-    export function set(botId: string, key: string, value: any, path?: string): Promise<void>
+    export function set(botId: string, key: string, value: any, path?: string, expiryInMs?: string): Promise<void>
 
     /**
      * @deprecated will be removed, use global or forBot
