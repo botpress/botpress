@@ -15,7 +15,9 @@ export interface NLUApi {
   deleteEntity: (x: string) => Promise<any>
   isAutoTrainOn: () => Promise<boolean>
   setAutoTrain: (autoTrain: boolean) => Promise<void>
+  isTraining: () => Promise<boolean>
   train: () => Promise<void>
+  cancelTraining: () => Promise<void>
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
@@ -37,5 +39,7 @@ export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   deleteEntity: (entityId: string) => bp.axios.post(`/mod/nlu/entities/${entityId}/delete`),
   isAutoTrainOn: () => bp.axios.get(`/mod/nlu/autoTrain`).then(res => res.data.isOn),
   setAutoTrain: (autoTrain: boolean) => bp.axios.post(`/mod/nlu/autoTrain`, { autoTrain: autoTrain }),
-  train: () => bp.axios.post(`/mod/nlu/train`)
+  isTraining: () => bp.axios.get(`/mod/nlu/train`).then(res => res.data.isTraining),
+  train: () => bp.axios.post(`/mod/nlu/train`),
+  cancelTraining: () => bp.axios.delete(`/mod/nlu/train`)
 })

@@ -225,10 +225,30 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  router.get('/train', async (req, res) => {
+    try {
+      const { botId } = req.params
+      const isTraining = await state.nluByBot[botId].isTraining()
+      res.send({ isTraining })
+    } catch {
+      res.sendStatus(500)
+    }
+  })
+
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
       await state.nluByBot[botId].trainOrLoad(true)
+      res.sendStatus(200)
+    } catch {
+      res.sendStatus(500)
+    }
+  })
+
+  router.delete('/train', async (req, res) => {
+    try {
+      const { botId } = req.params
+      await state.nluByBot[botId].cancelTraining()
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)
