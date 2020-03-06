@@ -80,6 +80,23 @@
       width: 100%;
     }
   }
+
+  &Conditions {
+    list-style: none;
+    padding: 5px;
+    margin: 0;
+
+    li {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-bottom: 5px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
 }
 
 .nodeRouter {

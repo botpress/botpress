@@ -8,6 +8,7 @@ import { connect } from 'react-redux'
 import style from '../style.scss'
 
 interface OwnProps {
+  diagramNodeView: boolean
   className: string
   condition: FlowCondition
   onEdit: (condition: FlowCondition) => void
@@ -20,7 +21,7 @@ interface StateProps {
 
 type Props = StateProps & OwnProps
 
-const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, className }) => {
+const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, className, diagramNodeView }) => {
   if (!conditions) {
     return null
   }
@@ -36,6 +37,10 @@ const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, cla
     Object.keys(condition.params).forEach(key => {
       description = description.replace(`{${key}}`, condition.params[key])
     })
+  }
+
+  if (diagramNodeView) {
+    return <li>{description || definition.label}</li>
   }
 
   return (

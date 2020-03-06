@@ -1,11 +1,10 @@
-import { Button } from '@blueprintjs/core'
 import classnames from 'classnames'
-import _ from 'lodash'
 import React, { Component } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 
+import ConditionItem from '../../../OneFlow/diagram/TriggerEditor/Condition/Item'
 import { BaseNodeModel } from '../nodes/BaseNodeModel'
-import { StandardIncomingPortModel, StandardOutgoingPortModel, StandardPortWidget } from '../nodes/Ports'
+import { StandardPortWidget } from '../nodes/Ports'
 
 import style from './style.scss'
 import { showHeaderV2 } from './utils'
@@ -13,23 +12,21 @@ import { showHeaderV2 } from './utils'
 export class TriggerWidget extends Component<{ node: TriggerNodeModel; diagramEngine: any }> {
   render() {
     const node = this.props.node
-
-    const handleItemChanged = currentItem => {
-      // TODO: Update
-      const flowBuilder = this.props.diagramEngine.flowBuilder.props
-      flowBuilder.switchFlowNode(this.props.node.id)
-      flowBuilder.updateFlowNode({ onEnter: [`say #!${currentItem.id}`] })
-    }
+    const { conditions } = node
 
     return (
       <div className={classnames(style.baseNode, style.nodeTrigger, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeaderV2({ nodeType: 'NLU Trigger', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
-          <ul>
-            <li>Request access</li>
-            <li>Request access like @theman</li>
-            <li>request trello access for @theman like @deepanchu</li>
-          </ul>
+          {!conditions?.length && <p>Add conditions to get started</p>}
+          {!!conditions?.length && (
+            <ul className={style.nodeTriggerConditions}>
+              {conditions.slice(0, 2).map(condition => (
+                <ConditionItem diagramNodeView condition={condition} key={condition.id} />
+              ))}
+              {conditions.length > 2 && <li>+ {conditions.length - 2} conditions</li>}
+            </ul>
+          )}
         </div>
         <div className={style.ports}>
           <StandardPortWidget name="out0" node={node} className={style.out} />

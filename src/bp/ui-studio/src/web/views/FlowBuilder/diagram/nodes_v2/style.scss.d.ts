@@ -15,6 +15,7 @@ interface CssExports {
   'nodeSaySomething': string;
   'nodeSuccess': string;
   'nodeTrigger': string;
+  'nodeTriggerConditions': string;
   'out': string;
   'ports': string;
   'section-next': string;
