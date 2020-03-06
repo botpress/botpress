@@ -4,7 +4,7 @@ import { listModelsForLang, Model, MODELS_DIR, pruneModels, saveModel } from '..
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: 'Prune old models and compress old models',
+    description: 'Prune and compress old models',
     target: 'bot',
     type: 'config'
   },
