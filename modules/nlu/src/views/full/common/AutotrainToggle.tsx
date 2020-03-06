@@ -25,9 +25,7 @@ const AutoTrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
     setAutoTrain(!autoTrain)
   }
 
-  return (
-    <Switch label="AutoTrain" disabled={loading} className={style.autoTrainToggle} onClick={() => toggleAutoTrain()} />
-  )
+  return <Switch label="AutoTrain" disabled={loading} className={style.autoTrainToggle} onClick={toggleAutoTrain} />
 }
 
 export default AutoTrainToggle
