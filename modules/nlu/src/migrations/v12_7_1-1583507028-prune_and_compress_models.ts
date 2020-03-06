@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
-import { getLatestModel, pruneModels, saveModel } from 'src/backend/model-service'
+
+import { listModelsForLang, Model, MODELS_DIR, pruneModels, saveModel } from '../backend/model-service'
 
 const migration: sdk.ModuleMigration = {
   info: {
@@ -13,12 +14,17 @@ const migration: sdk.ModuleMigration = {
 
       return Promise.mapSeries(bot.languages, async lang => {
         await pruneModels(ghost, lang)
-        const latestModel = await getLatestModel(ghost, lang)
-        if (!latestModel) {
-          return
-        }
-        // triggers a model compression
-        return saveModel(ghost, latestModel, latestModel.hash)
+        const modNames = await listModelsForLang(ghost, lang)
+
+        return Promise.map(modNames, async mod => {
+          try {
+            const model: Model = await ghost.readFileAsObject(MODELS_DIR, mod)
+            // Triggers model compression
+            return saveModel(ghost, model, model.hash)
+          } catch (err) {
+            return
+          }
+        })
       })
     }
 

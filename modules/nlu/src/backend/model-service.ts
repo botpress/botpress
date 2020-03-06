@@ -22,7 +22,7 @@ export interface Model {
   }
 }
 
-const MODELS_DIR = './models'
+export const MODELS_DIR = './models'
 const MAX_MODELS_TO_KEEP = 2
 
 function makeFileName(hash: string, lang: string): string {
@@ -54,7 +54,7 @@ export async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: s
   }
 }
 
-async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: string): Promise<string[]> {
+export async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: string): Promise<string[]> {
   const endingPattern = makeFileName('*', languageCode)
   return await ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
     sortOrder: { column: 'modifiedOn', desc: true }
@@ -68,7 +68,6 @@ export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang
     buffStream.end(await ghost.readFileAsBuffer(MODELS_DIR, fname))
     const tmpDir = tmp.dirSync()
 
-    // @ts-ignore
     const tarStream = tar.x({ cwd: tmpDir.name, strict: true }, ['model']) as WriteStream
     buffStream.pipe(tarStream)
     await new Promise(resolve => tarStream.on('close', resolve))
