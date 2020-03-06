@@ -61,21 +61,27 @@ export async function listModelsForLang(ghost: sdk.ScopedGhostService, languageC
   })
 }
 
-export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | void> {
+export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | undefined> {
   const fname = makeFileName(hash, lang)
-  if (await ghost.fileExists(MODELS_DIR, fname)) {
-    const buffStream = new Stream.PassThrough()
-    buffStream.end(await ghost.readFileAsBuffer(MODELS_DIR, fname))
-    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+  if (!(await ghost.fileExists(MODELS_DIR, fname))) {
+    return
+  }
+  const buffStream = new Stream.PassThrough()
+  buffStream.end(await ghost.readFileAsBuffer(MODELS_DIR, fname))
+  const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
-    const tarStream = tar.x({ cwd: tmpDir.name, strict: true }, ['model']) as WriteStream
-    buffStream.pipe(tarStream)
-    await new Promise(resolve => tarStream.on('close', resolve))
+  const tarStream = tar.x({ cwd: tmpDir.name, strict: true }, ['model']) as WriteStream
+  buffStream.pipe(tarStream)
+  await new Promise(resolve => tarStream.on('close', resolve))
 
-    const modelBuff = await fse.readFile(path.join(tmpDir.name, 'model'))
-    const mod = deserializeModel(modelBuff.toString())
+  const modelBuff = await fse.readFile(path.join(tmpDir.name, 'model'))
+  let mod
+  try {
+    mod = deserializeModel(modelBuff.toString())
+  } catch (err) {
+    await ghost.deleteFile(MODELS_DIR, fname)
+  } finally {
     tmpDir.removeCallback()
-
     return mod
   }
 }
