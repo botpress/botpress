@@ -66,14 +66,17 @@ export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang
   if (await ghost.fileExists(MODELS_DIR, fname)) {
     const buffStream = new Stream.PassThrough()
     buffStream.end(await ghost.readFileAsBuffer(MODELS_DIR, fname))
-    const tmpDir = tmp.dirSync()
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
     const tarStream = tar.x({ cwd: tmpDir.name, strict: true }, ['model']) as WriteStream
     buffStream.pipe(tarStream)
     await new Promise(resolve => tarStream.on('close', resolve))
 
     const modelBuff = await fse.readFile(path.join(tmpDir.name, 'model'))
-    return deserializeModel(modelBuff.toString())
+    const mod = deserializeModel(modelBuff.toString())
+    tmpDir.removeCallback()
+
+    return mod
   }
 }
 
@@ -88,7 +91,7 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
 export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void | void[]> {
   const serialized = serializeModel(model)
   const modelName = makeFileName(hash, model.languageCode)
-  const tmpDir = tmp.dirSync({ unsafeCleanup: false })
+  const tmpDir = tmp.dirSync({ unsafeCleanup: true })
   const tmpFileName = path.join(tmpDir.name, 'model')
   await fse.writeFile(tmpFileName, serialized)
 
@@ -104,5 +107,6 @@ export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, has
   )
   const buffer = await fse.readFile(archiveName)
   await ghost.upsertFile(MODELS_DIR, modelName, buffer)
+  tmpDir.removeCallback()
   return pruneModels(ghost, model.languageCode)
 }
