@@ -6,7 +6,7 @@ const migration: sdk.ModuleMigration = {
   info: {
     description: 'Prune and compress old models',
     target: 'bot',
-    type: 'config'
+    type: 'content'
   },
   up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     const migrateModels = async (bot: sdk.BotConfig) => {
