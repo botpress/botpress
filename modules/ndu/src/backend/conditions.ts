@@ -13,8 +13,15 @@ export const conditionsDefinitions: sdk.Condition[] = [
       module: 'nlu',
       component: 'LiteEditor'
     },
-    evaluate: (event, params) => {
-      return _.get(event, 'nlu.intent.name') === params.intentName ? event.nlu.intent.confidence : 0
+    evaluate: (event, { intentName, topicName }) => {
+      const topicConf = _.get(event, `nlu.predictions.${topicName}.confidence`, 0)
+      const topicIntents = _.get(event, `nlu.predictions.${topicName}.intents`, [])
+      const intentConf = _.get(
+        topicIntents.find(x => x.label === intentName),
+        'confidence',
+        0
+      )
+      return topicConf * intentConf
     }
   },
   {

@@ -96,10 +96,10 @@ export class FlowService {
     const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(FLOW_DIR, this.uiPath(flowPath))
     let unplacedIndex = -1
 
-    const nodeViews = flow.nodes.map(node => {
+    const nodeViews: NodeView[] = flow.nodes.map(node => {
       const position = _.get(_.find(uiEq.nodes, { id: node.id }), 'position')
       unplacedIndex = position ? unplacedIndex : unplacedIndex + 1
-      return <NodeView>{
+      return {
         ...node,
         x: position ? position.x : MIN_POS_X + unplacedIndex * PLACING_STEP,
         y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 })['y'] + PLACING_STEP
@@ -117,8 +117,8 @@ export class FlowService {
       location: flowPath,
       nodes: nodeViews,
       links: uiEq.links,
-      currentMutex, // TODO: NDU Remove triggers
-      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description'])
+      currentMutex,
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description'])
     }
   }
 

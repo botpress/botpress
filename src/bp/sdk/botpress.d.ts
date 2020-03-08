@@ -488,14 +488,39 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NDU {
+    interface GenericTrigger {
+      conditions: DecisionTriggerCondition[]
+    }
+
+    export interface WorkflowTrigger extends GenericTrigger {
+      type: 'workflow'
+      workflowId: string
+      nodeId: string
+    }
+
+    export interface FaqTrigger extends GenericTrigger {
+      type: 'faq'
+      faqId: string
+      topicName: string
+    }
+
+    export interface NodeTrigger extends GenericTrigger {
+      type: 'node'
+      workflowId: string
+      nodeId: string
+    }
+
+    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
+
     export interface DialogUnderstanding {
       triggers: {
         [triggerId: string]: {
-          goal: string
-          result: any
+          result: Dic<number>
+          trigger: Trigger
         }
       }
       actions: Actions[]
+      predictions: { [key: string]: { triggerId: string; confidence: number } }
     }
 
     export interface Actions {
@@ -714,6 +739,7 @@ declare module 'botpress/sdk' {
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
+      nduContext?: NduContext
       lastGoals: GoalHistory[]
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
@@ -752,6 +778,14 @@ declare module 'botpress/sdk' {
       context: string
       /** Represent the number of turns before the context is removed from the session */
       ttl: number
+    }
+
+    export interface NduContext {
+      last_turn_action_name: string
+      last_turn_highest_ranking_trigger_id: string
+      last_turn_node_id: string
+      last_turn_ts: number
+      last_topic: string
     }
 
     export interface DialogTurnHistory {
@@ -1069,16 +1103,9 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
-    triggers?: FlowTrigger[] // TODO: NDU Change to be nodes insteads
   }
 
-  export interface FlowTrigger {
-    id: string
-    type: 'user-event'
-    conditions: FlowCondition[]
-  }
-
-  export interface FlowCondition {
+  export interface DecisionTriggerCondition {
     id: string
     params?: { [key: string]: any }
   }
@@ -1171,6 +1198,14 @@ declare module 'botpress/sdk' {
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
+
+  export type TriggerNode = FlowNode & {
+    conditions: DecisionTriggerCondition[]
+  }
+
+  export type ListenNode = FlowNode & {
+    triggers: { conditions: DecisionTriggerCondition[] }[]
+  }
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
 
