@@ -47,6 +47,9 @@ const EditGoalModal: FC<Props> = props => {
   const [topicName, setTopicName] = useState('')
 
   useEffect(() => {
+    setConditions([])
+    setTopicName('')
+
     if (props.node) {
       const {
         node: { conditions },
@@ -97,12 +100,17 @@ const EditGoalModal: FC<Props> = props => {
     setConditions(updatedConditions)
   }
 
-  const { isOpen, toggle, contentLang, backendConditions } = props
+  const close = () => {
+    props.toggle()
+    setEditing(false)
+  }
+
+  const { isOpen, contentLang, backendConditions } = props
 
   return (
     <BaseDialog
       isOpen={isOpen}
-      onClose={toggle}
+      onClose={close}
       className={triggerStyles.dialog}
       style={{ width: 750, minHeight: 380 }}
       icon="edit"
