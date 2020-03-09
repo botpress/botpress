@@ -1,3 +1,18 @@
+## [12.7.1](https://github.com/botpress/botpress/compare/v12.7.0...v12.7.1) (2020-03-07)
+
+
+### Bug Fixes
+
+* **code-editor:** added button to switch editors ([7adad33](https://github.com/botpress/botpress/commit/7adad33))
+* **config:** experimental flag instead of amazing ([b2f799d](https://github.com/botpress/botpress/commit/b2f799d))
+* **core:** disable no repeat policy for new servers ([6580fcf](https://github.com/botpress/botpress/commit/6580fcf))
+* **lang-server:** monitoring & debug fixed ([6c22a3c](https://github.com/botpress/botpress/commit/6c22a3c))
+* **nlu:** compress and prune models ([2d5682d](https://github.com/botpress/botpress/commit/2d5682d))
+* **nlu:** only extract necessary entities at training time ([9b162b1](https://github.com/botpress/botpress/commit/9b162b1))
+* **tests:** try to fix flaky test ([a168d3a](https://github.com/botpress/botpress/commit/a168d3a))
+
+
+
 # [12.7.0](https://github.com/botpress/botpress/compare/v12.6.0...v12.7.0) (2020-03-04)
 
 
