@@ -93,7 +93,7 @@ export const LiteEditor: FC<Props> = props => {
           <AccessControl resource="module.qna" operation="write">
             <Button
               id="btn-create-qna"
-              text="Add new"
+              text="Add Question"
               icon="add"
               style={{ marginLeft: 20 }}
               intent={Intent.PRIMARY}
