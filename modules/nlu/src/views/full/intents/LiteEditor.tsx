@@ -1,6 +1,8 @@
 import { Button, ControlGroup, FormGroup } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
+import { useDebouncedCallback } from 'use-debounce'
 
 import { makeApi } from '../../api'
 import style from '../style.scss'
@@ -19,7 +21,6 @@ interface Props {
   topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
-  forceSave?: boolean
 }
 
 export const sanitizeName = (text: string) =>
@@ -32,6 +33,14 @@ export const LiteEditor: FC<Props> = props => {
   const [intents, setIntents] = useState<NLU.IntentDefinition[]>([])
   const [currentIntent, setCurrentIntent] = useState(props.params.intentName)
   const [isModalOpen, setModalOpen] = useState(false)
+  const [updateIntent, cancelPendingIntentUpdate] = useDebouncedCallback(async () => {
+    const intent = await api.fetchIntent(currentIntent)
+
+    if (!intent.contexts.includes(props.topicName)) {
+      intent.contexts.push(props.topicName)
+      await api.updateIntent(currentIntent, intent)
+    }
+  }, 3000)
 
   const api = makeApi(props.bp)
 
@@ -39,19 +48,6 @@ export const LiteEditor: FC<Props> = props => {
     // tslint:disable-next-line: no-floating-promises
     loadIntents()
   }, [])
-
-  useEffect(() => {
-    // Ensure the current topic is in the intent's contexts
-    if (props.forceSave) {
-      // tslint:disable-next-line: no-floating-promises
-      api.fetchIntent(currentIntent).then(async intent => {
-        if (!intent.contexts.includes(props.topicName)) {
-          intent.contexts.push(props.topicName)
-          await api.updateIntent(currentIntent, intent)
-        }
-      })
-    }
-  }, [props.forceSave])
 
   const loadIntents = async () => {
     setIntents(await api.fetchIntents())
@@ -71,10 +67,13 @@ export const LiteEditor: FC<Props> = props => {
     setCurrentIntent(sanitizedName)
   }
 
-  const onIntentChanged = intent => {
+  const onIntentChanged = async intent => {
     if (intent) {
       setCurrentIntent(intent.name)
       props.updateParams({ intentName: intent.name })
+
+      cancelPendingIntentUpdate()
+      updateIntent()
     }
   }
 

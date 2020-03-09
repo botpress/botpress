@@ -37,7 +37,8 @@ export function config(projectPath) {
       'botpress/content-picker': 'BotpressContentPicker',
       'botpress/documentation': 'DocumentationProvider',
       'botpress/utils': 'BotpressUtils',
-      'botpress/shared': 'BotpressShared'
+      'botpress/shared': 'BotpressShared',
+      'use-debounce': 'UseDebounce'
     },
     resolveLoader: {
       modules: ['node_modules', path.resolve(__dirname, '../node_modules')]
