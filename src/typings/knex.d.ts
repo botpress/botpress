@@ -12,6 +12,7 @@ declare module 'knex' {
   interface Date {
     format(exp: any): Raw
     now(): Raw
+    today(): Raw
     isBefore(d1: ColumnOrDate, d2: ColumnOrDate): Raw
     isAfter(d1: ColumnOrDate, d2: ColumnOrDate): Raw
     isBetween(date: ColumnOrDate, betweenA: ColumnOrDate, betweenB: ColumnOrDate): Raw

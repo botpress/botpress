@@ -62,7 +62,7 @@
     "@types/reactstrap": "^8.4.1",
     "cross-env": "^5.2.0",
     "expose-loader": "^0.7.1",
-    "hard-source-webpack-plugin": "^0.13.1",
+    "hard-source-webpack-plugin": "git+https://github.com/botpress/hard-source-webpack-plugin.git",
     "node-sass-chokidar": "^1.3.4",
     "npm-run-all": "^4.1.5",
     "react-app-rewired": "^2.1.0"

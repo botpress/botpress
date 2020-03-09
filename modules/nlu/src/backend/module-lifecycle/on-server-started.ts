@@ -1,17 +1,15 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import yn from 'yn'
 
 import { Config } from '../../config'
-import Engine2 from '../engine2/engine2'
-import { getLatestModel } from '../engine2/model-service'
-import { InvalidLanguagePredictorError } from '../engine2/predict-pipeline'
-import { removeTrainingSession, setTrainingSession } from '../engine2/train-session-service'
-import LangProvider from '../language-provider'
-import { DucklingEntityExtractor } from '../pipelines/entities/duckling_extractor'
-import { getPOSTagger, tagSentence } from '../pos-tagger'
-import Storage from '../storage'
+import Engine from '../engine'
+import { DucklingEntityExtractor } from '../entities/duckling_extractor'
+import LangProvider from '../language/language-provider'
+import { getPOSTagger, tagSentence } from '../language/pos-tagger'
+import { getLatestModel } from '../model-service'
+import { InvalidLanguagePredictorError } from '../predict-pipeline'
+import { removeTrainingSession, setTrainingSession } from '../train-session-service'
 import { NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
@@ -39,7 +37,7 @@ export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState
   }
 }
 
-function initializeEngine2(bp: typeof sdk, state: NLUState) {
+function initializeEngine(bp: typeof sdk, state: NLUState) {
   const tools: Tools = {
     partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
       const tagger = getPOSTagger(lang, bp.MLToolkit)
@@ -71,7 +69,7 @@ function initializeEngine2(bp: typeof sdk, state: NLUState) {
       }
     }
   }
-  Engine2.provideTools(tools)
+  Engine.provideTools(tools)
 }
 
 async function initDucklingExtractor(bp: typeof sdk): Promise<void> {
@@ -79,7 +77,6 @@ async function initDucklingExtractor(bp: typeof sdk): Promise<void> {
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
 }
 
-const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
@@ -101,19 +98,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       }
 
       let nluResults = {}
-      const { engine1, engine } = state.nluByBot[event.botId]
-      const extractEngine1 = async () => {
-        try {
-          nluResults = await engine1.extract!(
-            event.preview,
-            event.state.session.lastMessages.map(message => message.incomingPreview),
-            event.nlu.includedContexts
-          )
-        } catch (err) {
-          bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)
-        }
-      }
-
+      const { engine } = state.nluByBot[event.botId]
       const extractEngine2 = async () => {
         try {
           // eventually if model not loaded for bot languages ==> train or load
@@ -129,11 +114,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       }
 
       try {
-        if (USE_E1) {
-          await extractEngine1()
-        } else {
-          await retry(extractEngine2, { max_tries: 2, throw_original: true })
-        }
+        await retry(extractEngine2, { max_tries: 2, throw_original: true })
         _.merge(event, { nlu: nluResults })
         removeSensitiveText(event)
       } catch (err) {
@@ -163,10 +144,9 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
-    Storage.ghostProvider = (botId?: string) => (botId ? bp.ghost.forBot(botId) : bp.ghost.forGlobal())
     await initDucklingExtractor(bp)
     await initializeLanguageProvider(bp, state)
-    initializeEngine2(bp, state)
+    initializeEngine(bp, state)
     await registerMiddleware(bp, state)
   }
 }
