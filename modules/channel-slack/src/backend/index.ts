@@ -37,7 +37,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
     return
   }
 
-  client.shutdown()
+  await client.shutdown()
   delete clients[botId]
 }
 
