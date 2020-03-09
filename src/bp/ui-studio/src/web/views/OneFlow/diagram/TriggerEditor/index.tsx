@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
-import { Condition, FlowCondition } from 'botpress/sdk'
+import { Condition } from 'botpress/sdk'
 import { confirmDialog } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -9,7 +9,6 @@ import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 
 import withLanguage from '../../../../components/Util/withLanguage'
 import { TriggerNodeModel } from '../../../FlowBuilder/diagram/nodes_v2/TriggerNode'
-import style from '../../sidePanel/style.scss'
 
 import triggerStyles from './style.scss'
 import ConditionDropdown from './Condition/ConditionDropdown'
@@ -36,14 +35,15 @@ const EditGoalModal: FC<Props> = props => {
   const [conditions, setConditions] = useState<Condition[]>([])
   const [currentFlowCondition, setCurrentFlowCondition] = useState()
   const [currentCondition, setCurrentCondition] = useState<Condition>()
-
-  const [forceSave, setForceSave] = useState(false)
+  const [topicName, setTopicName] = useState('')
 
   useEffect(() => {
     if (props.node) {
       const { conditions } = props.node
+      const { currentFlow } = props.diagramEngine.flowBuilder.props
 
       setConditions(conditions)
+      setTopicName(currentFlow?.location?.split('/')[0])
     }
   }, [props.node])
 
@@ -59,7 +59,7 @@ const EditGoalModal: FC<Props> = props => {
     }
   }
 
-  const onConditionEdit = (condition: FlowCondition) => {
+  const onConditionEdit = (condition: Condition) => {
     setCurrentCondition(props.backendConditions.find(x => x.id === condition.id))
     setCurrentFlowCondition(condition)
     setEditing(true)
@@ -113,8 +113,8 @@ const EditGoalModal: FC<Props> = props => {
               condition={currentCondition}
               params={currentFlowCondition && currentFlowCondition.params}
               updateParams={onParamsChanged}
+              topicName={topicName}
               contentLang={contentLang}
-              forceSave={forceSave}
             />
           </div>
         )}

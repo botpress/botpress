@@ -1117,7 +1117,7 @@ declare module 'botpress/sdk' {
     /** The description holds placeholders for param values so they can be displayed in the view */
     description?: string
     /** The definition of all parameters used by this condition */
-    params?: ConditionParams
+    params?: ConditionParams | string
     /** The editor will use the custom component to provide the requested parameters */
     editor?: {
       module: string

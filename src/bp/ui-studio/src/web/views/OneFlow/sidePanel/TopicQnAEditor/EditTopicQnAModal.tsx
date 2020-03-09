@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC } from 'react'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 
@@ -11,7 +11,7 @@ interface Props {
 const EditTopicQnAModal: FC<Props> = props => {
   return (
     <BaseDialog
-      title={`Edit topic - ${name}`}
+      title={`Edit Q&A`}
       icon="edit"
       isOpen={props.isOpen}
       onClose={props.toggle}

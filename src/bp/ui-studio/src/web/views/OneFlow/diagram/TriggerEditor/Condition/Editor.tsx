@@ -6,11 +6,12 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import InputParams from './InputParams'
 
 interface Props {
+  topicName: string
   contentLang: string
   condition: Condition
   params?: any
   updateParams?: (params: any) => void
-  forceSave: any
+  forceSave?: boolean
 }
 
 const ConditionEditor: FC<Props> = props => {
@@ -22,7 +23,7 @@ const ConditionEditor: FC<Props> = props => {
         <InjectedModuleView
           moduleName={editor.module}
           componentName={editor.component}
-          extraProps={{ ..._.pick(props, ['params', 'updateParams', 'contentLang', 'forceSave']) }}
+          extraProps={{ ..._.pick(props, ['topicName', 'params', 'updateParams', 'contentLang', 'forceSave']) }}
         />
       ) : (
         <InputParams {...props} updateParams={props.updateParams} />
