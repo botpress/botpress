@@ -35,13 +35,12 @@ export interface BotPipelineStatus {
     expires_on?: Date
     requested_by: string
     id: string
-    approvers?: StageRequestApprovers[]
+    approvals?: StageRequestApprovers[]
   }
 }
 
 export interface StageRequestApprovers {
   email: string
-  approved: boolean
   strategy: string
 }
 

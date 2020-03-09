@@ -9,6 +9,7 @@ interface CssExports {
   'status': string;
   'tab': string;
   'tabsContainer': string;
+  'warning': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

@@ -25,6 +25,7 @@ declare global {
     ANALYTICS_ID: string
     UUID: string
     BP_STORAGE: BPStorage
+    EXPERIMENTAL: boolean
     USE_SESSION_STORAGE: boolean
     botpress: {
       [moduleName: string]: any
