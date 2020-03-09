@@ -61,10 +61,10 @@ export class MigrationService {
 
     const allMigrations = this.getAllMigrations()
 
-    if (process.env.RUNMIG) {
+    if (process.core_env.TESTMIG_ALL) {
       const versions = allMigrations.map(x => x.version).sort(semver.compare)
 
-      this.currentVersion = versions[versions.length - 1]
+      this.currentVersion = _.last(versions)!
       configVersion = process.BOTPRESS_VERSION
     }
 
@@ -233,7 +233,7 @@ ${_.repeat(' ', 9)}========================================`)
   }
 
   private async _getCompletedMigrations(): Promise<string[]> {
-    if (yn(process.env.TESTMIG_IGNORE_COMPLETED) || yn(process.env.RUNMIG)) {
+    if (yn(process.core_env.TESTMIG_IGNORE_COMPLETED) || yn(process.core_env.TESTMIG_ALL)) {
       return []
     }
 
