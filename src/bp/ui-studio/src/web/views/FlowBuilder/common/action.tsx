@@ -14,6 +14,7 @@ import style from './style.scss'
 
 interface Props {
   text: string
+  type?: string
   fetchContentItem: any
   refreshFlowsLinks: any
   className: string
@@ -79,7 +80,7 @@ class ActionItem extends Component<Props> {
 
   render() {
     const action = this.props.text
-    const isAction = typeof action !== 'string' || !action.startsWith('say ')
+    const isAction = typeof action !== 'string' || (!action.startsWith('say ') && this.props.type !== 'say')
 
     if (isAction) {
       return this.renderAction()

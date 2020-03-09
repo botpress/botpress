@@ -11,7 +11,7 @@ import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
 
-const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill']
+const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill', 'formData', 'contentType']
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something

@@ -8,6 +8,7 @@ import Button from '../../../components/Button'
 import MoreOptions from '../../../components/MoreOptions'
 import MoreOptionsStyles from '../../../components/MoreOptions/style.scss'
 import withLanguage from '../../../components/Util/withLanguage'
+import { getFormData, isFormEmpty } from '../../../util/NodeFormData'
 import EditableInput from '../common/EditableInput'
 
 import style from './style.scss'
@@ -52,14 +53,34 @@ const SaySomethingForm: FC<Props> = props => {
         variations
       }
     } else if (action.type === 'addVariation') {
+      const newVariations = state.variations || []
+
       return {
         ...state,
-        variations: [...state.variations, '']
+        variations: [...newVariations, '']
+      }
+    } else if (action.type === 'updateContentType') {
+      const { value, initial } = action.data
+      const contentType = { contentType: value }
+
+      if (!initial) {
+        props.updateNode(contentType)
+      }
+
+      return {
+        ...state,
+        ...contentType
       }
     } else if (action.type === 'updateData') {
       const { value, field } = action.data
 
-      props.updateNode({ [field]: value })
+      props.updateNode({
+        formData: {
+          [`text$${props.contentLang}`]: state.text,
+          [`variations$${props.contentLang}`]: state.variations,
+          [`${field}$${props.contentLang}`]: value
+        }
+      })
 
       return {
         ...state,
@@ -84,29 +105,21 @@ const SaySomethingForm: FC<Props> = props => {
     props.fetchContentCategories()
   }, [props.itemId])
 
-  const useContentData = contentItem => {
-    let data = {}
-    const { node } = props
-    // Save on say node and use from say node formData, use same methods as in contents for translation
-    console.log(props.contentItem)
+  const useContentData = () => {
+    const { node, contentLang, defaultLanguage } = props
+    const data = getFormData(node, contentLang, defaultLanguage)
 
-    if (node?.formData) {
-      data = getFormDataForLang(node, props.contentLang)
-
-      if (isFormEmpty(data)) {
-        data = getFormDataForLang(node, props.defaultLanguage)
-      }
-    }
     if (!isFormEmpty(data)) {
       dispatchForm({ type: 'newData', data: { ...data, contentType: node?.contentType } })
     } else {
-      handleContentTypeChange(node?.contentType)
+      handleContentTypeChange(node?.contentType, true)
     }
   }
 
   const renameNode = text => {
     if (text) {
       const alreadyExists = props.flow.nodes.find(x => x.name === text)
+
       if (!alreadyExists) {
         props.updateNode({ name: text })
       }
@@ -126,20 +139,8 @@ const SaySomethingForm: FC<Props> = props => {
     }).show({ message: 'Copied to buffer' })
   }
 
-  const handleContentTypeChange = value => {
-    dispatchForm({ type: 'updateData', data: { field: 'contentType', value } })
-  }
-
-  const getFormDataForLang = (contentItem: any, language: string) => {
-    const { formData, contentType } = contentItem
-    const languageKeys = Object.keys(formData).filter(x => x.includes('$' + language))
-
-    const data: any = languageKeys.reduce((obj, key) => {
-      obj[key.replace('$' + language, '')] = formData[key]
-      return obj
-    }, {})
-
-    return { ...data, contentType }
+  const handleContentTypeChange = (value, initial = false) => {
+    dispatchForm({ type: 'updateContentType', data: { value, initial } })
   }
 
   const handleKeyDown = e => {
@@ -154,25 +155,6 @@ const SaySomethingForm: FC<Props> = props => {
     newVariations[index] = value
 
     dispatchForm({ type: 'updateData', data: { value: newVariations, field: 'variations' } })
-  }
-
-  const isFormEmpty = formData => {
-    return _.every(
-      Object.keys(formData).map(x => {
-        // Ignore undefined and booleans, since they are set by default
-        if (!formData[x] || _.isBoolean(formData[x])) {
-          return
-        }
-
-        // Ignore array with empty objects (eg: skill choice)
-        if (_.isArray(formData[x]) && !formData[x].filter(_.isEmpty).length) {
-          return
-        }
-
-        return formData[x]
-      }),
-      _.isEmpty
-    )
   }
 
   const { node, readOnly, categories } = props
