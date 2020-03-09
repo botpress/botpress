@@ -26,7 +26,6 @@ import 'expose-loader?BotpressUtils!~/components/Shared/Utils'
 import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
 import 'expose-loader?BotpressShared!ui-shared'
-import 'expose-loader?UseDebounce!use-debounce'
 /* eslint-enable */
 
 require('bootstrap/dist/css/bootstrap.css')

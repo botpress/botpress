@@ -2,7 +2,6 @@ import { Button, ControlGroup, FormGroup } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import { useDebouncedCallback } from 'use-debounce'
 
 import { makeApi } from '../../api'
 import style from '../style.scss'
@@ -33,14 +32,14 @@ export const LiteEditor: FC<Props> = props => {
   const [intents, setIntents] = useState<NLU.IntentDefinition[]>([])
   const [currentIntent, setCurrentIntent] = useState(props.params.intentName)
   const [isModalOpen, setModalOpen] = useState(false)
-  const [updateIntent, cancelPendingIntentUpdate] = useDebouncedCallback(async () => {
-    const intent = await api.fetchIntent(currentIntent)
+  // const [updateIntent, cancelPendingIntentUpdate] = useDebouncedCallback(async () => {
+  //   const intent = await api.fetchIntent(currentIntent)
 
-    if (!intent.contexts.includes(props.topicName)) {
-      intent.contexts.push(props.topicName)
-      await api.updateIntent(currentIntent, intent)
-    }
-  }, 3000)
+  //   if (!intent.contexts.includes(props.topicName)) {
+  //     intent.contexts.push(props.topicName)
+  //     await api.updateIntent(currentIntent, intent)
+  //   }
+  // }, 3000)
 
   const api = makeApi(props.bp)
 
@@ -72,8 +71,8 @@ export const LiteEditor: FC<Props> = props => {
       setCurrentIntent(intent.name)
       props.updateParams({ intentName: intent.name })
 
-      cancelPendingIntentUpdate()
-      updateIntent()
+      // cancelPendingIntentUpdate()
+      // updateIntent()
     }
   }
 

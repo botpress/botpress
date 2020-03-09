@@ -84,7 +84,6 @@
     "storm-react-diagrams": "^5.2.1",
     "styled-components": "^4.2.0",
     "ui-shared": "link:../ui-shared",
-    "use-debounce": "^3.3.0",
     "yn": "^3.1.0"
   },
   "devDependencies": {
