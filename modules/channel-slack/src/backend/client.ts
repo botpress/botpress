@@ -45,7 +45,9 @@ export class SlackClient {
   }
 
   async shutdown() {
-    if (this.rtm) await this.rtm.disconnect()
+    if (this.rtm) {
+      await this.rtm.disconnect()
+    }
   }
 
   private async _setupInteractiveListener() {
