@@ -400,14 +400,14 @@ export class DiagramManager {
 
   private _updateZoomLevel(nodes) {
     const { width: diagramWidth, height: diagramHeight } = this.diagramContainerSize
-    const totalFlowWidth = _.max(_.map(nodes, 'x')) - _.min(_.map(nodes, 'x'))
-    const totalFlowHeight = _.max(_.map(nodes, 'y')) - _.min(_.map(nodes, 'y'))
+    const totalFlowWidth = _.max(_.map(nodes, 'x')) - _.min(_.map(nodes, 'x')) || 0
+    const totalFlowHeight = _.max(_.map(nodes, 'y')) - _.min(_.map(nodes, 'y')) || 0
     const zoomLevelX = Math.min(1, diagramWidth / (totalFlowWidth + 2 * DIAGRAM_PADDING))
     const zoomLevelY = Math.min(1, diagramHeight / (totalFlowHeight + 2 * DIAGRAM_PADDING))
     const zoomLevel = Math.min(zoomLevelX, zoomLevelY)
 
-    const offsetX = DIAGRAM_PADDING - _.min(_.map(nodes, 'x'))
-    const offsetY = DIAGRAM_PADDING - _.min(_.map(nodes, 'y'))
+    const offsetX = DIAGRAM_PADDING - _.min(_.map(nodes, 'x')) || 100
+    const offsetY = DIAGRAM_PADDING - _.min(_.map(nodes, 'y')) || 100
 
     this.activeModel.setZoomLevel(zoomLevel * 100)
     this.activeModel.setOffsetX(offsetX * zoomLevel)

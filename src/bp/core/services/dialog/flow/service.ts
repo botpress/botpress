@@ -3,6 +3,7 @@ import { ObjectCache } from 'common/object-cache'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
 import { RealTimePayload } from 'core/sdk/impl'
+import { BotService } from 'core/services/bot-service'
 import { KeyValueStore } from 'core/services/kvs'
 import RealtimeService from 'core/services/realtime'
 import { inject, injectable, tagged } from 'inversify'
@@ -45,7 +46,8 @@ export class FlowService {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
-    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
+    @inject(TYPES.BotService) private botService: BotService
   ) {
     this._listenForCacheInvalidation()
   }
@@ -85,9 +87,14 @@ export class FlowService {
     }
   }
 
+  private async _isOneFlow(botId: string): Promise<boolean> {
+    const botConfig = await this.botService.findBotById(botId)
+    return botConfig && botConfig['oneflow']
+  }
+
   private async parseFlow(botId: string, flowPath: string): Promise<FlowView> {
     const flow = await this.ghost.forBot(botId).readFileAsObject<Flow>(FLOW_DIR, flowPath)
-    const schemaError = validateFlowSchema(flow)
+    const schemaError = validateFlowSchema(flow, await this._isOneFlow(botId))
 
     if (!flow || schemaError) {
       throw new Error(`Invalid schema for "${flowPath}". ` + schemaError)
@@ -308,7 +315,7 @@ export class FlowService {
   }
 
   private async prepareSaveFlow(botId: string, flow: FlowView, isNew: boolean) {
-    const schemaError = validateFlowSchema(flow)
+    const schemaError = validateFlowSchema(flow, await this._isOneFlow(botId))
     if (schemaError) {
       throw new Error(schemaError)
     }

@@ -328,17 +328,19 @@ export class BotsRouter extends CustomRouter {
 
         if (_.has(flow, 'name') && flowName !== flow.name) {
           await this.flowService.renameFlow(botId, flowName, flow.name, userEmail)
-        } else {
-          try {
-            await this.flowService.updateFlow(botId, flow, userEmail)
-          } catch (err) {
-            if (err.type && err.type === MutexError.name) {
-              res.send(423) // Mutex locked
-              return
-            }
-          }
+          return res.sendStatus(200)
         }
-        res.sendStatus(200)
+
+        try {
+          await this.flowService.updateFlow(botId, flow, userEmail)
+          res.sendStatus(200)
+        } catch (err) {
+          if (err.type && err.type === MutexError.name) {
+            return res.send(423) // Mutex locked
+          }
+
+          res.status(400).send(err.message)
+        }
       })
     )
 
