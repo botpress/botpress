@@ -158,13 +158,9 @@ class ConfigView extends Component<Props, State> {
     return data.payload
   }
 
-  saveChanges = async (event?) => {
+  saveChanges = async () => {
     if (this.state.isSaving) {
       return
-    }
-
-    if (event) {
-      event.preventDefault()
     }
 
     this.setState({ error: undefined, isSaving: true })
@@ -303,7 +299,14 @@ class ConfigView extends Component<Props, State> {
 
   render() {
     const keyMap = { save: 'ctrl+s' }
-    const keyHandlers = { save: this.saveChanges }
+
+    const keyHandlers = {
+      save: async e => {
+        e.preventDefault()
+        await this.saveChanges()
+      }
+    }
+
     return (
       <Container keyHandlers={keyHandlers} keyMap={keyMap}>
         <SidePanel>
@@ -450,7 +453,7 @@ class ConfigView extends Component<Props, State> {
                 intent="primary"
                 icon="floppy-disk"
                 disabled={this.state.isSaving}
-                onClick={() => this.saveChanges()}
+                onClick={this.saveChanges}
               />
             </FormGroup>
           </form>
