@@ -101,6 +101,8 @@ const ContentForm: FC<Props> = props => {
     defaultLang: props.defaultLanguage
   }
 
+  console.log(formData, context, fields)
+
   return (
     <Form
       {...props}

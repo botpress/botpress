@@ -33,41 +33,43 @@ interface Props {
   user: any
 }
 
-function formReducer(state, action) {
-  if (action.type === 'resetData') {
-    return {
-      ...state,
-      error: null,
-      contentType: '',
-      text: '',
-      variations: ['']
-    }
-  } else if (action.type === 'newData') {
-    const { text, variations, contentType } = action.data
-    return {
-      error: null,
-      contentType,
-      text,
-      variations
-    }
-  } else if (action.type === 'addVariation') {
-    return {
-      ...state,
-      variations: [...state.variations, '']
-    }
-  } else if (action.type === 'updateData') {
-    const { value, field } = action.data
-
-    return {
-      ...state,
-      [field]: value
-    }
-  } else {
-    throw new Error(`That action type isn't supported.`)
-  }
-}
-
 const SaySomethingForm: FC<Props> = props => {
+  const formReducer = (state, action) => {
+    if (action.type === 'resetData') {
+      return {
+        ...state,
+        error: null,
+        contentType: '',
+        text: '',
+        variations: ['']
+      }
+    } else if (action.type === 'newData') {
+      const { text, variations, contentType } = action.data
+      return {
+        error: null,
+        contentType,
+        text,
+        variations
+      }
+    } else if (action.type === 'addVariation') {
+      return {
+        ...state,
+        variations: [...state.variations, '']
+      }
+    } else if (action.type === 'updateData') {
+      const { value, field } = action.data
+
+      props.updateNode({ [field]: value })
+
+      return {
+        ...state,
+        [field]: value
+      }
+    } else {
+      throw new Error(`That action type isn't supported.`)
+    }
+  }
+
   const [formState, dispatchForm] = useReducer(formReducer, {
     contentType: '',
     text: '',
@@ -84,19 +86,21 @@ const SaySomethingForm: FC<Props> = props => {
 
   const useContentData = contentItem => {
     let data = {}
+    const { node } = props
+    // Save on say node and use from say node formData, use same methods as in contents for translation
+    console.log(props.contentItem)
 
-    if (props?.contentItem?.formData) {
-      data = getFormDataForLang(props?.contentItem, props.contentLang)
+    if (node?.formData) {
+      data = getFormDataForLang(node, props.contentLang)
 
       if (isFormEmpty(data)) {
-        data = getFormDataForLang(props?.contentItem, props.defaultLanguage)
+        data = getFormDataForLang(node, props.defaultLanguage)
       }
     }
-
     if (!isFormEmpty(data)) {
-      dispatchForm({ type: 'newData', data: { ...data, contentType: props?.contentItem?.contentType } })
+      dispatchForm({ type: 'newData', data: { ...data, contentType: node?.contentType } })
     } else {
-      handleContentTypeChange(props?.contentItem?.contentType)
+      handleContentTypeChange(node?.contentType)
     }
   }
 
