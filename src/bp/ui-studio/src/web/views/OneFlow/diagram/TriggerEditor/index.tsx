@@ -5,9 +5,12 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
+import { switchFlowNode, updateFlowNode } from '~/actions'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 
+import { FlowView } from '../../../../../../../../../out/bp/common/typings'
 import withLanguage from '../../../../components/Util/withLanguage'
+import { getCurrentFlow } from '../../../../reducers'
 import { TriggerNodeModel } from '../../../FlowBuilder/diagram/nodes_v2/TriggerNode'
 
 import triggerStyles from './style.scss'
@@ -24,11 +27,17 @@ interface OwnProps {
 }
 
 interface StateProps {
+  currentFlow: FlowView
   backendConditions?: Condition[]
   contentLang: string
 }
 
-type Props = StateProps & OwnProps
+interface DispatchProps {
+  updateFlowNode: any
+  switchFlowNode: (nodeId: string) => any
+}
+
+type Props = StateProps & DispatchProps & OwnProps
 
 const EditGoalModal: FC<Props> = props => {
   const [isEditing, setEditing] = useState(false)
@@ -39,8 +48,10 @@ const EditGoalModal: FC<Props> = props => {
 
   useEffect(() => {
     if (props.node) {
-      const { conditions } = props.node
-      const { currentFlow } = props.diagramEngine.flowBuilder.props
+      const {
+        node: { conditions },
+        currentFlow
+      } = props
 
       setConditions(conditions)
       setTopicName(currentFlow?.location?.split('/')[0])
@@ -79,11 +90,10 @@ const EditGoalModal: FC<Props> = props => {
   }
 
   const save = updatedConditions => {
-    const { node, diagramEngine } = props
-    const flowBuilder = diagramEngine.flowBuilder.props
+    const { node, switchFlowNode, updateFlowNode } = props
 
-    flowBuilder.switchFlowNode(node.id)
-    flowBuilder.updateFlowNode({ conditions: updatedConditions })
+    switchFlowNode?.(node.id)
+    updateFlowNode?.({ conditions: updatedConditions })
     setConditions(updatedConditions)
   }
 
@@ -148,6 +158,14 @@ const EditGoalModal: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({ backendConditions: state.ndu.conditions })
+const mapStateToProps = state => ({ backendConditions: state.ndu.conditions, currentFlow: getCurrentFlow(state) })
 
-export default connect<StateProps, OwnProps>(mapStateToProps)(withLanguage(EditGoalModal))
+const mapDispatchToProps = {
+  switchFlowNode,
+  updateFlowNode
+}
+
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(withLanguage(EditGoalModal))

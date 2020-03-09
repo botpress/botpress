@@ -35,7 +35,7 @@ const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, cla
 
   if (description && condition.params) {
     Object.keys(condition.params).forEach(key => {
-      description = description.replace(`{${key}}`, condition.params[key])
+      description = description.replace(`{${key}}`, condition.params[key] as any)
     })
   }
 
