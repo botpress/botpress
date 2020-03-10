@@ -101,13 +101,15 @@ export default class BroadcastDb {
   }
 
   deleteSchedule(id) {
+    console.log('delete')
     return this.knex('broadcast_schedules')
       .where({ id })
       .delete()
       .then(() => {
+        console.log('del')
         return this.knex('broadcast_outbox')
           .where({ scheduleId: id })
-          .del()
+          .delete()
           .then(() => true)
       })
   }
