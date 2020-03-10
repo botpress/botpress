@@ -365,24 +365,35 @@ export class FlowService {
     return []
   }
 
-  public async updateTopic(botId: string, topic: Topic, currentName?: string) {
+  public async deleteTopic(botId: string, topicName: string) {
     let topics = await this.getTopics(botId)
+    topics = topics.filter(x => x.name !== topicName)
 
-    if (!currentName) {
-      topics = [...topics, topic]
-    } else {
-      topics = [...topics.filter(x => x.name !== currentName), topic]
-    }
+    await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
+    await this.moduleLoader.onTopicChanged(botId, topicName, undefined)
+  }
+
+  public async createTopic(botId: string, topic: Topic) {
+    let topics = await this.getTopics(botId)
+    topics = [...topics, topic]
+
+    await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
+    await this.moduleLoader.onTopicChanged(botId, undefined, topic.name)
+  }
+
+  public async updateTopic(botId: string, topic: Topic, topicName: string) {
+    let topics = await this.getTopics(botId)
+    topics = [...topics.filter(x => x.name !== topicName), topic]
 
     await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
 
-    if (currentName && currentName !== topic.name) {
-      await this.moduleLoader.onTopicRenamed(botId, currentName, topic.name)
+    if (topicName !== topic.name) {
+      await this.moduleLoader.onTopicChanged(botId, topicName, topic.name)
 
       const flows = await this.loadAll(botId)
 
-      for (const flow of flows.filter(f => f.name.startsWith(`${currentName}/`))) {
-        await this.renameFlow(botId, flow.name, flow.name.replace(`${currentName}/`, `${topic.name}/`), 'server')
+      for (const flow of flows.filter(f => f.name.startsWith(`${topicName}/`))) {
+        await this.renameFlow(botId, flow.name, flow.name.replace(`${topicName}/`, `${topic.name}/`), 'server')
       }
     }
   }

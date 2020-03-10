@@ -361,22 +361,40 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    this.router.get('/topics', async (req, res) => {
+    this.router.get('/topics', this.checkTokenHeader, async (req, res) => {
       res.send(await this.flowService.getTopics(req.params.botId))
     })
 
-    this.router.post('/topic/:topicName?', async (req, res) => {
-      const { topicName, botId } = req.params
+    this.router.post(
+      '/topic/:topicName?',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { topicName, botId } = req.params
 
-      try {
         const topic = await validate(req.body, TopicSchema)
-        await this.flowService.updateTopic(botId, topic, topicName)
+
+        if (!topicName) {
+          await this.flowService.createTopic(botId, topic)
+        } else {
+          await this.flowService.updateTopic(botId, topic, topicName)
+        }
 
         res.sendStatus(200)
-      } catch (err) {
-        res.status(400).send(err)
-      }
-    })
+      })
+    )
+
+    this.router.post(
+      '/deleteTopic/:topicName',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { topicName, botId } = req.params
+        await this.flowService.deleteTopic(botId, topicName)
+
+        res.sendStatus(200)
+      })
+    )
 
     this.router.get(
       '/actions',
