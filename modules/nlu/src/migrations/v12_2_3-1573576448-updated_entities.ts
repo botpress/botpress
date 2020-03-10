@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import { FuzzyTolerance } from '../backend/entities'
+import { FuzzyTolerance } from '../backend/entities/validation'
 
 const migration: sdk.ModuleMigration = {
   info: {

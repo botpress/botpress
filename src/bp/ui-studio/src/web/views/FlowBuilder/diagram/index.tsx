@@ -218,7 +218,7 @@ class Diagram extends Component<Props> {
         )}
         <MenuDivider title="Add Node" />
         <MenuItem text="Standard Node" onClick={wrap(this.add.flowNode, point)} icon="chat" />
-        {this.props.flowPreview ? (
+        {window.EXPERIMENTAL ? (
           <Fragment>
             <MenuItem text="Say" onClick={wrap(this.add.sayNode, point)} icon="comment" />
             <MenuItem text="Execute" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
@@ -311,7 +311,7 @@ class Diagram extends Component<Props> {
                 this.checkForLinksUpdate()
               }}
             />
-            {this.props.flowPreview && canAddChipToTarget ? (
+            {window.EXPERIMENTAL && canAddChipToTarget ? (
               <React.Fragment>
                 <MenuDivider />
                 <MenuItem text="Chips">
@@ -582,7 +582,6 @@ interface Props {
   buildSkill: any
   readOnly: boolean
   canPasteNode: boolean
-  flowPreview: boolean
   showSearch: boolean
   hideSearch: () => void
   handleFilterChanged: (event: object) => void

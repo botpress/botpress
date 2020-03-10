@@ -10,6 +10,7 @@ import DocumentationModal from '~/components/Layout/DocumentationModal'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
 import { isInputFocused } from '~/keyboardShortcuts'
+import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
@@ -17,6 +18,7 @@ import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
 import OneFlow from '~/views/OneFlow'
 
+import BotUmountedWarning from './BotUnmountedWarning'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.styl'
@@ -57,6 +59,8 @@ class Layout extends React.Component<ILayoutProps> {
     setImmediate(() => {
       this.props.viewModeChanged(Number(viewMode) || 0)
     })
+
+    setTimeout(() => BotUmountedWarning(), 500)
   }
 
   toggleEmulator = () => {
@@ -176,7 +180,7 @@ class Layout extends React.Component<ILayoutProps> {
                     path="/"
                     render={() => {
                       if (!window.IS_BOT_MOUNTED) {
-                        return <Redirect to="/modules/code-editor" />
+                        return <Redirect to="/config" />
                       }
 
                       return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
@@ -184,6 +188,7 @@ class Layout extends React.Component<ILayoutProps> {
                   />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
+                  <Route exact path="/config" component={Config} />
                   <Route exact path="/oneflow/:flow*" component={OneFlow} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                   <Route exact path="/notifications" component={Notifications} />
