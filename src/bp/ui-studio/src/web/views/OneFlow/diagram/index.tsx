@@ -269,7 +269,13 @@ class Diagram extends Component<Props> {
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
     listenNode: (point: Point) =>
-      this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
+      this.props.createFlowNode({
+        ...point,
+        type: 'listen',
+        onReceive: [],
+        next: [defaultTransition],
+        triggers: [{ conditions: [{ id: 'always' }] }]
+      }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' })
   }
 
