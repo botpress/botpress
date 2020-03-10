@@ -28,8 +28,9 @@ const onTopicRenamed = async (bp: typeof sdk, botId: string, oldName: string, ne
   const intentDefs = await getIntents(ghost)
 
   for (const intentDef of intentDefs) {
-    if (intentDef.contexts.includes(oldName)) {
-      intentDef.contexts = [...intentDef.contexts.filter(x => x !== oldName), newName]
+    const ctxIdx = intentDef.contexts.indexOf(oldName)
+    if (ctxIdx !== -1) {
+      intentDef.contexts.splice(ctxIdx, 1)
       await updateIntent(ghost, intentDef.name, intentDef)
     }
   }
