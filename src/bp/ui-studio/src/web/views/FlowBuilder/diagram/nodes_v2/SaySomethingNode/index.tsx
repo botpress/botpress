@@ -16,8 +16,22 @@ export class SaySomethingWidget extends Component<{
   contentLang?: string
   defaultLanguage?: string
 }> {
+  forceRefresh = false
+  currentNode
+
+  constructor(props) {
+    super(props)
+
+    this.currentNode = { ...props.node }
+  }
+
   render() {
     const { node } = this.props
+
+    if (JSON.stringify({ ...this.currentNode.formData }) !== JSON.stringify({ ...node.formData })) {
+      this.forceRefresh = !this.forceRefresh
+      this.currentNode = { ...node }
+    }
 
     return (
       <div
@@ -26,7 +40,7 @@ export class SaySomethingWidget extends Component<{
       >
         {showHeader({ nodeType: 'Say', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
-          <SayNodeContent node={node} />
+          <SayNodeContent forceRefresh={this.forceRefresh} node={node} />
         </div>
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />
