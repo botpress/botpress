@@ -28,7 +28,7 @@ const migration: Migration = {
       await workspaceService.save(workspaces)
     }
 
-    return { success: true, message: changed ? 'Configuration updated successfully' : 'Nothing to update.' }
+    return { success: true, message: changed ? 'Configuration updated successfully' : 'Nothing to update, skipping...' }
   }
 }
 
