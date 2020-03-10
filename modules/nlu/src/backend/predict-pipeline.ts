@@ -255,16 +255,10 @@ function electIntent(input: PredictStep): PredictStep {
         .value()
       if (intentPreds[0].confidence === 1) {
         return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
-      }
+      } // are we sure theres always at least two intents ? otherwise down there it may crash
 
       if (predictionsReallyConfused(intentPreds)) {
-        const others = _.take(intentPreds, 4).map(x => ({
-          label: x.label,
-          l0Confidence: ctxConf,
-          confidence: ctxConf * x.confidence,
-          context: ctx
-        }))
-        return [{ label: NONE_INTENT, l0Confidence: ctxConf, context: ctx, confidence: 1 }, ...others]
+        intentPreds.unshift({ label: NONE_INTENT, context: ctx, confidence: 1 })
       }
 
       const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
