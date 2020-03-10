@@ -192,8 +192,11 @@ declare type BotpressEnvironmentVariables = {
    */
   readonly DISABLE_GLOBAL_SANDBOX?: boolean
 
-  /** Runs all future migrations, ignore completed migrations & sets the config version to the version in package.json */
+  /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
   readonly TESTMIG_ALL?: boolean
+
+  /** Runs future migrations, ignore completed migrations & sets the config version to the version in package.json */
+  readonly TESTMIG_NEW?: boolean
 
   /** Migration Testing: Simulate a specific version for the server, ex: 12.5.0 */
   readonly TESTMIG_BP_VERSION?: string

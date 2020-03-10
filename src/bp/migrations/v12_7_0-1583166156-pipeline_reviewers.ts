@@ -11,18 +11,24 @@ const migration: Migration = {
   up: async ({ inversify }: MigrationOpts) => {
     const workspaceService = inversify.get<WorkspaceService>(TYPES.WorkspaceService)
     const workspaces = await workspaceService.getWorkspaces()
+    let changed = false
 
     for (const workspace of workspaces) {
       for (const stage of workspace.pipeline) {
-        stage.reviewers = []
-        stage.minimumApprovals = 0
-        stage.reviewSequence = 'parallel'
+        if (!stage.reviewers) {
+          stage.reviewers = []
+          stage.minimumApprovals = 0
+          stage.reviewSequence = 'parallel'
+          changed = true
+        }
       }
     }
 
-    await workspaceService.save(workspaces)
+    if (changed) {
+      await workspaceService.save(workspaces)
+    }
 
-    return { success: true, message: 'Configuration updated successfully' }
+    return { success: true, message: changed ? 'Configuration updated successfully' : 'Nothing to update.' }
   }
 }
 

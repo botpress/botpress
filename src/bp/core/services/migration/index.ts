@@ -25,7 +25,9 @@ const types = {
   content: 'Changes to Content Files (*.json)'
 }
 /**
- * Use a combination of these environment variables to easily test migrations.
+ * Use a combination of these environment variables to easily test migrations.à
+ * TESTMIG_ALL: Runs every migration since 12.0.0
+ * TESTMIG_NEW: Runs new migrations after package.json version
  * TESTMIG_BP_VERSION: Change the target version of your migration
  * TESTMIG_CONFIG_VERSION: Override the current version of the server
  * TESTMIG_IGNORE_COMPLETED: Ignore completed migrations (so they can be run again and again)
@@ -61,11 +63,11 @@ export class MigrationService {
 
     const allMigrations = this.getAllMigrations()
 
-    if (process.core_env.TESTMIG_ALL) {
+    if (process.core_env.TESTMIG_ALL || process.core_env.TESTMIG_NEW) {
       const versions = allMigrations.map(x => x.version).sort(semver.compare)
 
       this.currentVersion = _.last(versions)!
-      configVersion = process.BOTPRESS_VERSION
+      configVersion = yn(process.core_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
     }
 
     const missingMigrations = this.filterMissing(allMigrations, configVersion)
@@ -233,7 +235,11 @@ ${_.repeat(' ', 9)}========================================`)
   }
 
   private async _getCompletedMigrations(): Promise<string[]> {
-    if (yn(process.core_env.TESTMIG_IGNORE_COMPLETED) || yn(process.core_env.TESTMIG_ALL)) {
+    if (
+      yn(process.core_env.TESTMIG_IGNORE_COMPLETED) ||
+      yn(process.core_env.TESTMIG_ALL) ||
+      yn(process.core_env.TESTMIG_NEW)
+    ) {
       return []
     }
 
