@@ -365,7 +365,7 @@ export class FlowService {
     return []
   }
 
-  public async updateTopics(botId: string, topic: Topic, currentName?: string) {
+  public async updateTopic(botId: string, topic: Topic, currentName?: string) {
     let topics = await this.getTopics(botId)
 
     if (!currentName) {

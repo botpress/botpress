@@ -370,7 +370,7 @@ export class BotsRouter extends CustomRouter {
 
       try {
         const topic = await validate(req.body, TopicSchema)
-        await this.flowService.updateTopics(botId, topic, topicName)
+        await this.flowService.updateTopic(botId, topic, topicName)
 
         res.sendStatus(200)
       } catch (err) {
