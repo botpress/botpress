@@ -2,16 +2,16 @@ import { Button as BPButton, Icon, Position, Toaster } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
-import TextareaAutosize from 'react-autosize-textarea'
 
-import Button from '../../../components/Button'
-import MoreOptions from '../../../components/MoreOptions'
-import MoreOptionsStyles from '../../../components/MoreOptions/style.scss'
-import withLanguage from '../../../components/Util/withLanguage'
-import { getFormData, isFormEmpty } from '../../../util/NodeFormData'
-import EditableInput from '../common/EditableInput'
+import Button from '../../../../components/Button'
+import MoreOptions from '../../../../components/MoreOptions'
+import MoreOptionsStyles from '../../../../components/MoreOptions/style.scss'
+import withLanguage from '../../../../components/Util/withLanguage'
+import { getFormData, isFormEmpty } from '../../../../util/NodeFormData'
+import EditableInput from '../../common/EditableInput'
+import style from '../style.scss'
 
-import style from './style.scss'
+import SaySomethingTextForm from './TextForm'
 
 interface Props {
   buffer: any
@@ -34,8 +34,22 @@ interface Props {
   user: any
 }
 
+export interface FormState {
+  contentType: string
+  text: string
+  variations: string[]
+  error: any
+}
+
+const defaultFormState: FormState = {
+  contentType: '',
+  text: '',
+  variations: [''],
+  error: null
+}
+
 const SaySomethingForm: FC<Props> = props => {
-  const formReducer = (state, action) => {
+  const formReducer = (state: FormState, action): FormState => {
     if (action.type === 'resetData') {
       return {
         ...state,
@@ -61,7 +75,7 @@ const SaySomethingForm: FC<Props> = props => {
       }
     } else if (action.type === 'updateContentType') {
       const { value, initial } = action.data
-      const contentType = { contentType: value }
+      const contentType = { contentType: value || '' }
 
       if (!initial) {
         props.updateNode(contentType)
@@ -91,21 +105,19 @@ const SaySomethingForm: FC<Props> = props => {
     }
   }
 
-  const [formState, dispatchForm] = useReducer(formReducer, {
-    contentType: '',
-    text: '',
-    variations: [''],
-    error: null
-  })
+  const [formState, dispatchForm] = useReducer(formReducer, defaultFormState)
   const [showOptions, setShowOptions] = useState(false)
 
   useEffect(() => {
     dispatchForm({ type: 'resetData' })
-    props.fetchContentItem(props.itemId).then(useContentData)
-    props.fetchContentCategories()
-  }, [props.itemId])
+    extractDataFromNode()
 
-  const useContentData = () => {
+    if (!props.categories?.length) {
+      props.fetchContentCategories()
+    }
+  }, [props.node.id])
+
+  const extractDataFromNode = () => {
     const { node, contentLang, defaultLanguage } = props
     const data = getFormData(node, contentLang, defaultLanguage)
 
@@ -143,22 +155,8 @@ const SaySomethingForm: FC<Props> = props => {
     dispatchForm({ type: 'updateContentType', data: { value, initial } })
   }
 
-  const handleKeyDown = e => {
-    if ((e.ctrlKey || e.metaKey) && e.keyCode === 65) {
-      e.target.select()
-    }
-  }
-
-  const updateVariations = (value, index) => {
-    const newVariations = formState.variations
-
-    newVariations[index] = value
-
-    dispatchForm({ type: 'updateData', data: { value: newVariations, field: 'variations' } })
-  }
-
   const { node, readOnly, categories } = props
-  const { contentType, text, variations } = formState
+  const { contentType } = formState
 
   return (
     <Fragment>
@@ -192,7 +190,7 @@ const SaySomethingForm: FC<Props> = props => {
           <span className={style.formLabel}>Content type</span>
           <div className={style.formSelect}>
             <select value={contentType} onChange={e => handleContentTypeChange(e.currentTarget.value)}>
-              <option value={null}>Select</option>
+              <option value="">Select</option>
               {categories &&
                 categories
                   .filter(cat => !cat.hidden)
@@ -208,40 +206,9 @@ const SaySomethingForm: FC<Props> = props => {
             </select>
           </div>
         </label>
-        <label className={style.fieldWrapper}>
-          <span className={style.formLabel}>Message*</span>
-          <TextareaAutosize
-            className={style.textarea}
-            onKeyDown={handleKeyDown}
-            value={text}
-            rows={1}
-            maxRows={4}
-            onChange={e => dispatchForm({ type: 'updateData', data: { field: 'text', value: e.currentTarget.value } })}
-          ></TextareaAutosize>
-        </label>
-        <div className={style.fieldWrapper}>
-          <span className={style.formLabel}>Alternates</span>
-          {variations &&
-            variations.map((variantion, index) => (
-              <TextareaAutosize
-                key={index}
-                rows={1}
-                maxRows={4}
-                onKeyDown={handleKeyDown}
-                className={classnames(style.textarea, style.multipleInputs)}
-                value={variantion}
-                onChange={e => updateVariations(e.currentTarget.value, index)}
-              ></TextareaAutosize>
-            ))}
-          <BPButton
-            onClick={() => dispatchForm({ type: 'addVariation' })}
-            className={style.addContentBtn}
-            icon="plus"
-            large={true}
-          >
-            Add Alternates
-          </BPButton>
-        </div>
+        {contentType && contentType === 'builtin_text' && (
+          <SaySomethingTextForm formState={formState} dispatchForm={dispatchForm} />
+        )}
       </form>
     </Fragment>
   )

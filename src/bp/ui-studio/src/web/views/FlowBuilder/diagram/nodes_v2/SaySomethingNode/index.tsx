@@ -24,6 +24,7 @@ export class SaySomethingWidget extends Component<{
 
   render() {
     const { node } = this.props
+    console.log(node)
 
     return (
       <div

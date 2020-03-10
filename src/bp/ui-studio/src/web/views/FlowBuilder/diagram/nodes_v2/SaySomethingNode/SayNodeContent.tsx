@@ -13,7 +13,7 @@ interface Props {
 }
 
 const SayNodeContent: FC<Props> = props => {
-  const { node, contentLang, defaultLanguage } = this.props
+  const { node, contentLang, defaultLanguage } = props
   const { text } = getFormData(node || {}, contentLang, defaultLanguage)
 
   return <div className={commonStyle['action-item']}>{text}</div>
