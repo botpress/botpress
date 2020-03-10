@@ -40,7 +40,12 @@ export default class BroadcastDb {
             .integer('scheduleId')
             .references('broadcast_schedules.id')
             .onDelete('CASCADE')
-          table.string('userId').references('srv_channel_users.user_id')
+          table
+            .integer('userId')
+            .unsigned()
+            .notNullable()
+            .references('id')
+            .inTable('srv_channel_users')
           table.primary(['scheduleId', 'userId'])
           table.string('botId')
           table.timestamp('ts')
@@ -101,12 +106,10 @@ export default class BroadcastDb {
   }
 
   deleteSchedule(id) {
-    console.log('delete')
     return this.knex('broadcast_schedules')
       .where({ id })
       .delete()
       .then(() => {
-        console.log('del')
         return this.knex('broadcast_outbox')
           .where({ scheduleId: id })
           .delete()

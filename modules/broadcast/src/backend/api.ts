@@ -49,7 +49,6 @@ export default async (bp: SDK, db: Database) => {
   })
 
   router.delete('/:id', (req, res, next) => {
-    console.log('DELETE')
     db.deleteSchedule(req.params.id)
       .then(() => {
         res.sendStatus(200)
