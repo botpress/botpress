@@ -16,15 +16,8 @@ export class SaySomethingWidget extends Component<{
   contentLang?: string
   defaultLanguage?: string
 }> {
-  handleItemChanged = currentItem => {
-    const flowBuilder = this.props.diagramEngine.flowBuilder.props
-    flowBuilder.switchFlowNode(this.props.node.id)
-    flowBuilder.updateFlowNode({ onEnter: [`say #!${currentItem.id}`] })
-  }
-
   render() {
     const { node } = this.props
-    console.log(node)
 
     return (
       <div
