@@ -396,7 +396,7 @@ export const refreshIntents = () => dispatch => {
 export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
 export const refreshConditions = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/mod/ndu/conditions`).then(({ data }) => {
+  axios.get(`${window.BOT_API_PATH}/dialogConditions`).then(({ data }) => {
     dispatch(conditionsReceived(data))
   })
 }

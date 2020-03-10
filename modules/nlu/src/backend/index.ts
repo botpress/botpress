@@ -2,6 +2,7 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { dialogConditions } from './conditions'
 import { getIntents, updateIntent } from './intents/intent-service'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
@@ -41,6 +42,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   onModuleUnmount,
   onTopicRenamed,
+  dialogConditions,
   definition: {
     name: 'nlu',
     moduleView: {
