@@ -1,9 +1,5 @@
 import * as sdk from 'botpress/sdk'
 
-// These are required even if they aren't used
-const onServerStarted = async (bp: typeof sdk) => {}
-const onServerReady = async (bp: typeof sdk) => {}
-
 // This is not required for the custom component, but it makes it easier to test this example
 const botTemplates: sdk.BotTemplate[] = [
   {
@@ -14,8 +10,6 @@ const botTemplates: sdk.BotTemplate[] = [
 ]
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerStarted,
-  onServerReady,
   botTemplates,
   definition: {
     name: 'custom-component',
