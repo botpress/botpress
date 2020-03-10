@@ -236,6 +236,7 @@ class FlowBuilder extends Component<Props, State> {
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
           permissions={panelPermissions}
+          onDeleteSelectedElements={() => this.diagram?.deleteSelectedElements()}
           onCreateFlow={name => {
             this.diagram.createFlow(name)
             this.props.switchFlow(`${name}.flow.json`)

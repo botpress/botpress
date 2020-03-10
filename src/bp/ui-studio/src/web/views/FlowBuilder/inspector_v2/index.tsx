@@ -21,6 +21,7 @@ import SaySomethingForm from '../nodeProps/SaySomethingForm'
 import style from './style.scss'
 
 interface Props {
+  onDeleteSelectedElements: () => void
   buffer: any
   categories: any
   closeFlowNodeProps: any
@@ -50,6 +51,7 @@ const InspectorV2: FC<Props> = props => {
       copyFlowNode,
       currentFlow,
       currentFlowNode,
+      onDeleteSelectedElements,
       fetchContentCategories,
       fetchContentItem,
       itemId,
@@ -79,6 +81,7 @@ const InspectorV2: FC<Props> = props => {
           categories={categories}
           contentItem={contentItem}
           copyFlowNode={copyFlowNode}
+          onDeleteSelectedElements={onDeleteSelectedElements}
           fetchContentCategories={fetchContentCategories}
           fetchContentItem={fetchContentItem}
           flow={currentFlow}

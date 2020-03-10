@@ -20,6 +20,7 @@ interface Props {
   defaultLanguage: string
   contentItem: any
   copyFlowNode: any
+  onDeleteSelectedElements: () => void
   fetchContentCategories: any
   fetchContentItem: any
   flow: any
@@ -42,7 +43,7 @@ export interface FormState {
 }
 
 const defaultFormState: FormState = {
-  contentType: '',
+  contentType: 'builtin_text',
   text: '',
   variations: [''],
   error: null
@@ -54,7 +55,7 @@ const SaySomethingForm: FC<Props> = props => {
       return {
         ...state,
         error: null,
-        contentType: '',
+        contentType: 'builtin_text',
         text: '',
         variations: ['']
       }
@@ -75,7 +76,7 @@ const SaySomethingForm: FC<Props> = props => {
       }
     } else if (action.type === 'updateContentType') {
       const { value, initial } = action.data
-      const contentType = { contentType: value || '' }
+      const contentType = { contentType: value || 'builtin_text' }
 
       if (!initial) {
         props.updateNode(contentType)
@@ -169,7 +170,10 @@ const SaySomethingForm: FC<Props> = props => {
             </Button>
           </li>
           <li>
-            <Button className={classnames(MoreOptionsStyles.moreMenuItem, MoreOptionsStyles.delete)}>
+            <Button
+              className={classnames(MoreOptionsStyles.moreMenuItem, MoreOptionsStyles.delete)}
+              onClick={props?.onDeleteSelectedElements}
+            >
               <Icon icon="trash" iconSize={20} /> Delete
             </Button>
           </li>
@@ -190,7 +194,6 @@ const SaySomethingForm: FC<Props> = props => {
           <span className={style.formLabel}>Content type</span>
           <div className={style.formSelect}>
             <select value={contentType} onChange={e => handleContentTypeChange(e.currentTarget.value)}>
-              <option value="">Select</option>
               {categories &&
                 categories
                   .filter(cat => !cat.hidden)

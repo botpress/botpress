@@ -1,3 +1,5 @@
+@import '../../../palette.scss';
+
 .action-item {
   &.fn {
     color: blue;
@@ -37,6 +39,13 @@
       color: #ff7c40;
     }
   }
+}
+
+.extraItems {
+  color: $content-color-light;
+  display: block;
+  font-size: 12px;
+  margin-top: 5px;
 }
 
 .editableInput {

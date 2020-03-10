@@ -433,6 +433,7 @@ class Diagram extends Component<Props> {
       }
     }
 
+    this.props.closeFlowNodeProps()
     this.diagramWidget.forceUpdate()
     this.checkForProblems()
   }

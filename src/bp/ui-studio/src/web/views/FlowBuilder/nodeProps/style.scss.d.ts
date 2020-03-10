@@ -5,6 +5,7 @@ interface CssExports {
   'actions': string;
   'addContentBtn': string;
   'bottomSection': string;
+  'emptyState': string;
   'endBloc': string;
   'fieldWrapper': string;
   'formHeader': string;

@@ -256,4 +256,10 @@ h5 {
     cursor: pointer;
     width: 100%;
   }
+
+  .emptyState {
+    color: $sidebar-text-color;
+    font-size: 14px;
+    margin-top: 10px;
+  }
 }

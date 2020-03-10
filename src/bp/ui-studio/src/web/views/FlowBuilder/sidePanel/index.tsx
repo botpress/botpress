@@ -23,6 +23,7 @@ type Props = {
   onCreateFlow: (flowName: string) => void
   flows: any
   deleteFlow: (flowName: string) => void
+  onDeleteSelectedElements: () => void
   renameFlow: any
   history: any
   permissions: PanelPermissions[]
@@ -78,7 +79,7 @@ const SidePanelContent: FC<Props> = props => {
       {props.showFlowNodeProps && !props.layoutv2 ? (
         <Inspector />
       ) : props.showFlowNodeProps && props.layoutv2 ? (
-        <InspectorV2 />
+        <InspectorV2 onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
         <React.Fragment>
           <SearchBar icon="filter" placeholder="Filter flows" onChange={setFilter} />
