@@ -159,6 +159,10 @@ class ConfigView extends Component<Props, State> {
   }
 
   saveChanges = async () => {
+    if (this.state.isSaving) {
+      return
+    }
+
     this.setState({ error: undefined, isSaving: true })
 
     const bot: Partial<BotConfig> = {
@@ -294,8 +298,17 @@ class ConfigView extends Component<Props, State> {
   }
 
   render() {
+    const keyMap = { save: 'ctrl+s' }
+
+    const keyHandlers = {
+      save: async e => {
+        e.preventDefault()
+        await this.saveChanges()
+      }
+    }
+
     return (
-      <Container>
+      <Container keyHandlers={keyHandlers} keyMap={keyMap}>
         <SidePanel>
           <SidePanelSection label="Bot Configuration">
             <ItemList items={this.state.items} onElementClicked={this.handleElementClicked} />
