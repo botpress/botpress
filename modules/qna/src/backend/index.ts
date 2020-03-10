@@ -28,6 +28,16 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('qna')
 }
 
+const onTopicRenamed = async (bp: typeof sdk, botId: string, oldName: string, newName: string) => {
+  const { storage } = bots[botId]
+  const questions = await storage.getQuestions({ categories: [oldName] }, { limit: 150, offset: 0 })
+
+  for (const item of questions.items) {
+    item.data.category = newName
+    await storage.update(item.data, item.id)
+  }
+}
+
 const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {
   const oldFlow = await bp.ghost.forBot(botId).readFileAsObject<sdk.Flow>('./flows', newFlow.location)
   const { storage } = bots[botId]
@@ -77,6 +87,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
+  onTopicRenamed,
   onFlowChanged,
   onFlowRenamed,
   definition: {

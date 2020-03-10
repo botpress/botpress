@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import api from './api'
+import { conditionsDefinitions } from './conditions'
 import Database from './db'
 import { registerMiddleware } from './middleware'
 import { UnderstandingEngine } from './ndu-engine'
@@ -20,7 +21,22 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, bots)
+  const router = bp.http.createRouterForBot('ndu')
+
+  router.get('/conditions', async (req, res) => {
+    res.send(conditionsDefinitions)
+  })
+
+  router.get('/events', async (req, res) => {
+    res.send(
+      await bp
+        .database('events')
+        .select('*')
+        .where({ botId: req.params.botId, direction: 'incoming' })
+        .orderBy('createdOn', 'desc')
+        .limit(100)
+    )
+  })
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {

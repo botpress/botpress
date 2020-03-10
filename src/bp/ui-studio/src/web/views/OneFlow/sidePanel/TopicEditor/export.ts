@@ -28,7 +28,7 @@ const getGoals = async (goals: string[]) => {
 }
 
 export const exportCompleteTopic = async (topicName: string, flows: any[]): Promise<ExportedTopic> => {
-  const { data: topics } = await axios.get(`${window.BOT_API_PATH}/mod/ndu/topics`)
+  const { data: topics } = await axios.get(`${window.BOT_API_PATH}/topics`)
 
   return {
     name: topicName,
