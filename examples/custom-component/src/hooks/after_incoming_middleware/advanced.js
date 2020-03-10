@@ -1,7 +1,7 @@
 if (event.preview === 'disappearKeyboard') {
   const payload = {
     type: 'custom',
-    module: 'feedback',
+    module: 'custom-component',
     component: 'DisappearingText',
     myrandomproperty:
       'This text will disappear when the timer expires. You can add any component, buttons, etc as a keyboard',
@@ -16,7 +16,7 @@ if (event.preview === 'disappearKeyboard') {
 if (event.preview === 'feedbackKeyboard') {
   const payload = {
     type: 'custom',
-    module: 'feedback',
+    module: 'custom-component',
     component: 'FeedbackButtons',
     wrapped: {
       // Wrap an existing event...
@@ -35,7 +35,10 @@ if (event.preview === 'multiLineKeyboard') {
     type: 'text',
     text: 'how can i help you?',
     quick_replies: [
-      [{ label: 'row 1, button 1', payload: 'something' }, { label: 'row 1, button 2', payload: 'something' }],
+      [
+        { label: 'row 1, button 1', payload: 'something' },
+        { label: 'row 1, button 2', payload: 'something' }
+      ],
       [{ label: 'row 2, button 1', payload: 'something' }],
       [{ label: 'row 3, button 1', payload: 'something' }]
     ]
@@ -46,12 +49,12 @@ if (event.preview === 'multiLineKeyboard') {
 if (event.preview === 'wrapperExample') {
   const payload = {
     type: 'custom',
-    module: 'feedback',
+    module: 'custom-component',
     component: 'ColorText',
     color: '#ff0000',
     wrapped: {
       type: 'custom',
-      module: 'feedback',
+      module: 'custom-component',
       component: 'UpperCase',
       wrapped: {
         type: 'text',
@@ -60,4 +63,12 @@ if (event.preview === 'wrapperExample') {
     }
   }
   bp.events.replyToEvent(event, [payload])
+}
+
+if (event.payload && event.payload.type === 'user_satisfied') {
+  bp.logger.info(`User is satisfied!`)
+}
+
+if (event.payload && event.payload.type === 'more_info') {
+  bp.logger.info(`User would like more info...`)
 }

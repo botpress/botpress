@@ -15,7 +15,16 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "baseUrl": "./src",
+    "paths": {
+      "botpress/sdk": ["../../../sdk/botpress.d.ts"],
+      "botpress/common/typings": ["../../../out/bp/common/typings.d.ts"],
+      "@blueprintjs/core": ["../../ui-studio/node_modules/@blueprintjs/core"],
+      "@blueprintjs/select": ["../../ui-studio/node_modules/@blueprintjs/select"],
+      "react": ["../../ui-studio/node_modules/@types/react"],
+      "react-dom": ["../../ui-studio/node_modules/@types/react-dom"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "build", "dist", "example", "rollup.config.js", "webpack.config.js"]

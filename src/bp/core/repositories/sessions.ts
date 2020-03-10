@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { SessionIdFactory } from 'core/services/dialog/session/id-factory'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -55,6 +56,8 @@ export class KnexSessionRepository implements SessionRepository {
     trx?: Knex.Transaction
   ): Promise<DialogSession> {
     const session = new DialogSession(sessionId, botId, context, temp_data, session_data)
+    const { channel } = SessionIdFactory.extractDestinationFromId(sessionId)
+    BOTPRESS_CORE_EVENT('bp_core_session_created', { botId, channel })
     return this.insert(session, trx)
   }
 
