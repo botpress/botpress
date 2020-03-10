@@ -1,15 +1,12 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import yn from 'yn'
 
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
 import { getOnServerReady } from './module-lifecycle/on-server-ready'
 import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
-
-const USE_E1 = yn(process.env.USE_LEGACY_NLU)
 
 const state: NLUState = { nluByBot: {} }
 
@@ -21,9 +18,7 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.removeMiddleware('nlu.incoming')
   bp.http.deleteRouterForBot('nlu')
   // if module gets deactivated but server keeps running, we want to destroy bot state
-  if (!USE_E1) {
-    Object.keys(state.nluByBot).forEach(botID => () => onBotUnmount(bp, botID))
-  }
+  Object.keys(state.nluByBot).forEach(botID => () => onBotUnmount(bp, botID))
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
