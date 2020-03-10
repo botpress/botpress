@@ -27,7 +27,6 @@ class Web extends React.Component<MainProps> {
     super(props)
 
     checkLocationOrigin()
-    initializeAnalytics()
   }
 
   componentDidMount() {
@@ -47,6 +46,8 @@ class Web extends React.Component<MainProps> {
     // tslint:disable-next-line: no-floating-promises
     this.initializeIfChatDisplayed()
     this.props.setLoadingCompleted()
+
+    initializeAnalytics()
   }
 
   componentWillUnmount() {
@@ -65,7 +66,6 @@ class Web extends React.Component<MainProps> {
 
     if (this.props.activeView === 'side' || this.props.isFullscreen) {
       this.hasBeenInitialized = true
-      await this.socket.waitForUserId()
       await this.props.initializeChat()
     }
   }
@@ -93,8 +93,6 @@ class Web extends React.Component<MainProps> {
     config.reference && this.props.setReference()
 
     this.setupObserver()
-    // tslint:disable-next-line: no-floating-promises
-    this.props.fetchBotInfo()
   }
 
   extractConfig() {

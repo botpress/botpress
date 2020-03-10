@@ -6,10 +6,12 @@ import moment from 'moment'
 import multer from 'multer'
 import multers3 from 'multer-s3'
 import path from 'path'
+import { performance } from 'perf_hooks'
 
 import { Config } from '../config'
 
 import Database from './db'
+import Loader from './loader'
 
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
@@ -89,6 +91,19 @@ export default async (bp: typeof sdk, db: Database) => {
     }
   }
 
+  router.post(
+    '/setup',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const { userId, botId, convId, msg } = req.body
+      const loader = new Loader(bp, db)
+      const loaded = await loader.load(userId, botId, convId)
+      await postMessage(botId, userId, convId, msg, req.credentials)
+
+      res.send(loaded)
+    })
+  )
+
   router.get(
     '/botInfo',
     perBotCache('1 minute'),
@@ -120,49 +135,54 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncApi(async (req, res) => {
       const { botId, userId = undefined } = req.params
 
-      if (!validateUserId(userId)) {
-        return res.status(400).send(ERR_USER_ID_REQ)
-      }
-
-      const user = await bp.users.getOrCreateUser('web', userId, botId)
       const payload = req.body || {}
 
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (
-        !['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'].includes(
-          payload.type
-        )
-      ) {
-        // TODO: Support files
-        return res.status(400).send(ERR_MSG_TYPE)
-      }
-
-      if (payload.type === 'visit') {
-        const { timezone, language } = payload
-        const isValidTimezone = _.isNumber(timezone) && timezone >= -12 && timezone <= 14 && timezone % 0.5 === 0
-        const isValidLanguage = language.length < 4 && !_.get(user, 'result.attributes.language')
-
-        const newAttributes = {
-          ...(isValidTimezone && { timezone }),
-          ...(isValidLanguage && { language })
-        }
-
-        if (Object.getOwnPropertyNames(newAttributes).length) {
-          await bp.users.updateAttributes('web', userId, newAttributes)
-        }
-      }
-
-      if (!conversationId) {
-        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
-      }
-
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
+      await postMessage(botId, userId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
   )
+
+  async function postMessage(botId, userId, conversationId, payload, credentials) {
+    if (!validateUserId(userId)) {
+      // return res.status(400).send(ERR_USER_ID_REQ)
+    }
+
+    const user = await bp.users.getOrCreateUser('web', userId, botId)
+
+    if (
+      !['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'].includes(
+        payload.type
+      )
+    ) {
+      // TODO: Support files
+      // return res.status(400).send(ERR_MSG_TYPE)
+    }
+
+    if (payload.type === 'visit') {
+      const { timezone, language } = payload
+      const isValidTimezone = _.isNumber(timezone) && timezone >= -12 && timezone <= 14 && timezone % 0.5 === 0
+      const isValidLanguage = language.length < 4 && !_.get(user, 'result.attributes.language')
+
+      const newAttributes = {
+        ...(isValidTimezone && { timezone }),
+        ...(isValidLanguage && { language })
+      }
+
+      if (Object.getOwnPropertyNames(newAttributes).length) {
+        await bp.users.updateAttributes('web', userId, newAttributes)
+      }
+    }
+
+    if (!conversationId) {
+      conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+    }
+
+    await sendNewMessage(botId, userId, conversationId, payload, credentials)
+  }
 
   // ?conversationId=xxx (required)
   router.post(

@@ -145,19 +145,39 @@ class RootStore {
   /** Loads the initial state, for the first time or when the user ID is changed. */
   @action.bound
   async initializeChat(): Promise<void> {
-    try {
-      await this.fetchConversations()
-      await this.fetchConversation()
-      runInAction('-> setInitialized', () => {
-        this.isInitialized = true
-      })
-    } catch (err) {
-      console.log('Error while fetching data, creating new convo...', err)
-      await this.createConversation()
+    const convId = this.currentConversationId
+    const msg = {
+      type: 'visit',
+      text: 'User visit',
+      timezone: new Date().getTimezoneOffset() / 60,
+      language: getUserLocale()
     }
+    const { data } = await this.api.setup(convId, msg)
 
-    await this.fetchPreferences()
-    await this.sendUserVisit()
+    runInAction('-> setBotInfo', () => {
+      this.botInfo = data.fetchBotInfo
+    })
+
+    runInAction('-> setConversations', () => {
+      const { conversations, recentConversationLifetime, startNewConvoOnTimeout } = data.fetchConversations
+      if (!conversations.length) {
+        this.view.showBotInfo()
+      }
+
+      this.config.recentConversationLifetime = recentConversationLifetime
+      this.config.startNewConvoOnTimeout = startNewConvoOnTimeout
+      this.conversations = conversations
+    })
+
+    runInAction('-> setConversation', () => {
+      this.currentConversation = data.fetchConversation
+      this.view.hideConversations()
+      this.isInitialized = true
+    })
+
+    runInAction('-> setPreferredLanguage', () => {
+      this.preferredLanguage = data.fetchPreferences.language
+    })
   }
 
   @action.bound
@@ -194,13 +214,13 @@ class RootStore {
 
   /** Fetch the specified conversation ID, or try to fetch a valid one from the list */
   @action.bound
-  async fetchConversation(convoId?: number): Promise<void> {
-    const conversationId = convoId || this._getCurrentConvoId()
+  async fetchConversation(convoId: number): Promise<void> {
+    const conversationId = convoId
     if (!conversationId) {
       return this.createConversation()
     }
 
-    const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
+    const conversation: CurrentConversation = await this.api.fetchConversation(convoId)
     await this.extractFeedback(conversation && conversation.messages)
 
     runInAction('-> setConversation', () => {
@@ -399,25 +419,6 @@ class RootStore {
       this.botUILanguage = lang
       localStorage.setItem('bp/channel-web/user-lang', lang)
     })
-  }
-
-  /** Returns the current conversation ID, or the last one if it didn't expired. Otherwise, returns nothing. */
-  private _getCurrentConvoId(): number | undefined {
-    if (this.currentConversationId) {
-      return this.currentConversationId
-    }
-
-    if (!this.conversations.length) {
-      return
-    }
-
-    const lifeTimeMargin = Date.now() - ms(this.config.recentConversationLifetime)
-    const isConversationExpired = new Date(this.conversations[0].last_heard_on).getTime() < lifeTimeMargin
-    if (isConversationExpired && this.config.startNewConvoOnTimeout) {
-      return
-    }
-
-    return this.conversations[0].id
   }
 }
 
