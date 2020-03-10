@@ -157,7 +157,7 @@ export class UnderstandingEngine {
       }
     })
 
-    if (event.type !== 'text') {
+    if (event.type !== 'text' && event.type !== 'quick_reply') {
       return
     }
 
@@ -252,7 +252,8 @@ export class UnderstandingEngine {
     })
 
     const fType = (type: sdk.NDU.Trigger['type']) => (t: typeof triggers) => t.filter(x => x.trigger.type === type)
-    const fInTopic = (t: typeof triggers) => t.filter(x => x.topic === currentTopic && currentTopic !== 'n/a')
+    const fInTopic = (t: typeof triggers) =>
+      t.filter(x => (x.topic === currentTopic && currentTopic !== 'n/a') || x.topic === 'skills')
     const fOutTopic = (t: typeof triggers) => t.filter(x => x.topic !== currentTopic || currentTopic === 'n/a')
     const fInWf = (t: typeof triggers) => t.filter(x => x.wf === currentFlow)
     const fOnNode = (t: typeof triggers) => t.filter(x => x.nodeId === currentNode)
@@ -443,6 +444,10 @@ export class UnderstandingEngine {
     event.ndu.triggers = {}
 
     for (const trigger of triggers) {
+      if (trigger.type === 'node' && event.state?.context?.currentNode !== trigger.nodeId) {
+        continue
+      }
+
       const id = this.getTriggerId(trigger)
       const result = this._testConditions(event, trigger.conditions)
       event.ndu.triggers[id] = { result, trigger }
@@ -481,6 +486,7 @@ export class UnderstandingEngine {
 
   async invalidateGoals(botId: string) {
     this._allTriggers.delete(botId)
+    this.predictor = undefined
   }
 
   private async _loadBotGoals(botId: string) {

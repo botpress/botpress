@@ -79,5 +79,12 @@ export const conditionsDefinitions: sdk.Condition[] = [
       const { lastMessages } = event.state.session
       return lastMessages && lastMessages.length > 0 ? 1 : 0
     }
+  },
+  {
+    id: 'always',
+    label: 'This condition is always true',
+    evaluate: () => {
+      return 1
+    }
   }
 ]
