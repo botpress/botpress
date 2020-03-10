@@ -9,13 +9,14 @@ import { GhostService } from 'core/services'
 import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
-import { FlowService, MutexError } from 'core/services/dialog/flow/service'
+import { FlowService, MutexError, TopicSchema } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { getSocketTransports } from 'core/services/realtime'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Express, RequestHandler, Router } from 'express'
+import { validate } from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
@@ -359,6 +360,23 @@ export class BotsRouter extends CustomRouter {
         res.sendStatus(200)
       })
     )
+
+    this.router.get('/topics', async (req, res) => {
+      res.send(await this.flowService.getTopics(req.params.botId))
+    })
+
+    this.router.post('/topic/:topicName?', async (req, res) => {
+      const { topicName, botId } = req.params
+
+      try {
+        const topic = await validate(req.body, TopicSchema)
+        await this.flowService.updateTopic(botId, topic, topicName)
+
+        res.sendStatus(200)
+      } catch (err) {
+        res.status(400).send(err)
+      }
+    })
 
     this.router.get(
       '/actions',

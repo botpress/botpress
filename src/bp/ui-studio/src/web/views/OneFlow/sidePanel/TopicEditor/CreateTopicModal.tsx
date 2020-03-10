@@ -23,7 +23,7 @@ const CreateTopicModal: FC<Props> = props => {
 
   const submit = async () => {
     props.onCreateFlow(`${name}/${goal}`)
-    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topic`, { name, description: '' })
+    await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: '' })
     props.fetchTopics()
 
     closeModal()

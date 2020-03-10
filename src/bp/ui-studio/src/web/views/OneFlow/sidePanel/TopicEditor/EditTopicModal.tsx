@@ -5,7 +5,7 @@ import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { fetchTopics, renameFlow } from '~/actions'
+import { fetchFlows, fetchTopics, renameFlow } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
@@ -20,6 +20,7 @@ interface Props {
   toggle: () => void
   renameFlow: (flow: { targetFlow: string; name: string }) => void
   fetchTopics: () => void
+  fetchFlows: () => void
 }
 
 const EditTopicModal: FC<Props> = props => {
@@ -36,16 +37,10 @@ const EditTopicModal: FC<Props> = props => {
   }, [props.isOpen])
 
   const submit = async () => {
-    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topic/${props.selectedTopic}`, { name, description })
+    await axios.post(`${window.BOT_API_PATH}/topic/${props.selectedTopic}`, { name, description })
 
     if (name !== props.selectedTopic) {
-      props.flows
-        .filter(f => f.name.startsWith(`${props.selectedTopic}/`))
-        .forEach(f =>
-          props.renameFlow({ targetFlow: f.name, name: f.name.replace(`${props.selectedTopic}/`, `${name}/`) })
-        )
-
-      // TODO: Update knowledge items
+      await props.fetchFlows()
     }
 
     props.fetchTopics()
@@ -101,7 +96,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   renameFlow,
-  fetchTopics
+  fetchTopics,
+  fetchFlows
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditTopicModal)

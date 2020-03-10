@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
-import Storage from './storage'
 
-export type BotStorage = { [key: string]: Storage }
+export type MountedBots = { [key: string]: boolean }
 
 export type Features = {
   current_workflow_id: string

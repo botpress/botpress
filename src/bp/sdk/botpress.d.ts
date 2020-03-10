@@ -121,6 +121,12 @@ declare module 'botpress/sdk' {
      * onBotUnmount is called for each bots before this one is called
      */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => Promise<void>
+    onTopicRenamed?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      oldName: string,
+      newName: string
+    ) => Promise<void>
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => Promise<void>
     onFlowRenamed?: (
       bp: typeof import('botpress/sdk'),

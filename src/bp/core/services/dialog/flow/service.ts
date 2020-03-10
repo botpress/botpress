@@ -7,6 +7,7 @@ import { BotService } from 'core/services/bot-service'
 import { KeyValueStore } from 'core/services/kvs'
 import RealtimeService from 'core/services/realtime'
 import { inject, injectable, tagged } from 'inversify'
+import Joi from 'joi'
 import _ from 'lodash'
 import moment from 'moment'
 import nanoid from 'nanoid/generate'
@@ -21,6 +22,13 @@ const FLOW_DIR = 'flows'
 
 const MUTEX_LOCK_DELAY_SECONDS = 30
 
+export const TopicSchema = Joi.object().keys({
+  name: Joi.string().required(),
+  description: Joi.string()
+    .optional()
+    .allow('')
+})
+
 interface FlowModification {
   name: string
   botId: string
@@ -28,6 +36,11 @@ interface FlowModification {
   modification: 'rename' | 'delete' | 'create' | 'update'
   newName?: string
   payload?: any
+}
+
+interface Topic {
+  name: string
+  description: string
 }
 
 export class MutexError extends Error {
@@ -341,5 +354,36 @@ export class FlowService {
 
   private uiPath(flowPath: string) {
     return flowPath.replace(/\.flow\.json$/i, '.ui.json')
+  }
+
+  public async getTopics(botId: string): Promise<Topic[]> {
+    const ghost = this.ghost.forBot(botId)
+    if (await ghost.fileExists('ndu', 'topics.json')) {
+      const topics: any = ghost.readFileAsObject('ndu', 'topics.json')
+      return topics
+    }
+    return []
+  }
+
+  public async updateTopic(botId: string, topic: Topic, currentName?: string) {
+    let topics = await this.getTopics(botId)
+
+    if (!currentName) {
+      topics = [...topics, topic]
+    } else {
+      topics = [...topics.filter(x => x.name !== currentName), topic]
+    }
+
+    await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
+
+    if (currentName && currentName !== topic.name) {
+      await this.moduleLoader.onTopicRenamed(botId, currentName, topic.name)
+
+      const flows = await this.loadAll(botId)
+
+      for (const flow of flows.filter(f => f.name.startsWith(`${currentName}/`))) {
+        await this.renameFlow(botId, flow.name, flow.name.replace(`${currentName}/`, `${topic.name}/`), 'server')
+      }
+    }
   }
 }

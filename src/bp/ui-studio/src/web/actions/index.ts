@@ -404,7 +404,7 @@ export const refreshConditions = () => dispatch => {
 export const topicsReceived = createAction('TOPICS/RECEIVED')
 export const fetchTopics = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/mod/ndu/topics`).then(({ data }) => {
+  axios.get(`${window.BOT_API_PATH}/topics`).then(({ data }) => {
     dispatch(topicsReceived(data))
   })
 }

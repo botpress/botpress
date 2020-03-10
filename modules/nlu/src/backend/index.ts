@@ -2,6 +2,7 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getIntents, updateIntent } from './intents/intent-service'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
 import { getOnServerReady } from './module-lifecycle/on-server-ready'
@@ -21,12 +22,26 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   Object.keys(state.nluByBot).forEach(botID => () => onBotUnmount(bp, botID))
 }
 
+const onTopicRenamed = async (bp: typeof sdk, botId: string, oldName: string, newName: string) => {
+  const ghost = bp.ghost.forBot(botId)
+  const intentDefs = await getIntents(ghost)
+
+  for (const intentDef of intentDefs) {
+    const ctxIdx = intentDef.contexts.indexOf(oldName)
+    if (ctxIdx !== -1) {
+      intentDef.contexts.splice(ctxIdx, 1)
+      await updateIntent(ghost, intentDef.name, intentDef)
+    }
+  }
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
+  onTopicRenamed,
   definition: {
     name: 'nlu',
     moduleView: {
