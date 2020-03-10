@@ -14,6 +14,7 @@ export const conditionsDefinitions: sdk.Condition[] = [
       component: 'LiteEditor'
     },
     evaluate: (event, { intentName, topicName }) => {
+      const oosConfidence = _.get(event, `nlu.predictions.oos.confidence`, 0)
       const topicConf = _.get(event, `nlu.predictions.${topicName}.confidence`, 0)
       const topicIntents = _.get(event, `nlu.predictions.${topicName}.intents`, [])
       const intentConf = _.get(
@@ -21,7 +22,7 @@ export const conditionsDefinitions: sdk.Condition[] = [
         'confidence',
         0
       )
-      return topicConf * intentConf
+      return topicConf * intentConf * (1 - oosConfidence)
     }
   },
   {
