@@ -285,6 +285,7 @@ function electIntent(input: PredictStep): PredictStep {
 
   const ctx = _.get(predictions, '0.context', 'global')
   const shouldConsiderOOS =
+    predictions.length &&
     predictions[0].name !== NONE_INTENT &&
     predictions[0].confidence < 0.4 &&
     _.get(input, 'oos_predictions.label') === 'out'
@@ -333,7 +334,10 @@ function detectAmbiguity(input: PredictStep): PredictStep {
   const up = perfectConfusion + 0.1
   const confidenceVec = preds.map(p => p.confidence)
 
-  const ambiguous = preds.length > 1 && math.allInRange(confidenceVec, low, up)
+  const ambiguous =
+    preds.length > 1 &&
+    (math.allInRange(confidenceVec, low, up) ||
+      (preds[0].name === NONE_INTENT && math.allInRange(confidenceVec.slice(1), low, up)))
 
   return _.merge(input, { intent_predictions: { ambiguous } })
 }
@@ -385,15 +389,23 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     }
   }, {} as sdk.NLU.SlotCollection)
 
-  const predictions = step.ctx_predictions?.reduce((preds, { label, confidence }) => {
-    return {
-      ...preds,
-      [label]: {
-        confidence: confidence,
-        intents: step.intent_predictions.per_ctx[label]
+  const predictions = step.ctx_predictions?.reduce(
+    (preds, { label, confidence }) => {
+      return {
+        ...preds,
+        [label]: {
+          confidence: confidence,
+          intents: step.intent_predictions.per_ctx[label]
+        }
+      }
+    },
+    {
+      oos: {
+        intents: [],
+        confidence: step.oos_predictions?.label === 'out' ? step.oos_predictions.confidence : 0
       }
     }
-  }, {})
+  )
 
   return {
     ambiguous: step.intent_predictions.ambiguous,
