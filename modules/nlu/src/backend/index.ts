@@ -22,7 +22,14 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   Object.keys(state.nluByBot).forEach(botID => () => onBotUnmount(bp, botID))
 }
 
-const onTopicRenamed = async (bp: typeof sdk, botId: string, oldName: string, newName: string) => {
+const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, newName?: string) => {
+  const isRenaming = !!(oldName && newName)
+  const isDeleting = !newName
+
+  if (!isRenaming && !isDeleting) {
+    return
+  }
+
   const ghost = bp.ghost.forBot(botId)
   const intentDefs = await getIntents(ghost)
 
@@ -30,6 +37,11 @@ const onTopicRenamed = async (bp: typeof sdk, botId: string, oldName: string, ne
     const ctxIdx = intentDef.contexts.indexOf(oldName)
     if (ctxIdx !== -1) {
       intentDef.contexts.splice(ctxIdx, 1)
+
+      if (isRenaming) {
+        intentDef.contexts.push(newName)
+      }
+
       await updateIntent(ghost, intentDef.name, intentDef)
     }
   }
@@ -41,7 +53,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
-  onTopicRenamed,
+  onTopicChanged,
   definition: {
     name: 'nlu',
     moduleView: {

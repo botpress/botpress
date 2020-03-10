@@ -1,4 +1,4 @@
-import { Button, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { Topic } from 'botpress/sdk'
 import _ from 'lodash'
@@ -19,11 +19,10 @@ interface Props {
 
 const CreateTopicModal: FC<Props> = props => {
   const [name, setName] = useState('')
-  const [goal, setGoal] = useState('')
+  const [description, setDescription] = useState<string>('')
 
   const submit = async () => {
-    props.onCreateFlow(`${name}/${goal}`)
-    await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: '' })
+    await axios.post(`${window.BOT_API_PATH}/topic`, { name, description })
     props.fetchTopics()
 
     closeModal()
@@ -31,7 +30,7 @@ const CreateTopicModal: FC<Props> = props => {
 
   const closeModal = () => {
     setName('')
-    setGoal('')
+    setDescription('')
     props.toggle()
   }
 
@@ -42,11 +41,13 @@ const CreateTopicModal: FC<Props> = props => {
       isOpen={props.isOpen}
       onClose={closeModal}
       size="md"
-      style={{ width: 500, minHeight: 350 }}
       onSubmit={submit}
     >
       <DialogBody>
-        <FormGroup label="Topic Name" helperText="Choose a broad name to represent your topic, for example HR or IT">
+        <FormGroup
+          label="Topic Name"
+          helperText="Choose a broad name to represent your topic, for example HR or IT. You can rename it later"
+        >
           <InputGroup
             id="input-flow-name"
             tabIndex={1}
@@ -56,21 +57,20 @@ const CreateTopicModal: FC<Props> = props => {
           />
         </FormGroup>
 
-        <FormGroup
-          label="First Goal"
-          helperText="To get started, choose one goal you'd like your users to achieve, for example: hire_new_employee"
-        >
-          <InputGroup
-            id="input-flow-goal"
-            tabIndex={1}
-            value={goal}
-            maxLength={100}
-            onChange={e => setGoal(sanitizeName(e.currentTarget.value))}
+        <FormGroup label="Description">
+          <TextArea
+            id="input-flow-description"
+            rows={3}
+            tabIndex={2}
+            value={description}
+            maxLength={250}
+            fill={true}
+            onChange={e => setDescription(e.currentTarget.value)}
           />
         </FormGroup>
       </DialogBody>
       <DialogFooter>
-        <Button text="Create topic" intent={Intent.PRIMARY} type="submit" disabled={!goal || !name} />
+        <Button text="Create topic" tabIndex={3} intent={Intent.PRIMARY} type="submit" disabled={!name} />
       </DialogFooter>
     </BaseDialog>
   )

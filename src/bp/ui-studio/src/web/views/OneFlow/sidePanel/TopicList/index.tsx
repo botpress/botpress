@@ -1,5 +1,6 @@
-import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
-import { Flow } from 'botpress/sdk'
+import { Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
+import axios from 'axios'
+import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, TreeView } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
@@ -19,6 +20,7 @@ interface Props {
   filter: string
   readOnly: boolean
   currentFlow: Flow
+  topics: Topic[]
 
   canDelete: boolean
   goToFlow: Function
@@ -27,6 +29,7 @@ interface Props {
   duplicateFlow: Function
   deleteFlow: Function
   exportGoal: Function
+  fetchTopics: () => void
 
   importGoal: (topicId: string) => void
   createGoal: (topicId: string) => void
@@ -55,19 +58,43 @@ const TopicList: FC<Props> = props => {
   const [flows, setFlows] = useState<NodeData[]>([])
 
   useEffect(() => {
-    const qna = _.uniq(props.flows.map(flow => flow.name?.split('/')?.[0])).map(topic => ({
-      name: `${topic}/qna`,
+    const qna = props.topics.map(topic => ({
+      name: `${topic.name}/qna`,
       label: 'Q&A',
       type: 'qna' as NodeType,
       icon: 'chat'
     }))
 
     setFlows([...qna, ...props.flows])
-  }, [props.flows])
+  }, [props.flows, props.topics])
 
   const deleteFlow = async (name: string) => {
     if (await confirmDialog(`Are you sure you want to delete the flow ${name}?`, {})) {
       props.deleteFlow(name)
+    }
+  }
+
+  const deleteTopic = async (name: string) => {
+    const matcher = new RegExp(`^${name}/`)
+    const flowsToDelete = props.flows.filter(x => matcher.test(x.name))
+
+    if (
+      await confirmDialog(
+        <span>
+          Are you sure you want to delete the topic {name}?<br />
+          <br />
+          {!!flowsToDelete.length && (
+            <>
+              <strong>WARNING:</strong> {flowsToDelete.length} flows associated with the topic will be deleted
+            </>
+          )}
+        </span>,
+        {}
+      )
+    ) {
+      await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
+      flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
+      props.fetchTopics()
     }
   }
 
@@ -101,15 +128,23 @@ const TopicList: FC<Props> = props => {
 
   const handleContextMenu = (element: NodeData | string, elementType) => {
     if (elementType === 'folder') {
+      const folder = element as string
       return (
         <Menu>
-          <MenuItem id="btn-edit" icon="edit" text="Edit Topic" onClick={() => props.editTopic(element)} />
+          <MenuItem id="btn-edit" icon="edit" text="Edit Topic" onClick={() => props.editTopic(folder)} />
           <MenuItem
             id="btn-export"
             disabled={props.readOnly}
             icon="upload"
             text="Export Topic"
-            onClick={() => props.exportTopic(element)}
+            onClick={() => props.exportTopic(folder)}
+          />
+          <MenuItem
+            id="btn-delete"
+            icon="trash"
+            text="Delete Topic"
+            intent={Intent.DANGER}
+            onClick={() => deleteTopic(folder)}
           />
           <MenuDivider />
           <MenuItem

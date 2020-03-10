@@ -32,7 +32,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
   onModuleUnmount: joi.func().optional(),
-  onTopicRenamed: joi.func().optional(),
+  onTopicChanged: joi.func().optional(),
   onFlowChanged: joi.func().optional(),
   onFlowRenamed: joi.func().optional(),
   onElementChanged: joi.func().optional(),
@@ -236,12 +236,12 @@ export class ModuleLoader {
     }
   }
 
-  public async onTopicRenamed(botId: string, oldName: string, newName: string) {
+  public async onTopicChanged(botId: string, oldName?: string, newName?: string) {
     const modules = this.getLoadedModules()
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await entryPoint.onTopicRenamed?.(api, botId, oldName, newName)
+      await entryPoint.onTopicChanged?.(api, botId, oldName, newName)
     }
   }
 
