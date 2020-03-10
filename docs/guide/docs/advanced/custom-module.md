@@ -214,7 +214,7 @@ All modules are isolated and receives their own instance of `bp`
 
 ### Consuming API externally or from another module
 
-The Botpress SDK exposes a method to get the axios headers for a request. It will automatically sets the base URL for the request, and will set the required headers to communicate with the specific bot. This method is `bp.http.getAxiosConfigForBot('bot123')`
+The Botpress SDK exposes a method to get the axios headers for a request. It will automatically sets the base URL for the request, and will set the required headers to communicate with the specific bot. This method is `bp.http.getAxiosConfigForBot('bot123'): Promise<AxiosRequestConfig>`
 
 The method also accepts a second parameter with additional options. Right now, the only available option is `localUrl`. When set to true, the module will communicate with the local url instead of the external one. Ex: `bp.http.getAxiosConfigForBot('bot123', { localUrl: true })`
 
@@ -222,7 +222,7 @@ Once you have this, you simply have to call the axios method of your choice, and
 
 ```js
 extractNluContent: async () => {
-  const axiosConfig = bp.http.getAxiosConfigForBot(event.botId)
+  const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId)
   const text = event.payload.text
   const data = await axios.post(`/mod/nlu/extract`, { text }, axiosConfig)
 }

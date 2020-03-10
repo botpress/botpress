@@ -1,9 +1,9 @@
-import { Button, Checkbox, Popover, Tooltip } from '@blueprintjs/core'
+import { Button, Checkbox, Popover } from '@blueprintjs/core'
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
-import { Select } from '@blueprintjs/select'
 import { BotConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
+import { Dropdown, Option } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import _ from 'lodash'
 import moment from 'moment'
@@ -16,7 +16,6 @@ import PageContainer from '~/App/PageContainer'
 
 import api from '../../api'
 import { fetchBots } from '../../reducers/bots'
-import Dropdown, { Option } from '../Components/Dropdown'
 
 import { filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
 

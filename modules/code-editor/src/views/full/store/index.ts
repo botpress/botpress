@@ -22,7 +22,9 @@ class RootStore {
   public api: CodeEditorApi
   public editor: EditorStore
 
+  @observable
   public permissions: FilePermissions
+
   public typings: { [fileName: string]: string } = {}
 
   @observable
@@ -34,27 +36,12 @@ class RootStore {
   @observable
   public fileFilter: string
 
-  @observable
-  public useRawEditor: boolean = false
-
   constructor({ bp }) {
     this.api = new CodeEditorApi(bp.axios)
     this.editor = new EditorStore(this)
     // Object required for the observer to be useful.
     this.filters = {
       filename: ''
-    }
-  }
-
-  @action.bound
-  async enableRawEditor(e) {
-    e.preventDefault()
-
-    if (this.permissions['root.raw'].read) {
-      this.useRawEditor = !this.useRawEditor
-      await this.fetchFiles()
-    } else {
-      console.error(`Only Super Admins can use the raw file editor`)
     }
   }
 
@@ -79,7 +66,7 @@ class RootStore {
 
   @action.bound
   async fetchFiles() {
-    const files = await this.api.fetchFiles(this.useRawEditor)
+    const files = await this.api.fetchFiles(this.editor.isAdvanced)
     runInAction('-> setFiles', () => {
       this.files = files
     })

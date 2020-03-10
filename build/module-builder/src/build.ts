@@ -57,39 +57,57 @@ export async function buildBackend(modulePath: string) {
     babelConfig = require(babelFile)(babelConfig)
   }
 
+  const tsConfigFile = ts.findConfigFile(modulePath, ts.sys.fileExists, 'tsconfig.json')
+  const skipCheck = process.argv.find(x => x.toLowerCase() === '--skip-check')
+
+  let validCode = true
+  if (!skipCheck && tsConfigFile) {
+    validCode = runTypeChecker(modulePath)
+  }
+
+  if (validCode) {
+    rimraf.sync(path.join(modulePath, 'dist'))
+
+    copyExtraFiles(modulePath)
+    compileBackend(modulePath, babelConfig)
+
+    normal(`Generated backend (${Date.now() - start} ms)`)
+  }
+}
+
+// Allows to copy additional files to the dist directory of the module
+const copyExtraFiles = (modulePath: string) => {
+  const extrasFile = path.join(modulePath, 'build.extras.js')
+  if (!fs.existsSync(extrasFile)) {
+    return
+  }
+
+  const extras = require(extrasFile)
+  if (extras && extras.copyFiles) {
+    for (const instruction of extras.copyFiles) {
+      const toCopy = glob.sync(instruction, {
+        cwd: modulePath,
+        dot: true
+      })
+
+      for (const file of toCopy) {
+        const fromFull = path.join(modulePath, file)
+        const dest = file.replace(/^src\//i, 'dist/').replace(/\.ts$/i, '.js')
+        const destFull = path.join(modulePath, dest)
+        mkdirp.sync(path.dirname(destFull))
+        fse.copySync(fromFull, destFull)
+        debug(`Copied "${file}" -> "${dest}"`)
+      }
+    }
+  }
+}
+
+const compileBackend = (modulePath: string, babelConfig) => {
   const files = glob.sync('src/**/*.+(ts|js|jsx|tsx)', {
     cwd: modulePath,
     dot: true,
     ignore: ['**/*.d.ts', '**/views/**/*.*', '**/config.ts']
   })
-
-  const skipCheck = process.argv.find(x => x.toLowerCase() === '--skip-check')
-  !skipCheck && runTypeChecker(modulePath)
-
-  rimraf.sync(path.join(modulePath, 'dist'))
-
-  // Allows to copy additional files to the dist directory of the module
-  const extrasFile = path.join(modulePath, 'build.extras.js')
-  if (fs.existsSync(extrasFile)) {
-    const extras = require(extrasFile)
-    if (extras && extras.copyFiles) {
-      for (const instruction of extras.copyFiles) {
-        const toCopy = glob.sync(instruction, {
-          cwd: modulePath,
-          dot: true
-        })
-
-        for (const file of toCopy) {
-          const fromFull = path.join(modulePath, file)
-          const dest = file.replace(/^src\//i, 'dist/').replace(/\.ts$/i, '.js')
-          const destFull = path.join(modulePath, dest)
-          mkdirp.sync(path.dirname(destFull))
-          fse.copySync(fromFull, destFull)
-          debug(`Copied "${file}" -> "${dest}"`)
-        }
-      }
-    }
-  }
 
   const copyWithoutTransform = ['actions', 'hooks', 'examples', 'content-types']
   const outputFiles = []
@@ -122,11 +140,9 @@ export async function buildBackend(modulePath: string) {
       throw err
     }
   }
-
-  normal(`Generated backend (${Date.now() - start} ms)`)
 }
 
-export async function buildConfigSchema(modulePath: string) {
+const buildConfigSchema = async (modulePath: string) => {
   const config = path.resolve(modulePath, 'src', 'config.ts')
   if (!fs.existsSync(config)) {
     return
@@ -177,7 +193,7 @@ const getTsConfig = (rootFolder: string): ts.ParsedCommandLine => {
   return ts.parseJsonConfigFileContent(fixedModuleConfig, parseConfigHost, rootFolder)
 }
 
-const runTypeChecker = (rootFolder: string): void => {
+const runTypeChecker = (rootFolder: string): boolean => {
   const { options, fileNames } = getTsConfig(rootFolder)
 
   const program = ts.createProgram(fileNames, options)
@@ -200,7 +216,5 @@ const runTypeChecker = (rootFolder: string): void => {
     }
   }
 
-  if (diagnostics.length) {
-    process.exit(1)
-  }
+  return !diagnostics.length
 }
