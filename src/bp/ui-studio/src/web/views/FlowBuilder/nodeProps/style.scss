@@ -226,6 +226,31 @@ h5 {
     margin: 20px 0 6px;
   }
 
+  .advancedSettingsBtn {
+    border-top: 1px solid $border;
+    color: $main-text-dark-color;
+    font-size: 18px;
+    font-weight: 500;
+    justify-content: space-between;
+    margin: 20px 0 15px;
+    padding: 0;
+    padding-top: 20px;
+    text-align: left;
+    width: 100%;
+
+    &:hover {
+      background: transparent !important;
+    }
+  }
+
+  .checkboxLabel {
+    font-weight: 400;
+
+    a {
+      display: block;
+    }
+  }
+
   .textInput, .textarea {
     background: #fff;
     border: 1px solid $border;

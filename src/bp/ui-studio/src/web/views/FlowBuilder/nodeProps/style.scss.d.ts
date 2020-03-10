@@ -4,7 +4,9 @@ interface CssExports {
   'actionIcons': string;
   'actions': string;
   'addContentBtn': string;
+  'advancedSettingsBtn': string;
   'bottomSection': string;
+  'checkboxLabel': string;
   'emptyState': string;
   'endBloc': string;
   'fieldWrapper': string;

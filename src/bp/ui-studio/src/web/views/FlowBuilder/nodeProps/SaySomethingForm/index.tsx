@@ -1,9 +1,8 @@
-import { Button as BPButton, Icon, Position, Toaster } from '@blueprintjs/core'
+import { Button, Checkbox, Icon, Position, Toaster } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
 
-import Button from '../../../../components/Button'
 import MoreOptions from '../../../../components/MoreOptions'
 import MoreOptionsStyles from '../../../../components/MoreOptions/style.scss'
 import withLanguage from '../../../../components/Util/withLanguage'
@@ -39,6 +38,8 @@ export interface FormState {
   contentType: string
   text: string
   variations: string[]
+  markdown: boolean
+  typing: boolean
   error: any
 }
 
@@ -46,6 +47,8 @@ const defaultFormState: FormState = {
   contentType: 'builtin_text',
   text: '',
   variations: [''],
+  markdown: true,
+  typing: true,
   error: null
 }
 
@@ -57,15 +60,20 @@ const SaySomethingForm: FC<Props> = props => {
         error: null,
         contentType: 'builtin_text',
         text: '',
+        markdown: true,
+        typing: true,
         variations: ['']
       }
     } else if (action.type === 'newData') {
-      const { text, variations, contentType } = action.data
+      const { text, variations, contentType, markdown, typing } = action.data
+
       return {
         error: null,
         contentType,
         text,
-        variations
+        variations,
+        markdown,
+        typing
       }
     } else if (action.type === 'addVariation') {
       const newVariations = state.variations || []
@@ -93,6 +101,8 @@ const SaySomethingForm: FC<Props> = props => {
         formData: {
           [`text$${props.contentLang}`]: state.text,
           [`variations$${props.contentLang}`]: state.variations,
+          [`markdown$${props.contentLang}`]: state.markdown,
+          [`typing${props.contentLang}`]: state.typing,
           [`${field}$${props.contentLang}`]: value
         }
       })
@@ -108,6 +118,7 @@ const SaySomethingForm: FC<Props> = props => {
 
   const [formState, dispatchForm] = useReducer(formReducer, defaultFormState)
   const [showOptions, setShowOptions] = useState(false)
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false)
 
   useEffect(() => {
     dispatchForm({ type: 'resetData' })
@@ -157,7 +168,9 @@ const SaySomethingForm: FC<Props> = props => {
   }
 
   const { node, readOnly, categories } = props
-  const { contentType } = formState
+  const { contentType, markdown, typing } = formState
+
+  console.log(markdown, typing)
 
   return (
     <Fragment>
@@ -165,12 +178,13 @@ const SaySomethingForm: FC<Props> = props => {
         <h4>Say Something</h4>
         <MoreOptions show={showOptions} onToggle={setShowOptions}>
           <li>
-            <Button className={MoreOptionsStyles.moreMenuItem} onClick={onCopy.bind(this)}>
+            <Button minimal className={MoreOptionsStyles.moreMenuItem} onClick={onCopy.bind(this)}>
               <Icon icon="duplicate" iconSize={20} /> Copy
             </Button>
           </li>
           <li>
             <Button
+              minimal
               className={classnames(MoreOptionsStyles.moreMenuItem, MoreOptionsStyles.delete)}
               onClick={props?.onDeleteSelectedElements}
             >
@@ -211,6 +225,41 @@ const SaySomethingForm: FC<Props> = props => {
         </label>
         {contentType && contentType === 'builtin_text' && (
           <SaySomethingTextForm formState={formState} dispatchForm={dispatchForm} />
+        )}
+        <Button
+          minimal
+          rightIcon={showAdvancedSettings ? 'chevron-up' : 'chevron-down'}
+          className={style.advancedSettingsBtn}
+          onClick={() => {
+            setShowAdvancedSettings(!showAdvancedSettings)
+          }}
+        >
+          Advanced Settings
+        </Button>
+        {showAdvancedSettings && (
+          <Fragment>
+            <Checkbox
+              inline
+              className={style.checkboxLabel}
+              name="markdown"
+              checked={markdown}
+              onChange={() => dispatchForm({ type: 'updateData', data: { field: 'markdown', value: !markdown } })}
+            >
+              Use markdown
+              <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">
+                Learn more
+              </a>
+            </Checkbox>
+
+            <Checkbox
+              inline
+              className={style.checkboxLabel}
+              label="Display typing indicators"
+              name="typing"
+              checked={typing}
+              onChange={() => dispatchForm({ type: 'updateData', data: { field: 'typing', value: !typing } })}
+            />
+          </Fragment>
         )}
       </form>
     </Fragment>

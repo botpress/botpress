@@ -57,12 +57,7 @@ const SaySomethingFormText: FC<Props> = props => {
               onChange={e => updateVariations(e.currentTarget.value, index)}
             ></TextareaAutosize>
           ))}
-        <Button
-          onClick={() => dispatchForm({ type: 'addVariation' })}
-          className={style.addContentBtn}
-          icon="plus"
-          large={true}
-        >
+        <Button onClick={() => dispatchForm({ type: 'addVariation' })} className={style.addContentBtn} large={true}>
           Add Alternates
         </Button>
       </div>
