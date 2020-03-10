@@ -1,15 +1,13 @@
 import * as sdk from 'botpress/sdk'
 
-import api from './api'
 import { conditionsDefinitions } from './conditions'
 import Database from './db'
 import { registerMiddleware } from './middleware'
 import { UnderstandingEngine } from './ndu-engine'
-import Storage from './storage'
-import { BotStorage } from './typings'
+import { MountedBots } from './typings'
 
 let nduEngine: UnderstandingEngine
-const bots: BotStorage = {}
+const bots: MountedBots = {}
 let db: Database
 
 const onServerStarted = async (bp: typeof sdk) => {
@@ -42,7 +40,7 @@ const onServerReady = async (bp: typeof sdk) => {
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const botConfig = await bp.bots.getBotById(botId)
   if (botConfig['oneflow']) {
-    bots[botId] = new Storage(bp, botId)
+    bots[botId] = true
   }
 }
 
