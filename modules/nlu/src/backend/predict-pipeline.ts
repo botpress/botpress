@@ -233,7 +233,7 @@ function electIntent(input: PredictStep): PredictStep {
   // taken from svm classifier #349
   let predictions = _.chain(ctxPreds)
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
-      const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx])
+      const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
         .thru(preds => {
           const { oos_predictions } = input
           if (oos_predictions && oos_predictions.label === 'out') {
