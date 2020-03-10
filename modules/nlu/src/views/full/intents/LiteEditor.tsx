@@ -17,6 +17,7 @@ interface IntentParams {
 interface Props {
   bp: any
   contentLang: string
+  forceSave: boolean
   topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
@@ -32,14 +33,15 @@ export const LiteEditor: FC<Props> = props => {
   const [intents, setIntents] = useState<NLU.IntentDefinition[]>([])
   const [currentIntent, setCurrentIntent] = useState(props.params.intentName)
   const [isModalOpen, setModalOpen] = useState(false)
-  // const [updateIntent, cancelPendingIntentUpdate] = useDebouncedCallback(async () => {
-  //   const intent = await api.fetchIntent(currentIntent)
+  const [dirtyIntents, setDirtyIntents] = useState([])
 
-  //   if (!intent.contexts.includes(props.topicName)) {
-  //     intent.contexts.push(props.topicName)
-  //     await api.updateIntent(currentIntent, intent)
-  //   }
-  // }, 3000)
+  useEffect(() => {
+    // Ensure the current topic is in the intent's contexts
+    if (props.forceSave && dirtyIntents.length) {
+      // tslint:disable-next-line: no-floating-promises
+      api.refreshIntentTopics([...dirtyIntents, currentIntent])
+    }
+  }, [props.forceSave])
 
   const api = makeApi(props.bp)
 
@@ -47,6 +49,10 @@ export const LiteEditor: FC<Props> = props => {
     // tslint:disable-next-line: no-floating-promises
     loadIntents()
   }, [])
+
+  useEffect(() => {
+    setDirtyIntents([])
+  }, [isModalOpen])
 
   const loadIntents = async () => {
     setIntents(await api.fetchIntents())
@@ -68,11 +74,9 @@ export const LiteEditor: FC<Props> = props => {
 
   const onIntentChanged = async intent => {
     if (intent) {
+      setDirtyIntents([...dirtyIntents, currentIntent])
       setCurrentIntent(intent.name)
       props.updateParams({ intentName: intent.name })
-
-      // cancelPendingIntentUpdate()
-      // updateIntent()
     }
   }
 

@@ -380,7 +380,7 @@ export class DiagramManager {
         })
 
         const targetPort = targetNode.ports['in']
-        console.log('TARGET PORT', targetPort)
+
         const link = new DefaultLinkModel()
         link.setSourcePort(sourcePort)
         link.setTargetPort(targetPort)

@@ -45,6 +45,7 @@ const EditGoalModal: FC<Props> = props => {
   const [currentFlowCondition, setCurrentFlowCondition] = useState()
   const [currentCondition, setCurrentCondition] = useState<Condition>()
   const [topicName, setTopicName] = useState('')
+  const [forceSave, setForceSave] = useState(false)
 
   useEffect(() => {
     setConditions([])
@@ -101,8 +102,12 @@ const EditGoalModal: FC<Props> = props => {
   }
 
   const close = () => {
-    props.toggle()
-    setEditing(false)
+    setForceSave(true)
+    setImmediate(() => {
+      props.toggle()
+      setEditing(false)
+      setForceSave(false)
+    })
   }
 
   const { isOpen, contentLang, backendConditions } = props
@@ -133,6 +138,7 @@ const EditGoalModal: FC<Props> = props => {
               updateParams={onParamsChanged}
               topicName={topicName}
               contentLang={contentLang}
+              forceSave={forceSave}
             />
           </div>
         )}

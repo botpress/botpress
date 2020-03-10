@@ -2,7 +2,7 @@ import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@bluepri
 import { Flow } from 'botpress/sdk'
 import { confirmDialog, TreeView } from 'botpress/shared'
 import _ from 'lodash'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -38,25 +38,27 @@ interface Props {
 
 interface NodeData {
   name: string
-  type: 'goal' | 'folder' | 'topic' | 'qna'
+  type?: NodeType
   label?: string
   id?: any
   icon?: string
 }
+
+type NodeType = 'goal' | 'folder' | 'topic' | 'qna'
 
 interface IFlow {
   name: string
   label: string
 }
 
-const TopicList = props => {
-  const [flows, setFlows] = useState<IFlow[]>([])
+const TopicList: FC<Props> = props => {
+  const [flows, setFlows] = useState<NodeData[]>([])
 
   useEffect(() => {
     const qna = _.uniq(props.flows.map(flow => flow.name?.split('/')?.[0])).map(topic => ({
       name: `${topic}/qna`,
       label: 'Q&A',
-      type: 'qna',
+      type: 'qna' as NodeType,
       icon: 'chat'
     }))
 
