@@ -131,7 +131,7 @@ export const CreateTestModal: FC<Props> = props => {
                     i.contexts.includes(testingCtx)
                 )
                 .map(x => ({ value: x.name, label: x.name }))
-                .uniq()
+                .uniqBy(x => x.value)
                 .value()}
               onChange={expectedIntentChanged}
               value={expectedIntent.name}
