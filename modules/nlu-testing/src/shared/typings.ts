@@ -1,5 +1,5 @@
 import { IO } from 'botpress/sdk'
-export type Condition = ['intent' | 'slot', 'is', string]
+export type Condition = ['intent' | 'slot' | 'context', 'is', string]
 
 export interface Test {
   id: string
