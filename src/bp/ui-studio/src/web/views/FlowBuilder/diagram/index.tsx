@@ -35,7 +35,6 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { Timeout, toastInfo } from '~/components/Shared/Utils'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
@@ -371,11 +370,13 @@ class Diagram extends Component<Props> {
       this.handleContextMenu(event as any)
     }
 
-    this.canTargetOpenInspector(target)
-      ? this.props.openFlowNodeProps()
-      : this.canTargetOpenInspectorV2(target)
-      ? this.props.openFlowNode2Props()
-      : this.props.closeFlowNodeProps()
+    if (this.canTargetOpenInspector(target)) {
+      this.props.openFlowNodeProps()
+    } else if (this.canTargetOpenInspectorV2(target)) {
+      this.props.openFlowNode2Props()
+    } else {
+      this.props.closeFlowNodeProps()
+    }
 
     if (!selectedNode) {
       this.props.closeFlowNodeProps()

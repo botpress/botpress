@@ -1,4 +1,4 @@
-@import '../../palette.scss';
+@import '../variables.scss';
 
 .moreBtn {
   background: none;
@@ -92,7 +92,6 @@
     border-radius: 2px;
     border: 0;
     color: $main-dark-color;
-    cursor: pointer;
     display: flex;
     font-size: 16px;
     line-height: 1.25;
@@ -103,11 +102,15 @@
     text-align: left;
     white-space: nowrap;
 
+    &:not(.noHover) {
+      cursor: pointer;
+    }
+
     &:first-child {
       margin-top: 0;
     }
 
-    &:hover {
+    &:not(.noHover):hover {
       background-color: #E5EAEC;
     }
 
@@ -115,14 +118,14 @@
       margin-right: 10px;
     }
 
-    svg {
+    svg, path {
       fill: $main-dark-color !important;
     }
 
     &.delete {
       color: $main-warning;
 
-      svg {
+      svg, path {
         fill: $main-warning !important;
       }
     }

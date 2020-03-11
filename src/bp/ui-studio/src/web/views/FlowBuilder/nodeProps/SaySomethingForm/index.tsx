@@ -1,16 +1,17 @@
-import { Button, Checkbox, Icon, Position, Toaster } from '@blueprintjs/core'
+import { Button as BPButton, Checkbox, Position, Toaster } from '@blueprintjs/core'
+import { MoreOptions, MoreOptionsItems, style as sharedStyle } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
 
-import MoreOptions from '../../../../components/MoreOptions'
-import MoreOptionsStyles from '../../../../components/MoreOptions/style.scss'
 import withLanguage from '../../../../components/Util/withLanguage'
 import { getFormData, isFormEmpty } from '../../../../util/NodeFormData'
 import EditableInput from '../../common/EditableInput'
 import style from '../style.scss'
 
 import SaySomethingTextForm from './TextForm'
+
+const { MoreOptionsStyles } = sharedStyle
 
 interface Props {
   buffer: any
@@ -170,28 +171,27 @@ const SaySomethingForm: FC<Props> = props => {
   const { node, readOnly, categories } = props
   const { contentType, markdown, typing } = formState
 
-  console.log(markdown, typing)
+  const moreOptionsItems: MoreOptionsItems[] = [
+    {
+      icon: 'duplicate',
+      iconSize: 20,
+      label: 'Copy',
+      action: onCopy.bind(this)
+    },
+    {
+      icon: 'trash',
+      iconSize: 20,
+      label: 'Delete',
+      action: props?.onDeleteSelectedElements,
+      className: MoreOptionsStyles.delete
+    }
+  ]
 
   return (
     <Fragment>
       <div className={style.formHeader}>
         <h4>Say Something</h4>
-        <MoreOptions show={showOptions} onToggle={setShowOptions}>
-          <li>
-            <Button minimal className={MoreOptionsStyles.moreMenuItem} onClick={onCopy.bind(this)}>
-              <Icon icon="duplicate" iconSize={20} /> Copy
-            </Button>
-          </li>
-          <li>
-            <Button
-              minimal
-              className={classnames(MoreOptionsStyles.moreMenuItem, MoreOptionsStyles.delete)}
-              onClick={props?.onDeleteSelectedElements}
-            >
-              <Icon icon="trash" iconSize={20} /> Delete
-            </Button>
-          </li>
-        </MoreOptions>
+        <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
       </div>
       <form className={style.sidePanelForm}>
         <label className={style.fieldWrapper}>
@@ -226,7 +226,7 @@ const SaySomethingForm: FC<Props> = props => {
         {contentType && contentType === 'builtin_text' && (
           <SaySomethingTextForm formState={formState} dispatchForm={dispatchForm} />
         )}
-        <Button
+        <BPButton
           minimal
           rightIcon={showAdvancedSettings ? 'chevron-up' : 'chevron-down'}
           className={style.advancedSettingsBtn}
@@ -235,7 +235,7 @@ const SaySomethingForm: FC<Props> = props => {
           }}
         >
           Advanced Settings
-        </Button>
+        </BPButton>
         {showAdvancedSettings && (
           <Fragment>
             <Checkbox
@@ -246,7 +246,7 @@ const SaySomethingForm: FC<Props> = props => {
               onChange={() => dispatchForm({ type: 'updateData', data: { field: 'markdown', value: !markdown } })}
             >
               Use markdown
-              <a href="https://daringfireball.net/projects/markdown/basics" target="_blank">
+              <a href="https://snarky.surge.sh/" target="_blank">
                 Learn more
               </a>
             </Checkbox>

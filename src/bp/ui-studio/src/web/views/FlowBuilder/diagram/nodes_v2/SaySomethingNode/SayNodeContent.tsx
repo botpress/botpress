@@ -1,13 +1,15 @@
 import React, { FC } from 'react'
+import { connect } from 'react-redux'
+import withLanguage from '~/components/Util/withLanguage'
+import { getFormData } from '~/util/NodeFormData'
 
-import withLanguage from '../../../../../components/Util/withLanguage'
-import { getFormData } from '../../../../../util/NodeFormData'
+import { getCurrentFlowNode } from '../../../../../reducers'
 import commonStyle from '../../../common/style.scss'
 
 import { SaySomethingNodeModel } from './index'
 
 interface Props {
-  forceRefresh: boolean
+  currentFlowNode: any
   node: SaySomethingNodeModel
   contentLang: string
   defaultLanguage: string
@@ -26,4 +28,8 @@ const SayNodeContent: FC<Props> = props => {
   )
 }
 
-export default withLanguage(SayNodeContent)
+const mapStateToProps = state => ({
+  currentFlowNode: getCurrentFlowNode(state)
+})
+
+export default connect(mapStateToProps)(withLanguage(SayNodeContent))

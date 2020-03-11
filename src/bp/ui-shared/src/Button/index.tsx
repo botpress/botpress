@@ -1,13 +1,9 @@
 import React, { FC } from 'react'
 
+import { ButtonProps } from './typings'
 // Needed a very simple button with no blueprint styling that would process the onClick
-interface Props {
-  onClick?: () => void
-  className?: string
-  children?: any
-}
 
-const Button: FC<Props> = props => {
+const Button: FC<ButtonProps> = props => {
   const { onClick, className, children } = props
 
   return (
