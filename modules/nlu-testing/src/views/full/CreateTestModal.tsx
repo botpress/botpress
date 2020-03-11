@@ -37,7 +37,7 @@ export const CreateTestModal: FC<Props> = props => {
         .flatMap(i => i.contexts)
         .uniq()
         .value()
-      setAvailableCtxs([...ctxs, '*'])
+      setAvailableCtxs([...ctxs, '*', 'none'])
       setExpectedCtx(ctxs[0])
     })
   }, [])
@@ -103,7 +103,7 @@ export const CreateTestModal: FC<Props> = props => {
               tabIndex={2}
               fill
               disabled={availableCtx.length < 2}
-              options={availableCtx.map(ctx => ({ label: ctx, value: ctx }))}
+              options={availableCtx.filter(c => c !== 'none').map(ctx => ({ label: ctx, value: ctx }))}
               onChange={testingCtxChanged}
               value={testingCtx}
             />
@@ -123,14 +123,16 @@ export const CreateTestModal: FC<Props> = props => {
             <HTMLSelect
               tabIndex={4}
               fill
-              options={intents
+              options={_.chain(intents)
                 .filter(
                   i =>
                     i.name === 'none' ||
                     (testingCtx === '*' && i.contexts.includes(expectedCtx)) ||
                     i.contexts.includes(testingCtx)
                 )
-                .map(x => ({ value: x.name, label: x.name }))}
+                .map(x => ({ value: x.name, label: x.name }))
+                .uniq()
+                .value()}
               onChange={expectedIntentChanged}
               value={expectedIntent.name}
             />
