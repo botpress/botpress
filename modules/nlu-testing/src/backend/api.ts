@@ -228,7 +228,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       success,
       reason: success
         ? ''
-        : `Intent doesn't match, expected: ${expected} received: ${received} , confidence ${_.round(
+        : `Intent doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${_.round(
             nlu.intent.confidence,
             2
           )}`,
@@ -248,7 +248,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       success,
       reason: success
         ? ''
-        : `Context doesn't match, expected: ${expected} received: ${received}, confidence ${_.round(
+        : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence ${_.round(
             ctxPred.confidence,
             2
           )}`,
@@ -286,11 +286,12 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   if (key === 'context') {
     const received = elected.context.label === 'oos' ? { ...elected.context, label: 'none' } : elected.context
     const success = expected === received.label
+    const conf = Math.round(Number(received.confidence) * 100)
     return {
       success,
       reason: success
         ? ''
-        : `Context doesn't match, expected: ${expected} received: ${received.label}, confidence ${received.confidence}`,
+        : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received.label} \nconfidence: ${conf}`,
       received: received.label,
       expected
     }
@@ -298,11 +299,12 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
 
   if (key === 'intent') {
     const success = expected === elected.label
+    const conf = Math.round(Number(elected.confidence) * 100)
     return {
       success,
       reason: success
         ? ''
-        : `Intent doesn't match, expected: ${expected} received: ${elected.label}, confidence ${elected.confidence}`,
+        : `Intent doesn't match. \nexpected: ${expected} \nreceived: ${elected.label} \nconfidence: ${conf}`,
       received: elected.label,
       expected
     }
@@ -315,7 +317,7 @@ function checkSlotMatch(nlu, slotName, expected) {
 
   return {
     success,
-    reason: success ? '' : `Slot ${slotName} doesn't match. expected: ${expected} received: ${received}`,
+    reason: success ? '' : `Slot ${slotName} doesn't match. \nexpected: ${expected} \nreceived: ${received}`,
     received,
     expected
   }
