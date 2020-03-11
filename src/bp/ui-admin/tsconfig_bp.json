@@ -5,7 +5,7 @@
     "paths": {
       "~/*": ["src/*"],
       "botpress/sdk": ["../sdk/botpress.d.ts"],
-      "botpress/shared": ["../ui-shared/src/Interface/typings.d.ts"],
+      "botpress/shared": ["../ui-shared/src/typings.d.ts"],
       "common/*": ["../common/*"]
     }
   }

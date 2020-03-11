@@ -741,6 +741,7 @@ body {
   text-align: center;
   color: #1e1e1e;
   overflow-y: auto;
+  height: 100%;
 }
 
 .bpw-botinfo-cover-picture-wrapper {

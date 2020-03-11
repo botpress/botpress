@@ -278,14 +278,15 @@ class PanelContent extends React.Component<Props> {
   }
 
   render() {
+    const { isOpenedFile, isDirty, isAdvanced } = this.props.editor
     return (
       <SidePanel>
-        {this.props.editor.isOpenedFile && this.props.editor.isDirty ? (
+        {isOpenedFile && isDirty ? (
           <FileStatus />
         ) : (
           <React.Fragment>
             <SearchBar icon="filter" placeholder="Filter files" onChange={this.props.setFilenameFilter} />
-            {this.props.store.useRawEditor ? (
+            {isAdvanced ? (
               this.renderSectionRaw()
             ) : (
               <React.Fragment>
