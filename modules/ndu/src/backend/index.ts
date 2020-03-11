@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
 
+import api from './api'
 import { dialogConditions } from './conditions'
 import Database from './db'
 import { registerMiddleware } from './middleware'
-import migrateBot from './migrate'
 import { UnderstandingEngine } from './ndu-engine'
 import { MountedBots } from './typings'
 
@@ -23,27 +23,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 const onServerReady = async (bp: typeof sdk) => {
   // Must be in onServerReady so all modules have registered their conditions
   await nduEngine.loadConditions()
-
-  const router = bp.http.createRouterForBot('ndu')
-  router.get('/events', async (req, res) => {
-    res.send(
-      await bp
-        .database('events')
-        .select('*')
-        .where({ botId: req.params.botId, direction: 'incoming' })
-        .orderBy('createdOn', 'desc')
-        .limit(100)
-    )
-  })
-
-  router.post('/migrate', async (req, res) => {
-    try {
-      await migrateBot(bp, req.params.botId)
-      res.sendStatus(200)
-    } catch (err) {
-      res.status(400).send(err.message)
-    }
-  })
+  await api(bp)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
