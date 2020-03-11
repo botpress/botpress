@@ -6,7 +6,7 @@ export type Action = 'text' | 'redirect' | 'text_redirect'
 
 export interface QnaEntry {
   action: Action
-  category: string
+  contexts: string[]
   enabled: boolean
   questions: {
     [lang: string]: string[]

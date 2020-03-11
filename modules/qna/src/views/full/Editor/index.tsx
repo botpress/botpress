@@ -1,6 +1,7 @@
 import { Button, Callout, Checkbox, Classes, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
 // @ts-ignore
 import ElementsList from 'botpress/elements-list'
+import { Flow, FlowNode } from 'botpress/sdk'
 import { AccessControl, getFlowLabel } from 'botpress/utils'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -9,6 +10,7 @@ import React, { Component } from 'react'
 import Select from 'react-select'
 
 import style from '../style.scss'
+import { ContextSelector } from '../ContextSelector'
 import QnaHint from '../QnaHint'
 
 export const ACTIONS = {
@@ -17,25 +19,33 @@ export const ACTIONS = {
   TEXT_REDIRECT: 'text_redirect'
 }
 
-interface Props {
+export interface Filter {
+  question?: string
+  contexts?: string[]
+}
+
+export interface Paging {
+  offset: number
+  limit: number
+}
+
+export interface Props {
   closeQnAModal: () => void
   fetchData: () => void
   updateQuestion: (data: any) => void
-  page: any
-  filters: any
+  page: Paging
+  filters: Filter
   id: string
-  category?: any
-  hideCategories?: boolean
+  hideContexts?: boolean
   isLite?: boolean
   isEditing: boolean
   contentLang: string
-  categories?: any[]
+  contexts?: string[]
+  defaultContext?: string
   bp: any
-  flowsList?: any[]
-  flows?: any[]
+  flowsList?: { label: string; value: string }[]
+  flows?: Flow[]
 }
-
-const DEFAULT_CATEGORY = { label: 'global', value: 'global' }
 
 export default class Editor extends Component<Props> {
   state = this.defaultState
@@ -48,8 +58,8 @@ export default class Editor extends Component<Props> {
         redirectFlow: { label: '', value: '' },
         redirectNode: { label: '', value: '' },
         action: ACTIONS.TEXT,
-        category: this.props.category || DEFAULT_CATEGORY,
-        enabled: true
+        enabled: true,
+        contexts: this.props.defaultContext ? [this.props.defaultContext] : []
       },
       invalidFields: {
         category: false,
@@ -84,7 +94,7 @@ export default class Editor extends Component<Props> {
       data: { data: item }
     } = await this.props.bp.axios.get(`/mod/qna/questions/${this.props.id}`)
 
-    item.category = { label: item.category, value: item.category }
+    item.contexts = item.contexts || []
     item.redirectFlow = { label: getFlowLabel(item.redirectFlow), value: item.redirectFlow }
     item.redirectNode = { label: item.redirectNode, value: item.redirectNode }
     this.setState({
@@ -156,7 +166,6 @@ export default class Editor extends Component<Props> {
   }
 
   onCreate = async qnaItem => {
-    qnaItem.category = qnaItem.category.value
     qnaItem.redirectFlow = qnaItem.redirectFlow.value
     qnaItem.redirectNode = qnaItem.redirectNode.value
     try {
@@ -170,17 +179,16 @@ export default class Editor extends Component<Props> {
   }
 
   onEdit = async qnaItem => {
-    qnaItem.category = qnaItem.category.value
     qnaItem.redirectFlow = qnaItem.redirectFlow.value
     qnaItem.redirectNode = qnaItem.redirectNode.value
     const {
       page,
-      filters: { question, categories }
+      filters: { question, contexts }
     } = this.props
 
     try {
       const { data } = await this.props.bp.axios.post(`/mod/qna/questions/${this.props.id}`, qnaItem, {
-        params: { ...page, question, categories: categories.map(({ value }) => value) }
+        params: { ...page, question, filteredContexts: contexts }
       })
 
       this.props.updateQuestion(data)
@@ -261,10 +269,10 @@ export default class Editor extends Component<Props> {
       item: { redirectFlow },
       invalidFields
     } = this.state
-    const { flows, flowsList, categories, isEditing, hideCategories } = this.props
+    const { flows, flowsList, isEditing, hideContexts } = this.props
 
     const currentFlow = flows ? flows.find(({ name }) => name === redirectFlow.value) || { nodes: [] } : { nodes: [] }
-    const nodeList = currentFlow.nodes.map(({ name }) => ({ label: name, value: name }))
+    const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
 
     return (
       <div>
@@ -273,18 +281,12 @@ export default class Editor extends Component<Props> {
             {this.alertMessage()}
             <QnaHint questions={this.itemQuestions} mlRecommendations={this.mlRecommendations} />
 
-            {categories && !hideCategories && (
-              <FormGroup label="Category">
-                <Select
-                  id="select-category"
-                  className={classnames({ qnaCategoryError: invalidFields.category })}
-                  value={this.state.item.category}
-                  options={categories}
-                  onChange={this.handleSelect('category')}
-                  style={{ width: 250 }}
-                  placeholder="Search or choose category"
-                />
-              </FormGroup>
+            {!hideContexts && (
+              <ContextSelector
+                contexts={this.state.item.contexts}
+                saveContexts={this.handleSelect('contexts')}
+                bp={this.props.bp}
+              />
             )}
 
             <FormGroup helperText="Type/Paste your questions here separated with a new line" label="Questions">

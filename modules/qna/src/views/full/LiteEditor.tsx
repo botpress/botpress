@@ -34,7 +34,8 @@ export const LiteEditor: FC<Props> = props => {
   const getQueryParams = () => {
     return {
       params: {
-        categories: [props.topicName]
+        question: filter,
+        filteredContexts: [props.topicName]
       }
     }
   }
@@ -67,14 +68,17 @@ export const LiteEditor: FC<Props> = props => {
     }
   }
 
+  const updateFilter = async text => {
+    setFilter(text)
+    await fetchData()
+  }
+
   const toggleEnableItem = async (item: any, id: string, isChecked: boolean) => {
     item.enabled = isChecked
 
     const { data } = await props.bp.axios.post(`/mod/qna/questions/${id}`, item, getQueryParams())
     setData(data.items)
   }
-
-  const categories = [{ label: props.topicName, value: props.topicName }]
 
   return (
     <div>
@@ -86,7 +90,7 @@ export const LiteEditor: FC<Props> = props => {
               placeholder="Search for a question"
               tabIndex={1}
               value={filter}
-              onChange={e => setFilter(e.currentTarget.value)}
+              onChange={e => updateFilter(e.currentTarget.value)}
             />
           </div>
 
@@ -168,11 +172,10 @@ export const LiteEditor: FC<Props> = props => {
               isEditing={editId !== ''}
               page={{ offset: 0, limit: 500 }}
               isLite
-              hideCategories
-              categories={categories}
-              category={categories[0]}
+              hideContexts
+              defaultContext={props.topicName}
               updateQuestion={questions => setData(questions.items)}
-              filters={{ question: filter, categories }}
+              filters={{ question: filter, contexts: [props.topicName] }}
             />
           </div>
         )}

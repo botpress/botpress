@@ -7,7 +7,6 @@ import nanoid from 'nanoid/generate'
 import { QnaEntry, QnaItem } from './qna'
 
 export const NLU_PREFIX = '__qna__'
-const DEFAULT_CATEGORY = 'global'
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
@@ -37,20 +36,11 @@ export default class Storage {
   private bp: typeof sdk
   private config
   public botId: string
-  private categories: string[] = []
 
   constructor(bp: typeof sdk, config, botId) {
     this.bp = bp
     this.config = config
     this.botId = botId
-
-    this.categories =
-      config.qnaCategories && config.qnaCategories.length > 0
-        ? config.qnaCategories
-            .split(',')
-            .map(x => x.trim())
-            .filter(x => x.length)
-        : []
   }
 
   private async getAxiosConfig() {
@@ -58,39 +48,7 @@ export default class Storage {
   }
 
   async initialize() {
-    await this.migrate11To12()
     await this.syncQnaToNlu()
-  }
-
-  // @Deprecated > 12
-  async migrate11To12() {
-    const bot = await this.bp.bots.getBotById(this.botId)
-    const qnas = await this.fetchQNAs()
-
-    return await Promise.all(
-      qnas.map(({ id, data }) => {
-        const initial = _.cloneDeep(data)
-        const questions = data.questions
-        const answers = data.answers
-        if (!data.category) {
-          data.category = 'global'
-        }
-        if (_.isArray(questions)) {
-          data.questions = {
-            [bot.defaultLanguage]: questions
-          }
-        }
-        if (_.isArray(answers)) {
-          data.answers = {
-            [bot.defaultLanguage]: answers
-          }
-        }
-
-        if (!_.isEqual(initial, data)) {
-          return this.update(data, id)
-        }
-      })
-    )
   }
 
   /**
@@ -126,7 +84,7 @@ export default class Storage {
     const intent = {
       name: getIntentId(qnaItem.id),
       entities: [],
-      contexts: [qnaItem.data.category || DEFAULT_CATEGORY],
+      contexts: qnaItem.data.contexts,
       utterances: utterances
     }
 
@@ -226,10 +184,10 @@ export default class Storage {
     }
   }
 
-  async filterByCategoryAndQuestion(question: string, categories: string[]) {
+  async filterByContextsAndQuestion(question: string, filteredContexts: string[]) {
     const allQuestions = await this.fetchQNAs()
     const filteredQuestions = allQuestions.filter(q => {
-      const { questions, category } = q.data
+      const { questions, contexts } = q.data
 
       const hasMatch =
         Object.values(questions)
@@ -238,34 +196,34 @@ export default class Storage {
           .toLowerCase()
           .indexOf(question.toLowerCase()) !== -1
 
-      if (!categories.length) {
+      if (!filteredContexts.length) {
         return hasMatch || q.id.includes(question)
       }
 
       if (!question) {
-        return category && categories.indexOf(category) !== -1
+        return !!_.intersection(contexts, filteredContexts).length
       }
-      return hasMatch && category && categories.indexOf(category) !== -1
+      return hasMatch && !!_.intersection(contexts, filteredContexts).length
     })
 
     return filteredQuestions.reverse()
   }
 
   async getQuestions(
-    { question = '', categories = [] },
+    { question = '', filteredContexts = [] },
     { limit = 50, offset = 0 }
   ): Promise<{ items: QnaItem[]; count: number }> {
     let items: QnaItem[] = []
     let count = 0
 
-    if (!(question || categories.length)) {
+    if (!(question || filteredContexts.length)) {
       items = await this.fetchQNAs({
         start: +offset,
         count: +limit
       })
       count = await this.count()
     } else {
-      const tmpQuestions = await this.filterByCategoryAndQuestion(question, categories)
+      const tmpQuestions = await this.filterByContextsAndQuestion(question, filteredContexts)
       items = tmpQuestions.slice(offset, offset + limit)
       count = tmpQuestions.length
     }
@@ -318,11 +276,5 @@ export default class Storage {
     }
 
     await Promise.all(ids.map(deletePromise))
-  }
-
-  async getCategories() {
-    const axiosConfig = await this.getAxiosConfig()
-    const { data: contexts } = await axios.get(`/mod/nlu/contexts`, axiosConfig)
-    return _.uniq([...(contexts || []), ...(this.categories || [])])
   }
 }
