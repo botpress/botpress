@@ -76,7 +76,7 @@ export default class HitlDb {
         .toString()
         .substr(2)
 
-    const user: sdk.User = (await this.bp.users.getOrCreateUser(event.channel, event.target)).result
+    const user: sdk.User = (await this.bp.users.getOrCreateUser(event.channel, event.target, event.botId)).result
 
     if (user && user.attributes) {
       const { first_name, last_name, full_name, profile_pic, picture_url } = user.attributes

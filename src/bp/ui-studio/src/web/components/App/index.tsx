@@ -31,12 +31,14 @@ interface Props {
 
 class App extends Component<Props> {
   fetchData = () => {
+    this.props.fetchBotInformation()
     this.props.fetchModules()
     this.props.fetchSkills()
-    this.props.refreshHints()
-    this.props.fetchNotifications()
-    this.props.fetchBotInformation()
     this.props.fetchUser()
+    if (window.IS_BOT_MOUNTED) {
+      this.props.refreshHints()
+      this.props.fetchNotifications()
+    }
   }
 
   // Prevents re-rendering the whole layout when the user changes. Fixes a bunch of warnings & double queries

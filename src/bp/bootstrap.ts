@@ -12,13 +12,13 @@ import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
+import _ from 'lodash'
 import os from 'os'
 
 import { ModuleConfigEntry } from 'core/config/botpress.config'
-import _ from 'lodash'
-import { setupMasterNode } from './cluster'
 
 import { WORKER_TYPE as LOCAL_ACTION_SERVER_WORKER_TYPE } from 'core/services/action/local-action-server'
+import { setupMasterNode, WORKER_TYPES } from './cluster'
 
 async function setupEnv() {
   await Db.initialize()
@@ -103,6 +103,10 @@ async function start() {
 
   if (process.env.WORKER_TYPE === LOCAL_ACTION_SERVER_WORKER_TYPE) {
     LocalActionServer.listen()
+    return
+  }
+
+  if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
     return
   }
 

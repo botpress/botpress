@@ -3,6 +3,7 @@ import Knex from 'knex'
 import { Table } from '../interfaces'
 
 import {
+  BotUsersTable,
   DialogSessionTable,
   EventsTable,
   GhostFilesTable,
@@ -35,7 +36,8 @@ const tables: typeof Table[] = [
   KeyValueStoreTable,
   DataRetentionTable,
   EventsTable,
-  TasksTable
+  TasksTable,
+  BotUsersTable
 ]
 
 export default <(new (knex: Knex) => Table)[]>tables

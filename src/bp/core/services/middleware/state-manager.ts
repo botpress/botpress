@@ -82,7 +82,7 @@ export class StateManager {
 
     const state = event.state
 
-    const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target)
+    const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target, event.botId)
     state.user = user.attributes
 
     const session = await this.sessionRepo.get(sessionId)
@@ -90,7 +90,7 @@ export class StateManager {
     state.context = (session && session.context) || {}
     state.session = (session && session.session_data) || { lastMessages: [], lastGoals: [] }
     state.temp = (session && session.temp_data) || {}
-    state.bot = await this.kvs.get(event.botId, this.BOT_GLOBAL_KEY)
+    state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
   }
 

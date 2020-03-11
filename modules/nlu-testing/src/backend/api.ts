@@ -9,6 +9,7 @@ import _ from 'lodash'
 import multer from 'multer'
 import nanoid from 'nanoid'
 import path from 'path'
+import MultiClassF1Scorer from './f1-scorer'
 
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
@@ -159,6 +160,16 @@ export default async (bp: typeof sdk) => {
     })
 
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
+    // uncomment this when working on out of scope
+    // const f1Scorer = new MultiClassF1Scorer()
+    // _.zip(tests, _.flatten(resultsBatch)).forEach(([test, res]) => {
+    //   const expected = test.conditions[0][2].endsWith('none') ? 'out' : 'in'
+    //   // @ts-ignore
+    //   const actual = res.nlu.outOfScope[test.context].label
+    //   f1Scorer.record(expected, actual)
+    //   // @ts-ignore
+    // })
+    // testResults.OOSF1 = f1Scorer.getResults()
     res.send(testResults)
   })
 }
@@ -193,21 +204,24 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
     data: { nlu }
   } = await Axios.post('mod/nlu/predict', { text: test.utterance, contexts: [test.context] }, axiosConfig)
 
-  const details = test.conditions.map(c => conditionMatch(nlu, c))
+  const details = test.conditions.map(c => conditionMatch(nlu, c, test.context))
   return {
+    // @ts-ignore
+    nlu,
     success: details.every(r => r.success),
     id: test.id,
     details
   }
 }
 
-function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]): TestResultDetails {
+function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails {
   if (key === 'intent') {
     expected = expected.endsWith('none') ? 'none' : expected
     const received = nlu.intent.name
-    const success = nlu.intent.name === expected
+    const success = expected === received
+
     return {
-      success: nlu.intent.name === expected,
+      success,
       reason: success ? '' : `Intent doesn't match, expected: ${expected} received: ${received}`,
       received,
       expected

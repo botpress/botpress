@@ -47,6 +47,7 @@ if (process.env.APP_DATA_PATH) {
 process.IS_FAILSAFE = yn(process.env.BP_FAILSAFE)
 process.BOTPRESS_EVENTS = new EventEmitter()
 process.BOTPRESS_EVENTS.setMaxListeners(1000)
+global.BOTPRESS_CORE_EVENT = (event, args) => process.BOTPRESS_EVENTS.emit(event, args)
 
 process.LOADED_MODULES = {}
 process.PROJECT_LOCATION = process.pkg

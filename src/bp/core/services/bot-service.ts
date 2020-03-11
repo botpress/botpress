@@ -196,7 +196,9 @@ export class BotService {
     ]) as Partial<BotConfig>
 
     // bot needs to be mounted to perform the language changes
-    updatedFields.disabled = updatedFields.disabled && actualBot.defaultLanguage == updatedFields.defaultLanguage
+    if (updatedFields.defaultLanguage && updatedFields.defaultLanguage != actualBot.defaultLanguage) {
+      updatedFields.disabled = false
+    }
 
     await this.configProvider.setBotConfig(botId, {
       ...actualBot,
@@ -335,7 +337,7 @@ export class BotService {
     return this.migrationService.executeMissingBotMigrations(botId, config.version)
   }
 
-  async requestStageChange(botId: string, requested_by: string) {
+  async requestStageChange(botId: string, requestedBy: string) {
     const botConfig = (await this.findBotById(botId)) as BotConfig
     if (!botConfig) {
       throw Error('bot does not exist')
@@ -357,10 +359,36 @@ export class BotService {
       id: pipeline[nextStageIdx].id,
       status: 'pending',
       requested_on: new Date(),
-      requested_by
+      requested_by: requestedBy
     }
 
     const newConfig = await this.configProvider.mergeBotConfig(botId, { pipeline_status: { stage_request } })
+    await this._executeStageChangeHooks(botConfig, newConfig)
+  }
+
+  async approveStageChange(botId: string, requestedBy: string, userStrategy: string) {
+    const botConfig = (await this.findBotById(botId)) as BotConfig
+    if (!botConfig) {
+      throw Error('bot does not exist')
+    }
+    if (!botConfig.pipeline_status!.stage_request) {
+      throw Error('bot does not have a stage request')
+    }
+
+    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+    const pipeline = await this.workspaceService.getPipeline(workspaceId)
+    if (!pipeline) {
+      return
+    }
+
+    const approvals = botConfig.pipeline_status.stage_request?.approvals || []
+    if (!approvals.find(a => a.email === requestedBy && a.strategy === userStrategy)) {
+      approvals.push({ email: requestedBy, strategy: userStrategy })
+    }
+
+    const newConfig = await this.configProvider.mergeBotConfig(botId, {
+      pipeline_status: { stage_request: { approvals } }
+    })
     await this._executeStageChangeHooks(botConfig, newConfig)
   }
 

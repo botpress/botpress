@@ -30,7 +30,7 @@ export default () => {
       if (unreachable) {
         toastContent = (
           <div>
-            <H5 className={Classes.DARK}>Languge server is not reachable</H5>
+            <H5 className={Classes.DARK}>Language server is not reachable</H5>
             <p>
               Language server is unreachable, bots wont work properly. Check &nbsp;
               <a href="https://botpress.com/docs/main/nlu#language-server" target="_blank">

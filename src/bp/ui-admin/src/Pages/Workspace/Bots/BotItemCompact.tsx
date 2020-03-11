@@ -96,7 +96,7 @@ const BotItemCompact: FC<Props> = ({
             &nbsp;
           </span>
         )}
-        {bot.disabled ? <span>{bot.name || bot.id}</span> : <a href={botStudioLink}>{bot.name || bot.id}</a>}
+        <a href={botStudioLink}>{bot.name || bot.id}</a>
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
