@@ -25,5 +25,14 @@ export const dialogConditions: sdk.Condition[] = [
       )
       return topicConf * intentConf * (1 - oosConfidence)
     }
+  },
+  {
+    id: 'user_intent_misunderstood',
+    label: 'Users says something misunderstood (intent)',
+    description: `The user's intention is misunderstood`,
+    displayOrder: 1,
+    evaluate: event => {
+      return _.get(event, `nlu.predictions.oos.confidence`, 0)
+    }
   }
 ]
