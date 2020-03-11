@@ -117,11 +117,8 @@ export class FlowService {
       location: flowPath,
       nodes: nodeViews,
       links: uiEq.links,
-      version: flow.version,
-      catchAll: flow.catchAll,
-      startNode: flow.startNode,
-      skillData: flow.skillData,
-      currentMutex
+      currentMutex,
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description'])
     }
   }
 
@@ -326,7 +323,7 @@ export class FlowService {
     }
 
     const flowContent = {
-      ..._.pick(flow, 'version', 'catchAll', 'startNode', 'skillData'),
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description']),
       nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
     }
 

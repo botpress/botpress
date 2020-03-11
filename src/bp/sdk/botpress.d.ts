@@ -482,7 +482,43 @@ declare module 'botpress/sdk' {
     }
 
     export type SlotCollection = Dic<Slot>
+
+    export interface Predictions {
+      [context: string]: {
+        confidence: number
+        intents: { label: string; confidence: number }[]
+      }
+    }
   }
+
+  export namespace NDU {
+    export interface DialogUnderstanding {
+      triggers: {
+        [triggerId: string]: {
+          goal: string
+          result: any
+        }
+      }
+      actions: Actions[]
+    }
+
+    export interface Actions {
+      action: 'send' | 'startGoal' | 'redirect' | 'continue'
+      data?: SendContent | StartGoal | FlowRedirect
+    }
+
+    export interface FlowRedirect {
+      flow: string
+      node: string
+    }
+
+    export interface StartGoal {
+      goal: string
+    }
+
+    export type SendContent = Pick<IO.Suggestion, 'confidence' | 'payloads' | 'source' | 'sourceDetails'>
+  }
+
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
@@ -565,10 +601,10 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventUnderstanding {
-      readonly intent: NLU.Intent
+      intent: NLU.Intent
       /** Predicted intents needs disambiguation */
       readonly ambiguous: boolean
-      readonly intents: NLU.Intent[]
+      intents: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
@@ -577,6 +613,7 @@ declare module 'botpress/sdk' {
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
+      readonly predictions?: NLU.Predictions
       readonly ms: number
     }
 
@@ -591,6 +628,7 @@ declare module 'botpress/sdk' {
       readonly decision?: Suggestion
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
+      readonly ndu?: NDU.DialogUnderstanding
     }
 
     export interface OutgoingEvent extends Event {
@@ -680,8 +718,16 @@ declare module 'botpress/sdk' {
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
+      lastGoals: GoalHistory[]
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
+    }
+
+    export interface GoalHistory {
+      goal: string
+      eventId: string
+      success?: boolean
+      active?: boolean
     }
 
     export type StoredEvent = {
@@ -691,6 +737,9 @@ declare module 'botpress/sdk' {
       /** Outgoing events will have the incoming event ID, if they were triggered by one */
       incomingEventId?: string
       sessionId: string
+      goalId?: string
+      feedback?: number
+      success?: boolean
       event: IO.Event
       createdOn: any
     } & EventDestination
@@ -1042,6 +1091,9 @@ declare module 'botpress/sdk' {
    */
   export interface Flow {
     name: string
+    /** Friendly name to display in the flow view */
+    label?: string
+    description?: string
     location?: string
     version?: string
     /** This is the home node. The user will be directed there when he enters the flow */
@@ -1056,6 +1108,75 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
+    triggers?: FlowTrigger[]
+  }
+
+  export interface FlowTrigger {
+    id: string
+    type: 'user-event'
+    conditions: FlowCondition[]
+  }
+
+  export interface FlowCondition {
+    id: string
+    params?: { [key: string]: any }
+  }
+
+  export interface Condition {
+    id: string
+    /** String displayed in the dropdown */
+    label: string
+    /** The description holds placeholders for param values so they can be displayed in the view */
+    description?: string
+    /** The definition of all parameters used by this condition */
+    params?: ConditionParams
+    /** The editor will use the custom component to provide the requested parameters */
+    editor?: {
+      module: string
+      component: string
+    }
+    evaluate: (event: IO.IncomingEvent, params: any) => number
+  }
+
+  export interface ConditionParams {
+    [paramName: string]: {
+      label: string
+      /** Each type provides a different kind of editor */
+      type: 'string' | 'number' | 'boolean' | 'list'
+      required?: boolean
+      defaultValue?: any
+      /** When type is list, this variable must be configured */
+      list?: ConditionListOptions
+    }
+  }
+
+  export interface ConditionListOptions {
+    /** List of options displayed in the dropdown menu */
+    items?: Option[]
+    /**Alternatively, set an endpoint where the list will be queried (eg: intents) */
+    endpoint?: string
+    /** The path to the list of elements (eg: language.available) */
+    path?: string
+    /** Name of the field which will be used as the value */
+    valueField?: string
+    /** Friendly name displayed in the dropdown menu */
+    labelField?: string
+  }
+
+  export interface Option {
+    value: string
+    label: string
+  }
+
+  export interface Topic {
+    name: string
+    description: string
+  }
+
+  export interface Library {
+    elementPath: string
+    goalName: string
+    elementId: string
   }
 
   /**
@@ -1291,8 +1412,8 @@ declare module 'botpress/sdk' {
 
   export type EventSearchParams = {
     /** Returns the amount of elements from the starting position  */
-    from: number
-    count: number
+    from?: number
+    count?: number
     /** An array of columns with direction to sort results */
     sortOrder?: SortOrder[]
   }
@@ -1440,6 +1561,15 @@ declare module 'botpress/sdk' {
       fields: Partial<IO.StoredEvent>,
       searchParams?: EventSearchParams
     ): Promise<IO.StoredEvent[]>
+
+    /**
+     * When Event Storage is enabled, you can use this API to update an event. You can use multiple fields
+     * for your query, but at least one is required.
+     *
+     * @param id - The ID of the event to update
+     * @param fields - Fields to update on the event
+     */
+    export function updateEvent(id: number, fields: Partial<IO.StoredEvent>): Promise<void>
   }
 
   export type GetOrCreateResult<T> = Promise<{

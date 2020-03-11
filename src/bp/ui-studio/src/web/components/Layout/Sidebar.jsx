@@ -19,7 +19,7 @@ const BASIC_MENU_ITEMS = [
   },
   {
     name: 'Flows',
-    path: '/flows',
+    path: window.USE_ONEFLOW ? '/oneflow' : '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'device_hub'
   }

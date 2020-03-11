@@ -24,6 +24,9 @@ interface Props {
   page: any
   filters: any
   id: string
+  category?: any
+  hideCategories?: boolean
+  isLite?: boolean
   isEditing: boolean
   contentLang: string
   categories?: any[]
@@ -45,7 +48,7 @@ export default class Editor extends Component<Props> {
         redirectFlow: { label: '', value: '' },
         redirectNode: { label: '', value: '' },
         action: ACTIONS.TEXT,
-        category: DEFAULT_CATEGORY,
+        category: this.props.category || DEFAULT_CATEGORY,
         enabled: true
       },
       invalidFields: {
@@ -84,7 +87,6 @@ export default class Editor extends Component<Props> {
     item.category = { label: item.category, value: item.category }
     item.redirectFlow = { label: getFlowLabel(item.redirectFlow), value: item.redirectFlow }
     item.redirectNode = { label: item.redirectNode, value: item.redirectNode }
-
     this.setState({
       item,
       isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -93,8 +95,8 @@ export default class Editor extends Component<Props> {
   }
 
   closeAndClear = () => {
-    this.props.closeQnAModal()
     this.setState(this.defaultState)
+    this.props.closeQnAModal()
   }
 
   changeItemProperty = (keyPath, value) => {
@@ -136,7 +138,7 @@ export default class Editor extends Component<Props> {
   }
 
   isValidRedirection() {
-    if (!this.state.isRedirect) {
+    if (!this.state.isRedirect || this.props.isLite) {
       return true
     }
     const flow = _.find(this.props.flows, f => f.name === this.state.item.redirectFlow.value)
@@ -259,7 +261,7 @@ export default class Editor extends Component<Props> {
       item: { redirectFlow },
       invalidFields
     } = this.state
-    const { flows, flowsList, categories, isEditing } = this.props
+    const { flows, flowsList, categories, isEditing, hideCategories } = this.props
 
     const currentFlow = flows ? flows.find(({ name }) => name === redirectFlow.value) || { nodes: [] } : { nodes: [] }
     const nodeList = currentFlow.nodes.map(({ name }) => ({ label: name, value: name }))
@@ -271,7 +273,7 @@ export default class Editor extends Component<Props> {
             {this.alertMessage()}
             <QnaHint questions={this.itemQuestions} mlRecommendations={this.mlRecommendations} />
 
-            {categories && !!categories.length && (
+            {categories && !hideCategories && (
               <FormGroup label="Category">
                 <Select
                   id="select-category"

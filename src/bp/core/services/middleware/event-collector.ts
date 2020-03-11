@@ -66,6 +66,14 @@ export class EventCollector {
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
+    const goal = (event as sdk.IO.IncomingEvent).state.session?.lastGoals?.[0]
+    const goalId = goal?.active ? goal.eventId : undefined
+    const success = goal?.active ? goal?.success : undefined
+
+    // Once the goal is a success or failure, it becomes inactive
+    if (goal?.success !== undefined) {
+      goal.active = false
+    }
 
     this.batch.push({
       botId,
@@ -74,6 +82,8 @@ export class EventCollector {
       target,
       sessionId,
       direction,
+      goalId,
+      success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: this.knex.json.set(this.ignoredProperties ? _.omit(event, this.ignoredProperties) : event || {}),
       createdOn: this.knex.date.now()

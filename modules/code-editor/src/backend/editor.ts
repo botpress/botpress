@@ -37,7 +37,7 @@ export default class Editor {
     return this
   }
 
-  async getAllFiles(permissions: FilePermissions, rawFiles?: boolean): Promise<FilesDS> {
+  async getAllFiles(permissions: FilePermissions, rawFiles?: boolean, listBuiltin?: boolean): Promise<FilesDS> {
     if (rawFiles && permissions['root.raw'].read) {
       return {
         raw: await this.loadRawFiles()
@@ -49,7 +49,7 @@ export default class Editor {
     await Promise.mapSeries(Object.keys(permissions), async type => {
       const userPermissions = permissions[type]
       if (userPermissions.read) {
-        files[type] = await this.loadFiles(userPermissions.type, !userPermissions.isGlobal && this._botId)
+        files[type] = await this.loadFiles(userPermissions.type, !userPermissions.isGlobal && this._botId, listBuiltin)
       }
     })
 
@@ -95,7 +95,7 @@ export default class Editor {
     }))
   }
 
-  async loadFiles(fileTypeId: string, botId?: string): Promise<EditableFile[]> {
+  async loadFiles(fileTypeId: string, botId?: string, listBuiltin?: boolean): Promise<EditableFile[]> {
     const def: FileDefinition = FileTypes[fileTypeId]
     const { baseDir, dirListingAddFields } = def.ghost
 
@@ -103,7 +103,7 @@ export default class Editor {
       return []
     }
 
-    const excluded = this._config.includeBuiltin ? undefined : getBuiltinExclusion()
+    const excluded = this._config.includeBuiltin || listBuiltin ? undefined : getBuiltinExclusion()
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
     const files = def.filenames
       ? def.filenames

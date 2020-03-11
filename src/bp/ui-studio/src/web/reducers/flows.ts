@@ -219,25 +219,58 @@ const doDeleteFlow = ({ name, flowsByName }) => {
   return doRenameFlow({ currentName: name, newName: '', flows })
 }
 
-const doCreateNewFlow = name => ({
-  version: '0.1',
-  name: name,
-  location: name,
-  startNode: 'entry',
-  catchAll: {},
-  links: [],
-  nodes: [
+const doCreateNewFlow = name => {
+  const nodes = [
     {
       id: prettyId(),
       name: 'entry',
       onEnter: [],
       onReceive: null,
       next: [],
+      type: 'standard',
       x: 100,
       y: 100
     }
   ]
-})
+
+  if (window.USE_ONEFLOW) {
+    nodes.push(
+      {
+        id: prettyId(),
+        name: 'success',
+        onEnter: [],
+        onReceive: null,
+        next: [],
+        type: 'success',
+        x: 1000,
+        y: 100
+      },
+      {
+        id: prettyId(),
+        name: 'failure',
+        onEnter: [],
+        onReceive: null,
+        next: [],
+        type: 'failure',
+        x: 1000,
+        y: 200
+      }
+    )
+  }
+
+  return {
+    version: '0.1',
+    name: name,
+    location: name,
+    label: undefined,
+    description: '',
+    startNode: 'entry',
+    catchAll: {},
+    links: [],
+    triggers: [],
+    nodes
+  }
+}
 
 function isActualCreate(state, modification): boolean {
   return !_.keys(state.flowsByName).includes(modification.name)
@@ -333,7 +366,9 @@ let reducer = handleActions(
 
     [receiveFlows]: (state, { payload }) => {
       const flows = _.keys(payload).filter(key => !payload[key].skillData)
-      const defaultFlow = _.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows)
+      const newFlow = _.keys(payload).includes('Built-In/welcome.flow.json') && 'Built-In/welcome.flow.json'
+      const defaultFlow = newFlow || (_.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows))
+
       const newState = {
         ...state,
         fetchingFlows: false,

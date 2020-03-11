@@ -16,6 +16,7 @@ import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
+import OneFlow from '~/views/OneFlow'
 
 import BotUmountedWarning from './BotUnmountedWarning'
 import GuidedTour from './GuidedTour'
@@ -177,10 +178,17 @@ class Layout extends React.Component<ILayoutProps> {
                   <Route
                     exact
                     path="/"
-                    render={() => (window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/config" />)}
+                    render={() => {
+                      if (!window.IS_BOT_MOUNTED) {
+                        return <Redirect to="/config" />
+                      }
+
+                      return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                    }}
                   />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
+                  <Route exact path="/oneflow/:flow*" component={OneFlow} />
                   <Route exact path="/config" component={Config} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                   <Route exact path="/notifications" component={Notifications} />

@@ -16,8 +16,10 @@ interface IntentParams {
 interface Props {
   bp: any
   contentLang: string
+  topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
+  forceSave?: boolean
 }
 
 export const sanitizeName = (text: string) =>
@@ -38,6 +40,19 @@ export const LiteEditor: FC<Props> = props => {
     loadIntents()
   }, [])
 
+  useEffect(() => {
+    // Ensure the current topic is in the intent's contexts
+    if (props.forceSave) {
+      // tslint:disable-next-line: no-floating-promises
+      api.fetchIntent(currentIntent).then(async intent => {
+        if (!intent.contexts.includes(props.topicName)) {
+          intent.contexts.push(props.topicName)
+          await api.updateIntent(currentIntent, intent)
+        }
+      })
+    }
+  }, [props.forceSave])
+
   const loadIntents = async () => {
     setIntents(await api.fetchIntents())
   }
@@ -45,6 +60,7 @@ export const LiteEditor: FC<Props> = props => {
   const createIntent = async (sanitizedName: string, rawName: string) => {
     const intentDef = {
       name: sanitizedName,
+      contexts: [props.topicName || 'global'],
       utterances: { [props.contentLang]: [rawName] }
     }
 
@@ -75,7 +91,7 @@ export const LiteEditor: FC<Props> = props => {
       />
       {currentIntent && (
         <IntentEditor
-          liteEditor={true}
+          liteEditor
           intent={currentIntent}
           api={api}
           contentLang={props.contentLang}
