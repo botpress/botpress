@@ -59,7 +59,16 @@ class TableRow extends Component<TableRowProps> {
         {/* TODO edit utterance in place */}
         <td>{test.utterance}</td>
         <td>{test.context}</td>
-        <td>{test.conditions.map(c => c.join('-')).join(' | ')}</td>
+        <td>{test.conditions.filter(c => c[0] === 'context').map(c => c[2])}</td>
+        <td>
+          {test.conditions
+            .filter(([key]) => key !== 'context')
+            .map(c => (
+              <p key={c.join('-')} style={{ marginBottom: 2 }}>
+                <strong>{c[0]}</strong> : {c[2]}
+              </p>
+            ))}
+        </td>
         <td>
           <TestResult testResult={testResult} />
         </td>
@@ -85,39 +94,46 @@ interface TestTableProps {
   deleteTest: (testId: Test) => void
 }
 
-export const TestTable: FC<TestTableProps> = props => (
-  <React.Fragment>
-    <H3>
-      NLU System Tests &nbsp;
-      <Button
-        type="button"
-        minimal
-        intent={Intent.SUCCESS}
-        small
-        icon="add"
-        onClick={props.createTest}
-        text="New Test"
-      />
-    </H3>
-    <HTMLTable bordered striped>
-      <thead>
-        <tr>
-          <th>Utterance</th>
-          <th>Testing Context</th>
-          <th>Conditions</th>
-          <th>Result</th>
-        </tr>
-      </thead>
-      <tbody>
-        {props.tests.map(test => (
-          <TableRow
-            test={test}
-            testResult={props.testResults[test.id]}
-            onRun={props.runTest.bind(this, test)}
-            onDelete={props.deleteTest.bind(this, test)}
-          />
-        ))}
-      </tbody>
-    </HTMLTable>
-  </React.Fragment>
-)
+export const TestTable: FC<TestTableProps> = props => {
+  const orderedTests = _.orderBy(
+    props.tests,
+    t => (t.conditions.find(c => c[0] === 'context') || ['', '', t.context])[2]
+  )
+  return (
+    <React.Fragment>
+      <H3>
+        NLU System Tests &nbsp;
+        <Button
+          type="button"
+          minimal
+          intent={Intent.SUCCESS}
+          small
+          icon="add"
+          onClick={props.createTest}
+          text="New Test"
+        />
+      </H3>
+      <HTMLTable bordered striped>
+        <thead>
+          <tr>
+            <th>Utterance</th>
+            <th>Testing Topic</th>
+            <th>Expected Topic</th>
+            <th>Intent Conditions</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          {orderedTests.map(test => (
+            <TableRow
+              test={test}
+              testResult={props.testResults[test.id]}
+              onRun={props.runTest.bind(this, test)}
+              onDelete={props.deleteTest.bind(this, test)}
+            />
+          ))}
+        </tbody>
+      </HTMLTable>
+    </React.Fragment>
+  )
+}

@@ -50,8 +50,8 @@ export const CreateTestModal: FC<Props> = props => {
       utterance: utterance,
       context: testingCtx,
       conditions: [
-        ['intent', 'is', expectedIntent.name],
         ['context', 'is', expectedCtx],
+        ['intent', 'is', expectedIntent.name],
         ..._.toPairs(slotConditions)
           .filter(([_, value]) => !!value)
           .map(([slotName, value]) => [`slot:${slotName}`, 'is', value])
@@ -131,7 +131,7 @@ export const CreateTestModal: FC<Props> = props => {
                     i.contexts.includes(testingCtx)
                 )
                 .map(x => ({ value: x.name, label: x.name }))
-                .uniq()
+                .uniqBy('value')
                 .value()}
               onChange={expectedIntentChanged}
               value={expectedIntent.name}
