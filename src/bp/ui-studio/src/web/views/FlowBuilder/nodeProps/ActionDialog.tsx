@@ -1,9 +1,10 @@
-import { Button, Dialog, FormGroup, HTMLSelect, Label, MenuItem, NonIdealState } from '@blueprintjs/core'
+import { Button, FormGroup, HTMLSelect, Intent, NonIdealState } from '@blueprintjs/core'
 import { ItemRenderer, Select } from '@blueprintjs/select'
 import axios from 'axios'
 import { ActionDefinition, ActionParameterDefinition, ActionServer, ActionServerWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
+import { BaseDialog, DialogBody, DialogFooter, InfoTooltip } from '~/components/Shared/Interface'
 
 import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
 
@@ -36,11 +37,7 @@ const ActionNameSelect: FC<{
 
   return (
     <>
-      <FormGroup
-        helperText="This is the action that will be executed on the chosen Action Server"
-        label="Action"
-        labelFor="action-name"
-      >
+      <FormGroup label="Action to execute" labelFor="action-name">
         <ActionSelect
           items={actions}
           itemRenderer={ActionItemRenderer}
@@ -48,6 +45,7 @@ const ActionNameSelect: FC<{
             onUpdate(item.name)
           }}
           filterable={false}
+          popoverProps={{ minimal: true }}
         >
           <Button text={name} rightIcon="double-caret-vertical" />
         </ActionSelect>
@@ -68,19 +66,21 @@ const ActionParametersComponent: FC<{
       labelFor="action-parameters"
       helperText={actionDefinitionParams.length === 0 ? 'This action has no parameters' : undefined}
     >
-      <ActionParameters
-        parameterValues={actionDefinitionParams.map(parameterDefinition => {
-          return { definition: parameterDefinition, value: actionParams[parameterDefinition.name] || '' }
-        })}
-        onUpdate={parameterValues => {
-          const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
-            previousValue[parameterValue.definition.name] = parameterValue.value
-            return previousValue
-          }, {})
+      <div style={{ padding: 10 }}>
+        <ActionParameters
+          parameterValues={actionDefinitionParams.map(parameterDefinition => {
+            return { definition: parameterDefinition, value: actionParams[parameterDefinition.name] || '' }
+          })}
+          onUpdate={parameterValues => {
+            const paramsObj = parameterValues.reduce((previousValue, parameterValue) => {
+              previousValue[parameterValue.definition.name] = parameterValue.value
+              return previousValue
+            }, {})
 
-          onUpdate(paramsObj)
-        }}
-      />
+            onUpdate(paramsObj)
+          }}
+        />
+      </div>
     </FormGroup>
   )
 }
@@ -92,7 +92,14 @@ const ActionServers: FC<{
 }> = props => {
   const { actionServerId, actionServers, onUpdate } = props
   return (
-    <FormGroup label="Action Server" helperText="This is the Action Server on which the action will be executed">
+    <FormGroup
+      label={
+        <span style={{ display: 'flex' }}>
+          <div className={style.actionServer}>Action Server</div>
+          <InfoTooltip text="This is the action server on which the action will be executed"></InfoTooltip>
+        </span>
+      }
+    >
       <HTMLSelect
         value={actionServerId}
         onChange={e => {
@@ -126,6 +133,7 @@ const ActionDialog: FC<{
   const [actionServerId, setActionServerId] = useState(props.actionServerId)
   const [opening, setOpening] = useState(false)
   const [errorFetchingServers, setErrorFetchingServers] = useState(false)
+  const [isLoading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchActionServers = async () => {
@@ -135,6 +143,8 @@ const ActionDialog: FC<{
         setErrorFetchingServers(false)
       } catch (e) {
         setErrorFetchingServers(true)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -144,106 +154,108 @@ const ActionDialog: FC<{
     }
   }, [opening])
 
-  const currentActionServer: ActionServerWithActions | undefined =
+  const currentServer: ActionServerWithActions | undefined =
     actionServers.find(s => s.id === actionServerId) || actionServers[0]
-  if (actionServerId === '' && currentActionServer) {
-    setActionServerId(currentActionServer.id)
+
+  if (actionServerId === '' && currentServer) {
+    setActionServerId(currentServer.id)
   }
-  const currentActionServerHasActions = currentActionServer?.actions && currentActionServer.actions.length > 0
-  let currentActionDefinition: ActionDefinition | undefined
-  if (currentActionServerHasActions) {
-    currentActionDefinition = currentActionServer.actions.find(a => a.name === name) || currentActionServer.actions[0]
-    if (name === '' && currentActionDefinition) {
-      setName(currentActionDefinition.name)
+
+  const hasActionsError = currentServer?.actions === undefined
+  const hasActions = currentServer?.actions?.length > 0
+  let actionDef: ActionDefinition | undefined
+
+  if (hasActions) {
+    actionDef = currentServer.actions.find(a => a.name === name) || currentServer.actions[0]
+    if (name === '' && actionDef) {
+      setName(actionDef.name)
     }
   }
 
   const isActionValid = !!name && !!actionServerId && !errorFetchingServers
+  const closeDialog = () => {
+    setOpening(false)
+    setName(props.name)
+    setParameters(props.parameters)
+    setActionServerId(props.actionServerId)
+    onClose()
+  }
 
   return (
-    <Dialog
+    <BaseDialog
       isOpen={isOpen}
       title="Edit Action"
       icon="offline"
-      onClose={() => {
-        setOpening(false)
-        setName(props.name)
-        setParameters(props.parameters)
-        setActionServerId(props.actionServerId)
-        onClose()
-      }}
+      onClose={closeDialog}
       onOpening={() => setOpening(true)}
     >
-      <div
-        className={style.actionDialogContent}
-        onMouseDown={e => {
-          // TODO: check for a more elegant way to stop event propagation
-          e.stopPropagation()
-        }}
-        onContextMenu={e => {
-          // TODO: check for a more elegant way to stop event propagation
-          e.stopPropagation()
-        }}
-      >
-        {errorFetchingServers && (
-          <NonIdealState
-            title="Could not retrieve Action Servers"
-            description="There seems to be an error in your Botpress server. Please contact your administrator."
-            icon="warning-sign"
-          />
-        )}
-        {!errorFetchingServers && (
-          <ActionServers
-            actionServers={actionServers}
-            actionServerId={actionServerId}
-            onUpdate={actionServerId => {
-              setActionServerId(actionServerId)
-              const actionServer = actionServers.find(s => s.id === actionServerId)
-              setName(actionServer.actions[0]?.name || '')
-            }}
-          />
-        )}
+      <DialogBody hidden={!isLoading}>
+        <div>Please wait, loading action servers...</div>
+      </DialogBody>
+      <DialogBody hidden={isLoading}>
+        <div onMouseDown={e => e.stopPropagation()} onContextMenu={e => e.stopPropagation()}>
+          {!errorFetchingServers && (
+            <ActionServers
+              actionServers={actionServers}
+              actionServerId={actionServerId}
+              onUpdate={actionServerId => {
+                setActionServerId(actionServerId)
+                const actionServer = actionServers.find(s => s.id === actionServerId)
+                setName(actionServer.actions[0]?.name || '')
+              }}
+            />
+          )}
 
-        {!currentActionServerHasActions && (
-          <NonIdealState
-            title="Could not retrieve actions for current Action Server"
-            description="There seems to be an error in your Botpress server. Please contact your administrator."
-            icon="warning-sign"
-          />
-        )}
+          {errorFetchingServers && (
+            <NonIdealState
+              title="Could not retrieve action servers"
+              description="There seems to be an error in your Botpress server. Please contact your administrator."
+              icon="warning-sign"
+            />
+          )}
 
-        {currentActionServer && currentActionDefinition && (
-          <ActionNameSelect
-            actions={currentActionServer.actions}
-            name={currentActionDefinition.name}
-            onUpdate={name => {
-              setName(name)
-            }}
-          />
-        )}
+          {hasActionsError && (
+            <NonIdealState
+              title="Error listing actions from the action server"
+              description="There was an error while trying to get the list of actions on the selected server"
+              icon="warning-sign"
+            />
+          )}
 
-        {currentActionDefinition && (
-          <ActionParametersComponent
-            actionDefinitionParams={currentActionDefinition.params}
-            actionParams={parameters}
-            onUpdate={parameters => setParameters(parameters)}
-          />
-        )}
+          {!hasActionsError && !hasActions && (
+            <NonIdealState icon="warning-sign" title="No actions found on this action server" />
+          )}
 
-        {currentActionServer?.actions?.length === 0 && (
-          <NonIdealState icon="warning-sign" title="No actions found on this Action Server" />
-        )}
+          {actionDef && (
+            <>
+              <ActionNameSelect
+                actions={currentServer.actions}
+                name={actionDef.name}
+                onUpdate={name => {
+                  setName(name)
+                }}
+              />
 
+              <ActionParametersComponent
+                actionDefinitionParams={actionDef.params}
+                actionParams={parameters}
+                onUpdate={parameters => setParameters(parameters)}
+              />
+            </>
+          )}
+        </div>
+      </DialogBody>
+
+      <DialogFooter>
+        <Button text="Cancel" id="btn-cancel" onClick={closeDialog} />
         <Button
-          onClick={() => {
-            onSave({ name, actionServerId, parameters })
-          }}
-          disabled={!isActionValid}
-        >
-          Save
-        </Button>
-      </div>
-    </Dialog>
+          text="Save"
+          intent={Intent.PRIMARY}
+          onClick={() => onSave({ name, actionServerId, parameters })}
+          disabled={!isActionValid || isLoading}
+        />
+      </DialogFooter>
+    </BaseDialog>
   )
 }
 
