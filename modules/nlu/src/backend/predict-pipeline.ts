@@ -402,7 +402,12 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     },
     {
       oos: {
-        intents: [],
+        intents: [
+          {
+            label: NONE_INTENT,
+            confidence: 1 // this will be be computed as
+          }
+        ],
         confidence: step.oos_predictions?.label === 'out' ? step.oos_predictions.confidence : 0
       }
     }

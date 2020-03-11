@@ -1,6 +1,10 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+// YOU ARE BASICALLY AT TESTING IF TARGET CONTEXT SELECTOR WORKS
+// THEN YOU ARE AT TESTING THAT IT WORKS PRE-NDU
+// THEN YOU ARE AT TESTING THAT IT WORKS WITH NDU
+
 import { isPOSAvailable } from './language/pos-tagger'
 import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'

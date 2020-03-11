@@ -228,23 +228,30 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       success,
       reason: success
         ? ''
-        : `Intent doesn't match, expected: ${expected} received: ${received} , confidence ${nlu.intent.confidence}`,
+        : `Intent doesn't match, expected: ${expected} received: ${received} , confidence ${_.round(
+            nlu.intent.confidence,
+            2
+          )}`,
       received,
       expected
     }
   } else if (key === 'context') {
-    // highest ranking ctx
-    const [received, ctxPred] = _.chain(nlu.predictions)
+    // @ts-ignore
+    let [received, ctxPred] = _.chain(nlu.predictions)
       .toPairs()
       .maxBy('1.confidence')
       .value()
 
+    received = received !== 'oos' ? received : 'none'
     const success = expected === received
     return {
       success,
       reason: success
         ? ''
-        : `Context doesn't match, expected: ${expected} received: ${received}, confidence ${ctxPred.confidence}`,
+        : `Context doesn't match, expected: ${expected} received: ${received}, confidence ${_.round(
+            ctxPred.confidence,
+            2
+          )}`,
       received,
       expected
     }
@@ -261,20 +268,23 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   const elected = _.chain(nlu.predictions)
     .toPairs()
     .flatMap(([ctx, ctxPredObj]) => {
-      return ctxPredObj.intents.map(intentPred => ({
-        context: {
-          label: ctx,
-          confidence: ctxPredObj.confidence
-        },
-        label: intentPred.label,
-        confidence: intentPred.confidence * (1 - oosConfidence) * ctxPredObj.confidence // copy pasted from ndu conditions.ts (now how we elect intent)
-      }))
+      return ctxPredObj.intents.map(intentPred => {
+        const oosFactor = ctx === 'oos' ? 1 : 1 - oosConfidence
+        return {
+          context: {
+            label: ctx,
+            confidence: _.round(ctxPredObj.confidence, 2)
+          },
+          label: intentPred.label,
+          confidence: intentPred.confidence * oosFactor * ctxPredObj.confidence // copy pasted from ndu conditions.ts (now how we elect intent)
+        }
+      })
     })
     .maxBy('confidence')
     .value()
 
   if (key === 'context') {
-    const received = elected.context
+    const received = elected.context.label === 'oos' ? { ...elected.context, label: 'none' } : elected.context
     const success = expected === received.label
     return {
       success,
