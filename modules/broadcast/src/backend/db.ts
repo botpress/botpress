@@ -32,7 +32,6 @@ export default class BroadcastDb {
         table.integer('total_count')
         table.integer('sent_count')
         table.timestamp('created_on')
-        table.string('filters')
       })
       .then(() => {
         return this.knex.createTableIfNotExists('broadcast_outbox', function(table) {
@@ -53,7 +52,7 @@ export default class BroadcastDb {
       })
   }
 
-  addSchedule({ botId, date, time, timezone, content, type, filters }) {
+  addSchedule({ botId, date, time, timezone, content, type }) {
     const dateTime = date + ' ' + time
     let ts = undefined
 
@@ -71,8 +70,7 @@ export default class BroadcastDb {
       errored: false,
       total_count: 0,
       sent_count: 0,
-      created_on: this.knex.date.now(),
-      filters: JSON.stringify(filters)
+      created_on: this.knex.date.now()
     }
 
     return this.knex('broadcast_schedules')
@@ -81,7 +79,7 @@ export default class BroadcastDb {
       .get(0)
   }
 
-  updateSchedule({ id, date, time, timezone, content, type, filters }) {
+  updateSchedule({ id, date, time, timezone, content, type }) {
     const dateTime = date + ' ' + time
     let ts = undefined
     if (timezone) {
@@ -92,8 +90,7 @@ export default class BroadcastDb {
       date_time: dateTime,
       ts: ts ? this.knex.date.format(ts) : undefined,
       text: content,
-      type: type,
-      filters: JSON.stringify(filters)
+      type: type
     }
 
     return this.knex('broadcast_schedules')
@@ -204,7 +201,6 @@ export default class BroadcastDb {
         'broadcast_schedules.text as text',
         'broadcast_schedules.type as type',
         'broadcast_schedules.id as scheduleId',
-        'broadcast_schedules.filters as filters',
         'broadcast_outbox.ts as sendTime',
         'broadcast_outbox.userId as scheduleUser'
       ])

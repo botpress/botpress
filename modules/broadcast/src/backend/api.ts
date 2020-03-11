@@ -22,8 +22,7 @@ export default async (bp: SDK, db: Database) => {
           userTimezone: !row.ts,
           date: date,
           time: time,
-          id: row.id,
-          filteringConditions: row.filters && JSON.parse(row.filters)
+          id: row.id
         }
       })
 
@@ -32,16 +31,16 @@ export default async (bp: SDK, db: Database) => {
   })
 
   router.put('/', (req, res, next) => {
-    const { date, time, timezone, content, type, filters } = req.body
+    const { date, time, timezone, content, type } = req.body
     const { botId } = req.params
 
-    db.addSchedule({ botId, date, time, timezone, content, type, filters }).then(id => res.send({ id: id }))
+    db.addSchedule({ botId, date, time, timezone, content, type }).then(id => res.send({ id: id }))
   })
 
   router.post('/', (req, res, next) => {
-    const { id, date, time, timezone, content, type, filters } = req.body
+    const { id, date, time, timezone, content, type } = req.body
 
-    db.updateSchedule({ id, date, time, timezone, content, type, filters })
+    db.updateSchedule({ id, date, time, timezone, content, type })
       .then(() => res.sendStatus(200))
       .catch(err => {
         res.status(500).send({ message: err.message })

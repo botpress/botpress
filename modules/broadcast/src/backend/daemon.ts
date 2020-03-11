@@ -17,34 +17,9 @@ export default async (botId: string, bp: SDK, db: Database) => {
   }, 1000)
 
   const _sendBroadcast = Promise.method((botId, row) => {
-    let dropPromise = Promise.resolve(false)
-
-    if (row.filters) {
-      dropPromise = Promise.mapSeries(JSON.parse(row.filters), (filter: string) => {
-        let fnBody = filter.trim()
-        if (!/^return /i.test(fnBody)) {
-          fnBody = 'return ' + fnBody
-        }
-
-        const fn = new Function('bp', 'userId', 'platform', fnBody)
-        return Promise.method(fn)(bp, row.userId, row.platform)
-      }).then(values => {
-        return _.some(values, v => {
-          if (!_.isBoolean(v)) {
-            bp.logger.warn('Filter returned something other ' + 'than a boolean (or a Promise of a boolean)')
-          }
-
-          return typeof v !== 'undefined' && v !== null && v !== true
-        })
-      })
-    }
+    const dropPromise = Promise.resolve(false)
 
     return dropPromise.then(async drop => {
-      if (drop) {
-        bp.logger.debug(`Drop sending #${row.scheduleId} to user: ${row.userId}. Reason = Filters`)
-        return
-      }
-
       const botInfo = await bp.bots.getBotById(botId)
       const content = await bp.cms.getContentElement(botId, row.text, botInfo.defaultLanguage)
 
@@ -118,10 +93,6 @@ export default async (botId: string, bp: SDK, db: Database) => {
         await db.updateTotalCount(schedule, count)
 
         bp.logger.info('Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
-
-        if (schedule['filters'] && JSON.parse(schedule['filters']).length > 0) {
-          bp.logger.info(`Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`)
-        }
 
         emitChanged()
       })
