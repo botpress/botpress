@@ -212,7 +212,7 @@ export default class QnaAdmin extends Component<Props> {
     const { filterQuestion, filterContexts, page } = this.state
     return {
       question: filterQuestion,
-      filteredContexts,
+      filteredContexts: filterContexts,
       limit: ITEMS_PER_PAGE,
       offset: ((overridePage || page) - 1) * ITEMS_PER_PAGE
     }
