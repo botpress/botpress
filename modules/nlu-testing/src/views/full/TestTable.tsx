@@ -23,20 +23,24 @@ const TestResult: FC<TestResultProps> = ({ testResult }) => {
   if (testResult === undefined) {
     return <span>-</span>
   }
-  if (testResult.success) {
+  if (testResult?.success) {
     return <Icon icon="tick-circle" intent={Intent.SUCCESS} />
   } else {
     const content = (
       <div>
         {testResult.details
-          .filter(r => !r.success)
+          .filter(r => !r || !r.success)
           .map(r => (
-            <p>{r.reason}</p>
+            <ul>
+              {r.reason.split('\n').map(t => (
+                <li>{t}</li>
+              ))}
+            </ul>
           ))}
       </div>
     )
     return (
-      <Tooltip position={Position.LEFT} content={content}>
+      <Tooltip position={Position.TOP} content={content}>
         <Icon icon="warning-sign" intent={Intent.DANGER} />
       </Tooltip>
     )
