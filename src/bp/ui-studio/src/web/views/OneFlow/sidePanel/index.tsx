@@ -189,7 +189,9 @@ const SidePanelContent: FC<Props> = props => {
               filter={goalFilter}
               editTopic={editTopic}
               editQnA={editQnA}
+              topics={props.topics}
               exportTopic={exportTopic}
+              fetchTopics={props.fetchTopics}
             />
           </SidePanelSection>
 
