@@ -1,3 +1,4 @@
+import { IO } from 'botpress/sdk'
 export type Condition = ['intent' | 'slot', 'is', string]
 
 export interface Test {
@@ -24,6 +25,7 @@ export interface TestResult {
   id: string
   success: boolean
   details: TestResultDetails[]
+  nlu: IO.EventUnderstanding
 }
 
 export interface F1 {
