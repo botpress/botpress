@@ -4,6 +4,7 @@ interface CssExports {
   'actionDialogContent': string;
   'actionIcons': string;
   'actionSelectItem': string;
+  'actionServer': string;
   'actions': string;
   'bottomSection': string;
   'category': string;
