@@ -2,7 +2,7 @@ import { Button, Card, HTMLSelect, Popover, Position, Tooltip as BpTooltip } fro
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
-import { style as sharedStyle } from 'botpress/shared'
+import { style as sharedStyle, ToolTip } from 'botpress/shared'
 import { Container, ItemList, SidePanel } from 'botpress/ui'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -245,9 +245,11 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderNumberMetric = (name: string, value: number | string, isPercentage?: boolean) => {
     return (
       <div className={cx(style.metricWrapper, style.number)}>
-        <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
-          <span>{name}</span>
-        </h4>
+        <ToolTip>
+          <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
+            <span>{name}</span>
+          </h4>
+        </ToolTip>
         <Card className={style.numberMetric}>
           <h2
             className={cx(style.numberMetricValue, {
@@ -286,9 +288,11 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return (
       <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
-        <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
-          <span>{name}</span>
-        </h4>
+        <ToolTip>
+          <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
+            <span>{name}</span>
+          </h4>
+        </ToolTip>
         <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
           {!data.length && <p className={style.emptyState}>No data available</p>}
           {!!data.length && (

@@ -98,7 +98,7 @@ class SmartInput extends Component<ConnectedProps, State> {
 
   render() {
     const { MentionSuggestions } = this.mentionPlugin
-    const plugins = [this.mentionPlugin]
+    const plugins: any = [this.mentionPlugin]
 
     if (this.props.singleLine) {
       plugins.push(createSingleLinePlugin())
@@ -125,10 +125,7 @@ class SmartInput extends Component<ConnectedProps, State> {
 
 const mapDispatchToProps = { refreshHints }
 const mapStateToProps = ({ hints: { inputs } }) => ({ hints: inputs })
-const ConnectedSmartInput = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SmartInput)
+const ConnectedSmartInput = connect(mapStateToProps, mapDispatchToProps)(SmartInput)
 
 // Passing store explicitly since this component may be imported from another botpress-module
 export default (props: ExposedProps) => <ConnectedSmartInput {...props} store={store} />
