@@ -13,7 +13,7 @@ import {
 import _ from 'lodash'
 import React, { Component, FC } from 'react'
 
-import { Test, TestResult } from '../../shared/typings'
+import { Condition, Test, TestResult, TestResultDetails } from '../../shared/typings'
 
 interface TestResultProps {
   testResult?: TestResult
@@ -89,6 +89,35 @@ interface TestTableProps {
   deleteTest: (testId: Test) => void
 }
 
+export const CSVExport = (tests: Test[], testResults: _.Dictionary<TestResult>) => {
+  const conditionsToString = (conditions: Condition[]) => conditions.map(x => `(${x.join(' ')})`).join(' AND ')
+  const detailsToString = (details: TestResultDetails[]) =>
+    details
+      .filter(x => !x.success)
+      .map(x => `(${x.reason})`)
+      .join(' AND ')
+
+  const data = [
+    `"id","utterance","conditions","success","reason"`,
+    ...tests.map(test => {
+      return [
+        test.id,
+        test.utterance,
+        conditionsToString(test.conditions),
+        testResults[test.id].success,
+        detailsToString(testResults[test.id].details)
+      ]
+        .map(x => x.toString().replace(/"/g, '\\"'))
+        .map(x => `"${x}"`)
+        .join(',')
+    })
+  ].join('\r\n')
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(new Blob([data]))
+  link.download = `botpress_nlu_tests_results.csv`
+  link.click()
+}
+
 export const TestTable: FC<TestTableProps> = props => (
   <React.Fragment>
     <H3>
@@ -101,6 +130,16 @@ export const TestTable: FC<TestTableProps> = props => (
         icon="add"
         onClick={props.createTest}
         text="New Test"
+      />
+      <Button
+        type="button"
+        minimal
+        intent={Intent.NONE}
+        small
+        disabled={Object.keys(props.testResults).length === 0}
+        icon="download"
+        onClick={() => CSVExport(props.tests, props.testResults)}
+        text="CSV Export"
       />
     </H3>
     <HTMLTable bordered striped>
