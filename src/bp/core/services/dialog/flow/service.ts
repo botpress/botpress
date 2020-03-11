@@ -102,7 +102,7 @@ export class FlowService {
 
   private async _isOneFlow(botId: string): Promise<boolean> {
     const botConfig = await this.botService.findBotById(botId)
-    return botConfig && botConfig['oneflow']
+    return !!botConfig?.oneflow
   }
 
   private async parseFlow(botId: string, flowPath: string): Promise<FlowView> {
@@ -375,7 +375,7 @@ export class FlowService {
 
   public async createTopic(botId: string, topic: Topic) {
     let topics = await this.getTopics(botId)
-    topics = [...topics, topic]
+    topics = _.uniqBy([...topics, topic], x => x.name)
 
     await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
     await this.moduleLoader.onTopicChanged(botId, undefined, topic.name)
@@ -383,7 +383,7 @@ export class FlowService {
 
   public async updateTopic(botId: string, topic: Topic, topicName: string) {
     let topics = await this.getTopics(botId)
-    topics = [...topics.filter(x => x.name !== topicName), topic]
+    topics = _.uniqBy([...topics.filter(x => x.name !== topicName), topic], x => x.name)
 
     await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
 

@@ -102,7 +102,8 @@ const bots = (botService: BotService): typeof sdk.bots => {
     exportBot(botId: string): Promise<Buffer> {
       return botService.exportBot(botId)
     },
-    importBot: botService.importBot.bind(botService)
+    importBot: botService.importBot.bind(botService),
+    getBotTemplate: botService.getBotTemplate.bind(botService)
   }
 }
 

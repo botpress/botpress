@@ -3,11 +3,13 @@ import * as sdk from 'botpress/sdk'
 import { dialogConditions } from './conditions'
 import Database from './db'
 import { registerMiddleware } from './middleware'
+import migrateBot from './migrate'
 import { UnderstandingEngine } from './ndu-engine'
 import { MountedBots } from './typings'
 
+export const bots: MountedBots = {}
+
 let nduEngine: UnderstandingEngine
-const bots: MountedBots = {}
 let db: Database
 
 const onServerStarted = async (bp: typeof sdk) => {
@@ -33,11 +35,20 @@ const onServerReady = async (bp: typeof sdk) => {
         .limit(100)
     )
   })
+
+  router.post('/migrate', async (req, res) => {
+    try {
+      await migrateBot(bp, req.params.botId)
+      res.sendStatus(200)
+    } catch (err) {
+      res.status(400).send(err.message)
+    }
+  })
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const botConfig = await bp.bots.getBotById(botId)
-  if (botConfig['oneflow']) {
+  if (botConfig.oneflow) {
     bots[botId] = true
   }
 }
@@ -70,7 +81,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'ndu',
     menuIcon: 'poll',
     menuText: 'NDU',
-    noInterface: false,
+    noInterface: true,
     fullName: 'NDU',
     homepage: 'https://botpress.io'
   }

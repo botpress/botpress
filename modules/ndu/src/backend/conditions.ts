@@ -58,6 +58,22 @@ export const dialogConditions: sdk.Condition[] = [
     }
   },
   {
+    id: 'outside_flow_node',
+    label: 'User is not in any flow or node',
+    evaluate: event => {
+      return !event.state.context?.currentFlow && !event.state.context?.currentNode ? 1 : 0
+    }
+  },
+  {
+    id: 'custom_confidence',
+    label: 'Custom confidence level',
+    description: `Confidence level of {confidence}`,
+    params: { confidence: { label: 'Confidence', type: 'number' } },
+    evaluate: (_event, params) => {
+      return params.confidence
+    }
+  },
+  {
     id: 'always',
     label: 'This condition is always true',
     evaluate: () => {

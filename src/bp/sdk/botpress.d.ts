@@ -984,6 +984,7 @@ declare module 'botpress/sdk' {
     languages: string[]
     locked: boolean
     pipeline_status: BotPipelineStatus
+    oneflow?: boolean
   }
 
   export type Pipeline = Stage[]
@@ -1475,6 +1476,11 @@ declare module 'botpress/sdk' {
     extend(duration: number): Promise<void>
   }
 
+  export interface FileContent {
+    name: string
+    content: string | Buffer
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -1812,6 +1818,8 @@ declare module 'botpress/sdk' {
       workspaceId: string,
       allowOverwrite?: boolean
     ): Promise<void>
+
+    export function getBotTemplate(moduleName: string, templateName: string): Promise<FileContent[]>
   }
 
   export namespace workspaces {
