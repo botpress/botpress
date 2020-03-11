@@ -128,7 +128,7 @@ export default class BasicAuthentication {
       password
     })
 
-    setToken(data.payload.toke)
+    setToken(data.payload.token)
     await this.afterLoginRedirect()
 
     history.replace(HOME_ROUTE)
