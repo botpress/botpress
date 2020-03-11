@@ -20,6 +20,7 @@ export type Predictors = TrainArtefacts & {
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
+  contexts: string[]
 }
 
 export interface PredictInput {
@@ -94,7 +95,7 @@ async function preprocessInput(
   }
 
   const stepOutput: PredictStep = {
-    includedContexts: input.includedContexts,
+    includedContexts: _.isEmpty(input.includedContexts) ? predictors.contexts : input.includedContexts,
     rawText: input.sentence,
     detectedLanguage,
     languageCode: usedLanguage
@@ -426,7 +427,12 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     },
     {
       oos: {
-        intents: [],
+        intents: [
+          {
+            label: NONE_INTENT,
+            confidence: 1 // this will be be computed as
+          }
+        ],
         confidence: step.oos_predictions?.label === 'out' ? step.oos_predictions.confidence : 0
       }
     }

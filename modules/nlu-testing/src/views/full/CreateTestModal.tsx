@@ -22,11 +22,12 @@ const noneIntent = {
 
 export const CreateTestModal: FC<Props> = props => {
   const [utterance, setUtterance] = useState<string>((props.test && props.test.utterance) || '')
-  const [targetIntent, setEquals] = useState<sdk.NLU.IntentDefinition>(noneIntent)
+  const [expectedIntent, setTargetIntent] = useState<sdk.NLU.IntentDefinition>(noneIntent)
   const [intents, setIntents] = useState<sdk.NLU.IntentDefinition[]>([])
   const [availableCtx, setAvailableCtxs] = useState([])
-  const [selectedCtx, setSelectedCtx] = useState('global')
+  const [testingCtx, setTestingCtx] = useState('*')
   const [slotConditions, setSlotConditions] = useState<_.Dictionary<string>>({})
+  const [expectedCtx, setExpectedCtx] = useState<string>('')
 
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
@@ -36,8 +37,8 @@ export const CreateTestModal: FC<Props> = props => {
         .flatMap(i => i.contexts)
         .uniq()
         .value()
-      setAvailableCtxs(ctxs)
-      setSelectedCtx(ctxs[0] || 'global')
+      setAvailableCtxs([...ctxs, '*'])
+      setExpectedCtx(ctxs[0])
     })
   }, [])
 
@@ -47,9 +48,10 @@ export const CreateTestModal: FC<Props> = props => {
     const test: Test = {
       id: (props.test && props.test.id) || Date.now().toString(),
       utterance: utterance,
-      context: selectedCtx,
+      context: testingCtx,
       conditions: [
-        ['intent', 'is', targetIntent.name],
+        ['intent', 'is', expectedIntent.name],
+        ['context', 'is', expectedCtx],
         ..._.toPairs(slotConditions)
           .filter(([_, value]) => !!value)
           .map(([slotName, value]) => [`slot:${slotName}`, 'is', value])
@@ -62,14 +64,14 @@ export const CreateTestModal: FC<Props> = props => {
     props.hide()
   }
 
-  const targetIntentChanged = e => {
+  const expectedIntentChanged = e => {
     const intent = intents.find(i => i.name === e.target.value)
-    setEquals(intent)
+    setTargetIntent(intent)
   }
 
-  const selectedCtxChanged = e => {
-    setSelectedCtx(e.target.value)
-    setEquals(noneIntent)
+  const testingCtxChanged = e => {
+    setTestingCtx(e.target.value)
+    setTargetIntent(noneIntent)
   }
 
   const slotConditionChanged = (slotName, e) => {
@@ -96,31 +98,47 @@ export const CreateTestModal: FC<Props> = props => {
               onChange={e => setUtterance(e.target.value)}
             />
           </FormGroup>
-          <FormGroup label="Context" helperText="The context you're currently testing">
+          <FormGroup label="Testing Context" helperText="The context you're currently testing">
             <HTMLSelect
               tabIndex={2}
               fill
               disabled={availableCtx.length < 2}
               options={availableCtx.map(ctx => ({ label: ctx, value: ctx }))}
-              onChange={selectedCtxChanged}
-              value={selectedCtx}
+              onChange={testingCtxChanged}
+              value={testingCtx}
             />
           </FormGroup>
-          <FormGroup label="Intent">
+          {testingCtx === '*' && (
+            <FormGroup label="Expected Context">
+              <HTMLSelect
+                tabIndex={3}
+                fill
+                options={availableCtx.filter(c => c !== '*').map(c => ({ value: c, label: c }))}
+                onChange={e => setExpectedCtx(e.target.value)}
+                value={expectedCtx}
+              />
+            </FormGroup>
+          )}
+          <FormGroup label="Expected Intent">
             <HTMLSelect
-              tabIndex={3}
+              tabIndex={4}
               fill
               options={intents
-                .filter(i => i.name === 'none' || i.contexts.includes(selectedCtx))
+                .filter(
+                  i =>
+                    i.name === 'none' ||
+                    (testingCtx === '*' && i.contexts.includes(expectedCtx)) ||
+                    i.contexts.includes(testingCtx)
+                )
                 .map(x => ({ value: x.name, label: x.name }))}
-              onChange={targetIntentChanged}
-              value={targetIntent.name}
+              onChange={expectedIntentChanged}
+              value={expectedIntent.name}
             />
           </FormGroup>
-          {targetIntent.slots.map((slot, idx) => (
+          {expectedIntent.slots.map((slot, idx) => (
             <FormGroup key={slot.name} label={`Slot: ${slot.name}`}>
               <InputGroup
-                tabIndex={4 + idx}
+                tabIndex={5 + idx}
                 placeholder="enter slot source leave empty if absent"
                 value={slotConditions[slot.name] || ''}
                 onChange={slotConditionChanged.bind(this, slot.name)}

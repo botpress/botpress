@@ -103,7 +103,7 @@ export const TestTable: FC<TestTableProps> = props => (
       <thead>
         <tr>
           <th>Utterance</th>
-          <th>Context</th>
+          <th>Testing Context</th>
           <th>Conditions</th>
           <th>Result</th>
         </tr>
