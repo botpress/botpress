@@ -448,7 +448,11 @@ export class UnderstandingEngine {
     event.ndu.triggers = {}
 
     for (const trigger of triggers) {
-      if (trigger.type === 'node' && event.state?.context?.currentNode !== trigger.nodeId) {
+      if (
+        trigger.type === 'node' &&
+        (event.state?.context.currentFlow !== trigger.workflowId ||
+          event.state?.context?.currentNode !== trigger.nodeId)
+      ) {
         continue
       }
 
