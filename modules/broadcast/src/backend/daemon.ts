@@ -45,7 +45,8 @@ export default async (botId: string, bp: SDK, db: Database) => {
         return
       }
 
-      const content = await bp.cms.getContentElement(botId, row.text)
+      const botInfo = await bp.bots.getBotById(botId)
+      const content = await bp.cms.getContentElement(botId, row.text, botInfo.defaultLanguage)
 
       return bp.events.sendEvent(
         bp.IO.Event({

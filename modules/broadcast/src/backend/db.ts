@@ -151,16 +151,15 @@ export default class BroadcastDb {
     tz = padDigits(Math.abs(Number(tz)), 2)
     const relTime = moment(`${schedule['date_time']}${sign}${tz}`, 'YYYY-MM-DD HH:mmZ').toDate()
     const adjustedTime = this.knex.date.format(schedule['ts'] ? schedule['ts'] : relTime)
-    const whereClause = _.isNil(initialTz)
-      ? "where attributes -> 'timezone' IS NULL"
-      : "where attributes ->> 'timezone' = :initialTz"
+    // const whereClause = _.isNil(initialTz)
+    //  ? 'where attributes->timezone IS NULL'
+    //  : 'where attributes->>timezone = :initialTz'
 
     const sql = `insert into broadcast_outbox ("userId", "scheduleId", "botId", "ts")
       select userId, :scheduleId, :botId, :adjustedTime
       from (
-        select user_id as userId
+        select id as userId
         from srv_channel_users
-        ${whereClause}
       ) as q1`
 
     return this.knex
@@ -196,7 +195,7 @@ export default class BroadcastDb {
       .where(function() {
         this.where(isPast).andWhere('broadcast_outbox.botId', botId)
       })
-      .join('srv_channel_users', 'srv_channel_users.user_id', 'broadcast_outbox.userId')
+      .join('srv_channel_users', 'srv_channel_users.id', 'broadcast_outbox.userId')
       .join('broadcast_schedules', 'scheduleId', 'broadcast_schedules.id')
       .limit(1000)
       .select([
