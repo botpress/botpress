@@ -4,7 +4,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { BASE_DATA } from './base-data'
-import { conditionsDefinitions } from './conditions'
 import Database from './db'
 import { Features } from './typings'
 
@@ -66,6 +65,7 @@ export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
   private _allNodeIds: Set<string> = new Set()
   private _allWfIds: Set<string> = new Set()
+  private _dialogConditions: sdk.Condition[]
 
   private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
   trainer: sdk.MLToolkit.SVM.Trainer
@@ -73,6 +73,10 @@ export class UnderstandingEngine {
 
   constructor(private bp: typeof sdk, private db: Database) {
     this.trainer = new this.bp.MLToolkit.SVM.Trainer()
+  }
+
+  public loadConditions() {
+    this._dialogConditions = this.bp.dialog.getConditions()
   }
 
   featToVec(features: Features): number[] {
@@ -466,7 +470,7 @@ export class UnderstandingEngine {
 
   private _testConditions(event: sdk.IO.IncomingEvent, conditions: sdk.DecisionTriggerCondition[]) {
     return conditions.reduce((result, condition) => {
-      const executer = conditionsDefinitions.find(x => x.id === condition.id)
+      const executer = this._dialogConditions.find(x => x.id === condition.id)
       if (executer) {
         try {
           result[condition.id] = executer.evaluate(event, condition.params)

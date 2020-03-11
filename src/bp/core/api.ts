@@ -68,12 +68,17 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
   }
 }
 
-const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof sdk.dialog => {
+const dialog = (
+  dialogEngine: DialogEngine,
+  stateManager: StateManager,
+  moduleLoader: ModuleLoader
+): typeof sdk.dialog => {
   return {
     createId: SessionIdFactory.createIdFromEvent.bind(SessionIdFactory),
     processEvent: dialogEngine.processEvent.bind(dialogEngine),
     deleteSession: stateManager.deleteDialogSession.bind(stateManager),
-    jumpTo: dialogEngine.jumpTo.bind(dialogEngine)
+    jumpTo: dialogEngine.jumpTo.bind(dialogEngine),
+    getConditions: moduleLoader.getDialogConditions.bind(moduleLoader)
   }
 }
 
@@ -277,7 +282,7 @@ export class BotpressAPIProvider {
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
-    this.dialog = dialog(dialogEngine, stateManager)
+    this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
     this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex

@@ -5,6 +5,7 @@ import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { asBytes } from 'core/misc/utils'
+import { ModuleLoader } from 'core/module-loader'
 import { GhostService } from 'core/services'
 import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -43,6 +44,7 @@ export class BotsRouter extends CustomRouter {
   private notificationService: NotificationsService
   private authService: AuthService
   private ghostService: GhostService
+  private moduleLoader: ModuleLoader
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private checkMethodPermissions: (resource: string) => RequestHandler
@@ -62,6 +64,7 @@ export class BotsRouter extends CustomRouter {
     authService: AuthService
     ghostService: GhostService
     workspaceService: WorkspaceService
+    moduleLoader: ModuleLoader
     logger: Logger
   }) {
     super('Bots', args.logger, Router({ mergeParams: true }))
@@ -75,6 +78,7 @@ export class BotsRouter extends CustomRouter {
     this.authService = args.authService
     this.ghostService = args.ghostService
     this.workspaceService = args.workspaceService
+    this.moduleLoader = args.moduleLoader
     this.needPermissions = needPermissions(this.workspaceService)
     this.checkMethodPermissions = checkMethodPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -534,6 +538,15 @@ export class BotsRouter extends CustomRouter {
           ? await this.notificationService.archive(botId, notificationId)
           : await this.notificationService.archiveAll(botId)
         res.sendStatus(201)
+      })
+    )
+
+    this.router.get(
+      '/dialogConditions',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        const conditions = await this.moduleLoader.getDialogConditions()
+        res.send(conditions)
       })
     )
   }

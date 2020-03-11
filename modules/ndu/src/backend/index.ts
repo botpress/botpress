@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import { conditionsDefinitions } from './conditions'
+import { dialogConditions } from './conditions'
 import Database from './db'
 import { registerMiddleware } from './middleware'
 import { UnderstandingEngine } from './ndu-engine'
@@ -19,12 +19,10 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
+  // Must be in onServerReady so all modules have registered their conditions
+  await nduEngine.loadConditions()
+
   const router = bp.http.createRouterForBot('ndu')
-
-  router.get('/conditions', async (req, res) => {
-    res.send(conditionsDefinitions)
-  })
-
   router.get('/events', async (req, res) => {
     res.send(
       await bp
@@ -67,6 +65,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   onFlowChanged,
   botTemplates,
+  dialogConditions,
   definition: {
     name: 'ndu',
     menuIcon: 'poll',

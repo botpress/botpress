@@ -110,6 +110,8 @@ declare module 'botpress/sdk' {
     skills?: Skill[]
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
+    /** List of new conditions that the module can register */
+    dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -1149,6 +1151,8 @@ declare module 'botpress/sdk' {
     description?: string
     /** The definition of all parameters used by this condition */
     params?: ConditionParams
+    /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
+    displayOrder?: number
     /** The editor will use the custom component to provide the requested parameters */
     editor?: {
       module: string
@@ -1664,6 +1668,11 @@ declare module 'botpress/sdk' {
       flowName: string,
       nodeName?: string
     ): Promise<void>
+
+    /**
+     * Returns the list of conditions that can be used in an NLU Trigger node
+     */
+    export function getConditions(): Condition[]
   }
 
   export namespace config {

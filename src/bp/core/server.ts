@@ -176,6 +176,7 @@ export default class HTTPServer {
       authService,
       ghostService,
       workspaceService,
+      moduleLoader,
       logger: this.logger
     })
     this.sdkApiRouter = new SdkApiRouter(this.logger)
