@@ -76,6 +76,13 @@ export interface TokenUser {
   strategy: string
   isSuperAdmin: boolean
   exp?: number
+  iat?: number
+}
+
+export interface StoredToken {
+  token: string
+  expiresAt: number
+  issuedAt: number
 }
 
 export type RequestWithUser = Request & {
