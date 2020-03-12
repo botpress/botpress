@@ -3,7 +3,7 @@ import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
 import { style as sharedStyle, ToolTip } from 'botpress/shared'
-import { Container, ItemList, SidePanel } from 'botpress/ui'
+import { Container } from 'botpress/ui'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
@@ -245,18 +245,11 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderNumberMetric = (name: string, value: number | string, isPercentage?: boolean) => {
     return (
       <div className={cx(style.metricWrapper, style.number)}>
-        <ToolTip>
-          <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
-            <span>{name}</span>
-          </h4>
+        <ToolTip content={name}>
+          <h4 className={cx(style.metricName)}>{name}</h4>
         </ToolTip>
         <Card className={style.numberMetric}>
-          <h2
-            className={cx(style.numberMetricValue, {
-              [botpressTooltip]: isPercentage && value.toString().length > 6
-            })}
-            data-tooltip={value}
-          >
+          <h2 className={cx(style.numberMetricValue, {})} data-tooltip={value}>
             <span>{value}</span>
           </h2>
         </Card>
@@ -288,10 +281,8 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return (
       <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
-        <ToolTip>
-          <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
-            <span>{name}</span>
-          </h4>
+        <ToolTip content={name}>
+          <h4 className={cx(style.metricName)}>{name}</h4>
         </ToolTip>
         <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
           {!data.length && <p className={style.emptyState}>No data available</p>}
@@ -305,6 +296,7 @@ const Analytics: FC<any> = ({ bp }) => {
                   .filter(x => x !== 'all')
                   .map((channel, idx) => (
                     <Area
+                      key={idx}
                       stackId={idx}
                       type="monotone"
                       dataKey={channel}

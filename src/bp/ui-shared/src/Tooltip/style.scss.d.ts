@@ -3,13 +3,10 @@
 interface CssExports {
   'bottom': string;
   'left': string;
-  'off': string;
-  'on': string;
   'right': string;
   'tooltip': string;
-  'tooltipArrow': string;
   'tooltipInner': string;
-  'tooltipwrapper': string;
+  'tooltipedElement': string;
   'top': string;
 }
 declare var cssExports: CssExports;

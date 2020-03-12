@@ -1,14 +1,12 @@
+.tooltipedElement {
+  width: 100%;
+}
+
 .tooltip {
   position: absolute;
   left: 50px;
   top: 50px;
   font-size: 12px;
-  opacity: 0;
-  visibility: hidden;
-
-  &wrapper {
-    position: relative
-  }
 
   .right {
     margin-left: 5px;
@@ -26,15 +24,22 @@
     margin-top: 5px;
   }
 
-  .tooltipArrow {
-    top: 50%;
+  &:after {
+    border-color: transparent;
+    border-right-color: #000;
+    border-right-color: transparent;
+    border-style: solid;
+    border-width: 5px 5px 5px 0;
+    content: "";
+    height: 0;
     left: 0;
     margin-top: -5px;
-    border-width: 5px 5px 5px 0;
-    border-right-color: #000;
+    position: absolute;
+    top: 50%;
+    width: 0;
   }
 
-  &.right .tooltipArrow {
+  &.right:after {
     top: 50%;
     left: auto;
     margin-left: -5px;
@@ -42,7 +47,7 @@
     border-right-color: #000;
   }
 
-  &.top .tooltipArrow {
+  &.top:after {
     top: auto;
     bottom: -5px;
     left: 50%;
@@ -51,7 +56,7 @@
     border-top-color: #000;
   }
 
-  &.left .tooltipArrow {
+  &.left:after {
     top: 50%;
     margin-top: -5px;
     border-width: 5px 0 5px 5px;
@@ -60,21 +65,12 @@
     left: auto;
   }
 
-  &.bottom .tooltipArrow {
+  &.bottom:after {
     top: 0;
     left: 50%;
     margin-left: -5px;
     border-width: 0 5px 5px;
     border-bottom-color: #000;
-  }
-
-  .tooltipArrow {
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-color: transparent;
-    border-right-color: transparent;
-    border-style: solid;
   }
 
   .tooltipInner {
@@ -86,7 +82,7 @@
     border-radius: 4px;
   }
 
-  &.on {
+  /*&.on {
     opacity: 1;
     visibility: visible;
   }
@@ -94,5 +90,5 @@
   &.off {
     opacity: 0;
     visibility: hidden;
-  }
+  }*/
 }
