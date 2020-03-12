@@ -23,6 +23,18 @@ export interface Config {
   fetchUserInfo: boolean
 
   /**
+   * Use the legacy RTM api
+   * @default false
+   */
+  useRTM: boolean
+
+  /**
+   * Define a port for the events api to use. If none is defined a random available port will be used
+   * @default null
+   */
+  port: number
+
+  /**
    * The duration of the authentication session when a user authenticate through this channel.
    * @default 24h
    */

@@ -2,13 +2,14 @@ import { createEventAdapter } from '@slack/events-api'
 import SlackEventAdapter from '@slack/events-api/dist/adapter'
 import { createMessageAdapter } from '@slack/interactive-messages'
 import SlackMessageAdapter from '@slack/interactive-messages/dist/adapter'
-// import { RTMClient } from '@slack/rtm-api'
+import { RTMClient } from '@slack/rtm-api'
 import { WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
+import { AddressInfo } from 'net'
 
 import { Config } from '../config'
 
@@ -24,7 +25,7 @@ const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
 export class SlackClient {
   private client: WebClient
-  // private rtm: RTMClient
+  private rtm: RTMClient
   private events: SlackEventAdapter
   private interactive: SlackMessageAdapter
   private logger: sdk.Logger
@@ -41,12 +42,16 @@ export class SlackClient {
     }
 
     this.client = new WebClient(this.config.botToken)
-    // this.rtm = new RTMClient(this.config.botToken)
-    this.events = createEventAdapter(this.config.signingSecret)
+    if (this.config.useRTM || this.config.useRTM === undefined) {
+      this.logger.warn(`[${this.botId}] Slack configured to used legacy RTM`)
+      this.rtm = new RTMClient(this.config.botToken)
+    } else {
+      this.events = createEventAdapter(this.config.signingSecret)
+    }
     this.interactive = createMessageAdapter(this.config.signingSecret)
 
+    await this._setupRealtime(this.config.port)
     await this._setupInteractiveListener()
-    await this._setupRealtime()
   }
 
   private async _setupInteractiveListener() {
@@ -104,45 +109,45 @@ export class SlackClient {
     )
   }
 
-  private async _setupRealtime() {
+  private async _setupRealtime(port: number) {
     const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
-    this.events.on('message', async payload => {
-      debugIncoming(`Received real time payload %o`, payload)
 
-      if (!discardedSubtypes.includes(payload.subtype) && !payload.bot_id) {
-        console.log(payload)
-        await this.sendEvent(payload, {
-          type: 'text',
-          text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
-        })
-      }
-    })
+    if (this.rtm) {
+      this.rtm.on('message', async payload => {
+        debugIncoming(`Received real time payload %o`, payload)
 
-    this.router.post(`/bots/${this.botId}/events-callback`, this.events.requestListener())
-    const publicPath = await this.router.getPublicPath()
-    this.logger.info(
-      `[${this.botId}] Events Endpoint URL: ${publicPath.replace('BOT_ID', this.botId)}/bots/${
-        this.botId
-      }/events-callback`
-    )
+        if (!discardedSubtypes.includes(payload.subtype)) {
+          await this.sendEvent(payload, {
+            type: 'text',
+            text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
+          })
+        }
+      })
 
-    const port = 3001
-    return this.events.start(port)
+      return this.rtm.start()
+    } else {
+      this.events.on('message', async payload => {
+        debugIncoming(`Received real time payload %o`, payload)
 
-    /*
-    this.rtm.on('message', async payload => {
-      debugIncoming(`Received real time payload %o`, payload)
+        if (!discardedSubtypes.includes(payload.subtype) && !payload.bot_id) {
+          await this.sendEvent(payload, {
+            type: 'text',
+            text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
+          })
+        }
+      })
 
-      if (!discardedSubtypes.includes(payload.subtype)) {
-        await this.sendEvent(payload, {
-          type: 'text',
-          text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
-        })
-      }
-    })
+      this.router.post(`/bots/${this.botId}/events-callback`, this.events.requestListener())
+      const publicPath = await this.router.getPublicPath()
+      this.logger.info(
+        `[${this.botId}] Events Endpoint URL: ${publicPath.replace('BOT_ID', this.botId)}/bots/${
+          this.botId
+        }/events-callback`
+      )
 
-    return this.rtm.start()
-    */
+      const server = await this.events.start(port || 0)
+      this.logger.info(`[${this.botId}] Slack events listening at : ${(<AddressInfo>server.address()).port}`)
+    }
   }
 
   private async _getUserInfo(userId: string) {
@@ -164,7 +169,9 @@ export class SlackClient {
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type === 'typing') {
-      // await this.rtm.sendTyping(event.threadId || event.target)
+      if (this.rtm) {
+        await this.rtm.sendTyping(event.threadId || event.target)
+      }
       await new Promise(resolve => setTimeout(() => resolve(), 1000))
 
       return next(undefined, false)
