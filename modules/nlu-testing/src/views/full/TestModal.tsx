@@ -47,6 +47,7 @@ export const TestModal: FC<Props> = props => {
 
   useEffect(() => {
     const { test } = props
+    
     setIsEditing(!!test)
 
     if (!test && utterance !== '') {
