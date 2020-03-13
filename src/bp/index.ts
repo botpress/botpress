@@ -47,6 +47,7 @@ if (process.env.APP_DATA_PATH) {
 process.IS_FAILSAFE = yn(process.env.BP_FAILSAFE)
 process.BOTPRESS_EVENTS = new EventEmitter()
 process.BOTPRESS_EVENTS.setMaxListeners(1000)
+global.BOTPRESS_CORE_EVENT = (event, args) => process.BOTPRESS_EVENTS.emit(event, args)
 
 process.LOADED_MODULES = {}
 process.PROJECT_LOCATION = process.pkg
@@ -70,7 +71,12 @@ try {
   require('dotenv').config({ path: path.resolve(process.PROJECT_LOCATION, '.env') })
   process.core_env = process.env as BotpressEnvironmentVariables
 
-  const argv = require('yargs')
+  let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
+  if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
+    defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
+  }
+
+  require('yargs')
     .command(
       ['serve', '$0'],
       'Start your botpress server',
@@ -91,11 +97,6 @@ try {
       argv => {
         process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION) || yn(process.env.CLUSTER_ENABLED)
         process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
-
-        let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
-        if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
-          defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
-        }
 
         process.AUTO_MIGRATE =
           process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
@@ -309,6 +310,8 @@ try {
         }
       },
       argv => {
+        process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+
         getos.default().then(distro => {
           process.distro = distro
           require('./lang-server').default(argv)

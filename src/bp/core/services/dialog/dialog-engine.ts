@@ -214,6 +214,7 @@ export class DialogEngine {
     }
 
     if (transitionTo.includes('.flow.json')) {
+      BOTPRESS_CORE_EVENT('bp_core_enter_flow', { botId: event.botId, channel: event.channel, flowName: transitionTo })
       // Transition to other flow
       const flow = this._findFlow(event.botId, transitionTo)
       const startNode = this._findNode(event.botId, flow, flow.startNode)

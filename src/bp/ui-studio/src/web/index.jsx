@@ -25,6 +25,7 @@ import 'expose-loader?BotpressUI!~/components/Shared/Interface'
 import 'expose-loader?BotpressUtils!~/components/Shared/Utils'
 import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
+import 'expose-loader?BlueprintJsSelect!@blueprintjs/select'
 import 'expose-loader?BotpressShared!ui-shared'
 /* eslint-enable */
 
