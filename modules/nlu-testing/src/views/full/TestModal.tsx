@@ -74,6 +74,7 @@ export const TestModal: FC<Props> = props => {
 
     const intentCondition = test.conditions.find(([key]) => key === 'intent')
     const expectedIntent = intents.find(i => i.name === intentCondition[2])
+    
     setExpectedIntent(expectedIntent)
 
     const expectedSlots = test.conditions
