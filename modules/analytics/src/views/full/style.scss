@@ -104,16 +104,13 @@ $textColor: #182026;
 }
 
 .numberMetricValue {
+  display: block;
   margin: 0;
+  overflow: hidden;
   text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   width: 100%;
-
-  span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 }
 
 .metricWrapper {

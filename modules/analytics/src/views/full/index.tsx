@@ -2,21 +2,17 @@ import { Button, Card, HTMLSelect, Popover, Position, Tooltip as BpTooltip } fro
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
-import { style as sharedStyle, ToolTip } from 'botpress/shared'
+import { Tooltip as BotpressTooltip } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { FC, useEffect, useReducer, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { MetricEntry } from '../../backend/typings'
 
 import style from './style.scss'
-
-const {
-  TooltipStyle: { botpressTooltip }
-} = sharedStyle
 
 const SECONDS_PER_DAY = 86400
 
@@ -197,10 +193,10 @@ const Analytics: FC<any> = ({ bp }) => {
         {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
         {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
         {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
-        {renderNumberMetric('Returning Users', getReturningUsers())}
+        {renderNumberMetric('Returning Users', getReturningUsers(), true)}
         {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
-        {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
-        {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
+        {renderNumberMetric('Understood Messages', getUnderstoodPercent(), true)}
+        {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent(), true)}
         {/* {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)} */}
       </div>
     )
@@ -243,15 +239,20 @@ const Analytics: FC<any> = ({ bp }) => {
   // }
 
   const renderNumberMetric = (name: string, value: number | string, isPercentage?: boolean) => {
+    const renderValue = () => {
+      return <h2 className={style.numberMetricValue}>{value}</h2>
+    }
     return (
       <div className={cx(style.metricWrapper, style.number)}>
-        <ToolTip content={name}>
+        <BotpressTooltip content={name}>
           <h4 className={cx(style.metricName)}>{name}</h4>
-        </ToolTip>
+        </BotpressTooltip>
         <Card className={style.numberMetric}>
-          <h2 className={cx(style.numberMetricValue, {})} data-tooltip={value}>
-            <span>{value}</span>
-          </h2>
+          {!isPercentage && value.toString().length > 7 ? (
+            <BotpressTooltip content={value}>{renderValue()}</BotpressTooltip>
+          ) : (
+            renderValue()
+          )}
         </Card>
       </div>
     )
@@ -281,9 +282,9 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return (
       <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
-        <ToolTip content={name}>
+        <BotpressTooltip content={name}>
           <h4 className={cx(style.metricName)}>{name}</h4>
-        </ToolTip>
+        </BotpressTooltip>
         <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
           {!data.length && <p className={style.emptyState}>No data available</p>}
           {!!data.length && (

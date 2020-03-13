@@ -1,3 +1,5 @@
+$bgColor: #394B59;
+
 .tooltipedElement {
   width: 100%;
 }
@@ -6,7 +8,7 @@
   position: absolute;
   left: 50px;
   top: 50px;
-  font-size: 12px;
+  font-size: 14px;
 
   .right {
     margin-left: 5px;
@@ -26,7 +28,7 @@
 
   &:after {
     border-color: transparent;
-    border-right-color: #000;
+    border-right-color: $bgColor;
     border-right-color: transparent;
     border-style: solid;
     border-width: 5px 5px 5px 0;
@@ -44,7 +46,7 @@
     left: auto;
     margin-left: -5px;
     border-width: 5px 5px 5px 0;
-    border-right-color: #000;
+    border-right-color: $bgColor;
   }
 
   &.top:after {
@@ -53,14 +55,14 @@
     left: 50%;
     margin-left: -5px;
     border-width: 5px 5px 0;
-    border-top-color: #000;
+    border-top-color: $bgColor;
   }
 
   &.left:after {
     top: 50%;
     margin-top: -5px;
     border-width: 5px 0 5px 5px;
-    border-left-color: #000;
+    border-left-color: $bgColor;
     right: -5px;
     left: auto;
   }
@@ -70,25 +72,15 @@
     left: 50%;
     margin-left: -5px;
     border-width: 0 5px 5px;
-    border-bottom-color: #000;
+    border-bottom-color: $bgColor;
   }
 
   .tooltipInner {
     max-width: 200px;
-    padding: 3px 8px;
-    color: #fff;
+    padding: 7px 10px;
+    color: #F5F8FA;
     text-align: center;
-    background-color: #000;
+    background-color: $bgColor;
     border-radius: 4px;
   }
-
-  /*&.on {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  &.off {
-    opacity: 0;
-    visibility: hidden;
-  }*/
 }

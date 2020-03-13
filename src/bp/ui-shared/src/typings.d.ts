@@ -3,10 +3,11 @@ import TooltipStyle from './style/tooltip.scss'
 import { TreeViewProps } from './TreeView/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
+import { TooltipProps } from './Tooltip/typings'
 
 declare module 'botpress/shared' {
   export function confirmDialog(message: string, options: ConfirmDialogOptions): Promise<boolean>
-  export function ToolTip<T>(props: ToolTipProps<T>): JSX.Element
+  export function Tooltip(props: TooltipProps): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
   export function Dropdown(props: DropdownProps): JSX.Element
 
