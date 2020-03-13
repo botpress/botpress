@@ -92,7 +92,7 @@ const ImportModal: FC<Props> = props => {
 
         const actions = await analyzeGoalFile(content, props.flows)
         const goalAction = getGoalAction(
-          content,
+          { ...content, name, location: name },
           props.flows.find(x => x.name === name)
         )
 
