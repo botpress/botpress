@@ -9,7 +9,9 @@ interface CssExports {
   'filtersInputWrapper': string;
   'filtersShowing': string;
   'filtersWrapper': string;
+  'half': string;
   'header': string;
+  'innerWrapper': string;
   'inputLabel': string;
   'mainWrapper': string;
   'metricName': string;
@@ -19,6 +21,8 @@ interface CssExports {
   'numberMetric': string;
   'numberMetricValue': string;
   'pageTitle': string;
+  'section': string;
+  'sectionsWrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

@@ -5,16 +5,50 @@ $colorSlack: #ff8989;
 $textColor: #182026;
 
 .mainWrapper {
-  background: #fff;
+  background: #EBF1F5;
   height: 100%;
   overflow-y: scroll;
-  padding: 15px 20px;
+  padding: 25px;
+}
+
+.innerWrapper {
+  margin: 0 auto;
+  max-width: 945px;
+  width: 100%;
+}
+
+.sectionsWrapper {
+  display: grid;
+  grid-column-gap: 20px;
+  grid-row-gap: 44px;
+  grid-template-columns: auto auto;
+}
+
+.section {
+  h2 {
+    color: $textColor;
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 5px;
+  }
+
+  &:not(.half) {
+    grid-column-start: 1;
+    grid-column-end: 3;
+  }
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  margin: 0 0 10px;
+  margin: 0 0 50px;
+
+  h1 {
+    font-size: 28px;
+    font-weight: 500;
+    color: $textColor;
+    margin: 0;
+  }
 }
 
 .pageTitle {
@@ -94,7 +128,7 @@ $textColor: #182026;
 
 .numberMetric {
   align-items: center;
-  background: #f3f3f3;
+  background: #fff;
   border-radius: 4px;
   box-shadow: none;
   color: $textColor;
@@ -135,7 +169,7 @@ $textColor: #182026;
 }
 
 .chartMetric {
-  background: #f3f3f3;
+  background: #fff;
   border-radius: 4px;
   height: 190px;
   padding: 20px 15px;

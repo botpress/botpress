@@ -2,21 +2,16 @@ import { Button, Card, HTMLSelect, Popover, Position, Tooltip as BpTooltip } fro
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
-import { style as sharedStyle } from 'botpress/shared'
 import { Container, ItemList, SidePanel } from 'botpress/ui'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { FC, useEffect, useReducer, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { MetricEntry } from '../../backend/typings'
 
 import style from './style.scss'
-
-const {
-  TooltipStyle: { botpressTooltip }
-} = sharedStyle
 
 const SECONDS_PER_DAY = 86400
 
@@ -67,7 +62,7 @@ const fetchReducer = (state: State, action): State => {
 }
 
 const Analytics: FC<any> = ({ bp }) => {
-  const [channels, setChannels] = useState(['all', 'api'])
+  const [channels, setChannels] = useState(['All Channels', 'API'])
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
@@ -189,6 +184,109 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
+  const renderEngagement = () => {
+    return (
+      <div className={style.metricsContainer}>
+        {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
+        {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
+        {renderNumberMetric('Returning Users', getReturningUsers())}
+        {renderTimeSeriesChart('User Activities', getMetric('new_users_count'))}
+        <div>
+          <h3>Busiest Period</h3>
+          <p>Monday fromn 2PM to 4PM</p>
+        </div>
+      </div>
+    )
+  }
+
+  const renderConversations = () => {
+    return (
+      <div className={style.metricsContainer}>
+        {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
+        <BpTooltip content="Session Length" position={Position.TOP}>
+          {renderTimeSeriesChart('Message Exchanged', getAvgMsgPerSessions())}
+        </BpTooltip>
+        {renderTimeSeriesChart('Goals Initiated', getMetric('goals_started_count'))}
+        {renderTimeSeriesChart('Questions Asked', getMetric('msg_sent_qna_count'))}
+        <div>
+          <h3>Most Used Workflows</h3>
+          <ul>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Most Asked Questions</h3>
+          <ul>
+            <li>
+              <a href="#">What do you get when you put something where it shouldn't be</a>
+            </li>
+            <li>
+              <a href="#">What do you get when you put something where it shouldn't be</a>
+            </li>
+            <li>
+              <a href="#">What do you get when you put something where it shouldn't be</a>
+            </li>
+            <li>
+              <a href="#">What do you get when you put something where it shouldn't be</a>
+            </li>
+            <li>
+              <a href="#">What do you get when you put something where it shouldn't be</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    )
+  }
+
+  const renderHandlingUnderstanding = () => {
+    return (
+      <div className={style.metricsContainer}>
+        {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
+        {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
+        <div>
+          <h3>Most Failed Workflows</h3>
+          <ul>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Most Failed Questions</h3>
+          <ul>
+            <li>
+              <a href="#">What do you get when you put something where it shouldn't be</a>
+            </li>
+            <li>
+              <a href="#">What do you get when you put something where it shouldn't be</a>
+            </li>
+          </ul>
+        </div>
+        {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)}
+      </div>
+    )
+  }
+
   const renderDashboard = () => {
     return (
       <div className={style.metricsContainer}>
@@ -201,60 +299,18 @@ const Analytics: FC<any> = ({ bp }) => {
         {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
         {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
         {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
-        {/* {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)} */}
       </div>
     )
   }
 
-  // const renderAgentUsage = () => {
-  //   return (
-  //     <div className={style.metricsContainer}>
-  //       {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
-  //       {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
-  //       {/* {renderTimeSeriesChart('Goals Started', getMetric('goals_started_count'))}
-  //       {renderTimeSeriesChart('Goals Completed', getMetric('goals_completed_count'))} */}
-  //     </div>
-  //   )
-  // }
-
-  // const renderEngagement = () => {
-  //   return (
-  //     <div className={style.metricsContainer}>
-  //       {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
-  //       {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
-  //       {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
-  //       {renderNumberMetric('Returning Users', getReturningUsers())}
-  //     </div>
-  //   )
-  // }
-
-  // const renderUnderstanding = () => {
-  //   const goalsOutcome = getMetricCount('goals_completed_count') / getMetricCount('goals_started_count') || 0
-
-  //   return (
-  //     <div className={style.metricsContainer}>
-  //       {/* {renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
-  //       {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)} */}
-  //       {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
-  //       {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
-  //       {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
-  //     </div>
-  //   )
-  // }
-
   const renderNumberMetric = (name: string, value: number | string, isPercentage?: boolean) => {
     return (
       <div className={cx(style.metricWrapper, style.number)}>
-        <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
+        <h3 className={style.metricName}>
           <span>{name}</span>
-        </h4>
+        </h3>
         <Card className={style.numberMetric}>
-          <h2
-            className={cx(style.numberMetricValue, {
-              [botpressTooltip]: isPercentage && value.toString().length > 6
-            })}
-            data-tooltip={value}
-          >
+          <h2 className={style.numberMetricValue}>
             <span>{value}</span>
           </h2>
         </Card>
@@ -286,9 +342,9 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return (
       <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
-        <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
+        <h3 className={style.metricName}>
           <span>{name}</span>
-        </h4>
+        </h3>
         <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
           {!data.length && <p className={style.emptyState}>No data available</p>}
           {!!data.length && (
@@ -301,6 +357,7 @@ const Analytics: FC<any> = ({ bp }) => {
                   .filter(x => x !== 'all')
                   .map((channel, idx) => (
                     <Area
+                      key={idx}
                       stackId={idx}
                       type="monotone"
                       dataKey={channel}
@@ -320,15 +377,11 @@ const Analytics: FC<any> = ({ bp }) => {
     return null
   }
 
-  const startDate = moment(state.dateRange?.[0]).format('MMMM Do YYYY')
-  const endDate = moment(state.dateRange?.[1]).format('MMMM Do YYYY')
-
   return (
-    <Container sidePanelHidden={true}>
-      <div></div>
-      <div className={style.mainWrapper}>
+    <div className={style.mainWrapper}>
+      <div className={style.innerWrapper}>
         <div className={style.header}>
-          <h1 className={style.pageTitle}>{state.pageTitle}</h1>
+          <h1 className={style.pageTitle}>Analytics</h1>
           <div>
             <BpTooltip content="Filter channels" position={Position.LEFT}>
               <div style={{ marginRight: 5 }}>
@@ -350,13 +403,22 @@ const Analytics: FC<any> = ({ bp }) => {
             </Popover>
           </div>
         </div>
-
-        <h2 className={cx(style.appliedFilters)}>
-          {capitalize(state.selectedChannel)} - {startDate} to {endDate}
-        </h2>
-        {renderDashboard()}
+        <div className={style.sectionsWrapper}>
+          <div className={cx(style.section, style.half)}>
+            <h2>Engagement</h2>
+            {renderEngagement()}
+          </div>
+          <div className={cx(style.section, style.half)}>
+            <h2>Conversations</h2>
+            {renderConversations()}
+          </div>
+          <div className={style.section}>
+            <h2>Handling and Understanding</h2>
+            {renderHandlingUnderstanding()}
+          </div>
+        </div>
       </div>
-    </Container>
+    </div>
   )
 }
 
