@@ -68,6 +68,7 @@ export const TestModal: FC<Props> = props => {
 
     if (test.context === TEST_ALL_CTX) {
       const ctxCondition = test.conditions.find(([key]) => key === 'context')
+      
       setExpectedCtx(ctxCondition[2])
     }
 
