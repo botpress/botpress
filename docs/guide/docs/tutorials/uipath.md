@@ -103,10 +103,15 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { 
    * @author Botpress
    */
   const myAction = async () => {
-    const clientId = '6v7PmPJL6FOGu6RB8I1Y4adLXhIwovQN' // PLACHOLDER. Replace with your own Client ID
+    const clientId = '5v7PmPJL6FOGu6RB8I1Y4adLBhIwovQN' // Leave value as-is, do not change
+
+    // Complete the following tutorial: http://dealetech.com/the-definitive-guide-to-uipath-cloud-orchestrator-2019-09-rest-api-authentication/ 
+    // This tutorial will help you find the values for the refreshToken, accountLogicalName and serviceLogicalName variables
     const refreshToken = 'N1GNVn4sIqWz4wDMTLUlTdXyMZtYmpBZG_7zN5IYcXhC6' // PLACHOLDER. Replace with your own Refresh Token
     const accountLogicalName = 'botprgaoyxrd' // PLACHOLDER. Replace with your own Account Logical Name
     const serviceLogicalName = 'BotpressDefmqn8231188' // PLACHOLDER. Replace with your own Service Logical Name
+
+    // You need to create a Process in UiPath Orchestrator. More information can be found here: https://docs.uipath.com/orchestrator/docs/about-processes
     const processKey = 'MyProcess' // PLACHOLDER. Replace with your own Process Key
     const processVersion = '1.0.18' // PLACHOLDER. Replace with your own Process Version
 
