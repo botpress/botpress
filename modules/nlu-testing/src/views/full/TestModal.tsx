@@ -30,7 +30,6 @@ export const TestModal: FC<Props> = props => {
   const [testingCtx, setTestingCtx] = useState('*')
   const [slotConditions, setSlotConditions] = useState<_.Dictionary<string>>({})
   const [expectedCtx, setExpectedCtx] = useState<string>('')
-  const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
@@ -47,7 +46,6 @@ export const TestModal: FC<Props> = props => {
 
   useEffect(() => {
     const { test } = props
-    setIsEditing(!!test)
 
     if (!test && utterance !== '') {
       setUtterance('')
@@ -61,6 +59,8 @@ export const TestModal: FC<Props> = props => {
       setStateFromTest(test)
     }
   }, [props.test])
+
+  const isEditing = () => !!props.test
 
   const setStateFromTest = (test: Test) => {
     setUtterance(test.utterance)
@@ -89,7 +89,7 @@ export const TestModal: FC<Props> = props => {
     e.preventDefault()
 
     const test: Test = {
-      id: isEditing ? props.test.id : Date.now().toString(),
+      id: isEditing() ? props.test.id : Date.now().toString(),
       utterance: utterance,
       context: testingCtx,
       conditions: [
@@ -125,8 +125,8 @@ export const TestModal: FC<Props> = props => {
 
   return (
     <Dialog
-      title={isEditing ? 'Edit test' : 'Create new test'}
-      icon={isEditing ? 'edit' : 'add'}
+      title={isEditing() ? 'Edit test' : 'Create new test'}
+      icon={isEditing() ? 'edit' : 'add'}
       isOpen={props.visible}
       onClose={props.hide}
       transitionDuration={0}
@@ -199,7 +199,7 @@ export const TestModal: FC<Props> = props => {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button type="submit" tabIndex={3} intent={Intent.PRIMARY}>
-              {isEditing ? 'Save' : 'Create'}
+              {isEditing() ? 'Save' : 'Create'}
             </Button>
           </div>
         </div>
