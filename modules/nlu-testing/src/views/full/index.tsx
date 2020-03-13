@@ -10,7 +10,7 @@ import { computeSummary } from '../../shared/utils'
 
 import { makeApi } from './api'
 import style from './style.scss'
-import { CreateTestModal } from './CreateTestModal'
+import { TestModal } from './TestModal'
 import { CrossValidationResults } from './F1Metrics'
 import { ImportModal } from './ImportModal'
 import { TestTable } from './TestTable'
@@ -23,6 +23,7 @@ interface State {
   loading: boolean
   working: boolean
   f1Metrics: XValidationResults
+  currentTest?: Test
 }
 
 interface Props {
@@ -44,6 +45,14 @@ export default class NLUTests extends React.Component<Props, State> {
     f1Metrics: null
   }
 
+  createTest = () => {
+    this.setState({ createModalVisible: true, currentTest: undefined })
+  }
+
+  editTest = (test: Test) => {
+    this.setState({ createModalVisible: true, currentTest: test })
+  }
+
   setModalVisible(createModalVisible: boolean) {
     this.setState({ createModalVisible })
   }
@@ -58,7 +67,7 @@ export default class NLUTests extends React.Component<Props, State> {
 
   refreshTests = async () => {
     // tslint:disable-next-line: no-floating-promises
-    this.api.fetchTests().then(tests => this.setState({ tests, loading: false }))
+    this.api.fetchTests().then(tests => this.setState({ tests, loading: false, currentTest: undefined }))
   }
 
   computeXValidation = async () => {
@@ -117,7 +126,7 @@ export default class NLUTests extends React.Component<Props, State> {
                   small
                   icon="add"
                   text="Create your first test"
-                  onClick={this.setModalVisible.bind(this, true)}
+                  onClick={this.createTest}
                 />
               )}
               <Button
@@ -175,13 +184,15 @@ export default class NLUTests extends React.Component<Props, State> {
                 <TestTable
                   tests={this.state.tests}
                   testResults={this.state.testResults}
-                  createTest={this.setModalVisible.bind(this, true)}
+                  createTest={this.createTest}
                   runTest={this.runSingleTest}
+                  editTest={this.editTest}
                   deleteTest={this.deleteTest}
                 />
               )}
               <CrossValidationResults f1Metrics={this.state.f1Metrics} />
-              <CreateTestModal
+              <TestModal
+                test={this.state.currentTest}
                 api={this.api}
                 hide={this.setModalVisible.bind(this, false)}
                 visible={this.state.createModalVisible}
