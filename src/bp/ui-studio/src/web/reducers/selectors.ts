@@ -13,7 +13,10 @@ export const getAllFlows = createSelector([_getFlowsByName], flowsByName => {
 
 export const getFlowNamesList = createSelector([getAllFlows], flows => {
   const normalFlows = _.reject(flows, x => x.name && x.name.startsWith('skills/'))
-  return normalFlows.map(x => ({ name: x.name, label: x.label }))
+  return normalFlows.map(x => {
+    const withTriggers = x.nodes.filter(x => x.triggers !== undefined || x.type === 'trigger')
+    return { name: x.name, label: x.label, triggerCount: withTriggers.length }
+  })
 })
 
 export const getCurrentFlow = createSelector([_getFlowsByName, _getCurrentFlow], (flowsByName, currFlow) => {

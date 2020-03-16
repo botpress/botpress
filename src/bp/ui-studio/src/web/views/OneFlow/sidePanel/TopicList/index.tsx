@@ -45,6 +45,7 @@ interface NodeData {
   label?: string
   id?: any
   icon?: string
+  triggerCount?: number
 }
 
 type NodeType = 'goal' | 'folder' | 'topic' | 'qna'
@@ -217,7 +218,7 @@ const TopicList: FC<Props> = props => {
   }
 
   const nodeRenderer = (el: NodeData) => {
-    const { name, label, icon, type } = el
+    const { name, label, icon, type, triggerCount } = el
     const editGoal = e => {
       e.stopPropagation()
       props.editGoal(name, el)
@@ -233,10 +234,18 @@ const TopicList: FC<Props> = props => {
 
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
 
+    const tooltip = (
+      <Tooltip content="Number of NLU triggers on that workflow" hoverOpenDelay={500}>
+        <small>({triggerCount})</small>
+      </Tooltip>
+    )
+
     return {
       label: (
         <div className={style.treeNode}>
-          <span>{displayName}</span>
+          <span>
+            {displayName} {type !== 'qna' && tooltip}
+          </span>
           <div className={style.overhidden} id="actions">
             {type !== 'qna' && (
               <Fragment>
