@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
 
+import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import {
   deleteEntity,
   getCustomEntities,
@@ -254,6 +255,16 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  router.get('/train', async (req, res) => {
+    try {
+      const { botId } = req.params
+      const isTraining = await state.nluByBot[botId].isTraining()
+      res.send({ isTraining })
+    } catch {
+      res.sendStatus(500)
+    }
+  })
+
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
@@ -264,7 +275,34 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  router.post('/train/delete', async (req, res) => {
+    try {
+      const { botId } = req.params
+      await state.nluByBot[botId].cancelTraining()
+      res.sendStatus(200)
+    } catch {
+      res.sendStatus(500)
+    }
+  })
+
   router.get('/ml-recommendations', async (req, res) => {
     res.send(recommendations)
+  })
+
+  router.post('/autoTrain', async (req, res) => {
+    const { botId } = req.params
+    const { autoTrain } = req.body
+
+    await setAutoTrain(bp, botId, autoTrain)
+
+    res.sendStatus(200)
+  })
+
+  router.get('/autoTrain', async (req, res) => {
+    const { botId } = req.params
+
+    const isOn = await isAutoTrainOn(bp, botId)
+
+    res.send({ isOn })
   })
 }

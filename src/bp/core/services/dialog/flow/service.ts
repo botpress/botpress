@@ -127,7 +127,7 @@ export class FlowService {
     })
 
     const key = this._buildFlowMutexKey(flowPath)
-    const currentMutex = (await this.kvs.get(botId, key)) as FlowMutex
+    const currentMutex = (await this.kvs.forBot(botId).get(key)) as FlowMutex
     if (currentMutex) {
       currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
     }
@@ -271,7 +271,7 @@ export class FlowService {
   private async _testAndLockMutex(botId: string, currentFlowEditor: string, flowLocation: string): Promise<FlowMutex> {
     const key = this._buildFlowMutexKey(flowLocation)
 
-    const currentMutex = ((await this.kvs.get(botId, key)) || {}) as FlowMutex
+    const currentMutex = ((await this.kvs.forBot(botId).get(key)) || {}) as FlowMutex
     const { lastModifiedBy: flowOwner, lastModifiedAt } = currentMutex
 
     const now = new Date()

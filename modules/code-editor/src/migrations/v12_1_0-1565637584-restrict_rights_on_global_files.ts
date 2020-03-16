@@ -53,7 +53,7 @@ const migration: sdk.ModuleMigration = {
 
         for (const role of roles) {
           if (isMigrationAlreadyDone(role.rules)) {
-            return { success: true, message: 'no-need for migration' }
+            return { success: true, message: 'Rules are already updated, skipping...' }
           }
           role.rules.push(...newRules)
         }
