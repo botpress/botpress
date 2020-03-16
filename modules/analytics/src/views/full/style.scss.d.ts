@@ -9,6 +9,7 @@ interface CssExports {
   'filtersInputWrapper': string;
   'filtersShowing': string;
   'filtersWrapper': string;
+  'fullGrid': string;
   'half': string;
   'header': string;
   'innerWrapper': string;
@@ -17,12 +18,12 @@ interface CssExports {
   'metricName': string;
   'metricWrapper': string;
   'metricsContainer': string;
-  'number': string;
   'numberMetric': string;
   'numberMetricValue': string;
   'pageTitle': string;
   'section': string;
   'sectionsWrapper': string;
+  'wIcon': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

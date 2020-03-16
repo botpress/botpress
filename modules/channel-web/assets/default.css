@@ -5,11 +5,9 @@
   --main-fg-color-hover: rgba(0, 0, 0, 0.07);
 }
 
-@import url('https://fonts.googleapis.com/css?family=Lato');
-
 body {
   margin: 0 !important;
-  font-family: 'Lato', sans-serif;
+  font-family: var(--font-family) !important;
   overflow: hidden;
 }
 

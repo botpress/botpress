@@ -1,8 +1,7 @@
-import { Button, Card, HTMLSelect, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
+import { Button, Card, HTMLSelect, Icon, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
-import { Container, ItemList, SidePanel } from 'botpress/ui'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
@@ -11,15 +10,20 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'rec
 
 import { MetricEntry } from '../../backend/typings'
 
+import { metrics } from './metrics'
 import style from './style.scss'
 
 const SECONDS_PER_DAY = 86400
 
 const CHANNEL_COLORS = {
-  web: '#FFA83A',
+  web: '#1F8FFA',
   messenger: '#0196FF',
   slack: '#4A154B',
   telegram: '#2EA6DA'
+}
+
+const CHANNEL_FILL_COLORS = {
+  web: 'linear-gradient(red, yellow, blue)'
 }
 
 interface State {
@@ -33,24 +37,28 @@ interface State {
 const fetchReducer = (state: State, action): State => {
   if (action.type === 'datesSuccess') {
     const { dateRange } = action.data
+
     return {
       ...state,
       dateRange
     }
   } else if (action.type === 'receivedMetrics') {
-    const { metrics } = action.data
+    // const { metrics } = action.data
+
     return {
       ...state,
       metrics
     }
   } else if (action.type === 'channelSuccess') {
     const { selectedChannel } = action.data
+
     return {
       ...state,
       selectedChannel
     }
   } else if (action.type === 'sectionChange') {
     const { shownSection, pageTitle } = action.data
+
     return {
       ...state,
       shownSection,
@@ -187,8 +195,8 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderEngagement = () => {
     return (
       <div className={style.metricsContainer}>
-        {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
-        {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
+        {renderNumberMetric('Active Users', getMetricCount('active_users_count'))}
+        {renderNumberMetric('New Users', getMetricCount('new_users_count'))}
         {renderNumberMetric('Returning Users', getReturningUsers())}
         {renderTimeSeriesChart('User Activities', getMetric('new_users_count'))}
         <div>
@@ -287,34 +295,15 @@ const Analytics: FC<any> = ({ bp }) => {
     )
   }
 
-  const renderDashboard = () => {
-    return (
-      <div className={style.metricsContainer}>
-        {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
-        {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
-        {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
-        {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
-        {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
-        {renderNumberMetric('Returning Users', getReturningUsers())}
-        {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
-        {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
-        {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
-      </div>
-    )
-  }
-
   const renderNumberMetric = (name: string, value: number | string, isPercentage?: boolean) => {
     return (
-      <div className={cx(style.metricWrapper, style.number)}>
-        <h3 className={style.metricName}>
-          <span>{name}</span>
-        </h3>
-        <Card className={style.numberMetric}>
-          <h2 className={style.numberMetricValue}>
-            <span>{value}</span>
-          </h2>
-        </Card>
-      </div>
+      <Card className={cx(style.numberMetric, style.wIcon)}>
+        <Icon icon="user" />
+        <div>
+          <p className={style.numberMetricValue}>{value}</p>
+          <h3 className={style.metricName}>{name}</h3>
+        </div>
+      </Card>
     )
   }
 
@@ -329,40 +318,53 @@ const Analytics: FC<any> = ({ bp }) => {
     return _.sortBy(chartsData, 'time')
   }
 
-  const formatTick = timestamp => moment.unix(timestamp).format('DD-MM')
-
-  const getTickCount = () => {
-    const startDate = moment(state.dateRange[0]).unix()
-    const endDate = moment(state.dateRange[1]).unix()
-    return (startDate - endDate) / SECONDS_PER_DAY
-  }
+  const formatTick = timestamp =>
+    moment
+      .unix(timestamp)
+      .format('ddd')
+      .substr(0, 1)
+  const formatTootilTick = timestamp => moment.unix(timestamp).format('dddd, MMMM Do YYYY')
 
   const renderTimeSeriesChart = (name: string, data: MetricEntry[] | any, desc?: string) => {
-    const tickCount = getTickCount()
-
+    console.log(data)
     return (
-      <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
-        <h3 className={style.metricName}>
-          <span>{name}</span>
-        </h3>
+      <div className={cx(style.metricWrapper, style.fullGrid, { [style.empty]: !data.length })}>
         <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
+          <h3 className={style.metricName}>
+            <span>{name}</span>
+          </h3>
           {!data.length && <p className={style.emptyState}>No data available</p>}
           {!!data.length && (
-            <ResponsiveContainer>
+            <ResponsiveContainer height={160}>
               <AreaChart data={mapDataForCharts(data)}>
-                <Tooltip labelFormatter={formatTick} />
-                <XAxis height={18} dataKey="time" tickFormatter={formatTick} tickCount={tickCount} />
-                <YAxis width={30} />
+                <defs>
+                  <linearGradient id="gradientBg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#1F90FA" stopOpacity={0.31} />
+                    <stop offset="45%" stopColor="#1F90FA" stopOpacity={0.34} />
+                    <stop offset="73%" stopColor="#1F90FA" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#1F90FA" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <Tooltip labelFormatter={formatTootilTick} />
+                <XAxis
+                  tickMargin={10}
+                  height={28}
+                  dataKey="time"
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={formatTick}
+                  tickCount={data.length}
+                />
                 {channels
                   .filter(x => x !== 'all')
                   .map((channel, idx) => (
                     <Area
                       key={idx}
-                      stackId={idx}
                       type="monotone"
                       dataKey={channel}
+                      strokeWidth={3}
                       stroke={CHANNEL_COLORS[channel]}
-                      fill={CHANNEL_COLORS[channel]}
+                      fill="url(#gradientBg)"
                     />
                   ))}
               </AreaChart>
