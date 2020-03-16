@@ -198,6 +198,10 @@ $elementHeight: 40px;
   font-weight: 500;
   z-index: 4;
 
+  input {
+    height: 25px;
+  }
+
   .dropdown-button {
     border-left: none;
   }

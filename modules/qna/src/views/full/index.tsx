@@ -5,10 +5,10 @@ import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import React, { Component, Fragment } from 'react'
 import { FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
-import Select from 'react-select'
 
 import './button.css'
 import style from './style.scss'
+import { ContextSelector } from './ContextSelector'
 import EditorModal from './Editor/EditorModal'
 import { ExportButton } from './ExportButton'
 import { ImportModal } from './ImportModal'
@@ -35,13 +35,11 @@ export default class QnaAdmin extends Component<Props> {
     page: 1,
     overallItemsCount: 0,
     showQnAModal: false,
-    category: '',
     isEditing: false,
     importDialogOpen: false,
-    categoryOptions: [],
-    filterCategory: [],
     filterQuestion: '',
-    selectedQuestion: []
+    selectedQuestion: [],
+    filterContexts: []
   }
 
   fetchFlows() {
@@ -64,17 +62,8 @@ export default class QnaAdmin extends Component<Props> {
     })
   }
 
-  fetchCategories() {
-    this.props.bp.axios.get('/mod/qna/categories').then(({ data: { categories } }) => {
-      if (categories) {
-        const categoryOptions = categories.map(category => ({ label: category, value: category }))
-        this.setState({ categoryOptions })
-      }
-    })
-  }
-
-  componentDidUpdate(prevprops) {
-    if (prevprops.contentLang !== this.props.contentLang) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.contentLang !== this.props.contentLang) {
       this.filterOrFetch()
     }
     this.editQnaFromPath()
@@ -83,7 +72,6 @@ export default class QnaAdmin extends Component<Props> {
   componentDidMount() {
     this.filterOrFetch()
     this.fetchFlows()
-    this.fetchCategories()
     this.editQnaFromPath()
   }
 
@@ -112,8 +100,6 @@ export default class QnaAdmin extends Component<Props> {
     }
   }
 
-  onCategoriesFilter = filterCategory => this.setState({ filterCategory }, this.filterQuestions)
-
   onQuestionsFilter = event => this.setState({ filterQuestion: event.target.value }, this.filterQuestions)
 
   filterQuestions = (page = 1) => {
@@ -124,8 +110,8 @@ export default class QnaAdmin extends Component<Props> {
 
   renderPagination = () => {
     const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
-    const { filterQuestion, filterCategory } = this.state
-    const isFilter = filterQuestion || filterCategory.length
+    const { filterQuestion, filterContexts } = this.state
+    const isFilter = filterQuestion || filterContexts.length
 
     if (pagesCount <= 1) {
       return null
@@ -212,23 +198,21 @@ export default class QnaAdmin extends Component<Props> {
         className={style.searchField}
       />
 
-      <Select
-        id="select-category"
+      <ContextSelector
         className={style.categoryFilter}
-        isMulti
-        value={this.state.filterCategory}
-        options={this.state.categoryOptions}
-        onChange={this.onCategoriesFilter}
-        placeholder="Search for a category"
+        contexts={this.state.filterContexts}
+        saveContexts={contexts => this.setState({ filterContexts: contexts }, this.filterQuestions)}
+        bp={this.props.bp}
+        isSearch
       />
     </Fragment>
   )
 
   getQueryParams = (overridePage?: number) => {
-    const { filterQuestion, filterCategory, page } = this.state
+    const { filterQuestion, filterContexts, page } = this.state
     return {
       question: filterQuestion,
-      categories: filterCategory.map(({ value }) => value),
+      filteredContexts: filterContexts,
       limit: ITEMS_PER_PAGE,
       offset: ((overridePage || page) - 1) * ITEMS_PER_PAGE
     }
@@ -282,7 +266,7 @@ export default class QnaAdmin extends Component<Props> {
         <div className={cx(style.questionTableRow, style.header)}>
           <div className={cx(style.questionTableCell, style.question)}>Question</div>
           <div className={style.questionTableCell}>Answer</div>
-          <div className={style.questionTableCell}>Category</div>
+          <div className={style.questionTableCell}>Contexts</div>
           <div className={cx(style.questionTableCell, style.actions)}></div>
         </div>
         {this.state.items.map(({ id, data }, index) => (
@@ -321,13 +305,13 @@ export default class QnaAdmin extends Component<Props> {
               bp={this.props.bp}
               showQnAModal={this.state.showQnAModal}
               closeQnAModal={this.closeQnAModal}
-              categories={this.state.categoryOptions}
               fetchData={this.fetchData}
               id={this.state.currentItemId}
               isEditing={this.state.isEditing}
+              defaultContext="global"
               page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
               updateQuestion={this.updateQuestion}
-              filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}
+              filters={{ question: this.state.filterQuestion, contexts: this.state.filterContexts }}
             />
           </Panel.Body>
         </Panel>

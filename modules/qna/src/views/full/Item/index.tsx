@@ -34,7 +34,7 @@ const Item: FC<Props> = props => {
 
   return (
     <div role="entry" className={cx(style.questionTableRow, { [style.last]: last })} key={id}>
-      <div className={cx(style.questionTableCell, style.question)}  onClick={() => props.onEditItem(id)}>
+      <div className={cx(style.questionTableCell, style.question)} onClick={() => props.onEditItem(id)}>
         {missingTranslations && (
           <Fragment>
             <Tooltip content="Missing translation">
@@ -62,12 +62,21 @@ const Item: FC<Props> = props => {
             {<Variations isLite={isLite} elements={answers} />}
           </Fragment>
         )}
-        {(!isLite && (item.redirectFlow || item.redirectNode)) && (<Tooltip className={style.redirectTooltip} content="There are redirects associated to this questions, you can view them in the edit form">
-          <Icon icon="pivot" />
-        </Tooltip>)}
+        {!isLite && (item.redirectFlow || item.redirectNode) && (
+          <Tooltip
+            className={style.redirectTooltip}
+            content="There are redirects associated to this questions, you can view them in the edit form"
+          >
+            <Icon icon="pivot" />
+          </Tooltip>
+        )}
       </div>
 
-      {!isLite && <div className={style.questionTableCell} onClick={() => props.onEditItem(id)}>{item.category && item.category}</div>}
+      {!isLite && (
+        <div className={style.questionTableCell} onClick={() => props.onEditItem(id)}>
+          {item.contexts?.join(', ')}
+        </div>
+      )}
 
       <div className={cx(style.questionTableCell, style.actions)}>
         <div className={style.itemAction}>
