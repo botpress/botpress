@@ -51,6 +51,7 @@ interface TableRowProps {
   test: Test
   testResult: TestResult
   onRun: () => void
+  onEdit: () => void
   onDelete: () => void
 }
 
@@ -80,11 +81,12 @@ class TableRow extends Component<TableRowProps> {
     )
   }
 
-  renderContextMenu = (e: React.MouseEvent<HTMLElement>) => {
+  renderContextMenu(e: React.MouseEvent<HTMLElement>) {
     return (
       <Menu>
-        <MenuItem onClick={this.props.onRun} text="Run" />
-        <MenuItem onClick={this.props.onDelete} text="Delete" />
+        <MenuItem onClick={this.props.onRun} text="Run" icon="play" />
+        <MenuItem onClick={this.props.onEdit} text="Edit" icon="edit" />
+        <MenuItem onClick={this.props.onDelete} text="Delete" icon="delete" />
       </Menu>
     )
   }
@@ -94,6 +96,7 @@ interface TestTableProps {
   tests: Test[]
   testResults: _.Dictionary<TestResult>
   createTest: () => void
+  editTest: (test: Test) => void
   runTest: (test: Test) => void
   deleteTest: (testId: Test) => void
 }
@@ -172,6 +175,7 @@ export const TestTable: FC<TestTableProps> = props => {
               test={test}
               testResult={props.testResults[test.id]}
               onRun={props.runTest.bind(this, test)}
+              onEdit={props.editTest.bind(this, test)}
               onDelete={props.deleteTest.bind(this, test)}
             />
           ))}
