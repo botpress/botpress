@@ -1,9 +1,11 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import generate from 'nanoid/generate'
 
 import { bots as mountedBots } from '.'
 
+const prettyId = (length = 10) => generate('1234567890abcdef', length)
 const debug = DEBUG('ndu').sub('migrate')
 
 interface TemplateFile {
@@ -12,23 +14,67 @@ interface TemplateFile {
   buffer: string | Buffer
 }
 
-const addTriggersToListenNodes = async (ghost: sdk.ScopedGhostService) => {
+type FlowNodeView = {
+  nodes: {
+    id: string
+    position: { x: number; y: number }
+  }[]
+}
+
+const addTriggersToListenNodes = (flow: sdk.Flow, flowPath: string) => {
+  for (const node of flow.nodes) {
+    if (node.onReceive != undefined) {
+      const listenNode = (node as unknown) as sdk.ListenNode
+      if (!listenNode.triggers?.length) {
+        debug(`Add triggers property to node %o`, { flow: flowPath, node: node.name })
+        listenNode.triggers = [{ conditions: [{ id: 'always' }] }]
+      }
+    }
+  }
+}
+
+const addSuccessFailureNodes = (flow: sdk.Flow, flowPath: string, flowUi: FlowNodeView) => {
+  const addNode = (type: string) => {
+    const id = prettyId()
+    flow.nodes.push({
+      id,
+      name: type,
+      onEnter: [],
+      // tslint:disable-next-line: no-null-keyword
+      onReceive: null,
+      next: [],
+      type
+    })
+
+    flowUi.nodes.push({
+      id,
+      position: {
+        x: 1000,
+        y: type === 'success' ? 100 : 200
+      }
+    })
+
+    debug(`Add ${type} node to flow ${flowPath}`)
+  }
+
+  const nodeTypes = ['success', 'failure']
+  nodeTypes.forEach(type => !flow.nodes.find(x => x.type === type) && addNode(type))
+}
+
+const updateAllFlows = async (ghost: sdk.ScopedGhostService) => {
   const flowsPaths = await ghost.directoryListing('flows', '*.flow.json')
 
   for (const flowPath of flowsPaths) {
-    const flow = await ghost.readFileAsObject<sdk.Flow>('flows', flowPath)
+    const flowUiPath = flowPath.replace('.flow.json', '.ui.json')
 
-    for (const node of flow.nodes) {
-      if (node.onReceive != undefined) {
-        const listenNode = (node as unknown) as sdk.ListenNode
-        if (!listenNode.triggers?.length) {
-          debug(`Add triggers property to node %o`, { flow: flowPath, node: node.name })
-          listenNode.triggers = [{ conditions: [{ id: 'always' }] }]
-        }
-      }
-    }
+    const flow = await ghost.readFileAsObject<sdk.Flow>('flows', flowPath)
+    const flowUi = await ghost.readFileAsObject<FlowNodeView>('flows', flowUiPath)
+
+    addTriggersToListenNodes(flow, flowPath)
+    addSuccessFailureNodes(flow, flowPath, flowUi)
 
     await ghost.upsertFile('flows', flowPath, JSON.stringify(flow, undefined, 2))
+    await ghost.upsertFile('flows', flowUiPath, JSON.stringify(flowUi, undefined, 2))
   }
 }
 
@@ -54,7 +100,7 @@ const createMissingElements = async (bp: typeof sdk, botId, files: TemplateFile[
     for (const element of content) {
       if (!(await bp.cms.getContentElement(botId, element.id))) {
         debug(`Missing content element, creating... %o`, { element: element.id, type: contentType })
-        await bp.cms.createOrUpdateContentElement(botId, contentType, element.formData)
+        await bp.cms.createOrUpdateContentElement(botId, contentType, element.formData, element.id)
       }
     }
   }
@@ -128,7 +174,7 @@ const migrateBot = async (bp: typeof sdk, botId: string) => {
   await upsertNewFlows(ghost, templateFiles)
   await createMissingElements(bp, botId, templateFiles)
 
-  await addTriggersToListenNodes(ghost)
+  await updateAllFlows(ghost)
 
   await createTopicsFromContexts(bp, ghost, botId)
 
