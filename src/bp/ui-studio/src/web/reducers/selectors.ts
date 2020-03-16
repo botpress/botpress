@@ -13,9 +13,17 @@ export const getAllFlows = createSelector([_getFlowsByName], flowsByName => {
 
 export const getFlowNamesList = createSelector([getAllFlows], flows => {
   const normalFlows = _.reject(flows, x => x.name && x.name.startsWith('skills/'))
+
+  const references = normalFlows.reduce((acc, flow) => {
+    acc[flow.name] = _.flatMap(flow.nodes, node => node.next.map(x => x.node)).filter(x => x.endsWith('.flow.json'))
+    return acc
+  }, {})
+
   return normalFlows.map(x => {
     const withTriggers = x.nodes.filter(x => x.type === 'trigger')
-    return { name: x.name, label: x.label, triggerCount: withTriggers.length }
+    const referencedIn = Object.keys(references).filter(flowName => references[flowName].includes(x.name))
+
+    return { name: x.name, label: x.label, triggerCount: withTriggers.length, referencedIn }
   })
 })
 
