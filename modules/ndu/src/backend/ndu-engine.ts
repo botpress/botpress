@@ -3,17 +3,106 @@ import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { conditionsDefinitions } from './conditions'
-import Database, { nbRankingIntent } from './db'
-import { TriggerGoal } from './typings'
+import { BASE_DATA } from './base-data'
+import Database from './db'
+import { Features } from './typings'
 
 const debug = DEBUG('ndu').sub('processing')
 
-export class UnderstandingEngine {
-  private _allTriggers: Map<string, TriggerGoal[]> = new Map()
-  private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
+const ActionTypes = <const>[
+  'faq_trigger_outside_topic',
+  'faq_trigger_inside_topic',
+  'wf_trigger_inside_topic',
+  'wf_trigger_outside_topic',
+  'wf_trigger_inside_wf',
+  'faq_trigger_inside_wf',
+  'node_trigger_inside_wf'
+]
 
-  constructor(private bp: typeof sdk, private db: Database) {}
+type ActionType = typeof ActionTypes[number]
+type ActionPredictions = { [key in ActionType]: number }
+
+const stringToVec = (choices: string[], value: string) => {
+  const arr = Array(choices.length).fill(0)
+  const idx = choices.indexOf(value)
+  if (idx >= 0) {
+    arr[idx] = 1
+  }
+  return arr
+}
+
+const newFeature = (): Features => ({
+  conf_faq_trigger_inside_topic: 0,
+  conf_faq_trigger_outside_topic: 0,
+  conf_faq_trigger_parameter: 0,
+  conf_node_trigger_inside_wf: 0,
+  conf_wf_trigger_inside_topic: 0,
+  conf_wf_trigger_inside_wf: 0,
+  conf_wf_trigger_outside_topic: 0,
+  current_highest_ranking_trigger_id: '',
+  current_node_id: '',
+  current_workflow_id: '',
+  last_turn_action_name: '',
+  last_turn_same_highest_ranking_trigger_id: false,
+  last_turn_same_node: false,
+  last_turn_since: 0
+})
+
+const dataset: [Features, ActionType][] = BASE_DATA.map(([feat, label]) => [
+  Object.assign(newFeature(), (feat as any) as Features),
+  <ActionType>label
+])
+
+const WfIdToTopic = (wfId: string): string | undefined => {
+  if (wfId === 'n/a' || wfId.startsWith('skills/')) {
+    return
+  }
+
+  return wfId.split('/')[0]
+}
+
+export class UnderstandingEngine {
+  private _allTopicIds: Set<string> = new Set()
+  private _allNodeIds: Set<string> = new Set()
+  private _allWfIds: Set<string> = new Set()
+  private _dialogConditions: sdk.Condition[]
+
+  private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
+  trainer: sdk.MLToolkit.SVM.Trainer
+  predictor: sdk.MLToolkit.SVM.Predictor
+
+  constructor(private bp: typeof sdk, private db: Database) {
+    this.trainer = new this.bp.MLToolkit.SVM.Trainer()
+  }
+
+  public loadConditions() {
+    this._dialogConditions = this.bp.dialog.getConditions()
+  }
+
+  featToVec(features: Features): number[] {
+    const triggerId = stringToVec(
+      _.flatten([...this._allTriggers.values()].map(x => x.map(this.getTriggerId))),
+      features.current_highest_ranking_trigger_id
+    ) // TODO: Fix this for bot specific
+    const nodeId = stringToVec([...this._allNodeIds], features.current_node_id)
+    const wfId = stringToVec([...this._allWfIds], features.current_workflow_id)
+    const actionName = stringToVec([...ActionTypes], features.last_turn_action_name)
+
+    const other = [
+      features.last_turn_same_highest_ranking_trigger_id,
+      features.last_turn_same_node,
+      features.last_turn_since,
+      features.conf_faq_trigger_inside_topic,
+      features.conf_faq_trigger_outside_topic,
+      features.conf_faq_trigger_parameter,
+      features.conf_node_trigger_inside_wf,
+      features.conf_wf_trigger_inside_topic,
+      features.conf_wf_trigger_inside_wf,
+      features.conf_wf_trigger_outside_topic
+    ].map(n => (n === false ? 0 : n === true ? 1 : n))
+
+    return [...triggerId, ...nodeId, ...wfId, ...actionName, ...other]
+  }
 
   queryQna = async (intentName: string, event): Promise<sdk.NDU.Actions[]> => {
     try {
@@ -26,39 +115,43 @@ export class UnderstandingEngine {
     }
   }
 
+  async trainIfNot() {
+    if (!this.predictor) {
+      const data = dataset.map(([feat, label]) => ({ label, coordinates: this.featToVec(feat) }))
+      const duplicatedArray = _.shuffle(_.flatten(_.times(10, () => data)))
+      const model = await this.trainer.train(duplicatedArray)
+      this.predictor = new this.bp.MLToolkit.SVM.Predictor(model)
+    }
+  }
+
   preprocessEvent(event: sdk.IO.IncomingEvent) {
-    const currentFlow = _.get(
-      event.state.session.lastGoals.find(x => x.active),
-      'goal'
-    )
-    const currentTopic = currentFlow?.split('/')[0]
-    const currentGoal = currentFlow?.replace(currentTopic, '').substr(1)
-    const activeContexts = (event.state.session.nluContexts || []).filter(x => x.context !== 'global')
-    const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
+    const currentFlow = event.state?.context?.currentFlow ?? 'n/a'
+    const currentTopic = event.state?.session?.nduContext?.last_topic ?? 'n/a'
+    const currentNode = event.state?.context?.currentNode ?? 'n/a'
+    const isInMiddleOfFlow = currentFlow !== 'n/a'
 
     return {
-      currentTopic,
-      currentGoal,
       currentFlow,
-      activeContexts,
+      currentNode,
+      currentTopic,
       isInMiddleOfFlow
     }
   }
 
-  getPredictionScores(predictions: sdk.NLU.Predictions) {
-    const results = _.flatMap(predictions, ({ confidence, intents }, key) =>
-      intents.map(intent => ({
-        topicName: key,
-        topicConfidence: confidence,
-        topicIntentName: intent.label,
-        topicIntentConfidence: intent.confidence,
-        topicIntentConfidenceAdjusted: confidence * intent.confidence,
-        topicIntentType: intent.label.startsWith('__qna__') ? 'QNA' : 'NLU'
-      }))
-    )
+  // getPredictionScores(predictions: sdk.NLU.Predictions) {
+  //   const results = _.flatMap(predictions, ({ confidence, intents }, key) =>
+  //     intents.map(intent => ({
+  //       topicName: key,
+  //       topicConfidence: confidence,
+  //       topicIntentName: intent.label,
+  //       topicIntentConfidence: intent.confidence,
+  //       topicIntentConfidenceAdjusted: confidence * intent.confidence,
+  //       topicIntentType: intent.label.startsWith('__qna__') ? 'QNA' : 'NLU'
+  //     }))
+  //   )
 
-    return _.orderBy(results, 'topicIntentConfidenceAdj', 'desc')
-  }
+  //   return _.orderBy(results, 'topicIntentConfidenceAdj', 'desc')
+  // }
 
   async processEvent(event: sdk.IO.IncomingEvent) {
     Object.assign(event, {
@@ -68,102 +161,280 @@ export class UnderstandingEngine {
       }
     })
 
-    const { currentTopic, currentGoal, currentFlow, activeContexts, isInMiddleOfFlow } = this.preprocessEvent(event)
+    if (event.type !== 'text' && event.type !== 'quick_reply') {
+      return
+    }
 
-    debug('Processing %o', { currentFlow, activeContexts, isInMiddleOfFlow })
+    const { currentFlow, currentTopic, currentNode, isInMiddleOfFlow } = this.preprocessEvent(event)
+    debug('Processing %o', { currentFlow, currentNode, isInMiddleOfFlow })
 
     const actions = []
 
-    // Need some magic to get the best topic (maybe it's the second one with better scoring intents? )
-    const bestTopic = _.findKey(event.nlu.predictions, x => x.confidence > this.MIN_CONFIDENCE)
+    // // Need some magic to get the best topic (maybe it's the second one with better scoring intents? )
+    // const bestTopic = _.findKey(event.nlu.predictions, x => x.confidence > this.MIN_CONFIDENCE)
 
-    // No active goal or contexts, so we'll add the top as context
-    if (!(currentFlow && isInMiddleOfFlow) && !activeContexts.length && event.nlu.predictions) {
-      if (bestTopic) {
-        event.state.session.nluContexts = [...(event.state.session.nluContexts || []), { context: bestTopic, ttl: 3 }]
-        debug(`No active goal or context. Activate topic with highest confidence: ${bestTopic} `)
-      } else {
-        debug(`No active goal or context. Top context prediction too low `)
-      }
-    }
+    // // No active goal or contexts, so we'll add the top as context
+    // if (!(currentFlow && isInMiddleOfFlow) && !activeContexts.length && event.nlu.predictions) {
+    //   if (bestTopic) {
+    //     event.state.session.nluContexts = [...(event.state.session.nluContexts || []), { context: bestTopic, ttl: 3 }]
+    //     debug(`No active goal or context. Activate topic with highest confidence: ${bestTopic} `)
+    //   } else {
+    //     debug(`No active goal or context. Top context prediction too low `)
+    //   }
+    // }
 
-    const predictionScores = this.getPredictionScores(event.nlu.predictions)
+    // const predictionScores = this.getPredictionScores(event.nlu.predictions)
 
-    const bestIntents = event.nlu.predictions?.[bestTopic]?.intents?.map(x => ({
-      name: x.label,
-      confidence: x.confidence,
-      context: bestTopic
-    }))
+    // const bestIntents = event.nlu.predictions?.[bestTopic]?.intents?.map(x => ({
+    //   name: x.label,
+    //   confidence: x.confidence,
+    //   context: bestTopic
+    // }))
 
-    // Overwrite the NLU detected intents
-    event.nlu.intent = bestIntents?.[0]
-    event.nlu.intents = bestIntents
+    // // Overwrite the NLU detected intents
+    // event.nlu.intent = bestIntents?.[0]
+    // event.nlu.intents = bestIntents
 
     // Then process triggers on what the NDU decided
     await this._processTriggers(event)
 
-    const possibleGoals = this._getGoalsWithCompletedTriggers(event)
-    possibleGoals.length && debug(`Possible goals: %o`, possibleGoals)
+    //////////////////////////
+    // Possible outcomes
+    //////////////////////////
 
-    // If it's a QNA, we query the module to get the actions to execute
-    if (event.nlu.intent?.name?.startsWith('__qna__')) {
-      debug(`Sending knowledge for %o`, event.nlu.intent)
-      const qnaActions = await this.queryQna(event.nlu.intent.name, event)
+    // [Outside of workflow]
+    // - Answer with FAQ
+    // - Start a workflow
+    // - Misunderstood
+    // [In middle of flow]
+    // - Continue processing flow (node trigger)
+    // - Conitnue processing flow (internal workflow trigger) [later]
+    // - Answer with FAQ inside current topic
+    // - Answer with FAQ outside current topic
+    // - Start an other workflow inside the same topic
+    // - Start an other workflow in other topic
 
-      // if (isInMiddleOfFlow && qnaActions.find(x => x.action === 'redirect')) {
-      //   qnaActions = qnaActions.filter(x => x.action === 'redirect')
-      //   // actions.push({ action: 'continue' })
-      // }
+    // Features
+    // - time since last input
+    // - number of turns in workflow
+    // - number of turns on same node
+    // - confidence of faq outside topic
+    // - confidence of faq inside topic
+    // - confidence of wf trigger inside topic
+    // - confidence of wf trigger outside topic
+    // - confidence of wf trigger inside workflow
+    // - last action name
+    // X highest ranking trigger
+    // X last turn higest ranking trigger same
 
-      actions.push(...qnaActions)
-    }
+    // TODO: NDU Maybe introduce trigger boosts in some circumstances, eg. exact match on workflow node or button click
 
-    // When not actively in a flow and a trigger is active, redirect the user to a goal
-    if (possibleGoals.length && !isInMiddleOfFlow) {
-      // Need some magic to pick the best goal based on parameters
-      const goal = possibleGoals[0]
+    /** This metadata is persisted to be able to compute the "over-time" features the next turn */
+    const metadata: sdk.IO.NduContext = Object.assign(
+      {
+        last_turn_action_name: 'n/a',
+        last_turn_highest_ranking_trigger_id: 'n/a',
+        last_turn_node_id: 'n/a',
+        last_turn_ts: Date.now(),
+        last_topic: ''
+      },
+      event.state?.session?.nduContext ?? {}
+    )
 
-      debug(`Not currently in a flow, redirecting to goal %o `, goal)
-      const [topic] = goal.split('/')
+    // TODO: NDU compute & rank triggers
 
-      event.state.session.nluContexts = [
-        { context: 'global', ttl: 2 },
-        { context: topic, ttl: 2 }
-      ]
-
-      actions.push({ action: 'startGoal', data: { goal } })
-      actions.push({ action: 'continue' })
-    }
-
-    // Nothing will be done, continue with the normal flow
-    if (!actions.length) {
-      actions.push({ action: 'continue' })
-    }
-
-    event.ndu.actions = actions
-
-    await this.db.insertData({
-      incomingEventId: event.id,
-      currentTopicName: currentTopic,
-      currentTopicGoal: currentGoal,
-      currentTopicLastActionName: undefined,
-      currentTopicLastActionSince: undefined,
-      nduDecisionActions: event.ndu.actions,
-      nduDecisionConfidence: event.nlu.intent?.confidence,
-      ..._.take(predictionScores, nbRankingIntent).reduce((acc, pred, idx) => {
-        return {
-          ...acc,
-          ..._.mapKeys(pred, (_val, key) => `ranking${idx + 1}${key}`)
-        }
-      }, {})
+    const triggers = _.toPairs(event.ndu.triggers).map(([id, result]) => {
+      const confidence = Object.values(result.result).reduce((prev, next) => prev * next, 1)
+      return {
+        id,
+        confidence,
+        trigger: result.trigger,
+        topic: id.split('/')[1],
+        wf: (result.trigger as sdk.NDU.NodeTrigger | sdk.NDU.WorkflowTrigger).workflowId,
+        nodeId: (result.trigger as sdk.NDU.NodeTrigger).nodeId
+      }
     })
+
+    const fType = (type: sdk.NDU.Trigger['type']) => (t: typeof triggers) => t.filter(x => x.trigger.type === type)
+    const fInTopic = (t: typeof triggers) =>
+      t.filter(x => (x.topic === currentTopic && currentTopic !== 'n/a') || x.topic === 'skills')
+    const fOutTopic = (t: typeof triggers) => t.filter(x => x.topic !== currentTopic || currentTopic === 'n/a')
+    const fInWf = (t: typeof triggers) => t.filter(x => x.wf === currentFlow)
+    const fOnNode = (t: typeof triggers) => t.filter(x => x.nodeId === currentNode)
+    const fMax = (t: typeof triggers) => _.maxBy(t, 'confidence') || { confidence: 0, id: 'n/a' }
+
+    const actionFeatures = {
+      conf_all: fMax(triggers),
+      conf_faq_trigger_outside_topic: fMax(fOutTopic(fType('faq')(triggers))),
+      conf_faq_trigger_inside_topic: fMax(fInTopic(fType('faq')(triggers))),
+      conf_faq_trigger_parameter: 0, // TODO: doesn't exist yet
+      conf_wf_trigger_inside_topic: fMax(fInTopic(fType('workflow')(triggers))),
+      conf_wf_trigger_outside_topic: fMax(fOutTopic(fType('workflow')(triggers))),
+      conf_wf_trigger_inside_wf: 0, // TODO: doesn't exist yet
+      conf_node_trigger_inside_wf: fMax(fInTopic(fType('node')(fInWf(fOnNode(triggers)))))
+    }
+
+    const features: Features = {
+      ///////////
+      // These features allow fitting of exceptional behaviors in specific circumstances
+      current_workflow_id: currentFlow,
+      current_node_id: currentNode,
+      current_highest_ranking_trigger_id: actionFeatures.conf_all.id,
+      ///////////
+      // Understanding features
+      conf_faq_trigger_outside_topic: actionFeatures.conf_faq_trigger_outside_topic.confidence,
+      conf_faq_trigger_inside_topic: actionFeatures.conf_faq_trigger_inside_topic.confidence,
+      conf_faq_trigger_parameter: 0, // TODO: doesn't exist yet
+      conf_wf_trigger_inside_topic: actionFeatures.conf_wf_trigger_inside_topic.confidence,
+      conf_wf_trigger_outside_topic: actionFeatures.conf_wf_trigger_outside_topic.confidence,
+      conf_wf_trigger_inside_wf: 0, // TODO: doesn't exist yet
+      conf_node_trigger_inside_wf: actionFeatures.conf_node_trigger_inside_wf.confidence,
+      ///////////
+      // Over-time features
+      last_turn_since: Date.now() - metadata.last_turn_ts,
+      last_turn_same_node: isInMiddleOfFlow && metadata.last_turn_node_id === `${currentFlow}/${currentNode}`,
+      last_turn_action_name: metadata.last_turn_action_name,
+      last_turn_same_highest_ranking_trigger_id:
+        metadata.last_turn_highest_ranking_trigger_id === actionFeatures.conf_all.id
+    }
+
+    const predict = async (input: Features): Promise<ActionPredictions> => {
+      const vec = this.featToVec(input)
+      const preds = await this.predictor.predict(vec)
+      // TODO: NDU Put ML here
+      // TODO: NDU Import a fine-tuned model for this bot for prediction
+      return ActionTypes.reduce<ActionPredictions>((obj, curr) => {
+        const pred = preds.find(x => x.label === curr)
+        obj[curr] = pred?.confidence ?? 0
+        return obj
+      }, <any>{})
+    }
+
+    await this.trainIfNot()
+    const prediction = await predict(features)
+    const topAction = _.maxBy(_.toPairs(prediction), '1')[0]
+
+    const actionToTrigger: { [key in ActionType]: string } = {
+      faq_trigger_inside_topic: actionFeatures.conf_faq_trigger_inside_topic.id,
+      faq_trigger_inside_wf: '',
+      faq_trigger_outside_topic: actionFeatures.conf_faq_trigger_outside_topic.id,
+      node_trigger_inside_wf: actionFeatures.conf_node_trigger_inside_wf.id,
+      wf_trigger_inside_topic: actionFeatures.conf_wf_trigger_inside_topic.id,
+      wf_trigger_inside_wf: '',
+      wf_trigger_outside_topic: actionFeatures.conf_wf_trigger_outside_topic.id
+    }
+
+    event.ndu.predictions = ActionTypes.reduce((obj, action) => {
+      obj[action] = {
+        confidence: prediction[action],
+        triggerId: actionToTrigger[action]
+      }
+      return obj
+    }, {} as any)
+
+    const electedTrigger = event.ndu.triggers[actionToTrigger[topAction]]
+
+    if (electedTrigger) {
+      switch (electedTrigger.trigger.type) {
+        case 'workflow':
+          event.ndu.actions = [
+            {
+              action: 'redirect',
+              data: { flow: electedTrigger.trigger.workflowId, node: electedTrigger.trigger.nodeId }
+            },
+            { action: 'continue' }
+          ]
+          break
+        case 'faq':
+          const qnaActions = await this.queryQna(electedTrigger.trigger.faqId, event)
+          event.ndu.actions = [...qnaActions]
+          break
+        case 'node':
+          event.ndu.actions = [{ action: 'continue' }] // TODO: NDU
+          break
+      }
+    } else {
+      event.ndu.actions = []
+    }
+
+    event.state.session.nduContext = {
+      last_turn_action_name: topAction,
+      last_turn_highest_ranking_trigger_id: actionFeatures.conf_all.id,
+      last_turn_node_id: isInMiddleOfFlow && `${currentFlow}/${currentNode}`,
+      last_turn_ts: Date.now(),
+      last_topic:
+        electedTrigger?.trigger.type === 'workflow'
+          ? WfIdToTopic(electedTrigger.trigger.workflowId) || currentTopic
+          : currentTopic
+    }
+
+    // TODO: NDU what to do if no action elected
+    // TODO: NDU what to do if confused action
+
+    // return
+
+    // const possibleGoals = this._getGoalsWithCompletedTriggers(event)
+    // possibleGoals.length && debug(`Possible goals: %o`, possibleGoals)
+
+    // // If it's a QNA, we query the module to get the actions to execute
+    // if (event.nlu.intent?.name?.startsWith('__qna__')) {
+    //   debug(`Sending knowledge for %o`, event.nlu.intent)
+    // const qnaActions = await this.queryQna(event.nlu.intent.name, event)
+
+    // if (isInMiddleOfFlow && qnaActions.find(x => x.action === 'redirect')) {
+    //   qnaActions = qnaActions.filter(x => x.action === 'redirect')
+    //   // actions.push({ action: 'continue' })
+    // }
+
+    // actions.push(...qnaActions)
+    // }
+
+    // // When not actively in a flow and a trigger is active, redirect the user to a goal
+    // if (possibleGoals.length && !isInMiddleOfFlow) {
+    //   // Need some magic to pick the best goal based on parameters
+    //   const goal = possibleGoals[0]
+
+    //   debug(`Not currently in a flow, redirecting to goal %o `, goal)
+    //   const [topic] = goal.split('/')
+
+    //   event.state.session.nluContexts = [
+    //     { context: 'global', ttl: 2 },
+    //     { context: topic, ttl: 2 }
+    //   ]
+
+    //   actions.push({ action: 'startGoal', data: { goal } })
+    //   actions.push({ action: 'continue' })
+    // }
+
+    // // Nothing will be done, continue with the normal flow
+    // if (!actions.length) {
+    //   actions.push({ action: 'continue' })
+    // }
+
+    // event.ndu.actions = actions
+
+    // await this.db.insertData({
+    //   incomingEventId: event.id,
+    //   currentTopicName: currentTopic,
+    //   currentTopicGoal: currentGoal,
+    //   currentTopicLastActionName: undefined,
+    //   currentTopicLastActionSince: undefined,
+    //   nduDecisionActions: event.ndu.actions,
+    //   nduDecisionConfidence: event.nlu.intent?.confidence,
+    //   ..._.take(predictionScores, nbRankingIntent).reduce((acc, pred, idx) => {
+    //     return {
+    //       ...acc,
+    //       ..._.mapKeys(pred, (_val, key) => `ranking${idx + 1}${key}`)
+    //     }
+    //   }, {})
+    // })
   }
 
   private _getGoalsWithCompletedTriggers(event: sdk.IO.IncomingEvent) {
     return Object.keys(event.ndu.triggers)
       .map(triggerId => {
-        const { result, goal } = event.ndu.triggers[triggerId]
-        return !_.isEmpty(result) && _.every(_.values(result), x => x > 0.5) && goal
+        const { result, trigger } = event.ndu.triggers[triggerId]
+        return !_.isEmpty(result) && _.every(_.values(result), x => x > 0.5) && trigger.type
       })
       .filter(Boolean)
   }
@@ -172,18 +443,48 @@ export class UnderstandingEngine {
     if (!this._allTriggers.has(event.botId)) {
       await this._loadBotGoals(event.botId)
     }
+    const triggers = this._allTriggers.get(event.botId)
 
-    event.ndu.triggers = this._allTriggers.get(event.botId).reduce((result, trigger) => {
-      result[trigger.id] = { goal: trigger.goal, result: this._testConditions(event, trigger.conditions) }
-      return result
-    }, {})
+    event.ndu.triggers = {}
+
+    for (const trigger of triggers) {
+      if (
+        trigger.type === 'node' &&
+        (event.state?.context.currentFlow !== trigger.workflowId ||
+          event.state?.context?.currentNode !== trigger.nodeId)
+      ) {
+        continue
+      }
+
+      const id = this.getTriggerId(trigger)
+      const result = this._testConditions(event, trigger.conditions)
+      event.ndu.triggers[id] = { result, trigger }
+    }
   }
 
-  private _testConditions(event: sdk.IO.IncomingEvent, conditions: sdk.FlowCondition[]) {
+  private getTriggerId(trigger: sdk.NDU.Trigger) {
+    return trigger.type === 'workflow'
+      ? `wf/${trigger.workflowId}`
+      : trigger.type === 'faq'
+      ? `faq/${trigger.topicName}/${trigger.faqId}`
+      : trigger.type === 'node'
+      ? `node/${trigger.workflowId}/${trigger.nodeId}`
+      : 'invalid_trigger/' + _.random(10 ^ 9, false)
+  }
+
+  private _testConditions(event: sdk.IO.IncomingEvent, conditions: sdk.DecisionTriggerCondition[]) {
     return conditions.reduce((result, condition) => {
-      const executer = conditionsDefinitions.find(x => x.id === condition.id)
+      const executer = this._dialogConditions.find(x => x.id === condition.id)
       if (executer) {
-        result[condition.id] = executer.evaluate(event, condition.params)
+        try {
+          result[condition.id] = executer.evaluate(event, condition.params)
+        } catch (err) {
+          this.bp.logger
+            .forBot(event.botId)
+            .attachError(err)
+            .warn(`Error evaluating NDU condition ${condition.id}`)
+          result[condition.id] = -1 // TODO: NDU where do we want to show evaluation errors ?
+        }
       } else {
         console.error(`Unknown condition "${condition.id}"`)
       }
@@ -193,18 +494,84 @@ export class UnderstandingEngine {
 
   async invalidateGoals(botId: string) {
     this._allTriggers.delete(botId)
+    this.predictor = undefined
   }
 
   private async _loadBotGoals(botId: string) {
     const flowsPaths = await this.bp.ghost.forBot(botId).directoryListing('flows', '*.flow.json')
-    const flows: any[] = await Promise.map(flowsPaths, async (flowPath: string) => {
-      return {
-        name: flowPath,
-        ...((await this.bp.ghost.forBot(botId).readFileAsObject('flows', flowPath)) as FlowView)
-      }
-    })
+    const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
+      name: flowPath,
+      ...(await this.bp.ghost.forBot(botId).readFileAsObject<FlowView>('flows', flowPath))
+    }))
 
-    const triggers = _.flatMap(flows, x => (x.triggers || []).map(tr => ({ ...tr, goal: x.name }))) as TriggerGoal[]
+    const intentsPath = await this.bp.ghost.forBot(botId).directoryListing('intents', '*.json')
+    const qnaPaths = intentsPath.filter(x => x.includes('__qna__')) // TODO: change this
+    const faqs: sdk.NLU.IntentDefinition[] = await Promise.map(qnaPaths, (qnaPath: string) =>
+      this.bp.ghost.forBot(botId).readFileAsObject<sdk.NLU.IntentDefinition>('intents', qnaPath)
+    )
+
+    const triggers: sdk.NDU.Trigger[] = []
+
+    for (const flow of flows) {
+      const topicName = flow.name.split('/')[0]
+      this._allTopicIds.add(topicName)
+      this._allWfIds.add(flow.name)
+
+      for (const node of flow.nodes) {
+        if (node.type === 'listener') {
+          this._allNodeIds.add(node.id)
+        }
+
+        if (node.type === 'trigger') {
+          const tn = node as sdk.TriggerNode
+          triggers.push(<sdk.NDU.WorkflowTrigger>{
+            conditions: tn.conditions.map(x => ({
+              ...x,
+              params: { ...x.params, topicName }
+            })),
+            type: 'workflow',
+            workflowId: flow.name,
+            nodeId: tn.name
+          })
+        } else if ((<sdk.ListenNode>node)?.triggers?.length) {
+          const ln = node as sdk.ListenNode
+          triggers.push(
+            ...ln.triggers.map(
+              trigger =>
+                <sdk.NDU.NodeTrigger>{
+                  nodeId: ln.name,
+                  conditions: trigger.conditions.map(x => ({
+                    ...x,
+                    params: { ...x.params, topicName }
+                  })),
+                  type: 'node',
+                  workflowId: flow.name
+                }
+            )
+          )
+        }
+      }
+    }
+
+    for (const faq of faqs) {
+      for (const topicName of faq.contexts) {
+        triggers.push(<sdk.NDU.FaqTrigger>{
+          topicName: topicName,
+          conditions: [
+            {
+              id: 'user_intent_is',
+
+              params: {
+                intentName: faq.name,
+                topicName: topicName
+              }
+            }
+          ],
+          faqId: faq.name,
+          type: 'faq'
+        })
+      }
+    }
 
     this._allTriggers.set(botId, triggers)
   }

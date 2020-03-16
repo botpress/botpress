@@ -1,23 +1,10 @@
 import * as sdk from 'botpress/sdk'
-import { validate } from 'joi'
-import _ from 'lodash'
+import { upperFirst } from 'lodash'
 
-import { conditionsDefinitions } from './conditions'
-import { BotStorage } from './typings'
-import { TopicSchema } from './validation'
+import migrateBot from './migrate'
 
-export default async (bp: typeof sdk, bots: BotStorage) => {
+export default async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('ndu')
-
-  router.get('/conditions', async (req, res) => {
-    res.send(conditionsDefinitions)
-  })
-
-  router.get('/topics', async (req, res) => {
-    const storage = bots[req.params.botId]
-    res.send(await storage.getTopics())
-  })
-
   router.get('/events', async (req, res) => {
     res.send(
       await bp
@@ -29,23 +16,23 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
     )
   })
 
-  router.post('/topic/:topicName?', async (req, res) => {
-    const { topicName } = req.params
-    const storage = bots[req.params.botId]
-
+  router.post('/migrate', async (req, res) => {
     try {
-      const topic = await validate(req.body, TopicSchema)
-      const topics: any = await storage.getTopics()
-
-      if (!topicName) {
-        await storage.saveTopics([...topics, topic])
-      } else {
-        await storage.saveTopics([...topics.filter(x => x.name !== topicName), topic])
-      }
-
+      await migrateBot(bp, req.params.botId)
       res.sendStatus(200)
     } catch (err) {
-      res.status(400).send(err)
+      res.status(400).send(err.message)
     }
+  })
+
+  router.get('/channels', async (req, res) => {
+    const channels = Object.keys(process.LOADED_MODULES)
+      .filter(x => x.startsWith('channel'))
+      .map(x => {
+        const value = x.replace('channel-', '')
+        return { label: upperFirst(value), value }
+      })
+
+    res.send([...channels, { label: 'Converse', value: 'api' }])
   })
 }

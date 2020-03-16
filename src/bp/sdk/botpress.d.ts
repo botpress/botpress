@@ -110,6 +110,8 @@ declare module 'botpress/sdk' {
     skills?: Skill[]
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
+    /** List of new conditions that the module can register */
+    dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -121,6 +123,17 @@ declare module 'botpress/sdk' {
      * onBotUnmount is called for each bots before this one is called
      */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => Promise<void>
+    /**
+     * Called when a topic is being changed.
+     * If oldName is not set, then the topic `newName` is being created
+     * If newName is not set, then the topic `oldName` is being deleted
+     */
+    onTopicChanged?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      oldName?: string,
+      newName?: string
+    ) => Promise<void>
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => Promise<void>
     onFlowRenamed?: (
       bp: typeof import('botpress/sdk'),
@@ -492,14 +505,39 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NDU {
+    interface GenericTrigger {
+      conditions: DecisionTriggerCondition[]
+    }
+
+    export interface WorkflowTrigger extends GenericTrigger {
+      type: 'workflow'
+      workflowId: string
+      nodeId: string
+    }
+
+    export interface FaqTrigger extends GenericTrigger {
+      type: 'faq'
+      faqId: string
+      topicName: string
+    }
+
+    export interface NodeTrigger extends GenericTrigger {
+      type: 'node'
+      workflowId: string
+      nodeId: string
+    }
+
+    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
+
     export interface DialogUnderstanding {
       triggers: {
         [triggerId: string]: {
-          goal: string
-          result: any
+          result: Dic<number>
+          trigger: Trigger
         }
       }
       actions: Actions[]
+      predictions: { [key: string]: { triggerId: string; confidence: number } }
     }
 
     export interface Actions {
@@ -718,6 +756,7 @@ declare module 'botpress/sdk' {
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
+      nduContext?: NduContext
       lastGoals: GoalHistory[]
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
@@ -756,6 +795,14 @@ declare module 'botpress/sdk' {
       context: string
       /** Represent the number of turns before the context is removed from the session */
       ttl: number
+    }
+
+    export interface NduContext {
+      last_turn_action_name: string
+      last_turn_highest_ranking_trigger_id: string
+      last_turn_node_id: string
+      last_turn_ts: number
+      last_topic: string
     }
 
     export interface DialogTurnHistory {
@@ -956,6 +1003,7 @@ declare module 'botpress/sdk' {
     languages: string[]
     locked: boolean
     pipeline_status: BotPipelineStatus
+    oneflow?: boolean
   }
 
   export type Pipeline = Stage[]
@@ -1108,16 +1156,9 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
-    triggers?: FlowTrigger[]
   }
 
-  export interface FlowTrigger {
-    id: string
-    type: 'user-event'
-    conditions: FlowCondition[]
-  }
-
-  export interface FlowCondition {
+  export interface DecisionTriggerCondition {
     id: string
     params?: { [key: string]: any }
   }
@@ -1130,6 +1171,8 @@ declare module 'botpress/sdk' {
     description?: string
     /** The definition of all parameters used by this condition */
     params?: ConditionParams
+    /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
+    displayOrder?: number
     /** The editor will use the custom component to provide the requested parameters */
     editor?: {
       module: string
@@ -1211,7 +1254,15 @@ declare module 'botpress/sdk' {
     readonly lastModified?: Date
   } & NodeActions
 
-  export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
+  export type TriggerNode = FlowNode & {
+    conditions: DecisionTriggerCondition[]
+  }
+
+  export type ListenNode = FlowNode & {
+    triggers: { conditions: DecisionTriggerCondition[] }[]
+  }
+
+  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'>
 
   /**
    * Node Transitions are all the possible outcomes when a user's interaction on a node is completed. The possible destinations
@@ -1444,6 +1495,11 @@ declare module 'botpress/sdk' {
     extend(duration: number): Promise<void>
   }
 
+  export interface FileContent {
+    name: string
+    content: string | Buffer
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -1637,6 +1693,11 @@ declare module 'botpress/sdk' {
       flowName: string,
       nodeName?: string
     ): Promise<void>
+
+    /**
+     * Returns the list of conditions that can be used in an NLU Trigger node
+     */
+    export function getConditions(): Condition[]
   }
 
   export namespace config {
@@ -1776,6 +1837,8 @@ declare module 'botpress/sdk' {
       workspaceId: string,
       allowOverwrite?: boolean
     ): Promise<void>
+
+    export function getBotTemplate(moduleName: string, templateName: string): Promise<FileContent[]>
   }
 
   export namespace workspaces {

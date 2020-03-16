@@ -31,7 +31,7 @@ const ConditionDropdown: FC<Props> = props => {
 
     setElements(elements)
     selectItem(elements[0])
-  }, [])
+  }, [props.ignored])
 
   const selectItem = (item: Condition) => {
     setSelected(item)
@@ -81,7 +81,4 @@ const renderOption: ItemRenderer<Condition> = (option, { handleClick, modifiers 
 
 const mapStateToProps = state => ({ conditions: state.ndu.conditions })
 
-export default connect<StateProps, undefined, OwnProps>(
-  mapStateToProps,
-  undefined
-)(ConditionDropdown)
+export default connect<StateProps, undefined, OwnProps>(mapStateToProps, undefined)(ConditionDropdown)

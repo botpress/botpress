@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
 
 import { UnderstandingEngine } from './ndu-engine'
-import { BotStorage } from './typings'
+import { MountedBots } from './typings'
 
-export const registerMiddleware = async (bp: typeof sdk, nduEngine: UnderstandingEngine, bots: BotStorage) => {
+export const registerMiddleware = async (bp: typeof sdk, nduEngine: UnderstandingEngine, bots: MountedBots) => {
   bp.events.registerMiddleware({
     name: 'ndu.incoming',
     direction: 'incoming',

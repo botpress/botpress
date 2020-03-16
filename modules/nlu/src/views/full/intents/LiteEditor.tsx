@@ -1,5 +1,6 @@
 import { Button, ControlGroup, FormGroup } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../../api'
@@ -16,10 +17,10 @@ interface IntentParams {
 interface Props {
   bp: any
   contentLang: string
+  forceSave: boolean
   topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
-  forceSave?: boolean
 }
 
 export const sanitizeName = (text: string) =>
@@ -32,6 +33,15 @@ export const LiteEditor: FC<Props> = props => {
   const [intents, setIntents] = useState<NLU.IntentDefinition[]>([])
   const [currentIntent, setCurrentIntent] = useState(props.params.intentName)
   const [isModalOpen, setModalOpen] = useState(false)
+  const [dirtyIntents, setDirtyIntents] = useState([])
+
+  useEffect(() => {
+    // Ensure the current topic is in the intent's contexts
+    if (props.forceSave && dirtyIntents.length) {
+      // tslint:disable-next-line: no-floating-promises
+      api.refreshIntentTopics([...dirtyIntents, currentIntent])
+    }
+  }, [props.forceSave])
 
   const api = makeApi(props.bp)
 
@@ -41,17 +51,8 @@ export const LiteEditor: FC<Props> = props => {
   }, [])
 
   useEffect(() => {
-    // Ensure the current topic is in the intent's contexts
-    if (props.forceSave) {
-      // tslint:disable-next-line: no-floating-promises
-      api.fetchIntent(currentIntent).then(async intent => {
-        if (!intent.contexts.includes(props.topicName)) {
-          intent.contexts.push(props.topicName)
-          await api.updateIntent(currentIntent, intent)
-        }
-      })
-    }
-  }, [props.forceSave])
+    setDirtyIntents([])
+  }, [isModalOpen])
 
   const loadIntents = async () => {
     setIntents(await api.fetchIntents())
@@ -71,8 +72,9 @@ export const LiteEditor: FC<Props> = props => {
     setCurrentIntent(sanitizedName)
   }
 
-  const onIntentChanged = intent => {
+  const onIntentChanged = async intent => {
     if (intent) {
+      setDirtyIntents([...dirtyIntents, currentIntent])
       setCurrentIntent(intent.name)
       props.updateParams({ intentName: intent.name })
     }

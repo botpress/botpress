@@ -1,15 +1,11 @@
-import { Button, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
-import { Condition, Flow, FlowTrigger } from 'botpress/sdk'
+import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
+import { Flow } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, renameFlow, updateFlow } from '~/actions'
-import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
+import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
-
-import style from '../style.scss'
-
-import TriggerEditor from './TriggerEditor'
 
 interface OwnProps {
   isOpen: boolean
@@ -17,12 +13,10 @@ interface OwnProps {
   readOnly: boolean
   canRename: boolean
   selectedTopic?: string
-  initialTab?: string
   toggle: () => void
 }
 
 interface StateProps {
-  conditions: Condition[]
   flows: Flow[]
 }
 
@@ -35,43 +29,24 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps & OwnProps
 
 const EditGoalModal: FC<Props> = props => {
-  const [tab, setTab] = useState(props.initialTab || 'triggers')
   const [name, setName] = useState<string>('')
   const [label, setLabel] = useState<string>('')
   const [description, setDescription] = useState<string>('')
-  const [triggers, setTriggers] = useState<FlowTrigger[]>([])
 
   useEffect(() => {
-    setTab(props.initialTab || 'triggers')
-
     const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
     if (originalFlow) {
-      const { name, label, description, triggers } = originalFlow
+      const { name, label, description } = originalFlow
 
       setName(name.replace(/\.flow\.json$/i, ''))
       setLabel(label || '')
       setDescription(description || '')
-      setTriggers(triggers)
     } else {
       setName(props.selectedTopic ? props.selectedTopic + '/' : '')
       setLabel('')
       setDescription('')
-      setTriggers([])
     }
   }, [props.isOpen])
-
-  const getNameOnly = (name: string): string => {
-    const explodedName = name.split('/')
-
-    return explodedName[explodedName.length - 1].replace(/\.flow\.json$/i, '')
-  }
-
-  const getDirOnly = (name: string): string => {
-    const explodedName: string[] = name.split('/')
-    explodedName.pop()
-
-    return explodedName.join('/')
-  }
 
   const submit = async () => {
     const fullName = `${name}.flow.json`
@@ -95,7 +70,6 @@ const EditGoalModal: FC<Props> = props => {
     setName('')
     setLabel('')
     setDescription('')
-    setTriggers([])
     props.toggle()
   }
 
@@ -107,92 +81,52 @@ const EditGoalModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
-      isOpen={props.isOpen}
-      onClose={closeModal}
-      onSubmit={submit}
-      style={{ width: 900, minHeight: 450 }}
-      {...dialog}
-    >
+    <BaseDialog isOpen={props.isOpen} onClose={closeModal} onSubmit={submit} {...dialog}>
       <DialogBody>
-        <div style={{ minHeight: 300 }}>
-          <Tabs id="tabs" vertical onChange={tab => setTab(tab as string)} selectedTabId={tab}>
-            <Tab
-              id="triggers"
-              title="Triggers"
-              className={style.tabs}
-              panel={
-                <div style={{ width: '740px' }}>
-                  <TriggerEditor
-                    goalName={name}
-                    selectedTopic={props.selectedTopic}
-                    triggers={triggers}
-                    closeModal={closeModal}
-                  />
-                </div>
-              }
+        <div>
+          <FormGroup label="Name" helperText="The name is used internally">
+            <InputGroup
+              id="input-flow-name"
+              tabIndex={1}
+              required
+              value={name || ''}
+              onChange={e => setName(sanitizeName(e.currentTarget.value))}
+              autoFocus
             />
+          </FormGroup>
 
-            <Tab
-              id="overview"
-              title="Overview"
-              className={style.tabs}
-              panel={
-                <div>
-                  <FormGroup label="Name" helperText="The name is used internally">
-                    <InputGroup
-                      id="input-flow-name"
-                      tabIndex={1}
-                      required
-                      value={name || ''}
-                      onChange={e => setName(sanitizeName(e.currentTarget.value))}
-                      autoFocus
-                    />
-                  </FormGroup>
-
-                  <FormGroup
-                    label="Label"
-                    helperText="The label is a friendly name that can replace the name in the topic list"
-                  >
-                    <InputGroup
-                      id="input-flow-label"
-                      tabIndex={2}
-                      value={label || ''}
-                      onChange={e => setLabel(e.currentTarget.value)}
-                    />
-                  </FormGroup>
-
-                  <FormGroup label="Description">
-                    <TextArea
-                      id="input-flow-description"
-                      rows={3}
-                      tabIndex={3}
-                      value={description || ''}
-                      fill
-                      onChange={e => setDescription(e.currentTarget.value)}
-                    />
-                  </FormGroup>
-
-                  <Button
-                    type="submit"
-                    id="btn-submit"
-                    tabIndex={4}
-                    text="Save changes"
-                    intent={Intent.PRIMARY}
-                    className={style.modalFooter}
-                  />
-                </div>
-              }
+          <FormGroup
+            label="Label"
+            helperText="The label is a friendly name that can replace the name in the topic list"
+          >
+            <InputGroup
+              id="input-flow-label"
+              tabIndex={2}
+              value={label || ''}
+              onChange={e => setLabel(e.currentTarget.value)}
             />
-          </Tabs>
+          </FormGroup>
+
+          <FormGroup label="Description">
+            <TextArea
+              id="input-flow-description"
+              rows={3}
+              tabIndex={3}
+              value={description || ''}
+              fill
+              onChange={e => setDescription(e.currentTarget.value)}
+            />
+          </FormGroup>
         </div>
       </DialogBody>
+      <DialogFooter>
+        <Button type="submit" id="btn-submit" tabIndex={4} text="Save changes" intent={Intent.PRIMARY} />
+      </DialogFooter>
     </BaseDialog>
   )
 }
 
 const mapStateToProps = state => ({
-  conditions: state.ndu.conditions,
   flows: _.values(state.flows.flowsByName)
 })
 

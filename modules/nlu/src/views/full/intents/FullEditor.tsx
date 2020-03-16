@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -60,7 +61,7 @@ export const IntentEditor: FC<Props> = props => {
   const utterances = (intent && intent.utterances[props.contentLang]) || []
 
   return (
-    <div className={style.intentEditor}>
+    <div className={cx(style.intentEditor, { [style.liteIntentEditor]: props.liteEditor })}>
       <div>
         <div className={style.header}>
           {!props.liteEditor && (

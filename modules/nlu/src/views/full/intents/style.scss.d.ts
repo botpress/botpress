@@ -29,6 +29,7 @@ interface CssExports {
   'label-colors-8': string;
   'lightEditorHint': string;
   'link': string;
+  'liteIntentEditor': string;
   'selectionText': string;
   'shortcutLabel': string;
   'slotMark': string;

@@ -4,9 +4,9 @@ interface CssExports {
   'emptyState': string;
   'grabbable': string;
   'mainoverlay': string;
-  'modalFooter': string;
   'modalHeader': string;
   'overhidden': string;
+  'referencedWorkflows': string;
   'section': string;
   'tabs': string;
   'title': string;

@@ -12,12 +12,13 @@ import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
+import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
-const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill']
+const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill', 'conditions']
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = ['standard', 'skill-call', 'say_something', 'execute', 'listen', 'router']
+export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
@@ -44,6 +45,8 @@ const createNodeModel = (node, modelProps) => {
     return new RouterNodeModel(modelProps)
   } else if (type === 'success') {
     return new SuccessNodeModel(modelProps)
+  } else if (type === 'trigger') {
+    return new TriggerNodeModel(modelProps)
   } else if (type === 'failure') {
     return new FailureNodeModel(modelProps)
   } else {
@@ -377,6 +380,7 @@ export class DiagramManager {
         })
 
         const targetPort = targetNode.ports['in']
+
         const link = new DefaultLinkModel()
         link.setSourcePort(sourcePort)
         link.setTargetPort(targetPort)
@@ -396,14 +400,14 @@ export class DiagramManager {
 
   private _updateZoomLevel(nodes) {
     const { width: diagramWidth, height: diagramHeight } = this.diagramContainerSize
-    const totalFlowWidth = _.max(_.map(nodes, 'x')) - _.min(_.map(nodes, 'x'))
-    const totalFlowHeight = _.max(_.map(nodes, 'y')) - _.min(_.map(nodes, 'y'))
+    const totalFlowWidth = _.max(_.map(nodes, 'x')) - _.min(_.map(nodes, 'x')) || 0
+    const totalFlowHeight = _.max(_.map(nodes, 'y')) - _.min(_.map(nodes, 'y')) || 0
     const zoomLevelX = Math.min(1, diagramWidth / (totalFlowWidth + 2 * DIAGRAM_PADDING))
     const zoomLevelY = Math.min(1, diagramHeight / (totalFlowHeight + 2 * DIAGRAM_PADDING))
     const zoomLevel = Math.min(zoomLevelX, zoomLevelY)
 
-    const offsetX = DIAGRAM_PADDING - _.min(_.map(nodes, 'x'))
-    const offsetY = DIAGRAM_PADDING - _.min(_.map(nodes, 'y'))
+    const offsetX = DIAGRAM_PADDING - _.min(_.map(nodes, 'x')) || 100
+    const offsetY = DIAGRAM_PADDING - _.min(_.map(nodes, 'y')) || 100
 
     this.activeModel.setZoomLevel(zoomLevel * 100)
     this.activeModel.setOffsetX(offsetX * zoomLevel)

@@ -58,7 +58,6 @@ export const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
       {sorted.map(trigger => {
         return (
           <div style={{ paddingBottom: 10 }}>
-            <strong>{trigger.goal.replace('.flow.json', '')}</strong>
             <small> ({trigger.id}) </small>
             <ul>{listResults(trigger.result)}</ul>
           </div>

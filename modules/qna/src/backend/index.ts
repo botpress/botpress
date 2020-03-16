@@ -28,6 +28,28 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('qna')
 }
 
+const onTopicChanged = async (bp: typeof sdk, botId: string, oldName: string, newName: string) => {
+  const isRenaming = !!(oldName && newName)
+  const isDeleting = !newName
+
+  if (!isRenaming && !isDeleting) {
+    return
+  }
+
+  const { storage } = bots[botId]
+  const questions = await storage.getQuestions({ categories: [oldName] }, { limit: 150, offset: 0 })
+
+  for (const item of questions.items) {
+    if (isRenaming) {
+      item.data.category = newName
+    } else {
+      item.data.category = ''
+    }
+
+    await storage.update(item.data, item.id)
+  }
+}
+
 const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {
   const oldFlow = await bp.ghost.forBot(botId).readFileAsObject<sdk.Flow>('./flows', newFlow.location)
   const { storage } = bots[botId]
@@ -77,6 +99,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
+  onTopicChanged,
   onFlowChanged,
   onFlowRenamed,
   definition: {

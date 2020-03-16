@@ -1,3 +1,4 @@
+import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
@@ -101,4 +102,28 @@ export async function updateIntentsSlotsEntities(
       await updateIntent(ghost, intent.name, intent)
     }
   })
+}
+
+export async function getIntentsTopics(ghost: sdk.ScopedGhostService, intentNames: string[]) {
+  const flowsPaths = await ghost.directoryListing('flows', '*.flow.json')
+  const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
+    name: flowPath,
+    ...(await ghost.readFileAsObject<FlowView>('flows', flowPath))
+  }))
+
+  const topics: { topicName: string; intentName: string }[] = []
+  for (const flow of flows) {
+    const topicName = flow.name.split('/')[0]
+    for (const node of flow.nodes) {
+      if (node.type === 'trigger') {
+        const tn = node as sdk.TriggerNode
+        const match = tn.conditions.find(x => x.id === 'user_intent_is' && intentNames.includes(x.params?.intentName))
+        if (match) {
+          topics.push({ topicName, intentName: match.params.intentName })
+        }
+      }
+    }
+  }
+
+  return _.uniq(topics)
 }

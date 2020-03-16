@@ -3,6 +3,7 @@
 interface CssExports {
   'baseNode': string;
   'content': string;
+  'fullSize': string;
   'header': string;
   'highlightedNode': string;
   'in': string;
@@ -13,6 +14,8 @@ interface CssExports {
   'nodeRouter': string;
   'nodeSaySomething': string;
   'nodeSuccess': string;
+  'nodeTrigger': string;
+  'nodeTriggerConditions': string;
   'out': string;
   'ports': string;
   'section-next': string;
