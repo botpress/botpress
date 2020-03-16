@@ -108,7 +108,7 @@
     "@types/lru-cache": "^5.1.0",
     "@types/ms": "^0.7.30",
     "@types/mustache": "^0.8.31",
-    "@types/node": "^10.10.3",
+    "@types/node": "^10.11.3",
     "@types/passport": "^1.0.0",
     "@types/puppeteer": "^2.0.0",
     "@types/redis": "^2.8.10",

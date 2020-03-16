@@ -56,11 +56,11 @@ process.PROJECT_LOCATION = process.pkg
 
 process.stderr.write = stripDeprecationWrite
 
-process.on('unhandledRejection', err => {
-  global.printErrorDefault(err)
+process.on('unhandledRejection', (reason: Error | any, promise: Promise<any>) => {
+  console.log('Unhandled Rejection at:', promise, 'reason:', reason)
 })
 
-process.on('uncaughtException', err => {
+process.on('uncaughtException', (err: Error) => {
   global.printErrorDefault(err)
   if (!process.IS_FAILSAFE) {
     process.exit(1)

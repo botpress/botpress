@@ -88,7 +88,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.133",
     "@types/axios": "^0.14.0",
-    "@types/node": "^10.10.3",
+    "@types/node": "^10.11.3",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.8.6",
     "@types/classnames": "^2.2.6",
