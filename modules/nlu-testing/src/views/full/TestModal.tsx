@@ -73,14 +73,11 @@ export const TestModal: FC<Props> = props => {
     dispatch({ type: 'setExpectedIntent', data: { expectedIntent: intent } })
   }
 
+  const title = isEditing() ? 'Edit test' : 'Create new test'
+  const icon = isEditing() ? 'edit' : 'add'
+
   return (
-    <Dialog
-      title={isEditing() ? 'Edit test' : 'Create new test'}
-      icon={isEditing() ? 'edit' : 'add'}
-      isOpen={props.visible}
-      onClose={props.hide}
-      transitionDuration={0}
-    >
+    <Dialog title={title} icon={icon} isOpen={props.visible} onClose={props.hide} transitionDuration={0}>
       <form onSubmit={createTest}>
         <div className={Classes.DIALOG_BODY}>
           <FormGroup label="Utterance">
