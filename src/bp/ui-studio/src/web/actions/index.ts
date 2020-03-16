@@ -175,7 +175,7 @@ export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, 
     await FlowsAPI.deleteFlow(state.flows, deletedFlows[0])
   }
 
-  if (payload.type === 'trigger') {
+  if (payload.type === 'trigger' && window.USE_ONEFLOW) {
     await onTriggerEvent('delete', payload.conditions, state)
   }
 })
@@ -185,7 +185,7 @@ export const pasteFlowNode = wrapAction(requestPasteFlowNode, async (payload, st
 
   const node = state.flows.nodeInBuffer
 
-  if (node.type === 'trigger') {
+  if (node.type === 'trigger' && window.USE_ONEFLOW) {
     await onTriggerEvent('create', node.conditions, state)
   }
 })
