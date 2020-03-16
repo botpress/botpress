@@ -17,7 +17,6 @@ let intl: IntlShape
 const cache = createIntlCache()
 
 const getUserLocale = (manualLocale?: 'browser' | string) => {
-  return 'fr'
   const code = str => str.split('-')[0]
   const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
   const storageLocale = code(localStorage.getItem('bp/channel-web/user-lang') || '')
@@ -29,10 +28,11 @@ const getUserLocale = (manualLocale?: 'browser' | string) => {
 const initializeTranslations = () => {
   locale = getUserLocale()
 
-  const messages = translations[locale]
-  for (const key in en) {
+  const messages = squash(translations[locale])
+  const defaultLang = squash(translations[defaultLocale])
+  for (const key in defaultLang) {
     if (!messages[key]) {
-      messages[key] = en[key]
+      messages[key] = defaultLang[key]
     }
   }
 
@@ -44,6 +44,17 @@ const initializeTranslations = () => {
     },
     cache
   )
+}
+
+const squash = (space, root = {}, path = '') => {
+  for (const [key, value] of Object.entries(space)) {
+    if (typeof value === 'object' && value !== null) {
+      squash(value, root, path + key + '.')
+    } else {
+      root[path + key] = value
+    }
+  }
+  return root
 }
 
 const lang = (id: string, values?: Record<string, string | PrimitiveType>): string => {
