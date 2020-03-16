@@ -1,13 +1,10 @@
-import { Classes, Dialog, IDialogProps } from '@blueprintjs/core'
+import { Classes, Dialog } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
-type Props = {
-  onSubmit?: () => void
-  size?: 'sm' | 'md' | 'lg'
-} & Partial<IDialogProps>
+import { BaseDialogProps } from './typings'
 
-export const BaseDialog: FC<Props> = props => {
+export const BaseDialog: FC<BaseDialogProps> = props => {
   let width = 500
   if (props.size === 'md') {
     width = 700
