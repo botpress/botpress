@@ -15,7 +15,6 @@
     "@types/classnames": "^2.2.9"
   },
   "dependencies": {
-    "@blueprintjs/select": "^3.12.0",
     "axios": "^0.19.2",
     "bluebird": "^3.7.0",
     "classnames": "^2.2.6",
