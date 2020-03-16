@@ -1,8 +1,8 @@
 import { Button, Intent, Pre } from '@blueprintjs/core'
+import { BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { toastInfo } from '~/utils/toaster'
-import { BaseDialog, DialogBody, DialogFooter } from '~/Pages/Components/BaseDialog'
 
 interface Props {
   isOpen: boolean

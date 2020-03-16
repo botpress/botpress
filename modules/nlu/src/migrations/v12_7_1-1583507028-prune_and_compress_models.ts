@@ -9,6 +9,7 @@ const migration: sdk.ModuleMigration = {
     type: 'content'
   },
   up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    let hasChanged = false
     const migrateModels = async (bot: sdk.BotConfig) => {
       const ghost = bp.ghost.forBot(bot.id)
 
@@ -22,6 +23,7 @@ const migration: sdk.ModuleMigration = {
             if (!model.hash) {
               return ghost.deleteFile(MODELS_DIR, mod) // model is really outdated
             }
+            hasChanged = true
             return saveModel(ghost, model, model.hash) // Triggers model compression
           } catch (err) {
             // model is probably an archive
@@ -36,7 +38,10 @@ const migration: sdk.ModuleMigration = {
       await Promise.map(bots.values(), migrateModels)
     }
 
-    return { success: true, message: 'Model compression completed successfully' }
+    return {
+      success: true,
+      message: hasChanged ? 'Model compression completed successfully' : 'Nothing to compress, skipping...'
+    }
   }
 }
 
