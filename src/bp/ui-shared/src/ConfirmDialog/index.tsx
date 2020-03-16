@@ -2,9 +2,8 @@ import { Button, Classes, Dialog, Intent } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
-import { ConfirmDialogOptions, ConfirmDialogProps } from '../Interface/typings'
-
 import styles from './style.scss'
+import { ConfirmDialogOptions, ConfirmDialogProps } from './typings'
 
 const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   const onAccept = () => {

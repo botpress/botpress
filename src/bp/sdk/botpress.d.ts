@@ -314,10 +314,12 @@ declare module 'botpress/sdk' {
 
     export namespace SVM {
       export interface SVMOptions {
-        classifier: 'C_SVC'
-        kernel: 'LINEAR' | 'RBF' | 'POLY'
-        c: number | number[]
-        gamma: number | number[]
+        classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
+        kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
+        c?: number | number[]
+        gamma?: number | number[]
+        probability?: boolean
+        reduce?: boolean
       }
 
       export type DataPoint = {
@@ -380,11 +382,13 @@ declare module 'botpress/sdk' {
         (message: string): void
       }
 
+      interface DataPoint {
+        features: Array<string[]>
+        labels: string[]
+      }
+
       export interface Trainer {
-        append(xseq: Array<string[]>, yseq: string[]): void
-        train(model_filename: string): void
-        set_params(options: TrainerOptions): void
-        set_callback(callback: TrainerCallback): void
+        train(elements: DataPoint[], options: TrainerOptions): Promise<string>
       }
 
       export const createTrainer: () => Trainer
@@ -790,6 +794,12 @@ declare module 'botpress/sdk' {
     ignoreLock?: boolean
   }
 
+  export interface DirectoryListingOptions {
+    excludes?: string | string[]
+    includeDotFiles?: boolean
+    sortOrder?: SortOrder & { column: 'filePath' | 'modifiedOn' }
+  }
+
   export interface ScopedGhostService {
     /**
      * Insert or Update the file at the specified location
@@ -804,18 +814,20 @@ declare module 'botpress/sdk' {
     renameFile(rootFolder: string, fromName: string, toName: string): Promise<void>
     deleteFile(rootFolder: string, file: string): Promise<void>
     /**
-     * List all the files matching the ending pattern in the folder
+     * List all the files matching the ending pattern in the folder.
+     * DEPRECATE WARNING: exclude and includedDotFiles must be defined in options in future versions
      * @example bp.ghost.forBot('welcome-bot').directoryListing('./questions', '*.json')
      * @param rootFolder - Folder relative to the scoped parent
      * @param fileEndingPattern - The pattern to match. Don't forget to include wildcards!
-     * @param exclude - The pattern to match excluded files.
-     * @param includeDotFiles - Whether or not to include files starting with a dot (normally disabled files)
+     * @param @deprecated exclude - The pattern to match excluded files.
+     * @param @deprecated includeDotFiles - Whether or not to include files starting with a dot (normally disabled files)
      */
     directoryListing(
       rootFolder: string,
       fileEndingPattern: string,
       exclude?: string | string[],
-      includeDotFiles?: boolean
+      includeDotFiles?: boolean,
+      options?: DirectoryListingOptions
     ): Promise<string[]>
     /**
      * Starts listening on all file changes (deletion, inserts and updates)
@@ -901,7 +913,13 @@ declare module 'botpress/sdk' {
       status: string
       requested_by: string
       id: string
+      approvals?: StageRequestApprovers[]
     }
+  }
+
+  export interface StageRequestApprovers {
+    email: string
+    strategy: string
   }
 
   export interface BotDetails {
@@ -910,6 +928,8 @@ declare module 'botpress/sdk' {
     termsConditions?: string
     privacyPolicy?: string
     emailAddress?: string
+    avatarUrl?: string
+    coverPictureUrl?: string
   }
 
   export interface LogsConfig {
@@ -1412,7 +1432,7 @@ declare module 'botpress/sdk' {
     /**
      * Returns an existing user or create a new one with the specified keys
      */
-    export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>
+    export function getOrCreateUser(channel: string, userId: string, botId?: string): GetOrCreateResult<User>
 
     /**
      * Merge the specified attributes to the existing attributes of the user

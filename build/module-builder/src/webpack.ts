@@ -33,6 +33,7 @@ export function config(projectPath) {
       'react-dom': 'ReactDOM',
       'react-bootstrap': 'ReactBootstrap',
       '@blueprintjs/core': 'BlueprintJsCore',
+      '@blueprintjs/select': 'BlueprintJsSelect',
       'botpress/ui': 'BotpressUI',
       'botpress/content-picker': 'BotpressContentPicker',
       'botpress/documentation': 'DocumentationProvider',

@@ -25,11 +25,11 @@ export class DisappearingText extends React.Component {
 
 export class FeedbackButtons extends React.Component {
   sendSatisfied = () => {
-    this.props.onSendData({ payload: { type: 'user_satisfied', text: 'satisfied' } })
+    this.props.onSendData({ type: 'user_satisfied', text: 'satisfied' })
   }
 
   sendMoreInfo = () => {
-    this.props.onSendData({ payload: { type: 'more_info', text: 'more info about ...' } })
+    this.props.onSendData({ type: 'more_info', text: 'more info about ...' })
   }
 
   renderBtn() {

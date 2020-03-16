@@ -3,6 +3,8 @@ import {
   Button,
   ButtonGroup,
   Callout,
+  Checkbox,
+  Icon,
   InputGroup,
   Intent,
   Popover,
@@ -11,7 +13,7 @@ import {
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
 import { confirmDialog } from 'botpress/shared'
-import { ServerHealth } from 'common/typings'
+import { ServerHealth, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
@@ -34,6 +36,7 @@ import LoadingSection from '../../Components/LoadingSection'
 import BotItemCompact from './BotItemCompact'
 import BotItemPipeline from './BotItemPipeline'
 import CreateBotModal from './CreateBotModal'
+import EditStageModal from './EditStageModal'
 import ImportBotModal from './ImportBotModal'
 import RollbackBotModal from './RollbackBotModal'
 
@@ -47,6 +50,7 @@ interface Props extends RouteComponentProps {
   fetchLicensing: () => void
   fetchBotHealth: () => void
   licensing: any
+  profile: UserProfile
 }
 
 class Bots extends Component<Props> {
@@ -54,10 +58,14 @@ class Bots extends Component<Props> {
     isCreateBotModalOpen: false,
     isRollbackModalOpen: false,
     isImportBotModalOpen: false,
+    isEditStageModalOpen: false,
     focusedBot: null,
+    selectedStage: null,
     archiveUrl: undefined,
     archiveName: '',
-    filter: ''
+    filter: '',
+    showFilters: false,
+    needApprovalFilter: false
   }
 
   componentDidMount() {
@@ -150,6 +158,12 @@ class Bots extends Component<Props> {
     toastSuccess('Bot promoted to next stage')
   }
 
+  async approveStageChange(botId) {
+    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/approve-stage`)
+    this.props.fetchBots()
+    toastSuccess('Approved bot promotion to next stage')
+  }
+
   isLicensed = () => {
     return _.get(this.props.licensing, 'status') === 'licensed'
   }
@@ -169,6 +183,21 @@ class Bots extends Component<Props> {
   handleRollbackSuccess = () => {
     this.props.fetchBots()
     toastSuccess('Rollback success')
+  }
+
+  handleEditStageSuccess = () => {
+    this.props.fetchBots()
+  }
+
+  toggleEditStage = (stage?) => {
+    this.setState({
+      selectedStage: stage ? stage : null,
+      isEditStageModalOpen: !this.state.isEditStageModalOpen
+    })
+  }
+
+  toggleFilters = () => {
+    this.setState({ showFilters: !this.state.showFilters })
   }
 
   findBotError(botId: string) {
@@ -208,7 +237,10 @@ class Bots extends Component<Props> {
   }
 
   renderPipelineView(bots: BotConfig[]) {
-    const pipeline = this.props.workspace.pipeline
+    const {
+      workspace: { pipeline },
+      profile: { email, strategy }
+    } = this.props
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
 
@@ -219,15 +251,28 @@ class Bots extends Component<Props> {
             const allowStageChange = this.isLicensed() && idx !== pipeline.length - 1
             return (
               <Col key={stage.id} md={colSize}>
-                {pipeline.length > 1 && <h3 className="pipeline_title">{stage.label}</h3>}
+                {pipeline.length > 1 && (
+                  <div className="pipeline_title">
+                    <h3>{stage.label}</h3>
+                    <AccessControl resource="admin.bots.*" operation="write" superAdmin>
+                      <Button className="pipeline_edit-button" onClick={() => this.toggleEditStage(stage)}>
+                        <Icon icon="edit" />
+                      </Button>
+                    </AccessControl>
+                  </div>
+                )}
                 {idx === 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
                 {(botsByStage[stage.id] || []).map(bot => (
                   <Fragment key={bot.id}>
                     <BotItemPipeline
                       bot={bot}
+                      isApprover={stage.reviewers.find(r => r.email === email && r.strategy === strategy) !== undefined}
+                      userEmail={email}
+                      userStrategy={strategy}
                       hasError={this.findBotError(bot.id)}
                       allowStageChange={allowStageChange && !bot.disabled}
                       requestStageChange={this.requestStageChange.bind(this, bot.id)}
+                      approveStageChange={this.approveStageChange.bind(this, bot.id)}
                       deleteBot={this.deleteBot.bind(this, bot.id)}
                       exportBot={this.exportBot.bind(this, bot.id)}
                       createRevision={this.createRevision.bind(this, bot.id)}
@@ -245,8 +290,26 @@ class Bots extends Component<Props> {
     )
   }
 
+  filterStageApproval(bot: BotConfig, email: string, strategy: string) {
+    if (!this.props.workspace || !this.state.needApprovalFilter) {
+      return true
+    }
+    const { pipeline } = this.props.workspace
+    const { current_stage, stage_request } = bot.pipeline_status
+
+    const reviewers = _.get(current_stage && pipeline.find(x => x.id === current_stage.id), 'reviewers', [])
+    const isReviewer = reviewers.find(x => x.strategy === strategy && x.email === email)
+
+    return stage_request && isReviewer
+  }
+
   renderBots() {
-    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter)
+    const { email, strategy } = this.props.profile
+
+    const filteredBots = filterList<BotConfig>(this.props.bots, botFilterFields, this.state.filter).filter(x =>
+      this.filterStageApproval(x, email, strategy)
+    )
+
     const hasBots = !!this.props.bots.length
     const botsView = this.isPipelineView ? this.renderPipelineView(filteredBots) : this.renderCompactView(filteredBots)
 
@@ -254,14 +317,27 @@ class Bots extends Component<Props> {
       <div>
         {hasBots && (
           <Fragment>
-            <InputGroup
-              id="input-filter"
-              placeholder="Filter bots"
-              value={this.state.filter}
-              onChange={e => this.setState({ filter: e.target.value.toLowerCase() })}
-              autoComplete="off"
-              className="filterField"
-            />
+            <div className="filterWrapper">
+              <InputGroup
+                id="input-filter"
+                placeholder="Filter bots"
+                value={this.state.filter}
+                onChange={e => this.setState({ filter: e.target.value.toLowerCase() })}
+                autoComplete="off"
+                className="filterField"
+              />
+              {this.isPipelineView && <Button icon="filter" onClick={this.toggleFilters}></Button>}
+            </div>
+            {this.state.showFilters && (
+              <div className="extraFilters">
+                <h2>Extra filters</h2>
+                <Checkbox
+                  label="Need your approval"
+                  checked={this.state.needApprovalFilter}
+                  onChange={e => this.setState({ needApprovalFilter: e.currentTarget.checked })}
+                ></Checkbox>
+              </div>
+            )}
 
             {this.state.filter && !filteredBots.length && (
               <Callout title="No bot matches your query" className="filterCallout" />
@@ -292,7 +368,7 @@ class Bots extends Component<Props> {
   }
 
   get isPipelineView() {
-    return this.props.workspace.pipeline.length > 1
+    return this.props.workspace && this.props.workspace.pipeline && this.props.workspace.pipeline.length > 1
   }
 
   render() {
@@ -313,6 +389,13 @@ class Bots extends Component<Props> {
                 isOpen={this.state.isRollbackModalOpen}
                 toggle={this.toggleRollbackModal}
                 onRollbackSuccess={this.handleRollbackSuccess}
+              />
+              <EditStageModal
+                workspace={this.props.workspace}
+                stage={this.state.selectedStage}
+                isOpen={this.state.isEditStageModalOpen}
+                toggle={this.toggleEditStage}
+                onEditSuccess={this.handleEditStageSuccess}
               />
               <CreateBotModal
                 isOpen={this.state.isCreateBotModalOpen}
@@ -337,7 +420,8 @@ const mapStateToProps = state => ({
   health: state.bots.health,
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
-  licensing: state.license.licensing
+  licensing: state.license.licensing,
+  profile: state.user.profile
 })
 
 const mapDispatchToProps = {

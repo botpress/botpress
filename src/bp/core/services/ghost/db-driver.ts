@@ -1,3 +1,4 @@
+import { DirectoryListingOptions } from 'botpress/sdk'
 import { filterByGlobs, forceForwardSlashes } from 'core/misc/utils'
 import { WrapErrorsWith } from 'errors'
 import { inject, injectable } from 'inversify'
@@ -57,6 +58,21 @@ export default class DBStorageDriver implements StorageDriver {
       }
     } catch (e) {
       throw new VError(e, `[DB Driver] Error upserting file "${filePath}"`)
+    }
+  }
+
+  async fileExists(filePath: string): Promise<boolean> {
+    try {
+      const exists = await this.database
+        .knex('srv_ghost_files')
+        .where({ file_path: filePath, deleted: false })
+        .select('file_path')
+        .limit(1)
+        .first()
+
+      return !!exists
+    } catch (e) {
+      throw new VError(e, `[DB Driver] Error checking if file  exists "${filePath}"`)
     }
   }
 
@@ -131,7 +147,9 @@ export default class DBStorageDriver implements StorageDriver {
 
   async directoryListing(
     folder: string,
-    options: { excludes?: string | string[] } = { excludes: [] }
+    options: DirectoryListingOptions = {
+      excludes: []
+    }
   ): Promise<string[]> {
     try {
       let query = this.database
@@ -143,6 +161,11 @@ export default class DBStorageDriver implements StorageDriver {
 
       if (folder.length) {
         query = query.andWhere('file_path', 'like', folder + '%')
+      }
+
+      if (options.sortOrder) {
+        const { column, desc } = options.sortOrder
+        query = query.orderBy(column === 'modifiedOn' ? 'modified_on' : 'file_path', desc ? 'desc' : 'asc')
       }
 
       const paths = await query

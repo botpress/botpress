@@ -109,7 +109,7 @@ export const patchKnex = (knex: Knex): KnexExtended => {
   const date: Knex.Date = {
     format: dateFormat,
     now: () => (isLite ? knex.raw(`strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`) : knex.raw('now()')),
-
+    today: () => (isLite ? knex.raw(`(date())`) : knex.raw(`(date(now()))`)),
     isBefore: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
