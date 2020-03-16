@@ -21,4 +21,7 @@ declare module 'botpress/shared' {
   export function confirmDialog(message: string, options: ConfirmDialogOptions): Promise<boolean>
   export const style: { TooltipStyle: TooltipStyle }
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
+  export function lang(id: string, values?: Record<string, string | PrimitiveType>): string
+  export function langInit()
+  export function langExtend(langs)
 }
