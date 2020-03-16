@@ -6,6 +6,7 @@ interface CssExports {
   'mainoverlay': string;
   'modalHeader': string;
   'overhidden': string;
+  'referencedWorkflows': string;
   'section': string;
   'tabs': string;
   'title': string;

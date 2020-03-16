@@ -5,7 +5,7 @@
   },
   "startNode": "entry",
   "skillData": {
-    "contentId": "builtin_single-choice-LfNSS7",
+    "contentId": "builtin_single-choice-feedback",
     "invalidContentId": "",
     "keywords": {
       "yes": ["yes", "Yes 👍"],
@@ -19,7 +19,7 @@
   "nodes": [
     {
       "name": "entry",
-      "onEnter": ["say #!builtin_single-choice-LfNSS7 {\"skill\":\"choice\"}"],
+      "onEnter": ["say #!builtin_single-choice-feedback {\"skill\":\"choice\"}"],
       "next": [
         {
           "condition": "true",
@@ -31,7 +31,7 @@
     {
       "name": "parse",
       "onReceive": [
-        "basic-skills/choice_parse_answer {\"contentId\":\"builtin_single-choice-LfNSS7\",\"invalidContentId\":\"\",\"keywords\":{\"yes\":[\"yes\",\"Yes 👍\"],\"no\":[\"no\",\"No 👎\"]},\"config\":{\"nbMaxRetries\":0,\"repeatChoicesOnInvalid\":false},\"randomId\":\"k0tqq3ze5d\"}"
+        "basic-skills/choice_parse_answer {\"contentId\":\"builtin_single-choice-feedback\",\"invalidContentId\":\"\",\"keywords\":{\"yes\":[\"yes\",\"Yes 👍\"],\"no\":[\"no\",\"No 👎\"]},\"config\":{\"nbMaxRetries\":0,\"repeatChoicesOnInvalid\":false},\"randomId\":\"k0tqq3ze5d\"}"
       ],
       "next": [
         {

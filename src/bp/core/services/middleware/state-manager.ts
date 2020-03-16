@@ -90,7 +90,7 @@ export class StateManager {
     state.context = (session && session.context) || {}
     state.session = (session && session.session_data) || { lastMessages: [], lastGoals: [] }
     state.temp = (session && session.temp_data) || {}
-    state.bot = await this.kvs.get(event.botId, this.BOT_GLOBAL_KEY)
+    state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
   }
 

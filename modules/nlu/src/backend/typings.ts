@@ -74,6 +74,8 @@ export interface BotState {
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>
   trainSessions: _.Dictionary<TrainingSession>
+  cancelTraining: () => Promise<void>
+  isTraining: () => Promise<boolean>
 }
 
 export type TFIDF = _.Dictionary<number>

@@ -102,7 +102,7 @@ export class FlowService {
 
   private async _isOneFlow(botId: string): Promise<boolean> {
     const botConfig = await this.botService.findBotById(botId)
-    return botConfig && botConfig['oneflow']
+    return !!botConfig?.oneflow
   }
 
   private async parseFlow(botId: string, flowPath: string): Promise<FlowView> {
@@ -127,7 +127,7 @@ export class FlowService {
     })
 
     const key = this._buildFlowMutexKey(flowPath)
-    const currentMutex = (await this.kvs.get(botId, key)) as FlowMutex
+    const currentMutex = (await this.kvs.forBot(botId).get(key)) as FlowMutex
     if (currentMutex) {
       currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
     }
@@ -271,7 +271,7 @@ export class FlowService {
   private async _testAndLockMutex(botId: string, currentFlowEditor: string, flowLocation: string): Promise<FlowMutex> {
     const key = this._buildFlowMutexKey(flowLocation)
 
-    const currentMutex = ((await this.kvs.get(botId, key)) || {}) as FlowMutex
+    const currentMutex = ((await this.kvs.forBot(botId).get(key)) || {}) as FlowMutex
     const { lastModifiedBy: flowOwner, lastModifiedAt } = currentMutex
 
     const now = new Date()
@@ -375,7 +375,7 @@ export class FlowService {
 
   public async createTopic(botId: string, topic: Topic) {
     let topics = await this.getTopics(botId)
-    topics = [...topics, topic]
+    topics = _.uniqBy([...topics, topic], x => x.name)
 
     await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
     await this.moduleLoader.onTopicChanged(botId, undefined, topic.name)
@@ -383,7 +383,7 @@ export class FlowService {
 
   public async updateTopic(botId: string, topic: Topic, topicName: string) {
     let topics = await this.getTopics(botId)
-    topics = [...topics.filter(x => x.name !== topicName), topic]
+    topics = _.uniqBy([...topics.filter(x => x.name !== topicName), topic], x => x.name)
 
     await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
 

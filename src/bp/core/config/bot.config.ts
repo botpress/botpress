@@ -22,6 +22,7 @@ export type BotConfig = {
   languages: string[]
   locked: boolean
   pipeline_status: BotPipelineStatus
+  oneflow?: boolean
 }
 
 export interface BotPipelineStatus {
