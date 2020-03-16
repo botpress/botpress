@@ -9,7 +9,7 @@ declare module 'botpress/shared' {
   export function BaseDialog(props: BaseDialogProps): JSX.Element
   export function DialogBody(props: { children: any }): JSX.Element
   export function DialogFooter(props: { children: any }): JSX.Element
-  export function confirmDialog(message: string, options: ConfirmDialogOptions): Promise<boolean>
+  export function confirmDialog(message: string | JSX.Element, options: ConfirmDialogOptions): Promise<boolean>
   export function Dropdown(props: DropdownProps): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
 

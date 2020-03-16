@@ -92,7 +92,7 @@ interface DispatchProps {
   fetchFlows: any
   pasteFlowNode: ({ x, y }) => void
   copyFlowNode: () => void
-  removeFlowNode: (nodeId: string) => void
+  removeFlowNode: (element: any) => void
   buildSkill: ({ location: any, id: string }) => void
 }
 
@@ -513,7 +513,7 @@ class Diagram extends Component<Props> {
           _.includes(nodeTypes, element.nodeType) ||
           _.includes(nodeTypes, element.type)
         ) {
-          this.props.removeFlowNode(element.id)
+          this.props.removeFlowNode(element)
         } else if (element.type === 'default') {
           element.remove()
           this.checkForLinksUpdate()

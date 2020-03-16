@@ -88,7 +88,7 @@ const FlowBuilder = (props: Props) => {
         status === 403
           ? 'Unauthorized flow update. You have insufficient role privileges to modify flows.'
           : 'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition'
-      toastFailure(message, Timeout.LONG, props.clearErrorSaveFlows)
+      toastFailure(message, Timeout.LONG, props.clearErrorSaveFlows, { delayed: true })
     }
   }, [props.errorSavingFlows])
 
