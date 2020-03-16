@@ -166,22 +166,32 @@ export class Botpress {
   }
 
   private async maybeStartLocalActionServer() {
-    const { actionServers } = await this.configProvider.getBotpressConfig()
-    if (actionServers) {
-      const { error } = joi.validate(actionServers, ActionServersConfigSchema)
-      if (!error) {
-        const { enabled, port } = actionServers.local
-        if (enabled) {
-          startLocalActionServer({ appSecret: process.APP_SECRET, port })
-        } else {
-          this.logger.info('Local Action Server disabled')
-        }
-      } else {
-        this.logger.error(`Invalid actionServers configuration: ${error}`)
-      }
-    } else {
+    const { actionServers, experimental } = await this.configProvider.getBotpressConfig()
+
+    if (!actionServers) {
       this.logger.warn('No config ("actionServers") found for Action Servers')
+      return
     }
+
+    const { error } = joi.validate(actionServers, ActionServersConfigSchema)
+    if (error) {
+      this.logger.error(`Invalid actionServers configuration: ${error}`)
+      return
+    }
+
+    const { enabled, port } = actionServers.local
+
+    if (!enabled) {
+      this.logger.info('Local Action Server disabled')
+      return
+    }
+
+    if (!experimental) {
+      this.logger.info('Local Action Server will only run in experimental mode')
+      return
+    }
+
+    startLocalActionServer({ appSecret: process.APP_SECRET, port })
   }
 
   async checkJwtSecret() {

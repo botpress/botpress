@@ -149,7 +149,7 @@ class PanelContent extends React.Component<Props> {
         onClick: () => this.createFilePrompt('action_legacy')
       }
     ]
-    if (this.props.previewFlowActivated) {
+    if (window.EXPERIMENTAL) {
       actions = [
         {
           id: 'btn-add-action',
@@ -331,11 +331,10 @@ export default inject(({ store }: { store: RootStore }) => ({
   isDirty: store.editor.isDirty,
   setFilenameFilter: store.setFilenameFilter,
   createFilePrompt: store.createFilePrompt,
-  permissions: store.permissions,
-  previewFlowActivated: store.previewFlowActivated
+  permissions: store.permissions
 }))(observer(PanelContent))
 
 type Props = { store?: RootStore; editor?: EditorStore } & Pick<
   StoreDef,
-  'files' | 'permissions' | 'createFilePrompt' | 'setFilenameFilter' | 'previewFlowActivated'
+  'files' | 'permissions' | 'createFilePrompt' | 'setFilenameFilter'
 >
