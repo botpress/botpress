@@ -9,7 +9,10 @@ export interface ActionInstruction {
 export const parseActionInstruction = (actionInstruction: string): ActionInstruction => {
   const chunks = actionInstruction.split(' ')
   const serverAndAction = _.head(chunks)!
-  const argsStr = actionInstruction.replace(serverAndAction + ' ', '')
+  let argsStr = ''
+  if (chunks.length > 1) {
+    argsStr = actionInstruction.replace(serverAndAction + ' ', '')
+  }
   const serverAndActionChunks = serverAndAction.split(':')
   let actionName
   let actionServerId

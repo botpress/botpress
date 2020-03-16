@@ -1,6 +1,15 @@
 import { parseActionInstruction } from './action'
 
 describe('parseActionInstruction', () => {
+  it('no params', () => {
+    const result = parseActionInstruction('myserver:myaction')
+    expect(result).toEqual({
+      actionName: 'myaction',
+      argsStr: '',
+      actionServerId: 'myserver'
+    })
+  })
+
   it('empty params', () => {
     const result = parseActionInstruction('myserver:myaction {}')
     expect(result).toEqual({
