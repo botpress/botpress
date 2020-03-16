@@ -23,12 +23,8 @@ export default class CodeEditor extends React.Component<{ bp: any }> {
   }
 
   render() {
-    const keyMap = { newFile: 'ctrl+alt+n', rawFileMode: 'r a w t o o l', previewFlow: 'i a m a m a z i n g' }
-    const keyHandlers = {
-      newFile: this.store.createNewAction,
-      rawFileMode: this.store.enableRawEditor,
-      previewFlow: this.store.previewFlow
-    }
+    const keyMap = { newFile: 'ctrl+alt+n' }
+    const keyHandlers = { newFile: this.store.createNewAction }
 
     return (
       <Provider store={this.store}>

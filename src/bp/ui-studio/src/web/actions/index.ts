@@ -232,8 +232,8 @@ export const fetchContentItem = (id, { force = false, batched = false } = {}) =>
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(data =>
-    dispatch(receiveContentItem(data))
+  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(
+    data => data && dispatch(receiveContentItem(data))
   )
 }
 
@@ -406,6 +406,29 @@ export const fetchTopics = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/mod/ndu/topics`).then(({ data }) => {
     dispatch(topicsReceived(data))
+  })
+}
+
+export const receiveLibrary = createAction('LIBRARY/RECEIVED')
+export const refreshLibrary = () => (dispatch, getState) => {
+  const contentLang = getState().language.contentLang
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/content/library/${contentLang}`).then(({ data }) => {
+    dispatch(receiveLibrary(data))
+  })
+}
+
+export const addElementToLibrary = elementId => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}`).then(() => {
+    dispatch(refreshLibrary())
+  })
+}
+
+export const removeElementFromLibrary = elementId => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}/delete`).then(() => {
+    dispatch(refreshLibrary())
   })
 }
 

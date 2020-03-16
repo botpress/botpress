@@ -21,4 +21,4 @@ export const showHeader: FC<HeaderProps> = props => {
   )
 }
 
-export const textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
+export const textToItemId = text => text?.match(/^say #!(.*)$/)?.[1]

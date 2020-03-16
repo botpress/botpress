@@ -48,8 +48,4 @@ export default async (bp: typeof sdk, bots: BotStorage) => {
       res.status(400).send(err)
     }
   })
-
-  router.get('/library', async (req, res) => {
-    res.send(await bots[req.params.botId].getLibrary())
-  })
 }

@@ -21,13 +21,4 @@ export default class Storage {
   async saveTopics(topics: any) {
     return this.bp.ghost.forBot(this.botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
   }
-
-  async getLibrary() {
-    const ghost = this.bp.ghost.forBot(this.botId)
-    if (await ghost.fileExists('ndu', 'library.json')) {
-      return ghost.readFileAsObject('ndu', 'library.json')
-    }
-
-    return []
-  }
 }

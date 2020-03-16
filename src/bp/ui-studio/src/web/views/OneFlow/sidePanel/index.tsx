@@ -1,14 +1,20 @@
 import { Icon } from '@blueprintjs/core'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
-import reject from 'lodash/reject'
-import values from 'lodash/values'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, refreshConditions, renameFlow } from '~/actions'
+import {
+  deleteFlow,
+  duplicateFlow,
+  fetchFlows,
+  fetchTopics,
+  refreshConditions,
+  renameFlow,
+  switchFlow
+} from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
-import { getCurrentFlow, getDirtyFlows } from '~/reducers'
+import { getAllFlows, getCurrentFlow, getFlowNamesList } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
@@ -21,6 +27,7 @@ import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
+import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -43,7 +50,6 @@ interface OwnProps {
 }
 
 interface StateProps {
-  flowsNames: string[]
   showFlowNodeProps: boolean
   flows: FlowView[]
   currentFlow: any
@@ -51,6 +57,7 @@ interface StateProps {
   flowPreview: boolean
   mutexInfo: string
   topics: any
+  flowsName: { name: string; label: string }[]
 }
 
 interface DispatchProps {
@@ -58,6 +65,7 @@ interface DispatchProps {
   fetchTopics: () => void
   fetchFlows: () => void
   deleteFlow: (flowName: string) => void
+  switchFlow: (flowName: string) => void
   renameFlow: any
   duplicateFlow: any
 }
@@ -67,9 +75,11 @@ type Props = StateProps & DispatchProps & OwnProps
 const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
   const [topicModalOpen, setTopicModalOpen] = useState(false)
+  const [topicQnAModalOpen, setTopicQnAModalOpen] = useState(false)
   const [goalModalOpen, setGoalModalOpen] = useState(false)
   const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
+  const [initialTab, setInitialTab] = useState('triggers')
 
   const [selectedGoal, setSelectedGoal] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
@@ -83,9 +93,6 @@ const SidePanelContent: FC<Props> = props => {
   }, [])
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
-
-  const normalFlows = reject(props.flows, x => x.name && x.name.startsWith('skills/'))
-  const flowsName = normalFlows.map(x => ({ name: x.name, label: x.label }))
 
   const createTopicAction = {
     id: 'btn-add-flow',
@@ -103,6 +110,11 @@ const SidePanelContent: FC<Props> = props => {
     onClick: () => setImportModalOpen(true)
   }
 
+  const editQnA = (topicName: string) => {
+    setSelectedTopic(topicName)
+    setTopicQnAModalOpen(true)
+  }
+
   const editTopic = (topicName: string) => {
     setSelectedTopic(topicName)
     setTopicModalOpen(true)
@@ -110,14 +122,18 @@ const SidePanelContent: FC<Props> = props => {
 
   const duplicateFlow = (flowName: string) => {}
 
-  const editGoal = (goalId: string) => {
+  const editGoal = (goalId: string, data) => {
+    props.switchFlow(data.name)
+    setSelectedTopic(data.name.split('/')[0])
     setSelectedGoal(goalId)
-    setGoalModalOpen(!goalModalOpen)
+    setInitialTab('triggers')
+    setGoalModalOpen(true)
   }
 
   const createGoal = (topicName: string) => {
     setSelectedTopic(topicName)
     setSelectedGoal('')
+    setInitialTab('overview')
     setGoalModalOpen(true)
   }
 
@@ -143,6 +159,10 @@ const SidePanelContent: FC<Props> = props => {
     props.fetchTopics()
   }
 
+  const topicActions = props.permissions.includes('create') && [createTopicAction, importAction]
+  const importGoal = () => setImportGoalModalOpen(!importGoalModalOpen)
+  const canDelete = props.permissions.includes('delete')
+
   return (
     <SidePanel>
       <Toolbar mutexInfo={props.mutexInfo} />
@@ -153,14 +173,11 @@ const SidePanelContent: FC<Props> = props => {
         <React.Fragment>
           <SearchBar icon="filter" placeholder="Filter topics and goals" onChange={setGoalFilter} />
 
-          <SidePanelSection
-            label="Topics"
-            actions={props.permissions.includes('create') && [createTopicAction, importAction]}
-          >
+          <SidePanelSection label="Topics" actions={topicActions}>
             <TopicList
               readOnly={props.readOnly}
-              canDelete={props.permissions.includes('delete')}
-              flows={flowsName}
+              canDelete={canDelete}
+              flows={props.flowsName}
               goToFlow={goToFlow}
               deleteFlow={props.deleteFlow}
               duplicateFlow={duplicateFlow}
@@ -168,9 +185,10 @@ const SidePanelContent: FC<Props> = props => {
               editGoal={editGoal}
               createGoal={createGoal}
               exportGoal={exportGoal}
-              importGoal={() => setImportGoalModalOpen(!importGoalModalOpen)}
+              importGoal={importGoal}
               filter={goalFilter}
               editTopic={editTopic}
+              editQnA={editQnA}
               exportTopic={exportTopic}
             />
           </SidePanelSection>
@@ -188,6 +206,12 @@ const SidePanelContent: FC<Props> = props => {
         toggle={() => setTopicModalOpen(!topicModalOpen)}
       />
 
+      <EditTopicQnAModal
+        selectedTopic={selectedTopic}
+        isOpen={topicQnAModalOpen}
+        toggle={() => setTopicQnAModalOpen(!topicQnAModalOpen)}
+      />
+
       <CreateTopicModal
         isOpen={createTopicOpen}
         toggle={() => setCreateTopicOpen(!createTopicOpen)}
@@ -198,6 +222,7 @@ const SidePanelContent: FC<Props> = props => {
         isOpen={goalModalOpen}
         toggle={() => setGoalModalOpen(!goalModalOpen)}
         selectedGoal={selectedGoal}
+        initialTab={initialTab}
         selectedTopic={selectedTopic}
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}
@@ -217,15 +242,14 @@ const SidePanelContent: FC<Props> = props => {
 
 const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state),
-  flows: values(state.flows.flowsByName),
-  dirtyFlows: getDirtyFlows(state),
-  flowProblems: state.flows.flowProblems,
-  flowsNames: _.keys(state.flows.flowsByName),
+  flows: getAllFlows(state),
+  flowsName: getFlowNamesList(state),
   showFlowNodeProps: state.flows.showFlowNodeProps,
   topics: state.ndu.topics
 })
 
 const mapDispatchToProps = {
+  switchFlow,
   deleteFlow,
   duplicateFlow,
   renameFlow,

@@ -1,4 +1,4 @@
-import { Button, Classes, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
+import { Button, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { Topic } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
@@ -25,11 +25,9 @@ interface Props {
 const EditTopicModal: FC<Props> = props => {
   const [name, setName] = useState<string>('')
   const [description, setDescription] = useState<string>('')
-  const [tab, setTab] = useState<string>('overview')
 
   useEffect(() => {
     setName(props.selectedTopic)
-    setTab('overview')
 
     if (props.topics) {
       const topic = props.topics.find(x => x && x.name === props.selectedTopic)
@@ -61,71 +59,40 @@ const EditTopicModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
-      title="Edit topic"
-      icon="edit"
-      isOpen={props.isOpen}
-      onClose={closeModal}
-      size="md"
-      style={{ width: 900, minHeight: 475 }}
-      onSubmit={submit}
-    >
+    <BaseDialog title="Edit topic" icon="edit" isOpen={props.isOpen} onClose={closeModal} size="md" onSubmit={submit}>
       <DialogBody>
-        <Tabs id="tabs" vertical={true} onChange={tab => setTab(tab as string)} selectedTabId={tab}>
-          <Tab
-            id="overview"
-            title="Overview"
-            className={style.tabs}
-            panel={
-              <div>
-                <FormGroup label="Topic Name">
-                  <InputGroup
-                    id="input-flow-name"
-                    tabIndex={1}
-                    required={true}
-                    value={name}
-                    maxLength={50}
-                    onChange={e => setName(sanitizeName(e.currentTarget.value))}
-                    autoFocus={true}
-                  />
-                </FormGroup>
+        <div>
+          <FormGroup label="Topic Name">
+            <InputGroup
+              id="input-flow-name"
+              tabIndex={1}
+              required={true}
+              value={name}
+              maxLength={50}
+              onChange={e => setName(sanitizeName(e.currentTarget.value))}
+              autoFocus={true}
+            />
+          </FormGroup>
 
-                <FormGroup label="Description">
-                  <TextArea
-                    id="input-flow-name"
-                    rows={3}
-                    value={description}
-                    maxLength={250}
-                    fill={true}
-                    onChange={e => setDescription(e.currentTarget.value)}
-                  />
-                </FormGroup>
+          <FormGroup label="Description">
+            <TextArea
+              id="input-flow-description"
+              rows={3}
+              value={description}
+              maxLength={250}
+              fill={true}
+              onChange={e => setDescription(e.currentTarget.value)}
+            />
+          </FormGroup>
 
-                <Button
-                  type="submit"
-                  id="btn-submit"
-                  text="Save changes"
-                  intent={Intent.PRIMARY}
-                  className={style.modalFooter}
-                />
-              </div>
-            }
+          <Button
+            type="submit"
+            id="btn-submit"
+            text="Save changes"
+            intent={Intent.PRIMARY}
+            className={style.modalFooter}
           />
-
-          <Tab
-            id="knowledge"
-            title="Knowledge"
-            className={style.tabs}
-            panel={
-              <InjectedModuleView
-                moduleName="qna"
-                componentName="LiteEditor"
-                contentLang="en"
-                extraProps={{ topicName: name }}
-              />
-            }
-          />
-        </Tabs>
+        </div>
       </DialogBody>
     </BaseDialog>
   )

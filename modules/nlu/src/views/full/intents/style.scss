@@ -24,7 +24,10 @@
 
   .hint {
     color: #738694;
-    max-width: 50%;
+
+    &:not(.lightEditorHint) {
+      max-width: 50%;
+    }
   }
 }
 

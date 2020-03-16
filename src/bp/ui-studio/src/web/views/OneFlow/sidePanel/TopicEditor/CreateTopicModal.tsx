@@ -23,7 +23,7 @@ const CreateTopicModal: FC<Props> = props => {
 
   const submit = async () => {
     props.onCreateFlow(`${name}/${goal}`)
-    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topics`, { name, description: '' })
+    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topic`, { name, description: '' })
     props.fetchTopics()
 
     closeModal()
@@ -61,7 +61,7 @@ const CreateTopicModal: FC<Props> = props => {
           helperText="To get started, choose one goal you'd like your users to achieve, for example: hire_new_employee"
         >
           <InputGroup
-            id="input-flow-name"
+            id="input-flow-goal"
             tabIndex={1}
             value={goal}
             maxLength={100}
@@ -70,7 +70,7 @@ const CreateTopicModal: FC<Props> = props => {
         </FormGroup>
       </DialogBody>
       <DialogFooter>
-        <Button text="Create topic" intent={Intent.PRIMARY} type="submit" disabled={!goal && !name} />
+        <Button text="Create topic" intent={Intent.PRIMARY} type="submit" disabled={!goal || !name} />
       </DialogFooter>
     </BaseDialog>
   )

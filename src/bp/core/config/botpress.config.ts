@@ -255,6 +255,12 @@ export type BotpressConfig = {
    */
   showPoweredBy: boolean
   /**
+   * When true, the bot will avoid repeating itself. By default it is disabled.
+   * Use in conjunction with BP_DECISION_MIN_NO_REPEAT to set the time before the bot will repeat itself
+   * @default false
+   */
+  noRepeatPolicy: boolean
+  /**
    * By adding this, you'll make possible to translate a bot in more languages than those supported by your botpress language server
    * Warning: This means that Botpress NLU won't be working properly and you'll need to handle NLU on your own with a **beforeIncoming** Hook.
    * @example [{name: 'Swedish', code: 'sv'}]
@@ -265,7 +271,14 @@ export type BotpressConfig = {
   /**
    * Action Servers to be used when dispatching actions.
    */
+
   actionServers: ActionServersConfig
+  /**
+   * Whether or not to display experimental features throughout the UI. These are subject
+   * to change and can be unstable.
+   * @default false
+   */
+  experimental: boolean
 }
 
 export interface ExternalAuthConfig {

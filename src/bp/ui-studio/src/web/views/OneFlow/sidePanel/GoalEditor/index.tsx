@@ -5,7 +5,6 @@ import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, renameFlow, updateFlow } from '~/actions'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
-import { getCurrentFlow } from '~/reducers'
 import { sanitizeName } from '~/util'
 
 import style from '../style.scss'
@@ -18,12 +17,13 @@ interface OwnProps {
   readOnly: boolean
   canRename: boolean
   selectedTopic?: string
+  initialTab?: string
   toggle: () => void
 }
 
 interface StateProps {
   conditions: Condition[]
-  currentFlow: Flow
+  flows: Flow[]
 }
 
 interface DispatchProps {
@@ -35,22 +35,22 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps & OwnProps
 
 const EditGoalModal: FC<Props> = props => {
-  const [tab, setTab] = useState('overview')
-
+  const [tab, setTab] = useState(props.initialTab || 'triggers')
   const [name, setName] = useState<string>('')
   const [label, setLabel] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [triggers, setTriggers] = useState<FlowTrigger[]>([])
 
   useEffect(() => {
-    setTab('overview')
+    setTab(props.initialTab || 'triggers')
 
-    if (props.currentFlow && props.selectedGoal) {
-      const { name, label, description, triggers } = props.currentFlow
+    const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
+    if (originalFlow) {
+      const { name, label, description, triggers } = originalFlow
 
       setName(name.replace(/\.flow\.json$/i, ''))
-      setLabel(label)
-      setDescription(description)
+      setLabel(label || '')
+      setDescription(description || '')
       setTriggers(triggers)
     } else {
       setName(props.selectedTopic ? props.selectedTopic + '/' : '')
@@ -60,15 +60,30 @@ const EditGoalModal: FC<Props> = props => {
     }
   }, [props.isOpen])
 
+  const getNameOnly = (name: string): string => {
+    const explodedName = name.split('/')
+
+    return explodedName[explodedName.length - 1].replace(/\.flow\.json$/i, '')
+  }
+
+  const getDirOnly = (name: string): string => {
+    const explodedName: string[] = name.split('/')
+    explodedName.pop()
+
+    return explodedName.join('/')
+  }
+
   const submit = async () => {
     const fullName = `${name}.flow.json`
 
     if (isCreate) {
       props.createFlow(fullName)
     } else {
+      const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
+
       // TODO: fix flow edition
-      if (props.currentFlow.name !== fullName) {
-        props.renameFlow({ targetFlow: props.currentFlow.name, name: fullName })
+      if (originalFlow.name !== fullName) {
+        props.renameFlow({ targetFlow: originalFlow.name, name: fullName })
       }
       props.updateFlow({ name: fullName, description, label })
     }
@@ -101,7 +116,23 @@ const EditGoalModal: FC<Props> = props => {
     >
       <DialogBody>
         <div style={{ minHeight: 300 }}>
-          <Tabs id="tabs" vertical={true} onChange={tab => setTab(tab as string)} selectedTabId={tab}>
+          <Tabs id="tabs" vertical onChange={tab => setTab(tab as string)} selectedTabId={tab}>
+            <Tab
+              id="triggers"
+              title="Triggers"
+              className={style.tabs}
+              panel={
+                <div style={{ width: '740px' }}>
+                  <TriggerEditor
+                    goalName={name}
+                    selectedTopic={props.selectedTopic}
+                    triggers={triggers}
+                    closeModal={closeModal}
+                  />
+                </div>
+              }
+            />
+
             <Tab
               id="overview"
               title="Overview"
@@ -112,10 +143,10 @@ const EditGoalModal: FC<Props> = props => {
                     <InputGroup
                       id="input-flow-name"
                       tabIndex={1}
-                      required={true}
-                      value={name}
+                      required
+                      value={name || ''}
                       onChange={e => setName(sanitizeName(e.currentTarget.value))}
-                      autoFocus={true}
+                      autoFocus
                     />
                   </FormGroup>
 
@@ -126,18 +157,18 @@ const EditGoalModal: FC<Props> = props => {
                     <InputGroup
                       id="input-flow-label"
                       tabIndex={2}
-                      value={label}
+                      value={label || ''}
                       onChange={e => setLabel(e.currentTarget.value)}
                     />
                   </FormGroup>
 
                   <FormGroup label="Description">
                     <TextArea
-                      id="input-flow-name"
+                      id="input-flow-description"
                       rows={3}
                       tabIndex={3}
-                      value={description}
-                      fill={true}
+                      value={description || ''}
+                      fill
                       onChange={e => setDescription(e.currentTarget.value)}
                     />
                   </FormGroup>
@@ -153,17 +184,6 @@ const EditGoalModal: FC<Props> = props => {
                 </div>
               }
             />
-
-            <Tab
-              id="triggers"
-              title="Triggers"
-              className={style.tabs}
-              panel={
-                <div style={{ width: '740px' }}>
-                  <TriggerEditor goalName={name} triggers={triggers} closeModal={closeModal} />
-                </div>
-              }
-            />
           </Tabs>
         </div>
       </DialogBody>
@@ -173,7 +193,7 @@ const EditGoalModal: FC<Props> = props => {
 
 const mapStateToProps = state => ({
   conditions: state.ndu.conditions,
-  currentFlow: getCurrentFlow(state)
+  flows: _.values(state.flows.flowsByName)
 })
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow, renameFlow, createFlow })(

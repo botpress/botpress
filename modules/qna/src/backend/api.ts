@@ -6,12 +6,12 @@ import moment from 'moment'
 import multer from 'multer'
 import nanoid from 'nanoid'
 
-import { QnaEntry } from './qna'
-import Storage from './storage'
+import { QnaEntry, ScopedBots } from './qna'
 import { importQuestions, prepareExport, prepareImport } from './transfer'
+import { getIntentActions } from './utils'
 import { QnaDefSchema } from './validation'
 
-export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) => {
+export default async (bp: typeof sdk, bots: ScopedBots) => {
   const jsonUploadStatuses = {}
   const router = bp.http.createRouterForBot('qna')
 
@@ -21,7 +21,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
         query: { question = '', categories = [], limit, offset }
       } = req
 
-      const storage = botScopedStorage.get(req.params.botId)
+      const { storage } = bots[req.params.botId]
       const items = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send({ ...items })
     } catch (e) {
@@ -33,7 +33,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
   router.post('/questions', async (req: Request, res: Response, next: Function) => {
     try {
       const qnaEntry = (await validate(req.body, QnaDefSchema)) as QnaEntry
-      const storage = botScopedStorage.get(req.params.botId)
+      const { storage } = bots[req.params.botId]
       const id = await storage.insert(qnaEntry)
       res.send(id)
     } catch (e) {
@@ -43,7 +43,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
 
   router.get('/questions/:id', async (req: Request, res: Response) => {
     try {
-      const storage = botScopedStorage.get(req.params.botId)
+      const { storage } = bots[req.params.botId]
       const question = await storage.getQnaItem(req.params.id)
       res.send(question)
     } catch (e) {
@@ -58,7 +58,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
 
     try {
       const qnaEntry = (await validate(req.body, QnaDefSchema)) as QnaEntry
-      const storage = botScopedStorage.get(req.params.botId)
+      const { storage } = bots[req.params.botId]
       await storage.update(qnaEntry, req.params.id)
 
       const questions = await storage.getQuestions({ question, categories }, { limit, offset })
@@ -74,7 +74,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     } = req
 
     try {
-      const storage = botScopedStorage.get(req.params.botId)
+      const { storage } = bots[req.params.botId]
       await storage.delete(req.params.id)
       const questionsData = await storage.getQuestions({ question, categories }, { limit, offset })
       res.send(questionsData)
@@ -86,13 +86,13 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
   })
 
   router.get('/categories', async (req: Request, res: Response) => {
-    const storage = botScopedStorage.get(req.params.botId)
+    const { storage } = bots[req.params.botId]
     const categories = await storage.getCategories()
     res.send({ categories })
   })
 
   router.get('/export', async (req: Request, res: Response) => {
-    const storage = botScopedStorage.get(req.params.botId)
+    const { storage } = bots[req.params.botId]
     const data: string = await prepareExport(storage, bp)
 
     res.setHeader('Content-Type', 'application/json')
@@ -101,14 +101,14 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
   })
 
   router.get('/contentElementUsage', async (req: Request, res: Response) => {
-    const storage = botScopedStorage.get(req.params.botId)
+    const { storage } = bots[req.params.botId]
     const usage = await storage.getContentElementUsage()
     res.send(usage)
   })
 
   const upload = multer()
   router.post('/analyzeImport', upload.single('file'), async (req: any, res: Response) => {
-    const storage = botScopedStorage.get(req.params.botId)
+    const { storage } = bots[req.params.botId]
     const cmsIds = await storage.getAllContentElementIds()
     const importData = await prepareImport(JSON.parse(req.file.buffer))
 
@@ -124,7 +124,7 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
     const uploadStatusId = nanoid()
     res.send(uploadStatusId)
 
-    const storage = botScopedStorage.get(req.params.botId)
+    const { storage } = bots[req.params.botId]
 
     if (req.body.action === 'clear_insert') {
       updateUploadStatus(uploadStatusId, 'Deleting existing questions')
@@ -147,6 +147,16 @@ export default async (bp: typeof sdk, botScopedStorage: Map<string, Storage>) =>
 
   router.get('/json-upload-status/:uploadStatusId', async (req: Request, res: Response) => {
     res.end(jsonUploadStatuses[req.params.uploadStatusId])
+  })
+
+  router.post('/intentActions', async (req: Request, res: Response) => {
+    const { intentName, event } = req.body
+
+    try {
+      res.send(await getIntentActions(intentName, event, { bp, ...bots[req.params.botId] }))
+    } catch (err) {
+      res.status(400).send([])
+    }
   })
 
   const sendToastError = (action: string, error: string) => {

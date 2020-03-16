@@ -1,13 +1,13 @@
-import { IO, Logger } from 'botpress/sdk'
+import { IO, Logger, NDU } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import { CMSService } from '../cms'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
@@ -29,27 +29,44 @@ export class DecisionEngine {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.StateManager) private stateManager: StateManager,
-    @inject(TYPES.CMSService) private cms: CMSService
+    @inject(TYPES.StateManager) private stateManager: StateManager
   ) {}
 
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
   private readonly MIN_NO_REPEAT = ms(process.env.BP_DECISION_MIN_NO_REPEAT || '20s')
+  private noRepeatPolicy = false
+
+  @postConstruct()
+  async initialize() {
+    await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
+    this.noRepeatPolicy = (await this.configProvider.getBotpressConfig()).noRepeatPolicy
+  }
 
   private async processEventNDU(sessionId: string, event: IO.IncomingEvent) {
     if (!event.ndu || !event.ndu.actions) {
       return
     }
 
-    for (const { action, data } of event.ndu.actions) {
-      if (action === 'send') {
-        await this._sendSuggestion(data, sessionId, event)
-      } else if (action === 'redirect') {
-        await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
+    let eventProcessedCalled = false
+    const processEvent = async (event: IO.IncomingEvent) => {
+      if (!eventProcessedCalled) {
+        eventProcessedCalled = true
+        this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
+      }
+    }
 
+    for (const { action, data } of event.ndu.actions) {
+      if (action === 'send' && data) {
+        await this._sendContent(data as NDU.SendContent, event)
+      } else if (action === 'redirect') {
+        const { flow, node } = data as NDU.FlowRedirect
+        await this.dialogEngine.jumpTo(sessionId, event, flow, node)
+      } else if (action === 'startGoal') {
+        const { goal } = data as NDU.StartGoal
+        await this.dialogEngine.jumpTo(sessionId, event, goal)
         event.state.session.lastGoals = [
           {
-            goal: data.flow,
+            goal,
             eventId: event.id,
             active: true
           },
@@ -64,16 +81,17 @@ export class DecisionEngine {
 
       // In case there are no unknown errors, remove skills/ flow from the stacktrace
       processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
-      this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
-
+      await processEvent(processedEvent)
       await this.stateManager.persist(processedEvent, false)
       return
     }
 
     if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
-      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
+      await processEvent(event)
       await this.stateManager.persist(event, false)
     }
+
+    await processEvent(event)
   }
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
@@ -184,7 +202,7 @@ export class DecisionEngine {
 
       if (replies[i].confidence < this.MIN_CONFIDENCE) {
         replies[i].decision = { status: 'dropped', reason: `confidence lower than ${this.MIN_CONFIDENCE}` }
-      } else if (violatesRepeatPolicy) {
+      } else if (this.noRepeatPolicy && violatesRepeatPolicy) {
         replies[i].decision = { status: 'dropped', reason: `bot would repeat itself (within ${this.MIN_NO_REPEAT}ms)` }
       } else if (bestReply) {
         replies[i].decision = { status: 'dropped', reason: 'best suggestion already elected' }
@@ -193,6 +211,26 @@ export class DecisionEngine {
         replies[i].decision = { status: 'elected', reason: 'best remaining suggestion available' }
       }
     }
+  }
+
+  private async _sendContent(
+    { payloads, source, sourceDetails, confidence }: NDU.SendContent | IO.Suggestion,
+    event: IO.IncomingEvent
+  ) {
+    await this.eventEngine.replyToEvent(event, payloads, event.id)
+
+    const message: IO.DialogTurnHistory = {
+      eventId: event.id,
+      replyDate: new Date(),
+      replySource: source + ' ' + sourceDetails,
+      incomingPreview: event.preview,
+      replyConfidence: confidence,
+      replyPreview: _.find(payloads, p => p.text !== undefined)
+    }
+
+    event.state.session.lastMessages.push(message)
+
+    await this.stateManager.persist(event, true)
   }
 
   private async _sendSuggestion(
@@ -204,21 +242,8 @@ export class DecisionEngine {
     const result: SendSuggestionResult = { executeFlows: true }
 
     if (payloads) {
-      await this.eventEngine.replyToEvent(event, payloads, event.id)
-
-      const message: IO.DialogTurnHistory = {
-        eventId: event.id,
-        replyDate: new Date(),
-        replySource: reply.source + ' ' + reply.sourceDetails,
-        incomingPreview: event.preview,
-        replyConfidence: reply.confidence,
-        replyPreview: _.find(payloads, p => p.text !== undefined)
-      }
-
+      await this._sendContent(reply, event)
       result.executeFlows = false
-      event.state.session.lastMessages.push(message)
-
-      await this.stateManager.persist(event, true)
     }
 
     const redirect = _.find(reply.payloads, p => p.type === 'redirect')

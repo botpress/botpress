@@ -20,8 +20,8 @@ export interface SkillDefinition {
   moduleName: string
 }
 
-const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props => {
-  if (props.flowPreview) {
+const FlowTools: FC<{ skills: SkillDefinition[] }> = props => {
+  if (window.EXPERIMENTAL) {
     return (
       <div className={style.toolPanel}>
         <ToolItem label="Node" type="node" id="standard" icon="chat" />
