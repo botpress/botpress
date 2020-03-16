@@ -50,6 +50,26 @@ export const dialogConditions: sdk.Condition[] = [
     }
   },
   {
+    id: 'raw_js',
+    label: 'Raw JS expression',
+    params: { expression: { label: 'Expression to evaluate', type: 'string' } },
+    evaluate: (event, params) => {
+      const code = `
+      try {
+        return ${params.expression};
+      } catch (err) {
+        if (err instanceof TypeError) {
+          console.log(err)
+          return false
+        }
+        throw err
+      }`
+
+      const fn = new Function('event', code)
+      return fn(event) ? 1 : 0
+    }
+  },
+  {
     id: 'user_already_spoke',
     label: 'User has already spoke with the bot',
     evaluate: event => {
