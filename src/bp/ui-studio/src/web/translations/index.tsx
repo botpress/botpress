@@ -14,4 +14,4 @@ const initializeTranslations = () => {
   langInit()
 }
 
-export default initializeTranslations
+export { initializeTranslations }

@@ -9,15 +9,6 @@ let locale: string
 let intl: IntlShape
 const cache = createIntlCache()
 
-const getUserLocale = (manualLocale?: 'browser' | string) => {
-  const code = str => str.split('-')[0]
-  const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
-  const storageLocale = code(localStorage.getItem('bp/channel-web/user-lang') || '')
-  const locale = code(manualLocale === 'browser' ? browserLocale : manualLocale || '')
-
-  return translations[locale] ? locale : translations[storageLocale] ? storageLocale : defaultLocale
-}
-
 const langExtend = langs => {
   for (const [key, value] of Object.entries(langs)) {
     if (translations[key]) {
@@ -58,6 +49,15 @@ const squash = (space, root = {}, path = '') => {
     }
   }
   return root
+}
+
+const getUserLocale = (manualLocale?: 'browser' | string) => {
+  const code = str => str.split('-')[0]
+  const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
+  const storageLocale = code(localStorage.getItem('bp/channel-web/user-lang') || '')
+  const locale = code(manualLocale === 'browser' ? browserLocale : manualLocale || '')
+
+  return translations[locale] ? locale : translations[storageLocale] ? storageLocale : defaultLocale
 }
 
 const lang = (id: string, values?: Record<string, string | PrimitiveType>): string => {

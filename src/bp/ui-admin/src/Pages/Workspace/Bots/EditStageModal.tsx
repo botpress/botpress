@@ -9,11 +9,11 @@ import {
   Radio,
   RadioGroup
 } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import api from '~/api'
-import lang from '~/translations'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 
