@@ -10,7 +10,7 @@ export const CHAT_USER_AUTH_KEY = 'bp/chat_user_auth'
 const HOME_ROUTE = '/home'
 
 export const REFRESH_INTERVAL = ms('5m')
-export const MIN_MS_LEFT_BEFORE_REFRESH = ms('10m')
+const MIN_MS_LEFT_BEFORE_REFRESH = ms('10m')
 
 export const getToken = (onlyToken: boolean = true): StoredToken | string | undefined => {
   const token = localStorage.getItem(TOKEN_KEY)
@@ -36,7 +36,7 @@ export const isTokenValid = (): boolean => {
   return false
 }
 
-export const isTokenExpiringSoon = () => {
+export const tokenNeedsRefresh = () => {
   const tokenData = getToken(false) as StoredToken
   const duration = moment.duration(moment.unix(tokenData.expiresAt).diff(moment()))
 

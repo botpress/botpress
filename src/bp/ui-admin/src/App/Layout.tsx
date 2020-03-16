@@ -4,7 +4,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { NavLink } from 'reactstrap'
 import api from '~/api'
-import { getToken, isTokenExpiringSoon, REFRESH_INTERVAL, setToken } from '~/Auth'
+import { getToken, REFRESH_INTERVAL, setToken, tokenNeedsRefresh } from '~/Auth'
 import WorkspaceSelect from '~/Pages/Components/WorkspaceSelect'
 
 import logo from '../media/logo_white.png'
@@ -37,14 +37,14 @@ const App: FC<Props> = props => {
 
     setTokenInterval(
       setInterval(async () => {
-        await validateToken()
+        await tryRefreshToken()
       }, REFRESH_INTERVAL)
     )
   }, [])
 
-  const validateToken = async () => {
+  const tryRefreshToken = async () => {
     try {
-      if (!isTokenExpiringSoon()) {
+      if (!tokenNeedsRefresh()) {
         return
       }
 

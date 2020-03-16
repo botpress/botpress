@@ -14,7 +14,7 @@ import {
   refreshHints,
   replaceNotifications
 } from '~/actions'
-import { authEvents, getToken, isTokenExpiringSoon, REFRESH_INTERVAL, setToken } from '~/util/Auth'
+import { authEvents, getToken, REFRESH_INTERVAL, setToken, tokenNeedsRefresh } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
 
 import routes, { history } from '../Routes'
@@ -98,13 +98,13 @@ class App extends Component<Props> {
     })
 
     this.interval = setInterval(async () => {
-      await this.validateToken()
+      await this.tryRefreshToken()
     }, REFRESH_INTERVAL)
   }
 
-  async validateToken() {
+  async tryRefreshToken() {
     try {
-      if (!isTokenExpiringSoon()) {
+      if (!tokenNeedsRefresh()) {
         return
       }
 
