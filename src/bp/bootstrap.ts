@@ -17,7 +17,6 @@ import os from 'os'
 
 import { ModuleConfigEntry } from 'core/config/botpress.config'
 
-import { WORKER_TYPE as LOCAL_ACTION_SERVER_WORKER_TYPE } from 'core/services/action/local-action-server'
 import { setupMasterNode, WORKER_TYPES } from './cluster'
 
 async function setupEnv() {
@@ -101,7 +100,7 @@ async function start() {
     return setupMasterNode(await getLogger('Cluster'))
   }
 
-  if (process.env.WORKER_TYPE === LOCAL_ACTION_SERVER_WORKER_TYPE) {
+  if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_ACTION_SERVER) {
     LocalActionServer.listen()
     return
   }

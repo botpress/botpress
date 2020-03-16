@@ -1,8 +1,7 @@
 import bodyParser from 'body-parser'
-import { IO, Logger } from 'botpress/sdk'
-import cluster from 'cluster'
-import { ActionDefinition, ActionParameterDefinition } from 'common/typings'
-import { BadRequestError, InternalServerError, UnauthorizedError } from 'core/routers/errors'
+import { Logger } from 'botpress/sdk'
+import { ActionDefinition } from 'common/typings'
+import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { asyncMiddleware, AsyncMiddleware, TypedRequest, TypedResponse } from 'core/routers/util'
 import { TYPES } from 'core/types'
@@ -11,8 +10,6 @@ import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
-
-import { registerMsgHandler } from '../../../cluster'
 
 import ActionService, { ActionServerResponse, RunActionProps } from './action-service'
 
@@ -129,23 +126,4 @@ export class LocalActionServer {
       })
     )
   }
-}
-
-const MESSAGE_TYPE = 'start_local_action_server'
-export const WORKER_TYPE = 'ACTION_WORKER'
-
-export interface StartMessage {
-  appSecret: string
-  port: number
-}
-
-export const startLocalActionServer = (message: StartMessage) => {
-  process.send!({ type: MESSAGE_TYPE, ...message })
-}
-
-if (cluster.isMaster) {
-  registerMsgHandler(MESSAGE_TYPE, (message: StartMessage) => {
-    const { appSecret, port } = message
-    cluster.fork({ WORKER_TYPE, APP_SECRET: appSecret, PORT: port })
-  })
 }
