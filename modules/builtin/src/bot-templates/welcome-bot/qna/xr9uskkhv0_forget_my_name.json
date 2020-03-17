@@ -7,7 +7,7 @@
     "questions": {
       "en": [
         "forget my name",
-        "don't remember me",
+        "dont remember me",
         "erase my name",
         "erase me",
         "stop remembering me",
@@ -21,7 +21,9 @@
     "redirectFlow": "memory.flow.json",
     "redirectNode": "forget-my-name",
     "action": "redirect",
-    "category": "memory",
-    "enabled": true
+    "enabled": true,
+    "contexts": [
+      "memory"
+    ]
   }
 }
