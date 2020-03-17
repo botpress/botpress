@@ -39,7 +39,7 @@ export const LiteEditor: FC<Props> = props => {
     // Ensure the current topic is in the intent's contexts
     if (props.forceSave && dirtyIntents.length) {
       // tslint:disable-next-line: no-floating-promises
-      api.refreshIntentTopics([...dirtyIntents, currentIntent])
+      api.syncIntentTopics()
     }
   }, [props.forceSave])
 
