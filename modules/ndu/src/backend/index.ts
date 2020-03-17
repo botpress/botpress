@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 
 import api from './api'
 import { dialogConditions } from './conditions'
-import Database from './db'
 import { registerMiddleware } from './middleware'
 import { UnderstandingEngine } from './ndu-engine'
 import { MountedBots } from './typings'
@@ -10,13 +9,9 @@ import { MountedBots } from './typings'
 export const bots: MountedBots = {}
 
 let nduEngine: UnderstandingEngine
-let db: Database
 
 const onServerStarted = async (bp: typeof sdk) => {
-  db = new Database(bp)
-  await db.initialize()
-
-  nduEngine = new UnderstandingEngine(bp, db)
+  nduEngine = new UnderstandingEngine(bp)
   await registerMiddleware(bp, nduEngine, bots)
 }
 

@@ -78,7 +78,7 @@ export const ContextSelector: FC<Props> = props => {
         itemPredicate={(q: string, ctx: string) => !q || ctx.includes(q)}
         onItemSelect={onItemSelect}
         tagRenderer={ctx => ctx}
-        tagInputProps={{ tagProps: { minimal: true }, onRemove: removeCtx }}
+        tagInputProps={{ tagProps: { minimal: true }, onRemove: removeCtx, inputProps: { id: 'select-context' } }}
         popoverProps={{ minimal: true, fill: true }}
         selectedItems={props.contexts}
         createNewItemRenderer={!props.isSearch && createNewItemRenderer}

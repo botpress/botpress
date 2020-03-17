@@ -21,7 +21,9 @@
     "redirectFlow": "memory.flow.json",
     "redirectNode": "forget-my-name",
     "action": "redirect",
-    "category": "memory",
-    "enabled": true
+    "enabled": true,
+    "contexts": [
+      "memory"
+    ]
   }
 }

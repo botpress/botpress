@@ -5,6 +5,7 @@ import migrateBot from './migrate'
 
 export default async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('ndu')
+
   router.get('/events', async (req, res) => {
     res.send(
       await bp
@@ -25,7 +26,7 @@ export default async (bp: typeof sdk) => {
     }
   })
 
-  router.get('/channels', async (req, res) => {
+  router.get('/channels', async (_req, res) => {
     const channels = Object.keys(process.LOADED_MODULES)
       .filter(x => x.startsWith('channel'))
       .map(x => {

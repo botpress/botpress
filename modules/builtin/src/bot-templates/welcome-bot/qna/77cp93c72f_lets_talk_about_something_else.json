@@ -21,7 +21,9 @@
     "redirectFlow": "contexts.flow.json",
     "redirectNode": "animal-choices",
     "action": "redirect",
-    "category": "contexts",
-    "enabled": true
+    "enabled": true,
+    "contexts": [
+      "contexts"
+    ]
   }
 }
