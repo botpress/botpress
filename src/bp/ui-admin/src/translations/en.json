@@ -1,17 +1,20 @@
 {
-  "approvalsRequired": "Number of approvals required",
-  "couldNotFindPipeline": "Could not find the pipeline to save",
-  "stageSaved": "Stage saved successfully",
-  "errorUpdatingPipeline": "Error while updating pipeline: {message}",
+  "cancel": "Cancel",
+  "save": "Save",
   "label": "Label",
   "action": "Action",
   "copy": "Copy",
   "move": "Move",
-  "reviewers": "Reviewers",
-  "approvalOrder": "Approval Order",
-  "serial": "Serial",
-  "parallel": "Parallel",
-  "cancel": "Cancel",
-  "save": "Save",
-  "pleaseWait": "Please wait..."
+
+  "editStage": {
+    "approvalsRequired": "Number of approvals required",
+    "couldNotFindPipeline": "Could not find the pipeline to save",
+    "stageSaved": "Stage saved successfully",
+    "errorUpdatingPipeline": "Error while updating pipeline: {message}",
+    "reviewers": "Reviewers",
+    "approvalOrder": "Approval Order",
+    "serial": "Serial",
+    "parallel": "Parallel",
+    "pleaseWait": "Please wait..."
+  }
 }

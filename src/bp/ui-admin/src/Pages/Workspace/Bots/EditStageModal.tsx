@@ -156,7 +156,7 @@ const EditStageModal: FC<Props> = props => {
   return (
     <Dialog isOpen={props.isOpen} onClose={closeModal} transitionDuration={0} title={`Configure Stage: ${label}`}>
       <div className={Classes.DIALOG_BODY}>
-        <FormGroup label={lang('editStage.label')}>
+        <FormGroup label={lang('label')}>
           <InputGroup
             id="input-label"
             type="text"
@@ -166,10 +166,10 @@ const EditStageModal: FC<Props> = props => {
           />
         </FormGroup>
         {!isLastPipeline && (
-          <FormGroup label={lang('editStage.action')}>
+          <FormGroup label={lang('action')}>
             <RadioGroup onChange={({ currentTarget: { value } }) => setAction(value)} selectedValue={action} inline>
-              <Radio label={lang('editStage.copy')} value="promote_copy" />
-              <Radio label={lang('editStage.move')} value="promote_move" />
+              <Radio label={lang('copy')} value="promote_copy" />
+              <Radio label={lang('move')} value="promote_move" />
             </RadioGroup>
           </FormGroup>
         )}

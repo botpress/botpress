@@ -1,16 +1,16 @@
 {
   "cancel": "Annuler",
   "save": "Sauvegarder",
+  "label": "Étiquette",
+  "action": "Action",
+  "copy": "Copier",
+  "move": "Déplacer",
 
   "editStage": {
     "approvalsRequired": "Nombre d'approbations requises",
     "couldNotFindPipeline": "Impossible de trouver le pipeline à enregistrer",
     "stageSaved": "Étape enregistrée avec succès",
     "errorUpdatingPipeline": "Erreur lors de la mise à jour du pipeline: {message}",
-    "label": "Étiquette",
-    "action": "Action",
-    "copy": "Copier",
-    "move": "Déplacer",
     "reviewers": "Réviseurs",
     "approvalOrder": "Ordonnance d'approbation",
     "serial": "En série",
