@@ -34,18 +34,18 @@ title: Slack
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID by your bot ID
 
-1. Open the page `Interactive Components`, then turn the switch to `On`
+3. Under `Subscribe to bot events` add `messages.im` and `messages.channels` (you can also add other types of messages if you want)
 
-2. Set the request URL to: `EXTERNAL_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-slack/callback`
+4. Open the page `Interactive Components`, then turn the switch to `On`
+
+5. Set the request URL to: `EXTERNAL_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-slack/callback`
 
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID by your bot ID
 
-3. Under `Subscribe to bot events` add `messages.im` and `messages.channels` (you can also add other types of messages if you want)
+6. Open the page `OAuth & Permissions` and add `chat:write` under `Scopes`
 
-4. Open the page `OAuth & Permissions` and add `chat:write` under `Scopes`
-
-5. Install the app by clicking the `Install App to Workspace` button
+7. Install the app by clicking the `Install App to Workspace` button
 
 
 ### Finish configuring your bot 
