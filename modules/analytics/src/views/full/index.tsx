@@ -1,4 +1,14 @@
-import { Button, Card, HTMLSelect, Icon, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
+import {
+  Button,
+  Card,
+  HTMLSelect,
+  Icon,
+  IconName,
+  MaybeElement,
+  Popover,
+  Position,
+  Tooltip as BpTooltip
+} from '@blueprintjs/core'
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
@@ -6,14 +16,22 @@ import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, useEffect, useState } from 'react'
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import {
+  Area,
+  AreaChart,
+  PolarAngleAxis,
+  RadialBar,
+  RadialBarChart,
+  ResponsiveContainer,
+  Text,
+  Tooltip,
+  XAxis
+} from 'recharts'
 
 import { MetricEntry } from '../../backend/typings'
 
-import { metrics } from './metrics'
+import { fakeMetrics } from './metrics'
 import style from './style.scss'
-
-const SECONDS_PER_DAY = 86400
 
 const CHANNEL_COLORS = {
   web: '#1F8FFA',
@@ -22,16 +40,18 @@ const CHANNEL_COLORS = {
   telegram: '#2EA6DA'
 }
 
-const CHANNEL_FILL_COLORS = {
-  web: 'linear-gradient(red, yellow, blue)'
-}
-
 interface State {
   metrics: MetricEntry[]
   dateRange?: DateRange
   pageTitle: string
   selectedChannel: string
   shownSection: string
+}
+
+interface Extras {
+  icon?: IconName | MaybeElement
+  iconBottom?: IconName | MaybeElement
+  className?: string
 }
 
 const fetchReducer = (state: State, action): State => {
@@ -47,7 +67,7 @@ const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      metrics
+      metrics: fakeMetrics
     }
   } else if (action.type === 'channelSuccess') {
     const { selectedChannel } = action.data
@@ -145,32 +165,17 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getAvgMsgPerSessions = () => {
-    const augmentedMetrics = state.metrics.map(m => ({
-      ...m,
-      day: moment(m.date).format('DD-MM')
-    }))
-    const metricsByDate = _.sortBy(augmentedMetrics, 'day')
-    const sessionsCountPerDay = metricsByDate.filter(m => m.metric === 'sessions_count')
+    const sentCount = state.metrics.reduce((acc, m) => (m.metric === 'msg_sent_count' ? acc + m.value : acc), 0)
+    const receivedCount = state.metrics.reduce((acc, m) => (m.metric === 'msg_received_count' ? acc + m.value : acc), 0)
 
-    return sessionsCountPerDay.map(s => {
-      const sentCount = augmentedMetrics.find(
-        m => m.metric === 'msg_sent_count' && s.day === m.day && s.channel === m.channel
-      )
-      const receivedCount = augmentedMetrics.find(
-        m => m.metric === 'msg_received_count' && s.day === m.day && s.channel === m.channel
-      )
-      return {
-        value: Math.round((_.get(sentCount, 'value', 0) + _.get(receivedCount, 'value', 0)) / s.value),
-        channel: s.channel,
-        date: s.date
-      }
-    })
+    return sentCount + receivedCount
   }
 
   const getUnderstoodPercent = () => {
     const received = getMetricCount('msg_received_count')
     const none = getMetricCount('msg_nlu_intent', 'none')
     const percent = ((received - none) / received) * 100
+
     return getNotNaN(percent, '%')
   }
 
@@ -178,6 +183,7 @@ const Analytics: FC<any> = ({ bp }) => {
     const received = getMetricCount('msg_received_count')
     const none = getMetricCount('top_msg_nlu_none')
     const percent = ((received - none) / received) * 100
+
     return getNotNaN(percent, '%')
   }
 
@@ -185,24 +191,37 @@ const Analytics: FC<any> = ({ bp }) => {
     const activeUsersCount = getMetricCount('active_users_count')
     const newUsersCount = getMetricCount('new_users_count')
     const percent = activeUsersCount && (newUsersCount / activeUsersCount) * 100
+
     return getNotNaN(percent, '%')
   }
 
-  const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${value.toFixed(2)}${suffix}`)
+  const getNewUsersPercent = () => {
+    const existingUsersCount = 150 // TODO get this number from database
+    const newUsersCount = getMetricCount('new_users_count')
+    const percent = newUsersCount && (existingUsersCount / newUsersCount) * 100
+
+    return getNotNaN(percent, '%')
+  }
+
+  const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${Math.round(value)}${suffix}`)
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
   const renderEngagement = () => {
     return (
       <div className={style.metricsContainer}>
-        {renderNumberMetric('Active Users', getMetricCount('active_users_count'))}
-        {renderNumberMetric('New Users', getMetricCount('new_users_count'))}
-        {renderNumberMetric('Returning Users', getReturningUsers())}
-        {renderTimeSeriesChart('User Activities', getMetric('new_users_count'))}
-        <div>
-          <h3>Busiest Period</h3>
+        {renderNumberMetric('Active Users', getMetricCount('active_users_count'), { icon: 'user' })}
+        {renderNumberMetric(`${getMetricCount('new_users_count')} New Users`, getNewUsersPercent(), {
+          icon: 'trending-down'
+        })}
+        {renderNumberMetric(`${getMetricCount('active_users_count')} Returning Users`, getReturningUsers(), {
+          icon: 'trending-up'
+        })}
+        {renderTimeSeriesChart('User Activities', getMetric('new_users_count'), { className: style.fullGrid })}
+        <Card className={cx(style.genericMetric, style.inline)}>
+          <h3 className={style.metricName}>Busiest Period</h3>
           <p>Monday fromn 2PM to 4PM</p>
-        </div>
+        </Card>
       </div>
     )
   }
@@ -210,15 +229,14 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderConversations = () => {
     return (
       <div className={style.metricsContainer}>
-        {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
-        <BpTooltip content="Session Length" position={Position.TOP}>
-          {renderTimeSeriesChart('Message Exchanged', getAvgMsgPerSessions())}
-        </BpTooltip>
-        {renderTimeSeriesChart('Goals Initiated', getMetric('goals_started_count'))}
-        {renderTimeSeriesChart('Questions Asked', getMetric('msg_sent_qna_count'))}
-        <div>
-          <h3>Most Used Workflows</h3>
-          <ul>
+        {renderTimeSeriesChart('Sessions', getMetric('sessions_count'), { className: style.threeQuarterGrid })}
+        {renderNumberMetric('Message Exchanged', getAvgMsgPerSessions(), { iconBottom: 'chat' })}
+        {renderNumberMetric('Goals Initiated', getMetricCount('goals_started_count'), { className: style.half })}
+        {renderNumberMetric('Questions Asked', getMetricCount('msg_sent_qna_count'), { className: style.half })}
+        <div className={cx(style.genericMetric, style.half, style.list)}>
+          <h3 className={style.metricName}>Most Used Workflows</h3>
+          {/* Max 10 items */}
+          <ol>
             <li>
               <a href="#">Academics</a>
             </li>
@@ -234,27 +252,78 @@ const Analytics: FC<any> = ({ bp }) => {
             <li>
               <a href="#">Academics</a>
             </li>
-          </ul>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+            <li>
+              <a href="#">Academics</a>
+            </li>
+          </ol>
         </div>
-        <div>
-          <h3>Most Asked Questions</h3>
-          <ul>
+        <div className={cx(style.genericMetric, style.half, style.list)}>
+          <h3 className={style.metricName}>Most Asked Questions</h3>
+          {/* Max 10 items */}
+          <ol>
             <li>
-              <a href="#">What do you get when you put something where it shouldn't be</a>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
             </li>
             <li>
-              <a href="#">What do you get when you put something where it shouldn't be</a>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
             </li>
             <li>
-              <a href="#">What do you get when you put something where it shouldn't be</a>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
             </li>
             <li>
-              <a href="#">What do you get when you put something where it shouldn't be</a>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
             </li>
             <li>
-              <a href="#">What do you get when you put something where it shouldn't be</a>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
             </li>
-          </ul>
+            <li>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
+            </li>
+            <li>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
+            </li>
+            <li>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
+            </li>
+            <li>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
+            </li>
+            <li>
+              <BpTooltip content="What do you get when you put something where it shouldn't be">
+                <a href="#">What do you get when you put something where it shouldn't be</a>
+              </BpTooltip>
+            </li>
+          </ol>
         </div>
       </div>
     )
@@ -267,7 +336,8 @@ const Analytics: FC<any> = ({ bp }) => {
         {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
         <div>
           <h3>Most Failed Workflows</h3>
-          <ul>
+          {/* Max 3 items */}
+          <ol>
             <li>
               <a href="#">Academics</a>
             </li>
@@ -277,32 +347,70 @@ const Analytics: FC<any> = ({ bp }) => {
             <li>
               <a href="#">Academics</a>
             </li>
-          </ul>
+          </ol>
         </div>
         <div>
           <h3>Most Failed Questions</h3>
-          <ul>
+          {/* Max 3 items */}
+          <ol>
             <li>
               <a href="#">What do you get when you put something where it shouldn't be</a>
             </li>
             <li>
               <a href="#">What do you get when you put something where it shouldn't be</a>
             </li>
-          </ul>
+            <li>
+              <a href="#">What do you get when you put something where it shouldn't be</a>
+            </li>
+          </ol>
         </div>
-        {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)}
+        {renderRadialMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'))}
       </div>
     )
   }
 
-  const renderNumberMetric = (name: string, value: number | string, isPercentage?: boolean) => {
+  const renderRadialMetric = (name: string, value: number | string, { icon, iconBottom, className }: Extras = {}) => {
+    const data = [{ name: 'L1', value: 100 }]
+
+    const circleSize = 130
+
     return (
-      <Card className={cx(style.numberMetric, style.wIcon)}>
-        <Icon icon="user" />
+      <Card className={cx(style.genericMetric, className, { [style.wIcon]: icon || iconBottom })}>
+        <RadialBarChart
+          width={circleSize}
+          height={circleSize}
+          innerRadius={circleSize / 2 - 4}
+          outerRadius={circleSize / 2}
+          barSize={4}
+          data={data}
+          startAngle={90}
+          endAngle={-270}
+        >
+          <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+          <RadialBar background clockWise dataKey="value" cornerRadius={circleSize / 2} fill="#0F9960" />
+          <text
+            x={circleSize / 2}
+            y={circleSize / 2}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="progress-label"
+          >
+            Test
+          </text>
+        </RadialBarChart>
+      </Card>
+    )
+  }
+
+  const renderNumberMetric = (name: string, value: number | string, { icon, iconBottom, className }: Extras = {}) => {
+    return (
+      <Card className={cx(style.genericMetric, className, { [style.wIcon]: icon || iconBottom })}>
+        {icon && <Icon color="#5C7080" iconSize={20} icon={icon} />}
         <div>
           <p className={style.numberMetricValue}>{value}</p>
           <h3 className={style.metricName}>{name}</h3>
         </div>
+        {iconBottom && <Icon color="#5C7080" iconSize={20} icon={iconBottom} />}
       </Card>
     )
   }
@@ -325,10 +433,9 @@ const Analytics: FC<any> = ({ bp }) => {
       .substr(0, 1)
   const formatTootilTick = timestamp => moment.unix(timestamp).format('dddd, MMMM Do YYYY')
 
-  const renderTimeSeriesChart = (name: string, data: MetricEntry[] | any, desc?: string) => {
-    console.log(data)
+  const renderTimeSeriesChart = (name: string, data: MetricEntry[] | any, { className }: Extras = {}) => {
     return (
-      <div className={cx(style.metricWrapper, style.fullGrid, { [style.empty]: !data.length })}>
+      <div className={cx(style.metricWrapper, { [style.empty]: !data.length }, className)}>
         <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
           <h3 className={style.metricName}>
             <span>{name}</span>

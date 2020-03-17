@@ -3,6 +3,8 @@ $colorMessenger: #83aeee;
 $colorTelegram: #463cff;
 $colorSlack: #ff8989;
 $textColor: #182026;
+$lightText: #5C7080;
+$linkText: #1F8FFA;
 
 .mainWrapper {
   background: #EBF1F5;
@@ -20,7 +22,7 @@ $textColor: #182026;
 .sectionsWrapper {
   display: grid;
   grid-column-gap: 20px;
-  grid-row-gap: 44px;
+  grid-row-gap: 24px;
   grid-template-columns: 50% 50%;
 }
 
@@ -104,11 +106,10 @@ $textColor: #182026;
 }
 
 .metricsContainer {
-  display: grid;
-  grid-column-gap: 20px;
-  grid-row-gap: 20px;
-  grid-template-columns: repeat(3, 1fr);
-  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 0px -2%;
 }
 
 .metricName {
@@ -120,7 +121,7 @@ $textColor: #182026;
   width: 100%;
 }
 
-.numberMetric {
+.genericMetric {
   background: #fff;
   border-radius: 3px;
   box-shadow: none;
@@ -128,12 +129,79 @@ $textColor: #182026;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 125px;
+  margin-bottom: 20px;
+  margin: 0 2% 20px;
+  min-width: 140px;
   padding: 20px;
-  width: auto;
+  width: 29%;
 
   &.wIcon {
     min-height: 240px;
+  }
+
+  &.half {
+    width: 46%;
+
+    .metricName {
+      min-height: 0;
+    }
+  }
+
+  &.list {
+    justify-content: flex-start;
+    min-height: 204px;
+
+    ol {
+      counter-reset: li;
+      list-style: none;
+      margin: 0;
+      padding: 5px 0 0;
+
+      li {
+        color: $linkText;
+        counter-increment: li;
+        font-size: 12px;
+        line-height: 14px;
+
+        :global(.bp3-popover-target) {
+          display: block;
+        }
+      }
+    }
+
+    a {
+      &::before {
+        color: $lightText;
+        content: counter(li) ".";
+        display: inline-block;
+        margin-right: 4px;
+      }
+
+      color: $linkText;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &.inline {
+    align-items: center;
+    flex-direction: row;
+    min-height: 0;
+    width: 100%;
+
+    .metricName {
+      min-height: 0;
+      width: auto;
+    }
+
+    p {
+      color: $lightText;
+      font-size: 12px;
+      font-weight: 400;
+      margin: 0;
+    }
   }
 
   .metricName {
@@ -142,17 +210,26 @@ $textColor: #182026;
 }
 
 .numberMetricValue {
+  color: $textColor;
   display: block;
-  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 32px;
+  margin: 0 0 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .metricWrapper {
+  margin: 0 2% 20px;
+
+  &.threeQuarterGrid {
+    width: 62%;
+  }
+
   &.fullGrid {
-    grid-column-start: 1;
-    grid-column-end: 4;
+    width: 96%;
   }
 }
 
@@ -178,7 +255,7 @@ $textColor: #182026;
   }
 
   text {
-    fill: #5C7080;
+    fill: $lightText;
     font-size: 12px;
     font-weight: 400;
 }

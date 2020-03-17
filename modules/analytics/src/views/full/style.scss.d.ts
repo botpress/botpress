@@ -10,19 +10,22 @@ interface CssExports {
   'filtersShowing': string;
   'filtersWrapper': string;
   'fullGrid': string;
+  'genericMetric': string;
   'half': string;
   'header': string;
+  'inline': string;
   'innerWrapper': string;
   'inputLabel': string;
+  'list': string;
   'mainWrapper': string;
   'metricName': string;
   'metricWrapper': string;
   'metricsContainer': string;
-  'numberMetric': string;
   'numberMetricValue': string;
   'pageTitle': string;
   'section': string;
   'sectionsWrapper': string;
+  'threeQuarterGrid': string;
   'wIcon': string;
 }
 declare var cssExports: CssExports;
