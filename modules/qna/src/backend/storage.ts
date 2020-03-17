@@ -236,6 +236,12 @@ export default class Storage {
     return _.uniq(_.filter(allAnswers as string[], x => _.isString(x) && x.startsWith('#!')))
   }
 
+  async getCountByTopic(): Promise<{ [context: string]: number }> {
+    const qnas = await this.fetchQNAs()
+
+    return _.countBy(qnas, x => x.data.contexts)
+  }
+
   async getContentElementUsage(): Promise<any> {
     const qnas = await this.fetchQNAs()
 

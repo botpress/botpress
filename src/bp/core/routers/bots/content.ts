@@ -116,6 +116,12 @@ export class ContentRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, elementId } = req.params
         const element = await this.cms.getContentElement(botId, elementId)
+
+        if (!element) {
+          this.logger.forBot(botId).warn(`The requested element doesn't exist: "${elementId}"`)
+          return res.status(404).send(`Element ${elementId} not found`)
+        }
+
         res.send(await this._augmentElement(element))
       })
     )

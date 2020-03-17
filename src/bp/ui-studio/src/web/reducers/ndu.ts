@@ -1,11 +1,13 @@
 import { Condition } from 'botpress/sdk'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
-import { conditionsReceived, topicsReceived } from '~/actions'
+import { conditionsReceived, receiveQNACountByTopic, topicsReceived } from '~/actions'
+import { CountByTopic } from '~/views/OneFlow/sidePanel/TopicList'
 
 const defaultState = {
   conditions: [],
-  topics: []
+  topics: [],
+  qnaCountByTopic: undefined
 }
 
 export default handleActions(
@@ -17,6 +19,10 @@ export default handleActions(
     [topicsReceived]: (state, { payload }) => ({
       ...state,
       topics: payload
+    }),
+    [receiveQNACountByTopic]: (state, { payload }) => ({
+      ...state,
+      qnaCountByTopic: payload
     })
   },
   defaultState
@@ -25,4 +31,5 @@ export default handleActions(
 export interface NDUReducer {
   conditions: Condition[]
   topics: any[]
+  qnaCountByTopic: CountByTopic[]
 }
