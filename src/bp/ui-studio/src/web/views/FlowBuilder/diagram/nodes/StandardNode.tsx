@@ -47,7 +47,7 @@ export class StandardNodeWidget extends Component<{ node: StandardNodeModel; dia
                 return (
                   <div key={`${i}.${item}`} className={classnames(style.item)}>
                     <ConditionItem condition={item} position={i} />
-                    <StandardPortWidget name={outputPortName} node={node} />
+                    <StandardPortWidget name={outputPortName} node={node} next={node.next} />
                   </div>
                 )
               })}
