@@ -1,4 +1,5 @@
 import axios from 'axios'
+import * as sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
@@ -11,6 +12,17 @@ import BatchRunner from './BatchRunner'
 export default function debounceAction(action: any, delay: number, options?: _.DebounceSettings) {
   const debounced = _.debounce((dispatch, actionArgs) => dispatch(action(...actionArgs)), delay, options)
   return (...actionArgs) => dispatch => debounced(dispatch, actionArgs)
+}
+
+const onTriggerEvent = async (action: 'delete' | 'create', conditions: sdk.DecisionTriggerCondition[], state) => {
+  const conditionDefs = state.ndu.conditions as sdk.Condition[]
+
+  for (const condition of conditions) {
+    const callback = conditionDefs.find(x => x.id === condition.id)?.callback
+    if (callback) {
+      await axios.post(`${window.BOT_API_PATH}/${callback}`, { action, condition })
+    }
+  }
 }
 
 // Flows
@@ -162,9 +174,21 @@ export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, 
   if (deletedFlows.length) {
     await FlowsAPI.deleteFlow(state.flows, deletedFlows[0])
   }
+
+  if (payload.type === 'trigger' && window.USE_ONEFLOW) {
+    await onTriggerEvent('delete', payload.conditions, state)
+  }
 })
 
-export const pasteFlowNode = wrapAction(requestPasteFlowNode, updateCurrentFlow)
+export const pasteFlowNode = wrapAction(requestPasteFlowNode, async (payload, state) => {
+  await updateCurrentFlow(payload, state)
+
+  const node = state.flows.nodeInBuffer
+
+  if (node.type === 'trigger' && window.USE_ONEFLOW) {
+    await onTriggerEvent('create', node.conditions, state)
+  }
+})
 export const pasteFlowNodeElement = wrapAction(requestPasteFlowNodeElement, updateCurrentFlow)
 
 // actions that do not modify flow
@@ -437,5 +461,13 @@ export const getQNAContentElementUsage = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/mod/qna/contentElementUsage`).then(({ data }) => {
     dispatch(receiveQNAContentElement(data))
+  })
+}
+
+export const receiveQNACountByTopic = createAction('QNA/COUNT_BY_TOPIC')
+export const getQnaCountByTopic = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/mod/qna/questionsByTopic`).then(({ data }) => {
+    dispatch(receiveQNACountByTopic(data))
   })
 }

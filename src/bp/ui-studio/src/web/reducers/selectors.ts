@@ -11,6 +11,11 @@ export const getAllFlows = createSelector([_getFlowsByName], flowsByName => {
   return _.values(flowsByName)
 })
 
+export const getFlowNames = createSelector([getAllFlows], flows => {
+  const normalFlows = _.reject(flows, x => x.name && x.name.startsWith('skills/'))
+  return normalFlows.map(x => x.name)
+})
+
 export const getFlowNamesList = createSelector([getAllFlows], flows => {
   const normalFlows = _.reject(flows, x => x.name && x.name.startsWith('skills/'))
 

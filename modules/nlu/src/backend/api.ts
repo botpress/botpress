@@ -16,8 +16,8 @@ import {
   deleteIntent,
   getIntent,
   getIntents,
-  getIntentsTopics,
   saveIntent,
+  updateContextsFromTopics,
   updateIntent
 } from './intents/intent-service'
 import recommendations from './intents/recommendations'
@@ -146,26 +146,37 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
-  router.post('/refreshIntentsTopics', async (req, res) => {
+  router.post('/condition/intentChanged', async (req, res) => {
+    const { action } = req.body
+    const condition = req.body.condition as sdk.DecisionTriggerCondition
+
+    if (action === 'delete' || action === 'create') {
+      try {
+        const ghost = bp.ghost.forBot(req.params.botId)
+        await updateContextsFromTopics(ghost, [condition.params.intentName])
+        return res.sendStatus(200)
+      } catch (err) {
+        return res.status(400).send(err.message)
+      }
+    }
+
+    res.sendStatus(200)
+  })
+
+  router.post('/sync/intents/topics', async (req, res) => {
     const { botId } = req.params
     const { intentNames } = req.body
     const ghost = bp.ghost.forBot(botId)
 
     try {
-      const intentTopics = await getIntentsTopics(ghost, intentNames)
-      for (const intentName of intentNames) {
-        const intentDef = await getIntent(ghost, intentName)
-        intentDef.contexts = intentTopics.filter(x => x.intentName === intentName).map(x => x.topicName)
-        await saveIntent(ghost, intentDef)
-      }
-
+      await updateContextsFromTopics(ghost, intentNames)
       res.sendStatus(200)
     } catch (err) {
       bp.logger
         .forBot(botId)
         .attachError(err)
         .error('Could not update intent topics')
-      res.sendStatus(400)
+      res.status(400).send(err.message)
     }
   })
 

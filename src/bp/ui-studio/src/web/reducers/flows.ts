@@ -669,7 +669,7 @@ reducer = reduceReducers(
 
       [requestRemoveFlowNode]: (state, { payload }) => {
         const flowsToRemove = []
-        const nodeToRemove = _.find(state.flowsByName[state.currentFlow].nodes, { id: payload })
+        const nodeToRemove = _.find(state.flowsByName[state.currentFlow].nodes, { id: payload?.id })
 
         if (nodeToRemove.type === 'skill-call') {
           if (findNodesThatReferenceFlow(state, nodeToRemove.flow).length <= 1) {
@@ -684,7 +684,7 @@ reducer = reduceReducers(
             ..._.omit(state.flowsByName, flowsToRemove),
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
-              nodes: state.flowsByName[state.currentFlow].nodes.filter(node => node.id !== payload)
+              nodes: state.flowsByName[state.currentFlow].nodes.filter(node => node.id !== payload.id)
             }
           }
         }

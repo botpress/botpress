@@ -153,6 +153,15 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     }
   })
 
+  router.get('/questionsByTopic', async (req: Request, res: Response) => {
+    try {
+      const { storage } = bots[req.params.botId]
+      res.send(await storage.getCountByTopic())
+    } catch (e) {
+      res.status(500).send(e.message || 'Error')
+    }
+  })
+
   const sendToastError = (action: string, error: string) => {
     bp.realtime.sendPayload(
       bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} Error: ${error}`, type: 'error' })

@@ -104,26 +104,39 @@ export async function updateIntentsSlotsEntities(
   })
 }
 
-export async function getIntentsTopics(ghost: sdk.ScopedGhostService, intentNames: string[]) {
+/**
+ * This method read every workflow to extract their intent usage, so they can be in sync with their topics.
+ * The list of intent names is not required, but it saves some processing
+ */
+export async function updateContextsFromTopics(ghost: sdk.ScopedGhostService, intentNames?: string[]): Promise<void> {
   const flowsPaths = await ghost.directoryListing('flows', '*.flow.json')
   const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
     name: flowPath,
     ...(await ghost.readFileAsObject<FlowView>('flows', flowPath))
   }))
 
-  const topics: { topicName: string; intentName: string }[] = []
+  const intents: { [intentName: string]: string[] } = {}
+
   for (const flow of flows) {
     const topicName = flow.name.split('/')[0]
-    for (const node of flow.nodes) {
-      if (node.type === 'trigger') {
-        const tn = node as sdk.TriggerNode
-        const match = tn.conditions.find(x => x.id === 'user_intent_is' && intentNames.includes(x.params?.intentName))
-        if (match) {
-          topics.push({ topicName, intentName: match.params.intentName })
-        }
+
+    for (const node of flow.nodes.filter(x => x.type === 'trigger')) {
+      const tn = node as sdk.TriggerNode
+      const match = tn.conditions.find(x => x.id === 'user_intent_is')
+      const name = match?.params?.intentName
+
+      if (name && name !== 'none' && (!intentNames || intentNames.includes(name))) {
+        intents[name] = _.uniq([...(intents[name] || []), topicName])
       }
     }
   }
 
-  return _.uniq(topics)
+  for (const intentName of Object.keys(intents)) {
+    const intentDef = await getIntent(ghost, intentName)
+
+    if (!_.isEqual(intentDef.contexts.sort(), intents[intentName].sort())) {
+      intentDef.contexts = intents[intentName]
+      await saveIntent(ghost, intentDef)
+    }
+  }
 }

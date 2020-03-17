@@ -6,6 +6,7 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'user_intent_is',
     label: 'User asks something (intent)',
     description: `The user's intention is {intentName}`,
+    callback: '/mod/nlu/condition/intentChanged',
     displayOrder: 0,
     params: {
       intentName: { label: 'Name of intent', type: 'string' }

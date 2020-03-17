@@ -1,4 +1,5 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
+import axios from 'axios'
 import { Condition } from 'botpress/sdk'
 import { confirmDialog } from 'botpress/shared'
 import cx from 'classnames'
@@ -87,9 +88,14 @@ const EditTriggerModal: FC<Props> = props => {
     save([...conditions])
   }
 
-  const onConditionDeleted = async ({ id }: Condition) => {
+  const onConditionDeleted = async (condition: Condition) => {
     if (await confirmDialog('Are you sure to delete this condition?', { acceptLabel: 'Delete' })) {
-      save([...conditions.filter(condition => condition.id !== id)])
+      save([...conditions.filter(cond => cond.id !== condition.id)])
+
+      const def = props.backendConditions.find(x => x.id === condition.id)
+      if (def.callback) {
+        await axios.post(`${window.BOT_API_PATH}/${def.callback}`, { action: 'delete', condition })
+      }
     }
   }
 
