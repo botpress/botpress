@@ -239,15 +239,7 @@ export default class Storage {
   async getCountByTopic(): Promise<{ [context: string]: number }> {
     const qnas = await this.fetchQNAs()
 
-    const contexts = _.chain(qnas)
-      .flatMap(i => i.data.contexts)
-      .uniq()
-      .value()
-
-    return contexts.reduce((acc, context) => {
-      acc[context] = qnas.filter(x => x.data.contexts.includes(context)).length
-      return acc
-    }, {})
+    return _.countBy(qnas, x => x.data.contexts)
   }
 
   async getContentElementUsage(): Promise<any> {
