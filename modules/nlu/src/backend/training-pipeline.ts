@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
+import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -293,13 +293,11 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     .flatMap('utterances')
     .value()
 
-  const allSysEntities = (
-    await tools.duckling.extractMultiple(
-      utterances.map(u => u.toString()),
-      input.languageCode,
-      true
-    )
-  ).map(ents => ents.map(mapE1toE2Entity))
+  const allSysEntities = await tools.duckling.extractMultiple(
+    utterances.map(u => u.toString()),
+    input.languageCode,
+    true
+  )
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {

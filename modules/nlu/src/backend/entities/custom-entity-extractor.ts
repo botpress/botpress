@@ -181,19 +181,3 @@ export const extractPatternEntities = (
     }))
   })
 }
-
-// TODO clean this later with entities and intent srvices
-export function mapE1toE2Entity(ent: NLU.Entity): EntityExtractionResult {
-  return {
-    confidence: ent.meta.confidence,
-    start: ent.meta.start,
-    end: ent.meta.end,
-    value: ent.data.value,
-    metadata: {
-      source: ent.meta.source,
-      entityId: `system.${ent.name}`,
-      unit: ent.data.unit
-    },
-    type: ent.name
-  }
-}

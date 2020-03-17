@@ -127,8 +127,8 @@ export interface Tools {
 }
 
 export interface SystemEntityExtractor {
-  extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<sdk.NLU.Entity[][]>
-  extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
+  extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<EntityExtractionResult[][]>
+  extract(input: string, lang: string): Promise<EntityExtractionResult[]>
 }
 
 export type Intent<T> = Readonly<{

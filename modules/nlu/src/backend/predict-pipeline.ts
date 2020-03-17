@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
+import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import LanguageIdentifierProvider, { NA_LANG } from './language/language-identifier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
@@ -126,13 +126,12 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { utterance } = input
-  const sysEntities = (await tools.duckling.extract(utterance.toString(), utterance.languageCode)).map(mapE1toE2Entity)
 
   _.forEach(
     [
       ...extractListEntities(input.utterance, predictors.list_entities),
       ...extractPatternEntities(utterance, predictors.pattern_entities),
-      ...sysEntities
+      ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],
     entityRes => {
       input.utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
