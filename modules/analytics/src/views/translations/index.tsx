@@ -8,10 +8,14 @@ import pt from './pt.json'
 import ru from './ru.json'
 import uk from './uk.json'
 const translations = { en, fr, pt, es, ar, ru, uk }
+let initialized = false
 
 const initializeTranslations = () => {
-  langExtend(translations)
-  langInit()
+  if (!initialized) {
+    initialized = true
+    langExtend(translations)
+    langInit()
+  }
 }
 
 export { initializeTranslations }

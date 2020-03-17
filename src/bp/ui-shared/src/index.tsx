@@ -1,5 +1,5 @@
 import TooltipStyle from './style/tooltip.scss'
-import lang, { langExtend, langInit } from './translations'
+import { lang, langExtend, langInit, langLocale } from './translations'
 import confirmDialog from './ConfirmDialog'
 import TreeView from './TreeView'
 
@@ -9,3 +9,4 @@ exports.TreeView = TreeView
 exports.lang = lang
 exports.langInit = langInit
 exports.langExtend = langExtend
+exports.langLocale = langLocale

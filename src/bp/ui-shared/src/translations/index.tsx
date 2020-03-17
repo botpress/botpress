@@ -40,6 +40,10 @@ const langInit = () => {
   )
 }
 
+const langLocale = (): string => {
+  return locale
+}
+
 const squash = (space, root = {}, path = '') => {
   for (const [key, value] of Object.entries(space)) {
     if (typeof value === 'object' && value !== null) {
@@ -64,5 +68,4 @@ const lang = (id: string, values?: Record<string, string | PrimitiveType>): stri
   return intl.formatMessage({ id }, values)
 }
 
-export default lang
-export { langInit, langExtend }
+export { lang, langInit, langExtend, langLocale }

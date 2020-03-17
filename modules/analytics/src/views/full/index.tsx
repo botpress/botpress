@@ -3,14 +3,17 @@ import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
 import { style as sharedStyle } from 'botpress/shared'
+import { lang, langLocale } from 'botpress/shared'
 import { Container, ItemList, SidePanel } from 'botpress/ui'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, useEffect, useReducer, useState } from 'react'
+import { LocaleUtils } from 'react-day-picker'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { MetricEntry } from '../../backend/typings'
+import { initializeTranslations } from '../translations'
 
 import style from './style.scss'
 
@@ -67,12 +70,14 @@ const fetchReducer = (state: State, action): State => {
 }
 
 const Analytics: FC<any> = ({ bp }) => {
+  initializeTranslations()
+
   const [channels, setChannels] = useState(['all', 'api'])
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
     metrics: [],
-    pageTitle: 'Dashboard',
+    pageTitle: lang('analytics.dashboard'),
     selectedChannel: 'all',
     shownSection: 'dashboard'
   })
@@ -192,15 +197,15 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderDashboard = () => {
     return (
       <div className={style.metricsContainer}>
-        {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
-        {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
-        {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
-        {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
-        {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
-        {renderNumberMetric('Returning Users', getReturningUsers())}
-        {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
-        {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
-        {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
+        {renderTimeSeriesChart(lang('analytics.activeUsers'), getMetric('active_users_count'))}
+        {renderTimeSeriesChart(lang('analytics.newUsers'), getMetric('new_users_count'))}
+        {renderTimeSeriesChart(lang('analytics.sessions'), getMetric('sessions_count'))}
+        {renderTimeSeriesChart(lang('analytics.averageMessagePerSession'), getAvgMsgPerSessions())}
+        {renderTimeSeriesChart(lang('analytics.messagesReceived'), getMetric('msg_received_count'))}
+        {renderNumberMetric(lang('analytics.returningUsers'), getReturningUsers())}
+        {renderTimeSeriesChart(lang('analytics.qnaSent'), getMetric('msg_sent_qna_count'))}
+        {renderNumberMetric(lang('analytics.understoodMessages'), getUnderstoodPercent())}
+        {renderNumberMetric(lang('analytics.understoodTopLevelMessages'), getTopLevelUnderstoodPercent())}
         {/* {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)} */}
       </div>
     )
@@ -290,7 +295,7 @@ const Analytics: FC<any> = ({ bp }) => {
           <span>{name}</span>
         </h4>
         <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
-          {!data.length && <p className={style.emptyState}>No data available</p>}
+          {!data.length && <p className={style.emptyState}>{lang('analytics.noDataAvailable')}</p>}
           {!!data.length && (
             <ResponsiveContainer>
               <AreaChart data={mapDataForCharts(data)}>
@@ -320,8 +325,12 @@ const Analytics: FC<any> = ({ bp }) => {
     return null
   }
 
-  const startDate = moment(state.dateRange?.[0]).format('MMMM Do YYYY')
-  const endDate = moment(state.dateRange?.[1]).format('MMMM Do YYYY')
+  const startDate = moment(state.dateRange?.[0])
+    .locale(langLocale())
+    .format('MMMM Do YYYY')
+  const endDate = moment(state.dateRange?.[1])
+    .locale(langLocale())
+    .format('MMMM Do YYYY')
 
   return (
     <Container sidePanelHidden={true}>
@@ -330,13 +339,13 @@ const Analytics: FC<any> = ({ bp }) => {
         <div className={style.header}>
           <h1 className={style.pageTitle}>{state.pageTitle}</h1>
           <div>
-            <BpTooltip content="Filter channels" position={Position.LEFT}>
+            <BpTooltip content={lang('analytics.filterChannels')} position={Position.LEFT}>
               <div style={{ marginRight: 5 }}>
                 <HTMLSelect onChange={handleChannelChange} value={state.selectedChannel}>
                   {channels.map(channel => {
                     return (
                       <option key={channel} value={channel}>
-                        {capitalize(channel)}
+                        {lang(`analytics.channels.${channel}`)}
                       </option>
                     )
                   })}
@@ -345,14 +354,14 @@ const Analytics: FC<any> = ({ bp }) => {
             </BpTooltip>
 
             <Popover>
-              <Button icon="calendar">Date Range</Button>
+              <Button icon="calendar">{lang('analytics.dateRange')}</Button>
               <DateRangePicker onChange={handleDateChange} maxDate={new Date()} value={state.dateRange} />
             </Popover>
           </div>
         </div>
 
         <h2 className={cx(style.appliedFilters)}>
-          {capitalize(state.selectedChannel)} - {startDate} to {endDate}
+          {lang(`analytics.channels.${state.selectedChannel}`)} - {lang('analytics.interval', { startDate, endDate })}
         </h2>
         {renderDashboard()}
       </div>

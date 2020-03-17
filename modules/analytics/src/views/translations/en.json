@@ -1,1 +1,23 @@
-{}
+{
+  "analytics": {
+    "dashboard": "Dashboard",
+    "activeUsers": "Active Users",
+    "newUsers": "New Users",
+    "sessions": "Sessions",
+    "averageMessagePerSession": "Average Messages Per Sessions",
+    "messagesReceived": "Messages Received",
+    "returningUsers": "Returning Users",
+    "qnaSent": "QNA Sent",
+    "understoodMessages": "Understood Messages",
+    "understoodTopLevelMessages": "Understood Top-Level Messages",
+    "noDataAvailable": "No data available",
+    "filterChannels": "Filter channels",
+    "dateRange": "Date Range",
+    "channels": {
+      "all": "All",
+      "api": "Api",
+      "web": "Web"
+    },
+    "interval": "{startDate} to {endDate}"
+  }
+}
