@@ -323,18 +323,9 @@ export class UnderstandingEngine {
     // TODO: NDU what to do if confused action
   }
 
-  private _getGoalsWithCompletedTriggers(event: sdk.IO.IncomingEvent) {
-    return Object.keys(event.ndu.triggers)
-      .map(triggerId => {
-        const { result, trigger } = event.ndu.triggers[triggerId]
-        return !_.isEmpty(result) && _.every(_.values(result), x => x > 0.5) && trigger.type
-      })
-      .filter(Boolean)
-  }
-
   async _processTriggers(event: sdk.IO.IncomingEvent) {
     if (!this._allTriggers.has(event.botId)) {
-      await this._loadBotGoals(event.botId)
+      await this._loadBotWorkflows(event.botId)
     }
     const triggers = this._allTriggers.get(event.botId)
 
@@ -385,12 +376,12 @@ export class UnderstandingEngine {
     }, {})
   }
 
-  async invalidateGoals(botId: string) {
+  async invalidateWorkflows(botId: string) {
     this._allTriggers.delete(botId)
     this.predictor = undefined
   }
 
-  private async _loadBotGoals(botId: string) {
+  private async _loadBotWorkflows(botId: string) {
     const flowsPaths = await this.bp.ghost.forBot(botId).directoryListing('flows', '*.flow.json')
     const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
       name: flowPath,

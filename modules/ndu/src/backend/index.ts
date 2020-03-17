@@ -35,7 +35,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 const botTemplates: sdk.BotTemplate[] = [{ id: 'oneflow', name: 'Test bot', desc: `Test bot` }]
 
 const onFlowChanged = async (bp: typeof sdk, botId: string, flow: sdk.Flow) => {
-  await nduEngine.invalidateGoals(botId)
+  await nduEngine.invalidateWorkflows(botId)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {

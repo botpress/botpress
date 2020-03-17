@@ -772,7 +772,7 @@ declare module 'botpress/sdk' {
       /** Outgoing events will have the incoming event ID, if they were triggered by one */
       incomingEventId?: string
       sessionId: string
-      goalId?: string
+      workflowId?: string
       feedback?: number
       success?: boolean
       event: IO.Event
@@ -1214,7 +1214,6 @@ declare module 'botpress/sdk' {
 
   export interface Library {
     elementPath: string
-    goalName: string
     elementId: string
   }
 

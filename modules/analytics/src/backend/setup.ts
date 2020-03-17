@@ -26,16 +26,16 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     db.incrementMetric(botId, channel, 'enter_flow_count', flowName)
   })
 
-  process.BOTPRESS_EVENTS.on('bp_core_workflow_started', ({ channel, botId, goalName }) => {
-    db.incrementMetric(botId, channel, 'workflow_started_count', goalName)
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_started', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_started_count', wfName)
   })
 
-  process.BOTPRESS_EVENTS.on('bp_core_workflow_completed', ({ channel, botId, goalName }) => {
-    db.incrementMetric(botId, channel, 'workflow_completed_count', goalName)
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_completed', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_completed_count', wfName)
   })
 
-  process.BOTPRESS_EVENTS.on('bp_core_workflow_failed', ({ channel, botId, goalName }) => {
-    db.incrementMetric(botId, channel, 'workflow_failed_count', goalName)
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_failed', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_failed_count', wfName)
   })
 
   bp.events.registerMiddleware({

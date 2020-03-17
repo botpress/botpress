@@ -11,7 +11,7 @@ const sortTriggersByScore = triggers => {
     const values = _.values(trigger.result)
     const score = _.sum(values) / values.length
 
-    return { id, goal: trigger.goal, result: trigger.result, score: isNaN(score) ? -1 : score }
+    return { id, result: trigger.result, score: isNaN(score) ? -1 : score }
   })
 
   return _.orderBy(result, 'score', 'desc')
@@ -45,8 +45,8 @@ export const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
           switch (action) {
             case 'send':
               return <li>Send knowledge {(data as sdk.NDU.SendContent).sourceDetails}</li>
-            case 'startGoal':
-              return <li>Start Goal {(data as sdk.NDU.StartGoal).goal}</li>
+            case 'startWorkflow':
+              return <li>Start Workflow {(data as sdk.NDU.FlowRedirect).flow}</li>
             case 'redirect':
               return <li>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</li>
             case 'continue':

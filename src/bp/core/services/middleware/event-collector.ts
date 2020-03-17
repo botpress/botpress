@@ -67,10 +67,10 @@ export class EventCollector {
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
     const lastWf = (event as sdk.IO.IncomingEvent).state.session?.lastWorkflows?.[0]
-    const wfId = lastWf?.active ? lastWf.eventId : undefined
+    const workflowId = lastWf?.active ? lastWf.eventId : undefined
     const success = lastWf?.active ? lastWf?.success : undefined
 
-    // Once the goal is a success or failure, it becomes inactive
+    // Once the workflow is a success or failure, it becomes inactive
     if (lastWf?.success !== undefined) {
       const metric = lastWf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
       BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: lastWf.workflow })
@@ -85,7 +85,7 @@ export class EventCollector {
       target,
       sessionId,
       direction,
-      goalId: wfId,
+      workflowId,
       success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: this.knex.json.set(this.ignoredProperties ? _.omit(event, this.ignoredProperties) : event || {}),

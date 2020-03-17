@@ -40,12 +40,12 @@ const CreateTopicModal: FC<Props> = props => {
       icon="add"
       isOpen={props.isOpen}
       onClose={closeModal}
-      size="md"
+      size="sm"
       onSubmit={submit}
     >
       <DialogBody>
         <FormGroup
-          label="Topic Name"
+          label="Topic Name *"
           helperText="Choose a broad name to represent your topic, for example HR or IT. You can rename it later"
         >
           <InputGroup
