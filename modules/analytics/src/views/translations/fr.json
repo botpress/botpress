@@ -18,6 +18,7 @@
       "api": "Api",
       "web": "Web"
     },
-    "interval": "{startDate} à {endDate}"
+    "interval": "{startDate} à {endDate}",
+    "dateFormat": "Do MMMM YYYY"
   }
 }

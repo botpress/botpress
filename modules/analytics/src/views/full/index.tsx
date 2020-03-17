@@ -17,6 +17,8 @@ import { initializeTranslations } from '../translations'
 
 import style from './style.scss'
 
+moment.locale(langLocale())
+
 const {
   TooltipStyle: { botpressTooltip }
 } = sharedStyle
@@ -325,12 +327,8 @@ const Analytics: FC<any> = ({ bp }) => {
     return null
   }
 
-  const startDate = moment(state.dateRange?.[0])
-    .locale(langLocale())
-    .format('MMMM Do YYYY')
-  const endDate = moment(state.dateRange?.[1])
-    .locale(langLocale())
-    .format('MMMM Do YYYY')
+  const startDate = moment(state.dateRange?.[0]).format(lang('analytics.dateFormat'))
+  const endDate = moment(state.dateRange?.[1]).format(lang('analytics.dateFormat'))
 
   return (
     <Container sidePanelHidden={true}>
@@ -355,7 +353,13 @@ const Analytics: FC<any> = ({ bp }) => {
 
             <Popover>
               <Button icon="calendar">{lang('analytics.dateRange')}</Button>
-              <DateRangePicker onChange={handleDateChange} maxDate={new Date()} value={state.dateRange} />
+              <DateRangePicker
+                locale={langLocale()}
+                localeUtils={LocaleUtils}
+                onChange={handleDateChange}
+                maxDate={new Date()}
+                value={state.dateRange}
+              />
             </Popover>
           </div>
         </div>
