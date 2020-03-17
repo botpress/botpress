@@ -98,7 +98,7 @@ export namespace FlowsAPI {
         'nodes',
         'skillData',
         'timeoutNode',
-        'triggers',
+        'triggers', // TODO: NDU Remove
         'description',
         'label'
       ])

@@ -28,10 +28,35 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('qna')
 }
 
+const onTopicChanged = async (bp: typeof sdk, botId: string, oldName: string, newName: string) => {
+  const isRenaming = !!(oldName && newName)
+  const isDeleting = !newName
+
+  if (!isRenaming && !isDeleting) {
+    return
+  }
+
+  const { storage } = bots[botId]
+  const questions = await storage.getQuestions({ filteredContexts: [oldName] }, { limit: 150, offset: 0 })
+
+  for (const item of questions.items) {
+    const ctxIdx = item.data.contexts.indexOf(oldName)
+    if (ctxIdx !== -1) {
+      item.data.contexts.splice(ctxIdx, 1)
+
+      if (isRenaming) {
+        item.data.contexts.push(newName)
+      }
+
+      await storage.update(item.data, item.id)
+    }
+  }
+}
+
 const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {
   const oldFlow = await bp.ghost.forBot(botId).readFileAsObject<sdk.Flow>('./flows', newFlow.location)
   const { storage } = bots[botId]
-  const questions = await storage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
+  const questions = await storage.getQuestions({ question: '', filteredContexts: [] }, { limit: 0, offset: 0 })
 
   // Detect nodes that had their name changed
   for (const oldNode of oldFlow.nodes) {
@@ -56,7 +81,7 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
 
 const onFlowRenamed = async (bp: typeof sdk, botId: string, previousFlowName: string, newFlowName: string) => {
   const { storage } = bots[botId]
-  const questions = await storage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
+  const questions = await storage.getQuestions({}, { limit: 0, offset: 0 })
 
   const updatedItems = questions.items
     .filter(q => q.data.redirectFlow === previousFlowName)
@@ -77,6 +102,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
+  onTopicChanged,
   onFlowChanged,
   onFlowRenamed,
   definition: {

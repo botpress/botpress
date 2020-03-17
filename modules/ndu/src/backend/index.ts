@@ -1,32 +1,30 @@
 import * as sdk from 'botpress/sdk'
 
 import api from './api'
-import Database from './db'
+import { dialogConditions } from './conditions'
 import { registerMiddleware } from './middleware'
 import { UnderstandingEngine } from './ndu-engine'
-import Storage from './storage'
-import { BotStorage } from './typings'
+import { MountedBots } from './typings'
+
+export const bots: MountedBots = {}
 
 let nduEngine: UnderstandingEngine
-const bots: BotStorage = {}
-let db: Database
 
 const onServerStarted = async (bp: typeof sdk) => {
-  db = new Database(bp)
-  await db.initialize()
-
-  nduEngine = new UnderstandingEngine(bp, db)
+  nduEngine = new UnderstandingEngine(bp)
   await registerMiddleware(bp, nduEngine, bots)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, bots)
+  // Must be in onServerReady so all modules have registered their conditions
+  await nduEngine.loadConditions()
+  await api(bp)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const botConfig = await bp.bots.getBotById(botId)
-  if (botConfig['oneflow']) {
-    bots[botId] = new Storage(bp, botId)
+  if (botConfig.oneflow) {
+    bots[botId] = true
   }
 }
 
@@ -53,11 +51,12 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   onFlowChanged,
   botTemplates,
+  dialogConditions,
   definition: {
     name: 'ndu',
     menuIcon: 'poll',
     menuText: 'NDU',
-    noInterface: false,
+    noInterface: true,
     fullName: 'NDU',
     homepage: 'https://botpress.io'
   }

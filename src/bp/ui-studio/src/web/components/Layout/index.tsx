@@ -188,8 +188,8 @@ class Layout extends React.Component<ILayoutProps> {
                   />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
-                  <Route exact path="/oneflow/:flow*" component={OneFlow} />
                   <Route exact path="/config" component={Config} />
+                  <Route exact path="/oneflow/:flow*" component={OneFlow} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                   <Route exact path="/notifications" component={Notifications} />
                   <Route exact path="/logs" component={Logs} />

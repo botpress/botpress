@@ -43,7 +43,7 @@ const ImportModal: FC<Props> = props => {
   }, [])
 
   const loadTopics = async () => {
-    const { data: topics } = await axios.get(`${window.BOT_API_PATH}/mod/ndu/topics`)
+    const { data: topics } = await axios.get(`${window.BOT_API_PATH}/topics`)
     setTopics(topics)
   }
 
@@ -92,7 +92,7 @@ const ImportModal: FC<Props> = props => {
 
         const actions = await analyzeGoalFile(content, props.flows)
         const goalAction = getGoalAction(
-          content,
+          { ...content, name, location: name },
           props.flows.find(x => x.name === name)
         )
 

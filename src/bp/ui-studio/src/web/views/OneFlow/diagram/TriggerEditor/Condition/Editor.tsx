@@ -10,8 +10,8 @@ interface Props {
   contentLang: string
   condition: Condition
   params?: any
-  updateParams: (params: any) => void
-  forceSave: any
+  updateParams?: (params: any) => void
+  forceSave?: boolean
 }
 
 const ConditionEditor: FC<Props> = props => {

@@ -1,5 +1,5 @@
 import { Button, Colors } from '@blueprintjs/core'
-import { Condition, FlowCondition } from 'botpress/sdk'
+import { Condition } from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC } from 'react'
@@ -8,10 +8,11 @@ import { connect } from 'react-redux'
 import style from '../style.scss'
 
 interface OwnProps {
+  diagramNodeView: boolean
   className: string
-  condition: FlowCondition
-  onEdit: (condition: FlowCondition) => void
-  onDelete: (condition: FlowCondition) => void
+  condition: Condition
+  onEdit: (condition: Condition) => void
+  onDelete: (condition: Condition) => void
 }
 
 interface StateProps {
@@ -20,7 +21,7 @@ interface StateProps {
 
 type Props = StateProps & OwnProps
 
-const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, className }) => {
+const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, className, diagramNodeView }) => {
   if (!conditions) {
     return null
   }
@@ -34,8 +35,12 @@ const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, cla
 
   if (description && condition.params) {
     Object.keys(condition.params).forEach(key => {
-      description = description.replace(`{${key}}`, condition.params[key])
+      description = description.replace(`{${key}}`, condition.params[key] as any)
     })
+  }
+
+  if (diagramNodeView) {
+    return <li>{description || definition.label}</li>
   }
 
   return (

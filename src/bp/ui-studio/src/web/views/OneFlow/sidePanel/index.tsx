@@ -96,7 +96,7 @@ const SidePanelContent: FC<Props> = props => {
 
   const createTopicAction = {
     id: 'btn-add-flow',
-    icon: <Icon icon="cube-add" />,
+    icon: <Icon icon="add" />,
     key: 'create',
     tooltip: 'Create new topic',
     onClick: () => setCreateTopicOpen(true)
@@ -104,7 +104,7 @@ const SidePanelContent: FC<Props> = props => {
 
   const importAction = {
     id: 'btn-import',
-    icon: <Icon icon="download" />,
+    icon: <Icon icon="import" />,
     key: 'import',
     tooltip: 'Import content',
     onClick: () => setImportModalOpen(true)
@@ -159,7 +159,7 @@ const SidePanelContent: FC<Props> = props => {
     props.fetchTopics()
   }
 
-  const topicActions = props.permissions.includes('create') && [createTopicAction, importAction]
+  const topicActions = props.permissions.includes('create') && [importAction, createTopicAction]
   const importGoal = () => setImportGoalModalOpen(!importGoalModalOpen)
   const canDelete = props.permissions.includes('delete')
 
@@ -189,7 +189,9 @@ const SidePanelContent: FC<Props> = props => {
               filter={goalFilter}
               editTopic={editTopic}
               editQnA={editQnA}
+              topics={props.topics}
               exportTopic={exportTopic}
+              fetchTopics={props.fetchTopics}
             />
           </SidePanelSection>
 

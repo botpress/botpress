@@ -12,7 +12,14 @@ import {
   updateEntity
 } from './entities/entities-service'
 import { EntityDefCreateSchema } from './entities/validation'
-import { deleteIntent, getIntent, getIntents, saveIntent, updateIntent } from './intents/intent-service'
+import {
+  deleteIntent,
+  getIntent,
+  getIntents,
+  getIntentsTopics,
+  saveIntent,
+  updateIntent
+} from './intents/intent-service'
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
@@ -135,6 +142,29 @@ export default async (bp: typeof sdk, state: NLUState) => {
         .forBot(botId)
         .attachError(err)
         .error('Could not update intent')
+      res.sendStatus(400)
+    }
+  })
+
+  router.post('/refreshIntentsTopics', async (req, res) => {
+    const { botId } = req.params
+    const { intentNames } = req.body
+    const ghost = bp.ghost.forBot(botId)
+
+    try {
+      const intentTopics = await getIntentsTopics(ghost, intentNames)
+      for (const intentName of intentNames) {
+        const intentDef = await getIntent(ghost, intentName)
+        intentDef.contexts = intentTopics.filter(x => x.intentName === intentName).map(x => x.topicName)
+        await saveIntent(ghost, intentDef)
+      }
+
+      res.sendStatus(200)
+    } catch (err) {
+      bp.logger
+        .forBot(botId)
+        .attachError(err)
+        .error('Could not update intent topics')
       res.sendStatus(400)
     }
   })

@@ -1,8 +1,9 @@
-import { Button, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
-import { Flow } from 'botpress/sdk'
+import { Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
+import axios from 'axios'
+import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, TreeView } from 'botpress/shared'
 import _ from 'lodash'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -19,6 +20,7 @@ interface Props {
   filter: string
   readOnly: boolean
   currentFlow: Flow
+  topics: Topic[]
 
   canDelete: boolean
   goToFlow: Function
@@ -27,6 +29,7 @@ interface Props {
   duplicateFlow: Function
   deleteFlow: Function
   exportGoal: Function
+  fetchTopics: () => void
 
   importGoal: (topicId: string) => void
   createGoal: (topicId: string) => void
@@ -38,34 +41,63 @@ interface Props {
 
 interface NodeData {
   name: string
-  type: 'goal' | 'folder' | 'topic' | 'qna'
+  type?: NodeType
   label?: string
   id?: any
   icon?: string
+  triggerCount?: number
+  /** List of workflows which have a reference to it */
+  referencedIn?: string[]
 }
+
+type NodeType = 'goal' | 'folder' | 'topic' | 'qna'
 
 interface IFlow {
   name: string
   label: string
 }
 
-const TopicList = props => {
-  const [flows, setFlows] = useState<IFlow[]>([])
+const TopicList: FC<Props> = props => {
+  const [flows, setFlows] = useState<NodeData[]>([])
 
   useEffect(() => {
-    const qna = _.uniq(props.flows.map(flow => flow.name?.split('/')?.[0])).map(topic => ({
-      name: `${topic}/qna`,
+    const qna = props.topics.map(topic => ({
+      name: `${topic.name}/qna`,
       label: 'Q&A',
-      type: 'qna',
+      type: 'qna' as NodeType,
       icon: 'chat'
     }))
 
     setFlows([...qna, ...props.flows])
-  }, [props.flows])
+  }, [props.flows, props.topics])
 
   const deleteFlow = async (name: string) => {
     if (await confirmDialog(`Are you sure you want to delete the flow ${name}?`, {})) {
       props.deleteFlow(name)
+    }
+  }
+
+  const deleteTopic = async (name: string) => {
+    const matcher = new RegExp(`^${name}/`)
+    const flowsToDelete = props.flows.filter(x => matcher.test(x.name))
+
+    if (
+      await confirmDialog(
+        <span>
+          Are you sure you want to delete the topic {name}?<br />
+          <br />
+          {!!flowsToDelete.length && (
+            <>
+              <strong>WARNING:</strong> {flowsToDelete.length} flows associated with the topic will be deleted
+            </>
+          )}
+        </span>,
+        {}
+      )
+    ) {
+      await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
+      flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
+      props.fetchTopics()
     }
   }
 
@@ -99,15 +131,23 @@ const TopicList = props => {
 
   const handleContextMenu = (element: NodeData | string, elementType) => {
     if (elementType === 'folder') {
+      const folder = element as string
       return (
         <Menu>
-          <MenuItem id="btn-edit" icon="edit" text="Edit Topic" onClick={() => props.editTopic(element)} />
+          <MenuItem id="btn-edit" icon="edit" text="Edit Topic" onClick={() => props.editTopic(folder)} />
           <MenuItem
             id="btn-export"
             disabled={props.readOnly}
             icon="upload"
             text="Export Topic"
-            onClick={() => props.exportTopic(element)}
+            onClick={() => props.exportTopic(folder)}
+          />
+          <MenuItem
+            id="btn-delete"
+            icon="trash"
+            text="Delete Topic"
+            intent={Intent.DANGER}
+            onClick={() => deleteTopic(folder)}
           />
           <MenuDivider />
           <MenuItem
@@ -180,7 +220,7 @@ const TopicList = props => {
   }
 
   const nodeRenderer = (el: NodeData) => {
-    const { name, label, icon, type } = el
+    const { name, label, icon, type, triggerCount, referencedIn } = el
     const editGoal = e => {
       e.stopPropagation()
       props.editGoal(name, el)
@@ -196,10 +236,40 @@ const TopicList = props => {
 
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
 
+    const tooltip = (
+      <>
+        <Tooltip content="Number of NLU triggers on that workflow" hoverOpenDelay={500}>
+          <small>({triggerCount})</small>
+        </Tooltip>
+        &nbsp;&nbsp;
+        {!!referencedIn?.length && (
+          <Tooltip
+            content={
+              <div>
+                Workflows referencing this workflow:{' '}
+                <ul>
+                  {referencedIn.map(x => (
+                    <li>{x}</li>
+                  ))}
+                </ul>
+              </div>
+            }
+            hoverOpenDelay={500}
+          >
+            <small>
+              <span className={style.referencedWorkflows}>({referencedIn?.length})</span>
+            </small>
+          </Tooltip>
+        )}
+      </>
+    )
+
     return {
       label: (
         <div className={style.treeNode}>
-          <span>{displayName}</span>
+          <span>
+            {displayName} {type !== 'qna' && tooltip}
+          </span>
           <div className={style.overhidden} id="actions">
             {type !== 'qna' && (
               <Fragment>

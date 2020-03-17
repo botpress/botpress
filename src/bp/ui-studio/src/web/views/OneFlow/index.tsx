@@ -55,7 +55,7 @@ const FlowBuilder = (props: Props) => {
   const diagram: any = useRef(null)
   const [showSearch, setShowSearch] = useState(false)
   const [readOnly, setReadOnly] = useState(false)
-  const [flowPreview, setFlowPreview] = useState(false)
+  const [flowPreview, setFlowPreview] = useState(true)
   const [mutex, setMutex] = useState()
   const [actions, setActions] = useState(allActions)
 

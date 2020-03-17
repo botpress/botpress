@@ -1,4 +1,5 @@
 import { Classes, ContextMenu, Tree } from '@blueprintjs/core'
+import { node } from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
 
 import { TreeNode, TreeViewProps } from './typings'
@@ -83,7 +84,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         }
 
         if (!node.nodeData) {
-          changeNodeExpansion(node, node.isExpanded)
+          changeNodeExpansion(node, !node.isExpanded)
         }
       } else {
         node.isSelected = false

@@ -18,11 +18,11 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   router.get('/questions', async (req: Request, res: Response) => {
     try {
       const {
-        query: { question = '', categories = [], limit, offset }
+        query: { question = '', filteredContexts = [], limit, offset }
       } = req
 
       const { storage } = bots[req.params.botId]
-      const items = await storage.getQuestions({ question, categories }, { limit, offset })
+      const items = await storage.getQuestions({ question, filteredContexts }, { limit, offset })
       res.send({ ...items })
     } catch (e) {
       bp.logger.attachError(e).error('Error listing questions')
@@ -53,7 +53,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
 
   router.post('/questions/:id', async (req: Request, res: Response, next: Function) => {
     const {
-      query: { limit, offset, question, categories }
+      query: { limit, offset, question, filteredContexts }
     } = req
 
     try {
@@ -61,7 +61,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       await storage.update(qnaEntry, req.params.id)
 
-      const questions = await storage.getQuestions({ question, categories }, { limit, offset })
+      const questions = await storage.getQuestions({ question, filteredContexts }, { limit, offset })
       res.send(questions)
     } catch (e) {
       next(new Error(e.message))
@@ -70,25 +70,19 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
 
   router.post('/questions/:id/delete', async (req: Request, res: Response) => {
     const {
-      query: { limit, offset, question, categories }
+      query: { limit, offset, question, filteredContexts }
     } = req
 
     try {
       const { storage } = bots[req.params.botId]
       await storage.delete(req.params.id)
-      const questionsData = await storage.getQuestions({ question, categories }, { limit, offset })
+      const questionsData = await storage.getQuestions({ question, filteredContexts }, { limit, offset })
       res.send(questionsData)
     } catch (e) {
       bp.logger.attachError(e).error(`Could not delete QnA #${req.params.id}`)
       res.status(500).send(e.message || 'Error')
       sendToastError('Delete', e.message)
     }
-  })
-
-  router.get('/categories', async (req: Request, res: Response) => {
-    const { storage } = bots[req.params.botId]
-    const categories = await storage.getCategories()
-    res.send({ categories })
   })
 
   router.get('/export', async (req: Request, res: Response) => {

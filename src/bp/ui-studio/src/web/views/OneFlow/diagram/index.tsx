@@ -47,15 +47,18 @@ import {
 import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
-import { ActionWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ActionNode'
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
+import { ActionWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ActionNode'
 import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
 import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
+import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
+
+import TriggerEditor from './TriggerEditor'
 
 interface OwnProps {
   library: any
@@ -117,7 +120,9 @@ class Diagram extends Component<Props> {
   private dragPortSource: any
 
   state = {
-    highlightFilter: ''
+    highlightFilter: '',
+    currentTriggerNode: null,
+    isTriggerEditOpen: false
   }
 
   constructor(props) {
@@ -132,6 +137,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new TriggerWidgetFactory())
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
@@ -256,19 +262,29 @@ class Diagram extends Component<Props> {
   add = {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
+    triggerNode: (point: Point, moreProps) => {
+      this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition], ...moreProps })
+    },
     sayNode: (point: Point, moreProps) => {
       this.props.createFlowNode({ ...point, type: 'say_something', next: [defaultTransition], ...moreProps })
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
     listenNode: (point: Point) =>
-      this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
+      this.props.createFlowNode({
+        ...point,
+        type: 'listen',
+        onReceive: [],
+        next: [defaultTransition],
+        triggers: [{ conditions: [{ id: 'always' }] }]
+      }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' })
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
     const point = this.manager.getRealPosition(event)
+    const originatesFromOutPort = _.get(this.dragPortSource, 'parent.sourcePort.name', '').startsWith('out')
 
     // When no element is chosen from the context menu, we reset the start port so it doesn't impact the next selected node
     let clearStartPortOnClose = true
@@ -284,12 +300,13 @@ class Diagram extends Component<Props> {
           <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
         )}
         <MenuDivider title="Add Node" />
-        <MenuItem text="Standard Node" onClick={wrap(this.add.flowNode, point)} icon="chat" />
-
-        <MenuItem text="Say" onClick={wrap(this.add.sayNode, point)} icon="comment" />
-        <MenuItem text="Execute" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
+        {!originatesFromOutPort && (
+          <MenuItem text="Trigger" onClick={wrap(this.add.triggerNode, point)} icon="send-to-graph" />
+        )}
+        <MenuItem text="Send Message" onClick={wrap(this.add.sayNode, point)} icon="comment" />
+        <MenuItem text="Execute Action" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
         <MenuItem text="Listen" onClick={wrap(this.add.listenNode, point)} icon="hand" />
-        <MenuItem text="Router" onClick={wrap(this.add.routerNode, point)} icon="search-around" />
+        <MenuItem text="Split" onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
         <MenuItem text="Action" onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
         <MenuItem tagName="button" text="Skills" icon="add">
@@ -323,19 +340,15 @@ class Diagram extends Component<Props> {
     }
 
     const targetModel = target && target.model
-    const targetName = _.get(target, 'model.name')
     const point = this.manager.getRealPosition(event)
 
-    const setAsCurrentNode = () => this.props.updateFlow({ startNode: targetName })
-
     const isNodeTargeted = targetModel instanceof NodeModel
+    const isTriggerNode = targetModel instanceof TriggerNodeModel
     const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
 
-    const isStartNode = targetName === this.props.currentFlow.startNode
     const isSuccessNode = targetModel instanceof SuccessNodeModel
     const isFailureNode = targetModel instanceof FailureNodeModel
-    const canDeleteNode = !(isStartNode || isSuccessNode || isFailureNode)
-    const canMakeStartNode = !(isStartNode || isSuccessNode || isFailureNode)
+    const canDeleteNode = !(isSuccessNode || isFailureNode)
 
     // Prevents displaying an empty menu
     if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
@@ -355,6 +368,7 @@ class Diagram extends Component<Props> {
         )}
         {isNodeTargeted && (
           <Fragment>
+            {isTriggerNode && <MenuItem icon="edit" text="Edit" onClick={() => this.editTriggers(targetModel)} />}
             <MenuItem
               icon="trash"
               text="Delete"
@@ -367,21 +381,6 @@ class Diagram extends Component<Props> {
               onClick={() => {
                 this.props.switchFlowNode(targetModel.id)
                 this.copySelectedElementToBuffer()
-              }}
-            />
-            <MenuDivider />
-            <MenuItem
-              icon="star"
-              text="Set as Start Node"
-              disabled={!canMakeStartNode}
-              onClick={() => setAsCurrentNode()}
-            />
-            <MenuItem
-              icon="minimize"
-              text="Disconnect Node"
-              onClick={() => {
-                this.manager.disconnectPorts(target)
-                this.checkForLinksUpdate()
               }}
             />
             {isLibraryNode && (
@@ -422,7 +421,12 @@ class Diagram extends Component<Props> {
     if (event) {
       // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
       const target = this.diagramWidget.getMouseElement(event)
-      if (
+
+      if (target?.model instanceof TriggerNodeModel) {
+        this.editTriggers(target.model)
+
+        return
+      } else if (
         target &&
         !(
           target.model instanceof StandardNodeModel ||
@@ -491,15 +495,20 @@ class Diagram extends Component<Props> {
     this.checkForProblems()
   }
 
+  editTriggers(node) {
+    this.setState({
+      currentTriggerNode: node,
+      isTriggerEditOpen: true
+    })
+  }
+
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
       if (!this.diagramEngine.isModelLocked(element)) {
-        if (element['isStartNode']) {
-          return alert("You can't delete the start node.")
-        } else if (element.type === 'success') {
+        if (element.type === 'success') {
           return alert("You can't delete the success node.")
         } else if (element.type === 'failure') {
           return alert("You can't delete the failure node.")
@@ -646,24 +655,33 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <div
-        id="diagramContainer"
-        ref={ref => (this.diagramContainer = ref)}
-        tabIndex={1}
-        style={{ outline: 'none', width: '100%', height: '100%' }}
-        onContextMenu={this.handleContextMenu}
-        onDrop={this.handleToolDropped}
-        onDragOver={event => event.preventDefault()}
-      >
-        <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+      <Fragment>
+        <div
+          id="diagramContainer"
+          ref={ref => (this.diagramContainer = ref)}
+          tabIndex={1}
+          style={{ outline: 'none', width: '100%', height: '100%' }}
+          onContextMenu={this.handleContextMenu}
+          onDrop={this.handleToolDropped}
+          onDragOver={event => event.preventDefault()}
+        >
+          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
 
-        <DiagramWidget
-          ref={w => (this.diagramWidget = w)}
-          deleteKeys={[]}
+          <DiagramWidget
+            ref={w => (this.diagramWidget = w)}
+            deleteKeys={[]}
+            diagramEngine={this.diagramEngine}
+            inverseZoom={true}
+          />
+        </div>
+
+        <TriggerEditor
+          node={this.state.currentTriggerNode}
+          isOpen={this.state.isTriggerEditOpen}
           diagramEngine={this.diagramEngine}
-          inverseZoom={true}
+          toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
         />
-      </div>
+      </Fragment>
     )
   }
 }

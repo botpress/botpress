@@ -267,7 +267,7 @@ const doCreateNewFlow = name => {
     startNode: 'entry',
     catchAll: {},
     links: [],
-    triggers: [],
+    triggers: [], // TODO: NDU Change to be a node instead
     nodes
   }
 }
