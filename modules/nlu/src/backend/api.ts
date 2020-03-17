@@ -17,7 +17,7 @@ import {
   getIntent,
   getIntents,
   saveIntent,
-  syncIntentTopics,
+  updateContextsFromTopics,
   updateIntent
 } from './intents/intent-service'
 import recommendations from './intents/recommendations'
@@ -153,7 +153,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     if (action === 'delete' || action === 'create') {
       try {
         const ghost = bp.ghost.forBot(req.params.botId)
-        await syncIntentTopics(ghost, [condition.params.intentName])
+        await updateContextsFromTopics(ghost, [condition.params.intentName])
         return res.sendStatus(200)
       } catch (err) {
         return res.status(400).send(err.message)
@@ -169,7 +169,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const ghost = bp.ghost.forBot(botId)
 
     try {
-      await syncIntentTopics(ghost, intentNames)
+      await updateContextsFromTopics(ghost, intentNames)
       res.sendStatus(200)
     } catch (err) {
       bp.logger

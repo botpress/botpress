@@ -108,7 +108,7 @@ export async function updateIntentsSlotsEntities(
  * This method read every workflow to extract their intent usage, so they can be in sync with their topics.
  * The list of intent names is not required, but it saves some processing
  */
-export async function syncIntentTopics(ghost: sdk.ScopedGhostService, intentNames?: string[]): Promise<void> {
+export async function updateContextsFromTopics(ghost: sdk.ScopedGhostService, intentNames?: string[]): Promise<void> {
   const flowsPaths = await ghost.directoryListing('flows', '*.flow.json')
   const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
     name: flowPath,
