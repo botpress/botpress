@@ -22,7 +22,6 @@ title: Slack
 - enabled: Set to `true`
 - signingSecret: Take the value `Signing Secret` on the page **`Basic Information`**
 - useRTM: false (true if you have a legacy app)
-- port: null (or define an exact port)
 
 2. Restart Botpress
 

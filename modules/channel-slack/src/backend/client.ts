@@ -50,7 +50,7 @@ export class SlackClient {
     }
     this.interactive = createMessageAdapter(this.config.signingSecret)
 
-    await this._setupRealtime(this.config.port)
+    await this._setupRealtime()
     await this._setupInteractiveListener()
   }
 
@@ -99,55 +99,36 @@ export class SlackClient {
     })
 
     this.router.use(`/bots/${this.botId}/callback`, this.interactive.requestListener())
-    const publicPath = await this.router.getPublicPath()
 
-    // Bot ID is used twice, because slack must setup multiple listeners itself, so can't just be redirected
-    this.logger.info(
-      `[${this.botId}] Interactive Endpoint URL: ${publicPath.replace('BOT_ID', this.botId)}/bots/${
-        this.botId
-      }/callback`
-    )
+    await this.displayUrl('Interactive', 'callback')
   }
 
-  private async _setupRealtime(port: number) {
+  private async _setupRealtime() {
     const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
 
     if (this.rtm) {
-      this.rtm.on('message', async payload => {
-        debugIncoming(`Received real time payload %o`, payload)
-
-        if (!discardedSubtypes.includes(payload.subtype)) {
-          await this.sendEvent(payload, {
-            type: 'text',
-            text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
-          })
-        }
-      })
-
-      return this.rtm.start()
+      this.listenMessages()
+      await this.rtm.start()
     } else {
-      this.events.on('message', async payload => {
-        debugIncoming(`Received real time payload %o`, payload)
-
-        if (!discardedSubtypes.includes(payload.subtype) && !payload.bot_id) {
-          await this.sendEvent(payload, {
-            type: 'text',
-            text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
-          })
-        }
-      })
-
+      this.listenMessages()
       this.router.post(`/bots/${this.botId}/events-callback`, this.events.requestListener())
-      const publicPath = await this.router.getPublicPath()
-      this.logger.info(
-        `[${this.botId}] Events Endpoint URL: ${publicPath.replace('BOT_ID', this.botId)}/bots/${
-          this.botId
-        }/events-callback`
-      )
-
-      const server = await this.events.start(port || 0)
-      this.logger.info(`[${this.botId}] Slack events listening at : ${(<AddressInfo>server.address()).port}`)
+      await this.displayUrl('Events', 'events-callback')
     }
+  }
+
+  private listenMessages() {
+    const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
+
+    this.events.on('message', async payload => {
+      debugIncoming(`Received real time payload %o`, payload)
+
+      if (!discardedSubtypes.includes(payload.subtype) && !payload.bot_id) {
+        await this.sendEvent(payload, {
+          type: 'text',
+          text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
+        })
+      }
+    })
   }
 
   private async _getUserInfo(userId: string) {
@@ -165,6 +146,13 @@ export class SlackClient {
     }
 
     return userCache.get(userId) || {}
+  }
+
+  private async displayUrl(title: string, end: string) {
+    const publicPath = await this.router.getPublicPath()
+    this.logger.info(
+      `[${this.botId}] ${title} Endpoint URL: ${publicPath.replace('BOT_ID', this.botId)}/bots/${this.botId}/${end}`
+    )
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
