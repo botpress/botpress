@@ -339,7 +339,7 @@ export class UnderstandingEngine {
         case 'workflow':
           event.ndu.actions = [
             {
-              action: 'redirect',
+              action: 'startWorkflow',
               data: { flow: electedTrigger.trigger.workflowId, node: electedTrigger.trigger.nodeId }
             },
             { action: 'continue' }

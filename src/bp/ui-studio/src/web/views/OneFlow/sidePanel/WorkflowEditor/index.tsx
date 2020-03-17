@@ -9,7 +9,7 @@ import { sanitizeName } from '~/util'
 
 interface OwnProps {
   isOpen: boolean
-  selectedGoal?: string
+  selectedWorkflow?: string
   readOnly: boolean
   canRename: boolean
   selectedTopic?: string
@@ -28,13 +28,13 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const EditGoalModal: FC<Props> = props => {
+const WorkflowEditor: FC<Props> = props => {
   const [name, setName] = useState<string>('')
   const [label, setLabel] = useState<string>('')
   const [description, setDescription] = useState<string>('')
 
   useEffect(() => {
-    const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
+    const originalFlow = props.flows.find(x => x.name === props.selectedWorkflow)
     if (originalFlow) {
       const { name, label, description } = originalFlow
 
@@ -54,7 +54,7 @@ const EditGoalModal: FC<Props> = props => {
     if (isCreate) {
       props.createFlow(fullName)
     } else {
-      const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
+      const originalFlow = props.flows.find(x => x.name === props.selectedWorkflow)
 
       // TODO: fix flow edition
       if (originalFlow.name !== fullName) {
@@ -73,11 +73,11 @@ const EditGoalModal: FC<Props> = props => {
     props.toggle()
   }
 
-  const isCreate = !props.selectedGoal
+  const isCreate = !props.selectedWorkflow
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Goal' }
+  let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Workflow' }
   if (!isCreate) {
-    dialog = { icon: 'edit', title: `Edit Goal - ${props.selectedGoal}` }
+    dialog = { icon: 'edit', title: `Edit Workflow - ${props.selectedWorkflow}` }
   }
 
   return (
@@ -131,5 +131,5 @@ const mapStateToProps = state => ({
 })
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow, renameFlow, createFlow })(
-  EditGoalModal
+  WorkflowEditor
 )

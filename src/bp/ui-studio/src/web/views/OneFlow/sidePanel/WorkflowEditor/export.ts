@@ -53,7 +53,7 @@ const getContentElements = async (
   }
 }
 
-export const exportCompleteGoal = async (goalName: string) => {
+export const exportCompleteWorkflow = async (workflowName: string) => {
   const { data } = await axios.get(`${window.BOT_API_PATH}/flows`)
 
   const exportFlowData = async (flows, flowName) => {
@@ -81,5 +81,5 @@ export const exportCompleteGoal = async (goalName: string) => {
     }
   }
 
-  return exportFlowData(data, goalName)
+  return exportFlowData(data, workflowName)
 }

@@ -16,14 +16,15 @@ const Metric = <const>[
   'enter_flow_count',
   'msg_nlu_intent',
 
+  'workflow_started_count',
+  'workflow_completed_count',
+  'workflow_failed_count',
   // TODO: implement these below in 12.8+
-  'goals_started_count',
-  'goals_completed_count',
-  'goals_failed_count',
+
   'feedback_positive_qna',
   'feedback_negative_qna',
-  'feedback_positive_goal',
-  'feedback_negative_goal'
+  'feedback_positive_workflow',
+  'feedback_negative_workflow'
 ]
 type MetricTypes = typeof Metric[number]
 

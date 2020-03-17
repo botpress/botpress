@@ -57,21 +57,32 @@ export class DecisionEngine {
 
     for (const { action, data } of event.ndu.actions) {
       if (action === 'send' && data) {
-        await this._sendContent(data as NDU.SendContent, event)
+        const content = data as NDU.SendContent
+        await this._sendContent(content, event)
+
+        BOTPRESS_CORE_EVENT('bp_core_send_content', {
+          botId: event.botId,
+          channel: event.channel,
+          source: content.source,
+          details: content.sourceDetails!
+        })
       } else if (action === 'redirect') {
         const { flow, node } = data as NDU.FlowRedirect
         await this.dialogEngine.jumpTo(sessionId, event, flow, node)
-      } else if (action === 'startGoal') {
-        const { goal } = data as NDU.StartGoal
-        await this.dialogEngine.jumpTo(sessionId, event, goal)
-        event.state.session.lastGoals = [
+      } else if (action === 'startWorkflow') {
+        const { flow, node } = data as NDU.FlowRedirect
+        await this.dialogEngine.jumpTo(sessionId, event, flow, node)
+
+        event.state.session.lastWorkflows = [
           {
-            goal,
+            workflow: flow,
             eventId: event.id,
             active: true
           },
-          ...(event.state.session.lastGoals || [])
+          ...(event.state.session.lastWorkflows || [])
         ]
+
+        BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: flow })
       }
     }
 

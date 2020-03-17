@@ -3,7 +3,7 @@ import 'bluebird-global'
 import _ from 'lodash'
 
 import { ExportedTopic } from '../typings'
-import { exportCompleteGoal } from '../GoalEditor/export'
+import { exportCompleteWorkflow } from '../WorkflowEditor/export'
 
 const getKnowledge = async (topicName: string) => {
   try {
@@ -18,9 +18,9 @@ const getKnowledge = async (topicName: string) => {
   }
 }
 
-const getGoals = async (goals: string[]) => {
+const getWorkflows = async (wfs: string[]) => {
   try {
-    return Promise.mapSeries(goals, async goal => exportCompleteGoal(goal))
+    return Promise.mapSeries(wfs, async name => exportCompleteWorkflow(name))
   } catch (err) {
     console.error(`Can't export intents: ${err}`)
     return []
@@ -34,6 +34,6 @@ export const exportCompleteTopic = async (topicName: string, flows: any[]): Prom
     name: topicName,
     description: topics.find(x => x.name === topicName)?.description,
     knowledge: await getKnowledge(topicName),
-    goals: await getGoals(flows.filter(x => x.name.startsWith(topicName)).map(x => x.name))
+    workflows: await getWorkflows(flows.filter(x => x.name.startsWith(topicName)).map(x => x.name))
   }
 }

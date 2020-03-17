@@ -13,7 +13,7 @@ interface Props {
   topics: Topic[]
 
   toggle: () => void
-  onCreateFlow: (goalName: string) => void
+  onCreateFlow: (name: string) => void
   fetchTopics: () => void
 }
 
