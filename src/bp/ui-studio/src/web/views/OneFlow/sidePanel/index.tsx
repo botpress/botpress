@@ -8,6 +8,7 @@ import {
   duplicateFlow,
   fetchFlows,
   fetchTopics,
+  getQnaCountByTopic,
   refreshConditions,
   renameFlow,
   switchFlow
@@ -26,7 +27,7 @@ import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
-import TopicList from './TopicList'
+import TopicList, { CountByTopic } from './TopicList'
 import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
@@ -57,6 +58,7 @@ interface StateProps {
   flowPreview: boolean
   mutexInfo: string
   topics: any
+  qnaCountByTopic: CountByTopic[]
   flowsName: { name: string; label: string }[]
 }
 
@@ -68,6 +70,7 @@ interface DispatchProps {
   switchFlow: (flowName: string) => void
   renameFlow: any
   duplicateFlow: any
+  getQnaCountByTopic: () => void
 }
 
 type Props = StateProps & DispatchProps & OwnProps
@@ -90,6 +93,7 @@ const SidePanelContent: FC<Props> = props => {
   useEffect(() => {
     props.refreshConditions()
     props.fetchTopics()
+    props.getQnaCountByTopic()
   }, [])
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
@@ -159,6 +163,15 @@ const SidePanelContent: FC<Props> = props => {
     props.fetchTopics()
   }
 
+  const toggleQnaModal = () => {
+    // TODO: only update when dirty
+    if (topicQnAModalOpen) {
+      props.getQnaCountByTopic()
+    }
+
+    setTopicQnAModalOpen(!topicQnAModalOpen)
+  }
+
   const topicActions = props.permissions.includes('create') && [importAction, createTopicAction]
   const importGoal = () => setImportGoalModalOpen(!importGoalModalOpen)
   const canDelete = props.permissions.includes('delete')
@@ -178,6 +191,7 @@ const SidePanelContent: FC<Props> = props => {
               readOnly={props.readOnly}
               canDelete={canDelete}
               flows={props.flowsName}
+              qnaCountByTopic={props.qnaCountByTopic}
               goToFlow={goToFlow}
               deleteFlow={props.deleteFlow}
               duplicateFlow={duplicateFlow}
@@ -208,11 +222,7 @@ const SidePanelContent: FC<Props> = props => {
         toggle={() => setTopicModalOpen(!topicModalOpen)}
       />
 
-      <EditTopicQnAModal
-        selectedTopic={selectedTopic}
-        isOpen={topicQnAModalOpen}
-        toggle={() => setTopicQnAModalOpen(!topicQnAModalOpen)}
-      />
+      <EditTopicQnAModal selectedTopic={selectedTopic} isOpen={topicQnAModalOpen} toggle={toggleQnaModal} />
 
       <CreateTopicModal
         isOpen={createTopicOpen}
@@ -247,7 +257,8 @@ const mapStateToProps = state => ({
   flows: getAllFlows(state),
   flowsName: getFlowNamesList(state),
   showFlowNodeProps: state.flows.showFlowNodeProps,
-  topics: state.ndu.topics
+  topics: state.ndu.topics,
+  qnaCountByTopic: state.ndu.qnaCountByTopic
 })
 
 const mapDispatchToProps = {
@@ -257,7 +268,8 @@ const mapDispatchToProps = {
   renameFlow,
   refreshConditions,
   fetchTopics,
-  fetchFlows
+  fetchFlows,
+  getQnaCountByTopic
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)

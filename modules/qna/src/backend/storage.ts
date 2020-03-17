@@ -236,6 +236,20 @@ export default class Storage {
     return _.uniq(_.filter(allAnswers as string[], x => _.isString(x) && x.startsWith('#!')))
   }
 
+  async getCountByTopic(): Promise<{ [context: string]: number }> {
+    const qnas = await this.fetchQNAs()
+
+    const contexts = _.chain(qnas)
+      .flatMap(i => i.data.contexts)
+      .uniq()
+      .value()
+
+    return contexts.reduce((acc, context) => {
+      acc[context] = qnas.filter(x => x.data.contexts.includes(context)).length
+      return acc
+    }, {})
+  }
+
   async getContentElementUsage(): Promise<any> {
     const qnas = await this.fetchQNAs()
 

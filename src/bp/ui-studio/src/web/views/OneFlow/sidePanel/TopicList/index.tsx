@@ -16,11 +16,16 @@ export const TYPES = {
   Folder: 'folder'
 }
 
+export interface CountByTopic {
+  [topicName: string]: number
+}
+
 interface Props {
   filter: string
   readOnly: boolean
   currentFlow: Flow
   topics: Topic[]
+  qnaCountByTopic: CountByTopic[]
 
   canDelete: boolean
   goToFlow: Function
@@ -48,6 +53,7 @@ interface NodeData {
   triggerCount?: number
   /** List of workflows which have a reference to it */
   referencedIn?: string[]
+  countByTopic?: CountByTopic
 }
 
 type NodeType = 'goal' | 'folder' | 'topic' | 'qna'
@@ -65,11 +71,12 @@ const TopicList: FC<Props> = props => {
       name: `${topic.name}/qna`,
       label: 'Q&A',
       type: 'qna' as NodeType,
-      icon: 'chat'
+      icon: 'chat',
+      countByTopic: props.qnaCountByTopic?.[topic.name] || 0
     }))
 
     setFlows([...qna, ...props.flows])
-  }, [props.flows, props.topics])
+  }, [props.flows, props.topics, props.qnaCountByTopic])
 
   const deleteFlow = async (name: string) => {
     if (await confirmDialog(`Are you sure you want to delete the flow ${name}?`, {})) {
@@ -220,7 +227,7 @@ const TopicList: FC<Props> = props => {
   }
 
   const nodeRenderer = (el: NodeData) => {
-    const { name, label, icon, type, triggerCount, referencedIn } = el
+    const { name, label, icon, type, triggerCount, referencedIn, countByTopic } = el
     const editGoal = e => {
       e.stopPropagation()
       props.editGoal(name, el)
@@ -235,6 +242,12 @@ const TopicList: FC<Props> = props => {
     }
 
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
+
+    const qnaTooltip = (
+      <Tooltip content="Number of questions in that topic" hoverOpenDelay={500}>
+        <small>({countByTopic})</small>
+      </Tooltip>
+    )
 
     const tooltip = (
       <>
@@ -268,7 +281,7 @@ const TopicList: FC<Props> = props => {
       label: (
         <div className={style.treeNode}>
           <span>
-            {displayName} {type !== 'qna' && tooltip}
+            {displayName} {type !== 'qna' ? tooltip : qnaTooltip}
           </span>
           <div className={style.overhidden} id="actions">
             {type !== 'qna' && (
