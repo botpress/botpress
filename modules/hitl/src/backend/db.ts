@@ -161,7 +161,7 @@ export default class HitlDb {
       source = event.payload.agent ? 'agent' : 'bot'
     }
 
-    const message = {
+    let message = {
       session_id: sessionId,
       type: event.type,
       raw_message: event.payload,
@@ -169,6 +169,34 @@ export default class HitlDb {
       source,
       direction,
       ts: new Date()
+    }
+
+    // Convert messenger payloads to HITL-compatible format
+    if (event.channel === 'messenger' && event.payload.quick_replies) {
+      message.raw_message = {
+        type: 'custom',
+        module: 'channel-web',
+        component: 'QuickReplies',
+        quick_replies: event.payload.quick_replies,
+        wrapped: { type: 'text', ..._.omit(event.payload, 'quick_replies') }
+      }
+      message.type = 'custom'
+    } else if (event.channel === 'messenger' && _.get(event.payload, 'attachment.payload.elements')) {
+      const elements = _.get(event.payload, 'attachment.payload.elements')
+      message.raw_message = {
+        text: ' ',
+        type: 'carousel',
+        elements: elements.map(card => ({
+          title: card.title,
+          picture: card.image_url,
+          subtitle: card.subtitle,
+          buttons: card.buttons.map(a => ({
+            ...a,
+            type: a.type === 'web_url' ? 'open_url' : a.type
+          }))
+        }))
+      }
+      message.type = 'carousel'
     }
 
     return Bluebird.join(
