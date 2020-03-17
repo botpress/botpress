@@ -280,9 +280,10 @@ export class CMSService implements IDisposeOnExit {
   }
 
   getMediaFiles(formData): string[] {
+    const media = '/media/'
     const iterator = (result: string[], value, key: string) => {
-      if (key.startsWith('image') && value.includes('/media/')) {
-        result.push(value.substr(value.indexOf('/media/') + 7))
+      if (key.startsWith('image') && value.includes(media)) {
+        result.push(value.substr(value.indexOf(media) + media.length))
       } else if (key.startsWith('items$')) {
         value.forEach(e => _.reduce(e, iterator, result))
       }
