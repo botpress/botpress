@@ -81,7 +81,7 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
 
 const onFlowRenamed = async (bp: typeof sdk, botId: string, previousFlowName: string, newFlowName: string) => {
   const { storage } = bots[botId]
-  const questions = await storage.getQuestions(undefined, { limit: 0, offset: 0 })
+  const questions = await storage.getQuestions({}, { limit: 0, offset: 0 })
 
   const updatedItems = questions.items
     .filter(q => q.data.redirectFlow === previousFlowName)
