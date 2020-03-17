@@ -4,7 +4,7 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { DefaultPortModel, PortWidget } from 'storm-react-diagrams'
 import { getFlowNames, getFlowNamesList } from '~/reducers'
 
@@ -51,17 +51,15 @@ type Props = {
 export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
   renderSubflowNode() {
     const index = Number(this.props.name.replace('out', ''))
-    const subflow = this.props.next[index].node.replace(/\.flow\.json$/i, '')
-    const isInvalid = !this.props.flowsName.find(x => x === this.props.next[index].node)
+    const subflow = this.props.node.next[index].node.replace(/\.flow\.json$/i, '')
+    const isInvalid = !this.props.flowsName.find(x => x === this.props.node.next[index].node)
 
     return (
       <div className={classnames(style.label, { [style.invalidFlow]: isInvalid })}>
         {isInvalid ? (
           <Tooltip content="The destination for this transition is invalid">{subflow}</Tooltip>
         ) : (
-          <a href="javascript:void(0);" onClick={() => this.props.history.push(`/flows/${subflow}`)}>
-            {subflow}
-          </a>
+          <Link to={`/flows/${subflow}`}>{subflow}</Link>
         )}
       </div>
     )
