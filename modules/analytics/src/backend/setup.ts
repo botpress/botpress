@@ -38,6 +38,22 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     db.incrementMetric(botId, channel, 'workflow_failed_count', wfName)
   })
 
+  process.BOTPRESS_EVENTS.on('bp_core_feedback_positive', ({ channel, botId, type }) => {
+    if (type === 'qna') {
+      db.incrementMetric(botId, channel, `feedback_positive_qna`)
+    } else if (type === 'workflow') {
+      db.incrementMetric(botId, channel, `feedback_positive_workflow`)
+    }
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_feedback_negative', ({ channel, botId, type }) => {
+    if (type === 'qna') {
+      db.incrementMetric(botId, channel, `feedback_negative_qna`)
+    } else if (type === 'workflow') {
+      db.incrementMetric(botId, channel, `feedback_negative_workflow`)
+    }
+  })
+
   bp.events.registerMiddleware({
     name: 'analytics.incoming',
     direction: 'incoming',
