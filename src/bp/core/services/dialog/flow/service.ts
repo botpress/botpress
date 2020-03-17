@@ -282,7 +282,7 @@ export class FlowService {
         lastModifiedBy: flowOwner,
         lastModifiedAt: now
       }
-      await this.kvs.set(botId, key, mutex)
+      await this.kvs.forBot(botId).set(key, mutex)
 
       mutex.remainingSeconds = remainingSeconds
       return mutex
@@ -294,7 +294,7 @@ export class FlowService {
         lastModifiedBy: currentFlowEditor,
         lastModifiedAt: now
       }
-      await this.kvs.set(botId, key, mutex)
+      await this.kvs.forBot(botId).set(key, mutex)
 
       mutex.remainingSeconds = remainingSeconds
       return mutex
