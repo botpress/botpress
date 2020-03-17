@@ -6,6 +6,7 @@
       "~/*": ["src/*"],
       "botpress/sdk": ["../sdk/botpress.d.ts"],
       "botpress/shared": ["../ui-shared/src/Interface/typings.d.ts"],
+      "botpress/i18n": ["../ui-shared/src/translations/typings.d.ts"],
       "common/*": ["../common/*"]
     }
   }

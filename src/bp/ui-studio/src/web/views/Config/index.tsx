@@ -1,7 +1,7 @@
 import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
+import { lang } from 'botpress/i18n'
 import { BotConfig } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
