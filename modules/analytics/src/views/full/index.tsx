@@ -287,23 +287,23 @@ const Analytics: FC<any> = ({ bp }) => {
       <div className={style.innerWrapper}>
         <div className={style.header}>
           <h1 className={style.pageTitle}>Analytics</h1>
-          <div>
+          <div className={style.filters}>
             <BpTooltip content="Filter channels" position={Position.LEFT}>
-              <div style={{ marginRight: 5 }}>
-                <HTMLSelect onChange={handleChannelChange} value={state.selectedChannel}>
-                  {channels.map(channel => {
-                    return (
-                      <option key={channel} value={channel}>
-                        {capitalize(channel)}
-                      </option>
-                    )
-                  })}
-                </HTMLSelect>
-              </div>
+              <HTMLSelect className={style.filterItem} onChange={handleChannelChange} value={state.selectedChannel}>
+                {channels.map(channel => {
+                  return (
+                    <option key={channel} value={channel}>
+                      {capitalize(channel)}
+                    </option>
+                  )
+                })}
+              </HTMLSelect>
             </BpTooltip>
 
             <Popover>
-              <Button icon="calendar">Date Range</Button>
+              <Button icon="calendar" className={style.filterItem}>
+                Date Range
+              </Button>
               <DateRangePicker onChange={handleDateChange} maxDate={new Date()} value={state.dateRange} />
             </Popover>
           </div>

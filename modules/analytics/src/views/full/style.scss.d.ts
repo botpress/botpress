@@ -6,10 +6,9 @@ interface CssExports {
   'chartMetric': string;
   'empty': string;
   'emptyState': string;
-  'filtersButton': string;
-  'filtersInputWrapper': string;
+  'filterItem': string;
+  'filters': string;
   'filtersShowing': string;
-  'filtersWrapper': string;
   'fullGrid': string;
   'fullWidth': string;
   'genericMetric': string;
@@ -17,7 +16,6 @@ interface CssExports {
   'header': string;
   'inline': string;
   'innerWrapper': string;
-  'inputLabel': string;
   'list': string;
   'mainWrapper': string;
   'metricName': string;

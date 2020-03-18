@@ -33,11 +33,7 @@ const mapDataForCharts = (data: MetricEntry[]) => {
   return _.sortBy(chartsData, 'time')
 }
 
-const formatTick = timestamp =>
-  moment
-    .unix(timestamp)
-    .format('ddd')
-    .substr(0, 1)
+const formatTick = timestamp => moment.unix(timestamp).format('D')
 const formatTootilTick = timestamp => moment.unix(timestamp).format('dddd, MMMM Do YYYY')
 
 const TimeSeriesChart: FC<Props> = props => {
@@ -54,18 +50,24 @@ const TimeSeriesChart: FC<Props> = props => {
           <ResponsiveContainer height={160}>
             <AreaChart data={mapDataForCharts(data)}>
               <defs>
-                <linearGradient id="gradientBg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#1F90FA" stopOpacity={0.31} />
-                  <stop offset="45%" stopColor="#1F90FA" stopOpacity={0.34} />
-                  <stop offset="73%" stopColor="#1F90FA" stopOpacity={0.15} />
-                  <stop offset="100%" stopColor="#1F90FA" stopOpacity={0} />
-                </linearGradient>
+                {channels
+                  .filter(x => x !== 'all')
+                  .map((channel, idx) => (
+                    <linearGradient key={idx} id={`gradientBg-${channel}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.31} />
+                      <stop offset="45%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.34} />
+                      <stop offset="73%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.15} />
+                      <stop offset="100%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0} />
+                    </linearGradient>
+                  ))}
               </defs>
               <Tooltip labelFormatter={formatTootilTick} />
               <XAxis
                 tickMargin={10}
                 height={28}
                 dataKey="time"
+                minTickGap={0}
+                interval={0}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={formatTick}
@@ -79,8 +81,8 @@ const TimeSeriesChart: FC<Props> = props => {
                     type="monotone"
                     dataKey={channel}
                     strokeWidth={3}
-                    stroke={CHANNEL_COLORS[channel]}
-                    fill="url(#gradientBg)"
+                    stroke={CHANNEL_COLORS[channel] || '#000'}
+                    fill={`url(#gradientBg-${channel})`}
                   />
                 ))}
             </AreaChart>

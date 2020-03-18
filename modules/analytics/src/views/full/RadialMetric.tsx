@@ -1,6 +1,6 @@
 import cx from 'classnames'
 import React, { FC } from 'react'
-import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts'
+import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from 'recharts'
 
 import { Extras } from './index'
 import style from './style.scss'
@@ -18,29 +18,23 @@ const RadialMetric: FC<Props> = props => {
 
   return (
     <div className={cx(style.genericMetric, className)}>
-      <RadialBarChart
-        width={circleSize}
-        height={circleSize}
-        innerRadius={circleSize / 2 - 4}
-        outerRadius={circleSize / 2}
-        barSize={4}
-        data={data}
-        startAngle={90}
-        endAngle={-270}
-        className={style.radialChart}
-      >
-        <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-        <RadialBar background clockWise dataKey="value" cornerRadius={circleSize / 2} fill="#0F9960" />
-        <text
-          x={circleSize / 2}
-          y={circleSize / 2}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          className={style.radialChartLabel}
+      <ResponsiveContainer height={circleSize}>
+        <RadialBarChart
+          innerRadius={circleSize / 2 - 4}
+          outerRadius={circleSize / 2}
+          barSize={4}
+          data={data}
+          startAngle={90}
+          endAngle={-270}
+          className={style.radialChart}
         >
-          {value}%
-        </text>
-      </RadialBarChart>
+          <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+          <RadialBar background clockWise dataKey="value" cornerRadius={circleSize / 2} fill="#0F9960" />
+          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className={style.radialChartLabel}>
+            {value}%
+          </text>
+        </RadialBarChart>
+      </ResponsiveContainer>
       <div>
         <h3 className={style.metricName}>{name}</h3>
       </div>

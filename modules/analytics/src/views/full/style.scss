@@ -23,7 +23,7 @@ $linkText: #1F8FFA;
   display: grid;
   grid-column-gap: 20px;
   grid-row-gap: 24px;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 1fr 1fr;
 }
 
 .section {
@@ -61,29 +61,26 @@ $linkText: #1F8FFA;
 }
 
 .filters {
-  &Button {
-    font-size: 16px;
-    font-weight: 300;
+  .filterItem {
+    height: 40px;
+    justify-content: left;
+    margin-left: 20px;
+    width: 220px;
   }
 
-  &InputWrapper {
-    display: block;
-    font-weight: 400;
-    margin: 10px 10px 0 0;
+  .filterItem select {
+    height: 40px;
+    width: 220px;
   }
 
-  &Wrapper {
-    padding: 10px;
-    display: flex;
-    justify-content: flex-end;
-
-    .inputLabel {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
+  .filterItem select + span {
+    top: 50%;
+    transform: translate(0, -50%);
   }
+}
+
+:global(svg.recharts-surface) {
+  overflow: visible;
 }
 
 .emptyState {
