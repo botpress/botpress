@@ -53,7 +53,7 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
 
   render() {
     return (
-      <div ref={el => (this.ref = el)} style={{ width: '100%' }}>
+      <div ref={el => (this.ref = el)} style={{ width: '100%', maxWidth: this.props.forHitl ? '400px' : '' }}>
         {this.state.adjustedWidth && this.renderCarousel()}
       </div>
     )
@@ -123,6 +123,7 @@ export const Card = props => {
 interface ICarouselProps {
   carousel: Renderer.Carousel
   onSendData: any
+  forHitl?: boolean
 }
 
 interface ICarouselState {
