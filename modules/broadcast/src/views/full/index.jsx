@@ -90,7 +90,7 @@ export default class BroadcastModule extends React.Component {
   }
 
   extractBroadcastFromModal() {
-    const { content, date, userTimezone, time } = this.state.broadcast
+    const { content, date, userTimezone, time, filteringConditions } = this.state.broadcast
 
     if (!content) {
       toastFailure('Content field is required.')
@@ -105,7 +105,8 @@ export default class BroadcastModule extends React.Component {
         .add(time, 'seconds')
         .format('HH:mm'),
       content: content,
-      timezone: userTimezone ? null : moment().format('Z')
+      timezone: userTimezone ? null : moment().format('Z'),
+      filters: filteringConditions
     }
   }
 
@@ -177,7 +178,8 @@ export default class BroadcastModule extends React.Component {
         date: new Date().toISOString(),
         time: 0,
         progress: 0,
-        userTimezone: true
+        userTimezone: true,
+        filteringConditions: []
       }
     }
 
@@ -191,6 +193,7 @@ export default class BroadcastModule extends React.Component {
         userTimezone: broadcast.userTimezone,
         date: broadcast.date,
         time: _.isString(broadcast.time) ? convertHHmmToSeconds(broadcast.time) : broadcast.time,
+        filteringConditions: broadcast.filteringConditions,
         progress: broadcast.progress
       }
     })
@@ -229,6 +232,28 @@ export default class BroadcastModule extends React.Component {
     })
   }
 
+  handleAddToFilteringConditions = () => {
+    const input = ReactDOM.findDOMNode(this.filterInput)
+    if (input && input.value !== '') {
+      const newBroadcast = this.state.broadcast
+      newBroadcast.filteringConditions = _.concat(newBroadcast.filteringConditions, input.value)
+
+      this.setState({
+        broadcast: newBroadcast
+      })
+      input.value = ''
+    }
+  }
+
+  handleRemoveFromFilteringConditions = filter => {
+    const newBroadcast = this.state.broadcast
+    newBroadcast.filteringConditions = _.without(newBroadcast.filteringConditions, filter)
+
+    this.setState({
+      broadcast: newBroadcast
+    })
+  }
+
   renderTableHeader() {
     return (
       <thead>
@@ -236,6 +261,7 @@ export default class BroadcastModule extends React.Component {
           <th>#</th>
           <th>Date</th>
           <th>Content</th>
+          <th>Filters</th>
           <th>Progress</th>
           <th>Action</th>
         </tr>
@@ -283,6 +309,14 @@ export default class BroadcastModule extends React.Component {
       )
     }
 
+    const renderFilteringCondition = filters => {
+      if (_.isEmpty(filters)) {
+        return 'No filter'
+      }
+
+      return <Label bsStyle="primary">{filters.length + ' filters'}</Label>
+    }
+
     return _.mapValues(broadcasts, value => {
       return (
         <tr key={value.id}>
@@ -291,6 +325,7 @@ export default class BroadcastModule extends React.Component {
             {getDateFormatted(value.time, value.date, value.userTimezone)}
           </td>
           <td style={{ maxWidth: '38%' }}>{value.content}</td>
+          <td style={{ width: '7%' }}>{renderFilteringCondition(value.filteringConditions)}</td>
           <td style={{ width: '12%' }} className={style.progress}>
             {formatProgress(value.progress, value.outboxed, value.errored)}
           </td>
@@ -410,6 +445,46 @@ export default class BroadcastModule extends React.Component {
     )
   }
 
+  renderFilteringConditionElement = filter => {
+    const removeHandler = () => this.handleRemoveFromFilteringConditions(filter)
+
+    return (
+      <ListGroupItem key={filter}>
+        {filter}
+        <Glyphicon className="pull-right" glyph="remove" onClick={removeHandler} />
+      </ListGroupItem>
+    )
+  }
+
+  renderFiltering() {
+    let filteringConditionElements = <ControlLabel>No filtering condition</ControlLabel>
+
+    const filters = this.state.broadcast.filteringConditions
+    if (filters && !_.isEmpty(filters)) {
+      filteringConditionElements = this.state.broadcast.filteringConditions.map(this.renderFilteringConditionElement)
+    }
+
+    return (
+      <div>
+        <FormGroup controlId="filtering">
+          <Col componentClass={ControlLabel} sm={2}>
+            Filtering conditions
+          </Col>
+          <Col sm={10}>{filteringConditionElements}</Col>
+        </FormGroup>
+        <FormGroup>
+          <Col smOffset={2} sm={10}>
+            <ControlLabel>Add a new filter:</ControlLabel>
+            <FormControl ref={input => (this.filterInput = input)} type="text" />
+            <Button className="bp-button" onClick={() => this.handleAddToFilteringConditions()}>
+              Add
+            </Button>
+          </Col>
+        </FormGroup>
+      </div>
+    )
+  }
+
   renderForm() {
     return (
       <Form horizontal>
@@ -417,6 +492,7 @@ export default class BroadcastModule extends React.Component {
         {this.renderFormDate()}
         {this.renderFormTime()}
         {this.renderFormUserTimezone()}
+        {this.renderFiltering()}
       </Form>
     )
   }
