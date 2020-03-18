@@ -92,18 +92,10 @@ export class SdkApiRouter extends CustomRouter {
       this.asyncMiddleware(async (req: TypedRequest<KvsSet>, res) => {
         const { botId, key, value, path, expiry } = req.body
 
-        if (expiry) {
-          if (botId) {
-            await this.api.kvs.forBot(botId).setStorageWithExpiry(key, value, expiry)
-          } else {
-            await this.api.kvs.global().setStorageWithExpiry(key, value, expiry)
-          }
+        if (botId) {
+          await this.api.kvs.forBot(botId).set(key, value, path, expiry)
         } else {
-          if (botId) {
-            await this.api.kvs.forBot(botId).set(key, value, path)
-          } else {
-            await this.api.kvs.global().set(key, value, path)
-          }
+          await this.api.kvs.global().set(key, value, path, expiry)
         }
 
         res.sendStatus(200)

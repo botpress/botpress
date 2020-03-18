@@ -26,7 +26,7 @@ createDatabaseSuite('KVS', (database: Database) => {
 
   beforeEach(async () => {
     try {
-      await kvs.set(BOTID, KEY, defaultValue)
+      await kvs.forBot(BOTID).set(KEY, defaultValue)
     } catch (err) {}
   })
 
@@ -51,7 +51,7 @@ createDatabaseSuite('KVS', (database: Database) => {
     it("Sets value if key doesn't exist", async () => {
       const key = 'otherKey'
       const expected = 'value'
-      await kvs.set(BOTID, key, expected)
+      await kvs.forBot(BOTID).set(key, expected)
 
       const value = await kvs.forBot(BOTID).get(key)
       expect(expected).toEqual(value)
@@ -59,14 +59,14 @@ createDatabaseSuite('KVS', (database: Database) => {
 
     it('Overwrite existing keys', async () => {
       const expected = 'new value'
-      await kvs.set(BOTID, KEY, expected)
+      await kvs.forBot(BOTID).set(KEY, expected)
 
       const value = await kvs.forBot(BOTID).get(KEY)
       expect(value).toEqual(expected)
     })
 
     it('Overwrite existing keys at path but keep existing values', async () => {
-      await kvs.set(BOTID, KEY, {}, 'profile')
+      await kvs.forBot(BOTID).set(KEY, {}, 'profile')
 
       const value = await kvs.forBot(BOTID).get(KEY)
       expect(value.profile).toEqual({})
@@ -77,7 +77,7 @@ createDatabaseSuite('KVS', (database: Database) => {
 
     it('Deep overwrite', async () => {
       const newValue = 'The Great Bob'
-      await kvs.set(BOTID, KEY, newValue, 'profile.firstName')
+      await kvs.forBot(BOTID).set(KEY, newValue, 'profile.firstName')
 
       const value = await kvs.forBot(BOTID).get(KEY)
       expect(value.profile.firstName).toEqual(newValue)
