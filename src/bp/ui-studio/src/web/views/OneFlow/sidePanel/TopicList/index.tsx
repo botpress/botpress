@@ -263,7 +263,7 @@ const TopicList: FC<Props> = props => {
                 Workflows referencing this workflow:{' '}
                 <ul>
                   {referencedIn.map(x => (
-                    <li>{x}</li>
+                    <li key={x}>{x}</li>
                   ))}
                 </ul>
               </div>

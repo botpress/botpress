@@ -37,7 +37,7 @@ const toast = (message, intent, timeout, onDismiss, options?) => {
     })
   }
 
-  if (!options.delayed) {
+  if (!options?.delayed) {
     showToast()
   } else {
     setTimeout(() => {
