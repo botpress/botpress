@@ -54,10 +54,6 @@ bp.isUserSubscribed = userId => {
 bp.isUserSubscribed(userId)
 ```
 
-## Roadmap
-
-- User segmentation
-
 ## API
 
 ### `GET /mod/broadcast/broadcasts`
@@ -95,13 +91,6 @@ Update an existing broadcast. Same as PUT except that `id` is also necessary. Yo
 ### `DELETE /mod/broadcast/broadcasts/:id`
 
 Delete an existing broadcast. You can't delete a processing broadcast.
-
-## Community
-
-Pull requests are welcomed! We believe that it takes all of us to create something big and impactful.
-There's a [Botpress Help Forum](https://forum.botpress.com/) where you are welcome to join us, ask any question and even help others.
-
-Get an invite and join us now! 👉[https://forum.botpress.com/](https://forum.botpress.com/)
 
 ## License
 
