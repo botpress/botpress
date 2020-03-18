@@ -51,7 +51,7 @@ const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, cla
               <br />
               {params.map(key => {
                 return (
-                  <div>
+                  <div key={key}>
                     - {key}: {condition.params[key]}
                   </div>
                 )
