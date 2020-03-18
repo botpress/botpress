@@ -19,7 +19,6 @@ const Metric = <const>[
   'workflow_started_count',
   'workflow_completed_count',
   'workflow_failed_count',
-  // TODO: implement these below in 12.8+
 
   'feedback_positive_qna',
   'feedback_negative_qna',

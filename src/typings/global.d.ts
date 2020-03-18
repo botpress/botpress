@@ -259,6 +259,8 @@ declare type BOTPRESS_CORE_EVENTS = {
   bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
   bp_core_workflow_failed: { botId: string; channel: string; wfName: string }
   bp_core_enter_flow: { botId: string; channel: string; flowName: string }
+  bp_core_feedback_positive: { botId: string; channel: string; type: string }
+  bp_core_feedback_negative: { botId: string; channel: string; type: string }
 }
 
 interface IEmitCoreEvent {

@@ -9,6 +9,7 @@ export interface EventRepository {
   findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams): Promise<sdk.IO.StoredEvent[]>
   pruneUntil(date: Date): Promise<void>
   updateEvent(id: number, fields: Partial<sdk.IO.StoredEvent>): Promise<void>
+  saveUserFeedback(incomingEventId: string, target: string, feedback: number, type?: string): Promise<boolean>
 }
 
 export const DefaultSearchParams: sdk.EventSearchParams = {
@@ -72,5 +73,22 @@ export class KnexEventRepository implements EventRepository {
       .where(this.database.knex.date.isBefore('createdOn', date))
       .del()
       .then()
+  }
+
+  async saveUserFeedback(incomingEventId: string, target: string, feedback: number, type?: string): Promise<boolean> {
+    const events = await this.findEvents({ incomingEventId, target, direction: 'incoming' }, { count: 1 })
+    if (!events?.length) {
+      return false
+    }
+
+    const event = events[0]
+    await this.updateEvent(event.id!, { feedback })
+
+    if (type) {
+      const metric = feedback === 1 ? 'bp_core_feedback_positive' : 'bp_core_feedback_negative'
+      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, type })
+    }
+
+    return true
   }
 }

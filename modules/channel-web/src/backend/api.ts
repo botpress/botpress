@@ -307,12 +307,7 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       try {
-        const events = await bp.events.findEvents({ incomingEventId: eventId, direction: 'incoming', target })
-        if (!events || !events.length) {
-          return res.sendStatus(404)
-        }
-
-        await bp.events.updateEvent(events[0].id, { feedback })
+        await bp.events.saveUserFeedback(eventId, target, feedback, 'qna')
         res.sendStatus(200)
       } catch (err) {
         res.status(400).send(err)

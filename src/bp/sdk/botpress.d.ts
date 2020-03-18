@@ -1623,6 +1623,21 @@ declare module 'botpress/sdk' {
      * @param fields - Fields to update on the event
      */
     export function updateEvent(id: number, fields: Partial<IO.StoredEvent>): Promise<void>
+
+    /**
+     * Register the user feedback for a specific event. The type property is used to increment associated metrics
+     * @param incomingEventId - The ID of the first event of the conversation
+     * @param target - The ID of the user
+     * @param feedback Either 1 or -1
+     * @param type - For now, only supports qna & workflow
+     * @return true if feedback was successfully saved
+     */
+    export function saveUserFeedback(
+      incomingEventId: string,
+      target: string,
+      feedback: number,
+      type?: string
+    ): Promise<boolean>
   }
 
   export type GetOrCreateResult<T> = Promise<{
