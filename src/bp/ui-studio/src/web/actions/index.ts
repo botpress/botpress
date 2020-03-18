@@ -94,7 +94,7 @@ export const receiveSaveFlows = createAction(
   () => ({ receiveAt: new Date() })
 )
 export const errorSaveFlows = createAction('FLOWS/SAVE/ERROR')
-export const clearErrorSaveFlows = createAction('FLOWS/SAVE/ERROR/CLEAR')
+export const clearErrorSaveFlows: () => void = createAction('FLOWS/SAVE/ERROR/CLEAR')
 
 // actions that modifies flow
 export const requestUpdateFlow = createAction('FLOWS/FLOW/UPDATE')
@@ -228,7 +228,7 @@ export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, s
   await createNewFlows(state)
 })
 
-export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
+export const setDiagramAction: (action: string) => void = createAction('FLOWS/FLOW/SET_ACTION')
 
 // Content
 export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')

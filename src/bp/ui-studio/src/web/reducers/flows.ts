@@ -394,7 +394,7 @@ let reducer = handleActions(
       errorSavingFlows: payload
     }),
 
-    [clearErrorSaveFlows]: state => ({
+    [clearErrorSaveFlows as any]: state => ({
       ...state,
       errorSavingFlows: undefined
     }),
@@ -426,7 +426,7 @@ let reducer = handleActions(
       }
     },
 
-    [setDiagramAction]: (state, { payload }) => ({
+    [setDiagramAction as any]: (state, { payload }) => ({
       ...state,
       currentDiagramAction: payload
     }),
