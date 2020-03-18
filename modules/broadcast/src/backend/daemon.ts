@@ -1,5 +1,5 @@
 // @ts-ignore
-import Promise from 'bluebird'
+import { Promise } from 'bluebird'
 import retry from 'bluebird-retry'
 import _ from 'lodash'
 import moment from 'moment'
@@ -27,14 +27,14 @@ export default async (botId: string, bp: SDK, db: Database) => {
         }
 
         const fn = new Function('bp', 'userId', 'platform', fnBody)
-        return Promise.method(fn)(bp, row.userId, row.platform)
+        return Promise.method(fn(bp, row.userId, row.platform))
       }).then(values => {
         return _.some(values, v => {
           if (!_.isBoolean(v)) {
             bp.logger.warn('Filter returned something other ' + 'than a boolean (or a Promise of a boolean)')
           }
 
-          return typeof v !== 'undefined' && v !== null && v !== true
+          return typeof v !== 'undefined' && v !== null
         })
       })
     }
@@ -46,7 +46,12 @@ export default async (botId: string, bp: SDK, db: Database) => {
       }
 
       const botInfo = await bp.bots.getBotById(botId)
-      const content = await bp.cms.getContentElement(botId, row.text, botInfo.defaultLanguage)
+      const user = await bp.users.getOrCreateUser(row.platform, row.userId, botId)
+      let language = botInfo.defaultLanguage
+      if (user!.result!.attributes!.language) {
+        language = user.result.attributes.language
+      }
+      const content = await bp.cms.getContentElement(botId, row.text, language)
 
       return bp.events.sendEvent(
         bp.IO.Event({
