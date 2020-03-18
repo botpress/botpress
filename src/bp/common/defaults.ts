@@ -121,3 +121,23 @@ export const CHAT_USER_ROLE = {
     }
   ]
 }
+
+export const BUILTIN_MODULES = [
+  'analytics',
+  'basic-skills',
+  'builtin',
+  'builtin',
+  'channel-messenger',
+  'channel-slack',
+  'channel-teams',
+  'channel-telegram',
+  'channel-web',
+  'code-editor',
+  'examples',
+  'extensions',
+  'history',
+  'hitl',
+  'nlu',
+  'qna',
+  'testing'
+]

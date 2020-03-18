@@ -139,3 +139,35 @@ h5 {
     border-radius: unset;
   }
 }
+
+.actionDialogContent {
+  padding: 10px;
+}
+
+.actionSelectItem {
+  transition: background-color 0.15s ease-in-out;
+  border-radius: 2px;
+  padding: 3px;
+  max-width: 450px;
+}
+
+.actionSelectItem:not(:last-child) {
+  margin-bottom: 5px;
+}
+
+.actionSelectItem:hover {
+  cursor: pointer;
+  background-color: rgba(167, 182, 194, 0.3);
+}
+
+.actionSelectItem .category {
+  font-weight: bold;
+}
+
+.actionSelectItem .description {
+  font-size: small;
+}
+
+.actionServer {
+  margin: 5px 6px 0 0;
+}

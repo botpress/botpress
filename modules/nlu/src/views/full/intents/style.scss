@@ -10,9 +10,13 @@
   justify-content: flex-end;
   flex-grow: 1;
   min-height: 1px;
+
   > div:first-child {
     overflow: auto;
     flex-grow: 1;
+  }
+
+  &:not(.liteIntentEditor) > div:first-child {
     padding: 10px;
   }
 }
@@ -24,7 +28,10 @@
 
   .hint {
     color: #738694;
-    max-width: 50%;
+
+    &:not(.lightEditorHint) {
+      max-width: 50%;
+    }
   }
 }
 

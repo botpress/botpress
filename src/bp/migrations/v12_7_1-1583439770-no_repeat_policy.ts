@@ -8,8 +8,13 @@ const migration: Migration = {
     type: 'config'
   },
   up: async ({ configProvider }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
-    await configProvider.mergeBotpressConfig({ noRepeatPolicy: true })
-    return { success: true, message: 'Configuration updated successfully' }
+    const config = await configProvider.getBotpressConfig()
+    if (config.noRepeatPolicy === undefined) {
+      await configProvider.mergeBotpressConfig({ noRepeatPolicy: true })
+      return { success: true, message: 'Configuration updated successfully' }
+    } else {
+      return { success: true, message: 'Field already exists, skipping...' }
+    }
   }
 }
 

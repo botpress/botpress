@@ -27,7 +27,17 @@ export interface FileDefinition {
 }
 
 export const FileTypes: { [type: string]: FileDefinition } = {
-  action: {
+  action_http: {
+    allowGlobal: false,
+    allowScoped: true,
+    permission: 'actions',
+    ghost: {
+      baseDir: '/actions',
+      shouldSyncToDisk: true,
+      upsertFilename: (file: EditableFile) => file.location.replace('.js', '.http.js')
+    }
+  },
+  action_legacy: {
     allowGlobal: true,
     allowScoped: true,
     permission: 'actions',

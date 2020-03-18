@@ -8,7 +8,15 @@ import yn from 'yn'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
-  ML = 'ML_WORKER'
+  ML = 'ML_WORKER',
+  LOCAL_ACTION_SERVER = 'LOCAL_ACTION_SERVER'
+}
+
+const MESSAGE_TYPE_START_LOCAL_ACTION_SERVER = 'start_local_action_server'
+
+export interface StartLocalActionServerMessage {
+  appSecret: string
+  port: number
 }
 
 const debug = DEBUG('cluster')
@@ -36,6 +44,11 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     logger.warn(`Restarting server...`)
     worker.disconnect()
     worker.kill()
+  })
+
+  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, (message: StartLocalActionServerMessage) => {
+    const { appSecret, port } = message
+    cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_ACTION_SERVER, APP_SECRET: appSecret, PORT: port })
   })
 
   cluster.on('exit', async (worker, code, signal) => {
@@ -113,4 +126,8 @@ export async function spawnMLWorkers(logger?: sdk.Logger) {
   })
   spawnMLWorkersCount++
   debug(`Spawned ${numMLWorkers} machine learning workers`)
+}
+
+export const startLocalActionServer = (message: StartLocalActionServerMessage) => {
+  process.send!({ type: MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, ...message })
 }

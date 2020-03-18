@@ -297,6 +297,39 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
+    '/saveFeedback',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const { eventId, target, feedback } = req.body
+
+      if (!target || !eventId || !feedback) {
+        return res.status(400).send('Missing required fields')
+      }
+
+      try {
+        await bp.events.saveUserFeedback(eventId, target, feedback, 'qna')
+        res.sendStatus(200)
+      } catch (err) {
+        res.status(400).send(err)
+      }
+    })
+  )
+
+  router.post(
+    '/feedbackInfo',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const { target, eventIds } = req.body
+
+      if (!target || !eventIds) {
+        return res.status(400).send('Missing required fields')
+      }
+
+      res.send(await db.getFeedbackInfoForEventIds(target, eventIds))
+    })
+  )
+
+  router.post(
     '/conversations/:userId/:conversationId/reset',
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {

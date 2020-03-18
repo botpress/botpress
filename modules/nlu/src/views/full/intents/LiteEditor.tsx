@@ -1,5 +1,6 @@
 import { Button, ControlGroup, FormGroup } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../../api'
@@ -16,6 +17,8 @@ interface IntentParams {
 interface Props {
   bp: any
   contentLang: string
+  forceSave: boolean
+  topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
 }
@@ -30,6 +33,15 @@ export const LiteEditor: FC<Props> = props => {
   const [intents, setIntents] = useState<NLU.IntentDefinition[]>([])
   const [currentIntent, setCurrentIntent] = useState(props.params.intentName)
   const [isModalOpen, setModalOpen] = useState(false)
+  const [dirtyIntents, setDirtyIntents] = useState([])
+
+  useEffect(() => {
+    // Ensure the current topic is in the intent's contexts
+    if (props.forceSave && dirtyIntents.length) {
+      // tslint:disable-next-line: no-floating-promises
+      api.syncIntentTopics()
+    }
+  }, [props.forceSave])
 
   const api = makeApi(props.bp)
 
@@ -38,6 +50,10 @@ export const LiteEditor: FC<Props> = props => {
     loadIntents()
   }, [])
 
+  useEffect(() => {
+    setDirtyIntents([])
+  }, [isModalOpen])
+
   const loadIntents = async () => {
     setIntents(await api.fetchIntents())
   }
@@ -45,6 +61,7 @@ export const LiteEditor: FC<Props> = props => {
   const createIntent = async (sanitizedName: string, rawName: string) => {
     const intentDef = {
       name: sanitizedName,
+      contexts: [props.topicName || 'global'],
       utterances: { [props.contentLang]: [rawName] }
     }
 
@@ -55,8 +72,9 @@ export const LiteEditor: FC<Props> = props => {
     setCurrentIntent(sanitizedName)
   }
 
-  const onIntentChanged = intent => {
+  const onIntentChanged = async intent => {
     if (intent) {
+      setDirtyIntents([...dirtyIntents, currentIntent])
       setCurrentIntent(intent.name)
       props.updateParams({ intentName: intent.name })
     }
@@ -75,7 +93,7 @@ export const LiteEditor: FC<Props> = props => {
       />
       {currentIntent && (
         <IntentEditor
-          liteEditor={true}
+          liteEditor
           intent={currentIntent}
           api={api}
           contentLang={props.contentLang}
