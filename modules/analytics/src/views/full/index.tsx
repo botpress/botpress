@@ -9,7 +9,6 @@ import React, { FC, useEffect, useState } from 'react'
 
 import { MetricEntry } from '../../backend/typings'
 
-import { fakeBusiestPeriod, fakeMetrics, fakeMostAskedQuestions, fakeMostUsedWorkflows } from './metrics'
 import style from './style.scss'
 import FlatProgressChart from './FlatProgressChart'
 import ItemsList from './ItemsList'
@@ -31,6 +30,16 @@ export interface Extras {
   className?: string
 }
 
+const navigateToElement = (name: string, type: string) => () => {
+  let url
+  if (type === 'qna') {
+    url = `/modules/qna?id=${name.replace('__qna__', '')}`
+  } else if (type === 'workflow') {
+    url = `/oneflow/${name}`
+  }
+  window.postMessage({ action: 'navigate-url', payload: url }, '*')
+}
+
 const fetchReducer = (state: State, action): State => {
   if (action.type === 'datesSuccess') {
     const { dateRange } = action.data
@@ -40,11 +49,11 @@ const fetchReducer = (state: State, action): State => {
       dateRange
     }
   } else if (action.type === 'receivedMetrics') {
-    // const { metrics } = action.data
+    const { metrics } = action.data
 
     return {
       ...state,
-      metrics: fakeMetrics
+      metrics
     }
   } else if (action.type === 'channelSuccess') {
     const { selectedChannel } = action.data
@@ -184,6 +193,21 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
+  const getTopItems = (metricName: string, type: string) => {
+    const grouped = _.groupBy(getMetric(metricName), 'subMetric')
+    const results = _.orderBy(
+      Object.keys(grouped).map(x => ({ name: x, count: _.sumBy(grouped[x], 'value') })),
+      x => x.count,
+      'desc'
+    )
+
+    return results.map(x => ({
+      label: `${x.name} (${x.count})`,
+      href: '',
+      onClick: navigateToElement(x.name, type)
+    }))
+  }
+
   const renderEngagement = () => {
     return (
       <div className={style.metricsContainer}>
@@ -206,7 +230,7 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <div className={cx(style.genericMetric, style.inline)}>
           <h3 className={style.metricName}>Busiest Period</h3>
-          <p>{fakeBusiestPeriod}</p>
+          <p>Monday from 2PM to 4PM</p>
         </div>
       </div>
     )
@@ -222,17 +246,21 @@ const Analytics: FC<any> = ({ bp }) => {
           channels={channels}
         />
         <NumberMetric name="Message Exchanged" value={getAvgMsgPerSessions()} iconBottom="chat" />
-        <NumberMetric name="Goals Initiated" value={getMetricCount('goals_started_count')} className={style.half} />
+        <NumberMetric
+          name="Workflows Initiated"
+          value={getMetricCount('workflow_started_count')}
+          className={style.half}
+        />
         <NumberMetric name="Questions Asked" value={getMetricCount('msg_sent_qna_count')} className={style.half} />
         <ItemsList
           name="Most Used Workflows"
-          items={fakeMostUsedWorkflows}
+          items={getTopItems('enter_flow_count', 'workflow')}
           itemLimit={10}
           className={cx(style.genericMetric, style.half, style.list)}
         />
         <ItemsList
           name="Most Asked Questions"
-          items={fakeMostAskedQuestions}
+          items={getTopItems('msg_sent_qna_count', 'qna')}
           itemLimit={10}
           hasTooltip
           className={cx(style.genericMetric, style.half, style.list)}
@@ -251,22 +279,27 @@ const Analytics: FC<any> = ({ bp }) => {
           </div>
           <div>
             <FlatProgressChart value="70%" color="#DE4343" name="70% inside flows" />
-            <FlatProgressChart value="30%" color="#F2B824" name="30% inside flows" />
+            <FlatProgressChart value="30%" color="#F2B824" name="30% outside flows" />
           </div>
         </div>
         <div className={cx(style.genericMetric, style.quarter, style.list, style.multiple)}>
-          <ItemsList name="Most Failed Workflows" items={fakeMostUsedWorkflows} itemLimit={3} className={style.list} />
+          <ItemsList
+            name="Most Failed Workflows"
+            items={getTopItems('workflow_failed_count', 'workflow')}
+            itemLimit={3}
+            className={style.list}
+          />
           <ItemsList
             name="Most Failed Questions"
-            items={fakeMostAskedQuestions}
+            items={getTopItems('feedback_negative_qna', 'qna')}
             itemLimit={3}
             hasTooltip
             className={style.list}
           />
         </div>
         <RadialMetric
-          name={`${getMetricCount('workflow_completion')} successful workflow completions`}
-          value={getMetricCount('workflow_completion')}
+          name={`${getMetricCount('workflow_completed_count')} successful workflow completions`}
+          value={getMetricCount('workflow_completed_count')}
           className={style.quarter}
         />
         <RadialMetric

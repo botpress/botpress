@@ -6,7 +6,7 @@ import style from './style.scss'
 
 interface Props {
   name: string
-  items: { label: string; href: string }[]
+  items: { label: string; onClick?: () => void }[]
   className: string
   itemLimit: number
   hasTooltip?: boolean
@@ -24,10 +24,10 @@ const ItemsList: FC<Props> = props => {
           <li key={index}>
             {hasTooltip ? (
               <Tooltip content={item.label}>
-                <a href={item.href}>{item.label}</a>
+                <a onClick={item.onClick}>{item.label}</a>
               </Tooltip>
             ) : (
-              <a href={item.href}>{item.label}</a>
+              <a onClick={item.onClick}>{item.label}</a>
             )}
           </li>
         ))}
