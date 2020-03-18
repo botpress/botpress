@@ -6,14 +6,14 @@
   "main": "dist/backend/index.js",
   "scripts": {
     "build": "node ../../build/module-builder/bin/entry build",
-    "watch": "node ../../build/module-builder/bin/entry watch"
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
   },
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "classnames": "^2.2.5",
     "core-js": "^2.4.1",
-    "module-builder": "../../build/module-builder",
     "react-bootstrap": "^0.33.1",
     "react-bootstrap-date-picker": "github:mixxt/react-bootstrap-date-picker",
     "react-bootstrap-time-picker": "^1.0.3"
