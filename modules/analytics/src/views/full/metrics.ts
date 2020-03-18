@@ -1,3 +1,99 @@
+export const fakeBusiestPeriod = "Monday fromn 2PM to 4PM"
+
+export const fakeMostUsedWorkflows = [
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  },
+  {
+    label: 'Academics',
+    href: '#'
+  }
+]
+
+export const fakeMostAskedQuestions = [
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  },
+  {
+    label: "What do you get when you put something where it shouldn't be",
+    href: '#'
+  }
+]
+
 export const fakeMetrics: any = [
   {
     date: '2020-03-10',
@@ -160,5 +256,53 @@ export const fakeMetrics: any = [
     channel: 'web',
     value: 10,
     metric: 'msg_received_count'
+  },
+  {
+    date: '2020-03-10',
+    channel: 'web',
+    value: 5,
+    metric: 'workflow_completion'
+  },
+  {
+    date: '2020-03-14',
+    channel: 'web',
+    value: 40,
+    metric: 'workflow_completion'
+  },
+  {
+    date: '2020-03-15',
+    channel: 'web',
+    value: 1,
+    metric: 'workflow_completion'
+  },
+  {
+    date: '2020-03-16',
+    channel: 'web',
+    value: 10,
+    metric: 'workflow_completion'
+  },
+  {
+    date: '2020-03-10',
+    channel: 'web',
+    value: 5,
+    metric: 'feedback_positive_qna'
+  },
+  {
+    date: '2020-03-14',
+    channel: 'web',
+    value: 55,
+    metric: 'feedback_positive_qna'
+  },
+  {
+    date: '2020-03-15',
+    channel: 'web',
+    value: 1,
+    metric: 'feedback_positive_qna'
+  },
+  {
+    date: '2020-03-16',
+    channel: 'web',
+    value: 10,
+    metric: 'feedback_positive_qna'
   }
 ]

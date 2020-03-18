@@ -90,7 +90,10 @@ $linkText: #1F8FFA;
   color: #757575;
   font-size: 14px;
   margin: 20px 0;
-  text-align: center;
+
+  &:not(.alignedLeft) {
+    text-align: center;
+  }
 }
 
 .appliedFilters {
@@ -109,7 +112,21 @@ $linkText: #1F8FFA;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  margin: 0px -2%;
+  margin: 0 -2%;
+
+  &.fullWidth {
+    margin: 0 -1%;
+  }
+}
+
+.radialChart {
+  margin: 0 auto;
+
+  &Label {
+    color: $textColor;
+    font-size: 28px;
+    font-weight: 500;
+  }
 }
 
 .metricName {
@@ -121,15 +138,26 @@ $linkText: #1F8FFA;
   width: 100%;
 }
 
+.progressMetric {
+  border-radius: 5px;
+  height: 10px;
+  margin-top: 14px;
+
+  &Label {
+    color: $lightText;
+    font-size: 12px;
+    line-height: 15px;
+    margin: 5px 0 0;
+  }
+}
+
 .genericMetric {
   background: #fff;
   border-radius: 3px;
-  box-shadow: none;
   color: $textColor;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-bottom: 20px;
   margin: 0 2% 20px;
   min-width: 140px;
   padding: 20px;
@@ -137,6 +165,15 @@ $linkText: #1F8FFA;
 
   &.wIcon {
     min-height: 240px;
+  }
+
+  &.quarter {
+    margin: 0 1% 20px;
+    width: 23%;
+
+    .metricName {
+      min-height: 0;
+    }
   }
 
   &.half {
@@ -150,6 +187,23 @@ $linkText: #1F8FFA;
   &.list {
     justify-content: flex-start;
     min-height: 204px;
+
+    &.multiple {
+      justify-content: space-between;
+      background: transparent;
+      padding: 0;
+
+      .list {
+        background: #fff;
+        border-radius: 3px;
+        margin: 0;
+        padding: 20px;
+
+        &:first-child {
+          margin-bottom: 20px;
+        }
+      }
+    }
 
     ol {
       counter-reset: li;
