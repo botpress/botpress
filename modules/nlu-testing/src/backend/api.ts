@@ -125,7 +125,7 @@ export default async (bp: typeof sdk) => {
         .value()
       try {
         await saveAllTests(req.params.botId, tests)
-        res.status(200).send({ nTests: data.length })
+        res.send({ nTests: data.length })
       } catch (err) {
         res.status(400).send('Tests are invalid')
       }

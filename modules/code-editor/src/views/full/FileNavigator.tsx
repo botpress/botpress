@@ -164,7 +164,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     if (file.isExample) {
-      if (file.type === 'action') {
+      if (file.type === 'action_legacy') {
         ContextMenu.show(
           <Menu>
             <MenuItem

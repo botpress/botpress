@@ -6,6 +6,7 @@ import { hashCode } from '~/util'
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
+import { ActionNodeModel } from './nodes_v2/ActionNode'
 import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
 import { FailureNodeModel } from './nodes_v2/FailureNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
@@ -18,7 +19,7 @@ const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router']
+export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router', 'action']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
@@ -43,6 +44,8 @@ const createNodeModel = (node, modelProps) => {
     return new ListenNodeModel(modelProps)
   } else if (type === 'router') {
     return new RouterNodeModel(modelProps)
+  } else if (type === 'action') {
+    return new ActionNodeModel(modelProps)
   } else if (type === 'success') {
     return new SuccessNodeModel(modelProps)
   } else if (type === 'trigger') {

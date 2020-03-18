@@ -7,6 +7,7 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { asBytes } from 'core/misc/utils'
 import { ModuleLoader } from 'core/module-loader'
 import { GhostService } from 'core/services'
+import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
@@ -36,6 +37,7 @@ const DEFAULT_MAX_SIZE = '10mb'
 
 export class BotsRouter extends CustomRouter {
   private actionService: ActionService
+  private actionServersService: ActionServersService
   private botService: BotService
   private configProvider: ConfigProvider
   private flowService: FlowService
@@ -55,6 +57,7 @@ export class BotsRouter extends CustomRouter {
 
   constructor(args: {
     actionService: ActionService
+    actionServersService: ActionServersService
     botService: BotService
     configProvider: ConfigProvider
     flowService: FlowService
@@ -69,6 +72,7 @@ export class BotsRouter extends CustomRouter {
   }) {
     super('Bots', args.logger, Router({ mergeParams: true }))
     this.actionService = args.actionService
+    this.actionServersService = args.actionServersService
     this.botService = args.botService
     this.configProvider = args.configProvider
     this.flowService = args.flowService
@@ -406,8 +410,23 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('read', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const actions = await this.actionService.forBot(botId).listActions()
+
+        const service = await this.actionService.forBot(botId)
+        const actions = await service.listActions()
         res.send(Serialize(actions))
+      })
+    )
+
+    this.router.get(
+      '/actionServers',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.params
+
+        const serversWithActions = await this.actionServersService.getServersWithActionsForBot(botId)
+
+        res.send(serversWithActions)
       })
     )
 

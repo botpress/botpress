@@ -5,8 +5,9 @@ import { Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
+import { TypedRequest } from '../util'
 
-import { TypedRequest, validateSdkApiPayload } from './utils'
+import { validateSdkApiPayload } from './utils'
 
 export class SdkApiRouter extends CustomRouter {
   private api!: typeof sdk

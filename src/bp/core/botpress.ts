@@ -3,6 +3,7 @@ import { copyDir } from 'core/misc/pkg-fs'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
+import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
@@ -11,6 +12,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
+import { startLocalActionServer } from '../cluster'
 import { setDebugScopes } from '../debug'
 
 import { createForGlobalHooks } from './api'
@@ -21,6 +23,7 @@ import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger
 import { ModuleLoader } from './module-loader'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { ActionServersConfigSchema } from './services/action/action-servers-service'
 import { AlertingService } from './services/alerting-service'
 import AuthService from './services/auth/auth-service'
 import { BotMonitoringService } from './services/bot-monitoring-service'
@@ -139,6 +142,7 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
+    await this.maybeStartLocalActionServer()
 
     if (this.config.sendUsageStats) {
       this.statsService.start()
@@ -159,6 +163,35 @@ export class Botpress {
         this.logger.attachError(err).error(`Couldn't load debug scopes. Check the syntax of debug.json`)
       }
     }
+  }
+
+  private async maybeStartLocalActionServer() {
+    const { actionServers, experimental } = await this.configProvider.getBotpressConfig()
+
+    if (!actionServers) {
+      this.logger.warn('No config ("actionServers") found for Action Servers')
+      return
+    }
+
+    const { error } = joi.validate(actionServers, ActionServersConfigSchema)
+    if (error) {
+      this.logger.error(`Invalid actionServers configuration: ${error}`)
+      return
+    }
+
+    const { enabled, port } = actionServers.local
+
+    if (!enabled) {
+      this.logger.info('Local Action Server disabled')
+      return
+    }
+
+    if (!experimental) {
+      this.logger.info('Local Action Server will only run in experimental mode')
+      return
+    }
+
+    startLocalActionServer({ appSecret: process.APP_SECRET, port })
   }
 
   async checkJwtSecret() {

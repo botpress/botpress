@@ -50,8 +50,6 @@ class EditorStore {
 
   @action.bound
   async openFile(file: EditableFile) {
-    const { type, hookType } = file
-
     let content = file.content
     if (!content) {
       content = await this.rootStore.api.readFile(file)
@@ -59,7 +57,7 @@ class EditorStore {
 
     runInAction('-> setFileContent', () => {
       this.fileContent = content
-      this.fileContentWrapped = wrapper.add(content, type, hookType)
+      this.fileContentWrapped = wrapper.add(file, content)
 
       this.currentFile = file
       this._isFileLoaded = true

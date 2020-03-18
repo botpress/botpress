@@ -1,5 +1,5 @@
 import { SdkApiPayload } from 'botpress/apiSdk'
-import { NextFunction, Request, Response, Router } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
@@ -8,9 +8,7 @@ import { BadRequestError, UnauthorizedError } from '../errors'
 
 import { validations } from './validation'
 
-export interface TypedRequest<T> extends Request {
-  body: T
-}
+export const ACTION_SERVER_AUDIENCE = 'api_user'
 
 export type RequestWithApiUser = Request & {
   apiPayload?: SdkApiPayload
@@ -36,7 +34,7 @@ export const validateSdkApiPayload = (fnScope: string, validationSchema?: Joi.Ob
 
   try {
     const apiPayload = await Promise.fromCallback<SdkApiPayload>(cb => {
-      jsonwebtoken.verify(token, process.APP_SECRET, { audience: 'api_user' }, (err, user) => {
+      jsonwebtoken.verify(token, process.APP_SECRET, { audience: ACTION_SERVER_AUDIENCE }, (err, user) => {
         cb(err, !err ? (user as SdkApiPayload) : undefined)
       })
     })

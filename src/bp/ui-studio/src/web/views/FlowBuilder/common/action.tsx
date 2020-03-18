@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import { parseActionInstruction } from 'common/action'
 import _ from 'lodash'
 import Mustache from 'mustache'
 import React, { Component } from 'react'
@@ -46,17 +47,10 @@ class ActionItem extends Component<Props> {
   }
 
   renderAction() {
-    const action = this.props.text.trim()
+    const actionInstruction = parseActionInstruction(this.props.text.trim())
 
-    let actionName = action
-    let parameters = {}
-
-    if (action.indexOf(' ') >= 0) {
-      const tokens = action.split(' ')
-      actionName = _.head(tokens) + ' (args)'
-      parameters = JSON.parse(_.tail(tokens).join(' '))
-    }
-
+    const actionName = `${actionInstruction.actionName} (args)`
+    const parameters = JSON.parse(actionInstruction.argsStr)
     const callPreview = JSON.stringify(parameters, null, 2)
 
     const popoverHoverFocus = (

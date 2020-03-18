@@ -140,8 +140,8 @@ export class BotService {
     return bots
   }
 
-  async getBotsIds(): Promise<string[]> {
-    if (!this._botIds) {
+  async getBotsIds(ignoreCache?: boolean): Promise<string[]> {
+    if (!this._botIds || ignoreCache) {
       this._botIds = (await this.ghostService.bots().directoryListing('/', BOT_CONFIG_FILENAME)).map(path.dirname)
     }
 
@@ -417,8 +417,8 @@ export class BotService {
     await this.mountBot(destBotId)
   }
 
-  public async botExists(botId: string): Promise<boolean> {
-    return (await this.getBotsIds()).includes(botId)
+  public async botExists(botId: string, ignoreCache?: boolean): Promise<boolean> {
+    return (await this.getBotsIds(ignoreCache)).includes(botId)
   }
 
   private async _executeStageChangeHooks(beforeRequestConfig: BotConfig, currentConfig: BotConfig) {

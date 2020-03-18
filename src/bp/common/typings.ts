@@ -203,3 +203,37 @@ export interface BotHealth {
   criticalCount: number
   warningCount: number
 }
+
+export interface ActionServer {
+  id: string
+  baseUrl: string
+}
+
+export type ActionScope = 'bot' | 'global'
+
+export interface ActionDefinition {
+  name: string
+  category: string
+  description: string
+  author: string
+  params: ActionParameterDefinition[]
+}
+
+export type LocalActionDefinition = ActionDefinition & {
+  title: string
+  scope: ActionScope
+  legacy: boolean
+  hidden: boolean
+}
+
+export interface ActionParameterDefinition {
+  name: string
+  description: string
+  required: boolean
+  type: string
+  default: any
+}
+
+export type ActionServerWithActions = ActionServer & {
+  actions: ActionDefinition[] | undefined
+}

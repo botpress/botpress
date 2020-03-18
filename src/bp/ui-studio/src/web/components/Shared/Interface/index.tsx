@@ -265,8 +265,8 @@ export const BaseDialog: FC<BaseDialogProps> = props => {
   )
 }
 
-export const DialogBody = ({ children }) => {
-  return <div className={classnames(Classes.DIALOG_BODY, Classes.UI_TEXT)}>{children}</div>
+export const DialogBody = ({ children, hidden }: { children; hidden?: boolean }) => {
+  return !hidden ? <div className={classnames(Classes.DIALOG_BODY, Classes.UI_TEXT)}>{children}</div> : null
 }
 
 export const DialogFooter = ({ children }) => {

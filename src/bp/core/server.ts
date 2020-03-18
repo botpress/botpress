@@ -35,6 +35,7 @@ import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
+import ActionServersService from './services/action/action-servers-service'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
@@ -105,6 +106,7 @@ export default class HTTPServer {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
+    @inject(TYPES.ActionServersService) actionServersService: ActionServersService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MediaService) mediaService: MediaService,
@@ -167,6 +169,7 @@ export default class HTTPServer {
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
+      actionServersService,
       botService,
       configProvider,
       flowService,
@@ -468,7 +471,7 @@ export default class HTTPServer {
     }
 
     return Promise.fromCallback(cb => {
-      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithms }, (err, user) => {
+      jsonwebtoken.verify(token, publicKey!, { issuer, audience, algorithms }, (err, user) => {
         cb(err, !err ? user : undefined)
       })
     })
