@@ -16,7 +16,6 @@
       "DOCS/*": ["../../../docs/guide/docs/*"],
       "common/*": ["../../../out/bp/common/*"],
       "botpress/shared": ["../ui-shared/src/Interface/typings.d.ts"],
-      "botpress/i18n": ["../ui-shared/src/translations/typings.d.ts"],
       "botpress/sdk": ["../sdk/botpress.d.ts"]
     }
   },

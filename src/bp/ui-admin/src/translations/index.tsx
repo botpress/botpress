@@ -1,4 +1,4 @@
-import { langExtend, langInit } from 'botpress/i18n'
+import { langExtend, langInit } from 'botpress/shared'
 
 import en from './en.json'
 import fr from './fr.json'
