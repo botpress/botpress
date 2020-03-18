@@ -3,6 +3,7 @@ import { Promise } from 'bluebird'
 import retry from 'bluebird-retry'
 import _ from 'lodash'
 import moment from 'moment'
+import ms from 'ms'
 
 import { SDK } from '.'
 import Database from './db'
@@ -93,84 +94,84 @@ export default async (botId: string, bp: SDK, db: Database) => {
   }
 
   async function scheduleToOutbox(botId) {
-    const { schedulingLock } = await bp.kvs.get(botId, 'broadcast/lock/scheduling')
+    const schedulingLock = await bp.distributed.acquireLock('broadcast/lock/scheduling', ms('5m'))
 
-    if (!db.knex || schedulingLock) {
+    if (!db.knex || !schedulingLock) {
       return
     }
 
-    const inFiveMinutes = moment()
-      .add(5, 'minutes')
-      .toDate()
-    const endOfDay = moment(inFiveMinutes)
-      .add(14, 'hours')
-      .toDate()
+    try {
+      const inFiveMinutes = moment()
+        .add(5, 'minutes')
+        .toDate()
+      const endOfDay = moment(inFiveMinutes)
+        .add(14, 'hours')
+        .toDate()
 
-    const upcomingFixedTime = db.knex.date.isAfter(inFiveMinutes, 'ts')
-    const upcomingVariableTime = db.knex.date.isAfter(endOfDay, 'date_time')
+      const upcomingFixedTime = db.knex.date.isAfter(inFiveMinutes, 'ts')
+      const upcomingVariableTime = db.knex.date.isAfter(endOfDay, 'date_time')
 
-    await bp.kvs.set(botId, 'broadcast/lock/scheduling', { schedulingLock: true })
+      const schedules = await db.getBroadcastSchedulesByTime(botId, upcomingFixedTime, upcomingVariableTime)
 
-    const schedules = await db.getBroadcastSchedulesByTime(botId, upcomingFixedTime, upcomingVariableTime)
+      await Promise.map(schedules, async schedule => {
+        const timezones = await db.getUsersTimezone()
 
-    await Promise.map(schedules, async schedule => {
-      const timezones = await db.getUsersTimezone()
+        await Promise.mapSeries(timezones, async tz => {
+          await db.setBroadcastOutbox(botId, schedule, tz)
+          const { count } = await db.getOutboxCount(botId, schedule)
 
-      await Promise.mapSeries(timezones, async tz => {
-        await db.setBroadcastOutbox(botId, schedule, tz)
-        const { count } = await db.getOutboxCount(botId, schedule)
+          await db.updateTotalCount(schedule, count)
 
-        await db.updateTotalCount(schedule, count)
+          bp.logger.info('Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
 
-        bp.logger.info('Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
+          if (schedule['filters'] && JSON.parse(schedule['filters']).length > 0) {
+            bp.logger.info(`Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`)
+          }
 
-        if (schedule['filters'] && JSON.parse(schedule['filters']).length > 0) {
-          bp.logger.info(`Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`)
-        }
-
-        emitChanged()
+          emitChanged()
+        })
       })
-    })
-
-    await bp.kvs.set(botId, 'broadcast/lock/scheduling', { schedulingLock: false })
+    } finally {
+      await schedulingLock.unlock()
+    }
   }
 
   async function sendBroadcasts(botId) {
     try {
-      const { sendingLock } = await bp.kvs.get(botId, 'broadcast/lock/sending')
+      const sendingLock = await bp.distributed.acquireLock('broadcast/lock/sending', ms('5m'))
 
-      if (!db.knex || sendingLock) {
+      if (!db.knex || !sendingLock) {
         return
       }
 
-      await bp.kvs.set(botId, 'broadcast/lock/sending', { sendingLock: true })
+      try {
+        const isPast = db.knex.date.isBefore(db.knex.raw('"broadcast_outbox"."ts"'), db.knex.date.now())
 
-      const isPast = db.knex.date.isBefore(db.knex.raw('"broadcast_outbox"."ts"'), db.knex.date.now())
+        const broadcasts = await db.getBroadcastOutbox(botId, isPast)
+        let abort = false
 
-      const broadcasts = await db.getBroadcastOutbox(botId, isPast)
-      let abort = false
+        await Promise.mapSeries(broadcasts, async broadcast => {
+          if (abort) {
+            return
+          }
+          // @ts-ignore
+          const { scheduleId, scheduleUser } = broadcast
 
-      await Promise.mapSeries(broadcasts, async broadcast => {
-        if (abort) {
-          return
-        }
-        // @ts-ignore
-        const { scheduleId, scheduleUser } = broadcast
+          try {
+            await trySendBroadcast(broadcast, { scheduleUser, scheduleId })
+          } catch (err) {
+            abort = true
 
-        try {
-          await trySendBroadcast(broadcast, { scheduleUser, scheduleId })
-        } catch (err) {
-          abort = true
-
-          await handleFailedSending(err, scheduleId)
-        } finally {
-          emitChanged()
-        }
-      })
+            await handleFailedSending(err, scheduleId)
+          } finally {
+            emitChanged()
+          }
+        })
+      } finally {
+        await sendingLock.unlock()
+      }
     } catch (error) {
       bp.logger.error('Broadcast sending error: ', error.message)
-    } finally {
-      await bp.kvs.set(botId, 'broadcast/lock/sending', { sendingLock: false })
     }
   }
 
