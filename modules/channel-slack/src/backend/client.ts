@@ -9,7 +9,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
-import { AddressInfo } from 'net'
 
 import { Config } from '../config'
 
@@ -104,22 +103,20 @@ export class SlackClient {
   }
 
   private async _setupRealtime() {
-    const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
-
     if (this.rtm) {
-      this.listenMessages()
+      this.listenMessages(this.rtm)
       await this.rtm.start()
     } else {
-      this.listenMessages()
+      this.listenMessages(this.events)
       this.router.post(`/bots/${this.botId}/events-callback`, this.events.requestListener())
       await this.displayUrl('Events', 'events-callback')
     }
   }
 
-  private listenMessages() {
+  private listenMessages(com: SlackEventAdapter | RTMClient) {
     const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
 
-    this.events.on('message', async payload => {
+    com.on('message', async payload => {
       debugIncoming(`Received real time payload %o`, payload)
 
       if (!discardedSubtypes.includes(payload.subtype) && !payload.bot_id) {
