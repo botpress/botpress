@@ -348,7 +348,7 @@ export class UnderstandingEngine {
 
   private getTriggerId(trigger: sdk.NDU.Trigger) {
     return trigger.type === 'workflow'
-      ? `wf/${trigger.workflowId}`
+      ? `wf/${trigger.workflowId}/${trigger.nodeId}`
       : trigger.type === 'faq'
       ? `faq/${trigger.topicName}/${trigger.faqId}`
       : trigger.type === 'node'
