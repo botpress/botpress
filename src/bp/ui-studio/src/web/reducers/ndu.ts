@@ -1,10 +1,16 @@
-import { Condition } from 'botpress/sdk'
+import { Condition, Topic } from 'botpress/sdk'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import { conditionsReceived, receiveQNACountByTopic, topicsReceived } from '~/actions'
 import { CountByTopic } from '~/views/OneFlow/sidePanel/TopicList'
 
-const defaultState = {
+export interface NduReducer {
+  conditions: Condition[]
+  topics: Topic[]
+  qnaCountByTopic?: CountByTopic[]
+}
+
+const defaultState: NduReducer = {
   conditions: [],
   topics: [],
   qnaCountByTopic: undefined
