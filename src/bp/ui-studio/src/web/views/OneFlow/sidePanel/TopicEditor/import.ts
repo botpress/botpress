@@ -6,7 +6,7 @@ import _ from 'lodash'
 
 import { ElementType } from '..'
 import { ExportedTopic, ImportAction } from '../typings'
-import { analyzeGoalFile, executeGoalActions, getGoalAction } from '../GoalEditor/import'
+import { analyzeWorkflowFile, executeWorkflowActions, getWorkflowAction } from '../WorkflowEditor/import'
 
 export const analyzeTopicFile = async (file: ExportedTopic, flows: FlowView[]) => {
   const importActions: ImportAction[] = []
@@ -29,12 +29,12 @@ export const analyzeTopicFile = async (file: ExportedTopic, flows: FlowView[]) =
   }
 
   try {
-    for (const goal of file.goals) {
-      const actions = await analyzeGoalFile(goal, flows)
-      const existing: any = flows.find(x => x.name === goal.name)
+    for (const workflow of file.workflows) {
+      const actions = await analyzeWorkflowFile(workflow, flows)
+      const existing: any = flows.find(x => x.name === workflow.name)
 
       importActions.push(...actions)
-      importActions.push(getGoalAction(goal, existing))
+      importActions.push(getWorkflowAction(workflow, existing))
     }
   } catch (err) {
     console.error(`Can't check knowledge: ${err}`)
@@ -62,24 +62,24 @@ export const executeTopicActions = async (actions: ImportAction[]) => {
     console.error(`Can't import topic: ${err}`)
   }
 
-  await executeGoalActions(actions)
+  await executeWorkflowActions(actions)
 }
 
 export const renameTopic = (newName: string, exportedTopic: ExportedTopic) => {
-  exportedTopic.goals.forEach(goal => {
-    const name = `${newName}${goal.name.substr(goal.name.indexOf('/'))}`
-    goal.name = name
-    goal.location = name
+  exportedTopic.workflows.forEach(el => {
+    const name = `${newName}${el.name.substr(el.name.indexOf('/'))}`
+    el.name = name
+    el.location = name
   })
 }
 
 export const detectFileType = content => {
-  if (content.name && content.knowledge && content.goals) {
+  if (content.name && content.knowledge && content.workflows) {
     return ElementType.Topic
   }
 
   if (content.name && content.nodes && content.content) {
-    return ElementType.Goal
+    return ElementType.Workflow
   }
   return ElementType.Unknown
 }
@@ -95,6 +95,6 @@ export const getTopicAction = (newTopic: Topic, existingTopic: Topic): ImportAct
 }
 
 export const fields = {
-  topic: { knowledge: 'Knowledge element', goals: 'Goal' },
-  goal: { actions: 'Action', content: 'Content Element', intents: 'Intent', skills: 'Skill' }
+  topic: { knowledge: 'Knowledge element', workflows: 'Workflows' },
+  workflow: { actions: 'Action', content: 'Content Element', intents: 'Intent', skills: 'Skill' }
 }

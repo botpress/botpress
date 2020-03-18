@@ -53,7 +53,7 @@ const getContentElements = async (
   }
 }
 
-export const exportCompleteGoal = async (goalName: string) => {
+export const exportCompleteWorkflow = async (workflowName: string) => {
   const { data } = await axios.get(`${window.BOT_API_PATH}/flows`)
 
   const exportFlowData = async (flows, flowName) => {
@@ -67,8 +67,8 @@ export const exportCompleteGoal = async (goalName: string) => {
     const actionNames = elements.filter(x => !x.startsWith('say')).map(x => x.split(' ')[0])
     const skills = flow.nodes.filter(x => x.type === 'skill-call').map(x => x.flow)
 
-    // TODO: NDU Change to loop over nodes
-    const intentNames = _.compact(_.flatMapDeep(flow.triggers, n => n.conditions))
+    const triggerNodes = flow.nodes.filter(x => x.type === 'trigger')
+    const intentNames = _.compact(_.flatMapDeep(triggerNodes, n => n.conditions))
       .filter(x => x.id === 'user_intent_is')
       .map(x => x.params.intentName)
 
@@ -81,5 +81,5 @@ export const exportCompleteGoal = async (goalName: string) => {
     }
   }
 
-  return exportFlowData(data, goalName)
+  return exportFlowData(data, workflowName)
 }

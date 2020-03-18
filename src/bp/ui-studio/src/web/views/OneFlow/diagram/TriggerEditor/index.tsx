@@ -40,7 +40,7 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const EditGoalModal: FC<Props> = props => {
+const EditTriggerModal: FC<Props> = props => {
   const [isEditing, setEditing] = useState(false)
   const [conditions, setConditions] = useState<Condition[]>([])
   const [currentFlowCondition, setCurrentFlowCondition] = useState()
@@ -188,4 +188,4 @@ const mapDispatchToProps = {
 export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
-)(withLanguage(EditGoalModal))
+)(withLanguage(EditTriggerModal))

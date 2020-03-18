@@ -20,8 +20,6 @@ import { getAllFlows, getCurrentFlow, getFlowNamesList } from '~/reducers'
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
 
-import EditGoalModal from './GoalEditor'
-import { exportCompleteGoal } from './GoalEditor/export'
 import Library from './Library'
 import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
@@ -29,12 +27,14 @@ import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
 import TopicList, { CountByTopic } from './TopicList'
 import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
+import WorkflowEditor from './WorkflowEditor'
+import { exportCompleteWorkflow } from './WorkflowEditor/export'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
 export enum ElementType {
   Topic = 'topic',
-  Goal = 'goal',
+  Workflow = 'workflow',
   Content = 'content',
   Action = 'action',
   Intent = 'intent',
@@ -79,15 +79,14 @@ const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
   const [topicModalOpen, setTopicModalOpen] = useState(false)
   const [topicQnAModalOpen, setTopicQnAModalOpen] = useState(false)
-  const [goalModalOpen, setGoalModalOpen] = useState(false)
-  const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
+  const [editWorkflowModalOpen, setEditWorkflowModalOpen] = useState(false)
+  const [importWorkflowModalOpen, setImportWorkflowModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
-  const [initialTab, setInitialTab] = useState('triggers')
 
-  const [selectedGoal, setSelectedGoal] = useState<string>('')
+  const [selectedWorkflow, setSelectedWorkflow] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
 
-  const [goalFilter, setGoalFilter] = useState('')
+  const [topicFilter, setTopicFilter] = useState('')
   const [libraryFilter, setLibraryFilter] = useState('')
 
   useEffect(() => {
@@ -126,19 +125,17 @@ const SidePanelContent: FC<Props> = props => {
 
   const duplicateFlow = (flowName: string) => {}
 
-  const editGoal = (goalId: string, data) => {
+  const editWorkflow = (workflowId: string, data) => {
     props.switchFlow(data.name)
     setSelectedTopic(data.name.split('/')[0])
-    setSelectedGoal(goalId)
-    setInitialTab('triggers')
-    setGoalModalOpen(true)
+    setSelectedWorkflow(workflowId)
+    setEditWorkflowModalOpen(true)
   }
 
-  const createGoal = (topicName: string) => {
+  const createWorkflow = (topicName: string) => {
     setSelectedTopic(topicName)
-    setSelectedGoal('')
-    setInitialTab('overview')
-    setGoalModalOpen(true)
+    setSelectedWorkflow('')
+    setEditWorkflowModalOpen(true)
   }
 
   const downloadTextFile = (text, fileName) => {
@@ -153,9 +150,9 @@ const SidePanelContent: FC<Props> = props => {
     downloadTextFile(JSON.stringify(topic), `${topicName}.json`)
   }
 
-  const exportGoal = async goalName => {
-    const goal = await exportCompleteGoal(goalName)
-    downloadTextFile(JSON.stringify(goal), `${goalName}.json`)
+  const exportWorkflow = async name => {
+    const workflow = await exportCompleteWorkflow(name)
+    downloadTextFile(JSON.stringify(workflow), `${name}.json`)
   }
 
   const onImportCompleted = () => {
@@ -173,7 +170,7 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const topicActions = props.permissions.includes('create') && [importAction, createTopicAction]
-  const importGoal = () => setImportGoalModalOpen(!importGoalModalOpen)
+  const importWorkflow = () => setImportWorkflowModalOpen(!importWorkflowModalOpen)
   const canDelete = props.permissions.includes('delete')
 
   return (
@@ -184,7 +181,7 @@ const SidePanelContent: FC<Props> = props => {
         <Inspector />
       ) : (
         <React.Fragment>
-          <SearchBar icon="filter" placeholder="Filter topics and goals" onChange={setGoalFilter} />
+          <SearchBar icon="filter" placeholder="Filter topics and workflows" onChange={setTopicFilter} />
 
           <SidePanelSection label="Topics" actions={topicActions}>
             <TopicList
@@ -196,11 +193,11 @@ const SidePanelContent: FC<Props> = props => {
               deleteFlow={props.deleteFlow}
               duplicateFlow={duplicateFlow}
               currentFlow={props.currentFlow}
-              editGoal={editGoal}
-              createGoal={createGoal}
-              exportGoal={exportGoal}
-              importGoal={importGoal}
-              filter={goalFilter}
+              editWorkflow={editWorkflow}
+              createWorkflow={createWorkflow}
+              exportWorkflow={exportWorkflow}
+              importWorkflow={importWorkflow}
+              filter={topicFilter}
               editTopic={editTopic}
               editQnA={editQnA}
               topics={props.topics}
@@ -230,11 +227,10 @@ const SidePanelContent: FC<Props> = props => {
         onCreateFlow={props.onCreateFlow}
       />
 
-      <EditGoalModal
-        isOpen={goalModalOpen}
-        toggle={() => setGoalModalOpen(!goalModalOpen)}
-        selectedGoal={selectedGoal}
-        initialTab={initialTab}
+      <WorkflowEditor
+        isOpen={editWorkflowModalOpen}
+        toggle={() => setEditWorkflowModalOpen(!editWorkflowModalOpen)}
+        selectedWorkflow={selectedWorkflow}
         selectedTopic={selectedTopic}
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}

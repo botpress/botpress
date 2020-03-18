@@ -3,7 +3,7 @@
   "catchAll": {},
   "startNode": "feedbackChoice",
   "label": "Feedback",
-  "description": "Users are redirected here at the end of a goal when they need to provide feedback",
+  "description": "Users are redirected here at the end of a workflow when they need to provide feedback",
   "nodes": [
     {
       "id": "skill-b71567",

@@ -9,7 +9,7 @@ import { toastFailure, toastSuccess } from '~/components/Shared/Utils'
 
 import { ElementType } from '..'
 import { ExportedFlow, ExportedTopic, ImportAction } from '../typings'
-import { analyzeGoalFile, executeGoalActions, getGoalAction } from '../GoalEditor/import'
+import { analyzeWorkflowFile, executeWorkflowActions, getWorkflowAction } from '../WorkflowEditor/import'
 
 import { analyzeTopicFile, detectFileType, executeTopicActions, fields, getTopicAction, renameTopic } from './import'
 
@@ -87,16 +87,16 @@ const ImportModal: FC<Props> = props => {
         )
 
         setActions([...actions, topicAction].filter(x => !x.existing || !x.identical))
-      } else if (detected === ElementType.Goal) {
+      } else if (detected === ElementType.Workflow) {
         const content = fileContent as ExportedFlow
 
-        const actions = await analyzeGoalFile(content, props.flows)
-        const goalAction = getGoalAction(
+        const actions = await analyzeWorkflowFile(content, props.flows)
+        const wfAction = getWorkflowAction(
           { ...content, name, location: name },
           props.flows.find(x => x.name === name)
         )
 
-        setActions([...actions, goalAction].filter(x => !x.identical))
+        setActions([...actions, wfAction].filter(x => !x.identical))
       }
     } catch (err) {
       toastFailure(err.message)
@@ -111,7 +111,7 @@ const ImportModal: FC<Props> = props => {
       if (detected === ElementType.Topic) {
         await executeTopicActions(actions)
       } else {
-        await executeGoalActions(actions)
+        await executeWorkflowActions(actions)
       }
 
       toastSuccess(`${detected} imported successfully!`)
@@ -201,14 +201,14 @@ const ImportModal: FC<Props> = props => {
     }
 
     let alreadyExist = !!topics?.find(x => x.name === name)
-    if (detected === 'goal') {
+    if (detected === 'workflow') {
       alreadyExist = !!props.flows.find(x => x.name === name)
     }
 
     return (
       <div>
         <FormGroup
-          label={detected === 'topic' ? 'Topic Name' : 'Goal Name'}
+          label={detected === 'topic' ? 'Topic Name' : 'Workflow Name'}
           helperText={
             alreadyExist
               ? 'An element with that name already exist. Content will be overwritten'

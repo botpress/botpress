@@ -1,5 +1,6 @@
 import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
-import { Flow } from 'botpress/sdk'
+import { Flow, Option, Topic } from 'botpress/sdk'
+import { Dropdown } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -7,9 +8,11 @@ import { createFlow, renameFlow, updateFlow } from '~/actions'
 import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
 
+import { buildFlowName, parseFlowName } from './utils'
+
 interface OwnProps {
   isOpen: boolean
-  selectedGoal?: string
+  selectedWorkflow?: string
   readOnly: boolean
   canRename: boolean
   selectedTopic?: string
@@ -18,6 +21,7 @@ interface OwnProps {
 
 interface StateProps {
   flows: Flow[]
+  topics: Topic[]
 }
 
 interface DispatchProps {
@@ -28,33 +32,40 @@ interface DispatchProps {
 
 type Props = StateProps & DispatchProps & OwnProps
 
-const EditGoalModal: FC<Props> = props => {
+const WorkflowEditor: FC<Props> = props => {
+  const [topic, setTopic] = useState<Option>()
   const [name, setName] = useState<string>('')
   const [label, setLabel] = useState<string>('')
   const [description, setDescription] = useState<string>('')
 
+  const items = props.topics.map(x => ({ label: x.name, value: x.name }))
+
   useEffect(() => {
-    const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
+    const originalFlow = props.flows.find(x => x.name === props.selectedWorkflow)
     if (originalFlow) {
       const { name, label, description } = originalFlow
 
-      setName(name.replace(/\.flow\.json$/i, ''))
+      const parsed = parseFlowName(name, true)
+
+      setTopic(items.find(x => x.value === parsed.topic))
+      setName(parsed.workflow)
       setLabel(label || '')
       setDescription(description || '')
     } else {
-      setName(props.selectedTopic ? props.selectedTopic + '/' : '')
+      setTopic(items.find(x => x.value === props.selectedTopic))
+      setName('')
       setLabel('')
       setDescription('')
     }
   }, [props.isOpen])
 
   const submit = async () => {
-    const fullName = `${name}.flow.json`
+    const fullName = buildFlowName({ topic: topic?.value, workflow: name }, true)
 
     if (isCreate) {
       props.createFlow(fullName)
     } else {
-      const originalFlow = props.flows.find(x => x.name === props.selectedGoal)
+      const originalFlow = props.flows.find(x => x.name === props.selectedWorkflow)
 
       // TODO: fix flow edition
       if (originalFlow.name !== fullName) {
@@ -73,27 +84,33 @@ const EditGoalModal: FC<Props> = props => {
     props.toggle()
   }
 
-  const isCreate = !props.selectedGoal
+  const isCreate = !props.selectedWorkflow
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Goal' }
+  let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Workflow' }
   if (!isCreate) {
-    dialog = { icon: 'edit', title: `Edit Goal - ${props.selectedGoal}` }
+    dialog = { icon: 'edit', title: `Edit Workflow - ${parseFlowName(props.selectedWorkflow).workflow}` }
   }
 
   return (
     <BaseDialog isOpen={props.isOpen} onClose={closeModal} onSubmit={submit} {...dialog}>
       <DialogBody>
         <div>
-          <FormGroup label="Name" helperText="The name is used internally">
-            <InputGroup
-              id="input-flow-name"
-              tabIndex={1}
-              required
-              value={name || ''}
-              onChange={e => setName(sanitizeName(e.currentTarget.value))}
-              autoFocus
-            />
-          </FormGroup>
+          <div style={{ display: 'flex' }}>
+            <FormGroup label="Topic">
+              <Dropdown items={items} onChange={item => setTopic(item)} defaultItem={topic} />
+            </FormGroup>
+            <FormGroup label="Workflow Name" style={{ marginLeft: 10, flexGrow: 2 }}>
+              <InputGroup
+                id="input-flow-name"
+                tabIndex={1}
+                fill={true}
+                required
+                value={name || ''}
+                onChange={e => setName(sanitizeName(e.currentTarget.value))}
+                autoFocus
+              />
+            </FormGroup>
+          </div>
 
           <FormGroup
             label="Label"
@@ -127,9 +144,10 @@ const EditGoalModal: FC<Props> = props => {
 }
 
 const mapStateToProps = state => ({
-  flows: _.values(state.flows.flowsByName)
+  flows: _.values(state.flows.flowsByName),
+  topics: state.ndu.topics
 })
 
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { updateFlow, renameFlow, createFlow })(
-  EditGoalModal
-)
+const mapDispatchToProps = { updateFlow, renameFlow, createFlow }
+
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(WorkflowEditor)

@@ -14,14 +14,14 @@ export interface ExportedTopic {
   name: string
   description: string
   knowledge: any[]
-  goals: ExportedFlow[]
+  workflows: ExportedFlow[]
 }
 
-interface AdditionalGoalData {
+interface AdditionalWorkflowData {
   content: sdk.ContentElement[]
   intents: any[]
   actions: { actionName: string; fileContent: string }[]
   skills: ExportedFlow[]
 }
 
-export type ExportedFlow = sdk.Flow & AdditionalGoalData
+export type ExportedFlow = sdk.Flow & AdditionalWorkflowData

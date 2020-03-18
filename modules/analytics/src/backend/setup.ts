@@ -12,12 +12,30 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     }
   })
 
+  process.BOTPRESS_EVENTS.on('bp_core_send_content', ({ channel, botId, source, details }) => {
+    if (source === 'qna') {
+      db.incrementMetric(botId, channel, 'msg_sent_qna_count', details)
+    }
+  })
+
   process.BOTPRESS_EVENTS.on('bp_core_session_created', ({ channel, botId }) => {
     db.incrementMetric(botId, channel, 'sessions_count')
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_enter_flow', ({ channel, botId, flowName }) => {
     db.incrementMetric(botId, channel, 'enter_flow_count', flowName)
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_started', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_started_count', wfName)
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_completed', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_completed_count', wfName)
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_failed', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_failed_count', wfName)
   })
 
   bp.events.registerMiddleware({

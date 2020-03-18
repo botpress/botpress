@@ -54,10 +54,10 @@ const EditTopicModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog title="Edit topic" icon="edit" isOpen={props.isOpen} onClose={closeModal} size="md" onSubmit={submit}>
+    <BaseDialog title="Edit topic" icon="edit" isOpen={props.isOpen} onClose={closeModal} size="sm" onSubmit={submit}>
       <DialogBody>
         <div>
-          <FormGroup label="Topic Name">
+          <FormGroup label="Topic Name *">
             <InputGroup
               id="input-flow-name"
               tabIndex={1}

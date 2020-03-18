@@ -541,17 +541,13 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startGoal' | 'redirect' | 'continue'
-      data?: SendContent | StartGoal | FlowRedirect
+      action: 'send' | 'startWorkflow' | 'redirect' | 'continue'
+      data?: SendContent | FlowRedirect
     }
 
     export interface FlowRedirect {
       flow: string
       node: string
-    }
-
-    export interface StartGoal {
-      goal: string
     }
 
     export type SendContent = Pick<IO.Suggestion, 'confidence' | 'payloads' | 'source' | 'sourceDetails'>
@@ -757,13 +753,13 @@ declare module 'botpress/sdk' {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
       nduContext?: NduContext
-      lastGoals: GoalHistory[]
+      lastWorkflows: WorkflowHistory[]
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
     }
 
-    export interface GoalHistory {
-      goal: string
+    export interface WorkflowHistory {
+      workflow: string
       eventId: string
       success?: boolean
       active?: boolean
@@ -776,7 +772,7 @@ declare module 'botpress/sdk' {
       /** Outgoing events will have the incoming event ID, if they were triggered by one */
       incomingEventId?: string
       sessionId: string
-      goalId?: string
+      workflowId?: string
       feedback?: number
       success?: boolean
       event: IO.Event
@@ -1220,7 +1216,6 @@ declare module 'botpress/sdk' {
 
   export interface Library {
     elementPath: string
-    goalName: string
     elementId: string
   }
 

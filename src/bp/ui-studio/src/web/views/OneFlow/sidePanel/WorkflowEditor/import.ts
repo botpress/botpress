@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { ElementType } from '..'
 import { ExportedFlow, ImportAction } from '../typings'
 
-export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => {
+export const analyzeWorkflowFile = async (file: ExportedFlow, flows: FlowView[]) => {
   const ids = file.content.map(x => x.id)
   const { data: elements } = await axios.post(`${window.BOT_API_PATH}/content/elements`, { ids })
 
@@ -78,14 +78,14 @@ export const analyzeGoalFile = async (file: ExportedFlow, flows: FlowView[]) => 
       data: flow
     })
 
-    const flowContent = await analyzeGoalFile(flow, flows)
+    const flowContent = await analyzeWorkflowFile(flow, flows)
     importActions.push(...flowContent)
   }
 
   return importActions
 }
 
-export const executeGoalActions = async (actions: ImportAction[]) => {
+export const executeWorkflowActions = async (actions: ImportAction[]) => {
   const botId = window.BOT_ID
 
   const getActionsForType = type => actions.filter(x => x.type === type && !x.identical)
@@ -124,7 +124,7 @@ export const executeGoalActions = async (actions: ImportAction[]) => {
   }
 
   try {
-    await Promise.each([...getActionsForType('flow'), ...getActionsForType('goal')], ({ data, existing }) => {
+    await Promise.each([...getActionsForType('flow'), ...getActionsForType('workflow')], ({ data, existing }) => {
       const flowPath = (existing && `/${data.location.replace(/\//g, '%2F')}`) || ''
       return axios.post(`${window.BOT_API_PATH}/flow${flowPath}`, {
         flow: cleanFlowProperties(data)
@@ -137,12 +137,14 @@ export const executeGoalActions = async (actions: ImportAction[]) => {
 
 export const cleanFlowProperties = flow => _.omit(flow, ['content', 'actions', 'intents', 'skills', 'currentMutex'])
 
-export const getGoalAction = (newGoal: ExportedFlow, existingGoal: FlowView): ImportAction => {
+export const getWorkflowAction = (newWorkflow: ExportedFlow, existingWorkflow: FlowView): ImportAction => {
   return {
-    type: ElementType.Goal,
-    name: newGoal.name,
-    existing: !!existingGoal,
-    identical: existingGoal !== undefined && _.isEqual(cleanFlowProperties(newGoal), cleanFlowProperties(existingGoal)),
-    data: newGoal
+    type: ElementType.Workflow,
+    name: newWorkflow.name,
+    existing: !!existingWorkflow,
+    identical:
+      existingWorkflow !== undefined &&
+      _.isEqual(cleanFlowProperties(newWorkflow), cleanFlowProperties(existingWorkflow)),
+    data: newWorkflow
   }
 }

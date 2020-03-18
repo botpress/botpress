@@ -12,7 +12,7 @@ const lockedFlows = ['main.flow.json', 'error.flow.json']
 export const TYPE_TOPIC = 'topic'
 export const TYPES = {
   Topic: 'topic',
-  Goal: 'goal',
+  Workflow: 'workflow',
   Folder: 'folder'
 }
 
@@ -33,13 +33,13 @@ interface Props {
 
   duplicateFlow: Function
   deleteFlow: Function
-  exportGoal: Function
+  exportWorkflow: Function
   fetchTopics: () => void
 
-  importGoal: (topicId: string) => void
-  createGoal: (topicId: string) => void
+  importWorkflow: (topicId: string) => void
+  createWorkflow: (topicId: string) => void
   editQnA: (topicName: string) => void
-  editGoal: (goalId: any, data: any) => void
+  editWorkflow: (wfId: any, data: any) => void
   editTopic: (topicName: string | NodeData) => void
   exportTopic: (topicName: string | NodeData) => void
 }
@@ -56,7 +56,7 @@ interface NodeData {
   countByTopic?: CountByTopic
 }
 
-type NodeType = 'goal' | 'folder' | 'topic' | 'qna'
+type NodeType = 'workflow' | 'folder' | 'topic' | 'qna'
 
 interface IFlow {
   name: string
@@ -109,9 +109,9 @@ const TopicList: FC<Props> = props => {
   }
 
   const folderRenderer = (folder: string) => {
-    const createGoal = e => {
+    const createWorkflow = e => {
       e.stopPropagation()
-      props.createGoal(folder)
+      props.createWorkflow(folder)
     }
 
     const editTopic = e => {
@@ -127,8 +127,8 @@ const TopicList: FC<Props> = props => {
             <Tooltip content={<span>Edit topic</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
               <Button icon="edit" minimal onClick={editTopic} />
             </Tooltip>
-            <Tooltip content={<span>Create new goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-              <Button icon="insert" minimal onClick={createGoal} />
+            <Tooltip content={<span>Create new workflow</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+              <Button icon="insert" minimal onClick={createWorkflow} />
             </Tooltip>
           </div>
         </div>
@@ -161,15 +161,15 @@ const TopicList: FC<Props> = props => {
             id="btn-create"
             disabled={props.readOnly}
             icon="add"
-            text="Create new Goal"
-            onClick={() => props.createGoal(name)}
+            text="Create new workflow"
+            onClick={() => props.createWorkflow(name)}
           />
           <MenuItem
             id="btn-import"
             disabled={props.readOnly}
             icon="download"
-            text="Import existing Goal"
-            onClick={() => props.importGoal(name)}
+            text="Import existing workflow"
+            onClick={() => props.importWorkflow(name)}
           />
         </Menu>
       )
@@ -196,8 +196,8 @@ const TopicList: FC<Props> = props => {
             id="btn-edit"
             disabled={props.readOnly}
             icon="edit"
-            text="Edit Goal"
-            onClick={() => props.editGoal(name, element)}
+            text="Edit Workflow"
+            onClick={() => props.editWorkflow(name, element)}
           />
           <MenuItem
             id="btn-duplicate"
@@ -211,7 +211,7 @@ const TopicList: FC<Props> = props => {
             disabled={props.readOnly}
             icon="export"
             text="Export"
-            onClick={() => props.exportGoal(name)}
+            onClick={() => props.exportWorkflow(name)}
           />
           <MenuDivider />
           <MenuItem
@@ -228,11 +228,12 @@ const TopicList: FC<Props> = props => {
 
   const nodeRenderer = (el: NodeData) => {
     const { name, label, icon, type, triggerCount, referencedIn, countByTopic } = el
-    const editGoal = e => {
+
+    const editWorkflow = e => {
       e.stopPropagation()
-      props.editGoal(name, el)
+      props.editWorkflow(name, el)
     }
-    const deleteGoal = async e => {
+    const deleteWorkflow = async e => {
       e.stopPropagation()
       await deleteFlow(name)
     }
@@ -286,11 +287,11 @@ const TopicList: FC<Props> = props => {
           <div className={style.overhidden} id="actions">
             {type !== 'qna' && (
               <Fragment>
-                <Tooltip content={<span>Edit goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-                  <Button icon="edit" minimal onClick={editGoal} />
+                <Tooltip content={<span>Edit workflow</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+                  <Button icon="edit" minimal onClick={editWorkflow} />
                 </Tooltip>
-                <Tooltip content={<span>Delete goal</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-                  <Button icon="trash" minimal onClick={deleteGoal} />
+                <Tooltip content={<span>Delete workflow</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+                  <Button icon="trash" minimal onClick={deleteWorkflow} />
                 </Tooltip>
               </Fragment>
             )}
@@ -321,7 +322,7 @@ const TopicList: FC<Props> = props => {
     if (el.type === 'qna') {
       props.editQnA(el.name.replace('/qna', ''))
     } else if (type === 'document') {
-      props.editGoal(el.name, el)
+      props.editWorkflow(el.name, el)
     }
   }
 
