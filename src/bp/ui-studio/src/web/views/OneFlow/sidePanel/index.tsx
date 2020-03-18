@@ -1,5 +1,4 @@
 import { Icon } from '@blueprintjs/core'
-import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -15,7 +14,7 @@ import {
 } from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
-import { getAllFlows, getCurrentFlow, getFlowNamesList } from '~/reducers'
+import { getAllFlows, getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
@@ -48,30 +47,11 @@ interface OwnProps {
   history: any
   permissions: PanelPermissions[]
   readOnly: boolean
+  mutexInfo: any
 }
 
-interface StateProps {
-  showFlowNodeProps: boolean
-  flows: FlowView[]
-  currentFlow: any
-  dirtyFlows: any
-  flowPreview: boolean
-  mutexInfo: string
-  topics: any
-  qnaCountByTopic: CountByTopic[]
-  flowsName: { name: string; label: string }[]
-}
-
-interface DispatchProps {
-  refreshConditions: () => void
-  fetchTopics: () => void
-  fetchFlows: () => void
-  deleteFlow: (flowName: string) => void
-  switchFlow: (flowName: string) => void
-  renameFlow: any
-  duplicateFlow: any
-  getQnaCountByTopic: () => void
-}
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
 
 type Props = StateProps & DispatchProps & OwnProps
 
@@ -248,7 +228,7 @@ const SidePanelContent: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
   flows: getAllFlows(state),
   flowsName: getFlowNamesList(state),
@@ -268,4 +248,4 @@ const mapDispatchToProps = {
   getQnaCountByTopic
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(SidePanelContent)

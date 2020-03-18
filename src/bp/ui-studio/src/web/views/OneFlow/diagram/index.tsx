@@ -35,8 +35,8 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { Timeout, toastInfo, toastSuccess } from '~/components/Shared/Utils'
-import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
+import { toastSuccess } from '~/components/Shared/Utils'
+import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import {
   defaultTransition,
   DIAGRAM_PADDING,
@@ -61,48 +61,19 @@ import style from '~/views/FlowBuilder/diagram/style.scss'
 import TriggerEditor from './TriggerEditor'
 
 interface OwnProps {
-  library: any
-  addToLibrary: (elementId: string) => void
   showSearch: boolean
   hideSearch: () => void
   readOnly: boolean
   canPasteNode: boolean
   flowPreview: boolean
+  highlightFilter: string
+  handleFilterChanged: (event: any) => void
 }
 
-interface StateProps {
-  library: LibraryElement[]
-  currentFlow: FlowView
-  currentDiagramAction: any
-  skills: any[]
-  currentFlowNode: any
-}
-
-interface DispatchProps {
-  updateFlow: (flow: any) => void
-  switchFlow: (flowName: string) => void
-  switchFlowNode: (nodeId: string) => any
-  updateFlowProblems: (problems: NodeProblem[]) => void
-  openFlowNodeProps: () => void
-  closeFlowNodeProps: () => void
-  createFlowNode: (props: any) => void
-  createFlow: (name: string) => void
-  addElementToLibrary: (elementId: string) => void
-  insertNewSkillNode: any
-  updateFlowNode: any
-  fetchFlows: any
-  pasteFlowNode: ({ x, y }) => void
-  copyFlowNode: () => void
-  removeFlowNode: (element: any) => void
-  buildSkill: ({ location: any, id: string }) => void
-}
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
 
 type Props = DispatchProps & StateProps & OwnProps
-
-interface NodeProblem {
-  nodeName: string
-  missingPorts: any
-}
 
 type BpNodeModel = StandardNodeModel | SkillCallNodeModel
 
@@ -145,6 +116,10 @@ class Diagram extends Component<Props> {
     this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
 
+    if (this.props.highlightFilter) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
+    }
+
     // @ts-ignore
     window.highlightNode = (flowName: string, nodeName: string) => {
       this.manager.setHighlightedNodes(nodeName)
@@ -170,13 +145,11 @@ class Diagram extends Component<Props> {
   componentDidMount() {
     this.props.fetchFlows()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
@@ -209,9 +182,15 @@ class Diagram extends Component<Props> {
       this.manager.syncModel()
     }
 
+    // Refresh nodes when the filter is displayed
+    if (this.props.highlightFilter && this.props.showSearch) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.syncModel()
+    }
+
     // Refresh nodes when the filter is updated
-    if (this.state.highlightFilter !== prevState.highlightFilter) {
-      this.manager.setHighlightedNodes(this.state.highlightFilter)
+    if (this.props.highlightFilter !== prevProps.highlightFilter) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
@@ -219,11 +198,6 @@ class Diagram extends Component<Props> {
     if (!this.props.showSearch && prevProps.showSearch) {
       this.manager.setHighlightedNodes([])
       this.manager.syncModel()
-    }
-
-    // Reset search when toggled
-    if (this.props.showSearch && !prevProps.showSearch) {
-      this.setState({ highlightFilter: '' })
     }
   }
 
@@ -409,37 +383,12 @@ class Diagram extends Component<Props> {
     )
   }
 
-  checkForProblems() {
+  checkForProblems = _.debounce(() => {
     this.props.updateFlowProblems(this.manager.getNodeProblems())
-  }
+  }, 500)
 
   createFlow(name: string) {
     this.props.createFlow(name + '.flow.json')
-  }
-
-  onDiagramDoubleClick = (event?: MouseEvent) => {
-    if (event) {
-      // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
-      const target = this.diagramWidget.getMouseElement(event)
-
-      if (target?.model instanceof TriggerNodeModel) {
-        this.editTriggers(target.model)
-
-        return
-      } else if (
-        target &&
-        !(
-          target.model instanceof StandardNodeModel ||
-          target.model instanceof SkillCallNodeModel ||
-          target.model instanceof RouterNodeModel
-        )
-      ) {
-        return
-      }
-    }
-
-    // TODO: delete this once 12.2.1 is out
-    toastInfo('Pssst! Just click once a node to inspect it, no need to double-click anymore.', Timeout.LONG)
   }
 
   canTargetOpenInspector = target => {
@@ -451,7 +400,7 @@ class Diagram extends Component<Props> {
     return (
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
-      target.model instanceof RouterNodeModel
+      targetModel instanceof RouterNodeModel
     )
   }
 
@@ -486,14 +435,22 @@ class Diagram extends Component<Props> {
     this.checkForLinksUpdate()
   }
 
-  checkForLinksUpdate() {
-    const links = this.manager.getLinksRequiringUpdate()
-    if (links) {
-      this.props.updateFlow({ links })
-    }
+  checkForLinksUpdate = _.debounce(
+    () => {
+      if (this.props.readOnly) {
+        return
+      }
 
-    this.checkForProblems()
-  }
+      const links = this.manager.getLinksRequiringUpdate()
+      if (links) {
+        this.props.updateFlow({ links })
+      }
+
+      this.checkForProblems()
+    },
+    500,
+    { leading: true }
+  )
 
   editTriggers(node) {
     this.setState({
@@ -512,11 +469,7 @@ class Diagram extends Component<Props> {
           return alert("You can't delete the success node.")
         } else if (element.type === 'failure') {
           return alert("You can't delete the failure node.")
-        } else if (
-          // @ts-ignore
-          _.includes(nodeTypes, element.nodeType) ||
-          _.includes(nodeTypes, element.type)
-        ) {
+        } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
           this.props.removeFlowNode(element)
         } else if (element.type === 'default') {
           element.remove()
@@ -587,8 +540,8 @@ class Diagram extends Component<Props> {
               id="input-highlight-name"
               tabIndex={1}
               placeholder="Highlight nodes by name"
-              value={this.state.highlightFilter}
-              onChange={this.handleFilterChanged}
+              value={this.props.highlightFilter}
+              onChange={this.props.handleFilterChanged}
               autoFocus={true}
             />
             <Button icon="small-cross" onClick={this.props.hideSearch} />
@@ -686,8 +639,7 @@ class Diagram extends Component<Props> {
   }
 }
 
-const mapStateToProps = state => ({
-  flows: state.flows,
+const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,

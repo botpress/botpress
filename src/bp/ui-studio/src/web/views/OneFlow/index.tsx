@@ -20,7 +20,6 @@ import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { isInputFocused } from '~/keyboardShortcuts'
 import { RootReducer } from '~/reducers'
-import { UserReducer } from '~/reducers/user'
 
 import { PanelPermissions } from '../FlowBuilder/sidePanel'
 import SkillsBuilder from '../FlowBuilder/skills'
@@ -29,25 +28,16 @@ import style from '../FlowBuilder/style.scss'
 import Diagram from './diagram'
 import SidePanel from './sidePanel'
 
-type Props = {
-  currentFlow: string
+interface OwnProps {
   currentMutex: any
-  user: UserReducer
-  setDiagramAction: (action: string) => void
-  switchFlow: (flowName: string) => void
-  flowEditorUndo: () => void
-  flowEditorRedo: () => void
-  errorSavingFlows: any
-  clearErrorSaveFlows: () => void
-  clearFlowsModification: () => void
-  closeFlowNodeProps: () => void
-  refreshActions: () => void
-  refreshIntents: () => void
-  refreshLibrary: () => void
-  flowsByName: _.Dictionary<FlowView>
-} & RouteComponentProps
+}
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+type Props = DispatchProps & StateProps & OwnProps & RouteComponentProps
 
 const allActions: PanelPermissions[] = ['create', 'rename', 'delete']
+const searchTag = '#search:'
 
 const FlowBuilder = (props: Props) => {
   const { flow } = props.match.params as any
@@ -58,6 +48,7 @@ const FlowBuilder = (props: Props) => {
   const [flowPreview, setFlowPreview] = useState(true)
   const [mutex, setMutex] = useState()
   const [actions, setActions] = useState(allActions)
+  const [highlightFilter, setHighlightFilter] = useState()
 
   useEffect(() => {
     props.refreshActions()
@@ -68,6 +59,9 @@ const FlowBuilder = (props: Props) => {
       setReadOnly(true)
       setActions([])
     }
+
+    const { hash } = props.location
+    setHighlightFilter(hash.startsWith(searchTag) ? hash.replace(searchTag, '') : '')
   }, [])
 
   useEffect(() => {
@@ -160,6 +154,12 @@ const FlowBuilder = (props: Props) => {
     }
   }
 
+  const handleFilterChanged = ({ target: { value: highlightFilter } }) => {
+    const newUrl = props.location.pathname + searchTag + highlightFilter
+    setHighlightFilter(highlightFilter)
+    props.history.replace(newUrl)
+  }
+
   const createFlow = name => {
     diagram.createFlow(name)
     props.switchFlow(`${name}.flow.json`)
@@ -180,6 +180,8 @@ const FlowBuilder = (props: Props) => {
           flowPreview={flowPreview}
           showSearch={showSearch}
           hideSearch={() => setShowSearch(false)}
+          handleFilterChanged={handleFilterChanged}
+          highlightFilter={highlightFilter}
           ref={el => {
             if (!!el) {
               // @ts-ignore
@@ -214,4 +216,7 @@ const mapDispatchToProps = {
   refreshLibrary
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(FlowBuilder))
+export default connect<StateProps, DispatchProps, OwnProps>(
+  mapStateToProps,
+  mapDispatchToProps
+)(withRouter(FlowBuilder))

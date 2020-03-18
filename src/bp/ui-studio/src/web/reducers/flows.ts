@@ -1,3 +1,4 @@
+import { FlowNode } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
@@ -38,11 +39,13 @@ import {
 import { hashCode, prettyId } from '~/util'
 
 export interface FlowReducer {
-  currentFlow: FlowView | undefined
+  currentFlow?: string
   showFlowNodeProps: boolean
   dirtyFlows: string[]
-  errorSavingFlows: any
+  errorSavingFlows?: { status: number; message: string }
   flowsByName: _.Dictionary<FlowView>
+  currentDiagramAction: string
+  nodeInBuffer?: FlowNode
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -354,7 +357,7 @@ let reducer = handleActions(
       }
     }),
 
-    [updateFlowProblems]: (state, { payload }) => ({
+    [updateFlowProblems as any]: (state, { payload }) => ({
       ...state,
       flowProblems: payload
     }),
@@ -391,27 +394,27 @@ let reducer = handleActions(
       errorSavingFlows: payload
     }),
 
-    [clearErrorSaveFlows]: state => ({
+    [clearErrorSaveFlows as any]: state => ({
       ...state,
       errorSavingFlows: undefined
     }),
 
-    [switchFlowNode]: (state, { payload }) => ({
+    [switchFlowNode as any]: (state, { payload }) => ({
       ...state,
       currentFlowNode: payload
     }),
 
-    [openFlowNodeProps]: state => ({
+    [openFlowNodeProps as any]: state => ({
       ...state,
       showFlowNodeProps: true
     }),
 
-    [closeFlowNodeProps]: state => ({
+    [closeFlowNodeProps as any]: state => ({
       ...state,
       showFlowNodeProps: false
     }),
 
-    [switchFlow]: (state, { payload }) => {
+    [switchFlow as any]: (state, { payload }) => {
       if (state.currentFlow === payload) {
         return state
       }
@@ -423,7 +426,7 @@ let reducer = handleActions(
       }
     },
 
-    [setDiagramAction]: (state, { payload }) => ({
+    [setDiagramAction as any]: (state, { payload }) => ({
       ...state,
       currentDiagramAction: payload
     }),
@@ -690,7 +693,7 @@ reducer = reduceReducers(
         }
       },
 
-      [copyFlowNode]: state => {
+      [copyFlowNode as any]: state => {
         const node = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
         if (!node) {
           return state

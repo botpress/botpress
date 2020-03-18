@@ -1,11 +1,12 @@
 import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
-import { Flow, Option, Topic } from 'botpress/sdk'
+import { Option } from 'botpress/sdk'
 import { Dropdown } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, renameFlow, updateFlow } from '~/actions'
 import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
+import { RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
 
 import { buildFlowName, parseFlowName } from './utils'
@@ -19,16 +20,8 @@ interface OwnProps {
   toggle: () => void
 }
 
-interface StateProps {
-  flows: Flow[]
-  topics: Topic[]
-}
-
-interface DispatchProps {
-  updateFlow: (params: any) => void
-  renameFlow: (flow: { targetFlow: string; name: string }) => void
-  createFlow: (name: string) => void
-}
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
 
 type Props = StateProps & DispatchProps & OwnProps
 
@@ -143,7 +136,7 @@ const WorkflowEditor: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   flows: _.values(state.flows.flowsByName),
   topics: state.ndu.topics
 })
