@@ -217,14 +217,12 @@ export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
 export const handleFlowEditorRedo = createAction('FLOWS/EDITOR/REDO')
 
 export const flowEditorUndo = wrapAction(handleFlowEditorUndo, async (payload, state, dispatch) => {
-  console.log(payload)
   dispatch(refreshFlowsLinks())
   await updateCurrentFlow(payload, state)
   await createNewFlows(state)
 })
 
 export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, state, dispatch) => {
-  console.log(payload)
   dispatch(refreshFlowsLinks())
   await updateCurrentFlow(payload, state)
   await createNewFlows(state)
