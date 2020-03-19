@@ -61,12 +61,12 @@
 
       let lastConfig = {
         host: window.location.origin || 'http://localhost:3000',
-        botId: botId
+        botId: botId,
         /*
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
         This allows you to customize the chat on a per-bot basis.
       */
-        //extraStylesheet: 'assets/modules/channel-web/examples/my-theme.css'
+        extraStylesheet: 'assets/modules/channel-web/examples/custom-theme.css'
       }
 
       window.botpressWebChat.init(lastConfig)

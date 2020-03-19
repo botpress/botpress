@@ -10,7 +10,6 @@ import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Inte
 import { getCurrentFlow, getDirtyFlows } from '~/reducers'
 
 import Inspector from '../inspector'
-import InspectorV2 from '../inspector_v2'
 
 import FlowsList from './FlowsList'
 import FlowNameModal from './FlowNameModal'
@@ -73,12 +72,10 @@ const SidePanelContent: FC<Props> = props => {
 
   return (
     <SidePanel>
-      {!(props.showFlowNodeProps && props.layoutv2) && <Toolbar mutexInfo={props.mutexInfo} />}
+      <Toolbar mutexInfo={props.mutexInfo} />
 
-      {props.showFlowNodeProps && !props.layoutv2 ? (
+      {props.showFlowNodeProps ? (
         <Inspector />
-      ) : props.showFlowNodeProps && props.layoutv2 ? (
-        <InspectorV2 onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
         <React.Fragment>
           <SearchBar icon="filter" placeholder="Filter flows" onChange={setFilter} />

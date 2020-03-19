@@ -47,7 +47,7 @@ import { ActionWidgetFactory } from './nodes_v2/ActionNode'
 import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
-import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
+import { SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
 import style from './style.scss'
 
 class Diagram extends Component<Props> {
@@ -352,15 +352,6 @@ class Diagram extends Component<Props> {
     )
   }
 
-  canTargetOpenInspectorV2 = target => {
-    if (!target) {
-      return false
-    }
-
-    const targetModel = target.model
-    return targetModel instanceof SaySomethingNodeModel
-  }
-
   onDiagramClick = (event: MouseEvent) => {
     const selectedNode = this.manager.getSelectedNode() as BpNodeModel
     const currentNode = this.props.currentFlowNode
@@ -374,13 +365,7 @@ class Diagram extends Component<Props> {
       this.handleContextMenu(event as any)
     }
 
-    if (this.canTargetOpenInspector(target)) {
-      this.props.openFlowNodeProps()
-    } else if (this.canTargetOpenInspectorV2(target)) {
-      this.props.openFlowNode2Props()
-    } else {
-      this.props.closeFlowNodeProps()
-    }
+    this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
 
     if (!selectedNode) {
       this.props.closeFlowNodeProps()

@@ -449,6 +449,7 @@ class Diagram extends Component<Props> {
 
     const targetModel = target.model
     return (
+      targetModel instanceof SaySomethingNodeModel ||
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
       target.model instanceof RouterNodeModel
@@ -527,6 +528,7 @@ class Diagram extends Component<Props> {
       }
     }
 
+    this.props.closeFlowNodeProps()
     this.diagramWidget.forceUpdate()
     this.checkForProblems()
   }

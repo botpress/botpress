@@ -18,13 +18,10 @@ interface Props {
   categories: any
   contentLang: string
   defaultLanguage: string
-  contentItem: any
   copyFlowNode: any
   onDeleteSelectedElements: () => void
   fetchContentCategories: any
-  fetchContentItem: any
   flow: any
-  itemId: string
   node: any
   pasteFlowNode: any
   readOnly: boolean
@@ -70,7 +67,7 @@ const SaySomethingForm: FC<Props> = props => {
 
       return {
         error: null,
-        contentType,
+        contentType: contentType || 'builtin_text',
         text,
         variations,
         markdown,
@@ -87,7 +84,7 @@ const SaySomethingForm: FC<Props> = props => {
       const { value, initial } = action.data
       const contentType = { contentType: value || 'builtin_text' }
 
-      if (!initial) {
+      if (!initial || !state.contentType) {
         props.updateNode(contentType)
       }
 
