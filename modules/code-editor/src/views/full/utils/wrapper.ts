@@ -1,15 +1,23 @@
+import { EditableFile } from '../../../backend/typings'
 import { HOOK_SIGNATURES } from '../../../typings/hooks'
 
 const START_COMMENT = `/** Your code starts below */`
 const END_COMMENT = '/** Your code ends here */'
 
-const ACTION_SIGNATURE =
+const ACTION_HTTP_SIGNATURE =
+  'async function action(event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
+
+const ACTION_LEGACY_SIGNATURE =
   'async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 
 const wrapper = {
-  add: (content: string, type: string, hookType?: string) => {
-    if (type === 'action') {
-      return `${ACTION_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+  add: (file: EditableFile, content: string) => {
+    const { type, hookType, botId } = file
+
+    if (type === 'action_legacy') {
+      return `${ACTION_LEGACY_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+    } else if (type === 'action_http') {
+      return `${ACTION_HTTP_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
       let signature = HOOK_SIGNATURES[hookType]
       if (signature.includes('\n')) {

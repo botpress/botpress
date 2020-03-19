@@ -54,6 +54,19 @@ export class DialogEngine {
       queue = queueBuilder.build()
     }
 
+    if (currentNode?.type === 'success') {
+      const wf = event.state.session.lastWorkflows.find(x => x.workflow === context.currentFlow)
+      wf && (wf.success = true)
+
+      queue.instructions = [
+        ...queue.instructions,
+        { type: 'transition', fn: 'true', node: 'Built-In/feedback.flow.json' }
+      ]
+    } else if (currentNode?.type === 'failure') {
+      const wf = event.state.session.lastWorkflows.find(x => x.workflow === context.currentFlow)
+      wf && (wf.success = false)
+    }
+
     const instruction = queue.dequeue()
     // End session if there are no more instructions in the queue
     if (!instruction) {
@@ -92,8 +105,8 @@ export class DialogEngine {
           }
 
           const { onErrorFlowTo } = event.state.temp
-          const errorFlow =
-            typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+          const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
+          const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
 
           return this._transition(sessionId, event, errorFlow)
         })
@@ -195,7 +208,7 @@ export class DialogEngine {
   }
 
   private initializeContext(event) {
-    const defaultFlow = this._findFlow(event.botId, 'main.flow.json')
+    const defaultFlow = this._findFlow(event.botId, event.ndu ? 'Built-In/welcome.flow.json' : 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.__stacktrace.push({ flow: defaultFlow.name, node: startNode.name })
     event.state.context = {

@@ -249,7 +249,6 @@ class FlowBuilder extends Component<Props, State> {
             hideSearch={this.hideSearch}
             ref={el => {
               if (!!el) {
-                // @ts-ignore
                 this.diagram = el.getWrappedInstance()
               }
             }}

@@ -28,7 +28,6 @@
     border-radius: 15px;
     color: $main-dark-color;
     display: flex;
-    display: inline-block;
     font-size: 12px;
     line-height: 1;
     height: 20px;
@@ -100,6 +99,41 @@
   }
 }
 
+.nodeAction {
+  .header {
+    background: #397eff;
+    color: #000000;
+  }
+}
+
+.nodeTrigger {
+  .header {
+    text-align: center;
+    background: #ffde33;
+    color: #000000;
+    .fullSize {
+      width: 100%;
+    }
+  }
+
+  &Conditions {
+    list-style: none;
+    padding: 5px;
+    margin: 0;
+
+    li {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-bottom: 5px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
 .nodeRouter {
   .header {
     background: $node-router;
@@ -109,6 +143,20 @@
   .content {
     overflow: auto;
     max-height: 250px;
+  }
+}
+
+.nodeSuccess {
+  .header {
+    background: #3bcf00;
+    color: #000000;
+  }
+}
+
+.nodeFailure {
+  .header {
+    background: #eb4034;
+    color: #000000;
   }
 }
 

@@ -7,6 +7,7 @@ import flows, { FlowReducer } from './flows'
 import hints from './hints'
 import language from './language'
 import modules from './modules'
+import ndu from './ndu'
 import notifications from './notifications'
 import skills from './skills'
 import ui from './ui'
@@ -24,7 +25,8 @@ const bpApp = combineReducers({
   notifications,
   skills,
   language,
-  hints
+  hints,
+  ndu
 })
 export default bpApp
 

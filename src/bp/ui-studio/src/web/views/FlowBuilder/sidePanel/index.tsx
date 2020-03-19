@@ -25,7 +25,6 @@ type Props = {
   deleteFlow: (flowName: string) => void
   onDeleteSelectedElements: () => void
   renameFlow: any
-  history: any
   permissions: PanelPermissions[]
   dirtyFlows: any
   duplicateFlow: any

@@ -1,10 +1,9 @@
 import { Button, Radio, RadioGroup } from '@blueprintjs/core'
+import { BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
-
-import { BaseDialog, DialogBody, DialogFooter } from '../Components/BaseDialog'
 
 import InviteCode from './InviteCode'
 
