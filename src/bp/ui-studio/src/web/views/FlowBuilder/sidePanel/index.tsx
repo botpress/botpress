@@ -22,7 +22,6 @@ type Props = {
   onCreateFlow: (flowName: string) => void
   flows: any
   deleteFlow: (flowName: string) => void
-  onDeleteSelectedElements: () => void
   renameFlow: any
   permissions: PanelPermissions[]
   dirtyFlows: any
@@ -31,7 +30,6 @@ type Props = {
   mutexInfo: string
   readOnly: boolean
   showFlowNodeProps: boolean
-  layoutv2: boolean
 }
 
 const SidePanelContent: FC<Props> = props => {
@@ -121,8 +119,7 @@ const mapStateToProps = state => ({
   dirtyFlows: getDirtyFlows(state),
   flowProblems: state.flows.flowProblems,
   flowsNames: _.keys(state.flows.flowsByName),
-  showFlowNodeProps: state.flows.showFlowNodeProps,
-  layoutv2: state.flows.layoutv2
+  showFlowNodeProps: state.flows.showFlowNodeProps
 })
 
 const mapDispatchToProps = {

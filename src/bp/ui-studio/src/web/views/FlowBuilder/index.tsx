@@ -33,7 +33,6 @@ const searchTag = '#search:'
 type Props = {
   currentFlow: string
   showFlowNodeProps: boolean
-  layoutv2: boolean
   dirtyFlows: string[]
   user: UserReducer
   setDiagramAction: (action: string) => void
@@ -236,7 +235,6 @@ class FlowBuilder extends Component<Props, State> {
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
           permissions={panelPermissions}
-          onDeleteSelectedElements={() => this.diagram?.deleteSelectedElements()}
           onCreateFlow={name => {
             this.diagram.createFlow(name)
             this.props.switchFlow(`${name}.flow.json`)
@@ -268,7 +266,6 @@ const mapStateToProps = (state: RootReducer) => ({
   currentFlow: state.flows.currentFlow,
   flowsByName: state.flows.flowsByName,
   showFlowNodeProps: state.flows.showFlowNodeProps,
-  layoutv2: state.flows.layoutv2,
   dirtyFlows: getDirtyFlows(state),
   user: state.user,
   errorSavingFlows: state.flows.errorSavingFlows

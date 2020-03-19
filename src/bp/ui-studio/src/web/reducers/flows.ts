@@ -40,7 +40,6 @@ import { hashCode, prettyId } from '~/util'
 export interface FlowReducer {
   currentFlow: FlowView | undefined
   showFlowNodeProps: boolean
-  layoutv2: boolean
   dirtyFlows: string[]
   errorSavingFlows: any
   flowsByName: _.Dictionary<FlowView>
@@ -55,7 +54,6 @@ const defaultState = {
   currentFlow: null,
   currentFlowNode: null,
   showFlowNodeProps: false,
-  layoutv2: false,
   currentDiagramAction: null,
   currentSnapshot: null,
   undoStack: [],
@@ -405,14 +403,12 @@ let reducer = handleActions(
 
     [openFlowNodeProps]: state => ({
       ...state,
-      showFlowNodeProps: true,
-      layoutv2: false
+      showFlowNodeProps: true
     }),
 
     [closeFlowNodeProps]: state => ({
       ...state,
-      showFlowNodeProps: false,
-      layoutv2: false
+      showFlowNodeProps: false
     }),
 
     [switchFlow]: (state, { payload }) => {
