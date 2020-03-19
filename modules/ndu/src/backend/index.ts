@@ -8,23 +8,22 @@ import { MountedBots } from './typings'
 
 export const bots: MountedBots = {}
 
-let nduEngine: UnderstandingEngine
+let conditions: sdk.Condition[] = []
 
 const onServerStarted = async (bp: typeof sdk) => {
-  nduEngine = new UnderstandingEngine(bp)
-  await registerMiddleware(bp, nduEngine, bots)
+  await registerMiddleware(bp, bots)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
   // Must be in onServerReady so all modules have registered their conditions
-  await nduEngine.loadConditions()
+  conditions = bp.dialog.getConditions()
   await api(bp)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const botConfig = await bp.bots.getBotById(botId)
   if (botConfig.oneflow) {
-    bots[botId] = true
+    bots[botId] = new UnderstandingEngine(bp, conditions)
   }
 }
 
@@ -35,7 +34,9 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 const botTemplates: sdk.BotTemplate[] = [{ id: 'oneflow', name: 'Test bot', desc: `Test bot` }]
 
 const onFlowChanged = async (bp: typeof sdk, botId: string, flow: sdk.Flow) => {
-  await nduEngine.invalidateWorkflows(botId)
+  if (bots[botId]) {
+    await bots[botId].invalidateWorkflows(botId)
+  }
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {

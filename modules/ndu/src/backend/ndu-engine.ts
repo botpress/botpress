@@ -64,18 +64,13 @@ export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
   private _allNodeIds: Set<string> = new Set()
   private _allWfIds: Set<string> = new Set()
-  private _dialogConditions: sdk.Condition[]
 
   private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
   trainer: sdk.MLToolkit.SVM.Trainer
   predictor: sdk.MLToolkit.SVM.Predictor
 
-  constructor(private bp: typeof sdk) {
+  constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[]) {
     this.trainer = new this.bp.MLToolkit.SVM.Trainer()
-  }
-
-  public loadConditions() {
-    this._dialogConditions = this.bp.dialog.getConditions()
   }
 
   featToVec(features: Features): number[] {
