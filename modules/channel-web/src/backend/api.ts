@@ -108,6 +108,7 @@ export default async (bp: typeof sdk, db: Database) => {
         description: (config.infoPage && config.infoPage.description) || botInfo.description,
         details: botInfo.details,
         languages: botInfo.languages,
+        extraStylesheet: config.extraStylesheet,
         security
       })
     })

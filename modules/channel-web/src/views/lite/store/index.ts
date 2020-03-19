@@ -166,6 +166,7 @@ class RootStore {
     runInAction('-> setBotInfo', () => {
       this.botInfo = botInfo
     })
+    this.mergeConfig({ extraStylesheet: botInfo.extraStylesheet })
   }
 
   @action.bound
