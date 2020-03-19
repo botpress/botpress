@@ -400,8 +400,9 @@ export class UnderstandingEngine {
 
     for (const flow of flows) {
       const topicName = flow.name.split('/')[0]
+      const flowName = flow.name.replace(/\.flow\.json$/i, '')
       this._allTopicIds.add(topicName)
-      this._allWfIds.add(flow.name)
+      this._allWfIds.add(flowName)
 
       for (const node of flow.nodes) {
         if (node.type === 'listener') {
@@ -416,7 +417,7 @@ export class UnderstandingEngine {
               params: { ...x.params, topicName }
             })),
             type: 'workflow',
-            workflowId: flow.name,
+            workflowId: flowName,
             nodeId: tn.name
           })
         } else if ((<sdk.ListenNode>node)?.triggers?.length) {
@@ -431,7 +432,7 @@ export class UnderstandingEngine {
                     params: { ...x.params, topicName }
                   })),
                   type: 'node',
-                  workflowId: flow.name
+                  workflowId: flowName
                 }
             )
           )
