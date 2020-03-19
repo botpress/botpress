@@ -232,10 +232,6 @@ const Analytics: FC<any> = ({ bp }) => {
           className={style.fullGrid}
           channels={channels}
         />
-        <div className={cx(style.genericMetric, style.inline)}>
-          <h3 className={style.metricName}>Busiest Period</h3>
-          <p>Monday from 2PM to 4PM</p>
-        </div>
       </div>
     )
   }
