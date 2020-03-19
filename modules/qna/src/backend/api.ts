@@ -149,7 +149,8 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       res.send(await getIntentActions(intentName, event, { bp, ...bots[req.params.botId] }))
     } catch (err) {
-      res.status(400).send([])
+      bp.logger.attachError(err).error(err.message)
+      res.status(200).send([])
     }
   })
 
