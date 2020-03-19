@@ -1,9 +1,11 @@
 import React, { FC } from 'react'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
+import withLanguage from '~/components/Util/withLanguage'
 
 interface Props {
   selectedTopic: string
+  contentLang: string
   isOpen: boolean
   toggle: () => void
 }
@@ -22,7 +24,7 @@ const EditTopicQnAModal: FC<Props> = props => {
         <InjectedModuleView
           moduleName="qna"
           componentName="LiteEditor"
-          contentLang="en"
+          contentLang={props.contentLang}
           extraProps={{ topicName: props.selectedTopic }}
         />
       </DialogBody>
@@ -30,4 +32,4 @@ const EditTopicQnAModal: FC<Props> = props => {
   )
 }
 
-export default EditTopicQnAModal
+export default withLanguage(EditTopicQnAModal)
