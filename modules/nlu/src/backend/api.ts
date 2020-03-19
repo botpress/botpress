@@ -2,14 +2,7 @@ import * as sdk from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
 
-import {
-  deleteEntity,
-  getCustomEntities,
-  getEntities,
-  getEntity,
-  saveEntity,
-  updateEntity
-} from './entities/entities-service'
+import EntityService from './entities/entities-service'
 import { EntityDefCreateSchema } from './entities/validation'
 import { deleteIntent, getIntent, getIntents, saveIntent, updateIntent } from './intents/intent-service'
 import recommendations from './intents/recommendations'
@@ -40,8 +33,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/cross-validation/:lang', async (req, res) => {
     const { botId, lang } = req.params
     const ghost = bp.ghost.forBot(botId)
+    const entityService = new EntityService(ghost, botId)
+
     const intentDefs = await getIntents(ghost)
-    const entityDefs = await getCustomEntities(ghost)
+    const entityDefs = await entityService.getCustomEntities()
 
     bp.logger.forBot(botId).info('Started cross validation')
     const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang)
@@ -106,12 +101,13 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/intents', async (req, res) => {
     const { botId } = req.params
     const ghost = bp.ghost.forBot(botId)
+    const entityService = new EntityService(ghost, botId)
     try {
       const intentDef = await validate(req.body, IntentDefCreateSchema, {
         stripUnknown: true
       })
 
-      await saveIntent(ghost, intentDef)
+      await saveIntent(ghost, intentDef, entityService)
 
       res.sendStatus(200)
     } catch (err) {
@@ -126,8 +122,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/intents/:intentName', async (req, res) => {
     const { botId, intentName } = req.params
     const ghost = bp.ghost.forBot(botId)
+    const entityService = new EntityService(ghost, botId)
     try {
-      await updateIntent(ghost, intentName, req.body)
+      await updateIntent(ghost, intentName, req.body, entityService)
       res.sendStatus(200)
     } catch (err) {
       bp.logger
@@ -153,7 +150,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.get('/entities', async (req, res) => {
     const { botId } = req.params
     const ghost = bp.ghost.forBot(botId)
-    const entities = await getEntities(ghost)
+    const entityService = new EntityService(ghost, botId)
+    const entities = await entityService.getEntities()
     res.json(entities)
   })
 
@@ -161,7 +159,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const { botId, entityName } = req.params
     const ghost = bp.ghost.forBot(botId)
     try {
-      const entity = await getEntity(ghost, entityName)
+      const entityService = new EntityService(ghost, botId)
+      const entity = await entityService.getEntity(entityName)
       res.send(entity)
     } catch (err) {
       bp.logger
@@ -179,7 +178,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
         stripUnknown: true
       })) as sdk.NLU.EntityDefinition
       const ghost = bp.ghost.forBot(botId)
-      await saveEntity(ghost, entityDef)
+      const entityService = new EntityService(ghost, botId)
+      await entityService.saveEntity(entityDef)
 
       res.sendStatus(200)
     } catch (err) {
@@ -198,7 +198,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
         stripUnknown: true
       })) as sdk.NLU.EntityDefinition
       const ghost = bp.ghost.forBot(botId)
-      await updateEntity(ghost, id, entityDef)
+      const entityService = new EntityService(ghost, botId)
+      await entityService.updateEntity(id, entityDef)
       res.sendStatus(200)
     } catch (err) {
       bp.logger
@@ -212,8 +213,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/entities/:id/delete', async (req, res) => {
     const { botId, id } = req.params
     const ghost = bp.ghost.forBot(botId)
+    const entityService = new EntityService(ghost, botId)
     try {
-      await deleteEntity(ghost, id)
+      await entityService.deleteEntity(id)
       res.sendStatus(204)
     } catch (err) {
       bp.logger

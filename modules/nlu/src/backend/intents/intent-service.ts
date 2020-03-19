@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getEntities } from '../entities/entities-service'
+import EntityService from '../entities/entities-service'
 
 const INTENTS_DIR = './intents'
 
@@ -35,14 +35,15 @@ export async function getIntent(ghost: sdk.ScopedGhostService, intentName: strin
 
 export async function saveIntent(
   ghost: sdk.ScopedGhostService,
-  intent: sdk.NLU.IntentDefinition
+  intent: sdk.NLU.IntentDefinition,
+  entityService: EntityService
 ): Promise<sdk.NLU.IntentDefinition> {
   const name = sanitizeFileName(intent.name)
   if (name.length < 1) {
     throw new Error('Invalid intent name, expected at least one character')
   }
 
-  const availableEntities = await getEntities(ghost)
+  const availableEntities = await entityService.getEntities()
 
   _.chain(intent.slots)
     .flatMap('entities')
@@ -60,7 +61,8 @@ export async function saveIntent(
 export async function updateIntent(
   ghost: sdk.ScopedGhostService,
   name: string,
-  content: Partial<sdk.NLU.IntentDefinition>
+  content: Partial<sdk.NLU.IntentDefinition>,
+  entityService: EntityService
 ): Promise<sdk.NLU.IntentDefinition> {
   const intentDef = await getIntent(ghost, name)
   const merged = _.merge(intentDef, content) as sdk.NLU.IntentDefinition
@@ -68,7 +70,7 @@ export async function updateIntent(
     await deleteIntent(ghost, name)
     name = content.name
   }
-  return saveIntent(ghost, merged)
+  return saveIntent(ghost, merged, entityService)
 }
 
 export async function deleteIntent(ghost: sdk.ScopedGhostService, intentName: string): Promise<void> {
@@ -85,7 +87,8 @@ export async function deleteIntent(ghost: sdk.ScopedGhostService, intentName: st
 export async function updateIntentsSlotsEntities(
   ghost: sdk.ScopedGhostService,
   prevEntityName: string,
-  newEntityName: string
+  newEntityName: string,
+  entityService: EntityService
 ): Promise<void> {
   _.each(await getIntents(ghost), async intent => {
     let modified = false
@@ -98,7 +101,7 @@ export async function updateIntentsSlotsEntities(
       })
     })
     if (modified) {
-      await updateIntent(ghost, intent.name, intent)
+      await updateIntent(ghost, intent.name, intent, entityService)
     }
   })
 }

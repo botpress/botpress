@@ -8,6 +8,7 @@ import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import { ListEntity, NLUEngine, Tools, TrainingSession } from './typings'
+import BotCacheProvider from './entities/entity-cache'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -67,6 +68,7 @@ export default class Engine implements NLUEngine {
       list_entities,
       pattern_entities,
       contexts,
+      botCache: BotCacheProvider.getBotCache(this.botId),
       intents: intentDefs
         .filter(x => !!x.utterances[languageCode])
         .map(x => ({

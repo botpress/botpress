@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
+import { BotCacheManager, getOrCreateCache } from './entities/entity-cache'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -87,7 +88,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
   debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
-    makeListEntityModel(list, input.languageCode, tools)
+    makeListEntityModel(list, input.botId, input.languageCode, tools)
   )
 
   const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
@@ -99,7 +100,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
   } as TrainOutput
 }
 
-const makeListEntityModel = async (entity: ListEntity, languageCode: string, tools: Tools) => {
+const makeListEntityModel = async (entity: ListEntity, botId: string, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
   const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
     toks.map(convertToRealSpaces)
@@ -117,7 +118,8 @@ const makeListEntityModel = async (entity: ListEntity, languageCode: string, too
         const idx = allValues.indexOf(syn)
         return allTokens[idx]
       })
-    )
+    ),
+    cache: getOrCreateCache(entity.name, { prefix: botId })
   }
 }
 

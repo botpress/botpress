@@ -4,7 +4,7 @@ import ms from 'ms'
 import yn from 'yn'
 
 import Engine from '../engine'
-import { getCustomEntities } from '../entities/entities-service'
+import EntityService from '../entities/entities-service'
 import { getIntents } from '../intents/intent-service'
 import * as ModelService from '../model-service'
 import { makeTrainingSession, makeTrainSessionKey } from '../train-session-service'
@@ -17,6 +17,7 @@ export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
+    const entityService = new EntityService(ghost, botId)
 
     const languages = _.intersection(bot.languages, state.languageProvider.languages)
     if (bot.languages.length !== languages.length) {
@@ -32,7 +33,7 @@ export function getOnBotMount(state: NLUState) {
         }
 
         const intentDefs = await getIntents(ghost)
-        const entityDefs = await getCustomEntities(ghost)
+        const entityDefs = await entityService.getCustomEntities()
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         await Promise.mapSeries(languages, async languageCode => {
@@ -85,6 +86,7 @@ export function getOnBotMount(state: NLUState) {
       trainSessions: {}
     }
 
+    // await BotCacheProvider.loadBotCaches(botId)
     trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
   }
 }

@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
+import LRUCache from 'lru-cache'
 
 export const BIO = {
   INSIDE: 'I',
@@ -93,6 +94,8 @@ export type ListEntity = Readonly<{
   sensitive: boolean
 }>
 
+export type EntityCache = LRUCache<string, EntityExtractionResult[]>
+
 export type ListEntityModel = Readonly<{
   type: 'custom.list'
   id: string
@@ -102,6 +105,7 @@ export type ListEntityModel = Readonly<{
   sensitive: boolean
   /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
   mappingsTokens: _.Dictionary<string[][]>
+  cache?: EntityCache
 }>
 
 export type ExtractedSlot = { confidence: number; name: string; source: string; value: any }
@@ -123,6 +127,7 @@ export interface Tools {
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
   duckling: SystemEntityExtractor
+  entityCacheManager: any
   mlToolkit: typeof sdk.MLToolkit
 }
 
