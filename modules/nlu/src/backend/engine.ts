@@ -100,6 +100,10 @@ export default class Engine implements NLUEngine {
   }
 
   private modelAlreadyLoaded(model: Model) {
+    if (!model?.languageCode) {
+      return false
+    }
+
     return (
       this.predictorsByLang[model.languageCode] !== undefined &&
       this.modelsByLang[model.languageCode] !== undefined &&
