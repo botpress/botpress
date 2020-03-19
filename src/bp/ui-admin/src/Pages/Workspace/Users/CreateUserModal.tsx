@@ -1,9 +1,9 @@
 import { Button, FormGroup } from '@blueprintjs/core'
+import { BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
 import { AuthRole, AuthStrategyConfig, CreatedUser, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
-import { BaseDialog, DialogBody, DialogFooter } from '~/Pages/Components/BaseDialog'
 import RoleDropdown from '~/Pages/Workspace/Users/RoleDropdown'
 
 import api from '../../../api'
@@ -141,7 +141,4 @@ const mapDispatchToProps = {
   fetchAvailableUsers
 }
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateUserModal)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(CreateUserModal)

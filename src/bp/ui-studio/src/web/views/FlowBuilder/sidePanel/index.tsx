@@ -23,7 +23,6 @@ type Props = {
   flows: any
   deleteFlow: (flowName: string) => void
   renameFlow: any
-  history: any
   permissions: PanelPermissions[]
   dirtyFlows: any
   duplicateFlow: any

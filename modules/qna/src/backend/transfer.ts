@@ -55,8 +55,16 @@ export const importQuestions = async (data: ImportData, storage, bp, statusCallb
   const entriesToSave = itemsToSave.map(q => q.data)
 
   let questionsSavedCount = 0
-  return Promise.each(entriesToSave, async (question: QnaEntry) => {
-    await (storage as Storage).insert({ ...question, enabled: true })
+  return Promise.each(entriesToSave, async (question: QnaEntry & { category?: string }) => {
+    const item = { ...question, enabled: true }
+
+    // Support for previous QnA
+    if (item.category) {
+      item.contexts = [item.category]
+      delete item.category
+    }
+
+    await (storage as Storage).insert(item)
     questionsSavedCount += 1
     statusCallback(
       uploadStatusId,

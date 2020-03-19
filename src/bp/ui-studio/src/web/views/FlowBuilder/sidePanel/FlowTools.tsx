@@ -29,6 +29,7 @@ const FlowTools: FC<{ skills: SkillDefinition[] }> = props => {
         <ToolItem label="Execute" type="node" id="execute" icon="code-block" />
         <ToolItem label="Listen" type="node" id="listen" icon="hand" />
         <ToolItem label="Router" type="node" id="router" icon="search-around" />
+        <ToolItem label="Action" type="node" id="action" icon="offline" />
         <AccessControl resource="bot.skills" operation="write">
           <div className={style.title}>Skills</div>
           <div className={style.section}>

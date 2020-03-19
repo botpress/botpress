@@ -3,6 +3,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
 
+import { isOn as isAutoTrainOn } from '../autoTrain'
 import Engine from '../engine'
 import { getCustomEntities } from '../entities/entities-service'
 import { getIntents } from '../intents/intent-service'
@@ -12,6 +13,8 @@ import { NLUState } from '../typings'
 
 const missingLangMsg = botId =>
   `Bot ${botId} has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`
+
+const KVS_TRAINING_STATUS_KEY = 'nlu:trainingStatus'
 
 export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
@@ -35,31 +38,38 @@ export function getOnBotMount(state: NLUState) {
         const entityDefs = await getCustomEntities(ghost)
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
-        await Promise.mapSeries(languages, async languageCode => {
-          // shorter lock and extend in training steps
-          const lock = await bp.distributed.acquireLock(makeTrainSessionKey(botId, languageCode), ms('5m'))
-          if (!lock) {
-            return
-          }
-          await ModelService.pruneModels(ghost, languageCode)
-          let model = await ModelService.getModel(ghost, hash, languageCode)
-          if (forceTrain || !model) {
-            const trainSession = makeTrainingSession(languageCode, lock)
-            state.nluByBot[botId].trainSessions[languageCode] = trainSession
+        const kvs = bp.kvs.forBot(botId)
+        await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')
 
-            model = await engine.train(intentDefs, entityDefs, languageCode, trainSession)
-            if (model.success) {
-              await ModelService.saveModel(ghost, model, hash)
+        try {
+          await Promise.mapSeries(languages, async languageCode => {
+            // shorter lock and extend in training steps
+            const lock = await bp.distributed.acquireLock(makeTrainSessionKey(botId, languageCode), ms('5m'))
+            if (!lock) {
+              return
             }
-          }
-          try {
-            if (model.success) {
-              await state.broadcastLoadModel(botId, hash, languageCode)
+            await ModelService.pruneModels(ghost, languageCode)
+            let model = await ModelService.getModel(ghost, hash, languageCode)
+            if (forceTrain || !model) {
+              const trainSession = makeTrainingSession(languageCode, lock)
+              state.nluByBot[botId].trainSessions[languageCode] = trainSession
+
+              model = await engine.train(intentDefs, entityDefs, languageCode, trainSession)
+              if (model.success) {
+                await ModelService.saveModel(ghost, model, hash)
+              }
             }
-          } finally {
-            await lock.unlock()
-          }
-        })
+            try {
+              if (model.success) {
+                await state.broadcastLoadModel(botId, hash, languageCode)
+              }
+            } finally {
+              await lock.unlock()
+            }
+          })
+        } finally {
+          await kvs.delete(KVS_TRAINING_STATUS_KEY)
+        }
       },
       10000,
       { leading: true }
@@ -68,22 +78,34 @@ export function getOnBotMount(state: NLUState) {
     // we use local events so training occurs on the same node where the request for changes enters
     const trainWatcher = bp.ghost.forBot(botId).onFileChanged(async f => {
       if (f.includes('intents') || f.includes('entities')) {
-        // eventually cancel & restart training only for given language
-        await Promise.map(languages, async lang => {
-          const key = makeTrainSessionKey(botId, lang)
-          await bp.distributed.clearLock(key)
-          return state.broadcastCancelTraining(botId, lang)
-        })
-        trainOrLoad()
+        if (await isAutoTrainOn(bp, botId)) {
+          // eventually cancel & restart training only for given language
+          await cancelTraining()
+          trainOrLoad()
+        }
       }
     })
+
+    const cancelTraining = async () => {
+      await Promise.map(languages, async lang => {
+        const key = makeTrainSessionKey(botId, lang)
+        await bp.distributed.clearLock(key)
+        return state.broadcastCancelTraining(botId, lang)
+      })
+    }
+
+    const isTraining = async (): Promise<boolean> => {
+      return bp.kvs.forBot(botId).exists(KVS_TRAINING_STATUS_KEY)
+    }
 
     state.nluByBot[botId] = {
       botId,
       engine,
       trainWatcher,
       trainOrLoad,
-      trainSessions: {}
+      trainSessions: {},
+      cancelTraining,
+      isTraining
     }
 
     trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose

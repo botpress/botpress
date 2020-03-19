@@ -33,6 +33,7 @@ export class KeyValueStore {
     if (!!this.services[botId]) {
       return this.services[botId]
     }
+
     const newService = new KvsService(this.database, this.logger, botId)
     this.services[botId] = newService
     return newService
@@ -41,15 +42,17 @@ export class KeyValueStore {
   // All these are deprecated in sdk. Should be removed.
 
   get = async (botId: string, key: string, path?: string) => {
+    this.logger.warn(`bp.kvs.get is deprecated, use bp.kvs.global().get or bp.kvs.forBot(botId).get`)
     return this.forBot(botId).get(key, path)
   }
 
   set = (botId: string, key: string, value, path?: string) => {
+    this.logger.warn(`bp.kvs.set is deprecated, use bp.kvs.global().set or bp.kvs.forBot(botId).set`)
     return this.forBot(botId).set(key, value, path)
   }
 
-  setStorageWithExpiry = async (botId: string, key: string, value, expiryInMs?: string) => {
-    return this.forBot(botId).setStorageWithExpiry(key, value, expiryInMs)
+  setStorageWithExpiry = async (botId: string, key: string, value, expiry?: string) => {
+    return this.forBot(botId).setStorageWithExpiry(key, value, expiry)
   }
 
   getStorageWithExpiry = async (botId: string, key: string) => {
@@ -76,34 +79,28 @@ export class KeyValueStore {
 export class KvsService implements sdk.KvsService {
   constructor(private database: Database, private logger: sdk.Logger, private botId: string = GLOBAL) {}
 
-  private _upsert = (key: string, value) => {
-    let sql
-
-    const { botId } = this
-
+  private _upsert = (key: string, value, expireOn?: any) => {
     const params = {
-      tableName: TABLE_NAME,
-      botIdCol: 'botId',
-      keyCol: 'key',
-      valueCol: 'value',
-      modifiedOnCol: 'modified_on',
-      botId,
+      botId: this.botId,
       key,
       value: safeStringify(value),
+      // tslint:disable-next-line: no-null-keyword
+      expireOn: expireOn ?? null,
       now: this.database.knex.date.now()
     }
 
+    let sql
     if (this.database.knex.isLite) {
       sql = `
-        INSERT OR REPLACE INTO :tableName: (:botIdCol:, :keyCol:, :valueCol:, :modifiedOnCol:)
-        VALUES (:botId, :key, :value, :now)
+        INSERT OR REPLACE INTO ${TABLE_NAME} ("botId", key, value, "expireOn", modified_on)
+        VALUES (:botId, :key, :value, :expireOn, :now)
       `
     } else {
       sql = `
-        INSERT INTO :tableName: (:botIdCol:, :keyCol:, :valueCol:, :modifiedOnCol:)
-        VALUES (:botId, :key, :value, :now)
-        ON CONFLICT (:keyCol:, :botIdCol:) DO UPDATE
-          SET :valueCol: = :value, :modifiedOnCol: = :now
+        INSERT INTO ${TABLE_NAME} ("botId", key, value, "expireOn", modified_on)
+        VALUES (:botId, :key, :value, :expireOn, :now)
+        ON CONFLICT (key, "botId") DO UPDATE
+          SET value = :value, modified_on = :now, "expireOn" = :expireOn
       `
     }
 
@@ -118,8 +115,13 @@ export class KvsService implements sdk.KvsService {
       .where({ botId })
       .andWhere({ key })
       .first()
-      .then(row => {
+      .then(async row => {
         if (!row) {
+          return undefined
+        }
+
+        if (row.expireOn && moment().isAfter(moment(row.expireOn))) {
+          await this.delete(key)
           return undefined
         }
 
@@ -132,9 +134,15 @@ export class KvsService implements sdk.KvsService {
       })
   }
 
-  set = async (key: string, value, path?: string) => {
+  set = async (key: string, value, path?: string, expiry?: string) => {
+    const expireOn = expiry
+      ? moment()
+          .add(ms(expiry), 'milliseconds')
+          .toDate()
+      : undefined
+
     if (!path) {
-      return this._upsert(key, value)
+      return this._upsert(key, value, expireOn)
     }
 
     const setValue = obj => {
@@ -146,7 +154,22 @@ export class KvsService implements sdk.KvsService {
       }
     }
 
-    return this.get(key).then(original => this._upsert(key, setValue(original || {})))
+    return this.get(key).then(original => this._upsert(key, setValue(original || {}), expireOn))
+  }
+
+  delete = async (key: string) => {
+    const { botId } = this
+
+    await this.database
+      .knex(TABLE_NAME)
+      .where({ botId })
+      .andWhere({ key })
+      .del()
+  }
+
+  exists = async (key: string) => {
+    const result = await this.get(key)
+    return !!result
   }
 
   private boxWithExpiry = (value, expiry = 'never') => {
@@ -163,15 +186,15 @@ export class KvsService implements sdk.KvsService {
     return undefined
   }
 
-  setStorageWithExpiry = async (key: string, value, expiryInMs?: string) => {
-    await this.set(key, this.boxWithExpiry(value, expiryInMs))
+  setStorageWithExpiry = async (key: string, value, expiry?: string) => {
+    await this.set(key, this.boxWithExpiry(value, expiry))
   }
 
-  getStorageWithExpiry = async key => {
+  getStorageWithExpiry = async (key: string) => {
     return this.unboxWithExpiry(await this.get(key))
   }
 
-  removeStorageKeysStartingWith = async key => {
+  removeStorageKeysStartingWith = async (key: string) => {
     await this.database
       .knex(TABLE_NAME)
       .where('key', 'like', key + '%')

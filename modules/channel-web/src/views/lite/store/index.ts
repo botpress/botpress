@@ -12,6 +12,7 @@ import {
   Config,
   ConversationSummary,
   CurrentConversation,
+  EventFeedback,
   Message,
   MessageWrapper,
   StudioConnector
@@ -52,6 +53,9 @@ class RootStore {
 
   @observable
   public isInitialized: boolean
+
+  @observable
+  public eventFeedbacks: EventFeedback[]
 
   public intl: InjectedIntl
 
@@ -196,7 +200,9 @@ class RootStore {
       return this.createConversation()
     }
 
-    const conversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
+    const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
+    await this.extractFeedback(conversation && conversation.messages)
+
     runInAction('-> setConversation', () => {
       this.currentConversation = conversation
       this.view.hideConversations()
@@ -260,6 +266,21 @@ class RootStore {
       timezone: new Date().getTimezoneOffset() / 60,
       language: getUserLocale()
     })
+  }
+
+  @action.bound
+  async extractFeedback(messages: Message[]): Promise<void> {
+    const feedbackEventIds = messages.filter(x => x.payload && x.payload.collectFeedback).map(x => x.incomingEventId)
+
+    const feedbackInfo = await this.api.getEventIdsFeedbackInfo(feedbackEventIds)
+    runInAction('-> setFeedbackInfo', () => {
+      this.eventFeedbacks = feedbackInfo
+    })
+  }
+
+  @action.bound
+  async sendFeedback(feedback: number, eventId: string): Promise<void> {
+    await this.api.sendFeedback(feedback, eventId)
   }
 
   @action.bound

@@ -1,5 +1,5 @@
 import { Classes, ContextMenu, Tree } from '@blueprintjs/core'
-import _ from 'lodash'
+import { node } from 'prop-types'
 import React, { useEffect, useReducer, useState } from 'react'
 
 import { TreeNode, TreeViewProps } from './typings'
@@ -32,7 +32,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
 
     traverseTree(nodes, node => {
       if (props.visibleElements?.find(x => node.nodeData?.[x.field] === x.value)) {
-        handleNodeExpansion(node.parent!, true)
+        handleInitialNodeExpansion(node.parent!, true)
         node.parent!.isExpanded = true
         node.isSelected = true
       }
@@ -53,7 +53,15 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
     setExpanded(props.expandedPaths || [])
   }, [props.expandedPaths])
 
-  const handleNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
+  const handleInitialNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
+    changeNodeExpansion(node, isExpanded)
+
+    if (node.parent) {
+      handleInitialNodeExpansion(node.parent!, isExpanded)
+    }
+  }
+
+  const changeNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
     isExpanded ? setExpanded([...expanded, node.fullPath]) : setExpanded(expanded.filter(x => x !== node.fullPath))
     node.isExpanded = isExpanded
 
@@ -61,10 +69,12 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   }
 
   const handleNodeClick = (selectedNode: TreeNode<T>) => {
-    if (selectedNode.nodeData) {
-      props.onClick?.(selectedNode.nodeData, 'document')
-    } else {
-      props.onClick?.(selectedNode.fullPath, 'folder')
+    const preventClick = selectedNode.nodeData
+      ? props.onClick?.(selectedNode.nodeData, 'document')
+      : props.onClick?.(selectedNode.fullPath, 'folder')
+
+    if (preventClick) {
+      return
     }
 
     traverseTree(nodes, node => {
@@ -74,7 +84,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         }
 
         if (!node.nodeData) {
-          node.isExpanded ? handleNodeExpansion(node, false) : handleNodeExpansion(node, true)
+          changeNodeExpansion(node, !node.isExpanded)
         }
       } else {
         node.isSelected = false
@@ -113,8 +123,8 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
       onNodeClick={handleNodeClick}
       onNodeContextMenu={handleContextMenu}
       onNodeDoubleClick={handleNodeDoubleClick}
-      onNodeCollapse={node => handleNodeExpansion(node as TreeNode<T>, false)}
-      onNodeExpand={node => handleNodeExpansion(node as TreeNode<T>, true)}
+      onNodeCollapse={node => changeNodeExpansion(node as TreeNode<T>, false)}
+      onNodeExpand={node => changeNodeExpansion(node as TreeNode<T>, true)}
       className={Classes.ELEVATION_0}
     />
   )

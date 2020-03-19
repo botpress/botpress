@@ -63,16 +63,23 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
     sendEvent: eventEngine.sendEvent.bind(eventEngine),
     replyToEvent: eventEngine.replyToEvent.bind(eventEngine),
     isIncomingQueueEmpty: eventEngine.isIncomingQueueEmpty.bind(eventEngine),
-    findEvents: eventRepo.findEvents.bind(eventRepo)
+    findEvents: eventRepo.findEvents.bind(eventRepo),
+    updateEvent: eventRepo.updateEvent.bind(eventRepo),
+    saveUserFeedback: eventRepo.saveUserFeedback.bind(eventRepo)
   }
 }
 
-const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof sdk.dialog => {
+const dialog = (
+  dialogEngine: DialogEngine,
+  stateManager: StateManager,
+  moduleLoader: ModuleLoader
+): typeof sdk.dialog => {
   return {
     createId: SessionIdFactory.createIdFromEvent.bind(SessionIdFactory),
     processEvent: dialogEngine.processEvent.bind(dialogEngine),
     deleteSession: stateManager.deleteDialogSession.bind(stateManager),
-    jumpTo: dialogEngine.jumpTo.bind(dialogEngine)
+    jumpTo: dialogEngine.jumpTo.bind(dialogEngine),
+    getConditions: moduleLoader.getDialogConditions.bind(moduleLoader)
   }
 }
 
@@ -96,7 +103,8 @@ const bots = (botService: BotService): typeof sdk.bots => {
     exportBot(botId: string): Promise<Buffer> {
       return botService.exportBot(botId)
     },
-    importBot: botService.importBot.bind(botService)
+    importBot: botService.importBot.bind(botService),
+    getBotTemplate: botService.getBotTemplate.bind(botService)
   }
 }
 
@@ -113,36 +121,16 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
 
 const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   return {
-    forBot(botId: string): sdk.KvsService {
-      return kvs.forBot(botId)
-    },
-    global(): sdk.KvsService {
-      return kvs.global()
-    },
-    async get(botId: string, key: string, path?: string): Promise<any> {
-      return kvs.get(botId, key, path)
-    },
-    async set(botId: string, key: string, value: string, path?: string) {
-      return kvs.set(botId, key, value, path)
-    },
-    async getStorageWithExpiry(botId, key): Promise<any> {
-      return kvs.getStorageWithExpiry(botId, key)
-    },
-    async setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string): Promise<void> {
-      return kvs.setStorageWithExpiry(botId, key, value, expiryInMs)
-    },
-    async removeStorageKeysStartingWith(key): Promise<void> {
-      return kvs.removeStorageKeysStartingWith(key)
-    },
-    getConversationStorageKey(sessionId, variable): string {
-      return kvs.getConversationStorageKey(sessionId, variable)
-    },
-    getUserStorageKey(userId, variable): string {
-      return kvs.getUserStorageKey(userId, variable)
-    },
-    getGlobalStorageKey(variable): string {
-      return kvs.getGlobalStorageKey(variable)
-    }
+    forBot: kvs.forBot.bind(kvs),
+    global: kvs.global.bind(kvs),
+    get: kvs.get.bind(kvs),
+    set: kvs.set.bind(kvs),
+    getStorageWithExpiry: kvs.getStorageWithExpiry.bind(kvs),
+    setStorageWithExpiry: kvs.setStorageWithExpiry.bind(kvs),
+    removeStorageKeysStartingWith: kvs.removeStorageKeysStartingWith.bind(kvs),
+    getConversationStorageKey: kvs.getConversationStorageKey.bind(kvs),
+    getUserStorageKey: kvs.getUserStorageKey.bind(kvs),
+    getGlobalStorageKey: kvs.getGlobalStorageKey.bind(kvs)
   }
 }
 
@@ -276,7 +264,7 @@ export class BotpressAPIProvider {
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
-    this.dialog = dialog(dialogEngine, stateManager)
+    this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
     this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex

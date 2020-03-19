@@ -45,7 +45,7 @@ function splitPath<T>(
 export function buildTree<T>({
   elements,
   filterText,
-  nodeRenderer = (element: T) => ({ label: element['label'] }),
+  nodeRenderer = (element: T) => ({ label: element['label'], icon: element['icon'] }),
   folderRenderer = (label: string) => ({ label }),
   postProcessing,
   filterProps = 'path',
