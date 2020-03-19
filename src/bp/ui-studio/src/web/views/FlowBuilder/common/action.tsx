@@ -50,8 +50,16 @@ class ActionItem extends Component<Props> {
     const actionInstruction = parseActionInstruction(this.props.text.trim())
 
     const actionName = `${actionInstruction.actionName} (args)`
-    const parameters = JSON.parse(actionInstruction.argsStr)
-    const callPreview = JSON.stringify(parameters, null, 2)
+
+    let callPreview
+    if (actionInstruction.argsStr) {
+      try {
+        const parameters = JSON.parse(actionInstruction.argsStr)
+        callPreview = JSON.stringify(parameters, null, 2)
+      } catch (err) {
+        console.error(err)
+      }
+    }
 
     const popoverHoverFocus = (
       <Popover id="popover-action" title={`⚡ ${actionName}`}>
