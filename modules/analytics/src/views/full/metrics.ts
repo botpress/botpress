@@ -1,4 +1,4 @@
-export const fakeBusiestPeriod = "Monday fromn 2PM to 4PM"
+export const fakeBusiestPeriod = 'Monday fromn 2PM to 4PM'
 
 export const fakeMostUsedWorkflows = [
   {

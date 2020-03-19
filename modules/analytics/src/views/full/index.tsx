@@ -1,5 +1,5 @@
 import { Button, HTMLSelect, IconName, MaybeElement, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
-import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
+import { DateRange, DateRangeInput, DateRangePicker, IDateRangeShortcut, TimePrecision } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
 import cx from 'classnames'
@@ -9,6 +9,18 @@ import React, { FC, useEffect, useState } from 'react'
 
 import { MetricEntry } from '../../backend/typings'
 
+import {
+  lastMonthEnd,
+  lastMonthStart,
+  lastWeekEnd,
+  lastWeekStart,
+  lastYearEnd,
+  lastYearStart,
+  now,
+  thisMonth,
+  thisWeek,
+  thisYear
+} from './dates'
 import { fakeBusiestPeriod, fakeMetrics, fakeMostAskedQuestions, fakeMostUsedWorkflows } from './metrics'
 import style from './style.scss'
 import FlatProgressChart from './FlatProgressChart'
@@ -87,15 +99,7 @@ const Analytics: FC<any> = ({ bp }) => {
       setChannels(prevState => [...prevState, ...channels])
     })
 
-    const startDate = moment()
-      .subtract(7, 'days')
-      .startOf('day')
-      .toDate()
-    const endDate = moment()
-      .startOf('day')
-      .toDate()
-
-    dispatch({ type: 'datesSuccess', data: { dateRange: [startDate, endDate] } })
+    dispatch({ type: 'datesSuccess', data: { dateRange: [thisWeek, now] } })
   }, [])
 
   useEffect(() => {
@@ -282,6 +286,33 @@ const Analytics: FC<any> = ({ bp }) => {
     return null
   }
 
+  const shortcuts: IDateRangeShortcut[] = [
+    {
+      dateRange: [thisWeek, now],
+      label: 'This Week'
+    },
+    {
+      dateRange: [lastWeekStart, lastWeekEnd],
+      label: 'Last Week'
+    },
+    {
+      dateRange: [thisMonth, now],
+      label: 'This Month'
+    },
+    {
+      dateRange: [lastMonthStart, lastMonthEnd],
+      label: 'Last Month'
+    },
+    {
+      dateRange: [thisYear, now],
+      label: 'This Year'
+    },
+    {
+      dateRange: [lastYearStart, lastYearEnd],
+      label: 'Last Year'
+    }
+  ]
+
   return (
     <div className={style.mainWrapper}>
       <div className={style.innerWrapper}>
@@ -304,7 +335,13 @@ const Analytics: FC<any> = ({ bp }) => {
               <Button icon="calendar" className={style.filterItem}>
                 Date Range
               </Button>
-              <DateRangePicker onChange={handleDateChange} maxDate={new Date()} value={state.dateRange} />
+              <DateRangePicker
+                onChange={handleDateChange}
+                allowSingleDayRange={true}
+                shortcuts={shortcuts}
+                maxDate={new Date()}
+                value={state.dateRange}
+              />
             </Popover>
           </div>
         </div>
