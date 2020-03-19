@@ -88,7 +88,7 @@ const EditStageModal: FC<Props> = props => {
     let newPipeline
 
     if (!pipeline.find(p => p.id === id)) {
-      toastFailure(lang('editStage.couldNotFindPipeline'))
+      toastFailure(lang.tr('editStage.couldNotFindPipeline'))
     } else {
       newPipeline = pipeline.map(p =>
         p.id !== id
@@ -109,10 +109,10 @@ const EditStageModal: FC<Props> = props => {
         .post(`/admin/workspaces/${getActiveWorkspace()}/pipeline`, { updateCustom: true, pipeline: newPipeline })
 
       props.onEditSuccess()
-      toastSuccess(lang('editStage.stageSaved'))
+      toastSuccess(lang.tr('editStage.stageSaved'))
       closeModal()
     } catch (error) {
-      toastFailure(lang('editStage.errorUpdatingPipeline', { message: error.message }))
+      toastFailure(lang.tr('editStage.errorUpdatingPipeline', { message: error.message }))
     } finally {
       setProcessing(false)
     }
@@ -156,7 +156,7 @@ const EditStageModal: FC<Props> = props => {
   return (
     <Dialog isOpen={props.isOpen} onClose={closeModal} transitionDuration={0} title={`Configure Stage: ${label}`}>
       <div className={Classes.DIALOG_BODY}>
-        <FormGroup label={lang('label')}>
+        <FormGroup label={lang.tr('label')}>
           <InputGroup
             id="input-label"
             type="text"
@@ -166,14 +166,14 @@ const EditStageModal: FC<Props> = props => {
           />
         </FormGroup>
         {!isLastPipeline && (
-          <FormGroup label={lang('action')}>
+          <FormGroup label={lang.tr('action')}>
             <RadioGroup onChange={({ currentTarget: { value } }) => setAction(value)} selectedValue={action} inline>
-              <Radio label={lang('copy')} value="promote_copy" />
-              <Radio label={lang('move')} value="promote_move" />
+              <Radio label={lang.tr('copy')} value="promote_copy" />
+              <Radio label={lang.tr('move')} value="promote_move" />
             </RadioGroup>
           </FormGroup>
         )}
-        <FormGroup label={lang('editStage.reviewers')}>
+        <FormGroup label={lang.tr('editStage.reviewers')}>
           <Select
             id="select-reviewers"
             isMulti={true}
@@ -183,7 +183,7 @@ const EditStageModal: FC<Props> = props => {
             autoFocus={true}
           />
         </FormGroup>
-        <FormGroup label={lang('editStage.approvalsRequired')}>
+        <FormGroup label={lang.tr('editStage.approvalsRequired')}>
           <NumericInput
             id="input-minimumApprovals"
             min={0}
@@ -199,10 +199,10 @@ const EditStageModal: FC<Props> = props => {
 
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button id="btn-cancel" text={lang('cancel')} tabIndex={3} onClick={toggle} disabled={isProcessing} />
+          <Button id="btn-cancel" text={lang.tr('cancel')} tabIndex={3} onClick={toggle} disabled={isProcessing} />
           <Button
             id="btn-submit"
-            text={isProcessing ? lang('editStage.pleaseWait') : lang('save')}
+            text={isProcessing ? lang.tr('editStage.pleaseWait') : lang.tr('save')}
             tabIndex={3}
             onClick={submit}
             disabled={isProcessing}

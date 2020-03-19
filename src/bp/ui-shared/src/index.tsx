@@ -6,7 +6,9 @@ import TreeView from './TreeView'
 exports.confirmDialog = confirmDialog
 exports.style = { TooltipStyle }
 exports.TreeView = TreeView
-exports.lang = lang
-exports.langInit = langInit
-exports.langExtend = langExtend
-exports.langLocale = langLocale
+exports.lang = {
+  tr: lang,
+  init: langInit,
+  extend: langExtend,
+  locale: langLocale
+}

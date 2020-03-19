@@ -1,4 +1,4 @@
-import { langExtend, langInit } from 'botpress/shared'
+import { lang } from 'botpress/shared'
 
 import en from './en.json'
 import fr from './fr.json'
@@ -8,8 +8,8 @@ let initialized = false
 const initializeTranslations = () => {
   if (!initialized) {
     initialized = true
-    langExtend(translations)
-    langInit()
+    lang.extend(translations)
+    lang.init()
   }
 }
 
