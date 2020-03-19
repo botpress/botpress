@@ -24,7 +24,6 @@ import {
   createFlowNode,
   fetchFlows,
   insertNewSkillNode,
-  openFlowNode2Props,
   openFlowNodeProps,
   pasteFlowNode,
   removeFlowNode,
@@ -574,7 +573,6 @@ interface Props {
   switchFlow: (flowName: string) => void
   switchFlowNode: (nodeId: string) => any
   updateFlowProblems: (problems: NodeProblem[]) => void
-  openFlowNode2Props: () => void
   openFlowNodeProps: () => void
   closeFlowNodeProps: () => void
   updateFlow: any
@@ -623,7 +621,6 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   fetchFlows,
   switchFlowNode,
-  openFlowNode2Props,
   openFlowNodeProps,
   closeFlowNodeProps,
   setDiagramAction,

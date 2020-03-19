@@ -194,7 +194,6 @@ export const pasteFlowNodeElement = wrapAction(requestPasteFlowNodeElement, upda
 // actions that do not modify flow
 export const switchFlow = createAction('FLOWS/SWITCH')
 export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
-export const openFlowNode2Props = createAction('FLOWS/FLOW/OPEN_NODE2_PROPS')
 export const openFlowNodeProps = createAction('FLOWS/FLOW/OPEN_NODE_PROPS')
 export const closeFlowNodeProps = createAction('FLOWS/FLOW/CLOSE_NODE_PROPS')
 

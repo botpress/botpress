@@ -12,7 +12,6 @@ import {
   handleFlowEditorRedo,
   handleFlowEditorUndo,
   handleRefreshFlowLinks,
-  openFlowNode2Props,
   openFlowNodeProps,
   receiveFlows,
   receiveFlowsModification,
@@ -402,12 +401,6 @@ let reducer = handleActions(
     [switchFlowNode]: (state, { payload }) => ({
       ...state,
       currentFlowNode: payload
-    }),
-
-    [openFlowNode2Props]: state => ({
-      ...state,
-      showFlowNodeProps: true,
-      layoutv2: true
     }),
 
     [openFlowNodeProps]: state => ({
