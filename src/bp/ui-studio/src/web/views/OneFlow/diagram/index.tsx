@@ -145,11 +145,13 @@ class Diagram extends Component<Props> {
   componentDidMount() {
     this.props.fetchFlows()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
@@ -254,6 +256,18 @@ class Diagram extends Component<Props> {
       }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' })
+  }
+
+  onDiagramDoubleClick = (event?: MouseEvent) => {
+    if (!event) {
+      return
+    }
+
+    const target = this.diagramWidget.getMouseElement(event)
+
+    if (target?.model instanceof TriggerNodeModel) {
+      this.editTriggers(target.model)
+    }
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
