@@ -192,7 +192,7 @@ const SaySomethingForm: FC<Props> = props => {
       </div>
       <form className={style.sidePanelForm}>
         <label className={style.fieldWrapper}>
-          <span className={style.formLabel}>Node name</span>
+          <span className={style.formLabel}>Node Name</span>
           <EditableInput
             readOnly={readOnly}
             value={node.name}
@@ -202,7 +202,7 @@ const SaySomethingForm: FC<Props> = props => {
           />
         </label>
         <label className={style.fieldWrapper}>
-          <span className={style.formLabel}>Content type</span>
+          <span className={style.formLabel}>Content Type</span>
           <div className={style.formSelect}>
             <select value={contentType} onChange={e => handleContentTypeChange(e.currentTarget.value)}>
               {categories &&
@@ -239,10 +239,10 @@ const SaySomethingForm: FC<Props> = props => {
               inline
               className={style.checkboxLabel}
               name="markdown"
-              checked={markdown}
+              checked={markdown || false}
               onChange={() => dispatchForm({ type: 'updateData', data: { field: 'markdown', value: !markdown } })}
             >
-              Use markdown
+              Use Markdown
               <a href="https://snarky.surge.sh/" target="_blank">
                 Learn more
               </a>
@@ -251,9 +251,9 @@ const SaySomethingForm: FC<Props> = props => {
             <Checkbox
               inline
               className={style.checkboxLabel}
-              label="Display typing indicators"
+              label="Display Typing Indicators"
               name="typing"
-              checked={typing}
+              checked={typing || false}
               onChange={() => dispatchForm({ type: 'updateData', data: { field: 'typing', value: !typing } })}
             />
           </Fragment>
