@@ -15,7 +15,16 @@ import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
 import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
-const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill', 'conditions', 'formData', 'contentType']
+const passThroughNodeProps: string[] = [
+  'name',
+  'onEnter',
+  'onReceive',
+  'next',
+  'skill',
+  'conditions',
+  'formData',
+  'contentType'
+]
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
