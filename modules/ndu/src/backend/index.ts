@@ -8,7 +8,7 @@ import { MountedBots } from './typings'
 
 export const bots: MountedBots = {}
 
-let conditions: sdk.Condition[] = []
+export let conditions: sdk.Condition[] = []
 
 const onServerStarted = async (bp: typeof sdk) => {
   await registerMiddleware(bp, bots)

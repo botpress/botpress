@@ -207,7 +207,7 @@ export class UnderstandingEngine {
     const fInTopic = (t: typeof triggers) =>
       t.filter(x => (x.topic === currentTopic && currentTopic !== 'n/a') || x.topic === 'skills')
     const fOutTopic = (t: typeof triggers) => t.filter(x => x.topic !== currentTopic || currentTopic === 'n/a')
-    const fInWf = (t: typeof triggers) => t.filter(x => x.wf === currentFlow)
+    const fInWf = (t: typeof triggers) => t.filter(x => `${x.wf}.flow.json` === currentFlow)
     const fOnNode = (t: typeof triggers) => t.filter(x => x.nodeId === currentNode)
     const fMax = (t: typeof triggers) => _.maxBy(t, 'confidence') || { confidence: 0, id: 'n/a' }
 
@@ -331,7 +331,7 @@ export class UnderstandingEngine {
     for (const trigger of triggers) {
       if (
         trigger.type === 'node' &&
-        (event.state?.context.currentFlow !== trigger.workflowId ||
+        (event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json` ||
           event.state?.context?.currentNode !== trigger.nodeId)
       ) {
         continue

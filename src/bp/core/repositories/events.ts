@@ -86,7 +86,7 @@ export class KnexEventRepository implements EventRepository {
 
     if (type) {
       const metric = feedback === 1 ? 'bp_core_feedback_positive' : 'bp_core_feedback_negative'
-      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, type })
+      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, type, eventId: event.id })
     }
 
     return true

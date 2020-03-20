@@ -3,7 +3,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import generate from 'nanoid/generate'
 
-import { bots as mountedBots } from '.'
+import { bots as mountedBots, conditions } from '.'
+import { UnderstandingEngine } from './ndu-engine'
 
 const prettyId = (length = 10) => generate('1234567890abcdef', length)
 const debug = DEBUG('ndu').sub('migrate')
@@ -182,7 +183,7 @@ const migrateBot = async (bp: typeof sdk, botId: string) => {
   await bp.config.mergeBotConfig(botId, { oneflow: true })
 
   // Ensure the NDU will process events for that bot
-  mountedBots[botId] = true
+  mountedBots[botId] = new UnderstandingEngine(bp, conditions)
 }
 
 export default migrateBot
