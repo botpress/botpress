@@ -13,8 +13,10 @@ import style from './styles.scss'
 import createMentionPlugin, { defaultSuggestionsFilter } from './Base'
 
 interface ExposedProps {
+  children?: any
   className?: string
   placeholder?: string
+  isSideForm?: boolean
   singleLine: boolean
   value: string
   onChange: (value: string) => void
@@ -107,7 +109,7 @@ class SmartInput extends Component<ConnectedProps, State> {
     return (
       <div className={cx(style.editor, this.props.className)} onClick={this.focus}>
         <Editor
-          stripPastedStyles={true}
+          stripPastedStyles
           placeholder={this.placeholder}
           editorState={this.state.editorState}
           onChange={this.onChange}
@@ -115,8 +117,9 @@ class SmartInput extends Component<ConnectedProps, State> {
           ref={el => (this.editor = el)}
         />
         <MentionSuggestions onSearchChange={this.onSearchChange} suggestions={this.state.suggestions} />
-        <div className={style.insertBtn}>
-          <Button minimal={true} small={true} icon="insert" text={undefined} onClick={this.insertVariable} />
+        <div className={cx(style.insertBtn, { [style.insertBtnMoreSpacing]: this.props.isSideForm })}>
+          <Button minimal small icon="code" text={undefined} onClick={this.insertVariable} />
+          {this.props.children}
         </div>
       </div>
     )

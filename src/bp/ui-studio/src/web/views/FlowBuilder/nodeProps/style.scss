@@ -159,6 +159,22 @@ h5 {
     line-height: 0;
   }
 
+  .innerWrapper {
+    position: relative;
+
+    .insertBtn {
+      position: absolute;
+      right: 38px;
+      top: 4px;
+    }
+
+    .deleteBtn {
+      position: absolute;
+      right: 4px;
+      top: 4px;
+    }
+  }
+
   .formSelect {
     background: #fff;
     border: 1px solid $border;
@@ -269,7 +285,6 @@ h5 {
   }
 
   .textarea {
-    max-height: 100px;
     resize: none;
   }
 

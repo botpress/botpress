@@ -1,7 +1,9 @@
 import { Button } from '@blueprintjs/core'
+import { Intent } from '@blueprintjs/core'
 import classnames from 'classnames'
-import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
+import React, { FC, Fragment } from 'react'
 import TextareaAutosize from 'react-autosize-textarea'
+import SmartInput from '~/components/SmartInput'
 
 import style from '../style.scss'
 
@@ -22,6 +24,11 @@ const SaySomethingFormText: FC<Props> = props => {
     newVariations[index] = value
 
     dispatchForm({ type: 'updateData', data: { value: newVariations, field: 'variations' } })
+  }
+
+  const deleteVariation = index => {
+    variations.splice(index, 1)
+    dispatchForm({ type: 'updateData', data: { value: variations, field: 'variations' } })
   }
 
   const handleKeyDown = e => {
@@ -47,15 +54,44 @@ const SaySomethingFormText: FC<Props> = props => {
         <span className={style.formLabel}>Alternates</span>
         {variations &&
           variations.map((variantion, index) => (
-            <TextareaAutosize
-              key={index}
-              rows={1}
-              maxRows={4}
-              onKeyDown={handleKeyDown}
-              className={classnames(style.textarea, style.multipleInputs)}
-              value={variantion}
-              onChange={e => updateVariations(e.currentTarget.value, index)}
-            ></TextareaAutosize>
+            <div key={index} className={style.innerWrapper}>
+              <SmartInput
+                value={variantion}
+                onChange={value => updateVariations(value, index)}
+                className={classnames(style.textarea, style.multipleInputs)}
+                isSideForm
+                singleLine={false}
+              >
+                <Button
+                  icon="trash"
+                  minimal
+                  small
+                  intent={Intent.DANGER}
+                  onClick={() => deleteVariation(index)}
+                ></Button>
+              </SmartInput>
+              {/*<TextareaAutosize
+                rows={1}
+                maxRows={4}
+                onKeyDown={handleKeyDown}
+                className={classnames(style.textarea, style.multipleInputs)}
+                value={variantion}
+                onChange={e => updateVariations(e.currentTarget.value, index)}
+              ></TextareaAutosize>
+              <Button
+                icon="code"
+                className={style.insertBtn}
+                minimal
+                onClick={() => insertVariable(variantion)}
+              ></Button>
+              <Button
+                icon="trash"
+                className={style.deleteBtn}
+                minimal
+                intent={Intent.DANGER}
+                onClick={() => deleteVariation(index)}
+              ></Button>*/}
+            </div>
           ))}
         <Button onClick={() => dispatchForm({ type: 'addVariation' })} className={style.addContentBtn} large={true}>
           Add Alternates

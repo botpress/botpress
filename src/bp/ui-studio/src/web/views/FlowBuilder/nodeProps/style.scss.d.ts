@@ -11,6 +11,7 @@ interface CssExports {
   'bottomSection': string;
   'category': string;
   'checkboxLabel': string;
+  'deleteBtn': string;
   'description': string;
   'emptyState': string;
   'endBloc': string;
@@ -18,6 +19,8 @@ interface CssExports {
   'formHeader': string;
   'formLabel': string;
   'formSelect': string;
+  'innerWrapper': string;
+  'insertBtn': string;
   'item': string;
   'multipleInputs': string;
   'name': string;
