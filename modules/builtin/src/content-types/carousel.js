@@ -17,6 +17,7 @@ function render(data) {
     {
       text: ' ',
       type: 'carousel',
+      collectFeedback: data.collectFeedback,
       elements: data.items.map(card => ({
         title: card.title,
         picture: card.image ? url.resolve(data.BOT_URL, card.image) : null,

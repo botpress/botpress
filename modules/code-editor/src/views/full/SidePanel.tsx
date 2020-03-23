@@ -141,18 +141,30 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionActions() {
+    let actions: any = [
+      {
+        id: 'btn-add-action',
+        icon: <Icon icon="add" />,
+        key: 'add',
+        onClick: () => this.createFilePrompt('action_legacy')
+      }
+    ]
+    if (window.EXPERIMENTAL) {
+      actions = [
+        {
+          id: 'btn-add-action',
+          icon: <Icon icon="add" />,
+          key: 'add',
+          items: [
+            { label: 'Action (HTTP)', onClick: () => this.createFilePrompt('action_http') },
+            { label: 'Action (Legacy)', onClick: () => this.createFilePrompt('action_legacy') }
+          ]
+        }
+      ]
+    }
+
     return (
-      <SidePanelSection
-        label={'Actions'}
-        actions={[
-          {
-            id: 'btn-add-action',
-            icon: <Icon icon="add" />,
-            key: 'add',
-            onClick: () => this.createFilePrompt('action')
-          }
-        ]}
-      >
+      <SidePanelSection label={'Actions'} actions={actions}>
         <FileNavigator
           id="actions"
           files={this.state.actionFiles}
@@ -278,14 +290,15 @@ class PanelContent extends React.Component<Props> {
   }
 
   render() {
+    const { isOpenedFile, isDirty, isAdvanced } = this.props.editor
     return (
       <SidePanel>
-        {this.props.editor.isOpenedFile && this.props.editor.isDirty ? (
+        {isOpenedFile && isDirty ? (
           <FileStatus />
         ) : (
           <React.Fragment>
             <SearchBar icon="filter" placeholder="Filter files" onChange={this.props.setFilenameFilter} />
-            {this.props.store.useRawEditor ? (
+            {isAdvanced ? (
               this.renderSectionRaw()
             ) : (
               <React.Fragment>

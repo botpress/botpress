@@ -1,0 +1,76 @@
+{
+  "version": "0.0.1",
+  "catchAll": {
+    "next": []
+  },
+  "startNode": "entry",
+  "skillData": {
+    "contentId": "builtin_single-choice-feedback",
+    "invalidContentId": "",
+    "keywords": {
+      "yes": ["yes", "Yes 👍"],
+      "no": ["no", "No 👎"]
+    },
+    "config": {
+      "nbMaxRetries": 0,
+      "repeatChoicesOnInvalid": false
+    }
+  },
+  "nodes": [
+    {
+      "name": "entry",
+      "onEnter": ["say #!builtin_single-choice-feedback {\"skill\":\"choice\"}"],
+      "next": [
+        {
+          "condition": "true",
+          "node": "parse"
+        }
+      ],
+      "id": "050285"
+    },
+    {
+      "name": "parse",
+      "onReceive": [
+        "basic-skills/choice_parse_answer {\"contentId\":\"builtin_single-choice-feedback\",\"invalidContentId\":\"\",\"keywords\":{\"yes\":[\"yes\",\"Yes 👍\"],\"no\":[\"no\",\"No 👎\"]},\"config\":{\"nbMaxRetries\":0,\"repeatChoicesOnInvalid\":false},\"randomId\":\"k0tqq3ze5d\"}"
+      ],
+      "next": [
+        {
+          "condition": "temp['skill-choice-valid-k0tqq3ze5d'] === true",
+          "node": "#"
+        },
+        {
+          "condition": "true",
+          "node": "invalid"
+        }
+      ],
+      "onEnter": [],
+      "id": "264685"
+    },
+    {
+      "name": "invalid",
+      "onEnter": ["basic-skills/choice_invalid_answer {\"randomId\":\"k0tqq3ze5d\"}"],
+      "next": [
+        {
+          "condition": "Number(temp['skill-choice-invalid-count-k0tqq3ze5d']) > Number(0)",
+          "node": "#"
+        },
+        {
+          "condition": "true",
+          "node": "sorry"
+        }
+      ],
+      "id": "523761"
+    },
+    {
+      "name": "sorry",
+      "onEnter": [],
+      "next": [
+        {
+          "condition": "true",
+          "node": "parse"
+        }
+      ],
+      "id": "399044"
+    }
+  ]
+}

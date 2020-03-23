@@ -18,7 +18,8 @@ function render(data) {
     {
       type: 'file',
       title: data.title,
-      url: url.resolve(data.BOT_URL, data.image)
+      url: url.resolve(data.BOT_URL, data.image),
+      collectFeedback: data.collectFeedback
     }
   ]
 }

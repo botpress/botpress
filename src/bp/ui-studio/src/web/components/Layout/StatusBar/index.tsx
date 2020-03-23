@@ -30,7 +30,7 @@ interface Props {
   onToggleGuidedTour: () => void
   toggleBottomPanel: () => void
   onToggleEmulator: () => void
-  toggleLangSwitcher: () => void
+  toggleLangSwitcher: (e: any) => void
 }
 
 const DEFAULT_STATE = {

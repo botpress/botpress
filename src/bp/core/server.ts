@@ -31,9 +31,11 @@ import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
+import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
+import ActionServersService from './services/action/action-servers-service'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
@@ -83,6 +85,7 @@ export default class HTTPServer {
   private readonly shortlinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
+  private readonly sdkApiRouter!: SdkApiRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -103,6 +106,7 @@ export default class HTTPServer {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
+    @inject(TYPES.ActionServersService) actionServersService: ActionServersService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MediaService) mediaService: MediaService,
@@ -165,6 +169,7 @@ export default class HTTPServer {
     this.shortlinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
+      actionServersService,
       botService,
       configProvider,
       flowService,
@@ -174,8 +179,11 @@ export default class HTTPServer {
       authService,
       ghostService,
       workspaceService,
+      moduleLoader,
       logger: this.logger
     })
+    this.sdkApiRouter = new SdkApiRouter(this.logger)
+
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
   }
@@ -202,7 +210,13 @@ export default class HTTPServer {
     this.httpServer = createServer(app)
 
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
+    this.contentRouter = new ContentRouter(
+      this.logger,
+      this.authService,
+      this.cmsService,
+      this.workspaceService,
+      this.ghostService
+    )
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
@@ -221,6 +235,7 @@ export default class HTTPServer {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+    await this.sdkApiRouter.initialize()
 
     /**
      * The loading of language models can take some time, access to Botpress is disabled until it is completed
@@ -286,6 +301,7 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
+    this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
     this.app.use(`/s`, this.shortlinksRouter.router)
 
     this.app.use((err, req, res, next) => {
@@ -455,7 +471,7 @@ export default class HTTPServer {
     }
 
     return Promise.fromCallback(cb => {
-      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithms }, (err, user) => {
+      jsonwebtoken.verify(token, publicKey!, { issuer, audience, algorithms }, (err, user) => {
         cb(err, !err ? user : undefined)
       })
     })

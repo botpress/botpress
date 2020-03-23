@@ -1,27 +1,17 @@
-import {
-  Breadcrumbs,
-  Button,
-  ControlGroup,
-  InputGroup,
-  Intent,
-  Menu,
-  MenuItem,
-  Popover,
-  Position
-} from '@blueprintjs/core'
+import { Breadcrumbs, Button, ControlGroup, InputGroup, Intent } from '@blueprintjs/core'
 import { confirmDialog } from 'botpress/shared'
 import { AccessControl } from 'botpress/utils'
-import React, { useEffect, useState } from 'react'
+import cx from 'classnames'
+import React, { FC, useEffect, useState } from 'react'
 
 import style from './style.scss'
 import Editor from './Editor'
-import { ExportButton } from './ExportButton'
-import { ImportModal } from './ImportModal'
 import Item from './Item'
 
 interface Props {
   bp: any
   topicName: string
+  contentLang: string
 }
 
 interface QnaEntry {
@@ -29,7 +19,7 @@ interface QnaEntry {
   data: any
 }
 
-export const LiteEditor = props => {
+export const LiteEditor: FC<Props> = props => {
   const [filter, setFilter] = useState('')
   const [editId, setEditId] = useState('')
   const [isEditing, setEditing] = useState(false)
@@ -44,7 +34,8 @@ export const LiteEditor = props => {
   const getQueryParams = () => {
     return {
       params: {
-        categories: [props.topicName]
+        question: filter,
+        filteredContexts: [props.topicName]
       }
     }
   }
@@ -77,6 +68,11 @@ export const LiteEditor = props => {
     }
   }
 
+  const updateFilter = async text => {
+    setFilter(text)
+    await fetchData()
+  }
+
   const toggleEnableItem = async (item: any, id: string, isChecked: boolean) => {
     item.enabled = isChecked
 
@@ -84,34 +80,30 @@ export const LiteEditor = props => {
     setData(data.items)
   }
 
-  const categories = [{ label: props.topicName, value: props.topicName }]
-
   return (
     <div>
       {!isEditing && (
         <div className={style.liteHeader}>
           <div className={style.liteSearch}>
-            <ControlGroup>
-              <InputGroup
-                id="input-search"
-                placeholder="Search for a question"
-                tabIndex={1}
-                value={filter}
-                onChange={e => setFilter(e.currentTarget.value)}
-              />
-
-              <AccessControl resource="module.qna" operation="write">
-                <Button
-                  id="btn-create-qna"
-                  text="Add new"
-                  icon="add"
-                  style={{ marginLeft: 20 }}
-                  intent={Intent.PRIMARY}
-                  onClick={() => createNew()}
-                />
-              </AccessControl>
-            </ControlGroup>
+            <InputGroup
+              id="input-search"
+              placeholder="Search for a question"
+              tabIndex={1}
+              value={filter}
+              onChange={e => updateFilter(e.currentTarget.value)}
+            />
           </div>
+
+          <AccessControl resource="module.qna" operation="write">
+            <Button
+              id="btn-create-qna"
+              text="Add Question"
+              icon="add"
+              style={{ marginLeft: 20 }}
+              intent={Intent.PRIMARY}
+              onClick={() => createNew()}
+            />
+          </AccessControl>
 
           {/*
           TODO: Support for import/export scoped to a category
@@ -141,18 +133,25 @@ export const LiteEditor = props => {
 
       {!isEditing && data && (
         <div className={style.liteItemContainer}>
-          {data.map(item => (
-            <Item
-              key={item.id}
-              id={item.id}
-              item={item.data}
-              isVersion2
-              contentLang={props.contentLang}
-              onEditItem={editItem}
-              onDeleteItem={deleteItem}
-              onToggleItem={toggleEnableItem}
-            />
-          ))}
+          <div className={style.questionTable}>
+            <div className={cx(style.questionTableRow, style.header)}>
+              <div className={cx(style.questionTableCell, style.question)}>Question</div>
+              <div className={style.questionTableCell}>Answer</div>
+              <div className={cx(style.questionTableCell, style.actions)}></div>
+            </div>
+            {data.map(item => (
+              <Item
+                key={item.id}
+                id={item.id}
+                item={item.data}
+                isLite
+                contentLang={props.contentLang}
+                onEditItem={editItem}
+                onDeleteItem={deleteItem}
+                onToggleItem={toggleEnableItem}
+              />
+            ))}
+          </div>
         </div>
       )}
       <div>
@@ -160,8 +159,8 @@ export const LiteEditor = props => {
           <div>
             <Breadcrumbs
               items={[
-                { onClick: cancelEditing, icon: 'folder-close', text: 'Q&A' },
-                { icon: 'folder-close', text: editId !== '' ? 'Edit Q&A' : 'Create a new Q&A' }
+                { onClick: cancelEditing, text: 'Q&A' },
+                { text: editId !== '' ? 'Edit Q&A' : 'Create a new Q&A' }
               ]}
             />
 
@@ -172,9 +171,11 @@ export const LiteEditor = props => {
               id={editId}
               isEditing={editId !== ''}
               page={{ offset: 0, limit: 500 }}
-              categories={categories}
+              isLite
+              hideContexts
+              defaultContext={props.topicName}
               updateQuestion={questions => setData(questions.items)}
-              filters={{ question: filter, categories }}
+              filters={{ question: filter, contexts: [props.topicName] }}
             />
           </div>
         )}

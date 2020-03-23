@@ -11,7 +11,7 @@ html {
 
 body {
   height: 100%;
-  font-family: 'Lato', sans-serif !important;
+  font-family: $fontFamily !important;
   font-weight: 400;
   background-color: $background-color;
   color: $content-color-normal;
@@ -129,7 +129,7 @@ b {
   width: 240px;
   height: 30px;
   padding: 10px 20px;
-  font-family: Helvetica, sans-serif;
+  font-family: $fontFamily;
   font-weight: 300;
   font-size: 16px;
   border: 1px solid #aaa;
@@ -156,7 +156,7 @@ b {
   width: 280px;
   border: 1px solid #aaa;
   background-color: #fff;
-  font-family: Helvetica, sans-serif;
+  font-family: $fontFamily;
   font-weight: 300;
   font-size: 16px;
   border-bottom-left-radius: 4px;

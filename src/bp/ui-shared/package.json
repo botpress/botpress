@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@blueprintjs/core": "^3.23.1",
+    "@blueprintjs/select": "^3.12.0",
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
     "cross-env": "^5.2.0",

@@ -90,13 +90,18 @@ export namespace FlowsAPI {
       name,
       version: '0.0.1',
       flow: name,
-      location: flow.location,
-      startNode: flow.startNode,
-      catchAll: flow.catchAll,
-      links: flow.links,
-      nodes: flow.nodes,
-      skillData: flow.skillData,
-      timeoutNode: flow.timeoutNode
+      ..._.pick(flow, [
+        'location',
+        'startNode',
+        'catchAll',
+        'links',
+        'nodes',
+        'skillData',
+        'timeoutNode',
+        'triggers', // TODO: NDU Remove
+        'description',
+        'label'
+      ])
     }
   }
 }

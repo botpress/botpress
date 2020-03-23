@@ -124,14 +124,13 @@ const EditStageModal: FC<Props> = props => {
   }
 
   const formatUser = user => {
-    const {
-      email,
-      strategy,
-      attributes: { firstname, lastname }
-    } = user
+    const { email, strategy } = user
+
+    const firstName = user.attributes && user.attributes.firstname
+    const lastName = user.attributes && user.attributes.lastname
 
     return {
-      label: firstname || lastname ? `${firstname} ${lastname} · ${email}` : email,
+      label: firstName || lastName ? `${firstName} ${lastName} · ${email}` : email,
       value: email + strategy,
       user: { email, strategy }
     }

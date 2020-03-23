@@ -1,6 +1,7 @@
 import { Icon } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
+import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 
 import { NluMlRecommendations } from '../../../backend/typings'
@@ -11,6 +12,7 @@ interface Props {
   intent: sdk.NLU.IntentDefinition
   contentLang: string
   axios: AxiosInstance
+  liteEditor: boolean
 }
 
 const fetchRecommendations = async (axios: AxiosInstance): Promise<NluMlRecommendations> => {
@@ -71,7 +73,7 @@ const IntentHint: FC<Props> = props => {
     )
   }
   return hint ? (
-    <p className={style.hint}>
+    <p className={cx(style.hint, { [style.lightEditorHint]: props.liteEditor })}>
       {!utterances.length && <Icon icon="warning-sign" />}
       {!!utterances.length && <Icon icon="symbol-diamond" />}
       {hint}

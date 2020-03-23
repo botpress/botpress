@@ -8,7 +8,7 @@ let collectionEnabled = false
 let metrics = {}
 
 export const startMonitoring = () => {
-  console.log('Metrics collection enabled. Interval: ', process.env.MONITORING_INTERVAL)
+  debugMonitor('Metrics collection enabled. Interval: ', process.env.MONITORING_INTERVAL)
 
   setInterval(() => {
     if (!metrics || !Object.keys(metrics).length) {

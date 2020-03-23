@@ -23,7 +23,7 @@ export interface TreeViewProps<T> {
   highlightFolders?: boolean
 
   onDoubleClick?: (element: T | string, elementType: ElementType) => void
-  onClick?: (element: T | string, elementType: ElementType) => void
+  onClick?: (element: T | string, elementType: ElementType) => undefined | boolean
   onContextMenu?: (element: T | string, elementType: ElementType) => JSX.Element | undefined
   onExpandToggle?: (node: TreeNode<T>, isExpanded: boolean) => void
 }

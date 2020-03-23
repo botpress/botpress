@@ -1,36 +1,33 @@
-import { Button, Card, HTMLSelect, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
-import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
+import { Button, HTMLSelect, IconName, MaybeElement, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
+import { DateRange, DateRangeInput, DateRangePicker, IDateRangeShortcut, TimePrecision } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
-import { style as sharedStyle } from 'botpress/shared'
-import { lang } from 'botpress/shared'
-import { Container, ItemList, SidePanel } from 'botpress/ui'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { FC, useEffect, useReducer, useState } from 'react'
-import { LocaleUtils } from 'react-day-picker'
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import React, { FC, useEffect, useState } from 'react'
 
 import { MetricEntry } from '../../backend/typings'
 import { initializeTranslations } from '../translations'
 
+import {
+  lastMonthEnd,
+  lastMonthStart,
+  lastWeekEnd,
+  lastWeekStart,
+  lastYearEnd,
+  lastYearStart,
+  now,
+  thisMonth,
+  thisWeek,
+  thisYear
+} from './dates'
 import style from './style.scss'
-
-moment.locale(lang.locale())
-
-const {
-  TooltipStyle: { botpressTooltip }
-} = sharedStyle
-
-const SECONDS_PER_DAY = 86400
-
-const CHANNEL_COLORS = {
-  web: '#FFA83A',
-  messenger: '#0196FF',
-  slack: '#4A154B',
-  telegram: '#2EA6DA'
-}
+import FlatProgressChart from './FlatProgressChart'
+import ItemsList from './ItemsList'
+import NumberMetric from './NumberMetric'
+import RadialMetric from './RadialMetric'
+import TimeSeriesChart from './TimeSeriesChart'
 
 interface State {
   metrics: MetricEntry[]
@@ -40,27 +37,47 @@ interface State {
   shownSection: string
 }
 
+export interface Extras {
+  icon?: IconName | MaybeElement
+  iconBottom?: IconName | MaybeElement
+  className?: string
+}
+
+const navigateToElement = (name: string, type: string) => () => {
+  let url
+  if (type === 'qna') {
+    url = `/modules/qna?id=${name.replace('__qna__', '')}`
+  } else if (type === 'workflow') {
+    url = `/oneflow/${name}`
+  }
+  window.postMessage({ action: 'navigate-url', payload: url }, '*')
+}
+
 const fetchReducer = (state: State, action): State => {
   if (action.type === 'datesSuccess') {
     const { dateRange } = action.data
+
     return {
       ...state,
       dateRange
     }
   } else if (action.type === 'receivedMetrics') {
     const { metrics } = action.data
+
     return {
       ...state,
       metrics
     }
   } else if (action.type === 'channelSuccess') {
     const { selectedChannel } = action.data
+
     return {
       ...state,
       selectedChannel
     }
   } else if (action.type === 'sectionChange') {
     const { shownSection, pageTitle } = action.data
+
     return {
       ...state,
       shownSection,
@@ -72,9 +89,7 @@ const fetchReducer = (state: State, action): State => {
 }
 
 const Analytics: FC<any> = ({ bp }) => {
-  initializeTranslations()
-
-  const [channels, setChannels] = useState(['all', 'api'])
+  const [channels, setChannels] = useState(['All Channels', 'API'])
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
@@ -94,15 +109,7 @@ const Analytics: FC<any> = ({ bp }) => {
       setChannels(prevState => [...prevState, ...channels])
     })
 
-    const startDate = moment()
-      .subtract(7, 'days')
-      .startOf('day')
-      .toDate()
-    const endDate = moment()
-      .startOf('day')
-      .toDate()
-
-    dispatch({ type: 'datesSuccess', data: { dateRange: [startDate, endDate] } })
+    dispatch({ type: 'datesSuccess', data: { dateRange: [thisWeek, now] } })
   }, [])
 
   useEffect(() => {
@@ -149,32 +156,17 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getAvgMsgPerSessions = () => {
-    const augmentedMetrics = state.metrics.map(m => ({
-      ...m,
-      day: moment(m.date).format('DD-MM')
-    }))
-    const metricsByDate = _.sortBy(augmentedMetrics, 'day')
-    const sessionsCountPerDay = metricsByDate.filter(m => m.metric === 'sessions_count')
+    const sentCount = state.metrics.reduce((acc, m) => (m.metric === 'msg_sent_count' ? acc + m.value : acc), 0)
+    const receivedCount = state.metrics.reduce((acc, m) => (m.metric === 'msg_received_count' ? acc + m.value : acc), 0)
 
-    return sessionsCountPerDay.map(s => {
-      const sentCount = augmentedMetrics.find(
-        m => m.metric === 'msg_sent_count' && s.day === m.day && s.channel === m.channel
-      )
-      const receivedCount = augmentedMetrics.find(
-        m => m.metric === 'msg_received_count' && s.day === m.day && s.channel === m.channel
-      )
-      return {
-        value: Math.round((_.get(sentCount, 'value', 0) + _.get(receivedCount, 'value', 0)) / s.value),
-        channel: s.channel,
-        date: s.date
-      }
-    })
+    return sentCount + receivedCount
   }
 
   const getUnderstoodPercent = () => {
     const received = getMetricCount('msg_received_count')
     const none = getMetricCount('msg_nlu_intent', 'none')
     const percent = ((received - none) / received) * 100
+
     return getNotNaN(percent, '%')
   }
 
@@ -182,6 +174,7 @@ const Analytics: FC<any> = ({ bp }) => {
     const received = getMetricCount('msg_received_count')
     const none = getMetricCount('top_msg_nlu_none')
     const percent = ((received - none) / received) * 100
+
     return getNotNaN(percent, '%')
   }
 
@@ -189,136 +182,132 @@ const Analytics: FC<any> = ({ bp }) => {
     const activeUsersCount = getMetricCount('active_users_count')
     const newUsersCount = getMetricCount('new_users_count')
     const percent = activeUsersCount && (newUsersCount / activeUsersCount) * 100
+
     return getNotNaN(percent, '%')
   }
 
-  const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${value.toFixed(2)}${suffix}`)
+  const getNewUsersPercent = () => {
+    const existingUsersCount = 150 // TODO get this number from database
+    const newUsersCount = getMetricCount('new_users_count')
+    const percent = newUsersCount && (existingUsersCount / newUsersCount) * 100
+
+    return getNotNaN(percent, '%')
+  }
+
+  const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${Math.round(value)}${suffix}`)
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
-  const renderDashboard = () => {
+  const getTopItems = (metricName: string, type: string) => {
+    const grouped = _.groupBy(getMetric(metricName), 'subMetric')
+    const results = _.orderBy(
+      Object.keys(grouped).map(x => ({ name: x, count: _.sumBy(grouped[x], 'value') })),
+      x => x.count,
+      'desc'
+    )
+
+    return results.map(x => ({
+      label: `${x.name} (${x.count})`,
+      href: '',
+      onClick: navigateToElement(x.name, type)
+    }))
+  }
+
+  const renderEngagement = () => {
     return (
       <div className={style.metricsContainer}>
-        {renderTimeSeriesChart(lang.tr('analytics.activeUsers'), getMetric('active_users_count'))}
-        {renderTimeSeriesChart(lang.tr('analytics.newUsers'), getMetric('new_users_count'))}
-        {renderTimeSeriesChart(lang.tr('analytics.sessions'), getMetric('sessions_count'))}
-        {renderTimeSeriesChart(lang.tr('analytics.averageMessagePerSession'), getAvgMsgPerSessions())}
-        {renderTimeSeriesChart(lang.tr('analytics.messagesReceived'), getMetric('msg_received_count'))}
-        {renderNumberMetric(lang.tr('analytics.returningUsers'), getReturningUsers())}
-        {renderTimeSeriesChart(lang.tr('analytics.qnaSent'), getMetric('msg_sent_qna_count'))}
-        {renderNumberMetric(lang.tr('analytics.understoodMessages'), getUnderstoodPercent())}
-        {renderNumberMetric(lang.tr('analytics.understoodTopLevelMessages'), getTopLevelUnderstoodPercent())}
-        {/* {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)} */}
+        <NumberMetric name="Active Users" value={getMetricCount('active_users_count')} icon="user" />
+        <NumberMetric
+          name={`${getMetricCount('new_users_count')} New Users`}
+          value={getNewUsersPercent()}
+          icon="trending-down"
+        />
+        <NumberMetric
+          name={`${getMetricCount('active_users_count')} Returning Users`}
+          value={getReturningUsers()}
+          icon="trending-up"
+        />
+        <TimeSeriesChart
+          name="User Activities"
+          data={getMetric('new_users_count')}
+          className={style.fullGrid}
+          channels={channels}
+        />
       </div>
     )
   }
 
-  // const renderAgentUsage = () => {
-  //   return (
-  //     <div className={style.metricsContainer}>
-  //       {renderTimeSeriesChart('Sessions', getMetric('sessions_count'))}
-  //       {renderTimeSeriesChart('Messages Received', getMetric('msg_received_count'))}
-  //       {/* {renderTimeSeriesChart('Goals Started', getMetric('goals_started_count'))}
-  //       {renderTimeSeriesChart('Goals Completed', getMetric('goals_completed_count'))} */}
-  //     </div>
-  //   )
-  // }
-
-  // const renderEngagement = () => {
-  //   return (
-  //     <div className={style.metricsContainer}>
-  //       {renderTimeSeriesChart('Average Messages Per Session', getAvgMsgPerSessions())}
-  //       {renderTimeSeriesChart('Active Users', getMetric('active_users_count'))}
-  //       {renderTimeSeriesChart('New Users', getMetric('new_users_count'))}
-  //       {renderNumberMetric('Returning Users', getReturningUsers())}
-  //     </div>
-  //   )
-  // }
-
-  // const renderUnderstanding = () => {
-  //   const goalsOutcome = getMetricCount('goals_completed_count') / getMetricCount('goals_started_count') || 0
-
-  //   return (
-  //     <div className={style.metricsContainer}>
-  //       {/* {renderNumberMetric('Positive Goals Outcome', goalsOutcome + '%')}
-  //       {renderNumberMetric('Positive QNA Feedback', getMetricCount('feedback_positive_qna'), true)} */}
-  //       {renderTimeSeriesChart('QNA Sent', getMetric('msg_sent_qna_count'))}
-  //       {renderNumberMetric('Understood Messages', getUnderstoodPercent())}
-  //       {renderNumberMetric('Understood Top-Level Messages', getTopLevelUnderstoodPercent())}
-  //     </div>
-  //   )
-  // }
-
-  const renderNumberMetric = (name: string, value: number | string, isPercentage?: boolean) => {
+  const renderConversations = () => {
     return (
-      <div className={cx(style.metricWrapper, style.number)}>
-        <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
-          <span>{name}</span>
-        </h4>
-        <Card className={style.numberMetric}>
-          <h2
-            className={cx(style.numberMetricValue, {
-              [botpressTooltip]: isPercentage && value.toString().length > 6
-            })}
-            data-tooltip={value}
-          >
-            <span>{value}</span>
-          </h2>
-        </Card>
+      <div className={style.metricsContainer}>
+        <TimeSeriesChart
+          name="Sessions"
+          data={getMetric('sessions_count')}
+          className={style.threeQuarterGrid}
+          channels={channels}
+        />
+        <NumberMetric name="Message Exchanged" value={getAvgMsgPerSessions()} iconBottom="chat" />
+        <NumberMetric
+          name="Workflows Initiated"
+          value={getMetricCount('workflow_started_count')}
+          className={style.half}
+        />
+        <NumberMetric name="Questions Asked" value={getMetricCount('msg_sent_qna_count')} className={style.half} />
+        <ItemsList
+          name="Most Used Workflows"
+          items={getTopItems('enter_flow_count', 'workflow')}
+          itemLimit={10}
+          className={cx(style.genericMetric, style.half, style.list)}
+        />
+        <ItemsList
+          name="Most Asked Questions"
+          items={getTopItems('msg_sent_qna_count', 'qna')}
+          itemLimit={10}
+          hasTooltip
+          className={cx(style.genericMetric, style.half, style.list)}
+        />
       </div>
     )
   }
 
-  const mapDataForCharts = (data: MetricEntry[]) => {
-    const chartsData = data.map(metric => ({
-      time: moment(metric.date)
-        .startOf('day')
-        .unix(),
-      [metric.channel]: metric.value
-    }))
-
-    return _.sortBy(chartsData, 'time')
-  }
-
-  const formatTick = timestamp => moment.unix(timestamp).format('DD-MM')
-
-  const getTickCount = () => {
-    const startDate = moment(state.dateRange[0]).unix()
-    const endDate = moment(state.dateRange[1]).unix()
-    return (startDate - endDate) / SECONDS_PER_DAY
-  }
-
-  const renderTimeSeriesChart = (name: string, data: MetricEntry[] | any, desc?: string) => {
-    const tickCount = getTickCount()
-
+  const renderHandlingUnderstanding = () => {
     return (
-      <div className={cx(style.metricWrapper, { [style.empty]: !data.length })}>
-        <h4 className={cx(style.metricName, botpressTooltip)} data-tooltip={name}>
-          <span>{name}</span>
-        </h4>
-        <div className={cx(style.chartMetric, { [style.empty]: !data.length })}>
-          {!data.length && <p className={style.emptyState}>{lang.tr('analytics.noDataAvailable')}</p>}
-          {!!data.length && (
-            <ResponsiveContainer>
-              <AreaChart data={mapDataForCharts(data)}>
-                <Tooltip labelFormatter={formatTick} />
-                <XAxis height={18} dataKey="time" tickFormatter={formatTick} tickCount={tickCount} />
-                <YAxis width={30} />
-                {channels
-                  .filter(x => x !== 'all')
-                  .map((channel, idx) => (
-                    <Area
-                      stackId={idx}
-                      type="monotone"
-                      dataKey={channel}
-                      stroke={CHANNEL_COLORS[channel]}
-                      fill={CHANNEL_COLORS[channel]}
-                    />
-                  ))}
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
+      <div className={cx(style.metricsContainer, style.fullWidth)}>
+        <div className={cx(style.genericMetric, style.quarter)}>
+          <div>
+            <p className={style.numberMetricValue}>{getMetricCount('msg_nlu_intent', 'none')}</p>
+            <h3 className={style.metricName}>misunderstood messages</h3>
+          </div>
+          <div>
+            <FlatProgressChart value="70%" color="#DE4343" name="70% inside flows" />
+            <FlatProgressChart value="30%" color="#F2B824" name="30% outside flows" />
+          </div>
         </div>
+        <div className={cx(style.genericMetric, style.quarter, style.list, style.multiple)}>
+          <ItemsList
+            name="Most Failed Workflows"
+            items={getTopItems('workflow_failed_count', 'workflow')}
+            itemLimit={3}
+            className={style.list}
+          />
+          <ItemsList
+            name="Most Failed Questions"
+            items={getTopItems('feedback_negative_qna', 'qna')}
+            itemLimit={3}
+            hasTooltip
+            className={style.list}
+          />
+        </div>
+        <RadialMetric
+          name={`${getMetricCount('workflow_completed_count')} successful workflow completions`}
+          value={getMetricCount('workflow_completed_count')}
+          className={style.quarter}
+        />
+        <RadialMetric
+          name={`${getMetricCount('feedback_positive_qna')} positive QNA feedback`}
+          value={getMetricCount('feedback_positive_qna')}
+          className={style.quarter}
+        />
       </div>
     )
   }
@@ -327,50 +316,81 @@ const Analytics: FC<any> = ({ bp }) => {
     return null
   }
 
-  const startDate = moment(state.dateRange?.[0]).format(lang.tr('analytics.dateFormat'))
-  const endDate = moment(state.dateRange?.[1]).format(lang.tr('analytics.dateFormat'))
+  const shortcuts: IDateRangeShortcut[] = [
+    {
+      dateRange: [thisWeek, now],
+      label: 'This Week'
+    },
+    {
+      dateRange: [lastWeekStart, lastWeekEnd],
+      label: 'Last Week'
+    },
+    {
+      dateRange: [thisMonth, now],
+      label: 'This Month'
+    },
+    {
+      dateRange: [lastMonthStart, lastMonthEnd],
+      label: 'Last Month'
+    },
+    {
+      dateRange: [thisYear, now],
+      label: 'This Year'
+    },
+    {
+      dateRange: [lastYearStart, lastYearEnd],
+      label: 'Last Year'
+    }
+  ]
 
   return (
-    <Container sidePanelHidden={true}>
-      <div></div>
-      <div className={style.mainWrapper}>
+    <div className={style.mainWrapper}>
+      <div className={style.innerWrapper}>
         <div className={style.header}>
-          <h1 className={style.pageTitle}>{state.pageTitle}</h1>
-          <div>
-            <BpTooltip content={lang.tr('analytics.filterChannels')} position={Position.LEFT}>
-              <div style={{ marginRight: 5 }}>
-                <HTMLSelect onChange={handleChannelChange} value={state.selectedChannel}>
-                  {channels.map(channel => {
-                    return (
-                      <option key={channel} value={channel}>
-                        {lang.tr(`analytics.channels.${channel}`)}
-                      </option>
-                    )
-                  })}
-                </HTMLSelect>
-              </div>
+          <h1 className={style.pageTitle}>Analytics</h1>
+          <div className={style.filters}>
+            <BpTooltip content="Filter channels" position={Position.LEFT}>
+              <HTMLSelect className={style.filterItem} onChange={handleChannelChange} value={state.selectedChannel}>
+                {channels.map(channel => {
+                  return (
+                    <option key={channel} value={channel}>
+                      {capitalize(channel)}
+                    </option>
+                  )
+                })}
+              </HTMLSelect>
             </BpTooltip>
 
             <Popover>
-              <Button icon="calendar">{lang.tr('analytics.dateRange')}</Button>
+              <Button icon="calendar" className={style.filterItem}>
+                Date Range
+              </Button>
               <DateRangePicker
-                locale={lang.locale()}
-                localeUtils={LocaleUtils}
                 onChange={handleDateChange}
+                allowSingleDayRange={true}
+                shortcuts={shortcuts}
                 maxDate={new Date()}
                 value={state.dateRange}
               />
             </Popover>
           </div>
         </div>
-
-        <h2 className={cx(style.appliedFilters)}>
-          {lang.tr(`analytics.channels.${state.selectedChannel}`)} -{' '}
-          {lang.tr('analytics.interval', { startDate, endDate })}
-        </h2>
-        {renderDashboard()}
+        <div className={style.sectionsWrapper}>
+          <div className={cx(style.section, style.half)}>
+            <h2>Engagement</h2>
+            {renderEngagement()}
+          </div>
+          <div className={cx(style.section, style.half)}>
+            <h2>Conversations</h2>
+            {renderConversations()}
+          </div>
+          <div className={style.section}>
+            <h2>Handling and Understanding</h2>
+            {renderHandlingUnderstanding()}
+          </div>
+        </div>
       </div>
-    </Container>
+    </div>
   )
 }
 
