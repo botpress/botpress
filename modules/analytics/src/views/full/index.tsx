@@ -5,7 +5,7 @@ import axios from 'axios'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import { MetricEntry } from '../../backend/typings'
 
@@ -51,6 +51,7 @@ const navigateToElement = (name: string, type: string) => () => {
   }
   window.postMessage({ action: 'navigate-url', payload: url }, '*')
 }
+const isNDU = window['USE_ONEFLOW']
 
 const fetchReducer = (state: State, action): State => {
   if (action.type === 'datesSuccess') {
@@ -161,20 +162,17 @@ const Analytics: FC<any> = ({ bp }) => {
     return sentCount + receivedCount
   }
 
-  const getUnderstoodPercent = () => {
-    const received = getMetricCount('msg_received_count')
-    const none = getMetricCount('msg_nlu_intent', 'none')
-    const percent = ((received - none) / received) * 100
+  const getMisunderStoodData = () => {
+    const totalMisunderstood = getMetricCount('msg_nlu_intent', 'none')
+    const totalMisunderstoodInside =
+      ((totalMisunderstood - getMetricCount('sessions_start_nlu_none')) / totalMisunderstood) * 100
+    const totalMisunderstoodOutside = (getMetricCount('sessions_start_nlu_none') / totalMisunderstood) * 100
 
-    return getNotNaN(percent, '%')
-  }
-
-  const getTopLevelUnderstoodPercent = () => {
-    const received = getMetricCount('msg_received_count')
-    const none = getMetricCount('top_msg_nlu_none')
-    const percent = ((received - none) / received) * 100
-
-    return getNotNaN(percent, '%')
+    return {
+      total: totalMisunderstood,
+      inside: getNotNaN(totalMisunderstoodInside, '%'),
+      outside: getNotNaN(totalMisunderstoodOutside, '%')
+    }
   }
 
   const getReturningUsers = () => {
@@ -186,7 +184,7 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getNewUsersPercent = () => {
-    const existingUsersCount = 150 // TODO get this number from database
+    const existingUsersCount = getMetricCount('active_users_count')
     const newUsersCount = getMetricCount('new_users_count')
     const percent = newUsersCount && (existingUsersCount / newUsersCount) * 100
 
@@ -246,11 +244,13 @@ const Analytics: FC<any> = ({ bp }) => {
           channels={channels}
         />
         <NumberMetric name="Message Exchanged" value={getAvgMsgPerSessions()} iconBottom="chat" />
-        <NumberMetric
-          name="Workflows Initiated"
-          value={getMetricCount('workflow_started_count')}
-          className={style.half}
-        />
+        {isNDU && (
+          <NumberMetric
+            name="Workflows Initiated"
+            value={getMetricCount('workflow_started_count')}
+            className={style.half}
+          />
+        )}
         <NumberMetric name="Questions Asked" value={getMetricCount('msg_sent_qna_count')} className={style.half} />
         <ItemsList
           name="Most Used Workflows"
@@ -270,43 +270,49 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderHandlingUnderstanding = () => {
+    const { total, inside, outside } = getMisunderStoodData()
+
     return (
       <div className={cx(style.metricsContainer, style.fullWidth)}>
         <div className={cx(style.genericMetric, style.quarter)}>
           <div>
-            <p className={style.numberMetricValue}>{getMetricCount('msg_nlu_intent', 'none')}</p>
+            <p className={style.numberMetricValue}>{total}</p>
             <h3 className={style.metricName}>misunderstood messages</h3>
           </div>
           <div>
-            <FlatProgressChart value="70%" color="#DE4343" name="70% inside flows" />
-            <FlatProgressChart value="30%" color="#F2B824" name="30% outside flows" />
+            <FlatProgressChart value={inside} color="#DE4343" name={`${inside} inside flows`} />
+            <FlatProgressChart value={outside} color="#F2B824" name={`${outside} outside flows`} />
           </div>
         </div>
-        <div className={cx(style.genericMetric, style.quarter, style.list, style.multiple)}>
-          <ItemsList
-            name="Most Failed Workflows"
-            items={getTopItems('workflow_failed_count', 'workflow')}
-            itemLimit={3}
-            className={style.list}
-          />
-          <ItemsList
-            name="Most Failed Questions"
-            items={getTopItems('feedback_negative_qna', 'qna')}
-            itemLimit={3}
-            hasTooltip
-            className={style.list}
-          />
-        </div>
-        <RadialMetric
-          name={`${getMetricCount('workflow_completed_count')} successful workflow completions`}
-          value={getMetricCount('workflow_completed_count')}
-          className={style.quarter}
-        />
-        <RadialMetric
-          name={`${getMetricCount('feedback_positive_qna')} positive QNA feedback`}
-          value={getMetricCount('feedback_positive_qna')}
-          className={style.quarter}
-        />
+        {isNDU && (
+          <Fragment>
+            <div className={cx(style.genericMetric, style.quarter, style.list, style.multiple)}>
+              <ItemsList
+                name="Most Failed Workflows"
+                items={getTopItems('workflow_failed_count', 'workflow')}
+                itemLimit={3}
+                className={style.list}
+              />
+              <ItemsList
+                name="Most Failed Questions"
+                items={getTopItems('feedback_negative_qna', 'qna')}
+                itemLimit={3}
+                hasTooltip
+                className={style.list}
+              />
+            </div>
+            <RadialMetric
+              name={`${getMetricCount('workflow_completed_count')} successful workflow completions`}
+              value={getMetricCount('workflow_completed_count')}
+              className={style.quarter}
+            />
+            <RadialMetric
+              name={`${getMetricCount('feedback_positive_qna')} positive QNA feedback`}
+              value={getMetricCount('feedback_positive_qna')}
+              className={style.quarter}
+            />
+          </Fragment>
+        )}
       </div>
     )
   }
