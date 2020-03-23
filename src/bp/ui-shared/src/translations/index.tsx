@@ -55,13 +55,12 @@ const squash = (space, root = {}, path = '') => {
   return root
 }
 
-const getUserLocale = (manualLocale?: 'browser' | string) => {
+const getUserLocale = () => {
   const code = str => str.split('-')[0]
   const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
-  const storageLocale = code(localStorage.getItem('bp/channel-web/user-lang') || '')
-  const locale = code(manualLocale === 'browser' ? browserLocale : manualLocale || '')
+  const locale = code(browserLocale || '')
 
-  return translations[locale] ? locale : translations[storageLocale] ? storageLocale : defaultLocale
+  return translations[locale] ? locale : defaultLocale
 }
 
 const lang = (id: string, values?: Record<string, string | PrimitiveType>): string => {
