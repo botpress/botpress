@@ -1,12 +1,14 @@
 {
   "analytics": {
+    "title": "Analytics",
     "dashboard": "Dashboard",
     "activeUsers": "Active Users",
-    "newUsers": "New Users",
+    "newUsers": "{nb} New Users",
+    "userActivities": "User Activities",
     "sessions": "Sessions",
     "averageMessagePerSession": "Average Messages Per Sessions",
     "messagesReceived": "Messages Received",
-    "returningUsers": "Returning Users",
+    "returningUsers": "{nb} Returning Users",
     "qnaSent": "QNA Sent",
     "understoodMessages": "Understood Messages",
     "understoodTopLevelMessages": "Understood Top-Level Messages",
@@ -14,11 +16,32 @@
     "filterChannels": "Filter channels",
     "dateRange": "Date Range",
     "channels": {
-      "all": "All",
+      "all": "All Channels",
       "api": "Api",
       "web": "Web"
     },
     "interval": "{startDate} to {endDate}",
-    "dateFormat": "MMMM Do YYYY"
+    "dateFormat": "MMMM Do YYYY",
+    "messageExchanged": "Message Exchanged",
+    "questionsAsked": "Questions Asked",
+    "mostUsedWorkflows": "Most Used Workflows",
+    "mostAskedQuestions": "Most Asked Questions",
+    "misunderstoodMessages": "misunderstood messages",
+    "mostFailedWorkflows": "Most Failed Workflows",
+    "mostFailedQuestions": "Most Failed Questions",
+    "successfulWorkflowCompletions": "{nb} successful workflow completions",
+    "positiveQnaFeedback": "{nb} positive QNA feedback",
+    "timespan": {
+      "thisWeek": "This Week",
+      "lastWeek": "Last Week",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "thisYear": "This Year",
+      "lastYear": "Last Year"
+    },
+    "engagement": "Engagement",
+    "conversations": "Conversations",
+    "handlingAndUnderstanding": "Handling and Understanding",
+    "workflowsInitiated": "Workflows Initiated"
   }
 }

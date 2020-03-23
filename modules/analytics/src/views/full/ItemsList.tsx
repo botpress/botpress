@@ -1,4 +1,5 @@
 import { Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
@@ -18,7 +19,9 @@ const ItemsList: FC<Props> = props => {
   return (
     <div className={className}>
       <h3 className={style.metricName}>{name}</h3>
-      {!items.length && <p className={cx(style.emptyState, style.alignedLeft)}>No data available</p>}
+      {!items.length && (
+        <p className={cx(style.emptyState, style.alignedLeft)}>{lang.tr('analytics.noDataAvailable')}</p>
+      )}
       <ol>
         {items.slice(0, itemLimit).map((item, index) => (
           <li key={index}>
