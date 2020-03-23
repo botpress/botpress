@@ -18,7 +18,9 @@ window.addEventListener('message', function(payload) {
   if (data.type === 'setClass') {
     document.querySelector('#bp-widget').setAttribute('class', data.value)
   } else if (data.type === 'setWidth') {
-    document.querySelector('#bp-widget').style.width = data.value
+    const width = data.value
+
+    document.querySelector('#bp-widget').style.width = typeof width === 'number' ? width + 'px' : width
   }
 })
 
