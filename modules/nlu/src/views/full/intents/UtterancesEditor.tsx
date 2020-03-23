@@ -101,7 +101,7 @@ export class UtterancesEditor extends React.Component<Props> {
   onBlur = (event, editor: CoreEditor, next) => {
     const newUtts = valueToUtterances(editor.value)
     if (!_.isEqual(this.props.utterances, newUtts)) {
-      this.props.onChange(newUtts)
+      this.dispatchChanges(editor.value)
     }
 
     return next()

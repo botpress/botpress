@@ -75,6 +75,8 @@ export interface BotState {
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>
   trainSessions: _.Dictionary<TrainingSession>
+  cancelTraining: () => Promise<void>
+  isTraining: () => Promise<boolean>
 }
 
 export type TFIDF = _.Dictionary<number>
@@ -109,9 +111,20 @@ export type ListEntityModel = Readonly<{
 }>
 
 export type ExtractedSlot = { confidence: number; name: string; source: string; value: any }
-export type ExtractedEntity = { confidence: number; type: string; metadata: any; value: string }
-export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
+export type ExtractedEntity = {
+  confidence: number
+  type: string
+  metadata: {
+    source: string
+    entityId: string
+    extractor: 'system' | 'list' | 'pattern'
+    unit?: string
+    occurrence?: string
+  }
+  value: string
+}
+export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 
 export interface TrainingSession {
   status: 'training' | 'canceled' | 'done' | 'idle'
@@ -127,7 +140,6 @@ export interface Tools {
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
   duckling: SystemEntityExtractor
-  entityCacheManager: any
   mlToolkit: typeof sdk.MLToolkit
 }
 

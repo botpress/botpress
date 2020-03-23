@@ -30,12 +30,15 @@ export class BaseNodeModel extends NodeModel {
   }
 
   setData({ name, onEnter = [], onReceive = [], next = [], isStartNode, isHighlighted }) {
-    this.isStartNode = isStartNode
+    const deprecatedFeature = window.USE_ONEFLOW // TODO: remove in 13+
+
+    this.isStartNode = !deprecatedFeature && isStartNode
     this.isHighlighted = isHighlighted
     const inNodeType = isStartNode ? 'start' : 'normal'
     const waitOnReceive = !_.isNil(onReceive)
 
-    if (!this.ports['in']) {
+    if (!this.ports['in'] && this.type !== 'trigger') {
+      // TODO: refactor thisfor Trigger
       this.addPort(new StandardIncomingPortModel('in', inNodeType))
     }
 

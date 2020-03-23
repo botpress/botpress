@@ -155,6 +155,7 @@ function extractForListModel(utterance: Utterance, listModel: ListEntityModel): 
       end: utterance.tokens[match.end].offset + utterance.tokens[match.end].value.length,
       value: match.canonical,
       metadata: {
+        extractor: 'list',
         source: match.source,
         occurrence: match.occurrence,
         entityId: listModel.id
@@ -163,6 +164,7 @@ function extractForListModel(utterance: Utterance, listModel: ListEntityModel): 
     })) as EntityExtractionResult[]
 }
 
+// TODO useCache param
 export const extractListEntities = (
   utterance: Utterance,
   list_entities: ListEntityModel[]
@@ -170,7 +172,7 @@ export const extractListEntities = (
   const cacheKey = utterance.toString()
   const [listModelsWithCachedRes, listModelsToExtract] = splitModels(list_entities, cacheKey)
 
-  let matches = _.flatMap(listModelsWithCachedRes, listModel => listModel.cache.get(cacheKey))
+  let matches = _.flatMap(listModelsWithCachedRes, listModel => listModel.cache?.get(cacheKey))
 
   for (const list of listModelsToExtract) {
     const extracted = extractForListModel(utterance, list)
@@ -198,6 +200,7 @@ export const extractPatternEntities = (
       end: Math.min(input.length, res.sourceIndex + res.value.length),
       value: res.value,
       metadata: {
+        extractor: 'pattern',
         source: res.value,
         entityId: `custom.pattern.${ent.name}`
       },

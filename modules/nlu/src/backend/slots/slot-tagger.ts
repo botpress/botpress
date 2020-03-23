@@ -145,25 +145,7 @@ export default class SlotTagger {
   }
 
   async train(intents: Intent<Utterance>[]): Promise<void> {
-    if (intents.length < 2) {
-      debugTrain('Slot Tagger training set too small, skipping training')
-      return
-    }
-
-    this._trainCrf(intents)
-    this._readTagger()
-  }
-
-  get serialized(): Promise<Buffer> {
-    return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
-  }
-
-  private _trainCrf(intents: Intent<Utterance>[]) {
-    this._crfModelFn = tmp.fileSync({ postfix: '.bin' }).name
-    const trainer = this.mlToolkit.CRF.createTrainer()
-
-    trainer.set_params(CRF_TRAINER_PARAMS)
-    trainer.set_callback(str => debugTrain('CRFSUITE', str))
+    const elements: sdk.MLToolkit.CRF.DataPoint[] = []
 
     for (const intent of intents) {
       for (const utterance of intent.utterances) {
@@ -172,11 +154,16 @@ export default class SlotTagger {
           .map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
         const labels = labelizeUtterance(utterance)
 
-        trainer.append(features, labels)
+        elements.push({ features, labels })
       }
     }
 
-    trainer.train(this._crfModelFn)
+    const trainer = this.mlToolkit.CRF.createTrainer()
+    this._crfModelFn = await trainer.train(elements, CRF_TRAINER_PARAMS)
+  }
+
+  get serialized(): Promise<Buffer> {
+    return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
   }
 
   private tokenSliceFeatures(

@@ -164,7 +164,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     if (file.isExample) {
-      if (file.type === 'action') {
+      if (file.type === 'action_legacy') {
         ContextMenu.show(
           <Menu>
             <MenuItem
@@ -202,7 +202,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     const isDisabled = file.name.startsWith('.')
-    const canMove = this.props.store.useRawEditor && this.props.moveFile
+    const canMove = this.props.store.editor.isAdvanced && this.props.moveFile
 
     ContextMenu.show(
       <Menu>

@@ -8,7 +8,15 @@ import yn from 'yn'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
-  ML = 'ML_WORKER'
+  ML = 'ML_WORKER',
+  LOCAL_ACTION_SERVER = 'LOCAL_ACTION_SERVER'
+}
+
+const MESSAGE_TYPE_START_LOCAL_ACTION_SERVER = 'start_local_action_server'
+
+export interface StartLocalActionServerMessage {
+  appSecret: string
+  port: number
 }
 
 const debug = DEBUG('cluster')
@@ -38,6 +46,11 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     worker.kill()
   })
 
+  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, (message: StartLocalActionServerMessage) => {
+    const { appSecret, port } = message
+    cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_ACTION_SERVER, APP_SECRET: appSecret, PORT: port })
+  })
+
   cluster.on('exit', async (worker, code, signal) => {
     const { exitedAfterDisconnect, id } = worker
     debug(`Process exiting %o`, { workerId: id, code, signal, exitedAfterDisconnect })
@@ -50,7 +63,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     }
 
     const workerIdx = process.ML_WORKERS?.indexOf(worker.id)
-    if (workerIdx !== -1) {
+    if (workerIdx > -1) {
       debug(`Machine learning worker ${worker.id} died`)
       process.ML_WORKERS.splice(workerIdx, 1)
       if (process.ML_WORKERS.length === 0) {
@@ -90,6 +103,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
 function spawnWebWorker() {
   const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB })
   process.WEB_WORKER = id
+  debug(`Spawned Web Worker`)
 }
 
 let spawnMLWorkersCount = 0
@@ -112,4 +126,8 @@ export async function spawnMLWorkers(logger?: sdk.Logger) {
   })
   spawnMLWorkersCount++
   debug(`Spawned ${numMLWorkers} machine learning workers`)
+}
+
+export const startLocalActionServer = (message: StartLocalActionServerMessage) => {
+  process.send!({ type: MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, ...message })
 }

@@ -9,8 +9,9 @@ import SlotTagger from './slots/slot-tagger'
 import * as math from './tools/math'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
-import { Intent, PatternEntity, Tools } from './typings'
+import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
+import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -20,6 +21,7 @@ export type Predictors = TrainArtefacts & {
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
+  contexts: string[]
 }
 
 export interface PredictInput {
@@ -43,7 +45,7 @@ export type PredictStep = {
     ambiguous?: boolean
   }
   oos_predictions?: sdk.MLToolkit.SVM.Prediction
-  // TODO slots predictions per intent
+  slot_predictions_per_intent?: _.Dictionary<SlotExtractionResult[]>
 }
 
 export type PredictOutput = sdk.IO.EventUnderstanding
@@ -94,7 +96,7 @@ async function preprocessInput(
   }
 
   const stepOutput: PredictStep = {
-    includedContexts: input.includedContexts,
+    includedContexts: _.isEmpty(input.includedContexts) ? predictors.contexts : input.includedContexts,
     rawText: input.sentence,
     detectedLanguage,
     languageCode: usedLanguage
@@ -147,7 +149,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
     return { ...input, ctx_predictions: [{ label: DEFAULT_CTX, confidence: 1 }] }
   }
 
-  const features = input.utterance.sentenceEmbedding
+  const features = getSentenceEmbeddingForCtx(input.utterance)
   const predictions = await classifier.predict(features)
 
   return {
@@ -232,7 +234,7 @@ function electIntent(input: PredictStep): PredictStep {
   // taken from svm classifier #349
   let predictions = _.chain(ctxPreds)
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
-      const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx])
+      const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
         .thru(preds => {
           const { oos_predictions } = input
           if (oos_predictions && oos_predictions.label === 'out') {
@@ -253,17 +255,11 @@ function electIntent(input: PredictStep): PredictStep {
         .orderBy('confidence', 'desc')
         .value()
       if (intentPreds[0].confidence === 1) {
-        return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
-      }
+        return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: ctxConf }]
+      } // are we sure theres always at least two intents ? otherwise down there it may crash
 
       if (predictionsReallyConfused(intentPreds)) {
-        const others = _.take(intentPreds, 4).map(x => ({
-          label: x.label,
-          l0Confidence: ctxConf,
-          confidence: ctxConf * x.confidence,
-          context: ctx
-        }))
-        return [{ label: NONE_INTENT, l0Confidence: ctxConf, context: ctx, confidence: 1 }, ...others]
+        intentPreds.unshift({ label: NONE_INTENT, context: ctx, confidence: 1 })
       }
 
       const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
@@ -290,6 +286,7 @@ function electIntent(input: PredictStep): PredictStep {
 
   const ctx = _.get(predictions, '0.context', 'global')
   const shouldConsiderOOS =
+    predictions.length &&
     predictions[0].name !== NONE_INTENT &&
     predictions[0].confidence < 0.4 &&
     _.get(input, 'oos_predictions.label') === 'out'
@@ -338,7 +335,10 @@ function detectAmbiguity(input: PredictStep): PredictStep {
   const up = perfectConfusion + 0.1
   const confidenceVec = preds.map(p => p.confidence)
 
-  const ambiguous = preds.length > 1 && math.allInRange(confidenceVec, low, up)
+  const ambiguous =
+    preds.length > 1 &&
+    (math.allInRange(confidenceVec, low, up) ||
+      (preds[0].name === NONE_INTENT && math.allInRange(confidenceVec.slice(1), low, up)))
 
   return _.merge(input, { intent_predictions: { ambiguous } })
 }
@@ -348,14 +348,19 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
     !input.intent_predictions.ambiguous &&
     predictors.intents.find(i => i.name === input.intent_predictions.elected.name)
   if (intent && intent.slot_definitions.length > 0) {
-    // TODO try to extract for each intent predictions and then rank this in the election step
     const slots = await predictors.slot_tagger.extract(input.utterance, intent)
     slots.forEach(({ slot, start, end }) => {
       input.utterance.tagSlot(slot, start, end)
     })
   }
 
-  return { ...input }
+  const slots_per_intent: typeof input.slot_predictions_per_intent = {}
+  for (const intent of predictors.intents.filter(x => x.slot_definitions.length > 0)) {
+    const slots = await predictors.slot_tagger.extract(input.utterance, intent)
+    slots_per_intent[intent.name] = slots
+  }
+
+  return { ...input, slot_predictions_per_intent: slots_per_intent }
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
@@ -389,11 +394,60 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       } as sdk.NLU.Slot
     }
   }, {} as sdk.NLU.SlotCollection)
+
+  const predictions = step.ctx_predictions?.reduce(
+    (preds, { label, confidence }) => {
+      return {
+        ...preds,
+        [label]: {
+          confidence: confidence,
+          intents: step.intent_predictions.per_ctx[label].map(i => ({
+            ...i,
+            slots: (step.slot_predictions_per_intent[i.label] || []).reduce((slots, s) => {
+              if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
+                // we keep only the most confident slots
+                return slots
+              }
+
+              return {
+                ...slots,
+                [s.slot.name]: {
+                  start: s.start,
+                  end: s.end,
+                  confidence: s.slot.confidence,
+                  name: s.slot.name,
+                  source: s.slot.source,
+                  value: s.slot.value
+                } as sdk.NLU.Slot
+              }
+            }, {} as sdk.NLU.SlotCollection)
+          }))
+        }
+      }
+    },
+    {
+      oos: {
+        intents: [
+          {
+            label: NONE_INTENT,
+            confidence: 1 // this will be be computed as
+          }
+        ],
+        confidence: step.oos_predictions?.label === 'out' ? step.oos_predictions.confidence : 0
+      }
+    }
+  )
+
   return {
     ambiguous: step.intent_predictions.ambiguous,
     detectedLanguage: step.detectedLanguage,
     entities,
     errored: false,
+    predictions: _.chain(predictions) // orders all predictions by confidence
+      .entries()
+      .orderBy(x => x[1].confidence, 'desc')
+      .fromPairs()
+      .value(),
     includedContexts: step.includedContexts,
     intent: step.intent_predictions.elected,
     intents: step.intent_predictions.combined,

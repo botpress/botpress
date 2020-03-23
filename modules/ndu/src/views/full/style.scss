@@ -1,0 +1,35 @@
+.container {
+  background-color: white;
+  // display: flex;
+  //flex-direction: column;
+  height: calc(100vh);
+  width: 100%;
+  padding: 10px 15px;
+  overflow-y: auto;
+
+  th {
+    padding: 5px;
+    text-align: center;
+  }
+
+  td {
+    vertical-align: top;
+    width: 200px;
+  }
+}
+
+.sep {
+  border-radius: 4px;
+  background-color: lightgray;
+  padding: 6px;
+}
+
+.success {
+  background-color: lightgreen;
+  padding: 8px;
+}
+
+.failure {
+  background-color: pink;
+  padding: 8px;
+}

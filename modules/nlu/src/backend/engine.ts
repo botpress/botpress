@@ -8,7 +8,6 @@ import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import { ListEntity, NLUEngine, Tools, TrainingSession } from './typings'
-import BotCacheProvider from './entities/entity-cache'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -68,7 +67,6 @@ export default class Engine implements NLUEngine {
       list_entities,
       pattern_entities,
       contexts,
-      botCache: BotCacheProvider.getBotCache(this.botId),
       intents: intentDefs
         .filter(x => !!x.utterances[languageCode])
         .map(x => ({
@@ -138,7 +136,7 @@ export default class Engine implements NLUEngine {
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
+      return { ...artefacts, contexts: [], intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
 
     const { ctx_model, intent_model_by_ctx, oos_model } = artefacts
@@ -161,7 +159,8 @@ export default class Engine implements NLUEngine {
       slot_tagger,
       kmeans,
       pattern_entities: input.pattern_entities,
-      intents: output.intents
+      intents: output.intents,
+      contexts: input.contexts
     }
   }
 

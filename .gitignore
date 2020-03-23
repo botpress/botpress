@@ -58,3 +58,6 @@ build/tests/e2e/screenshots/*
 /internal-modules
 /private-modules
 /src/bp/ml/node-svm
+
+# tests output
+cache

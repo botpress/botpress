@@ -52,8 +52,6 @@ export interface BotCacheManager {
   copyCache: (botId: string, name: string, targetName: string) => void
 }
 
-/////
-
 const cacheMap: _.Dictionary<TypedCache<any>> = {}
 
 function getCacheId(name: string, prefix: string = ''): string {
@@ -63,7 +61,8 @@ function getCacheId(name: string, prefix: string = ''): string {
 export function getOrCreateCache<T>(name: string, botId?: string, options?: { maxElements?: number }): TypedCache<T> {
   const cacheId = getCacheId(name, botId)
   if (!cacheMap[cacheId]) {
-    cacheMap[cacheId] = new LRUCache(options.maxElements || 1000)
+    const max = options?.maxElements ?? 1000
+    cacheMap[cacheId] = new LRUCache(max)
   }
   return cacheMap[cacheId]
 }
@@ -79,33 +78,3 @@ export function copyCache(name: string, targetName: string, prefix?: string) {
   const targetCacheId = getCacheId(targetName, prefix)
   cacheMap[targetCacheId] = _.clone(cacheMap[currentCacheId])
 }
-
-// export class CacheManager implements BotCacheManager {
-//   private static _cacheMap: _.Dictionary<TypedCache<any>> = {}
-
-//   private static cache
-
-//   static getOrCreateCache<T>(botId: string, name: string, size?: number): TypedCache<T> {
-//     if(!this._cacheMap[])
-//     throw new Error('Method not implemented.')
-//   }
-//   static deleteCache(botId: string, name: string): void {
-//     throw new Error('Method not implemented.')
-//   }
-//   static copyCache: (botId: string, name: string, targetName: string) => void
-// }
-
-// export default class BotCacheProvider {
-//   private static _botCacheMap: _.Dictionary<BotCacheManager>
-
-//   public static getBotCache(botId: string): BotCacheManager {
-//     return BotCacheProvider._botCacheMap[botId]
-//   }
-
-//   public static async loadBotCaches(botId: string) {
-//     // check on fs
-//     // if there is a cache dump,
-//   }
-
-//   public static deleteBotCache(botId: string) {}
-// }

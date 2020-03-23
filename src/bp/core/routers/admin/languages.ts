@@ -144,23 +144,30 @@ export class LanguagesRouter extends CustomRouter {
       '/available',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
+        let languagesData: any = { installed: [], available: [] }
         try {
           const client = await this.getSourceClient()
-          const { data } = await client.get('/languages')
-
-          const languages = [
-            ...data.installed
-              .filter(x => x.loaded)
-              .map(x => ({
-                ...data.available.find(l => l.code === x.lang)
-              })),
-            ...(await this.getExtraLangs())
-          ]
-
-          res.send({ languages })
-        } catch (err) {
-          res.status(500).send(err)
+          languagesData = (await client.get('/languages')).data
+        } catch (e) {
+          try {
+            const { languageSources } = await this.moduleLoader.configReader.getGlobal('nlu')
+            if (languageSources.length && languageSources[0].endpoint)
+              this.logger.warn(`Please remove the languageSources from nlu.json if you don't want to use it`)
+          } catch (e) {
+            this.logger.warn('NLU module is disabled')
+          }
         }
+
+        const languages = [
+          ...languagesData.installed
+            .filter(x => x.loaded)
+            .map(x => ({
+              ...languagesData.available.find(l => l.code === x.lang)
+            })),
+          ...(await this.getExtraLangs())
+        ]
+
+        res.send({ languages })
       })
     )
   }

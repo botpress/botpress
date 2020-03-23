@@ -2,9 +2,17 @@ import * as sdk from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
 
+import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import EntityService from './entities/entities-service'
 import { EntityDefCreateSchema } from './entities/validation'
-import { deleteIntent, getIntent, getIntents, saveIntent, updateIntent } from './intents/intent-service'
+import {
+  deleteIntent,
+  getIntent,
+  getIntents,
+  saveIntent,
+  updateContextsFromTopics,
+  updateIntent
+} from './intents/intent-service'
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
@@ -135,6 +143,44 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  router.post('/condition/intentChanged', async (req, res) => {
+    const { botId } = req.params
+    const { action } = req.body
+    const condition = req.body.condition as sdk.DecisionTriggerCondition
+
+    if (action === 'delete' || action === 'create') {
+      try {
+        const ghost = bp.ghost.forBot(botId)
+        const entityService = new EntityService(ghost, botId)
+
+        await updateContextsFromTopics(ghost, entityService, [condition.params.intentName])
+        return res.sendStatus(200)
+      } catch (err) {
+        return res.status(400).send(err.message)
+      }
+    }
+
+    res.sendStatus(200)
+  })
+
+  router.post('/sync/intents/topics', async (req, res) => {
+    const { botId } = req.params
+    const { intentNames } = req.body
+    const ghost = bp.ghost.forBot(botId)
+    const entityService = new EntityService(ghost, botId)
+
+    try {
+      await updateContextsFromTopics(ghost, entityService, intentNames)
+      res.sendStatus(200)
+    } catch (err) {
+      bp.logger
+        .forBot(botId)
+        .attachError(err)
+        .error('Could not update intent topics')
+      res.status(400).send(err.message)
+    }
+  })
+
   router.get('/contexts', async (req, res) => {
     const botId = req.params.botId
     const ghost = bp.ghost.forBot(botId)
@@ -226,6 +272,16 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  router.get('/train', async (req, res) => {
+    try {
+      const { botId } = req.params
+      const isTraining = await state.nluByBot[botId].isTraining()
+      res.send({ isTraining })
+    } catch {
+      res.sendStatus(500)
+    }
+  })
+
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
@@ -236,7 +292,34 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  router.post('/train/delete', async (req, res) => {
+    try {
+      const { botId } = req.params
+      await state.nluByBot[botId].cancelTraining()
+      res.sendStatus(200)
+    } catch {
+      res.sendStatus(500)
+    }
+  })
+
   router.get('/ml-recommendations', async (req, res) => {
     res.send(recommendations)
+  })
+
+  router.post('/autoTrain', async (req, res) => {
+    const { botId } = req.params
+    const { autoTrain } = req.body
+
+    await setAutoTrain(bp, botId, autoTrain)
+
+    res.sendStatus(200)
+  })
+
+  router.get('/autoTrain', async (req, res) => {
+    const { botId } = req.params
+
+    const isOn = await isAutoTrainOn(bp, botId)
+
+    res.send({ isOn })
   })
 }

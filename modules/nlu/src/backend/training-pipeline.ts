@@ -2,7 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { BotCacheManager, getOrCreateCache } from './entities/entity-cache'
+import { getOrCreateCache } from './entities/entity-cache'
+import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -119,7 +120,7 @@ const makeListEntityModel = async (entity: ListEntity, botId: string, languageCo
         return allTokens[idx]
       })
     ),
-    cache: getOrCreateCache(entity.name, { prefix: botId })
+    cache: getOrCreateCache(entity.name, botId)
   }
 }
 
@@ -210,7 +211,7 @@ const TrainIntentClassifier = async (
           .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
           .map(utt => ({
             label: i.name,
-            coordinates: utt.sentenceEmbedding
+            coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
           }))
       )
       .filter(x => !x.coordinates.some(isNaN))
@@ -244,7 +245,7 @@ const TrainContextClassifier = async (
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: utt.sentenceEmbedding
+          coordinates: getSentenceEmbeddingForCtx(utt)
         }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
@@ -290,8 +291,9 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
+  // entities are extracted for better slot training so we extract only those which might have slots
   const utterances = _.chain(input.intents)
-    .filter(i => i.name !== NONE_INTENT)
+    .filter(i => i.name !== NONE_INTENT && !_.isEmpty(i.slot_definitions))
     .flatMap('utterances')
     .value()
 
@@ -301,10 +303,19 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     true
   )
 
+  const customReferencedInSlots = _.chain(input.intents)
+    .flatMap('slot_entities')
+    .uniq()
+    .value()
+
+  // only extract list entities referenced in slots
+  const listEntitiesToExtract = input.list_entities.filter(ent => customReferencedInSlots.includes(ent.entityName))
+  const pattenEntitiesToExtract = input.pattern_entities.filter(ent => customReferencedInSlots.includes(ent.name))
+
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      const listEntities = extractListEntities(utt, input.list_entities)
-      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
+      const listEntities = extractListEntities(utt, listEntitiesToExtract)
+      const patternEntities = extractPatternEntities(utt, pattenEntitiesToExtract)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
@@ -312,7 +323,6 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
         utt.tagEntity(_.omit(ent, ['start, end']), ent.start, ent.end)
       })
     })
-
   return input
 }
 
@@ -399,12 +409,12 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
   }
 
   debugTraining.forBot(input.botId, 'Training slot tagger')
-  const crfExtractor = new SlotTagger(tools.mlToolkit)
-  await crfExtractor.train(input.intents.filter(i => i.name !== NONE_INTENT))
+  const slotTagger = new SlotTagger(tools.mlToolkit)
+  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
   debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()
 
-  return crfExtractor.serialized
+  return slotTagger.serialized
 }
 
 const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {

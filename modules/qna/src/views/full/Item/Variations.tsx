@@ -1,14 +1,16 @@
 import { Position, Tooltip } from '@blueprintjs/core'
 import { ElementPreview } from 'botpress/utils'
+import cx from 'classnames'
 import React, { FC } from 'react'
 
 import style from '../style.scss'
 
 interface Props {
   elements: any
+  isLite?: boolean
 }
 
-const Variations: FC<Props> = ({ elements }) => {
+const Variations: FC<Props> = ({ elements, isLite }) => {
   if (!elements.length) {
     return null
   }
@@ -17,7 +19,7 @@ const Variations: FC<Props> = ({ elements }) => {
     <Tooltip
       position={Position.RIGHT}
       content={
-        <ul className={style.tooltip}>
+        <ul className={cx(style.tooltip, { [style.lite]: isLite })}>
           {elements.map(variation => (
             <li key={variation}>
               {variation.startsWith('#!') ? <ElementPreview itemId={variation.replace('#!', '')} /> : variation}

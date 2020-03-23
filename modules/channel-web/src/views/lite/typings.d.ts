@@ -41,6 +41,7 @@ export namespace Renderer {
     isBotMessage?: boolean
     isLastMessage?: boolean
     sentOn?: Date
+    inlineFeedback?: any
 
     onSendData?: (data: any) => Promise<void>
     onFileUpload?: (label: string, payload: any, file: File) => Promise<void>
@@ -286,4 +287,9 @@ interface MessageWrapper {
   module: string
   /** Name of the component exposed by the module */
   component: string
+}
+
+export interface EventFeedback {
+  incomingEventId: string
+  feedback?: number
 }

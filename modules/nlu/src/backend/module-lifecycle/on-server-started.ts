@@ -11,7 +11,6 @@ import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
 import { NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
-import EntityCacheManager from '../entities/entity-cache'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -54,7 +53,6 @@ function initializeEngine(bp: typeof sdk, state: NLUState) {
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
     duckling: new DucklingEntityExtractor(bp.logger),
-    entityCacheManager: new EntityCacheManager(),
     reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
       await setTrainingSession(bp, botId, trainSession)
 

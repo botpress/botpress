@@ -9,6 +9,7 @@ const migration: sdk.ModuleMigration = {
     type: 'content'
   },
   up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    let hasChanged = false
     const checkFile = (fileContent: string, nbElements: number) => {
       const parsed = JSON.parse(fileContent)
       return parsed.length === nbElements
@@ -22,6 +23,7 @@ const migration: sdk.ModuleMigration = {
 
           if (!(markdownKey in formData)) {
             formData[markdownKey] = true
+            hasChanged = true
           }
         }
       }
@@ -55,7 +57,10 @@ const migration: sdk.ModuleMigration = {
       await Promise.map(bots.keys(), botId => migrateBotTextContent(botId))
     }
 
-    return { success: true, message: 'Text content type updated successfully' }
+    return {
+      success: true,
+      message: hasChanged ? 'Text content type updated successfully' : 'Property already updated, skipping...'
+    }
   }
 }
 
