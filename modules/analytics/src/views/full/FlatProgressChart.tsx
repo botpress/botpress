@@ -13,7 +13,7 @@ const FlatProgressChart: FC<Props> = props => {
 
   return (
     <Fragment>
-      <div className={style.progressMetric} style={{ width: value, background: color }}></div>
+      <div className={style.progressMetric} style={{ width: value === 'N/A' ? 0 : value, background: color }}></div>
       <p className={style.progressMetricLabel}>{name}</p>
     </Fragment>
   )
