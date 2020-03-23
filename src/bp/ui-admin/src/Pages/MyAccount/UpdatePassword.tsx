@@ -1,4 +1,5 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useState } from 'react'
 import api from '~/api'
@@ -24,15 +25,15 @@ const UpdatePassword: FC<Props> = props => {
       await api.getSecured().post(`/auth/login/${strategyType}/${strategy}`, { email, password, newPassword })
 
       props.toggle()
-      toastSuccess('Password updated successfully')
+      toastSuccess(lang.tr('admin.passwordUpdatedSuccessfully'))
     } catch (err) {
-      toastFailure(`Error while updating password: ${err.message}`)
+      toastFailure(lang.tr('admin.errorUpdatingPassword', { msg: err.message }))
     }
   }
 
   return (
     <Dialog
-      title="Change your password"
+      title={lang.tr('admin.changeYourPassword')}
       icon="key"
       isOpen={props.isOpen}
       onClose={props.toggle}
@@ -41,7 +42,7 @@ const UpdatePassword: FC<Props> = props => {
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label="Current password">
+          <FormGroup label={lang.tr('admin.currentPassword')}>
             <InputGroup
               id="input-password"
               type="password"
@@ -52,7 +53,7 @@ const UpdatePassword: FC<Props> = props => {
             />
           </FormGroup>
 
-          <FormGroup label="New password">
+          <FormGroup label={lang.tr('admin.newPassword')}>
             <InputGroup
               id="input-newPassword"
               type="password"
@@ -62,7 +63,7 @@ const UpdatePassword: FC<Props> = props => {
             />
           </FormGroup>
 
-          <FormGroup label="Confirm password">
+          <FormGroup label={lang.tr('admin.confirmPassword')}>
             <InputGroup
               id="input-confirmPassword"
               type="password"
@@ -78,7 +79,7 @@ const UpdatePassword: FC<Props> = props => {
             <Button
               id="btn-submit"
               type="submit"
-              text="Save"
+              text={lang.tr('save')}
               tabIndex={4}
               intent={Intent.PRIMARY}
               disabled={!password || !newPassword || newPassword !== confirmPassword}

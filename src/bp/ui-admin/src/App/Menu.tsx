@@ -1,4 +1,5 @@
 import { Colors, ControlGroup, Icon, Intent, Tag } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect } from 'react'
@@ -79,7 +80,7 @@ const Menu: FC<MenuProps> = props => {
 
   return (
     <div className="bp-sa-menu">
-      <div className="bp-sa-menu-header"> Workspace</div>
+      <div className="bp-sa-menu-header">{lang.tr('admin.workspace')}</div>
       <ControlGroup vertical={true} fill={true}>
         <MenuItem
           id="btn-menu-bots"
@@ -121,7 +122,7 @@ const Menu: FC<MenuProps> = props => {
 
       <AccessControl superAdmin={true}>
         <Fragment>
-          <div className="bp-sa-menu-header">Management</div>
+          <div className="bp-sa-menu-header">{lang.tr('admin.management')}</div>
           <ControlGroup vertical={true} fill={true}>
             <MenuItem id="btn-menu-version" text="Source Control" icon="changes" url="/server/version" />
             <MenuItem
@@ -134,7 +135,7 @@ const Menu: FC<MenuProps> = props => {
             <MenuItem text="Production Checklist" id="btn-menu-checklist" icon="endorsed" url="/checklist" />
           </ControlGroup>
 
-          <div className="bp-sa-menu-header">Health</div>
+          <div className="bp-sa-menu-header">{lang.tr('admin.health')}</div>
           <ControlGroup vertical={true} fill={true}>
             <MenuItem id="btn-menu-monitoring" text="Monitoring" icon="timeline-line-chart" url="/server/monitoring" />
             <MenuItem id="btn-menu-alerting" text="Alerting" icon="notifications" url="/server/alerting" />
@@ -143,7 +144,7 @@ const Menu: FC<MenuProps> = props => {
         </Fragment>
       </AccessControl>
 
-      <div className="bp-sa-menu-header">Announcements</div>
+      <div className="bp-sa-menu-header">{lang.tr('admin.announcements')}</div>
       <ControlGroup vertical={true} fill={true}>
         <MenuItem
           text="Latest Releases"

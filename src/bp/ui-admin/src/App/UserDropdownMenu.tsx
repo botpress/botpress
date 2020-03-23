@@ -9,6 +9,7 @@ import {
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import UpdatePassword from '~/Pages/MyAccount/UpdatePassword'
@@ -58,14 +59,14 @@ const UserDropdownMenu: FC<Props> = props => {
         <Button id="btn-menu" icon={icon} rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />} minimal={true} />
         <Menu>
           <MenuDivider title={`Signed in as ${fullName || email}`} />
-          <MenuItem id="btn-profile" icon="user" text="Update Profile" onClick={toggleProfile} />
+          <MenuItem id="btn-profile" icon="user" text={lang.tr('admin.updateProfile')} onClick={toggleProfile} />
 
           {canChangePassword && (
-            <MenuItem id="btn-changepass" icon="key" text="Change Password" onClick={togglePassword} />
+            <MenuItem id="btn-changepass" icon="key" text={lang.tr('admin.changePassword')} onClick={togglePassword} />
           )}
 
           <MenuDivider />
-          <MenuItem id="btn-logout" icon="log-out" text="Logout" onClick={logout} />
+          <MenuItem id="btn-logout" icon="log-out" text={lang.tr('admin.logout')} onClick={logout} />
         </Menu>
       </Popover>
 
@@ -83,7 +84,4 @@ const UserDropdownMenu: FC<Props> = props => {
 
 const mapStateToProps = (state: any) => ({ profile: state.user.profile })
 
-export default connect(
-  mapStateToProps,
-  { fetchProfile }
-)(UserDropdownMenu)
+export default connect(mapStateToProps, { fetchProfile })(UserDropdownMenu)
