@@ -12,7 +12,7 @@ import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
 import PageContainer from '~/App/PageContainer'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 
 class LicenseStatus extends React.Component {
   state = {
@@ -71,8 +71,8 @@ class LicenseStatus extends React.Component {
   enableProEdition = async () => {
     try {
       if (
-        await confirmDialog('Are you sure?', {
-          acceptLabel: 'Enable'
+        await confirmDialog(lang.tr('admin.license.status.areYouSure'), {
+          acceptLabel: lang.tr('enable')
         })
       ) {
         const result = await api.getSecured().post('/admin/server/config/enablePro')
@@ -90,7 +90,7 @@ class LicenseStatus extends React.Component {
       <Jumbotron>
         <Row>
           <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
-            <p>Please wait while the server reboots, this may take a couple of seconds.</p>
+            <p>{lang.tr('admin.license.status.waitWhileReboot')}</p>
           </Col>
         </Row>
       </Jumbotron>
@@ -102,8 +102,14 @@ class LicenseStatus extends React.Component {
       <div className={'license-status ' + (this.isLicensed ? 'licensed' : 'unlicensed')}>
         <div>
           <span className="license-status__badge" />
-          <span className="license-status__status">{this.isLicensed ? 'Licensed' : 'Unlicensed'}</span>
-          <span className="license-status__limits">{this.isUnderLimits ? 'Under Limits' : 'Limits breached'}</span>
+          <span className="license-status__status">
+            {this.isLicensed ? lang.tr('admin.license.status.licensed') : lang.tr('admin.license.status.unlicensed')}
+          </span>
+          <span className="license-status__limits">
+            {this.isUnderLimits
+              ? lang.tr('admin.license.status.underLimits')
+              : lang.tr('admin.license.status.limitsBreached')}
+          </span>
         </div>
 
         <Button color="link" className="license-status__refresh" onClick={this.refreshKey}>
@@ -122,7 +128,7 @@ class LicenseStatus extends React.Component {
     return (
       <Fragment>
         <div className="license-infos license-infos--fingerprint">
-          <strong className="license-infos__label">Cluster fingerprint:</strong>
+          <strong className="license-infos__label">{lang.tr('admin.license.status.clusterFingerprint')}:</strong>
           <code>{this.serverFingerprints.cluster_url}</code>
           <CopyToClipboard text={this.serverFingerprints.cluster_url}>
             <Button color="link" size="sm" className="license-infos__icon">
@@ -136,12 +142,10 @@ class LicenseStatus extends React.Component {
             </Button>
           </CopyToClipboard>
           <UncontrolledTooltip placement="right" target="TooltipCopy">
-            Copy to clipboard
+            {lang.tr('admin.license.status.copyToClipboard')}
           </UncontrolledTooltip>
         </div>
-        {this.isWrongFingerprint && (
-          <Alert color="danger">Your license fingerprint doesn't match your machine/cluster fingerprints.</Alert>
-        )}
+        {this.isWrongFingerprint && <Alert color="danger">{lang.tr('admin.license.status.fingerprintNoMatch')}</Alert>}
       </Fragment>
     )
   }

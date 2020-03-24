@@ -5,6 +5,13 @@
   "action": "Action",
   "copy": "Copy",
   "move": "Move",
+  "close": "Close",
+  "delete": "Delete",
+  "chooseFile": "Choose file...",
+  "upload": "Upload",
+  "enabled": "Enabled",
+  "refresh": "Refresh",
+  "enable": "Enable",
 
   "editStage": {
     "approvalsRequired": "Number of approvals required",
@@ -54,6 +61,164 @@
     "errorUpdatingProfile": "Error while updating profile: {msg}",
     "updateYourProfile": "Update your profile",
     "firstName": "First Name",
-    "lastName": "Last Name"
+    "lastName": "Last Name",
+    "workspaceName": "Workspace: {name}",
+
+    "logs": {
+      "rowLimitReached": "Row limit reached. Choose a different time range",
+      "dateTimeRange": "Date Time Range",
+      "onlyBotsFromThisWorkspace": "Only bots from this workspace",
+      "rangeLabel": "{start} to {end} - {timespan}",
+      "refreshed": "Logs refreshed",
+      "level": {
+        "all": "All",
+        "info": "Info",
+        "warning": "Warning",
+        "error": "Error",
+        "critical": "Critical",
+        "everything": "Everything"
+      },
+      "column": {
+        "date": "Date",
+        "hostname": "Hostname",
+        "botId": "Bot Id",
+        "level": "Level",
+        "scope": "Scope",
+        "message": "Message"
+      },
+      "timespan": {
+        "last15m": "Last 15 minutes",
+        "last60m": "Last 60 minutes",
+        "last4h": "Last 4 hours",
+        "last24h": "Last 24 hours",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "thisWeek": "This week",
+        "lastWeek": "Last week",
+        "last30d": "Last 30 days"
+      }
+    },
+
+    "monitoring": {
+      "serverControl": "Server Control",
+      "youAreAboutToRestart": "You are about to restart the Botpress server hosted on",
+      "areYouSure": "Are you sure?",
+      "restartInProgress": "Server restart in progress. To know when the server is back up, watch the uptime for that server in the Overview. You can close this window safely.",
+      "restartNow": "Restart server now",
+      "restart": "Restart server",
+      "column": {
+        "rule": "Rule",
+        "host": "Host",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "triggerValue": "Trigger Value",
+        "uptime": "Uptime",
+        "peakCpuUsage": "Peak CPU Usage",
+        "peakMemUsage": "Peak Mem Usage",
+        "requests": "Requests",
+        "eventsIn": "Events In",
+        "eventsOut": "Events Out",
+        "warnings": "Warnings",
+        "errors": "Errors",
+        "criticals": "Criticals"
+      }
+    },
+
+    "requirements": {
+      "confUpdated": "Configuration updated successfully! Restart Botpress for changes to take effect",
+      "confNotUpdated": "Could not update configuration: {msg}",
+      "missing": "Missing requirements",
+      "alsoRequired": "To use this feature, these features are also required:",
+      "pro": "Botpress Pro must be enabled with a valid license",
+      "redis": "Redis must be enabled and correctly configured",
+      "monitoring": "Monitoring must be enabled",
+      "featureDisabled": "Feature disabled",
+      "toUseRestart": "To use this feature, click on the button below. A server restart will be required for changes to take effect.",
+      "enableFeature": "Enable this feature"
+    },
+
+    "license": {
+      "enterYourLicense": "Enter your license key",
+      "newLicenseKey": "New License Key",
+      "validateChange": "Validate & Change",
+      "enterLicenseKey": "Enter license key",
+
+      "policy": {
+        "admins": "Admins",
+        "nodes": "Nodes",
+        "version": "Version",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "fingerprint": "Server Fingerprint"
+      },
+      "status": {
+        "areYouSure": "Are you sure?",
+        "waitWhileReboot": "Please wait while the server reboots, this may take a couple of seconds.",
+        "licensed": "Licensed",
+        "unlicensed": "Unlicensed",
+        "underLimits": "Under Limits",
+        "limitsBreached": "Limits Breached",
+        "clusterFingerprint": "Cluster fingerprint",
+        "copyToClipboard": "Copy to clipboard",
+        "fingerprintNoMatch": "Your license fingerprint doesn't match your machine/cluster fingerprints."
+      }
+    },
+
+    "languages": {
+      "languageManagement": "Language Management",
+      "cannotBeEdited": "Languages cannot be edited as Language Server is read only",
+      "loading": "loading...",
+      "usingLangServerAt": "Using lang server at",
+      "runOwnLanguageServer": "To run your own language server, follow the instructions",
+      "inDocumentation": "in the documentation",
+      "confirmDelete": "Are you sure that you want to delete {language} from the server?",
+      "addLanguages": "Add Languages",
+      "installedLanguages": "Installed Languages",
+      "noLanguagesYet": "No languages yet"
+    },
+
+    "versioning": {
+      "archiveReady": "Archive ready",
+      "pleaseWait": "Please wait...",
+      "downloadArchive": "Download archive",
+      "sourceControl": "Source Control",
+      "pullToFileSystem": "Pull remote to file system",
+      "useThisCommand": "Use this command to copy the remote data on your local file system.",
+      "clickToCopy": "Click to copy to clipboard",
+      "pushLocal": "Push local to this server",
+      "pushLocalNeedsBFFS": "Pushing local changes to a remote server is only possible when using the BPFS Storage \"Database\".",
+      "checkOutThe": "Check out the",
+      "documentation": "documentation",
+      "forMorInfo": "for more information.",
+      "youCanPushWithThisCommand": "If you are using the database storage for BPFS, you can also push your local changes to the database using this command:",
+      "changesPushed": "Changes pushed successfully!",
+      "serverArchive": "Server Archive",
+      "selectArchivedExported": "Select an archive exported from another server. If there are conflicts, you will be able to review them before pushing.",
+      "pushChanges": "Push changes",
+      "conflictWarning": "Conflict warning",
+      "conflictMessage": "Remote has changes that are not synced to your environment. Backup your changes and use \"pull\" to get those changes on your file system. If you still want to overwrite remote changes, turn on the switch \"Force push my changes\" then press the button",
+      "forcePush": "Force push my changes",
+      "uploadArchive": "Upload archive"
+    },
+
+    "alerting": {
+      "alertingAndIncidents": "Alerting & Incidents",
+      "activeIncidents": "Active Incidents",
+      "resolvedIncidents": "Resolved Incidents",
+      "notEnabled": "Alerting is not enabled or there is no statistics.",
+      "makeSureEnabled": "Make sure that alerting is enabled in your Botpress Config (and that you have restarted the server if you just made the change).",
+      "timeFrame": "Time Frame",
+      "autoRefresh": "Auto-Refresh",
+      "timespanHour": "1 hour",
+      "timespanHours": "{nb} hours"
+    },
+
+    "debug": {
+      "configureDebug": "Configure Debug",
+      "helpText": "This page allows you to enable or disable some debug scopes while using Botpress. This list is populated while features are being used, so some items may be missing",
+      "persist": "Persist",
+      "persistChecked": "When checked, the selected debug options will be enabled after each server restart",
+      "confUpdated": "Debug configuration updated successfully!"
+    }
   }
 }
