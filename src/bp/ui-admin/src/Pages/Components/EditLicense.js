@@ -44,11 +44,11 @@ export default class EditLicense extends Component {
   renderModal() {
     return (
       <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
-        <ModalHeader toggle={this.toggleModal}>{lang.tr('enterYourLicense')}</ModalHeader>
+        <ModalHeader toggle={this.toggleModal}>{lang.tr('admin.license.enterYourLicense')}</ModalHeader>
         <ModalBody>
           {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
           <FormGroup>
-            <Label for="firstName">{lang.tr('newLicenseKey')}</Label>
+            <Label for="firstName">{lang.tr('admin.license.newLicenseKey')}</Label>
             <Input
               name="licenseKey"
               type="textarea"
@@ -62,7 +62,7 @@ export default class EditLicense extends Component {
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={() => this.changeKey()}>
-            {lang.tr('validateChange')}
+            {lang.tr('admin.license.validateChange')}
           </Button>
         </ModalFooter>
       </Modal>
@@ -73,7 +73,7 @@ export default class EditLicense extends Component {
     return (
       <div>
         <Button size="sm" color="primary" outline onClick={this.toggleModal}>
-          {lang.tr('enterLicenseKey')}
+          {lang.tr('admin.license.enterLicenseKey')}
         </Button>
         {this.renderModal()}
       </div>
