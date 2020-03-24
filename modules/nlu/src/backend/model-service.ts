@@ -95,6 +95,7 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
 }
 
 export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void | void[]> {
+  // TODO dump entities cache in the model
   const serialized = serializeModel(model)
   const modelName = makeFileName(hash, model.languageCode)
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })

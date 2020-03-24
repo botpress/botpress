@@ -8,8 +8,6 @@ import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 const ENTITY_SCORE_THRESHOLD = 0.6
 
-// TODO make cache for entity
-
 function takeUntil(
   arr: ReadonlyArray<UtteranceToken>,
   start: number,

@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getOrCreateCache } from './cache-manager'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { getOrCreateCache } from './entities/entity-cache'
 import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
