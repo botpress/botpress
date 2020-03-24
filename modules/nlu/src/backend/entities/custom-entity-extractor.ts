@@ -147,6 +147,7 @@ export const extractListEntities = (
           end: utterance.tokens[match.end].offset + utterance.tokens[match.end].value.length,
           value: match.canonical,
           metadata: {
+            extractor: 'list',
             source: match.source,
             occurrence: match.occurrence,
             entityId: list.id
@@ -174,6 +175,7 @@ export const extractPatternEntities = (
       end: Math.min(input.length, res.sourceIndex + res.value.length),
       value: res.value,
       metadata: {
+        extractor: 'pattern',
         source: res.value,
         entityId: `custom.pattern.${ent.name}`
       },
@@ -183,6 +185,7 @@ export const extractPatternEntities = (
 }
 
 // TODO clean this later with entities and intent srvices
+// This will be removed in another commit
 export function mapE1toE2Entity(ent: NLU.Entity): EntityExtractionResult {
   return {
     confidence: ent.meta.confidence,
@@ -190,6 +193,7 @@ export function mapE1toE2Entity(ent: NLU.Entity): EntityExtractionResult {
     end: ent.meta.end,
     value: ent.data.value,
     metadata: {
+      extractor: 'system',
       source: ent.meta.source,
       entityId: `system.${ent.name}`,
       unit: ent.data.unit
