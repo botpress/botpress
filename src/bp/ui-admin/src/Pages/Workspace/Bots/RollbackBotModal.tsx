@@ -1,4 +1,5 @@
 import { Button, Callout, Checkbox, Classes, Dialog, FormGroup, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import Select from 'react-select'
 import { toastFailure } from '~/utils/toaster'
@@ -48,7 +49,7 @@ const RollbackBotModal: FC<Props> = props => {
       props.onRollbackSuccess()
       closeModal()
     } catch (error) {
-      toastFailure(`Error while rollbacking to a previous version: ${error.message}`)
+      toastFailure(lang.tr('admin.workspace.bots.rollback.error', { msg: error.message }))
     } finally {
       setProcessing(false)
     }
@@ -68,10 +69,10 @@ const RollbackBotModal: FC<Props> = props => {
       icon="undo"
       onClose={closeModal}
       transitionDuration={0}
-      title={`Rollback bot ${props.botId}`}
+      title={lang.tr('admin.workspace.bots.rollback.rollbackBot', { bot: props.botId })}
     >
       <div className={Classes.DIALOG_BODY}>
-        <FormGroup label="Select revision">
+        <FormGroup label={lang.tr('admin.workspace.bots.rollback.selectRevision')}>
           <Select
             id="select-revisions"
             value={selected}
@@ -84,8 +85,7 @@ const RollbackBotModal: FC<Props> = props => {
 
         {selected && (
           <Callout intent={Intent.WARNING}>
-            Are you sure you want to rollback the bot to that revision? All existing content, flows, questions, etc.
-            will be overwritten. This can't be undone.
+            {lang.tr('admin.workspace.bots.rollback.confirm')}
             <br />
             <br />
             <Checkbox
@@ -93,7 +93,7 @@ const RollbackBotModal: FC<Props> = props => {
               tabIndex={2}
               checked={isConfirmed}
               onChange={e => setConfirmed(e.currentTarget.checked)}
-              label="Yes, rollback the bot to that version"
+              label={lang.tr('admin.workspace.bots.rollback.confirmYes')}
             />
           </Callout>
         )}
@@ -103,7 +103,7 @@ const RollbackBotModal: FC<Props> = props => {
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
             id="btn-submit"
-            text={isProcessing ? 'Please wait...' : 'Rollback'}
+            text={isProcessing ? lang.tr('pleaseWait') : lang.tr('admin.workspace.bots.rollback.rollback')}
             tabIndex={3}
             onClick={submit}
             disabled={!selected || !isConfirmed || isProcessing}

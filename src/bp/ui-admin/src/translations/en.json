@@ -12,18 +12,8 @@
   "enabled": "Enabled",
   "refresh": "Refresh",
   "enable": "Enable",
+  "pleaseWait": "Please wait...",
 
-  "editStage": {
-    "approvalsRequired": "Number of approvals required",
-    "couldNotFindPipeline": "Could not find the pipeline to save",
-    "stageSaved": "Stage saved successfully",
-    "errorUpdatingPipeline": "Error while updating pipeline: {message}",
-    "reviewers": "Reviewers",
-    "approvalOrder": "Approval Order",
-    "serial": "Serial",
-    "parallel": "Parallel",
-    "pleaseWait": "Please wait..."
-  },
   "admin": {
     "botpressIsNotLicensed": "Botpress is currently not licensed. Please update your license to re-enable all features.",
     "pageRestrictedToAdmins": "This page is restricted to Super Admins",
@@ -59,6 +49,7 @@
     "firstName": "First Name",
     "lastName": "Last Name",
     "workspaceName": "Workspace: {name}",
+    "signedInAs": "Signed in as {name}",
 
     "sideMenu": {
       "workspace": "Workspace",
@@ -237,6 +228,92 @@
       "persist": "Persist",
       "persistChecked": "When checked, the selected debug options will be enabled after each server restart",
       "confUpdated": "Debug configuration updated successfully!"
+    },
+
+    "workspace": {
+      "bots": {
+        "confirmDelete": "Are you sure you want to delete this bot? This can't be undone.",
+        "remounted": "Bot remounted successfully",
+        "couldNotMount": "Could not mount bot. Check server logs for details",
+        "new": "New Bot",
+        "importExisting": "Import Existing",
+        "promoted": "Bot promoted to next stage",
+        "approvedPromotion": "Approved bot promotion to next stage",
+        "revisionsCreated": "Revisions created",
+        "rollbackSuccess": "Rollback success",
+        "filter": "Filter bots",
+        "extraFilters": "Extra filters",
+        "needYourApproval": "Need your approval",
+        "noBotMatches": "No bot matches your query",
+        "noBotYet": "This workspace has no bots, yet",
+        "alwaysAssignedToWorkspace": "In Botpress, bots are always assigned to a workspace.",
+        "createYourFirstBot": "Create your first bot to start building.",
+        "noSpecifiedLanguage": "You have bots without specified language. Default language is mandatory since Botpress 11.8. Please set bot language in the bot config page.",
+        "bots": "Bots",
+        "createBot": "Create Bot",
+
+        "item": {
+          "reload": "Reload",
+          "config": "Config",
+          "openChat": "Open Chat",
+          "editInStudio": "Edit in Studio",
+          "copyLinkToClipboard": "Copy link to clipboard",
+          "copyToClipboard": "Copy to clipboard",
+          "viewLogs": "View Logs",
+          "createRevision": "Create Revision",
+          "rollback": "Rollback",
+          "export": "Export",
+          "delete": "Delete",
+          "languageIsMissing": "Bot language is missing. Please set it in bot config.",
+
+          "promoteToNextStage": "Promote to next stage",
+          "needsYourReview": "Needs your review",
+          "approved": "Approved",
+          "disabled": "disabled",
+          "private": "private",
+          "error": "error",
+          "approve": "Approve",
+          "requestedBy": "Requested by {requester}",
+          "onDate": "on {date}"
+        },
+        "create": {
+          "newBot": "Create a new bot",
+          "name": "Bot Name",
+          "nameHelper": "It will be displayed to your visitors. You can change it anytime.",
+          "namePlaceholder": "The name of your bot",
+          "id": "Bot Id",
+          "idHelper": "This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see it. Special characters are not allowed. Minimum length: 4",
+          "idPlaceholder": "The ID of your bot (must be unique)",
+          "template": "Bot Template",
+          "category": "Bot Category",
+          "create": "Create Bot"
+        },
+        "edit": {
+          "approvalsRequired": "Number of approvals required",
+          "couldNotFindPipeline": "Could not find the pipeline to save",
+          "stageSaved": "Stage saved successfully",
+          "errorUpdatingPipeline": "Error while updating pipeline: {message}",
+          "reviewers": "Reviewers",
+          "approvalOrder": "Approval Order",
+          "serial": "Serial",
+          "parallel": "Parallel"
+        },
+        "import": {
+          "fromArchive": "Import bot from archive",
+          "alreadyInUse": "Already in use",
+          "archive": "Bot Archive",
+          "overwrite": "Overwrite existing bot",
+          "import": "Import Bot"
+        },
+        "rollback": {
+          "error": "Error while rollbacking to a previous version: {msg}",
+          "rollbackBot": "Rollback bot {bot}",
+          "confirm": "Are you sure you want to rollback the bot to that revision? All existing content, flows, questions, etc. will be overwritten. This can't be undone.",
+          "confirmYes": "Yes, rollback the bot to that version",
+          "rollback": "Rollback",
+          "selectRevision": "Select revision"
+        }
+      }
     }
   }
 }

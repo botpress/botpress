@@ -58,7 +58,7 @@ const UserDropdownMenu: FC<Props> = props => {
       <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.CLICK}>
         <Button id="btn-menu" icon={icon} rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />} minimal={true} />
         <Menu>
-          <MenuDivider title={`Signed in as ${fullName || email}`} />
+          <MenuDivider title={lang.tr('admin.signedInAs', { name: fullName || email })} />
           <MenuItem id="btn-profile" icon="user" text={lang.tr('admin.updateProfile')} onClick={toggleProfile} />
 
           {canChangePassword && (

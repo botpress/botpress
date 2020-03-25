@@ -88,7 +88,7 @@ const EditStageModal: FC<Props> = props => {
     let newPipeline
 
     if (!pipeline.find(p => p.id === id)) {
-      toastFailure(lang.tr('editStage.couldNotFindPipeline'))
+      toastFailure(lang.tr('admin.workspace.bots.edit.couldNotFindPipeline'))
     } else {
       newPipeline = pipeline.map(p =>
         p.id !== id
@@ -109,10 +109,10 @@ const EditStageModal: FC<Props> = props => {
         .post(`/admin/workspaces/${getActiveWorkspace()}/pipeline`, { updateCustom: true, pipeline: newPipeline })
 
       props.onEditSuccess()
-      toastSuccess(lang.tr('editStage.stageSaved'))
+      toastSuccess(lang.tr('admin.workspace.bots.edit.stageSaved'))
       closeModal()
     } catch (error) {
-      toastFailure(lang.tr('editStage.errorUpdatingPipeline', { message: error.message }))
+      toastFailure(lang.tr('admin.workspace.bots.edit.errorUpdatingPipeline', { message: error.message }))
     } finally {
       setProcessing(false)
     }
@@ -172,7 +172,7 @@ const EditStageModal: FC<Props> = props => {
             </RadioGroup>
           </FormGroup>
         )}
-        <FormGroup label={lang.tr('editStage.reviewers')}>
+        <FormGroup label={lang.tr('admin.workspace.bots.edit.reviewers')}>
           <Select
             id="select-reviewers"
             isMulti={true}
@@ -182,7 +182,7 @@ const EditStageModal: FC<Props> = props => {
             autoFocus={true}
           />
         </FormGroup>
-        <FormGroup label={lang.tr('editStage.approvalsRequired')}>
+        <FormGroup label={lang.tr('admin.workspace.bots.edit.approvalsRequired')}>
           <NumericInput
             id="input-minimumApprovals"
             min={0}
@@ -201,7 +201,7 @@ const EditStageModal: FC<Props> = props => {
           <Button id="btn-cancel" text={lang.tr('cancel')} tabIndex={3} onClick={toggle} disabled={isProcessing} />
           <Button
             id="btn-submit"
-            text={isProcessing ? lang.tr('editStage.pleaseWait') : lang.tr('save')}
+            text={isProcessing ? lang.tr('pleaseWait') : lang.tr('save')}
             tabIndex={3}
             onClick={submit}
             disabled={isProcessing}
