@@ -1,5 +1,5 @@
 import { Button, Intent, Pre } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
+import { BaseDialog, DialogBody, DialogFooter, lang } from 'botpress/shared'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { toastInfo } from '~/utils/toaster'
@@ -14,16 +14,16 @@ interface Props {
 
 const ShowInfoModal: FC<Props> = props => {
   const messages = {
-    newAccount: `Your botpress account is ready!
+    newAccount: `${lang.tr('admin.workspace.users.collaborators.accountReady')}
 
-  Sign-in here: ${window.location.origin}/admin/login
-  Email: ${props.email}
-  Password: ${props.password}`,
+  ${lang.tr('admin.workspace.users.collaborators.signInHere', { link: `${window.location.origin}/admin/login` })}
+  ${lang.tr('admin.workspace.users.collaborators.showEmail', { email: props.email })}
+  ${lang.tr('admin.workspace.users.collaborators.showPassword', { password: props.password })}`,
 
-    passwordReset: `Your password has been reset.
+    passwordReset: `${lang.tr('admin.workspace.users.collaborators.passwordBeenReset')}
 
-    Email: ${props.email}
-    Password: ${props.password}`
+    ${lang.tr('admin.workspace.users.collaborators.showEmail', { email: props.email })}
+    ${lang.tr('admin.workspace.users.collaborators.showPassword', { password: props.password })}`
   }
 
   if (!messages[props.messageId]) {
@@ -32,7 +32,11 @@ const ShowInfoModal: FC<Props> = props => {
 
   return (
     <BaseDialog
-      title={props.messageId === 'newAccount' ? 'Account Created' : 'Password Reset'}
+      title={
+        props.messageId === 'newAccount'
+          ? lang.tr('admin.workspace.users.collaborators.accountReady')
+          : lang.tr('admin.workspace.users.collaborators.passwordReset')
+      }
       icon="info-sign"
       isOpen={props.isOpen}
       onClose={props.toggle}
@@ -41,12 +45,21 @@ const ShowInfoModal: FC<Props> = props => {
         <Pre>{messages[props.messageId]}</Pre>
       </DialogBody>
       <DialogFooter>
-        <CopyToClipboard text={messages[props.messageId]} onCopy={() => toastInfo('Copied to clipboard')}>
-          <Button text="Copy message to clipboard" />
+        <CopyToClipboard
+          text={messages[props.messageId]}
+          onCopy={() => toastInfo(lang.tr('admin.workspace.users.collaborators.copiedToClipboard'))}
+        >
+          <Button text={lang.tr('admin.workspace.users.collaborators.copyMessageToClipboard')} />
         </CopyToClipboard>
 
-        <CopyToClipboard text={props.password} onCopy={() => toastInfo('Copied to clipboard')}>
-          <Button text="Copy password to clipboard" intent={Intent.PRIMARY} />
+        <CopyToClipboard
+          text={props.password}
+          onCopy={() => toastInfo(lang.tr('admin.workspace.users.collaborators.copiedToClipboard'))}
+        >
+          <Button
+            text={lang.tr('admin.workspace.users.collaborators.copyPasswordToClipboard')}
+            intent={Intent.PRIMARY}
+          />
         </CopyToClipboard>
       </DialogFooter>
     </BaseDialog>

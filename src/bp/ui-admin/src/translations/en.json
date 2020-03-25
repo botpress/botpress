@@ -13,6 +13,7 @@
   "refresh": "Refresh",
   "enable": "Enable",
   "pleaseWait": "Please wait...",
+  "reset": "Reset",
 
   "admin": {
     "botpressIsNotLicensed": "Botpress is currently not licensed. Please update your license to re-enable all features.",
@@ -312,6 +313,58 @@
           "confirmYes": "Yes, rollback the bot to that version",
           "rollback": "Rollback",
           "selectRevision": "Select revision"
+        }
+      },
+      "users": {
+        "chatUsers": "Chat Users",
+        "chatUsersHelp": "Chat users are only allowed to talk with bots. They can see a list of all the bots in the workspace",
+        "addChatUser": "Add chat user",
+        "configureRollout": "Configure Rollout",
+        "currentStrategy": "Current Strategy",
+        "inviteCode": "Invite Code",
+        "unlimitedUsage": "unlimited usage",
+        "usageLeft": "{allowedUsages} usage left",
+
+        "collaborators": {
+          "collaborators": "Collaborators",
+          "help": "Create, delete users or update their role.",
+          "add": "Add collaborator",
+          "noCollaboratorsYet": "This workspace has no collaborators, yet",
+          "filterUsers": "Filter users",
+          "noMatch": "No user matches your query",
+          "email": "Email",
+          "created": "Created",
+          "lastLogin": "Last Login",
+          "passwordResetConfirm": "Are you sure you want to reset {user}'s password?",
+          "passwordResetSuccess": "Password reset successful",
+          "passwordResetFail": "Could not reset password: {msg}",
+          "deleteAccountConfirm": "Are you sure you want to delete {user}'s account?",
+          "deleteAccountSuccess": "`User {user} was deleted successfully`",
+          "deleteAccountFail": "Could not delete user: {msg}",
+          "removeConfirm": "Are you sure you want to remove {user} from this workspace?",
+          "removeSucess": "User {user} was removed from workspace successfully",
+          "removeFail": "Could not remove user from workspace: {msg}",
+          "roleUpdateSuccess": "Role updated successfully",
+          "roleUpdateFail": "Could not update role: {msg}",
+          "action": "Action",
+          "resetPassword": "Reset Password",
+          "changeRole": "Change Role",
+          "removeFromWorkspace": "Remove from workspace",
+          "inviteExistingUser": "Invite an existing user, or type his e-mail address and press Enter",
+          "authStrategy": "Authentication Strategy",
+          "chooseRole": "Choose a role for that user",
+          "createAccount": "Create account",
+          "addToWorkspace": "Add to workspace",
+          "accountReady": "Your botpress account is ready!",
+          "signInHere": "Sign-in here: {link}",
+          "showEmail": "Email: {email}",
+          "showPassword": "Password: {password}",
+          "passwordBeenReset": "Your password has been reset.",
+          "accountCreated": "Account Created",
+          "passwordReset": "Password Reset",
+          "copiedToClipboard": "Copied to clipboard",
+          "copyMessageToClipboard": "Copy message to clipboard",
+          "copyPasswordToClipboard": "Copy password to clipboard"
         }
       }
     }
