@@ -170,7 +170,29 @@
         "limitsBreached": "Limits Breached",
         "clusterFingerprint": "Cluster fingerprint",
         "copyToClipboard": "Copy to clipboard",
-        "fingerprintNoMatch": "Your license fingerprint doesn't match your machine/cluster fingerprints."
+        "fingerprintNoMatch": "Your license fingerprint doesn't match your machine/cluster fingerprints.",
+        "friendlyName": "Friendly Name",
+        "renewDate": "Renew Date",
+        "support": "Support",
+        "thisIsSupport": "This is the support offered by Botpress",
+        "allowedNodes": "Allowed Nodes",
+        "policies": "Policies",
+
+        "enablePro": "Enable Botpress Professional",
+        "useOfficial": "Make you use an {officialBinary}, you won't be able to activate pro otherwise.",
+        "officialBinary": "official botpress binary or docker image",
+
+        "method1": "Method 1",
+        "enableMethod1": "You can enable Botpress Pro by manually editing the file {file} and setting the value {field} to true.",
+
+        "method2": "Method 2",
+        "enabledMethod2": "Click on the button below. This will enable the required configuration and will automatically reboot the server. Please note: Rebooting the server this way will prevent you from reading the logs on screen (except if you output logs to the file system).",
+        "enabledAndReboot": "Enable Pro & Reboot Server",
+
+        "unofficialBuild": "Unofficial Botpress Build",
+        "unofficialBuildText": "We noticed that you are running a custom build of Botpress, which doesn't contain the Botpress Professional extensions. Make you use an {official}. You won't be able to activate {pro} otherwise.",
+        "official": "official botpress binary or docker image",
+        "pro": "Pro"
       }
     },
 
@@ -232,6 +254,9 @@
     },
 
     "workspace": {
+      "roles": "Roles",
+      "rolesHelp": "To change roles, please see “roles” in the workspaces.json file.",
+
       "bots": {
         "confirmDelete": "Are you sure you want to delete this bot? This can't be undone.",
         "remounted": "Bot remounted successfully",

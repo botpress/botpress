@@ -158,24 +158,25 @@ class LicenseStatus extends React.Component {
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
               <h4>Enable Botpress Professional</h4>
               <p>
-                Make you use an <strong>official botpress binary or docker image</strong>, you won't be able to activate
-                pro otherwise.
+                {lang.tr('admin.license.status.useOfficial', {
+                  officialBinary: <strong>{lang.tr('admin.license.status.officialBinary')}</strong>
+                })}
               </p>
               <p>
-                <u>Method 1</u>
+                <u>{lang.tr('admin.license.status.method1')}</u>
                 <br />
-                You can enable Botpress Pro by manually editing the file{' '}
-                <strong>data/global/botpress.config.json</strong> and setting the value <strong>pro.enabled</strong> to
-                true.
+                {lang.tr('admin.license.status.enableMethod1', {
+                  file: <strong>data/global/botpress.config.json</strong>,
+                  field: <strong>pro.enabled</strong>
+                })}
               </p>
               <p>
-                <u>Method 2</u>
-                <br /> Click on the button below. This will enable the required configuration and will automatically
-                reboot the server. Please note: Rebooting the server this way will prevent you from reading the logs on
-                screen (except if you output logs to the file system).
+                <u>{lang.tr('admin.license.status.method2')}</u>
+                <br />
+                {lang.tr('admin.license.status.enabledMethod2')}
                 <br />
                 <br />
-                <Button onClick={this.enableProEdition}>Enable Pro & Reboot Server</Button>
+                <Button onClick={this.enableProEdition}>{lang.tr('admin.license.status.enabledAndReboot')}</Button>
               </p>
             </Col>
           </Row>
@@ -190,11 +191,12 @@ class LicenseStatus extends React.Component {
         <Jumbotron>
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
-              <h4>Unofficial Botpress Build</h4>
+              <h4>{lang.tr('admin.license.status.unofficialBuild')}</h4>
               <p>
-                We noticed that you are running a custom build of Botpress, which doesn't contain the Botpress
-                Professional extensions. Make you use an <strong>official botpress binary or docker image</strong>. You
-                won't be able to activate <strong>Pro</strong> otherwise.
+                {lang.tr('admin.license.status.unofficialBuildText', {
+                  official: <strong>{lang.tr('admin.license.status.official')}</strong>,
+                  pro: <strong>{lang.tr('admin.license.status.pro')}</strong>
+                })}
               </p>
             </Col>
           </Row>
@@ -226,15 +228,15 @@ class LicenseStatus extends React.Component {
           </Col>
           <Col sm="12" lg="5">
             <div className="license-infos">
-              <strong className="license-infos__label">Friendly name:</strong>
+              <strong className="license-infos__label">{lang.tr('admin.license.status.friendlyName')}:</strong>
               {this.license.label || 'N/A'}
             </div>
             <div className="license-infos">
-              <strong className="license-infos__label">Renew date:</strong>
+              <strong className="license-infos__label">{lang.tr('admin.license.status.renewDate')}:</strong>
               {this.renewDate}
             </div>
             <div className="license-infos">
-              <strong className="license-infos__label">Support:</strong>
+              <strong className="license-infos__label">{lang.tr('admin.license.status.support')}:</strong>
               {this.license.support}
               <svg
                 className="license-infos__icon"
@@ -252,17 +254,17 @@ class LicenseStatus extends React.Component {
                 />
               </svg>
               <UncontrolledTooltip placement="right" target="TooltipSupport">
-                This is the support offered by Botpress
+                {lang.tr('admin.license.status.thisIsSupport')}
               </UncontrolledTooltip>
             </div>
             <div className="license-infos">
-              <strong className="license-infos__label">Allowed Nodes:</strong>
+              <strong className="license-infos__label">{lang.tr('admin.license.status.allowedNodes')}:</strong>
               {this.license.limits && Number(this.license.limits.nodes) + 1}
             </div>
             <hr />
             {this.props.licensing && (
               <div>
-                <h5>Policies</h5>
+                <h5>{lang.tr('admin.license.status.policies')}</h5>
                 <LicensePolicies license={this.license} breachs={this.props.licensing.breachReasons} />
               </div>
             )}
