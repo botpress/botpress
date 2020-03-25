@@ -66,23 +66,24 @@ export class DecisionEngine {
           source: content.source,
           details: content.sourceDetails!
         })
-      } else if (action === 'redirect') {
+      } else if (action === 'redirect' || action === 'startWorkflow') {
         const { flow, node } = data as NDU.FlowRedirect
-        await this.dialogEngine.jumpTo(sessionId, event, flow, node)
-      } else if (action === 'startWorkflow') {
-        const { flow, node } = data as NDU.FlowRedirect
-        await this.dialogEngine.jumpTo(sessionId, event, flow, node)
+        const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
 
-        event.state.session.lastWorkflows = [
-          {
-            workflow: flow,
-            eventId: event.id,
-            active: true
-          },
-          ...(event.state.session.lastWorkflows || [])
-        ]
+        await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
 
-        BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: flow })
+        if (action === 'startWorkflow') {
+          event.state.session.lastWorkflows = [
+            {
+              workflow: flowName,
+              eventId: event.id,
+              active: true
+            },
+            ...(event.state.session.lastWorkflows || [])
+          ]
+
+          BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: flow })
+        }
       }
     }
 

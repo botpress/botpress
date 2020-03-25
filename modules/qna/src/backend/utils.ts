@@ -35,6 +35,14 @@ export const getQnaEntryPayloads = async (
     collectFeedback: true
   }
 
+  if (!qnaEntry.answers[lang]) {
+    if (!qnaEntry.answers[defaultLang]) {
+      throw new Error(`No answers found for language ${lang} or default language ${defaultLang}`)
+    }
+
+    lang = defaultLang
+  }
+
   const electedAnswer = getAlternativeAnswer(qnaEntry, lang)
   if (electedAnswer.startsWith('#!')) {
     renderer = `!${electedAnswer.replace('#!', '')}`

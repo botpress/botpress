@@ -1,14 +1,25 @@
 import { Menu, MenuItem } from '@blueprintjs/core'
 import { TreeView } from 'botpress/shared'
 import { LibraryElement } from 'common/typings'
-import React, { useCallback, useState } from 'react'
+import React, { FC, useCallback, useState } from 'react'
 import { connect } from 'react-redux'
 import { removeElementFromLibrary } from '~/actions'
 import MarkdownRenderer from '~/components/Shared/MarkdownRenderer'
+import { RootReducer } from '~/reducers'
 
 import style from '../style.scss'
 
 import Editor from './LiteEditor'
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+interface OwnProps {
+  filter: string
+  refreshLibrary: () => void
+}
+
+type Props = OwnProps & StateProps & DispatchProps
 
 const nodeRenderer = ({ contentId, type, preview }: LibraryElement) => {
   return {
@@ -26,7 +37,7 @@ const nodeRenderer = ({ contentId, type, preview }: LibraryElement) => {
   }
 }
 
-const Library = props => {
+const Library: FC<Props> = props => {
   const [isEditOpen, setEditOpen] = useState(false)
   const [editItem, setEditItem] = useState('')
 
@@ -71,9 +82,13 @@ const Library = props => {
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   conditions: state.ndu.conditions,
   library: state.content.library
 })
 
-export default connect(mapStateToProps, { removeElementFromLibrary })(Library)
+const mapDispatchToProps = {
+  removeElementFromLibrary
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Library)

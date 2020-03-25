@@ -64,18 +64,13 @@ export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
   private _allNodeIds: Set<string> = new Set()
   private _allWfIds: Set<string> = new Set()
-  private _dialogConditions: sdk.Condition[]
 
   private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
   trainer: sdk.MLToolkit.SVM.Trainer
   predictor: sdk.MLToolkit.SVM.Predictor
 
-  constructor(private bp: typeof sdk) {
+  constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[]) {
     this.trainer = new this.bp.MLToolkit.SVM.Trainer()
-  }
-
-  public loadConditions() {
-    this._dialogConditions = this.bp.dialog.getConditions()
   }
 
   featToVec(features: Features): number[] {
@@ -107,7 +102,9 @@ export class UnderstandingEngine {
     try {
       const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
       const { data } = await axios.post('/mod/qna/intentActions', { intentName, event }, axiosConfig)
-      return data as sdk.NDU.Actions[]
+      const redirect: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
+      // TODO: Warn that REDIRECTS should be migrated over to flow nodes triggers
+      return redirect
     } catch (err) {
       this.bp.logger.warn('Could not query qna', err)
       return []
@@ -210,7 +207,7 @@ export class UnderstandingEngine {
     const fInTopic = (t: typeof triggers) =>
       t.filter(x => (x.topic === currentTopic && currentTopic !== 'n/a') || x.topic === 'skills')
     const fOutTopic = (t: typeof triggers) => t.filter(x => x.topic !== currentTopic || currentTopic === 'n/a')
-    const fInWf = (t: typeof triggers) => t.filter(x => x.wf === currentFlow)
+    const fInWf = (t: typeof triggers) => t.filter(x => `${x.wf}.flow.json` === currentFlow)
     const fOnNode = (t: typeof triggers) => t.filter(x => x.nodeId === currentNode)
     const fMax = (t: typeof triggers) => _.maxBy(t, 'confidence') || { confidence: 0, id: 'n/a' }
 
@@ -334,7 +331,7 @@ export class UnderstandingEngine {
     for (const trigger of triggers) {
       if (
         trigger.type === 'node' &&
-        (event.state?.context.currentFlow !== trigger.workflowId ||
+        (event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json` ||
           event.state?.context?.currentNode !== trigger.nodeId)
       ) {
         continue
@@ -398,8 +395,9 @@ export class UnderstandingEngine {
 
     for (const flow of flows) {
       const topicName = flow.name.split('/')[0]
+      const flowName = flow.name.replace(/\.flow\.json$/i, '')
       this._allTopicIds.add(topicName)
-      this._allWfIds.add(flow.name)
+      this._allWfIds.add(flowName)
 
       for (const node of flow.nodes) {
         if (node.type === 'listener') {
@@ -414,7 +412,7 @@ export class UnderstandingEngine {
               params: { ...x.params, topicName }
             })),
             type: 'workflow',
-            workflowId: flow.name,
+            workflowId: flowName,
             nodeId: tn.name
           })
         } else if ((<sdk.ListenNode>node)?.triggers?.length) {
@@ -429,7 +427,7 @@ export class UnderstandingEngine {
                     params: { ...x.params, topicName }
                   })),
                   type: 'node',
-                  workflowId: flow.name
+                  workflowId: flowName
                 }
             )
           )

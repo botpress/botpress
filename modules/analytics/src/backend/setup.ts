@@ -6,6 +6,8 @@ import Database from './db'
 export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[]) => {
   await db.initialize()
 
+  const removeExt = (name: string) => name?.replace(/\.flow\.json$/i, '')
+
   process.BOTPRESS_EVENTS.on('bp_core_decision_elected', ({ channel, botId, source }) => {
     if (source === 'qna') {
       db.incrementMetric(botId, channel, 'msg_sent_qna_count')
@@ -23,19 +25,19 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_enter_flow', ({ channel, botId, flowName }) => {
-    db.incrementMetric(botId, channel, 'enter_flow_count', flowName)
+    db.incrementMetric(botId, channel, 'enter_flow_count', removeExt(flowName))
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_workflow_started', ({ channel, botId, wfName }) => {
-    db.incrementMetric(botId, channel, 'workflow_started_count', wfName)
+    db.incrementMetric(botId, channel, 'workflow_started_count', removeExt(wfName))
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_workflow_completed', ({ channel, botId, wfName }) => {
-    db.incrementMetric(botId, channel, 'workflow_completed_count', wfName)
+    db.incrementMetric(botId, channel, 'workflow_completed_count', removeExt(wfName))
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_workflow_failed', ({ channel, botId, wfName }) => {
-    db.incrementMetric(botId, channel, 'workflow_failed_count', wfName)
+    db.incrementMetric(botId, channel, 'workflow_failed_count', removeExt(wfName))
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_feedback_positive', ({ channel, botId, type }) => {
