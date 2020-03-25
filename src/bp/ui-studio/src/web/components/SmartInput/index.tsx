@@ -1,4 +1,4 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import { ContentState, EditorState, Modifier } from 'draft-js'
 import Editor from 'draft-js-plugins-editor'
@@ -118,7 +118,9 @@ class SmartInput extends Component<ConnectedProps, State> {
         />
         <MentionSuggestions onSearchChange={this.onSearchChange} suggestions={this.state.suggestions} />
         <div className={cx(style.insertBtn, { [style.insertBtnMoreSpacing]: this.props.isSideForm })}>
-          <Button minimal small icon="code" text={undefined} onClick={this.insertVariable} />
+          <Tooltip content="Insert Variable" position={Position.TOP}>
+            <Button minimal small icon={<Icon icon="code" />} text={undefined} onClick={this.insertVariable} />
+          </Tooltip>
           {this.props.children}
         </div>
       </div>

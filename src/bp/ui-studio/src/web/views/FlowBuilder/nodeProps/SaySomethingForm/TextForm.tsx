@@ -70,27 +70,6 @@ const SaySomethingFormText: FC<Props> = props => {
                   onClick={() => deleteVariation(index)}
                 ></Button>
               </SmartInput>
-              {/*<TextareaAutosize
-                rows={1}
-                maxRows={4}
-                onKeyDown={handleKeyDown}
-                className={classnames(style.textarea, style.multipleInputs)}
-                value={variantion}
-                onChange={e => updateVariations(e.currentTarget.value, index)}
-              ></TextareaAutosize>
-              <Button
-                icon="code"
-                className={style.insertBtn}
-                minimal
-                onClick={() => insertVariable(variantion)}
-              ></Button>
-              <Button
-                icon="trash"
-                className={style.deleteBtn}
-                minimal
-                intent={Intent.DANGER}
-                onClick={() => deleteVariation(index)}
-              ></Button>*/}
             </div>
           ))}
         <Button onClick={() => dispatchForm({ type: 'addVariation' })} className={style.addContentBtn} large={true}>
