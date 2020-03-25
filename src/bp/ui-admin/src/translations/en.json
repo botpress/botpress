@@ -26,10 +26,6 @@
   },
   "admin": {
     "botpressIsNotLicensed": "Botpress is currently not licensed. Please update your license to re-enable all features.",
-    "workspace": "Workspace",
-    "management": "Management",
-    "health": "Health",
-    "announcements": "Announcements",
     "pageRestrictedToAdmins": "This page is restricted to Super Admins",
     "signInWithSSO": "Sign in with SSO ({strategyId})",
     "signInWithUserPass": "Sign in with user/pass",
@@ -63,6 +59,28 @@
     "firstName": "First Name",
     "lastName": "Last Name",
     "workspaceName": "Workspace: {name}",
+
+    "sideMenu": {
+      "workspace": "Workspace",
+      "bots": "Bots",
+      "collaborators": "Collaborators",
+      "roles": "Roles",
+      "logs": "Logs",
+
+      "management": "Management",
+      "sourceControl": "Source Control",
+      "serverLicense": "Server License",
+      "languages": "Languages",
+      "productionChecklist": "Production Checklist",
+
+      "health": "Health",
+      "monitoring": "Monitoring",
+      "alerting": "Alerting",
+      "debug": "Debug",
+
+      "announcements": "Announcements",
+      "latestReleases": "Latest Releases"
+    },
 
     "logs": {
       "rowLimitReached": "Row limit reached. Choose a different time range",
