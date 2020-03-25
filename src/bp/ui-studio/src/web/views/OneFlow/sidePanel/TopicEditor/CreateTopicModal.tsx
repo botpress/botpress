@@ -6,16 +6,20 @@ import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
 import { fetchTopics } from '~/actions'
 import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
+import { RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
 
-interface Props {
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+interface OwnProps {
   isOpen: boolean
-  topics: Topic[]
 
   toggle: () => void
   onCreateFlow: (name: string) => void
-  fetchTopics: () => void
 }
+
+type Props = OwnProps & StateProps & DispatchProps
 
 const CreateTopicModal: FC<Props> = props => {
   const [name, setName] = useState('')
@@ -76,7 +80,7 @@ const CreateTopicModal: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   topics: state.ndu.topics
 })
 
@@ -84,4 +88,4 @@ const mapDispatchToProps = {
   fetchTopics
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateTopicModal)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(CreateTopicModal)

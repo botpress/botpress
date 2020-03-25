@@ -1,3 +1,5 @@
+import { Flow, FlowNode } from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import { createSelector } from 'reselect'
 
@@ -7,7 +9,7 @@ const _getCurrentFlowNode = state => state.flows?.currentFlowNode
 const _getCurrentHashes = state => state.flows.currentHashes
 const _getInitialHashes = state => state.flows.initialHashes
 
-export const getAllFlows = createSelector([_getFlowsByName], flowsByName => {
+export const getAllFlows = createSelector([_getFlowsByName], (flowsByName): FlowView[] => {
   return _.values(flowsByName)
 })
 
@@ -32,11 +34,16 @@ export const getFlowNamesList = createSelector([getAllFlows], flows => {
   })
 })
 
-export const getCurrentFlow = createSelector([_getFlowsByName, _getCurrentFlow], (flowsByName, currFlow) => {
-  return flowsByName[currFlow]
-})
+export const getCurrentFlow = createSelector(
+  [_getFlowsByName, _getCurrentFlow],
+  (flowsByName, currFlow): FlowView => {
+    return flowsByName[currFlow]
+  }
+)
 
-export const getCurrentFlowNode = createSelector([getCurrentFlow, _getCurrentFlowNode], (currentFlow, currFlowNode) => {
+export const getCurrentFlowNode = createSelector([getCurrentFlow, _getCurrentFlowNode], (currentFlow, currFlowNode):
+  | FlowNode
+  | undefined => {
   return _.find(currentFlow?.nodes, { id: currFlowNode })
 })
 

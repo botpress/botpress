@@ -7,9 +7,9 @@ import flows, { FlowReducer } from './flows'
 import hints from './hints'
 import language from './language'
 import modules from './modules'
-import ndu from './ndu'
+import ndu, { NduReducer } from './ndu'
 import notifications from './notifications'
-import skills from './skills'
+import skills, { SkillsReducer } from './skills'
 import ui from './ui'
 import user, { UserReducer } from './user'
 export * from './selectors'
@@ -34,4 +34,6 @@ export interface RootReducer {
   flows: FlowReducer
   user: UserReducer
   content: ContentReducer
+  skills: SkillsReducer
+  ndu: NduReducer
 }

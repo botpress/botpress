@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { FlowView } from 'common/typings'
+import { FlowPoint, FlowView, NodeProblem } from 'common/typings'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
 
@@ -94,7 +94,7 @@ export const receiveSaveFlows = createAction(
   () => ({ receiveAt: new Date() })
 )
 export const errorSaveFlows = createAction('FLOWS/SAVE/ERROR')
-export const clearErrorSaveFlows = createAction('FLOWS/SAVE/ERROR/CLEAR')
+export const clearErrorSaveFlows: () => void = createAction('FLOWS/SAVE/ERROR/CLEAR')
 
 // actions that modifies flow
 export const requestUpdateFlow = createAction('FLOWS/FLOW/UPDATE')
@@ -115,7 +115,7 @@ const wrapAction = (
   asyncCallback: (payload, state, dispatch) => Promise<any>,
   receiveAction = receiveSaveFlows,
   errorAction = errorSaveFlows
-) => payload => (dispatch, getState) => {
+) => (payload?: any) => (dispatch, getState) => {
   dispatch(requestAction(payload))
   // tslint:disable-next-line: no-floating-promises
   asyncCallback(payload, getState(), dispatch)
@@ -138,35 +138,44 @@ const saveDirtyFlows = async state => {
   return Promise.all(promises)
 }
 
-export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow)
+export const updateFlow: (flow: Partial<FlowView>) => void = wrapAction(requestUpdateFlow, updateCurrentFlow)
 
-export const renameFlow = wrapAction(requestRenameFlow, async (payload, state) => {
-  const { targetFlow, name } = payload
-  await FlowsAPI.renameFlow(state.flows, targetFlow, name)
-  await saveDirtyFlows(state)
-})
+export const renameFlow: (flow: { targetFlow: string; name: string }) => void = wrapAction(
+  requestRenameFlow,
+  async (payload, state) => {
+    const { targetFlow, name } = payload
+    await FlowsAPI.renameFlow(state.flows, targetFlow, name)
+    await saveDirtyFlows(state)
+  }
+)
 
-export const createFlow = wrapAction(requestCreateFlow, async (payload, state) => {
+export const createFlow: (name: string) => void = wrapAction(requestCreateFlow, async (payload, state) => {
   const name = payload
   const flowState = state.flows
   await FlowsAPI.createFlow(flowState, name)
 })
 
-export const deleteFlow = wrapAction(requestDeleteFlow, async (payload, state) => {
+export const deleteFlow: (flowName: string) => void = wrapAction(requestDeleteFlow, async (payload, state) => {
   await FlowsAPI.deleteFlow(state.flows, payload)
   await saveDirtyFlows(state)
 })
 
-export const duplicateFlow = wrapAction(requestDuplicateFlow, async (payload, state) => {
-  const { name } = payload
-  const flowState = state.flows
-  await FlowsAPI.createFlow(flowState, name)
-})
+export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }) => void = wrapAction(
+  requestDuplicateFlow,
+  async (payload, state) => {
+    const { name } = payload
+    const flowState = state.flows
+    await FlowsAPI.createFlow(flowState, name)
+  }
+)
 
-export const updateFlowNode = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
-export const createFlowNode = wrapAction(requestCreateFlowNode, updateCurrentFlow)
+type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
 
-export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state) => {
+export const updateFlowNode: (props: AllPartialNode) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
+
+export const createFlowNode: (props: AllPartialNode) => void = wrapAction(requestCreateFlowNode, updateCurrentFlow)
+
+export const removeFlowNode: (element: any) => void = wrapAction(requestRemoveFlowNode, async (payload, state) => {
   await updateCurrentFlow(payload, state)
 
   // If node is a skill and there's no references to it, then the complete flow is deleted
@@ -180,7 +189,7 @@ export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, 
   }
 })
 
-export const pasteFlowNode = wrapAction(requestPasteFlowNode, async (payload, state) => {
+export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode, async (payload, state) => {
   await updateCurrentFlow(payload, state)
 
   const node = state.flows.nodeInBuffer
@@ -192,16 +201,16 @@ export const pasteFlowNode = wrapAction(requestPasteFlowNode, async (payload, st
 export const pasteFlowNodeElement = wrapAction(requestPasteFlowNodeElement, updateCurrentFlow)
 
 // actions that do not modify flow
-export const switchFlow = createAction('FLOWS/SWITCH')
-export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
-export const openFlowNodeProps = createAction('FLOWS/FLOW/OPEN_NODE_PROPS')
-export const closeFlowNodeProps = createAction('FLOWS/FLOW/CLOSE_NODE_PROPS')
+export const switchFlow: (flowName: string) => void = createAction('FLOWS/SWITCH')
+export const switchFlowNode: (nodeId: string) => void = createAction('FLOWS/FLOW/SWITCH_NODE')
+export const openFlowNodeProps: () => void = createAction('FLOWS/FLOW/OPEN_NODE_PROPS')
+export const closeFlowNodeProps: () => void = createAction('FLOWS/FLOW/CLOSE_NODE_PROPS')
 
 export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
 export const refreshFlowsLinks = debounceAction(handleRefreshFlowLinks, 500, { leading: true })
-export const updateFlowProblems = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
+export const updateFlowProblems: (problems: NodeProblem[]) => void = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
 
-export const copyFlowNode = createAction('FLOWS/NODE/COPY')
+export const copyFlowNode: () => void = createAction('FLOWS/NODE/COPY')
 export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
 
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
@@ -219,7 +228,7 @@ export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, s
   await createNewFlows(state)
 })
 
-export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
+export const setDiagramAction: (action: string) => void = createAction('FLOWS/FLOW/SET_ACTION')
 
 // Content
 export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')
@@ -252,7 +261,7 @@ const getBatchedContentItem = id => getBatchedContentRunner.add(id)
 const getSingleContentItem = id => axios.get(`${window.BOT_API_PATH}/content/element/${id}`).then(({ data }) => data)
 
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
-export const fetchContentItem = (id, { force = false, batched = false } = {}) => (dispatch, getState) => {
+export const fetchContentItem = (id: string, { force = false, batched = false } = {}) => (dispatch, getState) => {
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
@@ -339,7 +348,7 @@ export const requestInsertNewSkill = createAction('SKILLS/INSERT')
 export const requestInsertNewSkillNode = createAction('SKILLS/INSERT/NODE')
 export const requestUpdateSkill = createAction('SKILLS/UPDATE')
 
-export const buildNewSkill = createAction('SKILLS/BUILD')
+export const buildNewSkill: ({ location: any, id: string }) => void = createAction('SKILLS/BUILD')
 export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
 
 export const insertNewSkill = wrapAction(requestInsertNewSkill, async (payload, state) => {
@@ -442,14 +451,14 @@ export const refreshLibrary = () => (dispatch, getState) => {
   })
 }
 
-export const addElementToLibrary = elementId => dispatch => {
+export const addElementToLibrary = (elementId: string) => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.post(`${window.BOT_API_PATH}/content/library/${elementId}`).then(() => {
     dispatch(refreshLibrary())
   })
 }
 
-export const removeElementFromLibrary = elementId => dispatch => {
+export const removeElementFromLibrary = (elementId: string) => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.post(`${window.BOT_API_PATH}/content/library/${elementId}/delete`).then(() => {
     dispatch(refreshLibrary())

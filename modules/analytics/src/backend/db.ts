@@ -64,7 +64,7 @@ export default class Database {
 
   private getCacheKey(botId: string, channel: string, metric: string, subMetric?: string) {
     const today = moment().format('YYYY-MM-DD')
-    return `${today}/${botId}/${channel}/${metric}/${subMetric || ''}`
+    return `${today}|${botId}|${channel}|${metric}|${subMetric || ''}`
   }
 
   incrementMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string) {
@@ -91,7 +91,7 @@ export default class Database {
 
       const values = keys
         .map(key => {
-          const [date, botId, channel, metric, subMetric] = key.split('/')
+          const [date, botId, channel, metric, subMetric] = key.split('|')
           const value = original[key]
           return this.knex
             .raw(`(:date:, :botId, :channel, :metric, :subMetric, :value)`, {

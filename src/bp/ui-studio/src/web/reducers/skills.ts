@@ -1,3 +1,4 @@
+import { Skill } from 'botpress/sdk'
 import { handleActions } from 'redux-actions'
 import {
   actionsReceived,
@@ -22,6 +23,10 @@ const defaultState = {
   }
 }
 
+export interface SkillsReducer {
+  installed: Skill[]
+}
+
 const reducer = handleActions(
   {
     [skillsReceived]: (state, { payload }) => ({
@@ -29,7 +34,7 @@ const reducer = handleActions(
       installed: payload
     }),
 
-    [buildNewSkill]: (state, { payload }) => ({
+    [buildNewSkill as any]: (state, { payload }) => ({
       ...state,
       builder: {
         ...state.builder,

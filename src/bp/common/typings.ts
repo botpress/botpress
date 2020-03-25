@@ -155,6 +155,11 @@ export interface ServerConfig {
   live: { [keyName: string]: string }
 }
 
+export interface NodeProblem {
+  nodeName: string
+  missingPorts: any
+}
+
 export interface ChatUserAuth {
   sessionId: string
   botId: string
