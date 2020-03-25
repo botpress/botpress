@@ -3,9 +3,11 @@
 interface CssExports {
   'baseNode': string;
   'content': string;
+  'contentImgWrapper': string;
   'fullSize': string;
   'header': string;
   'highlightedNode': string;
+  'img': string;
   'in': string;
   'item': string;
   'nodeAction': string;

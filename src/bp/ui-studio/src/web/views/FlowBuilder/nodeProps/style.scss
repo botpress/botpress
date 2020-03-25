@@ -128,6 +128,60 @@ h5 {
   text-align: center;
 }
 
+.fieldWrapper :global(.bp3-file-input) {
+  height: auto;
+
+  input {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.imgWrapper {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 3px;
+  height: 100px;
+  overflow: hidden;
+  position: relative;
+  width: 100px;
+
+  &Actions {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+
+  &:before {
+    background-color: rgba(30, 30, 30, 0.5);
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+
+.fieldWrapper :global(.bp3-file-upload-input) {
+  color: #fff;
+  background: #137CBD;
+  text-align: center;
+  padding: 0 !important;
+  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 1px 0 rgba(16, 22, 26, 0.2);
+  background-image: linear-gradient(to bottom, #2A87C3, #137CBD);
+  transition: background 0.3s;
+
+  &:hover {
+    background: #2A87C3;
+  }
+
+  &:after {
+    display: none;
+  }
+}
+
 .textFields {
   display: inline-block;
   width: 50% !important;

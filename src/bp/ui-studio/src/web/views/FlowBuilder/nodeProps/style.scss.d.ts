@@ -19,6 +19,8 @@ interface CssExports {
   'formHeader': string;
   'formLabel': string;
   'formSelect': string;
+  'imgWrapper': string;
+  'imgWrapperActions': string;
   'innerWrapper': string;
   'insertBtn': string;
   'item': string;

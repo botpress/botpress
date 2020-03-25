@@ -26,7 +26,7 @@ export class SaySomethingWidget extends Component<{
       >
         {showHeader({ nodeType: 'Say', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
-          <SayNodeContent node={node} />
+          <SayNodeContent node={node} formData={node.formData} />
         </div>
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />

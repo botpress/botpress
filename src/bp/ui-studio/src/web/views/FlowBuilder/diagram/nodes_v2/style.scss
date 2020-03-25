@@ -45,12 +45,28 @@
   }
 
   .content {
-    padding: 8px 0 0;
+    word-break: break-word;
+    padding: 10px 0 0;
     word-wrap: break-word;
     text-overflow: ellipsis;
-    max-height: 78px;
     overflow-y: scroll;
     font-size: 12px;
+  }
+
+  .contentImgWrapper {
+    display: flex;
+  }
+
+  .img {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+    height: 50px;
+    margin-right: 8px;
+    overflow: hidden;
+    width: 50px;
   }
 
   .ports {

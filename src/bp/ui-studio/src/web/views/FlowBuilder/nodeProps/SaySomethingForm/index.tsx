@@ -9,7 +9,8 @@ import { getFormData, isFormEmpty } from '../../../../util/NodeFormData'
 import EditableInput from '../../common/EditableInput'
 import style from '../style.scss'
 
-import SaySomethingTextForm from './TextForm'
+import SaySomethingFormImage from './ImageForm'
+import SaySomethingFormText from './TextForm'
 
 const { MoreOptionsStyles } = sharedStyle
 
@@ -34,8 +35,10 @@ interface Props {
 
 export interface FormState {
   contentType: string
-  text: string
-  variations: string[]
+  title?: string
+  image?: string
+  text?: string
+  variations?: string[]
   markdown: boolean
   typing: boolean
   error: any
@@ -54,20 +57,16 @@ const SaySomethingForm: FC<Props> = props => {
   const formReducer = (state: FormState, action): FormState => {
     if (action.type === 'resetData') {
       return {
-        ...state,
-        error: null,
-        contentType: 'builtin_text',
-        text: '',
-        markdown: true,
-        typing: true,
-        variations: ['']
+        ...defaultFormState
       }
     } else if (action.type === 'newData') {
-      const { text, variations, contentType, markdown, typing } = action.data
+      const { text, variations, contentType, markdown, typing, image, title } = action.data
 
       return {
         error: null,
         contentType: contentType || 'builtin_text',
+        image,
+        title,
         text,
         variations,
         markdown,
@@ -94,13 +93,15 @@ const SaySomethingForm: FC<Props> = props => {
       }
     } else if (action.type === 'updateData') {
       const { value, field } = action.data
-
+      console.log(value, field)
       props.updateNode({
         formData: {
           [`text$${props.contentLang}`]: state.text,
           [`variations$${props.contentLang}`]: state.variations,
           [`markdown$${props.contentLang}`]: state.markdown,
-          [`typing${props.contentLang}`]: state.typing,
+          [`typing$${props.contentLang}`]: state.typing,
+          [`image$${props.contentLang}`]: state.image,
+          [`title$${props.contentLang}`]: state.title,
           [`${field}$${props.contentLang}`]: value
         }
       })
@@ -221,7 +222,10 @@ const SaySomethingForm: FC<Props> = props => {
           </div>
         </label>
         {contentType && contentType === 'builtin_text' && (
-          <SaySomethingTextForm formState={formState} dispatchForm={dispatchForm} />
+          <SaySomethingFormText formState={formState} dispatchForm={dispatchForm} />
+        )}
+        {contentType && contentType === 'builtin_image' && (
+          <SaySomethingFormImage formState={formState} dispatchForm={dispatchForm} />
         )}
         <BPButton
           minimal
