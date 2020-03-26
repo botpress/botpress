@@ -9,7 +9,6 @@ export interface MoreOptionsProps {
 
 export interface MoreOptionsItems {
   icon?: IconName
-  iconSize?: number
   label: string
   action?: () => void
   className?: string

@@ -88,19 +88,20 @@
   }
 
   &Item {
-    background: transparent;
-    border-radius: 2px;
-    border: 0;
-    color: $main-dark-color;
+    background: transparent !important;
+    border-radius: 2px !important;
+    border: 0 !important;
+    color: $main-dark-color !important;
     display: flex;
-    font-size: 16px;
+    font-size: 16px !important;
+    justify-content: flex-start !important;
     line-height: 1.25;
-    margin: 5px 0 0;
+    margin: 5px 0 0 !important;
     min-width: 100%;
-    padding: 10px;
-    position: relative;
-    text-align: left;
+    padding: 10px !important;
     white-space: nowrap;
+    width: 100% !important;
+    transition: background 0.3s;
 
     &:not(.noHover) {
       cursor: pointer;
@@ -111,7 +112,7 @@
     }
 
     &:not(.noHover):hover {
-      background-color: #E5EAEC;
+      background-color: #E5EAEC !important;
     }
 
     & > span {
@@ -123,7 +124,7 @@
     }
 
     &.delete {
-      color: $main-warning;
+      color: $main-warning !important;
 
       svg, path {
         fill: $main-warning !important;

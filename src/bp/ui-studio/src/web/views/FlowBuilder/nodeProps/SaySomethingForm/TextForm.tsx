@@ -52,26 +52,19 @@ const SaySomethingFormText: FC<Props> = props => {
       </label>
       <div className={style.fieldWrapper}>
         <span className={style.formLabel}>Alternates</span>
-        {variations &&
-          variations.map((variantion, index) => (
-            <div key={index} className={style.innerWrapper}>
-              <SmartInput
-                value={variantion}
-                onChange={value => updateVariations(value, index)}
-                className={classnames(style.textarea, style.multipleInputs)}
-                isSideForm
-                singleLine={false}
-              >
-                <Button
-                  icon="trash"
-                  minimal
-                  small
-                  intent={Intent.DANGER}
-                  onClick={() => deleteVariation(index)}
-                ></Button>
-              </SmartInput>
-            </div>
-          ))}
+        {variations?.map((variation, index) => (
+          <div key={index} className={style.innerWrapper}>
+            <SmartInput
+              value={variation}
+              onChange={value => updateVariations(value, index)}
+              className={classnames(style.textarea, style.multipleInputs)}
+              isSideForm
+              singleLine={false}
+            >
+              <Button icon="trash" minimal small intent={Intent.DANGER} onClick={() => deleteVariation(index)}></Button>
+            </SmartInput>
+          </div>
+        ))}
         <Button onClick={() => dispatchForm({ type: 'addVariation' })} className={style.addContentBtn} large={true}>
           Add Alternates
         </Button>

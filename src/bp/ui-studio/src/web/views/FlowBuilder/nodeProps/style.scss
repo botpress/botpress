@@ -176,56 +176,35 @@ h5 {
   }
 
   .formSelect {
-    background: #fff;
-    border: 1px solid $border;
-    border-radius: 3px;
     display: block;
     padding: 0;
     position: relative;
 
-    &:active, &:focus {
-      border-color: $border-active
+    :global(.bp3-popover-target) {
+      width: 100%;
     }
 
-    &:before {
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 6px solid #464646;
-      content: "";
-      height: 0;
-      position: absolute;
-      pointer-events: none;
-      right: 10px;
-      top: 50%;
-      transform: translate(0, -50%);
-      width: 0;
+    &:active, &:focus {
+      border-color: $border-active
     }
 
     &, > * {
       cursor: pointer;
     }
 
-    select {
-      color: $main-dark-color;
-      background: transparent;
-      border: 0;
-      font-size: 16px;
-      font-weight: 400;
-      height: 38px;
-      line-height: 1.25;
-      padding: 8px 10px;
-      text-shadow: 1px 1px rgba(255, 255, 255, 0.7);
-      width: 100%;
-
-      // removes default browser dropdown arrow
-      -webkit-user-select: none;
-         -moz-user-select: -moz-none;
-          -ms-user-select: none;
-              user-select: none;
-
-      -webkit-appearance: none;
-         -moz-appearance: radio-container;
-              appearance: none;
+    button {
+      border: 1px solid $border !important;
+      border-radius: 3px !important;
+      box-shadow: none !important;
+      color: $main-dark-color !important;
+      background: #fff !important;
+      font-size: 16px !important;
+      font-weight: 400 !important;
+      justify-content: space-between !important;
+      height: 38px !important;
+      line-height: 1.25 !important;
+      padding: 8px 10px !important;
+      width: 100% !important;
 
       &:focus, :-moz-focusring {
         outline: 0;

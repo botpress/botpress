@@ -4,8 +4,9 @@ export interface Option {
 }
 
 export interface DropdownProps {
+  className?: string
   items: Option[]
-  defaultItem?: Option
+  defaultItem?: Option | string
   onChange: (option: Option) => void
   icon?: any
   rightIcon?: any

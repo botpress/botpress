@@ -126,20 +126,11 @@ class Inspector extends Component<Props> {
     if (flowType === 'say_something') {
       return (
         <SaySomethingForm
-          buffer={buffer}
-          categories={categories}
-          copyFlowNode={copyFlowNode}
           onDeleteSelectedElements={onDeleteSelectedElements}
-          fetchContentCategories={fetchContentCategories}
-          flow={currentFlow}
           node={currentFlowNode}
-          pasteFlowNode={pasteFlowNode}
-          readOnly={readOnly}
-          requestEditSkill={requestEditSkill}
-          subflows={subflows}
-          updateFlow={updateFlow}
           updateNode={updateNodeAndRefresh}
-          user={user}
+          readOnly={readOnly}
+          subflows={subflows}
         />
       )
     }

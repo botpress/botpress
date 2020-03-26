@@ -1,36 +1,40 @@
-import { Button as BPButton, Checkbox, Position, Toaster } from '@blueprintjs/core'
-import { MoreOptions, MoreOptionsItems, style as sharedStyle } from 'botpress/shared'
-import classnames from 'classnames'
-import _ from 'lodash'
+import { Button as BPButton, Checkbox } from '@blueprintjs/core'
+import { Dropdown, MoreOptions, MoreOptionsItems, style as sharedStyle } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
+import { connect } from 'react-redux'
+import {
+  closeFlowNodeProps,
+  copyFlowNode,
+  fetchContentCategories,
+  pasteFlowNode,
+  refreshFlowsLinks,
+  requestEditSkill,
+  updateFlow
+} from '~/actions'
+import withLanguage from '~/components/Util/withLanguage'
+import { getFormData, isFormEmpty } from '~/util/NodeFormData'
+import EditableInput from '~/views/FlowBuilder/common/EditableInput'
 
-import withLanguage from '../../../../components/Util/withLanguage'
-import { getFormData, isFormEmpty } from '../../../../util/NodeFormData'
-import EditableInput from '../../common/EditableInput'
+import { toastInfo } from '../../../../components/Shared/Utils'
+import { getCurrentFlow, getCurrentFlowNode } from '../../../../reducers'
 import style from '../style.scss'
 
 import SaySomethingTextForm from './TextForm'
 
 const { MoreOptionsStyles } = sharedStyle
 
-interface Props {
-  buffer: any
-  categories: any
+interface OwnProps {
+  onDeleteSelectedElements: () => void
+  readOnly: boolean
+  subflows: any
+  updateNode: any
   contentLang: string
   defaultLanguage: string
-  copyFlowNode: any
-  onDeleteSelectedElements: () => void
-  fetchContentCategories: any
-  flow: any
-  node: any
-  pasteFlowNode: any
-  readOnly: boolean
-  requestEditSkill: any
-  subflows: any
-  updateFlow: any
-  updateNode: any
-  user: any
 }
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+type Props = DispatchProps & StateProps & OwnProps
 
 export interface FormState {
   contentType: string
@@ -125,22 +129,22 @@ const SaySomethingForm: FC<Props> = props => {
     if (!props.categories?.length) {
       props.fetchContentCategories()
     }
-  }, [props.node.id])
+  }, [props.currentFlowNode.id])
 
   const extractDataFromNode = () => {
-    const { node, contentLang, defaultLanguage } = props
-    const data = getFormData(node, contentLang, defaultLanguage)
+    const { currentFlowNode, contentLang, defaultLanguage } = props
+    const data = getFormData(currentFlowNode, contentLang, defaultLanguage)
 
     if (!isFormEmpty(data)) {
-      dispatchForm({ type: 'newData', data: { ...data, contentType: node?.contentType } })
+      dispatchForm({ type: 'newData', data: { ...data, contentType: currentFlowNode?.contentType } })
     } else {
-      handleContentTypeChange(node?.contentType, true)
+      handleContentTypeChange(currentFlowNode?.contentType, true)
     }
   }
 
   const renameNode = text => {
     if (text) {
-      const alreadyExists = props.flow.nodes.find(x => x.name === text)
+      const alreadyExists = props.currentFlow.nodes.find(x => x.name === text)
 
       if (!alreadyExists) {
         props.updateNode({ name: text })
@@ -155,29 +159,24 @@ const SaySomethingForm: FC<Props> = props => {
   const onCopy = () => {
     props.copyFlowNode()
     setShowOptions(false)
-    Toaster.create({
-      className: 'recipe-toaster',
-      position: Position.TOP_RIGHT
-    }).show({ message: 'Copied to buffer' })
+    toastInfo('Copied to buffer')
   }
 
   const handleContentTypeChange = (value, initial = false) => {
     dispatchForm({ type: 'updateContentType', data: { value, initial } })
   }
 
-  const { node, readOnly, categories } = props
+  const { currentFlowNode, readOnly, categories } = props
   const { contentType, markdown, typing } = formState
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       icon: 'duplicate',
-      iconSize: 20,
       label: 'Copy',
       action: onCopy.bind(this)
     },
     {
       icon: 'trash',
-      iconSize: 20,
       label: 'Delete',
       action: props?.onDeleteSelectedElements,
       className: MoreOptionsStyles.delete
@@ -195,31 +194,40 @@ const SaySomethingForm: FC<Props> = props => {
           <span className={style.formLabel}>Node Name</span>
           <EditableInput
             readOnly={readOnly}
-            value={node.name}
+            value={currentFlowNode.name}
             className={style.textInput}
             onChanged={renameNode}
             transform={transformText}
           />
         </label>
-        <label className={style.fieldWrapper}>
+        <div className={style.fieldWrapper}>
           <span className={style.formLabel}>Content Type</span>
-          <div className={style.formSelect}>
-            <select value={contentType} onChange={e => handleContentTypeChange(e.currentTarget.value)}>
-              {categories &&
-                categories
-                  .filter(cat => !cat.hidden)
-                  .map((category, i) => (
-                    <option
-                      key={i}
-                      value={category.id}
-                      className={classnames('list-group-item', 'list-group-item-action')}
-                    >
-                      {category.title}
-                    </option>
-                  ))}
-            </select>
-          </div>
-        </label>
+          {categories && (
+            <Dropdown
+              className={style.formSelect}
+              items={categories.map(cat => ({ value: cat.id, label: cat.title }))}
+              defaultItem={contentType}
+              rightIcon="caret-down"
+              onChange={option => {
+                handleContentTypeChange(option.value)
+              }}
+            />
+          )}
+          {/*<select value={contentType} onChange={e => handleContentTypeChange(e.currentTarget.value)}>
+            {categories &&
+              categories
+                .filter(cat => !cat.hidden)
+                .map((category, i) => (
+                  <option
+                    key={i}
+                    value={category.id}
+                    className={classnames('list-group-item', 'list-group-item-action')}
+                  >
+                    {category.title}
+                  </option>
+                ))}
+                </select>*/}
+        </div>
         {contentType && contentType === 'builtin_text' && (
           <SaySomethingTextForm formState={formState} dispatchForm={dispatchForm} />
         )}
@@ -263,4 +271,21 @@ const SaySomethingForm: FC<Props> = props => {
   )
 }
 
-export default withLanguage(SaySomethingForm)
+const mapStateToProps = state => ({
+  currentFlow: getCurrentFlow(state),
+  currentFlowNode: getCurrentFlowNode(state) as any,
+  user: state.user,
+  categories: state.content.categories
+})
+
+const mapDispatchToProps = {
+  updateFlow,
+  requestEditSkill,
+  fetchContentCategories,
+  closeFlowNodeProps,
+  refreshFlowsLinks,
+  copyFlowNode,
+  pasteFlowNode
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(SaySomethingForm))
