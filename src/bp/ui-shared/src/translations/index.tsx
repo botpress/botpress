@@ -8,6 +8,15 @@ const translations = {}
 let locale: string
 let intl: IntlShape
 const cache = createIntlCache()
+let isDev = false
+
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey && event.key === 'q') {
+    isDev = !isDev
+    localStorage.setItem('langdebug', isDev ? 'true' : 'false')
+    window.location.reload()
+  }
+})
 
 const langExtend = langs => {
   for (const [key, value] of Object.entries(langs)) {
@@ -21,6 +30,7 @@ const langExtend = langs => {
 
 const langInit = () => {
   locale = getUserLocale()
+  isDev = localStorage.getItem('langdebug') === 'true'
 
   const messages = squash(translations[locale])
   const defaultLang = squash(translations[defaultLocale])
@@ -64,7 +74,11 @@ const getUserLocale = () => {
 }
 
 const lang = (id: string, values?: Record<string, string | PrimitiveType>): string => {
-  return intl.formatMessage({ id }, values)
+  if (isDev) {
+    return id
+  } else {
+    return intl.formatMessage({ id }, values)
+  }
 }
 
 export { lang, langInit, langExtend, langLocale }
