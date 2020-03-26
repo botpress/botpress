@@ -15,6 +15,7 @@ interface CssExports {
   'description': string;
   'emptyState': string;
   'endBloc': string;
+  'fieldError': string;
   'fieldWrapper': string;
   'formHeader': string;
   'formLabel': string;

@@ -1,4 +1,4 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Position, Tooltip } from '@blueprintjs/core'
 import { Intent } from '@blueprintjs/core'
 import classnames from 'classnames'
 import React, { FC, Fragment } from 'react'
@@ -62,13 +62,15 @@ const SaySomethingFormText: FC<Props> = props => {
                 isSideForm
                 singleLine={false}
               >
-                <Button
-                  icon="trash"
-                  minimal
-                  small
-                  intent={Intent.DANGER}
-                  onClick={() => deleteVariation(index)}
-                ></Button>
+                <Tooltip content="Delete" position={Position.TOP}>
+                  <Button
+                    icon="trash"
+                    minimal
+                    small
+                    intent={Intent.DANGER}
+                    onClick={() => deleteVariation(index)}
+                  ></Button>
+                </Tooltip>
               </SmartInput>
             </div>
           ))}

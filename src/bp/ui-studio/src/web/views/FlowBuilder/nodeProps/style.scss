@@ -182,6 +182,12 @@ h5 {
   }
 }
 
+.fieldError {
+  color: $main-warning;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
 .textFields {
   display: inline-block;
   width: 50% !important;

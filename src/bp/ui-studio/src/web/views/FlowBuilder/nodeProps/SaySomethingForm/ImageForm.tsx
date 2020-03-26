@@ -1,8 +1,7 @@
 import { Button, FileInput, Intent, Position, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
-import React, { FC, Fragment } from 'react'
+import React, { FC, Fragment, useState } from 'react'
 
-import EditableInput from '../../common/EditableInput'
 import style from '../style.scss'
 
 import { FormState } from './index'
@@ -19,6 +18,7 @@ interface Props {
 const SaySomethingFormImage: FC<Props> = props => {
   const { formState, dispatchForm } = props
   const { title, image } = formState
+  const [imgError, setImgError] = useState(null)
 
   const handleKeyDown = e => {
     if ((e.ctrlKey || e.metaKey) && e.keyCode === 65) {
@@ -33,18 +33,14 @@ const SaySomethingFormImage: FC<Props> = props => {
     }
 
     if (!event.target.files[0].type.includes('image/')) {
-      /*this.setState({
-        error: `${targetProp} requires an image file`
-      })*/
+      setImgError(`${targetProp} requires an image file`)
       return
     }
 
     const data = new FormData()
     data.append('file', event.target.files[0])
 
-    /*if (this.state.error) {
-      this.setState({ error: null })
-    }*/
+    setImgError(null)
 
     try {
       const res = await axios.post(`bots/${window.BOT_ID}/media`, data, {
@@ -53,7 +49,7 @@ const SaySomethingFormImage: FC<Props> = props => {
       })
       dispatchForm({ type: 'updateData', data: { field: 'image', value: res.data.url } })
     } catch (err) {
-      // this.setState({ error: err })
+      setImgError(err)
     }
   }
 
@@ -77,16 +73,19 @@ const SaySomethingFormImage: FC<Props> = props => {
           </div>
         )}
         {!image && (
-          <FileInput
-            text="Upload Image"
-            large
-            inputProps={{
-              id: 'node-image',
-              name: 'nodeImage',
-              accept: 'image/*',
-              onChange: handleImageFileChanged
-            }}
-          />
+          <Fragment>
+            <FileInput
+              text="Upload Image"
+              large
+              inputProps={{
+                id: 'node-image',
+                name: 'nodeImage',
+                accept: 'image/*',
+                onChange: handleImageFileChanged
+              }}
+            />
+            {imgError && <p className={style.fieldError}>{imgError}</p>}
+          </Fragment>
         )}
       </div>
       <label className={style.fieldWrapper}>
@@ -97,11 +96,7 @@ const SaySomethingFormImage: FC<Props> = props => {
           placeholder="Optional"
           onKeyDown={handleKeyDown}
           className={style.textInput}
-          onChange={e => {
-            console.log(title)
-            console.log(e.target.value)
-            dispatchForm({ type: 'updateData', data: { field: 'title', value: e.target.value } })
-          }}
+          onChange={e => dispatchForm({ type: 'updateData', data: { field: 'title', value: e.target.value } })}
         />
       </label>
     </Fragment>

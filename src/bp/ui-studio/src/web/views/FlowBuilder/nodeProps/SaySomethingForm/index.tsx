@@ -93,7 +93,6 @@ const SaySomethingForm: FC<Props> = props => {
       }
     } else if (action.type === 'updateData') {
       const { value, field } = action.data
-      console.log(value, field)
       props.updateNode({
         formData: {
           [`text$${props.contentLang}`]: state.text,
