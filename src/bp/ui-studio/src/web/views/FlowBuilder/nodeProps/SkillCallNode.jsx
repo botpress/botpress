@@ -5,6 +5,7 @@ import { Panel, Tabs, Tab, Badge, Button } from 'react-bootstrap'
 import { AccessControl } from '~/components/Shared/Utils'
 import EditableInput from '../common/EditableInput'
 import TransitionSection from './TransitionSection'
+import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
@@ -39,7 +40,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
           />
           <div style={{ padding: '5px' }}>
             <AccessControl resource="bot.skills" operation="write">
-              <Button onClick={editSkill}>Edit skill</Button>
+              <Button onClick={editSkill}>{lang.tr('studio.flow.node.editSkill')}</Button>
             </AccessControl>
           </div>
         </Panel>
@@ -48,7 +49,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
             eventKey="transitions"
             title={
               <Fragment>
-                <Badge>{(node.next && node.next.length) || 0}</Badge> Transitions
+                <Badge>{(node.next && node.next.length) || 0}</Badge> {lang.tr('studio.flow.node.transitions')}
               </Fragment>
             }
           >
@@ -56,7 +57,7 @@ export default class SkillCallNodePropertiesPanel extends Component {
               readOnly={readOnly}
               items={node.next}
               currentFlow={this.props.flow}
-              header="Transitions"
+              header={lang.tr('studio.flow.node.transitions')}
               subflows={this.props.subflows}
               onItemsUpdated={items => this.props.updateNode({ next: items })}
             />
