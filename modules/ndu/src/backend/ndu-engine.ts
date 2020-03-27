@@ -64,18 +64,13 @@ export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
   private _allNodeIds: Set<string> = new Set()
   private _allWfIds: Set<string> = new Set()
-  private _dialogConditions: sdk.Condition[]
 
   private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
   trainer: sdk.MLToolkit.SVM.Trainer
   predictor: sdk.MLToolkit.SVM.Predictor
 
-  constructor(private bp: typeof sdk) {
+  constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[]) {
     this.trainer = new this.bp.MLToolkit.SVM.Trainer()
-  }
-
-  public loadConditions() {
-    this._dialogConditions = this.bp.dialog.getConditions()
   }
 
   featToVec(features: Features): number[] {
@@ -212,7 +207,7 @@ export class UnderstandingEngine {
     const fInTopic = (t: typeof triggers) =>
       t.filter(x => (x.topic === currentTopic && currentTopic !== 'n/a') || x.topic === 'skills')
     const fOutTopic = (t: typeof triggers) => t.filter(x => x.topic !== currentTopic || currentTopic === 'n/a')
-    const fInWf = (t: typeof triggers) => t.filter(x => x.wf === currentFlow)
+    const fInWf = (t: typeof triggers) => t.filter(x => `${x.wf}.flow.json` === currentFlow)
     const fOnNode = (t: typeof triggers) => t.filter(x => x.nodeId === currentNode)
     const fMax = (t: typeof triggers) => _.maxBy(t, 'confidence') || { confidence: 0, id: 'n/a' }
 
@@ -336,7 +331,7 @@ export class UnderstandingEngine {
     for (const trigger of triggers) {
       if (
         trigger.type === 'node' &&
-        (event.state?.context.currentFlow !== trigger.workflowId ||
+        (event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json` ||
           event.state?.context?.currentNode !== trigger.nodeId)
       ) {
         continue

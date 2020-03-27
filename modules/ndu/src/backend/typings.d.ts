@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
+import { UnderstandingEngine } from './ndu-engine'
 
-export type MountedBots = { [key: string]: boolean }
+export type MountedBots = { [key: string]: UnderstandingEngine }
 
 export type Features = {
   current_workflow_id: string

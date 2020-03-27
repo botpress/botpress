@@ -8,7 +8,11 @@ $dark-light-text: #fff;
 
 $light-background: #f4f4f4;
 
+$fontFamily: Sans-Serif;
+
 :root {
+  --font-family: $fontFamily;
+
   --c-neutral--dark-2: #000;
   --c-neutral--dark-1: #4a4a4a;
   --c-neutral: #9b9b9b;

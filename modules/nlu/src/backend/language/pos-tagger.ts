@@ -30,7 +30,7 @@ export const POS_CLASSES = [
 
 export function isPOSAvailable(lang: string): boolean {
   // TODO check that language is part of supported languages once we support more
-  return lang === 'en'
+  return lang === 'en' || lang == 'fr'
 }
 
 function getPretrainedModelFilePath(languageCode: string): string {
