@@ -76,17 +76,13 @@ export class MessengerService {
           .error('You need to configure an Access Token to enable it. Messenger Channel is disabled for this bot.')
       }
 
-      const { data } = await this.http.get('/', { params: { access_token: config.accessToken } })
-
-      if (!data?.id) {
+      if (!config.pageId) {
         return this.bp.logger
           .forBot(botId)
-          .error(
-            'Could not register bot, are you sure your Access Token is valid? Messenger Channel is disabled for this bot.'
-          )
+          .error('You need to configure an Page ID to enable it. Messenger Channel is disabled for this bot.')
       }
 
-      const pageId = data.id
+      const pageId = config.pageId
       const client = new MessengerClient(botId, this.bp, this.http)
       this.mountedBots.push({ botId: botId, client, pageId })
 

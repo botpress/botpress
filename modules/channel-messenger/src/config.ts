@@ -12,6 +12,12 @@ export interface Config {
    */
   accessToken: string
   /**
+   * Set this in the LOCAL config (unique to every bot/page)
+   * This is the ID of your Facebook page corresponding to your bot (usually numerical)
+   * Find this ID in the "info" section of your Facebook page (browser)
+   */
+  pageId: string
+  /**
    * This this in the GLOBAL config (same for all bots)
    * Your app's "App Secret"
    * Find this secret in your developers.facebook.com -> your app -> Settings -> Basic -> App Secret -> Show
