@@ -67,7 +67,7 @@ export default class EntityService {
 
     if (targetSanitized !== nameSanitized) {
       // entity renamed
-      CacheManager.copyCache(nameSanitized, targetSanitized, this.botId)
+      CacheManager.copyCache(targetSanitized, nameSanitized, this.botId)
       await Promise.all([
         this.deleteEntity(targetSanitized),
         updateIntentsSlotsEntities(this.ghost, targetSanitized, nameSanitized, this)

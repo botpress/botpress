@@ -22,13 +22,13 @@ export function getOrCreateCache<T>(
 
 export function deleteCache(name: string, botId?: string) {
   const cacheId = getCacheId(name, botId)
-  cacheMap.cacheId.reset()
+  cacheMap[cacheId]?.reset()
   delete cacheMap[cacheId]
 }
 
-export function copyCache(currentName: string, targetName: string, botId?: string) {
+export function copyCache(currentName: string, newName: string, botId?: string) {
   const currentCacheId = getCacheId(currentName, botId)
-  const targetCacheId = getCacheId(targetName, botId)
+  const targetCacheId = getCacheId(newName, botId)
   cacheMap[targetCacheId] = _.clone(cacheMap[currentCacheId])
 }
 
