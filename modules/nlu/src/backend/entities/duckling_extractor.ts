@@ -236,6 +236,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       type: duckEnt.dim,
       value: dimensionData.value,
       metadata: {
+        extractor: 'system',
         source: duckEnt.body,
         entityId: `system.${duckEnt.dim}`,
         unit: dimensionData.unit
