@@ -131,7 +131,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
 
   _.forEach(
     [
-      ...extractListEntities(input.utterance, predictors.list_entities),
+      ...extractListEntities(input.utterance, predictors.list_entities, true),
       ...extractPatternEntities(utterance, predictors.pattern_entities),
       ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],
