@@ -8,6 +8,7 @@ import tar from 'tar'
 import tmp from 'tmp'
 
 import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
+import { EntityCache } from './typings'
 
 export interface Model {
   hash: string
@@ -38,6 +39,9 @@ export function computeModelHash(intents: any, entities: any): string {
 }
 
 function serializeModel(model: Model): string {
+  for (const entity of model.data.artefacts.list_entities) {
+    entity.cache = (<EntityCache>entity.cache).dump()
+  }
   return JSON.stringify(_.omit(model, ['data.output', 'data.input.trainingSession']))
 }
 
@@ -95,7 +99,6 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
 }
 
 export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void | void[]> {
-  // TODO dump entities cache in the model
   const serialized = serializeModel(model)
   const modelName = makeFileName(hash, model.languageCode)
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })

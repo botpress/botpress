@@ -3,7 +3,7 @@ import _ from 'lodash'
 import jaroDistance from '../tools/jaro'
 import levenDistance from '../tools/levenshtein'
 import { extractPattern } from '../tools/patterns-utils'
-import { EntityExtractionResult, ListEntityModel, PatternEntity } from '../typings'
+import { EntityCache, EntityExtractionResult, ListEntityModel, PatternEntity } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 const ENTITY_SCORE_THRESHOLD = 0.6
@@ -78,7 +78,7 @@ function computeStructuralScore(a: string[], b: string[]): number {
 function splitModels(listModels: ListEntityModel[], cacheKey: string): [ListEntityModel[], ListEntityModel[]] {
   return listModels.reduce(
     ([withCached, withoutCached], nextModel) => {
-      if (nextModel.cache?.has(cacheKey)) {
+      if ((<EntityCache>nextModel.cache)?.has(cacheKey)) {
         withCached.push(nextModel)
       } else {
         withoutCached.push(nextModel)
@@ -167,16 +167,18 @@ export const extractListEntities = (
   utterance: Utterance,
   list_entities: ListEntityModel[]
 ): EntityExtractionResult[] => {
-  const cacheKey = utterance.toString()
+  const cacheKey = utterance.toString({ lowerCase: true })
   const [listModelsWithCachedRes, listModelsToExtract] = splitModels(list_entities, cacheKey)
 
-  let matches = _.flatMap(listModelsWithCachedRes, listModel => listModel.cache?.get(cacheKey))
+  let matches = _.flatMap(listModelsWithCachedRes, listModel => (listModel.cache as EntityCache)?.get(cacheKey))
 
-  for (const list of listModelsToExtract) {
-    const extracted = extractForListModel(utterance, list)
+  for (const listModel of listModelsToExtract) {
+    const extracted = extractForListModel(utterance, listModel)
     if (extracted.length > 0) {
-      matches = [...matches, ...extracted]
-      list.cache?.set(cacheKey, extracted)
+      // usage of local variable because nested casting + prettier just cries hard
+      const cache = listModel.cache as EntityCache
+      cache?.set(cacheKey, extracted)
+      matches = matches.concat(...extracted)
     }
   }
 

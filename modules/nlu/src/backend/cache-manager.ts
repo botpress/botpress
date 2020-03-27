@@ -1,19 +1,21 @@
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
 
-type TypedCache<T> = LRUCache<string, T>
-
-const cacheMap: _.Dictionary<TypedCache<any>> = {}
+const cacheMap: _.Dictionary<LRUCache<string, any>> = {}
 
 function getCacheId(name: string, prefix: string = ''): string {
   return `${prefix}.${name}`
 }
 
-export function getOrCreateCache<T>(name: string, botId?: string, options?: { maxElements?: number }): TypedCache<T> {
+export function getOrCreateCache<T>(
+  name: string,
+  botId?: string,
+  options?: LRUCache.Options<string, T>
+): LRUCache<string, T> {
   const cacheId = getCacheId(name, botId)
   if (!cacheMap[cacheId]) {
-    const max = options?.maxElements ?? 1000
-    cacheMap[cacheId] = new LRUCache(max)
+    // @ts-ignore
+    cacheMap[cacheId] = new LRUCache(options || 1000)
   }
   return cacheMap[cacheId]
 }
@@ -30,5 +32,20 @@ export function copyCache(currentName: string, targetName: string, botId?: strin
   cacheMap[targetCacheId] = _.clone(cacheMap[currentCacheId])
 }
 
-// TODO: load cache from path
-// TODO: load cache from data
+export function loadCacheFromData<T>(
+  data: LRUCache.Entry<string, T>[],
+  name: string,
+  botId?: string
+): LRUCache<string, T> {
+  const cache = getOrCreateCache<T>(name, botId)
+  if (cache.length === 0) {
+    cache.load(data)
+  }
+  return cache
+}
+
+// if necessary implement loadCacheFromPath
+
+export function isCacheDump(data: any): boolean {
+  return !(typeof data.has === 'function')
+}

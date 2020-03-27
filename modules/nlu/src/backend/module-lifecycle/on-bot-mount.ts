@@ -57,6 +57,7 @@ export function getOnBotMount(state: NLUState) {
 
               model = await engine.train(intentDefs, entityDefs, languageCode, trainSession)
               if (model.success) {
+                await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)
               }
             }

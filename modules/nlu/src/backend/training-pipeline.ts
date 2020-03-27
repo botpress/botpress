@@ -291,7 +291,6 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  // entities are extracted for better slot training so we extract only those which might have slots
   const utterances = _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT && !_.isEmpty(i.slot_definitions))
     .flatMap('utterances')
@@ -303,19 +302,10 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     true
   )
 
-  const customReferencedInSlots = _.chain(input.intents)
-    .flatMap('slot_entities')
-    .uniq()
-    .value()
-
-  // only extract list entities referenced in slots
-  const listEntitiesToExtract = input.list_entities.filter(ent => customReferencedInSlots.includes(ent.entityName))
-  const pattenEntitiesToExtract = input.pattern_entities.filter(ent => customReferencedInSlots.includes(ent.name))
-
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      const listEntities = extractListEntities(utt, listEntitiesToExtract)
-      const patternEntities = extractPatternEntities(utt, pattenEntitiesToExtract)
+      const listEntities = extractListEntities(utt, input.list_entities)
+      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
