@@ -1,0 +1,39 @@
+{
+  "discard": "Discard",
+  "delete": "Delete",
+  "rename": "Rename",
+  "duplicate": "Duplicate",
+  "download": "Download",
+  "enable": "Enable",
+  "disable": "Disable",
+
+  "editor": {
+    "sidePanel": {
+      "bot": "Bot {name}",
+      "global": "Global",
+      "currentBot": "Current Bot",
+      "moduleConf": "Module Configurations",
+      "conf": "Configurations",
+      "actions": "Actions",
+      "hooks": "Hooks",
+      "rawFileEditor": "Raw File Editor",
+      "eventHooks": "Event Hooks",
+      "botHooks": "Bot Hooks",
+      "generalHooks": "General Hooks",
+      "pipelineHooks": "Pipeline Hooks",
+      "filterFiles": "Filter files"
+    },
+
+    "navigator": {
+      "isReadOnly": "This file is read only",
+      "codeSamples": "Those are code samples that you can copy",
+      "codeSamples2": "to add new features to your bots.",
+      "cannotBeEdited": "They cannot be edited directly",
+      "duplicateToCurrent": "Duplicate to current bot",
+      "copyExample": "Copy example to my bot",
+      "copyExampleToHooks": "Copy example to global hooks",
+      "renameMove": "Rename / Move",
+      "noFilesFound": "No files found in this category"
+    }
+  }
+}
