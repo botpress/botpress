@@ -149,3 +149,48 @@
   width: 100%;
   overflow: auto;
 }
+
+.triggersContainer {
+  display: flex;
+
+  .group {
+    width: 200px;
+  }
+}
+
+.triggerGroup {
+  display: flex;
+}
+
+.percentBar {
+  margin-right: 10px;
+
+  .container {
+    text-align: center;
+  }
+
+  .barContainer {
+    height: 50px;
+    width: 12px;
+    padding: 2px;
+    display: flex;
+    border: 1px solid black;
+
+    .bar {
+      background-color: blue;
+      width: 10px;
+      margin-top: auto;
+    }
+  }
+}
+
+.truncate {
+  width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsibleContainer {
+  border: 1px solid #d8e1e8;
+}
