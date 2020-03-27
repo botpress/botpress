@@ -41,7 +41,7 @@ const NumberMetric: FC<Props> = props => {
                 [style.diffNumberDown]: diffFromPreviousRange < 0
               })}
             >
-              <Tooltip content={`Compared to · ${startPreviousRange} - ${endPreviousRange}`} position={Position.BOTTOM}>
+              <Tooltip content={`Compared to ${startPreviousRange} · ${endPreviousRange}`} position={Position.BOTTOM}>
                 <span>
                   {diffFromPreviousRange > 0 && '+'}
                   {diffFromPreviousRange}
