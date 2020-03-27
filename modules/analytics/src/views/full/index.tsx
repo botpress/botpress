@@ -255,6 +255,7 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <NumberMetric
           diffFromPreviousRange={activeUserCountDiff}
+          previousDateRange={state.previousDateRange}
           name={`${getMetricCount('active_users_count')} Returning Users`}
           value={getReturningUsers()}
         />
