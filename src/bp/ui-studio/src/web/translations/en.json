@@ -8,6 +8,15 @@
   "copy": "Copy",
   "update": "Update",
   "create": "Create",
+  "chooseFile": "Choose file...",
+  "pleaseWait": "Please wait...",
+  "next": "Next",
+  "back": "Back",
+  "submit": "Submit",
+  "error": "Error",
+  "delete": "Delete",
+  "never": "Never",
+  "refresh": "Refresh",
 
   "config": {
     "general": "General",
@@ -183,6 +192,73 @@
             "transitionToSubflow": "Transition to subflow"
           }
         }
+      },
+
+      "content": {
+        "noContentDefined": "We think you don't have any content types defined.",
+        "pleaseReadDoc": "Please {readTheDocs} to see how you can make use of this feature",
+        "readTheDocs": "read the docs",
+        "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
+        "id": "ID",
+        "contentType": "Content Type",
+        "preview": "Preview",
+        "modifiedOn": "Modified On",
+        "createdOn": "Created On",
+        "usage": "Usage",
+        "noContent": "There's no content here.",
+        "noContentYet": "There's no content yet. You can create some using the 'Add' button.",
+        "deleteElements": "Delete selected elements",
+        "cloneElements": "Clone selected elements",
+        "searchContent": "Search content",
+
+        "import": {
+          "notAbleToExtractData": "We were not able to extract any data from your file. Either the file is empty, or it doesn't match any known format.",
+          "missingContentTypes": "Your bot is missing these content types: {types}.",
+          "selectFile": "Select your JSON file",
+          "selectFileMore": "Select a JSON file. It must be exported from the Content page. You will see a summary of modifications when clicking on Next",
+          "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
+          "whatLikeDo": "What would you like to do?",
+          "updateMissing": "Update or create missing elements present in my file",
+          "clearExisting": "Clear all existing elements, then import those from my file",
+          "uploadStatus": "Upload status",
+          "import": "Import JSON",
+          "upload": "Upload File",
+          "analysis": "Analysis"
+        },
+
+        "sideBar": {
+          "all": "All",
+          "createNewContent": "Create new content",
+          "createNew": "Create new {name}",
+          "filterByType": "Filter by Content Type"
+        },
+
+        "usageModal": {
+          "type": "Type",
+          "name": "Name",
+          "node": "Node",
+          "count": "Count",
+          "contentUsage": "Content Usage"
+        }
+      },
+
+      "logs": {
+        "autoRefresh": "Auto-refresh",
+        "downloadArchives": "Download log archive",
+        "loadMore": "Load more"
+      },
+
+      "module": {
+        "notFound": "Module not found",
+        "notProperlyRegistered": "The module is not properly registered",
+        "tryingToLoad": "It seems like you are trying to load a module that has not been registered. Please make sure the module is registered then restart the bot.",
+        "learnMore": "Learn more"
+      },
+
+      "notifications": {
+        "deleteAll": "Delete all",
+        "markRead": "Mark all as read",
+        "noNotifs": "You have no notifications!"
       }
     }
   }

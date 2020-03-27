@@ -135,7 +135,9 @@ class ActionModalForm extends Component {
           {this.state.actionMetadata.title && <h4>{this.state.actionMetadata.title}</h4>}
           {this.state.actionMetadata.description && <Markdown source={this.state.actionMetadata.description} />}
         </div>
-        <h5>Action parameters {paramsHelp}</h5>
+        <h5>
+          {lang.tr('studio.flow.node.actionParameters')} {paramsHelp}
+        </h5>
         <div className={style.section}>
           <ParametersTable
             ref={el => (this.parametersTable = el)}
@@ -232,7 +234,7 @@ class ActionModalForm extends Component {
             {this.state.isEdit
               ? lang.tr('studio.flow.node.finishUpdateAction')
               : lang.tr('studio.flow.node.finishAddAction')}{' '}
-            Action (Alt+Enter)
+            (Alt+Enter)
           </Button>
         </Modal.Footer>
       </Modal>
