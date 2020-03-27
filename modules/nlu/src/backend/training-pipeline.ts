@@ -304,7 +304,7 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      const listEntities = extractListEntities(utt, input.list_entities)
+      const listEntities = extractListEntities(utt, input.list_entities, true)
       const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })

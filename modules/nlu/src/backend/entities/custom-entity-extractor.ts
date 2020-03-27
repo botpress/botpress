@@ -162,22 +162,22 @@ function extractForListModel(utterance: Utterance, listModel: ListEntityModel): 
     })) as EntityExtractionResult[]
 }
 
-// TODO useCache param
 export const extractListEntities = (
   utterance: Utterance,
-  list_entities: ListEntityModel[]
+  list_entities: ListEntityModel[],
+  useCache: boolean = false
 ): EntityExtractionResult[] => {
   const cacheKey = utterance.toString({ lowerCase: true })
-  const [listModelsWithCachedRes, listModelsToExtract] = splitModels(list_entities, cacheKey)
+  const [listModelsWithCachedRes, listModelsToExtract] = useCache
+    ? splitModels(list_entities, cacheKey)
+    : [[], list_entities]
 
   let matches = _.flatMap(listModelsWithCachedRes, listModel => (listModel.cache as EntityCache)?.get(cacheKey))
 
   for (const listModel of listModelsToExtract) {
     const extracted = extractForListModel(utterance, listModel)
     if (extracted.length > 0) {
-      // usage of local variable because nested casting + prettier just cries hard
-      const cache = listModel.cache as EntityCache
-      cache?.set(cacheKey, extracted)
+      useCache && (listModel.cache as EntityCache)?.set(cacheKey, extracted)
       matches = matches.concat(...extracted)
     }
   }
