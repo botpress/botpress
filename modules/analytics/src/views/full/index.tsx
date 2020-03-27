@@ -30,6 +30,7 @@ import TimeSeriesChart from './TimeSeriesChart'
 
 interface State {
   metrics: MetricEntry[]
+  previousRangeMetrics: MetricEntry[]
   dateRange?: DateRange
   pageTitle: string
   selectedChannel: string
@@ -68,6 +69,13 @@ const fetchReducer = (state: State, action): State => {
       ...state,
       metrics
     }
+  } else if (action.type === 'receivedPreviousRangeMetrics') {
+    const { metrics } = action.data
+
+    return {
+      ...state,
+      previousRangeMetrics: metrics
+    }
   } else if (action.type === 'channelSuccess') {
     const { selectedChannel } = action.data
 
@@ -94,6 +102,7 @@ const Analytics: FC<any> = ({ bp }) => {
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
     metrics: [],
+    previousRangeMetrics: [],
     pageTitle: 'Dashboard',
     selectedChannel: 'all',
     shownSection: 'dashboard'
@@ -120,6 +129,17 @@ const Analytics: FC<any> = ({ bp }) => {
     // tslint:disable-next-line: no-floating-promises
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
+    })
+
+    /* Get the previous range data so we can compare them and see what changed */
+    const startDate = moment(state.dateRange[0])
+    const endDate = moment(state.dateRange[1])
+    const oldEndDate = moment(state.dateRange[0]).subtract(1, 'days')
+    const previousRange = [startDate.subtract(endDate.diff(startDate, 'days') + 1, 'days'), oldEndDate]
+
+    // tslint:disable-next-line: no-floating-promises
+    fetchAnalytics(state.selectedChannel, previousRange).then(metrics => {
+      dispatch({ type: 'receivedPreviousRangeMetrics', data: { dateRange: previousRange, metrics } })
     })
   }, [state.dateRange, state.selectedChannel])
 
@@ -153,6 +173,13 @@ const Analytics: FC<any> = ({ bp }) => {
   const getMetricCount = (metricName: string, subMetric?: string) => {
     const metrics = state.metrics.filter(m => m.metric === metricName && (!subMetric || m.subMetric === subMetric))
     return _.sumBy(metrics, 'value')
+  }
+
+  const getPreviousRangeMetricCount = (metricName: string, subMetric?: string) => {
+    const previousRangeMetrics = state.previousRangeMetrics.filter(
+      m => m.metric === metricName && (!subMetric || m.subMetric === subMetric)
+    )
+    return _.sumBy(previousRangeMetrics, 'value')
   }
 
   const getAvgMsgPerSessions = () => {
@@ -211,18 +238,21 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderEngagement = () => {
+    const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
+    const activeUserCountDiff = getMetricCount('active_users_count') - getPreviousRangeMetricCount('active_users_count')
+
     return (
       <div className={style.metricsContainer}>
         <NumberMetric name="Active Users" value={getMetricCount('active_users_count')} icon="user" />
         <NumberMetric
+          diffFromPreviousRange={newUserCountDiff}
           name={`${getMetricCount('new_users_count')} New Users`}
           value={getNewUsersPercent()}
-          icon="trending-down"
         />
         <NumberMetric
+          diffFromPreviousRange={activeUserCountDiff}
           name={`${getMetricCount('active_users_count')} Returning Users`}
           value={getReturningUsers()}
-          icon="trending-up"
         />
         <TimeSeriesChart
           name="User Activities"
