@@ -30,6 +30,12 @@ export const PatternEntityEditor: React.FC<Props> = props => {
   const [examplesStr, setExampleStr] = useState((props.entity.examples || []).join('\n'))
   const [allExamplesMatch, setExamplesMatch] = useState<boolean>(true)
 
+  const getEntityId = (entityName: string) =>
+    entityName
+      .trim()
+      .toLowerCase()
+      .replace(/[\t\s]/g, '-')
+
   const validateExamples = _.debounce(() => {
     let p = pattern
     if (!p.startsWith('^')) {
@@ -48,6 +54,12 @@ export const PatternEntityEditor: React.FC<Props> = props => {
     setExamplesMatch(allMatching)
   }, 750)
 
+  const updateEntity = _.debounce(newEntity => {
+    if (!_.isEqual(props.entity, newEntity)) {
+      props.updateEntity(getEntityId(newEntity.name), newEntity)
+    }
+  }, 100)
+
   useEffect(() => {
     try {
       new RegExp(pattern)
@@ -60,11 +72,11 @@ export const PatternEntityEditor: React.FC<Props> = props => {
         examples: examplesStr.trim().split('\n')
       }
       validateExamples()
-      props.updateEntity(newEntity.id, newEntity)
+      updateEntity(newEntity)
     } catch (e) {
       setPatternValid(false)
     }
-  }, [pattern, matchCase, sensitive, examplesStr])
+  }, [pattern, matchCase, sensitive, examplesStr]) // TODO useReducer and watch state instead or explicitely call update entity while
 
   return (
     <div className={style.entityEditorBody}>
