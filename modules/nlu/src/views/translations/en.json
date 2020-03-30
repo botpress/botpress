@@ -1,0 +1,33 @@
+{
+  "nlu": {
+    "intents": {
+      "intents": "Intents",
+      "summaryPlaceholder": "Summary of intent",
+      "utterancePlaceholder": "Type a sentence",
+      "deleteConfirmMessage": "Are you sure you want to delete the intent \"{intentName}\"?",
+      "deleteConfirmLabel": "Delete",
+      "actionErrorMessage": "Could not {action} intent",
+      "renameActionLabel": "Rename",
+      "duplicateActionLabel": "Duplicate",
+      "deleteActionLabel": "Delete",
+      "nameLabel": "Intent Name",
+      "namePlaceholder": "Choose a name for your intent",
+      "nameDupe": "An intent with that name already exists. Please choose another one.",
+      "createLabel": "Create intent",
+      "chooseContainerLabel": "Choose a different intent for the condition",
+      "hintIgnored": "This intent will be ignored, start adding utterances to make it trainable.",
+      "hintExactMatch": "This intent will use <strong>exact match only</strong>. To enable machine learning, add at least {nb} more utterances.",
+      "hintResilient": "Add <strong>{nb} more utterances</strong> to make NLU more resilient.",
+      "selectIntentLabel": "Select an existing intent",
+      "selectIntentNoResults": "No such intent",
+      "contextSelectorTooltip": "You can type in the select bar to add new contexts.",
+      "contextSelectorCreateMissing": "Create \"{query}\"",
+      "contextSelectorPlaceholder": "Select context..."
+    },
+    "entities": {
+      "entities": "Entities"
+    },
+    "title": "Language Undertanding",
+    "description": "Use Botpress native Natural language understanding engine to make your bot smarter."
+  }
+}

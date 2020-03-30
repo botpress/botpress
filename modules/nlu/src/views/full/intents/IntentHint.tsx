@@ -1,6 +1,7 @@
 import { Icon } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -45,32 +46,17 @@ const IntentHint: FC<Props> = props => {
   let hint: JSX.Element
 
   if (!utterances.length) {
-    hint = <span>This intent will be ignored, start adding utterances to make it trainable.</span>
+    hint = <span>{lang.tr('nlu.intents.hintIgnored')}</span>
   }
 
   if (utterances.length && utterances.length < recommendations.minUtterancesForML) {
     const remaining = recommendations.minUtterancesForML - utterances.length
-    hint = (
-      <span>
-        This intent will use <strong>exact match only</strong>. To enable machine learning, add at least{' '}
-        <strong>
-          {remaining} more utterance{remaining === 1 ? '' : 's'}
-        </strong>
-      </span>
-    )
+    hint = <span>{lang.tr('nlu.intents.hintExactMatch', { nb: remaining })}</span>
   }
 
   if (utterances.length >= recommendations.minUtterancesForML && utterances.length < idealNumberOfUtt) {
     const remaining = idealNumberOfUtt - utterances.length
-    hint = (
-      <span>
-        Add{' '}
-        <strong>
-          {remaining} more utterance{remaining === 1 ? ' ' : 's '}
-        </strong>
-        to make NLU more resilient.
-      </span>
-    )
+    hint = <span>{lang.tr('nlu.intents.hintResilient', { nb: remaining })}</span>
   }
   return hint ? (
     <p className={cx(style.hint, { [style.lightEditorHint]: props.liteEditor })}>
