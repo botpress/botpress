@@ -1,6 +1,6 @@
-<a href='http://botpress.io'><img src='.github/assets/train_bar.gif'></a>
+<a href='https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme'><img src='.github/assets/train_bar.gif'></a>
 
-# [Botpress](https://botpress.com) — The open-source Virtual Assistant platform
+# [Botpress](https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme) — The open-source Virtual Assistant platform
 
 [![CodeBuild](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoiNTZoU0wzRmRQd29iWTFqVjliUzlvN0gzUUtoN25QVHlHMUhWYkZCWHpPQ3ZKQzFOMFh6Wm5EcHkxQW5SUmJuTFpLSDJXdURDVzNtRjM5d1BaU2pNUHhJPSIsIml2UGFyYW1ldGVyU3BlYyI6Iitoa0RBM091SnlXNTJwK2MiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)](https://console.aws.amazon.com/codesuite/codebuild/projects/botpress-ce-tests/history?region=us-east-1)
 
@@ -27,7 +27,7 @@ Botpress is:
 ##### Learn Botpress
 
 | 📖 [**Documentation**](https://botpress.com/docs) | 🍿 [**Tutorials**](https://www.youtube.com/c/botpress) | 💘 [**Community Forum**](https://forum.botpress.com) |
-| ------------------------------------------------ | ------------------------------------------------------ | ---------------------------------------------------- |
+| ------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
 
 
 ## Deploy in the Cloud
@@ -36,9 +36,13 @@ Botpress can be easily deployed on DigitalOcean as a 1-Click App [here](https://
 
 [![DigitalOcean](.github/do_button.svg)](https://marketplace.digitalocean.com/apps/botpress)
 
+Botpress can also be deployed for free on Heroku. However, this is not the most optimal botpress experience, you may want to host your own [language server](https://botpress.com/docs/advanced/hosting#running-your-own-language-server)
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## Deploy using Binaries
 
-You can download the binaries [here](https://botpress.com/download).
+You can download the binaries [here](https://botpress.com/download?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme).
 
 ## Building from source
 

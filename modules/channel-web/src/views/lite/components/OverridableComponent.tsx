@@ -29,14 +29,10 @@ class OverridableComponent extends React.Component<Props, State> {
   }
 
   resolveComponents = () => {
-    if (!this.props.overrides || !this.props.overrides[this.props.name]) {
-      return
-    }
-
-    return this.props.overrides[this.props.name]
-      .map(({ module, component }) => ({
+    return this.props.overrides?.[this.props.name]
+      ?.map(({ module, component }) => ({
         key: `${module}:${component}`,
-        element: window.botpress[module] && window.botpress[module][component]
+        element: window.botpress[module]?.[component]
       }))
       .filter(x => x.element)
   }

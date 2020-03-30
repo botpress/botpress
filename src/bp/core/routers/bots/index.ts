@@ -1,8 +1,3 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Botpress, Inc. All rights reserved.
- *  Licensed under the AGPL-3.0 license. See license.txt at project root for more information.
- *--------------------------------------------------------------------------------------------*/
-
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
 import { gaId, machineUUID } from 'common/stats'
@@ -102,6 +97,11 @@ export class BotsRouter extends CustomRouter {
 
     const config = await this.configProvider.getBotConfig(req.params.botId)
     if (config.disabled) {
+      // The user must be able to get the config to change the bot status
+      if (req.originalUrl.endsWith(`/api/v1/bots/${req.params.botId}`)) {
+        return next()
+      }
+
       return next(new NotFoundError('Bot is disabled'))
     }
 
@@ -128,7 +128,7 @@ export class BotsRouter extends CustomRouter {
     }
   }
 
-  getNewRouter(path: string, identity: string, options?: RouterOptions) {
+  getNewRouter(path: string, identity: string, options?: RouterOptions): Router {
     const router = Router({ mergeParams: true })
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
@@ -153,7 +153,9 @@ export class BotsRouter extends CustomRouter {
 
     router['getPublicPath'] = async () => {
       await AppLifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
-      return new URL('/api/v1/bots/BOT_ID' + relPath, process.EXTERNAL_URL).href
+      const externalUrl = new URL(process.EXTERNAL_URL)
+      const subPath = externalUrl.pathname + '/api/v1/bots/BOT_ID' + relPath
+      return new URL(subPath.replace('//', '/'), externalUrl.origin).href
     }
 
     return router
@@ -227,6 +229,7 @@ export class BotsRouter extends CustomRouter {
               window.BOT_LOCKED = ${!!bot.locked};
               window.WORKSPACE_ID = "${workspaceId}";
               window.IS_BOT_MOUNTED = ${this.botService.isBotMounted(botId)};
+              window.EXPERIMENTAL = ${config.experimental};
               window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
               ${app === 'studio' ? studioEnv : ''}
               ${app === 'lite' ? liteEnv : ''}

@@ -44,6 +44,12 @@ export class SlackClient {
     await this._setupRealtime()
   }
 
+  async shutdown() {
+    if (this.rtm) {
+      await this.rtm.disconnect()
+    }
+  }
+
   private async _setupInteractiveListener() {
     this.interactive.action({ type: 'button' }, async payload => {
       debugIncoming(`Received interactive message %o`, payload)

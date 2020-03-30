@@ -1,6 +1,7 @@
 import { ConverseConfig } from 'botpress/sdk'
-import { UniqueUser } from 'common/typings'
-import { IncidentRule } from 'core/services/alerting-service'
+
+import { UniqueUser } from '../../common/typings'
+import { IncidentRule } from '../services/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
@@ -183,7 +184,7 @@ export type BotpressConfig = {
   }
   /**
    * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
-   * @example: [admin@botpress.io]
+   * @example: [admin@botpress.com]
    */
   superAdmins: UniqueUser[]
   /**
@@ -239,6 +240,7 @@ export type BotpressConfig = {
    */
   autoRevision: boolean
   eventCollector: EventCollectorConfig
+  botMonitoring: BotMonitoringConfig
   /**
    * @default { "default": { "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
    */
@@ -252,12 +254,24 @@ export type BotpressConfig = {
    */
   showPoweredBy: boolean
   /**
+   * When true, the bot will avoid repeating itself. By default it is disabled.
+   * Use in conjunction with BP_DECISION_MIN_NO_REPEAT to set the time before the bot will repeat itself
+   * @default false
+   */
+  noRepeatPolicy: boolean
+  /**
    * By adding this, you'll make possible to translate a bot in more languages than those supported by your botpress language server
    * Warning: This means that Botpress NLU won't be working properly and you'll need to handle NLU on your own with a **beforeIncoming** Hook.
    * @example [{name: 'Swedish', code: 'sv'}]
    * @default []
    */
   additionalLanguages?: { name: string; code: string }[]
+  /**
+   * Whether or not to display experimental features throughout the UI. These are subject
+   * to change and can be unstable.
+   * @default false
+   */
+  experimental: boolean
 }
 
 export interface ExternalAuthConfig {
@@ -521,6 +535,20 @@ export interface AlertingConfig {
    * is called with the incident.
    */
   rules: IncidentRule[]
+}
+
+export interface BotMonitoringConfig {
+  /**
+   * This must be enabled for the hook OnBotError to work properly.
+   * @default true
+   */
+  enabled: boolean
+  /**
+   * The interval between which logs are accumulated before triggering the OnBotError hook.
+   * Set this value higher if the hook is triggered too often.
+   * @default 1m
+   */
+  interval: string
 }
 
 export interface EventCollectorConfig {

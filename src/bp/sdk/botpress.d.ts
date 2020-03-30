@@ -6,6 +6,7 @@
  */
 declare module 'botpress/sdk' {
   import Knex from 'knex'
+  import { Router, Request, Response, NextFunction } from 'express'
 
   export interface KnexExtension {
     isLite: boolean
@@ -46,6 +47,7 @@ declare module 'botpress/sdk' {
 
   export interface LoggerEntry {
     botId?: string
+    hostname?: string
     level: string
     scope: string
     message: string
@@ -57,6 +59,7 @@ declare module 'botpress/sdk' {
     Info = 'info',
     Warn = 'warn',
     Error = 'error',
+    Critical = 'critical',
     Debug = 'debug'
   }
 
@@ -91,6 +94,7 @@ declare module 'botpress/sdk' {
     info(message: string, metadata?: any): void
     warn(message: string, metadata?: any): void
     error(message: string, metadata?: any): void
+    critical(message: string, metadata?: any): void
   }
 
   export type ElementChangedAction = 'create' | 'update' | 'delete'
@@ -118,7 +122,12 @@ declare module 'botpress/sdk' {
      */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => Promise<void>
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => Promise<void>
-    onFlowRenamed?: (bp: typeof import('botpress/sdk'), botId: string,  previousFlowName: string, newFlowName: string) => Promise<void>
+    onFlowRenamed?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      previousFlowName: string,
+      newFlowName: string
+    ) => Promise<void>
     /**
      * This method is called whenever a content element is created, updated or deleted.
      * Modules can act on these events if they need to update references, for example.
@@ -305,10 +314,12 @@ declare module 'botpress/sdk' {
 
     export namespace SVM {
       export interface SVMOptions {
-        classifier: 'C_SVC'
-        kernel: 'LINEAR' | 'RBF' | 'POLY'
-        c: number | number[]
-        gamma: number | number[]
+        classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
+        kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
+        c?: number | number[]
+        gamma?: number | number[]
+        probability?: boolean
+        reduce?: boolean
       }
 
       export type DataPoint = {
@@ -371,11 +382,13 @@ declare module 'botpress/sdk' {
         (message: string): void
       }
 
+      interface DataPoint {
+        features: Array<string[]>
+        labels: string[]
+      }
+
       export interface Trainer {
-        append(xseq: Array<string[]>, yseq: string[]): void
-        train(model_filename: string): void
-        set_params(options: TrainerOptions): void
-        set_callback(callback: TrainerCallback): void
+        train(elements: DataPoint[], options: TrainerOptions): Promise<string>
       }
 
       export const createTrainer: () => Trainer
@@ -781,6 +794,12 @@ declare module 'botpress/sdk' {
     ignoreLock?: boolean
   }
 
+  export interface DirectoryListingOptions {
+    excludes?: string | string[]
+    includeDotFiles?: boolean
+    sortOrder?: SortOrder & { column: 'filePath' | 'modifiedOn' }
+  }
+
   export interface ScopedGhostService {
     /**
      * Insert or Update the file at the specified location
@@ -795,18 +814,20 @@ declare module 'botpress/sdk' {
     renameFile(rootFolder: string, fromName: string, toName: string): Promise<void>
     deleteFile(rootFolder: string, file: string): Promise<void>
     /**
-     * List all the files matching the ending pattern in the folder
+     * List all the files matching the ending pattern in the folder.
+     * DEPRECATE WARNING: exclude and includedDotFiles must be defined in options in future versions
      * @example bp.ghost.forBot('welcome-bot').directoryListing('./questions', '*.json')
      * @param rootFolder - Folder relative to the scoped parent
      * @param fileEndingPattern - The pattern to match. Don't forget to include wildcards!
-     * @param exclude - The pattern to match excluded files.
-     * @param includeDotFiles - Whether or not to include files starting with a dot (normally disabled files)
+     * @param @deprecated exclude - The pattern to match excluded files.
+     * @param @deprecated includeDotFiles - Whether or not to include files starting with a dot (normally disabled files)
      */
     directoryListing(
       rootFolder: string,
       fileEndingPattern: string,
       exclude?: string | string[],
-      includeDotFiles?: boolean
+      includeDotFiles?: boolean,
+      options?: DirectoryListingOptions
     ): Promise<string[]>
     /**
      * Starts listening on all file changes (deletion, inserts and updates)
@@ -892,7 +913,13 @@ declare module 'botpress/sdk' {
       status: string
       requested_by: string
       id: string
+      approvals?: StageRequestApprovers[]
     }
+  }
+
+  export interface StageRequestApprovers {
+    email: string
+    strategy: string
   }
 
   export interface BotDetails {
@@ -901,6 +928,8 @@ declare module 'botpress/sdk' {
     termsConditions?: string
     privacyPolicy?: string
     emailAddress?: string
+    avatarUrl?: string
+    coverPictureUrl?: string
   }
 
   export interface LogsConfig {
@@ -1305,11 +1334,11 @@ declare module 'botpress/sdk' {
      * @param options - Additional options to apply to the router
      * @param router - The router
      */
-    export function createRouterForBot(routerName: string, options?: RouterOptions): any & RouterExtension
+    export function createRouterForBot(routerName: string, options?: RouterOptions): RouterExtension
 
     /**
      * This method is meant to unregister a router before unloading a module. It is meant to be used in a development environment.
-     * It could cause unpredictable behaviour in production
+     * It could cause unpredictable behavior in production
      * @param routerName The name of the router (must have been registered with createRouterForBot)
      */
     export function deleteRouterForBot(routerName: string)
@@ -1331,18 +1360,16 @@ declare module 'botpress/sdk' {
     /**
      * This Express middleware tries to decode the X-BP-ExternalAuth header and adds a credentials header in the request if it's valid.
      */
-    export function extractExternalToken(req: any, res: any, next: any): Promise<void>
+    export function extractExternalToken(req: Request, res: Response, next: NextFunction): Promise<void>
 
     export function needPermission(
       operation: string,
       resource: string
-    ): (req: any, res: any, next: any) => Promise<void>
+    ): (req: Request, res: Response, next: NextFunction) => Promise<void>
 
-    export function hasPermission(req: any, operation: string, resource: string): Promise<boolean>
+    export function hasPermission(req: any, operation: string, resource: string, noAudit?: boolean): Promise<boolean>
 
-    export interface RouterExtension {
-      getPublicPath(): Promise<string>
-    }
+    export type RouterExtension = { getPublicPath(): Promise<string> } & Router
   }
 
   /**
@@ -1405,7 +1432,7 @@ declare module 'botpress/sdk' {
     /**
      * Returns an existing user or create a new one with the specified keys
      */
-    export function getOrCreateUser(channel: string, userId: string): GetOrCreateResult<User>
+    export function getOrCreateUser(channel: string, userId: string, botId?: string): GetOrCreateResult<User>
 
     /**
      * Merge the specified attributes to the existing attributes of the user
@@ -1485,11 +1512,7 @@ declare module 'botpress/sdk' {
      * @param partialConfig
      * @param ignoreLock
      */
-    export function mergeBotConfig(
-      botId: string,
-      partialConfig: _.PartialDeep<BotConfig>,
-      ignoreLock?: boolean
-    ): Promise<any>
+    export function mergeBotConfig(botId: string, partialConfig: Partial<BotConfig>, ignoreLock?: boolean): Promise<any>
   }
 
   /**

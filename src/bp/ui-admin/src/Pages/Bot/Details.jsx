@@ -18,8 +18,8 @@ import { toastSuccess, toastFailure } from '../../utils/toaster'
 import api from '../../api'
 import PageContainer from '~/App/PageContainer'
 import StickyActionBar from '~/App/StickyActionBar'
-import { Button, Intent } from '@blueprintjs/core'
-import confirmDialog from '~/App/ConfirmDialog'
+import { Button, Intent, Callout } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 
 const statusList = [
   { label: 'Published', value: 'public' },
@@ -244,9 +244,7 @@ class Bots extends Component {
 
     if (this.state.selectedDefaultLang !== lang) {
       const conf = await confirmDialog(
-        `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${
-          lang.label
-        }? All of your content elements will be copied, make sure you translate them.`,
+        `Are you sure you want to change the language of your bot from ${this.state.selectedDefaultLang.label} to ${lang.label}? All of your content elements will be copied, make sure you translate them.`,
         {
           acceptLabel: 'Change'
         }
@@ -588,6 +586,9 @@ class Bots extends Component {
         title={`Bot - ${this.state.name || this.state.botId}`}
         helpText="This page shows the details you can configure for a desired bot."
       >
+        <Callout title="This menu is moving" intent="warning">
+          This menu will be permanently moving to <a href={`studio/${this.state.botId}/config`}>the studio.</a>
+        </Callout>
         {this.renderDetails()}
         <StickyActionBar>
           <Button
@@ -626,7 +627,4 @@ const mapDispatchToProps = {
   fetchLanguages
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Bots)
+export default connect(mapStateToProps, mapDispatchToProps)(Bots)

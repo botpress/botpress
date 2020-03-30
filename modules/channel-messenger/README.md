@@ -17,8 +17,10 @@ Messenger requires you to have a Facebook App and a Facebook Page to setup your 
 #### Enable the Messenger Channel
 
 - Run Botpress Server a first time to auto-generate the global configuration file
+- Enable `channel-messenger` module in the global configuration file
 - Head over to `data/global/config/channel-messenger.json`. If it doesn't exist, restart Botpress Server.
 - Set the following properties:
+  - `enabled` to `true`
   - `appSecret`. You will find this value in your Facebook App page.
   - `verifyToken`. This is a random string you need to generate and keep secret. You'll need to copy/paste this token in the Facebook App portal when setting up your webhook.
 - Make sure you have an HTTPS url pointing to your Botpress Server and set the [`EXTERNAL_URL`](https://botpress.com/docs/manage/configuration#exposing-your-bot-on-the-internet) environment variable

@@ -33,15 +33,18 @@ export function config(projectPath) {
       'react-dom': 'ReactDOM',
       'react-bootstrap': 'ReactBootstrap',
       '@blueprintjs/core': 'BlueprintJsCore',
+      '@blueprintjs/select': 'BlueprintJsSelect',
       'botpress/ui': 'BotpressUI',
       'botpress/content-picker': 'BotpressContentPicker',
       'botpress/documentation': 'DocumentationProvider',
-      'botpress/utils': 'BotpressUtils'
+      'botpress/utils': 'BotpressUtils',
+      'botpress/shared': 'BotpressShared'
     },
     resolveLoader: {
-      modules: ['node_modules', path.resolve(projectPath, './node_modules/module-builder/node_modules')]
+      modules: ['node_modules', path.resolve(__dirname, '../node_modules')]
     },
     resolve: {
+      modules: ['node_modules', path.resolve(__dirname, '../../../src/bp/ui-studio/node_modules')],
       extensions: ['.js', '.jsx', '.tsx', '.ts']
     },
     plugins: [new CleanWebpackPlugin()],
@@ -53,6 +56,7 @@ export function config(projectPath) {
           use: {
             loader: 'babel-loader',
             options: {
+              cwd: path.resolve(__dirname, '..'),
               presets: [['@babel/preset-env'], '@babel/preset-typescript', '@babel/preset-react'],
               plugins: [
                 ['@babel/plugin-proposal-decorators', { legacy: true }],
@@ -133,7 +137,7 @@ export function config(projectPath) {
   return [full, lite]
 }
 
-function writeStats(err, stats, exitOnError = true) {
+function writeStats(err, stats, exitOnError = true, callback?) {
   if (err || stats.hasErrors()) {
     error(stats.toString('minimal'))
 
@@ -145,6 +149,8 @@ function writeStats(err, stats, exitOnError = true) {
   for (const child of stats.toJson().children) {
     normal(`Generated frontend bundle (${child.time} ms)`)
   }
+
+  callback?.()
 }
 
 export function watch(projectPath: string) {
@@ -153,7 +159,10 @@ export function watch(projectPath: string) {
   compiler.watch({}, (err, stats) => writeStats(err, stats, false))
 }
 
-export function build(projectPath: string) {
+export async function build(projectPath: string): Promise<void> {
   const confs = config(projectPath)
-  webpack(confs, (err, stats) => writeStats(err, stats, true))
+
+  await new Promise(resolve => {
+    webpack(confs, (err, stats) => writeStats(err, stats, true, resolve))
+  })
 }

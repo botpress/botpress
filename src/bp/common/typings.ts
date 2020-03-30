@@ -1,4 +1,4 @@
-import { BotDetails, Flow, FlowNode, RolloutStrategy } from 'botpress/sdk'
+import { BotDetails, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -107,6 +107,9 @@ export interface Stage {
   id: string
   label: string
   action: StageAction
+  reviewers: StageRequestApprovers[]
+  minimumApprovals: number
+  reviewSequence: 'serial' | 'parallel'
 }
 
 export interface UserProfile {
@@ -168,6 +171,19 @@ export interface AuthPayload {
   identity?: TokenUser
 }
 
+export interface ModuleInfo {
+  name: string
+  fullName?: string
+  description?: string
+  /** Archived modules must be unpacked before information is available */
+  archived?: boolean
+  /** The location of the module as listed in botpress config */
+  location: string
+  /** The complete location of the module */
+  fullPath: string
+  enabled: boolean
+}
+
 export interface ServerHealth {
   serverId: string
   hostname: string
@@ -175,7 +191,8 @@ export interface ServerHealth {
 }
 
 export interface BotHealth {
-  status: 'mounted' | 'unmounted' | 'disabled' | 'error'
+  status: 'healthy' | 'unhealthy' | 'disabled'
   errorCount: number
+  criticalCount: number
   warningCount: number
 }

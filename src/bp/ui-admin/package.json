@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^3.23.1",
+    "@blueprintjs/datetime": "^3.15.2",
     "@blueprintjs/select": "^3.11.2",
     "@botpress/util-roles": "^10.36.1",
     "axios": "^0.19.0",
@@ -49,7 +50,8 @@
     "recharts": "^1.5.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.3.0",
-    "snarkdown": "^1.2.2"
+    "snarkdown": "^1.2.2",
+    "ui-shared": "link:../ui-shared"
   },
   "devDependencies": {
     "@types/react": "^16.9.19",
@@ -59,7 +61,8 @@
     "@types/react-select": "^2.0.19",
     "@types/reactstrap": "^8.4.1",
     "cross-env": "^5.2.0",
-    "hard-source-webpack-plugin": "^0.13.1",
+    "expose-loader": "^0.7.1",
+    "hard-source-webpack-plugin": "git+https://github.com/botpress/hard-source-webpack-plugin.git",
     "node-sass-chokidar": "^1.3.4",
     "npm-run-all": "^4.1.5",
     "react-app-rewired": "^2.1.0"

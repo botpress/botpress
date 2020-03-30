@@ -15,7 +15,10 @@
       "~/*": ["src/web/*"],
       "DOCS/*": ["../../../docs/guide/docs/*"],
       "common/*": ["../../../out/bp/common/*"],
+      "botpress/shared": ["../ui-shared/src/typings.d.ts"],
       "botpress/sdk": ["../sdk/botpress.d.ts"]
     }
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "build", "dist", "example", "rollup.config.js", "webpack.config.js"]
 }

@@ -1,6 +1,3 @@
-const ESCAPED_CHARS = /[.+?^${}()|[\]\\]/g
-const WILDCARD = /\*/g
-
 interface ExtractedPattern {
   value: string
   sourceIndex: number
@@ -13,10 +10,6 @@ export function isPatternValid(pattern: string): boolean {
   } catch (e) {
     return false
   }
-}
-
-export function escapeRegex(pattern: string): string {
-  return pattern.replace(ESCAPED_CHARS, '\\$&').replace(WILDCARD, '.+?')
 }
 
 // Padding is necessary due to the recursive nature of this function.

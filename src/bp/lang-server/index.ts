@@ -3,6 +3,8 @@ import _ from 'lodash'
 import path from 'path'
 
 import center from '../core/logger/center'
+import { LogLevel } from '../core/sdk/enums'
+
 // tslint:disable-next-line:ordered-imports
 import rewire from '../sdk/rewire'
 // tslint:disable-next-line:ordered-imports
@@ -32,9 +34,17 @@ export interface ArgV {
 export default async function(options: ArgV) {
   options.langDir = options.langDir || path.join(process.APP_DATA_PATH, 'embeddings')
 
-  debug('Language Server Options ', options)
-
   const logger = new LangServerLogger('Launcher')
+
+  global.printLog = args => {
+    const message = args[0]
+    const rest = args.slice(1)
+
+    logger.level(LogLevel.DEV).debug(message.trim(), rest)
+  }
+
+  debug('Language Server Options %o', options)
+
   const langService = new LanguageService(options.dim, options.domain, options.langDir)
   const downloadManager = new DownloadManager(options.dim, options.domain, options.langDir, options.metadataLocation)
 
@@ -48,17 +58,17 @@ export default async function(options: ArgV) {
   }
 
   logger.info(chalk`========================================
-{bold ${center(`Botpress Language Server`, 40)}}
-{dim ${center(`OS ${process.distro}`, 40)}}
-========================================`)
+{bold ${center(`Botpress Language Server`, 40, 9)}}
+{dim ${center(`OS ${process.distro}`, 40, 9)}}
+${_.repeat(' ', 9)}========================================`)
 
-  if (options.authToken && options.authToken.length) {
+  if (options.authToken?.length) {
     logger.info(`authToken: ${chalk.greenBright('enabled')} (only users with this token can query your server)`)
   } else {
     logger.info(`authToken: ${chalk.redBright('disabled')} (anyone can query your language server)`)
   }
 
-  if (options.adminToken && options.adminToken.length) {
+  if (options.adminToken?.length) {
     logger.info(`adminToken: ${chalk.greenBright('enabled')} (only users using this token can manage the server)`)
   } else {
     logger.info(`adminToken: ${chalk.redBright('disabled')} (anyone can add, remove or change languages)`)

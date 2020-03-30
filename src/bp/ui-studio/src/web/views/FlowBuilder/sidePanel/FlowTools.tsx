@@ -20,8 +20,8 @@ export interface SkillDefinition {
   moduleName: string
 }
 
-const FlowTools: FC<{ skills: SkillDefinition[]; flowPreview: boolean }> = props => {
-  if (props.flowPreview) {
+const FlowTools: FC<{ skills: SkillDefinition[] }> = props => {
+  if (window.EXPERIMENTAL) {
     return (
       <div className={style.toolPanel}>
         <ToolItem label="Node" type="node" id="standard" icon="chat" />
@@ -64,7 +64,7 @@ const ToolItem: FC<ToolItemProps> = ({ label, type, id, icon }) => {
       id={`btn-tool-${id}`}
       className={style.toolItem}
       key={id}
-      draggable={true}
+      draggable
       onDragStart={event => {
         event.dataTransfer.setData('diagram-node', JSON.stringify({ type, id }))
       }}
@@ -85,7 +85,4 @@ const mapDispatchToProps = {
   buildSkill: buildNewSkill
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FlowTools)
+export default connect(mapStateToProps, mapDispatchToProps)(FlowTools)

@@ -1,20 +1,36 @@
 import { Button, Tooltip } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
 import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
+import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import ReactTable from 'react-table'
 import api from '~/api'
-import { fetchBotHealth } from '~/reducers/bots'
+import { fetchBotHealth, fetchBotsByWorkspace } from '~/reducers/bots'
+import { switchWorkspace } from '~/reducers/user'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
-import confirmDialog from '~/App/ConfirmDialog'
+import { getActiveWorkspace } from '~/Auth'
 
-interface Props {
+import Dropdown, { Option } from '../Components/Dropdown'
+import { filterText } from '../Logs/utils'
+
+type Props = {
   health?: ServerHealth[]
+  botsByWorkspace?: { [workspaceId: string]: string[] }
   fetchBotHealth: () => void
-}
+  fetchBotsByWorkspace: () => void
+  switchWorkspace: (workspaceName: string) => void
+} & RouteComponentProps
 
 const getKey = entry => `${entry.hostname} (${entry.serverId})`
+
+const STATUS: Option[] = [
+  { label: 'All', value: '' },
+  { label: 'Healthy', value: 'healthy' },
+  { label: 'Unhealthy', value: 'unhealthy' },
+  { label: 'Disabled', value: 'disabled' }
+]
 
 const BotHealth: FC<Props> = props => {
   const [data, setData] = useState<any>()
@@ -26,6 +42,10 @@ const BotHealth: FC<Props> = props => {
     } else {
       updateColumns()
       refreshContent()
+    }
+
+    if (!props.botsByWorkspace) {
+      props.fetchBotsByWorkspace()
     }
   }, [props.health])
 
@@ -43,6 +63,24 @@ const BotHealth: FC<Props> = props => {
     setData(data)
   }
 
+  const filterStatus = ({ onChange }) => {
+    return <Dropdown items={STATUS} defaultItem={STATUS[0]} onChange={option => onChange(option.value)} small />
+  }
+
+  const goToBotLogs = async (botId: string) => {
+    if (props.botsByWorkspace) {
+      const workspace = _.findKey(props.botsByWorkspace, x => x.includes(botId))
+      workspace && props.switchWorkspace(workspace)
+    }
+
+    props.history.push(
+      generatePath(`/workspace/:workspaceId?/logs?botId=:botId`, {
+        workspaceId: getActiveWorkspace() || undefined,
+        botId
+      })
+    )
+  }
+
   const updateColumns = () => {
     const hostColumns = props.health!.map(entry => {
       const key = getKey(entry)
@@ -55,18 +93,24 @@ const BotHealth: FC<Props> = props => {
               switch (_.get(cell.original, `data[${key}].status`)) {
                 default:
                   return 'N/A'
-                case 'error':
-                  return <span style={{ color: 'red' }}>Error</span>
-                case 'mounted':
-                  return 'Mounted'
+                case 'unhealthy':
+                  return <span className="logCritical">Unhealthy</span>
+                case 'healthy':
+                  return <span className="logInfo">Healthy</span>
                 case 'disabled':
                   return 'Disabled'
-                case 'unmounted':
-                  return 'Unmounted'
               }
             },
-            width: 80,
+            Filter: filterStatus,
+            filterable: true,
+            width: 100,
             accessor: `data[${key}].status`
+          },
+          {
+            Header: 'Critical',
+            width: 60,
+            className: 'center',
+            accessor: `data[${key}].criticalCount`
           },
           {
             Header: 'Errors',
@@ -88,7 +132,20 @@ const BotHealth: FC<Props> = props => {
       {
         Header: 'Bot ID',
         accessor: 'botId',
-        width: 250
+        Cell: x => {
+          return (
+            <span>
+              <Tooltip hoverOpenDelay={1000} content="View logs for this bot">
+                <a onClick={() => goToBotLogs(x.original.botId)} className="link">
+                  {x.original.botId}
+                </a>
+              </Tooltip>
+            </span>
+          )
+        },
+        width: 250,
+        Filter: filterText,
+        filterable: true
       },
       ...hostColumns,
       {
@@ -126,14 +183,17 @@ const BotHealth: FC<Props> = props => {
       columns={columns}
       data={data}
       defaultPageSize={10}
-      defaultSorted={[{ id: 'host', desc: false }]}
+      defaultSorted={[{ id: 'botId', desc: false }]}
       className="-striped -highlight monitoringOverview"
     />
   )
 }
 
 const mapStateToProps = state => ({
-  health: state.bots.health
+  health: state.bots.health,
+  botsByWorkspace: state.bots.botsByWorkspace
 })
 
-export default connect(mapStateToProps, { fetchBotHealth })(BotHealth)
+export default withRouter(
+  connect(mapStateToProps, { fetchBotHealth, switchWorkspace, fetchBotsByWorkspace })(BotHealth)
+)

@@ -2,12 +2,12 @@ import { IO, Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import { CMSService } from '../cms'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
@@ -29,12 +29,18 @@ export class DecisionEngine {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.StateManager) private stateManager: StateManager,
-    @inject(TYPES.CMSService) private cms: CMSService
+    @inject(TYPES.StateManager) private stateManager: StateManager
   ) {}
 
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
   private readonly MIN_NO_REPEAT = ms(process.env.BP_DECISION_MIN_NO_REPEAT || '20s')
+  private noRepeatPolicy = false
+
+  @postConstruct()
+  async initialize() {
+    await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
+    this.noRepeatPolicy = (await this.configProvider.getBotpressConfig()).noRepeatPolicy
+  }
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
     const isInMiddleOfFlow = _.get(event, 'state.context.currentFlow', false)
@@ -62,6 +68,11 @@ export class DecisionEngine {
 
     if (elected) {
       Object.assign(event, { decision: elected })
+      BOTPRESS_CORE_EVENT('bp_core_decision_elected', {
+        botId: event.botId,
+        channel: event.channel,
+        source: elected.source || 'none'
+      })
       sendSuggestionResult = await this._sendSuggestion(elected, sessionId, event)
     }
 
@@ -135,7 +146,7 @@ export class DecisionEngine {
 
       if (replies[i].confidence < this.MIN_CONFIDENCE) {
         replies[i].decision = { status: 'dropped', reason: `confidence lower than ${this.MIN_CONFIDENCE}` }
-      } else if (violatesRepeatPolicy) {
+      } else if (this.noRepeatPolicy && violatesRepeatPolicy) {
         replies[i].decision = { status: 'dropped', reason: `bot would repeat itself (within ${this.MIN_NO_REPEAT}ms)` }
       } else if (bestReply) {
         replies[i].decision = { status: 'dropped', reason: 'best suggestion already elected' }

@@ -27,9 +27,19 @@ interface Props {
   createRevision?: () => void
   rollback?: () => void
   reloadBot?: () => void
+  viewLogs?: () => void
 }
 
-const BotItemCompact: FC<Props> = ({ bot, hasError, deleteBot, exportBot, createRevision, rollback, reloadBot }) => {
+const BotItemCompact: FC<Props> = ({
+  bot,
+  hasError,
+  deleteBot,
+  exportBot,
+  createRevision,
+  rollback,
+  reloadBot,
+  viewLogs
+}) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
 
@@ -64,6 +74,10 @@ const BotItemCompact: FC<Props> = ({ bot, hasError, deleteBot, exportBot, create
                 <MenuItem icon="link" text="Copy link to clipboard" />
               </CopyToClipboard>
 
+              <AccessControl resource="admin.logs" operation="read">
+                <MenuItem text="View Logs" icon="manual" id="btn-viewLogs" onClick={viewLogs} />
+              </AccessControl>
+
               <AccessControl resource="admin.bots.*" operation="write">
                 <MenuItem text="Create Revision" icon="cloud-upload" id="btn-createRevision" onClick={createRevision} />
                 <MenuItem text="Rollback" icon="undo" id="btn-rollbackRevision" onClick={rollback} />
@@ -82,7 +96,7 @@ const BotItemCompact: FC<Props> = ({ bot, hasError, deleteBot, exportBot, create
             &nbsp;
           </span>
         )}
-        {bot.disabled ? <span>{bot.name || bot.id}</span> : <a href={botStudioLink}>{bot.name || bot.id}</a>}
+        <a href={botStudioLink}>{bot.name || bot.id}</a>
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">

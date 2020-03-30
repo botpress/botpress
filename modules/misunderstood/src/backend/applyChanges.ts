@@ -75,11 +75,6 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
         'id',
         events.map(({ id }) => id)
       )
-
-    setImmediate(async () => {
-      const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-      await axios.post('/mod/nlu/confusion', { version: 'misunderstood' }, axiosConfig)
-    })
   })
 }
 

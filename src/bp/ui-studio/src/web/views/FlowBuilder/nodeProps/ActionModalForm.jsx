@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import _ from 'lodash'
+import { confirmDialog } from 'botpress/shared'
 
 import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
 import { connect } from 'react-redux'
@@ -50,7 +51,7 @@ class ActionModalForm extends Component {
     }
 
     this.setState({
-      avActions: this.props.actions.map(x => {
+      avActions: (this.props.actions || []).map(x => {
         return { label: x.name, value: x.name, metadata: x.metadata }
       })
     })
@@ -125,7 +126,9 @@ class ActionModalForm extends Component {
               // TODO Detect if default or custom arguments
               if (
                 Object.keys(this.state.functionParams || {}).length > 0 &&
-                !confirm('Do you want to overwrite existing parameters?')
+                !confirmDialog('Do you want to overwrite existing parameters?', {
+                  acceptLabel: 'Overwrite'
+                })
               ) {
                 return
               }
@@ -238,7 +241,4 @@ const mapStateToProps = state => ({
   actions: state.skills.actions
 })
 
-export default connect(
-  mapStateToProps,
-  undefined
-)(ActionModalForm)
+export default connect(mapStateToProps, undefined)(ActionModalForm)

@@ -6,7 +6,7 @@ import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 import { RootStore, StoreDef } from '../store'
 
 class Composer extends React.Component<ComposerProps> {
-  private textInput: any
+  private textInput: React.RefObject<HTMLTextAreaElement>
   constructor(props) {
     super(props)
     this.textInput = React.createRef()
@@ -58,7 +58,7 @@ class Composer extends React.Component<ComposerProps> {
   render() {
     const placeholder = this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })
     return (
-      <div className={'bpw-composer'}>
+      <div role="region" className={'bpw-composer'}>
         <div className={'bpw-composer-inner'}>
           <textarea
             tabIndex={1}
@@ -71,6 +71,9 @@ class Composer extends React.Component<ComposerProps> {
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
           />
+          <label htmlFor="input-message" style={{ display: 'none' }}>
+            {placeholder}
+          </label>
 
           <button
             className={'bpw-send-button'}

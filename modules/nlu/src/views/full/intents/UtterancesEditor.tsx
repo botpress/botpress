@@ -222,7 +222,7 @@ export class UtterancesEditor extends React.Component<Props> {
     const isWrong = utteranceIdx < this.utteranceKeys.length - 1 && isEmpty
 
     const elementCx = classnames(style.utterance, {
-      [style.title]: node.type === 'title' && utteranceIdx == 0,
+      [style.title]: node.type === 'title' && utteranceIdx === 0,
       [style.active]: props.isFocused,
       [style.wrong]: isWrong
     })
@@ -286,7 +286,7 @@ export class UtterancesEditor extends React.Component<Props> {
         if (selection.isFocused) {
           this.showSlotPopover()
         } else {
-          // Weird behaviour from slate when selection just changed is to keep the value but to set focus to false
+          // Weird behavior from slate when selection just changed is to keep the value but to set focus to false
           // need the setTimeout for tagging with click
           setTimeout(this.hideSlotPopover, 200)
         }

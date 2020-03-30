@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
-import get from 'lodash/get'
+import { get, pick } from 'lodash'
 
 import {
   DbFlaggedEvent,
@@ -32,7 +32,7 @@ export default class Db {
       table.string('language')
       table.string('preview')
       table.enum('reason', Object.values(FLAG_REASON))
-      table.enum('status', FLAGGED_MESSAGE_STATUSES).default(FLAGGED_MESSAGE_STATUS.new)
+      table.enum('status', FLAGGED_MESSAGE_STATUSES).defaultTo(FLAGGED_MESSAGE_STATUS.new)
       table.enum('resolutionType', Object.values(RESOLUTION_TYPE))
       table.string('resolution')
       table.json('resolutionParams')

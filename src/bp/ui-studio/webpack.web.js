@@ -21,6 +21,11 @@ const webConfig = {
     web: './src/web/index.jsx',
     lite: './src/web/lite.jsx'
   },
+  node: {
+    net: 'empty',
+    tls: 'empty',
+    dns: 'empty'
+  },
   output: {
     path: path.resolve(__dirname, './public/js'),
     publicPath: 'assets/ui-studio/public/js/',
@@ -32,6 +37,7 @@ const webConfig = {
       '~': path.resolve(__dirname, './src/web'),
       DOCS: path.resolve(__dirname, '../../../docs/guide/docs'),
       common: path.resolve(__dirname, '../../../out/bp/common'),
+      'botpress/shared': 'ui-shared',
       'botpress/sdk': path.resolve(__dirname, '../sdk/botpress.d.ts')
     }
   },
@@ -103,7 +109,11 @@ const webConfig = {
 
   module: {
     rules: [
-      { test: /\.tsx?$/, loader: 'ts-loader', exclude: /node_modules/ },
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/
+      },
       {
         test: /\.md$/,
         use: [
@@ -116,11 +126,24 @@ const webConfig = {
         test: /\.jsx?$/i,
         include: path.resolve(__dirname, 'src/web'),
         use: [
-          { loader: 'thread-loader' },
+          {
+            loader: 'thread-loader'
+          },
           {
             loader: 'babel-loader',
             options: {
-              presets: ['stage-3', ['env', { targets: { browsers: ['last 2 versions'] } }], 'react'],
+              presets: [
+                'stage-3',
+                [
+                  'env',
+                  {
+                    targets: {
+                      browsers: ['last 2 versions']
+                    }
+                  }
+                ],
+                'react'
+              ],
               plugins: ['transform-class-properties'],
               compact: true,
               babelrc: false,
@@ -132,8 +155,12 @@ const webConfig = {
       {
         test: /\.styl$/,
         use: [
-          { loader: 'style-loader' },
-          { loader: 'css-modules-typescript-loader' },
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-modules-typescript-loader'
+          },
           {
             loader: 'css-loader',
             options: {
@@ -142,15 +169,23 @@ const webConfig = {
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }
           },
-          { loader: 'postcss-loader' },
-          { loader: 'stylus-loader' }
+          {
+            loader: 'postcss-loader'
+          },
+          {
+            loader: 'stylus-loader'
+          }
         ]
       },
       {
         test: /\.scss$/,
         use: [
-          { loader: 'style-loader' },
-          { loader: 'css-modules-typescript-loader' },
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-modules-typescript-loader'
+          },
           {
             loader: 'css-loader',
             options: {
@@ -160,8 +195,12 @@ const webConfig = {
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }
           },
-          { loader: 'postcss-loader' },
-          { loader: 'sass-loader' }
+          {
+            loader: 'postcss-loader'
+          },
+          {
+            loader: 'sass-loader'
+          }
         ]
       },
       {
@@ -170,7 +209,14 @@ const webConfig = {
       },
       {
         test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-        use: [{ loader: 'file-loader', options: { name: '../fonts/[name].[ext]' } }]
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '../fonts/[name].[ext]'
+            }
+          }
+        ]
       }
     ]
   }
@@ -221,4 +267,6 @@ if (process.argv.indexOf('--compile') !== -1) {
   )
 }
 
-module.exports = { web: webConfig }
+module.exports = {
+  web: webConfig
+}
