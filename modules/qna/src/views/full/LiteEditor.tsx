@@ -1,5 +1,5 @@
 import { Breadcrumbs, Button, ControlGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { AccessControl } from 'botpress/utils'
 import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
@@ -58,8 +58,8 @@ export const LiteEditor: FC<Props> = props => {
   const cancelEditing = () => setEditing(false)
 
   const deleteItem = async (id: string) => {
-    const needDelete = await confirmDialog('Do you want to delete the question?', {
-      acceptLabel: 'Delete'
+    const needDelete = await confirmDialog(lang.tr('qna.confirmDelete'), {
+      acceptLabel: lang.tr('delete')
     })
 
     if (needDelete) {
@@ -87,7 +87,7 @@ export const LiteEditor: FC<Props> = props => {
           <div className={style.liteSearch}>
             <InputGroup
               id="input-search"
-              placeholder="Search for a question"
+              placeholder={lang.tr('qna.search')}
               tabIndex={1}
               value={filter}
               onChange={e => updateFilter(e.currentTarget.value)}
@@ -97,7 +97,7 @@ export const LiteEditor: FC<Props> = props => {
           <AccessControl resource="module.qna" operation="write">
             <Button
               id="btn-create-qna"
-              text="Add Question"
+              text={lang.tr('qna.addQuestion')}
               icon="add"
               style={{ marginLeft: 20 }}
               intent={Intent.PRIMARY}
@@ -135,8 +135,8 @@ export const LiteEditor: FC<Props> = props => {
         <div className={style.liteItemContainer}>
           <div className={style.questionTable}>
             <div className={cx(style.questionTableRow, style.header)}>
-              <div className={cx(style.questionTableCell, style.question)}>Question</div>
-              <div className={style.questionTableCell}>Answer</div>
+              <div className={cx(style.questionTableCell, style.question)}>{lang.tr('qna.question')}</div>
+              <div className={style.questionTableCell}>{lang.tr('qna.answer')}</div>
               <div className={cx(style.questionTableCell, style.actions)}></div>
             </div>
             {data.map(item => (
@@ -159,8 +159,8 @@ export const LiteEditor: FC<Props> = props => {
           <div>
             <Breadcrumbs
               items={[
-                { onClick: cancelEditing, text: 'Q&A' },
-                { text: editId !== '' ? 'Edit Q&A' : 'Create a new Q&A' }
+                { onClick: cancelEditing, text: lang.tr('qna.qna') },
+                { text: editId !== '' ? lang.tr('qna.edit') : lang.tr('qna.create') }
               ]}
             />
 

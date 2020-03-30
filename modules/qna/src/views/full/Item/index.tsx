@@ -1,5 +1,6 @@
 import { Button, Icon, Intent, Switch, Tooltip } from '@blueprintjs/core'
 import { Flow } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import { AccessControl } from 'botpress/utils'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
@@ -37,7 +38,7 @@ const Item: FC<Props> = props => {
       <div className={cx(style.questionTableCell, style.question)} onClick={() => props.onEditItem(id)}>
         {missingTranslations && (
           <Fragment>
-            <Tooltip content="Missing translation">
+            <Tooltip content={lang.tr('qna.missingTranslations')}>
               <Icon icon="warning-sign" intent={Intent.DANGER} />
             </Tooltip>
             &nbsp;
@@ -63,10 +64,7 @@ const Item: FC<Props> = props => {
           </Fragment>
         )}
         {!isLite && (item.redirectFlow || item.redirectNode) && (
-          <Tooltip
-            className={style.redirectTooltip}
-            content="There are redirects associated to this questions, you can view them in the edit form"
-          >
+          <Tooltip className={style.redirectTooltip} content={lang.tr('qna.redirectsAssociated')}>
             <Icon icon="pivot" />
           </Tooltip>
         )}
