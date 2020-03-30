@@ -80,7 +80,7 @@ export default class HTTPServer {
   private readonly botsRouter: BotsRouter
   private contentRouter!: ContentRouter
   private readonly modulesRouter: ModulesRouter
-  private readonly shortlinksRouter: ShortLinksRouter
+  private readonly shortLinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
   private _needPermissions: (
@@ -162,10 +162,11 @@ export default class HTTPServer {
       this.jobService,
       this.logsRepo
     )
-    this.shortlinksRouter = new ShortLinksRouter(this.logger)
+    this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
       botService,
+      cmsService,
       configProvider,
       flowService,
       mediaService,
@@ -286,9 +287,9 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
-    this.app.use(`/s`, this.shortlinksRouter.router)
+    this.app.use(`/s`, this.shortLinksRouter.router)
 
-    this.app.use((err, req, res, next) => {
+    this.app.use((err, _req, _res, next) => {
       if (err instanceof UnlicensedError) {
         next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
       } else {
@@ -410,11 +411,11 @@ export default class HTTPServer {
   }
 
   createShortLink(name: string, destination: string, params: any) {
-    this.shortlinksRouter.createShortLink(name, destination, params)
+    this.shortLinksRouter.createShortLink(name, destination, params)
   }
 
   deleteShortLink(name: string) {
-    this.shortlinksRouter.deleteShortLink(name)
+    this.shortLinksRouter.deleteShortLink(name)
   }
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
@@ -444,7 +445,7 @@ export default class HTTPServer {
     const externalAuth = await this._getExternalAuthConfig()
 
     if (!externalAuth || !externalAuth.enabled) {
-      return undefined
+      return
     }
 
     const { publicKey, audience, algorithms, issuer } = externalAuth
@@ -478,11 +479,11 @@ export default class HTTPServer {
           this.logger
             .attachError(error)
             .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
-          return undefined
+          return
         }
       } else if (config.publicKey.length < 128) {
         this.logger.error(`External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.`)
-        return undefined
+        return
       }
     }
 

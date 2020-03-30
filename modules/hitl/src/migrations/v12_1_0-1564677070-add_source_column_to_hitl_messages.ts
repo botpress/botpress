@@ -14,11 +14,11 @@ const migration: sdk.ModuleMigration = {
       if (!exists) {
         await bp.database.schema.alterTable(tableName, table => table.string(column))
       }
+
+      return { success: true, message: exists ? 'Source column created.' : 'Source column already exists, skipping...' }
     } catch (err) {
       return { success: false, message: err.message }
     }
-
-    return { success: true, message: 'Source column created.' }
   }
 }
 
