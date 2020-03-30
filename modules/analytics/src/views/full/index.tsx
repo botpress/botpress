@@ -1,5 +1,5 @@
 import { Button, HTMLSelect, IconName, MaybeElement, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
-import { DateRange, DateRangeInput, DateRangePicker, IDateRangeShortcut, TimePrecision } from '@blueprintjs/datetime'
+import { DateRange, DateRangePicker, IDateRangeShortcut } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
 import { lang } from 'botpress/shared'
@@ -31,6 +31,8 @@ import RadialMetric from './RadialMetric'
 import TimeSeriesChart from './TimeSeriesChart'
 
 interface State {
+  previousRangeMetrics: MetricEntry[]
+  previousDateRange?: DateRange
   metrics: MetricEntry[]
   dateRange?: DateRange
   pageTitle: string
@@ -70,6 +72,14 @@ const fetchReducer = (state: State, action): State => {
       ...state,
       metrics
     }
+  } else if (action.type === 'receivedPreviousRangeMetrics') {
+    const { metrics, dateRange } = action.data
+
+    return {
+      ...state,
+      previousDateRange: dateRange,
+      previousRangeMetrics: metrics
+    }
   } else if (action.type === 'channelSuccess') {
     const { selectedChannel } = action.data
 
@@ -97,7 +107,9 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
+    previousDateRange: undefined,
     metrics: [],
+    previousRangeMetrics: [],
     pageTitle: lang.tr('analytics.dashboard'),
     selectedChannel: 'all',
     shownSection: 'dashboard'
@@ -124,6 +136,17 @@ const Analytics: FC<any> = ({ bp }) => {
     // tslint:disable-next-line: no-floating-promises
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
+    })
+
+    /* Get the previous range data so we can compare them and see what changed */
+    const startDate = moment(state.dateRange[0])
+    const endDate = moment(state.dateRange[1])
+    const oldEndDate = moment(state.dateRange[0]).subtract(1, 'days')
+    const previousRange = [startDate.subtract(endDate.diff(startDate, 'days') + 1, 'days'), oldEndDate]
+
+    // tslint:disable-next-line: no-floating-promises
+    fetchAnalytics(state.selectedChannel, previousRange).then(metrics => {
+      dispatch({ type: 'receivedPreviousRangeMetrics', data: { dateRange: previousRange, metrics } })
     })
   }, [state.dateRange, state.selectedChannel])
 
@@ -157,6 +180,13 @@ const Analytics: FC<any> = ({ bp }) => {
   const getMetricCount = (metricName: string, subMetric?: string) => {
     const metrics = state.metrics.filter(m => m.metric === metricName && (!subMetric || m.subMetric === subMetric))
     return _.sumBy(metrics, 'value')
+  }
+
+  const getPreviousRangeMetricCount = (metricName: string, subMetric?: string) => {
+    const previousRangeMetrics = state.previousRangeMetrics.filter(
+      m => m.metric === metricName && (!subMetric || m.subMetric === subMetric)
+    )
+    return _.sumBy(previousRangeMetrics, 'value')
   }
 
   const getAvgMsgPerSessions = () => {
@@ -215,22 +245,22 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderEngagement = () => {
+    const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
+    const activeUserCountDiff = getMetricCount('active_users_count') - getPreviousRangeMetricCount('active_users_count')
+
     return (
       <div className={style.metricsContainer}>
         <NumberMetric
-          name={lang.tr('analytics.activeUsers')}
-          value={getMetricCount('active_users_count')}
-          icon="user"
-        />
-        <NumberMetric
+          diffFromPreviousRange={newUserCountDiff}
+          previousDateRange={state.previousDateRange}
           name={lang.tr('analytics.newUsers', { nb: getMetricCount('new_users_count') })}
           value={getNewUsersPercent()}
-          icon="trending-down"
         />
         <NumberMetric
+          diffFromPreviousRange={activeUserCountDiff}
+          previousDateRange={state.previousDateRange}
           name={lang.tr('analytics.returningUsers', { nb: getMetricCount('active_users_count') })}
           value={getReturningUsers()}
-          icon="trending-up"
         />
         <TimeSeriesChart
           name={lang.tr('analytics.userActivities')}
@@ -314,7 +344,9 @@ const Analytics: FC<any> = ({ bp }) => {
               />
             </div>
             <RadialMetric
-              name={lang.tr('analytics.successfulWorkflowCompletions', { nb: getMetricCount('workflow_completed_count') })}
+              name={lang.tr('analytics.successfulWorkflowCompletions', {
+                nb: getMetricCount('workflow_completed_count')
+              })}
               value={getMetricCount('workflow_completed_count')}
               className={style.quarter}
             />

@@ -33,7 +33,22 @@ export const dialogConditions: sdk.Condition[] = [
     description: `The user's intention is misunderstood`,
     displayOrder: 1,
     evaluate: event => {
-      return _.get(event, `nlu.predictions.oos.confidence`, 0)
+      const oos = _.get(event, `nlu.predictions.oos.confidence`, 0)
+      const highestCtx = _.chain(event?.nlu?.predictions ?? {})
+        .toPairs()
+        .sortBy(x => x[1].confidence, 'desc')
+        .map(x => x[0])
+        .filter(x => x !== 'oos')
+        .first()
+        .value()
+
+      const highest_none = _.chain(event)
+        .get(`nlu.predictions.${highestCtx}.intents`, [])
+        .find(x => x.label === 'none')
+        .get('confidence', 0)
+        .value()
+
+      return Math.max(highest_none, oos)
     }
   }
 ]
