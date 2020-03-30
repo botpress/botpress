@@ -96,7 +96,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
   const handleFuzzyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch({
       type: 'setFuzzy',
-      data: { fuzzy: e.target.valueAsNumber }
+      data: { fuzzy: parseFloat(e.target.value) }
     })
   }
 
