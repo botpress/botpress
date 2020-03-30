@@ -51,7 +51,14 @@ const IntentHint: FC<Props> = props => {
 
   if (utterances.length && utterances.length < recommendations.minUtterancesForML) {
     const remaining = recommendations.minUtterancesForML - utterances.length
-    hint = <span>{lang.tr('nlu.intents.hintExactMatch', { nb: remaining })}</span>
+    hint = (
+      <span>
+        {lang.tr('nlu.intents.hintExactMatch', {
+          nb: remaining,
+          exactOnly: <strong>{lang.tr('nlu.intents.exactOnly')}</strong>
+        })}
+      </span>
+    )
   }
 
   if (utterances.length >= recommendations.minUtterancesForML && utterances.length < idealNumberOfUtt) {
