@@ -1,4 +1,4 @@
-import { Button, Colors } from '@blueprintjs/core'
+import { Button, Colors, Position, Tooltip } from '@blueprintjs/core'
 import { Condition } from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -40,7 +40,29 @@ const ConditionItem: FC<Props> = ({ conditions, condition, onEdit, onDelete, cla
   }
 
   if (diagramNodeView) {
-    return <li>{description || definition.label}</li>
+    const params = Object.keys(condition.params)
+    return (
+      <Tooltip
+        usePortal={false}
+        content={
+          !!params.length && (
+            <div>
+              <strong>Trigger parameters</strong>
+              <br />
+              {params.map(key => {
+                return (
+                  <div key={key}>
+                    - {key}: {condition.params[key]}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        }
+      >
+        <li>{description || definition.label}</li>
+      </Tooltip>
+    )
   }
 
   return (

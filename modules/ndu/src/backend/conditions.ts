@@ -71,7 +71,11 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'raw_js',
     label: 'Raw JS expression',
-    params: { expression: { label: 'Expression to evaluate', type: 'string' } },
+    description: `{label}`,
+    params: {
+      expression: { label: 'Expression to evaluate', type: 'string' },
+      label: { label: 'Custom label', type: 'string', defaultValue: 'Raw JS expression' }
+    },
     evaluate: (event, params) => {
       const code = `
       try {

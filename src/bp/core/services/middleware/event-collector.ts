@@ -30,6 +30,7 @@ export class EventCollector {
   private batch: BatchEvent[] = []
   private ignoredTypes: string[] = []
   private ignoredProperties: string[] = []
+  private debuggerProperties: string[] = []
 
   constructor(
     @inject(TYPES.Logger)
@@ -50,6 +51,7 @@ export class EventCollector {
     this.retentionPeriod = ms(config.retentionPeriod)
     this.ignoredTypes = config.ignoredEventTypes || []
     this.ignoredProperties = config.ignoredEventProperties || []
+    this.debuggerProperties = config.debuggerProperties || []
     this.enabled = true
   }
 
@@ -78,6 +80,9 @@ export class EventCollector {
       lastWf.active = false
     }
 
+    const ignoredProps = [...this.ignoredProperties, ...(event.debugger ? [] : this.debuggerProperties)]
+    delete event.debugger
+
     this.batch.push({
       botId,
       channel,
@@ -88,7 +93,7 @@ export class EventCollector {
       workflowId,
       success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
-      event: this.knex.json.set(this.ignoredProperties ? _.omit(event, this.ignoredProperties) : event || {}),
+      event: this.knex.json.set(ignoredProps.length ? _.omit(event, ignoredProps) : event || {}),
       createdOn: this.knex.date.now()
     })
   }
