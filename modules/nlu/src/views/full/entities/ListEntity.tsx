@@ -1,16 +1,4 @@
-import {
-  Button,
-  Classes,
-  Colors,
-  FormGroup,
-  Icon,
-  InputGroup,
-  Position,
-  Radio,
-  RadioGroup,
-  Text,
-  Tooltip
-} from '@blueprintjs/core'
+import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -29,22 +17,51 @@ const FuzzyTolerance = {
   Loose: 0.65
 }
 
-export const ListEntityEditor: React.FC<Props> = props => {
-  const [fuzzy, setFuzzy] = useState(props.entity.fuzzy)
-  const [newOccurrence, setNewOccurrence] = useState('')
-  const [occurrences, setOccurrences] = useState(props.entity.occurrences)
+interface EntityState {
+  fuzzy: number
+  occurrences: NLU.EntityDefOccurrence[]
+}
 
-  useEffect(() => {
-    setOccurrences(props.entity.occurrences)
-    setFuzzy(props.entity.fuzzy)
-  }, [props.entity.id])
-
-  useEffect(() => {
-    const newEntity = { ...props.entity, fuzzy, occurrences }
-    if (!_.isEqual(newEntity, props.entity)) {
-      props.updateEntity(newEntity.id, newEntity)
+function EntityContentReducer(state: EntityState, action): EntityState {
+  const { type, data } = action
+  if (type === 'setStateFromEntity') {
+    const entity: NLU.EntityDefinition = data.entity
+    return {
+      fuzzy: entity.fuzzy,
+      occurrences: entity.occurrences
     }
-  }, [occurrences, fuzzy])
+  } else if (type === 'setFuzzy') {
+    return { ...state, fuzzy: data.fuzzy }
+  } else if (type === 'setOccurrences') {
+    return { ...state, occurrences: data.occurrences }
+  } else {
+    return state
+  }
+}
+
+export const ListEntityEditor: React.FC<Props> = props => {
+  const [state, dispatch] = React.useReducer(EntityContentReducer, {
+    fuzzy: props.entity.fuzzy,
+    occurrences: props.entity.occurrences
+  })
+  const [newOccurrence, setNewOccurrence] = useState('')
+
+  useEffect(() => {
+    dispatch({ type: 'setStateFromEntity', data: { entity: props.entity } })
+  }, [props.entity.name])
+
+  useEffect(() => {
+    const newEntity = { ...props.entity, ...state }
+    if (!_.isEqual(newEntity, props.entity)) {
+      props.updateEntity(getEntityId(newEntity.name), newEntity)
+    }
+  }, [state])
+
+  const getEntityId = (entityName: string) =>
+    entityName
+      .trim()
+      .toLowerCase()
+      .replace(/[\t\s]/g, '-')
 
   const isNewOccurrenceEmpty = () => newOccurrence.trim().length === 0
 
@@ -53,20 +70,34 @@ export const ListEntityEditor: React.FC<Props> = props => {
       return
     }
 
-    setOccurrences([...occurrences, { name: newOccurrence, synonyms: [] }])
+    dispatch({
+      type: 'setOccurrences',
+      data: { occurrences: [...state.occurrences, { name: newOccurrence, synonyms: [] }] }
+    })
     setNewOccurrence('')
   }
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
-    setOccurrences([...occurrences.slice(0, idx), occurrence, ...occurrences.slice(idx + 1)])
+    const occurrences = [...state.occurrences.slice(0, idx), occurrence, ...state.occurrences.slice(idx + 1)]
+    dispatch({
+      type: 'setOccurrences',
+      data: { occurrences }
+    })
   }
 
   const removeOccurrence = (idx: number) => {
-    setOccurrences([...occurrences.slice(0, idx), ...occurrences.slice(idx + 1)])
+    const occurrences = [...state.occurrences.slice(0, idx), ...state.occurrences.slice(idx + 1)]
+    dispatch({
+      type: 'setOccurrences',
+      data: { occurrences }
+    })
   }
 
   const handleFuzzyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFuzzy(parseFloat(e.target.value))
+    dispatch({
+      type: 'setFuzzy',
+      data: { fuzzy: e.target.valueAsNumber }
+    })
   }
 
   return (
@@ -99,9 +130,9 @@ export const ListEntityEditor: React.FC<Props> = props => {
             onChange={e => setNewOccurrence(e.target.value)}
           />
         </FormGroup>
-        {occurrences.length > 0 && (
+        {state.occurrences.length > 0 && (
           <FormGroup label="Occurrences">
-            {occurrences.map((o, i) => (
+            {state.occurrences.map((o, i) => (
               <Occurrence
                 key={o.name}
                 occurrence={o}
@@ -127,7 +158,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
             </Tooltip>
           }
         />
-        <RadioGroup onChange={handleFuzzyChange} selectedValue={fuzzy} inline>
+        <RadioGroup onChange={handleFuzzyChange} selectedValue={state.fuzzy} inline>
           <Radio label="Strict" value={FuzzyTolerance.Strict} />
           <Radio label="Medium" value={FuzzyTolerance.Medium} />
           <Radio label="Loose" value={FuzzyTolerance.Loose} />
