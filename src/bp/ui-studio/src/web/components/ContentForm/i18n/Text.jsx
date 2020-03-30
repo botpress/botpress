@@ -1,23 +1,33 @@
-import React from 'react'
-
+import React, { useEffect, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 
-import I18nManager from './I18nManager'
+import { renderWrapped } from './I18nManagerFunctional'
+import style from '../style.scss'
 
-export default class Text extends I18nManager {
-  render() {
-    return this.renderWrapped(
-      <div style={{ width: '100%' }}>
-        <strong>
-          {this.props.schema.title} {this.props.required && '*'}
-        </strong>
+const Text = props => {
+  const [value, setValue] = useState('')
+
+  useEffect(() => {
+    setValue(props.formData)
+  }, [props.formData])
+
+  return renderWrapped(
+    <div className={style.fieldWrapper}>
+      <span className={style.formLabel}>
+        {props.schema.title} {props.required && '*'}
+      </span>
+      <div className={style.innerWrapper}>
         <SmartInput
-          singleLine={this.props.uiSchema.$subtype !== 'textarea'}
-          value={this.props.formData}
-          onChange={this.handleOnChange}
-          placeholder={this.state.placeholder || ''}
+          singleLine={props.uiSchema.$subtype !== 'textarea'}
+          value={value}
+          onChange={props.onChange}
+          className={style.textarea}
+          isSideForm
         />
       </div>
-    )
-  }
+    </div>,
+    props
+  )
 }
+
+export default Text

@@ -7,9 +7,12 @@ import withLanguage from '../Util/withLanguage'
 
 import ArrayMl from './i18n/Array'
 import TextMl from './i18n/Text'
+import style from './style.scss'
 import FlowPickWidget from './FlowPickWidget'
 import RefWidget from './RefWidget'
+import UploadField from './UploadField'
 import UploadWidget from './UploadWidget'
+import Variations from './Variations'
 
 interface Props {
   contentLang: string
@@ -32,14 +35,18 @@ const CustomBaseInput = props => {
     }
   }
 
-  return <SmartInput {...props} singleLine={true} />
+  return <SmartInput {...props} singleLine={true} className={style.textarea} />
 }
 
 const widgets = {
   BaseInput: CustomBaseInput
 }
 
-const fields = { i18n_field: TextMl, i18n_array: ArrayMl }
+const fields = {
+  i18n_field: TextMl,
+  i18n_array: ArrayMl,
+  upload_field: UploadField
+}
 
 const ContentForm: FC<Props> = props => {
   const handleOnChange = event => {
@@ -109,8 +116,14 @@ const ContentForm: FC<Props> = props => {
       safeRenderCompletion={true}
       widgets={widgets}
       fields={fields}
+      ArrayFieldTemplate={Variations}
       onChange={handleOnChange}
-    />
+      onSubmit={() => {
+        console.log('submit')
+      }}
+    >
+      <br />
+    </Form>
   )
 }
 

@@ -15,6 +15,8 @@ interface Props {
 }
 
 const SaySomethingFormText: FC<Props> = props => {
+  return null
+  /*
   const { formState, dispatchForm } = props
   const { text, variations } = formState
 
@@ -70,7 +72,7 @@ const SaySomethingFormText: FC<Props> = props => {
         </Button>
       </div>
     </Fragment>
-  )
+  )*/
 }
 
 export default SaySomethingFormText

@@ -148,13 +148,16 @@ module.exports = {
       title: {
         type: 'string',
         description: 'Some platforms require to name the images.',
-        title: 'Title (optional)'
+        title: 'Title'
       },
       ...base.typingIndicators
     }
   },
 
   uiSchema: {
+    image: {
+      'ui:field': 'upload_field'
+    },
     title: {
       'ui:field': 'i18n_field'
     }

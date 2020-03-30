@@ -83,7 +83,7 @@ module.exports = {
       },
       variations: {
         type: 'array',
-        title: 'Alternates (optional)',
+        title: 'Alternates',
         items: {
           type: 'string',
           default: ''
@@ -104,7 +104,6 @@ module.exports = {
       $subtype: 'textarea'
     },
     variations: {
-      'ui:field': 'variatons_field',
       'ui:options': {
         orderable: false
       }

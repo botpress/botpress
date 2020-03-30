@@ -154,6 +154,10 @@ h5 {
 }
 
 .sidePanelForm {
+  :global(.form-group) {
+    margin-bottom: 0;
+  }
+
   .fieldWrapper {
     display: block;
     line-height: 0;

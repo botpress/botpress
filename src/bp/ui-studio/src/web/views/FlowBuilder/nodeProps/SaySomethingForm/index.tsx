@@ -1,5 +1,6 @@
 import { Button as BPButton, Checkbox } from '@blueprintjs/core'
 import { Dropdown, MoreOptions, MoreOptionsItems, style as sharedStyle } from 'botpress/shared'
+import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -11,12 +12,13 @@ import {
   requestEditSkill,
   updateFlow
 } from '~/actions'
+import ContentForm from '~/components/ContentForm'
+import { toastInfo } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
+import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import { getFormData, isFormEmpty } from '~/util/NodeFormData'
 import EditableInput from '~/views/FlowBuilder/common/EditableInput'
 
-import { toastInfo } from '../../../../components/Shared/Utils'
-import { getCurrentFlow, getCurrentFlowNode } from '../../../../reducers'
 import style from '../style.scss'
 
 import SaySomethingTextForm from './TextForm'
@@ -27,6 +29,7 @@ interface OwnProps {
   onDeleteSelectedElements: () => void
   readOnly: boolean
   subflows: any
+  formData: any
   updateNode: any
   contentLang: string
   defaultLanguage: string
@@ -38,19 +41,11 @@ type Props = DispatchProps & StateProps & OwnProps
 
 export interface FormState {
   contentType: string
-  text: string
-  variations: string[]
-  markdown: boolean
-  typing: boolean
   error: any
 }
 
 const defaultFormState: FormState = {
   contentType: 'builtin_text',
-  text: '',
-  variations: [''],
-  markdown: true,
-  typing: true,
   error: null
 }
 
@@ -60,29 +55,14 @@ const SaySomethingForm: FC<Props> = props => {
       return {
         ...state,
         error: null,
-        contentType: 'builtin_text',
-        text: '',
-        markdown: true,
-        typing: true,
-        variations: ['']
+        contentType: 'builtin_text'
       }
     } else if (action.type === 'newData') {
-      const { text, variations, contentType, markdown, typing } = action.data
+      const { contentType } = action.data
 
       return {
         error: null,
-        contentType: contentType || 'builtin_text',
-        text,
-        variations,
-        markdown,
-        typing
-      }
-    } else if (action.type === 'addVariation') {
-      const newVariations = state.variations || []
-
-      return {
-        ...state,
-        variations: [...newVariations, '']
+        contentType: contentType || 'builtin_text'
       }
     } else if (action.type === 'updateContentType') {
       const { value, initial } = action.data
@@ -96,23 +76,6 @@ const SaySomethingForm: FC<Props> = props => {
         ...state,
         ...contentType
       }
-    } else if (action.type === 'updateData') {
-      const { value, field } = action.data
-
-      props.updateNode({
-        formData: {
-          [`text$${props.contentLang}`]: state.text,
-          [`variations$${props.contentLang}`]: state.variations,
-          [`markdown$${props.contentLang}`]: state.markdown,
-          [`typing${props.contentLang}`]: state.typing,
-          [`${field}$${props.contentLang}`]: value
-        }
-      })
-
-      return {
-        ...state,
-        [field]: value
-      }
     } else {
       throw new Error(`That action type isn't supported.`)
     }
@@ -120,27 +83,13 @@ const SaySomethingForm: FC<Props> = props => {
 
   const [formState, dispatchForm] = useReducer(formReducer, defaultFormState)
   const [showOptions, setShowOptions] = useState(false)
-  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false)
 
   useEffect(() => {
-    dispatchForm({ type: 'resetData' })
-    extractDataFromNode()
-
+    handleContentTypeChange(currentFlowNode?.contentType, true)
     if (!props.categories?.length) {
       props.fetchContentCategories()
     }
   }, [props.currentFlowNode.id])
-
-  const extractDataFromNode = () => {
-    const { currentFlowNode, contentLang, defaultLanguage } = props
-    const data = getFormData(currentFlowNode, contentLang, defaultLanguage)
-
-    if (!isFormEmpty(data)) {
-      dispatchForm({ type: 'newData', data: { ...data, contentType: currentFlowNode?.contentType } })
-    } else {
-      handleContentTypeChange(currentFlowNode?.contentType, true)
-    }
-  }
 
   const renameNode = text => {
     if (text) {
@@ -167,7 +116,7 @@ const SaySomethingForm: FC<Props> = props => {
   }
 
   const { currentFlowNode, readOnly, categories } = props
-  const { contentType, markdown, typing } = formState
+  const { contentType } = formState
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -183,13 +132,43 @@ const SaySomethingForm: FC<Props> = props => {
     }
   ]
 
+  const getCurrentCategory = () => {
+    if (!contentType || !categories) {
+      return
+    }
+
+    const {
+      schema: {
+        json: { description, ...json },
+        ...schema
+      },
+      ...category
+    } = categories?.find(cat => cat.id === contentType)
+
+    // just a way to remove the description since we don't want it in the sidebar form, but still want it in the CMS
+    return { ...category, schema: { json, ...schema } }
+  }
+
+  const currentCategory = getCurrentCategory()
+
+  const handleEdit = event => {
+    if (!_.isEqual(event.formData, props.formData)) {
+      props.updateNode({
+        formData: event.formData
+      })
+    }
+  }
+  const handleSave = event => {
+    console.log('save', event.formData)
+  }
+
   return (
     <Fragment>
       <div className={style.formHeader}>
         <h4>Say Something</h4>
         <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
       </div>
-      <form className={style.sidePanelForm}>
+      <div className={style.sidePanelForm}>
         <label className={style.fieldWrapper}>
           <span className={style.formLabel}>Node Name</span>
           <EditableInput
@@ -213,24 +192,22 @@ const SaySomethingForm: FC<Props> = props => {
               }}
             />
           )}
-          {/*<select value={contentType} onChange={e => handleContentTypeChange(e.currentTarget.value)}>
-            {categories &&
-              categories
-                .filter(cat => !cat.hidden)
-                .map((category, i) => (
-                  <option
-                    key={i}
-                    value={category.id}
-                    className={classnames('list-group-item', 'list-group-item-action')}
-                  >
-                    {category.title}
-                  </option>
-                ))}
-                </select>*/}
         </div>
-        {contentType && contentType === 'builtin_text' && (
-          <SaySomethingTextForm formState={formState} dispatchForm={dispatchForm} />
+
+        {currentCategory && (
+          <ContentForm
+            schema={currentCategory?.schema.json}
+            uiSchema={currentCategory?.schema.ui}
+            formData={currentFlowNode.formData}
+            isEditing={true}
+            onChange={handleEdit}
+            onSubmit={handleSave}
+          />
         )}
+        {/*
+          {contentType && contentType === 'builtin_text' && (
+            <SaySomethingTextForm formState={formState} dispatchForm={dispatchForm} />
+          )}
         <BPButton
           minimal
           rightIcon={showAdvancedSettings ? 'chevron-up' : 'chevron-down'}
@@ -247,7 +224,7 @@ const SaySomethingForm: FC<Props> = props => {
               inline
               className={style.checkboxLabel}
               name="markdown"
-              checked={markdown || false}
+              checked={markdown || true}
               onChange={() => dispatchForm({ type: 'updateData', data: { field: 'markdown', value: !markdown } })}
             >
               Use Markdown
@@ -261,12 +238,12 @@ const SaySomethingForm: FC<Props> = props => {
               className={style.checkboxLabel}
               label="Display Typing Indicators"
               name="typing"
-              checked={typing || false}
+              checked={typing || true}
               onChange={() => dispatchForm({ type: 'updateData', data: { field: 'typing', value: !typing } })}
             />
           </Fragment>
-        )}
-      </form>
+        )*/}
+      </div>
     </Fragment>
   )
 }
