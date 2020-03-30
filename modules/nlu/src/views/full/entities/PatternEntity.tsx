@@ -76,7 +76,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
     } catch (e) {
       setPatternValid(false)
     }
-  }, [pattern, matchCase, sensitive, examplesStr]) // TODO useReducer and watch state instead or explicitely call update entity while
+  }, [pattern, matchCase, sensitive, examplesStr]) // TODO useReducer and watch state instead or explicitly call update entity while
 
   return (
     <div className={style.entityEditorBody}>
