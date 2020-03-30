@@ -400,6 +400,7 @@ class Bots extends Component<Props> {
               <CreateBotModal
                 isOpen={this.state.isCreateBotModalOpen}
                 toggle={this.toggleCreateBotModal}
+                existingBots={this.props.bots}
                 onCreateBotSuccess={this.props.fetchBots}
               />
               <ImportBotModal
