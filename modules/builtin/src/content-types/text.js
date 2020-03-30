@@ -104,6 +104,7 @@ module.exports = {
       $subtype: 'textarea'
     },
     variations: {
+      'ui:field': 'variatons_field',
       'ui:options': {
         orderable: false
       }
