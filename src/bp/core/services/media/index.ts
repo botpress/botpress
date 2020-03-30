@@ -17,15 +17,20 @@ export default class MediaService {
     private logger: Logger
   ) {}
 
-  async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {
-    this.logger.forBot(botId).debug(`Saving "${fileName}"`)
-    fileName = `${safeId(20)}-${path.basename(fileName)}`
+  async saveFile(botId: string, originalName: string, content: Buffer): Promise<string> {
+    this.logger.forBot(botId).debug(`Saving "${originalName}"`)
+    const fileName = `${safeId(20)}-${path.basename(originalName)}`
     await this.ghost.forBot(botId).upsertFile('media', fileName, content)
     return fileName
   }
 
-  async readFile(botId, fileName): Promise<Buffer> {
+  async readFile(botId: string, fileName: string): Promise<Buffer> {
     return this.ghost.forBot(botId).readFileAsBuffer('media', fileName)
+  }
+
+  async deleteFile(botId: string, fileName: string): Promise<void> {
+    this.logger.forBot(botId).debug(`Deleting "${fileName.substr(21)}"`)
+    await this.ghost.forBot(botId).deleteFile('media', fileName)
   }
 
   getFilePath(botId: string, fileName: string): string {
