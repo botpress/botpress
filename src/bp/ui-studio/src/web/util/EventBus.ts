@@ -44,7 +44,7 @@ class EventBus extends EventEmitter2 {
 
     const token = getToken()
     if (token) {
-      Object.assign(query, { token: token.token })
+      Object.assign(query, { token })
     }
 
     if (this.adminSocket) {
