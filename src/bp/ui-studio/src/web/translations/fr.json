@@ -1,4 +1,23 @@
 {
+  "insert": "Insérer",
+  "save": "Sauvegarder",
+  "cancel": "Annuler",
+  "overwrite": "Écraser",
+  "edit": "Éditer",
+  "remove": "Retirer",
+  "copy": "Copier",
+  "update": "Actualiser",
+  "create": "Créer",
+  "chooseFile": "Choisir fichier...",
+  "pleaseWait": "Veuillez patienter...",
+  "next": "Suivant",
+  "back": "Précédant",
+  "submit": "Soumettre",
+  "error": "Erreur",
+  "delete": "Supprimer",
+  "never": "Jamais",
+  "refresh": "Rafraîchir",
+
   "config": {
     "general": "Général",
     "status": "Statut",
@@ -49,5 +68,196 @@
     "portuguese": "Portugais",
     "russian": "Russe",
     "spanish": "Espagnol"
+  },
+
+  "studio": {
+    "flow": {
+      "unauthUpdate": "Mise à jour de flow non autorisée. Vous ne disposez pas des privilèges de rôle suffisants pour modifier les flows.",
+      "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
+      "nowSaveAuto": "Pssst! Les flows sont désormais enregistrés automatiquement, plus besoin d'enregistrer.",
+      "sessionStartsHere": "Chaque session utilisateur commence ici",
+
+      "sidePanel": {
+        "create": "Créer",
+        "duplicate": "Dupliquer",
+        "rename": "Renommer",
+        "createFlow": "Créer flow",
+        "duplicateFlow": "Dupliquer flow",
+        "renameFlow": "Renommer flow",
+        "flowName": "Nom du flow",
+        "flowNameHelp": "Il ne peut contenir que des lettres, des chiffres, des traits de soulignement et des tirets. Vous pouvez également utiliser des barres obliques pour créer des dossiers (ex: myfolder/mynewflow)",
+        "flowNamePlaceholder": "Choisissez un nom pour votre flow",
+        "nameInUse": "Nom déjà utilisé",
+        "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
+        "confirmDeleteFlow": "Voulez-vous vraiment supprimer le flow {name}",
+        "node": "Noeud",
+        "say": "Dire",
+        "execute": "Executer",
+        "listen": "Écouter",
+        "router": "Routeur",
+        "action": "Action",
+        "skills": "Compétence",
+        "chips": "Chips",
+        "createNewFlow": "Créer nouveau flow",
+        "filterFlows": "Filtrer les flows",
+        "flows": "Flows",
+        "tools": "Outils"
+      },
+
+      "toolbar": {
+        "problemsWithFlow": "Il y a des problèmes avec votre flow.",
+        "clickDetails": "Cliquez pour plus de détails",
+        "missingDetails": "{nb} liens manquants",
+        "currentlyEditing": "{name} modifie actuellement ce flow",
+        "somebodyIsEditing": "Quelqu'un modifie un autre flow",
+        "renamingAndDeletingDisabled": "Renommer et supprimer des flows est désactivé",
+        "undo": "Annuler",
+        "redo": "Refaire",
+        "whenErrorEncountered": "Lorsqu'une erreur est rencontrée dans le flux, l'utilisateur est redirigé ici",
+        "whenDiscussionTimeouts": "Lors d'un délai d'attente de discussion (l'utilisateur ne répond pas dans le délai configuré), il sera redirigé ici."
+      },
+
+      "skills": {
+        "couldNotLoad": "Impossible de charger la vue des compétences",
+        "generatingSkillFlow": "Génération de votre flux de compétences...",
+        "error": "ERREUR - La compétence \"{size}\" est d'une taille non valide pour la fenêtre de compétence. Les tailles valides sont {sizes}.",
+        "insert": "Insérez une nouvelle compétence",
+        "edit": "Modifier une compétence"
+      },
+
+      "node": {
+        "actionToExecute": "Action à exécuter",
+        "actionParameters": "Paramètres d'action",
+        "hasNoParameters": "Cette action n'a pas de paramètres",
+        "actionServer": "Serveur d'action",
+        "actionServerTooltip": "Il s'agit du serveur d'action sur lequel l'action sera exécutée",
+        "editAction": "Modifier l'action",
+        "loadingActionServer": "Veuillez patienter, chargement des serveurs d'action ...",
+        "couldNotRetrieveActionServer": "Impossible de récupérer les serveurs d'actions",
+        "errorInServer": "Il semble y avoir une erreur sur votre serveur Botpress. Veuillez contacter votre administrateur.",
+        "errorListingActions": "Erreur dans le listage des actions du serveur d'actions",
+        "errorListingActionsMore": "Une erreur s'est produite lors de la tentative d'obtention de la liste des actions sur le serveur sélectionné",
+        "noActionsFound": "Aucune action trouvée sur ce serveur d'actions",
+        "actionsRegisteredOnServer": "Les actions sont enregistrées côté serveur. Découvrez comment enregistrer de nouvelles actions en recherchant `bp.registerActions ()`.",
+        "youCanChangeActions": "Vous pouvez modifier la façon dont l'action est exécutée en lui fournissant des paramètres. Certains paramètres sont obligatoires, d'autres sont facultatifs.",
+        "cantSeeActions": "Vous ne voyez pas votre action?",
+        "actionToRun": "Action à exécuter {help}",
+        "confirmOverwriteParameters": "Voulez-vous remplacer les paramètres existants?",
+        "say": "say #!{id}",
+        "message": "Message",
+        "messageToSend": "Message à envoyer",
+        "addAction": "Ajouter une nouvelle action",
+        "theBotWill": "Le bot va",
+        "saySomething": "💬 Dire quelquechose",
+        "executeCode": "⚡ Exécuter du code",
+        "finishUpdateAction": "Mettre à jour l'action",
+        "finishAddAction": "Ajouter action",
+        "unknownParameterType": "`⚠️ Type de paramètre inconnu ({type}). Ce paramètre sera ignoré.",
+        "valuePlaceholder": "Valeur",
+        "waitForUserMessage": "Attendre le message de l'utilisateur",
+        "onReceive": "Sur réception",
+        "transitions": "Transitions",
+        "noDescription": "Pas de description",
+        "editSkill": "Modifier compétence",
+        "onEnter": "Sur Entrée",
+        "missingLink": "Lien manquant",
+        "end": "Fin",
+        "return": "Revenir",
+
+        "transition": {
+          "noSpecific": "Pas de nœud spécifique",
+          "mustSelectSubflow": "Vous devez sélectionner un subflow vers lequel effectuer la transition",
+          "specifyCondition": "Spécifiez une condition",
+          "returnToNodeCalled": "Retour au noeud appelé",
+          "returnToCallingNode": "Retour au noeud appelant",
+          "fieldName": "Nom du champ (ex: surnom, âge)",
+          "expression": "Expression (ex: !== undefined)",
+          "javascriptExpression": "Expression Javascript",
+          "edit": "Modifier la condition de transition",
+          "new": "Nouvelle condition de transition",
+          "showCondition": "État",
+          "whenMetDo": "Lorsque la condition est remplie, faire",
+          "condition": {
+            "always": "Toujours",
+            "intentIs": "L'intention est",
+            "matchesProperty": "Correspond à la propriété",
+            "rawExpression": "Expression brute (avancé)"
+          },
+          "action": {
+            "endFlow": "Finir Flow",
+            "returnToPreviousFlow": "Retour au flow précédent",
+            "transitionToNode": "Transition vers nœud",
+            "transitionToSubflow": "Transition vers subflow"
+          }
+        }
+      },
+
+      "content": {
+        "noContentDefined": "Nous pensons que vous n'avez défini aucun type de contenu.",
+        "pleaseReadDoc": "Veuillez {readTheDocs} pour voir comment vous pouvez utiliser cette fonctionnalité",
+        "readTheDocs": "lire la documentation",
+        "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
+        "id": "ID",
+        "contentType": "Type de contenu",
+        "preview": "Aperçu",
+        "modifiedOn": "Modifié le",
+        "createdOn": "Créé le",
+        "usage": "Usage",
+        "noContent": "Il n'y a pas de contenu ici.",
+        "noContentYet": "Il n'y a pas encore de contenu. Vous pouvez en créer en utilisant le bouton «Ajouter».",
+        "deleteElements": "Supprimer les éléments sélectionnés",
+        "cloneElements": "Cloner les éléments sélectionnés",
+        "searchContent": "Rechercher du contenu",
+
+        "import": {
+          "notAbleToExtractData": "Nous n'avons pas pu extraire de données de votre fichier. Soit le fichier est vide, soit il ne correspond à aucun format connu.",
+          "missingContentTypes": "Votre bot manque les types de contenu suivants: {types}.",
+          "selectFile": "Sélectionnez votre fichier JSON",
+          "selectFileMore": "Sélectionnez un fichier JSON. Il doit être exporté depuis la page Contenu. Vous verrez un résumé des modifications en cliquant sur Suivant",
+          "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
+          "whatLikeDo": "Qu'est-ce que vous aimeriez faire?",
+          "updateMissing": "Mettre à jour ou créer des éléments manquants présents dans mon fichier",
+          "clearExisting": "Effacez tous les éléments existants, puis importez ceux de mon fichier",
+          "uploadStatus": "Statut de téléversement",
+          "import": "Importer JSON",
+          "upload": "Téléverser un fichier",
+          "analysis": "Analyse"
+        },
+
+        "sideBar": {
+          "all": "Tout",
+          "createNewContent": "Créer nouveau contenu",
+          "createNew": "Créer nouveau {name}",
+          "filterByType": "Filtrer par type de contenu"
+        },
+
+        "usageModal": {
+          "type": "Type",
+          "name": "Nom",
+          "node": "Node",
+          "count": "Count",
+          "contentUsage": "Utilisation du contenu"
+        }
+      },
+
+      "logs": {
+        "autoRefresh": "Actualisation automatique",
+        "downloadArchives": "Télécharger l'archive du journal",
+        "loadMore": "Charger plus"
+      },
+
+      "module": {
+        "notFound": "Module introuvable",
+        "notProperlyRegistered": "Le module n'est pas correctement enregistré",
+        "tryingToLoad": "Il semble que vous essayez de charger un module qui n'a pas été enregistré. Veuillez vous assurer que le module est enregistré puis redémarrez le bot.",
+        "learnMore": "Apprendre plus"
+      },
+
+      "notifications": {
+        "deleteAll": "Supprimer tout",
+        "markRead": "Tout marquer comme lu",
+        "noNotifs": "Vous n'avez aucune notification!"
+      }
+    }
   }
 }
