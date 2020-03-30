@@ -1,3 +1,28 @@
+## [12.7.2](https://github.com/botpress/botpress/compare/v12.7.1...v12.7.2) (2020-03-28)
+
+
+### Bug Fixes
+
+* **admin:** possible null pointer ([#3073](https://github.com/botpress/botpress/issues/3073)) ([38ad436](https://github.com/botpress/botpress/commit/38ad436))
+* **bot-info:** fix height issue on webchat ([812e925](https://github.com/botpress/botpress/commit/812e925))
+* **core:** docker images async middleware ([44f41f9](https://github.com/botpress/botpress/commit/44f41f9))
+* **core:** get router getPublicPath with subpath ([1ba3ee2](https://github.com/botpress/botpress/commit/1ba3ee2))
+* **core:** return additional languages ([8cbb665](https://github.com/botpress/botpress/commit/8cbb665)), closes [#2704](https://github.com/botpress/botpress/issues/2704)
+* **core:** return additional languages if nlu module is disabled ([ef24a43](https://github.com/botpress/botpress/commit/ef24a43))
+* **core:** run migration easily ([0569f9a](https://github.com/botpress/botpress/commit/0569f9a))
+* **module:** memoizing module config ([412a5c0](https://github.com/botpress/botpress/commit/412a5c0))
+* **module-builder:** watch dies when there is an error ([c007331](https://github.com/botpress/botpress/commit/c007331))
+* **slack:** disconnect websocket onBotUnmount ([0ea93f1](https://github.com/botpress/botpress/commit/0ea93f1))
+* **studio:** occasional null pointer issue ([c066bb4](https://github.com/botpress/botpress/commit/c066bb4))
+* **studio:** shortcut to save config ([1a34bff](https://github.com/botpress/botpress/commit/1a34bff))
+
+
+### Features
+
+* **nlu:** par of speech tagging for french ([8315d5c](https://github.com/botpress/botpress/commit/8315d5c))
+
+
+
 ## [12.7.1](https://github.com/botpress/botpress/compare/v12.7.0...v12.7.1) (2020-03-07)
 
 

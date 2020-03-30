@@ -9,5 +9,6 @@
 *.woff2 -text
 *.node  -text
 
-modules/nlu/src/backend/tools/pretrained/* -text
-modules/.knowledge/src/backend/tools/bin/* -text
+modules/nlu/src/backend/tools/pretrained/*     -text
+modules/nlu/src/backend/language/pre-trained/* -text
+modules/.knowledge/src/backend/tools/bin/*     -text

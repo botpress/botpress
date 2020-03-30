@@ -56,15 +56,16 @@ class MessageGroup extends React.Component<Props> {
 
     return (
       <div
+        role="main"
         className={classnames('bpw-message-big-container', {
           'bpw-from-user': !this.props.isBot,
           'bpw-from-bot': this.props.isBot
         })}
       >
         {this.props.avatar}
-        <div className={'bpw-message-container'}>
+        <div role="region" className={'bpw-message-container'}>
           {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
-          <div className={'bpw-message-group'}>
+          <div aria-live="assertive" role="log" className={'bpw-message-group'}>
             {this.props.messages.map((data, i) => {
               return (
                 <Message

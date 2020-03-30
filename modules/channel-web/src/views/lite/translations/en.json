@@ -15,5 +15,6 @@
   "loginForm.formTitle": "Login form",
   "loginForm.providedCredentials": "Provided credentials",
   "messages.newMessage": "New message",
-  "messages.newMessages": "New messages"
+  "messages.newMessages": "New messages",
+  "widget.toggle": "Toggle chatbot window"
 }
