@@ -1,5 +1,5 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { BotTemplate } from 'botpress/sdk'
+import { BotConfig, BotTemplate } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -18,6 +18,7 @@ type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
 
 interface OwnProps {
   isOpen: boolean
+  existingBots: BotConfig[]
   onCreateBotSuccess: () => void
   toggle: () => void
 }
@@ -141,7 +142,9 @@ class CreateBotModal extends Component<Props, State> {
 
   get isButtonDisabled() {
     const { isProcessing, botId, botName, selectedTemplate } = this.state
-    return isProcessing || !botId || !botName || !selectedTemplate || !this._form || !this._form.checkValidity()
+    const isNameOrIdInvalid = !botId || !botName ||
+      (this.props.existingBots && this.props.existingBots.some(bot => bot.name === botName || bot.id === botId))
+    return isNameOrIdInvalid || isProcessing || !selectedTemplate || !this._form || !this._form.checkValidity()
   }
 
   render() {
@@ -167,10 +170,10 @@ class CreateBotModal extends Component<Props, State> {
                 tabIndex={1}
                 placeholder="The name of your bot"
                 minLength={3}
-                required={true}
+                required
                 value={this.state.botName}
                 onChange={this.handleNameChanged}
-                autoFocus={true}
+                autoFocus
               />
             </FormGroup>
 
@@ -186,7 +189,7 @@ class CreateBotModal extends Component<Props, State> {
                 tabIndex={2}
                 placeholder="The ID of your bot (must be unique)"
                 minLength={3}
-                required={true}
+                required
                 value={this.state.botId}
                 onChange={this.handleBotIdChanged}
               />
@@ -244,7 +247,4 @@ const mapDispatchToProps = {
   fetchBotCategories
 }
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateBotModal)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(CreateBotModal)

@@ -5,6 +5,7 @@ import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import path from 'path'
 import { VError } from 'verror'
+import yn from 'yn'
 
 import { GhostService } from '../'
 
@@ -195,6 +196,13 @@ export default class ConfigReader {
   // Don't @Memoize() this fn. It only memoizes on the first argument
   // https://github.com/steelsojka/lodash-decorators/blob/master/src/memoize.ts#L15
   public getForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<Config> {
-    return this.getMerged(moduleId, botId, ignoreGlobal)
+    const cacheKey = `${moduleId}//${botId}//${!!ignoreGlobal}`
+    return this.getForBotMemoized(cacheKey)
+  }
+
+  @Memoize()
+  public getForBotMemoized(cacheKey: string): Promise<Config> {
+    const [moduleId, botId, ignoreGlobal] = cacheKey.split('//')
+    return this.getMerged(moduleId, botId, yn(ignoreGlobal))
   }
 }

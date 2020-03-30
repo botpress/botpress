@@ -219,7 +219,7 @@ class Diagram extends Component<Props> {
         )}
         <MenuDivider title="Add Node" />
         <MenuItem text="Standard Node" onClick={wrap(this.add.flowNode, point)} icon="chat" />
-        {this.props.flowPreview ? (
+        {window.EXPERIMENTAL ? (
           <Fragment>
             <MenuItem text="Say" onClick={wrap(this.add.sayNode, point)} icon="comment" />
             <MenuItem text="Execute" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
@@ -312,7 +312,7 @@ class Diagram extends Component<Props> {
                 this.checkForLinksUpdate()
               }}
             />
-            {this.props.flowPreview && canAddChipToTarget ? (
+            {window.EXPERIMENTAL && canAddChipToTarget ? (
               <React.Fragment>
                 <MenuDivider />
                 <MenuItem text="Chips">
@@ -461,13 +461,13 @@ class Diagram extends Component<Props> {
 
     return (
       <div style={{ display: 'flex', marginTop: 5 }}>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide
-          {nbNext === 1 ? ' transition' : ' transitions'}
+        <Button onClick={this.handleFlowWideClicked} minimal>
+          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide transition
+          {nbNext === 1 ? '' : 's'}
         </Button>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide
-          {nbReceive === 1 ? ' on receive' : ' on receives'}
+        <Button onClick={this.handleFlowWideClicked} minimal>
+          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide on receive
+          {nbReceive === 1 ? '' : 's'}
         </Button>
         {this.props.showSearch && (
           <ControlGroup>
@@ -477,7 +477,7 @@ class Diagram extends Component<Props> {
               placeholder="Highlight nodes by name"
               value={this.props.highlightFilter}
               onChange={this.props.handleFilterChanged}
-              autoFocus={true}
+              autoFocus
             />
             <Button icon="small-cross" onClick={this.props.hideSearch} />
           </ControlGroup>
@@ -554,7 +554,7 @@ class Diagram extends Component<Props> {
           ref={w => (this.diagramWidget = w)}
           deleteKeys={[]}
           diagramEngine={this.diagramEngine}
-          inverseZoom={true}
+          inverseZoom
         />
       </div>
     )
@@ -583,11 +583,10 @@ interface Props {
   buildSkill: any
   readOnly: boolean
   canPasteNode: boolean
-  flowPreview: boolean
   showSearch: boolean
   hideSearch: () => void
   handleFilterChanged: (event: object) => void
-  highlightFilter: string,
+  highlightFilter: string
   skills: SkillDefinition[]
 }
 

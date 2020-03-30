@@ -8,6 +8,8 @@ declare namespace NodeJS {
   export interface Global {
     printErrorDefault(err: Error): void
     DEBUG: IDebug
+    BOTPRESS_CORE_EVENT: IEmitCoreEvent
+    BOTPRESS_CORE_EVENT_TYPES: BOTPRESS_CORE_EVENTS
     require: ExtraRequire
     rewire: (name: string) => string
     printBotLog(botId: string, args: any[]): void
@@ -52,6 +54,8 @@ declare namespace NodeJS {
      * This gives a boost in performances for code deemed "safe", while bot-specific content is executed in the sandbox
      */
     DISABLE_GLOBAL_SANDBOX: boolean
+    WEB_WORKER: number
+    ML_WORKERS: number[]
   }
 }
 
@@ -188,6 +192,12 @@ declare type BotpressEnvironmentVariables = {
    */
   readonly DISABLE_GLOBAL_SANDBOX?: boolean
 
+  /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
+  readonly TESTMIG_ALL?: boolean
+
+  /** Runs future migrations, ignore completed migrations & sets the config version to the version in package.json */
+  readonly TESTMIG_NEW?: boolean
+
   /** Migration Testing: Simulate a specific version for the server, ex: 12.5.0 */
   readonly TESTMIG_BP_VERSION?: string
 
@@ -199,6 +209,13 @@ declare type BotpressEnvironmentVariables = {
 
   /** Prevent running migrations (to allow manual fix of an issue which prevents server startup) */
   readonly SKIP_MIGRATIONS?: boolean
+
+  /**
+   * Indicates how many child process to spawn as Machibe Learning workers.
+   * Defaults to 4 if supported by CPU
+   * @default 4
+   */
+  readonly BP_NUM_ML_WORKERS?: number
 }
 
 interface IDebug {
@@ -233,3 +250,21 @@ declare interface OSDistribution {
 declare interface Dic<T> {
   [Key: string]: T
 }
+
+declare type BOTPRESS_CORE_EVENTS = {
+  bp_core_session_created: { botId: string; channel: string }
+  bp_core_decision_elected: { botId: string; channel: string; source: string }
+  bp_core_goal_started: { botId: string; channel: string; goalName: string }
+  bp_core_goal_completed: { botId: string; channel: string; goalName: string }
+  bp_core_goal_failed: { botId: string; channel: string; goalName: string }
+  bp_core_enter_flow: { botId: string; channel: string; flowName: string }
+}
+
+interface IEmitCoreEvent {
+  <T extends keyof BOTPRESS_CORE_EVENTS>(
+    event: T,
+    args: { [key in keyof BOTPRESS_CORE_EVENTS[T]]: BOTPRESS_CORE_EVENTS[T][key] }
+  ): void
+}
+
+declare var BOTPRESS_CORE_EVENT: IEmitCoreEvent

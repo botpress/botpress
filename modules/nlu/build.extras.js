@@ -1,3 +1,3 @@
 module.exports = {
-  copyFiles: ['src/backend/tools/pretrained/*', 'src/backend/pretrained/*']
+  copyFiles: ['src/backend/language/pre-trained/*', 'src/backend/language/stop-words/*']
 }

@@ -44,6 +44,11 @@ body {
   background-color: #000000;
 }
 
+.bpw-widget-btn:focus,
+.bpw-widget-btn:hover {
+  background-color: #333;
+}
+
 .bpw-chat-container {
   background-color: #ffffff;
   color: #000000;
@@ -579,7 +584,8 @@ body {
   cursor: pointer;
 }
 
-.bpw-send-button:hover {
+.bpw-send-button:hover,
+.bpw-send-button:focus {
   background: #d8d8d8;
 }
 
@@ -741,6 +747,7 @@ body {
   text-align: center;
   color: #1e1e1e;
   overflow-y: auto;
+  height: 100%;
 }
 
 .bpw-botinfo-cover-picture-wrapper {

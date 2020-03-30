@@ -46,25 +46,25 @@ const BotItemCompact: FC<Props> = ({
   return (
     <div className="bp_table-row" key={bot.id}>
       <div className="actions">
-        {hasError && <AnchorButton text="Reload" icon="refresh" onClick={reloadBot} minimal={true} />}
+        {hasError && <AnchorButton text="Reload" icon="refresh" onClick={reloadBot} minimal />}
 
         <AccessControl resource="admin.bots.*" operation="write">
           <Button
             text="Config"
             icon="cog"
-            minimal={true}
+            minimal
             className="configBtn"
             onClick={() => history.push(`bots/${bot.id}`)}
           />
         </AccessControl>
 
         {!bot.disabled && !hasError && (
-          <AnchorButton text="Open chat" icon="chat" href={botShortLink} target="_blank" minimal={true} />
+          <AnchorButton text="Open chat" icon="chat" href={botShortLink} target="_blank" minimal />
         )}
 
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
               {!bot.disabled && !hasError && (
                 <MenuItem disabled={bot.locked} icon="edit" text="Edit in Studio" href={botStudioLink} />
@@ -96,7 +96,7 @@ const BotItemCompact: FC<Props> = ({
             &nbsp;
           </span>
         )}
-        {bot.disabled ? <span>{bot.name || bot.id}</span> : <a href={botStudioLink}>{bot.name || bot.id}</a>}
+        <a href={botStudioLink}>{bot.name || bot.id}</a>
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
