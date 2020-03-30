@@ -59,7 +59,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     const readOnlyIcon = (
-      <Tooltip content="This file is read only">
+      <Tooltip content={lang.tr('editor.navigator.isReadOnly')}>
         <Icon icon="lock" />
       </Tooltip>
     )
