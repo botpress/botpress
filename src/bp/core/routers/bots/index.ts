@@ -153,7 +153,9 @@ export class BotsRouter extends CustomRouter {
 
     router['getPublicPath'] = async () => {
       await AppLifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
-      return new URL('/api/v1/bots/BOT_ID' + relPath, process.EXTERNAL_URL).href
+      const externalUrl = new URL(process.EXTERNAL_URL)
+      const subPath = externalUrl.pathname + '/api/v1/bots/BOT_ID' + relPath
+      return new URL(subPath.replace('//', '/'), externalUrl.origin).href
     }
 
     return router
