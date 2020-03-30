@@ -1,5 +1,5 @@
 import { Button, HTMLSelect, IconName, MaybeElement, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
-import { DateRange, DateRangeInput, DateRangePicker, IDateRangeShortcut, TimePrecision } from '@blueprintjs/datetime'
+import { DateRange, DateRangePicker, IDateRangeShortcut } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
 import cx from 'classnames'
@@ -29,8 +29,9 @@ import RadialMetric from './RadialMetric'
 import TimeSeriesChart from './TimeSeriesChart'
 
 interface State {
-  metrics: MetricEntry[]
   previousRangeMetrics: MetricEntry[]
+  previousDateRange?: DateRange
+  metrics: MetricEntry[]
   dateRange?: DateRange
   pageTitle: string
   selectedChannel: string
@@ -70,10 +71,11 @@ const fetchReducer = (state: State, action): State => {
       metrics
     }
   } else if (action.type === 'receivedPreviousRangeMetrics') {
-    const { metrics } = action.data
+    const { metrics, dateRange } = action.data
 
     return {
       ...state,
+      previousDateRange: dateRange,
       previousRangeMetrics: metrics
     }
   } else if (action.type === 'channelSuccess') {
@@ -101,6 +103,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
+    previousDateRange: undefined,
     metrics: [],
     previousRangeMetrics: [],
     pageTitle: 'Dashboard',
@@ -246,11 +249,13 @@ const Analytics: FC<any> = ({ bp }) => {
         <NumberMetric name="Active Users" value={getMetricCount('active_users_count')} icon="user" />
         <NumberMetric
           diffFromPreviousRange={newUserCountDiff}
+          previousDateRange={state.previousDateRange}
           name={`${getMetricCount('new_users_count')} New Users`}
           value={getNewUsersPercent()}
         />
         <NumberMetric
           diffFromPreviousRange={activeUserCountDiff}
+          previousDateRange={state.previousDateRange}
           name={`${getMetricCount('active_users_count')} Returning Users`}
           value={getReturningUsers()}
         />

@@ -1,5 +1,7 @@
-import { Icon } from '@blueprintjs/core'
+import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import { DateRange } from '@blueprintjs/datetime'
 import cx from 'classnames'
+import moment from 'moment'
 import React, { FC } from 'react'
 
 import { Extras } from './index'
@@ -9,11 +11,12 @@ interface Props extends Extras {
   name: string
   value: number | string
   diffFromPreviousRange?: number
+  previousDateRange?: DateRange
 }
 
 const NumberMetric: FC<Props> = props => {
-  const { value, name, className, icon, iconBottom, diffFromPreviousRange } = props
-  let diffIcon
+  const { value, name, className, icon, iconBottom, diffFromPreviousRange, previousDateRange } = props
+  let diffIcon, startPreviousRange, endPreviousRange
 
   if (diffFromPreviousRange) {
     if (diffFromPreviousRange > 0) {
@@ -21,6 +24,9 @@ const NumberMetric: FC<Props> = props => {
     } else if (diffFromPreviousRange < 0) {
       diffIcon = 'trending-down'
     }
+
+    startPreviousRange = moment(previousDateRange?.[0]).format('MMMM Do YYYY')
+    endPreviousRange = moment(previousDateRange?.[1]).format('MMMM Do YYYY')
   }
 
   return (
@@ -35,8 +41,12 @@ const NumberMetric: FC<Props> = props => {
                 [style.diffNumberDown]: diffFromPreviousRange < 0
               })}
             >
-              {diffFromPreviousRange > 0 && '+'}
-              {diffFromPreviousRange}
+              <Tooltip content={`Compared to ${startPreviousRange} · ${endPreviousRange}`} position={Position.BOTTOM}>
+                <span>
+                  {diffFromPreviousRange > 0 && '+'}
+                  {diffFromPreviousRange}
+                </span>
+              </Tooltip>
             </span>
           )}
         </div>
