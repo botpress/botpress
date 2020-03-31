@@ -38,7 +38,7 @@ title: Slack
 
 4. Open the page `Interactive Components`, then turn the switch to `On`
 
-5. Set the request URL to: `EXTERNAL_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-slack/callback`
+5. Set the request URL to: `EXTERNAL_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-slack/bots/YOUR_BOT_ID/callback`
 
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID by your bot ID
@@ -47,8 +47,7 @@ title: Slack
 
 7. Install the app by clicking the `Install App to Workspace` button
 
-
-### Finish configuring your bot 
+### Finish configuring your bot
 
 1. Return to `data/bots/YOUR_BOT_ID/config/channel-slack.json` and set
 
