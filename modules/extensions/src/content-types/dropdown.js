@@ -67,6 +67,7 @@ module.exports = {
   title: 'Dropdown',
 
   jsonSchema: {
+    title: 'Displays a list of options to the user',
     type: 'object',
     required: ['message'],
     properties: {
