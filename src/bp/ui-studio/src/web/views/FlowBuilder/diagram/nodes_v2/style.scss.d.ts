@@ -3,11 +3,9 @@
 interface CssExports {
   'baseNode': string;
   'content': string;
-  'contentImgWrapper': string;
   'fullSize': string;
   'header': string;
   'highlightedNode': string;
-  'img': string;
   'in': string;
   'item': string;
   'nodeAction': string;
@@ -22,10 +20,7 @@ interface CssExports {
   'out': string;
   'outRouting': string;
   'ports': string;
-  'primaryText': string;
-  'secondaryText': string;
   'section-next': string;
-  'textWrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
