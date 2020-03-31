@@ -1,25 +1,52 @@
-import React, { Component } from 'react'
-import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
-import Markdown from 'react-markdown'
-import _ from 'lodash'
 import { confirmDialog, lang } from 'botpress/shared'
-
-import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
+import { ActionDefinition, LocalActionDefinition } from 'common/typings'
+import _ from 'lodash'
+import React, { Component } from 'react'
+import { Button, Modal, OverlayTrigger, Radio, Tooltip } from 'react-bootstrap'
+import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
-import SelectActionDropdown from './SelectActionDropdown'
-import ParametersTable from './ParametersTable'
 import ContentPickerWidget from '~/components/Content/Select/Widget'
+import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
+import { RootReducer } from '~/reducers'
 
-const style = require('./style.scss')
+import style from './style.scss'
+import ParametersTable from './ParametersTable'
+import SelectActionDropdown from './SelectActionDropdown'
 
-class ActionModalForm extends Component {
-  state = {
+interface OwnProps {
+  show: boolean
+  layoutv2?: boolean
+  onSubmit: any
+  onClose: any
+}
+
+type StateProps = ReturnType<typeof mapStateToProps>
+
+type Props = StateProps & OwnProps
+
+interface State {
+  actionType: string
+  avActions: any[]
+  actionMetadata: any
+  functionInputValue: any
+  isEdit: boolean
+  messageValue: string
+  functionParams: any
+  paramsDef: any
+}
+
+class ActionModalForm extends Component<Props, State> {
+  private parametersTable: any
+
+  state: State = {
     actionType: 'message',
     avActions: [],
     actionMetadata: {},
     functionInputValue: '',
     messageValue: '',
-    functionParams: {}
+    functionParams: {},
+    isEdit: false,
+    paramsDef: undefined
   }
 
   textToItemId = text => _.get(text.match(/^say #!(.*)$/), '[1]')
@@ -242,8 +269,8 @@ class ActionModalForm extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  actions: state.skills.actions.filter(a => a.legacy)
+const mapStateToProps = (state: RootReducer) => ({
+  actions: state.skills.actions?.filter(a => a.legacy)
 })
 
 export default connect(mapStateToProps, undefined)(ActionModalForm)
