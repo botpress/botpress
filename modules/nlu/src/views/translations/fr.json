@@ -25,10 +25,27 @@
       "contextSelectorCreateMissing": "Créer \"{query}\"",
       "contextSelectorPlaceholder": "Sélectionnez une catégorie"
     },
-    "entities": {
-      "entities": "Entities"
+    "slots": {
+      "new": "Créer un paramètre",
+      "save": "Enregistrer",
+      "emptyState": "Aucun paramètre n'est défini",
+      "noSlotsToTag": "La sélection ne peut pas être marquée. Créer dabord un paramètre",
+      "tagSelectionLabel": "Marquer la sélection",
+      "tagSelectionMessage": "Cliquer sur un paramètre ou utiliser les nombres comme racourcis.",
+      "nameLabel": "Nom du paramètre",
+      "namePlaceholder": "Nom içi",
+      "entitiesLabel": "Entités associées",
+      "editTitle": "Modifier un paramètre",
+      "createTitle": "Créer un paramètre pour votre intention",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "deleteMessage": "Êtes-vous certain de vouloir supprimer ce paramètre ainsi que toutes les marques dans chaque alternative?"
     },
-    "title": "Language Undertanding",
-    "description": "Use Botpress native Natural language understanding engine to make your bot smarter."
+    "entities": {
+      "entities": "Entités",
+      "selectPlaceholder": "Sélectionner des entitiées"
+    },
+    "title": "Compréhension du langage",
+    "description": "Utilisez l'engin de compréhension du langage de Botpress pour rendre votre agent plus intelligent."
   }
 }

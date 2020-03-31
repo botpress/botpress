@@ -1,16 +1,4 @@
-import {
-  Button,
-  Classes,
-  Colors,
-  FormGroup,
-  Icon,
-  InputGroup,
-  Position,
-  Radio,
-  RadioGroup,
-  Text,
-  Tooltip
-} from '@blueprintjs/core'
+import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'

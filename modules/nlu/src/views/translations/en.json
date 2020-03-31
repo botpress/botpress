@@ -25,8 +25,25 @@
       "contextSelectorCreateMissing": "Create \"{query}\"",
       "contextSelectorPlaceholder": "Select context..."
     },
+    "slots": {
+      "new": "Create slot",
+      "save": "Save slot",
+      "emptyState": "No slots defined for this intent",
+      "noSlotsToTag": "Selection can't be tagged. Define a slot first.",
+      "tagSelectionLabel": "Tag selection",
+      "tagSelectionMessage": "Click on a slot or use numbers as keyboard shortcuts",
+      "nameLabel": "Slot name",
+      "namePlaceholder": "Type a name here",
+      "entitiesLabel": "Associated Entities",
+      "editTitle": "Edit Slot",
+      "createTitle": "Create a slot for your intent",
+      "delete": "Delete",
+      "edit": "Edit",
+      "deleteMessage": "Are you sure you want to delete this slot and all associated tagging from all utterances?"
+    },
     "entities": {
-      "entities": "Entities"
+      "entities": "Entities",
+      "selectPlaceholder": "Select entities..."
     },
     "title": "Language Undertanding",
     "description": "Use Botpress native Natural language understanding engine to make your bot smarter."
