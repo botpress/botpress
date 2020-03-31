@@ -89,7 +89,7 @@ class Sidebar extends React.Component<Props, State> {
         <li id={`bp-menu_${module.name}`}>
           <NavLink to={path} title={module.menuText} activeClassName={style.active}>
             {moduleIcon}
-            <span>{module.menuText}</span>
+            <span>{lang.tr(module.menuText)}</span>
             {module.experimental && (
               <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={experimentalTooltip}>
                 <GoBeaker className={style.experimental} />

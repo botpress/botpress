@@ -58,7 +58,7 @@ const MODULE_SCHEMA = joi.object().keys({
         stretched: joi.boolean().default(false)
       }),
     menuIcon: joi.string().optional(),
-    menuText: joi.string().optional(),
+    menuText: joi.alternatives().try(joi.string().optional(), joi.object().optional()),
     homepage: joi.string().optional(),
     experimental: joi.boolean().optional()
   })

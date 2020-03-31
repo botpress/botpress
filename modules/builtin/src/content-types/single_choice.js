@@ -90,10 +90,16 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: 'Single Choice',
+  title: {
+    en: 'Single Choice',
+    fr: 'Choix Unique'
+  },
 
   jsonSchema: {
-    description: 'Suggest choices to the user with the intention of picking only one (with an optional message)',
+    description: {
+      en: 'Suggest choices to the user with the intention of picking only one (with an optional message)',
+      fr: `Suggérer un choix à l'utilisateur avec l'intention de n'en sélectionner qu'un (avec un message optionnel)`
+    },
     type: 'object',
     required: ['choices'],
     properties: {
@@ -103,7 +109,10 @@ module.exports = {
       },
       choices: {
         type: 'array',
-        title: 'Choices',
+        title: {
+          en: 'Choices',
+          fr: 'Choix'
+        },
         minItems: 1,
         maxItems: 10,
         items: {
@@ -111,13 +120,18 @@ module.exports = {
           required: ['title', 'value'],
           properties: {
             title: {
-              description: 'The title of the choice (this is what gets shown to the user)',
+              description: {
+                en: 'The title of the choice (this is what gets shown to the user)',
+                fr: `Le titre du choix (ce que verra l'utilisateur)`
+              },
               type: 'string',
               title: 'Message'
             },
             value: {
-              description:
-                'The value that your bot gets when the user picks this choice (usually hidden from the user)',
+              description: {
+                en: 'The value that your bot gets when the user picks this choice (usually hidden from the user)',
+                fr: `La valeur que recevra le bot lorsque l'utilisateur choisi cet item (habituellement caché de l'utilisateur)`
+              },
               type: 'string',
               title: 'Value'
             }
@@ -126,7 +140,10 @@ module.exports = {
       },
       markdown: {
         type: 'boolean',
-        title: 'Use markdown',
+        title: {
+          en: 'Use markdown',
+          fr: 'Utiliser markdown'
+        },
         default: true
       },
       ...base.typingIndicators

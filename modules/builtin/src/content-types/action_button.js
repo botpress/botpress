@@ -8,16 +8,25 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_action-button',
   group: 'Built-in Messages',
-  title: 'Action Button',
+  title: {
+    en: 'Action Button',
+    fr: `Bouton d'action`
+  },
 
   jsonSchema: {
-    description: 'A button that triggers an action, often used in cards',
+    description: {
+      en: 'A button that triggers an action, often used in cards',
+      fr: `Un bouton qui déclenche un action, souvent utilisé dans les cartes`
+    },
     type: 'object',
     required: ['action', 'title'],
     properties: {
       title: {
         type: 'string',
-        description: 'Title of the button'
+        title: {
+          en: 'Title of the button',
+          fr: 'Titre du bouton'
+        }
       },
       action: {
         type: 'string',

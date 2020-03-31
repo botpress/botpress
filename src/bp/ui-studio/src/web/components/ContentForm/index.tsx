@@ -42,15 +42,23 @@ const widgets = {
 
 const fields = { i18n_field: TextMl, i18n_array: ArrayMl }
 
-const translateSchema = schema => {
-  const { title, description, properties } = schema
+const translatePropsRecursive = obj => {
+  return _.reduce(
+    obj,
+    (result, value, key) => {
+      // We check specifically if the object has a translation, because title is used in different scopes
+      if ((key === 'title' || key === 'description') && value.en) {
+        result[key] = lang.tr(value)
+      } else if (_.isObject(value) && !_.isArray(value)) {
+        result[key] = translatePropsRecursive(value)
+      } else {
+        result[key] = value
+      }
 
-  return {
-    ...schema,
-    title: lang.tr(title),
-    description: lang.tr(description),
-    properties: _.forIn(properties, p => (p.title = lang.tr(p.title)))
-  }
+      return result
+    },
+    {}
+  )
 }
 
 const ContentForm: FC<Props> = props => {
@@ -122,7 +130,7 @@ const ContentForm: FC<Props> = props => {
       widgets={widgets}
       fields={fields}
       onChange={handleOnChange}
-      schema={translateSchema(props.schema)}
+      schema={translatePropsRecursive(props.schema)}
     />
   )
 }
