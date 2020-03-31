@@ -13,7 +13,7 @@ declare module 'botpress/shared' {
   export function Dropdown(props: DropdownProps): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
   export const lang: {
-    tr(id: string, values?: Record<string, string | PrimitiveType>): string
+    tr(id: string | { [lang: string]: string }, values?: Record<string, string | PrimitiveType>): string
     init()
     extend(langs)
     locale(): string

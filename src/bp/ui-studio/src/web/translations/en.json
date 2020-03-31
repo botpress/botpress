@@ -21,6 +21,7 @@
   "flows": "Flows",
   "configuration": "Config",
   "actionRequired": "Action Required",
+  "paste": "Paste",
 
   "statusBar": {
     "emulator": "Emulator",
@@ -103,6 +104,17 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "nowSaveAuto": "Pssst! Flows now save automatically, no need to save anymore.",
       "sessionStartsHere": "Every user session starts here",
+      "addToLibrary": "Add to library",
+      "addNode": "Add Node",
+
+      "nodeType": {
+        "trigger": "Trigger",
+        "sendMessage": "Send Message",
+        "executeAction": "Execute Action",
+        "listen": "Listen",
+        "split": "Split",
+        "action": "Action"
+      },
 
       "sidePanel": {
         "create": "Create",

@@ -15,7 +15,10 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'code-editor',
     menuIcon: 'code',
-    menuText: 'Code Editor',
+    menuText: {
+      en: 'Code Editor',
+      fr: 'Éditeur de code'
+    },
     noInterface: false,
     fullName: 'Code Editor',
     homepage: 'https://botpress.com'

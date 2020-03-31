@@ -76,7 +76,7 @@ const getUserLocale = () => {
 /**
  * Can either receive an ID, or an object with keys of supported languages
  */
-const lang = (id: string | object, values?: Record<string, string | PrimitiveType>): string => {
+const lang = (id: string | { [lang: string]: string }, values?: Record<string, string | PrimitiveType>): string => {
   if (!id) {
     return ''
   }
