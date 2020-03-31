@@ -22,7 +22,6 @@ interface CssExports {
   'innerWrapper': string;
   'insertBtn': string;
   'multipleInputs': string;
-  'sidePanelForm': string;
   'textInput': string;
   'textarea': string;
 }

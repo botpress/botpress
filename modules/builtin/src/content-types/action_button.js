@@ -16,8 +16,8 @@ module.exports = {
     required: ['action', 'title'],
     properties: {
       title: {
-        description: 'Title of the button',
-        type: 'string'
+        type: 'string',
+        description: 'Title of the button'
       },
       action: {
         type: 'string',

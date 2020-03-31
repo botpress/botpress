@@ -26,7 +26,6 @@ module.exports = {
         title: 'Image'
       },
       actions: {
-        $subtype: 'actions',
         type: 'array',
         title: 'Action Buttons',
         items: ActionButton.jsonSchema

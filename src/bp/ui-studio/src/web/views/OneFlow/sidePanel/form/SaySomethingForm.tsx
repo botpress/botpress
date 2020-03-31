@@ -186,42 +186,40 @@ const SaySomethingForm: FC<Props> = props => {
         <h4>Say Something</h4>
         <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
       </div>
-      <div className={style.sidePanelForm}>
-        <label className={style.fieldWrapper}>
-          <span className={style.formLabel}>Node Name</span>
-          <EditableInput
-            readOnly={readOnly}
-            value={currentFlowNode.name}
-            className={style.textInput}
-            onChanged={renameNode}
-            transform={transformText}
-          />
-        </label>
-        <div className={style.fieldWrapper}>
-          <span className={style.formLabel}>Content Type</span>
-          {categories && (
-            <Dropdown
-              className={style.formSelect}
-              items={categories.map(cat => ({ value: cat.id, label: cat.title }))}
-              defaultItem={contentType}
-              rightIcon="caret-down"
-              onChange={option => {
-                handleContentTypeChange(option.value)
-              }}
-            />
-          )}
-        </div>
-
-        {currentCategory && (
-          <ContentForm
-            schema={currentCategory?.schema.json}
-            uiSchema={currentCategory?.schema.ui}
-            formData={currentFlowNode.formData}
-            isEditing={true}
-            onChange={handleEdit}
+      <label className={style.fieldWrapper}>
+        <span className={style.formLabel}>Node Name</span>
+        <EditableInput
+          readOnly={readOnly}
+          value={currentFlowNode.name}
+          className={style.textInput}
+          onChanged={renameNode}
+          transform={transformText}
+        />
+      </label>
+      <div className={style.fieldWrapper}>
+        <span className={style.formLabel}>Content Type</span>
+        {categories && (
+          <Dropdown
+            className={style.formSelect}
+            items={categories.map(cat => ({ value: cat.id, label: cat.title }))}
+            defaultItem={contentType}
+            rightIcon="caret-down"
+            onChange={option => {
+              handleContentTypeChange(option.value)
+            }}
           />
         )}
       </div>
+
+      {currentCategory && (
+        <ContentForm
+          schema={currentCategory?.schema.json}
+          uiSchema={currentCategory?.schema.ui}
+          formData={currentFlowNode.formData}
+          isEditing={true}
+          onChange={handleEdit}
+        />
+      )}
     </Fragment>
   )
 }

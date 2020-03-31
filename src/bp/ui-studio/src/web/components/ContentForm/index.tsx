@@ -118,9 +118,6 @@ const ContentForm: FC<Props> = props => {
       fields={fields}
       ArrayFieldTemplate={ArrayFieldTemplate}
       onChange={handleOnChange}
-      onSubmit={() => {
-        console.log('submit')
-      }}
     >
       <br />
     </Form>
