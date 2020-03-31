@@ -86,7 +86,7 @@ const Modules: FC<Props> = props => {
           disabled and Botpress is not in production mode, the module will be mounted or unmounted
         </div>
       }
-      superAdmin={true}
+      superAdmin
     >
       {rebootRequired && (
         <Callout intent={Intent.SUCCESS} style={{ marginBottom: 20 }}>

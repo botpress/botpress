@@ -1,4 +1,5 @@
 import { Button, Classes, Dialog, FileInput, FormGroup, H4, Intent, Switch, TextArea } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Fragment, useState } from 'react'
 import api from '~/api'
@@ -50,7 +51,7 @@ const UploadArchive = () => {
       if (useForce) {
         await sendArchive(fileContent)
         closeDialog()
-        toastSuccess(`Changes pushed successfully!`)
+        toastSuccess(lang.tr('admin.versioning.changesPushed'))
         return
       }
 
@@ -62,7 +63,7 @@ const UploadArchive = () => {
 
       await sendArchive(fileContent)
       closeDialog()
-      toastSuccess(`Changes pushed successfully!`)
+      toastSuccess(lang.tr('admin.versioning.changesPushed'))
     } catch (err) {
       toastFailure(err)
     } finally {
@@ -102,17 +103,12 @@ const UploadArchive = () => {
         <Fragment>
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
-              label={<span>Server Archive</span>}
+              label={<span>{lang.tr('admin.versioning.serverArchive')}</span>}
               labelFor="input-archive"
-              helperText={
-                <span>
-                  Select an archive exported from another server. If there are conflicts, you will be able to review
-                  them before pushing.
-                </span>
-              }
+              helperText={<span>{lang.tr('admin.versioning.selectArchivedExported')}</span>}
             >
               <FileInput
-                text={filePath || 'Choose file...'}
+                text={filePath || lang.tr('chooseFile')}
                 onChange={e => readArchive((e.target as HTMLInputElement).files)}
                 inputProps={{ accept: '.tgz' }}
                 fill={true}
@@ -123,7 +119,7 @@ const UploadArchive = () => {
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
                 id="btn-push"
-                text={isLoading ? 'Please wait...' : 'Push changes'}
+                text={isLoading ? lang.tr('admin.versioning.pleaseWait') : lang.tr('admin.versioning.pushChanges')}
                 disabled={!filePath || !fileContent || isLoading}
                 onClick={uploadArchive}
                 intent={Intent.PRIMARY}
@@ -141,12 +137,8 @@ const UploadArchive = () => {
       <Fragment>
         <div className={Classes.DIALOG_BODY}>
           <div>
-            <H4>Conflict warning</H4>
-            <p>
-              Remote has changes that are not synced to your environment. Backup your changes and use "pull" to get
-              those changes on your file system. If you still want to overwrite remote changes, turn on the switch
-              "Force push my changes" then press the button
-            </p>
+            <H4>{lang.tr('admin.versioning.conflictWarning')}</H4>
+            <p>{lang.tr('admin.versioning.conflictMessage')}</p>
             <TextArea value={changes} rows={22} cols={120} />
           </div>
         </div>
@@ -157,12 +149,12 @@ const UploadArchive = () => {
                 id="chk-useForce"
                 checked={useForce}
                 onChange={() => setUseForce(!useForce)}
-                label="Force push my changes"
+                label={lang.tr('admin.versioning.forcePush')}
                 style={{ margin: '3px 20px 0 20px' }}
               />
               <Button
                 id="btn-upload"
-                text={isLoading ? 'Please wait...' : 'Upload'}
+                text={isLoading ? lang.tr('admin.versioning.pleaseWait') : lang.tr('upload')}
                 disabled={!useForce || isLoading}
                 onClick={uploadArchive}
                 intent={Intent.PRIMARY}
@@ -177,10 +169,15 @@ const UploadArchive = () => {
 
   return (
     <Fragment>
-      <Button icon="upload" id="btn-uploadArchive" text="Upload archive" onClick={() => setDialogOpen(true)} />
+      <Button
+        icon="upload"
+        id="btn-uploadArchive"
+        text={lang.tr('admin.versioning.uploadArchive')}
+        onClick={() => setDialogOpen(true)}
+      />
 
       <Dialog
-        title="Upload Archive"
+        title={lang.tr('admin.versioning.uploadArchive')}
         icon="import"
         isOpen={isDialogOpen}
         onClose={closeDialog}

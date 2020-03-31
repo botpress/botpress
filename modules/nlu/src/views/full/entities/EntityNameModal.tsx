@@ -69,7 +69,7 @@ export const EntityNameModal: FC<Props> = props => {
     const entity = _.cloneDeep(props.originalEntity)
     entity.name = name.trim()
     entity.id = getEntityId(name)
-    await props.api.updateEntity(props.originalEntity.id, entity)
+    await props.api.updateEntity(getEntityId(props.originalEntity.name), entity)
     props.onEntityModified(entity)
   }
 

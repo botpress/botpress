@@ -27,6 +27,7 @@ import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvi
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
 import 'expose-loader?BlueprintJsSelect!@blueprintjs/select'
 import 'expose-loader?BotpressShared!ui-shared'
+import { initializeTranslations } from './translations'
 /* eslint-enable */
 
 require('bootstrap/dist/css/bootstrap.css')
@@ -35,7 +36,7 @@ require('./theme.scss')
 
 const token = getToken()
 if (token) {
-  axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
   axios.defaults.headers.common['X-BP-Workspace'] = window.WORKSPACE_ID
 }
 
@@ -46,6 +47,7 @@ if (!window.BOT_ID) {
   // Do not use "import App from ..." as hoisting will screw up styling
   const App = require('./components/App').default
 
+  initializeTranslations()
   ReactDOM.render(
     <Provider store={store}>
       <HotKeys keyMap={keyMap}>

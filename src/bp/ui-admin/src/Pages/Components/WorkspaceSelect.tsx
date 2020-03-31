@@ -1,5 +1,6 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
+import { lang } from 'botpress/shared'
 import { WorkspaceUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -104,7 +105,7 @@ const WorkspaceSelect: FC<Props> = props => {
       <Button
         minimal={true}
         disabled={true}
-        text={`Workspace: ${props.workspaces[0].workspaceName}`}
+        text={lang.tr('admin.workspaceName', { name: props.workspaces[0].workspaceName })}
         className="workspaceButton"
       />
     )
@@ -122,7 +123,7 @@ const WorkspaceSelect: FC<Props> = props => {
     >
       <Button
         minimal={true}
-        text={`Workspace: ${selected.workspaceName}`}
+        text={lang.tr('admin.workspaceName', { name: selected.workspaceName })}
         rightIcon="caret-down"
         className="workspaceButton"
       />
@@ -161,9 +162,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { fetchMyWorkspaces, switchWorkspace, fetchUsers, fetchBots, fetchRoles }
 
-export default withRouter(
-  connect<StateProps, DispatchProps>(
-    mapStateToProps,
-    mapDispatchToProps
-  )(WorkspaceSelect)
-)
+export default withRouter(connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(WorkspaceSelect))

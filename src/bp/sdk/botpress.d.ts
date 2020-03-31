@@ -604,6 +604,8 @@ declare module 'botpress/sdk' {
       /** The date the event was created */
       readonly createdOn: Date
       readonly credentials?: any
+      /** When false, some properties used by the debugger are stripped from the event before storing */
+      debugger?: boolean
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags

@@ -1,13 +1,15 @@
 import { Button, HTMLSelect, IconName, MaybeElement, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
-import { DateRange, DateRangeInput, DateRangePicker, IDateRangeShortcut, TimePrecision } from '@blueprintjs/datetime'
+import { DateRange, DateRangePicker, IDateRangeShortcut } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import { MetricEntry } from '../../backend/typings'
+import { initializeTranslations } from '../translations'
 
 import {
   lastMonthEnd,
@@ -29,6 +31,8 @@ import RadialMetric from './RadialMetric'
 import TimeSeriesChart from './TimeSeriesChart'
 
 interface State {
+  previousRangeMetrics: MetricEntry[]
+  previousDateRange?: DateRange
   metrics: MetricEntry[]
   dateRange?: DateRange
   pageTitle: string
@@ -68,6 +72,14 @@ const fetchReducer = (state: State, action): State => {
       ...state,
       metrics
     }
+  } else if (action.type === 'receivedPreviousRangeMetrics') {
+    const { metrics, dateRange } = action.data
+
+    return {
+      ...state,
+      previousDateRange: dateRange,
+      previousRangeMetrics: metrics
+    }
   } else if (action.type === 'channelSuccess') {
     const { selectedChannel } = action.data
 
@@ -88,13 +100,17 @@ const fetchReducer = (state: State, action): State => {
   }
 }
 
+initializeTranslations()
+
 const Analytics: FC<any> = ({ bp }) => {
-  const [channels, setChannels] = useState(['All Channels', 'API'])
+  const [channels, setChannels] = useState([lang.tr('analytics.channels.all'), lang.tr('analytics.channels.api')])
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
+    previousDateRange: undefined,
     metrics: [],
-    pageTitle: 'Dashboard',
+    previousRangeMetrics: [],
+    pageTitle: lang.tr('analytics.dashboard'),
     selectedChannel: 'all',
     shownSection: 'dashboard'
   })
@@ -120,6 +136,17 @@ const Analytics: FC<any> = ({ bp }) => {
     // tslint:disable-next-line: no-floating-promises
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
+    })
+
+    /* Get the previous range data so we can compare them and see what changed */
+    const startDate = moment(state.dateRange[0])
+    const endDate = moment(state.dateRange[1])
+    const oldEndDate = moment(state.dateRange[0]).subtract(1, 'days')
+    const previousRange = [startDate.subtract(endDate.diff(startDate, 'days') + 1, 'days'), oldEndDate]
+
+    // tslint:disable-next-line: no-floating-promises
+    fetchAnalytics(state.selectedChannel, previousRange).then(metrics => {
+      dispatch({ type: 'receivedPreviousRangeMetrics', data: { dateRange: previousRange, metrics } })
     })
   }, [state.dateRange, state.selectedChannel])
 
@@ -153,6 +180,13 @@ const Analytics: FC<any> = ({ bp }) => {
   const getMetricCount = (metricName: string, subMetric?: string) => {
     const metrics = state.metrics.filter(m => m.metric === metricName && (!subMetric || m.subMetric === subMetric))
     return _.sumBy(metrics, 'value')
+  }
+
+  const getPreviousRangeMetricCount = (metricName: string, subMetric?: string) => {
+    const previousRangeMetrics = state.previousRangeMetrics.filter(
+      m => m.metric === metricName && (!subMetric || m.subMetric === subMetric)
+    )
+    return _.sumBy(previousRangeMetrics, 'value')
   }
 
   const getAvgMsgPerSessions = () => {
@@ -211,21 +245,25 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderEngagement = () => {
+    const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
+    const activeUserCountDiff = getMetricCount('active_users_count') - getPreviousRangeMetricCount('active_users_count')
+
     return (
       <div className={style.metricsContainer}>
-        <NumberMetric name="Active Users" value={getMetricCount('active_users_count')} icon="user" />
         <NumberMetric
-          name={`${getMetricCount('new_users_count')} New Users`}
+          diffFromPreviousRange={newUserCountDiff}
+          previousDateRange={state.previousDateRange}
+          name={lang.tr('analytics.newUsers', { nb: getMetricCount('new_users_count') })}
           value={getNewUsersPercent()}
-          icon="trending-down"
         />
         <NumberMetric
-          name={`${getMetricCount('active_users_count')} Returning Users`}
+          diffFromPreviousRange={activeUserCountDiff}
+          previousDateRange={state.previousDateRange}
+          name={lang.tr('analytics.returningUsers', { nb: getMetricCount('active_users_count') })}
           value={getReturningUsers()}
-          icon="trending-up"
         />
         <TimeSeriesChart
-          name="User Activities"
+          name={lang.tr('analytics.userActivities')}
           data={getMetric('new_users_count')}
           className={style.fullGrid}
           channels={channels}
@@ -243,23 +281,27 @@ const Analytics: FC<any> = ({ bp }) => {
           className={style.threeQuarterGrid}
           channels={channels}
         />
-        <NumberMetric name="Message Exchanged" value={getAvgMsgPerSessions()} iconBottom="chat" />
+        <NumberMetric name={lang.tr('analytics.messageExchanged')} value={getAvgMsgPerSessions()} iconBottom="chat" />
         {isNDU && (
           <NumberMetric
-            name="Workflows Initiated"
+            name={lang.tr('analytics.workflowsInitiated')}
             value={getMetricCount('workflow_started_count')}
             className={style.half}
           />
         )}
-        <NumberMetric name="Questions Asked" value={getMetricCount('msg_sent_qna_count')} className={style.half} />
+        <NumberMetric
+          name={lang.tr('analytics.questionsAsked')}
+          value={getMetricCount('msg_sent_qna_count')}
+          className={style.half}
+        />
         <ItemsList
-          name="Most Used Workflows"
+          name={lang.tr('analytics.mostUsedWorkflows')}
           items={getTopItems('enter_flow_count', 'workflow')}
           itemLimit={10}
           className={cx(style.genericMetric, style.half, style.list)}
         />
         <ItemsList
-          name="Most Asked Questions"
+          name={lang.tr('analytics.mostAskedQuestions')}
           items={getTopItems('msg_sent_qna_count', 'qna')}
           itemLimit={10}
           hasTooltip
@@ -277,7 +319,7 @@ const Analytics: FC<any> = ({ bp }) => {
         <div className={cx(style.genericMetric, style.quarter)}>
           <div>
             <p className={style.numberMetricValue}>{total}</p>
-            <h3 className={style.metricName}>misunderstood messages</h3>
+            <h3 className={style.metricName}>{lang.tr('analytics.misunderstoodMessages')}</h3>
           </div>
           <div>
             <FlatProgressChart value={inside} color="#DE4343" name={`${inside} inside flows`} />
@@ -288,13 +330,13 @@ const Analytics: FC<any> = ({ bp }) => {
           <Fragment>
             <div className={cx(style.genericMetric, style.quarter, style.list, style.multiple)}>
               <ItemsList
-                name="Most Failed Workflows"
+                name={lang.tr('analytics.mostFailedWorkflows')}
                 items={getTopItems('workflow_failed_count', 'workflow')}
                 itemLimit={3}
                 className={style.list}
               />
               <ItemsList
-                name="Most Failed Questions"
+                name={lang.tr('analytics.mostFailedQuestions')}
                 items={getTopItems('feedback_negative_qna', 'qna')}
                 itemLimit={3}
                 hasTooltip
@@ -302,12 +344,14 @@ const Analytics: FC<any> = ({ bp }) => {
               />
             </div>
             <RadialMetric
-              name={`${getMetricCount('workflow_completed_count')} successful workflow completions`}
+              name={lang.tr('analytics.successfulWorkflowCompletions', {
+                nb: getMetricCount('workflow_completed_count')
+              })}
               value={getMetricCount('workflow_completed_count')}
               className={style.quarter}
             />
             <RadialMetric
-              name={`${getMetricCount('feedback_positive_qna')} positive QNA feedback`}
+              name={lang.tr('analytics.positiveQnaFeedback', { nb: getMetricCount('feedback_positive_qna') })}
               value={getMetricCount('feedback_positive_qna')}
               className={style.quarter}
             />
@@ -324,27 +368,27 @@ const Analytics: FC<any> = ({ bp }) => {
   const shortcuts: IDateRangeShortcut[] = [
     {
       dateRange: [thisWeek, now],
-      label: 'This Week'
+      label: lang.tr('analytics.timespan.thisWeek')
     },
     {
       dateRange: [lastWeekStart, lastWeekEnd],
-      label: 'Last Week'
+      label: lang.tr('analytics.timespan.lastWeek')
     },
     {
       dateRange: [thisMonth, now],
-      label: 'This Month'
+      label: lang.tr('analytics.timespan.thisMonth')
     },
     {
       dateRange: [lastMonthStart, lastMonthEnd],
-      label: 'Last Month'
+      label: lang.tr('analytics.timespan.lastMonth')
     },
     {
       dateRange: [thisYear, now],
-      label: 'This Year'
+      label: lang.tr('analytics.timespan.thisYear')
     },
     {
       dateRange: [lastYearStart, lastYearEnd],
-      label: 'Last Year'
+      label: lang.tr('analytics.timespan.lastYear')
     }
   ]
 
@@ -352,9 +396,9 @@ const Analytics: FC<any> = ({ bp }) => {
     <div className={style.mainWrapper}>
       <div className={style.innerWrapper}>
         <div className={style.header}>
-          <h1 className={style.pageTitle}>Analytics</h1>
+          <h1 className={style.pageTitle}>{lang.tr('analytics.title')}</h1>
           <div className={style.filters}>
-            <BpTooltip content="Filter channels" position={Position.LEFT}>
+            <BpTooltip content={lang.tr('analytics.filterChannels')} position={Position.LEFT}>
               <HTMLSelect className={style.filterItem} onChange={handleChannelChange} value={state.selectedChannel}>
                 {channels.map(channel => {
                   return (
@@ -368,7 +412,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
             <Popover>
               <Button icon="calendar" className={style.filterItem}>
-                Date Range
+                {lang.tr('analytics.dateRange')}
               </Button>
               <DateRangePicker
                 onChange={handleDateChange}
@@ -382,15 +426,15 @@ const Analytics: FC<any> = ({ bp }) => {
         </div>
         <div className={style.sectionsWrapper}>
           <div className={cx(style.section, style.half)}>
-            <h2>Engagement</h2>
+            <h2>{lang.tr('analytics.engagement')}</h2>
             {renderEngagement()}
           </div>
           <div className={cx(style.section, style.half)}>
-            <h2>Conversations</h2>
+            <h2>{lang.tr('analytics.conversations')}</h2>
             {renderConversations()}
           </div>
           <div className={style.section}>
-            <h2>Handling and Understanding</h2>
+            <h2>{lang.tr('analytics.handlingAndUnderstanding')}</h2>
             {renderHandlingUnderstanding()}
           </div>
         </div>

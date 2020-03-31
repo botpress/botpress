@@ -1,4 +1,5 @@
 import { Skill } from 'botpress/sdk'
+import { LocalActionDefinition } from 'common/typings'
 import { handleActions } from 'redux-actions'
 import {
   actionsReceived,
@@ -19,12 +20,14 @@ const defaultState = {
     skillId: null,
     action: null,
     editFlowName: null,
-    editNodeId: null
+    editNodeId: null,
+    actions: []
   }
 }
 
 export interface SkillsReducer {
   installed: Skill[]
+  actions: LocalActionDefinition[]
 }
 
 const reducer = handleActions(

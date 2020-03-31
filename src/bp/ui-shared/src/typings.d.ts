@@ -15,6 +15,12 @@ declare module 'botpress/shared' {
   export function Dropdown(props: DropdownProps): JSX.Element
   export function MoreOptions(props: MoreOptionsProps): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
+  export const lang: {
+    tr(id: string, values?: { [variable: string]: any }): string
+    init()
+    extend(langs)
+    locale(): string
+  }
 
   export const style: { TooltipStyle, MoreOptionsStyles }
   export { Option, MoreOptionsItems }
