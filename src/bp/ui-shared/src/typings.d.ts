@@ -12,6 +12,12 @@ declare module 'botpress/shared' {
   export function confirmDialog(message: string | JSX.Element, options: ConfirmDialogOptions): Promise<boolean>
   export function Dropdown(props: DropdownProps): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
+  export const lang: {
+    tr(id: string, values?: Record<string, string | PrimitiveType>): string
+    init()
+    extend(langs)
+    locale(): string
+  }
 
   export const style: { TooltipStyle }
   export { Option }

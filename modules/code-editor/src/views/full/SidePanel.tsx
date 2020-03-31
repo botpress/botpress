@@ -1,4 +1,5 @@
 import { Icon } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -58,20 +59,20 @@ class PanelContent extends React.Component<Props> {
     this.addFiles('raw', `Data`, rawFiles)
 
     const actionFiles = []
-    this.addFiles('bot.actions', `Bot (${window['BOT_NAME']})`, actionFiles)
-    this.addFiles('global.actions', `Global`, actionFiles)
+    this.addFiles('bot.actions', lang.tr('editor.sidePanel.bot', { name: window['BOT_NAME'] }), actionFiles)
+    this.addFiles('global.actions', lang.tr('editor.sidePanel.global'), actionFiles)
 
     const hookFiles = []
-    this.addFiles('bot.hooks', `Bot (${window['BOT_NAME']})`, hookFiles)
-    this.addFiles('global.hooks', 'Global', hookFiles)
+    this.addFiles('bot.hooks', lang.tr('editor.sidePanel.bot', { name: window['BOT_NAME'] }), hookFiles)
+    this.addFiles('global.hooks', lang.tr('editor.sidePanel.global'), hookFiles)
 
     const botConfigFiles = []
-    this.addFiles('bot.bot_config', `Current Bot`, botConfigFiles)
-    this.addFiles('global.main_config', `Global`, botConfigFiles)
+    this.addFiles('bot.bot_config', lang.tr('editor.sidePanel.currentBot'), botConfigFiles)
+    this.addFiles('global.main_config', lang.tr('editor.sidePanel.global'), botConfigFiles)
 
     const moduleConfigFiles = []
-    this.addFiles('bot.module_config', `Current Bot`, moduleConfigFiles)
-    this.addFiles('global.module_config', `Global`, moduleConfigFiles)
+    this.addFiles('bot.module_config', lang.tr('editor.sidePanel.currentBot'), moduleConfigFiles)
+    this.addFiles('global.module_config', lang.tr('editor.sidePanel.global'), moduleConfigFiles)
 
     this.addFiles('hook_example', EXAMPLE_FOLDER_LABEL, hookFiles)
     this.addFiles('action_example', EXAMPLE_FOLDER_LABEL, actionFiles)
@@ -106,7 +107,7 @@ class PanelContent extends React.Component<Props> {
     }
 
     return (
-      <SidePanelSection label="Module Configurations">
+      <SidePanelSection label={lang.tr('editor.sidePanel.moduleConf')}>
         <FileNavigator
           id="moduleConfig"
           files={this.state.moduleConfigFiles}
@@ -126,7 +127,7 @@ class PanelContent extends React.Component<Props> {
     }
 
     return (
-      <SidePanelSection label="Configurations">
+      <SidePanelSection label={lang.tr('editor.sidePanel.conf')}>
         <FileNavigator
           id="config"
           files={this.state.botConfigs}
@@ -164,7 +165,7 @@ class PanelContent extends React.Component<Props> {
     }
 
     return (
-      <SidePanelSection label={'Actions'} actions={actions}>
+      <SidePanelSection label={lang.tr('editor.sidePanel.actions')} actions={actions}>
         <FileNavigator
           id="actions"
           files={this.state.actionFiles}
@@ -183,7 +184,10 @@ class PanelContent extends React.Component<Props> {
     }
 
     return (
-      <SidePanelSection label={'Hooks'} actions={this._buildHooksActions(this.hasPermission('global.hooks', true))}>
+      <SidePanelSection
+        label={lang.tr('editor.sidePanel.hooks')}
+        actions={this._buildHooksActions(this.hasPermission('global.hooks', true))}
+      >
         <FileNavigator
           id="hooks"
           files={this.state.hookFiles}
@@ -203,7 +207,7 @@ class PanelContent extends React.Component<Props> {
 
     return (
       <SidePanelSection
-        label="Raw File Editor"
+        label={lang.tr('editor.sidePanel.rawFileEditor')}
         actions={[
           {
             id: 'btn-add-action',
@@ -246,7 +250,7 @@ class PanelContent extends React.Component<Props> {
 
     const items = [
       {
-        label: 'Event Hooks',
+        label: lang.tr('editor.sidePanel.eventHooks'),
         items: hooks.filter(x =>
           [
             'before_incoming_middleware',
@@ -259,7 +263,7 @@ class PanelContent extends React.Component<Props> {
         )
       },
       {
-        label: 'Bot Hooks',
+        label: lang.tr('editor.sidePanel.botHooks'),
         items: hooks.filter(x =>
           ['after_bot_mount', 'after_bot_unmount', 'before_bot_import', 'on_bot_error'].includes(x.id)
         )
@@ -269,11 +273,11 @@ class PanelContent extends React.Component<Props> {
     if (showGlobalHooks) {
       items.push(
         {
-          label: 'General Hooks',
+          label: lang.tr('editor.sidePanel.generalHooks'),
           items: hooks.filter(x => ['after_server_start', 'on_incident_status_changed'].includes(x.id))
         },
         {
-          label: 'Pipeline Hooks',
+          label: lang.tr('editor.sidePanel.pipelineHooks'),
           items: hooks.filter(x => ['on_stage_request', 'after_stage_changed'].includes(x.id))
         }
       )
@@ -297,7 +301,11 @@ class PanelContent extends React.Component<Props> {
           <FileStatus />
         ) : (
           <React.Fragment>
-            <SearchBar icon="filter" placeholder="Filter files" onChange={this.props.setFilenameFilter} />
+            <SearchBar
+              icon="filter"
+              placeholder={lang.tr('editor.sidePanel.filterFiles')}
+              onChange={this.props.setFilenameFilter}
+            />
             {isAdvanced ? (
               this.renderSectionRaw()
             ) : (

@@ -1,0 +1,51 @@
+{
+  "nlu": {
+    "intents": {
+      "intents": "Intents",
+      "summaryPlaceholder": "Summary of intent",
+      "utterancePlaceholder": "Type a sentence",
+      "deleteConfirmMessage": "Are you sure you want to delete the intent \"{intentName}\"?",
+      "deleteConfirmLabel": "Delete",
+      "actionErrorMessage": "Could not {action} intent",
+      "renameActionLabel": "Rename",
+      "duplicateActionLabel": "Duplicate",
+      "deleteActionLabel": "Delete",
+      "nameLabel": "Intent Name",
+      "namePlaceholder": "Choose a name for your intent",
+      "nameDupe": "An intent with that name already exists. Please choose another one.",
+      "createLabel": "Create intent",
+      "chooseContainerLabel": "Choose a different intent for the condition",
+      "hintIgnored": "This intent will be ignored, start adding utterances to make it trainable.",
+      "hintExactMatch": "This intent will use {exactOnly}. To enable machine learning, add at least {nb} more utterances.",
+      "exactOnly": "exact match only",
+      "hintResilient": "Add {nb} more utterances to make NLU more resilient.",
+      "selectIntentLabel": "Select an existing intent",
+      "selectIntentNoResults": "No such intent",
+      "contextSelectorTooltip": "You can type in the select bar to add new contexts.",
+      "contextSelectorCreateMissing": "Create \"{query}\"",
+      "contextSelectorPlaceholder": "Select context..."
+    },
+    "slots": {
+      "new": "Create slot",
+      "save": "Save slot",
+      "emptyState": "No slots defined for this intent",
+      "noSlotsToTag": "Selection can't be tagged. Define a slot first.",
+      "tagSelectionLabel": "Tag selection",
+      "tagSelectionMessage": "Click on a slot or use numbers as keyboard shortcuts",
+      "nameLabel": "Slot name",
+      "namePlaceholder": "Type a name here",
+      "entitiesLabel": "Associated Entities",
+      "editTitle": "Edit Slot",
+      "createTitle": "Create a slot for your intent",
+      "delete": "Delete",
+      "edit": "Edit",
+      "deleteMessage": "Are you sure you want to delete this slot and all associated tagging from all utterances?"
+    },
+    "entities": {
+      "entities": "Entities",
+      "selectPlaceholder": "Select entities..."
+    },
+    "title": "Language Undertanding",
+    "description": "Use Botpress native Natural language understanding engine to make your bot smarter."
+  }
+}

@@ -1,5 +1,6 @@
 import { Icon, Tab, Tabs, Tag } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
+import { lang } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -117,13 +118,13 @@ const NLU: FC<Props> = props => {
       <SidePanel>
         <Tabs id="nlu-tabs" className={style.headerTabs} defaultSelectedTabId="intents" large={false}>
           <Tab id="intents" panel={intentsPanel}>
-            <span>Intents</span>{' '}
+            <span>{lang.tr('nlu.intents.intents')}&nbsp;</span>
             <Tag large={false} round={true} minimal={true}>
               {intents.length}
             </Tag>
           </Tab>
           <Tab id="entities" panel={entitiesPanel}>
-            <span>Entities</span>{' '}
+            <span>{lang.tr('nlu.entities.entities')}</span>{' '}
             <Tag large={false} round={true} minimal={true}>
               {customEntities.length}
             </Tag>
@@ -137,8 +138,8 @@ const NLU: FC<Props> = props => {
         {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
-            title="Understanding"
-            description="Use Botpress native Natural language understanding engine to make your bot smarter."
+            title={lang.tr('nlu.title')}
+            description={lang.tr('nlu.description')}
           />
         )}
         {!!intents.length && currentItem && currentItem.type === 'intent' && (

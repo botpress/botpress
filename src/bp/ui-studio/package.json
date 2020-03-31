@@ -61,6 +61,7 @@
     "react-highlight-words": "^0.16.0",
     "react-hotkeys": "^1.1.4",
     "react-icons": "^3.8.0",
+    "react-intl": "^3.12.1",
     "react-json-tree": "^0.11.2",
     "react-jsonschema-form": "^1.8.1",
     "react-loaders": "^3.0.1",

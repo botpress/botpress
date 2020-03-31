@@ -6,6 +6,7 @@ import EditableInput from '../common/EditableInput'
 
 import ActionSection from './ActionSection'
 import TransitionSection from './TransitionSection'
+import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
@@ -43,14 +44,14 @@ export default class StandardNodePropertiesPanel extends Component {
               eventKey="on_enter"
               title={
                 <Fragment>
-                  <Badge>{(node.onEnter && node.onEnter.length) || 0}</Badge> On Enter
+                  <Badge>{(node.onEnter && node.onEnter.length) || 0}</Badge> {lang.tr('studio.flow.node.onEnter')}
                 </Fragment>
               }
             >
               <ActionSection
                 readOnly={readOnly}
                 items={node.onEnter}
-                header="On Enter"
+                header={lang.tr('studio.flow.node.onEnter')}
                 onItemsUpdated={items => this.props.updateNode({ onEnter: items })}
                 copyItem={item => this.props.copyFlowNodeElement({ action: item })}
                 pasteItem={() => this.props.pasteFlowNodeElement('onEnter')}
@@ -63,14 +64,15 @@ export default class StandardNodePropertiesPanel extends Component {
               eventKey="on_receive"
               title={
                 <Fragment>
-                  <Badge>{(node.onReceive && node.onReceive.length) || 0}</Badge> On Receive
+                  <Badge>{(node.onReceive && node.onReceive.length) || 0}</Badge>{' '}
+                  {lang.tr('studio.flow.node.onReceive')}
                 </Fragment>
               }
             >
               <ActionSection
                 readOnly={readOnly}
                 items={node.onReceive}
-                header="On Receive"
+                header={lang.tr('studio.flow.node.onReceive')}
                 waitable
                 onItemsUpdated={items => this.props.updateNode({ onReceive: items })}
                 copyItem={item => this.props.copyFlowNodeElement({ action: item })}
@@ -83,14 +85,14 @@ export default class StandardNodePropertiesPanel extends Component {
             eventKey="transitions"
             title={
               <Fragment>
-                <Badge>{(node.next && node.next.length) || 0}</Badge> Transitions
+                <Badge>{(node.next && node.next.length) || 0}</Badge> {lang.tr('studio.flow.node.transitions')}
               </Fragment>
             }
           >
             <TransitionSection
               readOnly={readOnly}
               items={node.next}
-              header="Transitions"
+              header={lang.tr('studio.flow.node.transitions')}
               currentFlow={this.props.flow}
               currentNodeName={node.name}
               subflows={this.props.subflows}

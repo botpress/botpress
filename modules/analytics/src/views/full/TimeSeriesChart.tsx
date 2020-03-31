@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
@@ -45,7 +46,7 @@ const TimeSeriesChart: FC<Props> = props => {
         <h3 className={style.metricName}>
           <span>{name}</span>
         </h3>
-        {!data.length && <p className={style.emptyState}>No data available</p>}
+        {!data.length && <p className={style.emptyState}>{lang.tr('analytics.noDataAvailable')}</p>}
         {!!data.length && (
           <ResponsiveContainer height={160}>
             <AreaChart data={mapDataForCharts(data)}>
