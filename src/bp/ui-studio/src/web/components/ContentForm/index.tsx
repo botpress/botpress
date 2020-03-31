@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import Form from 'react-jsonschema-form'
@@ -40,6 +41,17 @@ const widgets = {
 }
 
 const fields = { i18n_field: TextMl, i18n_array: ArrayMl }
+
+const translateSchema = schema => {
+  const { title, description, properties } = schema
+
+  return {
+    ...schema,
+    title: lang.tr(title),
+    description: lang.tr(description),
+    properties: _.forIn(properties, p => (p.title = lang.tr(p.title)))
+  }
+}
 
 const ContentForm: FC<Props> = props => {
   const handleOnChange = event => {
@@ -110,6 +122,7 @@ const ContentForm: FC<Props> = props => {
       widgets={widgets}
       fields={fields}
       onChange={handleOnChange}
+      schema={translateSchema(props.schema)}
     />
   )
 }
