@@ -26,9 +26,9 @@
       "contextSelectorPlaceholder": "Sélectionnez une catégorie"
     },
     "entities": {
-      "entities": "Entities"
+      "entities": "Entités"
     },
-    "title": "Language Undertanding",
-    "description": "Use Botpress native Natural language understanding engine to make your bot smarter."
+    "title": "Compréhension du langage",
+    "description": "Utilisez le moteur de compréhension du langage naturel natif de Botpress pour rendre votre bot plus intelligent."
   }
 }
