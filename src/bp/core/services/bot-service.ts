@@ -215,7 +215,7 @@ export class BotService {
     }
 
     if (actualBot.defaultLanguage !== updatedBot.defaultLanguage) {
-      await this.cms.translateContentProps(botId, actualBot.defaultLanguage, updatedBot.defaultLanguage)
+      await this.cms.translateContentProps(botId, actualBot.defaultLanguage, updatedBot.defaultLanguage!)
     }
 
     // This will regenerate previews for all the bot's languages
