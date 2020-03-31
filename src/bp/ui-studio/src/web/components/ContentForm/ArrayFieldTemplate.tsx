@@ -6,20 +6,21 @@ import SmartInput from '../SmartInput'
 
 import style from './style.scss'
 
-const Variations = props => {
+const ArrayFieldTemplate = props => {
   const { canAdd, onAddClick, items, schema } = props
 
   const renderDeleteBtn = (element, className?) => (
-    <Tooltip content="Delete" position={Position.TOP}>
-      <Button
-        icon="trash"
-        minimal
-        small
-        intent={Intent.DANGER}
-        className={className}
-        onClick={element.onDropIndexClick(element.index)}
-      ></Button>
-    </Tooltip>
+    <div className={className}>
+      <Tooltip content="Delete" position={Position.TOP}>
+        <Button
+          icon="trash"
+          minimal
+          small
+          intent={Intent.DANGER}
+          onClick={element.onDropIndexClick(element.index)}
+        ></Button>
+      </Tooltip>
+    </div>
   )
 
   return (
@@ -52,11 +53,11 @@ const Variations = props => {
 
       {canAdd && (
         <Button onClick={onAddClick} className={style.addContentBtn} large={true}>
-          Add Alternates
+          Add {schema.title}
         </Button>
       )}
     </div>
   )
 }
 
-export default Variations
+export default ArrayFieldTemplate

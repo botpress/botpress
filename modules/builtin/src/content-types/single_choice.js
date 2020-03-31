@@ -111,13 +111,11 @@ module.exports = {
           required: ['title', 'value'],
           properties: {
             title: {
-              description: 'The title of the choice (this is what gets shown to the user)',
               type: 'string',
               title: 'Message'
             },
             value: {
-              description:
-                'The value that your bot gets when the user picks this choice (usually hidden from the user)',
+              description: 'The value that your bot gets when the user picks this choice (usually hidden from the user)',
               type: 'string',
               title: 'Value'
             }

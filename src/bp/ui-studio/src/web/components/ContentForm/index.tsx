@@ -6,13 +6,13 @@ import SmartInput from '~/components/SmartInput'
 import withLanguage from '../Util/withLanguage'
 
 import ArrayMl from './i18n/Array'
-import TextMl from './i18n/Text'
+import renderWrapped from './i18n/I18nWrapper'
 import style from './style.scss'
+import ArrayFieldTemplate from './ArrayFieldTemplate'
 import FlowPickWidget from './FlowPickWidget'
 import RefWidget from './RefWidget'
-import UploadField from './UploadField'
+import Text from './Text'
 import UploadWidget from './UploadWidget'
-import Variations from './Variations'
 
 interface Props {
   contentLang: string
@@ -43,9 +43,9 @@ const widgets = {
 }
 
 const fields = {
-  i18n_field: TextMl,
+  i18n_field: renderWrapped(Text),
   i18n_array: ArrayMl,
-  upload_field: UploadField
+  text_field: Text
 }
 
 const ContentForm: FC<Props> = props => {
@@ -116,7 +116,7 @@ const ContentForm: FC<Props> = props => {
       safeRenderCompletion={true}
       widgets={widgets}
       fields={fields}
-      ArrayFieldTemplate={Variations}
+      ArrayFieldTemplate={ArrayFieldTemplate}
       onChange={handleOnChange}
       onSubmit={() => {
         console.log('submit')

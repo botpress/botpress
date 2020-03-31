@@ -22,7 +22,10 @@ interface CssExports {
   'out': string;
   'outRouting': string;
   'ports': string;
+  'primaryText': string;
+  'secondaryText': string;
   'section-next': string;
+  'textWrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

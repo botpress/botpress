@@ -174,24 +174,30 @@
   margin-top: 8px;
 }
 
-.textInput, .textarea {
-  background: #fff;
-  border: 1px solid $border;
-  border-radius: 3px;
-  color: $main-dark-color;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.25;
-  padding: 8px 10px;
-  transition: border 0.3s;
+.textInput, .textarea, :global(.form-control) {
+  background: #fff !important;
+  border: 1px solid $border !important;
+  border-radius: 3px !important;
+  color: $main-dark-color !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 1.25 !important;
+  padding: 8px 10px !important;
+  transition: border 0.3s !important;
   width: 100% !important;
 
   &:focus {
-    border-color: $border-active
+    border-color: $border-active !important;
+    box-shadow: none !important;
   }
 }
 
-.textarea {
+select:global(.form-control) {
+  box-shadow: none;
+  height: 38px;
+}
+
+.textarea, :global(.form-control) {
   resize: none;
 }
 
@@ -206,6 +212,20 @@
   font-weight: 400;
   line-height: 1.25;
   padding: 8px 10px;
+
+  :global(fieldset > .form-group:first-of-type .control-label) {
+    margin-top: 0;
+  }
+}
+
+:global(.form-group .checkbox label) {
+  display: flex;
+  align-items: center;
+
+  :global(input) {
+    margin-right: 5px;
+    position: relative !important;
+  }
 }
 
 .addContentBtn {

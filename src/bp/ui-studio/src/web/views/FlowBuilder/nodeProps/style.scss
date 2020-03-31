@@ -158,7 +158,7 @@ h5 {
     margin-bottom: 0;
   }
 
-  .fieldWrapper {
+  .fieldWrapper, :global(.form-group) {
     display: block;
     line-height: 0;
   }
@@ -216,7 +216,11 @@ h5 {
     }
   }
 
-  .formLabel {
+  :global(.field-description) {
+    line-height: 1;
+  }
+
+  .formLabel, :global(.control-label) {
     color: $main-dark-color;
     display: block;
     font-size: 14px;

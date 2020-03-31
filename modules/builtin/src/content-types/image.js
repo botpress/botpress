@@ -155,9 +155,6 @@ module.exports = {
   },
 
   uiSchema: {
-    image: {
-      'ui:field': 'upload_field'
-    },
     title: {
       'ui:field': 'i18n_field'
     }

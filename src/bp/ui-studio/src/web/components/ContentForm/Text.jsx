@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 
-import { renderWrapped } from './I18nManagerFunctional'
-import style from '../style.scss'
+import style from './style.scss'
 
 const Text = props => {
   const [value, setValue] = useState('')
@@ -11,7 +10,7 @@ const Text = props => {
     setValue(props.formData)
   }, [props.formData])
 
-  return renderWrapped(
+  return (
     <div className={style.fieldWrapper}>
       <span className={style.formLabel}>
         {props.schema.title} {props.required && '*'}
@@ -25,8 +24,7 @@ const Text = props => {
           isSideForm
         />
       </div>
-    </div>,
-    props
+    </div>
   )
 }
 

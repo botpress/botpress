@@ -5,7 +5,7 @@ import { AccessControl } from '~/components/Shared/Utils'
 
 import style from './style.scss'
 
-const UploadField: FC<any> = props => {
+const UploadWidget: FC<any> = props => {
   const uploadReducer = (state, action) => {
     if (action.type === 'uploadStart') {
       return {
@@ -52,12 +52,12 @@ const UploadField: FC<any> = props => {
   const { showUploadBtn, error, uploading } = state
 
   useEffect(() => {
-    if (!props.formData) {
+    if (!props.value) {
       showUpload()
     } else {
       hideUpload()
     }
-  }, [props.formData])
+  }, [props.value])
 
   const showUpload = () => {
     dispatch({ type: 'changeShowUploadBtn', data: { showUploadBtn: true } })
@@ -89,7 +89,7 @@ const UploadField: FC<any> = props => {
     return null
   }
 
-  const { formData } = props
+  const { value } = props
 
   return (
     <AccessControl
@@ -98,9 +98,8 @@ const UploadField: FC<any> = props => {
       fallback={<em>You don&apos;t have permission to upload files for this bot. Talk to your team owner.</em>}
     >
       <div className={style.fieldWrapper}>
-        <span className={style.formLabel}>Image*</span>
         {!showUploadBtn && (
-          <div style={{ backgroundImage: `url('${formData}')` }} className={style.imgWrapper}>
+          <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
             <div className={style.imgWrapperActions}>
               <Tooltip content="Delete" position={Position.TOP}>
                 <Button minimal small intent={Intent.DANGER} icon="trash" onClick={showUpload}></Button>
@@ -120,7 +119,7 @@ const UploadField: FC<any> = props => {
                 onChange: startUpload
               }}
             />
-            {formData && (
+            {value && (
               <Button className={style.alignBtnRight} minimal small onClick={hideUpload}>
                 Cancel
               </Button>
@@ -133,4 +132,4 @@ const UploadField: FC<any> = props => {
   )
 }
 
-export default UploadField
+export default UploadWidget

@@ -1,5 +1,8 @@
+import { style } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
+import { connect } from 'react-redux'
+import { fetchContentCategories } from '~/actions'
 import withLanguage from '~/components/Util/withLanguage'
 import { getFormData } from '~/util/NodeFormData'
 
@@ -8,7 +11,7 @@ import nodeStyle from '../style.scss'
 
 import { SaySomethingNodeModel } from './index'
 
-interface Props {
+interface OwnProps {
   node: SaySomethingNodeModel
   contentType: string
   data: any
@@ -16,18 +19,44 @@ interface Props {
   defaultLanguage: string
 }
 
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+type Props = DispatchProps & StateProps & OwnProps
+
 const SayNodeContent: FC<Props> = props => {
   const { node, contentLang, defaultLanguage } = props
-  const { text, variations, contentType, title, image } = getFormData(node || {}, contentLang, defaultLanguage)
+  const { text, variations, contentType, items, ...nodeContent } = getFormData(node || {}, contentLang, defaultLanguage)
   const variationsCount = variations?.filter(Boolean)?.length
+  const currentCategory = props.categories?.find(category => category.id === contentType)
 
-  if (contentType === 'builtin_image') {
+  console.log(Object.keys(currentCategory?.schema?.json?.properties || {}))
+
+  useEffect(() => {
+    if (!props.categories?.length) {
+      props.fetchContentCategories()
+    }
+  }, [contentType])
+
+  const renderCard = (item, index?) => {
+    const { image, title, subtitle } = item
+
     return (
-      <div className={nodeStyle.contentImgWrapper}>
+      <div key={index} className={nodeStyle.contentImgWrapper}>
         {image && <div style={{ backgroundImage: `url('${image}')` }} className={nodeStyle.img}></div>}
-        {_.truncate(title, { length: 55 })}
+        <div className={nodeStyle.textWrapper}>
+          {title && <span className={nodeStyle.primaryText}>{title}</span>}
+          {subtitle && <span className={nodeStyle.secondaryText}>{_.truncate(subtitle, { length: 25 })}</span>}
+        </div>
       </div>
     )
+  }
+
+  if (contentType === 'builtin_image' || contentType === 'builtin_card') {
+    return renderCard(nodeContent)
+  }
+
+  if (contentType === 'builtin_carousel') {
+    return items.map((item, index) => renderCard(item, index))
   }
 
   return (
@@ -38,4 +67,12 @@ const SayNodeContent: FC<Props> = props => {
   )
 }
 
-export default withLanguage(SayNodeContent)
+const mapStateToProps = state => ({
+  categories: state.content.categories
+})
+
+const mapDispatchToProps = {
+  fetchContentCategories
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(SayNodeContent))

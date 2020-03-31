@@ -1,4 +1,3 @@
-import { Button as BPButton, Checkbox } from '@blueprintjs/core'
 import { Dropdown, MoreOptions, MoreOptionsItems, style as sharedStyle } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
@@ -16,12 +15,9 @@ import ContentForm from '~/components/ContentForm'
 import { toastInfo } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
-import { getFormData, isFormEmpty } from '~/util/NodeFormData'
 import EditableInput from '~/views/FlowBuilder/common/EditableInput'
 
 import style from '../style.scss'
-
-import SaySomethingTextForm from './TextForm'
 
 const { MoreOptionsStyles } = sharedStyle
 
@@ -44,6 +40,7 @@ export interface FormState {
   error: any
 }
 
+const shownCategories = ['builtin_text', 'builtin_image', 'builtin_carousel', 'builtin_card']
 const defaultFormState: FormState = {
   contentType: 'builtin_text',
   error: null
@@ -115,8 +112,9 @@ const SaySomethingForm: FC<Props> = props => {
     dispatchForm({ type: 'updateContentType', data: { value, initial } })
   }
 
-  const { currentFlowNode, readOnly, categories } = props
+  const { currentFlowNode, readOnly } = props
   const { contentType } = formState
+  const categories = props.categories?.filter(cat => shownCategories.includes(cat.id))
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -132,6 +130,29 @@ const SaySomethingForm: FC<Props> = props => {
     }
   ]
 
+  const goThroughObjectAndLeaveOutIndex = (properties, indexToRemove) => {
+    const returnObject = {}
+
+    Object.keys(properties).forEach(key => {
+      if (key !== indexToRemove) {
+        returnObject[key] =
+          Object.prototype.toString.call(properties[key]) === '[object Object]'
+            ? goThroughObjectAndLeaveOutIndex(properties[key], indexToRemove)
+            : properties[key]
+      }
+    })
+
+    return returnObject
+  }
+
+  const removeDescriptions = json => {
+    const { properties, ...leftover } = json
+
+    const newProperties = goThroughObjectAndLeaveOutIndex(properties, 'description')
+
+    return { properties: newProperties, ...leftover }
+  }
+
   const getCurrentCategory = () => {
     if (!contentType || !categories) {
       return
@@ -139,14 +160,14 @@ const SaySomethingForm: FC<Props> = props => {
 
     const {
       schema: {
-        json: { description, ...json },
+        json: { description, title, ...json },
         ...schema
       },
       ...category
     } = categories?.find(cat => cat.id === contentType)
 
-    // just a way to remove the description since we don't want it in the sidebar form, but still want it in the CMS
-    return { ...category, schema: { json, ...schema } }
+    // just a way to remove the descriptions since we don't want it in the sidebar form, but still want it in the CMS
+    return { ...category, schema: { json: removeDescriptions(json), ...schema } }
   }
 
   const currentCategory = getCurrentCategory()
@@ -157,9 +178,6 @@ const SaySomethingForm: FC<Props> = props => {
         formData: event.formData
       })
     }
-  }
-  const handleSave = event => {
-    console.log('save', event.formData)
   }
 
   return (
@@ -201,48 +219,8 @@ const SaySomethingForm: FC<Props> = props => {
             formData={currentFlowNode.formData}
             isEditing={true}
             onChange={handleEdit}
-            onSubmit={handleSave}
           />
         )}
-        {/*
-          {contentType && contentType === 'builtin_text' && (
-            <SaySomethingTextForm formState={formState} dispatchForm={dispatchForm} />
-          )}
-        <BPButton
-          minimal
-          rightIcon={showAdvancedSettings ? 'chevron-up' : 'chevron-down'}
-          className={style.advancedSettingsBtn}
-          onClick={() => {
-            setShowAdvancedSettings(!showAdvancedSettings)
-          }}
-        >
-          Advanced Settings
-        </BPButton>
-        {showAdvancedSettings && (
-          <Fragment>
-            <Checkbox
-              inline
-              className={style.checkboxLabel}
-              name="markdown"
-              checked={markdown || true}
-              onChange={() => dispatchForm({ type: 'updateData', data: { field: 'markdown', value: !markdown } })}
-            >
-              Use Markdown
-              <a href="https://snarky.surge.sh/" target="_blank">
-                Learn more
-              </a>
-            </Checkbox>
-
-            <Checkbox
-              inline
-              className={style.checkboxLabel}
-              label="Display Typing Indicators"
-              name="typing"
-              checked={typing || true}
-              onChange={() => dispatchForm({ type: 'updateData', data: { field: 'typing', value: !typing } })}
-            />
-          </Fragment>
-        )*/}
       </div>
     </Fragment>
   )
