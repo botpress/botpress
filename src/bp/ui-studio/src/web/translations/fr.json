@@ -76,6 +76,8 @@
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
       "nowSaveAuto": "Pssst! Les flows sont désormais enregistrés automatiquement, plus besoin d'enregistrer.",
       "sessionStartsHere": "Chaque session utilisateur commence ici",
+      "flowWideTransitions": "transitions à l'échelle du flow",
+      "flowWideOnReceives": "réceptions à l'échelle du flow",
 
       "sidePanel": {
         "create": "Créer",
@@ -152,7 +154,7 @@
         "executeCode": "⚡ Exécuter du code",
         "finishUpdateAction": "Mettre à jour l'action",
         "finishAddAction": "Ajouter action",
-        "unknownParameterType": "`⚠️ Type de paramètre inconnu ({type}). Ce paramètre sera ignoré.",
+        "unknownParameterType": "⚠️ Type de paramètre inconnu ({type}). Ce paramètre sera ignoré.",
         "valuePlaceholder": "Valeur",
         "waitForUserMessage": "Attendre le message de l'utilisateur",
         "onReceive": "Sur réception",
