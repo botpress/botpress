@@ -17,7 +17,7 @@ import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import EditableInput from '~/views/FlowBuilder/common/EditableInput'
 
-import style from '../style.scss'
+import style from './style.scss'
 
 const { MoreOptionsStyles } = sharedStyle
 

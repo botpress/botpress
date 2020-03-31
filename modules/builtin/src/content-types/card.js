@@ -35,12 +35,6 @@ module.exports = {
   },
 
   uiSchema: {
-    title: {
-      'ui:widget': 'textarea'
-    },
-    subtitle: {
-      'ui:widget': 'textarea'
-    }
   },
 
   computePreviewText: formData => formData.title && `Card: ${formData.title}`,

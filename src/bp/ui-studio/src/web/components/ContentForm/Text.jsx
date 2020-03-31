@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 
-import style from './style.scss'
+import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 const Text = props => {
   const [value, setValue] = useState('')

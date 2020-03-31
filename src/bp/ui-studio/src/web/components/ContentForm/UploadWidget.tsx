@@ -2,8 +2,7 @@ import { Button, FileInput, Intent, Position, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import React, { FC, Fragment, useEffect, useReducer } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
-
-import style from './style.scss'
+import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 const UploadWidget: FC<any> = props => {
   const uploadReducer = (state, action) => {

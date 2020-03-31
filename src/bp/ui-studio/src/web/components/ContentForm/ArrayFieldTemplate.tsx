@@ -1,10 +1,9 @@
 import { Button, Intent, Position, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import React from 'react'
+import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 import SmartInput from '../SmartInput'
-
-import style from './style.scss'
 
 const ArrayFieldTemplate = props => {
   const { canAdd, onAddClick, items, schema } = props

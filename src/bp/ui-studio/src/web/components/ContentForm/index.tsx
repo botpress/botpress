@@ -2,12 +2,12 @@ import _ from 'lodash'
 import React, { FC } from 'react'
 import Form from 'react-jsonschema-form'
 import SmartInput from '~/components/SmartInput'
+import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 import withLanguage from '../Util/withLanguage'
 
 import ArrayMl from './i18n/Array'
 import renderWrapped from './i18n/I18nWrapper'
-import style from './style.scss'
 import ArrayFieldTemplate from './ArrayFieldTemplate'
 import FlowPickWidget from './FlowPickWidget'
 import RefWidget from './RefWidget'
