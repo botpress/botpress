@@ -1,4 +1,3 @@
-import { PrimitiveType } from 'intl-messageFormat'
 import { merge } from 'lodash'
 import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
