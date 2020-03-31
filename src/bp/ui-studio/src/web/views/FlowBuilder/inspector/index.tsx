@@ -5,10 +5,7 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
   closeFlowNodeProps,
-  copyFlowNode,
   copyFlowNodeElement,
-  fetchContentCategories,
-  pasteFlowNode,
   pasteFlowNodeElement,
   refreshFlowsLinks,
   requestEditSkill,
@@ -27,13 +24,11 @@ import style from './style.scss'
 
 interface Props {
   buffer: any
-  categories: any
   closeFlowNodeProps: any
   copyFlowNode: any
   copyFlowNodeElement: any
   currentFlow: any
   currentFlowNode: any
-  fetchContentCategories: any
   flows: any
   history: any
   onDeleteSelectedElements: () => void
@@ -79,13 +74,9 @@ class Inspector extends Component<Props> {
   renderNodeProperties(flowType: string) {
     const {
       buffer,
-      categories,
-      copyFlowNode,
       currentFlow,
       currentFlowNode,
       onDeleteSelectedElements,
-      fetchContentCategories,
-      pasteFlowNode,
       readOnly,
       refreshFlowsLinks,
       requestEditSkill,
@@ -161,8 +152,7 @@ const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   buffer: state.flows.buffer,
-  user: state.user,
-  categories: state.content.categories
+  user: state.user
 })
 
 const mapDispatchToProps = {
@@ -170,12 +160,9 @@ const mapDispatchToProps = {
   requestEditSkill,
   copyFlowNodeElement,
   pasteFlowNodeElement,
-  fetchContentCategories,
   closeFlowNodeProps,
   updateFlowNode,
-  refreshFlowsLinks,
-  copyFlowNode,
-  pasteFlowNode
+  refreshFlowsLinks
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Inspector)
