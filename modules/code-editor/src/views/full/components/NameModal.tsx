@@ -1,4 +1,5 @@
 import { Button, Callout, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -54,15 +55,17 @@ const NameModal: FC<Props> = props => {
       onClose={closeModal}
       transitionDuration={0}
       icon={props.selectedFile ? 'edit' : 'add'}
-      title={props.selectedFile ? 'Rename or move file' : 'Create new file'}
+      title={
+        props.selectedFile ? lang.tr('editor.nameModal.renameOrMoveFile') : lang.tr('editor.nameModal.createNewFile')
+      }
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label="File Name (including any directory)">
+          <FormGroup label={lang.tr('editor.nameModal.fileName')}>
             <InputGroup
               id="input-name"
               tabIndex={1}
-              placeholder="Choose a name for the file"
+              placeholder={lang.tr('editor.nameModal.chooseNameForFile')}
               value={name}
               onChange={e => setName(sanitizeName(e.currentTarget.value))}
               required
@@ -70,11 +73,7 @@ const NameModal: FC<Props> = props => {
             />
           </FormGroup>
 
-          {alreadyExists && (
-            <Callout intent={Intent.WARNING}>
-              A file with that name already exists. Please choose another one or delete it before.
-            </Callout>
-          )}
+          {alreadyExists && <Callout intent={Intent.WARNING}>{lang.tr('editor.nameModal.nameAlreadyExists')}</Callout>}
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>
@@ -82,7 +81,7 @@ const NameModal: FC<Props> = props => {
             <Button
               type="submit"
               id="btn-submit"
-              text="Submit"
+              text={lang.tr('submit')}
               intent={Intent.PRIMARY}
               onClick={submit}
               disabled={!name || alreadyExists}

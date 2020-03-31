@@ -1,4 +1,5 @@
 import { FormGroup, InputGroup } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -17,12 +18,12 @@ export const ActionParameter: FC<{
       label={name + (required ? ' *' : '')}
       labelFor={id}
       labelInfo={type && `(${type})`}
-      helperText={unknownType ? `⚠️ Unknown parameter type (${type}). This parameter will be ignored.` : description}
+      helperText={unknownType ? lang.tr('studio.flow.node.unknownParameterType', { type }) : description}
       intent={unknownType ? 'warning' : 'none'}
     >
       <InputGroup
         id={id}
-        placeholder="Value"
+        placeholder={lang.tr('studio.flow.node.valuePlaceholder')}
         value={parameterValue.value || parameterValue.definition.default?.toString()}
         onChange={e => onValueUpdated({ ...parameterValue, value: e.target.value })}
         disabled={unknownType}

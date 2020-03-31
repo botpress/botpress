@@ -48,7 +48,6 @@ export const Slots: SFC<Props> = props => {
 
   return (
     <div className={style.subSection}>
-      <H5 color={Colors.DARK_GRAY5}>Slots</H5>
       <HTMLTable condensed className={style.summaryTable}>
         <thead>
           <tr>

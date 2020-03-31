@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
+import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './language/language-identifier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
@@ -11,7 +12,6 @@ import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
-import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -95,8 +95,9 @@ async function preprocessInput(
     throw new InvalidLanguagePredictorError(usedLanguage)
   }
 
+  const contexts = input.includedContexts.filter(x => predictors.contexts.includes(x))
   const stepOutput: PredictStep = {
-    includedContexts: _.isEmpty(input.includedContexts) ? predictors.contexts : input.includedContexts,
+    includedContexts: _.isEmpty(contexts) ? predictors.contexts : contexts,
     rawText: input.sentence,
     detectedLanguage,
     languageCode: usedLanguage
@@ -146,7 +147,12 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
 async function predictContext(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
   const classifier = predictors.ctx_classifier
   if (!classifier) {
-    return { ...input, ctx_predictions: [{ label: DEFAULT_CTX, confidence: 1 }] }
+    return {
+      ...input,
+      ctx_predictions: [
+        { label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX, confidence: 1 }
+      ]
+    }
   }
 
   const features = getSentenceEmbeddingForCtx(input.utterance)
@@ -254,7 +260,7 @@ function electIntent(input: PredictStep): PredictStep {
         .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
         .orderBy('confidence', 'desc')
         .value()
-      if (intentPreds[0].confidence === 1) {
+      if (intentPreds[0].confidence === 1 || intentPreds.length === 1) {
         return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: ctxConf }]
       } // are we sure theres always at least two intents ? otherwise down there it may crash
 

@@ -1,5 +1,6 @@
 import { Colors, Icon, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
 interface Props {
@@ -50,7 +51,7 @@ export const ContextSelector: FC<Props> = props => {
   const createNewItemRenderer = (query: string, active: boolean, handleClick) => (
     <MenuItem
       icon="plus"
-      text={`Create "${query}"`}
+      text={lang.tr('qna.context.createQuery')}
       active={active}
       onClick={handleClick}
       shouldDismissPopover={false}
@@ -62,9 +63,9 @@ export const ContextSelector: FC<Props> = props => {
       <div>
         {!props.isSearch && (
           <>
-            <label htmlFor="selectContext">Contexts</label>
+            <label htmlFor="selectContext">{lang.tr('qna.context.contexts')}</label>
             &nbsp;
-            <Tooltip content="You can type in the select bar to add new contexts." position={Position.RIGHT}>
+            <Tooltip content={lang.tr('qna.context.canTypeToCreate')} position={Position.RIGHT}>
               <Icon color={Colors.GRAY2} icon="info-sign" />
             </Tooltip>
           </>
@@ -72,7 +73,7 @@ export const ContextSelector: FC<Props> = props => {
       </div>
 
       <MultiSelect
-        placeholder={props.isSearch ? 'Filter by contexts' : 'Select context...'}
+        placeholder={props.isSearch ? lang.tr('qna.context.filterByContexts') : lang.tr('qna.context.selectContext')}
         items={availableContexts}
         itemRenderer={ctxItemRenderer}
         itemPredicate={(q: string, ctx: string) => !q || ctx.includes(q)}

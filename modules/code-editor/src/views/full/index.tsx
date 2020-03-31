@@ -3,11 +3,15 @@ import { configure } from 'mobx'
 import { Provider } from 'mobx-react'
 import React from 'react'
 
+import { initializeTranslations } from '../translations'
+
 import { RootStore } from './store'
 import Editor from './Editor'
 import SidePanel from './SidePanel'
 
 configure({ enforceActions: 'observed' })
+
+initializeTranslations()
 
 export default class CodeEditor extends React.Component<{ bp: any }> {
   private store: RootStore

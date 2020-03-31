@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Modal, Button, Radio, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import _ from 'lodash'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 
 import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
 import { connect } from 'react-redux'
@@ -76,23 +76,13 @@ class ActionModalForm extends Component {
   renderSectionAction() {
     const { avActions } = this.state
 
-    const tooltip = (
-      <Tooltip id="notSeeingAction">
-        Actions are registered on the server-side. Read about how to register new actions by searching for
-        `bp.registerActions()`.
-      </Tooltip>
-    )
+    const tooltip = <Tooltip id="notSeeingAction">{lang.tr('studio.flow.node.actionsRegisteredOnServer')}</Tooltip>
 
-    const tooltip2 = (
-      <Tooltip id="whatIsThis">
-        You can change how the Action is executed by providing it parameters. Some parameters are required, some are
-        optional.
-      </Tooltip>
-    )
+    const tooltip2 = <Tooltip id="whatIsThis">{lang.tr('studio.flow.node.youCanChangeActions')}</Tooltip>
 
     const help = (
       <OverlayTrigger placement="bottom" overlay={tooltip}>
-        <span className={style.tip}>Can&apos;t see your action?</span>
+        <span className={style.tip}>{lang.tr('studio.flow.node.cantSeeActions')}</span>
       </OverlayTrigger>
     )
 
@@ -112,7 +102,7 @@ class ActionModalForm extends Component {
 
     return (
       <div>
-        <h5>Action to run {help}</h5>
+        <h5>{lang.tr('studio.flow.node.actionToRun', { help })}</h5>
         <div className={style.section}>
           <SelectActionDropdown
             id="select-action"
@@ -130,8 +120,8 @@ class ActionModalForm extends Component {
               // TODO Detect if default or custom arguments
               if (
                 Object.keys(this.state.functionParams || {}).length > 0 &&
-                !confirmDialog('Do you want to overwrite existing parameters?', {
-                  acceptLabel: 'Overwrite'
+                !confirmDialog(lang.tr('studio.flow.node.confirmOverwriteParameters'), {
+                  acceptLabel: lang.tr('overwrite')
                 })
               ) {
                 return
@@ -145,7 +135,9 @@ class ActionModalForm extends Component {
           {this.state.actionMetadata.title && <h4>{this.state.actionMetadata.title}</h4>}
           {this.state.actionMetadata.description && <Markdown source={this.state.actionMetadata.description} />}
         </div>
-        <h5>Action parameters {paramsHelp}</h5>
+        <h5>
+          {lang.tr('studio.flow.node.actionParameters')} {paramsHelp}
+        </h5>
         <div className={style.section}>
           <ParametersTable
             ref={el => (this.parametersTable = el)}
@@ -160,16 +152,20 @@ class ActionModalForm extends Component {
 
   renderSectionMessage() {
     const handleChange = item => {
-      this.setState({ messageValue: `say #!${item.id}` })
+      this.setState({ messageValue: lang.tr('studio.flow.node.actionToRun', { id: item.id }) })
     }
 
     const itemId = this.textToItemId(this.state.messageValue)
 
     return (
       <div>
-        <h5>Message:</h5>
+        <h5>{lang.tr('studio.flow.node.message')}:</h5>
         <div className={style.section}>
-          <ContentPickerWidget itemId={itemId} onChange={handleChange} placeholder="Message to send" />
+          <ContentPickerWidget
+            itemId={itemId}
+            onChange={handleChange}
+            placeholder={lang.tr('studio.flow.node.messageToSend')}
+          />
         </div>
       </div>
     )
@@ -208,18 +204,20 @@ class ActionModalForm extends Component {
         backdrop={'static'}
       >
         <Modal.Header closeButton>
-          <Modal.Title>{this.state.isEdit ? 'Edit' : 'Add new'} action</Modal.Title>
+          <Modal.Title>
+            {this.state.isEdit ? lang.tr('studio.flow.node.editAction') : lang.tr('studio.flow.node.addAction')}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {!this.props.layoutv2 ? (
             <div>
-              <h5>The bot will:</h5>
+              <h5>{lang.tr('studio.flow.node.theBotWill')}:</h5>
               <div className={style.section}>
                 <Radio checked={this.state.actionType === 'message'} onChange={this.onChangeType('message')}>
-                  💬 Say something
+                  {lang.tr('studio.flow.node.saySomething')}
                 </Radio>
                 <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType('code')}>
-                  ⚡ Execute code <LinkDocumentationProvider file="action" />
+                  {lang.tr('studio.flow.node.executeCode')} <LinkDocumentationProvider file="action" />
                 </Radio>
               </div>
               {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionAction()}
@@ -230,10 +228,13 @@ class ActionModalForm extends Component {
         </Modal.Body>
         <Modal.Footer>
           <Button id="btn-cancel-action" onClick={this.onClose}>
-            Cancel
+            {lang.tr('cancel')}
           </Button>
           <Button id="btn-submit-action" onClick={this.onSubmit} bsStyle="primary">
-            {this.state.isEdit ? 'Update' : 'Add'} Action (Alt+Enter)
+            {this.state.isEdit
+              ? lang.tr('studio.flow.node.finishUpdateAction')
+              : lang.tr('studio.flow.node.finishAddAction')}{' '}
+            (Alt+Enter)
           </Button>
         </Modal.Footer>
       </Modal>

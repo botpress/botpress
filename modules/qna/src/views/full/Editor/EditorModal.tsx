@@ -1,4 +1,5 @@
 import { Dialog } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -7,7 +8,7 @@ import Editor, { Props as EditorProps } from '.'
 const EditorModal: FC<{ showQnAModal: boolean } & EditorProps> = props => {
   return (
     <Dialog
-      title={props.isEditing ? 'Edit Q&A' : 'Create a new Q&A'}
+      title={props.isEditing ? lang.tr('qna.edit') : lang.tr('qna.create')}
       icon={props.isEditing ? 'edit' : 'add'}
       isOpen={props.showQnAModal}
       onClose={props.closeQnAModal}

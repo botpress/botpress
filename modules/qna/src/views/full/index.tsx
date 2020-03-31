@@ -1,10 +1,12 @@
 import { Button, Intent } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import React, { Component, Fragment } from 'react'
 import { FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
+
+import { initializeTranslations } from '../translations'
 
 import './button.css'
 import style from './style.scss'
@@ -18,6 +20,8 @@ export { LiteEditor } from './LiteEditor'
 
 const ITEMS_PER_PAGE = 20
 const QNA_PARAM_NAME = 'id'
+
+initializeTranslations()
 
 interface Props {
   contentLang: string
@@ -160,7 +164,7 @@ export default class QnaAdmin extends Component<Props> {
         <div className={style.headerBtns}>
           <AccessControl resource="module.qna" operation="write">
             <Button
-              text="Import JSON"
+              text={lang.tr('qna.importJson')}
               icon="download"
               id="btn-importJson"
               onClick={() => this.setState({ importDialogOpen: true })}
@@ -171,7 +175,7 @@ export default class QnaAdmin extends Component<Props> {
           <AccessControl resource="module.qna" operation="write">
             <Button
               id="btn-create-qna"
-              text="Add new"
+              text={lang.tr('qna.addNew')}
               icon="add"
               intent={Intent.PRIMARY}
               onClick={() => this.setState({ isEditing: false, currentItemId: null, showQnAModal: true })}
@@ -194,7 +198,7 @@ export default class QnaAdmin extends Component<Props> {
         id="input-search"
         value={this.state.filterQuestion}
         onChange={this.onQuestionsFilter}
-        placeholder="Search for a question"
+        placeholder={lang.tr('qna.search')}
         className={style.searchField}
       />
 
@@ -219,8 +223,8 @@ export default class QnaAdmin extends Component<Props> {
   }
 
   deleteItem = (id: string) => async () => {
-    const needDelete = await confirmDialog('Do you want to delete the question?', {
-      acceptLabel: 'Delete'
+    const needDelete = await confirmDialog(lang.tr('qna.confirmDelete'), {
+      acceptLabel: lang.tr('delete')
     })
     const params = this.getQueryParams()
 
@@ -258,15 +262,15 @@ export default class QnaAdmin extends Component<Props> {
 
   questionsList = () => {
     if (!this.state.items.length) {
-      return <h3>No questions have been added yet.</h3>
+      return <h3>{lang.tr('qna.noQuestionsYet')}</h3>
     }
 
     return (
       <div className={style.questionTable}>
         <div className={cx(style.questionTableRow, style.header)}>
-          <div className={cx(style.questionTableCell, style.question)}>Question</div>
-          <div className={style.questionTableCell}>Answer</div>
-          <div className={style.questionTableCell}>Contexts</div>
+          <div className={cx(style.questionTableCell, style.question)}>{lang.tr('qna.question')}</div>
+          <div className={style.questionTableCell}>{lang.tr('qna.answer')}</div>
+          <div className={style.questionTableCell}>{lang.tr('qna.contexts')}</div>
           <div className={cx(style.questionTableCell, style.actions)}></div>
         </div>
         {this.state.items.map(({ id, data }, index) => (
