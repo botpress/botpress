@@ -7,6 +7,7 @@ import withLanguage from '../../Util/withLanguage'
 
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
+import { lang } from 'botpress/shared'
 
 const requireFlag = code => {
   try {
@@ -84,8 +85,8 @@ class LangSwitcher extends React.Component<Props> {
       <Fragment>
         <ActionItem
           shortcut={keyMap['lang-switcher']}
-          title="Content Language"
-          description={`Change the bot content language. Currently editing: ${this.props.contentLang.toUpperCase()}`}
+          title={lang.tr('statusBar.contentLanguage')}
+          description={lang.tr('statusBar.switchLang', { currentLang: this.props.contentLang.toUpperCase() })}
           onClick={this.props.toggleLangSwitcher}
         >
           <span>
