@@ -1,4 +1,6 @@
 {
+  "studio.sideBar.nlu": "NLU",
+
   "nlu": {
     "intents": {
       "intents": "Intentions",

@@ -7,6 +7,7 @@ import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { GoBeaker } from 'react-icons/go'
 import _ from 'lodash'
 import { AccessControl } from '../Shared/Utils'
+import { lang } from 'botpress/shared'
 
 const style = require('./Sidebar.scss')
 
@@ -70,17 +71,13 @@ class Sidebar extends React.Component {
       </Tooltip>
     )
 
+    const translation = this.translate(module.name, module.menuText)
     return (
       <AccessControl key={`menu_module_${module.name}`} resource={rule.res} operation={rule.op}>
         <li id={`bp-menu_${module.name}`}>
-          <NavLink
-            to={path}
-            title={module.menuText}
-            activeClassName={style.active}
-            onClick={this.handleMenuItemClicked}
-          >
+          <NavLink to={path} title={translation} activeClassName={style.active} onClick={this.handleMenuItemClicked}>
             {moduleIcon}
-            <span>{module.menuText}</span>
+            <span>{translation}</span>
             {module.experimental && (
               <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={experimentalTooltip}>
                 <GoBeaker className={style.experimental} />
@@ -99,12 +96,18 @@ class Sidebar extends React.Component {
           <i className="icon material-icons" style={{ marginRight: '5px' }}>
             {icon}
           </i>
-          {name}
+          {this.translate(name, name)}
           {renderSuffix && renderSuffix()}
         </NavLink>
       </li>
     </AccessControl>
   )
+
+  translate = (name, text) => {
+    const key = `studio.sideBar.${name.toLowerCase()}`
+    const translation = lang.tr(key)
+    return translation === key ? text : translation
+  }
 
   render() {
     return (

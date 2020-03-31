@@ -1,4 +1,6 @@
 {
+  "studio.sideBar.code-editor": "Code Editor",
+
   "discard": "Discard",
   "delete": "Delete",
   "rename": "Rename",

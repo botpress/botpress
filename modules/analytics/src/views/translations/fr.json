@@ -1,4 +1,6 @@
 {
+  "studio.sideBar.analytics": "Analytique",
+
   "analytics": {
     "title": "Analytique",
     "dashboard": "Tableau de bord",

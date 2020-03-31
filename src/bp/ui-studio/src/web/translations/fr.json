@@ -71,6 +71,11 @@
   },
 
   "studio": {
+    "sideBar": {
+      "content": "Contenu",
+      "flows": "Flows",
+      "config": "Configuration"
+    },
     "flow": {
       "unauthUpdate": "Mise à jour de flow non autorisée. Vous ne disposez pas des privilèges de rôle suffisants pour modifier les flows.",
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
