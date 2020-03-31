@@ -1,5 +1,6 @@
 import { Button, ControlGroup, FormGroup } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -89,7 +90,7 @@ export const LiteEditor: FC<Props> = props => {
         toggle={toggleModal}
         intents={intents}
         onSubmit={createIntent}
-        title="Create Intent"
+        title={lang.tr('nlu.intents.createLabel')}
       />
       {currentIntent && (
         <IntentEditor
@@ -103,8 +104,8 @@ export const LiteEditor: FC<Props> = props => {
 
       <div className={style.chooseContainer}>
         <ControlGroup>
-          <FormGroup label="Choose a different intent for the condition">
-            <Button text="Create new intent" onClick={toggleModal} />
+          <FormGroup label={lang.tr('nlu.intents.chooseContainerLabel')}>
+            <Button text={lang.tr('nlu.intents.createLabel')} onClick={toggleModal} />
             <IntentDropdown intents={intents} currentIntent={currentIntent} onChange={onIntentChanged} />
           </FormGroup>
         </ControlGroup>

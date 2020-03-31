@@ -1,4 +1,4 @@
-import { Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip, AnchorButton } from '@blueprintjs/core'
 import axios from 'axios'
 import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, TreeView } from 'botpress/shared'
@@ -7,7 +7,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 
-const lockedFlows = ['main.flow.json', 'error.flow.json']
+const lockedFlows = ['Built-In/welcome.flow.json', 'Built-In/error.flow.json', 'Built-In/feedback.flow.json']
 
 export const TYPE_TOPIC = 'topic'
 export const TYPES = {
@@ -291,7 +291,7 @@ const TopicList: FC<Props> = props => {
                   <Button icon="edit" minimal onClick={editWorkflow} />
                 </Tooltip>
                 <Tooltip content={<span>Delete workflow</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
-                  <Button icon="trash" minimal onClick={deleteWorkflow} />
+                  <AnchorButton icon="trash" minimal onClick={deleteWorkflow} disabled={lockedFlows.includes(name)} />
                 </Tooltip>
               </Fragment>
             )}

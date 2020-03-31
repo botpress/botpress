@@ -1,4 +1,4 @@
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
@@ -88,7 +88,7 @@ class EditorStore {
       this.isAdvanced = isAdvanced
       await this.rootStore.fetchFiles()
     } else {
-      console.error(`Only Super Admins can use the raw file editor`)
+      console.error(lang.tr('editor.store.onlySuperAdmins'))
     }
   }
 
@@ -101,7 +101,7 @@ class EditorStore {
     await this._editorRef.getAction('editor.action.formatDocument').run()
 
     if (await this.rootStore.api.saveFile({ ...this.currentFile, content: this.fileContent })) {
-      toastSuccess('File saved successfully!')
+      toastSuccess(lang.tr('editor.store.fileSaved'))
 
       await this.rootStore.fetchFiles()
       this.resetOriginalHash()
@@ -112,9 +112,9 @@ class EditorStore {
   async discardChanges() {
     if (this.isDirty && this.fileContent) {
       if (
-        await confirmDialog(`Do you want to save the changes you made to ${this.currentFile.name}?`, {
-          acceptLabel: 'Save',
-          declineLabel: 'Discard'
+        await confirmDialog(lang.tr('editor.store.confirmSaveFile', { file: this.currentFile.name }), {
+          acceptLabel: lang.tr('save'),
+          declineLabel: lang.tr('discard')
         })
       ) {
         await this.saveChanges()

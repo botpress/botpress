@@ -1,4 +1,5 @@
 import { Icon } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import reject from 'lodash/reject'
 import values from 'lodash/values'
@@ -49,7 +50,7 @@ const SidePanelContent: FC<Props> = props => {
     id: 'btn-add-flow',
     icon: <Icon icon="add" />,
     key: 'create',
-    tooltip: 'Create new flow',
+    tooltip: lang.tr('studio.flow.sidePanel.createNewFlow'),
     onClick: () => {
       setFlowAction('create')
       setModalOpen(true)
@@ -76,9 +77,12 @@ const SidePanelContent: FC<Props> = props => {
         <Inspector />
       ) : (
         <React.Fragment>
-          <SearchBar icon="filter" placeholder="Filter flows" onChange={setFilter} />
+          <SearchBar icon="filter" placeholder={lang.tr('studio.flow.sidePanel.filterFlows')} onChange={setFilter} />
 
-          <SidePanelSection label={'Flows'} actions={props.permissions.includes('create') && [createFlowAction]}>
+          <SidePanelSection
+            label={lang.tr('studio.flow.sidePanel.flows')}
+            actions={props.permissions.includes('create') && [createFlowAction]}
+          >
             <FlowsList
               readOnly={props.readOnly}
               canDelete={props.permissions.includes('delete')}
@@ -94,7 +98,7 @@ const SidePanelContent: FC<Props> = props => {
             />
           </SidePanelSection>
 
-          <SidePanelSection label="Tools">
+          <SidePanelSection label={lang.tr('studio.flow.sidePanel.tools')}>
             <FlowTools />
           </SidePanelSection>
         </React.Fragment>

@@ -12,7 +12,7 @@ If you want to include other dependencies not already included, there are two po
 To help you vizualize how it works, check the snippet below. We've commented out the portion of the code that is "hidden", since all you need to include in your `.js` files is your actual code.
 
 ```js
-/** const virtual_machine = (bp: SDK) => { *//
+/** const virtual_machine = async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state) { */
 
     //The content of your .js file starts here. Example:
     const _ = require('lodash')
@@ -29,7 +29,7 @@ To help you vizualize how it works, check the snippet below. We've commented out
 It is also possible to wrap your code with an async method:
 
 ```js
-/** const virtual_machine = async (bp: SDK) => { *//
+/** const virtual_machine = async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state) { */
 
     //The content of your .js file starts here. Example:
     const myMethod = async () => {
@@ -76,7 +76,7 @@ Check out the page [Bot Memory and Data Retention](memory) for more details abou
 Here are some possible ways to use these variables
 
 ```js
-/** const virtual_machine = (bp: SDK, user, session, temp, bot, event, args) => { */
+/** const virtual_machine = async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state) { */
 user['firstname'] = 'Bob'
 user['age'] = 17
 

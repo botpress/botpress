@@ -1,6 +1,6 @@
 import { Button, Classes } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
 import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
@@ -36,8 +36,8 @@ export const IntentSidePanelSection: FC<Props> = props => {
 
   const deleteIntent = async (intentName: string) => {
     if (
-      await confirmDialog(`Are you sure you want to delete the intent "${intentName}" ?`, {
-        acceptLabel: 'Delete'
+      await confirmDialog(lang.tr('nlu.intents.deleteConfirmMessage', { intentName }), {
+        acceptLabel: lang.tr('nlu.intents.deleteConfirmLabel')
       })
     ) {
       if (props.currentItem && props.currentItem.name === intentName) {
@@ -48,7 +48,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
         await props.api.deleteIntent(intentName)
         await props.reloadIntents()
       } catch (err) {
-        toastFailure('Could not delete intent')
+        toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'delete' }))
       }
     }
   }
@@ -74,7 +74,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure('Could not create intent')
+      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'create' }))
     }
   }
 
@@ -89,7 +89,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure('Could not rename intent')
+      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'rename' }))
     }
   }
 
@@ -104,7 +104,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure('Could not duplicate intent')
+      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'duplicate' }))
     }
   }
 
@@ -119,16 +119,20 @@ export const IntentSidePanelSection: FC<Props> = props => {
           selected: props.currentItem && props.currentItem.name === intent.name,
           contextMenu: [
             {
-              label: 'Rename',
+              label: lang.tr('nlu.intents.renameActionLabel'),
               icon: 'edit',
               onClick: () => showIntentNameModal(intent.name, 'rename')
             },
             {
-              label: 'Duplicate',
+              label: lang.tr('nlu.intents.duplicateActionLabel'),
               icon: 'duplicate',
               onClick: () => showIntentNameModal(intent.name, 'duplicate')
             },
-            { label: 'Delete', icon: 'delete', onClick: () => deleteIntent(intent.name) }
+            {
+              label: lang.tr('nlu.intents.deleteActionLabel'),
+              icon: 'delete',
+              onClick: () => deleteIntent(intent.name)
+            }
           ]
         } as Item)
     )

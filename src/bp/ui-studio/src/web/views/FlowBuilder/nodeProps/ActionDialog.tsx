@@ -1,6 +1,7 @@
 import { Button, FormGroup, HTMLSelect, Intent, NonIdealState } from '@blueprintjs/core'
 import { ItemRenderer, Select } from '@blueprintjs/select'
 import axios from 'axios'
+import { lang } from 'botpress/shared'
 import { ActionDefinition, ActionParameterDefinition, ActionServer, ActionServerWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -37,7 +38,7 @@ const ActionNameSelect: FC<{
 
   return (
     <>
-      <FormGroup label="Action to execute" labelFor="action-name">
+      <FormGroup label={lang.tr('studio.flow.node.actionToExecute')} labelFor="action-name">
         <ActionSelect
           items={actions}
           itemRenderer={ActionItemRenderer}
@@ -62,9 +63,9 @@ const ActionParametersComponent: FC<{
   const { actionDefinitionParams, actionParams, onUpdate } = props
   return (
     <FormGroup
-      label="Action Parameters"
+      label={lang.tr('studio.flow.node.actionParameters')}
       labelFor="action-parameters"
-      helperText={actionDefinitionParams.length === 0 ? 'This action has no parameters' : undefined}
+      helperText={actionDefinitionParams.length === 0 ? lang.tr('studio.flow.node.hasNoParameters') : undefined}
     >
       <div style={{ padding: 10 }}>
         <ActionParameters
@@ -95,8 +96,8 @@ const ActionServers: FC<{
     <FormGroup
       label={
         <span style={{ display: 'flex' }}>
-          <div className={style.actionServer}>Action Server</div>
-          <InfoTooltip text="This is the action server on which the action will be executed"></InfoTooltip>
+          <div className={style.actionServer}>{lang.tr('studio.flow.node.actionServer')}</div>
+          <InfoTooltip text={lang.tr('studio.flow.node.actionServerTooltip')}></InfoTooltip>
         </span>
       }
     >
@@ -184,13 +185,13 @@ const ActionDialog: FC<{
   return (
     <BaseDialog
       isOpen={isOpen}
-      title="Edit Action"
+      title={lang.tr('studio.flow.node.editAction')}
       icon="offline"
       onClose={closeDialog}
       onOpening={() => setOpening(true)}
     >
       <DialogBody hidden={!isLoading}>
-        <div>Please wait, loading action servers...</div>
+        <div>{lang.tr('studio.flow.node.loadingActionServer')}</div>
       </DialogBody>
       <DialogBody hidden={isLoading}>
         <div onMouseDown={e => e.stopPropagation()} onContextMenu={e => e.stopPropagation()}>
@@ -208,22 +209,22 @@ const ActionDialog: FC<{
 
           {errorFetchingServers && (
             <NonIdealState
-              title="Could not retrieve action servers"
-              description="There seems to be an error in your Botpress server. Please contact your administrator."
+              title={lang.tr('studio.flow.node.couldNotRetrieveActionServer')}
+              description={lang.tr('studio.flow.node.errorInServer')}
               icon="warning-sign"
             />
           )}
 
           {hasActionsError && (
             <NonIdealState
-              title="Error listing actions from the action server"
-              description="There was an error while trying to get the list of actions on the selected server"
+              title={lang.tr('studio.flow.node.errorListingActions')}
+              description={lang.tr('studio.flow.node.errorListingActionsMore')}
               icon="warning-sign"
             />
           )}
 
           {!hasActionsError && !hasActions && (
-            <NonIdealState icon="warning-sign" title="No actions found on this action server" />
+            <NonIdealState icon="warning-sign" title={lang.tr('studio.flow.node.noActionsFound')} />
           )}
 
           {actionDef && (
@@ -247,9 +248,9 @@ const ActionDialog: FC<{
       </DialogBody>
 
       <DialogFooter>
-        <Button text="Cancel" id="btn-cancel" onClick={closeDialog} />
+        <Button text={lang.tr('cancel')} id="btn-cancel" onClick={closeDialog} />
         <Button
-          text="Save"
+          text={lang.tr('save')}
           intent={Intent.PRIMARY}
           onClick={() => onSave({ name, actionServerId, parameters })}
           disabled={!isActionValid || isLoading}

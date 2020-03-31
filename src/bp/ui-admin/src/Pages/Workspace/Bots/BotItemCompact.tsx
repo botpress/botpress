@@ -12,6 +12,7 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/history'
@@ -46,43 +47,81 @@ const BotItemCompact: FC<Props> = ({
   return (
     <div className="bp_table-row" key={bot.id}>
       <div className="actions">
-        {hasError && <AnchorButton text="Reload" icon="refresh" onClick={reloadBot} minimal={true} />}
+        {hasError && (
+          <AnchorButton text={lang.tr('admin.workspace.bots.item.reload')} icon="refresh" onClick={reloadBot} minimal />
+        )}
 
         <AccessControl resource="admin.bots.*" operation="write">
           <Button
-            text="Config"
+            text={lang.tr('admin.workspace.bots.item.config')}
             icon="cog"
-            minimal={true}
+            minimal
             className="configBtn"
             onClick={() => history.push(`bots/${bot.id}`)}
           />
         </AccessControl>
 
         {!bot.disabled && !hasError && (
-          <AnchorButton text="Open chat" icon="chat" href={botShortLink} target="_blank" minimal={true} />
+          <AnchorButton
+            text={lang.tr('admin.workspace.bots.item.openChat')}
+            icon="chat"
+            href={botShortLink}
+            target="_blank"
+            minimal
+          />
         )}
 
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
               {!bot.disabled && !hasError && (
-                <MenuItem disabled={bot.locked} icon="edit" text="Edit in Studio" href={botStudioLink} />
+                <MenuItem
+                  disabled={bot.locked}
+                  icon="edit"
+                  text={lang.tr('admin.workspace.bots.item.editInStudio')}
+                  href={botStudioLink}
+                />
               )}
 
-              <CopyToClipboard text={botShortLink} onCopy={() => toastInfo('Copied to clipboard')}>
-                <MenuItem icon="link" text="Copy link to clipboard" />
+              <CopyToClipboard text={botShortLink} onCopy={() => lang.tr('admin.workspace.bots.item.copyToClipboard')}>
+                <MenuItem icon="link" text={lang.tr('admin.workspace.bots.item.copyLinkToClipboard')} />
               </CopyToClipboard>
 
               <AccessControl resource="admin.logs" operation="read">
-                <MenuItem text="View Logs" icon="manual" id="btn-viewLogs" onClick={viewLogs} />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.viewLogs')}
+                  icon="manual"
+                  id="btn-viewLogs"
+                  onClick={viewLogs}
+                />
               </AccessControl>
 
               <AccessControl resource="admin.bots.*" operation="write">
-                <MenuItem text="Create Revision" icon="cloud-upload" id="btn-createRevision" onClick={createRevision} />
-                <MenuItem text="Rollback" icon="undo" id="btn-rollbackRevision" onClick={rollback} />
-                <MenuItem text="Export" icon="export" id="btn-export" onClick={exportBot} />
-                <MenuItem text="Delete" icon="trash" id="btn-delete" onClick={deleteBot} />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.createRevision')}
+                  icon="cloud-upload"
+                  id="btn-createRevision"
+                  onClick={createRevision}
+                />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.rollback')}
+                  icon="undo"
+                  id="btn-rollbackRevision"
+                  onClick={rollback}
+                />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.export')}
+                  icon="export"
+                  id="btn-export"
+                  onClick={exportBot}
+                />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.delete')}
+                  icon="trash"
+                  id="btn-delete"
+                  onClick={deleteBot}
+                />
               </AccessControl>
             </Menu>
           </Popover>
@@ -99,7 +138,7 @@ const BotItemCompact: FC<Props> = ({
         <a href={botStudioLink}>{bot.name || bot.id}</a>
 
         {!bot.defaultLanguage && (
-          <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
+          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
         )}

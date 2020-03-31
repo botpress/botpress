@@ -1,5 +1,6 @@
 import React from 'react'
 import moment from 'moment'
+import { lang } from 'botpress/shared'
 
 export default class LicenseLimits extends React.Component {
   constructor(props) {
@@ -22,12 +23,20 @@ export default class LicenseLimits extends React.Component {
     const { seats, versions, startDate, endDate } = this.props.license
     this.setState({ policies: [] })
 
-    this.addPolicy('Admins', seats, this.getBreach('studio seats'))
-    this.addPolicy('Nodes', '', this.getBreach('nodes'))
-    this.addPolicy('Version', versions, this.getBreach('version'))
-    this.addPolicy('Start Date', moment(startDate).format('YYYY-MM-DD'), this.getBreach('date'))
-    this.addPolicy('End Date', moment(endDate).format('YYYY-MM-DD'), this.getBreach('date'))
-    this.addPolicy('Server Fingerprint', '', this.getBreach('fingerprint'))
+    this.addPolicy(lang.tr('admin.license.policy.admins'), seats, this.getBreach('studio seats'))
+    this.addPolicy(lang.tr('admin.license.policy.nodes'), '', this.getBreach('nodes'))
+    this.addPolicy(lang.tr('admin.license.policy.version'), versions, this.getBreach('version'))
+    this.addPolicy(
+      lang.tr('admin.license.policy.startDate'),
+      moment(startDate).format('YYYY-MM-DD'),
+      this.getBreach('date')
+    )
+    this.addPolicy(
+      lang.tr('admin.license.policy.endDate'),
+      moment(endDate).format('YYYY-MM-DD'),
+      this.getBreach('date')
+    )
+    this.addPolicy(lang.tr('admin.license.policy.fingerprint'), '', this.getBreach('fingerprint'))
   }
 
   addPolicy = (name, status, breachError) => {

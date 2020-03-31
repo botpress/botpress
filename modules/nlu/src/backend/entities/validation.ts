@@ -17,7 +17,7 @@ export const EntityDefCreateSchema = Joi.object().keys({
   type: Joi.string()
     .valid(['system', 'pattern', 'list'])
     .required(),
-  sensitive: Joi.boolean(),
+  sensitive: Joi.boolean().default(false),
   fuzzy: Joi.number().default(FuzzyTolerance.Medium),
   matchCase: Joi.boolean(),
   examples: Joi.array()

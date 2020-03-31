@@ -108,6 +108,7 @@ export default async (bp: typeof sdk, db: Database) => {
         description: (config.infoPage && config.infoPage.description) || botInfo.description,
         details: botInfo.details,
         languages: botInfo.languages,
+        extraStylesheet: config.extraStylesheet,
         security
       })
     })
@@ -158,7 +159,7 @@ export default async (bp: typeof sdk, db: Database) => {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials, !!req.headers.authorization)
 
       return res.sendStatus(200)
     })
@@ -238,7 +239,14 @@ export default async (bp: typeof sdk, db: Database) => {
     return /[a-z0-9-_]+/i.test(userId)
   }
 
-  async function sendNewMessage(botId: string, userId: string, conversationId, payload, credentials: any) {
+  async function sendNewMessage(
+    botId: string,
+    userId: string,
+    conversationId,
+    payload,
+    credentials: any,
+    useDebugger?: boolean
+  ) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     if (
@@ -264,6 +272,10 @@ export default async (bp: typeof sdk, db: Database) => {
       type: payload.type,
       credentials
     })
+
+    if (useDebugger) {
+      event.debugger = true
+    }
 
     const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id)
 

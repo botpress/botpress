@@ -1,4 +1,5 @@
 import { Button, Checkbox, Classes, Dialog, FormGroup, InputGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -83,11 +84,14 @@ const NewFileModal: FC<Props> = props => {
       onClose={closeModal}
       transitionDuration={0}
       icon="add"
-      title={`Create a new ${props.selectedType}`}
+      title={lang.tr(`editor.newFileModal.createNew`, { name: props.selectedType })}
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label="File name" helperText="No special characters allowed. Must end in .js">
+          <FormGroup
+            label={lang.tr(`editor.newFileModal.fileName`)}
+            helperText={lang.tr(`editor.newFileModal.fileNameHelp`)}
+          >
             <InputGroup
               id="input-name"
               tabIndex={1}
@@ -101,7 +105,7 @@ const NewFileModal: FC<Props> = props => {
 
           {fileDefinition.allowScoped && canBeBotScoped() && (
             <Checkbox
-              label="Create for the current bot"
+              label={lang.tr(`editor.newFileModal.createForCurrent`)}
               checked={isScoped}
               disabled={!fileDefinition.allowGlobal || !canGlobalWrite}
               onChange={e => setScoped(e.currentTarget.checked)}
@@ -114,7 +118,7 @@ const NewFileModal: FC<Props> = props => {
             <Button
               type="submit"
               id="btn-submit"
-              text="Submit"
+              text={lang.tr(`submit`)}
               intent={Intent.PRIMARY}
               onClick={submit}
               disabled={!name}

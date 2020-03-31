@@ -4,8 +4,15 @@ import React, { Component } from 'react'
 import { Alert, Button, Modal } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
-import { fetchContentCategories, fetchContentItems, fetchContentItemsCount, upsertContentItem } from '~/actions'
+import {
+  deleteMedia,
+  fetchContentCategories,
+  fetchContentItems,
+  fetchContentItemsCount,
+  upsertContentItem
+} from '~/actions'
 import Loading from '~/components/Util/Loading'
+import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
@@ -21,13 +28,14 @@ const formSteps = {
 }
 
 interface Props {
-  fetchContentCategories: any
+  fetchContentCategories: Function
   container: any
-  fetchContentItems: any
-  fetchContentItemsCount: any
+  deleteMedia: Function
+  fetchContentItems: Function
+  fetchContentItemsCount: Function
   contentItems: any
   categories: any
-  upsertContentItem: any
+  upsertContentItem: Function
   onSelect: any
   onClose: any
   contentType: any
@@ -146,8 +154,12 @@ class SelectContent extends Component<Props, State> {
   }
 
   resetCreateContent = (resetSearch = false) => response => {
-    // @ts-ignore
     const { data: id } = response || {}
+
+    if (!id && CONTENT_TYPES_MEDIA.includes(this.state.newItemCategory.id)) {
+      this.props.deleteMedia(this.state.newItemData)
+    }
+
     const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
       Object.assign(stateUpdate, {
@@ -375,6 +387,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = {
+  deleteMedia,
   fetchContentItems,
   fetchContentItemsCount,
   fetchContentCategories,

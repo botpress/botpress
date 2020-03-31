@@ -5,6 +5,8 @@ $colorSlack: #ff8989;
 $textColor: #182026;
 $lightText: #5C7080;
 $linkText: #1F8FFA;
+$danger-color: #d14319;
+$success-color: #56b149;
 
 .mainWrapper {
   background: #EBF1F5;
@@ -149,6 +151,19 @@ $linkText: #1F8FFA;
   }
 }
 
+.diffNumber {
+  display: block;
+  font-size: 12px;
+
+  &Up {
+    color: $success-color;
+  }
+
+  &Down {
+    color: $danger-color;
+  }
+}
+
 .genericMetric {
   background: #fff;
   border-radius: 3px;
@@ -259,6 +274,10 @@ $linkText: #1F8FFA;
   .metricName {
     margin: 0;
   }
+}
+
+.alignBottom {
+  margin-top: auto;
 }
 
 .numberMetricValue {

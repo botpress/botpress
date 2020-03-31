@@ -20,7 +20,11 @@ const InputParams: FC<Props> = props => {
     <div className={style.inputParamWrapper}>
       {Object.keys(props.condition.params).map(key => {
         const { defaultValue, label, type, list } = props.condition.params[key]
-        const value = (props.params && props.params[key]) || defaultValue
+        const value = props.params?.[key]
+
+        if (!value && defaultValue) {
+          updateParam(key, defaultValue)
+        }
 
         return (
           <SingleParam

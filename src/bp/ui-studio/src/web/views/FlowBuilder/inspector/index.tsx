@@ -49,7 +49,7 @@ class Inspector extends Component<Props> {
     return (
       <div className={style.inspector}>
         {node && (
-          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small={true}>
+          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small>
             <i className="material-icons">keyboard_backspace</i>
           </Button>
         )}
