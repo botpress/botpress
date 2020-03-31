@@ -3,6 +3,7 @@ import { NLUApi } from 'api'
 import React, { FC, useEffect, useState } from 'react'
 
 import style from './style.scss'
+import { lang } from 'botpress/shared'
 
 const AutoTrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
   const [autoTrain, setAutoTrain] = useState(false)
@@ -27,7 +28,7 @@ const AutoTrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
 
   return (
     <Switch
-      label="AutoTrain"
+      label={lang.tr('nlu.autoTrain')}
       checked={autoTrain}
       disabled={loading}
       className={style.autoTrainToggle}

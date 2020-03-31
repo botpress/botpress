@@ -1,5 +1,6 @@
 import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
@@ -64,12 +65,12 @@ export const ListEntityEditor: React.FC<Props> = props => {
           label={
             <span>
               <Tooltip
-                content="An occurrence is a value of your entity. Each occurrence can have multiple synonyms."
+                content={lang.tr('nlu.entities.occurrenceTooltip')}
                 position={Position.LEFT}
                 popoverClassName={style.configPopover}
               >
                 <span>
-                  New occurrence&nbsp;
+                  {lang.tr('nlu.entities.newOccurrence')}&nbsp;
                   <Icon icon="help" color={Colors.GRAY3} />
                 </span>
               </Tooltip>
@@ -81,14 +82,14 @@ export const ListEntityEditor: React.FC<Props> = props => {
             rightElement={<Button icon="add" minimal onClick={addOccurrence} disabled={isNewOccurrenceEmpty()} />}
             type="text"
             id="occurrence"
-            placeholder="Type a value (ex: Chicago)"
+            placeholder={lang.tr('nlu.entities.occurrencePlaceholder')}
             value={newOccurrence}
             onKeyDown={e => e.keyCode === 13 && addOccurrence()}
             onChange={e => setNewOccurrence(e.target.value)}
           />
         </FormGroup>
         {occurrences.length > 0 && (
-          <FormGroup label="Occurrences">
+          <FormGroup label={lang.tr('nlu.entities.occurrenceLabel')}>
             {occurrences.map((o, i) => (
               <Occurrence
                 key={o.name}
@@ -104,21 +105,21 @@ export const ListEntityEditor: React.FC<Props> = props => {
         <FormGroup
           label={
             <Tooltip
-              content="Fuzziness will tolerate slight errors (e.g: typos) in words of 4 characters or more. Strict means no errors allowed."
+              content={lang.tr('nlu.entities.fuzzyTooltip')}
               position={Position.LEFT}
               popoverClassName={style.configPopover}
             >
               <span>
-                Fuzzy matching options&nbsp;
+                {lang.tr('nlu.entities.fuzzyLabel')}&nbsp;
                 <Icon icon="help" color={Colors.GRAY3} />
               </span>
             </Tooltip>
           }
         />
         <RadioGroup onChange={handleFuzzyChange} selectedValue={fuzzy} inline>
-          <Radio label="Strict" value={FuzzyTolerance.Strict} />
-          <Radio label="Medium" value={FuzzyTolerance.Medium} />
-          <Radio label="Loose" value={FuzzyTolerance.Loose} />
+          <Radio label={lang.tr('nlu.entities.strict')} value={FuzzyTolerance.Strict} />
+          <Radio label={lang.tr('nlu.entities.medium')} value={FuzzyTolerance.Medium} />
+          <Radio label={lang.tr('nlu.entities.loose')} value={FuzzyTolerance.Loose} />
         </RadioGroup>
       </div>
     </div>

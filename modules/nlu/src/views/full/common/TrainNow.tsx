@@ -1,5 +1,6 @@
 import { Button } from '@blueprintjs/core'
 import { NLUApi } from 'api'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
 const TrainNow: FC<{ api: NLUApi; eventBus: any }> = ({ api, eventBus }) => {
@@ -38,7 +39,7 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any }> = ({ api, eventBus }) => {
 
   return (
     <Button loading={loading} onClick={onClick}>
-      {training ? 'Cancel Training' : 'Train now'}
+      {training ? lang.tr('nlu.cancelTraining') : lang.tr('nlu.trainNow')}
     </Button>
   )
 }
