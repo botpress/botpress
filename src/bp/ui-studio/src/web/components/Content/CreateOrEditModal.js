@@ -63,12 +63,14 @@ class CreateOrEditModal extends React.Component {
           onChange={this.handleEdit}
           onSubmit={this.handleSave}
         />
-        <button className={classnames('btn', 'btn-info')} type="submit" onClick={this.handleSave}>
-          Submit
-        </button>
-        <button className={classnames('bp-button', 'bp-button-danger', style.cancel)} onClick={this.props.handleClose}>
-          Cancel
-        </button>
+        <div className={style.formBtns}>
+          <button className={classnames('bp-button', 'bp-button-danger')} onClick={this.props.handleClose}>
+            Cancel
+          </button>
+          <button className={classnames('bp-button', 'bp-button-info')} type="submit" onClick={this.handleSave}>
+            Submit
+          </button>
+          </div>
       </div>
     )
   }

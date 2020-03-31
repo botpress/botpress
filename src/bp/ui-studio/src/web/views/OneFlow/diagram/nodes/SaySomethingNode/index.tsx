@@ -2,11 +2,11 @@ import classnames from 'classnames'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
+import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
+import style from '~/views/FlowBuilder/diagram/nodes_v2/style.scss'
+import { showHeader } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 
-import { BaseNodeModel } from '../../nodes/BaseNodeModel'
-import { StandardPortWidget } from '../../nodes/Ports'
-import style from '../style.scss'
-import { showHeader } from '../utils'
+import { BaseNodeModel } from '../../../../FlowBuilder/diagram/nodes/BaseNodeModel'
 
 import SayNodeContent from './SayNodeContent'
 

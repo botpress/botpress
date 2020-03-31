@@ -35,6 +35,7 @@ import {
   updateFlowProblems
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
+import { SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
@@ -46,7 +47,6 @@ import { ActionWidgetFactory } from './nodes_v2/ActionNode'
 import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
-import { SaySomethingWidgetFactory } from './nodes_v2/SaySomethingNode'
 import style from './style.scss'
 
 class Diagram extends Component<Props> {
