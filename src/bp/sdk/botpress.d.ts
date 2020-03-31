@@ -182,7 +182,7 @@ declare module 'botpress/sdk' {
     /** An icon to display next to the name, if none is specified, it will receive a default one */
     menuIcon?: string
     /** The name displayed on the menu */
-    menuText?: string
+    menuText?: string | { [lang: string]: string }
     /** Optionally specify a link to your page or github repo */
     homepage?: string
     /** Whether or not the module is likely to change */
@@ -197,7 +197,7 @@ declare module 'botpress/sdk' {
     /** An identifier for the skill. Use only a-z_- characters. */
     id: string
     /** The name that will be displayed in the toolbar for the skill */
-    name: string
+    name: string | { [lang: string]: string }
     /** An icon to identify the skill */
     icon?: string | any
     /** Name of the parent module. This field is filled automatically when they are loaded */
@@ -1102,8 +1102,8 @@ declare module 'botpress/sdk' {
    */
   export type ContentType = {
     id: string
-    title: string
-    description: string
+    title: string | { [lang: string]: string }
+    description: string | { [lang: string]: string }
     /**
      * Hiding content types prevents users from adding these kind of elements via the Flow Editor.
      * They are still visible in the Content Manager, and it's still possible to use these elements by specifying

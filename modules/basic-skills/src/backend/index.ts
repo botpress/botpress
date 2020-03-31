@@ -18,13 +18,19 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 const skillsToRegister: sdk.Skill[] = [
   {
     id: 'choice',
-    name: 'Choice',
+    name: {
+      en: 'Choice',
+      fr: 'Choix'
+    },
     icon: 'numbered-list',
     flowGenerator: choice.generateFlow
   },
   {
     id: 'CallAPI',
-    name: 'Call API',
+    name: {
+      en: 'Call API',
+      fr: 'Appeler API'
+    },
     icon: 'code-block',
     flowGenerator: apiCall.generateFlow
   },
