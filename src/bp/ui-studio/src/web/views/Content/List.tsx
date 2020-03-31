@@ -1,5 +1,5 @@
 import { AnchorButton, Button, Divider, InputGroup, Position, Tooltip } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
@@ -86,14 +86,9 @@ class ListView extends Component<Props, State> {
 
   handleDeleteSelected = async () => {
     if (
-      await confirmDialog(
-        `Do you really want to delete ${this.state.checkedIds.length} item${
-          this.state.checkedIds.length === 1 ? '' : 's'
-        }?`,
-        {
-          acceptLabel: 'Delete'
-        }
-      )
+      await confirmDialog(lang.tr('studio.flow.content.confirmDeleteItem', { count: this.state.checkedIds.length }), {
+        acceptLabel: lang.tr('delete')
+      })
     ) {
       this.props.handleDeleteSelected(this.state.checkedIds)
       this.setState({ checkedIds: [], allChecked: false })
@@ -222,20 +217,20 @@ class ListView extends Component<Props, State> {
         width: 35
       },
       {
-        Header: 'ID',
+        Header: lang.tr('studio.flow.content.id'),
         Cell: x => `#!${x.value}`,
         filterable: false,
         accessor: 'id',
         width: 170
       },
       {
-        Header: 'Content Type',
+        Header: lang.tr('studio.flow.content.contentType'),
         filterable: false,
         accessor: 'contentType',
         width: 150
       },
       {
-        Header: 'Preview',
+        Header: lang.tr('studio.flow.content.preview'),
         accessor: 'previews',
         filterable: false,
         Cell: x => {
@@ -261,21 +256,22 @@ class ListView extends Component<Props, State> {
         }
       },
       {
-        Header: 'Modified On',
-        Cell: x => (x.original.modifiedOn ? moment(x.original.modifiedOn).format('MMM Do YYYY, h:mm') : 'Never'),
+        Header: lang.tr('studio.flow.content.modifiedOn'),
+        Cell: x =>
+          x.original.modifiedOn ? moment(x.original.modifiedOn).format('MMM Do YYYY, h:mm') : lang.tr('never'),
         accessor: 'modifiedOn',
         filterable: false,
         width: 150
       },
       {
-        Header: 'Created On',
-        Cell: x => (x.original.createdOn ? moment(x.original.createdOn).format('MMM Do YYYY, h:mm') : 'Never'),
+        Header: lang.tr('studio.flow.content.createdOn'),
+        Cell: x => (x.original.createdOn ? moment(x.original.createdOn).format('MMM Do YYYY, h:mm') : lang.tr('never')),
         accessor: 'createdOn',
         filterable: false,
         width: 150
       },
       {
-        Header: 'Usage',
+        Header: lang.tr('studio.flow.content.usage'),
         id: 'usage',
         Cell: x => {
           const count = this.getCountUsage(x.original.usage)
@@ -300,8 +296,8 @@ class ListView extends Component<Props, State> {
   renderTable() {
     const pageCount = Math.ceil(this.props.count / this.state.pageSize)
     const noDataMessage = this.props.readOnly
-      ? "There's no content here."
-      : "There's no content yet. You can create some using the 'Add' button."
+      ? lang.tr('studio.flow.content.noContent')
+      : lang.tr('studio.flow.content.noContentYet')
 
     if (this.state.sortOrderUsage) {
       const desc = this.state.sortOrderUsage === 'desc'
@@ -342,13 +338,13 @@ class ListView extends Component<Props, State> {
         <Downloader url={this.state.downloadUrl} />
         <Toolbar>
           <LeftToolbarButtons>
-            <Tooltip content="Refresh" position={Position.BOTTOM}>
+            <Tooltip content={lang.tr('refresh')} position={Position.BOTTOM}>
               <AnchorButton id="btn-refresh" icon="refresh" onClick={this.props.handleRefresh} />
             </Tooltip>
 
             <Divider />
             {!this.props.readOnly && (
-              <Tooltip content="Delete selected elements" position={Position.BOTTOM}>
+              <Tooltip content={lang.tr('studio.flow.content.deleteElements')} position={Position.BOTTOM}>
                 <AnchorButton
                   id="btn-delete"
                   icon="trash"
@@ -359,7 +355,7 @@ class ListView extends Component<Props, State> {
             )}
 
             {!this.props.readOnly && (
-              <Tooltip content="Clone selected elements" position={Position.BOTTOM}>
+              <Tooltip content={lang.tr('studio.flow.content.cloneElements')} position={Position.BOTTOM}>
                 <AnchorButton
                   id="btn-duplicate"
                   icon="duplicate"
@@ -372,7 +368,7 @@ class ListView extends Component<Props, State> {
             <InputGroup
               id="input-search"
               style={{ marginTop: 3, width: 250 }}
-              placeholder="Search content"
+              placeholder={lang.tr('studio.flow.content.searchContent')}
               small
               value={this.state.searchTerm}
               onChange={this.handleSearchChanged}

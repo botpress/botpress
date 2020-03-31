@@ -1,4 +1,5 @@
 import { Alignment, Icon, Navbar } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, Fragment, useEffect } from 'react'
 import { connect } from 'react-redux'
@@ -89,7 +90,7 @@ const Unlicensed = () => (
   <div className="bp-header__warning">
     <NavLink href="/admin/server/license">
       <Icon icon="warning-sign" />
-      Botpress is currently not licensed. Please update your license to re-enable all features.
+      {lang.tr('admin.botpressIsNotLicensed')}
     </NavLink>
   </div>
 )
@@ -106,7 +107,4 @@ const mapDispatchToProps = {
   fetchCurrentVersion
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App)
+export default connect(mapStateToProps, mapDispatchToProps)(App)

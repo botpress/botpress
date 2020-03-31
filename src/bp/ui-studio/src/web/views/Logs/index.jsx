@@ -8,6 +8,7 @@ import moment from 'moment'
 import { downloadBlob } from '~/util'
 
 import styles from './style.scss'
+import { lang } from 'botpress/shared'
 
 class LoggerView extends Component {
   state = {
@@ -106,11 +107,11 @@ class LoggerView extends Component {
                 inline
                 onChange={this.toggleAutoRefresh}
               >
-                Auto-refresh
+                {lang.tr('studio.flow.logs.autoRefresh')}
               </Checkbox>
             </form>
             <div className="pull-right">
-              <Button onClick={this.downloadArchive}>Download log archive</Button>
+              <Button onClick={this.downloadArchive}>{lang.tr('studio.flow.logs.downloadArchives')}</Button>
             </div>
           </Panel.Body>
         </Panel>
@@ -120,7 +121,7 @@ class LoggerView extends Component {
           </div>
           {canLoadMore && (
             <div className={styles['logs-panel-footer']} onClick={this.loadMore}>
-              Load more
+              {lang.tr('studio.flow.logs.loadMore')}
             </div>
           )}
         </div>

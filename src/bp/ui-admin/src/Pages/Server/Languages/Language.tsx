@@ -1,5 +1,5 @@
 import { Button, Position, ProgressBar, Tooltip } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import React, { FC, SFC, useState } from 'react'
 
 import api from '../../../api'
@@ -44,8 +44,8 @@ const Language: FC<Props> = props => {
 
   const deleteLanguage = async () => {
     if (
-      await confirmDialog(`Are you sure that you want to delete ${props.language.name} from the server?`, {
-        acceptLabel: 'Delete'
+      await confirmDialog(lang.tr('admin.languages.confirmDelete', { language: props.language.name }), {
+        acceptLabel: lang.tr('delete')
       })
     ) {
       await api.getSecured().post(`/admin/languages/${props.language.code}/delete`)

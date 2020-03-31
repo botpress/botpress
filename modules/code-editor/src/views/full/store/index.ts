@@ -1,4 +1,4 @@
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
@@ -94,13 +94,13 @@ class RootStore {
 
   @action.bound
   async createFilePrompt(type: FileType, isGlobal?: boolean, hookType?: string) {
-    let name = window.prompt(`Choose the name of your ${type}. No special chars. Use camel case`)
+    let name = window.prompt(lang.tr('editor.store.chooseName', { type }))
     if (!name) {
       return
     }
 
     if (!FILENAME_REGEX.test(name)) {
-      alert('Invalid filename')
+      alert(lang.tr('editor.store.invalidFilename'))
       return
     }
 
@@ -138,13 +138,13 @@ class RootStore {
   @action.bound
   async deleteFile(file: EditableFile): Promise<void> {
     if (
-      await confirmDialog(`Are you sure you want to delete the file named ${file.name}?`, {
-        acceptLabel: 'Delete'
+      await confirmDialog(lang.tr('editor.store.confirmDeleteFile', { file: file.name }), {
+        acceptLabel: lang.tr('delete')
       })
     ) {
       if (await this.api.deleteFile(file)) {
         this.editor.closeFile()
-        toastSuccess('File deleted successfully!')
+        toastSuccess(lang.tr('editor.store.fileDeleted'))
         await this.fetchFiles()
       }
     }
@@ -154,7 +154,7 @@ class RootStore {
   async disableFile(file: EditableFile): Promise<void> {
     const newName = file.name.charAt(0) !== '.' ? '.' + file.name : file.name
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess('File disabled successfully!')
+      toastSuccess(lang.tr('editor.store.fileDisabled'))
       await this.fetchFiles()
     }
   }
@@ -164,7 +164,7 @@ class RootStore {
     const newName = file.name.charAt(0) === '.' ? file.name.substr(1) : file.name
 
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess('File enabled successfully!')
+      toastSuccess(lang.tr('editor.store.fileEnabled'))
       await this.fetchFiles()
     }
   }
@@ -172,7 +172,7 @@ class RootStore {
   @action.bound
   async renameFile(file: EditableFile, newName: string) {
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess('File renamed successfully!')
+      toastSuccess(lang.tr('editor.store.fileRenamed'))
       await this.fetchFiles()
     }
   }
@@ -192,12 +192,12 @@ class RootStore {
     }
 
     if (await this.api.fileExists(duplicate)) {
-      toastFailure('A file with that name already exists')
+      toastFailure(lang.tr('editor.store.alreadyExists'))
       return
     }
 
     if (await this.api.saveFile(duplicate)) {
-      toastSuccess('File duplicated successfully!')
+      toastSuccess(lang.tr('editor.store.fileDuplicated'))
       await this.fetchFiles()
     }
   }

@@ -7,6 +7,7 @@ import NotificationComponent from '~/components/Notifications'
 
 import { fetchNotifications } from '~/actions'
 import styles from './style.scss'
+import { lang } from 'botpress/shared'
 
 // TODO: extending components is discouraged,
 // should be reworked with composition eventually
@@ -27,8 +28,8 @@ class NotificationHub extends NotificationComponent {
     const notifications = this.props.notifications || []
     const unreadCount = _.filter(notifications, { read: false }).length
 
-    const trashTip = <Tooltip id="ttip">Delete all</Tooltip>
-    const readTip = <Tooltip id="ttip">Mark all as read</Tooltip>
+    const trashTip = <Tooltip id="ttip">{lang.tr('studio.flow.notifications.deleteAll')}</Tooltip>
+    const readTip = <Tooltip id="ttip">{lang.tr('studio.flow.notifications.markRead')}</Tooltip>
 
     return (
       <div>
@@ -51,7 +52,7 @@ class NotificationHub extends NotificationComponent {
           </Panel>
         ) : (
           <div className={styles.empty}>
-            <p>You have no notifications!</p>
+            <p>{lang.tr('studio.flow.notifications.noNotifs')}</p>
           </div>
         )}
         <ListGroup
@@ -68,7 +69,4 @@ class NotificationHub extends NotificationComponent {
 
 const mapStateToProps = state => ({ notifications: state.notifications })
 
-export default connect(
-  mapStateToProps,
-  { fetchNotifications }
-)(NotificationHub)
+export default connect(mapStateToProps, { fetchNotifications })(NotificationHub)
