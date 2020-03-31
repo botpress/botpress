@@ -364,7 +364,7 @@
           "passwordResetSuccess": "Password reset successful",
           "passwordResetFail": "Could not reset password: {msg}",
           "deleteAccountConfirm": "Are you sure you want to delete {user}'s account?",
-          "deleteAccountSuccess": "`User {user} was deleted successfully`",
+          "deleteAccountSuccess": "User {user} was deleted successfully",
           "deleteAccountFail": "Could not delete user: {msg}",
           "removeConfirm": "Are you sure you want to remove {user} from this workspace?",
           "removeSucess": "User {user} was removed from workspace successfully",
