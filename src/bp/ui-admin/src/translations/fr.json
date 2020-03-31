@@ -51,6 +51,9 @@
     "lastName": "Nom de famille",
     "workspaceName": "Espace de travail: {name}",
     "signedInAs": "Connecté en tant que {name}",
+    "changeLanguage": "Changer la langue",
+    "uiLanguage": "Langue de l'interface utilisateur",
+    "uiLanguageHelper": "Ce paramètre affecte seulement l'interface utilisateur de Botpress et n'a pas d'impact sur la langue de vos bots.",
 
     "sideMenu": {
       "workspace": "Espace de travail",

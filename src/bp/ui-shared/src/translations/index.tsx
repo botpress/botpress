@@ -68,9 +68,9 @@ const squash = (space, root = {}, path = '') => {
 const getUserLocale = () => {
   const code = str => str.split('-')[0]
   const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
-  const locale = code(browserLocale || '')
+  const storageLocale = code(localStorage.getItem('uiLanguage') || '')
 
-  return translations[locale] ? locale : defaultLocale
+  return translations[storageLocale] ? storageLocale : translations[browserLocale] ? browserLocale : defaultLocale
 }
 
 const lang = (id: string, values?: Record<string, string | PrimitiveType>): string => {
