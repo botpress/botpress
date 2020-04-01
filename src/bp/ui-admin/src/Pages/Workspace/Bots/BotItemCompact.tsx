@@ -48,19 +48,14 @@ const BotItemCompact: FC<Props> = ({
     <div className="bp_table-row" key={bot.id}>
       <div className="actions">
         {hasError && (
-          <AnchorButton
-            text={lang.tr('admin.workspace.bots.item.reload')}
-            icon="refresh"
-            onClick={reloadBot}
-            minimal={true}
-          />
+          <AnchorButton text={lang.tr('admin.workspace.bots.item.reload')} icon="refresh" onClick={reloadBot} minimal />
         )}
 
         <AccessControl resource="admin.bots.*" operation="write">
           <Button
             text={lang.tr('admin.workspace.bots.item.config')}
             icon="cog"
-            minimal={true}
+            minimal
             className="configBtn"
             onClick={() => history.push(`bots/${bot.id}`)}
           />
@@ -72,13 +67,13 @@ const BotItemCompact: FC<Props> = ({
             icon="chat"
             href={botShortLink}
             target="_blank"
-            minimal={true}
+            minimal
           />
         )}
 
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
               {!bot.disabled && !hasError && (
                 <MenuItem

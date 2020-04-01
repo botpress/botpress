@@ -383,7 +383,7 @@ class Monitoring extends Component<Props, State> {
 
   render() {
     return (
-      <PageContainer title="Server Monitoring" fullWidth={true} superAdmin={true}>
+      <PageContainer title="Server Monitoring" fullWidth superAdmin>
         <CheckRequirements requirements={['redis', 'pro']} feature="monitoring">
           {this.renderChild()}
         </CheckRequirements>

@@ -111,6 +111,7 @@ export class KnexSessionRepository implements SessionRepository {
       .andWhere(this.database.knex.date.isBefore('context_expiry', new Date()))
       .select('id')
       .limit(250)
+      .orderBy('modified_on')
       .then(rows => {
         return rows.map(r => r.id)
       })) as string[]

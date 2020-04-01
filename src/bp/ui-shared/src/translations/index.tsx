@@ -1,4 +1,3 @@
-import { PrimitiveType } from 'intl-messageFormat'
 import { merge } from 'lodash'
 import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
@@ -73,7 +72,7 @@ const getUserLocale = () => {
   return translations[locale] ? locale : defaultLocale
 }
 
-const lang = (id: string, values?: Record<string, string | PrimitiveType>): string => {
+const lang = (id: string, values?: { [variable: string]: any }): string => {
   if (isDev) {
     return id
   } else {
