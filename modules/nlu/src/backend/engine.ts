@@ -137,6 +137,10 @@ export default class Engine implements NLUEngine {
 
   private async _warmEntitiesCaches(listEntities: ListEntityModel[]) {
     for (const entity of listEntities) {
+      if (!entity.cache) {
+        // when loading a model trained in a previous version
+        entity.cache = CacheManager.getOrCreateCache(entity.entityName, this.botId)
+      }
       if (CacheManager.isCacheDump(entity.cache)) {
         entity.cache = CacheManager.loadCacheFromData(<EntityCacheDump>entity.cache, entity.entityName, this.botId)
       }

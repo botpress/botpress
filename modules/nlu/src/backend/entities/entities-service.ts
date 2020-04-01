@@ -2,12 +2,13 @@ import * as sdk from 'botpress/sdk'
 
 import * as CacheManager from '../cache-manager'
 import { updateIntentsSlotsEntities } from '../intents/intent-service'
+import { EntityService } from '../typings'
 
 import { DucklingEntityExtractor } from './duckling_extractor'
 
 const ENTITIES_DIR = './entities'
 
-export default class EntityService {
+export default class EntitiesService implements EntityService {
   constructor(private ghost: sdk.ScopedGhostService, private botId: string) {}
 
   private sanitizeFileName(name: string): string {

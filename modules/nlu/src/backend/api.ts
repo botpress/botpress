@@ -3,7 +3,6 @@ import Joi, { validate } from 'joi'
 import _ from 'lodash'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
-import EntityService from './entities/entities-service'
 import { EntityDefCreateSchema } from './entities/validation'
 import {
   deleteIntent,
@@ -41,10 +40,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/cross-validation/:lang', async (req, res) => {
     const { botId, lang } = req.params
     const ghost = bp.ghost.forBot(botId)
-    const entityService = new EntityService(ghost, botId)
 
     const intentDefs = await getIntents(ghost)
-    const entityDefs = await entityService.getCustomEntities()
+    const entityDefs = await state.nluByBot[botId].entityService.getCustomEntities()
 
     bp.logger.forBot(botId).info('Started cross validation')
     const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang)
@@ -109,13 +107,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/intents', async (req, res) => {
     const { botId } = req.params
     const ghost = bp.ghost.forBot(botId)
-    const entityService = new EntityService(ghost, botId)
     try {
       const intentDef = await validate(req.body, IntentDefCreateSchema, {
         stripUnknown: true
       })
 
-      await saveIntent(ghost, intentDef, entityService)
+      await saveIntent(ghost, intentDef, state.nluByBot[botId].entityService)
 
       res.sendStatus(200)
     } catch (err) {
@@ -130,9 +127,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/intents/:intentName', async (req, res) => {
     const { botId, intentName } = req.params
     const ghost = bp.ghost.forBot(botId)
-    const entityService = new EntityService(ghost, botId)
     try {
-      await updateIntent(ghost, intentName, req.body, entityService)
+      await updateIntent(ghost, intentName, req.body, state.nluByBot[botId].entityService)
       res.sendStatus(200)
     } catch (err) {
       bp.logger
@@ -151,9 +147,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
     if (action === 'delete' || action === 'create') {
       try {
         const ghost = bp.ghost.forBot(botId)
-        const entityService = new EntityService(ghost, botId)
 
-        await updateContextsFromTopics(ghost, entityService, [condition.params.intentName])
+        await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [condition.params.intentName])
         return res.sendStatus(200)
       } catch (err) {
         return res.status(400).send(err.message)
@@ -167,10 +162,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const { botId } = req.params
     const { intentNames } = req.body
     const ghost = bp.ghost.forBot(botId)
-    const entityService = new EntityService(ghost, botId)
 
     try {
-      await updateContextsFromTopics(ghost, entityService, intentNames)
+      await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, intentNames)
       res.sendStatus(200)
     } catch (err) {
       bp.logger
@@ -195,18 +189,14 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/entities', async (req, res) => {
     const { botId } = req.params
-    const ghost = bp.ghost.forBot(botId)
-    const entityService = new EntityService(ghost, botId)
-    const entities = await entityService.getEntities()
+    const entities = await state.nluByBot[botId].entityService.getEntities()
     res.json(entities)
   })
 
   router.get('/entities/:entityName', async (req, res) => {
     const { botId, entityName } = req.params
-    const ghost = bp.ghost.forBot(botId)
     try {
-      const entityService = new EntityService(ghost, botId)
-      const entity = await entityService.getEntity(entityName)
+      const entity = await state.nluByBot[botId].entityService.getEntity(entityName)
       res.send(entity)
     } catch (err) {
       bp.logger
@@ -223,9 +213,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
       const entityDef = (await validate(req.body, EntityDefCreateSchema, {
         stripUnknown: true
       })) as sdk.NLU.EntityDefinition
-      const ghost = bp.ghost.forBot(botId)
-      const entityService = new EntityService(ghost, botId)
-      await entityService.saveEntity(entityDef)
+
+      await state.nluByBot[botId].entityService.saveEntity(entityDef)
 
       res.sendStatus(200)
     } catch (err) {
@@ -243,9 +232,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
       const entityDef = (await validate(req.body, EntityDefCreateSchema, {
         stripUnknown: true
       })) as sdk.NLU.EntityDefinition
-      const ghost = bp.ghost.forBot(botId)
-      const entityService = new EntityService(ghost, botId)
-      await entityService.updateEntity(id, entityDef)
+
+      await state.nluByBot[botId].entityService.updateEntity(id, entityDef)
       res.sendStatus(200)
     } catch (err) {
       bp.logger
@@ -258,10 +246,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.post('/entities/:id/delete', async (req, res) => {
     const { botId, id } = req.params
-    const ghost = bp.ghost.forBot(botId)
-    const entityService = new EntityService(ghost, botId)
     try {
-      await entityService.deleteEntity(id)
+      await state.nluByBot[botId].entityService.deleteEntity(id)
       res.sendStatus(204)
     } catch (err) {
       bp.logger

@@ -2,7 +2,7 @@ import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import EntityService from '../entities/entities-service'
+import { EntityService } from '../typings'
 
 const INTENTS_DIR = './intents'
 

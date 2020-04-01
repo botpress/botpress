@@ -3,13 +3,13 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { dialogConditions } from './conditions'
+import EntityService from './entities/entities-service'
 import { getIntents, updateIntent } from './intents/intent-service'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
 import { getOnServerReady } from './module-lifecycle/on-server-ready'
 import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
-import EntityService from './entities/entities-service'
 
 const state: NLUState = { nluByBot: {} }
 

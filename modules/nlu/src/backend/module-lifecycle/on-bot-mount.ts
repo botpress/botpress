@@ -107,10 +107,10 @@ export function getOnBotMount(state: NLUState) {
       trainOrLoad,
       trainSessions: {},
       cancelTraining,
-      isTraining
+      isTraining,
+      entityService
     }
 
-    // await BotCacheProvider.loadBotCaches(botId)
     trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
   }
 }

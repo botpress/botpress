@@ -47,5 +47,5 @@ export function loadCacheFromData<T>(
 // if necessary implement loadCacheFromPath
 
 export function isCacheDump(data: any): boolean {
-  return !(typeof data.has === 'function')
+  return !(typeof data?.has === 'function')
 }
