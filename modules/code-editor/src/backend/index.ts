@@ -1,6 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
 import { Config } from '../config'
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
 
 import api from './api'
 import Editor from './editor'
@@ -12,13 +14,11 @@ const onServerReady = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
+  translations: { en, fr },
   definition: {
     name: 'code-editor',
     menuIcon: 'code',
-    menuText: {
-      en: 'Code Editor',
-      fr: 'Éditeur de code'
-    },
+    menuText: 'Code Editor',
     noInterface: false,
     fullName: 'Code Editor',
     homepage: 'https://botpress.com'
