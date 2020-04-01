@@ -2,6 +2,9 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
+
 import apiCall from './callApi'
 import choice from './choice'
 import email from './email'
@@ -18,19 +21,13 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 const skillsToRegister: sdk.Skill[] = [
   {
     id: 'choice',
-    name: {
-      en: 'Choice',
-      fr: 'Choix'
-    },
+    name: 'module.basic-skills.choice',
     icon: 'numbered-list',
     flowGenerator: choice.generateFlow
   },
   {
     id: 'CallAPI',
-    name: {
-      en: 'Call API',
-      fr: 'Appeler API'
-    },
+    name: 'module.basic-skills.callApi',
     icon: 'code-block',
     flowGenerator: apiCall.generateFlow
   },
@@ -51,6 +48,7 @@ const skillsToRegister: sdk.Skill[] = [
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onModuleUnmount,
+  translations: { en, fr },
   definition: {
     name: 'basic-skills',
     menuIcon: 'fiber_smart_record',

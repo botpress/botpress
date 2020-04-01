@@ -7,6 +7,7 @@ import {
   fetchNotifications,
   fetchSkills,
   fetchUser,
+  getModuleTranslations,
   handleReceiveFlowsModification,
   refreshHints,
   replaceNotifications
@@ -22,6 +23,7 @@ interface Props {
   refreshHints: () => void
   fetchNotifications: () => void
   fetchBotInformation: () => void
+  getModuleTranslations: () => void
   fetchUser: () => void
   replaceNotifications: (notifications: any) => void
   handleReceiveFlowsModification: (modifications: any) => void
@@ -31,6 +33,7 @@ interface Props {
 
 class App extends Component<Props> {
   fetchData = () => {
+    this.props.getModuleTranslations()
     this.props.fetchBotInformation()
     this.props.fetchModules()
     this.props.fetchSkills()
@@ -107,7 +110,8 @@ const mapDispatchToProps = {
   fetchNotifications,
   replaceNotifications,
   addNotifications,
-  handleReceiveFlowsModification
+  handleReceiveFlowsModification,
+  getModuleTranslations
 }
 
 const mapStateToProps = state => ({

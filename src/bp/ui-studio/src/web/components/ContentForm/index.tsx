@@ -46,8 +46,7 @@ const translatePropsRecursive = obj => {
   return _.reduce(
     obj,
     (result, value, key) => {
-      // We check specifically if the object has a translation, because title is used in different scopes
-      if ((key === 'title' || key === 'description') && value.en) {
+      if ((key === 'title' || key === 'description') && typeof value === 'string') {
         result[key] = lang.tr(value)
       } else if (_.isObject(value) && !_.isArray(value)) {
         result[key] = translatePropsRecursive(value)

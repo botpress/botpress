@@ -110,6 +110,7 @@ declare module 'botpress/sdk' {
     skills?: Skill[]
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
+    translations?: { [lang: string]: object }
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
@@ -181,8 +182,11 @@ declare module 'botpress/sdk' {
     noInterface?: boolean
     /** An icon to display next to the name, if none is specified, it will receive a default one */
     menuIcon?: string
-    /** The name displayed on the menu */
-    menuText?: string | { [lang: string]: string }
+    /**
+     * The name displayed on the menu
+     * @deprecated Set the property "fullName" in the translations file for the desired language
+     */
+    menuText?: string
     /** Optionally specify a link to your page or github repo */
     homepage?: string
     /** Whether or not the module is likely to change */
@@ -197,7 +201,7 @@ declare module 'botpress/sdk' {
     /** An identifier for the skill. Use only a-z_- characters. */
     id: string
     /** The name that will be displayed in the toolbar for the skill */
-    name: string | { [lang: string]: string }
+    name: string
     /** An icon to identify the skill */
     icon?: string | any
     /** Name of the parent module. This field is filled automatically when they are loaded */
@@ -1102,8 +1106,8 @@ declare module 'botpress/sdk' {
    */
   export type ContentType = {
     id: string
-    title: string | { [lang: string]: string }
-    description: string | { [lang: string]: string }
+    title: string
+    description: string
     /**
      * Hiding content types prevents users from adding these kind of elements via the Flow Editor.
      * They are still visible in the Content Manager, and it's still possible to use these elements by specifying

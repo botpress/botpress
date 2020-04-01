@@ -70,16 +70,10 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_text',
   group: 'Built-in Messages',
-  title: {
-    en: 'Text',
-    fr: 'Texte'
-  },
+  title: 'module.builtin.types.text.title',
 
   jsonSchema: {
-    description: {
-      en: 'A regular text message with optional typing indicators and alternates',
-      fr: 'Un message texte régulier'
-    },
+    description: 'module.builtin.types.text.description',
     type: 'object',
     required: ['text'],
     properties: {
@@ -89,10 +83,7 @@ module.exports = {
       },
       variations: {
         type: 'array',
-        title: {
-          en: 'Alternates (optional)',
-          fr: 'Alternatives (optionnel)'
-        },
+        title: 'module.builtin.types.text.alternatives',
         items: {
           type: 'string',
           default: ''
@@ -100,10 +91,7 @@ module.exports = {
       },
       markdown: {
         type: 'boolean',
-        title: {
-          en: 'Use markdown',
-          fr: 'Utiliser markdown'
-        },
+        title: 'module.builtin.useMarkdown',
         default: true
       },
       ...base.typingIndicators

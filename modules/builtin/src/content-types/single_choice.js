@@ -90,16 +90,10 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: {
-    en: 'Single Choice',
-    fr: 'Choix Unique'
-  },
+  title: 'module.builtin.types.singleChoice.title',
 
   jsonSchema: {
-    description: {
-      en: 'Suggest choices to the user with the intention of picking only one (with an optional message)',
-      fr: `Suggérer un choix à l'utilisateur avec l'intention de n'en sélectionner qu'un (avec un message optionnel)`
-    },
+    description: 'module.builtin.types.singleChoice.description',
     type: 'object',
     required: ['choices'],
     properties: {
@@ -109,10 +103,7 @@ module.exports = {
       },
       choices: {
         type: 'array',
-        title: {
-          en: 'Choices',
-          fr: 'Choix'
-        },
+        title: 'module.builtin.types.singleChoice.choice',
         minItems: 1,
         maxItems: 10,
         items: {
@@ -120,18 +111,12 @@ module.exports = {
           required: ['title', 'value'],
           properties: {
             title: {
-              description: {
-                en: 'The title of the choice (this is what gets shown to the user)',
-                fr: `Le titre du choix (ce que verra l'utilisateur)`
-              },
+              description: 'module.builtin.types.singleChoice.itemTitle',
               type: 'string',
               title: 'Message'
             },
             value: {
-              description: {
-                en: 'The value that your bot gets when the user picks this choice (usually hidden from the user)',
-                fr: `La valeur que recevra le bot lorsque l'utilisateur choisi cet item (habituellement caché de l'utilisateur)`
-              },
+              description: 'module.builtin.types.singleChoice.itemValue',
               type: 'string',
               title: 'Value'
             }
@@ -140,10 +125,7 @@ module.exports = {
       },
       markdown: {
         type: 'boolean',
-        title: {
-          en: 'Use markdown',
-          fr: 'Utiliser markdown'
-        },
+        title: 'module.builtin.useMarkdown',
         default: true
       },
       ...base.typingIndicators

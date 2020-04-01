@@ -480,3 +480,11 @@ export const getQnaCountByTopic = () => dispatch => {
     dispatch(receiveQNACountByTopic(data))
   })
 }
+
+export const receiveModuleTranslations = createAction('LANG/TRANSLATIONS')
+export const getModuleTranslations = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.API_PATH}/modules/translations`).then(({ data }) => {
+    dispatch(receiveModuleTranslations(data))
+  })
+}

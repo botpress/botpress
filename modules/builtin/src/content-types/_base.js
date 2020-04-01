@@ -2,10 +2,7 @@ module.exports = {
   typingIndicators: {
     typing: {
       type: 'boolean',
-      title: {
-        en: 'Show typing indicators',
-        fr: `Afficher l'indicateur de frappe`
-      },
+      title: 'module.builtin.typingIndicator',
       default: true
     }
   }
