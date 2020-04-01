@@ -59,7 +59,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     const readOnlyIcon = (
-      <Tooltip content={lang.tr('editor.navigator.isReadOnly')}>
+      <Tooltip content={lang.tr('module.code-editor.navigator.isReadOnly')}>
         <Icon icon="lock" />
       </Tooltip>
     )
@@ -68,9 +68,9 @@ class FileNavigator extends React.Component<Props, State> {
       <Tooltip
         content={
           <span>
-            {lang.tr('editor.navigator.codeSamples')}
-            <br /> {lang.tr('editor.navigator.codeSamples2')}
-            <br /> <br /> {lang.tr('editor.navigator.cannotBeEdited')}
+            {lang.tr('module.code-editor.navigator.codeSamples')}
+            <br /> {lang.tr('module.code-editor.navigator.codeSamples2')}
+            <br /> <br /> {lang.tr('module.code-editor.navigator.cannotBeEdited')}
           </span>
         }
         hoverOpenDelay={500}
@@ -146,7 +146,7 @@ class FileNavigator extends React.Component<Props, State> {
             <MenuItem
               id="btn-duplicateCurrent"
               icon="duplicate"
-              text={lang.tr('editor.navigator.duplicateToCurrent')}
+              text={lang.tr('module.code-editor.navigator.duplicateToCurrent')}
               onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
             />
           </Menu>,
@@ -176,7 +176,7 @@ class FileNavigator extends React.Component<Props, State> {
             <MenuItem
               id="btn-duplicateCurrent"
               icon="duplicate"
-              text={lang.tr('editor.navigator.copyExample')}
+              text={lang.tr('module.code-editor.navigator.copyExample')}
               onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
             />
           </Menu>,
@@ -189,14 +189,14 @@ class FileNavigator extends React.Component<Props, State> {
               <MenuItem
                 id="btn-duplicateCurrent"
                 icon="duplicate"
-                text={lang.tr('editor.navigator.copyExample')}
+                text={lang.tr('module.code-editor.navigator.copyExample')}
                 onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
               />
             )}
             <MenuItem
               id="btn-duplicateCurrent"
               icon="duplicate"
-              text={lang.tr('editor.navigator.copyExampleToHooks')}
+              text={lang.tr('module.code-editor.navigator.copyExampleToHooks')}
               onClick={() => this.props.duplicateFile(file, { forCurrentBot: false, keepSameName: true })}
             />
           </Menu>,
@@ -216,7 +216,7 @@ class FileNavigator extends React.Component<Props, State> {
           <MenuItem
             id="btn-move"
             icon="edit"
-            text={lang.tr('editor.navigator.renameMove')}
+            text={lang.tr('module.code-editor.navigator.renameMove')}
             onClick={() => this.props.moveFile(file)}
           />
         ) : (
@@ -288,7 +288,7 @@ class FileNavigator extends React.Component<Props, State> {
 
   render() {
     if (!this.state.nodes.length) {
-      return <div className={style.padding}>{lang.tr('editor.navigator.noFilesFound')}</div>
+      return <div className={style.padding}>{lang.tr('module.code-editor.navigator.noFilesFound')}</div>
     }
 
     return (
