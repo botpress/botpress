@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
@@ -36,6 +37,7 @@ interface ILayoutProps {
   toggleBottomPanel: () => null
   history: any
   bottomPanel: boolean
+  translations: any
 }
 
 class Layout extends React.Component<ILayoutProps> {
@@ -61,6 +63,13 @@ class Layout extends React.Component<ILayoutProps> {
     })
 
     setTimeout(() => BotUmountedWarning(), 500)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!prevProps.translations && this.props.translations) {
+      lang.extend(this.props.translations)
+      lang.init()
+    }
   }
 
   toggleEmulator = () => {
@@ -129,7 +138,7 @@ class Layout extends React.Component<ILayoutProps> {
   }
 
   render() {
-    if (this.props.viewMode < 0) {
+    if (this.props.viewMode < 0 || !this.props.translations) {
       return null
     }
 
@@ -223,7 +232,8 @@ class Layout extends React.Component<ILayoutProps> {
 const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
-  bottomPanel: state.ui.bottomPanel
+  bottomPanel: state.ui.bottomPanel,
+  translations: state.language.translations
 })
 
 const mapDispatchToProps = dispatch =>

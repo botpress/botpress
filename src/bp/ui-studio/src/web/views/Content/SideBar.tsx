@@ -15,7 +15,7 @@ export default class SidebarView extends Component<Props> {
     const contentTypeActions = this.props.categories.map(cat => {
       return {
         id: `btn-create-${cat.id}`,
-        label: cat.title,
+        label: lang.tr(cat.title),
         onClick: () => {
           this.props.handleCategorySelected(cat.id)
           this.props.handleAdd()
@@ -35,13 +35,13 @@ export default class SidebarView extends Component<Props> {
     const contentTypes = [this.CATEGORY_ALL, ...this.props.categories].map(cat => {
       return {
         id: `btn-filter-${cat.id}`,
-        label: !!cat.count ? `${cat.title} (${cat.count})` : cat.title,
+        label: !!cat.count ? `${lang.tr(cat.title)} (${cat.count})` : lang.tr(cat.title),
         value: cat,
         selected: cat.id === this.props.selectedId,
         actions: [
           cat !== this.CATEGORY_ALL && {
             id: `btn-list-create-${cat.id}`,
-            tooltip: lang.tr('studio.flow.content.sideBar.createNew', { name: cat.title }),
+            tooltip: lang.tr('studio.flow.content.sideBar.createNew', { name: lang.tr(cat.title) }),
             icon: 'add' as IconName,
             onClick: () => {
               this.props.handleCategorySelected(cat.id)

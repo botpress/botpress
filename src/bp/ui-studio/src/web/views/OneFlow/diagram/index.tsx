@@ -11,6 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { FlowView, LibraryElement } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -285,23 +286,47 @@ class Diagram extends Component<Props> {
     ContextMenu.show(
       <Menu>
         {this.props.canPasteNode && (
-          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
+          <MenuItem icon="clipboard" text={lang.tr('paste')} onClick={() => this.pasteElementFromBuffer(point)} />
         )}
-        <MenuDivider title="Add Node" />
+        <MenuDivider title={lang.tr('studio.flow.addNode')} />
         {!originatesFromOutPort && (
-          <MenuItem text="Trigger" onClick={wrap(this.add.triggerNode, point)} icon="send-to-graph" />
+          <MenuItem
+            text={lang.tr('studio.flow.nodeType.trigger')}
+            onClick={wrap(this.add.triggerNode, point)}
+            icon="send-to-graph"
+          />
         )}
-        <MenuItem text="Send Message" onClick={wrap(this.add.sayNode, point)} icon="comment" />
-        <MenuItem text="Execute Action" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
-        <MenuItem text="Listen" onClick={wrap(this.add.listenNode, point)} icon="hand" />
-        <MenuItem text="Split" onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
-        <MenuItem text="Action" onClick={wrap(this.add.actionNode, point)} icon="offline" />
+        <MenuItem
+          text={lang.tr('studio.flow.nodeType.sendMessage')}
+          onClick={wrap(this.add.sayNode, point)}
+          icon="comment"
+        />
+        <MenuItem
+          text={lang.tr('studio.flow.nodeType.executeAction')}
+          onClick={wrap(this.add.executeNode, point)}
+          icon="code-block"
+        />
+        <MenuItem
+          text={lang.tr('studio.flow.nodeType.listen')}
+          onClick={wrap(this.add.listenNode, point)}
+          icon="hand"
+        />
+        <MenuItem
+          text={lang.tr('studio.flow.nodeType.split')}
+          onClick={wrap(this.add.routerNode, point)}
+          icon="flow-branch"
+        />
+        <MenuItem
+          text={lang.tr('studio.flow.nodeType.action')}
+          onClick={wrap(this.add.actionNode, point)}
+          icon="offline"
+        />
 
-        <MenuItem tagName="button" text="Skills" icon="add">
+        <MenuItem tagName="button" text={lang.tr('studio.flow.sidePanel.skills')} icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
               key={skill.id}
-              text={skill.name}
+              text={lang.tr(skill.name)}
               tagName="button"
               onClick={wrap(this.add.skillNode, point, skill.id)}
               icon={skill.icon}
@@ -352,20 +377,22 @@ class Diagram extends Component<Props> {
     ContextMenu.show(
       <Menu>
         {!isNodeTargeted && this.props.canPasteNode && (
-          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
+          <MenuItem icon="clipboard" text={lang.tr('paste')} onClick={() => this.pasteElementFromBuffer(point)} />
         )}
         {isNodeTargeted && (
           <Fragment>
-            {isTriggerNode && <MenuItem icon="edit" text="Edit" onClick={() => this.editTriggers(targetModel)} />}
+            {isTriggerNode && (
+              <MenuItem icon="edit" text={lang.tr('edit')} onClick={() => this.editTriggers(targetModel)} />
+            )}
             <MenuItem
               icon="trash"
-              text="Delete"
+              text={lang.tr('delete')}
               disabled={!canDeleteNode}
               onClick={() => this.deleteSelectedElements()}
             />
             <MenuItem
               icon="duplicate"
-              text="Copy"
+              text={lang.tr('copy')}
               onClick={() => {
                 this.props.switchFlowNode(targetModel.id)
                 this.copySelectedElementToBuffer()
@@ -374,7 +401,7 @@ class Diagram extends Component<Props> {
             {isLibraryNode && (
               <MenuItem
                 icon="book"
-                text="Add to library"
+                text={lang.tr('studio.flow.addToLibrary')}
                 onClick={() => {
                   const elementId = textToItemId((targetModel as SaySomethingNodeModel).onEnter?.[0])
                   this.props.addElementToLibrary(elementId)
