@@ -13,11 +13,9 @@
   color: $sidebar-text-color;
   height: 100%;
   max-width: 200px;
-  overflow-x: visible;
-  overflow-y: hidden;
   position: relative;
   width: 50px;
-  z-index: 10000;
+  z-index: 999;
 
   .logo {
     display: block;
