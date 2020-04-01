@@ -4,6 +4,7 @@ import { BaseDialogProps } from './BaseDialog/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { TreeViewProps } from './TreeView/typings'
+import { ToastOptions } from './Toaster'
 
 declare module 'botpress/shared' {
   export function BaseDialog(props: BaseDialogProps): JSX.Element
@@ -18,6 +19,7 @@ declare module 'botpress/shared' {
     extend(langs)
     locale(): string
   }
+  export function toastFailure(message: string, details?: string, options?: ToastOptions)
 
   export const style: { TooltipStyle }
   export { Option }
