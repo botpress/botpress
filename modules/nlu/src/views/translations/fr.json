@@ -41,7 +41,7 @@
       "entities": "Entités",
       "selectPlaceholder": "Sélectionner des entitiées",
       "filterPlaceholder": "Filter entities",
-      "deleteMessage": "Êtes-vous certain de vouloir supprimet l'entité \"{entityName}\" ?",
+      "deleteMessage": "Êtes-vous certain de vouloir supprimer l'entité \"{entityName}\" ?",
       "sensitiveLabel": "Contient des données sensibles",
       "sensitiveTooltip": "Les données sensibles sont remplacées par ** avant d'être enregistré dans la base de données",
       "matchCaseLabel": "Sensible à la case",
