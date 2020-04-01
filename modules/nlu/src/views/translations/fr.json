@@ -54,7 +54,7 @@
       "patternLabel": "Expression régulière",
       "patternPlaceholder": "Ajouter un expression régulière valide",
       "patternInvalid": "Expression régulière invalide",
-      "synonymPlaceholder": "Ajouter des synonymes, séparé par des virgules",
+      "synonymPlaceholder": "Ajouter des synonymes, séparés par des virgules",
       "strict": "Stricte",
       "medium": "Moyen",
       "loose": "Lâche",
