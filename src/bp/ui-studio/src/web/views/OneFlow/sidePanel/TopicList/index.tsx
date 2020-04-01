@@ -1,4 +1,4 @@
-import { Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip, AnchorButton } from '@blueprintjs/core'
+import { AnchorButton, Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, TreeView } from 'botpress/shared'

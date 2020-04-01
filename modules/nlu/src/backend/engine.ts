@@ -135,7 +135,7 @@ export default class Engine implements NLUEngine {
     this.modelsByLang[model.languageCode] = model
   }
 
-  private async _warmEntitiesCaches(listEntities: ListEntityModel[]) {
+  private _warmEntitiesCaches(listEntities: ListEntityModel[]) {
     for (const entity of listEntities) {
       if (!entity.cache) {
         // when loading a model trained in a previous version
