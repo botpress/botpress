@@ -56,7 +56,7 @@
       "synonymPlaceholder": "Type a synonym (or more, comma separated) and hit enter",
       "strict": "Strict",
       "medium": "Medium",
-      "loose": "Losse",
+      "loose": "Loose",
       "occurrenceTooltip": "An occurrence is a value of your entity. Each occurrence can have multiple synonyms.",
       "newOccurrence": "New occurrence",
       "occurrenceLabel": "Occurrences",
