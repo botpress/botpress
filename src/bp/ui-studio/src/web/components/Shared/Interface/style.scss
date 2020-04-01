@@ -2,11 +2,11 @@ $status-bar-height: 30px;
 
 .container {
   position: relative;
-  height: calc(100vh - #{$status-bar-height});
+  height: 100%;
 }
 
 .fullsize {
-  height: calc(100vh - #{$status-bar-height});
+  height: 100%;
 }
 
 .yOverflowScroll {

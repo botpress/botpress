@@ -1,17 +1,17 @@
-.container {
+.mainLayout {
   display: flex;
-  height: 100%;
+  align-items: flex-start;
+  height: calc(100vh - 30px);
 }
 
-:global(#mainLayout) {
-  height: calc(100vh);
+.container {
+  height: 100%;
+  flex-grow: 1;
+  position: relative;
 }
 
 .main {
   overflow-y: auto;
-  left: 50px;
-  top: 50px;
-  height: 100%;
   width: 100%;
 }
 
@@ -98,16 +98,4 @@
     border-top: 5px solid rgba(0, 0, 0, 0.2);
     border-bottom: 5px solid rgba(0, 0, 0, 0.2);
   }
-}
-
-.container :global(.SplitPane) {
-  width: calc(100vw - 50px) !important;
-  left: 50px;
-}
-
-.container :global(.Pane1) > div,
-.container :global(.Pane2) > div {
-  width: 100%;
-  height: 100%;
-  position: relative;
 }
