@@ -1,0 +1,24 @@
+{
+  "fullName": "Basic Skills",
+  "typingIndicator": "Show typing indicators",
+  "useMarkdown": "Use markdown",
+  "types": {
+    "actionButton": {
+      "title": "Action Button",
+      "description": "A button that triggers an action, often used in cards",
+      "buttonTitle": "Title of the button"
+    },
+    "text": {
+      "title": "Text",
+      "description": "A regular text message with optional typing indicators and alternates",
+      "alternatives": "Alternates (optional)"
+    },
+    "singleChoice": {
+      "title": "Single Choice",
+      "description": "Suggest choices to the user with the intention of picking only one (with an optional message)",
+      "choice": "Choice",
+      "itemTitle": "The title of the choice (this is what gets shown to the user)",
+      "itemValue": "The value that your bot gets when the user picks this choice (usually hidden from the user)"
+    }
+  }
+}

@@ -17,6 +17,34 @@
   "delete": "Delete",
   "never": "Never",
   "refresh": "Refresh",
+  "content": "Content",
+  "flows": "Flows",
+  "configuration": "Config",
+  "actionRequired": "Action Required",
+  "paste": "Paste",
+
+  "statusBar": {
+    "emulator": "Emulator",
+    "logsPanel": "Logs Panel",
+    "notifications": "Notifications",
+    "readDoc": "Read Documentation",
+    "switchBot": "Switch Bot",
+    "backToAdmin": "Back to admin",
+    "switchBotWarning": "Switch to another bot. You will leave this interface.",
+    "contentLanguage": "Content Language",
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
+    "toggleLogsPanel": "Toggle Logs Panel",
+    "toggleGuidedTour": "Toggle Guided Tour",
+    "viewNotifications": "View Notifications",
+    "documentationAvailable": "This screen has documentation available.",
+    "bottomPanel": {
+      "logs": "Logs",
+      "scrollToFollow": "Scroll to follow logs",
+      "downloadLogs": "Download Logs",
+      "clearHistory": "Clear log history",
+      "closePanel": "Close Panel"
+    }
+  },
 
   "config": {
     "general": "General",
@@ -76,6 +104,17 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "nowSaveAuto": "Pssst! Flows now save automatically, no need to save anymore.",
       "sessionStartsHere": "Every user session starts here",
+      "addToLibrary": "Add to library",
+      "addNode": "Add Node",
+
+      "nodeType": {
+        "trigger": "Trigger",
+        "sendMessage": "Send Message",
+        "executeAction": "Execute Action",
+        "listen": "Listen",
+        "split": "Split",
+        "action": "Action"
+      },
 
       "sidePanel": {
         "create": "Create",
@@ -210,6 +249,8 @@
         "deleteElements": "Delete selected elements",
         "cloneElements": "Clone selected elements",
         "searchContent": "Search content",
+        "mustBeDefaultLang": "Content element must be created in your default language first.",
+        "switchToDefaultLang": "Switch to {defaultLang} and start editing",
 
         "import": {
           "notAbleToExtractData": "We were not able to extract any data from your file. Either the file is empty, or it doesn't match any known format.",
