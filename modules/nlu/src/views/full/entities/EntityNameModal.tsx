@@ -1,7 +1,8 @@
 import { Button, Callout, Classes, Dialog, FormGroup, HTMLSelect, Intent } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import { NLUApi } from '../../api'
 
@@ -69,7 +70,7 @@ export const EntityNameModal: FC<Props> = props => {
     const entity = _.cloneDeep(props.originalEntity)
     entity.name = name.trim()
     entity.id = getEntityId(name)
-    await props.api.updateEntity(props.originalEntity.id, entity)
+    await props.api.updateEntity(getEntityId(props.originalEntity.name), entity)
     props.onEntityModified(entity)
   }
 
@@ -90,21 +91,21 @@ export const EntityNameModal: FC<Props> = props => {
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name
   const alreadyExists = !isIdentical && _.some(props.entityIDs, id => id === getEntityId(name))
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Entity' }
-  let submitText = 'Create'
+  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('nlu.createActionLabel') }
+  let submitText = lang.tr('nlu.createActionLabel')
   if (props.action === 'duplicate') {
     dialog = { icon: 'duplicate', title: 'Duplicate Entity' }
-    submitText = 'Duplicate'
+    submitText = lang.tr('nlu.duplicateActionLabel')
   } else if (props.action === 'rename') {
     dialog = { icon: 'edit', title: 'Rename Entity' }
-    submitText = 'Rename'
+    submitText = lang.tr('nlu.renameActionLabel')
   }
 
   return (
     <Dialog isOpen={props.isOpen} onClose={props.closeModal} transitionDuration={0} {...dialog}>
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label="Name">
+          <FormGroup label={lang.tr('nlu.entities.nameLabel')}>
             <input
               required
               name="name"
@@ -112,7 +113,7 @@ export const EntityNameModal: FC<Props> = props => {
               tabIndex={1}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               dir="auto"
-              placeholder="Entity name"
+              placeholder={lang.tr('nlu.entities.namePlaceHolder')}
               value={name}
               onChange={e => setName(e.target.value)}
               autoFocus
@@ -131,8 +132,8 @@ export const EntityNameModal: FC<Props> = props => {
           )}
 
           {alreadyExists && (
-            <Callout title="Name already in use" intent={Intent.DANGER}>
-              An entity with that name already exists. Please choose another one.
+            <Callout title={lang.tr('nlu.entities.nameConflictTitle')} intent={Intent.DANGER}>
+              {lang.tr('nlu.entities.nameConflictMessage')}
             </Callout>
           )}
         </div>

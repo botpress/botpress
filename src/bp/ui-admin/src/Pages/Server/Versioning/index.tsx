@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import api from '~/api'
 import { toastInfo } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
-import { pullToken } from '~/Auth'
+import { getToken } from '~/Auth'
 
 import DownloadArchive from './DownloadArchive'
 import UploadArchive from './UploadArchive'
@@ -19,7 +19,7 @@ const Versioning: FC<{ profile: any }> = props => {
 
   useEffect(() => {
     const bpcli = navigator.appVersion.indexOf('Win') !== -1 ? 'bp.exe' : './bp'
-    const { token } = pullToken()
+    const token = getToken()
     const host = window.location.origin
 
     setPullCommand(`${bpcli} pull --url ${host}${window['ROOT_PATH']} --authToken ${token} --targetDir data`)

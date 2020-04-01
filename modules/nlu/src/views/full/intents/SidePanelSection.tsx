@@ -37,7 +37,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
   const deleteIntent = async (intentName: string) => {
     if (
       await confirmDialog(lang.tr('nlu.intents.deleteConfirmMessage', { intentName }), {
-        acceptLabel: lang.tr('nlu.intents.deleteConfirmLabel')
+        acceptLabel: lang.tr('nlu.deleteActionLabel')
       })
     ) {
       if (props.currentItem && props.currentItem.name === intentName) {
@@ -119,17 +119,17 @@ export const IntentSidePanelSection: FC<Props> = props => {
           selected: props.currentItem && props.currentItem.name === intent.name,
           contextMenu: [
             {
-              label: lang.tr('nlu.intents.renameActionLabel'),
+              label: lang.tr('nlu.renameActionLabel'),
               icon: 'edit',
               onClick: () => showIntentNameModal(intent.name, 'rename')
             },
             {
-              label: lang.tr('nlu.intents.duplicateActionLabel'),
+              label: lang.tr('nlu.duplicateActionLabel'),
               icon: 'duplicate',
               onClick: () => showIntentNameModal(intent.name, 'duplicate')
             },
             {
-              label: lang.tr('nlu.intents.deleteActionLabel'),
+              label: lang.tr('nlu.deleteActionLabel'),
               icon: 'delete',
               onClick: () => deleteIntent(intent.name)
             }

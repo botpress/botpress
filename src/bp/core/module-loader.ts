@@ -179,7 +179,7 @@ export class ModuleLoader {
     // Module loaded successfully, we will process its regular lifecycle
     if (isModuleLoaded) {
       const api = await createForModule(moduleName)
-      await (entryPoint.onServerReady && entryPoint.onServerReady(api))
+      await entryPoint.onServerReady?.(api)
 
       if (entryPoint.onBotMount) {
         await Promise.mapSeries(BotService.getMountedBots(), x => entryPoint.onBotMount!(api, x))
@@ -191,7 +191,7 @@ export class ModuleLoader {
     try {
       ModuleLoader.processModuleEntryPoint(module, name)
       const api = await createForModule(name)
-      await (module.onServerStarted && module.onServerStarted(api))
+      await module.onServerStarted?.(api)
 
       this.entryPoints.set(name, module)
 
@@ -219,7 +219,7 @@ export class ModuleLoader {
       await Promise.mapSeries(BotService.getMountedBots(), x => loadedModule.onBotUnmount!(api, x))
     }
 
-    await (loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api))
+    await loadedModule.onModuleUnmount?.(api)
 
     const resourceLoader = new ModuleResourceLoader(this.logger, moduleName, this.ghost)
     await resourceLoader.disableResources()
@@ -234,7 +234,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onBotUnmount && entryPoint.onBotUnmount(api, botId))
+      await entryPoint.onBotUnmount?.(api, botId)
     }
   }
 
@@ -252,7 +252,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onFlowChanged && entryPoint.onFlowChanged(api, botId, flow))
+      await entryPoint.onFlowChanged?.(api, botId, flow)
     }
   }
 
@@ -261,7 +261,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onFlowRenamed && entryPoint.onFlowRenamed(api, botId, previousFlowName, newFlowName))
+      await entryPoint.onFlowRenamed?.(api, botId, previousFlowName, newFlowName)
     }
   }
 
@@ -275,7 +275,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onElementChanged && entryPoint.onElementChanged(api, botId, action, element, oldElement))
+      await entryPoint.onElementChanged?.(api, botId, action, element, oldElement)
     }
   }
 
@@ -293,7 +293,7 @@ export class ModuleLoader {
 
       try {
         const api = await createForModule(name)
-        await (module.onServerReady && module.onServerReady(api))
+        await module.onServerReady?.(api)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
@@ -306,7 +306,7 @@ export class ModuleLoader {
       try {
         const entryPoint = this.getModule(module.name)
         const api = await createForModule(module.name)
-        await (entryPoint.onBotMount && entryPoint.onBotMount(api, botId))
+        await entryPoint.onBotMount?.(api, botId)
       } catch (err) {
         throw new Error(`while mounting bot in module ${module.name}: ${err}`)
       }
@@ -343,7 +343,7 @@ export class ModuleLoader {
   public getFlowGenerator(moduleName: string, skillId: string): Function | undefined {
     const module = this.getModule(moduleName)
     const skill = _.find(module.skills, x => x.id === skillId)
-    return skill && skill.flowGenerator
+    return skill?.flowGenerator
   }
 
   public async getAllSkills(): Promise<Partial<Skill>[]> {

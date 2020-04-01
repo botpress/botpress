@@ -106,7 +106,7 @@ const ContentForm: FC<Props> = props => {
       {...props}
       formData={formData}
       formContext={context}
-      safeRenderCompletion={true}
+      safeRenderCompletion
       widgets={widgets}
       fields={fields}
       onChange={handleOnChange}

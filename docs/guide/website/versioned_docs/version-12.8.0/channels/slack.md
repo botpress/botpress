@@ -1,6 +1,7 @@
 ---
-id: slack
+id: version-12.8.0-slack
 title: Slack
+original_id: slack
 ---
 
 ## Requirements

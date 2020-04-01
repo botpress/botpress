@@ -58,7 +58,7 @@ class Composer extends React.Component<ComposerProps> {
   render() {
     const placeholder = this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })
     return (
-      <div className={'bpw-composer'}>
+      <div role="region" className={'bpw-composer'}>
         <div className={'bpw-composer-inner'}>
           <textarea
             tabIndex={1}
@@ -71,6 +71,9 @@ class Composer extends React.Component<ComposerProps> {
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
           />
+          <label htmlFor="input-message" style={{ display: 'none' }}>
+            {placeholder}
+          </label>
 
           <button
             className={'bpw-send-button'}

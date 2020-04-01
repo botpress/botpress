@@ -339,7 +339,12 @@ class RootStore {
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
     this.view.disableAnimations = this.config.disableAnimations
     this.config.showPoweredBy ? this.view.showPoweredBy() : this.view.hidePoweredBy()
-    this.config.locale && this.updateBotUILanguage(getUserLocale(this.config.locale))
+
+    const locale = getUserLocale(this.config.locale)
+    this.config.locale && this.updateBotUILanguage(locale)
+    document.documentElement.setAttribute('lang', locale)
+
+    document.title = this.config.botName || 'Botpress Webchat'
 
     try {
       window.USE_SESSION_STORAGE = this.config.useSessionStorage
