@@ -113,7 +113,7 @@ export const EntityNameModal: FC<Props> = props => {
               tabIndex={1}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               dir="auto"
-              placeholder={lang.tr('nlu.entities.namePlaceHolder')}
+              placeholder={lang.tr('nlu.entities.namePlaceholder')}
               value={name}
               onChange={e => setName(e.target.value)}
               autoFocus
