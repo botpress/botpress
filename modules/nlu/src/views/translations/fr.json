@@ -45,7 +45,7 @@
       "sensitiveLabel": "Contient des données sensibles",
       "sensitiveTooltip": "Les données sensibles sont remplacées par ** avant d'être enregistré dans la base de données",
       "matchCaseLabel": "Sensible à la casse",
-      "matchCaseTooltip": "Si votre expression doit être sensible à la case",
+      "matchCaseTooltip": "Si votre expression doit être sensible à la casse",
       "optionsLabel": "Options",
       "examplesPlaceholder": "Ajouter des exemples qui respectent votre expression (un exemple par ligne)",
       "matchingSuccess": "Tous les exemples respectent",
