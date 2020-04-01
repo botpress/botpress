@@ -6,6 +6,7 @@ import { Dropdown, Glyphicon, MenuItem } from 'react-bootstrap'
 
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
+import { lang } from 'botpress/shared'
 
 interface BotInfo {
   id: string
@@ -31,8 +32,8 @@ const BotSwitcher = () => {
     <Fragment>
       <ActionItem
         id="statusbar_switchbot"
-        title="Switch Bot"
-        description="Switch to another bot. You will leave this interface."
+        title={lang.tr('statusBar.switchBot')}
+        description={lang.tr('statusBar.switchBotWarning')}
         onClick={toggle}
       >
         <Glyphicon glyph="retweet" style={{ marginRight: '5px' }} />
@@ -52,7 +53,7 @@ const BotSwitcher = () => {
           {differentBots.length > 0 && <MenuItem divider />}
           <li className={style.langItem}>
             <a key="admin" href="admin">
-              Back to admin
+              {lang.tr('statusBar.backToAdmin')}
             </a>
           </li>
         </Dropdown.Menu>

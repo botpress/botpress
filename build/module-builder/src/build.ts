@@ -103,7 +103,7 @@ const copyExtraFiles = (modulePath: string) => {
 }
 
 const compileBackend = (modulePath: string, babelConfig) => {
-  const files = glob.sync('src/**/*.+(ts|js|jsx|tsx)', {
+  const files = glob.sync('src/**/*.+(ts|js|jsx|tsx|json)', {
     cwd: modulePath,
     dot: true,
     ignore: ['**/*.d.ts', '**/views/**/*.*', '**/config.ts']
@@ -116,7 +116,7 @@ const compileBackend = (modulePath: string, babelConfig) => {
     const dest = file.replace(/^src\//i, 'dist/').replace(/\.ts$/i, '.js')
     mkdirp.sync(path.dirname(dest))
 
-    if (copyWithoutTransform.find(x => file.startsWith(`src/${x}`))) {
+    if (copyWithoutTransform.find(x => file.startsWith(`src/${x}`)) || file.endsWith('.json')) {
       fs.writeFileSync(dest, fs.readFileSync(`${modulePath}/${file}`, 'utf8'))
       continue
     }

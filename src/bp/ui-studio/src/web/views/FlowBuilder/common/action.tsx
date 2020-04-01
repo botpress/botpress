@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import { parseActionInstruction } from 'common/action'
 import _ from 'lodash'
@@ -127,7 +128,7 @@ class ActionItem extends Component<Props> {
       )
     }
 
-    const textContent = (item && `${item.schema?.title} | ${preview}`) || ''
+    const textContent = (item && `${lang.tr(item.schema?.title)} | ${preview}`) || ''
     const vars = {}
 
     const stripDots = str => str.replace(/\./g, '--dot--')
