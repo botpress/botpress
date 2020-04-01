@@ -5,6 +5,7 @@ import {
   Collapse,
   Colors,
   ControlGroup,
+  Dialog,
   Icon,
   InputGroup,
   Popover,
@@ -13,12 +14,13 @@ import {
 } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
-import React, { useState } from 'react'
+import React, { FC, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import SplitPane from 'react-split-pane'
 
 import style from './style.scss'
 import {
+  BaseDialogProps,
   ContainerProps,
   InfoTooltipProps,
   ItemListProps,
@@ -235,3 +237,42 @@ export const InfoTooltip = (props: InfoTooltipProps) => (
     <Icon icon={props.icon || 'info-sign'} iconSize={13} className={style.infoTooltip} />
   </Tooltip>
 )
+
+export const BaseDialog: FC<BaseDialogProps> = props => {
+  let width = 500
+  if (props.size === 'md') {
+    width = 700
+  } else if (props.size === 'lg') {
+    width = 900
+  }
+
+  const onSubmit = e => {
+    e.preventDefault()
+    props.onSubmit!()
+  }
+
+  return (
+    <Dialog
+      transitionDuration={0}
+      canOutsideClickClose={false}
+      canEscapeKeyClose={true}
+      enforceFocus={false}
+      style={{ width }}
+      {...props}
+    >
+      {props.onSubmit ? <form onSubmit={onSubmit}>{props.children}</form> : props.children}
+    </Dialog>
+  )
+}
+
+export const DialogBody = ({ children, hidden }: { children; hidden?: boolean }) => {
+  return !hidden ? <div className={classnames(Classes.DIALOG_BODY, Classes.UI_TEXT)}>{children}</div> : null
+}
+
+export const DialogFooter = ({ children }) => {
+  return (
+    <div className={Classes.DIALOG_FOOTER}>
+      <div className={Classes.DIALOG_FOOTER_ACTIONS}>{children}</div>
+    </div>
+  )
+}

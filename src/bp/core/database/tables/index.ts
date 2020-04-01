@@ -3,13 +3,15 @@ import Knex from 'knex'
 import { Table } from '../interfaces'
 
 import {
+  BotUsersTable,
   DialogSessionTable,
   EventsTable,
   GhostFilesTable,
   GhostRevisionsTable,
   KeyValueStoreTable,
   LogsTable,
-  NotificationsTable
+  NotificationsTable,
+  TasksTable
 } from './bot-specific'
 import {
   ChannelUsersTable,
@@ -33,7 +35,9 @@ const tables: typeof Table[] = [
   NotificationsTable,
   KeyValueStoreTable,
   DataRetentionTable,
-  EventsTable
+  EventsTable,
+  TasksTable,
+  BotUsersTable
 ]
 
 export default <(new (knex: Knex) => Table)[]>tables

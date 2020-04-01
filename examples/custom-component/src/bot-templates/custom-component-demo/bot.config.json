@@ -24,5 +24,7 @@
   },
   "logs": {
     "expiration": "1 week"
-  }
+  },
+  "languages": ["en"],
+  "defaultLanguage": "en"
 }

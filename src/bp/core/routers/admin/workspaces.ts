@@ -1,7 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { defaultPipelines } from 'common/defaults'
 import { CreateWorkspace } from 'common/typings'
-import { WorkspaceCreationSchema } from 'common/validation'
+import { PipelineSchema, WorkspaceCreationSchema } from 'common/validation'
 import { ConfigProvider } from 'core/config/config-loader'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { BotService } from 'core/services/bot-service'
@@ -78,9 +78,15 @@ export class WorkspacesRouter extends CustomRouter {
       '/:workspaceId/pipeline',
       this.asyncMiddleware(async (req, res) => {
         const { workspaceId } = req.params
-        const { pipelineId, resetStage } = req.body
+        const { pipelineId, resetStage, updateCustom, pipeline } = req.body
 
-        if (pipelineId !== 'custom') {
+        if (updateCustom && pipeline) {
+          const { error } = Joi.validate(pipeline, PipelineSchema)
+          if (error) {
+            throw new InvalidOperationError(`An error occurred while creating the pipeline: ${error.message}`)
+          }
+          await this.workspaceService.mergeWorkspaceConfig(workspaceId, { pipeline })
+        } else if (pipelineId !== 'custom') {
           if (!defaultPipelines[pipelineId]) {
             throw new InvalidOperationError(`Unknown pipeline "${pipelineId}"`)
           }

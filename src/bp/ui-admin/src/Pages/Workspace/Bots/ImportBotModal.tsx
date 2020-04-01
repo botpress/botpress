@@ -1,4 +1,5 @@
 import { Button, Checkbox, Classes, Dialog, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
 
@@ -115,7 +116,7 @@ class ImportBotModal extends Component<Props, State> {
   render() {
     return (
       <Dialog
-        title="Import bot from archive"
+        title={lang.tr('admin.workspace.bots.import.fromArchive')}
         icon="import"
         isOpen={this.props.isOpen}
         onClose={this.toggleDialog}
@@ -132,16 +133,22 @@ class ImportBotModal extends Component<Props, State> {
         >
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
-              label={<span>Bot ID {this.state.isIdTaken && <span className="text-danger">Already in use</span>}</span>}
+              label={
+                <span>
+                  {lang.tr('admin.workspace.bots.create.id')}{' '}
+                  {this.state.isIdTaken && (
+                    <span className="text-danger">{lang.tr('admin.workspace.bots.import.alreadyInUse')}</span>
+                  )}
+                </span>
+              }
               labelFor="input-botId"
               labelInfo="*"
-              helperText="This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see it.
-              Special characters are not allowed. Minimum length: 4"
+              helperText={lang.tr('admin.workspace.bots.create.idHelper')}
             >
               <InputGroup
                 id="input-botId"
                 tabIndex={1}
-                placeholder="The ID of your bot"
+                placeholder={lang.tr('admin.workspace.bots.create.idPlaceholder')}
                 intent={Intent.PRIMARY}
                 minLength={3}
                 value={this.state.botId}
@@ -149,17 +156,17 @@ class ImportBotModal extends Component<Props, State> {
                 autoFocus={true}
               />
             </FormGroup>
-            <FormGroup label="Bot Archive" labelInfo="*" labelFor="archive">
+            <FormGroup label={lang.tr('admin.workspace.bots.import.archive')} labelInfo="*" labelFor="archive">
               <FileInput
                 tabIndex={2}
-                text={this.state.filePath || 'Choose file...'}
+                text={this.state.filePath || lang.tr('chooseFile')}
                 onChange={event => this.handleFileChanged((event.target as HTMLInputElement).files)}
                 inputProps={{ accept: '.zip,.tgz' }}
               />
             </FormGroup>
             {this.state.isIdTaken && (
               <Checkbox
-                label="Overwrite existing bot"
+                label={lang.tr('admin.workspace.bots.import.overwrite')}
                 checked={this.state.overwrite}
                 onChange={e => this.setState({ overwrite: e.currentTarget.checked })}
               ></Checkbox>
@@ -172,7 +179,7 @@ class ImportBotModal extends Component<Props, State> {
                 id="btn-upload"
                 tabIndex={3}
                 type="submit"
-                text={this.state.isProcessing ? 'Please wait...' : 'Import Bot'}
+                text={this.state.isProcessing ? lang.tr('pleaseWait') : lang.tr('admin.workspace.bots.import.import')}
                 onClick={this.importBot}
                 disabled={this.isButtonDisabled}
                 intent={Intent.PRIMARY}

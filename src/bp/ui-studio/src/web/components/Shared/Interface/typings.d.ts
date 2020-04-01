@@ -1,4 +1,4 @@
-import { IconName, MaybeElement, Position } from '@blueprintjs/core'
+import { IconName, MaybeElement, Position, IDialogProps } from '@blueprintjs/core'
 import React from 'react'
 
 declare module 'botpress/ui' {
@@ -14,6 +14,9 @@ declare module 'botpress/ui' {
   export function LeftToolbarButtons(props: ToolbarButtonsProps): JSX.Element
   export function RightToolbarButtons(props: ToolbarButtonsProps): JSX.Element
   export function InfoTooltip(props: InfoTooltipProps): JSX.Element
+  export function BaseDialog(props: BaseDialogProps): JSX.Element
+  export function DialogBody({ children }): JSX.Element
+  export function DialogFooter({ children }): JSX.Element
 
   export const { Item, ItemAction, SectionAction }
 }
@@ -63,7 +66,7 @@ export interface ContainerProps {
 
 export interface SplashScreenProps {
   title: string
-  description?: string
+  description?: string | JSX.Element
   /** The name of the icon to use. Can also be a JSX element */
   icon?: IconName | MaybeElement
   readonly children?: React.ReactNode
@@ -181,3 +184,8 @@ export interface ToolbarButtonsProps {
   /** Elements of the button group */
   children?: JSX.Element | JSX.Element[]
 }
+
+export type BaseDialogProps = {
+  onSubmit?: () => void
+  size?: 'sm' | 'md' | 'lg'
+} & Partial<IDialogProps>

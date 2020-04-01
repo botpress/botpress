@@ -49,7 +49,7 @@ class Inspector extends Component<Props> {
     return (
       <div className={style.inspector}>
         {node && (
-          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small={true}>
+          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small>
             <i className="material-icons">keyboard_backspace</i>
           </Button>
         )}
@@ -61,7 +61,10 @@ class Inspector extends Component<Props> {
 
   renderNodeProperties() {
     const { readOnly } = this.props
-    const subflows = _.filter(_.map(this.props.flows, f => f.name), f => f !== _.get(this.props, 'currentFlow.name'))
+    const subflows = _.filter(
+      _.map(this.props.flows, f => f.name),
+      f => f !== _.get(this.props, 'currentFlow.name')
+    )
     const flowType = _.get(this.props, 'currentFlowNode.type') || (this.props.currentFlowNode ? 'standard' : null)
 
     const updateNodeAndRefresh = (...args) => {
@@ -126,7 +129,4 @@ const mapDispatchToProps = {
   refreshFlowsLinks
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Inspector)
+export default connect(mapStateToProps, mapDispatchToProps)(Inspector)

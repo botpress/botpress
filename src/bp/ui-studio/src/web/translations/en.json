@@ -1,0 +1,265 @@
+{
+  "insert": "Insert",
+  "save": "Save",
+  "cancel": "Cancel",
+  "overwrite": "Overwrite",
+  "edit": "Edit",
+  "remove": "Remove",
+  "copy": "Copy",
+  "update": "Update",
+  "create": "Create",
+  "chooseFile": "Choose file...",
+  "pleaseWait": "Please wait...",
+  "next": "Next",
+  "back": "Back",
+  "submit": "Submit",
+  "error": "Error",
+  "delete": "Delete",
+  "never": "Never",
+  "refresh": "Refresh",
+
+  "config": {
+    "general": "General",
+    "status": "Status",
+    "description": "Description",
+    "website": "Website",
+    "phoneNumber": "Phone Number",
+    "contactEmail": "Contact E-mail",
+    "linkToTerms": "Link to Terms & Conditions",
+    "linkToPolicy": "Link to Privacy Policy",
+    "chooseFile": "Choose file",
+    "coverPicture": "Cover Picture",
+    "botAvatar": "Bot Avatar",
+    "saveChanges": "Save Changes",
+    "defaultLanguage": "Default language",
+    "supportedLanguages": "Supported languages",
+    "language": "Language",
+    "name": "Name",
+    "botConfiguration": "Bot Configuration",
+    "additionalDetails": "Additionails Details",
+    "avatarAndCover": "Avatar & Cover picture",
+    "confirmChangeLanguage": "Are you sure you want to change the language of your bot from {currentName} to {newName}? All of your content elements will be copied, make sure you translate them.",
+    "confirmUnmount": "Are you sure want to unmount this bot? All of the functionalities of this bot will become unavailable.",
+    "configUpdated": "Bot configuration updated successfully",
+    "formContainsErrors": "The form contains errors",
+    "requireImageFile": "{targetProp} requires an image file",
+    "details": "Details",
+    "pictures": "Pictures",
+    "avatarUploadSuccess": "The bot avatar has been uploaded successfully. You need to save the form in order for the changes to take effect.",
+    "coverUploadSuccess": "The cover picture has been uploaded successfully. You need to save the form in order for the changes to take effect."
+  },
+
+  "status": {
+    "public": "Published",
+    "private": "Collaborators Only",
+    "disabled": "Unmounted"
+  },
+
+  "language": {
+    "arabic": "Arabic",
+    "dutch": "Dutch",
+    "english": "English",
+    "french": "French",
+    "german": "German",
+    "hebrew": "Hebrew",
+    "italian": "Italian",
+    "japanese": "Japanese",
+    "polish": "Polish",
+    "portuguese": "Portugese",
+    "russian": "Russian",
+    "spanish": "Spanish"
+  },
+
+  "studio": {
+    "flow": {
+      "unauthUpdate": "Unauthorized flow update. You have insufficient role privileges to modify flows.",
+      "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
+      "nowSaveAuto": "Pssst! Flows now save automatically, no need to save anymore.",
+      "sessionStartsHere": "Every user session starts here",
+
+      "sidePanel": {
+        "create": "Create",
+        "duplicate": "Duplicate",
+        "rename": "Rename",
+        "createFlow": "Create Flow",
+        "duplicateFlow": "Duplicate Flow",
+        "renameFlow": "Rename Flow",
+        "flowName": "Flow Name",
+        "flowNameHelp": "It can only contain letters, numbers, underscores and hyphens. You can also use slashes to create folders (ex: myfolder/mynewflow)",
+        "flowNamePlaceholder": "Choose a name for your flow",
+        "nameInUse": "Name already in use",
+        "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
+        "confirmDeleteFlow": "Are you sure you want to delete the flow {name}",
+        "node": "Node",
+        "say": "Say",
+        "execute": "Execute",
+        "listen": "Listen",
+        "router": "Router",
+        "action": "Action",
+        "skills": "Skills",
+        "chips": "Chips",
+        "createNewFlow": "Create new flow",
+        "filterFlows": "Filter flows",
+        "flows": "Flows",
+        "tools": "Tools"
+      },
+
+      "toolbar": {
+        "problemsWithFlow": "There are some problems with your flow.",
+        "clickDetails": "Click for more details",
+        "missingDetails": "Missing {nb} links",
+        "currentlyEditing": "{name} is currently editing this flow",
+        "somebodyIsEditing": "Somebody is editing another flow",
+        "renamingAndDeletingDisabled": "Renaming and Deleting flows is disabled",
+        "undo": "Undo",
+        "redo": "Redo",
+        "whenErrorEncountered": "When an error is encountered in the flow, the user is redirected here",
+        "whenDiscussionTimeouts": "When a discussion timeouts (user doesn't answer in the configured timeframe) he will be redirected here."
+      },
+
+      "skills": {
+        "couldNotLoad": "Could not load skills view",
+        "generatingSkillFlow": "Generating your skill flow...",
+        "error": "ERROR – Skill \"{size}\" is an invalid size for Skill window. Valid sizes are {sizes}.",
+        "insert": "Insert a new skill",
+        "edit": "Edit a skill"
+      },
+
+      "node": {
+        "actionToExecute": "Action to execute",
+        "actionParameters": "Action Parameters",
+        "hasNoParameters": "This action has no parameters",
+        "actionServer": "Action Server",
+        "actionServerTooltip": "This is the action server on which the action will be executed",
+        "editAction": "Edit Action",
+        "loadingActionServer": "Please wait, loading action servers...",
+        "couldNotRetrieveActionServer": "Could not retrieve action servers",
+        "errorInServer": "There seems to be an error in your Botpress server. Please contact your administrator.",
+        "errorListingActions": "Error listing actions from the action server",
+        "errorListingActionsMore": "There was an error while trying to get the list of actions on the selected server",
+        "noActionsFound": "No actions found on this action server",
+        "actionsRegisteredOnServer": "Actions are registered on the server-side. Read about how to register new actions by searching for `bp.registerActions()`.",
+        "youCanChangeActions": "You can change how the Action is executed by providing it parameters. Some parameters are required, some are optional.",
+        "cantSeeActions": "Can't see your action?",
+        "actionToRun": "Action to run {help}",
+        "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
+        "say": "say #!{id}",
+        "message": "Message",
+        "messageToSend": "Message to send",
+        "addAction": "Add new action",
+        "theBotWill": "The bot will",
+        "saySomething": "💬 Say something",
+        "executeCode": "⚡ Execute code",
+        "finishUpdateAction": "Update Action",
+        "finishAddAction": "Add Action",
+        "unknownParameterType": "`⚠️ Unknown parameter type ({type}). This parameter will be ignored.",
+        "valuePlaceholder": "Value",
+        "waitForUserMessage": "Wait for user message",
+        "add": "add",
+        "contentPaste": "content_paste",
+        "onReceive": "On Receive",
+        "transitions": "Transitions",
+        "noDescription": "No description",
+        "editSkill": "Edit skill",
+        "onEnter": "On Enter",
+        "missingLink": "Missing Link",
+        "end": "End",
+        "return": "Return",
+
+        "transition": {
+          "noSpecific": "No specific node",
+          "mustSelectSubflow": "You must select a subflow to transition to",
+          "specifyCondition": "Specify a condition",
+          "returnToNodeCalled": "Return to node called",
+          "returnToCallingNode": "Return to calling node",
+          "fieldName": "Field Name (ex: nickname, age)",
+          "expression": "Expression (ex: !== undefined)",
+          "javascriptExpression": "Javascript expression",
+          "edit": "Edit condition to transition",
+          "new": "New condition to transition",
+          "showCondition": "Condition",
+          "whenMetDo": "When condition is met, do",
+          "condition": {
+            "always": "Always",
+            "intentIs": "Intent Is",
+            "matchesProperty": "Matches Property",
+            "rawExpression": "Raw Expression (advanced)"
+          },
+          "action": {
+            "endFlow": "End flow",
+            "returnToPreviousFlow": "Return to previous flow",
+            "transitionToNode": "Transition to node",
+            "transitionToSubflow": "Transition to subflow"
+          }
+        }
+      },
+
+      "content": {
+        "noContentDefined": "We think you don't have any content types defined.",
+        "pleaseReadDoc": "Please {readTheDocs} to see how you can make use of this feature",
+        "readTheDocs": "read the docs",
+        "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
+        "id": "ID",
+        "contentType": "Content Type",
+        "preview": "Preview",
+        "modifiedOn": "Modified On",
+        "createdOn": "Created On",
+        "usage": "Usage",
+        "noContent": "There's no content here.",
+        "noContentYet": "There's no content yet. You can create some using the 'Add' button.",
+        "deleteElements": "Delete selected elements",
+        "cloneElements": "Clone selected elements",
+        "searchContent": "Search content",
+
+        "import": {
+          "notAbleToExtractData": "We were not able to extract any data from your file. Either the file is empty, or it doesn't match any known format.",
+          "missingContentTypes": "Your bot is missing these content types: {types}.",
+          "selectFile": "Select your JSON file",
+          "selectFileMore": "Select a JSON file. It must be exported from the Content page. You will see a summary of modifications when clicking on Next",
+          "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
+          "whatLikeDo": "What would you like to do?",
+          "updateMissing": "Update or create missing elements present in my file",
+          "clearExisting": "Clear all existing elements, then import those from my file",
+          "uploadStatus": "Upload status",
+          "import": "Import JSON",
+          "upload": "Upload File",
+          "analysis": "Analysis"
+        },
+
+        "sideBar": {
+          "all": "All",
+          "createNewContent": "Create new content",
+          "createNew": "Create new {name}",
+          "filterByType": "Filter by Content Type"
+        },
+
+        "usageModal": {
+          "type": "Type",
+          "name": "Name",
+          "node": "Node",
+          "count": "Count",
+          "contentUsage": "Content Usage"
+        }
+      },
+
+      "logs": {
+        "autoRefresh": "Auto-refresh",
+        "downloadArchives": "Download log archive",
+        "loadMore": "Load more"
+      },
+
+      "module": {
+        "notFound": "Module not found",
+        "notProperlyRegistered": "The module is not properly registered",
+        "tryingToLoad": "It seems like you are trying to load a module that has not been registered. Please make sure the module is registered then restart the bot.",
+        "learnMore": "Learn more"
+      },
+
+      "notifications": {
+        "deleteAll": "Delete all",
+        "markRead": "Mark all as read",
+        "noNotifs": "You have no notifications!"
+      }
+    }
+  }
+}

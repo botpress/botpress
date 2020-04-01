@@ -1,4 +1,7 @@
-# Channel-Smooch
+---
+id: smooch
+title: Smooch (Sunshine Conversations)
+---
 
 ## Prerequisite
 

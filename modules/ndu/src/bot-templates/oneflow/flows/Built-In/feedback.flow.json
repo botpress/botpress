@@ -1,0 +1,51 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "feedbackChoice",
+  "label": "Feedback",
+  "description": "Users are redirected here at the end of a workflow when they need to provide feedback",
+  "nodes": [
+    {
+      "id": "skill-b71567",
+      "type": "skill-call",
+      "skill": "choice",
+      "name": "feedbackChoice",
+      "flow": "skills/choice-b71567.flow.json",
+      "next": [
+        {
+          "caption": "User picked [yes]",
+          "condition": "temp['skill-choice-ret-k0tqq3ze5d'] == \"yes\"",
+          "node": "sendPositiveFeedback"
+        },
+        {
+          "caption": "User picked [no]",
+          "condition": "temp['skill-choice-ret-k0tqq3ze5d'] == \"no\"",
+          "node": "sendNegativeFeedback"
+        },
+        {
+          "caption": "On failure",
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": null,
+      "onReceive": null
+    },
+    {
+      "id": "e0530968b7",
+      "name": "sendPositiveFeedback",
+      "next": [],
+      "onEnter": ["builtin/sendFeedback {\"value\":\"1\"}"],
+      "onReceive": null,
+      "type": "standard"
+    },
+    {
+      "id": "d0f5590ce1",
+      "name": "sendNegativeFeedback",
+      "next": [],
+      "onEnter": ["builtin/sendFeedback {\"value\":\"-1\"}"],
+      "onReceive": null,
+      "type": "standard"
+    }
+  ]
+}

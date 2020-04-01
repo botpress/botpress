@@ -1,4 +1,5 @@
 import { Button, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { Metric } from 'common/monitoring'
 import moment from 'moment'
 import React, { useState } from 'react'
@@ -18,11 +19,11 @@ const SummaryTable = ({ data }) => {
 
   const columns = [
     {
-      Header: 'Host',
+      Header: lang.tr('admin.monitoring.column.host'),
       accessor: 'host'
     },
     {
-      Header: 'Uptime',
+      Header: lang.tr('admin.monitoring.column.uptime'),
       Cell: x => {
         const minutes = moment.duration(x.value, 'seconds').asMinutes()
         return `${Math.round(minutes)} mins`
@@ -32,57 +33,57 @@ const SummaryTable = ({ data }) => {
       accessor: 'uptime'
     },
     {
-      Header: 'Peak CPU Usage',
+      Header: lang.tr('admin.monitoring.column.peakCpuUsage'),
       Cell: x => x.value + '%',
       width: 120,
       accessor: 'cpu.usage'
     },
     {
-      Header: 'Peak Mem Usage',
+      Header: lang.tr('admin.monitoring.column.peakMemUsage'),
       Cell: x => x.value + '%',
       width: 120,
       accessor: 'mem.usage'
     },
     {
-      Header: 'Requests',
+      Header: lang.tr('admin.monitoring.column.requests'),
       width: 120,
       className: 'center',
       accessor: Metric.Requests
     },
     {
-      Header: 'Events In',
+      Header: lang.tr('admin.monitoring.column.eventsIn'),
       width: 120,
       className: 'center',
       accessor: Metric.EventsIn,
       align: 'right'
     },
     {
-      Header: 'Events Out',
+      Header: lang.tr('admin.monitoring.column.eventsOut'),
       width: 120,
       className: 'center',
       accessor: Metric.EventsOut
     },
     {
-      Header: 'Warnings',
+      Header: lang.tr('admin.monitoring.column.warnings'),
       width: 120,
       className: 'center',
       accessor: Metric.Warnings
     },
     {
-      Header: 'Errors',
+      Header: lang.tr('admin.monitoring.column.errors'),
       width: 120,
       className: 'center',
       accessor: Metric.Errors
     },
     {
-      Header: 'Criticals',
+      Header: lang.tr('admin.monitoring.column.criticals'),
       width: 120,
       className: 'center',
       accessor: Metric.Criticals
     },
     {
       Cell: x => (
-        <Tooltip content="Restart server">
+        <Tooltip content={lang.tr('admin.monitoring.restart')}>
           <Button icon="power" onClick={() => restartServer(x.original.host)} small />
         </Tooltip>
       ),
