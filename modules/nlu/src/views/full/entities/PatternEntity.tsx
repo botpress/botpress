@@ -146,9 +146,9 @@ export const PatternEntityEditor: React.FC<Props> = props => {
           checked={sensitive}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSensitive(e.target.checked)}
         >
-          <span>{lang.tr('nlu.sensitiveLabel')}</span>&nbsp;
+          <span>{lang.tr('nlu.entities.sensitiveLabel')}</span>&nbsp;
           <Tooltip
-            content={lang.tr('nlu.sensitiveTooltip')}
+            content={lang.tr('nlu.entities.sensitiveTooltip')}
             position={Position.RIGHT}
             popoverClassName={style.configPopover}
           >
