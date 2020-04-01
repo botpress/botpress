@@ -1,4 +1,6 @@
 import { ContentElement, Logger } from 'botpress/sdk'
+import { LibraryElement } from 'common/typings'
+import { GhostService } from 'core/services'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { CMSService } from 'core/services/cms'
@@ -13,6 +15,9 @@ import multer from 'multer'
 import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions } from '../util'
 
+const CONTENT_FOLDER = 'content-elements'
+const LIBRARY_FILE = 'library.json'
+
 export class ContentRouter extends CustomRouter {
   private _checkTokenHeader: RequestHandler
   private _needPermissions: (operation: string, resource: string) => RequestHandler
@@ -21,7 +26,8 @@ export class ContentRouter extends CustomRouter {
     private logger: Logger,
     private authService: AuthService,
     private cms: CMSService,
-    private workspaceService: WorkspaceService
+    private workspaceService: WorkspaceService,
+    private ghost: GhostService
   ) {
     super('Content', logger, Router({ mergeParams: true }))
     this._needPermissions = needPermissions(this.workspaceService)
@@ -110,6 +116,12 @@ export class ContentRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, elementId } = req.params
         const element = await this.cms.getContentElement(botId, elementId)
+
+        if (!element) {
+          this.logger.forBot(botId).warn(`The requested element doesn't exist: "${elementId}"`)
+          return res.status(404).send(`Element ${elementId} not found`)
+        }
+
         res.send(await this._augmentElement(element))
       })
     )
@@ -131,6 +143,87 @@ export class ContentRouter extends CustomRouter {
       this._needPermissions('write', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         await this.cms.deleteContentElements(req.params.botId, req.body)
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.get(
+      '/library/:lang?',
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, lang } = req.params
+
+        const ghost = this.ghost.forBot(botId)
+        if (!(await ghost.fileExists(CONTENT_FOLDER, LIBRARY_FILE))) {
+          return res.send([])
+        }
+
+        const ids = await ghost.readFileAsObject<string[]>(CONTENT_FOLDER, LIBRARY_FILE)
+
+        const elements = await this.cms.listContentElements(botId, undefined, { ids, from: 0, count: -1 }, lang)
+        const contentTypes = (await this.cms.getAllContentTypes(botId)).reduce((acc, curr) => {
+          return { ...acc, [curr.id]: curr.title }
+        }, {})
+
+        return res.send(
+          elements.map(x => {
+            const contentType = contentTypes[x.contentType]
+            return {
+              path: `Content/${contentType}/${x.id}`,
+              preview: x.previews[lang]?.replace(`${contentType}: `, ''),
+              type: 'say_something',
+              contentId: x.id
+            }
+          }) as LibraryElement[]
+        )
+      })
+    )
+
+    this.router.post(
+      '/library/:contentId/delete',
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, contentId } = req.params
+
+        const ghost = this.ghost.forBot(botId)
+        if (!(await ghost.fileExists(CONTENT_FOLDER, LIBRARY_FILE))) {
+          return res.sendStatus(404)
+        }
+
+        const ids = await ghost.readFileAsObject<string[]>(CONTENT_FOLDER, LIBRARY_FILE)
+
+        await ghost.upsertFile(
+          CONTENT_FOLDER,
+          LIBRARY_FILE,
+          JSON.stringify(
+            ids.filter(x => x !== contentId),
+            undefined,
+            2
+          )
+        )
+
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.post(
+      '/library/:contentId',
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, contentId } = req.params
+
+        const ghost = this.ghost.forBot(botId)
+
+        let contentIds: string[] = []
+        if (await ghost.fileExists(CONTENT_FOLDER, LIBRARY_FILE)) {
+          contentIds = await ghost.readFileAsObject<string[]>(CONTENT_FOLDER, LIBRARY_FILE)
+        }
+
+        await ghost.upsertFile(CONTENT_FOLDER, LIBRARY_FILE, JSON.stringify([...contentIds, contentId], undefined, 2))
+
         res.sendStatus(200)
       })
     )

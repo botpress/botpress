@@ -1,4 +1,5 @@
 import { Callout, Position, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
@@ -37,10 +38,10 @@ const Versioning: FC<{ profile: any }> = props => {
   const toastCopiedClipboard = () => toastInfo('Copied to clipboard')
 
   return (
-    <PageContainer title="Source Control" superAdmin={true}>
-      <Callout title="Pull remote to file system">
-        <p>Use this command to copy the remote data on your local file system.</p>
-        <Tooltip content="Click to copy to clipboard" position={Position.RIGHT}>
+    <PageContainer title={lang.tr('admin.versioning.sourceControl')} superAdmin={true}>
+      <Callout title={lang.tr('admin.versioning.pullToFileSystem')}>
+        <p>{lang.tr('admin.versioning.useThisCommand')}</p>
+        <Tooltip content={lang.tr('admin.versioning.clickToCopy')} position={Position.RIGHT}>
           <CopyToClipboard text={pullCommand} onCopy={toastCopiedClipboard}>
             <div style={{ cursor: 'pointer', outline: 'none' }}>
               <code>{pullCommand}</code>
@@ -54,26 +55,24 @@ const Versioning: FC<{ profile: any }> = props => {
       <br />
 
       {!isPushAvailable && (
-        <Callout title="Push local to this server">
+        <Callout title={lang.tr('admin.versioning.pushLocal')}>
           <p>
-            Pushing local changes to a remote server is only possible when using the BPFS Storage "Database". <br />
+            {lang.tr('admin.versioning.pushLocalNeedsBFFS')}
             <br />
-            Check out the{' '}
+            <br />
+            {lang.tr('admin.versioning.checkOutThe')}{' '}
             <a href="https://botpress.com/docs/next/advanced/versions/" target="_blank">
-              <b>documentation</b>
+              <b>{lang.tr('admin.versioning.documentation')}</b>
             </a>{' '}
-            for more information.
+            {lang.tr('admin.versioning.forMorInfo')}
           </p>
         </Callout>
       )}
 
       {isPushAvailable && (
-        <Callout title="Push local to this server">
-          <p>
-            If you are using the database storage for BPFS, you can also push your local changes to the database using
-            this command:
-          </p>
-          <Tooltip content="Click to copy to clipboard" position={Position.RIGHT}>
+        <Callout title={lang.tr('admin.versioning.pushLocal')}>
+          <p>{lang.tr('admin.versioning.youCanPushWithThisCommand')}</p>
+          <Tooltip content={lang.tr('admin.versioning.clickToCopy')} position={Position.RIGHT}>
             <CopyToClipboard text={pushCommand} onCopy={toastCopiedClipboard}>
               <div style={{ cursor: 'pointer', outline: 'none' }}>
                 <code>{pushCommand}</code>

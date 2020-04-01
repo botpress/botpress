@@ -98,7 +98,7 @@ class SmartInput extends Component<ConnectedProps, State> {
 
   render() {
     const { MentionSuggestions } = this.mentionPlugin
-    const plugins: any = [this.mentionPlugin]
+    const plugins: any[] = [this.mentionPlugin]
 
     if (this.props.singleLine) {
       plugins.push(createSingleLinePlugin())

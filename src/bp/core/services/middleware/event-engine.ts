@@ -33,6 +33,7 @@ const eventSchema = {
   flags: joi.any().required(),
   suggestions: joi.array().optional(),
   state: joi.any().optional(),
+  debugger: joi.bool().optional(),
   credentials: joi.any().optional(),
   incomingEventId: joi.string().optional(),
   nlu: joi

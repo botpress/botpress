@@ -6,11 +6,13 @@ interface CssExports {
   'active': string;
   'container': string;
   'fullsize': string;
+  'imagePreview': string;
   'infoTooltip': string;
   'item': string;
   'itemList': string;
   'itemListSelected': string;
   'label': string;
+  'markdownRenderer': string;
   'right': string;
   'rightButtons': string;
   'searchBar': string;

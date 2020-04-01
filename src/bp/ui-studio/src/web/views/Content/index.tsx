@@ -1,4 +1,5 @@
 import { ActionBuilderProps, ContentElement } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
@@ -195,11 +196,14 @@ class ContentView extends Component<Props, State> {
       return (
         <div className={classNames}>
           <Alert bsStyle="warning">
-            <strong>We think you don&apos;t have any content types defined.</strong> Please&nbsp;
-            <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
-              <strong>read the docs</strong>
-            </a>
-            &nbsp;to see how you can make use of this feature.
+            <strong>{lang.tr('studio.flow.content.noContentDefined')}</strong>{' '}
+            {lang.tr('studio.flow.content.pleaseReadDoc', {
+              readTheDocs: (
+                <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
+                  <strong>{lang.tr('studio.flow.content.readTheDocs')}</strong>
+                </a>
+              )
+            })}
           </Alert>
         </div>
       )

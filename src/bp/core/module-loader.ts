@@ -1,5 +1,6 @@
 import {
   BotTemplate,
+  Condition,
   ContentElement,
   ElementChangedAction,
   Flow,
@@ -32,11 +33,13 @@ const MODULE_SCHEMA = joi.object().keys({
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
   onModuleUnmount: joi.func().optional(),
+  onTopicChanged: joi.func().optional(),
   onFlowChanged: joi.func().optional(),
   onFlowRenamed: joi.func().optional(),
   onElementChanged: joi.func().optional(),
   skills: joi.array().optional(),
   botTemplates: joi.array().optional(),
+  dialogConditions: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -235,6 +238,15 @@ export class ModuleLoader {
     }
   }
 
+  public async onTopicChanged(botId: string, oldName?: string, newName?: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await entryPoint.onTopicChanged?.(api, botId, oldName, newName)
+    }
+  }
+
   public async onFlowChanged(botId: string, flow: Flow) {
     const modules = this.getLoadedModules()
     for (const module of modules) {
@@ -312,6 +324,16 @@ export class ModuleLoader {
       })
 
     return _.flatten(templates)
+  }
+
+  public getDialogConditions(): Condition[] {
+    const modules = Array.from(this.entryPoints.values())
+    const conditions = _.flatMap(
+      modules.filter(module => module.dialogConditions),
+      x => x.dialogConditions
+    ) as Condition[]
+
+    return _.orderBy(conditions, x => x?.displayOrder)
   }
 
   public getLoadedModules(): ModuleDefinition[] {

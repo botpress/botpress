@@ -1,16 +1,21 @@
 import { Icon, Tab, Tabs, Tag } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
+import { lang } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
+import { initializeTranslations } from '../translations'
 
+import TrainingControl from './common/TrainingControl'
 import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
+
+initializeTranslations()
 
 export interface NluItem {
   name: string
@@ -18,7 +23,7 @@ export interface NluItem {
 }
 
 interface Props {
-  bp: { axios: AxiosInstance }
+  bp: { axios: AxiosInstance; events: any }
   contentLang: string
 }
 
@@ -116,13 +121,13 @@ const NLU: FC<Props> = props => {
       <SidePanel>
         <Tabs id="nlu-tabs" className={style.headerTabs} defaultSelectedTabId="intents" large={false}>
           <Tab id="intents" panel={intentsPanel}>
-            <span>Intents</span>{' '}
+            <span>{lang.tr('nlu.intents.intents')}&nbsp;</span>
             <Tag large={false} round={true} minimal={true}>
               {intents.length}
             </Tag>
           </Tab>
           <Tab id="entities" panel={entitiesPanel}>
-            <span>Entities</span>{' '}
+            <span>{lang.tr('nlu.entities.entities')}</span>{' '}
             <Tag large={false} round={true} minimal={true}>
               {customEntities.length}
             </Tag>
@@ -130,11 +135,14 @@ const NLU: FC<Props> = props => {
         </Tabs>
       </SidePanel>
       <div className={style.container}>
+        <div className={style.trainingControlContainer}>
+          <TrainingControl api={api} eventBus={props.bp.events} />
+        </div>
         {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
-            title="Understanding"
-            description="Use Botpress native Natural language understanding engine to make your bot smarter."
+            title={lang.tr('nlu.title')}
+            description={lang.tr('nlu.description')}
           />
         )}
         {!!intents.length && currentItem && currentItem.type === 'intent' && (

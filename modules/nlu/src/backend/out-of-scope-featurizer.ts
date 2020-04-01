@@ -1,7 +1,7 @@
 import { MLToolkit } from 'botpress/sdk'
 
 import { POSClass } from './language/pos-tagger'
-import { averageVectors, scalarMultiply } from './tools/math'
+import { averageVectors, scalarMultiply, zeroes } from './tools/math'
 import { Tools } from './typings'
 import Utterance from './utterance/utterance'
 
@@ -21,7 +21,7 @@ function averageByPOS(utt: Utterance, posClasses: POS_SET) {
   const tokens = utt.tokens.filter(t => posClasses.includes(t.POS))
   const vectors = tokens.map(x => scalarMultiply(<number[]>x.vector, x.tfidf))
   if (!vectors.length) {
-    return new Array(utt.tokens[0].vector.length).fill(0)
+    return zeroes(utt.tokens[0].vector.length)
   }
   return averageVectors(vectors)
 }

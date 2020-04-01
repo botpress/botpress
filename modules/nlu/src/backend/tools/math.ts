@@ -95,6 +95,10 @@ export function allInRange(vec: number[], lower: number, upper: number): boolean
   return vec.map(v => _.inRange(v, lower, upper)).every(_.identity)
 }
 
+export function zeroes(len: number): number[] {
+  return Array(len).fill(0)
+}
+
 /**
  * @param quantile number of discret categories ex: 4 == quartile
  * @param target value to classify

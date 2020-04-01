@@ -185,5 +185,12 @@ $status-bar-height: 24px;
 }
 
 .chooseContainer {
-  padding: 10px;
+  padding: 10px 0;
+}
+
+.trainingControlContainer {
+  display: flex;
+  flex-direction: row-reverse;
+  border-bottom: 1px solid #eee;
+  padding-right: 5vw;
 }

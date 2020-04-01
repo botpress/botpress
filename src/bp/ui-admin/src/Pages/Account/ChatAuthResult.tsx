@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React from 'react'
 
 import { LoginContainer } from '../Layouts/LoginContainer'
@@ -7,7 +8,7 @@ const ChatAuthResult = props => {
 
   if (error) {
     return (
-      <LoginContainer title="Authentication failed">
+      <LoginContainer title={lang.tr('authenticationFailed')}>
         <p>{error}</p>
       </LoginContainer>
     )
@@ -19,7 +20,7 @@ const ChatAuthResult = props => {
 
   return (
     <LoginContainer title="Authentication">
-      <p>Successfully authenticated. You can close this window.</p>
+      <p>{lang.tr('successfullyAuthenticated')}</p>
     </LoginContainer>
   )
 }

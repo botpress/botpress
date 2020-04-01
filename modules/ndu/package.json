@@ -1,0 +1,23 @@
+{
+  "name": "ndu",
+  "version": "1.0.0",
+  "description": "Natural Dialog Understanding",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "classnames": "^2.2.6",
+    "joi": "^13.6.0",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "ms": "^2.1.2",
+    "nanoid": "^2.1.11"
+  }
+}

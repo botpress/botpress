@@ -1,4 +1,5 @@
 import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
@@ -151,7 +152,7 @@ class Editor extends React.Component<Props> {
               <span>{currentFile?.name}</span>
 
               <div>
-                <Tooltip content="Discard" position={Position.RIGHT}>
+                <Tooltip content={lang.tr('discard')} position={Position.RIGHT}>
                   <Icon icon="delete" iconSize={10} className={style.btn} onClick={discardChanges} />
                 </Tooltip>
               </div>

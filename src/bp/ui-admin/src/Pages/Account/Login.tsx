@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import { AuthStrategyConfig } from 'common/typings'
 import { get } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -120,7 +121,7 @@ const Login: FC<Props> = props => {
   }
 
   return (
-    <LoginContainer title="Login" error={error} poweredBy={true}>
+    <LoginContainer title={lang.tr('admin.login')} error={error} poweredBy={true}>
       {loginUrl ? (
         <LoginForm onLogin={loginUser} />
       ) : (

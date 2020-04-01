@@ -16,8 +16,10 @@ export const toastSuccess = (
 export const toastFailure = (
   message: string,
   timeout: Timeout = Timeout.MEDIUM,
-  onDismiss?: (didTimeoutExpire: boolean) => void
-) => toast(message, Intent.DANGER, timeout, onDismiss)
+  onDismiss?: (didTimeoutExpire: boolean) => void,
+  // Must be delayed when used in a lifecycle event (eg: useEffect)
+  options?: { delayed: boolean }
+) => toast(message, Intent.DANGER, timeout, onDismiss, options)
 
 export const toastInfo = (
   message: string,
@@ -25,11 +27,21 @@ export const toastInfo = (
   onDismiss?: (didTimeoutExpire: boolean) => void
 ) => toast(message, Intent.PRIMARY, timeout, onDismiss)
 
-const toast = (message, intent, timeout, onDismiss) => {
-  Toaster.create({ className: 'recipe-toaster', position: Position.TOP_RIGHT }).show({
-    message,
-    intent,
-    timeout,
-    onDismiss
-  })
+const toast = (message, intent, timeout, onDismiss, options?) => {
+  const showToast = () => {
+    Toaster.create({ className: 'recipe-toaster', position: Position.TOP_RIGHT }).show({
+      message,
+      intent,
+      timeout,
+      onDismiss
+    })
+  }
+
+  if (!options?.delayed) {
+    showToast()
+  } else {
+    setTimeout(() => {
+      showToast()
+    }, 500)
+  }
 }

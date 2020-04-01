@@ -29,7 +29,7 @@ export function getClosestToken(
     // Leveinshtein is for typo detection
     const lev = levenshtein(tokenStr, t)
     const maxLevOps = getMaxLevOps(tokenStr)
-    if (lev <= maxLevOps) {
+    if (lev <= maxLevOps && lev < dist) {
       dist = lev
       token = t
     }

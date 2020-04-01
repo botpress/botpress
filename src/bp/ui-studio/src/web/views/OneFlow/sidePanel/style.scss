@@ -1,0 +1,92 @@
+@import '../../../palette.scss';
+
+.treeNode {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:hover {
+    .overhidden {
+      display: block;
+    }
+  }
+}
+
+.overhidden {
+  display: none;
+}
+
+.mainoverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  z-index: 11;
+  padding: 15px;
+}
+
+.toolPanel {
+  padding: 2px;
+
+  .title {
+    height: 25px;
+    font-weight: bold;
+  }
+
+  .section {
+    flex-wrap: wrap;
+  }
+}
+
+.toolItem {
+  width: 100%;
+  margin: 0 3px 3px 0;
+  border: 1px solid #ddd;
+  display: inline-block;
+  font-size: 1.2rem;
+
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+
+  &:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
+}
+
+.grabbable {
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+
+  &:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
+}
+
+.tabs {
+  width: 100%;
+}
+
+.emptyState {
+  color: $content-color-light;
+  font-size: 14px;
+  margin: 20px 0 0;
+}
+
+.modalHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.referencedWorkflows {
+  color: #2458b3;
+}

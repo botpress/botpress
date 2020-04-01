@@ -253,11 +253,14 @@ declare interface Dic<T> {
 
 declare type BOTPRESS_CORE_EVENTS = {
   bp_core_session_created: { botId: string; channel: string }
+  bp_core_send_content: { botId: string; channel: string; source: string; details: string }
   bp_core_decision_elected: { botId: string; channel: string; source: string }
-  bp_core_goal_started: { botId: string; channel: string; goalName: string }
-  bp_core_goal_completed: { botId: string; channel: string; goalName: string }
-  bp_core_goal_failed: { botId: string; channel: string; goalName: string }
+  bp_core_workflow_started: { botId: string; channel: string; wfName: string }
+  bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
+  bp_core_workflow_failed: { botId: string; channel: string; wfName: string }
   bp_core_enter_flow: { botId: string; channel: string; flowName: string }
+  bp_core_feedback_positive: { botId: string; channel: string; type: string; eventId?: number }
+  bp_core_feedback_negative: { botId: string; channel: string; type: string; eventId?: number }
 }
 
 interface IEmitCoreEvent {

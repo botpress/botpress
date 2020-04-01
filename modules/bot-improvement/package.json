@@ -1,0 +1,28 @@
+{
+  "name": "bot-improvement",
+  "version": "1.0.0",
+  "description": "Fix bot mistakes based on chat user feedback",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@types/jest": "^25.1.1"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "classnames": "^2.2.6",
+    "lodash": "^4.17.11",
+    "mime": "^2.4.4",
+    "moment": "^2.24.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
+  }
+}
