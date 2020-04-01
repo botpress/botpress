@@ -1,14 +1,14 @@
-import { handleActions } from 'redux-actions'
 import _ from 'lodash'
-import storage from '../util/storage'
+import { handleActions } from 'redux-actions'
 import {
-  updateDocumentationModal,
   addDocumentationHint,
   removeDocumentationHint,
-  viewModeChanged,
+  toggleBottomPanel,
+  updateDocumentationModal,
   updateGlobalStyle,
-  toggleBottomPanel
+  viewModeChanged
 } from '~/actions'
+import storage from '../util/storage'
 
 const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
 const defaultBottomPanelOpen = storage.get(bottomPanelStorageKey) === 'true'
@@ -19,6 +19,10 @@ const defaultState = {
   docHints: [],
   docModal: null,
   bottomPanel: defaultBottomPanelOpen || false
+}
+
+export interface UiReducer {
+  viewMode: any
 }
 
 const reducer = handleActions(
@@ -45,7 +49,7 @@ const reducer = handleActions(
     }),
     [toggleBottomPanel]: (state, {}) => {
       const value = !state.bottomPanel
-      localStorage.setItem(bottomPanelStorageKey, value)
+      localStorage.setItem(bottomPanelStorageKey, value.toString())
       return {
         ...state,
         bottomPanel: value

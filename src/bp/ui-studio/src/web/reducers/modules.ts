@@ -1,5 +1,4 @@
 import { handleActions } from 'redux-actions'
-
 import { modulesReceived } from '~/actions'
 
 const defaultState = []

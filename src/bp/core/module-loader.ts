@@ -38,6 +38,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onFlowRenamed: joi.func().optional(),
   onElementChanged: joi.func().optional(),
   skills: joi.array().optional(),
+  translations: joi.object().optional(),
   botTemplates: joi.array().optional(),
   dialogConditions: joi.array().optional(),
   definition: joi.object().keys({
@@ -359,6 +360,26 @@ export class ModuleLoader {
       )
 
     return _.flatten(skills)
+  }
+
+  public async getTranslations(): Promise<any> {
+    const allTranslations = {}
+
+    Array.from(this.entryPoints.values())
+      .filter(module => module.translations)
+      .forEach(mod => {
+        Object.keys(mod.translations!).map(lang => {
+          _.merge(allTranslations, {
+            [lang]: {
+              module: {
+                [mod.definition.name]: mod.translations![lang]
+              }
+            }
+          })
+        })
+      })
+
+    return allTranslations
   }
 
   private getModule(module: string): ModuleEntryPoint {

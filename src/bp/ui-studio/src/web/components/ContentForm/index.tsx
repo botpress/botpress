@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import Form from 'react-jsonschema-form'
@@ -40,6 +41,24 @@ const widgets = {
 }
 
 const fields = { i18n_field: TextMl, i18n_array: ArrayMl }
+
+const translatePropsRecursive = obj => {
+  return _.reduce(
+    obj,
+    (result, value, key) => {
+      if ((key === 'title' || key === 'description') && typeof value === 'string') {
+        result[key] = lang.tr(value)
+      } else if (_.isObject(value) && !_.isArray(value)) {
+        result[key] = translatePropsRecursive(value)
+      } else {
+        result[key] = value
+      }
+
+      return result
+    },
+    {}
+  )
+}
 
 const ContentForm: FC<Props> = props => {
   const handleOnChange = event => {
@@ -110,6 +129,7 @@ const ContentForm: FC<Props> = props => {
       widgets={widgets}
       fields={fields}
       onChange={handleOnChange}
+      schema={translatePropsRecursive(props.schema)}
     />
   )
 }

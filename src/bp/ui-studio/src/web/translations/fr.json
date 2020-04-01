@@ -17,6 +17,34 @@
   "delete": "Supprimer",
   "never": "Jamais",
   "refresh": "Rafraîchir",
+  "content": "Contenu",
+  "flows": "Flows",
+  "configuration": "Config",
+  "actionRequired": "Action Required",
+  "paste": "Coller",
+
+  "statusBar": {
+    "emulator": "Émulateur",
+    "logsPanel": "Panneau de journalisation",
+    "notifications": "Notifications",
+    "readDoc": "Lire la documentation",
+    "switchBot": "Changer de bot",
+    "backToAdmin": "Retour à l'admin",
+    "switchBotWarning": "Changer de bot. Vous allez quitter cette interface.",
+    "contentLanguage": "Langue du contenu",
+    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
+    "toggleLogsPanel": "Basculer le panneau",
+    "toggleGuidedTour": "Basculer le tour guidé",
+    "viewNotifications": "Voir les notifications",
+    "documentationAvailable": "Cet écran possède de la documentation supplémentaire.",
+    "bottomPanel": {
+      "logs": "Journalisation",
+      "scrollToFollow": "Suivre les journaux",
+      "downloadLogs": "Télécharger",
+      "clearHistory": "Effacer l'historique",
+      "closePanel": "Fermer le panneau"
+    }
+  },
 
   "config": {
     "general": "Général",
@@ -76,6 +104,17 @@
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
       "nowSaveAuto": "Pssst! Les flows sont désormais enregistrés automatiquement, plus besoin d'enregistrer.",
       "sessionStartsHere": "Chaque session utilisateur commence ici",
+      "addToLibrary": "Ajouter dans la librairie",
+      "addNode": "Ajouter une node",
+
+      "nodeType": {
+        "trigger": "Déclencheur",
+        "sendMessage": "Envoyer Message",
+        "executeAction": "Exécuter Action",
+        "listen": "Écouter",
+        "split": "Diviser",
+        "action": "Action"
+      },
 
       "sidePanel": {
         "create": "Créer",
@@ -208,6 +247,8 @@
         "deleteElements": "Supprimer les éléments sélectionnés",
         "cloneElements": "Cloner les éléments sélectionnés",
         "searchContent": "Rechercher du contenu",
+        "mustBeDefaultLang": "L'élément doit d'abord être créé dans la langue par défaut.",
+        "switchToDefaultLang": "Basculer sur {defaultLang} et commencer à modifier",
 
         "import": {
           "notAbleToExtractData": "Nous n'avons pas pu extraire de données de votre fichier. Soit le fichier est vide, soit il ne correspond à aucun format connu.",
