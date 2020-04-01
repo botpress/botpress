@@ -9,7 +9,7 @@ export default class SlotItem extends React.Component {
 
     if (
       await confirmDialog(lang.tr('nlu.slots.deleteMessage'), {
-        acceptLabel: lang.tr('nlu.slots.delete')
+        acceptLabel: lang.tr('nlu.deleteActionLabel')
       })
     ) {
       this.props.onDelete && this.props.onDelete(this.props.slot)

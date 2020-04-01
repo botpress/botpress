@@ -1,41 +1,56 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
-import { NavLink, withRouter } from 'react-router-dom'
-import classnames from 'classnames'
-import { Tooltip, OverlayTrigger } from 'react-bootstrap'
-import { GoBeaker } from 'react-icons/go'
-import _ from 'lodash'
-import { AccessControl } from '../Shared/Utils'
 import { lang } from 'botpress/shared'
+import classnames from 'classnames'
+import _ from 'lodash'
+import PropTypes from 'prop-types'
+import React from 'react'
+import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { GoBeaker } from 'react-icons/go'
+import { connect } from 'react-redux'
+import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom'
+import { RootReducer } from '~/reducers'
 
-const style = require('./Sidebar.scss')
+import { AccessControl } from '../Shared/Utils'
+
+import style from './Sidebar.scss'
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type Props = StateProps & RouteComponentProps
 
 const BASIC_MENU_ITEMS = [
   {
-    name: 'Content',
+    name: lang.tr('content'),
     path: '/content',
     rule: { res: 'bot.content', op: 'read' },
     icon: 'description'
   },
   {
-    name: 'Flows',
+    name: lang.tr('flows'),
     path: window.USE_ONEFLOW ? '/oneflow' : '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'device_hub'
   }
-].filter(Boolean)
+]
 
 const configItem = {
-  name: 'Config',
+  name: lang.tr('configuration'),
   path: '/config',
   rule: { res: 'admin.bots.*', op: 'write' },
   icon: 'settings'
 }
 
-class Sidebar extends React.Component {
+interface State {
+  mql: any
+  sidebarDocked: boolean
+}
+
+class Sidebar extends React.Component<Props, State> {
   static contextTypes = {
     router: PropTypes.object.isRequired
+  }
+
+  state: State = {
+    sidebarDocked: false,
+    mql: undefined
   }
 
   componentDidMount() {
@@ -49,8 +64,6 @@ class Sidebar extends React.Component {
   }
 
   mediaQueryChanged = () => this.setState({ sidebarDocked: this.state.mql.matches })
-
-  handleMenuItemClicked = () => window.toggleSidebar && window.toggleSidebar()
 
   renderModuleItem = module => {
     const rule = { res: `module.${module.name}`, op: 'write' }
@@ -71,13 +84,12 @@ class Sidebar extends React.Component {
       </Tooltip>
     )
 
-    const translation = this.translate(module.name, module.menuText)
     return (
       <AccessControl key={`menu_module_${module.name}`} resource={rule.res} operation={rule.op}>
         <li id={`bp-menu_${module.name}`}>
-          <NavLink to={path} title={translation} activeClassName={style.active} onClick={this.handleMenuItemClicked}>
+          <NavLink to={path} title={module.menuText} activeClassName={style.active}>
             {moduleIcon}
-            <span>{translation}</span>
+            <span>{lang.tr(`module.${module.name}.fullName`) || module.menuText}</span>
             {module.experimental && (
               <OverlayTrigger trigger={['hover', 'focus']} placement="right" overlay={experimentalTooltip}>
                 <GoBeaker className={style.experimental} />
@@ -89,29 +101,22 @@ class Sidebar extends React.Component {
     )
   }
 
-  renderBasicItem = ({ name, path, rule, icon, renderSuffix }) => (
+  renderBasicItem = ({ name, path, rule, icon }) => (
     <AccessControl resource={rule.res} operation={rule.op} key={name}>
       <li id={`bp-menu_${name}`} key={path}>
-        <NavLink to={path} title={name} activeClassName={style.active} onClick={this.handleMenuItemClicked}>
+        <NavLink to={path} title={name} activeClassName={style.active}>
           <i className="icon material-icons" style={{ marginRight: '5px' }}>
             {icon}
           </i>
-          {this.translate(name, name)}
-          {renderSuffix && renderSuffix()}
+          {name}
         </NavLink>
       </li>
     </AccessControl>
   )
 
-  translate = (name, text) => {
-    const key = `studio.sideBar.${name.toLowerCase()}`
-    const translation = lang.tr(key)
-    return translation === key ? text : translation
-  }
-
   render() {
     return (
-      <aside style={{ zIndex: '1000' }}>
+      <aside style={{ zIndex: 1000 }}>
         <div className={classnames(style.sidebar, 'bp-sidebar')}>
           <div style={{ padding: '8px 13px', overflowX: 'hidden' }}>
             <a href="admin/" className={classnames(style.logo, 'bp-logo')}>
@@ -127,7 +132,6 @@ class Sidebar extends React.Component {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                {BASIC_MENU_ITEMS.filter(m => m.name === 'Config').map(this.renderBasicItem)}
                 {this.props.modules.filter(m => m.name === 'code-editor').map(this.renderModuleItem)}
                 {this.renderBasicItem(configItem)}
               </React.Fragment>
@@ -141,7 +145,7 @@ class Sidebar extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   viewMode: state.ui.viewMode,
   modules: state.modules
 })

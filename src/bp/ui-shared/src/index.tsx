@@ -3,6 +3,7 @@ import { lang, langExtend, langInit, langLocale } from './translations'
 import { BaseDialog, DialogBody, DialogFooter } from './BaseDialog'
 import confirmDialog from './ConfirmDialog'
 import Dropdown from './Dropdown'
+import { toastFailure } from './Toaster'
 import TreeView from './TreeView'
 
 exports.BaseDialog = BaseDialog
@@ -17,4 +18,5 @@ exports.lang = {
   extend: langExtend,
   locale: langLocale
 }
+exports.toastFailure = toastFailure
 exports.Dropdown = Dropdown

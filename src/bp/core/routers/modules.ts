@@ -149,6 +149,14 @@ export class ModulesRouter extends CustomRouter {
         }
       })
     )
+
+    this.router.get(
+      '/translations',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (_req, res, _next) => {
+        res.send(await this.moduleLoader.getTranslations())
+      })
+    )
   }
 
   private async _findModule(moduleName: string): Promise<ModuleInfo> {

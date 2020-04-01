@@ -171,7 +171,7 @@ class SkillsBuilder extends React.Component {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {title} | {skill && skill.name}
+            {title} | {lang.tr(skill && skill.name)}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>

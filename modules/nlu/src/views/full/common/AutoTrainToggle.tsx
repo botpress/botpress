@@ -1,5 +1,6 @@
 import { Switch } from '@blueprintjs/core'
 import { NLUApi } from 'api'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
 import style from './style.scss'
@@ -27,7 +28,7 @@ const AutoTrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
 
   return (
     <Switch
-      label="AutoTrain"
+      label={lang.tr('nlu.autoTrain')}
       checked={autoTrain}
       disabled={loading}
       className={style.autoTrainToggle}

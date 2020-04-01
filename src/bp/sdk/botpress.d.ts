@@ -110,6 +110,7 @@ declare module 'botpress/sdk' {
     skills?: Skill[]
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
+    translations?: { [lang: string]: object }
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
@@ -181,7 +182,10 @@ declare module 'botpress/sdk' {
     noInterface?: boolean
     /** An icon to display next to the name, if none is specified, it will receive a default one */
     menuIcon?: string
-    /** The name displayed on the menu */
+    /**
+     * The name displayed on the menu
+     * @deprecated Set the property "fullName" in the translations file for the desired language
+     */
     menuText?: string
     /** Optionally specify a link to your page or github repo */
     homepage?: string

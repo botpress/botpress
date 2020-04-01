@@ -49,10 +49,9 @@ const FlowTools: FC<{ skills: SkillDefinition[] }> = props => {
         <AccessControl resource="bot.skills" operation="write">
           <div className={style.title}>{lang.tr('studio.flow.sidePanel.skills')}</div>
           <div className={style.section}>
-            {props.skills &&
-              props.skills.map(skill => (
-                <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} icon={skill.icon} />
-              ))}
+            {props.skills?.map(skill => (
+              <ToolItem key={skill.id} label={lang.tr(skill.name)} type="skill" id={skill.id} icon={skill.icon} />
+            ))}
           </div>
         </AccessControl>
       </div>
