@@ -53,6 +53,14 @@ const langLocale = (): string => {
   return locale
 }
 
+const langAvaibale = (): string[] => {
+  const available: string[] = []
+  for (const key in translations) {
+    available.push(key)
+  }
+  return available
+}
+
 const squash = (space, root = {}, path = '') => {
   for (const [key, value] of Object.entries(space)) {
     if (typeof value === 'object' && value !== null) {
@@ -91,4 +99,4 @@ const lang = (id: string | { [lang: string]: string }, values?: { [variable: str
   }
 }
 
-export { lang, langInit, langExtend, langLocale }
+export { lang, langInit, langExtend, langLocale, langAvaibale }

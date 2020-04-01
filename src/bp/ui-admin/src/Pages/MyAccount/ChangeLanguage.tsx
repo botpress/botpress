@@ -8,10 +8,7 @@ interface Props {
 }
 
 const ChangeLanguage: FC<Props> = props => {
-  const languages: Option[] = [
-    { value: 'en', label: 'English' },
-    { value: 'fr', label: 'Français' }
-  ]
+  const languages: Option[] = lang.available().map<Option>(x => ({ value: x, label: lang.tr(`langCodes.${x}`) }))
 
   const [language, setLanguage] = useState<Option>(getCurrentLanguage())
 

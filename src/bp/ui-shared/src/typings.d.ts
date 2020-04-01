@@ -18,6 +18,7 @@ declare module 'botpress/shared' {
     init()
     extend(langs)
     locale(): string
+    available(): string[]
   }
   export function toastFailure(message: string, details?: string, options?: ToastOptions)
 

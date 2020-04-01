@@ -15,6 +15,11 @@
   "pleaseWait": "Please wait...",
   "reset": "Reset",
 
+  "langCodes": {
+    "fr": "Français",
+    "en": "English"
+  },
+
   "admin": {
     "botpressIsNotLicensed": "Botpress is currently not licensed. Please update your license to re-enable all features.",
     "pageRestrictedToAdmins": "This page is restricted to Super Admins",
