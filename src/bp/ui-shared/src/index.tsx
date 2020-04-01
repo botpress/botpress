@@ -5,6 +5,7 @@ import confirmDialog from './ConfirmDialog'
 import Dropdown from './Dropdown'
 import MoreOptions from './MoreOptions'
 import MoreOptionsStyles from './MoreOptions/style.scss'
+import { toastFailure } from './Toaster'
 import TreeView from './TreeView'
 
 exports.BaseDialog = BaseDialog
@@ -19,6 +20,7 @@ exports.lang = {
   extend: langExtend,
   locale: langLocale
 }
+exports.toastFailure = toastFailure
 exports.Dropdown = Dropdown
 exports.MoreOptions = MoreOptions
 exports.TreeView = TreeView

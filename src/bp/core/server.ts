@@ -319,7 +319,8 @@ export default class HTTPServer {
     this.app.use(function handleUnexpectedError(err, req, res, next) {
       const statusCode = err.statusCode || 500
       const errorCode = err.errorCode || 'BP_000'
-      const message = (err.errorCode && err.message) || 'Unexpected error'
+      const message = err.message || 'Unexpected error'
+      const details = err.details || ''
       const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
@@ -328,6 +329,7 @@ export default class HTTPServer {
         errorCode,
         type: err.type || Object.getPrototypeOf(err).name || 'Exception',
         message,
+        details,
         docs,
         ...devOnly
       })

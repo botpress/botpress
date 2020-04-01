@@ -1,14 +1,33 @@
-import React from 'react'
-import { Modal, Button } from 'react-bootstrap'
-
-import _ from 'lodash'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
-
+import _ from 'lodash'
+import React from 'react'
+import { Button, Modal } from 'react-bootstrap'
 import ContentForm from '~/components/ContentForm'
+
 import withLanguage from '../Util/withLanguage'
+
 import style from './style.scss'
 
-class CreateOrEditModal extends React.Component {
+interface Props {
+  handleEdit: any
+  handleCreateOrUpdate: any
+  changeContentLanguage: any
+  defaultLanguage: any
+  contentLang: any
+  isEditing: any
+  formData: any
+  handleClose: any
+  schema: any
+  uiSchema: any
+  show: boolean
+}
+
+interface State {
+  mustChangeLang: boolean
+}
+
+class CreateOrEditModal extends React.Component<Props, State> {
   state = {
     mustChangeLang: false
   }
@@ -35,17 +54,18 @@ class CreateOrEditModal extends React.Component {
     return (
       <div>
         <div style={{ height: 100 }}>
-          <h4>Action Required</h4>
-          Content element must be created in your default language first. <br />
-          It will act as a fallback in case of a missing translation.
+          <h4>{lang.tr('actionRequired')}</h4>
+          {lang.tr('studio.flow.content.mustBeDefaultLang')}
         </div>
         <p>
           <Button onClick={this.useDefaultLang} bsStyle="primary">
-            Switch to {this.props.defaultLanguage.toUpperCase()} and start editing
+            {lang.tr('studio.flow.content.switchToDefaultLang', {
+              defaultLang: this.props.defaultLanguage.toUpperCase()
+            })}
           </Button>
           &nbsp;
           <Button bsStyle="danger" onClick={this.props.handleClose}>
-            Cancel
+            {lang.tr('cancel')}
           </Button>
         </p>
       </div>
@@ -65,12 +85,12 @@ class CreateOrEditModal extends React.Component {
         />
         <div className={style.formBtns}>
           <button className={classnames('bp-button', 'bp-button-danger')} onClick={this.props.handleClose}>
-            Cancel
+            {lang.tr('cancel')}
           </button>
           <button className={classnames('bp-button', 'bp-button-info')} type="submit" onClick={this.handleSave}>
-            Submit
+            {lang.tr('submit')}
           </button>
-          </div>
+        </div>
       </div>
     )
   }

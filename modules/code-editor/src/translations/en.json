@@ -1,0 +1,7 @@
+{
+  "fullName": "Code Editor",
+  "error": {
+    "cannotSaveFile": "Could not save your file",
+    "invalidJson": "Invalid JSON file: {details}"
+  }
+}

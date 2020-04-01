@@ -1,3 +1,4 @@
+import { ModuleDefinition } from 'botpress/sdk'
 import { combineReducers } from 'redux'
 
 import bot from './bot'
@@ -10,7 +11,7 @@ import modules from './modules'
 import ndu, { NduReducer } from './ndu'
 import notifications from './notifications'
 import skills, { SkillsReducer } from './skills'
-import ui from './ui'
+import ui, { UiReducer } from './ui'
 import user, { UserReducer } from './user'
 export * from './selectors'
 
@@ -36,4 +37,6 @@ export interface RootReducer {
   content: ContentReducer
   skills: SkillsReducer
   ndu: NduReducer
+  modules: ModuleDefinition[]
+  ui: UiReducer
 }
