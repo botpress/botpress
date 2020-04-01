@@ -49,7 +49,7 @@
       "optionsLabel": "Options",
       "examplesPlaceholder": "Ajouter des exemples qui respectent votre expression (un exemple par ligne)",
       "matchingSuccess": "Tous les exemples respectent",
-      "matchingError": "Un ou des exemples ne respectent pas",
+      "matchingError": "Un ou plusieurs exemples ne sont pas valides",
       "examplesLabel": "Exemple qui respectent",
       "patternLabel": "Expression régulière",
       "patternPlaceholder": "Ajouter un expression régulière valide",
