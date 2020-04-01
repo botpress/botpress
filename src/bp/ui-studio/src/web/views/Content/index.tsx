@@ -9,6 +9,7 @@ import { connect } from 'react-redux'
 import { RouteComponentProps } from 'react-router'
 import {
   deleteContentItems,
+  deleteMedia,
   fetchContentCategories,
   fetchContentItems,
   fetchFlows,
@@ -22,6 +23,7 @@ import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
 import { FlowReducer } from '~/reducers/flows'
 import { UserReducer } from '~/reducers/user'
+import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 import style from './style.scss'
 import List from './List'
@@ -101,16 +103,14 @@ class ContentView extends Component<Props, State> {
         })
       })
 
-      if (this.props.qnaUsage) {
-        const usage = this.props.qnaUsage['#!' + element.id]
-        usage &&
-          element.usage.push({
-            type: 'Q&A',
-            id: usage.qna,
-            name: usage.qna.substr(usage.qna.indexOf('_') + 1),
-            count: usage.count
-          })
-      }
+      const usage = this.props.qnaUsage?.['#!' + element.id]
+      usage &&
+        element.usage.push({
+          type: 'Q&A',
+          id: usage.qna,
+          name: usage.qna.substr(usage.qna.indexOf('_') + 1),
+          count: usage.count
+        })
     })
 
     return this.state.modifyId
@@ -119,6 +119,10 @@ class ContentView extends Component<Props, State> {
   }
 
   handleCloseModal = () => {
+    if (this.state.modifyId === null && CONTENT_TYPES_MEDIA.includes(this.currentContentType())) {
+      this.props.deleteMedia(this.state.contentToEdit)
+    }
+
     this.setState({
       showModal: false,
       modifyId: null,
@@ -161,7 +165,10 @@ class ContentView extends Component<Props, State> {
   }
 
   handleDeleteSelected = ids => {
-    this.props.deleteContentItems(ids).then(() => this.fetchCategoryItems(this.state.selectedId))
+    this.props
+      .deleteContentItems(ids)
+      .then(() => this.props.fetchContentCategories())
+      .then(() => this.fetchCategoryItems(this.state.selectedId))
   }
 
   handleModalShowForEdit = (id: string) => {
@@ -218,7 +225,7 @@ class ContentView extends Component<Props, State> {
               ? _.sumBy(categories, 'count') || 0
               : _.find(categories, { id: this.state.selectedId }).count
           }
-          contentItems={this.props.contentItems || []}
+          contentItems={this.props.contentItems ?? []}
           handleRefresh={this.handleRefresh}
           handleEdit={this.handleModalShowForEdit}
           handleDeleteSelected={this.handleDeleteSelected}
@@ -253,12 +260,13 @@ const mapStateToProps = (state: RootReducer) => ({
 })
 
 const mapDispatchToProps = {
+  deleteContentItems,
+  deleteMedia,
   fetchContentCategories,
   fetchContentItems,
   fetchFlows,
   getQNAContentElementUsage,
-  upsertContentItem,
-  deleteContentItems
+  upsertContentItem
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ContentView)
@@ -270,6 +278,7 @@ type Props = {
   getQNAContentElementUsage: Function
   upsertContentItem: Function
   deleteContentItems: Function
+  deleteMedia: Function
   categories: any
   contentItems: ContentElementUsage[]
   flows: FlowReducer

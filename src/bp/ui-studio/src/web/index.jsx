@@ -36,7 +36,7 @@ require('./theme.scss')
 
 const token = getToken()
 if (token) {
-  axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
   axios.defaults.headers.common['X-BP-Workspace'] = window.WORKSPACE_ID
 }
 

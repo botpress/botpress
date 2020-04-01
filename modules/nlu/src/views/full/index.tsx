@@ -6,6 +6,7 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
+import { initializeTranslations } from '../translations'
 
 import TrainingControl from './common/TrainingControl'
 import EntityEditor from './entities/EntityEditor'
@@ -13,6 +14,8 @@ import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
+
+initializeTranslations()
 
 export interface NluItem {
   name: string
@@ -78,7 +81,7 @@ const NLU: FC<Props> = props => {
   const updateEntity = (targetEntity: string, entity) => {
     // tslint:disable-next-line: no-floating-promises
     api.updateEntity(targetEntity, entity)
-    const i = entities.findIndex(ent => ent.id == entity.id)
+    const i = entities.findIndex(ent => ent.name === entity.name)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }
 

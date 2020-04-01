@@ -280,6 +280,7 @@ export const upsertContentItem = ({ contentType, formData, modifyId }) => () =>
   axios.post(`${window.BOT_API_PATH}/content/${contentType}/element/${modifyId || ''}`, { formData })
 
 export const deleteContentItems = data => () => axios.post(`${window.BOT_API_PATH}/content/elements/bulk_delete`, data)
+export const deleteMedia = data => () => axios.post(`${window.BOT_API_PATH}/media/delete`, data)
 
 // UI
 export const viewModeChanged = createAction('UI/VIEW_MODE_CHANGED')
@@ -294,7 +295,7 @@ export const userReceived = createAction('USER/RECEIVED')
 export const fetchUser = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.API_PATH}/auth/me/profile`).then(res => {
-    dispatch(userReceived(res.data && res.data.payload))
+    dispatch(userReceived(res.data?.payload))
   })
 }
 

@@ -10,5 +10,6 @@
   "botInfo.preferredLanguage": "Langue préférée",
   "store.resetSessionMessage": "Réinitialisation de la conversation",
   "messages.newMessage": "Nouveau message",
-  "messages.newMessages": "Nouveaux messages"
+  "messages.newMessages": "Nouveaux messages",
+  "widget.toggle": "Ouvrir ou fermer la conversation"
 }
