@@ -91,21 +91,21 @@ export const EntityNameModal: FC<Props> = props => {
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name
   const alreadyExists = !isIdentical && _.some(props.entityIDs, id => id === getEntityId(name))
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('nlu.createActionLabel') }
-  let submitText = lang.tr('nlu.createActionLabel')
+  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('module.nlu.createActionLabel') }
+  let submitText = lang.tr('module.nlu.createActionLabel')
   if (props.action === 'duplicate') {
     dialog = { icon: 'duplicate', title: 'Duplicate Entity' }
-    submitText = lang.tr('nlu.duplicateActionLabel')
+    submitText = lang.tr('module.nlu.duplicateActionLabel')
   } else if (props.action === 'rename') {
     dialog = { icon: 'edit', title: 'Rename Entity' }
-    submitText = lang.tr('nlu.renameActionLabel')
+    submitText = lang.tr('module.nlu.renameActionLabel')
   }
 
   return (
     <Dialog isOpen={props.isOpen} onClose={props.closeModal} transitionDuration={0} {...dialog}>
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label={lang.tr('nlu.entities.nameLabel')}>
+          <FormGroup label={lang.tr('module.nlu.entities.nameLabel')}>
             <input
               required
               name="name"
@@ -113,7 +113,7 @@ export const EntityNameModal: FC<Props> = props => {
               tabIndex={1}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               dir="auto"
-              placeholder={lang.tr('nlu.entities.namePlaceholder')}
+              placeholder={lang.tr('module.nlu.entities.namePlaceholder')}
               value={name}
               onChange={e => setName(e.target.value)}
               autoFocus
@@ -132,8 +132,8 @@ export const EntityNameModal: FC<Props> = props => {
           )}
 
           {alreadyExists && (
-            <Callout title={lang.tr('nlu.entities.nameConflictTitle')} intent={Intent.DANGER}>
-              {lang.tr('nlu.entities.nameConflictMessage')}
+            <Callout title={lang.tr('module.nlu.entities.nameConflictTitle')} intent={Intent.DANGER}>
+              {lang.tr('module.nlu.entities.nameConflictMessage')}
             </Callout>
           )}
         </div>

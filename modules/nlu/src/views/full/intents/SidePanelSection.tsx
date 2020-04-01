@@ -36,8 +36,8 @@ export const IntentSidePanelSection: FC<Props> = props => {
 
   const deleteIntent = async (intentName: string) => {
     if (
-      await confirmDialog(lang.tr('nlu.intents.deleteConfirmMessage', { intentName }), {
-        acceptLabel: lang.tr('nlu.deleteActionLabel')
+      await confirmDialog(lang.tr('module.nlu.intents.deleteConfirmMessage', { intentName }), {
+        acceptLabel: lang.tr('module.nlu.deleteActionLabel')
       })
     ) {
       if (props.currentItem && props.currentItem.name === intentName) {
@@ -48,7 +48,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
         await props.api.deleteIntent(intentName)
         await props.reloadIntents()
       } catch (err) {
-        toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'delete' }))
+        toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'delete' }))
       }
     }
   }
@@ -74,7 +74,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'create' }))
+      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'create' }))
     }
   }
 
@@ -89,7 +89,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'rename' }))
+      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'rename' }))
     }
   }
 
@@ -104,7 +104,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'duplicate' }))
+      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'duplicate' }))
     }
   }
 
@@ -119,17 +119,17 @@ export const IntentSidePanelSection: FC<Props> = props => {
           selected: props.currentItem && props.currentItem.name === intent.name,
           contextMenu: [
             {
-              label: lang.tr('nlu.renameActionLabel'),
+              label: lang.tr('module.nlu.renameActionLabel'),
               icon: 'edit',
               onClick: () => showIntentNameModal(intent.name, 'rename')
             },
             {
-              label: lang.tr('nlu.duplicateActionLabel'),
+              label: lang.tr('module.nlu.duplicateActionLabel'),
               icon: 'duplicate',
               onClick: () => showIntentNameModal(intent.name, 'duplicate')
             },
             {
-              label: lang.tr('nlu.deleteActionLabel'),
+              label: lang.tr('module.nlu.deleteActionLabel'),
               icon: 'delete',
               onClick: () => deleteIntent(intent.name)
             }

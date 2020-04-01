@@ -11,6 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -465,12 +466,12 @@ class Diagram extends Component<Props> {
     return (
       <div style={{ display: 'flex', marginTop: 5 }}>
         <Button onClick={this.handleFlowWideClicked} minimal>
-          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide transition
-          {nbNext === 1 ? '' : 's'}
+          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag>
+          {lang.tr('studio.flow.flowWideTransitions')}
         </Button>
         <Button onClick={this.handleFlowWideClicked} minimal>
-          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide on receive
-          {nbReceive === 1 ? '' : 's'}
+          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>{' '}
+          {lang.tr('studio.flow.flowWideOnReceives')}
         </Button>
         {this.props.showSearch && (
           <ControlGroup>
