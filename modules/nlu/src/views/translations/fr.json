@@ -57,7 +57,7 @@
       "synonymPlaceholder": "Ajouter des synonymes, séparés par des virgules",
       "strict": "Stricte",
       "medium": "Moyen",
-      "loose": "Lâche",
+      "loose": "Indulgent",
       "occurrenceTooltip": "Une variante est une valeur que peut prendre votre entité. Chaque variante peut avoir plusieurs synonymes.",
       "newOccurrence": "Nouvelle variante",
       "occurrenceLabel": "Variantes",
