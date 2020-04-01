@@ -131,9 +131,9 @@ export const ListEntityEditor: React.FC<Props> = props => {
             onChange={e => setNewOccurrence(e.target.value)}
           />
         </FormGroup>
-        {occurrences.length > 0 && (
+        {state.occurrences.length > 0 && (
           <FormGroup label={lang.tr('nlu.entities.occurrenceLabel')}>
-            {occurrences.map((o, i) => (
+            {state.occurrences.map((o, i) => (
               <Occurrence
                 key={o.name}
                 occurrence={o}
