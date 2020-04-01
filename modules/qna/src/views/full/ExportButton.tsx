@@ -18,12 +18,12 @@ export const ExportButton: FC<Props> = props => {
   return (
     <Fragment>
       {props.asMenu ? (
-        <MenuItem id="btn-export" icon="upload" text={lang.tr('qna.exportToJson')} onClick={startDownload} />
+        <MenuItem id="btn-export" icon="upload" text={lang.tr('module.qna.exportToJson')} onClick={startDownload} />
       ) : (
         <Button
           id="btn-export"
           icon="upload"
-          text={lang.tr('qna.exportToJson')}
+          text={lang.tr('module.qna.exportToJson')}
           onClick={startDownload}
           style={{ marginLeft: 5 }}
         />
