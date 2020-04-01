@@ -20,7 +20,7 @@ const ItemsList: FC<Props> = props => {
     <div className={className}>
       <h3 className={style.metricName}>{name}</h3>
       {!items.length && (
-        <p className={cx(style.emptyState, style.alignedLeft)}>{lang.tr('analytics.noDataAvailable')}</p>
+        <p className={cx(style.emptyState, style.alignedLeft)}>{lang.tr('module.analytics.noDataAvailable')}</p>
       )}
       <ol>
         {items.slice(0, itemLimit).map((item, index) => (
