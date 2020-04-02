@@ -34,8 +34,6 @@
     "entitiesLabel": "Entités associées",
     "editTitle": "Modifier un paramètre",
     "createTitle": "Créer un paramètre pour votre intention",
-    "delete": "Supprimer",
-    "edit": "Modifier",
     "deleteMessage": "Êtes-vous certain de vouloir supprimer ce paramètre ainsi que toutes les marques dans chaque alternative?"
   },
   "entities": {
@@ -70,10 +68,6 @@
     "namePlaceholder": "Nom de l'entité",
     "nameLabel": "Nom"
   },
-  "renameActionLabel": "Renommer",
-  "duplicateActionLabel": "Dupliquer",
-  "deleteActionLabel": "Supprimer",
-  "createActionLabel": "Créer",
   "title": "Compréhension du langage",
   "description": "Utilisez la compréhension du langage de Botpress pour rendre votre agent plus intelligent.",
   "cancelTraining": "Arrêter l'entraînement",

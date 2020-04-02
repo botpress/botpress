@@ -467,11 +467,11 @@ class Diagram extends Component<Props> {
       <div style={{ display: 'flex', marginTop: 5 }}>
         <Button onClick={this.handleFlowWideClicked} minimal>
           <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag>
-          {lang.tr('studio.flow.flowWideTransitions')}
+          {lang.tr('studio.flow.flowWideTransitions', { count: nbNext })}
         </Button>
         <Button onClick={this.handleFlowWideClicked} minimal>
           <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>{' '}
-          {lang.tr('studio.flow.flowWideOnReceives')}
+          {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
         </Button>
         {this.props.showSearch && (
           <ControlGroup>

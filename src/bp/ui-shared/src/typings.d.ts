@@ -17,8 +17,8 @@ declare module 'botpress/shared' {
     tr(id: string | { [lang: string]: string }, values?: { [variable: string]: any }): string
     init()
     extend(langs)
-    locale(): string
-    available(): string[]
+    getLocale(): string
+    getAvailable(): string[]
   }
   export function toastFailure(message: string, details?: string, options?: ToastOptions)
 

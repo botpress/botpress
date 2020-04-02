@@ -91,14 +91,14 @@ export const EntityNameModal: FC<Props> = props => {
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name
   const alreadyExists = !isIdentical && _.some(props.entityIDs, id => id === getEntityId(name))
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('module.nlu.createActionLabel') }
-  let submitText = lang.tr('module.nlu.createActionLabel')
+  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('duplicate') }
+  let submitText = lang.tr('duplicate')
   if (props.action === 'duplicate') {
     dialog = { icon: 'duplicate', title: 'Duplicate Entity' }
-    submitText = lang.tr('module.nlu.duplicateActionLabel')
+    submitText = lang.tr('duplicate')
   } else if (props.action === 'rename') {
     dialog = { icon: 'edit', title: 'Rename Entity' }
-    submitText = lang.tr('module.nlu.renameActionLabel')
+    submitText = lang.tr('rename')
   }
 
   return (

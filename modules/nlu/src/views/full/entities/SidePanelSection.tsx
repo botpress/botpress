@@ -43,7 +43,7 @@ export const EntitySidePanelSection: FC<Props> = props => {
   const deleteEntity = async (entity: NLU.EntityDefinition) => {
     if (
       await confirmDialog(lang.tr('module.nlu.entities.deleteMessage', { entityName: entity.name }), {
-        acceptLabel: lang.tr('module.nlu.deleteActionLabel')
+        acceptLabel: lang.tr('delete')
       })
     ) {
       if (props.currentItem && props.currentItem.name === entity.name) {
@@ -65,13 +65,13 @@ export const EntitySidePanelSection: FC<Props> = props => {
           value: entity.name,
           selected: props.currentItem && props.currentItem.name === entity.name,
           contextMenu: [
-            { label: lang.tr('module.nlu.renameActionLabel'), icon: 'edit', onClick: () => renameEntity(entity) },
+            { label: lang.tr('rename'), icon: 'edit', onClick: () => renameEntity(entity) },
             {
-              label: lang.tr('module.nlu.duplicateActionLabel'),
+              label: lang.tr('duplicate'),
               icon: 'duplicate',
               onClick: () => duplicateEntity(entity)
             },
-            { label: lang.tr('module.nlu.deleteActionLabel'), icon: 'delete', onClick: () => deleteEntity(entity) }
+            { label: lang.tr('delete'), icon: 'delete', onClick: () => deleteEntity(entity) }
           ]
         } as Item)
     )

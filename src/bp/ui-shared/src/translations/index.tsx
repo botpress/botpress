@@ -54,11 +54,7 @@ const langLocale = (): string => {
 }
 
 const langAvaibale = (): string[] => {
-  const available: string[] = []
-  for (const key in translations) {
-    available.push(key)
-  }
-  return available
+  return Object.keys(translations)
 }
 
 const squash = (space, root = {}, path = '') => {

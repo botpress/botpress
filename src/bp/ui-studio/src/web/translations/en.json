@@ -109,8 +109,8 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "nowSaveAuto": "Pssst! Flows now save automatically, no need to save anymore.",
       "sessionStartsHere": "Every user session starts here",
-      "flowWideTransitions": "flow-wide transitions",
-      "flowWideOnReceives": "flow-wide on receives",
+      "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
+      "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "addToLibrary": "Add to library",
       "addNode": "Add Node",
 

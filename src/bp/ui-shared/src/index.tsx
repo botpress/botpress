@@ -16,8 +16,8 @@ exports.lang = {
   tr: lang,
   init: langInit,
   extend: langExtend,
-  locale: langLocale,
-  available: langAvaibale
+  getLocale: langLocale,
+  getAvailable: langAvaibale
 }
 exports.toastFailure = toastFailure
 exports.Dropdown = Dropdown

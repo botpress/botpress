@@ -8,7 +8,7 @@ interface Props {
 }
 
 const ChangeLanguage: FC<Props> = props => {
-  const languages: Option[] = lang.available().map<Option>(x => ({ value: x, label: lang.tr(`langCodes.${x}`) }))
+  const languages: Option[] = lang.getAvailable().map<Option>(x => ({ value: x, label: lang.tr(`langCodes.${x}`) }))
 
   const [language, setLanguage] = useState<Option>(getCurrentLanguage())
 
@@ -18,16 +18,13 @@ const ChangeLanguage: FC<Props> = props => {
   }
 
   function getCurrentLanguage(): Option {
-    const locale = lang.locale()
+    const locale = lang.getLocale()
     const option = languages.find(x => x.value === locale)
     if (option === undefined) {
       return languages[0]
     } else {
       return option
     }
-  }
-  const languageChanged = language => {
-    setLanguage(language)
   }
 
   return (
@@ -36,13 +33,11 @@ const ChangeLanguage: FC<Props> = props => {
       icon="translate"
       isOpen={props.isOpen}
       onClose={props.toggle}
-      transitionDuration={0}
-      canOutsideClickClose={false}
       onSubmit={submit}
     >
       <DialogBody>
         <FormGroup label={lang.tr('admin.uiLanguage')} helperText={lang.tr('admin.uiLanguageHelper')}>
-          <Dropdown items={languages} defaultItem={language} onChange={languageChanged} />
+          <Dropdown items={languages} defaultItem={language} onChange={setLanguage} />
         </FormGroup>
       </DialogBody>
       <DialogFooter>
