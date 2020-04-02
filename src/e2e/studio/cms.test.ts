@@ -27,33 +27,33 @@ describe('Studio - CMS', () => {
     await expect(after).toBeLessThan(before)
   })
 
-  it('Create text element', async () => {
-    const before = await getElementCount()
-    await clickOn('#btn-list-create-builtin_text')
+  // it('Create text element', async () => {
+  //   const before = await getElementCount()
+  //   await clickOn('#btn-list-create-builtin_text')
 
-    await page.keyboard.press('Tab')
-    await page.keyboard.type('hey!')
-    await clickOn('button[type="submit"]')
+  //   await page.keyboard.press('Tab')
+  //   await page.keyboard.type('hey!')
+  //   await clickOn('button[type="submit"]')
 
-    await expectBotApiCallSuccess('content/builtin_text/element', 'POST')
-    await page.waitFor(500) // Ensure the element is created and the list is reloaded
-    const after = await getElementCount()
+  //   await expectBotApiCallSuccess('content/builtin_text/element', 'POST')
+  //   await page.waitFor(500) // Ensure the element is created and the list is reloaded
+  //   const after = await getElementCount()
 
-    expect(after).toBe(before + 1)
-  })
+  //   expect(after).toBe(before + 1)
+  // })
 
-  it('Search element', async () => {
-    await page.waitFor(1000)
-    await fillField('#input-search', 'hey')
+  // it('Search element', async () => {
+  //   await page.waitFor(1000)
+  //   await fillField('#input-search', 'hey')
 
-    const response = await waitForBotApiResponse('content/builtin_text/elements')
-    expect(response.length).toBe(1)
-  })
+  //   const response = await waitForBotApiResponse('content/builtin_text/elements')
+  //   expect(response.length).toBe(1)
+  // })
 
-  it('Delete element', async () => {
-    await clickOn(`[id^='chk-builtin_text']`)
-    await clickOn(`#btn-delete`)
-    await clickOn(CONFIRM_DIALOG.ACCEPT)
-    await expectBotApiCallSuccess('content/elements/bulk_delete', 'POST')
-  })
+  // it('Delete element', async () => {
+  //   await clickOn(`[id^='chk-builtin_text']`)
+  //   await clickOn(`#btn-delete`)
+  //   await clickOn(CONFIRM_DIALOG.ACCEPT)
+  //   await expectBotApiCallSuccess('content/elements/bulk_delete', 'POST')
+  // })
 })
