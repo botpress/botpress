@@ -336,8 +336,8 @@ export class MessengerClient {
       return fbMessage
     }, {})
 
-    debugMessages('outgoing text message', { senderId, message, body })
-    await this._callEndpoint('/messages', body)
+    debugMessages('outgoing text message', { senderId, message, fbMessage})
+    await this._callEndpoint('/messages', fbMessage)
   }
 
   async deleteProfileFields(fields: string[]) {
