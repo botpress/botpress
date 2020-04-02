@@ -49,7 +49,6 @@ export const Container = (props: ContainerProps) => {
 
   const children = React.Children.toArray(props.children)
 
-  console.log(children.slice(1))
   return (
     <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} className={style.fullsize} focused>
       <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
