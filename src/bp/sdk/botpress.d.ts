@@ -110,6 +110,9 @@ declare module 'botpress/sdk' {
     skills?: Skill[]
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
+    translations?: { [lang: string]: object }
+    /** List of new conditions that the module can register */
+    dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -121,6 +124,17 @@ declare module 'botpress/sdk' {
      * onBotUnmount is called for each bots before this one is called
      */
     onModuleUnmount?: (bp: typeof import('botpress/sdk')) => Promise<void>
+    /**
+     * Called when a topic is being changed.
+     * If oldName is not set, then the topic `newName` is being created
+     * If newName is not set, then the topic `oldName` is being deleted
+     */
+    onTopicChanged?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      oldName?: string,
+      newName?: string
+    ) => Promise<void>
     onFlowChanged?: (bp: typeof import('botpress/sdk'), botId: string, flow: Flow) => Promise<void>
     onFlowRenamed?: (
       bp: typeof import('botpress/sdk'),
@@ -168,7 +182,10 @@ declare module 'botpress/sdk' {
     noInterface?: boolean
     /** An icon to display next to the name, if none is specified, it will receive a default one */
     menuIcon?: string
-    /** The name displayed on the menu */
+    /**
+     * The name displayed on the menu
+     * @deprecated Set the property "fullName" in the translations file for the desired language
+     */
     menuText?: string
     /** Optionally specify a link to your page or github repo */
     homepage?: string
@@ -482,7 +499,64 @@ declare module 'botpress/sdk' {
     }
 
     export type SlotCollection = Dic<Slot>
+
+    export interface Predictions {
+      [context: string]: {
+        confidence: number
+        intents: { label: string; confidence: number }[]
+      }
+    }
   }
+
+  export namespace NDU {
+    interface GenericTrigger {
+      conditions: DecisionTriggerCondition[]
+    }
+
+    export interface WorkflowTrigger extends GenericTrigger {
+      type: 'workflow'
+      workflowId: string
+      nodeId: string
+    }
+
+    export interface FaqTrigger extends GenericTrigger {
+      type: 'faq'
+      faqId: string
+      topicName: string
+    }
+
+    export interface NodeTrigger extends GenericTrigger {
+      type: 'node'
+      workflowId: string
+      nodeId: string
+    }
+
+    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
+
+    export interface DialogUnderstanding {
+      triggers: {
+        [triggerId: string]: {
+          result: Dic<number>
+          trigger: Trigger
+        }
+      }
+      actions: Actions[]
+      predictions: { [key: string]: { triggerId: string; confidence: number } }
+    }
+
+    export interface Actions {
+      action: 'send' | 'startWorkflow' | 'redirect' | 'continue'
+      data?: SendContent | FlowRedirect
+    }
+
+    export interface FlowRedirect {
+      flow: string
+      node: string
+    }
+
+    export type SendContent = Pick<IO.Suggestion, 'confidence' | 'payloads' | 'source' | 'sourceDetails'>
+  }
+
   export namespace IO {
     export type EventDirection = 'incoming' | 'outgoing'
     export namespace WellKnownFlags {
@@ -534,6 +608,8 @@ declare module 'botpress/sdk' {
       /** The date the event was created */
       readonly createdOn: Date
       readonly credentials?: any
+      /** When false, some properties used by the debugger are stripped from the event before storing */
+      debugger?: boolean
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -565,10 +641,10 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventUnderstanding {
-      readonly intent: NLU.Intent
+      intent: NLU.Intent
       /** Predicted intents needs disambiguation */
       readonly ambiguous: boolean
-      readonly intents: NLU.Intent[]
+      intents: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
@@ -577,6 +653,7 @@ declare module 'botpress/sdk' {
       readonly slots: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
+      readonly predictions?: NLU.Predictions
       readonly ms: number
     }
 
@@ -591,6 +668,7 @@ declare module 'botpress/sdk' {
       readonly decision?: Suggestion
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
+      readonly ndu?: NDU.DialogUnderstanding
     }
 
     export interface OutgoingEvent extends Event {
@@ -680,8 +758,17 @@ declare module 'botpress/sdk' {
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
+      nduContext?: NduContext
+      lastWorkflows: WorkflowHistory[]
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
+    }
+
+    export interface WorkflowHistory {
+      workflow: string
+      eventId: string
+      success?: boolean
+      active?: boolean
     }
 
     export type StoredEvent = {
@@ -691,6 +778,9 @@ declare module 'botpress/sdk' {
       /** Outgoing events will have the incoming event ID, if they were triggered by one */
       incomingEventId?: string
       sessionId: string
+      workflowId?: string
+      feedback?: number
+      success?: boolean
       event: IO.Event
       createdOn: any
     } & EventDestination
@@ -707,6 +797,14 @@ declare module 'botpress/sdk' {
       context: string
       /** Represent the number of turns before the context is removed from the session */
       ttl: number
+    }
+
+    export interface NduContext {
+      last_turn_action_name: string
+      last_turn_highest_ranking_trigger_id: string
+      last_turn_node_id: string
+      last_turn_ts: number
+      last_topic: string
     }
 
     export interface DialogTurnHistory {
@@ -841,16 +939,35 @@ declare module 'botpress/sdk' {
   export interface KvsService {
     /**
      * Returns the specified key as JSON object
-     * @example bp.kvs.get('bot123', 'hello/whatsup')
+     * @example bp.kvs.forBot('bot123').get('hello/whatsup')
      */
     get(key: string, path?: string): Promise<any>
 
     /**
      * Saves the specified key as JSON object
-     * @example bp.kvs.set('bot123', 'hello/whatsup', { msg: 'i love you' })
+     * @example bp.kvs.forBot('bot123').set('hello/whatsup', { msg: 'i love you' })
+     * @param expiry The key will expire in X (eg: 10m, 1d, 30 days) - refer to https://www.npmjs.com/package/ms for options
      */
-    set(key: string, value: any, path?: string): Promise<void>
-    setStorageWithExpiry(key: string, value, expiryInMs?: string)
+    set(key: string, value: any, path?: string, expiry?: string): Promise<void>
+
+    /**
+     * Deletes the specified key
+     * @example bp.kvs.forBot('bot123').delete('hello/whatsup')
+     */
+    delete(key: string): Promise<void>
+
+    /**
+     * Whether or not the specified key exists
+     * @example bp.kvs.forBot('bot123').exists('hello/whatsup')
+     */
+    exists(key: string): Promise<boolean>
+    /**
+     * @deprecated Use bp.kvs.forBot().set() and set an expiry as the last parameter
+     */
+    setStorageWithExpiry(key: string, value, expiry?: string)
+    /**
+     * @deprecated Use bp.kvs.forBot().get() which handles expiry automatically
+     */
     getStorageWithExpiry(key: string)
     getConversationStorageKey(sessionId: string, variable: string): string
     getUserStorageKey(userId: string, variable: string): string
@@ -888,6 +1005,7 @@ declare module 'botpress/sdk' {
     languages: string[]
     locked: boolean
     pipeline_status: BotPipelineStatus
+    oneflow?: boolean
   }
 
   export type Pipeline = Stage[]
@@ -1023,6 +1141,9 @@ declare module 'botpress/sdk' {
    */
   export interface Flow {
     name: string
+    /** Friendly name to display in the flow view */
+    label?: string
+    description?: string
     location?: string
     version?: string
     /** This is the home node. The user will be directed there when he enters the flow */
@@ -1037,6 +1158,71 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
+  }
+
+  export interface DecisionTriggerCondition {
+    id: string
+    params?: { [key: string]: any }
+  }
+
+  export interface Condition {
+    id: string
+    /** String displayed in the dropdown */
+    label: string
+    /** The description holds placeholders for param values so they can be displayed in the view */
+    description?: string
+    /** The definition of all parameters used by this condition */
+    params?: ConditionParams
+    /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
+    displayOrder?: number
+    /** This callback url is called when the condition is deleted or pasted in the flow */
+    callback?: string
+    /** The editor will use the custom component to provide the requested parameters */
+    editor?: {
+      module: string
+      component: string
+    }
+    evaluate: (event: IO.IncomingEvent, params: any) => number
+  }
+
+  export interface ConditionParams {
+    [paramName: string]: {
+      label: string
+      /** Each type provides a different kind of editor */
+      type: 'string' | 'number' | 'boolean' | 'list'
+      required?: boolean
+      defaultValue?: any
+      /** When type is list, this variable must be configured */
+      list?: ConditionListOptions
+    }
+  }
+
+  export interface ConditionListOptions {
+    /** List of options displayed in the dropdown menu */
+    items?: Option[]
+    /**Alternatively, set an endpoint where the list will be queried (eg: intents) */
+    endpoint?: string
+    /** The path to the list of elements (eg: language.available) */
+    path?: string
+    /** Name of the field which will be used as the value */
+    valueField?: string
+    /** Friendly name displayed in the dropdown menu */
+    labelField?: string
+  }
+
+  export interface Option {
+    value: string
+    label: string
+  }
+
+  export interface Topic {
+    name: string
+    description: string
+  }
+
+  export interface Library {
+    elementPath: string
+    elementId: string
   }
 
   /**
@@ -1071,7 +1257,15 @@ declare module 'botpress/sdk' {
     readonly lastModified?: Date
   } & NodeActions
 
-  export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
+  export type TriggerNode = FlowNode & {
+    conditions: DecisionTriggerCondition[]
+  }
+
+  export type ListenNode = FlowNode & {
+    triggers: { conditions: DecisionTriggerCondition[] }[]
+  }
+
+  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'>
 
   /**
    * Node Transitions are all the possible outcomes when a user's interaction on a node is completed. The possible destinations
@@ -1272,8 +1466,8 @@ declare module 'botpress/sdk' {
 
   export type EventSearchParams = {
     /** Returns the amount of elements from the starting position  */
-    from: number
-    count: number
+    from?: number
+    count?: number
     /** An array of columns with direction to sort results */
     sortOrder?: SortOrder[]
   }
@@ -1302,6 +1496,11 @@ declare module 'botpress/sdk' {
     unlock(): Promise<void>
     /** Extend the duration of the lock for the node owning it */
     extend(duration: number): Promise<void>
+  }
+
+  export interface FileContent {
+    name: string
+    content: string | Buffer
   }
 
   export namespace http {
@@ -1421,6 +1620,30 @@ declare module 'botpress/sdk' {
       fields: Partial<IO.StoredEvent>,
       searchParams?: EventSearchParams
     ): Promise<IO.StoredEvent[]>
+
+    /**
+     * When Event Storage is enabled, you can use this API to update an event. You can use multiple fields
+     * for your query, but at least one is required.
+     *
+     * @param id - The ID of the event to update
+     * @param fields - Fields to update on the event
+     */
+    export function updateEvent(id: number, fields: Partial<IO.StoredEvent>): Promise<void>
+
+    /**
+     * Register the user feedback for a specific event. The type property is used to increment associated metrics
+     * @param incomingEventId - The ID of the first event of the conversation
+     * @param target - The ID of the user
+     * @param feedback Either 1 or -1
+     * @param type - For now, only supports qna & workflow
+     * @return true if feedback was successfully saved
+     */
+    export function saveUserFeedback(
+      incomingEventId: string,
+      target: string,
+      feedback: number,
+      type?: string
+    ): Promise<boolean>
   }
 
   export type GetOrCreateResult<T> = Promise<{
@@ -1488,6 +1711,11 @@ declare module 'botpress/sdk' {
       flowName: string,
       nodeName?: string
     ): Promise<void>
+
+    /**
+     * Returns the list of conditions that can be used in an NLU Trigger node
+     */
+    export function getConditions(): Condition[]
   }
 
   export namespace config {
@@ -1573,12 +1801,12 @@ declare module 'botpress/sdk' {
      * @example bp.kvs.set('bot123', 'hello/whatsup', { msg: 'i love you' })
      * @deprecated will be removed, use global or forBot
      */
-    export function set(botId: string, key: string, value: any, path?: string): Promise<void>
+    export function set(botId: string, key: string, value: any, path?: string, expiry?: string): Promise<void>
 
     /**
      * @deprecated will be removed, use global or forBot
      */
-    export function setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string)
+    export function setStorageWithExpiry(botId: string, key: string, value, expiry?: string)
 
     /**
      * @deprecated will be removed, use global or forBot
@@ -1627,6 +1855,8 @@ declare module 'botpress/sdk' {
       workspaceId: string,
       allowOverwrite?: boolean
     ): Promise<void>
+
+    export function getBotTemplate(moduleName: string, templateName: string): Promise<FileContent[]>
   }
 
   export namespace workspaces {

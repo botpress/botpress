@@ -18,7 +18,7 @@ const config = {
     filename: 'index.js'
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.css']
+    extensions: ['.tsx', '.ts', '.js', '.css']
   },
   externals: {
     react: 'React',

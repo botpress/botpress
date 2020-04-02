@@ -34,7 +34,13 @@ function init(config) {
   if (config.ref) {
     iframeSrc += '&ref=' + encodeURIComponent(config.ref)
   }
-  const iframeHTML = '<iframe id="bp-widget" frameborder="0" src="' + iframeSrc + '" class="bp-widget-web"/>'
+  const title = config.botConvoDescription || config.botName || config.botId
+  const iframeHTML =
+    '<iframe id="bp-widget" title="' +
+    encodeURIComponent(title) +
+    '" frameborder="0" src="' +
+    iframeSrc +
+    '" class="bp-widget-web"/>'
   injectDOMElement('div', 'body', { id: 'bp-web-widget', innerHTML: iframeHTML })
 
   const iframeWindow = document.querySelector('#bp-web-widget > #bp-widget').contentWindow

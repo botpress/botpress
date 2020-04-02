@@ -89,7 +89,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     }
 
     // cache miss
-    convRef = await this.bp.kvs.get(this.botId, threadId)
+    convRef = await this.bp.kvs.forBot(this.botId).get(threadId)
     this.inMemoryConversationRefs[threadId] = convRef
     return convRef
   }
@@ -100,7 +100,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     }
 
     this.inMemoryConversationRefs[threadId] = convRef
-    return this.bp.kvs.set(this.botId, threadId, convRef)
+    return this.bp.kvs.forBot(this.botId).set(threadId, convRef)
   }
 
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {

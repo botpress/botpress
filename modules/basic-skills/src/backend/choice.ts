@@ -79,7 +79,8 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
       next: [
         { condition: `temp['skill-choice-valid-${randomId}'] === true`, node: '#' },
         { condition: 'true', node: 'invalid' }
-      ]
+      ],
+      triggers: [{ conditions: [{ id: 'always' }] }]
     },
     {
       name: 'invalid',

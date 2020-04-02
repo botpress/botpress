@@ -34,7 +34,6 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { Timeout, toastInfo } from '~/components/Shared/Utils'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
@@ -43,6 +42,7 @@ import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } 
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
+import { ActionWidgetFactory } from './nodes_v2/ActionNode'
 import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
@@ -67,6 +67,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     // This reference allows us to update flow nodes from widgets
@@ -198,7 +199,8 @@ class Diagram extends Component<Props> {
     executeNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition] }),
     listenNode: (point: Point) =>
       this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
-    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' })
+    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
+    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action', next: [defaultTransition] })
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
@@ -225,6 +227,7 @@ class Diagram extends Component<Props> {
             <MenuItem text="Execute" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
             <MenuItem text="Listen" onClick={wrap(this.add.listenNode, point)} icon="hand" />
             <MenuItem text="Router" onClick={wrap(this.add.routerNode, point)} icon="search-around" />
+            <MenuItem text="Action" onClick={wrap(this.add.actionNode, point)} icon="offline" />
           </Fragment>
         ) : null}
         <MenuItem tagName="button" text="Skills" icon="add">
@@ -344,7 +347,7 @@ class Diagram extends Component<Props> {
     return (
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
-      target.model instanceof RouterNodeModel
+      targetModel instanceof RouterNodeModel
     )
   }
 
@@ -409,7 +412,7 @@ class Diagram extends Component<Props> {
           _.includes(nodeTypes, element.nodeType) ||
           _.includes(nodeTypes, element.type)
         ) {
-          this.props.removeFlowNode(element.id)
+          this.props.removeFlowNode(element)
         } else if (element.type === 'default') {
           element.remove()
           this.checkForLinksUpdate()
@@ -461,13 +464,13 @@ class Diagram extends Component<Props> {
 
     return (
       <div style={{ display: 'flex', marginTop: 5 }}>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide
-          {nbNext === 1 ? ' transition' : ' transitions'}
+        <Button onClick={this.handleFlowWideClicked} minimal>
+          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide transition
+          {nbNext === 1 ? '' : 's'}
         </Button>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide
-          {nbReceive === 1 ? ' on receive' : ' on receives'}
+        <Button onClick={this.handleFlowWideClicked} minimal>
+          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide on receive
+          {nbReceive === 1 ? '' : 's'}
         </Button>
         {this.props.showSearch && (
           <ControlGroup>
@@ -477,7 +480,7 @@ class Diagram extends Component<Props> {
               placeholder="Highlight nodes by name"
               value={this.props.highlightFilter}
               onChange={this.props.handleFilterChanged}
-              autoFocus={true}
+              autoFocus
             />
             <Button icon="small-cross" onClick={this.props.hideSearch} />
           </ControlGroup>
@@ -517,6 +520,9 @@ class Diagram extends Component<Props> {
         case 'router':
           this.add.routerNode(point)
           break
+        case 'action':
+          this.add.actionNode(point)
+          break
         default:
           this.add.flowNode(point)
           break
@@ -554,7 +560,7 @@ class Diagram extends Component<Props> {
           ref={w => (this.diagramWidget = w)}
           deleteKeys={[]}
           diagramEngine={this.diagramEngine}
-          inverseZoom={true}
+          inverseZoom
         />
       </div>
     )

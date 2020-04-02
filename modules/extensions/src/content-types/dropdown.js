@@ -22,7 +22,8 @@ function render(data) {
       options: data.options,
       allowCreation: data.allowCreation,
       allowMultiple: data.allowMultiple,
-      width: data.width
+      width: data.width,
+      collectFeedback: data.collectFeedback
     }
   ]
 }

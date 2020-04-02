@@ -31,9 +31,11 @@ import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
+import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
+import ActionServersService from './services/action/action-servers-service'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
@@ -80,9 +82,10 @@ export default class HTTPServer {
   private readonly botsRouter: BotsRouter
   private contentRouter!: ContentRouter
   private readonly modulesRouter: ModulesRouter
-  private readonly shortlinksRouter: ShortLinksRouter
+  private readonly shortLinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
+  private readonly sdkApiRouter!: SdkApiRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -103,6 +106,7 @@ export default class HTTPServer {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
+    @inject(TYPES.ActionServersService) actionServersService: ActionServersService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MediaService) mediaService: MediaService,
@@ -162,10 +166,12 @@ export default class HTTPServer {
       this.jobService,
       this.logsRepo
     )
-    this.shortlinksRouter = new ShortLinksRouter(this.logger)
+    this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
+      actionServersService,
       botService,
+      cmsService,
       configProvider,
       flowService,
       mediaService,
@@ -174,8 +180,11 @@ export default class HTTPServer {
       authService,
       ghostService,
       workspaceService,
+      moduleLoader,
       logger: this.logger
     })
+    this.sdkApiRouter = new SdkApiRouter(this.logger)
+
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
   }
@@ -202,7 +211,13 @@ export default class HTTPServer {
     this.httpServer = createServer(app)
 
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
+    this.contentRouter = new ContentRouter(
+      this.logger,
+      this.authService,
+      this.cmsService,
+      this.workspaceService,
+      this.ghostService
+    )
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
@@ -221,6 +236,7 @@ export default class HTTPServer {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+    await this.sdkApiRouter.initialize()
 
     /**
      * The loading of language models can take some time, access to Botpress is disabled until it is completed
@@ -286,9 +302,10 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
-    this.app.use(`/s`, this.shortlinksRouter.router)
+    this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
+    this.app.use(`/s`, this.shortLinksRouter.router)
 
-    this.app.use((err, req, res, next) => {
+    this.app.use((err, _req, _res, next) => {
       if (err instanceof UnlicensedError) {
         next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
       } else {
@@ -302,7 +319,8 @@ export default class HTTPServer {
     this.app.use(function handleUnexpectedError(err, req, res, next) {
       const statusCode = err.statusCode || 500
       const errorCode = err.errorCode || 'BP_000'
-      const message = (err.errorCode && err.message) || 'Unexpected error'
+      const message = err.message || 'Unexpected error'
+      const details = err.details || ''
       const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
@@ -311,6 +329,7 @@ export default class HTTPServer {
         errorCode,
         type: err.type || Object.getPrototypeOf(err).name || 'Exception',
         message,
+        details,
         docs,
         ...devOnly
       })
@@ -410,11 +429,11 @@ export default class HTTPServer {
   }
 
   createShortLink(name: string, destination: string, params: any) {
-    this.shortlinksRouter.createShortLink(name, destination, params)
+    this.shortLinksRouter.createShortLink(name, destination, params)
   }
 
   deleteShortLink(name: string) {
-    this.shortlinksRouter.deleteShortLink(name)
+    this.shortLinksRouter.deleteShortLink(name)
   }
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
@@ -444,7 +463,7 @@ export default class HTTPServer {
     const externalAuth = await this._getExternalAuthConfig()
 
     if (!externalAuth || !externalAuth.enabled) {
-      return undefined
+      return
     }
 
     const { publicKey, audience, algorithms, issuer } = externalAuth
@@ -455,7 +474,7 @@ export default class HTTPServer {
     }
 
     return Promise.fromCallback(cb => {
-      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithms }, (err, user) => {
+      jsonwebtoken.verify(token, publicKey!, { issuer, audience, algorithms }, (err, user) => {
         cb(err, !err ? user : undefined)
       })
     })
@@ -478,11 +497,11 @@ export default class HTTPServer {
           this.logger
             .attachError(error)
             .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
-          return undefined
+          return
         }
       } else if (config.publicKey.length < 128) {
         this.logger.error(`External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.`)
-        return undefined
+        return
       }
     }
 

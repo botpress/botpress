@@ -9,7 +9,7 @@
   border-top: #b1b1b1 2px solid;
   min-height: 300px;
   position: relative;
-  font-family: 'SFMono-Regular', 'Ubuntu Mono', 'Consolas', 'DejaVu Sans Mono', 'Menlo', 'monospace';
+  font-family: var(--font-family);
   font-style: normal;
   font-variant: normal;
 }

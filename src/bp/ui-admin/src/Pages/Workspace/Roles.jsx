@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { fetchRoles } from '../../reducers/roles'
 import PageContainer from '~/App/PageContainer'
+import { lang } from 'botpress/shared'
 
 class Roles extends Component {
   componentDidMount() {
@@ -25,7 +26,7 @@ class Roles extends Component {
 
   render() {
     return (
-      <PageContainer title="Roles" helpText="To change roles, please see “roles” in the workspaces.json file.">
+      <PageContainer title={lang.tr('admin.workspace.roles')} helpText={lang.tr('admin.workspace.rolesHelp')}>
         {this.renderRoles()}
       </PageContainer>
     )
@@ -40,7 +41,4 @@ const mapDispatchToProps = {
   fetchRoles
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Roles)
+export default connect(mapStateToProps, mapDispatchToProps)(Roles)

@@ -1,7 +1,8 @@
+import { lang } from 'botpress/shared'
+import { toastFailure } from 'botpress/shared'
 import _ from 'lodash'
 
 import { EditableFile, FilePermissions, FilesDS } from '../../../backend/typings'
-import { toastFailure } from '../utils'
 
 export default class CodeEditorApi {
   private axios
@@ -91,7 +92,7 @@ export default class CodeEditorApi {
       await this.axios.post('/mod/code-editor/save', file)
       return true
     } catch (err) {
-      this.handleApiError(err, 'Could not save your file')
+      this.handleApiError(err, 'module.code-editor.error.cannotSaveFile')
     }
   }
 
@@ -101,6 +102,9 @@ export default class CodeEditorApi {
     }
     const data = _.get(error, 'response.data', {})
     const errorInfo = data.full || data.message
-    customMessage ? toastFailure(`${customMessage}: ${errorInfo}`) : toastFailure(errorInfo)
+
+    customMessage
+      ? toastFailure(`${lang.tr(customMessage)}: ${lang.tr(errorInfo, { details: data.details })}`)
+      : toastFailure(errorInfo, data.details)
   }
 }

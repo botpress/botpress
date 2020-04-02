@@ -12,9 +12,10 @@
     "package": "node ../../build/module-builder/bin/entry package"
   },
   "dependencies": {
-    "@slack/interactive-messages": "^1.1.1",
-    "@slack/rtm-api": "^5.0.1",
-    "@slack/web-api": "^5.0.1",
+    "@slack/events-api": "^2.3.2",
+    "@slack/interactive-messages": "^1.5.0",
+    "@slack/rtm-api": "^5.0.3",
+    "@slack/web-api": "^5.8.0",
     "axios": "^0.19.0",
     "lru-cache": "^5.1.1",
     "ms": "^2.1.2"

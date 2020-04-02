@@ -1,4 +1,8 @@
 import { IO, Logger } from 'botpress/sdk'
+import { parseActionInstruction } from 'common/action'
+import { ActionServer } from 'common/typings'
+import ActionServersService from 'core/services/action/action-servers-service'
+import ActionService from 'core/services/action/action-service'
 import { CMSService } from 'core/services/cms'
 import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
@@ -8,7 +12,6 @@ import { NodeVM } from 'vm2'
 import { container } from '../../../app.inversify'
 import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
-import ActionService from '../../action/action-service'
 import { VmRunner } from '../../action/vm'
 
 import { Instruction, InstructionType, ProcessingResult } from '.'
@@ -41,11 +44,16 @@ export class ActionStrategy implements InstructionStrategy {
     private logger: Logger,
     @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.CMSService) private cms: CMSService
+    @inject(TYPES.CMSService) private cms: CMSService,
+    @inject(TYPES.ActionServersService) private actionServersService: ActionServersService
   ) {}
 
+  public static isSayInstruction(instructionFn: string): boolean {
+    return instructionFn.indexOf('say ') === 0
+  }
+
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    if (instruction.fn.indexOf('say ') === 0) {
+    if (ActionStrategy.isSayInstruction(instruction.fn)) {
       return this.invokeOutputProcessor(botId, instruction, event)
     } else {
       return this.invokeAction(botId, instruction, event)
@@ -105,9 +113,7 @@ export class ActionStrategy implements InstructionStrategy {
   }
 
   private async invokeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
-    const chunks: string[] = instruction.fn.split(' ')
-    const argsStr = _.tail(chunks).join(' ')
-    const actionName = _.first(chunks)!
+    const { actionName, argsStr, actionServerId } = parseActionInstruction(instruction.fn)
 
     let args: { [key: string]: any } = {}
     try {
@@ -128,14 +134,28 @@ export class ActionStrategy implements InstructionStrategy {
 
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
+    let actionServer: ActionServer | undefined
+    if (actionServerId) {
+      actionServer = await this.actionServersService.getServer(actionServerId)
+      if (!actionServer) {
+        this.logger.warn(`Could not find Action Server with ID: ${actionServerId}`)
+        return ProcessingResult.none()
+      }
+    }
+
     debug.forBot(botId, `[${event.target}] execute action "${actionName}"`)
-    const hasAction = await this.actionService.forBot(botId).hasAction(actionName)
+
+    const service = await this.actionService.forBot(botId)
 
     try {
-      if (!hasAction) {
-        throw new Error(`Action "${actionName}" not found, `)
+      if (!actionServerId) {
+        const hasAction = await service.hasAction(actionName)
+        if (!hasAction) {
+          throw new Error(`Action "${actionName}" not found, `)
+        }
       }
-      await this.actionService.forBot(botId).runAction(actionName, event, args)
+
+      await service.runAction({ actionName, incomingEvent: event, actionArgs: args, actionServer })
     } catch (err) {
       event.state.__error = {
         type: 'action-execution',
@@ -145,7 +165,8 @@ export class ActionStrategy implements InstructionStrategy {
       }
 
       const { onErrorFlowTo } = event.state.temp
-      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+      const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
 
       return ProcessingResult.transition(errorFlow)
     }

@@ -1,4 +1,5 @@
 import { Button } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { AuthRole, AuthStrategyConfig } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -65,14 +66,17 @@ const List: FC<Props> = props => {
   }
 
   return (
-    <PageContainer title="Collaborators" helpText="Create, delete users or update their role.">
+    <PageContainer
+      title={lang.tr('admin.workspace.users.collaborators.collaborators')}
+      helpText={lang.tr('admin.workspace.users.collaborators.help')}
+    >
       <SplitPage
         sideMenu={
           <div>
             <Button
               id="btn-create"
               style={{ width: 160 }}
-              text="Add collaborator"
+              text={lang.tr('admin.workspace.users.collaborators.add')}
               icon="add"
               onClick={() => setCreateModalOpen(true)}
             />
@@ -106,7 +110,4 @@ const mapStateToProps = (state: AppState) => ({
   authConfig: state.user.authConfig
 })
 
-export default connect(
-  mapStateToProps,
-  { fetchUsers, fetchRoles, fetchAuthConfig }
-)(List)
+export default connect(mapStateToProps, { fetchUsers, fetchRoles, fetchAuthConfig })(List)

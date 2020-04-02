@@ -10,6 +10,7 @@ import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
+import { LocalActionServer } from './services/action/local-action-server'
 import { EventCollector } from './services/middleware/event-collector'
 import { MigrationService } from './services/migration'
 import { DataRetentionJanitor } from './services/retention/janitor'
@@ -112,6 +113,11 @@ container
 container
   .bind<MigrationService>(TYPES.MigrationService)
   .to(MigrationService)
+  .inSingletonScope()
+
+container
+  .bind<LocalActionServer>(TYPES.LocalActionServer)
+  .to(LocalActionServer)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')

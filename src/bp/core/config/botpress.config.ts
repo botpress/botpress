@@ -1,6 +1,7 @@
 import { ConverseConfig } from 'botpress/sdk'
+import { Algorithm } from 'jsonwebtoken'
 
-import { UniqueUser } from '../../common/typings'
+import { ActionServer, UniqueUser } from '../../common/typings'
 import { IncidentRule } from '../services/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
@@ -266,6 +267,12 @@ export type BotpressConfig = {
    * @default []
    */
   additionalLanguages?: { name: string; code: string }[]
+
+  /**
+   * Action Servers to be used when dispatching actions.
+   */
+
+  actionServers: ActionServersConfig
   /**
    * Whether or not to display experimental features throughout the UI. These are subject
    * to change and can be unstable.
@@ -293,7 +300,7 @@ export interface ExternalAuthConfig {
    * The algorithms allowed to validate the JWT tokens.
    * @default ["HS256"]
    */
-  algorithms: string[]
+  algorithms: Algorithm[]
   /**
    * You need to provide the public key used to verify the JWT token authenticity.
    * If not provided, the public key will be read from `data/global/end_users_auth.key`
@@ -449,7 +456,7 @@ export interface AuthStrategyOauth2 {
      * The algorithms allowed to validate the JWT tokens.
      * @default ["HS256"]
      */
-    algorithms: string[]
+    algorithms: Algorithm[]
     /**
      * The public certificate starting with "-----BEGIN CERTIFICATE-----"
      * The string should be provided as one line (use \n for new lines)
@@ -580,4 +587,29 @@ export interface EventCollectorConfig {
    * @default []
    */
   ignoredEventProperties: string[]
+  /**
+   * These properties are only stored with the event when the user is logged on the studio
+   * @default ["ndu.triggers","ndu.predictions","nlu.predictions"]
+   */
+  debuggerProperties: string[]
+}
+
+interface ActionServersConfig {
+  local: {
+    /**
+     * Port on which the local Action Server listens
+     * @default 4000
+     */
+    port: number
+    /**
+     * Whether or not the enable the local Action Server
+     * @default true
+     */
+    enabled: boolean
+  }
+  /**
+   * The list of remote Action Servers
+   * @default []
+   */
+  remotes: ActionServer[]
 }

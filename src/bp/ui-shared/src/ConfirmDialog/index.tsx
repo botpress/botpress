@@ -9,9 +9,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   const onAccept = () => {
     removeDialog()
 
-    if (props.accept) {
-      props.accept()
-    }
+    props.accept?.()
 
     props.resolve(true)
   }
@@ -19,9 +17,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   const onDecline = () => {
     removeDialog()
 
-    if (props.decline) {
-      props.decline()
-    }
+    props.decline?.()
 
     props.resolve(false)
   }
@@ -32,7 +28,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
       icon="warning-sign"
       usePortal={false}
       enforceFocus={false}
-      isOpen={true}
+      isOpen
       onClose={onDecline}
       transitionDuration={0}
       canOutsideClickClose={false}
@@ -73,7 +69,7 @@ ConfirmDialogComponent.defaultProps = {
 }
 
 const confirmDialog = (message: string, options: ConfirmDialogOptions): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     addDialog({ message, ...options }, resolve)
   })
 }
