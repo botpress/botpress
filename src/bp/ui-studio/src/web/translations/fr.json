@@ -22,6 +22,8 @@
   "configuration": "Config",
   "actionRequired": "Action Required",
   "paste": "Coller",
+  "label": "Étiquette",
+  "import": "Importer",
 
   "statusBar": {
     "emulator": "Émulateur",
@@ -113,8 +115,75 @@
       "flowWideOnReceives": "{count, plural, one {réception} other {réceptions}} à l'échelle du flow",
       "addToLibrary": "Ajouter dans la librairie",
       "addNode": "Ajouter une node",
+      "topic": "Sujet",
+      "editQna": "Editer Q&R",
+      "removeFromLibrary": "Supprimer de la bibliothèque",
+      "setAsStart": "Définir comme nœud de démarrage",
+      "disconnectNode": "Déconnecter le nœud",
+      "chips": "Chips",
+      "transition": "Transition",
+      "cantDeleteStart": "Vous ne pouvez pas supprimer le nœud de démarrage.",
+      "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
+      "cantDeleteFailure": "Vous ne pouvez pas supprimer le nœud d'échec.",
+      "copiedToBuffer": "Copié dans le buffer",
+      "highlightByName": "Mettre en surbrillance les noeuds par nom",
+
+      "topicList": {
+        "qna": "Q&R",
+        "confirmDeleteFlow": "Voulez-vous vraiment supprimer le flow {name}?",
+        "confirmDeleteTopic": "Voulez-vous vraiment supprimer le sujet {name}?",
+        "flowsAssociatedDelete": "{warning} {count} flows associés au sujet seront supprimés",
+        "bigWarning": "ATTENTION:",
+        "editTopic": "Modifier le sujet",
+        "createNewWorkflow": "Créer un nouveau workflow",
+        "exportTopic": "Exporter sujet",
+        "deleteTopic": "Supprimer sujet",
+        "importExisting": "Importer un workflow existant",
+        "editQna": "Modifier Q&A",
+        "editWorkflow": "Modifier Workflow",
+        "nbQuestionsInTopic": "Nombre de questions sur ce sujet",
+        "nbTriggersInWorkflow": "Nombre de déclencheurs NLU sur ce workflow",
+        "workflowReceiving": "Workflows référençant ce workflow:",
+        "deleteWorkflow": "Supprimer le workflow"
+      },
+
+      "topicEditor": {
+        "couldNotParseFile": "Impossible de lire le fichier JSON: {msg}",
+        "importedSuccessfully": "{detected} importé avec succès!",
+        "dontExisteWillCreate": "Ces éléments n'existent pas et seront créés",
+        "alreadyExistButDifferent": "Ces éléments existent déjà mais sont différents",
+        "overwrite": "Écraser le contenu existant",
+        "unknownFileType": "Type de fichier inconnu ou format non valide",
+        "willBeOverwritten": "Un élément portant ce nom existe déjà. Le contenu sera écrasé",
+        "willBeCreated": "Cet élément n'existe pas et sera créé",
+        "contentOverview": "Aperçu du contenu",
+        "selectJson": "Sélectionnez votre fichier JSON",
+        "topicName": "Nom du sujet",
+        "workflowName": "Nom du workflow",
+        "noChangesToApply": "Il n'y a aucun changement à appliquer, ou tout dans le fichier est identique au contenu existant",
+        "importContent": "Importer du contenu",
+        "editTopic": "Modifier le sujet",
+        "description": "Description",
+        "saveChanges": "Sauvegarder les modifications",
+        "createNewTopic": "Créer un nouveau sujet",
+        "topicNameHelp": "Choisissez un nom général pour représenter votre sujet, par exemple RH ou TI. Vous pouvez le renommer plus tard",
+        "createTopic": "Créer un sujet"
+      },
+
+      "workflow": {
+        "create": "Créer workflow",
+        "edit": "Editer workflow - {name}",
+        "name": "Nom du workflow",
+        "labelHelp": "L'étiquette est un nom convivial qui peut remplacer le nom dans la liste des sujets",
+        "description": "Description",
+        "saveChanges": "Sauvegarder changements"
+      },
 
       "nodeType": {
+        "standard": "Noeud standard",
+        "say": "Dire",
+        "execute": "Exécuter",
+        "router": "Routeur",
         "trigger": "Déclencheur",
         "sendMessage": "Envoyer Message",
         "executeAction": "Exécuter Action",
@@ -145,9 +214,15 @@
         "skills": "Compétence",
         "chips": "Chips",
         "createNewFlow": "Créer nouveau flow",
+        "createNewTopic": "Créer nouveau sujet",
         "filterFlows": "Filtrer les flows",
         "flows": "Flows",
-        "tools": "Outils"
+        "tools": "Outils",
+        "importContent": "Importer contenu",
+        "filterTopicsAndWorkflows": "Filtrer sujets et workflows",
+        "topics": "Sujets",
+        "library": "Librairie",
+        "filterLibrary": "Filtrer librairie"
       },
 
       "toolbar": {

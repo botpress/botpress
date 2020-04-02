@@ -22,6 +22,8 @@
   "configuration": "Config",
   "actionRequired": "Action Required",
   "paste": "Paste",
+  "label": "Label",
+  "import": "Import",
 
   "statusBar": {
     "emulator": "Emulator",
@@ -113,8 +115,86 @@
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "addToLibrary": "Add to library",
       "addNode": "Add Node",
+      "topic": "Topic",
+      "editQna": "Edit Q&A",
+      "removeFromLibrary": "Remove from library",
+      "setAsStart": "Set as Start Node",
+      "disconnectNode": "Disconnect Node",
+      "chips": "Chips",
+      "transition": "Transition",
+      "cantDeleteStart": "You can't delete the start node.",
+      "cantDeleteSuccess": "You can't delete the success node.",
+      "cantDeleteFailure": "You can't delete the failure node.",
+      "copiedToBuffer": "Copied to buffer",
+      "highlightByName": "Highlight nodes by name",
+
+      "topicList": {
+        "qna": "Q&A",
+        "confirmDeleteFlow": "Are you sure you want to delete the flow {name}?",
+        "confirmDeleteTopic": "Are you sure you want to delete the topic {name}?",
+        "flowsAssociatedDelete": "{warning} {count} flows associated with the topic will be deleted",
+        "bigWarning": "WARNING:",
+        "editTopic": "Edit topic",
+        "createNewWorkflow": "Create new workflow",
+        "exportTopic": "Export topic",
+        "deleteTopic": "Delete Topic",
+        "importExisting": "Import existing workflow",
+        "editQna": "Edit Q&A",
+        "editWorkflow": "Edit Workflow",
+        "nbQuestionsInTopic": "Number of questions in that topic",
+        "nbTriggersInWorkflow": "Number of NLU triggers on that workflow",
+        "workflowReceiving": "Workflows referencing this workflow:",
+        "deleteWorkflow": "Delete Workflow"
+      },
+
+      "topicEditor": {
+        "couldNotParseFile": "Could not parse JSON file: {msg}",
+        "importedSuccessfully": "{detected} imported successfully!",
+        "dontExisteWillCreate": "These elements don't exist and will be created",
+        "alreadyExistButDifferent": "These elements already exist but are different",
+        "overwrite": "Overwrite existing content",
+        "unknownFileType": "Unknown file type or invalid format",
+        "willBeOverwritten": "An element with that name already exist. Content will be overwritten",
+        "willBeCreated": "This element doesn't exist and will be created",
+        "contentOverview": "Content Overview",
+        "selectJson": "Select your JSON file",
+        "topicName": "Topic Name",
+        "workflowName": "Workflow Name",
+        "noChangesToApply": "There are no changes to apply, or everything in the file is identical to the existing content",
+        "importContent": "Import content",
+        "editTopic": "Edit topic",
+        "description": "Description",
+        "saveChanges": "Save changes",
+        "createNewTopic": "Create a new topic",
+        "topicNameHelp": "Choose a broad name to represent your topic, for example HR or IT. You can rename it later",
+        "createTopic": "Create topic"
+      },
+
+      "condition": {
+        "confirmDeleteCondition": "Are you sure to delete this condition?",
+        "editTriggers": "Edit Triggers",
+        "backToList": "Back to list",
+        "savedAutomatically": "Changes will be saved automatically",
+        "addCondition": "Add condition",
+        "noResults": "No results.",
+        "selectCondition": "Select a condition",
+        "chooseElement": "Choose an element"
+      },
+
+      "workflow": {
+        "create": "Create Workflow",
+        "edit": "Edit Workflow - {name}",
+        "name": "Workflow name",
+        "labelHelp": "The label is a friendly name that can replace the name in the topic list",
+        "description": "Description",
+        "saveChanges": "Save changes"
+      },
 
       "nodeType": {
+        "standard": "Standard Node",
+        "say": "Say",
+        "execute": "Execute",
+        "router": "Router",
         "trigger": "Trigger",
         "sendMessage": "Send Message",
         "executeAction": "Execute Action",
@@ -145,9 +225,15 @@
         "skills": "Skills",
         "chips": "Chips",
         "createNewFlow": "Create new flow",
+        "createNewTopic": "Create new topic",
         "filterFlows": "Filter flows",
         "flows": "Flows",
-        "tools": "Tools"
+        "tools": "Tools",
+        "importContent": "Import content",
+        "filterTopicsAndWorkflows": "Filter topics and workflows",
+        "topics": "Topics",
+        "library": "Library",
+        "filterLibrary": "Filter library"
       },
 
       "toolbar": {

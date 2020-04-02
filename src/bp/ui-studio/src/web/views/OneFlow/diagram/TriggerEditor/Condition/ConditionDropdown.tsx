@@ -1,6 +1,7 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
 import { Condition } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 
@@ -45,13 +46,13 @@ const ConditionDropdown: FC<Props> = props => {
       itemRenderer={renderOption}
       activeItem={selected}
       popoverProps={{ minimal: true }}
-      noResults={<MenuItem disabled={true} text="No results." />}
+      noResults={<MenuItem disabled={true} text={lang.tr('studio.flow.condition.noResults')} />}
       onItemSelect={option => selectItem(option)}
       onActiveItemChange={option => selectItem(option)}
     >
       <Button
         id="select-role"
-        text={(selected && selected.label) || 'Select a condition'}
+        text={(selected && selected.label) || lang.tr('studio.flow.condition.selectCondition')}
         rightIcon="double-caret-vertical"
       />
     </SelectDropdown>
