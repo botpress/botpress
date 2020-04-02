@@ -6,7 +6,7 @@ handleSlotsExpiry()
 extractIntentSlots()
 
 function extractIntentSlots() {
-  const slots = _.flatten(_.values(event.nlu.slots)).filter(x => !!x.value) // only non-null slots
+  let slots = _.flatten(_.values(event.nlu.slots)).filter(x => !!x.value) // only non-null slots
   // this hook comes after ndu as passed so last_topic is the current topic
   // see ndu-engine around line #308
   const currentTopic = _.get(event, 'state.session.nduContext.last_topic')
