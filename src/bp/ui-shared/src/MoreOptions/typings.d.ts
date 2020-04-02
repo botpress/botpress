@@ -11,5 +11,5 @@ export interface MoreOptionsItems {
   icon?: IconName
   label: string
   action?: () => void
-  className?: string
+  type?: 'delete'
 }

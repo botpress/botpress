@@ -15,26 +15,31 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
       </button>
       {show && (
         <ul className={style.moreMenu}>
-          {items.map((item, index) => (
-            <li key={index}>
-              {item.action && (
-                <Button
-                  icon={item.icon}
-                  minimal
-                  className={cx(style.moreMenuItem, item.className)}
-                  onClick={item.action}
-                >
-                  {item.label}
-                </Button>
-              )}
-              {!item.action && (
-                <span className={cx(style.moreMenuItem, style.noHover, item.className)}>
-                  <Icon icon={item.icon} iconSize={16} />
-                  {item.label}
-                </span>
-              )}
-            </li>
-          ))}
+          {items.map((item, index) => {
+            const { action, icon, label, type } = item
+            return (
+              <li key={index}>
+                {action && (
+                  <Button
+                    icon={icon}
+                    minimal
+                    className={cx(style.moreMenuItem, { [style.delete]: type && type === 'delete' })}
+                    onClick={action}
+                  >
+                    {label}
+                  </Button>
+                )}
+                {!action && (
+                  <span
+                    className={cx(style.moreMenuItem, style.noHover, { [style.delete]: type && type === 'delete' })}
+                  >
+                    <Icon icon={icon} iconSize={16} />
+                    {label}
+                  </span>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )}
       {show && <div className={style.overlay} onClick={() => onToggle(false)}></div>}

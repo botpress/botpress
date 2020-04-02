@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 
 const style = require('./style.scss')
+const KEY_A = 65
 
 export default class EditableInput extends Component {
   constructor(props) {
@@ -29,8 +30,7 @@ export default class EditableInput extends Component {
   }
 
   onKeyDown = event => {
-    // Cmd or ctrl + A to select all text
-    if ((event.ctrlKey || event.metaKey) && event.keyCode === 65) {
+    if ((event.ctrlKey || event.metaKey) && event.keyCode === KEY_A) {
       event.target.select()
     }
 

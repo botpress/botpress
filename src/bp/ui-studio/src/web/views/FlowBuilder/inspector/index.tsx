@@ -22,26 +22,18 @@ import StandardNode from '../nodeProps/StandardNode'
 
 import style from './style.scss'
 
-interface Props {
-  buffer: any
-  closeFlowNodeProps: any
-  copyFlowNode: any
-  copyFlowNodeElement: any
-  currentFlow: any
-  currentFlowNode: any
-  flows: any
+interface OwnProps {
   history: any
   onDeleteSelectedElements: () => void
   pasteFlowNode: any
-  pasteFlowNodeElement: any
   readOnly: any
-  refreshFlowsLinks: any
-  requestEditSkill: any
   show: any
-  updateFlow: any
   updateFlowNode: any
-  user: any
 }
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+type Props = DispatchProps & StateProps & OwnProps
 
 class Inspector extends Component<Props> {
   render() {
@@ -53,10 +45,10 @@ class Inspector extends Component<Props> {
     }
 
     const node = currentFlowNode
-    const flowType = currentFlowNode?.type || (currentFlowNode ? 'standard' : null)
+    const nodeType = currentFlowNode?.type || (currentFlowNode ? 'standard' : null)
     return (
-      <div className={cx(style.inspector, { [style.sideForm]: flowType === 'say_something' })}>
-        {flowType !== 'say_something' && (
+      <div className={cx(style.inspector, { [style.sideForm]: nodeType === 'say_something' })}>
+        {nodeType !== 'say_something' && (
           <Fragment>
             {node && (
               <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small={true}>
@@ -66,12 +58,12 @@ class Inspector extends Component<Props> {
             <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
           </Fragment>
         )}
-        {this.renderNodeProperties(flowType)}
+        {this.renderNodeProperties(nodeType)}
       </div>
     )
   }
 
-  renderNodeProperties(flowType: string) {
+  renderNodeProperties(nodeType: string) {
     const {
       buffer,
       currentFlow,
@@ -96,7 +88,7 @@ class Inspector extends Component<Props> {
       refreshFlowsLinks()
     }
 
-    if (flowType === 'skill-call') {
+    if (nodeType === 'skill-call') {
       return (
         <SkillCallNode
           readOnly={readOnly}
@@ -114,7 +106,7 @@ class Inspector extends Component<Props> {
       )
     }
 
-    if (flowType === 'say_something') {
+    if (nodeType === 'say_something') {
       return (
         <SaySomethingForm
           onDeleteSelectedElements={onDeleteSelectedElements}
@@ -126,7 +118,7 @@ class Inspector extends Component<Props> {
       )
     }
 
-    if (nodeTypes.includes(flowType)) {
+    if (nodeTypes.includes(nodeType)) {
       return (
         <StandardNode
           readOnly={readOnly}
@@ -137,7 +129,7 @@ class Inspector extends Component<Props> {
           updateFlow={updateFlow}
           copyFlowNodeElement={copyFlowNodeElement}
           pasteFlowNodeElement={pasteFlowNodeElement}
-          transitionOnly={flowType === 'router'}
+          transitionOnly={nodeType === 'router'}
           buffer={buffer}
         />
       )
@@ -150,7 +142,7 @@ class Inspector extends Component<Props> {
 const mapStateToProps = state => ({
   flows: _.values(state.flows.flowsByName),
   currentFlow: getCurrentFlow(state),
-  currentFlowNode: getCurrentFlowNode(state),
+  currentFlowNode: getCurrentFlowNode(state) as any,
   buffer: state.flows.buffer,
   user: state.user
 })

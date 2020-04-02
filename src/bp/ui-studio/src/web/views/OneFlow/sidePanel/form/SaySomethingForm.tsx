@@ -1,4 +1,4 @@
-import { Dropdown, MoreOptions, MoreOptionsItems, style as sharedStyle } from 'botpress/shared'
+import { Dropdown, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
 import { connect } from 'react-redux'
@@ -14,12 +14,10 @@ import {
 import ContentForm from '~/components/ContentForm'
 import { toastInfo } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
-import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
+import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import EditableInput from '~/views/FlowBuilder/common/EditableInput'
 
 import style from './style.scss'
-
-const { MoreOptionsStyles } = sharedStyle
 
 interface OwnProps {
   onDeleteSelectedElements: () => void
@@ -83,7 +81,7 @@ const SaySomethingForm: FC<Props> = props => {
 
   useEffect(() => {
     handleContentTypeChange(currentFlowNode?.contentType, true)
-    if (!props.categories?.length) {
+    if (!props.contentTypes?.length) {
       props.fetchContentCategories()
     }
   }, [props.currentFlowNode.id])
@@ -114,7 +112,7 @@ const SaySomethingForm: FC<Props> = props => {
 
   const { currentFlowNode, readOnly } = props
   const { contentType } = formState
-  const categories = props.categories?.filter(cat => shownCategories.includes(cat.id))
+  const contentTypes = props.contentTypes?.filter(cat => shownCategories.includes(cat.id))
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -126,18 +124,18 @@ const SaySomethingForm: FC<Props> = props => {
       icon: 'trash',
       label: 'Delete',
       action: props?.onDeleteSelectedElements,
-      className: MoreOptionsStyles.delete
+      type: 'delete'
     }
   ]
 
-  const goThroughObjectAndLeaveOutIndex = (properties, indexToRemove) => {
+  const goThroughObjectAndLeaveOutKey = (properties: any, keyToRemove: string): any => {
     const returnObject = {}
 
     Object.keys(properties).forEach(key => {
-      if (key !== indexToRemove) {
+      if (key !== keyToRemove) {
         returnObject[key] =
           Object.prototype.toString.call(properties[key]) === '[object Object]'
-            ? goThroughObjectAndLeaveOutIndex(properties[key], indexToRemove)
+            ? goThroughObjectAndLeaveOutKey(properties[key], keyToRemove)
             : properties[key]
       }
     })
@@ -148,13 +146,13 @@ const SaySomethingForm: FC<Props> = props => {
   const removeDescriptions = json => {
     const { properties, ...leftover } = json
 
-    const newProperties = goThroughObjectAndLeaveOutIndex(properties, 'description')
+    const newProperties = goThroughObjectAndLeaveOutKey(properties, 'description')
 
     return { properties: newProperties, ...leftover }
   }
 
-  const getCurrentCategory = () => {
-    if (!contentType || !categories) {
+  const getCurrentContentType = () => {
+    if (!contentType || !contentTypes) {
       return
     }
 
@@ -163,14 +161,14 @@ const SaySomethingForm: FC<Props> = props => {
         json: { description, title, ...json },
         ...schema
       },
-      ...category
-    } = categories?.find(cat => cat.id === contentType)
+      ...restContentType
+    } = contentTypes?.find(cat => cat.id === contentType)
 
     // just a way to remove the descriptions since we don't want it in the sidebar form, but still want it in the CMS
-    return { ...category, schema: { json: removeDescriptions(json), ...schema } }
+    return { ...restContentType, schema: { json: removeDescriptions(json), ...schema } }
   }
 
-  const currentCategory = getCurrentCategory()
+  const currentContentType = getCurrentContentType()
 
   const handleEdit = event => {
     if (!_.isEqual(event.formData, props.formData)) {
@@ -198,10 +196,10 @@ const SaySomethingForm: FC<Props> = props => {
       </label>
       <div className={style.fieldWrapper}>
         <span className={style.formLabel}>Content Type</span>
-        {categories && (
+        {contentTypes && (
           <Dropdown
             className={style.formSelect}
-            items={categories.map(cat => ({ value: cat.id, label: cat.title }))}
+            items={contentTypes.map(cat => ({ value: cat.id, label: cat.title }))}
             defaultItem={contentType}
             rightIcon="caret-down"
             onChange={option => {
@@ -211,10 +209,10 @@ const SaySomethingForm: FC<Props> = props => {
         )}
       </div>
 
-      {currentCategory && (
+      {currentContentType && (
         <ContentForm
-          schema={currentCategory?.schema.json}
-          uiSchema={currentCategory?.schema.ui}
+          schema={currentContentType?.schema.json}
+          uiSchema={currentContentType?.schema.ui}
           formData={currentFlowNode.formData}
           isEditing={true}
           onChange={handleEdit}
@@ -224,11 +222,11 @@ const SaySomethingForm: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state) as any,
   user: state.user,
-  categories: state.content.categories
+  contentTypes: state.content.categories
 })
 
 const mapDispatchToProps = {

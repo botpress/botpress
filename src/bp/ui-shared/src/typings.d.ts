@@ -1,6 +1,4 @@
 import React from 'react'
-import TooltipStyle from './style/tooltip.scss'
-import MoreOptionsStyles from './MoreOptions/style.scss'
 import { TreeViewProps } from './TreeView/typings'
 import { BaseDialogProps } from './BaseDialog/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
@@ -25,6 +23,5 @@ declare module 'botpress/shared' {
   }
   export function toastFailure(message: string, details?: string, options?: ToastOptions)
 
-  export const style: { TooltipStyle, MoreOptionsStyles }
   export { Option, MoreOptionsItems }
 }

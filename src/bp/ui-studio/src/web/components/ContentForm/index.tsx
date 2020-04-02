@@ -3,6 +3,7 @@ import _ from 'lodash'
 import React, { FC } from 'react'
 import Form from 'react-jsonschema-form'
 import SmartInput from '~/components/SmartInput'
+import { getFormData } from '~/util/NodeFormData'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 import withLanguage from '../Util/withLanguage'
@@ -83,61 +84,27 @@ const ContentForm: FC<Props> = props => {
     })
   }
 
-  const getFormDataForLang = (language: string) => {
-    const languageKeys = Object.keys(props.formData).filter(x => x.includes('$' + language))
+  const { formData, contentLang, defaultLanguage, schema } = props
 
-    return languageKeys.reduce((obj, key) => {
-      obj[key.replace('$' + language, '')] = props.formData[key]
-      return obj
-    }, {})
-  }
-
-  const isFormEmpty = formData => {
-    return _.every(
-      Object.keys(formData).map(x => {
-        // Ignore undefined and booleans, since they are set by default
-        if (!formData[x] || _.isBoolean(formData[x])) {
-          return
-        }
-
-        // Ignore array with empty objects (eg: skill choice)
-        if (_.isArray(formData[x]) && !formData[x].filter(_.isEmpty).length) {
-          return
-        }
-
-        return formData[x]
-      }),
-      _.isEmpty
-    )
-  }
-
-  let formData = props.schema.type === 'array' ? [] : {}
-
-  if (props.formData) {
-    formData = getFormDataForLang(props.contentLang)
-
-    if (isFormEmpty(formData)) {
-      formData = getFormDataForLang(props.defaultLanguage)
-    }
-  }
+  const currentFormData = getFormData({ formData }, contentLang, defaultLanguage, schema.type === 'array' ? [] : {})
 
   const context = {
-    ...props.formData,
-    activeLang: props.contentLang,
-    defaultLang: props.defaultLanguage
+    ...formData,
+    activeLang: contentLang,
+    defaultLang: defaultLanguage
   }
 
   return (
     <Form
       {...props}
-      formData={formData}
+      formData={currentFormData}
       formContext={context}
       safeRenderCompletion
       widgets={widgets}
       fields={fields}
       ArrayFieldTemplate={ArrayFieldTemplate}
       onChange={handleOnChange}
-      schema={translatePropsRecursive(props.schema)}
+      schema={translatePropsRecursive(schema)}
     >
       <br />
     </Form>

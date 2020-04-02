@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
-
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
-const Text = props => {
+interface Props {
+  formData: any
+  schema: any
+  required?: boolean
+  uiSchema: any
+  onChange: () => any
+}
+
+const Text: FC<Props> = props => {
   const [value, setValue] = useState('')
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-export const getFormData = (node, contentLang, defaultLanguage): any => {
-  let data = {}
+export const getFormData = (node: any, contentLang: string, defaultLanguage: string, defaultValue: any = {}): any => {
+  let data = defaultValue
 
   if (node?.formData) {
     data = getFormDataForLang(node, contentLang)
@@ -35,6 +35,7 @@ export const isFormEmpty = formData => {
 
 const getFormDataForLang = (contentItem: any, language: string) => {
   const { formData, contentType } = contentItem
+
   const languageKeys = Object.keys(formData).filter(x => x.includes('$' + language))
 
   const data: any = languageKeys.reduce((obj, key) => {
