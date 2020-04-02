@@ -46,8 +46,7 @@ const widgets = {
 
 const fields = {
   i18n_field: renderWrapped(Text),
-  i18n_array: ArrayMl,
-  text_field: Text
+  i18n_array: ArrayMl
 }
 
 const translatePropsRecursive = obj => {
