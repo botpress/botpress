@@ -87,6 +87,7 @@ $status-bar-height: 30px;
   flex-grow: 1;
   align-items: center;
   justify-content: center;
+  overflow: scroll;
 
   svg {
     font-size: 250px;
@@ -97,7 +98,7 @@ $status-bar-height: 30px;
     width: 50%;
     text-align: center;
     font-size: 16px;
-    padding-bottom: 100px;
+    padding-bottom: 20px;
 
     p:first-of-type {
       margin-bottom: 20px;
