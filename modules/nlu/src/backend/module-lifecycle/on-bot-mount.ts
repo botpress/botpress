@@ -5,7 +5,7 @@ import yn from 'yn'
 
 import { isOn as isAutoTrainOn } from '../autoTrain'
 import Engine from '../engine'
-import { getCustomEntities } from '../entities/entities-service'
+import EntityService from '../entities/entities-service'
 import { getIntents } from '../intents/intent-service'
 import * as ModelService from '../model-service'
 import { makeTrainingSession, makeTrainSessionKey } from '../train-session-service'
@@ -20,6 +20,7 @@ export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
+    const entityService = new EntityService(ghost, botId)
 
     const languages = _.intersection(bot.languages, state.languageProvider.languages)
     if (bot.languages.length !== languages.length) {
@@ -35,7 +36,7 @@ export function getOnBotMount(state: NLUState) {
         }
 
         const intentDefs = await getIntents(ghost)
-        const entityDefs = await getCustomEntities(ghost)
+        const entityDefs = await entityService.getCustomEntities()
         const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         const kvs = bp.kvs.forBot(botId)
@@ -56,6 +57,7 @@ export function getOnBotMount(state: NLUState) {
 
               model = await engine.train(intentDefs, entityDefs, languageCode, trainSession)
               if (model.success) {
+                await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)
               }
             }
@@ -105,7 +107,8 @@ export function getOnBotMount(state: NLUState) {
       trainOrLoad,
       trainSessions: {},
       cancelTraining,
-      isTraining
+      isTraining,
+      entityService
     }
 
     trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
