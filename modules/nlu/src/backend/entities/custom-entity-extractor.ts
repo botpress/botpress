@@ -78,7 +78,7 @@ function computeStructuralScore(a: string[], b: string[]): number {
 function splitModels(listModels: ListEntityModel[], cacheKey: string): [ListEntityModel[], ListEntityModel[]] {
   return listModels.reduce(
     ([withCached, withoutCached], nextModel) => {
-      if ((<EntityCache>nextModel.cache)?.has(cacheKey)) {
+      if ((<EntityCache>nextModel.cache)?.has(cacheKey) ?? false) {
         withCached.push(nextModel)
       } else {
         withoutCached.push(nextModel)

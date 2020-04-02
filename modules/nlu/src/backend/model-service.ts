@@ -38,7 +38,8 @@ export function computeModelHash(intents: any, entities: any): string {
     .digest('hex')
 }
 
-function serializeModel(model: Model): string {
+function serializeModel(ref: Model): string {
+  const model = _.cloneDeep(ref)
   for (const entity of model.data.artefacts.list_entities) {
     entity.cache = (<EntityCache>entity.cache).dump()
   }
