@@ -1,17 +1,18 @@
 import { Button, Classes, ControlGroup, InputGroup } from '@blueprintjs/core'
 import { ContentElement } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { deleteMedia, fetchContentItem, upsertContentItem } from '~/actions'
 import store from '~/store'
+import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 import ActionItem from '~/views/FlowBuilder/common/action'
 
 import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
 
 import style from './style.scss'
-import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 interface DispatchProps {
   deleteMedia: (formData: any) => Promise<void>
@@ -105,7 +106,8 @@ class ContentPickerWidget extends Component<Props> {
     const { inputId, contentItem, placeholder } = this.props
     const contentType = _.get(contentItem, 'contentType', this.props.contentType)
     const schema = _.get(this.props, 'contentItem.schema', { json: {}, ui: {} })
-    const textContent = (contentItem && `${schema.title} | ${contentItem.previews[this.props.contentLang]}`) || ''
+    const textContent =
+      (contentItem && `${lang.tr(schema.title)} | ${contentItem.previews[this.props.contentLang]}`) || ''
     const actionText = (contentItem && 'say #!' + contentItem.id) || 'say '
 
     if (this.props.layoutv2) {
