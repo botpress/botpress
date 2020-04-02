@@ -23,16 +23,14 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
                   <Button
                     icon={icon}
                     minimal
-                    className={cx(style.moreMenuItem, { [style.delete]: type && type === 'delete' })}
+                    className={cx(style.moreMenuItem, { [style.delete]: type === 'delete' })}
                     onClick={action}
                   >
                     {label}
                   </Button>
                 )}
                 {!action && (
-                  <span
-                    className={cx(style.moreMenuItem, style.noHover, { [style.delete]: type && type === 'delete' })}
-                  >
+                  <span className={cx(style.moreMenuItem, style.noHover, { [style.delete]: type === 'delete' })}>
                     <Icon icon={icon} iconSize={16} />
                     {label}
                   </span>
