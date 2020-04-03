@@ -101,8 +101,8 @@ const copyJs = () => {
 }
 
 const checkTranslations = cb => {
-  const fix = process.argv.find(x => x.toLowerCase() === '--fix')
-  exec(`node build/check-translations.js ${fix && '--fix'}`, (err, stdout, stderr) => {
+  const reorder = process.argv.find(x => x.toLowerCase() === '--reorder')
+  exec(`node build/check-translations.js ${fix && '--reorder'}`, (err, stdout, stderr) => {
     console.log(stdout, stderr)
     cb(err)
   })

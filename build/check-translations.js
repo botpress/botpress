@@ -8,10 +8,10 @@ const defaultLangCode = 'en'
 const locations = ['modules/*/src/translations/*.json', 'src/bp/ui-*/src/**/translations/*.json']
 
 const start = () => {
-  const fix = process.argv.find(x => x.toLowerCase() === '--fix')
-  if (fix) {
+  const reorder = process.argv.find(x => x.toLowerCase() === '--reorder')
+  if (reorder) {
     console.log(chalk.bold(`Reordering keys in translations...\r\n`))
-    fixTranslations()
+    reorderTranslations()
   }
 
   console.log(
@@ -23,12 +23,12 @@ Checking consistency of translation files`)
 
   listMissingKeys()
 
-  if (!fix) {
-    console.log(`\r\nType yarn cmd check-translations --fix to reorder keys in all translation files`)
+  if (!reorder) {
+    console.log(`\r\nType yarn cmd check-translations --reorder to reorder keys in all translation files`)
   }
 }
 
-const fixTranslations = () => {
+const reorderTranslations = () => {
   for (const filePath of getTranslationElements().files) {
     const content = readFile(filePath)
     const sorted = sortObject(content)
