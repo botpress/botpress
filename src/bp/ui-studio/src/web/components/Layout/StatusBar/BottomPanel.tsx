@@ -156,7 +156,7 @@ class BottomPanel extends React.Component<Props, State> {
     const LogsPanel = (
       <ul className={style.logs} ref={this.messageListRef} onScroll={this.handleLogsScrolled}>
         {allLogs.map(e => this.renderEntry(e))}
-        <li className={style.end}>End of logs</li>
+        <li className={style.end}>{lang.tr('statusBar.bottomPanel.endOfLogs')}</li>
       </ul>
     )
 

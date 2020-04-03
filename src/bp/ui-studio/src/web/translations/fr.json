@@ -1,6 +1,7 @@
 {
   "statusBar": {
     "emulator": "Émulateur",
+    "showEmulator": "Afficher l'émulateur",
     "logsPanel": "Panneau de journalisation",
     "notifications": "Notifications",
     "readDoc": "Lire la documentation",
@@ -17,7 +18,8 @@
       "scrollToFollow": "Suivre les journaux",
       "downloadLogs": "Télécharger",
       "clearHistory": "Effacer l'historique",
-      "closePanel": "Fermer le panneau"
+      "closePanel": "Fermer le panneau",
+      "endOfLogs": "Fin des journaux"
     }
   },
 

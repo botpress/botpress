@@ -9,7 +9,6 @@
       "buttonTitle": "Titre du bouton"
     },
     "text": {
-      "title": "Texte",
       "description": "Un texte régulier",
       "alternatives": "Alternatives (optionnel)"
     },

@@ -35,9 +35,9 @@ type Props = {
 
 const SidePanelContent: FC<Props> = props => {
   const [modalOpen, setModalOpen] = useState(false)
-  const [flowName, setFlowName] = useState()
+  const [flowName, setFlowName] = useState<string>()
   const [flowAction, setFlowAction] = useState<any>('create')
-  const [filter, setFilter] = useState()
+  const [filter, setFilter] = useState<any>()
 
   const goToFlow = flow => history.push(`/flows/${flow.replace(/\.flow\.json$/i, '')}`)
 

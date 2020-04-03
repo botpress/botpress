@@ -1,6 +1,7 @@
 {
   "statusBar": {
     "emulator": "Emulator",
+    "showEmulator": "Show Emulator",
     "logsPanel": "Logs Panel",
     "notifications": "Notifications",
     "readDoc": "Read Documentation",
@@ -17,7 +18,8 @@
       "scrollToFollow": "Scroll to follow logs",
       "downloadLogs": "Download Logs",
       "clearHistory": "Clear log history",
-      "closePanel": "Close Panel"
+      "closePanel": "Close Panel",
+      "endOfLogs": "End of logs"
     }
   },
 
