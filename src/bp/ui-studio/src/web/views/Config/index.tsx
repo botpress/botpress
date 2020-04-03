@@ -78,7 +78,7 @@ class ConfigView extends Component<Props, State> {
 
   sideBarItems: Item[] = [
     {
-      label: lang.tr('config.general'),
+      label: lang.tr('general'),
       value: 'main',
       icon: 'cog',
       selected: true
@@ -323,11 +323,11 @@ class ConfigView extends Component<Props, State> {
           <form>
             {this.state.activeTab === 'main' && (
               <div>
-                <h1>{lang.tr('config.general')}</h1>
-                <FormGroup label={lang.tr('config.name')} labelFor="name">
+                <h1>{lang.tr('general')}</h1>
+                <FormGroup label={lang.tr('name')} labelFor="name">
                   <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
                 </FormGroup>
-                <FormGroup label={lang.tr('config.status')} labelFor="status">
+                <FormGroup label={lang.tr('status')} labelFor="status">
                   <Select
                     id="status"
                     name="status"
@@ -351,7 +351,7 @@ class ConfigView extends Component<Props, State> {
             )}
             {this.state.activeTab === 'details' && (
               <div>
-                <h1>{lang.tr('config.details')}</h1>
+                <h1>{lang.tr('details')}</h1>
                 <FormGroup label={lang.tr('config.website')} labelFor="website">
                   <InputGroup
                     id="website"
@@ -404,7 +404,7 @@ class ConfigView extends Component<Props, State> {
             )}
             {this.state.activeTab === 'pictures' && (
               <div>
-                <h1>{lang.tr('config.pictures')}</h1>
+                <h1>{lang.tr('pictures')}</h1>
                 <FormGroup label={lang.tr('config.botAvatar')} labelFor="avatar-url">
                   <FileInput
                     text={lang.tr('config.chooseFile')}
@@ -443,7 +443,7 @@ class ConfigView extends Component<Props, State> {
             )}
             <FormGroup>
               <Button
-                text={lang.tr('config.saveChanges')}
+                text={lang.tr('saveChanges')}
                 intent="primary"
                 icon="floppy-disk"
                 disabled={this.state.isSaving}

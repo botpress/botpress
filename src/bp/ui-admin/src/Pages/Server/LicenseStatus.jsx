@@ -219,7 +219,7 @@ class LicenseStatus extends React.Component {
     }
 
     return (
-      <PageContainer title="Server License" superAdmin={true}>
+      <PageContainer title={lang.tr('admin.sideMenu.serverLicense')} superAdmin={true}>
         <Row>
           <Col sm="12" lg="7">
             {this.renderLicenseStatus()}

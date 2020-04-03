@@ -7,7 +7,7 @@ import { ItemList, SidePanel, SidePanelSection } from '~/components/Shared/Inter
 export default class SidebarView extends Component<Props> {
   CATEGORY_ALL = {
     id: 'all',
-    title: lang.tr('studio.flow.content.sideBar.all'),
+    title: lang.tr('all'),
     count: null
   }
 
@@ -25,7 +25,7 @@ export default class SidebarView extends Component<Props> {
 
     const actions = [
       {
-        tooltip: lang.tr('studio.flow.content.sideBar.createNewContent'),
+        tooltip: lang.tr('studio.content.sideBar.createNewContent'),
         id: 'btn-add-content',
         icon: 'add' as IconName,
         items: [contentTypeActions]
@@ -41,7 +41,7 @@ export default class SidebarView extends Component<Props> {
         actions: [
           cat !== this.CATEGORY_ALL && {
             id: `btn-list-create-${cat.id}`,
-            tooltip: lang.tr('studio.flow.content.sideBar.createNew', { name: lang.tr(cat.title) }),
+            tooltip: lang.tr('studio.content.sideBar.createNew', { name: lang.tr(cat.title) }),
             icon: 'add' as IconName,
             onClick: () => {
               this.props.handleCategorySelected(cat.id)
@@ -54,7 +54,7 @@ export default class SidebarView extends Component<Props> {
 
     return (
       <SidePanel>
-        <SidePanelSection label={lang.tr('studio.flow.content.sideBar.filterByType')} actions={actions}>
+        <SidePanelSection label={lang.tr('studio.content.sideBar.filterByType')} actions={actions}>
           <ItemList items={contentTypes} onElementClicked={el => this.props.handleCategorySelected(el.value.id)} />
         </SidePanelSection>
       </SidePanel>

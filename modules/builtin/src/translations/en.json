@@ -2,14 +2,13 @@
   "fullName": "Basic Skills",
   "typingIndicator": "Show typing indicators",
   "useMarkdown": "Use markdown",
+  "actionButton": "Action Button",
   "types": {
     "actionButton": {
-      "title": "Action Button",
       "description": "A button that triggers an action, often used in cards",
       "buttonTitle": "Title of the button"
     },
     "text": {
-      "title": "Text",
       "description": "A regular text message with optional typing indicators and alternates",
       "alternatives": "Alternates (optional)"
     },
@@ -19,6 +18,19 @@
       "choice": "Choice",
       "itemTitle": "The title of the choice (this is what gets shown to the user)",
       "itemValue": "The value that your bot gets when the user picks this choice (usually hidden from the user)"
+    },
+    "image": {
+      "description": "A message showing an image with an optional title",
+      "imageLabel": "Title (optional)",
+      "labelDesc": "Some platforms require to name the images."
+    },
+    "carousel": {
+      "title": "Carousel",
+      "description": "A carousel is an array of cards",
+      "cards": "Carousel cards"
+    },
+    "card": {
+      "description": "A card message with a title with optional subtitle, image and action buttons."
     }
   }
 }

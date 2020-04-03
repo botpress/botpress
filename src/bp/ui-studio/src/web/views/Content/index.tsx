@@ -196,11 +196,11 @@ class ContentView extends Component<Props, State> {
       return (
         <div className={classNames}>
           <Alert bsStyle="warning">
-            <strong>{lang.tr('studio.flow.content.noContentDefined')}</strong>{' '}
-            {lang.tr('studio.flow.content.pleaseReadDoc', {
+            <strong>{lang.tr('studio.content.noContentDefined')}</strong>{' '}
+            {lang.tr('studio.content.pleaseReadDoc', {
               readTheDocs: (
                 <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
-                  <strong>{lang.tr('studio.flow.content.readTheDocs')}</strong>
+                  <strong>{lang.tr('studio.content.readTheDocs')}</strong>
                 </a>
               )
             })}

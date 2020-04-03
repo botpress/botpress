@@ -61,7 +61,7 @@ export default class Slots extends React.Component {
         </ul>
 
         <Button icon="add" large onClick={this.showSlotModal.bind(this, null)}>
-          {lang.tr('nlu.slots.new')}
+          {lang.tr('module.nlu.slots.new')}
         </Button>
       </div>
     )
@@ -72,10 +72,10 @@ export default class Slots extends React.Component {
       <div className={style.centerContainer}>
         <NonIdealState
           icon="layers"
-          description={lang.tr('nlu.slots.emptySTate')}
+          description={lang.tr('module.nlu.slots.emptyState')}
           action={
             <Button icon="add" large onClick={this.showSlotModal.bind(this, null)}>
-              {lang.tr('nlu.slots.new')}
+              {lang.tr('module.nlu.slots.new')}
             </Button>
           }
         />

@@ -42,8 +42,8 @@ export const EntitySidePanelSection: FC<Props> = props => {
 
   const deleteEntity = async (entity: NLU.EntityDefinition) => {
     if (
-      await confirmDialog(lang.tr('nlu.entities.deleteMessage', { entityName: entity.name }), {
-        acceptLabel: lang.tr('nlu.deleteActionLabel')
+      await confirmDialog(lang.tr('module.nlu.entities.deleteMessage', { entityName: entity.name }), {
+        acceptLabel: lang.tr('delete')
       })
     ) {
       if (props.currentItem && props.currentItem.name === entity.name) {
@@ -65,9 +65,13 @@ export const EntitySidePanelSection: FC<Props> = props => {
           value: entity.name,
           selected: props.currentItem && props.currentItem.name === entity.name,
           contextMenu: [
-            { label: lang.tr('nlu.renameActionLabel'), icon: 'edit', onClick: () => renameEntity(entity) },
-            { label: lang.tr('nlu.duplicateActionLabel'), icon: 'duplicate', onClick: () => duplicateEntity(entity) },
-            { label: lang.tr('nlu.deleteActionLabel'), icon: 'delete', onClick: () => deleteEntity(entity) }
+            { label: lang.tr('rename'), icon: 'edit', onClick: () => renameEntity(entity) },
+            {
+              label: lang.tr('duplicate'),
+              icon: 'duplicate',
+              onClick: () => duplicateEntity(entity)
+            },
+            { label: lang.tr('delete'), icon: 'delete', onClick: () => deleteEntity(entity) }
           ]
         } as Item)
     )
@@ -79,11 +83,16 @@ export const EntitySidePanelSection: FC<Props> = props => {
 
   return (
     <div>
-      <Button className={Classes.MINIMAL} icon="new-object" text="New entity" onClick={createEntity} />
+      <Button
+        className={Classes.MINIMAL}
+        icon="new-object"
+        text={lang.tr('module.nlu.entities.new')}
+        onClick={createEntity}
+      />
       <SearchBar
         id="entities-filter"
         icon="filter"
-        placeholder={lang.tr('nlu.entities.filterPlaceholder')}
+        placeholder={lang.tr('module.nlu.entities.filterPlaceholder')}
         onChange={setEntitiesFilter}
         showButton={false}
       />

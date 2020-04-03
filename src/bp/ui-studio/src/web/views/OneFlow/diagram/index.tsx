@@ -306,23 +306,11 @@ class Diagram extends Component<Props> {
           onClick={wrap(this.add.executeNode, point)}
           icon="code-block"
         />
-        <MenuItem
-          text={lang.tr('studio.flow.nodeType.listen')}
-          onClick={wrap(this.add.listenNode, point)}
-          icon="hand"
-        />
-        <MenuItem
-          text={lang.tr('studio.flow.nodeType.split')}
-          onClick={wrap(this.add.routerNode, point)}
-          icon="flow-branch"
-        />
-        <MenuItem
-          text={lang.tr('studio.flow.nodeType.action')}
-          onClick={wrap(this.add.actionNode, point)}
-          icon="offline"
-        />
+        <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
+        <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
+        <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
-        <MenuItem tagName="button" text={lang.tr('studio.flow.sidePanel.skills')} icon="add">
+        <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
               key={skill.id}
@@ -412,8 +400,8 @@ class Diagram extends Component<Props> {
             {this.props.flowPreview && canAddChipToTarget ? (
               <React.Fragment>
                 <MenuDivider />
-                <MenuItem text="Chips">
-                  <MenuItem text="Transition" onClick={addTransitionNode} icon="flow-end" />
+                <MenuItem text={lang.tr('studio.flow.chips')}>
+                  <MenuItem text={lang.tr('studio.flow.transition')} onClick={addTransitionNode} icon="flow-end" />
                 </MenuItem>
               </React.Fragment>
             ) : null}
@@ -507,9 +495,9 @@ class Diagram extends Component<Props> {
     for (const element of elements) {
       if (!this.diagramEngine.isModelLocked(element)) {
         if (element.type === 'success') {
-          return alert("You can't delete the success node.")
+          return alert(lang.tr('studio.flow.cantDeleteSuccess'))
         } else if (element.type === 'failure') {
-          return alert("You can't delete the failure node.")
+          return alert(lang.tr('studio.flow.cantDeleteFailure'))
         } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
           this.props.removeFlowNode(element)
         } else if (element.type === 'default') {
@@ -530,7 +518,7 @@ class Diagram extends Component<Props> {
     Toaster.create({
       className: 'recipe-toaster',
       position: Position.TOP_RIGHT
-    }).show({ message: 'Copied to buffer' })
+    }).show({ message: lang.tr('studio.flow.copiedToBuffer') })
   }
 
   pasteElementFromBuffer(position?) {
@@ -568,19 +556,19 @@ class Diagram extends Component<Props> {
     return (
       <div style={{ display: 'flex', marginTop: 5 }}>
         <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide
-          {nbNext === 1 ? ' transition' : ' transitions'}
+          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag>
+          {lang.tr('studio.flow.flowWideTransitions', { count: nbNext })}
         </Button>
         <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide
-          {nbReceive === 1 ? ' on receive' : ' on receives'}
+          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>
+          {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
         </Button>
         {this.props.showSearch && (
           <ControlGroup>
             <InputGroup
               id="input-highlight-name"
               tabIndex={1}
-              placeholder="Highlight nodes by name"
+              placeholder={lang.tr('studio.flow.highlightByName')}
               value={this.props.highlightFilter}
               onChange={this.props.handleFilterChanged}
               autoFocus={true}

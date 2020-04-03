@@ -28,7 +28,7 @@ const AutoTrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
 
   return (
     <Switch
-      label={lang.tr('nlu.autoTrain')}
+      label={lang.tr('module.nlu.autoTrain')}
       checked={autoTrain}
       disabled={loading}
       className={style.autoTrainToggle}

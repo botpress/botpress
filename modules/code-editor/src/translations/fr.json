@@ -3,5 +3,82 @@
   "error": {
     "cannotSaveFile": "Impossible de sauvegarder le fichier",
     "invalidJson": "Fichier JSON invalide: {details}"
+  },
+
+  "sidePanel": {
+    "bot": "Bot {name}",
+    "global": "Global",
+    "currentBot": "Bot actuel",
+    "moduleConf": "Configuration des modules",
+    "conf": "Configuration globales",
+    "actions": "Actions",
+    "hooks": "Hooks",
+    "rawFileEditor": "Éditeur de fichiers bruts",
+    "eventHooks": "Hooks d'événement",
+    "botHooks": "Hooks de bots",
+    "generalHooks": "Hooks généraux",
+    "pipelineHooks": "Hooks de pipeline",
+    "filterFiles": "Filtrer les fichiers"
+  },
+
+  "navigator": {
+    "isReadOnly": "Ce fichier est en lecture seule",
+    "codeSamples": "Ce sont des exemples de code que vous pouvez copier",
+    "codeSamples2": "pour ajouter de nouvelles fonctionnalités à vos bots.",
+    "cannotBeEdited": "Ils ne peuvent pas être modifiés directement",
+    "duplicateToCurrent": "Dupliquer sur le bot actuel",
+    "copyExample": "Copier l'exemple sur mon bot",
+    "copyExampleToHooks": "Copier l'exemple dans les hooks globaux",
+    "renameMove": "Renommer / Déplacer",
+    "noFilesFound": "Aucun fichier trouvé dans cette catégorie"
+  },
+
+  "fileStatus": {
+    "fileInformation": "Informations sur le fichier",
+    "viewDetails": "Voir les détails",
+    "fixThem": "Veuillez vous assurer de {count, plural, one {le} other {les}} corriger avant d'enregistrer.",
+    "thereAreErrors": "Il y a {count} {count, plural, one {erreur} other {erreurs}} dans votre fichier."
+  },
+
+  "nameModal": {
+    "renameOrMoveFile": "Renommer ou déplacer un fichier",
+    "createNewFile": "Créer un nouveau fichier",
+    "fileName": "Nom de fichier (y compris les répertoires)",
+    "chooseNameForFile": "Choisissez un nom pour le fichier",
+    "nameAlreadyExists": "Un fichier portant ce nom existe déjà. Veuillez en choisir un autre."
+  },
+
+  "newFileModal": {
+    "createNew": "Créez un nouveau {name}",
+    "fileName": "Nom du fichier",
+    "fileNameHelp": "Aucun caractère spécial n'est autorisé. Il doit se terminer par .js",
+    "createForCurrent": "Créer pour le bot actuel"
+  },
+
+  "splash": {
+    "bigWarning": "ATTENTION",
+    "editorDesc": "L'éditeur de code vous permet de créer et de modifier des actions sans quitter le studio. Il comporte des typages et une complétion de code intelligente. Pour afficher les fichiers globaux et le contenu généré par les modules, vous devez activer la fonctionnalité en modifiant le fichier de configuration code-editor.json.",
+    "rawEditorDesc": "L'éditeur de fichiers bruts n'a aucune protection et vous pouvez facilement corrompre les fichiers importants. Manipulez avec soin! Vous pouvez modifier n'importe quel fichier contenu dans le dossier 'data', créer de nouveaux fichier et déplacer des fichiers existants.",
+    "codeEditor": "Éditeur de code",
+    "saveFile": "Enregistrer le fichier",
+    "newFile": "Nouveau fichier",
+    "commandPalette": "Palette de commandes",
+    "basicEditor": "Éditeur de base",
+    "advancedEditor": "Éditeur avancé"
+  },
+
+  "store": {
+    "onlySuperAdmins": "Seuls les super administrateurs peuvent utiliser l'éditeur de fichiers avancé",
+    "fileSaved": "Fichier enregistré avec succès!",
+    "confirmSaveFile": "Voulez-vous enregistrer les modifications que vous avez apportées à {fichier}?",
+    "chooseName": "Choisissez le nom de votre {type}. Aucun caractères spéciaux. Utilisez le camel case",
+    "invalidFilename": "Nom de fichier non valide",
+    "confirmDeleteFile": "Voulez-vous vraiment supprimer le fichier nommé {file}?",
+    "fileDeleted": "Fichier supprimé avec succès!",
+    "fileDisabled": "Fichier désactivé avec succès!",
+    "fileEnabled": "Fichier activé avec succès!",
+    "fileRenamed": "Fichier renommé avec succès!",
+    "fileDuplicated": "Fichier dupliqué avec succès!",
+    "alreadyExists": "Un fichier portant ce nom existe déjà"
   }
 }
