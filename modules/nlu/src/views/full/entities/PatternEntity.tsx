@@ -130,7 +130,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
         </FormGroup>
       </div>
       <div className={style.configPane}>
-        <Label>{lang.tr('module.nlu.entities.optionsLabel')}</Label>
+        <Label>{lang.tr('options')}</Label>
         <Checkbox
           checked={matchCase}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMatchCase(e.target.checked)}

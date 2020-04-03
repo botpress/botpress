@@ -2,7 +2,9 @@
   "fullName": "NLU",
 
   "intents": {
-    "intents": "Intentions",
+    "title": "Intentions",
+    "new": "Nouvel intention",
+    "filterPlaceholder": "Filtrer les intentions",
     "summaryPlaceholder": "Résumé de l'intention",
     "utterancePlaceholder": "Écrivez une alternative",
     "deleteConfirmMessage": "Êtes-vous certain de vouloir supprimer cet intention \"{intentName}\"?",
@@ -37,15 +39,15 @@
     "deleteMessage": "Êtes-vous certain de vouloir supprimer ce paramètre ainsi que toutes les marques dans chaque alternative?"
   },
   "entities": {
-    "entities": "Entités",
-    "selectPlaceholder": "Sélectionner des entitiées",
-    "filterPlaceholder": "Filter entities",
+    "title": "Entités",
+    "new": "Nouvel entité",
+    "selectPlaceholder": "Sélectionner des entitiés",
+    "filterPlaceholder": "Filtrer les entités",
     "deleteMessage": "Êtes-vous certain de vouloir supprimer l'entité \"{entityName}\" ?",
     "sensitiveLabel": "Contient des données sensibles",
     "sensitiveTooltip": "Les données sensibles sont remplacées par ** avant d'être enregistré dans la base de données",
     "matchCaseLabel": "Sensible à la casse",
     "matchCaseTooltip": "Si votre expression doit être sensible à la casse",
-    "optionsLabel": "Options",
     "examplesPlaceholder": "Ajouter des exemples qui respectent votre expression (un exemple par ligne)",
     "matchingSuccess": "Tous les exemples sont valides",
     "matchingError": "Un ou plusieurs exemples ne sont pas valides",
@@ -65,12 +67,11 @@
     "fuzzyTooltip": "Les options de correspondance permettront de fines erreurs (e.g erreur de frappe) dans des mots de 4 caractères ou plus. Stricte signifie qu'aucune erreur n'est permise.",
     "nameConflictTitle": "Ce nom est déjà utilisé",
     "nameConflictMessage": "Une entité portant le même nom existe déjà. Veuillez choisir un autre nom.",
-    "namePlaceholder": "Nom de l'entité",
-    "nameLabel": "Nom"
+    "namePlaceholder": "Nom de l'entité"
   },
   "title": "Compréhension du langage",
   "description": "Utilisez la compréhension du langage de Botpress pour rendre votre agent plus intelligent.",
   "cancelTraining": "Arrêter l'entraînement",
   "trainNow": "Entraîner maintenant",
-  "autoTrain": "Auto entraînement"
+  "autoTrain": "Entraînement automatique"
 }

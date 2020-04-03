@@ -159,7 +159,7 @@ export const LiteEditor: FC<Props> = props => {
           <div>
             <Breadcrumbs
               items={[
-                { onClick: cancelEditing, text: lang.tr('module.qna.qna') },
+                { onClick: cancelEditing, text: lang.tr('module.qna.fullName') },
                 { text: editId !== '' ? lang.tr('module.qna.edit') : lang.tr('module.qna.create') }
               ]}
             />

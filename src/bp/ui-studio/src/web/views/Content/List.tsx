@@ -217,7 +217,7 @@ class ListView extends Component<Props, State> {
         width: 35
       },
       {
-        Header: lang.tr('studio.flow.content.id'),
+        Header: lang.tr('id'),
         Cell: x => `#!${x.value}`,
         filterable: false,
         accessor: 'id',
@@ -230,7 +230,7 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Header: lang.tr('studio.flow.content.preview'),
+        Header: lang.tr('preview'),
         accessor: 'previews',
         filterable: false,
         Cell: x => {
@@ -256,7 +256,7 @@ class ListView extends Component<Props, State> {
         }
       },
       {
-        Header: lang.tr('studio.flow.content.modifiedOn'),
+        Header: lang.tr('modifiedOn'),
         Cell: x =>
           x.original.modifiedOn ? moment(x.original.modifiedOn).format('MMM Do YYYY, h:mm') : lang.tr('never'),
         accessor: 'modifiedOn',
@@ -264,14 +264,14 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Header: lang.tr('studio.flow.content.createdOn'),
+        Header: lang.tr('createdOn'),
         Cell: x => (x.original.createdOn ? moment(x.original.createdOn).format('MMM Do YYYY, h:mm') : lang.tr('never')),
         accessor: 'createdOn',
         filterable: false,
         width: 150
       },
       {
-        Header: lang.tr('studio.flow.content.usage'),
+        Header: lang.tr('usage'),
         id: 'usage',
         Cell: x => {
           const count = this.getCountUsage(x.original.usage)
@@ -324,6 +324,11 @@ class ListView extends Component<Props, State> {
         pages={pageCount}
         manual
         filterable
+        previousText={lang.tr('previous')}
+        nextText={lang.tr('next')}
+        pageText={lang.tr('page')}
+        ofText={lang.tr('of')}
+        rowsText={lang.tr('rows')}
       />
     )
   }

@@ -1,30 +1,4 @@
 {
-  "insert": "Insert",
-  "save": "Save",
-  "cancel": "Cancel",
-  "overwrite": "Overwrite",
-  "edit": "Edit",
-  "remove": "Remove",
-  "copy": "Copy",
-  "update": "Update",
-  "create": "Create",
-  "chooseFile": "Choose file...",
-  "pleaseWait": "Please wait...",
-  "next": "Next",
-  "back": "Back",
-  "submit": "Submit",
-  "error": "Error",
-  "delete": "Delete",
-  "never": "Never",
-  "refresh": "Refresh",
-  "content": "Content",
-  "flows": "Flows",
-  "configuration": "Config",
-  "actionRequired": "Action Required",
-  "paste": "Paste",
-  "label": "Label",
-  "import": "Import",
-
   "statusBar": {
     "emulator": "Emulator",
     "logsPanel": "Logs Panel",
@@ -40,7 +14,6 @@
     "viewNotifications": "View Notifications",
     "documentationAvailable": "This screen has documentation available.",
     "bottomPanel": {
-      "logs": "Logs",
       "scrollToFollow": "Scroll to follow logs",
       "downloadLogs": "Download Logs",
       "clearHistory": "Clear log history",
@@ -49,8 +22,6 @@
   },
 
   "config": {
-    "general": "General",
-    "status": "Status",
     "description": "Description",
     "website": "Website",
     "phoneNumber": "Phone Number",
@@ -64,7 +35,6 @@
     "defaultLanguage": "Default language",
     "supportedLanguages": "Supported languages",
     "language": "Language",
-    "name": "Name",
     "botConfiguration": "Bot Configuration",
     "additionalDetails": "Additionails Details",
     "avatarAndCover": "Avatar & Cover picture",
@@ -73,8 +43,6 @@
     "configUpdated": "Bot configuration updated successfully",
     "formContainsErrors": "The form contains errors",
     "requireImageFile": "{targetProp} requires an image file",
-    "details": "Details",
-    "pictures": "Pictures",
     "avatarUploadSuccess": "The bot avatar has been uploaded successfully. You need to save the form in order for the changes to take effect.",
     "coverUploadSuccess": "The cover picture has been uploaded successfully. You need to save the form in order for the changes to take effect."
   },
@@ -204,9 +172,6 @@
       },
 
       "sidePanel": {
-        "create": "Create",
-        "duplicate": "Duplicate",
-        "rename": "Rename",
         "createFlow": "Create Flow",
         "duplicateFlow": "Duplicate Flow",
         "renameFlow": "Rename Flow",
@@ -331,12 +296,7 @@
         "pleaseReadDoc": "Please {readTheDocs} to see how you can make use of this feature",
         "readTheDocs": "read the docs",
         "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
-        "id": "ID",
         "contentType": "Content Type",
-        "preview": "Preview",
-        "modifiedOn": "Modified On",
-        "createdOn": "Created On",
-        "usage": "Usage",
         "noContent": "There's no content here.",
         "noContentYet": "There's no content yet. You can create some using the 'Add' button.",
         "deleteElements": "Delete selected elements",
@@ -368,10 +328,7 @@
         },
 
         "usageModal": {
-          "type": "Type",
-          "name": "Name",
           "node": "Node",
-          "count": "Count",
           "contentUsage": "Content Usage"
         }
       },

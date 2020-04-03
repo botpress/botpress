@@ -39,7 +39,7 @@ const FileStatus = props => {
           <div style={{ paddingLeft: 15 }}>
             {problems.map(x => (
               <div key={x.message} style={{ marginBottom: 10 }}>
-                {lang.tr('module.code-editor.fileStatus.line')} <strong>{x.startLineNumber}</strong>
+                {lang.tr('line')} <strong>{x.startLineNumber}</strong>
                 <br />
                 {x.message}
               </div>

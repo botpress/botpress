@@ -63,7 +63,7 @@ export const ContextSelector: FC<Props> = props => {
       <div>
         {!props.isSearch && (
           <>
-            <label htmlFor="selectContext">{lang.tr('module.qna.context.contexts')}</label>
+            <label htmlFor="selectContext">{lang.tr('module.qna.context.title')}</label>
             &nbsp;
             <Tooltip content={lang.tr('module.qna.context.canTypeToCreate')} position={Position.RIGHT}>
               <Icon color={Colors.GRAY2} icon="info-sign" />

@@ -143,13 +143,13 @@ export const IntentSidePanelSection: FC<Props> = props => {
         id="btn-add-intent"
         className={Classes.MINIMAL}
         icon="new-object"
-        text="New intent"
+        text={lang.tr('module.nlu.intents.new')}
         onClick={() => showIntentNameModal('', 'create')}
       />
       <SearchBar
         id="intents-filter"
         icon="filter"
-        placeholder="filter intents"
+        placeholder={lang.tr('module.nlu.intents.filterPlaceholder')}
         onChange={setIntentsFilter}
         showButton={false}
       />

@@ -83,7 +83,12 @@ export const EntitySidePanelSection: FC<Props> = props => {
 
   return (
     <div>
-      <Button className={Classes.MINIMAL} icon="new-object" text="New entity" onClick={createEntity} />
+      <Button
+        className={Classes.MINIMAL}
+        icon="new-object"
+        text={lang.tr('module.nlu.entities.new')}
+        onClick={createEntity}
+      />
       <SearchBar
         id="entities-filter"
         icon="filter"

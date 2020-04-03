@@ -105,7 +105,7 @@ export const EntityNameModal: FC<Props> = props => {
     <Dialog isOpen={props.isOpen} onClose={props.closeModal} transitionDuration={0} {...dialog}>
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label={lang.tr('module.nlu.entities.nameLabel')}>
+          <FormGroup label={lang.tr('name')}>
             <input
               required
               name="name"
