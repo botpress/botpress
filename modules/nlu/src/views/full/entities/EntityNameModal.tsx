@@ -8,11 +8,11 @@ import { NLUApi } from '../../api'
 
 const AVAILABLE_TYPES = [
   {
-    label: 'List',
+    label: lang.tr('list'),
     value: 'list'
   },
   {
-    label: 'Pattern',
+    label: lang.tr('pattern'),
     value: 'pattern'
   }
 ]
@@ -91,13 +91,13 @@ export const EntityNameModal: FC<Props> = props => {
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name
   const alreadyExists = !isIdentical && _.some(props.entityIDs, id => id === getEntityId(name))
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('duplicate') }
-  let submitText = lang.tr('duplicate')
+  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('create') }
+  let submitText = lang.tr('create')
   if (props.action === 'duplicate') {
-    dialog = { icon: 'duplicate', title: 'Duplicate Entity' }
+    dialog = { icon: 'duplicate', title: 'module.nlu.entities.duplicate' }
     submitText = lang.tr('duplicate')
   } else if (props.action === 'rename') {
-    dialog = { icon: 'edit', title: 'Rename Entity' }
+    dialog = { icon: 'edit', title: 'module.nlu.entities.rename' }
     submitText = lang.tr('rename')
   }
 

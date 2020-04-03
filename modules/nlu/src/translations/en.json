@@ -67,7 +67,9 @@
     "fuzzyTooltip": "Fuzziness will tolerate slight errors (e.g: typos) in words of 4 characters or more. Strict means no errors allowed.",
     "nameConflictTitle": "Name already in use",
     "nameConflictMessage": "An entity with that name already exists. Please choose another one.",
-    "namePlaceholder": "Entity name"
+    "namePlaceholder": "Entity name",
+    "duplicate": "Duplicate Entity",
+    "rename": "Rename Entity"
   },
   "title": "Language Undertanding",
   "description": "Use Botpress native Natural language understanding engine to make your bot smarter.",

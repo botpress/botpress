@@ -35,7 +35,7 @@ export const UsageModal: FC<Props> = props => {
       }
     },
     {
-      Header: lang.tr('studio.flow.content.usageModal.node'),
+      Header: lang.tr('studio.content.usageModal.node'),
       filterable: false,
       accessor: 'node',
       Cell: x => {
@@ -74,7 +74,7 @@ export const UsageModal: FC<Props> = props => {
   const pageCount = Math.ceil(props.usage.length / getPageSize)
   return (
     <Dialog
-      title={lang.tr('studio.flow.content.usageModal.contentUsage')}
+      title={lang.tr('studio.content.usageModal.contentUsage')}
       isOpen={props.isOpen}
       className={style.modal}
       onClose={props.handleClose}

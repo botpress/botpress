@@ -86,7 +86,7 @@ class ListView extends Component<Props, State> {
 
   handleDeleteSelected = async () => {
     if (
-      await confirmDialog(lang.tr('studio.flow.content.confirmDeleteItem', { count: this.state.checkedIds.length }), {
+      await confirmDialog(lang.tr('studio.content.confirmDeleteItem', { count: this.state.checkedIds.length }), {
         acceptLabel: lang.tr('delete')
       })
     ) {
@@ -224,7 +224,7 @@ class ListView extends Component<Props, State> {
         width: 170
       },
       {
-        Header: lang.tr('studio.flow.content.contentType'),
+        Header: lang.tr('studio.content.contentType'),
         filterable: false,
         accessor: 'contentType',
         width: 150
@@ -296,8 +296,8 @@ class ListView extends Component<Props, State> {
   renderTable() {
     const pageCount = Math.ceil(this.props.count / this.state.pageSize)
     const noDataMessage = this.props.readOnly
-      ? lang.tr('studio.flow.content.noContent')
-      : lang.tr('studio.flow.content.noContentYet')
+      ? lang.tr('studio.content.noContent')
+      : lang.tr('studio.content.noContentYet')
 
     if (this.state.sortOrderUsage) {
       const desc = this.state.sortOrderUsage === 'desc'
@@ -349,7 +349,7 @@ class ListView extends Component<Props, State> {
 
             <Divider />
             {!this.props.readOnly && (
-              <Tooltip content={lang.tr('studio.flow.content.deleteElements')} position={Position.BOTTOM}>
+              <Tooltip content={lang.tr('studio.content.deleteElements')} position={Position.BOTTOM}>
                 <AnchorButton
                   id="btn-delete"
                   icon="trash"
@@ -360,7 +360,7 @@ class ListView extends Component<Props, State> {
             )}
 
             {!this.props.readOnly && (
-              <Tooltip content={lang.tr('studio.flow.content.cloneElements')} position={Position.BOTTOM}>
+              <Tooltip content={lang.tr('studio.content.cloneElements')} position={Position.BOTTOM}>
                 <AnchorButton
                   id="btn-duplicate"
                   icon="duplicate"
@@ -373,7 +373,7 @@ class ListView extends Component<Props, State> {
             <InputGroup
               id="input-search"
               style={{ marginTop: 3, width: 250 }}
-              placeholder={lang.tr('studio.flow.content.searchContent')}
+              placeholder={lang.tr('studio.content.searchContent')}
               small
               value={this.state.searchTerm}
               onChange={this.handleSearchChanged}

@@ -74,6 +74,52 @@
       "flows": "Flows",
       "config": "Configuration"
     },
+    "content": {
+      "noContentDefined": "Nous pensons que vous n'avez défini aucun type de contenu.",
+      "pleaseReadDoc": "Veuillez {readTheDocs} pour voir comment vous pouvez utiliser cette fonctionnalité",
+      "readTheDocs": "lire la documentation",
+      "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
+      "contentType": "Type de contenu",
+      "noContent": "Il n'y a pas de contenu ici.",
+      "noContentYet": "Il n'y a pas encore de contenu. Vous pouvez en créer en utilisant le bouton «Ajouter».",
+      "deleteElements": "Supprimer les éléments sélectionnés",
+      "cloneElements": "Cloner les éléments sélectionnés",
+      "searchContent": "Rechercher du contenu",
+      "mustBeDefaultLang": "L'élément doit d'abord être créé dans la langue par défaut.",
+      "switchToDefaultLang": "Basculer sur {defaultLang} et commencer à modifier",
+      "selectContent": "Sélectionner un élément",
+      "searchIn": "Rechercher dans",
+      "currentlySearching": "Type sélectionné",
+      "createNew": "Créer un nouveau {title}",
+
+      "import": {
+        "notAbleToExtractData": "Nous n'avons pas pu extraire de données de votre fichier. Soit le fichier est vide, soit il ne correspond à aucun format connu.",
+        "missingContentTypes": "Votre bot manque les types de contenu suivants: {types}.",
+        "selectFile": "Sélectionnez votre fichier JSON",
+        "selectFileMore": "Sélectionnez un fichier JSON. Il doit être exporté depuis la page Contenu. Vous verrez un résumé des modifications en cliquant sur Suivant",
+        "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
+        "whatLikeDo": "Qu'est-ce que vous aimeriez faire?",
+        "updateMissing": "Mettre à jour ou créer des éléments manquants présents dans mon fichier",
+        "clearExisting": "Effacez tous les éléments existants, puis importez ceux de mon fichier",
+        "uploadStatus": "Statut de téléversement",
+        "import": "Importer JSON",
+        "upload": "Téléverser un fichier",
+        "analysis": "Analyse"
+      },
+
+      "sideBar": {
+        "all": "Tout",
+        "createNewContent": "Créer nouveau contenu",
+        "createNew": "Créer nouveau {name}",
+        "filterByType": "Filtrer par type de contenu"
+      },
+
+      "usageModal": {
+        "node": "Node",
+        "contentUsage": "Utilisation du contenu"
+      }
+    },
+
     "flow": {
       "unauthUpdate": "Mise à jour de flow non autorisée. Vous ne disposez pas des privilèges de rôle suffisants pour modifier les flows.",
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
@@ -234,7 +280,7 @@
         "messageToSend": "Message à envoyer",
         "addAction": "Ajouter une nouvelle action",
         "theBotWill": "Le bot va",
-        "saySomething": "💬 Dire quelquechose",
+        "saySomething": "💬 Écrire quelque chose",
         "executeCode": "⚡ Exécuter du code",
         "finishUpdateAction": "Mettre à jour l'action",
         "finishAddAction": "Ajouter action",
@@ -275,48 +321,6 @@
             "transitionToNode": "Transition vers nœud",
             "transitionToSubflow": "Transition vers subflow"
           }
-        }
-      },
-
-      "content": {
-        "noContentDefined": "Nous pensons que vous n'avez défini aucun type de contenu.",
-        "pleaseReadDoc": "Veuillez {readTheDocs} pour voir comment vous pouvez utiliser cette fonctionnalité",
-        "readTheDocs": "lire la documentation",
-        "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
-        "contentType": "Type de contenu",
-        "noContent": "Il n'y a pas de contenu ici.",
-        "noContentYet": "Il n'y a pas encore de contenu. Vous pouvez en créer en utilisant le bouton «Ajouter».",
-        "deleteElements": "Supprimer les éléments sélectionnés",
-        "cloneElements": "Cloner les éléments sélectionnés",
-        "searchContent": "Rechercher du contenu",
-        "mustBeDefaultLang": "L'élément doit d'abord être créé dans la langue par défaut.",
-        "switchToDefaultLang": "Basculer sur {defaultLang} et commencer à modifier",
-
-        "import": {
-          "notAbleToExtractData": "Nous n'avons pas pu extraire de données de votre fichier. Soit le fichier est vide, soit il ne correspond à aucun format connu.",
-          "missingContentTypes": "Votre bot manque les types de contenu suivants: {types}.",
-          "selectFile": "Sélectionnez votre fichier JSON",
-          "selectFileMore": "Sélectionnez un fichier JSON. Il doit être exporté depuis la page Contenu. Vous verrez un résumé des modifications en cliquant sur Suivant",
-          "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
-          "whatLikeDo": "Qu'est-ce que vous aimeriez faire?",
-          "updateMissing": "Mettre à jour ou créer des éléments manquants présents dans mon fichier",
-          "clearExisting": "Effacez tous les éléments existants, puis importez ceux de mon fichier",
-          "uploadStatus": "Statut de téléversement",
-          "import": "Importer JSON",
-          "upload": "Téléverser un fichier",
-          "analysis": "Analyse"
-        },
-
-        "sideBar": {
-          "all": "Tout",
-          "createNewContent": "Créer nouveau contenu",
-          "createNew": "Créer nouveau {name}",
-          "filterByType": "Filtrer par type de contenu"
-        },
-
-        "usageModal": {
-          "node": "Node",
-          "contentUsage": "Utilisation du contenu"
         }
       },
 
