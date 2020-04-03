@@ -117,7 +117,7 @@ const WorkflowEditor: FC<Props> = props => {
             />
           </FormGroup>
 
-          <FormGroup label={lang.tr('studio.flow.workflow.description')}>
+          <FormGroup label={lang.tr('description')}>
             <TextArea
               id="input-flow-description"
               rows={3}
@@ -130,13 +130,7 @@ const WorkflowEditor: FC<Props> = props => {
         </div>
       </DialogBody>
       <DialogFooter>
-        <Button
-          type="submit"
-          id="btn-submit"
-          tabIndex={4}
-          text={lang.tr('studio.flow.workflow.saveChanges')}
-          intent={Intent.PRIMARY}
-        />
+        <Button type="submit" id="btn-submit" tabIndex={4} text={lang.tr('saveChanges')} intent={Intent.PRIMARY} />
       </DialogFooter>
     </BaseDialog>
   )

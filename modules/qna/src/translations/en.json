@@ -9,8 +9,6 @@
   "question": "Question",
   "answer": "Answer",
   "contexts": "Contexts",
-  "qna": "Q&A",
-  "addQuestion": "Add Question",
   "edit": "Edit Q&A",
   "create": "Create a new Q&A",
   "exportToJson": "Export to JSON",
@@ -42,7 +40,7 @@
 
   "context": {
     "create": "Create \"{query}\"",
-    "context": "Contexts",
+    "title": "Contexts",
     "canTypeToCreate": "You can type in the select bar to add new contexts.",
     "filterByContexts": "Filter by contexts",
     "selectContext": "Select context..."

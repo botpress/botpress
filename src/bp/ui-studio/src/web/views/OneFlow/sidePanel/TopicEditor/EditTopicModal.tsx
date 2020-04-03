@@ -77,7 +77,7 @@ const EditTopicModal: FC<Props> = props => {
             />
           </FormGroup>
 
-          <FormGroup label={lang.tr('studio.flow.topicEditor.description')}>
+          <FormGroup label={lang.tr('description')}>
             <TextArea
               id="input-flow-description"
               rows={3}
@@ -91,12 +91,7 @@ const EditTopicModal: FC<Props> = props => {
       </DialogBody>
 
       <DialogFooter>
-        <Button
-          type="submit"
-          id="btn-submit"
-          text={lang.tr('studio.flow.topicEditor.saveChanges')}
-          intent={Intent.PRIMARY}
-        />
+        <Button type="submit" id="btn-submit" text={lang.tr('saveChanges')} intent={Intent.PRIMARY} />
       </DialogFooter>
     </BaseDialog>
   )

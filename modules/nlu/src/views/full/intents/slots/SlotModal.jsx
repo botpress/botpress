@@ -82,7 +82,7 @@ export default class SlotModal extends React.Component {
         transitionDuration={0}
       >
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label={lang.tr('module.nlu.slots.nameLabel')}>
+          <FormGroup label={lang.tr('name')}>
             <input
               tabIndex="1"
               ref={el => (this.nameInput = el)}

@@ -36,7 +36,6 @@
   "fileStatus": {
     "fileInformation": "File Information",
     "viewDetails": "View details",
-    "line": "Line",
     "fixThem": "Please make sure to fix {count, plural, one {it} other {them}} before saving.",
     "thereAreErrors": "There {count, plural, one {is} other {are}} {count} {count, plural, one {error} other {errors}} in your file."
   },

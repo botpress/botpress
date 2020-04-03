@@ -2,7 +2,9 @@
   "fullName": "NLU",
 
   "intents": {
-    "intents": "Intents",
+    "title": "Intents",
+    "new": "New intent",
+    "filterPlaceholder": "Filter intents",
     "summaryPlaceholder": "Summary of intent",
     "utterancePlaceholder": "Type a sentence",
     "deleteConfirmMessage": "Are you sure you want to delete the intent \"{intentName}\"?",
@@ -37,7 +39,8 @@
     "deleteMessage": "Are you sure you want to delete this slot and all associated tagging from all utterances?"
   },
   "entities": {
-    "entities": "Entities",
+    "title": "Entities",
+    "new": "New entity",
     "selectPlaceholder": "Select entities...",
     "filterPlaceholder": "Filter entities",
     "deleteMessage": "Are you sure you want to delete the entity \"{entityName}\" ?",
@@ -45,7 +48,6 @@
     "sensitiveTooltip": "Sensitive information are replaced by * before being saved in the database",
     "matchCaseLabel": "Match case",
     "matchCaseTooltip": "Whether your pattern is case sensitive",
-    "optionsLabel": "Options",
     "examplesPlaceholder": "Add examples that match your pattern (one per line)",
     "matchingSuccess": "All examples match",
     "matchingError": "Some examples don't match",
@@ -66,7 +68,8 @@
     "nameConflictTitle": "Name already in use",
     "nameConflictMessage": "An entity with that name already exists. Please choose another one.",
     "namePlaceholder": "Entity name",
-    "nameLabel": "Name"
+    "duplicate": "Duplicate Entity",
+    "rename": "Rename Entity"
   },
   "title": "Language Undertanding",
   "description": "Use Botpress native Natural language understanding engine to make your bot smarter.",

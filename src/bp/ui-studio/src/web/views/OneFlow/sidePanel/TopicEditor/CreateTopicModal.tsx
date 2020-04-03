@@ -62,7 +62,7 @@ const CreateTopicModal: FC<Props> = props => {
           />
         </FormGroup>
 
-        <FormGroup label={lang.tr('studio.flow.topicEditor.description')}>
+        <FormGroup label={lang.tr('description')}>
           <TextArea
             id="input-flow-description"
             rows={3}

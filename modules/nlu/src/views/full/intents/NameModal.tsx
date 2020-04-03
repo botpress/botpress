@@ -49,7 +49,7 @@ const NameModal: FC<Props> = props => {
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label={lang.tr('module.nlu.intents.nameLabel')}>
+          <FormGroup label={lang.tr('name')}>
             <InputGroup
               id="input-intent-name"
               tabIndex={1}

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { Alert, Button, Modal } from 'react-bootstrap'
@@ -208,10 +209,10 @@ class SelectContent extends Component<Props, State> {
     const { categories } = this.props
     return (
       <div>
-        <strong>Search in:</strong>
+        <strong>{lang.tr('studio.content.searchIn')}</strong>
         <div className="list-group">
           <a onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
-            All
+            {lang.tr('all')}
           </a>
           {categories
             .filter(cat => !cat.hidden)
@@ -223,7 +224,7 @@ class SelectContent extends Component<Props, State> {
                   active: i === this.state.activeItemIndex
                 })}
               >
-                {category.title}
+                {lang.tr(category.title)}
               </a>
             ))}
         </div>
@@ -247,10 +248,10 @@ class SelectContent extends Component<Props, State> {
 
     return (
       <p>
-        Currently Searching in: <strong>{title}</strong>
+        {lang.tr('studio.content.currentlySearching')}: <strong>{lang.tr(title)}</strong>
         .&nbsp;
         <Button className="btn btn-warning btn-sm" onClick={this.resetCurrentCategory}>
-          Change
+          {lang.tr('change')}
         </Button>
       </p>
     )
@@ -260,7 +261,7 @@ class SelectContent extends Component<Props, State> {
     const { categories } = this.props
     const { contentType } = this.state
     const title = contentType ? categories.find(({ id }) => id === contentType).title : 'all content elements'
-    return `Search ${title} (${this.props.itemsCount})`
+    return `${lang.tr('search')} ${lang.tr(title)} (${this.props.itemsCount})`
   }
 
   renderMainBody() {
@@ -319,7 +320,7 @@ class SelectContent extends Component<Props, State> {
               onClick={() => this.setState({ newItemCategory: category, newItemData: null })}
               className={`list-group-item list-group-item-action ${style.createItem}`}
             >
-              Create new {category.title}
+              {lang.tr('studio.content.createNew', { title: lang.tr(category.title) })}
             </a>
           ))}
           {this.props.contentItems.map((contentItem, i) => (
@@ -362,7 +363,7 @@ class SelectContent extends Component<Props, State> {
         backdrop={'static'}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Pick Content</Modal.Title>
+          <Modal.Title>{lang.tr('studio.content.selectContent')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>{this.renderBody()}</Modal.Body>
 

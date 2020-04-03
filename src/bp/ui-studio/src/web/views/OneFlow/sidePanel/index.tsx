@@ -168,7 +168,7 @@ const SidePanelContent: FC<Props> = props => {
             onChange={setTopicFilter}
           />
 
-          <SidePanelSection label={lang.tr('studio.flow.sidePanel.topics')} actions={topicActions}>
+          <SidePanelSection label={lang.tr('topics')} actions={topicActions}>
             <TopicList
               readOnly={props.readOnly}
               canDelete={canDelete}
@@ -191,7 +191,7 @@ const SidePanelContent: FC<Props> = props => {
             />
           </SidePanelSection>
 
-          <SidePanelSection label={lang.tr('studio.flow.sidePanel.library')}>
+          <SidePanelSection label={lang.tr('library')}>
             <SearchBar
               icon="filter"
               placeholder={lang.tr('studio.flow.sidePanel.filterLibrary')}

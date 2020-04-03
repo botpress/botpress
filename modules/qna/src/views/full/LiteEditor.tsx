@@ -97,7 +97,7 @@ export const LiteEditor: FC<Props> = props => {
           <AccessControl resource="module.qna" operation="write">
             <Button
               id="btn-create-qna"
-              text={lang.tr('module.qna.addQuestion')}
+              text={lang.tr('module.qna.addNew')}
               icon="add"
               style={{ marginLeft: 20 }}
               intent={Intent.PRIMARY}
@@ -159,7 +159,7 @@ export const LiteEditor: FC<Props> = props => {
           <div>
             <Breadcrumbs
               items={[
-                { onClick: cancelEditing, text: lang.tr('module.qna.qna') },
+                { onClick: cancelEditing, text: lang.tr('module.qna.fullName') },
                 { text: editId !== '' ? lang.tr('module.qna.edit') : lang.tr('module.qna.create') }
               ]}
             />

@@ -1,30 +1,4 @@
 {
-  "insert": "Insert",
-  "save": "Save",
-  "cancel": "Cancel",
-  "overwrite": "Overwrite",
-  "edit": "Edit",
-  "remove": "Remove",
-  "copy": "Copy",
-  "update": "Update",
-  "create": "Create",
-  "chooseFile": "Choose file...",
-  "pleaseWait": "Please wait...",
-  "next": "Next",
-  "back": "Back",
-  "submit": "Submit",
-  "error": "Error",
-  "delete": "Delete",
-  "never": "Never",
-  "refresh": "Refresh",
-  "content": "Content",
-  "flows": "Flows",
-  "configuration": "Config",
-  "actionRequired": "Action Required",
-  "paste": "Paste",
-  "label": "Label",
-  "import": "Import",
-
   "statusBar": {
     "emulator": "Emulator",
     "logsPanel": "Logs Panel",
@@ -40,7 +14,6 @@
     "viewNotifications": "View Notifications",
     "documentationAvailable": "This screen has documentation available.",
     "bottomPanel": {
-      "logs": "Logs",
       "scrollToFollow": "Scroll to follow logs",
       "downloadLogs": "Download Logs",
       "clearHistory": "Clear log history",
@@ -49,8 +22,6 @@
   },
 
   "config": {
-    "general": "General",
-    "status": "Status",
     "description": "Description",
     "website": "Website",
     "phoneNumber": "Phone Number",
@@ -60,11 +31,9 @@
     "chooseFile": "Choose file",
     "coverPicture": "Cover Picture",
     "botAvatar": "Bot Avatar",
-    "saveChanges": "Save Changes",
     "defaultLanguage": "Default language",
     "supportedLanguages": "Supported languages",
     "language": "Language",
-    "name": "Name",
     "botConfiguration": "Bot Configuration",
     "additionalDetails": "Additionails Details",
     "avatarAndCover": "Avatar & Cover picture",
@@ -73,8 +42,6 @@
     "configUpdated": "Bot configuration updated successfully",
     "formContainsErrors": "The form contains errors",
     "requireImageFile": "{targetProp} requires an image file",
-    "details": "Details",
-    "pictures": "Pictures",
     "avatarUploadSuccess": "The bot avatar has been uploaded successfully. You need to save the form in order for the changes to take effect.",
     "coverUploadSuccess": "The cover picture has been uploaded successfully. You need to save the form in order for the changes to take effect."
   },
@@ -106,6 +73,53 @@
       "flows": "Flows",
       "config": "Config"
     },
+
+    "content": {
+      "noContentDefined": "We think you don't have any content types defined.",
+      "pleaseReadDoc": "Please {readTheDocs} to see how you can make use of this feature",
+      "readTheDocs": "read the docs",
+      "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
+      "contentType": "Content Type",
+      "noContent": "There's no content here.",
+      "noContentYet": "There's no content yet. You can create some using the 'Add' button.",
+      "deleteElements": "Delete selected elements",
+      "cloneElements": "Clone selected elements",
+      "searchContent": "Search content",
+      "mustBeDefaultLang": "Content element must be created in your default language first.",
+      "switchToDefaultLang": "Switch to {defaultLang} and start editing",
+      "selectContent": "Pick Content",
+      "searchIn": "Search In",
+      "currentlySearching": "Currently Searching in",
+      "createNew": "Create new {title}",
+
+      "import": {
+        "notAbleToExtractData": "We were not able to extract any data from your file. Either the file is empty, or it doesn't match any known format.",
+        "missingContentTypes": "Your bot is missing these content types: {types}.",
+        "selectFile": "Select your JSON file",
+        "selectFileMore": "Select a JSON file. It must be exported from the Content page. You will see a summary of modifications when clicking on Next",
+        "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
+        "whatLikeDo": "What would you like to do?",
+        "updateMissing": "Update or create missing elements present in my file",
+        "clearExisting": "Clear all existing elements, then import those from my file",
+        "uploadStatus": "Upload status",
+        "import": "Import JSON",
+        "upload": "Upload File",
+        "analysis": "Analysis"
+      },
+
+      "sideBar": {
+        "all": "All",
+        "createNewContent": "Create new content",
+        "createNew": "Create new {name}",
+        "filterByType": "Filter by Content Type"
+      },
+
+      "usageModal": {
+        "node": "Node",
+        "contentUsage": "Content Usage"
+      }
+    },
+
     "flow": {
       "unauthUpdate": "Unauthorized flow update. You have insufficient role privileges to modify flows.",
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
@@ -129,7 +143,6 @@
       "highlightByName": "Highlight nodes by name",
 
       "topicList": {
-        "qna": "Q&A",
         "confirmDeleteFlow": "Are you sure you want to delete the flow {name}?",
         "confirmDeleteTopic": "Are you sure you want to delete the topic {name}?",
         "flowsAssociatedDelete": "{warning} {count} flows associated with the topic will be deleted",
@@ -163,8 +176,6 @@
         "noChangesToApply": "There are no changes to apply, or everything in the file is identical to the existing content",
         "importContent": "Import content",
         "editTopic": "Edit topic",
-        "description": "Description",
-        "saveChanges": "Save changes",
         "createNewTopic": "Create a new topic",
         "topicNameHelp": "Choose a broad name to represent your topic, for example HR or IT. You can rename it later",
         "createTopic": "Create topic"
@@ -185,9 +196,7 @@
         "create": "Create Workflow",
         "edit": "Edit Workflow - {name}",
         "name": "Workflow name",
-        "labelHelp": "The label is a friendly name that can replace the name in the topic list",
-        "description": "Description",
-        "saveChanges": "Save changes"
+        "labelHelp": "The label is a friendly name that can replace the name in the topic list"
       },
 
       "nodeType": {
@@ -204,9 +213,6 @@
       },
 
       "sidePanel": {
-        "create": "Create",
-        "duplicate": "Duplicate",
-        "rename": "Rename",
         "createFlow": "Create Flow",
         "duplicateFlow": "Duplicate Flow",
         "renameFlow": "Rename Flow",
@@ -217,22 +223,11 @@
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
         "confirmDeleteFlow": "Are you sure you want to delete the flow {name}",
         "node": "Node",
-        "say": "Say",
-        "execute": "Execute",
-        "listen": "Listen",
-        "router": "Router",
-        "action": "Action",
-        "skills": "Skills",
-        "chips": "Chips",
         "createNewFlow": "Create new flow",
         "createNewTopic": "Create new topic",
         "filterFlows": "Filter flows",
-        "flows": "Flows",
-        "tools": "Tools",
         "importContent": "Import content",
         "filterTopicsAndWorkflows": "Filter topics and workflows",
-        "topics": "Topics",
-        "library": "Library",
         "filterLibrary": "Filter library"
       },
 
@@ -243,8 +238,6 @@
         "currentlyEditing": "{name} is currently editing this flow",
         "somebodyIsEditing": "Somebody is editing another flow",
         "renamingAndDeletingDisabled": "Renaming and Deleting flows is disabled",
-        "undo": "Undo",
-        "redo": "Redo",
         "whenErrorEncountered": "When an error is encountered in the flow, the user is redirected here",
         "whenDiscussionTimeouts": "When a discussion timeouts (user doesn't answer in the configured timeframe) he will be redirected here."
       },
@@ -275,7 +268,6 @@
         "cantSeeActions": "Can't see your action?",
         "actionToRun": "Action to run {help}",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
-        "say": "say #!{id}",
         "message": "Message",
         "messageToSend": "Message to send",
         "addAction": "Add new action",
@@ -323,56 +315,6 @@
             "transitionToNode": "Transition to node",
             "transitionToSubflow": "Transition to subflow"
           }
-        }
-      },
-
-      "content": {
-        "noContentDefined": "We think you don't have any content types defined.",
-        "pleaseReadDoc": "Please {readTheDocs} to see how you can make use of this feature",
-        "readTheDocs": "read the docs",
-        "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
-        "id": "ID",
-        "contentType": "Content Type",
-        "preview": "Preview",
-        "modifiedOn": "Modified On",
-        "createdOn": "Created On",
-        "usage": "Usage",
-        "noContent": "There's no content here.",
-        "noContentYet": "There's no content yet. You can create some using the 'Add' button.",
-        "deleteElements": "Delete selected elements",
-        "cloneElements": "Clone selected elements",
-        "searchContent": "Search content",
-        "mustBeDefaultLang": "Content element must be created in your default language first.",
-        "switchToDefaultLang": "Switch to {defaultLang} and start editing",
-
-        "import": {
-          "notAbleToExtractData": "We were not able to extract any data from your file. Either the file is empty, or it doesn't match any known format.",
-          "missingContentTypes": "Your bot is missing these content types: {types}.",
-          "selectFile": "Select your JSON file",
-          "selectFileMore": "Select a JSON file. It must be exported from the Content page. You will see a summary of modifications when clicking on Next",
-          "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
-          "whatLikeDo": "What would you like to do?",
-          "updateMissing": "Update or create missing elements present in my file",
-          "clearExisting": "Clear all existing elements, then import those from my file",
-          "uploadStatus": "Upload status",
-          "import": "Import JSON",
-          "upload": "Upload File",
-          "analysis": "Analysis"
-        },
-
-        "sideBar": {
-          "all": "All",
-          "createNewContent": "Create new content",
-          "createNew": "Create new {name}",
-          "filterByType": "Filter by Content Type"
-        },
-
-        "usageModal": {
-          "type": "Type",
-          "name": "Name",
-          "node": "Node",
-          "count": "Count",
-          "contentUsage": "Content Usage"
         }
       },
 

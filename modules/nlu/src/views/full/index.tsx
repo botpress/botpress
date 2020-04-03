@@ -118,13 +118,13 @@ const NLU: FC<Props> = props => {
       <SidePanel>
         <Tabs id="nlu-tabs" className={style.headerTabs} defaultSelectedTabId="intents" large={false}>
           <Tab id="intents" panel={intentsPanel}>
-            <span>{lang.tr('module.nlu.intents.intents')}&nbsp;</span>
+            <span>{lang.tr('module.nlu.intents.title')}&nbsp;</span>
             <Tag large={false} round={true} minimal={true}>
               {intents.length}
             </Tag>
           </Tab>
           <Tab id="entities" panel={entitiesPanel}>
-            <span>{lang.tr('module.nlu.entities.entities')}</span>{' '}
+            <span>{lang.tr('module.nlu.entities.title')}</span>{' '}
             <Tag large={false} round={true} minimal={true}>
               {customEntities.length}
             </Tag>

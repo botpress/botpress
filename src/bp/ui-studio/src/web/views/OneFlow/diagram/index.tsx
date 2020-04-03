@@ -306,23 +306,11 @@ class Diagram extends Component<Props> {
           onClick={wrap(this.add.executeNode, point)}
           icon="code-block"
         />
-        <MenuItem
-          text={lang.tr('studio.flow.nodeType.listen')}
-          onClick={wrap(this.add.listenNode, point)}
-          icon="hand"
-        />
-        <MenuItem
-          text={lang.tr('studio.flow.nodeType.split')}
-          onClick={wrap(this.add.routerNode, point)}
-          icon="flow-branch"
-        />
-        <MenuItem
-          text={lang.tr('studio.flow.nodeType.action')}
-          onClick={wrap(this.add.actionNode, point)}
-          icon="offline"
-        />
+        <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
+        <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
+        <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
-        <MenuItem tagName="button" text={lang.tr('studio.flow.sidePanel.skills')} icon="add">
+        <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
               key={skill.id}

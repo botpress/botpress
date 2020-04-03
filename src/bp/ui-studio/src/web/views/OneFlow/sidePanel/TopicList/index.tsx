@@ -69,7 +69,7 @@ const TopicList: FC<Props> = props => {
   useEffect(() => {
     const qna = props.topics.map(topic => ({
       name: `${topic.name}/qna`,
-      label: lang.tr('studio.flow.topicList.qna'),
+      label: lang.tr('module.qna.fullName'),
       type: 'qna' as NodeType,
       icon: 'chat',
       countByTopic: props.qnaCountByTopic?.[topic.name] || 0
@@ -199,7 +199,7 @@ const TopicList: FC<Props> = props => {
             id="btn-edit"
             disabled={props.readOnly}
             icon="edit"
-            text={lang.tr('studio.flow.topicList.editQna')}
+            text={lang.tr('edit')}
             onClick={() => props.editQnA(name.replace('/qna', ''))}
           />
         </Menu>
