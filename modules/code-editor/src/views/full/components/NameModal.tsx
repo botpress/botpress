@@ -56,16 +56,18 @@ const NameModal: FC<Props> = props => {
       transitionDuration={0}
       icon={props.selectedFile ? 'edit' : 'add'}
       title={
-        props.selectedFile ? lang.tr('editor.nameModal.renameOrMoveFile') : lang.tr('editor.nameModal.createNewFile')
+        props.selectedFile
+          ? lang.tr('module.code-editor.nameModal.renameOrMoveFile')
+          : lang.tr('module.code-editor.nameModal.createNewFile')
       }
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label={lang.tr('editor.nameModal.fileName')}>
+          <FormGroup label={lang.tr('module.code-editor.nameModal.fileName')}>
             <InputGroup
               id="input-name"
               tabIndex={1}
-              placeholder={lang.tr('editor.nameModal.chooseNameForFile')}
+              placeholder={lang.tr('module.code-editor.nameModal.chooseNameForFile')}
               value={name}
               onChange={e => setName(sanitizeName(e.currentTarget.value))}
               required
@@ -73,7 +75,9 @@ const NameModal: FC<Props> = props => {
             />
           </FormGroup>
 
-          {alreadyExists && <Callout intent={Intent.WARNING}>{lang.tr('editor.nameModal.nameAlreadyExists')}</Callout>}
+          {alreadyExists && (
+            <Callout intent={Intent.WARNING}>{lang.tr('module.code-editor.nameModal.nameAlreadyExists')}</Callout>
+          )}
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>

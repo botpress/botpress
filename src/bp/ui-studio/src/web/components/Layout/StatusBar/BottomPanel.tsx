@@ -156,7 +156,7 @@ class BottomPanel extends React.Component<Props, State> {
     const LogsPanel = (
       <ul className={style.logs} ref={this.messageListRef} onScroll={this.handleLogsScrolled}>
         {allLogs.map(e => this.renderEntry(e))}
-        <li className={style.end}>End of logs</li>
+        <li className={style.end}>{lang.tr('statusBar.bottomPanel.endOfLogs')}</li>
       </ul>
     )
 
@@ -168,12 +168,7 @@ class BottomPanel extends React.Component<Props, State> {
           onChange={this.handleTabChange}
           selectedTabId={this.state.selectedPanel}
         >
-          <Tab
-            id="bt-panel-logs"
-            className={style.tab}
-            title={lang.tr('statusBar.bottomPanel.logs')}
-            panel={LogsPanel}
-          />
+          <Tab id="bt-panel-logs" className={style.tab} title={lang.tr('logs')} panel={LogsPanel} />
           <Tabs.Expander />
           <ButtonGroup minimal={true}>
             <Tooltip content={lang.tr('statusBar.bottomPanel.scrollToFollow')}>

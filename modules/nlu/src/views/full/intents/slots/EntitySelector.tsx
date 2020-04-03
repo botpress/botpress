@@ -55,7 +55,7 @@ export const EntitySelector: FC<Props> = props => {
   return (
     <MultiSelect
       resetOnSelect
-      placeholder={lang.tr('nlu.entities.selectPlaceholder')}
+      placeholder={lang.tr('module.nlu.entities.selectPlaceholder')}
       items={availableEntities}
       itemRenderer={entityItemRenderer}
       itemPredicate={(q, ent: EntityOption) => !q || ent.type.includes(q) || ent.name.includes(q)}

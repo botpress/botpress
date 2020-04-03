@@ -58,7 +58,7 @@ export const LiteEditor: FC<Props> = props => {
   const cancelEditing = () => setEditing(false)
 
   const deleteItem = async (id: string) => {
-    const needDelete = await confirmDialog(lang.tr('qna.confirmDelete'), {
+    const needDelete = await confirmDialog(lang.tr('module.qna.confirmDelete'), {
       acceptLabel: lang.tr('delete')
     })
 
@@ -87,7 +87,7 @@ export const LiteEditor: FC<Props> = props => {
           <div className={style.liteSearch}>
             <InputGroup
               id="input-search"
-              placeholder={lang.tr('qna.search')}
+              placeholder={lang.tr('module.qna.search')}
               tabIndex={1}
               value={filter}
               onChange={e => updateFilter(e.currentTarget.value)}
@@ -97,7 +97,7 @@ export const LiteEditor: FC<Props> = props => {
           <AccessControl resource="module.qna" operation="write">
             <Button
               id="btn-create-qna"
-              text={lang.tr('qna.addQuestion')}
+              text={lang.tr('module.qna.addNew')}
               icon="add"
               style={{ marginLeft: 20 }}
               intent={Intent.PRIMARY}
@@ -135,8 +135,8 @@ export const LiteEditor: FC<Props> = props => {
         <div className={style.liteItemContainer}>
           <div className={style.questionTable}>
             <div className={cx(style.questionTableRow, style.header)}>
-              <div className={cx(style.questionTableCell, style.question)}>{lang.tr('qna.question')}</div>
-              <div className={style.questionTableCell}>{lang.tr('qna.answer')}</div>
+              <div className={cx(style.questionTableCell, style.question)}>{lang.tr('module.qna.question')}</div>
+              <div className={style.questionTableCell}>{lang.tr('module.qna.answer')}</div>
               <div className={cx(style.questionTableCell, style.actions)}></div>
             </div>
             {data.map(item => (
@@ -159,8 +159,8 @@ export const LiteEditor: FC<Props> = props => {
           <div>
             <Breadcrumbs
               items={[
-                { onClick: cancelEditing, text: lang.tr('qna.qna') },
-                { text: editId !== '' ? lang.tr('qna.edit') : lang.tr('qna.create') }
+                { onClick: cancelEditing, text: lang.tr('module.qna.fullName') },
+                { text: editId !== '' ? lang.tr('module.qna.edit') : lang.tr('module.qna.create') }
               ]}
             />
 

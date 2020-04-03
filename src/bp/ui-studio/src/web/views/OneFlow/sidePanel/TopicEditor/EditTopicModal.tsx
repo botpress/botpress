@@ -1,6 +1,7 @@
 import { Button, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { Topic } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -54,10 +55,17 @@ const EditTopicModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog title="Edit topic" icon="edit" isOpen={props.isOpen} onClose={closeModal} size="sm" onSubmit={submit}>
+    <BaseDialog
+      title={lang.tr('studio.flow.topicEditor.editTopic')}
+      icon="edit"
+      isOpen={props.isOpen}
+      onClose={closeModal}
+      size="sm"
+      onSubmit={submit}
+    >
       <DialogBody>
         <div>
-          <FormGroup label="Topic Name *">
+          <FormGroup label={lang.tr('studio.flow.topicEditor.topicName')}>
             <InputGroup
               id="input-flow-name"
               tabIndex={1}
@@ -69,7 +77,7 @@ const EditTopicModal: FC<Props> = props => {
             />
           </FormGroup>
 
-          <FormGroup label="Description">
+          <FormGroup label={lang.tr('description')}>
             <TextArea
               id="input-flow-description"
               rows={3}
@@ -83,7 +91,7 @@ const EditTopicModal: FC<Props> = props => {
       </DialogBody>
 
       <DialogFooter>
-        <Button type="submit" id="btn-submit" text="Save changes" intent={Intent.PRIMARY} />
+        <Button type="submit" id="btn-submit" text={lang.tr('saveChanges')} intent={Intent.PRIMARY} />
       </DialogFooter>
     </BaseDialog>
   )

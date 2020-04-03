@@ -8,7 +8,7 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_action-button',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.actionButton.title',
+  title: 'module.builtin.actionButton',
 
   jsonSchema: {
     description: 'module.builtin.types.actionButton.description',

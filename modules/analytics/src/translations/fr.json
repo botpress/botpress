@@ -1,0 +1,47 @@
+{
+  "fullName": "Analytique",
+
+  "title": "Analytique",
+  "dashboard": "Tableau de bord",
+  "activeUsers": "Utilisateurs actifs",
+  "newUsers": "{nb} Nouveaux utilisateurs",
+  "userActivities": "Activités d'utilisateurs",
+  "sessions": "Sessions",
+  "averageMessagePerSession": "Messages moyens par session",
+  "messagesReceived": "Messages reçus",
+  "returningUsers": "{nb} Utilisateurs retournant",
+  "qnaSent": "QNA Envoyé",
+  "understoodMessages": "Messages compris",
+  "understoodTopLevelMessages": "Messages compris de niveau supérieur",
+  "noDataAvailable": "Aucunes données disponibles",
+  "filterChannels": "Filtrer les canaux",
+  "dateRange": "Plage de dates",
+  "channels": {
+    "all": "Tous canaux",
+    "api": "Api",
+    "web": "Web"
+  },
+  "interval": "{startDate} à {endDate}",
+  "dateFormat": "Do MMMM YYYY",
+  "messageExchanged": "Messages échangés",
+  "questionsAsked": "Questions demandées",
+  "mostUsedWorkflows": "Workflows les plus utilisés",
+  "mostAskedQuestions": "Questions les plus posées",
+  "misunderstoodMessages": "messages incompris",
+  "mostFailedWorkflows": "Workflows ayant échoué",
+  "mostFailedQuestions": "Questions ayant échoué",
+  "successfulWorkflowCompletions": "{nb} achèvement réussi du workflow",
+  "positiveQnaFeedback": "{nb} rétroaction QNA positive",
+  "timespan": {
+    "thisWeek": "Cette semaine",
+    "lastWeek": "La semaine dernière",
+    "thisMonth": "Ce mois-ci",
+    "lastMonth": "Le mois dernier",
+    "thisYear": "Cette année",
+    "lastYear": "L'année dernière"
+  },
+  "engagement": "Engagement",
+  "conversations": "Conversations",
+  "handlingAndUnderstanding": "Manipulation et compréhension",
+  "workflowsInitiated": "Workflows lancés"
+}

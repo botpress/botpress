@@ -39,7 +39,7 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any }> = ({ api, eventBus }) => {
 
   return (
     <Button loading={loading} onClick={onClick}>
-      {training ? lang.tr('nlu.cancelTraining') : lang.tr('nlu.trainNow')}
+      {training ? lang.tr('module.nlu.cancelTraining') : lang.tr('module.nlu.trainNow')}
     </Button>
   )
 }

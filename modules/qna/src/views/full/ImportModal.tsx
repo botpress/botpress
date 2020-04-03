@@ -50,7 +50,7 @@ export const ImportModal: FC<Props> = props => {
       const { data } = await props.axios.post('/mod/qna/analyzeImport', form, axiosConfig)
 
       if (!data.fileQnaCount && !data.fileCmsCount) {
-        setUploadStatus(lang.tr('qna.import.notAbleToExtract'))
+        setUploadStatus(lang.tr('module.qna.import.notAbleToExtract'))
         setHasError(true)
       }
 
@@ -86,7 +86,7 @@ export const ImportModal: FC<Props> = props => {
     if (status === 'Completed') {
       clearStatus()
       closeDialog()
-      toastSuccess(lang.tr('qna.import.uploadSuccessful'))
+      toastSuccess(lang.tr('module.qna.import.uploadSuccessful'))
       props.onImportCompleted()
     } else if (status.startsWith('Error')) {
       clearStatus()
@@ -131,9 +131,9 @@ export const ImportModal: FC<Props> = props => {
       >
         <div className={Classes.DIALOG_BODY}>
           <FormGroup
-            label={<span>{lang.tr('qna.import.selectJson')}</span>}
+            label={<span>{lang.tr('module.qna.import.selectJson')}</span>}
             labelFor="input-archive"
-            helperText={<span>{lang.tr('qna.import.selectJsonHelp')}</span>}
+            helperText={<span>{lang.tr('module.qna.import.selectJsonHelp')}</span>}
           >
             <FileInput
               text={filePath || lang.tr('chooseFile')}
@@ -166,13 +166,13 @@ export const ImportModal: FC<Props> = props => {
         <div className={Classes.DIALOG_BODY}>
           <div>
             <p>
-              {lang.tr('qna.import.fileContains', {
+              {lang.tr('module.qna.import.fileContains', {
                 fileQnaCount: <strong>{fileQnaCount}</strong>,
                 fileCmsCount: <strong>{fileCmsCount}</strong>
               })}
               <br />
               <br />
-              {lang.tr('qna.import.botContains', {
+              {lang.tr('module.qna.import.botContains', {
                 qnaCount: <strong>{qnaCount}</strong>,
                 cmsCount: <strong>{cmsCount}</strong>
               })}
@@ -180,14 +180,14 @@ export const ImportModal: FC<Props> = props => {
 
             <p style={{ marginTop: 30 }}>
               <RadioGroup
-                label={lang.tr('qna.import.whatLikeDo')}
+                label={lang.tr('module.qna.import.whatLikeDo')}
                 onChange={e => setImportAction(e.target['value'])}
                 selectedValue={importAction}
               >
-                <Radio id="radio-insert" label={lang.tr('qna.import.insertNewQuestions')} value="insert" />
+                <Radio id="radio-insert" label={lang.tr('module.qna.import.insertNewQuestions')} value="insert" />
                 <Radio
                   id="radio-clearInsert"
-                  label={lang.tr('qna.import.clearQuestionsThenInsert')}
+                  label={lang.tr('module.qna.import.clearQuestionsThenInsert')}
                   value="clear_insert"
                 />
               </RadioGroup>
@@ -215,7 +215,7 @@ export const ImportModal: FC<Props> = props => {
       <Fragment>
         <div className={Classes.DIALOG_BODY}>
           <Callout
-            title={hasError ? lang.tr('error') : lang.tr('qna.import.uploadStatus')}
+            title={hasError ? lang.tr('error') : lang.tr('module.qna.import.uploadStatus')}
             intent={hasError ? Intent.DANGER : Intent.PRIMARY}
           >
             {uploadStatus}
@@ -235,7 +235,7 @@ export const ImportModal: FC<Props> = props => {
   return (
     <Fragment>
       <Dialog
-        title={analysis ? lang.tr('qna.import.analysis') : lang.tr('qna.import.uploadFile')}
+        title={analysis ? lang.tr('module.qna.import.analysis') : lang.tr('module.qna.import.uploadFile')}
         icon="import"
         isOpen={props.isOpen}
         onClose={closeDialog}
