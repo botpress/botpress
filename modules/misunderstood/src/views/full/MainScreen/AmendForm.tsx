@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
 import { AxiosStatic } from 'axios'
+import { lang } from 'botpress/shared'
 import React from 'react'
 
 import { ApiFlaggedEvent, RESOLUTION_TYPE } from '../../../types'
@@ -38,7 +39,7 @@ const AmendForm = ({
 }: Props) => (
   <div className={style.amendForm}>
     <h4>
-      What is this message type?
+      {lang.tr('module.misunderstood.whatIsMessageType')}
       <br />
       <ButtonGroup className={style.messageTypeBtnGroup}>
         <Button
@@ -51,7 +52,7 @@ const AmendForm = ({
           }}
           intent={mode === RESOLUTION_TYPE.intent ? Intent.SUCCESS : Intent.NONE}
         >
-          Goal
+          {lang.tr('module.misunderstood.goal')}
         </Button>
         <Button
           disabled={mode !== RESOLUTION_TYPE.qna && !!resolution}
@@ -63,7 +64,7 @@ const AmendForm = ({
           }}
           intent={mode === RESOLUTION_TYPE.qna ? Intent.SUCCESS : Intent.NONE}
         >
-          Query
+          {lang.tr('module.misunderstood.query')}
         </Button>
         {mode != null && (
           <Button
@@ -73,7 +74,7 @@ const AmendForm = ({
             }}
             icon="undo"
           >
-            Undo
+            {lang.tr('undo')}
           </Button>
         )}
       </ButtonGroup>
@@ -101,10 +102,10 @@ const AmendForm = ({
 
     <StickyActionBar>
       <Button onClick={onCancel} icon="cross" intent={Intent.NONE}>
-        Cancel
+        {lang.tr('cancel')}
       </Button>
       <Button onClick={onSave} icon="tick" intent={Intent.SUCCESS} disabled={!mode || !resolution}>
-        Save
+        {lang.tr('save')}
       </Button>
     </StickyActionBar>
   </div>
