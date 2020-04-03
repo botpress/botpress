@@ -52,7 +52,7 @@ const SayNodeContent: FC<Props> = props => {
   }
 
   if (contentType === 'builtin_carousel') {
-    return items.map((item, index) => renderCard(item, index))
+    return items?.map((item, index) => renderCard(item, index)) || null
   }
 
   return (
