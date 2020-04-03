@@ -1,19 +1,8 @@
 {
-  "cancel": "Cancel",
-  "save": "Save",
-  "label": "Label",
-  "action": "Action",
-  "copy": "Copy",
-  "move": "Move",
-  "close": "Close",
-  "delete": "Delete",
-  "chooseFile": "Choose file...",
-  "upload": "Upload",
-  "enabled": "Enabled",
-  "refresh": "Refresh",
-  "enable": "Enable",
-  "pleaseWait": "Please wait...",
-  "reset": "Reset",
+  "langCodes": {
+    "fr": "Français",
+    "en": "English"
+  },
 
   "admin": {
     "botpressIsNotLicensed": "Botpress is currently not licensed. Please update your license to re-enable all features.",
@@ -27,7 +16,6 @@
     "logout": "Logout",
     "firstTimeYouRun": "This is the first time you run Botpress. Please pick a password.",
     "setANewPassword": "Your password has expired or was temporary. Please set a new password.",
-    "email": "E-mail",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
     "change": "Change",
@@ -51,6 +39,9 @@
     "lastName": "Last Name",
     "workspaceName": "Workspace: {name}",
     "signedInAs": "Signed in as {name}",
+    "changeLanguage": "Change language",
+    "uiLanguage": "Language of the user interface",
+    "uiLanguageHelper": "This settings only affects the user interface of Botpress and does not change the language of your bots.",
 
     "sideMenu": {
       "workspace": "Workspace",
@@ -254,8 +245,24 @@
     },
 
     "workspace": {
-      "roles": "Roles",
-      "rolesHelp": "To change roles, please see “roles” in the workspaces.json file.",
+      "roles": {
+        "title": "Roles",
+        "helpText": "To change roles, please see “roles” in the workspaces.json file.",
+        "default": {
+          "administrator": {
+            "name": "Administrator",
+            "description": "Administrators have full access to the workspace including adding members, creating bots and synchronizing changes."
+          },
+          "developer": {
+            "name": "Developer",
+            "description": "Developers have full read/write access to bots, including flows, content, NLU and actions"
+          },
+          "contentEditor": {
+            "name": "Content Editor",
+            "description": "Content Editors have read/write access to content and NLU, and read-only access to flows and actions."
+          }
+        }
+      },
 
       "bots": {
         "confirmDelete": "Are you sure you want to delete this bot? This can't be undone.",
@@ -357,7 +364,6 @@
           "noCollaboratorsYet": "This workspace has no collaborators, yet",
           "filterUsers": "Filter users",
           "noMatch": "No user matches your query",
-          "email": "Email",
           "created": "Created",
           "lastLogin": "Last Login",
           "passwordResetConfirm": "Are you sure you want to reset {user}'s password?",

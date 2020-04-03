@@ -55,11 +55,11 @@ class CreateOrEditModal extends React.Component<Props, State> {
       <div>
         <div style={{ height: 100 }}>
           <h4>{lang.tr('actionRequired')}</h4>
-          {lang.tr('studio.flow.content.mustBeDefaultLang')}
+          {lang.tr('studio.content.mustBeDefaultLang')}
         </div>
         <p>
           <Button onClick={this.useDefaultLang} bsStyle="primary">
-            {lang.tr('studio.flow.content.switchToDefaultLang', {
+            {lang.tr('studio.content.switchToDefaultLang', {
               defaultLang: this.props.defaultLanguage.toUpperCase()
             })}
           </Button>

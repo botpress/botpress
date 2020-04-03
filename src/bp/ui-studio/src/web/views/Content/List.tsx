@@ -86,7 +86,7 @@ class ListView extends Component<Props, State> {
 
   handleDeleteSelected = async () => {
     if (
-      await confirmDialog(lang.tr('studio.flow.content.confirmDeleteItem', { count: this.state.checkedIds.length }), {
+      await confirmDialog(lang.tr('studio.content.confirmDeleteItem', { count: this.state.checkedIds.length }), {
         acceptLabel: lang.tr('delete')
       })
     ) {
@@ -217,20 +217,20 @@ class ListView extends Component<Props, State> {
         width: 35
       },
       {
-        Header: lang.tr('studio.flow.content.id'),
+        Header: lang.tr('id'),
         Cell: x => `#!${x.value}`,
         filterable: false,
         accessor: 'id',
         width: 170
       },
       {
-        Header: lang.tr('studio.flow.content.contentType'),
+        Header: lang.tr('studio.content.contentType'),
         filterable: false,
         accessor: 'contentType',
         width: 150
       },
       {
-        Header: lang.tr('studio.flow.content.preview'),
+        Header: lang.tr('preview'),
         accessor: 'previews',
         filterable: false,
         Cell: x => {
@@ -256,7 +256,7 @@ class ListView extends Component<Props, State> {
         }
       },
       {
-        Header: lang.tr('studio.flow.content.modifiedOn'),
+        Header: lang.tr('modifiedOn'),
         Cell: x =>
           x.original.modifiedOn ? moment(x.original.modifiedOn).format('MMM Do YYYY, h:mm') : lang.tr('never'),
         accessor: 'modifiedOn',
@@ -264,14 +264,14 @@ class ListView extends Component<Props, State> {
         width: 150
       },
       {
-        Header: lang.tr('studio.flow.content.createdOn'),
+        Header: lang.tr('createdOn'),
         Cell: x => (x.original.createdOn ? moment(x.original.createdOn).format('MMM Do YYYY, h:mm') : lang.tr('never')),
         accessor: 'createdOn',
         filterable: false,
         width: 150
       },
       {
-        Header: lang.tr('studio.flow.content.usage'),
+        Header: lang.tr('usage'),
         id: 'usage',
         Cell: x => {
           const count = this.getCountUsage(x.original.usage)
@@ -296,8 +296,8 @@ class ListView extends Component<Props, State> {
   renderTable() {
     const pageCount = Math.ceil(this.props.count / this.state.pageSize)
     const noDataMessage = this.props.readOnly
-      ? lang.tr('studio.flow.content.noContent')
-      : lang.tr('studio.flow.content.noContentYet')
+      ? lang.tr('studio.content.noContent')
+      : lang.tr('studio.content.noContentYet')
 
     if (this.state.sortOrderUsage) {
       const desc = this.state.sortOrderUsage === 'desc'
@@ -324,6 +324,11 @@ class ListView extends Component<Props, State> {
         pages={pageCount}
         manual
         filterable
+        previousText={lang.tr('previous')}
+        nextText={lang.tr('next')}
+        pageText={lang.tr('page')}
+        ofText={lang.tr('of')}
+        rowsText={lang.tr('rows')}
       />
     )
   }
@@ -344,7 +349,7 @@ class ListView extends Component<Props, State> {
 
             <Divider />
             {!this.props.readOnly && (
-              <Tooltip content={lang.tr('studio.flow.content.deleteElements')} position={Position.BOTTOM}>
+              <Tooltip content={lang.tr('studio.content.deleteElements')} position={Position.BOTTOM}>
                 <AnchorButton
                   id="btn-delete"
                   icon="trash"
@@ -355,7 +360,7 @@ class ListView extends Component<Props, State> {
             )}
 
             {!this.props.readOnly && (
-              <Tooltip content={lang.tr('studio.flow.content.cloneElements')} position={Position.BOTTOM}>
+              <Tooltip content={lang.tr('studio.content.cloneElements')} position={Position.BOTTOM}>
                 <AnchorButton
                   id="btn-duplicate"
                   icon="duplicate"
@@ -368,7 +373,7 @@ class ListView extends Component<Props, State> {
             <InputGroup
               id="input-search"
               style={{ marginTop: 3, width: 250 }}
-              placeholder={lang.tr('studio.flow.content.searchContent')}
+              placeholder={lang.tr('studio.content.searchContent')}
               small
               value={this.state.searchTerm}
               onChange={this.handleSearchChanged}

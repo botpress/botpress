@@ -1,7 +1,7 @@
-import { Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip, AnchorButton } from '@blueprintjs/core'
+import { AnchorButton, Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { Flow, Topic } from 'botpress/sdk'
-import { confirmDialog, TreeView } from 'botpress/shared'
+import { confirmDialog, lang, TreeView } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
@@ -69,7 +69,7 @@ const TopicList: FC<Props> = props => {
   useEffect(() => {
     const qna = props.topics.map(topic => ({
       name: `${topic.name}/qna`,
-      label: 'Q&A',
+      label: lang.tr('module.qna.fullName'),
       type: 'qna' as NodeType,
       icon: 'chat',
       countByTopic: props.qnaCountByTopic?.[topic.name] || 0
@@ -79,7 +79,7 @@ const TopicList: FC<Props> = props => {
   }, [props.flows, props.topics, props.qnaCountByTopic])
 
   const deleteFlow = async (name: string) => {
-    if (await confirmDialog(`Are you sure you want to delete the flow ${name}?`, {})) {
+    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {})) {
       props.deleteFlow(name)
     }
   }
@@ -91,11 +91,15 @@ const TopicList: FC<Props> = props => {
     if (
       await confirmDialog(
         <span>
-          Are you sure you want to delete the topic {name}?<br />
+          {lang.tr('studio.flow.topicList.confirmDeleteTopic', { name })}
+          <br />
           <br />
           {!!flowsToDelete.length && (
             <>
-              <strong>WARNING:</strong> {flowsToDelete.length} flows associated with the topic will be deleted
+              {lang.tr('studio.flow.topicList.flowsAssociatedDelete', {
+                warning: <strong>{lang.tr('studio.flow.topicList.bigWarning')}</strong>,
+                count: flowsToDelete.length
+              })}
             </>
           )}
         </span>,
@@ -124,10 +128,18 @@ const TopicList: FC<Props> = props => {
         <div className={style.treeNode}>
           <span>{folder}</span>
           <div className={style.overhidden} id="actions">
-            <Tooltip content={<span>Edit topic</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+            <Tooltip
+              content={<span>{lang.tr('studio.flow.topicList.editTopic')}</span>}
+              hoverOpenDelay={500}
+              position={Position.BOTTOM}
+            >
               <Button icon="edit" minimal onClick={editTopic} />
             </Tooltip>
-            <Tooltip content={<span>Create new workflow</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+            <Tooltip
+              content={<span>{lang.tr('studio.flow.topicList.createNewWorkflow')}</span>}
+              hoverOpenDelay={500}
+              position={Position.BOTTOM}
+            >
               <Button icon="insert" minimal onClick={createWorkflow} />
             </Tooltip>
           </div>
@@ -141,18 +153,23 @@ const TopicList: FC<Props> = props => {
       const folder = element as string
       return (
         <Menu>
-          <MenuItem id="btn-edit" icon="edit" text="Edit Topic" onClick={() => props.editTopic(folder)} />
+          <MenuItem
+            id="btn-edit"
+            icon="edit"
+            text={lang.tr('studio.flow.topicList.editTopic')}
+            onClick={() => props.editTopic(folder)}
+          />
           <MenuItem
             id="btn-export"
             disabled={props.readOnly}
             icon="upload"
-            text="Export Topic"
+            text={lang.tr('studio.flow.topicList.exportTopic')}
             onClick={() => props.exportTopic(folder)}
           />
           <MenuItem
             id="btn-delete"
             icon="trash"
-            text="Delete Topic"
+            text={lang.tr('studio.flow.topicList.deleteTopic')}
             intent={Intent.DANGER}
             onClick={() => deleteTopic(folder)}
           />
@@ -161,14 +178,14 @@ const TopicList: FC<Props> = props => {
             id="btn-create"
             disabled={props.readOnly}
             icon="add"
-            text="Create new workflow"
+            text={lang.tr('studio.flow.topicList.createNewWorkflow')}
             onClick={() => props.createWorkflow(name)}
           />
           <MenuItem
             id="btn-import"
             disabled={props.readOnly}
             icon="download"
-            text="Import existing workflow"
+            text={lang.tr('studio.flow.topicList.importExisting')}
             onClick={() => props.importWorkflow(name)}
           />
         </Menu>
@@ -182,7 +199,7 @@ const TopicList: FC<Props> = props => {
             id="btn-edit"
             disabled={props.readOnly}
             icon="edit"
-            text="Edit Q&A"
+            text={lang.tr('edit')}
             onClick={() => props.editQnA(name.replace('/qna', ''))}
           />
         </Menu>
@@ -196,21 +213,21 @@ const TopicList: FC<Props> = props => {
             id="btn-edit"
             disabled={props.readOnly}
             icon="edit"
-            text="Edit Workflow"
+            text={lang.tr('studio.flow.topicList.editWorkflow')}
             onClick={() => props.editWorkflow(name, element)}
           />
           <MenuItem
             id="btn-duplicate"
             disabled={props.readOnly}
             icon="duplicate"
-            text="Duplicate"
+            text={lang.tr('duplicate')}
             onClick={() => props.duplicateFlow(name)}
           />
           <MenuItem
             id="btn-export"
             disabled={props.readOnly}
             icon="export"
-            text="Export"
+            text={lang.tr('export')}
             onClick={() => props.exportWorkflow(name)}
           />
           <MenuDivider />
@@ -218,7 +235,7 @@ const TopicList: FC<Props> = props => {
             id="btn-delete"
             disabled={lockedFlows.includes(name) || !props.canDelete || props.readOnly}
             icon="delete"
-            text="Delete"
+            text={lang.tr('delete')}
             onClick={() => deleteFlow(name)}
           />
         </Menu>
@@ -245,14 +262,14 @@ const TopicList: FC<Props> = props => {
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
 
     const qnaTooltip = (
-      <Tooltip content="Number of questions in that topic" hoverOpenDelay={500}>
+      <Tooltip content={lang.tr('studio.flow.topicList.nbQuestionsInTopic')} hoverOpenDelay={500}>
         <small>({countByTopic})</small>
       </Tooltip>
     )
 
     const tooltip = (
       <>
-        <Tooltip content="Number of NLU triggers on that workflow" hoverOpenDelay={500}>
+        <Tooltip content={lang.tr('studio.flow.topicList.nbTriggersInWorkflow')} hoverOpenDelay={500}>
           <small>({triggerCount})</small>
         </Tooltip>
         &nbsp;&nbsp;
@@ -260,7 +277,7 @@ const TopicList: FC<Props> = props => {
           <Tooltip
             content={
               <div>
-                Workflows referencing this workflow:{' '}
+                {lang.tr('studio.flow.topicList.workflowReceiving')}{' '}
                 <ul>
                   {referencedIn.map(x => (
                     <li key={x}>{x}</li>
@@ -287,16 +304,28 @@ const TopicList: FC<Props> = props => {
           <div className={style.overhidden} id="actions">
             {type !== 'qna' && (
               <Fragment>
-                <Tooltip content={<span>Edit workflow</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+                <Tooltip
+                  content={<span>{lang.tr('studio.flow.topicList.editWorkflow')}</span>}
+                  hoverOpenDelay={500}
+                  position={Position.BOTTOM}
+                >
                   <Button icon="edit" minimal onClick={editWorkflow} />
                 </Tooltip>
-                <Tooltip content={<span>Delete workflow</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+                <Tooltip
+                  content={<span>{lang.tr('studio.flow.topicList.deleteWorkflow')}</span>}
+                  hoverOpenDelay={500}
+                  position={Position.BOTTOM}
+                >
                   <AnchorButton icon="trash" minimal onClick={deleteWorkflow} disabled={lockedFlows.includes(name)} />
                 </Tooltip>
               </Fragment>
             )}
             {type === 'qna' && (
-              <Tooltip content={<span>Edit Q&A</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+              <Tooltip
+                content={<span>{lang.tr('studio.flow.topicList.editQna')}</span>}
+                hoverOpenDelay={500}
+                position={Position.BOTTOM}
+              >
                 <Button icon="edit" minimal onClick={editQnA} />
               </Tooltip>
             )}

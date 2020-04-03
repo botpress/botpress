@@ -1,0 +1,19 @@
+{
+  "types": {
+    "dropdown": {
+      "title": "Menu déroulant",
+      "desc": "Affiche une liste d'options à l'utilisateur",
+      "buttonText": "Le texte à afficher sur le bouton d'envoi",
+      "buttonDesc": "Lorsque vide, l'option est envoyée automatiquement lorsque sélectionnée",
+      "optionsList": "Liste des options",
+      "itemLabel": "Le texte affiché dans le menu",
+      "itemValue": "La valeur reçue par le bot (optionnel)",
+      "widthTitle": "La largeur du menu déroulant (en pixel)",
+      "widthDesc": "La largeur par défaut affiche le menu déroulant et le bouton sur une même ligne.",
+      "asKeyboardTitle": "Afficher comme un clavier",
+      "asKeyboardDesc": "Il sera affiché en haut du composeur (comme les choix)",
+      "allowCreate": "Permettre la création de nouvelles options",
+      "allowMultiple": "Permettre de choisir plusieurs options"
+    }
+  }
+}

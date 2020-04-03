@@ -88,7 +88,7 @@ class EditorStore {
       this.isAdvanced = isAdvanced
       await this.rootStore.fetchFiles()
     } else {
-      console.error(lang.tr('editor.store.onlySuperAdmins'))
+      console.error(lang.tr('module.code-editor.store.onlySuperAdmins'))
     }
   }
 
@@ -101,7 +101,7 @@ class EditorStore {
     await this._editorRef.getAction('editor.action.formatDocument').run()
 
     if (await this.rootStore.api.saveFile({ ...this.currentFile, content: this.fileContent })) {
-      toastSuccess(lang.tr('editor.store.fileSaved'))
+      toastSuccess(lang.tr('module.code-editor.store.fileSaved'))
 
       await this.rootStore.fetchFiles()
       this.resetOriginalHash()
@@ -112,7 +112,7 @@ class EditorStore {
   async discardChanges() {
     if (this.isDirty && this.fileContent) {
       if (
-        await confirmDialog(lang.tr('editor.store.confirmSaveFile', { file: this.currentFile.name }), {
+        await confirmDialog(lang.tr('module.code-editor.store.confirmSaveFile', { file: this.currentFile.name }), {
           acceptLabel: lang.tr('save'),
           declineLabel: lang.tr('discard')
         })

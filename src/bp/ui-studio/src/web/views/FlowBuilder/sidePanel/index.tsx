@@ -35,9 +35,9 @@ type Props = {
 
 const SidePanelContent: FC<Props> = props => {
   const [modalOpen, setModalOpen] = useState(false)
-  const [flowName, setFlowName] = useState()
+  const [flowName, setFlowName] = useState<string>()
   const [flowAction, setFlowAction] = useState<any>('create')
-  const [filter, setFilter] = useState()
+  const [filter, setFilter] = useState<any>()
 
   const goToFlow = flow => history.push(`/flows/${flow.replace(/\.flow\.json$/i, '')}`)
 
@@ -80,7 +80,7 @@ const SidePanelContent: FC<Props> = props => {
           <SearchBar icon="filter" placeholder={lang.tr('studio.flow.sidePanel.filterFlows')} onChange={setFilter} />
 
           <SidePanelSection
-            label={lang.tr('studio.flow.sidePanel.flows')}
+            label={lang.tr('flows')}
             actions={props.permissions.includes('create') && [createFlowAction]}
           >
             <FlowsList
@@ -98,7 +98,7 @@ const SidePanelContent: FC<Props> = props => {
             />
           </SidePanelSection>
 
-          <SidePanelSection label={lang.tr('studio.flow.sidePanel.tools')}>
+          <SidePanelSection label={lang.tr('tools')}>
             <FlowTools />
           </SidePanelSection>
         </React.Fragment>

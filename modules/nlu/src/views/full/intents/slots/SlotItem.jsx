@@ -8,8 +8,8 @@ export default class SlotItem extends React.Component {
     e.preventDefault()
 
     if (
-      await confirmDialog(lang.tr('nlu.slots.deleteMessage'), {
-        acceptLabel: lang.tr('nlu.deleteActionLabel')
+      await confirmDialog(lang.tr('module.nlu.slots.deleteMessage'), {
+        acceptLabel: lang.tr('delete')
       })
     ) {
       this.props.onDelete && this.props.onDelete(this.props.slot)
@@ -31,10 +31,10 @@ export default class SlotItem extends React.Component {
           {slot.name}
         </Tag>
         <a onClick={this.handleDeleteClicked} className={style.link}>
-          {lang.tr('nlu.slots.delete')}
+          {lang.tr('delete')}
         </a>
         <a onClick={this.handleEditClicked} className={style.link}>
-          {lang.tr('nlu.slots.edit')}
+          {lang.tr('edit')}
         </a>
       </li>
     )

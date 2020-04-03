@@ -52,13 +52,13 @@ const FlowNameModal: FC<Props> = props => {
     !isIdentical && _.some(props.flowsNames, n => n.toLowerCase() === `${name}.flow.json`.toLowerCase())
 
   let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('studio.flow.sidePanel.createFlow') }
-  let submitText = lang.tr('studio.flow.sidePanel.create')
+  let submitText = lang.tr('create')
   if (props.action === 'duplicate') {
     dialog = { icon: 'duplicate', title: lang.tr('studio.flow.sidePanel.duplicateFlow') }
-    submitText = lang.tr('studio.flow.sidePanel.duplicate')
+    submitText = lang.tr('duplicate')
   } else if (props.action === 'rename') {
     dialog = { icon: 'edit', title: lang.tr('studio.flow.sidePanel.renameFlow') }
-    submitText = lang.tr('studio.flow.sidePanel.rename')
+    submitText = lang.tr('rename')
   }
 
   return (

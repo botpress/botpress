@@ -1,5 +1,5 @@
 import { Menu, MenuItem } from '@blueprintjs/core'
-import { TreeView } from 'botpress/shared'
+import { lang, TreeView } from 'botpress/shared'
 import { LibraryElement } from 'common/typings'
 import React, { FC, useCallback, useState } from 'react'
 import { connect } from 'react-redux'
@@ -47,7 +47,7 @@ const Library: FC<Props> = props => {
         <MenuItem
           id="btn-remove"
           icon="remove"
-          text="Remove from library"
+          text={lang.tr('studio.flow.removeFromLibrary')}
           onClick={() => {
             props.removeElementFromLibrary(element.contentId)
             props.refreshLibrary()

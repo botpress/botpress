@@ -14,11 +14,11 @@ import { makeSlotMark, utterancesToValue, valueToUtterances } from './utterances
 
 const plugins = [
   PlaceholderPlugin({
-    placeholder: lang.tr('nlu.intents.summaryPlaceholder'),
+    placeholder: lang.tr('module.nlu.intents.summaryPlaceholder'),
     when: (_, node) => node.text.trim() === '' && node.type === 'title'
   }),
   PlaceholderPlugin({
-    placeholder: lang.tr('nlu.intents.utterancePlaceholder'),
+    placeholder: lang.tr('module.nlu.intents.utterancePlaceholder'),
     when: (_, node) => node.text.trim() === '' && node.type === 'paragraph'
   })
 ]
