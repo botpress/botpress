@@ -264,48 +264,48 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   if (key.includes('slot')) {
     return checkSlotMatch(nlu, key.split(':')[1], expected)
   }
-  const oosConfidence = nlu.predictions.oos.confidence
-  const elected = _.chain(nlu.predictions)
-    .toPairs()
-    .flatMap(([ctx, ctxPredObj]) => {
-      return ctxPredObj.intents.map(intentPred => {
-        const oosFactor = ctx === 'oos' ? 1 : 1 - oosConfidence
-        return {
-          context: {
-            label: ctx,
-            confidence: _.round(ctxPredObj.confidence, 2)
-          },
-          label: intentPred.label,
-          confidence: intentPred.confidence * oosFactor * ctxPredObj.confidence // copy pasted from ndu conditions.ts (now how we elect intent)
-        }
-      })
-    })
-    .maxBy('confidence')
-    .value()
-
   if (key === 'context') {
-    const received = elected.context.label === 'oos' ? { ...elected.context, label: 'none' } : elected.context
-    const success = expected === received.label
-    const conf = Math.round(Number(received.confidence) * 100)
+    const [received, { confidence }] = _.chain(nlu.predictions)
+      .toPairs()
+      .maxBy('1.confidence')
+      .value()
+
+    const success = expected === received
+    const conf = Math.round(confidence * 100)
     return {
       success,
       reason: success
         ? ''
-        : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received.label} \nconfidence: ${conf}`,
-      received: received.label,
+        : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${conf}`,
+      received: received,
       expected
     }
   }
 
   if (key === 'intent') {
-    const success = expected === elected.label
-    const conf = Math.round(Number(elected.confidence) * 100)
+    const oosConfidence = nlu.predictions.oos.confidence
+    const highestRankingIntent = _.chain(nlu.predictions)
+      .toPairs()
+      .flatMap(([ctx, ctxPredObj]) => {
+        return ctxPredObj.intents.map(intentPred => {
+          const oosFactor = ctx === 'oos' ? 1 : 1 - oosConfidence
+          return {
+            label: intentPred.label,
+            confidence: intentPred.confidence * oosFactor * ctxPredObj.confidence // copy pasted from ndu conditions.ts (now how we elect intent)
+          }
+        })
+      })
+      .maxBy('confidence')
+      .value()
+
+    const success = expected === highestRankingIntent.label
+    const conf = Math.round(Number(highestRankingIntent.confidence) * 100)
     return {
       success,
       reason: success
         ? ''
-        : `Intent doesn't match. \nexpected: ${expected} \nreceived: ${elected.label} \nconfidence: ${conf}`,
-      received: elected.label,
+        : `Intent doesn't match. \nexpected: ${expected} \nreceived: ${highestRankingIntent.label} \nconfidence: ${conf}`,
+      received: highestRankingIntent.label,
       expected
     }
   }
