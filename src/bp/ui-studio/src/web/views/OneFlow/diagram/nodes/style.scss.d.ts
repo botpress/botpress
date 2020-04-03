@@ -5,6 +5,7 @@ interface CssExports {
   'img': string;
   'primaryText': string;
   'secondaryText': string;
+  'text': string;
   'textWrapper': string;
 }
 declare var cssExports: CssExports;

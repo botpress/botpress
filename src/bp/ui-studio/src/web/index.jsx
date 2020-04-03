@@ -15,6 +15,7 @@ import './style.scss'
 import 'expose-loader?ReactSelect!react-select'
 import 'expose-loader?PropTypes!prop-types'
 import 'expose-loader?ReactBootstrap!react-bootstrap'
+import 'expose-loader?Snarkdown!snarkdown'
 import 'expose-loader?Reactstrap!reactstrap' // TODO Remove me once we migrated to blueprint
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
 import 'expose-loader?BlueprintJsSelect!@blueprintjs/select'

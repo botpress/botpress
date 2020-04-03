@@ -1,3 +1,4 @@
+import { MarkdownContent } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect } from 'react'
 import { connect } from 'react-redux'
@@ -24,9 +25,12 @@ type Props = DispatchProps & StateProps & OwnProps
 
 const SayNodeContent: FC<Props> = props => {
   const { node, contentLang, defaultLanguage } = props
-  const { text, variations, contentType, items, ...nodeContent } = getFormData(node || {}, contentLang, defaultLanguage)
+  const { text, variations, contentType, markdown, items, ...nodeContent } = getFormData(
+    node || {},
+    contentLang,
+    defaultLanguage
+  )
   const variationsCount = variations?.filter(Boolean)?.length
-
   useEffect(() => {
     if (!props.categories?.length) {
       props.fetchContentCategories()
@@ -56,8 +60,8 @@ const SayNodeContent: FC<Props> = props => {
   }
 
   return (
-    <div className={commonStyle['action-item']}>
-      {text}
+    <div className={style.text}>
+      <MarkdownContent markdown={markdown} content={text} />
       {!!variationsCount && <span className={commonStyle.extraItems}>+ {variationsCount} variations</span>}
     </div>
   )

@@ -1,4 +1,4 @@
-import { Dropdown, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+import { Dropdown, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
 import { connect } from 'react-redux'
@@ -64,7 +64,7 @@ const SaySomethingForm: FC<Props> = props => {
       const contentType = { contentType: value || 'builtin_text' }
 
       if (!initial || !state.contentType) {
-        props.updateNode(contentType)
+        props.updateNode({ ...contentType, formData: {} })
       }
 
       return {
@@ -199,7 +199,7 @@ const SaySomethingForm: FC<Props> = props => {
         {contentTypes && (
           <Dropdown
             className={style.formSelect}
-            items={contentTypes.map(cat => ({ value: cat.id, label: cat.title }))}
+            items={contentTypes.map(cat => ({ value: cat.id, label: lang.tr(cat.title) }))}
             defaultItem={contentType}
             rightIcon="caret-down"
             onChange={option => {
