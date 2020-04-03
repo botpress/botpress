@@ -265,6 +265,9 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     return checkSlotMatch(nlu, key.split(':')[1], expected)
   }
   if (key === 'context') {
+    if (expected === 'none') {
+      expected = 'oos'
+    }
     const [received, { confidence }] = _.chain(nlu.predictions)
       .toPairs()
       .maxBy('1.confidence')
