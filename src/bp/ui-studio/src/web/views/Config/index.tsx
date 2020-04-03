@@ -443,7 +443,7 @@ class ConfigView extends Component<Props, State> {
             )}
             <FormGroup>
               <Button
-                text={lang.tr('config.saveChanges')}
+                text={lang.tr('saveChanges')}
                 intent="primary"
                 icon="floppy-disk"
                 disabled={this.state.isSaving}

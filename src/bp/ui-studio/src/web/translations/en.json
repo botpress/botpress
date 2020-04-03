@@ -31,7 +31,6 @@
     "chooseFile": "Choose file",
     "coverPicture": "Cover Picture",
     "botAvatar": "Bot Avatar",
-    "saveChanges": "Save Changes",
     "defaultLanguage": "Default language",
     "supportedLanguages": "Supported languages",
     "language": "Language",
@@ -144,7 +143,6 @@
       "highlightByName": "Highlight nodes by name",
 
       "topicList": {
-        "qna": "Q&A",
         "confirmDeleteFlow": "Are you sure you want to delete the flow {name}?",
         "confirmDeleteTopic": "Are you sure you want to delete the topic {name}?",
         "flowsAssociatedDelete": "{warning} {count} flows associated with the topic will be deleted",
@@ -178,8 +176,6 @@
         "noChangesToApply": "There are no changes to apply, or everything in the file is identical to the existing content",
         "importContent": "Import content",
         "editTopic": "Edit topic",
-        "description": "Description",
-        "saveChanges": "Save changes",
         "createNewTopic": "Create a new topic",
         "topicNameHelp": "Choose a broad name to represent your topic, for example HR or IT. You can rename it later",
         "createTopic": "Create topic"
@@ -200,9 +196,7 @@
         "create": "Create Workflow",
         "edit": "Edit Workflow - {name}",
         "name": "Workflow name",
-        "labelHelp": "The label is a friendly name that can replace the name in the topic list",
-        "description": "Description",
-        "saveChanges": "Save changes"
+        "labelHelp": "The label is a friendly name that can replace the name in the topic list"
       },
 
       "nodeType": {
@@ -229,22 +223,11 @@
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
         "confirmDeleteFlow": "Are you sure you want to delete the flow {name}",
         "node": "Node",
-        "say": "Say",
-        "execute": "Execute",
-        "listen": "Listen",
-        "router": "Router",
-        "action": "Action",
-        "skills": "Skills",
-        "chips": "Chips",
         "createNewFlow": "Create new flow",
         "createNewTopic": "Create new topic",
         "filterFlows": "Filter flows",
-        "flows": "Flows",
-        "tools": "Tools",
         "importContent": "Import content",
         "filterTopicsAndWorkflows": "Filter topics and workflows",
-        "topics": "Topics",
-        "library": "Library",
         "filterLibrary": "Filter library"
       },
 
@@ -255,8 +238,6 @@
         "currentlyEditing": "{name} is currently editing this flow",
         "somebodyIsEditing": "Somebody is editing another flow",
         "renamingAndDeletingDisabled": "Renaming and Deleting flows is disabled",
-        "undo": "Undo",
-        "redo": "Redo",
         "whenErrorEncountered": "When an error is encountered in the flow, the user is redirected here",
         "whenDiscussionTimeouts": "When a discussion timeouts (user doesn't answer in the configured timeframe) he will be redirected here."
       },
@@ -287,7 +268,6 @@
         "cantSeeActions": "Can't see your action?",
         "actionToRun": "Action to run {help}",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
-        "say": "say #!{id}",
         "message": "Message",
         "messageToSend": "Message to send",
         "addAction": "Add new action",

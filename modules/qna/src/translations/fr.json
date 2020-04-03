@@ -9,7 +9,6 @@
   "question": "Question",
   "answer": "Réponse",
   "contexts": "Contextes",
-  "addQuestion": "Ajouter question",
   "edit": "Modifier Q&R",
   "create": "Créer un nouvel élément",
   "exportToJson": "Exporter JSON",
@@ -17,7 +16,7 @@
   "redirectsAssociated": "Il existe des redirections associées à ces questions, vous pouvez les visualiser dans le formulaire d'édition",
 
   "hint": {
-    "willBeIgnored": "Ce Q&R sera ignoré, ajoutez des questions pour débuter l'entraînement.",
+    "willBeIgnored": "Cet élément sera ignoré. Ajoutez des questions pour débuter l'entraînement.",
     "willBeExact": "Ce Q&R utilisera des {exactMatchOnly}. Pour activer l'apprentissage automatique, ajoutez au moins {remaining} {remaining, plural, one {question} other {questions}}",
     "addMoreQuestions": "Ajoutez {moreQuestions} pour rendre votre Q&R plus résilient.",
     "moreQuestions": "{remaining} {remaining, plural, one {question} other {questions}} de plus",

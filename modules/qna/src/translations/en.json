@@ -9,7 +9,6 @@
   "question": "Question",
   "answer": "Answer",
   "contexts": "Contexts",
-  "addQuestion": "Add Question",
   "edit": "Edit Q&A",
   "create": "Create a new Q&A",
   "exportToJson": "Export to JSON",
