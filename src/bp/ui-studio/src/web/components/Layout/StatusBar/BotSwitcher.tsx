@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { lang } from 'botpress/shared'
 import cn from 'classnames'
 import _ from 'lodash'
 import React, { Fragment, useEffect, useState } from 'react'
@@ -6,7 +7,6 @@ import { Dropdown, Glyphicon, MenuItem } from 'react-bootstrap'
 
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
-import { lang } from 'botpress/shared'
 
 interface BotInfo {
   id: string

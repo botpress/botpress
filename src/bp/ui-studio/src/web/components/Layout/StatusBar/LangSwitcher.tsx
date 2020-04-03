@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 import { Dropdown } from 'react-bootstrap'
@@ -7,7 +8,6 @@ import withLanguage from '../../Util/withLanguage'
 
 import ActionItem from './ActionItem'
 import style from './StatusBar.styl'
-import { lang } from 'botpress/shared'
 
 const requireFlag = code => {
   try {
