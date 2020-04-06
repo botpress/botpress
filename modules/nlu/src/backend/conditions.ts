@@ -36,7 +36,7 @@ export const dialogConditions: sdk.Condition[] = [
       const oos = _.get(event, `nlu.predictions.oos.confidence`, 0)
       const highestCtx = _.chain(event?.nlu?.predictions ?? {})
         .toPairs()
-        .sortBy(x => x[1].confidence, 'desc')
+        .orderBy(x => x[1].confidence, 'desc')
         .map(x => x[0])
         .filter(x => x !== 'oos')
         .first()
