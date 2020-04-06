@@ -4,8 +4,8 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { toastFailure } from '~/components/Shared/Utils'
 import EventBus from '~/util/EventBus'
 
+import style from './style.scss'
 import ActionItem from './ActionItem'
-import style from './StatusBar.styl'
 
 const adminUrl = `${window['API_PATH']}/admin/server`
 

@@ -1,3 +1,4 @@
+import '@blueprintjs/core/lib/css/blueprint.css'
 import { lang } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -16,7 +17,6 @@ import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
-import Notifications from '~/views/Notifications'
 import OneFlow from '~/views/OneFlow'
 
 import BotUmountedWarning from './BotUnmountedWarning'
@@ -186,7 +186,6 @@ const Layout: FC<ILayoutProps> = props => {
                 <Route exact path="/config" component={Config} />
                 <Route exact path="/oneflow/:flow*" component={OneFlow} />
                 <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
-                <Route exact path="/notifications" component={Notifications} />
                 <Route exact path="/logs" component={Logs} />
               </Switch>
             </main>
