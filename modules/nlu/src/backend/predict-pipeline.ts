@@ -164,7 +164,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
     const alternatePreds = await classifier.predict(alternateFeats)
 
     // we might want to do this in intent election intead or in NDU
-    if (alternatePreds[0].confidence > ctx_predictions[0].confidence) {
+    if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > ctx_predictions[0].confidence) {
       // mean
       ctx_predictions = _.chain([...alternatePreds, ...ctx_predictions])
         .groupBy('label')
@@ -206,7 +206,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
         const alternatePreds = await predictor.predict(alternateFeats)
 
         // we might want to do this in intent election intead or in NDU
-        if (alternatePreds[0].confidence > preds[0].confidence) {
+        if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > preds[0].confidence) {
           // mean
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')
