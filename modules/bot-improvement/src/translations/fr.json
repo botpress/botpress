@@ -1,3 +1,32 @@
 {
-  "fullName": "Amélioration de bot"
+  "fullName": "Amélioration de bot",
+
+  "feedbackItemsCreated": "Les éléments de rétroaction sont créés lorsque les utilisateurs du chat donnent des commentaires négatifs sur les messages des robots",
+  "loading": "Chargement...",
+  "feedbackItems": "Éléments de rétroaction",
+  "pending": "En attente",
+  "solved": "Résolu",
+  "noFeedbackItems": "Aucun élément de rétroaction",
+  "details": "Détails",
+  "eventId": "ID d'événement",
+  "sessionId": "ID de session",
+  "timestamp": "Timestamp",
+  "detectedIntent": "Intention détectée",
+  "qna": "Q&R",
+  "startGoal": "Objectif de départ",
+  "type": "Type",
+  "question": "Question",
+  "goal": "Objectif",
+  "intentShouldHaveBeen": "L'intention aurait dû être",
+  "markSolved": "Marquer comme résolu",
+  "markPending": "Marquer comme en attente",
+  "converationPreview": "Aperçu de la conversation",
+  "unsupported": "Médias non pris en charge",
+  "cantDisplayCarousel": "Impossible d'afficher le carrousel",
+  "cantDisplayQuickReplies": "Impossible d'afficher des réponses rapides",
+  "cantDisplayMessage": "Impossible d'afficher ce message",
+  "userVisit": "Visite utilisateur",
+  "botSentCustom": "Composant personnalisé envoyé par le robot",
+  "module": "Module",
+  "component": "Composante"
 }
