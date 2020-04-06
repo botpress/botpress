@@ -25,7 +25,8 @@ import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
-import BottomPanel from './StatusBar/BottomPanel'
+import Toolbar from './Toolbar'
+import BottomPanel from './Toolbar/BottomPanel'
 
 interface ILayoutProps {
   viewModeChanged: any
@@ -158,12 +159,14 @@ const Layout: FC<ILayoutProps> = props => {
         <DocumentationModal />
         <Sidebar />
         <div className={layout.container}>
+          <Toolbar onToggleEmulator={toggleEmulator} toggleBottomPanel={props.toggleBottomPanel} />
           <SplitPane
             split={'horizontal'}
             defaultSize={lastSize}
             onChange={size => size > 100 && localStorage.setItem(splitPanelLastSizeKey, size.toString())}
             size={bottomBarSize}
             maxSize={-100}
+            className={layout.mainSplitPaneWToolbar}
           >
             <main ref={mainElRef} className={layout.main} id="main" tabIndex={9999}>
               <Switch>
