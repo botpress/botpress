@@ -14,7 +14,7 @@
   "intent": "Intention",
   "whatIsMessageType": "Quel est ce type de message?",
   "goal": "Objectif",
-  "query": "Requete",
+  "query": "Requête",
   "appliedMisunderstood": "Incompris appliqués ({count})",
   "ignoredMisunderstood": "Incompris ignorés ({count})",
   "phrase": "Phrase",
