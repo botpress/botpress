@@ -31,7 +31,7 @@
   "ignore": "Ignorer",
   "skip": "Passer",
   "amend": "Modifier",
-  "showMisunderstoodMessage": "Message imcompris : {preview}",
+  "showMisunderstoodMessage": "Message incompris : {preview}",
   "pendingMisunderstood": "Icompris en attente ({count})",
   "searchForAQuestion": "Rechercher une question...",
   "searchForACategory": "Rechercher une catégorie...",
