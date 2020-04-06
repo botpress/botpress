@@ -1,9 +1,8 @@
 .container {
   background: black;
-  height: calc(100% - 24px) !important;
+  height: 100% !important;
   width: 100%;
-  padding: 10px;
-  padding-top: 5px;
+  padding: 5px 10px;
 }
 
 .container :global(.bp3-tab-panel) {
