@@ -1,3 +1,21 @@
+## [12.8.1](https://github.com/botpress/botpress/compare/v12.8.0...v12.8.1) (2020-04-03)
+
+
+### Bug Fixes
+
+* **ndu:** action error when extracting slots ([#3152](https://github.com/botpress/botpress/issues/3152)) ([924a856](https://github.com/botpress/botpress/commit/924a856))
+* **nlu:** translation issues ([64ec952](https://github.com/botpress/botpress/commit/64ec952))
+* **studio:** module translations guideline ([#3146](https://github.com/botpress/botpress/issues/3146)) ([7820133](https://github.com/botpress/botpress/commit/7820133))
+* **studio:** say something nodes not working ([#3153](https://github.com/botpress/botpress/issues/3153)) ([ad17210](https://github.com/botpress/botpress/commit/ad17210))
+* **test:** temporary disable flaky test ([#3154](https://github.com/botpress/botpress/issues/3154)) ([5396e97](https://github.com/botpress/botpress/commit/5396e97))
+
+
+### Features
+
+* **translation:** add language selector & fixes ([#3148](https://github.com/botpress/botpress/issues/3148)) ([bbeb0c4](https://github.com/botpress/botpress/commit/bbeb0c4))
+
+
+
 # [12.8.0](https://github.com/botpress/botpress/compare/v12.7.2...v12.8.0) (2020-03-31)
 
 
