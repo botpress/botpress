@@ -36,10 +36,7 @@ const Toolbar: FC<Props> = props => {
               title={lang.tr('toolbar.readDoc')}
               shortcut={keyMap['docs-toggle']}
               description={lang.tr('toolbar.documentationAvailable')}
-              onClick={() => {
-                updateDocumentationModal(docHints[0])
-                console.log(docHints)
-              }}
+              onClick={() => updateDocumentationModal(docHints[0])}
             >
               <Icon color="#1a1e22" icon="help" iconSize={16} />
             </ActionItem>
