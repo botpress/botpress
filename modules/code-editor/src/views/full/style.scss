@@ -5,8 +5,7 @@
 .editor {
   flex-grow: 1;
   color: #b1b1b1;
-  /* tab height + status bar */
-  height: calc(100vh - 65px);
+  height: calc(100% - 35px);
 }
 
 .hidden {

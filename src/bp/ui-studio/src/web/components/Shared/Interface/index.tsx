@@ -57,7 +57,7 @@ export const Container = (props: ContainerProps) => {
           defaultSize={width}
           size={sidePanelVisible ? width : 0}
           pane2Style={{
-            overflowX: 'scroll'
+            overflowX: 'auto'
           }}
         >
           {children[0]}
