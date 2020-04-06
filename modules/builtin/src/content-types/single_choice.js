@@ -99,7 +99,7 @@ module.exports = {
     properties: {
       text: {
         type: 'string',
-        title: 'Message'
+        title: 'message'
       },
       choices: {
         type: 'array',

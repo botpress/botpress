@@ -26,19 +26,19 @@ const FlowTools: FC<{ skills: SkillDefinition[] }> = props => {
     return (
       <div className={style.toolPanel}>
         <ToolItem label={lang.tr('studio.flow.sidePanel.node')} type="node" id="standard" icon="chat" />
-        <ToolItem label={lang.tr('studio.flow.sidePanel.say')} type="node" id="say_something" icon="comment" />
-        <ToolItem label={lang.tr('studio.flow.sidePanel.execute')} type="node" id="execute" icon="code-block" />
-        <ToolItem label={lang.tr('studio.flow.sidePanel.listen')} type="node" id="listen" icon="hand" />
-        <ToolItem label={lang.tr('studio.flow.sidePanel.router')} type="node" id="router" icon="search-around" />
-        <ToolItem label={lang.tr('studio.flow.sidePanel.action')} type="node" id="action" icon="offline" />
+        <ToolItem label={lang.tr('say')} type="node" id="say_something" icon="comment" />
+        <ToolItem label={lang.tr('execute')} type="node" id="execute" icon="code-block" />
+        <ToolItem label={lang.tr('listen')} type="node" id="listen" icon="hand" />
+        <ToolItem label={lang.tr('router')} type="node" id="router" icon="search-around" />
+        <ToolItem label={lang.tr('action')} type="node" id="action" icon="offline" />
         <AccessControl resource="bot.skills" operation="write">
-          <div className={style.title}>{lang.tr('studio.flow.sidePanel.skills')}</div>
+          <div className={style.title}>{lang.tr('skills')}</div>
           <div className={style.section}>
             {props.skills &&
               props.skills.map(skill => <ToolItem key={skill.id} label={skill.name} type="skill" id={skill.id} />)}
           </div>
         </AccessControl>
-        <div className={style.title}>{lang.tr('studio.flow.sidePanel.chips')}</div>
+        <div className={style.title}>{lang.tr('chips')}</div>
         <ToolItem label="Transition" type="chip" id="transition" icon="flow-end" />
       </div>
     )
@@ -47,7 +47,7 @@ const FlowTools: FC<{ skills: SkillDefinition[] }> = props => {
       <div className={style.toolPanel}>
         <ToolItem label="Node" type="node" id="standard" icon="chat" />
         <AccessControl resource="bot.skills" operation="write">
-          <div className={style.title}>{lang.tr('studio.flow.sidePanel.skills')}</div>
+          <div className={style.title}>{lang.tr('skills')}</div>
           <div className={style.section}>
             {props.skills?.map(skill => (
               <ToolItem key={skill.id} label={lang.tr(skill.name)} type="skill" id={skill.id} icon={skill.icon} />

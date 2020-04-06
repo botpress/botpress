@@ -1,5 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
+
 const onServerReady = async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('extensions')
   const config = (await bp.config.getBotpressConfig()).eventCollector
@@ -24,6 +27,7 @@ const onServerReady = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
+  translations: { en, fr },
   definition: {
     name: 'extensions',
     menuIcon: 'none',

@@ -1,6 +1,6 @@
 import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import { Option } from 'botpress/sdk'
-import { Dropdown } from 'botpress/shared'
+import { Dropdown, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -79,9 +79,12 @@ const WorkflowEditor: FC<Props> = props => {
 
   const isCreate = !props.selectedWorkflow
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Workflow' }
+  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('studio.flow.workflow.create') }
   if (!isCreate) {
-    dialog = { icon: 'edit', title: `Edit Workflow - ${parseFlowName(props.selectedWorkflow).workflow}` }
+    dialog = {
+      icon: 'edit',
+      title: lang.tr('studio.flow.workflow.edit', { name: parseFlowName(props.selectedWorkflow).workflow })
+    }
   }
 
   return (
@@ -89,10 +92,10 @@ const WorkflowEditor: FC<Props> = props => {
       <DialogBody>
         <div>
           <div style={{ display: 'flex' }}>
-            <FormGroup label="Topic">
+            <FormGroup label={lang.tr('studio.flow.topic')}>
               <Dropdown items={items} onChange={item => setTopic(item)} defaultItem={topic} />
             </FormGroup>
-            <FormGroup label="Workflow Name" style={{ marginLeft: 10, flexGrow: 2 }}>
+            <FormGroup label={lang.tr('studio.flow.workflow.name')} style={{ marginLeft: 10, flexGrow: 2 }}>
               <InputGroup
                 id="input-flow-name"
                 tabIndex={1}
@@ -105,10 +108,7 @@ const WorkflowEditor: FC<Props> = props => {
             </FormGroup>
           </div>
 
-          <FormGroup
-            label="Label"
-            helperText="The label is a friendly name that can replace the name in the topic list"
-          >
+          <FormGroup label={lang.tr('label')} helperText={lang.tr('studio.flow.workflow.labelHelp')}>
             <InputGroup
               id="input-flow-label"
               tabIndex={2}
@@ -117,7 +117,7 @@ const WorkflowEditor: FC<Props> = props => {
             />
           </FormGroup>
 
-          <FormGroup label="Description">
+          <FormGroup label={lang.tr('description')}>
             <TextArea
               id="input-flow-description"
               rows={3}
@@ -130,7 +130,7 @@ const WorkflowEditor: FC<Props> = props => {
         </div>
       </DialogBody>
       <DialogFooter>
-        <Button type="submit" id="btn-submit" tabIndex={4} text="Save changes" intent={Intent.PRIMARY} />
+        <Button type="submit" id="btn-submit" tabIndex={4} text={lang.tr('saveChanges')} intent={Intent.PRIMARY} />
       </DialogFooter>
     </BaseDialog>
   )

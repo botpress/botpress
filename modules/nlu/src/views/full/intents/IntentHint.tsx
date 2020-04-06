@@ -46,16 +46,16 @@ const IntentHint: FC<Props> = props => {
   let hint: JSX.Element
 
   if (!utterances.length) {
-    hint = <span>{lang.tr('nlu.intents.hintIgnored')}</span>
+    hint = <span>{lang.tr('module.nlu.intents.hintIgnored')}</span>
   }
 
   if (utterances.length && utterances.length < recommendations.minUtterancesForML) {
     const remaining = recommendations.minUtterancesForML - utterances.length
     hint = (
       <span>
-        {lang.tr('nlu.intents.hintExactMatch', {
+        {lang.tr('module.nlu.intents.hintExactMatch', {
           nb: remaining,
-          exactOnly: <strong>{lang.tr('nlu.intents.exactOnly')}</strong>
+          exactOnly: <strong>{lang.tr('module.nlu.intents.exactOnly')}</strong>
         })}
       </span>
     )
@@ -63,7 +63,7 @@ const IntentHint: FC<Props> = props => {
 
   if (utterances.length >= recommendations.minUtterancesForML && utterances.length < idealNumberOfUtt) {
     const remaining = idealNumberOfUtt - utterances.length
-    hint = <span>{lang.tr('nlu.intents.hintResilient', { nb: remaining })}</span>
+    hint = <span>{lang.tr('module.nlu.intents.hintResilient', { nb: remaining })}</span>
   }
   return hint ? (
     <p className={cx(style.hint, { [style.lightEditorHint]: props.liteEditor })}>

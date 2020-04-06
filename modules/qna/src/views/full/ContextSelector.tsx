@@ -51,7 +51,7 @@ export const ContextSelector: FC<Props> = props => {
   const createNewItemRenderer = (query: string, active: boolean, handleClick) => (
     <MenuItem
       icon="plus"
-      text={lang.tr('qna.context.createQuery')}
+      text={lang.tr('module.qna.context.createQuery')}
       active={active}
       onClick={handleClick}
       shouldDismissPopover={false}
@@ -63,9 +63,9 @@ export const ContextSelector: FC<Props> = props => {
       <div>
         {!props.isSearch && (
           <>
-            <label htmlFor="selectContext">{lang.tr('qna.context.contexts')}</label>
+            <label htmlFor="selectContext">{lang.tr('module.qna.context.title')}</label>
             &nbsp;
-            <Tooltip content={lang.tr('qna.context.canTypeToCreate')} position={Position.RIGHT}>
+            <Tooltip content={lang.tr('module.qna.context.canTypeToCreate')} position={Position.RIGHT}>
               <Icon color={Colors.GRAY2} icon="info-sign" />
             </Tooltip>
           </>
@@ -73,7 +73,9 @@ export const ContextSelector: FC<Props> = props => {
       </div>
 
       <MultiSelect
-        placeholder={props.isSearch ? lang.tr('qna.context.filterByContexts') : lang.tr('qna.context.selectContext')}
+        placeholder={
+          props.isSearch ? lang.tr('module.qna.context.filterByContexts') : lang.tr('module.qna.context.selectContext')
+        }
         items={availableContexts}
         itemRenderer={ctxItemRenderer}
         itemPredicate={(q: string, ctx: string) => !q || ctx.includes(q)}
