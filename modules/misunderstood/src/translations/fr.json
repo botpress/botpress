@@ -27,7 +27,7 @@
   "selectAnother": "Sélectionnez un autre",
   "noIntentsMatchQuery": "Aucune intention ne correspond à la requête.",
   "noIntentsFound": "Aucune intention trouvée",
-  "newMisunderstood": "Nouveau Imcompris | {eventIndex} de {totalEventsCount}",
+  "newMisunderstood": "Nouvel Incompris | {eventIndex} de {totalEventsCount}",
   "ignore": "Ignorer",
   "skip": "Passer",
   "amend": "Modifier",
