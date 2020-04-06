@@ -1,4 +1,5 @@
 import { AxiosStatic } from 'axios'
+import { lang } from 'botpress/shared'
 import React from 'react'
 
 import { FLAGGED_MESSAGE_STATUS } from '../../../types'
@@ -41,7 +42,7 @@ const MainScreen = ({
   }
 
   if (selectedStatus === FLAGGED_MESSAGE_STATUS.new && events && events.length === 0) {
-    return <div>No new events.</div>
+    return <div>{lang.tr('module.misunderstood.noNewEvents')}</div>
   }
 
   return (
