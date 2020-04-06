@@ -32,7 +32,7 @@
   "skip": "Passer",
   "amend": "Modifier",
   "showMisunderstoodMessage": "Message incompris : {preview}",
-  "pendingMisunderstood": "Icompris en attente ({count})",
+  "pendingMisunderstood": "Incompris en attente ({count})",
   "searchForAQuestion": "Rechercher une question...",
   "searchForACategory": "Rechercher une catégorie...",
   "category": "Catégorie",
