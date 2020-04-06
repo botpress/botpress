@@ -1,9 +1,6 @@
 import axios from 'axios'
-import classNames from 'classnames'
 import _ from 'lodash'
-import { Line } from 'progressbar.js'
 import React, { FC, useEffect } from 'react'
-import { Glyphicon } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import { updateDocumentationModal } from '~/actions'
 import EventBus from '~/util/EventBus'
@@ -20,13 +17,12 @@ interface Props {
 const progressReducer = (state, action) => {
   if (action.type === 'updateData') {
     const { message, working, progress } = action.data
-    console.log(progress)
 
     return {
       ...state,
       message: message || '',
       working: working || false,
-      progress: progress || 0
+      progress: progress ? progress * 100 : state.progress
     }
   } else {
     throw new Error(`That action type isn't supported.`)
@@ -61,7 +57,7 @@ const StatusBar: FC<Props> = props => {
     if (shouldUpdateNLUEvent(event)) {
       dispatch({
         type: 'updateData',
-        data: { message: event.message, working: event.working, progress: event.trainSession.progress * 100 }
+        data: { message: event.message, working: event.working, progress: event.trainSession.progress }
       })
     } else if (event.working && event.value && state.progress !== event.value) {
       dispatch({ type: 'updateData', data: { progress: event.value } }) // @deprecated remove when engine 1 is totally gone
@@ -74,7 +70,6 @@ const StatusBar: FC<Props> = props => {
   const fetchTrainingSession = () => {
     // tslint:disable-next-line: no-floating-promises
     axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${props.contentLang}`).then(({ data: session }) => {
-      console.log(session)
       if (session && session.status === 'training') {
         dispatch({
           type: 'updateData',
@@ -89,26 +84,29 @@ const StatusBar: FC<Props> = props => {
   }
 
   const renderTaskMessage = () => {
-    return (
-      <div className={classNames(style.right, style.item, { [style.worker]: state.working })}>
-        <Glyphicon glyph={state.working ? 'hourglass' : 'ok-circle'} />
-        &nbsp; {state.message}
-      </div>
-    )
-  }
+    const { working, message, progress } = state
+    let progressLabel = ''
 
-  console.log(state.progress)
+    if (!working && !message) {
+      return null
+    }
+
+    if (working) {
+      progressLabel = `${progress}%`
+    }
+
+    return <div className={style.item}>{`${message} ${progressLabel}`}</div>
+  }
 
   return (
     <footer className={style.statusBar}>
-      <div className={style.list}>
-        <div className={style.item}>
-          <strong>{window.BOTPRESS_VERSION}</strong>
-          {window.BOT_NAME}
-        </div>
+      <div className={style.item}>
+        <span>{window.BOTPRESS_VERSION}</span>
+        <span className={style.botName}>{window.BOT_NAME}</span>
+      </div>
+      <div className={style.item}>
         {props.user && props.user.isSuperAdmin && <ConfigStatus />}
         {renderTaskMessage()}
-        {state.progress}
       </div>
     </footer>
   )

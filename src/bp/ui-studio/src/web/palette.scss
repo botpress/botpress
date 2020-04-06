@@ -38,7 +38,7 @@ $sidebar-primary-color: #58d1b0;
 $fontFamily: Sans-Serif;
 
 :root {
-  --font-family: $fontFamily;
+  --font-family: Sans-Serif;
 
   --c-brand--light-2: #66AEE2;
   --c-brand--light-1: #3393D8;
@@ -75,6 +75,7 @@ $fontFamily: Sans-Serif;
 
   --c-content-color-darker: #2f2f2f;
   --c-text: var(--c-neutral--dark-1);
+  --c-text--light-gray: #5C7080;
   --c-text--light: #fff;
   --c-text--brand: var(--c-brand);
   --c-text--disabled: #ddd;

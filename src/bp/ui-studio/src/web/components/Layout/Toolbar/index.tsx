@@ -1,7 +1,7 @@
 import { Icon } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import classNames from 'classnames'
-import React, { FC } from 'react'
+import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { updateDocumentationModal } from '~/actions'
 import { AccessControl } from '~/components/Shared/Utils'
@@ -31,16 +31,18 @@ const Toolbar: FC<Props> = props => {
     <header className={style.toolbar}>
       <ul className={style.list}>
         {!!docHints.length && (
-          <ActionItem
-            title={lang.tr('toolbar.readDoc')}
-            shortcut={keyMap['docs-toggle']}
-            description={lang.tr('toolbar.documentationAvailable')}
-            onClick={() => updateDocumentationModal(docHints[0])}
-          >
-            <Icon color="#1a1e22" icon="help" iconSize={16} />
-          </ActionItem>
+          <Fragment>
+            <ActionItem
+              title={lang.tr('toolbar.readDoc')}
+              shortcut={keyMap['docs-toggle']}
+              description={lang.tr('toolbar.documentationAvailable')}
+              onClick={() => updateDocumentationModal(docHints[0])}
+            >
+              <Icon color="#1a1e22" icon="help" iconSize={16} />
+            </ActionItem>
+            <li className={style.divider}></li>
+          </Fragment>
         )}
-        <li className={style.divider}></li>
         <AccessControl resource="bot.logs" operation="read">
           <ActionItem
             id="statusbar_logs"
