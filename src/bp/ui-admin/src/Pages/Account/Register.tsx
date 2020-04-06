@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 import { RouteComponentProps } from 'react-router'
 import { Redirect } from 'react-router-dom'
@@ -17,7 +18,7 @@ export const Register: FC<Props> = props => {
 
   const registerUser = async (email: string, password: string, confirmPassword: string) => {
     if (password !== confirmPassword) {
-      return setError(`Passwords don't match`)
+      return setError(lang.tr('admin.passwordsDontMatch'))
     }
 
     try {
@@ -34,8 +35,8 @@ export const Register: FC<Props> = props => {
 
   return (
     <LoginContainer
-      title="Register"
-      subtitle="This is the first time you run Botpress. Please create the master admin account."
+      title={lang.tr('admin.register')}
+      subtitle={lang.tr('admin.createMasterAdminAccount')}
       error={error}
     >
       <RegisterForm onRegister={registerUser} />

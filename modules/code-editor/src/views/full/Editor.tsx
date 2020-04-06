@@ -1,4 +1,5 @@
 import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
@@ -137,17 +138,22 @@ class Editor extends React.Component<Props> {
   }
 
   render() {
+    const hasRawPermissions = this.props.permissions?.['root.raw']?.read
+    const { currentFile, discardChanges, isAdvanced, setAdvanced, isOpenedFile } = this.props.editor
+
     return (
       <React.Fragment>
-        {!this.props.editor.isOpenedFile && <SplashScreen rawEditor={this.props.store.useRawEditor} />}
+        {!isOpenedFile && (
+          <SplashScreen hasRawPermissions={hasRawPermissions} isAdvanced={isAdvanced} setAdvanced={setAdvanced} />
+        )}
         <div className={style.editorContainer}>
           <div className={style.tabsContainer}>
             <div className={style.tab}>
-              <span>{this.props.editor.currentFile && this.props.editor.currentFile.name}</span>
+              <span>{currentFile?.name}</span>
 
               <div>
-                <Tooltip content="Discard" position={Position.RIGHT}>
-                  <Icon icon="delete" iconSize={10} className={style.btn} onClick={this.props.editor.discardChanges} />
+                <Tooltip content={lang.tr('discard')} position={Position.RIGHT}>
+                  <Icon icon="delete" iconSize={10} className={style.btn} onClick={discardChanges} />
                 </Tooltip>
               </div>
             </div>
@@ -164,10 +170,11 @@ export default inject(({ store }: { store: RootStore }) => ({
   createNewAction: store.createNewAction,
   typings: store.typings,
   fetchTypings: store.fetchTypings,
-  editor: store.editor
+  editor: store.editor,
+  permissions: store.permissions
 }))(observer(Editor))
 
 type Props = { store?: RootStore; editor?: EditorStore } & Pick<
   StoreDef,
-  'typings' | 'fetchTypings' | 'createNewAction'
+  'typings' | 'fetchTypings' | 'createNewAction' | 'permissions'
 >

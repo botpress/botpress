@@ -2,11 +2,13 @@ import { Paging, User } from 'botpress/sdk'
 import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
+import _ from 'lodash'
+import ms from 'ms'
 
 import Database from '../database'
 import { TYPES } from '../types'
 export interface UserRepository {
-  getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User>
+  getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User>
   updateAttributes(channel: string, id: string, attributes: any): Promise<void>
   setAttributes(channel: string, id: string, attributes: any, trx?: Knex.Transaction): Promise<void>
   getAttributes(channel: string, id: string): Promise<any>
@@ -14,16 +16,66 @@ export interface UserRepository {
   getUserCount(): Promise<any>
 }
 
+type Row = { channel: string; botId: string; userId: string }
+
 @injectable()
 export class KnexUserRepository implements UserRepository {
   private readonly tableName = 'srv_channel_users'
+  private readonly botUsersTableName = 'bot_chat_users'
+
+  private batches: Dic<Row> = {}
+  private flushLock: boolean = false
+  private readonly flushInterval = ms('10s')
 
   constructor(
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
-  ) {}
+  ) {
+    setInterval(() => this.flushUsers(), this.flushInterval)
+  }
 
-  async getOrCreate(channel: string, id: string): Knex.GetOrCreateResult<User> {
+  async flushUsers() {
+    if (this.flushLock || !this.database?.knex) {
+      return
+    }
+
+    this.flushLock = true
+    try {
+      // we batch maximum 1000 rows in the same query
+      const original = this.batches
+      const keys = _.take(Object.keys(this.batches), 1000)
+      if (!keys.length) {
+        return
+      }
+      this.batches = _.omit(this.batches, keys)
+      // build a master query
+      const today = this.database.knex.date.today().toQuery()
+      const values = keys.map(k => this.database.knex.raw(`(:botId, :channel, :userId)`, original[k])).join(',')
+      const query = this.database.knex
+        .raw(
+          // careful if changing this query, make sure it works in both SQLite and Postgres
+          `insert into ${this.botUsersTableName}
+("botId", channel, "userId") values ${values}
+  on conflict("userId", "botId", channel)
+  do update set "lastSeenOn" = ${today}`
+        )
+        .toQuery()
+
+      await this.database.knex
+        .transaction(async trx => {
+          await trx.raw(query)
+        })
+        .catch(_err => {
+          // we restore rows we couldn't insert
+          this.batches = _.merge(original, this.batches)
+        })
+    } finally {
+      // release the lock
+      this.flushLock = false
+    }
+  }
+
+  async getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User> {
     channel = channel.toLowerCase()
 
     const ug = await this.database
@@ -35,6 +87,12 @@ export class KnexUserRepository implements UserRepository {
       .limit(1)
       .select('attributes', 'created_at', 'updated_at')
       .first()
+
+    if (botId) {
+      // we do only one query per user/channel/botId per flush
+      const key = `${id}_${botId}_${channel}`
+      this.batches[key] = { userId: id, channel, botId }
+    }
 
     if (ug) {
       const user: User = {

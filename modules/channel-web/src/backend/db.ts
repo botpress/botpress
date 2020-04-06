@@ -287,4 +287,11 @@ export default class WebchatDb {
       .orderBy('sent_on', 'desc')
       .limit(limit)
   }
+
+  async getFeedbackInfoForEventIds(target: string, eventIds: string[]) {
+    return this.knex('events')
+      .select(['incomingEventId', 'feedback'])
+      .whereIn('incomingEventId', eventIds)
+      .andWhere({ target, direction: 'incoming' })
+  }
 }

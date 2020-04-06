@@ -1,29 +1,23 @@
 {
   "name": "analytics",
-  "version": "10.38.0",
-  "description": "Provides high level analytics about your bot usage.",
+  "version": "12.6.0",
+  "description": "Provides high level analytics about your bot's usage",
   "private": true,
   "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "build": "node ../../build/module-builder/bin/entry build",
     "watch": "node ../../build/module-builder/bin/entry watch",
     "package": "node ../../build/module-builder/bin/entry package"
   },
-  "author": "Botpress, Inc.",
-  "license": "AGPL-3.0-only",
   "dependencies": {
-    "bluebird": "^3.5.3",
+    "@blueprintjs/datetime": "^3.15.2",
+    "bluebird": "^3.7.2",
     "bluebird-global": "^1.0.1",
-    "classnames": "^2.2.6",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "ms": "^2.1.1",
-    "nanoid": "^2.0.1",
-    "react-select": "^1.2.0",
-    "recharts": "1.5.0"
-  },
-  "resolutions": {
-    "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "ms": "^2.1.2",
+    "recharts": "^2.0.0-beta.1"
   }
 }

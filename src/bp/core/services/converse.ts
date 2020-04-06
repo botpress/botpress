@@ -84,7 +84,7 @@ export class ConverseService {
       throw new InvalidParameterError(`Text must be a valid string of less than ${maxMessageLength} chars`)
     }
 
-    await this.userRepository.getOrCreate('api', userId)
+    await this.userRepository.getOrCreate('api', userId, botId)
 
     const incomingEvent = Event({
       type: payload.type,

@@ -22,7 +22,7 @@ import Workspaces from '~/Pages/Workspaces'
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
 import App from '../App/Layout'
-import Auth, { getActiveWorkspace } from '../Auth'
+import Auth, { getActiveWorkspace, setToken } from '../Auth'
 import ChangePassword from '../Pages/Account/ChangePassword'
 import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
@@ -35,7 +35,11 @@ export const makeMainRoutes = () => {
   const auth = new Auth()
 
   const ExtractToken = () => {
-    auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
+    const token = extractCookie('userToken')
+    if (token) {
+      setToken(token)
+    }
+
     // tslint:disable-next-line: no-floating-promises
     auth.afterLoginRedirect()
 

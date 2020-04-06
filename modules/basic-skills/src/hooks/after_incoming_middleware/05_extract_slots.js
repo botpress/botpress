@@ -6,7 +6,20 @@ handleSlotsExpiry()
 extractIntentSlots()
 
 function extractIntentSlots() {
-  const slots = _.flatten(_.values(event.nlu.slots)).filter(x => !!x.value) // only non-null slots
+  let slots = _.flatten(_.values(event.nlu.slots)).filter(x => !!x.value) // only non-null slots
+  // this hook comes after ndu as passed so last_topic is the current topic
+  // see ndu-engine around line #308
+  const currentTopic = _.get(event, 'state.session.nduContext.last_topic')
+  if (event.ndu && currentTopic) {
+    slots = _.chain(event)
+      .get(`nlu.predictions.${currentTopic}.intents`, [])
+      .orderBy('confidence', 'desc')
+      .head()
+      .get('slots', {})
+      .values()
+      .filter(s => !!s.value)
+      .value()
+  }
   for (let slot of slots) {
     // BETA(11.8.4): Prevent overwrite of the slot if explicitly demanded
     if (event.state.session.slots[slot.name] && event.state.session.slots[slot.name].overwritable == false) {

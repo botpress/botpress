@@ -97,3 +97,12 @@ export const WorkspaceCreationSchema = Joi.object().keys({
     .valid(Object.keys(defaultPipelines))
     .default('none')
 })
+
+export const PipelineSchema = Joi.array().items({
+  id: Joi.string().required(),
+  label: Joi.string().required(),
+  action: Joi.string().required(),
+  reviewers: Joi.array().items({ email: Joi.string(), strategy: Joi.string() }),
+  minimumApprovals: Joi.number(),
+  reviewSequence: Joi.string().valid(['serial', 'parallel'])
+})

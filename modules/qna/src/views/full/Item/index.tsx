@@ -1,22 +1,23 @@
 import { Button, Icon, Intent, Switch, Tooltip } from '@blueprintjs/core'
 import { Flow } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import { AccessControl } from 'botpress/utils'
 import cx from 'classnames'
-import React, { FC } from 'react'
+import React, { FC, Fragment } from 'react'
 
 import style from '../style.scss'
 import { ACTIONS } from '../Editor'
 
-import RedirectInfo from './RedirectInfo'
 import Variations from './Variations'
 
 interface Props {
   id: string
   item: any
   contentLang: string
+  last?: boolean
   flows?: Flow[]
   // Hides category and redirect info
-  isVersion2?: boolean
+  isLite?: boolean
   onEditItem: (id: string) => void
   onDeleteItem: (id: string) => void
   onToggleItem: (item: any, id: string, checked: boolean) => void
@@ -27,79 +28,62 @@ const Item: FC<Props> = props => {
     return null
   }
 
-  const { id, item, contentLang } = props
-
+  const { id, item, contentLang, last, isLite } = props
   const questions = item.questions[contentLang] || []
   const answers = item.answers[contentLang] || []
   const missingTranslations = !questions.length || (item.action !== ACTIONS.REDIRECT && !answers.length)
 
   return (
-    <div className={cx(style.qnaItem, style.well)} key={id}>
-      <div className={style.itemContainer} role="entry">
+    <div role="entry" className={cx(style.questionTableRow, { [style.last]: last })} key={id}>
+      <div className={cx(style.questionTableCell, style.question)} onClick={() => props.onEditItem(id)}>
         {missingTranslations && (
-          <div className={style.itemQuestions}>
-            <a className={style.firstQuestionTitle} onClick={() => props.onEditItem(id)}>
-              <Tooltip content="Missing translation">
-                <Icon icon="warning-sign" intent={Intent.DANGER} />
-              </Tooltip>
-              &nbsp;
-              {id
-                .split('_')
-                .slice(1)
-                .join(' ')}{' '}
-              &nbsp;
-            </a>
-          </div>
+          <Fragment>
+            <Tooltip content={lang.tr('module.qna.missingTranslations')}>
+              <Icon icon="warning-sign" intent={Intent.DANGER} />
+            </Tooltip>
+            &nbsp;
+            {id
+              .split('_')
+              .slice(1)
+              .join(' ')}{' '}
+          </Fragment>
         )}
-
         {!missingTranslations && (
-          <div className={style.itemQuestions}>
-            <span className={style.itemQuestionsTitle}>Q:</span>
-            <a className={style.firstQuestionTitle} onClick={() => props.onEditItem(id)}>
-              {questions[0]}
-            </a>
-            {<Variations elements={questions} />}
-          </div>
+          <Fragment>
+            {questions[0]}
+            {<Variations isLite={isLite} elements={questions} />}
+          </Fragment>
         )}
-
-        {answers[0] && (
-          <div className={style.itemAnswerContainer}>
-            <span className={style.itemAnswerTitle}>A:</span>
-            <div className={style.itemAnswerText}>{answers[0]}</div>
-            {<Variations elements={answers} />}
-          </div>
-        )}
-
-        {!props.isVersion2 && (
-          <div>
-            <div className={style.itemRedirect}>
-              <RedirectInfo
-                id={props.id}
-                redirectFlow={item.redirectFlow}
-                redirectNode={item.redirectNode}
-                flows={props.flows}
-                onEditItem={props.onEditItem}
-              />
-            </div>
-          </div>
-        )}
-
-        {item.category && !props.isVersion2 ? (
-          <div className={style.questionCategory}>
-            Category:{' '}
-            <span className={style.questionCategoryTitle}>
-              &nbsp;
-              {item.category}
-            </span>
-          </div>
-        ) : null}
       </div>
 
-      <div className={style.itemAction}>
-        <AccessControl resource="module.qna" operation="write">
-          <Button icon="trash" className={style.itemActionDelete} onClick={() => props.onDeleteItem(id)} minimal />
-          <Switch checked={item.enabled} onChange={e => props.onToggleItem(item, id, e.currentTarget.checked)} large />
-        </AccessControl>
+      <div className={style.questionTableCell} onClick={() => props.onEditItem(id)}>
+        {answers[0] && (
+          <Fragment>
+            {answers[0]}
+            {<Variations isLite={isLite} elements={answers} />}
+          </Fragment>
+        )}
+        {!isLite && (item.redirectFlow || item.redirectNode) && (
+          <Tooltip className={style.redirectTooltip} content={lang.tr('module.qna.redirectsAssociated')}>
+            <Icon icon="pivot" />
+          </Tooltip>
+        )}
+      </div>
+
+      {!isLite && (
+        <div className={style.questionTableCell} onClick={() => props.onEditItem(id)}>
+          {item.contexts?.join(', ')}
+        </div>
+      )}
+
+      <div className={cx(style.questionTableCell, style.actions)}>
+        <div className={style.itemAction}>
+          <AccessControl resource="module.qna" operation="write">
+            <Switch checked={item.enabled} onChange={e => props.onToggleItem(item, id, e.currentTarget.checked)} />
+            <Button icon="edit" onClick={() => props.onEditItem(id)} minimal />
+            <Button icon="trash" intent="danger" onClick={() => props.onDeleteItem(id)} minimal />
+          </AccessControl>
+        </div>
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 $background-color: #eee;
+$light-background: #f4f4f4;
 $sidebar-color: #181818;
 $sidebar-hover-color: #111111;
 $content-color: #ffffff;
@@ -34,7 +35,11 @@ $btn-danger-bg-color-hover: #b13434;
 $sidebar-text-color: #aaa;
 $sidebar-primary-color: #58d1b0;
 
+$fontFamily: Sans-Serif;
+
 :root {
+  --font-family: $fontFamily;
+
   --c-brand--light-2: #66AEE2;
   --c-brand--light-1: #3393D8;
   --c-brand: #0078cf;

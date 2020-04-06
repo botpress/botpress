@@ -12,6 +12,7 @@ import {
   Config,
   ConversationSummary,
   CurrentConversation,
+  EventFeedback,
   Message,
   MessageWrapper,
   StudioConnector
@@ -52,6 +53,9 @@ class RootStore {
 
   @observable
   public isInitialized: boolean
+
+  @observable
+  public eventFeedbacks: EventFeedback[]
 
   public intl: InjectedIntl
 
@@ -162,6 +166,7 @@ class RootStore {
     runInAction('-> setBotInfo', () => {
       this.botInfo = botInfo
     })
+    this.mergeConfig({ extraStylesheet: botInfo.extraStylesheet })
   }
 
   @action.bound
@@ -196,7 +201,9 @@ class RootStore {
       return this.createConversation()
     }
 
-    const conversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
+    const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
+    await this.extractFeedback(conversation && conversation.messages)
+
     runInAction('-> setConversation', () => {
       this.currentConversation = conversation
       this.view.hideConversations()
@@ -263,6 +270,21 @@ class RootStore {
   }
 
   @action.bound
+  async extractFeedback(messages: Message[]): Promise<void> {
+    const feedbackEventIds = messages.filter(x => x.payload && x.payload.collectFeedback).map(x => x.incomingEventId)
+
+    const feedbackInfo = await this.api.getEventIdsFeedbackInfo(feedbackEventIds)
+    runInAction('-> setFeedbackInfo', () => {
+      this.eventFeedbacks = feedbackInfo
+    })
+  }
+
+  @action.bound
+  async sendFeedback(feedback: number, eventId: string): Promise<void> {
+    await this.api.sendFeedback(feedback, eventId)
+  }
+
+  @action.bound
   async downloadConversation(): Promise<void> {
     try {
       const { txt, name } = await this.api.downloadConversation(this.currentConversationId)
@@ -317,7 +339,12 @@ class RootStore {
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
     this.view.disableAnimations = this.config.disableAnimations
     this.config.showPoweredBy ? this.view.showPoweredBy() : this.view.hidePoweredBy()
-    this.config.locale && this.updateBotUILanguage(getUserLocale(this.config.locale))
+
+    const locale = getUserLocale(this.config.locale)
+    this.config.locale && this.updateBotUILanguage(locale)
+    document.documentElement.setAttribute('lang', locale)
+
+    document.title = this.config.botName || 'Botpress Webchat'
 
     try {
       window.USE_SESSION_STORAGE = this.config.useSessionStorage

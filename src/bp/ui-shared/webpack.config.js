@@ -18,13 +18,14 @@ const config = {
     filename: 'index.js'
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.css']
+    extensions: ['.tsx', '.ts', '.js', '.css']
   },
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
     'react-bootstrap': 'ReactBootstrap',
-    '@blueprintjs/core': 'BlueprintJsCore'
+    '@blueprintjs/core': 'BlueprintJsCore',
+    '@blueprintjs/select': 'BlueprintJsSelect'
   },
   module: {
     rules: [

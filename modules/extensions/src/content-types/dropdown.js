@@ -22,30 +22,35 @@ function render(data) {
       options: data.options,
       allowCreation: data.allowCreation,
       allowMultiple: data.allowMultiple,
-      width: data.width
+      width: data.width,
+      collectFeedback: data.collectFeedback
     }
   ]
 }
 
 function renderSlack(data) {
-  return [{
-    type: 'actions',
-    elements: [{
-      type: 'static_select',
-      action_id: 'option_selected',
-      placeholder: {
-        type: 'plain_text',
-        text: data.message
-      },
-      options: data.options.map(q => ({
-        text: {
-          type: 'plain_text',
-          text: q.label
-        },
-        value: q.value
-      }))
-    }]
-  }]
+  return [
+    {
+      type: 'actions',
+      elements: [
+        {
+          type: 'static_select',
+          action_id: 'option_selected',
+          placeholder: {
+            type: 'plain_text',
+            text: data.message
+          },
+          options: data.options.map(q => ({
+            text: {
+              type: 'plain_text',
+              text: q.label
+            },
+            value: q.value
+          }))
+        }
+      ]
+    }
+  ]
 }
 
 function renderElement(data, channel) {
@@ -63,10 +68,10 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'dropdown',
   group: 'Extensions',
-  title: 'Dropdown',
+  title: 'module.extensions.types.dropdown.title',
 
   jsonSchema: {
-    title: 'Displays a list of options to the user',
+    title: 'module.extensions.types.dropdown.desc',
     type: 'object',
     required: ['message'],
     properties: {
@@ -76,24 +81,24 @@ module.exports = {
       },
       buttonText: {
         type: 'string',
-        title: 'The text to display on the button.',
-        description: 'When left blank, the selected option is sent when the dropdown is closed',
+        title: 'module.extensions.types.dropdown.buttonText',
+        description: 'module.extensions.types.dropdown.buttonDesc',
         default: ''
       },
       options: {
         type: 'array',
-        title: 'List of options',
+        title: 'module.extensions.types.dropdown.optionsList',
         items: {
           type: 'object',
           required: ['label'],
           properties: {
             label: {
-              description: 'The text displayed in the dropdown menu',
+              description: 'module.extensions.types.dropdown.itemLabel',
               type: 'string',
               title: 'Label'
             },
             value: {
-              description: 'The value that the bot will receive (optional)',
+              description: 'module.extensions.types.dropdown.itemValue',
               type: 'string',
               title: 'Value'
             }
@@ -102,23 +107,23 @@ module.exports = {
       },
       width: {
         type: 'number',
-        title: 'The width of the component (in pixels)',
-        description: 'The default size displays the select and the button on one line. Change it to fit your needs',
+        title: 'module.extensions.types.dropdown.widthTitle',
+        description: 'module.extensions.types.dropdown.widthDesc',
         default: 200
       },
       displayInKeyboard: {
         type: 'boolean',
-        title: 'Display as keyboard',
-        description: 'It will be displayed right on top of the composer (like choices)',
+        title: 'module.extensions.types.dropdown.asKeyboardTitle',
+        description: 'module.extensions.types.dropdown.asKeyboardDesc',
         default: true
       },
       allowCreation: {
         type: 'boolean',
-        title: 'Allow creation of new options'
+        title: 'module.extensions.types.dropdown.allowCreate'
       },
       allowMultiple: {
         type: 'boolean',
-        title: 'Allow multiple choices'
+        title: 'module.extensions.types.dropdown.allowMultiple'
       },
       ...base.typingIndicators
     }

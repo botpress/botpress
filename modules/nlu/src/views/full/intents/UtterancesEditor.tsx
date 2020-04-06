@@ -1,5 +1,6 @@
 import { Tag } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
@@ -13,11 +14,11 @@ import { makeSlotMark, utterancesToValue, valueToUtterances } from './utterances
 
 const plugins = [
   PlaceholderPlugin({
-    placeholder: 'Summary of intent',
+    placeholder: lang.tr('module.nlu.intents.summaryPlaceholder'),
     when: (_, node) => node.text.trim() === '' && node.type === 'title'
   }),
   PlaceholderPlugin({
-    placeholder: 'Type a sentence',
+    placeholder: lang.tr('module.nlu.intents.utterancePlaceholder'),
     when: (_, node) => node.text.trim() === '' && node.type === 'paragraph'
   })
 ]
@@ -101,7 +102,7 @@ export class UtterancesEditor extends React.Component<Props> {
   onBlur = (event, editor: CoreEditor, next) => {
     const newUtts = valueToUtterances(editor.value)
     if (!_.isEqual(this.props.utterances, newUtts)) {
-      this.props.onChange(newUtts)
+      this.dispatchChanges(editor.value)
     }
 
     return next()
@@ -222,7 +223,7 @@ export class UtterancesEditor extends React.Component<Props> {
     const isWrong = utteranceIdx < this.utteranceKeys.length - 1 && isEmpty
 
     const elementCx = classnames(style.utterance, {
-      [style.title]: node.type === 'title' && utteranceIdx == 0,
+      [style.title]: node.type === 'title' && utteranceIdx === 0,
       [style.active]: props.isFocused,
       [style.wrong]: isWrong
     })

@@ -1,4 +1,5 @@
 import { Callout } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import PageContainer from '~/App/PageContainer'
@@ -40,19 +41,17 @@ export default () => {
   }, [])
 
   return (
-    <PageContainer title="Language Management" superAdmin>
+    <PageContainer title={lang.tr('admin.languages.languageManagement')} superAdmin>
       {langSource && langServerInfo ? (
         <div className="languages-grid">
           <div>
-            {langServerInfo.readOnly && (
-              <Callout intent="warning">Languages cannot be edited as Language Server is read only</Callout>
-            )}
+            {langServerInfo.readOnly && <Callout intent="warning">{lang.tr('admin.languages.cannotBeEdited')}</Callout>}
             <LanguageManagement languageSource={langSource} readOnly={langServerInfo.readOnly} />
           </div>
           <LangServer source={langSource} langServer={langServerInfo} />
         </div>
       ) : (
-        <div>loading...</div>
+        <div>{lang.tr('admin.languages.loading')}</div>
       )}
     </PageContainer>
   )
