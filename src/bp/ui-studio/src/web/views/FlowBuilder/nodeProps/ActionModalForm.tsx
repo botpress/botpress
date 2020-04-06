@@ -179,7 +179,7 @@ class ActionModalForm extends Component<Props, State> {
 
   renderSectionMessage() {
     const handleChange = item => {
-      this.setState({ messageValue: lang.tr('studio.flow.node.actionToRun', { id: item.id }) })
+      this.setState({ messageValue: `say #!${item.id}` })
     }
 
     const itemId = this.textToItemId(this.state.messageValue)
