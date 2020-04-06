@@ -1,36 +1,38 @@
+import { lang } from 'botpress/shared'
+
 import { FLAG_REASON, FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE } from '../../types'
 
 export const STATUSES = [
   {
     key: FLAGGED_MESSAGE_STATUS.new,
-    label: 'New'
+    label: lang.tr('module.misunderstood.new')
   },
   {
     key: FLAGGED_MESSAGE_STATUS.pending,
-    label: 'Pending'
+    label: lang.tr('module.misunderstood.pending')
   },
   {
     key: FLAGGED_MESSAGE_STATUS.applied,
-    label: 'Done'
+    label: lang.tr('module.misunderstood.done')
   },
   {
     key: FLAGGED_MESSAGE_STATUS.deleted,
-    label: 'Ignored'
+    label: lang.tr('module.misunderstood.ignored')
   }
 ]
 
 export const REASONS = {
   [FLAG_REASON.auto_hook]: {
-    title: 'Flagged by hook',
+    title: lang.tr('module.misunderstood.flaggedByHook'),
     icon: 'build'
   },
   [FLAG_REASON.action]: {
-    title: 'Flagged by action',
+    title: lang.tr('module.misunderstood.flaggedByAction'),
     icon: 'code'
   }
 }
 
 export const RESOLUTION = {
-  [RESOLUTION_TYPE.qna]: 'QnA',
-  [RESOLUTION_TYPE.intent]: 'Intent'
+  [RESOLUTION_TYPE.qna]: lang.tr('module.misunderstood.qna'),
+  [RESOLUTION_TYPE.intent]: lang.tr('module.misunderstood.intent')
 }
