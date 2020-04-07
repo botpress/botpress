@@ -1,36 +1,36 @@
 {
-  "fullName": "Basic Skills",
-  "typingIndicator": "Show typing indicators",
-  "useMarkdown": "Use markdown",
   "actionButton": "Action Button",
+  "fullName": "Basic Skills",
   "types": {
     "actionButton": {
-      "description": "A button that triggers an action, often used in cards",
-      "buttonTitle": "Title of the button"
+      "buttonTitle": "Title of the button",
+      "description": "A button that triggers an action, often used in cards"
     },
-    "text": {
-      "description": "A regular text message with optional typing indicators and alternates",
-      "alternatives": "Alternates (optional)"
+    "card": {
+      "description": "A card message with a title with optional subtitle, image and action buttons."
     },
-    "singleChoice": {
-      "title": "Single Choice",
-      "description": "Suggest choices to the user with the intention of picking only one (with an optional message)",
-      "choice": "Choice",
-      "itemTitle": "The title of the choice (this is what gets shown to the user)",
-      "itemValue": "The value that your bot gets when the user picks this choice (usually hidden from the user)"
+    "carousel": {
+      "cards": "Carousel cards",
+      "description": "A carousel is an array of cards",
+      "title": "Carousel"
     },
     "image": {
       "description": "A message showing an image with an optional title",
       "imageLabel": "Title (optional)",
       "labelDesc": "Some platforms require to name the images."
     },
-    "carousel": {
-      "title": "Carousel",
-      "description": "A carousel is an array of cards",
-      "cards": "Carousel cards"
+    "singleChoice": {
+      "choice": "Choice",
+      "description": "Suggest choices to the user with the intention of picking only one (with an optional message)",
+      "itemTitle": "The title of the choice (this is what gets shown to the user)",
+      "itemValue": "The value that your bot gets when the user picks this choice (usually hidden from the user)",
+      "title": "Single Choice"
     },
-    "card": {
-      "description": "A card message with a title with optional subtitle, image and action buttons."
+    "text": {
+      "alternatives": "Alternates (optional)",
+      "description": "A regular text message with optional typing indicators and alternates"
     }
-  }
+  },
+  "typingIndicator": "Show typing indicators",
+  "useMarkdown": "Use markdown"
 }
