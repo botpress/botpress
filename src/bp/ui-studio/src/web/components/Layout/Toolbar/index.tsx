@@ -12,8 +12,6 @@ import ActionItem from './ActionItem'
 
 interface Props {
   isEmulatorOpen: boolean
-  langSwitcherOpen: boolean
-  contentLang: string
   docHints: any
   updateDocumentationModal: any
   user: any
@@ -21,7 +19,6 @@ interface Props {
   onToggleGuidedTour: () => void
   toggleBottomPanel: () => void
   onToggleEmulator: () => void
-  toggleLangSwitcher: (e: any) => void
 }
 
 const Toolbar: FC<Props> = props => {
@@ -74,8 +71,7 @@ const Toolbar: FC<Props> = props => {
 const mapStateToProps = state => ({
   user: state.user,
   botInfo: state.bot,
-  docHints: state.ui.docHints,
-  contentLang: state.language.contentLang
+  docHints: state.ui.docHints
 })
 
 export default connect(mapStateToProps, { updateDocumentationModal })(Toolbar)

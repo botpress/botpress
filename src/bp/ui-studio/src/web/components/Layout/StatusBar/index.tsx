@@ -7,11 +7,14 @@ import EventBus from '~/util/EventBus'
 
 import style from './style.scss'
 import ConfigStatus from './ConfigStatus'
+import LangSwitcher from './LangSwitcher'
 
 interface Props {
+  langSwitcherOpen: boolean
   user: any
   botInfo: any
   contentLang: string
+  toggleLangSwitcher: (e: any) => void
 }
 
 const progressReducer = (state, action) => {
@@ -45,22 +48,16 @@ const StatusBar: FC<Props> = props => {
     fetchTrainingSession()
   }, [])
 
-  const shouldUpdateNLUEvent = (event): boolean => {
-    return (
-      event.type === 'nlu' &&
-      event.botId === window.BOT_ID &&
-      _.get(event, 'trainSession.language') === props.contentLang
-    )
+  const shouldUpdateProgressEvent = (event): boolean => {
+    return event.botId === window.BOT_ID && _.get(event, 'trainSession.language') === props.contentLang
   }
 
   const handleModuleEvent = async event => {
-    if (shouldUpdateNLUEvent(event)) {
+    if (shouldUpdateProgressEvent(event)) {
       dispatch({
         type: 'updateData',
         data: { message: event.message, working: event.working, progress: event.trainSession.progress }
       })
-    } else if (event.working && event.value && state.progress !== event.value) {
-      dispatch({ type: 'updateData', data: { progress: event.value } }) // @deprecated remove when engine 1 is totally gone
     }
     if (event.message && state.message !== event.message) {
       dispatch({ type: 'updateData', data: { message: event.message, working: event.working } })
@@ -103,6 +100,7 @@ const StatusBar: FC<Props> = props => {
       <div className={style.item}>
         <span>{window.BOTPRESS_VERSION}</span>
         <span className={style.botName}>{window.BOT_NAME}</span>
+        <LangSwitcher toggleLangSwitcher={props.toggleLangSwitcher} langSwitcherOpen={props.langSwitcherOpen} />
       </div>
       <div className={style.item}>
         {props.user && props.user.isSuperAdmin && <ConfigStatus />}
