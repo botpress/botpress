@@ -12,8 +12,7 @@ function shouldConsiderToken(token: UtteranceToken): boolean {
 }
 
 function getEntitiesEncoding(utt: Utterance, customEntities: string[]): number[] {
-  const allEntities = [...customEntities, ...DucklingEntityExtractor.entityTypes]
-  const entityMap: _.Dictionary<number> = allEntities.reduce((map, next) => ({ ...map, [next]: 0 }), {})
+  const entityMap: _.Dictionary<number> = customEntities.reduce((map, next) => ({ ...map, [next]: 0 }), {})
   utt.entities.forEach(e => entityMap[e.type]++)
   return _.chain(entityMap)
     .toPairs()
