@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 :root {
   --main-bg-color: #ffffff;
   --main-bg-color-hover: rgba(255, 255, 255, 0.9);
@@ -7,7 +9,7 @@
 
 body {
   margin: 0 !important;
-  font-family: var(--font-family) !important;
+  font-family: Roboto !important;
   overflow: hidden;
 }
 
