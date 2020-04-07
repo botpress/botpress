@@ -1,0 +1,188 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap');
+
+.bpw-widget-btn {
+  background-color: #066ca8 !important;
+}
+
+.bpw-floating-button {
+  background-image: url('https://www.quebec.ca/typo3conf/ext/gabarit_pgu/Resources/Public/Icons/Favicons/favicon-32x32.png');
+  background-size: 80%;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 100%;
+  box-shadow: -2px 2px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+.bpw-floating-button i {
+  visibility: hidden;
+}
+
+.bpw-widget-btn li {
+  border-radius: 100px;
+}
+
+.bpw-infosource-question {
+  border-bottom-style: solid !important;
+  border-bottom-width: 1px !important;
+  border-bottom-color: darkgray !important;
+  color: darkgray;
+  font-size: 8pt;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.bpw-infosource-source {
+  border-top-style: solid !important;
+  border-top-width: 1px !important;
+  border-top-color: darkgray !important;
+  text-align: right;
+  margin-bottom: -10px;
+}
+.bpw-infosource-text {
+  padding-bottom: 3pt;
+}
+
+.bpw-infosource-linkwrapper {
+  padding-top: 3pt;
+  text-align: right;
+  float: right;
+}
+
+.bpw-infosource-icon {
+  height: 32px;
+  width: 32px;
+  margin: 5px;
+}
+
+.bpw-infosource-url {
+  line-height: 0;
+  font-size: 10pt;
+}
+
+.bpw-infosource-time {
+  text-align: right;
+  color: darkgray;
+  font-size: 8pt;
+}
+
+.bpw-layout {
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.bp-widget-widget {
+  bottom: 0px !important;
+}
+
+.bp-widget-web.bp-widget-side {
+  top: auto !important;
+  left: auto !important;
+  right: 36px !important;
+  bottom: 36px !important;
+  width: 700px !important;
+  height: 80% !important;
+  border-radius: 20px;
+}
+
+.bpw-from-bot .bpw-chat-bubble {
+  background-color: #ececec !important;
+}
+
+.bpw-chat-bubble:last-of-type {
+  border-bottom-right-radius: 20px !important;
+  border-bottom-left-radius: 20px !important;
+}
+
+.bpw-chat-bubble:first-of-type {
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+}
+
+.bpw-from-user .bpw-chat-bubble:last-of-type {
+  border-bottom-right-radius: 0px !important;
+}
+
+.bpw-from-bot .bpw-chat-bubble:last-of-type {
+  border-bottom-left-radius: 0px !important;
+}
+
+.bpw-from-user .bpw-chat-bubble {
+  background-color: #066ca8 !important;
+  color: #fff !important;
+}
+
+.bpw-date-container .bpw-small-line {
+  border-bottom: none !important;
+}
+
+.bpw-date-container {
+  font-weight: 700 !important;
+  font-size: 14px !important;
+}
+
+.bpw-header-container {
+  background-color: #f8f8f8 !important;
+  border-bottom: none !important;
+}
+
+.bpw-bot-avatar img,
+.bpw-bot-avatar svg {
+  border: none !important;
+  border-radius: 50% !important;
+}
+
+.bpw-button {
+  border-radius: 20px !important;
+  border-color: #066ca8 !important;
+  color: #066ca8 !important;
+}
+
+.bpw-composer {
+  padding: 10px 10px 3px !important;
+  background: none !important;
+  border: none !important;
+}
+
+.bpw-composer-inner {
+  position: relative !important;
+  line-height: 0 !important;
+}
+
+.bpw-composer textarea {
+  background: #ececec !important;
+  border-radius: 20px !important;
+  font-size: 1.05rem !important;
+  line-height: 1.6 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.bpw-send-button {
+  background: transparent !important;
+  border-radius: 5px !important;
+  border: none !important;
+  color: #066ca8 !important;
+  cursor: pointer !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  padding: 5px !important;
+  position: absolute !important;
+  right: 15px !important;
+  top: 50% !important;
+  margin-top: -14px !important;
+}
+
+.bpw-send-button:hover {
+  background: transparent !important;
+}
+
+.bpw-powered {
+  font-size: 12px !important;
+  color: #8a8787 !important;
+  border-top: none !important;
+  padding: 0 10px 5px 0 !important;
+}
+
+.bpw-powered a {
+  color: #066ca8 !important;
+}

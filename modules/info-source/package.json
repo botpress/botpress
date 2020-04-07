@@ -1,0 +1,18 @@
+{
+  "name": "info-source",
+  "version": "1.0.0",
+  "description": "Custom content-type to add a footer to bot replies for MSSS",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "googleapis": "^48.0.0",
+    "react-select": "^2.4.2"
+  }
+}

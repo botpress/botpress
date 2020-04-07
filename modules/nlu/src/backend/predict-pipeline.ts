@@ -156,11 +156,27 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
   }
 
   const features = getSentenceEmbeddingForCtx(input.utterance)
-  const predictions = await classifier.predict(features)
+  let ctx_predictions = await classifier.predict(features)
+
+  if (input.alternateUtterance) {
+    const alternateFeats = getSentenceEmbeddingForCtx(input.alternateUtterance)
+    const alternatePreds = await classifier.predict(alternateFeats)
+
+    // we might want to do this in intent election intead or in NDU
+    if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > ctx_predictions[0].confidence) {
+      // mean
+      ctx_predictions = _.chain([...alternatePreds, ...ctx_predictions])
+        .groupBy('label')
+        .mapValues(gr => _.meanBy(gr, 'confidence'))
+        .toPairs()
+        .map(([label, confidence]) => ({ label, confidence }))
+        .value()
+    }
+  }
 
   return {
     ...input,
-    ctx_predictions: predictions
+    ctx_predictions
   }
 }
 
@@ -187,15 +203,17 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
         // Do we want exact preds as well ?
         const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
         const alternatePreds = await predictor.predict(alternateFeats)
-        // we might want to do this in intent election intead
 
-        // mean
-        preds = _.chain([...alternatePreds, ...preds])
-          .groupBy('label')
-          .mapValues(gr => _.meanBy(gr, 'confidence'))
-          .toPairs()
-          .map(([label, confidence]) => ({ label, confidence }))
-          .value()
+        // we might want to do this in intent election intead or in NDU
+        if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > preds[0].confidence) {
+          // mean
+          preds = _.chain([...alternatePreds, ...preds])
+            .groupBy('label')
+            .mapValues(gr => _.meanBy(gr, 'confidence'))
+            .toPairs()
+            .map(([label, confidence]) => ({ label, confidence }))
+            .value()
+        }
       }
 
       return preds

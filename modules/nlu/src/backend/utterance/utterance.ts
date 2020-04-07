@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getClosestToken } from '../language/ft_featurizer'
 import { POSClass } from '../language/pos-tagger'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
+import { getClosestToken } from '../tools/vocab'
 import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
 
 import { parseUtterance } from './utterance-parser'
@@ -320,7 +320,7 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
   return _.chain(utterance.tokens)
     .map(token => {
       const strTok = token.toString({ lowerCase: true })
-      if (!token.isWord || vocabVectors[strTok]) {
+      if (!token.isWord || vocabVectors[strTok] || !_.isEmpty(token.entities)) {
         return uttTok2altTok(token)
       }
 
