@@ -70,6 +70,8 @@ gulp.task('dev:modules', modules.createAllModulesSymlink())
  */
 gulp.task('migration:create', core.createMigration)
 
+gulp.task('check-translations', core.checkTranslations)
+
 gulp.task('changelog', () => {
   // see options here: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages
   const changelogOts = {
