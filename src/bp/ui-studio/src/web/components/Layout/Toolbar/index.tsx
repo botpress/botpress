@@ -3,7 +3,6 @@ import { lang } from 'botpress/shared'
 import classNames from 'classnames'
 import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { updateDocumentationModal } from '~/actions'
 import { AccessControl } from '~/components/Shared/Utils'
 import { keyMap } from '~/keyboardShortcuts'
 
@@ -12,28 +11,27 @@ import ActionItem from './ActionItem'
 
 interface Props {
   isEmulatorOpen: boolean
-  docHints: any
-  updateDocumentationModal: any
   user: any
   botInfo: any
-  onToggleGuidedTour: () => void
+  hasDoc: boolean
+  toggleDocs: () => void
   toggleBottomPanel: () => void
   onToggleEmulator: () => void
 }
 
 const Toolbar: FC<Props> = props => {
-  const { updateDocumentationModal, docHints, onToggleEmulator, isEmulatorOpen, toggleBottomPanel } = props
+  const { toggleDocs, hasDoc, onToggleEmulator, isEmulatorOpen, toggleBottomPanel } = props
 
   return (
     <header className={style.toolbar}>
       <ul className={style.list}>
-        {!!docHints.length && (
+        {hasDoc && (
           <Fragment>
             <ActionItem
               title={lang.tr('toolbar.readDoc')}
               shortcut={keyMap['docs-toggle']}
               description={lang.tr('toolbar.documentationAvailable')}
-              onClick={() => updateDocumentationModal(docHints[0])}
+              onClick={toggleDocs}
             >
               <Icon color="#1a1e22" icon="help" iconSize={16} />
             </ActionItem>
@@ -74,4 +72,4 @@ const mapStateToProps = state => ({
   docHints: state.ui.docHints
 })
 
-export default connect(mapStateToProps, { updateDocumentationModal })(Toolbar)
+export default connect(mapStateToProps)(Toolbar)

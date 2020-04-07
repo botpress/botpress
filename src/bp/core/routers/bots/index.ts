@@ -225,6 +225,15 @@ export class BotsRouter extends CustomRouter {
               window.BOTPRESS_FLOW_EDITOR_DISABLED = ${data.flowEditorDisabled};
           `
 
+        const docs = `{
+          flows: 'main/dialog',
+          action: 'main/code',
+          memory: 'main/memory',
+          content: 'main/content',
+          nlu: 'main/nlu',
+          debug: 'main/emulator'
+        }`
+
         const totalEnv = `
           (function(window) {
               // Common
@@ -241,6 +250,7 @@ export class BotsRouter extends CustomRouter {
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
               window.BOT_LOCKED = ${!!bot.locked};
               window.USE_ONEFLOW = ${!!bot['oneflow']};
+              window.DOCS = ${docs};
               window.WORKSPACE_ID = "${workspaceId}";
               window.IS_BOT_MOUNTED = ${this.botService.isBotMounted(botId)};
               window.EXPERIMENTAL = ${config.experimental};
