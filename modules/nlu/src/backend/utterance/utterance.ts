@@ -320,7 +320,7 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
   return _.chain(utterance.tokens)
     .map(token => {
       const strTok = token.toString({ lowerCase: true })
-      if (!token.isWord || vocabVectors[strTok]) {
+      if (!token.isWord || vocabVectors[strTok] || !_.isEmpty(token.entities)) {
         return uttTok2altTok(token)
       }
 
