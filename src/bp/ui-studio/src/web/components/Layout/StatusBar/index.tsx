@@ -44,6 +44,10 @@ const StatusBar: FC<Props> = props => {
   })
 
   useEffect(() => {
+    if (EventBus.default.eventNames().includes('statusbar.event')) {
+      EventBus.default.off('statusbar.event', handleModuleEvent)
+    }
+
     EventBus.default.on('statusbar.event', handleModuleEvent)
     fetchTrainingSession()
   }, [])
