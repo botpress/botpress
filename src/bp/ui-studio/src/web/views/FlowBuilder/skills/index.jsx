@@ -164,6 +164,7 @@ class SkillsBuilder extends React.Component {
     return (
       <BaseDialog
         title={`${title} | ${lang.tr(skill && skill.name)}`}
+        size="lg"
         className={modalClassName}
         isOpen={this.props.opened}
         onClose={this.onCancel}
