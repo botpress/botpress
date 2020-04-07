@@ -102,11 +102,7 @@ class CreateOrEditModal extends React.Component<Props, State> {
 
   render() {
     return (
-      <BaseDialog
-        title={lang.tr('studio.content.selectContent')}
-        isOpen={this.props.show}
-        onClose={this.props.handleClose}
-      >
+      <BaseDialog isOpen={this.props.show} onClose={this.props.handleClose}>
         <DialogBody>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</DialogBody>
       </BaseDialog>
     )
