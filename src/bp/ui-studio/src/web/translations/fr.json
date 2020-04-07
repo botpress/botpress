@@ -1,19 +1,16 @@
 {
   "statusBar": {
-    "emulator": "Émulateur",
-    "showEmulator": "Afficher l'émulateur",
-    "logsPanel": "Panneau de journalisation",
-    "notifications": "Notifications",
-    "readDoc": "Lire la documentation",
-    "switchBot": "Changer de bot",
-    "backToAdmin": "Retour à l'admin",
-    "switchBotWarning": "Changer de bot. Vous allez quitter cette interface.",
     "contentLanguage": "Langue du contenu",
-    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
-    "toggleLogsPanel": "Basculer le panneau",
-    "toggleGuidedTour": "Basculer le tour guidé",
-    "viewNotifications": "Voir les notifications",
+    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}"
+  },
+
+  "toolbar": {
     "documentationAvailable": "Cet écran possède de la documentation supplémentaire.",
+    "emulator": "Émulateur",
+    "logsPanel": "Panneau de journalisation",
+    "readDoc": "Lire la documentation",
+    "showEmulator": "Afficher l'émulateur",
+    "toggleLogsPanel": "Basculer le panneau",
     "bottomPanel": {
       "scrollToFollow": "Suivre les journaux",
       "downloadLogs": "Télécharger",

@@ -1,4 +1,3 @@
-import '@blueprintjs/core/lib/css/blueprint.css'
 import { lang } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'

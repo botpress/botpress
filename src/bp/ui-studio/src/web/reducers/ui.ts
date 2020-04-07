@@ -8,6 +8,7 @@ import {
   updateGlobalStyle,
   viewModeChanged
 } from '~/actions'
+
 import storage from '../util/storage'
 
 const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
@@ -23,6 +24,7 @@ const defaultState = {
 
 export interface UiReducer {
   viewMode: any
+  docHints: string[]
 }
 
 const reducer = handleActions(

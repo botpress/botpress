@@ -1,19 +1,16 @@
 {
   "statusBar": {
-    "emulator": "Emulator",
-    "showEmulator": "Show Emulator",
-    "logsPanel": "Logs Panel",
-    "notifications": "Notifications",
-    "readDoc": "Read Documentation",
-    "switchBot": "Switch Bot",
-    "backToAdmin": "Back to admin",
-    "switchBotWarning": "Switch to another bot. You will leave this interface.",
     "contentLanguage": "Content Language",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
-    "toggleLogsPanel": "Toggle Logs Panel",
-    "toggleGuidedTour": "Toggle Guided Tour",
-    "viewNotifications": "View Notifications",
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
+  },
+
+  "toolbar": {
     "documentationAvailable": "This screen has documentation available.",
+    "emulator": "Emulator",
+    "logsPanel": "Logs Panel",
+    "readDoc": "Read Documentation",
+    "showEmulator": "Show Emulator",
+    "toggleLogsPanel": "Toggle Logs Panel",
     "bottomPanel": {
       "scrollToFollow": "Scroll to follow logs",
       "downloadLogs": "Download Logs",
