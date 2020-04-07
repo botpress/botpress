@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getClosestToken } from '../language/ft_featurizer'
 import { POSClass } from '../language/pos-tagger'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
+import { getClosestToken } from '../tools/vocab'
 import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
 
 import { parseUtterance } from './utterance-parser'
