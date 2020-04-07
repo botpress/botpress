@@ -3,7 +3,7 @@ import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
-import { Button, Modal } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 import ContentForm from '~/components/ContentForm'
 
 import withLanguage from '../Util/withLanguage'
