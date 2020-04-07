@@ -38,8 +38,7 @@
         "${workspaceFolder}/node_modules/.bin/jest",
         "--runInBand",
         "--rootDir=${workspaceFolder}",
-        "-c=${workspaceFolder}/jest.config.js",
-        "-t='Build exact match index'"
+        "-c=${workspaceFolder}/jest.config.js"
       ],
       "windows": {
         "args": [
