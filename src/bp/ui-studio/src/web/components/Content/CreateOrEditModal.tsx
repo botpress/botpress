@@ -1,5 +1,4 @@
-import { Dialog } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { BaseDialog, DialogBody, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
@@ -103,15 +102,13 @@ class CreateOrEditModal extends React.Component<Props, State> {
 
   render() {
     return (
-      <Dialog
+      <BaseDialog
         title={lang.tr('studio.content.selectContent')}
         isOpen={this.props.show}
         onClose={this.props.handleClose}
-        transitionDuration={0}
-        className={style.modal}
       >
-        <div className={style.modalBody}>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</div>
-      </Dialog>
+        <DialogBody>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</DialogBody>
+      </BaseDialog>
     )
   }
 }

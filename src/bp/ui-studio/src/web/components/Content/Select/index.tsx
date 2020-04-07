@@ -1,9 +1,8 @@
-import { Dialog } from '@blueprintjs/core'
 import axios from 'axios'
-import { lang } from 'botpress/shared'
+import { BaseDialog, DialogBody, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React, { Component } from 'react'
-import { Alert, Button, Modal } from 'react-bootstrap'
+import { Alert, Button } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
 import {
@@ -17,7 +16,6 @@ import Loading from '~/components/Util/Loading'
 import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 import withLanguage from '../../Util/withLanguage'
-import parentStyle from '../style.scss'
 import CreateOrEditModal from '../CreateOrEditModal'
 
 import style from './style.scss'
@@ -356,13 +354,8 @@ class SelectContent extends Component<Props, State> {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Dialog
-        title={lang.tr('studio.content.selectContent')}
-        isOpen={show}
-        onClose={this.onClose}
-        transitionDuration={0}
-      >
-        <div className={parentStyle.modalBody}>{this.renderBody()}</div>
+      <BaseDialog title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
+        <DialogBody>{this.renderBody()}</DialogBody>
         <CreateOrEditModal
           show={!!newItemCategory}
           schema={schema.json}
@@ -372,7 +365,7 @@ class SelectContent extends Component<Props, State> {
           handleEdit={this.handleFormEdited}
           handleCreateOrUpdate={this.handleCreate}
         />
-      </Dialog>
+      </BaseDialog>
     )
   }
 }
