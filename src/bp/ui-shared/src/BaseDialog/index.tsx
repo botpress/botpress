@@ -19,7 +19,14 @@ export const BaseDialog: FC<BaseDialogProps> = props => {
   }
 
   return (
-    <Dialog transitionDuration={0} canOutsideClickClose={false} enforceFocus={false} style={{ width }} {...props}>
+    <Dialog
+      className={style.dialog}
+      transitionDuration={0}
+      canOutsideClickClose={false}
+      enforceFocus={false}
+      style={{ width }}
+      {...props}
+    >
       {props.onSubmit ? <form onSubmit={onSubmit}>{props.children}</form> : props.children}
     </Dialog>
   )
