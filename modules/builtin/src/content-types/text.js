@@ -70,7 +70,7 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_text',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.text.title',
+  title: 'text',
 
   jsonSchema: {
     description: 'module.builtin.types.text.description',

@@ -1,4 +1,5 @@
 import { Button, Card, Divider, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
@@ -76,37 +77,56 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
       onClick={e => onItemClicked()}
     >
       <div style={{ marginRight: '5%' }}>
-        <h4>Details</h4>
-        <div>Event Id: {feedbackItem.eventId}</div>
-        <div>Session ID: {feedbackItem.sessionId}</div>
-        <div>Timestamp: {moment(feedbackItem.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</div>
+        <h4>{lang.tr('module.bot-improvement.details')}</h4>
         <div>
-          <h4>Detected Intent</h4>
-          Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
+          {lang.tr('module.bot-improvement.eventId')}: {feedbackItem.eventId}
+        </div>
+        <div>
+          {lang.tr('module.bot-improvement.sessionId')}: {feedbackItem.sessionId}
+        </div>
+        <div>
+          {lang.tr('module.bot-improvement.timestamp')}:{' '}
+          {moment(feedbackItem.timestamp).format('MMMM Do YYYY, h:mm:ss a')}
+        </div>
+        <div>
+          <h4>{lang.tr('module.bot-improvement.detectedIntent')}</h4>
+          {lang.tr('module.bot-improvement.type')}:{' '}
+          {feedbackItem.source.type === 'qna'
+            ? lang.tr('module.bot-improvement.qna')
+            : lang.tr('module.bot-improvement.startGoal')}
           {feedbackItem.source.type === 'qna' && feedbackItem.source.qnaItem && (
-            <div>Question: {feedbackItem.source.qnaItem?.data.questions[contentLang][0]}</div>
+            <div>
+              {lang.tr('module.bot-improvement.question')}:{' '}
+              {feedbackItem.source.qnaItem?.data.questions[contentLang][0]}
+            </div>
           )}
-          {feedbackItem.source.type === 'goal' && <div>Goal: {feedbackItem.source.goal.id}</div>}
+          {feedbackItem.source.type === 'goal' && (
+            <div>
+              {lang.tr('module.bot-improvement.goal')}: {feedbackItem.source.goal.id}
+            </div>
+          )}
         </div>
       </div>
       <Divider style={{ marginRight: '3%' }} />
       <div className={style.intentCorrectionForm}>
-        <h4>Intent shoud have been:</h4>
+        <h4>{lang.tr('module.bot-improvement.intentShouldHaveBeen')}:</h4>
 
         <Label>
-          Type
+          {lang.tr('module.bot-improvement.type')}
           <HTMLSelect
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionTypeChange(e.target.value)}
             value={feedbackItem.correctedActionType}
           >
-            {qnaItems.length > 0 && <option value="qna">Q&A</option>}
-            {goals.length > 0 && <option value="start_goal">Start Goal</option>}
+            {qnaItems.length > 0 && <option value="qna">{lang.tr('module.bot-improvement.qna')}</option>}
+            {goals.length > 0 && <option value="start_goal">{lang.tr('module.bot-improvement.startGoal')}</option>}
           </HTMLSelect>
         </Label>
 
         <Label>
-          {feedbackItem.correctedActionType === 'qna' ? 'Question' : 'Goal'}
+          {feedbackItem.correctedActionType === 'qna'
+            ? lang.tr('module.bot-improvement.question')
+            : lang.tr('module.bot-improvement.goal')}
           <HTMLSelect
             onClick={e => e.stopPropagation()}
             onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
@@ -129,12 +149,12 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
 
         {feedbackItem.status === 'pending' && (
           <Button icon="tick" onClick={e => markAsSolved()}>
-            Mark as solved
+            {lang.tr('module.bot-improvement.markSolved')}
           </Button>
         )}
         {feedbackItem.status === 'solved' && (
           <Button icon="issue" onClick={e => markAsPending()}>
-            Mark as pending
+            {lang.tr('module.bot-improvement.markPending')}
           </Button>
         )}
       </div>

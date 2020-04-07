@@ -108,12 +108,12 @@ export const ListEntityEditor: React.FC<Props> = props => {
           label={
             <span>
               <Tooltip
-                content={lang.tr('nlu.entities.occurrenceTooltip')}
+                content={lang.tr('module.nlu.entities.occurrenceTooltip')}
                 position={Position.LEFT}
                 popoverClassName={style.configPopover}
               >
                 <span>
-                  {lang.tr('nlu.entities.newOccurrence')}&nbsp;
+                  {lang.tr('module.nlu.entities.newOccurrence')}&nbsp;
                   <Icon icon="help" color={Colors.GRAY3} />
                 </span>
               </Tooltip>
@@ -125,14 +125,14 @@ export const ListEntityEditor: React.FC<Props> = props => {
             rightElement={<Button icon="add" minimal onClick={addOccurrence} disabled={isNewOccurrenceEmpty()} />}
             type="text"
             id="occurrence"
-            placeholder={lang.tr('nlu.entities.occurrencePlaceholder')}
+            placeholder={lang.tr('module.nlu.entities.occurrencePlaceholder')}
             value={newOccurrence}
             onKeyDown={e => e.keyCode === 13 && addOccurrence()}
             onChange={e => setNewOccurrence(e.target.value)}
           />
         </FormGroup>
         {state.occurrences.length > 0 && (
-          <FormGroup label={lang.tr('nlu.entities.occurrenceLabel')}>
+          <FormGroup label={lang.tr('module.nlu.entities.occurrenceLabel')}>
             {state.occurrences.map((o, i) => (
               <Occurrence
                 key={o.name}
@@ -148,21 +148,21 @@ export const ListEntityEditor: React.FC<Props> = props => {
         <FormGroup
           label={
             <Tooltip
-              content={lang.tr('nlu.entities.fuzzyTooltip')}
+              content={lang.tr('module.nlu.entities.fuzzyTooltip')}
               position={Position.LEFT}
               popoverClassName={style.configPopover}
             >
               <span>
-                {lang.tr('nlu.entities.fuzzyLabel')}&nbsp;
+                {lang.tr('module.nlu.entities.fuzzyLabel')}&nbsp;
                 <Icon icon="help" color={Colors.GRAY3} />
               </span>
             </Tooltip>
           }
         />
         <RadioGroup onChange={handleFuzzyChange} selectedValue={state.fuzzy} inline>
-          <Radio label={lang.tr('nlu.entities.strict')} value={FuzzyTolerance.Strict} />
-          <Radio label={lang.tr('nlu.entities.medium')} value={FuzzyTolerance.Medium} />
-          <Radio label={lang.tr('nlu.entities.loose')} value={FuzzyTolerance.Loose} />
+          <Radio label={lang.tr('module.nlu.entities.strict')} value={FuzzyTolerance.Strict} />
+          <Radio label={lang.tr('module.nlu.entities.medium')} value={FuzzyTolerance.Medium} />
+          <Radio label={lang.tr('module.nlu.entities.loose')} value={FuzzyTolerance.Loose} />
         </RadioGroup>
       </div>
     </div>

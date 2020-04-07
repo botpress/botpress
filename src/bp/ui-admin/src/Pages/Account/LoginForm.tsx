@@ -17,7 +17,7 @@ export const LoginForm: FC<Props> = props => {
 
   return (
     <form onSubmit={onSubmit}>
-      <FormGroup label={lang.tr('admin.email')}>
+      <FormGroup label={lang.tr('email')}>
         <InputGroup
           tabIndex={1}
           value={email}

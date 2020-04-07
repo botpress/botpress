@@ -19,13 +19,13 @@ export const UsageModal: FC<Props> = props => {
 
   const columns = [
     {
-      Header: lang.tr('studio.flow.content.usageModal.type'),
+      Header: lang.tr('type'),
       filterable: false,
       accessor: 'type',
       width: 100
     },
     {
-      Header: lang.tr('studio.flow.content.usageModal.name'),
+      Header: lang.tr('name'),
       filterable: false,
       accessor: 'name',
       Cell: x => {
@@ -35,7 +35,7 @@ export const UsageModal: FC<Props> = props => {
       }
     },
     {
-      Header: lang.tr('studio.flow.content.usageModal.node'),
+      Header: lang.tr('studio.content.usageModal.node'),
       filterable: false,
       accessor: 'node',
       Cell: x => {
@@ -44,7 +44,7 @@ export const UsageModal: FC<Props> = props => {
       }
     },
     {
-      Header: lang.tr('studio.flow.content.usageModal.count'),
+      Header: lang.tr('count'),
       filterable: false,
       accessor: 'count',
       width: 80,
@@ -74,7 +74,7 @@ export const UsageModal: FC<Props> = props => {
   const pageCount = Math.ceil(props.usage.length / getPageSize)
   return (
     <Dialog
-      title={lang.tr('studio.flow.content.usageModal.contentUsage')}
+      title={lang.tr('studio.content.usageModal.contentUsage')}
       isOpen={props.isOpen}
       className={style.modal}
       onClose={props.handleClose}
@@ -92,6 +92,11 @@ export const UsageModal: FC<Props> = props => {
           defaultPageSize={getPageSize}
           className="-striped -highlight"
           pages={pageCount}
+          previousText={lang.tr('previous')}
+          nextText={lang.tr('next')}
+          pageText={lang.tr('page')}
+          ofText={lang.tr('of')}
+          rowsText={lang.tr('rows')}
         />
       </div>
     </Dialog>

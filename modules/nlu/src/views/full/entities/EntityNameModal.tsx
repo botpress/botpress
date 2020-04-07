@@ -8,11 +8,11 @@ import { NLUApi } from '../../api'
 
 const AVAILABLE_TYPES = [
   {
-    label: 'List',
+    label: lang.tr('list'),
     value: 'list'
   },
   {
-    label: 'Pattern',
+    label: lang.tr('pattern'),
     value: 'pattern'
   }
 ]
@@ -91,21 +91,21 @@ export const EntityNameModal: FC<Props> = props => {
   const isIdentical = props.action === 'rename' && props.originalEntity.name === name
   const alreadyExists = !isIdentical && _.some(props.entityIDs, id => id === getEntityId(name))
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('nlu.createActionLabel') }
-  let submitText = lang.tr('nlu.createActionLabel')
+  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('create') }
+  let submitText = lang.tr('create')
   if (props.action === 'duplicate') {
-    dialog = { icon: 'duplicate', title: 'Duplicate Entity' }
-    submitText = lang.tr('nlu.duplicateActionLabel')
+    dialog = { icon: 'duplicate', title: 'module.nlu.entities.duplicate' }
+    submitText = lang.tr('duplicate')
   } else if (props.action === 'rename') {
-    dialog = { icon: 'edit', title: 'Rename Entity' }
-    submitText = lang.tr('nlu.renameActionLabel')
+    dialog = { icon: 'edit', title: 'module.nlu.entities.rename' }
+    submitText = lang.tr('rename')
   }
 
   return (
     <Dialog isOpen={props.isOpen} onClose={props.closeModal} transitionDuration={0} {...dialog}>
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label={lang.tr('nlu.entities.nameLabel')}>
+          <FormGroup label={lang.tr('name')}>
             <input
               required
               name="name"
@@ -113,7 +113,7 @@ export const EntityNameModal: FC<Props> = props => {
               tabIndex={1}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               dir="auto"
-              placeholder={lang.tr('nlu.entities.namePlaceHolder')}
+              placeholder={lang.tr('module.nlu.entities.namePlaceholder')}
               value={name}
               onChange={e => setName(e.target.value)}
               autoFocus
@@ -132,8 +132,8 @@ export const EntityNameModal: FC<Props> = props => {
           )}
 
           {alreadyExists && (
-            <Callout title={lang.tr('nlu.entities.nameConflictTitle')} intent={Intent.DANGER}>
-              {lang.tr('nlu.entities.nameConflictMessage')}
+            <Callout title={lang.tr('module.nlu.entities.nameConflictTitle')} intent={Intent.DANGER}>
+              {lang.tr('module.nlu.entities.nameConflictMessage')}
             </Callout>
           )}
         </div>

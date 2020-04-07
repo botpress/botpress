@@ -90,7 +90,7 @@ export const LiteEditor: FC<Props> = props => {
         toggle={toggleModal}
         intents={intents}
         onSubmit={createIntent}
-        title={lang.tr('nlu.intents.createLabel')}
+        title={lang.tr('module.nlu.intents.createLabel')}
       />
       {currentIntent && (
         <IntentEditor
@@ -104,8 +104,8 @@ export const LiteEditor: FC<Props> = props => {
 
       <div className={style.chooseContainer}>
         <ControlGroup>
-          <FormGroup label={lang.tr('nlu.intents.chooseContainerLabel')}>
-            <Button text={lang.tr('nlu.intents.createLabel')} onClick={toggleModal} />
+          <FormGroup label={lang.tr('module.nlu.intents.chooseContainerLabel')}>
+            <Button text={lang.tr('module.nlu.intents.createLabel')} onClick={toggleModal} />
             <IntentDropdown intents={intents} currentIntent={currentIntent} onChange={onIntentChanged} />
           </FormGroup>
         </ControlGroup>

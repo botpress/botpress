@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
@@ -78,10 +79,7 @@ const FlowBuilder = (props: Props) => {
   useEffect(() => {
     if (props.errorSavingFlows) {
       const { status } = props.errorSavingFlows
-      const message =
-        status === 403
-          ? 'Unauthorized flow update. You have insufficient role privileges to modify flows.'
-          : 'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition'
+      const message = status === 403 ? lang.tr('studio.unauthUpdate') : lang.tr('studio.errorWhileSaving')
       toastFailure(message, Timeout.LONG, props.clearErrorSaveFlows, { delayed: true })
     }
   }, [props.errorSavingFlows])
@@ -139,7 +137,7 @@ const FlowBuilder = (props: Props) => {
     },
     save: e => {
       e.preventDefault()
-      toastInfo('Pssst! Flows now save automatically, no need to save anymore.', Timeout.LONG)
+      toastInfo(lang.tr('studio.nowSaveAuto'), Timeout.LONG)
     },
     delete: e => {
       if (!isInputFocused()) {

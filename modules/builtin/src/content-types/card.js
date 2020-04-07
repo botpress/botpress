@@ -4,30 +4,30 @@ const Carousel = require('./carousel')
 module.exports = {
   id: 'builtin_card',
   group: 'Built-in Messages',
-  title: 'Card',
+  title: 'card',
 
   jsonSchema: {
-    description: 'A card message with a title with optional subtitle, image and action buttons.',
+    description: 'module.builtin.types.card.description',
     type: 'object',
     required: ['title'],
     properties: {
       title: {
         type: 'string',
-        title: 'Title'
+        title: 'title'
       },
       subtitle: {
         type: 'string',
-        title: 'Subtitle'
+        title: 'subtitle'
       },
       image: {
         type: 'string',
         $subtype: 'media',
         $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
-        title: 'Image'
+        title: 'image'
       },
       actions: {
         type: 'array',
-        title: 'Action Buttons',
+        title: 'module.builtin.actionButton',
         items: ActionButton.jsonSchema
       }
     }

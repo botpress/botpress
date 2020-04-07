@@ -1,4 +1,5 @@
-import { lang, langExtend, langInit, langLocale } from './translations'
+import TooltipStyle from './style/tooltip.scss'
+import { lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { BaseDialog, DialogBody, DialogFooter } from './BaseDialog'
 import confirmDialog from './ConfirmDialog'
 import Dropdown from './Dropdown'
@@ -16,7 +17,8 @@ exports.lang = {
   tr: lang,
   init: langInit,
   extend: langExtend,
-  locale: langLocale
+  getLocale: langLocale,
+  getAvailable: langAvaibale
 }
 exports.MarkdownContent = MarkdownContent
 exports.toastFailure = toastFailure

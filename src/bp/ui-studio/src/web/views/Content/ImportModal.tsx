@@ -36,13 +36,13 @@ export const ImportModal: FC<Props> = props => {
       const { data } = await axios.post(`${window.BOT_API_PATH}/content/analyzeImport`, form, axiosConfig)
 
       if (!data.fileCmsCount) {
-        setUploadStatus(lang.tr('studio.flow.content.import.notAbleToExtractData'))
+        setUploadStatus(lang.tr('studio.content.import.notAbleToExtractData'))
         setHasError(true)
       }
 
       if (data.missingContentTypes.length) {
         setUploadStatus(
-          lang.tr('studio.flow.content.import.missingContentTypes', { types: data.missingContentTypes.join(', ') })
+          lang.tr('studio.content.import.missingContentTypes', { types: data.missingContentTypes.join(', ') })
         )
         setHasError(true)
       }
@@ -111,9 +111,9 @@ export const ImportModal: FC<Props> = props => {
       >
         <div className={Classes.DIALOG_BODY}>
           <FormGroup
-            label={<span>{lang.tr('studio.flow.content.import.selectFile')}</span>}
+            label={<span>{lang.tr('studio.content.import.selectFile')}</span>}
             labelFor="input-json"
-            helperText={<span>{lang.tr('studio.flow.content.import.selectFileMore')}</span>}
+            helperText={<span>{lang.tr('studio.content.import.selectFileMore')}</span>}
           >
             <FileInput
               text={filePath || lang.tr('chooseFile')}
@@ -146,7 +146,7 @@ export const ImportModal: FC<Props> = props => {
         <div className={Classes.DIALOG_BODY}>
           <div>
             <p>
-              {lang.tr('studio.flow.content.import.compareNbElements', {
+              {lang.tr('studio.content.import.compareNbElements', {
                 fileCmsCount: <strong>{fileCmsCount}</strong>,
                 cmsCount: <strong>{cmsCount}</strong>
               })}
@@ -154,14 +154,14 @@ export const ImportModal: FC<Props> = props => {
 
             <div style={{ marginTop: 30 }}>
               <RadioGroup
-                label={lang.tr('studio.flow.content.import.whatLikeDo')}
+                label={lang.tr('studio.content.import.whatLikeDo')}
                 onChange={e => setImportAction(e.target['value'])}
                 selectedValue={importAction}
               >
-                <Radio id="radio-insert" label={lang.tr('studio.flow.content.import.updateMissing')} value="insert" />
+                <Radio id="radio-insert" label={lang.tr('studio.content.import.updateMissing')} value="insert" />
                 <Radio
                   id="radio-clearInsert"
-                  label={lang.tr('studio.flow.content.import.clearExisting')}
+                  label={lang.tr('studio.content.import.clearExisting')}
                   value="clear_insert"
                 />
               </RadioGroup>
@@ -189,7 +189,7 @@ export const ImportModal: FC<Props> = props => {
       <Fragment>
         <div className={Classes.DIALOG_BODY}>
           <Callout
-            title={hasError ? lang.tr('error') : lang.tr('studio.flow.content.import.uploadStatus')}
+            title={hasError ? lang.tr('error') : lang.tr('studio.content.import.uploadStatus')}
             intent={hasError ? Intent.DANGER : Intent.PRIMARY}
           >
             {uploadStatus}
@@ -212,13 +212,13 @@ export const ImportModal: FC<Props> = props => {
         <Button
           icon="download"
           id="btn-importJson"
-          text={lang.tr('studio.flow.content.import.import')}
+          text={lang.tr('studio.content.import.import')}
           onClick={() => setDialogOpen(true)}
         />
       </AccessControl>
 
       <Dialog
-        title={analysis ? lang.tr('studio.flow.content.import.analysis') : lang.tr('studio.flow.content.import.upload')}
+        title={analysis ? lang.tr('studio.content.import.analysis') : lang.tr('studio.content.import.upload')}
         icon="import"
         isOpen={isDialogOpen}
         onClose={closeDialog}

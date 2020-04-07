@@ -1,5 +1,6 @@
 import { Callout, Icon } from '@blueprintjs/core'
 import { Tab, Tabs } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -75,15 +76,15 @@ export default props => {
   if (!feedbackItems.length) {
     return (
       <div className={style.noFeedbackItems}>
-        <Callout title={'No feedback items'} style={{ width: '30%', margin: 'auto' }}>
-          Feedback items are created when chat users give negative feedback on bot messages
+        <Callout title={lang.tr('module.bot-improvement.noFeedbackItems')} style={{ width: '30%', margin: 'auto' }}>
+          {lang.tr('module.bot-improvement.feedbackItemsCreated')}
         </Callout>
       </div>
     )
   }
 
   if (feedbackItemsLoading) {
-    return <Callout>Loading...</Callout>
+    return <Callout>{lang.tr('module.bot-improvement.loading')}</Callout>
   }
 
   const updateFeedbackItem = async (item: FeedbackItem) => {
@@ -96,7 +97,7 @@ export default props => {
   return (
     <Container sidePanelWidth={750}>
       <div className={style.feedbackItemsContainer}>
-        <h2>Feedback Items</h2>
+        <h2>{lang.tr('module.bot-improvement.feedbackItems')}</h2>
         <Tabs
           selectedTabId={selectedTabId}
           onChange={(newTabId: SelectedTabId) => {
@@ -112,7 +113,7 @@ export default props => {
             id="pending"
             title={
               <>
-                <Icon icon="issue" /> Pending
+                <Icon icon="issue" /> {lang.tr('module.bot-improvement.pending')}
               </>
             }
             panel={
@@ -136,7 +137,7 @@ export default props => {
             id="solved"
             title={
               <>
-                <Icon icon="tick" /> Solved
+                <Icon icon="tick" /> {lang.tr('module.bot-improvement.solved')}
               </>
             }
             panel={
