@@ -1,4 +1,5 @@
-import { Button, Classes, Intent } from '@blueprintjs/core'
+import { Button, Classes, Icon, Intent } from '@blueprintjs/core'
+import cx from 'classnames'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
@@ -22,18 +23,15 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   }
 
   return (
-    <BaseDialog
-      title={props.title || lang('confirmPrompt')}
-      icon="warning-sign"
-      usePortal={false}
-      isOpen
-      onClose={onDecline}
-    >
-      <DialogBody>{props.message}</DialogBody>
+    <BaseDialog icon="warning-sign" usePortal={false} isOpen onClose={onDecline} className={styles.dialog}>
+      <DialogBody>
+        <Icon icon="warning-sign" iconSize={32} className={styles.icon} />
+        {props.message}
+      </DialogBody>
       <DialogFooter>
         <Button
           id="confirm-dialog-decline"
-          className={Classes.BUTTON}
+          className={styles.button}
           type="button"
           onClick={onDecline}
           text={props.declineLabel || lang('cancel')}
@@ -42,12 +40,12 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
         />
         <Button
           id="confirm-dialog-accept"
-          className={Classes.BUTTON}
+          className={cx(styles.button, styles.confirmButton)}
           type="button"
           onClick={onAccept}
           text={props.acceptLabel || lang('ok')}
           tabIndex={3}
-          intent={Intent.PRIMARY}
+          intent={Intent.NONE}
         />
       </DialogFooter>
     </BaseDialog>
