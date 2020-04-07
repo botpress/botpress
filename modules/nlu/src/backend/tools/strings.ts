@@ -74,6 +74,62 @@ export function levenshtein(a: string, b: string): number {
 }
 
 /**
+ * @param a string
+ * @param b string
+ * @returns the # of operations required to go from a to b but consider letter swap as 1
+ * @see {@link https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance#Distance_with_adjacent_transpositions} for more info
+ */
+export function damerauLevenshtein(a: string, b: string) {
+  const an = a ? a.length : 0
+  const bn = b ? b.length : 0
+  if (an === 0) {
+    return bn
+  }
+  if (bn === 0) {
+    return an
+  }
+
+  const maxDist = an + bn
+  const matrix = new Array(an + 2)
+  const alphaMap = {}
+  for (let i = 0; i < an + 2; i++) matrix[i] = new Array(bn + 2)
+  matrix[0][0] = maxDist
+  for (let i = 0; i <= an; i++) {
+    matrix[i + 1][1] = i
+    matrix[i + 1][0] = maxDist
+    alphaMap[a[i]] = 0
+  }
+  for (let j = 0; j <= bn; j++) {
+    matrix[1][j + 1] = j
+    matrix[0][j + 1] = maxDist
+    alphaMap[b[j]] = 0
+  }
+
+  for (let i = 1; i <= an; i++) {
+    let DB = 0
+    for (let j = 1; j <= bn; j++) {
+      const k = alphaMap[b[j - 1]]
+      const l = DB
+      let cost: number
+      if (a[i - 1] === b[j - 1]) {
+        cost = 0
+        DB = j
+      } else {
+        cost = 1
+      }
+      matrix[i + 1][j + 1] = Math.min(
+        matrix[i][j] + cost, // substitution
+        matrix[i + 1][j] + 1, // insertion
+        matrix[i][j + 1] + 1, // deletion
+        matrix[k] ? matrix[k][l] + (i - k - 1) + 1 + (j - l - 1) : Infinity // transposition
+      )
+    }
+    alphaMap[a[i - 1]] = i
+  }
+  return matrix[an + 1][bn + 1]
+}
+
+/**
  * @returns number of alpha characters in a string
  */
 export const countAlpha = (cantidate: string): number =>
