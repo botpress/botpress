@@ -3,7 +3,8 @@ import _ from 'lodash'
 
 import { getOrCreateCache } from './cache-manager'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
+import { getCtxFeatures } from './intents/context-featurizer'
+import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -195,12 +196,17 @@ export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
+const getCustomEntitiesNames = (input: TrainOutput): string[] => {
+  return [...input.list_entities.map(e => e.entityName), ...input.pattern_entities.map(e => e.name)]
+}
+
 const TrainIntentClassifier = async (
   input: TrainOutput,
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
   debugTraining.forBot(input.botId, 'Training intent classifier')
+  const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
   for (let i = 0; i < input.contexts.length; i++) {
     const ctx = input.contexts[i]
@@ -211,7 +217,7 @@ const TrainIntentClassifier = async (
           .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
           .map(utt => ({
             label: i.name,
-            coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
+            coordinates: getIntentFeatures(utt, customEntities)
           }))
       )
       .filter(x => !x.coordinates.some(isNaN))
@@ -239,13 +245,14 @@ const TrainContextClassifier = async (
   progress: progressCB
 ): Promise<string | undefined> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
+  const customEntities = [...input.list_entities.map(e => e.entityName), ...input.pattern_entities.map(e => e.name)]
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: getSentenceEmbeddingForCtx(utt)
+          coordinates: getCtxFeatures(utt, customEntities)
         }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
