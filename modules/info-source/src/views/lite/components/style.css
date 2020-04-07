@@ -1,0 +1,27 @@
+.bpw-infosource-question {
+  color: #8b8c8d;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #f1f2f3;
+}
+
+.bpw-infosource-source {
+  text-align: right;
+  margin-bottom: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.bpw-infosource-url {
+  text-transform: none;
+  line-height: 0;
+  font-size: 10px;
+  margin-right: 4px;
+}
+
+.bpw-infosource-time {
+  text-align: right;
+  color: darkgray;
+  font-size: 10px;
+}
