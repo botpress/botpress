@@ -1,3 +1,4 @@
+import { Dialog } from '@blueprintjs/core'
 import axios from 'axios'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
@@ -16,9 +17,10 @@ import Loading from '~/components/Util/Loading'
 import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 import withLanguage from '../../Util/withLanguage'
+import parentStyle from '../style.scss'
 import CreateOrEditModal from '../CreateOrEditModal'
 
-const style = require('./style.scss')
+import style from './style.scss'
 
 const SEARCH_RESULTS_LIMIT = 10
 
@@ -354,19 +356,13 @@ class SelectContent extends Component<Props, State> {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal
-        animation={false}
-        show={show}
-        onHide={this.onClose}
-        container={container}
-        style={{ zIndex: 1051 }}
-        backdrop={'static'}
+      <Dialog
+        title={lang.tr('studio.content.selectContent')}
+        isOpen={show}
+        onClose={this.onClose}
+        transitionDuration={0}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>{lang.tr('studio.content.selectContent')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{this.renderBody()}</Modal.Body>
-
+        <div className={parentStyle.modalBody}>{this.renderBody()}</div>
         <CreateOrEditModal
           show={!!newItemCategory}
           schema={schema.json}
@@ -376,7 +372,7 @@ class SelectContent extends Component<Props, State> {
           handleEdit={this.handleFormEdited}
           handleCreateOrUpdate={this.handleCreate}
         />
-      </Modal>
+      </Dialog>
     )
   }
 }

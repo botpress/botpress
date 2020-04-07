@@ -1,3 +1,4 @@
+import { Dialog } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -82,26 +83,35 @@ class CreateOrEditModal extends React.Component<Props, State> {
           isEditing={this.props.isEditing}
           onChange={this.handleEdit}
           onSubmit={this.handleSave}
-        />
-        <button className={classnames('bp-button', 'bp-button-danger', style.cancel)} onClick={this.props.handleClose}>
-          {lang.tr('cancel')}
-        </button>
+        >
+          <div className={style.formBtns}>
+            <button
+              className={classnames('bp-button', 'bp-button-danger')}
+              onClick={this.props.handleClose}
+              type="button"
+            >
+              {lang.tr('cancel')}
+            </button>
+            <button className={classnames('bp-button')} type="submit">
+              {lang.tr('submit')}
+            </button>
+          </div>
+        </ContentForm>
       </div>
     )
   }
 
   render() {
     return (
-      <Modal
-        container={document.getElementById('app')}
+      <Dialog
+        title={lang.tr('studio.content.selectContent')}
+        isOpen={this.props.show}
+        onClose={this.props.handleClose}
+        transitionDuration={0}
         className={style.modal}
-        show={this.props.show}
-        onHide={this.props.handleClose}
-        backdrop={'static'}
-        style={{ zIndex: 1052 }}
       >
-        <Modal.Body>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</Modal.Body>
-      </Modal>
+        <div className={style.modalBody}>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</div>
+      </Dialog>
     )
   }
 }
