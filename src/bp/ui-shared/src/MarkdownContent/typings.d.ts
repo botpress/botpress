@@ -1,5 +1,5 @@
 export interface MarkdownContentProps {
   content: string
-  escapeHTML?: any
+  escapeHTML?: boolean
   markdown?: boolean
 }
