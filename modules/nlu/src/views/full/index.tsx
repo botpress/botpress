@@ -6,7 +6,6 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
-import { initializeTranslations } from '../translations'
 
 import TrainingControl from './common/TrainingControl'
 import EntityEditor from './entities/EntityEditor'
@@ -14,8 +13,6 @@ import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
-
-initializeTranslations()
 
 export interface NluItem {
   name: string
@@ -121,13 +118,13 @@ const NLU: FC<Props> = props => {
       <SidePanel>
         <Tabs id="nlu-tabs" className={style.headerTabs} defaultSelectedTabId="intents" large={false}>
           <Tab id="intents" panel={intentsPanel}>
-            <span>{lang.tr('nlu.intents.intents')}&nbsp;</span>
+            <span>{lang.tr('module.nlu.intents.title')}&nbsp;</span>
             <Tag large={false} round={true} minimal={true}>
               {intents.length}
             </Tag>
           </Tab>
           <Tab id="entities" panel={entitiesPanel}>
-            <span>{lang.tr('nlu.entities.entities')}</span>{' '}
+            <span>{lang.tr('module.nlu.entities.title')}</span>{' '}
             <Tag large={false} round={true} minimal={true}>
               {customEntities.length}
             </Tag>
@@ -141,8 +138,8 @@ const NLU: FC<Props> = props => {
         {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
-            title={lang.tr('nlu.title')}
-            description={lang.tr('nlu.description')}
+            title={lang.tr('module.nlu.title')}
+            description={lang.tr('module.nlu.description')}
           />
         )}
         {!!intents.length && currentItem && currentItem.type === 'intent' && (

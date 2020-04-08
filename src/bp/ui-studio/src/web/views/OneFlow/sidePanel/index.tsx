@@ -1,4 +1,5 @@
 import { Icon } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -82,7 +83,7 @@ const SidePanelContent: FC<Props> = props => {
     id: 'btn-add-flow',
     icon: <Icon icon="add" />,
     key: 'create',
-    tooltip: 'Create new topic',
+    tooltip: lang.tr('studio.flow.sidePanel.createNewTopic'),
     onClick: () => setCreateTopicOpen(true)
   }
 
@@ -90,7 +91,7 @@ const SidePanelContent: FC<Props> = props => {
     id: 'btn-import',
     icon: <Icon icon="import" />,
     key: 'import',
-    tooltip: 'Import content',
+    tooltip: lang.tr('studio.flow.sidePanel.importContent'),
     onClick: () => setImportModalOpen(true)
   }
 
@@ -160,10 +161,13 @@ const SidePanelContent: FC<Props> = props => {
         <Inspector onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
         <React.Fragment>
-          <Toolbar mutexInfo={props.mutexInfo} />
-          <SearchBar icon="filter" placeholder="Filter topics and workflows" onChange={setTopicFilter} />
+          <SearchBar
+            icon="filter"
+            placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
+            onChange={setTopicFilter}
+          />
 
-          <SidePanelSection label="Topics" actions={topicActions}>
+          <SidePanelSection label={lang.tr('topics')} actions={topicActions}>
             <TopicList
               readOnly={props.readOnly}
               canDelete={canDelete}
@@ -186,8 +190,12 @@ const SidePanelContent: FC<Props> = props => {
             />
           </SidePanelSection>
 
-          <SidePanelSection label="Library">
-            <SearchBar icon="filter" placeholder="Filter library" onChange={setLibraryFilter} />
+          <SidePanelSection label={lang.tr('library')}>
+            <SearchBar
+              icon="filter"
+              placeholder={lang.tr('studio.flow.sidePanel.filterLibrary')}
+              onChange={setLibraryFilter}
+            />
             <Library filter={libraryFilter} />
           </SidePanelSection>
         </React.Fragment>

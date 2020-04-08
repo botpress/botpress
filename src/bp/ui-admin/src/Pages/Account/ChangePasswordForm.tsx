@@ -19,7 +19,7 @@ export const ChangePasswordForm: FC<Props> = props => {
   return (
     <form onSubmit={onSubmit}>
       {props.email && (
-        <FormGroup label={lang.tr('admin.email')}>
+        <FormGroup label={lang.tr('email')}>
           <InputGroup tabIndex={-1} value={props.email} disabled={true} type="text" id="email" />
         </FormGroup>
       )}

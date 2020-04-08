@@ -164,7 +164,7 @@ class StatusBar extends React.Component<Props> {
           {window.IS_BOT_MOUNTED && (
             <React.Fragment>
               <ActionItem
-                title="Show Emulator"
+                title={lang.tr('statusBar.showEmulator')}
                 id={'statusbar_emulator'}
                 shortcut={keyMap['emulator-focus']}
                 onClick={this.props.onToggleEmulator}

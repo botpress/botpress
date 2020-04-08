@@ -15,8 +15,8 @@ class Roles extends Component {
         {this.props.roles.map(role => {
           return (
             <div className="bp_table-row" key={role.id}>
-              <div className="title">{role.name}</div>
-              <p>{role.description}</p>
+              <div className="title">{lang.tr(role.name)}</div>
+              <p>{lang.tr(role.description)}</p>
             </div>
           )
         })}
@@ -26,7 +26,7 @@ class Roles extends Component {
 
   render() {
     return (
-      <PageContainer title={lang.tr('admin.workspace.roles')} helpText={lang.tr('admin.workspace.rolesHelp')}>
+      <PageContainer title={lang.tr('admin.workspace.roles.title')} helpText={lang.tr('admin.workspace.rolesHelp')}>
         {this.renderRoles()}
       </PageContainer>
     )

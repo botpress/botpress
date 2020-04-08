@@ -1,22 +1,6 @@
 {
-  "cancel": "Annuler",
-  "save": "Sauvegarder",
-  "label": "Étiquette",
-  "action": "Action",
-  "copy": "Copier",
-  "move": "Déplacer",
-  "close": "Fermer",
-  "delete": "Supprimer",
-  "chooseFile": "Choisir fichier...",
-  "upload": "Téléverser",
-  "enabled": "Activé",
-  "refresh": "Rafraîchir",
-  "enable": "Activer",
-  "pleaseWait": "Veuillez patienter...",
-  "reset": "Réinitialiser",
-
   "admin": {
-    "botpressIsNotLicensed": "Botpress n'est actuellement pas sous licence. Veuillez mettre à jour votre licence pour réactiver toutes les fonctionnalités.",
+    "botpressIsNotLicensed": "La licence ne semble pas valide. Veuillez mettre à jour votre licence pour réactiver toutes les fonctionnalités.",
     "pageRestrictedToAdmins": "Cette page est réservée aux super-administrateurs",
     "signInWithSSO": "Connectez-vous avec SSO ({strategyId})",
     "signInWithUserPass": "Connectez-vous avec usager/mot de passe",
@@ -27,11 +11,10 @@
     "logout": "Se déconnecter",
     "firstTimeYouRun": "C'est la première fois que vous exécutez Botpress. Veuillez choisir un mot de passe.",
     "setANewPassword": "Votre mot de passe a expiré ou était temporaire. Veuillez définir un nouveau mot de passe.",
-    "email": "Email",
     "newPassword": "Nouveau mot de passe",
     "confirmPassword": "Confirmez le mot de passe",
     "change": "Changement",
-    "login": "S'identifier",
+    "login": "Authentification",
     "password": "Mot de passe",
     "signIn": "Se connecter",
     "createMasterAdminAccount": "C'est la première fois que vous exécutez Botpress. Veuillez créer le compte administrateur principal.",
@@ -39,7 +22,7 @@
     "createAccount": "Créer un compte",
     "successfullyAuthenticated": "Authentification réussie. Vous pouvez fermer cette fenêtre.",
     "authenticationFailed": "Authentification échouée",
-    "poweredBy": "Alimenté par",
+    "poweredBy": "Propulsé par",
     "passwordUpdatedSuccessfully": "Mot de passe mis à jour avec succès",
     "errorUpdatingPassword": "Erreur lors de la mise à jour du mot de passe: {msg}",
     "changeYourPassword": "Changez votre mot de passe",
@@ -51,6 +34,9 @@
     "lastName": "Nom de famille",
     "workspaceName": "Espace de travail: {name}",
     "signedInAs": "Connecté en tant que {name}",
+    "changeLanguage": "Changer la langue",
+    "uiLanguage": "Langue de l'interface utilisateur",
+    "uiLanguageHelper": "Ce paramètre affecte seulement l'interface utilisateur de Botpress et n'a pas d'impact sur la langue de vos bots.",
 
     "sideMenu": {
       "workspace": "Espace de travail",
@@ -62,15 +48,15 @@
       "management": "Gestion",
       "sourceControl": "Contrôle de source",
       "serverLicense": "Licence de serveur",
-      "languages": "Langages",
+      "languages": "Langues",
       "productionChecklist": "Liste de contrôle de production",
 
       "health": "Santé",
-      "monitoring": "Monitoring",
-      "alerting": "Surveillance",
+      "monitoring": "Surveillance",
+      "alerting": "Alertes et incidents",
       "debug": "Débogage",
 
-      "announcements": "Announcements",
+      "announcements": "Annonces",
       "latestReleases": "Dernières nouveautés"
     },
 
@@ -91,9 +77,9 @@
       "column": {
         "date": "Date",
         "hostname": "Nom d'hôte",
-        "botId": "Id du bot",
+        "botId": "ID du bot",
         "level": "Niveau",
-        "scope": "Proté",
+        "scope": "Portée",
         "message": "Message"
       },
       "timespan": {
@@ -165,8 +151,8 @@
         "areYouSure": "Êtes-vous sûr?",
         "waitWhileReboot": "Veuillez patienter pendant le redémarrage du serveur, cela peut prendre quelques secondes.",
         "licensed": "Licencié",
-        "unlicensed": "Sans license",
-        "underLimits": "Sous limites",
+        "unlicensed": "Aucun licence valide",
+        "underLimits": "Les limites ne sont pas atteintes.",
         "limitsBreached": "Limites franchises",
         "clusterFingerprint": "Empreinte digitale du cluster",
         "copyToClipboard": "Copier dans le presse-papier",
@@ -214,14 +200,14 @@
       "pleaseWait": "Veuillez patienter...",
       "downloadArchive": "Télécharger l'archive",
       "sourceControl": "Contrôle de source",
-      "pullToFileSystem": "Pull remote vers le système de fichiers",
+      "pullToFileSystem": "Récupérer les changements distants",
       "useThisCommand": "Utilisez cette commande pour copier les données distantes sur votre système de fichiers local.",
       "clickToCopy": "Cliquez pour copier dans le presse-papiers",
-      "pushLocal": "Push local sur ce serveur",
+      "pushLocal": "Pousser les changements locaux sur ce serveur",
       "pushLocalNeedsBFFS": "Pousser les modifications locales vers un serveur distant n'est possible que lorsque vous utilisez le stockage BPFS \"Base de données\".",
-      "checkOutThe": "Voyez la",
+      "checkOutThe": "Consultez la",
       "documentation": "documentation",
-      "forMorInfo": "pour plus d'information.",
+      "forMorInfo": "pour plus d'informations.",
       "youCanPushWithThisCommand": "Si vous utilisez le stockage de base de données pour BPFS, vous pouvez également envoyer vos modifications locales à la base de données à l'aide de cette commande:",
       "changesPushed": "Changements envoyés avec succès!",
       "serverArchive": "Archive du serveur",
@@ -247,15 +233,31 @@
 
     "debug": {
       "configureDebug": "Configurer le débogage",
-      "helpText": "Cette page vous permet d'activer ou de désactiver certaines étendues de débogage lors de l'utilisation de Botpress. Cette liste est remplie pendant que les fonctionnalités sont utilisées, donc certains éléments peuvent être manquants",
+      "helpText": "Cette page vous permet d'activer ou de désactiver certains éléments de débogage lors de l'utilisation de Botpress. Cette liste est populée pendant que les fonctionnalités sont utilisées, donc certains éléments peuvent être manquants.",
       "persist": "Persister",
       "persistChecked": "Lorsqu'elle est cochée, les options de débogage sélectionnées seront activées après chaque redémarrage du serveur",
       "confUpdated": "La configuration de débogage a été mise à jour avec succès!"
     },
 
     "workspace": {
-      "roles": "Rôles",
-      "rolesHelp": "Pour modifier les rôles, veuillez consulter «rôles» dans le fichier workspaces.json.",
+      "roles": {
+        "title": "Rôles",
+        "helpText": "Pour modifier les rôles, veuillez consulter «rôles» dans le fichier workspaces.json.",
+        "default": {
+          "administrator": {
+            "name": "Administrateur",
+            "description": "Les administrateur ont un accès complet à l'espace de travail, incluant l'ajout de membres et la création de bots."
+          },
+          "developer": {
+            "name": "Développeur",
+            "description": "Les développeurs ont un accès complet en lecture et en écriture aux bots, incluant les flows, le contenu, le NLU et les actions"
+          },
+          "contentEditor": {
+            "name": "Éditeur de contenu",
+            "description": "Les éditeur de contenu ont un accès en lecture et écriture au contenu et au NLU, et un accès en lecture seulement aux flows et aux actions."
+          }
+        }
+      },
 
       "bots": {
         "confirmDelete": "Voulez-vous vraiment supprimer ce bot? Cela ne peut pas être annulé.",
@@ -357,7 +359,6 @@
           "noCollaboratorsYet": "Cet espace de travail n'a pas encore de collaborateurs",
           "filterUsers": "Filtrer les utilisateurs",
           "noMatch": "Aucun utilisateur ne correspond à votre requête",
-          "email": "Email",
           "created": "Créé",
           "lastLogin": "Dernière connexion",
           "passwordResetConfirm": "Voulez-vous vraiment réinitialiser le mot de passe de {user}?",

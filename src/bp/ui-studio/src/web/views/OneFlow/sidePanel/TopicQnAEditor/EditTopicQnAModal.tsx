@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React, { FC } from 'react'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
@@ -13,7 +14,7 @@ interface Props {
 const EditTopicQnAModal: FC<Props> = props => {
   return (
     <BaseDialog
-      title={`Edit Q&A`}
+      title={lang.tr('studio.flow.editQna')}
       icon="edit"
       isOpen={props.isOpen}
       onClose={props.toggle}

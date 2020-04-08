@@ -82,45 +82,94 @@ Here you go, you can now still use the Botpress NLU UI to define your intents/en
 
 We will use a similar strategy for prediction time. Basically, what we want to do is call our 3rd party NLU for each incoming user message. We will use a [before incoming hook](../main/code#before-incoming-middleware) which is fired when a user message gets in Botpress. The code is not complex, just keep in mind that Botpress works with a precise data structure, so you'll need to map the response data of your NLU provider to [Botpress NLU data format](https://botpress.com/reference/interfaces/_botpress_sdk_.io.eventunderstanding.html). The hook will look like the following:
 
-```js
-  const axios = require('axios')
-  function mapPoviderDataToBotpress(data: any): sdk.IO.EventUnderstanding {
-    /**
-    * Mapping code goes here, make sure returned data is properly formatted
-    */
-    // this is placeholder data, return properly formatted
-    return {
-      ambiguous: false,
-      language: 'en',
-      detectedLanguage: 'en',
-      entities: [],
-      errored: false,
-      includedContexts: ['global'],
-      intent: { name: 'none', confidence:, context: 'global' },
-      intents: [],
-      slots: {}
-    }
-  }
+```ts
+async function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent) {
+  /** Your code starts below */
 
-  async function hook() {
-    // filter out unwanted events
+  const myHook = async (bp, event) => {
+    const _ = require('lodash')
+
+    /**
+     * Returns the detected language (e.g. 'en', 'fr', 'es', etc) given a string of text
+     */
+    const detectLanguage = async text => {
+      // Here, you can use your own service to detect the language given the user's text
+      const response = await axios.get('https://langdetect.yourdomain.com', { input: text })
+      return response.data.lang
+    }
+
+    /**
+     * Given an input and its language, returns a nlu-compatible object
+     */
+    const predict = async (lang, text) => {
+      // Important: the result must have this shape in order
+      // for Botpress to process it correctly downstream
+      const result = {
+        entities: [],
+        language: lang,
+        detectedLanguage: lang,
+        ambiguous: false,
+        slots: {},
+        intent: { name: 'none', confidence: 1, context: 'global' },
+        intents: [],
+        errored: false,
+        includedContexts: ['global'],
+        ms: 0
+      }
+
+      let response
+      switch (lang) {
+        case 'en':
+          // You
+          response = await axios.get('https://en-server.yourdomain.com', { input: text })
+          // You are responsible for mapping the response's data
+          // to the result object, so it conforms with Botpress's expected format
+          result.intent = response.data.intent
+          break
+        case 'fr':
+          // We only use intents from this service
+          response = await axios.get('https://detect.nlpfrancais.fr', { input: text })
+          result.intents = response.data.result.intentions
+          break
+        case 'es':
+          // This service returns more relevant information. We reuse
+          // slots, intents and intent from the service's response
+          response = await axios.get('https://nlufrancais.anothercompany.com', { input: text })
+          result.slots = response.data.slots
+          result.intents = response.data.intents
+          result.intent = response.data.intent
+          break
+        default:
+          break
+      }
+
+      return result
+    }
+
+    // Filter out unwanted events
     if (event.type === 'session_reset' || event.type === 'visit' || event.type === 'bp_dialog_timeout') {
       return
     }
-    // event is accessible within current context
-    const botId = event.botId
-    const text = event.preview
 
-    // it's up to you to pass appropriate parameters and change URL according to your NLU provider
-    const response = await axios.post('https://NLUprovider/extract', { text: text, projectId: botId })
+    // We must disable the native NLU for this even,
+    event.setFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU, true)
 
-    // we transform the data retrieved from our external NLU provider to Botpress EventUnderstanding schema and assign it to event.
-    event.nlu = mapPoviderDataToBotpress(response.data)
+    // Now, we detect the language from the user's input
+    const detectedLanguage = await detectLanguage(event.payload.text)
+
+    // Then we process the user's input, knowing the user's language
+    const result = await predict(detectedLanguage, event.payload.text)
+
+    // Finally, we overwrite the nlu property of the event with our results
+    _.assign(event, {
+      nlu: result
+    })
   }
 
-  return hook()
-```
+  return myHook(bp, event)
 
-If you want a detailed implementation of this, there's a working [**Recast AI**](https://recast.ai) example that you can enable by removing the `.` prefix to the `hooks/before_incoming_middleware/.05_recast_nlu.js` file.
+  /** Your code ends here */
+}
+```
 
 That's about it, you now have Botpress integrated with your 3rd party NLU.

@@ -270,6 +270,12 @@ const Logs: FC<Props> = props => {
         filterable
         defaultSorted={[{ id: 'level', desc: false }]}
         className="-striped -highlight monitoringOverview"
+        previousText={lang.tr('previous')}
+        nextText={lang.tr('next')}
+        noDataText={lang.tr('noRowsFound')}
+        pageText={lang.tr('page')}
+        ofText={lang.tr('of')}
+        rowsText={lang.tr('rows')}
       />
     </PageContainer>
   )

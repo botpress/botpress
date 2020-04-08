@@ -38,7 +38,7 @@ const Item: FC<Props> = props => {
       <div className={cx(style.questionTableCell, style.question)} onClick={() => props.onEditItem(id)}>
         {missingTranslations && (
           <Fragment>
-            <Tooltip content={lang.tr('qna.missingTranslations')}>
+            <Tooltip content={lang.tr('module.qna.missingTranslations')}>
               <Icon icon="warning-sign" intent={Intent.DANGER} />
             </Tooltip>
             &nbsp;
@@ -64,7 +64,7 @@ const Item: FC<Props> = props => {
           </Fragment>
         )}
         {!isLite && (item.redirectFlow || item.redirectNode) && (
-          <Tooltip className={style.redirectTooltip} content={lang.tr('qna.redirectsAssociated')}>
+          <Tooltip className={style.redirectTooltip} content={lang.tr('module.qna.redirectsAssociated')}>
             <Icon icon="pivot" />
           </Tooltip>
         )}

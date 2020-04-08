@@ -1,30 +1,7 @@
 {
-  "insert": "Insérer",
-  "save": "Sauvegarder",
-  "cancel": "Annuler",
-  "overwrite": "Écraser",
-  "edit": "Éditer",
-  "remove": "Retirer",
-  "copy": "Copier",
-  "update": "Actualiser",
-  "create": "Créer",
-  "chooseFile": "Choisir fichier...",
-  "pleaseWait": "Veuillez patienter...",
-  "next": "Suivant",
-  "back": "Précédant",
-  "submit": "Soumettre",
-  "error": "Erreur",
-  "delete": "Supprimer",
-  "never": "Jamais",
-  "refresh": "Rafraîchir",
-  "content": "Contenu",
-  "flows": "Flows",
-  "configuration": "Config",
-  "actionRequired": "Action Required",
-  "paste": "Coller",
-
   "statusBar": {
     "emulator": "Émulateur",
+    "showEmulator": "Afficher l'émulateur",
     "logsPanel": "Panneau de journalisation",
     "notifications": "Notifications",
     "readDoc": "Lire la documentation",
@@ -38,31 +15,27 @@
     "viewNotifications": "Voir les notifications",
     "documentationAvailable": "Cet écran possède de la documentation supplémentaire.",
     "bottomPanel": {
-      "logs": "Journalisation",
       "scrollToFollow": "Suivre les journaux",
       "downloadLogs": "Télécharger",
       "clearHistory": "Effacer l'historique",
-      "closePanel": "Fermer le panneau"
+      "closePanel": "Fermer le panneau",
+      "endOfLogs": "Fin des journaux"
     }
   },
 
   "config": {
-    "general": "Général",
-    "status": "Statut",
     "description": "Description",
     "website": "Site web",
     "phoneNumber": "Numéro de téléphone",
-    "contactEmail": "Email de contact",
-    "linkToTerms": "Lien vers termes et conditions",
-    "linkToPolicy": "Lien vers politique de confidentialité",
+    "contactEmail": "Adresse courriel de contact",
+    "linkToTerms": "Lien vers les termes et conditions",
+    "linkToPolicy": "Lien vers les politiques de confidentialité",
     "chooseFile": "Choisir fichier",
     "coverPicture": "Image de couverture",
     "botAvatar": "Avatar de bot",
-    "saveChanges": "Sauvegarder changements",
-    "defaultLanguage": "Langage par défaut",
-    "supportedLanguages": "Langages supprotés",
-    "language": "Langage",
-    "name": "Nom",
+    "defaultLanguage": "Langue par défaut",
+    "supportedLanguages": "Langues supportées",
+    "language": "Langue",
     "botConfiguration": "Configuration du bot",
     "additionalDetails": "Détails supplémentaires",
     "avatarAndCover": "Avatar et photo de couverture",
@@ -71,8 +44,6 @@
     "configUpdated": "La configuration du bot a été mise à jour avec succès",
     "formContainsErrors": "Le formulaire contient des erreurs",
     "requireImageFile": "{targetProp} doit être une image",
-    "details": "Détails",
-    "pictures": "Images",
     "avatarUploadSuccess": "L'avatar du bot a été téléchargé avec succès. Vous devez enregistrer le formulaire pour que les modifications prennent effet.",
     "coverUploadSuccess": "L'image de couverture a été téléchargée avec succès. Vous devez enregistrer le formulaire pour que les modifications prennent effet."
   },
@@ -99,15 +70,129 @@
   },
 
   "studio": {
+    "sideBar": {
+      "content": "Contenu",
+      "flows": "Flows",
+      "config": "Configuration"
+    },
+    "content": {
+      "noContentDefined": "Nous pensons que vous n'avez défini aucun type de contenu.",
+      "pleaseReadDoc": "Veuillez {readTheDocs} pour voir comment vous pouvez utiliser cette fonctionnalité",
+      "readTheDocs": "lire la documentation",
+      "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
+      "contentType": "Type de contenu",
+      "noContent": "Il n'y a pas de contenu ici.",
+      "noContentYet": "Il n'y a pas encore de contenu. Vous pouvez en créer en utilisant le bouton «Ajouter».",
+      "deleteElements": "Supprimer les éléments sélectionnés",
+      "cloneElements": "Cloner les éléments sélectionnés",
+      "searchContent": "Rechercher du contenu",
+      "mustBeDefaultLang": "L'élément doit d'abord être créé dans la langue par défaut.",
+      "switchToDefaultLang": "Basculer sur {defaultLang} et commencer à modifier",
+      "selectContent": "Sélectionner un élément",
+      "searchIn": "Rechercher dans",
+      "currentlySearching": "Type sélectionné",
+      "createNew": "Créer un nouveau {title}",
+
+      "import": {
+        "notAbleToExtractData": "Nous n'avons pas pu extraire de données de votre fichier. Soit le fichier est vide, soit il ne correspond à aucun format connu.",
+        "missingContentTypes": "Votre bot manque les types de contenu suivants: {types}.",
+        "selectFile": "Sélectionnez votre fichier JSON",
+        "selectFileMore": "Sélectionnez un fichier JSON. Il doit être exporté depuis la page Contenu. Vous verrez un résumé des modifications en cliquant sur Suivant",
+        "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
+        "whatLikeDo": "Qu'est-ce que vous aimeriez faire?",
+        "updateMissing": "Mettre à jour ou créer des éléments manquants présents dans mon fichier",
+        "clearExisting": "Effacez tous les éléments existants, puis importez ceux de mon fichier",
+        "uploadStatus": "Statut de téléversement",
+        "import": "Importer JSON",
+        "upload": "Téléverser un fichier",
+        "analysis": "Analyse"
+      },
+
+      "sideBar": {
+        "createNewContent": "Créer nouveau contenu",
+        "createNew": "Créer nouveau {name}",
+        "filterByType": "Filtrer par type de contenu"
+      },
+
+      "usageModal": {
+        "node": "Node",
+        "contentUsage": "Utilisation du contenu"
+      }
+    },
+
     "flow": {
       "unauthUpdate": "Mise à jour de flow non autorisée. Vous ne disposez pas des privilèges de rôle suffisants pour modifier les flows.",
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
       "nowSaveAuto": "Pssst! Les flows sont désormais enregistrés automatiquement, plus besoin d'enregistrer.",
       "sessionStartsHere": "Chaque session utilisateur commence ici",
+      "flowWideTransitions": "{count, plural, one {transition} other {transitions}} à l'échelle du flow",
+      "flowWideOnReceives": "{count, plural, one {réception} other {réceptions}} à l'échelle du flow",
       "addToLibrary": "Ajouter dans la librairie",
       "addNode": "Ajouter une node",
+      "topic": "Sujet",
+      "editQna": "Modifier Q&R",
+      "removeFromLibrary": "Supprimer de la bibliothèque",
+      "setAsStart": "Définir comme point d'entrée",
+      "disconnectNode": "Déconnecter l'élément",
+      "chips": "Chips",
+      "transition": "Transition",
+      "cantDeleteStart": "Vous ne pouvez pas supprimer le point d'entrée.",
+      "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
+      "cantDeleteFailure": "Vous ne pouvez pas supprimer le nœud d'échec.",
+      "copiedToBuffer": "Copié dans le presse-papier",
+      "highlightByName": "Tapez le nom d'un élément",
+
+      "topicList": {
+        "confirmDeleteFlow": "Voulez-vous vraiment supprimer le flow {name}?",
+        "confirmDeleteTopic": "Voulez-vous vraiment supprimer le sujet {name}?",
+        "flowsAssociatedDelete": "{warning} {count} flows associés au sujet seront supprimés",
+        "bigWarning": "ATTENTION:",
+        "editTopic": "Modifier le sujet",
+        "createNewWorkflow": "Créer un nouveau workflow",
+        "exportTopic": "Exporter le sujet",
+        "deleteTopic": "Supprimer le sujet",
+        "importExisting": "Importer un workflow existant",
+        "editQna": "Modifier l'élément",
+        "editWorkflow": "Modifier le workflow",
+        "nbQuestionsInTopic": "Nombre de questions sur ce sujet",
+        "nbTriggersInWorkflow": "Nombre de déclencheurs sur ce workflow",
+        "workflowReceiving": "Workflows référençant ce workflow:",
+        "deleteWorkflow": "Supprimer le workflow"
+      },
+
+      "topicEditor": {
+        "couldNotParseFile": "Impossible de lire le fichier JSON: {msg}",
+        "importedSuccessfully": "{detected} importé avec succès!",
+        "dontExisteWillCreate": "Ces éléments n'existent pas et seront créés",
+        "alreadyExistButDifferent": "Ces éléments existent déjà, mais ils sont différents",
+        "overwrite": "Écraser le contenu existant",
+        "unknownFileType": "Type de fichier inconnu ou format non valide",
+        "willBeOverwritten": "Un élément portant ce nom existe déjà. Le contenu sera écrasé",
+        "willBeCreated": "Cet élément n'existe pas et sera créé",
+        "contentOverview": "Aperçu du contenu",
+        "selectJson": "Sélectionnez votre fichier JSON",
+        "topicName": "Nom du sujet",
+        "workflowName": "Nom du workflow",
+        "noChangesToApply": "Il n'y a aucun changement à appliquer, ou tout les éléments sont identiques au contenu existant",
+        "importContent": "Importer du contenu",
+        "editTopic": "Modifier le sujet",
+        "createNewTopic": "Créer un nouveau sujet",
+        "topicNameHelp": "Choisissez un nom général pour représenter votre sujet, par exemple RH ou TI. Vous pourrez le renommer plus tard.",
+        "createTopic": "Créer un sujet"
+      },
+
+      "workflow": {
+        "create": "Créer workflow",
+        "edit": "Modifier le workflow - {name}",
+        "name": "Nom du workflow",
+        "labelHelp": "L'étiquette est un nom convivial qui remplace le nom dans la liste des sujets"
+      },
 
       "nodeType": {
+        "standard": "Noeud standard",
+        "say": "Dire",
+        "execute": "Exécuter",
+        "router": "Routeur",
         "trigger": "Déclencheur",
         "sendMessage": "Envoyer Message",
         "executeAction": "Exécuter Action",
@@ -117,12 +202,9 @@
       },
 
       "sidePanel": {
-        "create": "Créer",
-        "duplicate": "Dupliquer",
-        "rename": "Renommer",
-        "createFlow": "Créer flow",
-        "duplicateFlow": "Dupliquer flow",
-        "renameFlow": "Renommer flow",
+        "createFlow": "Créer un nouveau flow",
+        "duplicateFlow": "Dupliquer le flow",
+        "renameFlow": "Renommer le flow",
         "flowName": "Nom du flow",
         "flowNameHelp": "Il ne peut contenir que des lettres, des chiffres, des traits de soulignement et des tirets. Vous pouvez également utiliser des barres obliques pour créer des dossiers (ex: myfolder/mynewflow)",
         "flowNamePlaceholder": "Choisissez un nom pour votre flow",
@@ -130,17 +212,12 @@
         "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
         "confirmDeleteFlow": "Voulez-vous vraiment supprimer le flow {name}",
         "node": "Noeud",
-        "say": "Dire",
-        "execute": "Executer",
-        "listen": "Écouter",
-        "router": "Routeur",
-        "action": "Action",
-        "skills": "Compétence",
-        "chips": "Chips",
         "createNewFlow": "Créer nouveau flow",
+        "createNewTopic": "Créer nouveau sujet",
         "filterFlows": "Filtrer les flows",
-        "flows": "Flows",
-        "tools": "Outils"
+        "importContent": "Importer contenu",
+        "filterTopicsAndWorkflows": "Filtrer parmis les sujets et les workflows",
+        "filterLibrary": "Filtrer la librairie"
       },
 
       "toolbar": {
@@ -150,8 +227,6 @@
         "currentlyEditing": "{name} modifie actuellement ce flow",
         "somebodyIsEditing": "Quelqu'un modifie un autre flow",
         "renamingAndDeletingDisabled": "Renommer et supprimer des flows est désactivé",
-        "undo": "Annuler",
-        "redo": "Refaire",
         "whenErrorEncountered": "Lorsqu'une erreur est rencontrée dans le flux, l'utilisateur est redirigé ici",
         "whenDiscussionTimeouts": "Lors d'un délai d'attente de discussion (l'utilisateur ne répond pas dans le délai configuré), il sera redirigé ici."
       },
@@ -182,16 +257,15 @@
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "actionToRun": "Action à exécuter {help}",
         "confirmOverwriteParameters": "Voulez-vous remplacer les paramètres existants?",
-        "say": "say #!{id}",
         "message": "Message",
         "messageToSend": "Message à envoyer",
         "addAction": "Ajouter une nouvelle action",
         "theBotWill": "Le bot va",
-        "saySomething": "💬 Dire quelquechose",
+        "saySomething": "💬 Écrire quelque chose",
         "executeCode": "⚡ Exécuter du code",
         "finishUpdateAction": "Mettre à jour l'action",
         "finishAddAction": "Ajouter action",
-        "unknownParameterType": "`⚠️ Type de paramètre inconnu ({type}). Ce paramètre sera ignoré.",
+        "unknownParameterType": "⚠️ Type de paramètre inconnu ({type}). Ce paramètre sera ignoré.",
         "valuePlaceholder": "Valeur",
         "waitForUserMessage": "Attendre le message de l'utilisateur",
         "onReceive": "Sur réception",
@@ -228,56 +302,6 @@
             "transitionToNode": "Transition vers nœud",
             "transitionToSubflow": "Transition vers subflow"
           }
-        }
-      },
-
-      "content": {
-        "noContentDefined": "Nous pensons que vous n'avez défini aucun type de contenu.",
-        "pleaseReadDoc": "Veuillez {readTheDocs} pour voir comment vous pouvez utiliser cette fonctionnalité",
-        "readTheDocs": "lire la documentation",
-        "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
-        "id": "ID",
-        "contentType": "Type de contenu",
-        "preview": "Aperçu",
-        "modifiedOn": "Modifié le",
-        "createdOn": "Créé le",
-        "usage": "Usage",
-        "noContent": "Il n'y a pas de contenu ici.",
-        "noContentYet": "Il n'y a pas encore de contenu. Vous pouvez en créer en utilisant le bouton «Ajouter».",
-        "deleteElements": "Supprimer les éléments sélectionnés",
-        "cloneElements": "Cloner les éléments sélectionnés",
-        "searchContent": "Rechercher du contenu",
-        "mustBeDefaultLang": "L'élément doit d'abord être créé dans la langue par défaut.",
-        "switchToDefaultLang": "Basculer sur {defaultLang} et commencer à modifier",
-
-        "import": {
-          "notAbleToExtractData": "Nous n'avons pas pu extraire de données de votre fichier. Soit le fichier est vide, soit il ne correspond à aucun format connu.",
-          "missingContentTypes": "Votre bot manque les types de contenu suivants: {types}.",
-          "selectFile": "Sélectionnez votre fichier JSON",
-          "selectFileMore": "Sélectionnez un fichier JSON. Il doit être exporté depuis la page Contenu. Vous verrez un résumé des modifications en cliquant sur Suivant",
-          "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
-          "whatLikeDo": "Qu'est-ce que vous aimeriez faire?",
-          "updateMissing": "Mettre à jour ou créer des éléments manquants présents dans mon fichier",
-          "clearExisting": "Effacez tous les éléments existants, puis importez ceux de mon fichier",
-          "uploadStatus": "Statut de téléversement",
-          "import": "Importer JSON",
-          "upload": "Téléverser un fichier",
-          "analysis": "Analyse"
-        },
-
-        "sideBar": {
-          "all": "Tout",
-          "createNewContent": "Créer nouveau contenu",
-          "createNew": "Créer nouveau {name}",
-          "filterByType": "Filtrer par type de contenu"
-        },
-
-        "usageModal": {
-          "type": "Type",
-          "name": "Nom",
-          "node": "Node",
-          "count": "Count",
-          "contentUsage": "Utilisation du contenu"
         }
       },
 
