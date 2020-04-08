@@ -14,7 +14,7 @@ export const MarkdownContent: FC<MarkdownContentProps> = props => {
     message = <div dangerouslySetInnerHTML={{ __html: html }} />
   }
 
-  return message
+  return message || null
 }
 
 export default MarkdownContent
