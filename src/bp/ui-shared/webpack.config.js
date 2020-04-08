@@ -23,7 +23,6 @@ const config = {
   externals: {
     react: 'React',
     'react-dom': 'ReactDOM',
-    'snarkdown': 'Snarkdown',
     'react-bootstrap': 'ReactBootstrap',
     '@blueprintjs/core': 'BlueprintJsCore',
     '@blueprintjs/select': 'BlueprintJsSelect'
