@@ -87,8 +87,6 @@ const Layout: FC<ILayoutProps> = props => {
     }
   }
 
-  console.log(window.DOCS)
-
   const toggleLangSwitcher = e => {
     e && e.preventDefault()
     if (!isInputFocused()) {
