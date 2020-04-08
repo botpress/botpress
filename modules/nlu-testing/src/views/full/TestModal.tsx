@@ -16,6 +16,11 @@ interface Props {
   onTestCreated: (test: any) => void
 }
 
+const NOTHING_EXPECTED_INTENT = {
+  name: '',
+  slots: []
+}
+
 export const TestModal: FC<Props> = props => {
   const [intents, setIntents] = useState<sdk.NLU.IntentDefinition[]>([])
   const [availableCtx, setAvailableCtxs] = useState([])
@@ -24,7 +29,7 @@ export const TestModal: FC<Props> = props => {
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
     props.api.fetchIntents().then(intents => {
-      setIntents([...intents, NONE_INTENT])
+      setIntents([...intents, NONE_INTENT, NOTHING_EXPECTED_INTENT])
       const ctxs = _.chain(intents)
         .flatMap(i => i.contexts)
         .uniq()
@@ -49,18 +54,21 @@ export const TestModal: FC<Props> = props => {
 
   const createTest = async e => {
     e.preventDefault()
+    const { expectedCtx, expectedIntent, slotConditions: slotsConds, testingCtx: context, utterance } = state
+
+    const conditions = [
+      ['context', 'is', expectedCtx],
+      expectedIntent?.name ? ['intent', 'is', expectedIntent.name] : [],
+      ..._.toPairs(slotsConds)
+        .filter(([_, value]) => !!value)
+        .map(([slotName, value]) => [`slot:${slotName}`, 'is', value])
+    ].filter(c => !_.isEmpty(c)) as Condition[]
 
     const test: Test = {
       id: isEditing() ? props.test.id : Date.now().toString(),
-      utterance: state.utterance,
-      context: state.testingCtx,
-      conditions: [
-        ['context', 'is', state.expectedCtx],
-        ['intent', 'is', state.expectedIntent.name],
-        ..._.toPairs(state.slotConditions)
-          .filter(([_, value]) => !!value)
-          .map(([slotName, value]) => [`slot:${slotName}`, 'is', value])
-      ] as Condition[]
+      utterance,
+      context,
+      conditions
     }
 
     await props.api.updateTest(test)
@@ -122,6 +130,7 @@ export const TestModal: FC<Props> = props => {
                 .filter(
                   i =>
                     i.name === NONE_INTENT.name ||
+                    i.name === NOTHING_EXPECTED_INTENT.name ||
                     (state.testingCtx === TEST_ALL_CTX && i.contexts.includes(state.expectedCtx)) ||
                     i.contexts.includes(state.testingCtx)
                 )
@@ -129,10 +138,10 @@ export const TestModal: FC<Props> = props => {
                 .uniqBy('value')
                 .value()}
               onChange={expectedIntentChanged}
-              value={state.expectedIntent.name}
+              value={state.expectedIntent?.name ?? ''}
             />
           </FormGroup>
-          {state.expectedIntent.slots.map((slot, idx) => (
+          {state.expectedIntent?.slots.map((slot, idx) => (
             <FormGroup key={slot.name} label={`Slot: ${slot.name}`}>
               <InputGroup
                 tabIndex={5 + idx}

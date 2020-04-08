@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Modal, Button, Radio, FormControl, Alert, Form } from 'react-bootstrap'
+import { Button, Radio, FormControl, Alert, Form } from 'react-bootstrap'
 import Select from 'react-select'
 import _ from 'lodash'
 import style from './style.scss'
 import { connect } from 'react-redux'
 import SmartInput from '~/components/SmartInput'
 import { getFlowLabel, reorderFlows } from '~/components/Shared/Utils'
-import { lang } from 'botpress/shared'
+import { lang, BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
 
 const availableProps = [
   { label: 'User Data', value: 'user' },
@@ -393,27 +393,26 @@ class ConditionModalForm extends Component {
 
   render() {
     return (
-      <Modal animation={false} show={this.props.show} onHide={this.props.onClose} backdrop={'static'}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {this.state.isEdit
-              ? lang.tr('studio.flow.node.transition.edit')
-              : lang.tr('studio.flow.node.transition.new')}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+      <BaseDialog
+        title={
+          this.state.isEdit ? lang.tr('studio.flow.node.transition.edit') : lang.tr('studio.flow.node.transition.new')
+        }
+        isOpen={this.props.show}
+        onClose={this.props.onClose}
+      >
+        <DialogBody>
           <h5>{lang.tr('studio.flow.node.transition.showCondition')}:</h5>
           {this.renderConditions()}
           <h5>{lang.tr('studio.flow.node.transition.whenMetDo')}:</h5>
           {this.renderActions()}
-        </Modal.Body>
-        <Modal.Footer>
+        </DialogBody>
+        <DialogFooter>
           <Button onClick={this.props.onClose}>{lang.tr('cancel')}</Button>
           <Button onClick={this.onSubmitClick} bsStyle="primary">
             {this.state.isEdit ? lang.tr('update') : lang.tr('create')}
           </Button>
-        </Modal.Footer>
-      </Modal>
+        </DialogFooter>
+      </BaseDialog>
     )
   }
 }
