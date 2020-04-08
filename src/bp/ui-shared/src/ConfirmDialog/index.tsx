@@ -23,7 +23,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   }
 
   return (
-    <BaseDialog icon="warning-sign" usePortal={false} isOpen onClose={onDecline} className={styles.dialog}>
+    <BaseDialog icon="warning-sign" usePortal={false} isOpen onClose={onDecline}>
       <DialogBody>
         <Icon icon="warning-sign" iconSize={32} className={styles.icon} />
         {props.message}
@@ -31,7 +31,6 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
       <DialogFooter>
         <Button
           id="confirm-dialog-decline"
-          className={styles.button}
           type="button"
           onClick={onDecline}
           text={props.declineLabel || lang('cancel')}
@@ -40,12 +39,11 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
         />
         <Button
           id="confirm-dialog-accept"
-          className={cx(styles.button, styles.confirmButton)}
           type="button"
           onClick={onAccept}
           text={props.acceptLabel || lang('ok')}
           tabIndex={3}
-          intent={Intent.NONE}
+          intent={Intent.PRIMARY}
         />
       </DialogFooter>
     </BaseDialog>

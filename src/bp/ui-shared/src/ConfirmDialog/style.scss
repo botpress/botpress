@@ -2,43 +2,9 @@
   z-index: 9999;
 }
 
-.dialog {
-  border-radius: 6px !important;
-  box-shadow: 0 8px 24px 0 rgba(16, 22, 26, 0.4) !important;
-  background-color: #ffffff !important;
-  line-height: 1.29 !important;
-  color: #182026 !important;
-
-  :global(.bp3-ui-text) {
-    margin-bottom: 6px !important;
-  }
-}
-
 .icon {
   display: block !important;
   float: left !important;
   margin-right: 16px;
   color: #f66f48 !important;
-}
-
-.button {
-  font-size: 12px !important;
-  border-radius: 5px !important;
-  -webkit-box-shadow: none !important;
-  box-shadow: none !important;
-  background-color: #ffffff !important;
-  background-image: none !important;
-  transition-duration: 0.2s !important;
-
-  &:hover {
-    background-color: lightgray !important;
-  }
-}
-
-.confirmButton {
-  background-color: #f66f48 !important;
-
-  &:hover {
-    background-color: #f66e48b7 !important;
-  }
 }
