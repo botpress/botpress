@@ -3,6 +3,7 @@
 interface CssExports {
   'dialog': string;
   'dialogBody': string;
+  'form': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

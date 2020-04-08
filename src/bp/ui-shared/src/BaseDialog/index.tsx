@@ -27,7 +27,13 @@ export const BaseDialog: FC<BaseDialogProps> = props => {
       style={{ width }}
       {...props}
     >
-      {props.onSubmit ? <form onSubmit={onSubmit}>{props.children}</form> : props.children}
+      {props.onSubmit ? (
+        <form className={style.form} onSubmit={onSubmit}>
+          {props.children}
+        </form>
+      ) : (
+        props.children
+      )}
     </Dialog>
   )
 }

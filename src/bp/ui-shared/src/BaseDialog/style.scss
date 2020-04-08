@@ -5,7 +5,7 @@
 .dialog {
   max-height: 90%;
 
-  :global(.bp3-dialog-body) {
+  .form, :global(.bp3-dialog-body) {
     overflow: auto;
   }
 }
