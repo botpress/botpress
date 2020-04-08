@@ -6,7 +6,7 @@ interface TestState {
   utterance: string
   testingCtx: string
   expectedCtx: string
-  expectedIntent: sdk.NLU.IntentDefinition
+  expectedIntent?: sdk.NLU.IntentDefinition
   slotConditions: _.Dictionary<string>
 }
 
@@ -38,7 +38,7 @@ export function TestModalReducer(state: TestState, action): TestState {
     const intentCondition = test.conditions.find(([key]) => key === 'intent')
 
     const expectedCtx = testingCtx === TEST_ALL_CTX ? ctxCondition[2] : undefined
-    const expectedIntent = data.intents.find(i => i.name === intentCondition[2])
+    const expectedIntent = intentCondition ? data.intents.find(i => i.name === intentCondition[2]) : undefined
     const slotConditions = test.conditions
       .filter(([key]) => key.startsWith('slot'))
       .reduce((slotsDic, [key, is, slotValue]) => {

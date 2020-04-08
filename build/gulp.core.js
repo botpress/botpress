@@ -8,6 +8,7 @@ const file = require('gulp-file')
 const buildJsonSchemas = require('./jsonschemas')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
+const exec = require('child_process').exec
 
 const maybeFetchPro = () => {
   const isProBuild = process.env.EDITION === 'pro' || fs.existsSync('pro')
@@ -99,6 +100,14 @@ const copyJs = () => {
   return gulp.src('src/bp/ml/svm-js/**/*.*').pipe(gulp.dest('./out/bp/ml/svm-js'))
 }
 
+const checkTranslations = cb => {
+  const reorder = process.argv.find(x => x.toLowerCase() === '--reorder')
+  exec(`node build/check-translations.js ${reorder && '--reorder'}`, (err, stdout, stderr) => {
+    console.log(stdout, stderr)
+    cb(err)
+  })
+}
+
 const build = () => {
   return gulp.series([
     maybeFetchPro,
@@ -114,5 +123,6 @@ const build = () => {
 module.exports = {
   build,
   watch,
-  createMigration
+  createMigration,
+  checkTranslations
 }

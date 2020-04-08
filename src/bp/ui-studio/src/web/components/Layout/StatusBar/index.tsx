@@ -16,21 +16,6 @@ interface Props {
   toggleLangSwitcher: (e: any) => void
 }
 
-const progressReducer = (state, action) => {
-  if (action.type === 'updateData') {
-    const { message, working, progress } = action.data
-
-    return {
-      ...state,
-      message: message || '',
-      working: working || false,
-      progress: progress ? progress * 100 : state.progress
-    }
-  } else {
-    throw new Error(`That action type isn't supported.`)
-  }
-}
-
 const DEFAULT_STATE = {
   progress: 0,
   working: false,
@@ -38,11 +23,36 @@ const DEFAULT_STATE = {
 }
 
 const StatusBar: FC<Props> = props => {
+  const progressReducer = (state, action) => {
+    if (action.type === 'updateData') {
+      const { message, working, progress, status } = action.data
+
+      if (status === 'done') {
+        setTimeout(() => {
+          dispatch({ type: 'updateData', data: { message: '', working: false } })
+        }, 2000)
+      }
+
+      return {
+        ...state,
+        message: message || '',
+        working: working || false,
+        progress: progress ? Math.floor(progress * 100) : state.progress
+      }
+    } else {
+      throw new Error(`That action type isn't supported.`)
+    }
+  }
+
   const [state, dispatch] = React.useReducer(progressReducer, {
     ...DEFAULT_STATE
   })
 
   useEffect(() => {
+    if (EventBus.default.eventNames().includes('statusbar.event')) {
+      EventBus.default.off('statusbar.event', handleModuleEvent)
+    }
+
     EventBus.default.on('statusbar.event', handleModuleEvent)
     fetchTrainingSession()
   }, [])
@@ -55,7 +65,12 @@ const StatusBar: FC<Props> = props => {
     if (shouldUpdateProgressEvent(event)) {
       dispatch({
         type: 'updateData',
-        data: { message: event.message, working: event.working, progress: event.trainSession.progress }
+        data: {
+          message: event.message,
+          working: event.working,
+          progress: event.trainSession.progress,
+          status: event.trainSession.status
+        }
       })
     }
     if (event.message && state.message !== event.message) {

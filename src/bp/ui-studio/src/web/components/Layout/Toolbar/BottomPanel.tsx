@@ -156,7 +156,7 @@ class BottomPanel extends React.Component<Props, State> {
     const LogsPanel = (
       <ul className={style.logs} ref={this.messageListRef} onScroll={this.handleLogsScrolled}>
         {allLogs.map(e => this.renderEntry(e))}
-        <li className={style.end}>{lang.tr('statusBar.bottomPanel.endOfLogs')}</li>
+        <li className={style.end}>{lang.tr('toolbar.bottomPanel.endOfLogs')}</li>
       </ul>
     )
 
@@ -171,7 +171,7 @@ class BottomPanel extends React.Component<Props, State> {
           <Tab id="bt-panel-logs" className={style.tab} title={lang.tr('logs')} panel={LogsPanel} />
           <Tabs.Expander />
           <ButtonGroup minimal={true}>
-            <Tooltip content={lang.tr('statusBar.bottomPanel.scrollToFollow')}>
+            <Tooltip content={lang.tr('toolbar.bottomPanel.scrollToFollow')}>
               <Button
                 id="btn-logs-follow"
                 icon={'sort'}
@@ -182,7 +182,7 @@ class BottomPanel extends React.Component<Props, State> {
               />
             </Tooltip>
 
-            <Tooltip content={lang.tr('statusBar.bottomPanel.downloadLogs')}>
+            <Tooltip content={lang.tr('toolbar.bottomPanel.downloadLogs')}>
               <Button
                 id="btn-logs-download"
                 icon={'import'}
@@ -194,13 +194,13 @@ class BottomPanel extends React.Component<Props, State> {
 
             <Divider />
 
-            <Tooltip content={lang.tr('statusBar.bottomPanel.clearHistory')}>
+            <Tooltip content={lang.tr('toolbar.bottomPanel.clearHistory')}>
               <Button id="btn-logs-clear" icon={'trash'} small={true} type="button" onClick={this.handleClearLogs} />
             </Tooltip>
 
             <Divider />
 
-            <Tooltip content={lang.tr('statusBar.bottomPanel.closePanel')}>
+            <Tooltip content={lang.tr('toolbar.bottomPanel.closePanel')}>
               <Button
                 id="btn-logs-close"
                 icon={'cross'}

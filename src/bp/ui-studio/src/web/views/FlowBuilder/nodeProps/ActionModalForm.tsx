@@ -1,8 +1,7 @@
-import { confirmDialog, lang } from 'botpress/shared'
-import { ActionDefinition, LocalActionDefinition } from 'common/typings'
+import { BaseDialog, confirmDialog, DialogBody, DialogFooter, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
-import { Button, Modal, OverlayTrigger, Radio, Tooltip } from 'react-bootstrap'
+import { Button, OverlayTrigger, Radio, Tooltip } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
 import ContentPickerWidget from '~/components/Content/Select/Widget'
@@ -198,13 +197,6 @@ class ActionModalForm extends Component<Props, State> {
     )
   }
 
-  handleKeyDown = e => {
-    if (e.altKey && e.key == 'Enter') {
-      e.preventDefault()
-      this.onSubmit()
-    }
-  }
-
   onSubmit = () => {
     this.resetForm()
     this.props.onSubmit &&
@@ -222,20 +214,13 @@ class ActionModalForm extends Component<Props, State> {
 
   render() {
     return (
-      <Modal
-        animation={false}
-        show={this.props.show}
-        onHide={this.onClose}
-        container={document.getElementById('app')}
-        onKeyDown={this.handleKeyDown}
-        backdrop={'static'}
+      <BaseDialog
+        title={this.state.isEdit ? lang.tr('studio.flow.node.editAction') : lang.tr('studio.flow.node.addAction')}
+        isOpen={this.props.show}
+        onClose={this.onClose}
+        onSubmit={this.onSubmit}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {this.state.isEdit ? lang.tr('studio.flow.node.editAction') : lang.tr('studio.flow.node.addAction')}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+        <DialogBody>
           {!this.props.layoutv2 ? (
             <div>
               <h5>{lang.tr('studio.flow.node.theBotWill')}:</h5>
@@ -252,19 +237,19 @@ class ActionModalForm extends Component<Props, State> {
           ) : (
             this.renderSectionAction()
           )}
-        </Modal.Body>
-        <Modal.Footer>
+        </DialogBody>
+        <DialogFooter>
           <Button id="btn-cancel-action" onClick={this.onClose}>
             {lang.tr('cancel')}
           </Button>
-          <Button id="btn-submit-action" onClick={this.onSubmit} bsStyle="primary">
+          <Button id="btn-submit-action" type="submit" bsStyle="primary">
             {this.state.isEdit
               ? lang.tr('studio.flow.node.finishUpdateAction')
               : lang.tr('studio.flow.node.finishAddAction')}{' '}
             (Alt+Enter)
           </Button>
-        </Modal.Footer>
-      </Modal>
+        </DialogFooter>
+      </BaseDialog>
     )
   }
 }

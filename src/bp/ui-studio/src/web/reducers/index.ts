@@ -1,6 +1,8 @@
 import { ModuleDefinition } from 'botpress/sdk'
 import { combineReducers } from 'redux'
 
+import { Bot } from '../../../../../../out/bp/common/typings'
+
 import bot from './bot'
 import bots from './bots'
 import content, { ContentReducer } from './content'
@@ -39,4 +41,5 @@ export interface RootReducer {
   ndu: NduReducer
   modules: ModuleDefinition[]
   ui: UiReducer
+  bot: Bot
 }

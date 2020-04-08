@@ -1,7 +1,7 @@
 {
-  "fullName": "Basic Skills",
-  "choice": "Choice",
   "callApi": "Call API",
-  "slotFilling": "Slot Filling",
-  "sendEmail": "Send Email"
+  "choice": "Choice",
+  "fullName": "Basic Skills",
+  "sendEmail": "Send Email",
+  "slotFilling": "Slot Filling"
 }
