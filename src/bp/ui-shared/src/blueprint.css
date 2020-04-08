@@ -573,6 +573,11 @@ a > .bp3-code {
   font-size: 12px;
   min-width: 30px;
   min-height: 30px;
+  color: #182026;
+  transition: 0.3s;
+}
+.bp3-button:focus {
+  outline: none;
 }
 .bp3-button > * {
   -webkit-box-flex: 0;
@@ -619,26 +624,18 @@ a > .bp3-code {
 }
 .bp3-button:not([class*='bp3-intent-']) {
   background-color: #ffffff;
-  color: #182026;
 }
 .bp3-button:not([class*='bp3-intent-']):hover {
-  background-clip: padding-box;
   background-color: #ebf1f5;
 }
 .bp3-button:not([class*='bp3-intent-']):active,
 .bp3-button:not([class*='bp3-intent-']).bp3-active {
   background-color: #d8e1e8;
-  background-image: none;
 }
 .bp3-button:not([class*='bp3-intent-']):disabled,
 .bp3-button:not([class*='bp3-intent-']).bp3-disabled {
-  outline: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
   background-color: rgba(206, 217, 224, 0.5);
-  background-image: none;
   cursor: not-allowed;
-  color: rgba(92, 112, 128, 0.6);
 }
 .bp3-button:not([class*='bp3-intent-']):disabled.bp3-active,
 .bp3-button:not([class*='bp3-intent-']):disabled.bp3-active:hover,
@@ -647,30 +644,18 @@ a > .bp3-code {
   background: rgba(206, 217, 224, 0.7);
 }
 .bp3-button.bp3-intent-primary {
-  background-color: #f66f48;
-  color: #182026;
-}
-.bp3-button.bp3-intent-primary:hover,
-.bp3-button.bp3-intent-primary:active,
-.bp3-button.bp3-intent-primary.bp3-active {
-  color: #182026;
+  background-color: #137cbd;
 }
 .bp3-button.bp3-intent-primary:hover {
-  background-color: #f66e48b7;
+  background-color: #106ba3;
 }
 .bp3-button.bp3-intent-primary:active,
 .bp3-button.bp3-intent-primary.bp3-active {
-  background-color: #f77855b7;
-  background-image: none;
+  background-color: #0e5a8a;
 }
 .bp3-button.bp3-intent-primary:disabled,
 .bp3-button.bp3-intent-primary.bp3-disabled {
-  border-color: transparent;
-  -webkit-box-shadow: none;
-  box-shadow: none;
   background-color: rgba(19, 124, 189, 0.5);
-  background-image: none;
-  color: rgba(255, 255, 255, 0.6);
 }
 .bp3-button.bp3-intent-success {
   -webkit-box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);
@@ -713,44 +698,18 @@ a > .bp3-code {
   color: rgba(255, 255, 255, 0.6);
 }
 .bp3-button.bp3-intent-warning {
-  -webkit-box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);
-  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);
-  background-color: #d9822b;
-  background-image: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(rgba(255, 255, 255, 0.1)),
-    to(rgba(255, 255, 255, 0))
-  );
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-  color: #ffffff;
-}
-.bp3-button.bp3-intent-warning:hover,
-.bp3-button.bp3-intent-warning:active,
-.bp3-button.bp3-intent-warning.bp3-active {
-  color: #ffffff;
+  background-color: #f66f48;
 }
 .bp3-button.bp3-intent-warning:hover {
-  -webkit-box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);
-  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);
-  background-color: #bf7326;
+  background-color: #f66e48b7;
 }
 .bp3-button.bp3-intent-warning:active,
 .bp3-button.bp3-intent-warning.bp3-active {
-  -webkit-box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 1px 2px rgba(16, 22, 26, 0.2);
-  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 1px 2px rgba(16, 22, 26, 0.2);
-  background-color: #a66321;
-  background-image: none;
+  background-color: #f77855b7;
 }
 .bp3-button.bp3-intent-warning:disabled,
 .bp3-button.bp3-intent-warning.bp3-disabled {
-  border-color: transparent;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  background-color: rgba(217, 130, 43, 0.5);
-  background-image: none;
-  color: rgba(255, 255, 255, 0.6);
+  background-color: #964833b7;
 }
 .bp3-button.bp3-intent-danger {
   -webkit-box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 0 rgba(16, 22, 26, 0.2);

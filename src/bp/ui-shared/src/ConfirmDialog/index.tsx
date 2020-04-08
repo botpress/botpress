@@ -43,7 +43,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
           onClick={onAccept}
           text={props.acceptLabel || lang('ok')}
           tabIndex={3}
-          intent={Intent.PRIMARY}
+          intent={Intent.WARNING}
         />
       </DialogFooter>
     </BaseDialog>
