@@ -38,7 +38,7 @@ const StatusBar: FC<Props> = props => {
         ...state,
         message: message || '',
         working: working || false,
-        progress: progress ? progress * 100 : state.progress
+        progress: progress ? Math.floor(progress * 100) : state.progress
       }
     } else {
       throw new Error(`That action type isn't supported.`)
