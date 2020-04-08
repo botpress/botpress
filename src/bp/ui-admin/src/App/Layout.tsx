@@ -110,11 +110,7 @@ const Header = () => (
 
 const Footer = props => (
   <footer className="statusBar">
-    <div className="statusBar-list">
-      <div className="statusBar-item">
-        <strong>{props.version}</strong>
-      </div>
-    </div>
+    <div className="statusBar-item">{props.version}</div>
   </footer>
 )
 

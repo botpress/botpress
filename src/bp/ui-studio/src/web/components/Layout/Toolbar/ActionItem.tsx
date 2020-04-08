@@ -1,14 +1,15 @@
+import cx from 'classnames'
+import _ from 'lodash'
 import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
-import _ from 'lodash'
-import classNames from 'classnames'
+
 import style from './style.scss'
 
 const titleToId = txt => txt.replace(/[^\W]/gi, '_')
 
 export default props => (
   <OverlayTrigger
-    placement="top"
+    placement="bottom"
     delayShow={500}
     overlay={
       <Tooltip id={titleToId(props.title)}>
@@ -20,11 +21,11 @@ export default props => (
       </Tooltip>
     }
   >
-    <div
-      className={classNames({ [style.clickable]: !props.disabled }, style.item, props.className)}
+    <li
+      className={cx({ [style.clickable]: !props.disabled }, style.item, props.className)}
       {..._.omit(props, ['title', 'description', 'children', 'className'])}
     >
       {props.children}
-    </div>
+    </li>
   </OverlayTrigger>
 )

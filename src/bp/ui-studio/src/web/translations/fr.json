@@ -43,27 +43,8 @@
     "public": "Publié"
   },
   "statusBar": {
-    "backToAdmin": "Retour à l'admin",
-    "bottomPanel": {
-      "clearHistory": "Effacer l'historique",
-      "closePanel": "Fermer le panneau",
-      "downloadLogs": "Télécharger",
-      "endOfLogs": "Fin des journaux",
-      "scrollToFollow": "Suivre les journaux"
-    },
     "contentLanguage": "Langue du contenu",
-    "documentationAvailable": "Cet écran possède de la documentation supplémentaire.",
-    "emulator": "Émulateur",
-    "logsPanel": "Panneau de journalisation",
-    "notifications": "Notifications",
-    "readDoc": "Lire la documentation",
-    "showEmulator": "Afficher l'émulateur",
-    "switchBot": "Changer de bot",
-    "switchBotWarning": "Changer de bot. Vous allez quitter cette interface.",
-    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
-    "toggleGuidedTour": "Basculer le tour guidé",
-    "toggleLogsPanel": "Basculer le panneau",
-    "viewNotifications": "Voir les notifications"
+    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}"
   },
   "studio": {
     "content": {
@@ -303,6 +284,21 @@
       "config": "Configuration",
       "content": "Contenu",
       "flows": "Flows"
+    }
+  },
+  "toolbar": {
+    "documentationAvailable": "Cet écran possède de la documentation supplémentaire.",
+    "emulator": "Émulateur",
+    "logsPanel": "Panneau de journalisation",
+    "readDoc": "Lire la documentation",
+    "showEmulator": "Afficher l'émulateur",
+    "toggleLogsPanel": "Basculer le panneau",
+    "bottomPanel": {
+      "scrollToFollow": "Suivre les journaux",
+      "downloadLogs": "Télécharger",
+      "clearHistory": "Effacer l'historique",
+      "closePanel": "Fermer le panneau",
+      "endOfLogs": "Fin des journaux"
     }
   }
 }
