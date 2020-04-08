@@ -6,8 +6,8 @@ import { keyMap } from '~/keyboardShortcuts'
 
 import withLanguage from '../../Util/withLanguage'
 
+import style from './style.scss'
 import ActionItem from './ActionItem'
-import style from './StatusBar.styl'
 
 const requireFlag = code => {
   try {
@@ -89,10 +89,9 @@ class LangSwitcher extends React.Component<Props> {
           description={lang.tr('statusBar.switchLang', { currentLang: this.props.contentLang.toUpperCase() })}
           onClick={this.props.toggleLangSwitcher}
         >
-          <span>
+          <span className={style.flagWrapper}>
             <img src={requireFlag(this.props.contentLang)} alt={this.props.contentLang} className={style.flag} />
-            &nbsp;
-            {this.props.contentLang.toUpperCase()}
+            <span>{this.props.contentLang.toUpperCase()}</span>
           </span>
         </ActionItem>
         <Dropdown

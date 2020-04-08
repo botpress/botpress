@@ -43,27 +43,8 @@
     "public": "Published"
   },
   "statusBar": {
-    "backToAdmin": "Back to admin",
-    "bottomPanel": {
-      "clearHistory": "Clear log history",
-      "closePanel": "Close Panel",
-      "downloadLogs": "Download Logs",
-      "endOfLogs": "End of logs",
-      "scrollToFollow": "Scroll to follow logs"
-    },
     "contentLanguage": "Content Language",
-    "documentationAvailable": "This screen has documentation available.",
-    "emulator": "Emulator",
-    "logsPanel": "Logs Panel",
-    "notifications": "Notifications",
-    "readDoc": "Read Documentation",
-    "showEmulator": "Show Emulator",
-    "switchBot": "Switch Bot",
-    "switchBotWarning": "Switch to another bot. You will leave this interface.",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
-    "toggleGuidedTour": "Toggle Guided Tour",
-    "toggleLogsPanel": "Toggle Logs Panel",
-    "viewNotifications": "View Notifications"
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
   },
   "studio": {
     "content": {
@@ -316,6 +297,21 @@
       "config": "Config",
       "content": "Content",
       "flows": "Flows"
+    }
+  },
+  "toolbar": {
+    "documentationAvailable": "This screen has documentation available.",
+    "emulator": "Emulator",
+    "logsPanel": "Logs Panel",
+    "readDoc": "Read Documentation",
+    "showEmulator": "Show Emulator",
+    "toggleLogsPanel": "Toggle Logs Panel",
+    "bottomPanel": {
+      "scrollToFollow": "Scroll to follow logs",
+      "downloadLogs": "Download Logs",
+      "clearHistory": "Clear log history",
+      "closePanel": "Close Panel",
+      "endOfLogs": "End of logs"
     }
   }
 }
