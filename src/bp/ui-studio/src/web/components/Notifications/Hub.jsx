@@ -5,7 +5,6 @@ import _ from 'lodash'
 import classnames from 'classnames'
 import { fetchNotifications } from '~/actions'
 import { Popover } from '@blueprintjs/core'
-import '@blueprintjs/core/lib/css/blueprint.css'
 import NotificationComponent from './index.jsx'
 import styles from './hubStyle.scss'
 import { GoBell } from 'react-icons/go'
@@ -78,7 +77,4 @@ class NotificationHub extends NotificationComponent {
 
 const mapStateToProps = state => ({ notifications: state.notifications })
 
-export default connect(
-  mapStateToProps,
-  { fetchNotifications }
-)(NotificationHub)
+export default connect(mapStateToProps, { fetchNotifications })(NotificationHub)
