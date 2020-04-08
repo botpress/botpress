@@ -2,6 +2,7 @@ import { Classes, Dialog } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
+import style from './style.scss'
 import { BaseDialogProps } from './typings'
 
 export const BaseDialog: FC<BaseDialogProps> = props => {
@@ -18,14 +19,27 @@ export const BaseDialog: FC<BaseDialogProps> = props => {
   }
 
   return (
-    <Dialog transitionDuration={0} canOutsideClickClose={false} enforceFocus={false} style={{ width }} {...props}>
-      {props.onSubmit ? <form onSubmit={onSubmit}>{props.children}</form> : props.children}
+    <Dialog
+      className={style.dialog}
+      transitionDuration={0}
+      canOutsideClickClose={false}
+      enforceFocus={false}
+      style={{ width }}
+      {...props}
+    >
+      {props.onSubmit ? (
+        <form className={style.form} onSubmit={onSubmit}>
+          {props.children}
+        </form>
+      ) : (
+        props.children
+      )}
     </Dialog>
   )
 }
 
 export const DialogBody = ({ children }) => {
-  return <div className={cx(Classes.DIALOG_BODY, Classes.UI_TEXT)}>{children}</div>
+  return <div className={cx(Classes.DIALOG_BODY, Classes.UI_TEXT, style.dialogBody)}>{children}</div>
 }
 
 export const DialogFooter = ({ children }) => {
