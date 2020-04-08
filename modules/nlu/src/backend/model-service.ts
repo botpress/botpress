@@ -41,7 +41,7 @@ export function computeModelHash(intents: any, entities: any): string {
 function serializeModel(ref: Model): string {
   const model = _.cloneDeep(ref)
   for (const entity of model.data.artefacts.list_entities) {
-    entity.cache = (<EntityCache>entity.cache).dump()
+    entity.cache = (<EntityCache>entity.cache)?.dump() ?? []
   }
   return JSON.stringify(_.omit(model, ['data.output', 'data.input.trainingSession']))
 }
