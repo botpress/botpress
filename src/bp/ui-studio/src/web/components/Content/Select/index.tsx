@@ -1,24 +1,18 @@
 import axios from 'axios'
-import { lang } from 'botpress/shared'
+import { BaseDialog, DialogBody, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React, { Component } from 'react'
-import { Alert, Button, Modal } from 'react-bootstrap'
+import { Alert, Button } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
-import {
-  deleteMedia,
-  fetchContentCategories,
-  fetchContentItems,
-  fetchContentItemsCount,
-  upsertContentItem
-} from '~/actions'
+import { deleteMedia, fetchContentCategories, fetchContentItems, upsertContentItem } from '~/actions'
 import Loading from '~/components/Util/Loading'
 import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
 
-const style = require('./style.scss')
+import style from './style.scss'
 
 const SEARCH_RESULTS_LIMIT = 10
 
@@ -33,14 +27,12 @@ interface Props {
   container: any
   deleteMedia: Function
   fetchContentItems: Function
-  fetchContentItemsCount: Function
   contentItems: any
   categories: any
   upsertContentItem: Function
   onSelect: any
   onClose: any
   contentType: any
-  itemsCount: number
   contentLang: any
 }
 
@@ -75,7 +67,6 @@ class SelectContent extends Component<Props, State> {
 
   componentDidMount() {
     this.searchContentItems()
-    this.fetchContentItemsCount()
     this.props.fetchContentCategories()
 
     this.props.container.addEventListener('keyup', this.handleChangeActiveItem)
@@ -103,10 +94,6 @@ class SelectContent extends Component<Props, State> {
       contentType: this.state.contentType || 'all',
       sortOrder: [{ column: 'createdOn', desc: true }]
     })
-  }
-
-  fetchContentItemsCount() {
-    return this.props.fetchContentItemsCount(this.state.contentType)
   }
 
   handleChangeActiveItem = e => {
@@ -142,7 +129,7 @@ class SelectContent extends Component<Props, State> {
         formData: this.state.newItemData
       })
       .then(this.resetCreateContent(true))
-      .then(() => Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]))
+      .then(() => this.searchContentItems())
   }
 
   handlePick(item) {
@@ -199,9 +186,7 @@ class SelectContent extends Component<Props, State> {
   setCurrentCategory(contentType) {
     this.setState({ contentType }, () => {
       // tslint:disable-next-line: no-floating-promises
-      Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
-        this.setState({ step: formSteps.MAIN })
-      )
+      this.searchContentItems().then(() => this.setState({ step: formSteps.MAIN }))
     })
   }
 
@@ -261,7 +246,7 @@ class SelectContent extends Component<Props, State> {
     const { categories } = this.props
     const { contentType } = this.state
     const title = contentType ? categories.find(({ id }) => id === contentType).title : 'all content elements'
-    return `${lang.tr('search')} ${lang.tr(title)} (${this.props.itemsCount})`
+    return `${lang.tr('search')} ${lang.tr(title)} (${this.props.contentItems?.length})`
   }
 
   renderMainBody() {
@@ -354,19 +339,8 @@ class SelectContent extends Component<Props, State> {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal
-        animation={false}
-        show={show}
-        onHide={this.onClose}
-        container={container}
-        style={{ zIndex: 1051 }}
-        backdrop={'static'}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{lang.tr('studio.content.selectContent')}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{this.renderBody()}</Modal.Body>
-
+      <BaseDialog title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
+        <DialogBody>{this.renderBody()}</DialogBody>
         <CreateOrEditModal
           show={!!newItemCategory}
           schema={schema.json}
@@ -376,21 +350,19 @@ class SelectContent extends Component<Props, State> {
           handleEdit={this.handleFormEdited}
           handleCreateOrUpdate={this.handleCreate}
         />
-      </Modal>
+      </BaseDialog>
     )
   }
 }
 
 const mapStateToProps = state => ({
   contentItems: state.content.currentItems,
-  itemsCount: state.content.itemsCount,
   categories: state.content.categories
 })
 
 const mapDispatchToProps = {
   deleteMedia,
   fetchContentItems,
-  fetchContentItemsCount,
   fetchContentCategories,
   upsertContentItem
 }

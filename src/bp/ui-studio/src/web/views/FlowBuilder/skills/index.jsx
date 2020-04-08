@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Button } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 import axios from 'axios'
 import find from 'lodash/find'
 import includes from 'lodash/includes'
@@ -13,7 +13,7 @@ const style = require('./style.scss')
 const VALID_WINDOW_SIZES = ['normal', 'large', 'small']
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { lang } from 'botpress/shared'
+import { lang, BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
 
 class WrappedInjectedModule extends React.Component {
   shouldComponentUpdate(nextProps) {
@@ -162,19 +162,14 @@ class SkillsBuilder extends React.Component {
       this.props.action === 'new' ? lang.tr('studio.flow.skills.insert') : lang.tr('studio.flow.skills.edit')
 
     return (
-      <Modal
-        dialogClassName={modalClassName}
-        animation={false}
-        show={this.props.opened}
-        onHide={this.onCancel}
-        backdrop="static"
+      <BaseDialog
+        title={`${title} | ${lang.tr(skill && skill.name)}`}
+        size="lg"
+        className={modalClassName}
+        isOpen={this.props.opened}
+        onClose={this.onCancel}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {title} | {lang.tr(skill && skill.name)}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+        <DialogBody>
           {this.renderLoading()}
           {!this.state.loading && (
             <WrappedInjectedModule
@@ -184,14 +179,14 @@ class SkillsBuilder extends React.Component {
               extraProps={this.state.moduleProps}
             />
           )}
-        </Modal.Body>
-        <Modal.Footer>
+        </DialogBody>
+        <DialogFooter>
           <Button onClick={this.onCancel}>{lang.tr('cancel')}</Button>
           <Button onClick={this.onSubmit} disabled={!this.state.canSubmit} bsStyle="primary">
             {submitName}
           </Button>
-        </Modal.Footer>
-      </Modal>
+        </DialogFooter>
+      </BaseDialog>
     )
   }
 }
