@@ -216,7 +216,9 @@ const SaySomethingForm: FC<Props> = props => {
           formData={currentFlowNode.formData}
           isEditing={true}
           onChange={handleEdit}
-        />
+        >
+          <br />
+        </ContentForm>
       )}
     </Fragment>
   )
