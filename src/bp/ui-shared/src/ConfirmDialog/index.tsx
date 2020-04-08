@@ -23,7 +23,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   }
 
   return (
-    <BaseDialog icon="warning-sign" usePortal={false} isOpen onClose={onDecline}>
+    <BaseDialog icon="warning-sign" usePortal={false} isOpen onClose={onDecline} size={props.size}>
       <DialogBody>
         <Icon icon="warning-sign" iconSize={32} className={styles.icon} />
         {props.message}

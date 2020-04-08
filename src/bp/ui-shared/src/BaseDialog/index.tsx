@@ -5,8 +5,10 @@ import React, { FC } from 'react'
 import { BaseDialogProps } from './typings'
 
 export const BaseDialog: FC<BaseDialogProps> = props => {
-  let width = 360
-  if (props.size === 'md') {
+  let width = 500
+  if (props.size === 'sm') {
+    width = 360
+  } else if (props.size === 'md') {
     width = 700
   } else if (props.size === 'lg') {
     width = 900

@@ -79,7 +79,7 @@ const TopicList: FC<Props> = props => {
   }, [props.flows, props.topics, props.qnaCountByTopic])
 
   const deleteFlow = async (name: string) => {
-    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {})) {
+    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), { size: 'sm' })) {
       props.deleteFlow(name)
     }
   }
@@ -103,7 +103,7 @@ const TopicList: FC<Props> = props => {
             </>
           )}
         </span>,
-        {}
+        { size: 'sm' }
       )
     ) {
       await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
