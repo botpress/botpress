@@ -24,6 +24,7 @@ interface OwnProps {
   readOnly: boolean
   subflows: any
   formData: any
+  contentType: string
   updateNode: any
   contentLang: string
   defaultLanguage: string
@@ -39,48 +40,12 @@ export interface FormState {
 }
 
 const shownCategories = ['builtin_text', 'builtin_image', 'builtin_carousel', 'builtin_card']
-const defaultFormState: FormState = {
-  contentType: 'builtin_text',
-  error: null
-}
 
 const SaySomethingForm: FC<Props> = props => {
-  const formReducer = (state: FormState, action): FormState => {
-    if (action.type === 'resetData') {
-      return {
-        ...state,
-        error: null,
-        contentType: 'builtin_text'
-      }
-    } else if (action.type === 'newData') {
-      const { contentType } = action.data
-
-      return {
-        error: null,
-        contentType: contentType || 'builtin_text'
-      }
-    } else if (action.type === 'updateContentType') {
-      const { value, initial } = action.data
-      const contentType = { contentType: value || 'builtin_text' }
-
-      if (!initial || !state.contentType) {
-        props.updateNode({ ...contentType, formData: {} })
-      }
-
-      return {
-        ...state,
-        ...contentType
-      }
-    } else {
-      throw new Error(`That action type isn't supported.`)
-    }
-  }
-
-  const [formState, dispatchForm] = useReducer(formReducer, defaultFormState)
   const [showOptions, setShowOptions] = useState(false)
+  const { contentType, currentFlowNode, readOnly } = props
 
   useEffect(() => {
-    handleContentTypeChange(currentFlowNode?.contentType, true)
     if (!props.contentTypes?.length) {
       props.fetchContentCategories()
     }
@@ -106,12 +71,10 @@ const SaySomethingForm: FC<Props> = props => {
     toastInfo('Copied to buffer')
   }
 
-  const handleContentTypeChange = (value, initial = false) => {
-    dispatchForm({ type: 'updateContentType', data: { value, initial } })
+  const handleContentTypeChange = value => {
+    props.updateNode({ contentType: value, formData: {} })
   }
 
-  const { currentFlowNode, readOnly } = props
-  const { contentType } = formState
   const contentTypes = props.contentTypes?.filter(cat => shownCategories.includes(cat.id))
 
   const moreOptionsItems: MoreOptionsItems[] = [
@@ -152,7 +115,9 @@ const SaySomethingForm: FC<Props> = props => {
   }
 
   const getCurrentContentType = () => {
-    if (!contentType || !contentTypes) {
+    const currentType = contentType || 'builtin_text'
+
+    if (!contentTypes) {
       return
     }
 
@@ -162,7 +127,7 @@ const SaySomethingForm: FC<Props> = props => {
         ...schema
       },
       ...restContentType
-    } = contentTypes?.find(cat => cat.id === contentType)
+    } = contentTypes?.find(cat => cat.id === currentType)
 
     // just a way to remove the descriptions since we don't want it in the sidebar form, but still want it in the CMS
     return { ...restContentType, schema: { json: removeDescriptions(json), ...schema } }
@@ -200,7 +165,7 @@ const SaySomethingForm: FC<Props> = props => {
           <Dropdown
             className={style.formSelect}
             items={contentTypes.map(cat => ({ value: cat.id, label: lang.tr(cat.title) }))}
-            defaultItem={contentType}
+            defaultItem={contentType || 'builtin_text'}
             rightIcon="caret-down"
             onChange={option => {
               handleContentTypeChange(option.value)

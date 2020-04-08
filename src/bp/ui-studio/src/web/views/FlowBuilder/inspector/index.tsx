@@ -110,6 +110,7 @@ class Inspector extends Component<Props> {
       return (
         <SaySomethingForm
           onDeleteSelectedElements={onDeleteSelectedElements}
+          contentType={currentFlowNode.contentType}
           formData={currentFlowNode.formData}
           updateNode={updateNodeAndRefresh}
           readOnly={readOnly}

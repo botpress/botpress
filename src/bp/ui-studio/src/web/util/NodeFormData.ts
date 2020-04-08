@@ -35,6 +35,7 @@ export const isFormEmpty = formData => {
 
 const getFormDataForLang = (contentItem: any, language: string) => {
   const { formData, contentType } = contentItem
+  const returnedContentType = contentType ? { contentType } : {}
 
   const languageKeys = Object.keys(formData).filter(x => x.includes('$' + language))
 
@@ -43,5 +44,5 @@ const getFormDataForLang = (contentItem: any, language: string) => {
     return obj
   }, {})
 
-  return { ...data, contentType }
+  return { ...data, ...returnedContentType }
 }
