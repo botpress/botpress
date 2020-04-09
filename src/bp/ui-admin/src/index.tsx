@@ -1,6 +1,6 @@
 import 'babel-polyfill'
 import 'element-closest-polyfill'
-import 'ui-shared/src/blueprint.css'
+import 'ui-shared/dist/blueprint.css'
 
 /* tslint:disable */
 import 'expose-loader?React!react'
