@@ -46,7 +46,7 @@ export const assertValidJson = (content: string): boolean => {
     JSON.parse(content)
     return true
   } catch (err) {
-    throw new EditorError(`Invalid JSON file. ${err}`)
+    throw new EditorError('module.code-editor.error.invalidJson', err.message)
   }
 }
 

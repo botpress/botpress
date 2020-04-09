@@ -9,7 +9,6 @@ import _ from 'lodash'
 import multer from 'multer'
 import nanoid from 'nanoid'
 import path from 'path'
-import MultiClassF1Scorer from './f1-scorer'
 
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
@@ -21,7 +20,7 @@ const TestsSchema = Joi.array().items(
     utterance: Joi.string().required(),
     conditions: Joi.array().items(
       Joi.array()
-        .ordered(Joi.string().allow('intent', 'slot:*'), Joi.string().allow('is'), Joi.string())
+        .ordered(Joi.string().allow('context', 'intent', 'slot:*'), Joi.string().allow('is'), Joi.string())
         .required()
         .length(3)
     )
@@ -126,7 +125,7 @@ export default async (bp: typeof sdk) => {
         .value()
       try {
         await saveAllTests(req.params.botId, tests)
-        res.status(200).send({ nTests: data.length })
+        res.send({ nTests: data.length })
       } catch (err) {
         res.status(400).send('Tests are invalid')
       }
@@ -202,11 +201,16 @@ function isRunningFromSources(): string | undefined {
 async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<TestResult> {
   const {
     data: { nlu }
-  } = await Axios.post('mod/nlu/predict', { text: test.utterance, contexts: [test.context] }, axiosConfig)
+  } = await Axios.post(
+    'mod/nlu/predict',
+    { text: test.utterance, contexts: test.context ? [test.context] : [] },
+    axiosConfig
+  )
 
-  const details = test.conditions.map(c => conditionMatch(nlu, c, test.context))
+  const conditionMatcher = test.context === '*' ? conditionMatchNDU : conditionMatch
+  const details = test.conditions.map(c => conditionMatcher(nlu, c, test.context))
+
   return {
-    // @ts-ignore
     nlu,
     success: details.every(r => r.success),
     id: test.id,
@@ -222,20 +226,102 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
 
     return {
       success,
-      reason: success ? '' : `Intent doesn't match, expected: ${expected} received: ${received}`,
+      reason: success
+        ? ''
+        : `Intent doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${_.round(
+            nlu.intent.confidence,
+            2
+          )}`,
+      received,
+      expected
+    }
+  } else if (key === 'context') {
+    // tslint:disable-next-line
+    let [received, ctxPred] = _.chain(nlu.predictions)
+      .toPairs()
+      .maxBy('1.confidence')
+      .value()
+
+    received = received !== 'oos' ? received : 'none'
+    const success = expected === received
+    return {
+      success,
+      reason: success
+        ? ''
+        : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence ${_.round(
+            ctxPred.confidence,
+            2
+          )}`,
       received,
       expected
     }
   } else if (key.includes('slot')) {
-    const slotName = key.split(':')[1]
-    const received = _.get(nlu, `slots.${slotName}.source`, 'undefined')
-    const success = received === expected
+    return checkSlotMatch(nlu, key.split(':')[1], expected)
+  }
+}
 
+function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails {
+  if (key.includes('slot')) {
+    return checkSlotMatch(nlu, key.split(':')[1], expected)
+  }
+  if (key === 'context') {
+    if (expected === 'none') {
+      expected = 'oos'
+    }
+    const [received, { confidence }] = _.chain(nlu.predictions)
+      .toPairs()
+      .maxBy('1.confidence')
+      .value()
+
+    const success = expected === received
+    const conf = Math.round(confidence * 100)
     return {
       success,
-      reason: success ? '' : `Slot ${slotName} doesn't match. expected: ${expected} received: ${received}`,
-      received,
+      reason: success
+        ? ''
+        : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${conf}`,
+      received: received,
       expected
     }
+  }
+
+  if (key === 'intent') {
+    const oosConfidence = nlu.predictions.oos.confidence
+    const highestRankingIntent = _.chain(nlu.predictions)
+      .toPairs()
+      .flatMap(([ctx, ctxPredObj]) => {
+        return ctxPredObj.intents.map(intentPred => {
+          const oosFactor = ctx === 'oos' ? 1 : 1 - oosConfidence
+          return {
+            label: intentPred.label,
+            confidence: intentPred.confidence * oosFactor * ctxPredObj.confidence // copy pasted from ndu conditions.ts (now how we elect intent)
+          }
+        })
+      })
+      .maxBy('confidence')
+      .value()
+
+    const success = expected === highestRankingIntent.label
+    const conf = Math.round(Number(highestRankingIntent.confidence) * 100)
+    return {
+      success,
+      reason: success
+        ? ''
+        : `Intent doesn't match. \nexpected: ${expected} \nreceived: ${highestRankingIntent.label} \nconfidence: ${conf}`,
+      received: highestRankingIntent.label,
+      expected
+    }
+  }
+}
+
+function checkSlotMatch(nlu, slotName, expected) {
+  const received = _.get(nlu, `slots.${slotName}.source`, 'undefined')
+  const success = received === expected
+
+  return {
+    success,
+    reason: success ? '' : `Slot ${slotName} doesn't match. \nexpected: ${expected} \nreceived: ${received}`,
+    received,
+    expected
   }
 }

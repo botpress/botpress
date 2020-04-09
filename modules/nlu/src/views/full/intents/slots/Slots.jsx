@@ -6,6 +6,7 @@ import SlotModal from './SlotModal'
 import style from '../style.scss'
 import SlotItem from './SlotItem'
 import { NonIdealState, Button } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 
 export default class Slots extends React.Component {
   state = {
@@ -60,7 +61,7 @@ export default class Slots extends React.Component {
         </ul>
 
         <Button icon="add" large onClick={this.showSlotModal.bind(this, null)}>
-          Create a slot
+          {lang.tr('module.nlu.slots.new')}
         </Button>
       </div>
     )
@@ -71,10 +72,10 @@ export default class Slots extends React.Component {
       <div className={style.centerContainer}>
         <NonIdealState
           icon="layers"
-          description="No slots defined for this intent"
+          description={lang.tr('module.nlu.slots.emptyState')}
           action={
             <Button icon="add" large onClick={this.showSlotModal.bind(this, null)}>
-              Create a slot
+              {lang.tr('module.nlu.slots.new')}
             </Button>
           }
         />

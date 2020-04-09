@@ -1,11 +1,13 @@
 import { Icon, Tab, Tabs, Tag } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
+import { lang } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../api'
 
+import TrainingControl from './common/TrainingControl'
 import EntityEditor from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
@@ -18,7 +20,7 @@ export interface NluItem {
 }
 
 interface Props {
-  bp: { axios: AxiosInstance }
+  bp: { axios: AxiosInstance; events: any }
   contentLang: string
 }
 
@@ -76,7 +78,7 @@ const NLU: FC<Props> = props => {
   const updateEntity = (targetEntity: string, entity) => {
     // tslint:disable-next-line: no-floating-promises
     api.updateEntity(targetEntity, entity)
-    const i = entities.findIndex(ent => ent.id == entity.id)
+    const i = entities.findIndex(ent => ent.name === entity.name)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }
 
@@ -116,13 +118,13 @@ const NLU: FC<Props> = props => {
       <SidePanel>
         <Tabs id="nlu-tabs" className={style.headerTabs} defaultSelectedTabId="intents" large={false}>
           <Tab id="intents" panel={intentsPanel}>
-            <span>Intents</span>{' '}
+            <span>{lang.tr('module.nlu.intents.title')}&nbsp;</span>
             <Tag large={false} round={true} minimal={true}>
               {intents.length}
             </Tag>
           </Tab>
           <Tab id="entities" panel={entitiesPanel}>
-            <span>Entities</span>{' '}
+            <span>{lang.tr('module.nlu.entities.title')}</span>{' '}
             <Tag large={false} round={true} minimal={true}>
               {customEntities.length}
             </Tag>
@@ -130,11 +132,14 @@ const NLU: FC<Props> = props => {
         </Tabs>
       </SidePanel>
       <div className={style.container}>
+        <div className={style.trainingControlContainer}>
+          <TrainingControl api={api} eventBus={props.bp.events} />
+        </div>
         {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
-            title="Understanding"
-            description="Use Botpress native Natural language understanding engine to make your bot smarter."
+            title={lang.tr('module.nlu.title')}
+            description={lang.tr('module.nlu.description')}
           />
         )}
         {!!intents.length && currentItem && currentItem.type === 'intent' && (

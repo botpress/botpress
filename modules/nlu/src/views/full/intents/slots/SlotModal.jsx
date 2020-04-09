@@ -4,6 +4,7 @@ import random from 'lodash/random'
 
 import { Dialog, Button, Classes, FormGroup, Intent } from '@blueprintjs/core'
 import { EntitySelector } from './EntitySelector'
+import { lang } from 'botpress/shared'
 
 const N_COLORS = 12
 const INITIAL_STATE = {
@@ -73,7 +74,7 @@ export default class SlotModal extends React.Component {
     return (
       <Dialog
         lazy
-        title={this.state.editing ? 'Edit slot' : 'Create slot for your intent'}
+        title={this.state.editing ? lang.tr('module.nlu.slots.editTitle') : lang.tr('module.nlu.slots.createTitle')}
         icon="add"
         isOpen={this.props.show}
         onClose={this.props.onHide}
@@ -81,24 +82,24 @@ export default class SlotModal extends React.Component {
         transitionDuration={0}
       >
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label="Slot name">
+          <FormGroup label={lang.tr('name')}>
             <input
               tabIndex="1"
               ref={el => (this.nameInput = el)}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               value={this.state.name}
-              placeholder="Type a name here"
+              placeholder={lang.tr('module.nlu.slots.namePlaceholder')}
               onChange={this.onNameChange}
             />
           </FormGroup>
-          <FormGroup label="Associated Entities">
+          <FormGroup label={lang.tr('module.nlu.slots.entitiesLabel')}>
             <EntitySelector entities={this.state.entities} api={this.props.api} onChange={this.onEntitiesChanged} />
           </FormGroup>
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button onClick={this.onSave} tabIndex={3} intent={Intent.PRIMARY} disabled={!this.isValid()}>
-              {this.state.editing ? 'Save slot' : 'Create slot'}
+              {this.state.editing ? lang.tr('module.nlu.slots.save') : lang.tr('module.nlu.slots.save')}
             </Button>
           </div>
         </div>

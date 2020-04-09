@@ -108,7 +108,7 @@ export default class AuthService {
     const duration = config.jwtToken && config.jwtToken.duration
 
     const key = `${channel}::${target}`
-    await this.kvs.setStorageWithExpiry('', key, { email, strategy }, duration)
+    await this.kvs.global().set(key, { email, strategy }, undefined, duration)
 
     return generateUserToken(email, strategy, false, duration, CHAT_USERS_AUDIENCE)
   }

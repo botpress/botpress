@@ -1,15 +1,15 @@
 import React from 'react'
 import style from '../style.scss'
 import { Tag } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 
 export default class SlotItem extends React.Component {
   handleDeleteClicked = async e => {
     e.preventDefault()
 
     if (
-      await confirmDialog('Are you sure you want to delete this slot and all associated tagging from all utterances?', {
-        acceptLabel: 'Delete'
+      await confirmDialog(lang.tr('module.nlu.slots.deleteMessage'), {
+        acceptLabel: lang.tr('delete')
       })
     ) {
       this.props.onDelete && this.props.onDelete(this.props.slot)
@@ -31,10 +31,10 @@ export default class SlotItem extends React.Component {
           {slot.name}
         </Tag>
         <a onClick={this.handleDeleteClicked} className={style.link}>
-          Delete
+          {lang.tr('delete')}
         </a>
         <a onClick={this.handleEditClicked} className={style.link}>
-          Edit
+          {lang.tr('edit')}
         </a>
       </li>
     )

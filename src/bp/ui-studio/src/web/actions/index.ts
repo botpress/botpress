@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { FlowView } from 'common/typings'
+import * as sdk from 'botpress/sdk'
+import { FlowPoint, FlowView, NodeProblem } from 'common/typings'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
 
@@ -11,6 +12,17 @@ import BatchRunner from './BatchRunner'
 export default function debounceAction(action: any, delay: number, options?: _.DebounceSettings) {
   const debounced = _.debounce((dispatch, actionArgs) => dispatch(action(...actionArgs)), delay, options)
   return (...actionArgs) => dispatch => debounced(dispatch, actionArgs)
+}
+
+const onTriggerEvent = async (action: 'delete' | 'create', conditions: sdk.DecisionTriggerCondition[], state) => {
+  const conditionDefs = state.ndu.conditions as sdk.Condition[]
+
+  for (const condition of conditions) {
+    const callback = conditionDefs.find(x => x.id === condition.id)?.callback
+    if (callback) {
+      await axios.post(`${window.BOT_API_PATH}/${callback}`, { action, condition })
+    }
+  }
 }
 
 // Flows
@@ -82,7 +94,7 @@ export const receiveSaveFlows = createAction(
   () => ({ receiveAt: new Date() })
 )
 export const errorSaveFlows = createAction('FLOWS/SAVE/ERROR')
-export const clearErrorSaveFlows = createAction('FLOWS/SAVE/ERROR/CLEAR')
+export const clearErrorSaveFlows: () => void = createAction('FLOWS/SAVE/ERROR/CLEAR')
 
 // actions that modifies flow
 export const requestUpdateFlow = createAction('FLOWS/FLOW/UPDATE')
@@ -103,7 +115,7 @@ const wrapAction = (
   asyncCallback: (payload, state, dispatch) => Promise<any>,
   receiveAction = receiveSaveFlows,
   errorAction = errorSaveFlows
-) => payload => (dispatch, getState) => {
+) => (payload?: any) => (dispatch, getState) => {
   dispatch(requestAction(payload))
   // tslint:disable-next-line: no-floating-promises
   asyncCallback(payload, getState(), dispatch)
@@ -126,35 +138,44 @@ const saveDirtyFlows = async state => {
   return Promise.all(promises)
 }
 
-export const updateFlow = wrapAction(requestUpdateFlow, updateCurrentFlow)
+export const updateFlow: (flow: Partial<FlowView>) => void = wrapAction(requestUpdateFlow, updateCurrentFlow)
 
-export const renameFlow = wrapAction(requestRenameFlow, async (payload, state) => {
-  const { targetFlow, name } = payload
-  await FlowsAPI.renameFlow(state.flows, targetFlow, name)
-  await saveDirtyFlows(state)
-})
+export const renameFlow: (flow: { targetFlow: string; name: string }) => void = wrapAction(
+  requestRenameFlow,
+  async (payload, state) => {
+    const { targetFlow, name } = payload
+    await FlowsAPI.renameFlow(state.flows, targetFlow, name)
+    await saveDirtyFlows(state)
+  }
+)
 
-export const createFlow = wrapAction(requestCreateFlow, async (payload, state) => {
+export const createFlow: (name: string) => void = wrapAction(requestCreateFlow, async (payload, state) => {
   const name = payload
   const flowState = state.flows
   await FlowsAPI.createFlow(flowState, name)
 })
 
-export const deleteFlow = wrapAction(requestDeleteFlow, async (payload, state) => {
+export const deleteFlow: (flowName: string) => void = wrapAction(requestDeleteFlow, async (payload, state) => {
   await FlowsAPI.deleteFlow(state.flows, payload)
   await saveDirtyFlows(state)
 })
 
-export const duplicateFlow = wrapAction(requestDuplicateFlow, async (payload, state) => {
-  const { name } = payload
-  const flowState = state.flows
-  await FlowsAPI.createFlow(flowState, name)
-})
+export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }) => void = wrapAction(
+  requestDuplicateFlow,
+  async (payload, state) => {
+    const { name } = payload
+    const flowState = state.flows
+    await FlowsAPI.createFlow(flowState, name)
+  }
+)
 
-export const updateFlowNode = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
-export const createFlowNode = wrapAction(requestCreateFlowNode, updateCurrentFlow)
+type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
 
-export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, state) => {
+export const updateFlowNode: (props: AllPartialNode) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
+
+export const createFlowNode: (props: AllPartialNode) => void = wrapAction(requestCreateFlowNode, updateCurrentFlow)
+
+export const removeFlowNode: (element: any) => void = wrapAction(requestRemoveFlowNode, async (payload, state) => {
   await updateCurrentFlow(payload, state)
 
   // If node is a skill and there's no references to it, then the complete flow is deleted
@@ -162,22 +183,34 @@ export const removeFlowNode = wrapAction(requestRemoveFlowNode, async (payload, 
   if (deletedFlows.length) {
     await FlowsAPI.deleteFlow(state.flows, deletedFlows[0])
   }
+
+  if (payload.type === 'trigger' && window.USE_ONEFLOW) {
+    await onTriggerEvent('delete', payload.conditions, state)
+  }
 })
 
-export const pasteFlowNode = wrapAction(requestPasteFlowNode, updateCurrentFlow)
+export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode, async (payload, state) => {
+  await updateCurrentFlow(payload, state)
+
+  const node = state.flows.nodeInBuffer
+
+  if (node.type === 'trigger' && window.USE_ONEFLOW) {
+    await onTriggerEvent('create', node.conditions, state)
+  }
+})
 export const pasteFlowNodeElement = wrapAction(requestPasteFlowNodeElement, updateCurrentFlow)
 
 // actions that do not modify flow
-export const switchFlow = createAction('FLOWS/SWITCH')
-export const switchFlowNode = createAction('FLOWS/FLOW/SWITCH_NODE')
-export const openFlowNodeProps = createAction('FLOWS/FLOW/OPEN_NODE_PROPS')
-export const closeFlowNodeProps = createAction('FLOWS/FLOW/CLOSE_NODE_PROPS')
+export const switchFlow: (flowName: string) => void = createAction('FLOWS/SWITCH')
+export const switchFlowNode: (nodeId: string) => void = createAction('FLOWS/FLOW/SWITCH_NODE')
+export const openFlowNodeProps: () => void = createAction('FLOWS/FLOW/OPEN_NODE_PROPS')
+export const closeFlowNodeProps: () => void = createAction('FLOWS/FLOW/CLOSE_NODE_PROPS')
 
 export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
 export const refreshFlowsLinks = debounceAction(handleRefreshFlowLinks, 500, { leading: true })
-export const updateFlowProblems = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
+export const updateFlowProblems: (problems: NodeProblem[]) => void = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
 
-export const copyFlowNode = createAction('FLOWS/NODE/COPY')
+export const copyFlowNode: () => void = createAction('FLOWS/NODE/COPY')
 export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
 
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
@@ -195,7 +228,7 @@ export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, s
   await createNewFlows(state)
 })
 
-export const setDiagramAction = createAction('FLOWS/FLOW/SET_ACTION')
+export const setDiagramAction: (action: string) => void = createAction('FLOWS/FLOW/SET_ACTION')
 
 // Content
 export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')
@@ -228,12 +261,12 @@ const getBatchedContentItem = id => getBatchedContentRunner.add(id)
 const getSingleContentItem = id => axios.get(`${window.BOT_API_PATH}/content/element/${id}`).then(({ data }) => data)
 
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
-export const fetchContentItem = (id, { force = false, batched = false } = {}) => (dispatch, getState) => {
+export const fetchContentItem = (id: string, { force = false, batched = false } = {}) => (dispatch, getState) => {
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(data =>
-    dispatch(receiveContentItem(data))
+  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(
+    data => data && dispatch(receiveContentItem(data))
   )
 }
 
@@ -247,6 +280,7 @@ export const upsertContentItem = ({ contentType, formData, modifyId }) => () =>
   axios.post(`${window.BOT_API_PATH}/content/${contentType}/element/${modifyId || ''}`, { formData })
 
 export const deleteContentItems = data => () => axios.post(`${window.BOT_API_PATH}/content/elements/bulk_delete`, data)
+export const deleteMedia = data => () => axios.post(`${window.BOT_API_PATH}/media/delete`, data)
 
 // UI
 export const viewModeChanged = createAction('UI/VIEW_MODE_CHANGED')
@@ -261,7 +295,7 @@ export const userReceived = createAction('USER/RECEIVED')
 export const fetchUser = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.API_PATH}/auth/me/profile`).then(res => {
-    dispatch(userReceived(res.data && res.data.payload))
+    dispatch(userReceived(res.data?.payload))
   })
 }
 
@@ -315,7 +349,7 @@ export const requestInsertNewSkill = createAction('SKILLS/INSERT')
 export const requestInsertNewSkillNode = createAction('SKILLS/INSERT/NODE')
 export const requestUpdateSkill = createAction('SKILLS/UPDATE')
 
-export const buildNewSkill = createAction('SKILLS/BUILD')
+export const buildNewSkill: ({ location: any, id: string }) => void = createAction('SKILLS/BUILD')
 export const cancelNewSkill = createAction('SKILLS/BUILD/CANCEL')
 
 export const insertNewSkill = wrapAction(requestInsertNewSkill, async (payload, state) => {
@@ -377,8 +411,8 @@ export const refreshActions = () => dispatch => {
     dispatch(
       actionsReceived(
         _.sortBy(
-          data.filter(action => !action.metadata.hidden),
-          ['metadata.category', 'name']
+          data.filter(action => !action.hidden),
+          ['category', 'name']
         )
       )
     )
@@ -393,10 +427,65 @@ export const refreshIntents = () => dispatch => {
   })
 }
 
+export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
+export const refreshConditions = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/dialogConditions`).then(({ data }) => {
+    dispatch(conditionsReceived(data))
+  })
+}
+
+export const topicsReceived = createAction('TOPICS/RECEIVED')
+export const fetchTopics = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/topics`).then(({ data }) => {
+    dispatch(topicsReceived(data))
+  })
+}
+
+export const receiveLibrary = createAction('LIBRARY/RECEIVED')
+export const refreshLibrary = () => (dispatch, getState) => {
+  const contentLang = getState().language.contentLang
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/content/library/${contentLang}`).then(({ data }) => {
+    dispatch(receiveLibrary(data))
+  })
+}
+
+export const addElementToLibrary = (elementId: string) => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}`).then(() => {
+    dispatch(refreshLibrary())
+  })
+}
+
+export const removeElementFromLibrary = (elementId: string) => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}/delete`).then(() => {
+    dispatch(refreshLibrary())
+  })
+}
+
 export const receiveQNAContentElement = createAction('QNA/CONTENT_ELEMENT')
 export const getQNAContentElementUsage = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/mod/qna/contentElementUsage`).then(({ data }) => {
     dispatch(receiveQNAContentElement(data))
+  })
+}
+
+export const receiveQNACountByTopic = createAction('QNA/COUNT_BY_TOPIC')
+export const getQnaCountByTopic = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/mod/qna/questionsByTopic`).then(({ data }) => {
+    dispatch(receiveQNACountByTopic(data))
+  })
+}
+
+export const receiveModuleTranslations = createAction('LANG/TRANSLATIONS')
+export const getModuleTranslations = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.API_PATH}/modules/translations`).then(({ data }) => {
+    dispatch(receiveModuleTranslations(data))
   })
 }

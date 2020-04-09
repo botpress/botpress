@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.7.1",
+  "version": "12.8.2",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -104,6 +104,7 @@
     "@types/jest": "^24.9.0",
     "@types/jest-environment-puppeteer": "^4.3.1",
     "@types/joi": "^13.4.5",
+    "@types/jsonwebtoken": "^8.3.7",
     "@types/lodash": "^4.14.116",
     "@types/lru-cache": "^5.1.0",
     "@types/ms": "^0.7.30",

@@ -1,6 +1,10 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+// YOU ARE BASICALLY AT TESTING IF TARGET CONTEXT SELECTOR WORKS
+// THEN YOU ARE AT TESTING THAT IT WORKS PRE-NDU
+// THEN YOU ARE AT TESTING THAT IT WORKS WITH NDU
+
 import { isPOSAvailable } from './language/pos-tagger'
 import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
@@ -96,6 +100,10 @@ export default class Engine implements NLUEngine {
   }
 
   private modelAlreadyLoaded(model: Model) {
+    if (!model?.languageCode) {
+      return false
+    }
+
     return (
       this.predictorsByLang[model.languageCode] !== undefined &&
       this.modelsByLang[model.languageCode] !== undefined &&
@@ -136,7 +144,7 @@ export default class Engine implements NLUEngine {
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
+      return { ...artefacts, contexts: [], intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
 
     const { ctx_model, intent_model_by_ctx, oos_model } = artefacts
@@ -159,7 +167,8 @@ export default class Engine implements NLUEngine {
       slot_tagger,
       kmeans,
       pattern_entities: input.pattern_entities,
-      intents: output.intents
+      intents: output.intents,
+      contexts: input.contexts
     }
   }
 

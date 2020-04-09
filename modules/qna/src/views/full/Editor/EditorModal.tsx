@@ -1,30 +1,14 @@
 import { Dialog } from '@blueprintjs/core'
-import { Flow } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
-import Editor from '.'
+import Editor, { Props as EditorProps } from '.'
 
-interface Props {
-  closeQnAModal: () => void
-  fetchData: () => void
-  updateQuestion: any
-  page: any
-  filters: any
-  id: any
-  isEditing: boolean
-  contentLang: any
-  showQnAModal: boolean
-  categories: any
-  bp: any
-  flowsList: any
-  flows: Flow[]
-}
-
-const EditorModal: FC<Props> = props => {
+const EditorModal: FC<{ showQnAModal: boolean } & EditorProps> = props => {
   return (
     <Dialog
-      title={props.isEditing ? 'Edit Q&A' : 'Create a new Q&A'}
+      title={props.isEditing ? lang.tr('module.qna.edit') : lang.tr('module.qna.create')}
       icon={props.isEditing ? 'edit' : 'add'}
       isOpen={props.showQnAModal}
       onClose={props.closeQnAModal}

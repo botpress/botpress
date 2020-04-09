@@ -17,6 +17,7 @@ function render(data) {
     {
       text: ' ',
       type: 'carousel',
+      collectFeedback: data.collectFeedback,
       elements: data.items.map(card => ({
         title: card.title,
         picture: card.image ? url.resolve(data.BOT_URL, card.image) : null,
@@ -178,16 +179,16 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_carousel',
   group: 'Built-in Messages',
-  title: 'Carousel',
+  title: 'module.builtin.types.carousel.title',
 
   jsonSchema: {
-    description: 'A carousel is an array of cards',
+    description: 'module.builtin.types.carousel.description',
     type: 'object',
     required: ['items'],
     properties: {
       items: {
         type: 'array',
-        title: 'Carousel Cards',
+        title: 'module.builtin.types.carousel.cards',
         items: Card.jsonSchema
       },
       ...base.typingIndicators

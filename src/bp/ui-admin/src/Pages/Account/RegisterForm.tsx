@@ -1,4 +1,5 @@
 import { Button, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 
 interface Props {
@@ -19,7 +20,7 @@ export const RegisterForm: FC<Props> = props => {
 
   return (
     <form onSubmit={onSubmit}>
-      <FormGroup label="E-mail">
+      <FormGroup label={lang.tr('email')}>
         <InputGroup
           tabIndex={1}
           value={email}
@@ -30,7 +31,7 @@ export const RegisterForm: FC<Props> = props => {
         />
       </FormGroup>
 
-      <FormGroup label="Password">
+      <FormGroup label={lang.tr('admin.password')}>
         <InputGroup
           tabIndex={2}
           value={password}
@@ -40,7 +41,7 @@ export const RegisterForm: FC<Props> = props => {
         />
       </FormGroup>
 
-      <FormGroup label="Confirm Password">
+      <FormGroup label={lang.tr('admin.confirmPassword')}>
         <InputGroup
           tabIndex={3}
           type="password"
@@ -54,7 +55,7 @@ export const RegisterForm: FC<Props> = props => {
         tabIndex={4}
         type="submit"
         id="btn-register"
-        text="Create Account"
+        text={lang.tr('admin.createAccount')}
         disabled={!isValid()}
         intent={Intent.PRIMARY}
       />

@@ -1,5 +1,6 @@
 import { MenuItem, Position } from '@blueprintjs/core'
 import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
 import { NLUApi } from '../../../api'
@@ -54,7 +55,7 @@ export const EntitySelector: FC<Props> = props => {
   return (
     <MultiSelect
       resetOnSelect
-      placeholder="Select entities..."
+      placeholder={lang.tr('module.nlu.entities.selectPlaceholder')}
       items={availableEntities}
       itemRenderer={entityItemRenderer}
       itemPredicate={(q, ent: EntityOption) => !q || ent.type.includes(q) || ent.name.includes(q)}

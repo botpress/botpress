@@ -12,7 +12,7 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { ServerHealth, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -85,17 +85,17 @@ class Bots extends Component<Props> {
     this.setState({ isImportBotModalOpen: !this.state.isImportBotModalOpen })
   }
 
-  async exportBot(botId) {
+  async exportBot(botId: string) {
     this.setState({
       archiveUrl: `/admin/bots/${botId}/export`,
       archiveName: `bot_${botId}_${Date.now()}.tgz`
     })
   }
 
-  async deleteBot(botId) {
+  async deleteBot(botId: string) {
     if (
-      await confirmDialog("Are you sure you want to delete this bot? This can't be undone.", {
-        acceptLabel: 'Delete'
+      await confirmDialog(lang.tr('admin.workspace.bots.confirmDelete'), {
+        acceptLabel: lang.tr('delete')
       })
     ) {
       await api.getSecured().post(`/admin/bots/${botId}/delete`)
@@ -108,10 +108,10 @@ class Bots extends Component<Props> {
       await api.getSecured().post(`/admin/bots/${botId}/reload`)
       this.props.fetchBots()
       this.props.fetchBotHealth()
-      toastSuccess(`Bot remounted successfully`)
+      toastSuccess(lang.tr('admin.workspace.bots.remounted'))
     } catch (err) {
       console.log(err)
-      toastFailure(`Could not mount bot. Check server logs for details`)
+      toastFailure(lang.tr('admin.workspace.bots.couldNotMount'))
     }
   }
 
@@ -128,17 +128,22 @@ class Bots extends Component<Props> {
     return (
       <AccessControl resource="admin.bots.*" operation="write">
         <Popover minimal interactionKind={PopoverInteractionKind.HOVER} position={Position.BOTTOM}>
-          <Button id="btn-create-bot" intent={Intent.NONE} text="Create Bot" rightIcon="caret-down" />
+          <Button
+            id="btn-create-bot"
+            intent={Intent.NONE}
+            text={lang.tr('admin.workspace.bots.createBot')}
+            rightIcon="caret-down"
+          />
           <ButtonGroup vertical={true} minimal={true} fill={true} alignText={Alignment.LEFT}>
             <Button
               id="btn-new-bot"
-              text="New Bot"
+              text={lang.tr('admin.workspace.bots.new')}
               icon="add"
               onClick={() => this.setState({ isCreateBotModalOpen: true })}
             />
             <Button
               id="btn-import-bot"
-              text="Import Existing"
+              text={lang.tr('admin.workspace.bots.importExisting')}
               icon="import"
               onClick={() => this.setState({ isImportBotModalOpen: true })}
             />
@@ -152,16 +157,16 @@ class Bots extends Component<Props> {
     return this.props.bots.reduce((hasUnlangedBots, bot) => hasUnlangedBots || !bot.defaultLanguage, false)
   }
 
-  async requestStageChange(botId) {
+  async requestStageChange(botId: string) {
     await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stage`)
     this.props.fetchBots()
-    toastSuccess('Bot promoted to next stage')
+    toastSuccess(lang.tr('admin.workspace.bots.promoted'))
   }
 
   async approveStageChange(botId) {
     await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/approve-stage`)
     this.props.fetchBots()
-    toastSuccess('Approved bot promotion to next stage')
+    toastSuccess(lang.tr('admin.workspace.bots.approvedPromotion'))
   }
 
   isLicensed = () => {
@@ -170,7 +175,7 @@ class Bots extends Component<Props> {
 
   async createRevision(botId) {
     await api.getSecured().post(`admin/bots/${botId}/revisions`)
-    toastSuccess('Revisions created')
+    toastSuccess(lang.tr('admin.workspace.bots.revisionsCreated'))
   }
 
   toggleRollbackModal = (botId?: string) => {
@@ -182,7 +187,7 @@ class Bots extends Component<Props> {
 
   handleRollbackSuccess = () => {
     this.props.fetchBots()
-    toastSuccess('Rollback success')
+    toastSuccess(lang.tr('admin.workspace.bots.rollbackSuccess'))
   }
 
   handleEditStageSuccess = () => {
@@ -320,7 +325,7 @@ class Bots extends Component<Props> {
             <div className="filterWrapper">
               <InputGroup
                 id="input-filter"
-                placeholder="Filter bots"
+                placeholder={lang.tr('admin.workspace.bots.filter')}
                 value={this.state.filter}
                 onChange={e => this.setState({ filter: e.target.value.toLowerCase() })}
                 autoComplete="off"
@@ -330,9 +335,9 @@ class Bots extends Component<Props> {
             </div>
             {this.state.showFilters && (
               <div className="extraFilters">
-                <h2>Extra filters</h2>
+                <h2>{lang.tr('admin.workspace.bots.extraFilters')}</h2>
                 <Checkbox
-                  label="Need your approval"
+                  label={lang.tr('admin.workspace.bots.needYourApproval')}
                   checked={this.state.needApprovalFilter}
                   onChange={e => this.setState({ needApprovalFilter: e.currentTarget.checked })}
                 ></Checkbox>
@@ -340,28 +345,23 @@ class Bots extends Component<Props> {
             )}
 
             {this.state.filter && !filteredBots.length && (
-              <Callout title="No bot matches your query" className="filterCallout" />
+              <Callout title={lang.tr('admin.workspace.bots.noBotMatches')} className="filterCallout" />
             )}
           </Fragment>
         )}
 
         {!hasBots && (
-          <Callout title="This workspace has no bots, yet" className="filterCallout">
+          <Callout title={lang.tr('admin.workspace.bots.noBotYet')} className="filterCallout">
             <p>
               <br />
-              In Botpress, bots are always assigned to a workspace.
+              {lang.tr('admin.workspace.bots.alwaysAssignedToWorkspace')}
               <br />
-              Create your first bot to start building.
+              {lang.tr('admin.workspace.bots.createYourFirstBot')}
             </p>
           </Callout>
         )}
 
-        {this.hasUnlangedBots() && (
-          <Alert color="warning">
-            You have bots without specified language. Default language is mandatory since Botpress 11.8. Please set bot
-            language in the bot config page.
-          </Alert>
-        )}
+        {this.hasUnlangedBots() && <Alert color="warning">{lang.tr('admin.workspace.bots.noSpecifiedLanguage')}</Alert>}
         {botsView}
       </div>
     )
@@ -377,7 +377,7 @@ class Bots extends Component<Props> {
     }
 
     return (
-      <PageContainer title="Bots">
+      <PageContainer title={lang.tr('admin.workspace.bots.bots')}>
         <SplitPage sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}>
           <Fragment>
             <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
@@ -400,6 +400,7 @@ class Bots extends Component<Props> {
               <CreateBotModal
                 isOpen={this.state.isCreateBotModalOpen}
                 toggle={this.toggleCreateBotModal}
+                existingBots={this.props.bots}
                 onCreateBotSuccess={this.props.fetchBots}
               />
               <ImportBotModal

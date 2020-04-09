@@ -1,4 +1,6 @@
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
+import { parseActionInstruction } from 'common/action'
 import _ from 'lodash'
 import Mustache from 'mustache'
 import React, { Component } from 'react'
@@ -46,18 +48,19 @@ class ActionItem extends Component<Props> {
   }
 
   renderAction() {
-    const action = this.props.text.trim()
+    const actionInstruction = parseActionInstruction(this.props.text.trim())
 
-    let actionName = action
-    let parameters = {}
+    const actionName = `${actionInstruction.actionName} (args)`
 
-    if (action.indexOf(' ') >= 0) {
-      const tokens = action.split(' ')
-      actionName = _.head(tokens) + ' (args)'
-      parameters = JSON.parse(_.tail(tokens).join(' '))
+    let callPreview
+    if (actionInstruction.argsStr) {
+      try {
+        const parameters = JSON.parse(actionInstruction.argsStr)
+        callPreview = JSON.stringify(parameters, null, 2)
+      } catch (err) {
+        console.error(err)
+      }
     }
-
-    const callPreview = JSON.stringify(parameters, null, 2)
 
     const popoverHoverFocus = (
       <Popover id="popover-action" title={`⚡ ${actionName}`}>
@@ -125,7 +128,7 @@ class ActionItem extends Component<Props> {
       )
     }
 
-    const textContent = (item && `${item.schema?.title} | ${preview}`) || ''
+    const textContent = (item && `${lang.tr(item.schema?.title)} | ${preview}`) || ''
     const vars = {}
 
     const stripDots = str => str.replace(/\./g, '--dot--')

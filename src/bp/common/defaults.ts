@@ -5,9 +5,8 @@ export const defaultAdminRole = 'admin'
 export const defaultRoles: AuthRole[] = [
   {
     id: 'admin',
-    name: 'Administrator',
-    description:
-      'Administrators have full access to the workspace including adding members, creating bots and synchronizing changes.',
+    name: 'admin.workspace.roles.default.administrator.name',
+    description: 'admin.workspace.roles.default.administrator.description',
     rules: [
       { res: '*', op: '+r+w' },
       {
@@ -18,8 +17,8 @@ export const defaultRoles: AuthRole[] = [
   },
   {
     id: 'dev',
-    name: 'Developer',
-    description: 'Developers have full read/write access to bots, including flows, content, NLU and actions',
+    name: 'admin.workspace.roles.default.developer.name',
+    description: 'admin.workspace.roles.default.developer.description',
     rules: [
       { res: '*', op: '+r+w' },
       { res: 'admin.*', op: '+r-w' },
@@ -36,9 +35,8 @@ export const defaultRoles: AuthRole[] = [
   },
   {
     id: 'editor',
-    name: 'Content Editor',
-    description:
-      'Content Editors have read/write access to content and NLU, and read-only access to flows and actions.',
+    name: 'admin.workspace.roles.default.contentEditor.name',
+    description: 'admin.workspace.roles.default.contentEditor.description',
     rules: [
       { res: '*', op: '+r' },
       { res: 'admin.collaborators.*', op: '-r' },
@@ -121,3 +119,23 @@ export const CHAT_USER_ROLE = {
     }
   ]
 }
+
+export const BUILTIN_MODULES = [
+  'analytics',
+  'basic-skills',
+  'builtin',
+  'builtin',
+  'channel-messenger',
+  'channel-slack',
+  'channel-teams',
+  'channel-telegram',
+  'channel-web',
+  'code-editor',
+  'examples',
+  'extensions',
+  'history',
+  'hitl',
+  'nlu',
+  'qna',
+  'testing'
+]

@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
@@ -16,6 +17,7 @@ import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import Notifications from '~/views/Notifications'
+import OneFlow from '~/views/OneFlow'
 
 import BotUmountedWarning from './BotUnmountedWarning'
 import GuidedTour from './GuidedTour'
@@ -35,6 +37,7 @@ interface ILayoutProps {
   toggleBottomPanel: () => null
   history: any
   bottomPanel: boolean
+  translations: any
 }
 
 class Layout extends React.Component<ILayoutProps> {
@@ -60,6 +63,13 @@ class Layout extends React.Component<ILayoutProps> {
     })
 
     setTimeout(() => BotUmountedWarning(), 500)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!prevProps.translations && this.props.translations) {
+      lang.extend(this.props.translations)
+      lang.init()
+    }
   }
 
   toggleEmulator = () => {
@@ -128,7 +138,7 @@ class Layout extends React.Component<ILayoutProps> {
   }
 
   render() {
-    if (this.props.viewMode < 0) {
+    if (this.props.viewMode < 0 || !this.props.translations) {
       return null
     }
 
@@ -177,11 +187,18 @@ class Layout extends React.Component<ILayoutProps> {
                   <Route
                     exact
                     path="/"
-                    render={() => (window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/config" />)}
+                    render={() => {
+                      if (!window.IS_BOT_MOUNTED) {
+                        return <Redirect to="/config" />
+                      }
+
+                      return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                    }}
                   />
                   <Route exact path="/content" component={Content} />
                   <Route exact path="/flows/:flow*" component={FlowBuilder} />
                   <Route exact path="/config" component={Config} />
+                  <Route exact path="/oneflow/:flow*" component={OneFlow} />
                   <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                   <Route exact path="/notifications" component={Notifications} />
                   <Route exact path="/logs" component={Logs} />
@@ -215,7 +232,8 @@ class Layout extends React.Component<ILayoutProps> {
 const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
-  bottomPanel: state.ui.bottomPanel
+  bottomPanel: state.ui.bottomPanel,
+  translations: state.language.translations
 })
 
 const mapDispatchToProps = dispatch =>

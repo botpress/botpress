@@ -6,7 +6,6 @@ import style from '../style.scss'
 
 export const Entities: SFC<{ entities: sdk.NLU.Entity[] }> = props => (
   <div className={style.subSection}>
-    <H5 color={Colors.DARK_GRAY5}>Entities</H5>
     <HTMLTable condensed className={style.summaryTable}>
       <thead>
         <tr>

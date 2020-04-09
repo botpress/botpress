@@ -1,5 +1,5 @@
 import { Button, FormGroup } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
+import { BaseDialog, DialogBody, DialogFooter, lang } from 'botpress/shared'
 import { AuthRole, AuthStrategyConfig, CreatedUser, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -87,7 +87,7 @@ export const CreateUserModal: FC<Props> = props => {
 
   return (
     <BaseDialog
-      title="Add Collaborator"
+      title={lang.tr('admin.workspace.users.collaborators.add')}
       icon="add"
       isOpen={props.isOpen}
       onClose={props.toggleOpen}
@@ -95,9 +95,9 @@ export const CreateUserModal: FC<Props> = props => {
     >
       <DialogBody>
         <FormGroup
-          label="Email"
+          label={lang.tr('email')}
           labelFor="select-email"
-          helperText="Invite an existing user, or type his e-mail address and press Enter"
+          helperText={lang.tr('admin.workspace.users.collaborators.inviteExistingUser')}
         >
           <AsyncSelect
             id="select-email"
@@ -111,12 +111,12 @@ export const CreateUserModal: FC<Props> = props => {
         </FormGroup>
 
         {isCreating && (
-          <FormGroup label="Authentication Strategy" labelFor="select-strategy">
+          <FormGroup label={lang.tr('admin.workspace.users.collaborators.authStrategy')} labelFor="select-strategy">
             <AuthStrategyDropdown onChange={strategy => setStrategy(strategy)} />
           </FormGroup>
         )}
 
-        <FormGroup label="Choose a role for that user" labelFor="select-role">
+        <FormGroup label={lang.tr('admin.workspace.users.collaborators.chooseRole')} labelFor="select-role">
           <RoleDropdown onChange={role => setRole(role)} />
         </FormGroup>
       </DialogBody>
@@ -125,7 +125,11 @@ export const CreateUserModal: FC<Props> = props => {
           id="btn-submit"
           className="float-right"
           type="submit"
-          text={isCreating ? 'Create account' : 'Add to workspace'}
+          text={
+            isCreating
+              ? lang.tr('admin.workspace.users.collaborators.createAccount')
+              : lang.tr('admin.workspace.users.collaborators.addToWorkspace')
+          }
           disabled={!isValid}
         />
       </DialogFooter>

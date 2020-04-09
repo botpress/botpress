@@ -1,0 +1,23 @@
+{
+  "fullName": "Intégré",
+  "types": {
+    "actionButton": {
+      "buttonTitle": "Titre du bouton",
+      "description": "Un bouton qui déclenche une action, souvent utilisé dans les cartes",
+      "title": "Bouton d'action"
+    },
+    "singleChoice": {
+      "choice": "Choix",
+      "description": "Suggérer un choix à l'utilisateur avec l'intention de n'en sélectionner qu'un (avec un message optionnel)",
+      "itemTitle": "Le titre du choix (ce que verra l'utilisateur)",
+      "itemValue": "La valeur que recevra le bot lorsque l'utilisateur choisi cet item (habituellement caché de l'utilisateur)",
+      "title": "Choix Unique"
+    },
+    "text": {
+      "alternatives": "Alternatives (optionnel)",
+      "description": "Un texte régulier"
+    }
+  },
+  "typingIndicator": "Afficher l'indicateur de frappe",
+  "useMarkdown": "Utiliser markdown"
+}

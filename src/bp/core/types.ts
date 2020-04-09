@@ -19,6 +19,7 @@ const TYPES = {
   DBStorageDriver: Symbol.for('DBStorageDriver'),
   ObjectCache: Symbol.for('ObjectCache'),
   ActionService: Symbol.for('ActionService'),
+  ActionServersService: Symbol.for('ActionServersService'),
   IsPackaged: Symbol.for('IsPackaged'),
   IncomingQueue: Symbol.for('IncomingQueue'),
   OutgoingQueue: Symbol.for('OutgoingQueue'),
@@ -77,8 +78,10 @@ const TYPES = {
   EventCollector: Symbol.for('EventCollector'),
   StatsService: Symbol.for('StatsService'),
   StrategyUsersRepository: Symbol.for('StrategyUsersRepository'),
+  TasksRepository: Symbol.for('TasksRepository'),
   WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
-  WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository')
+  WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository'),
+  LocalActionServer: Symbol.for('LocalActionServer')
 }
 
 export { TYPES }

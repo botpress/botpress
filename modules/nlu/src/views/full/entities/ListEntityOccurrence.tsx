@@ -1,5 +1,6 @@
 import { Button, Intent, Tag, TagInput } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import React, { FC } from 'react'
 
 import style from './style.scss'
@@ -21,7 +22,7 @@ export const Occurrence: FC<Props> = props => {
           </Tag>
         </div>
       }
-      placeholder="Type a synonym (or more, comma separated) and hit enter"
+      placeholder={lang.tr('module.nlu.entities.synonmymPlaceholder')}
       rightElement={<Button icon="delete" minimal onClick={props.remove} />}
       onChange={(synonyms: string[]) => props.onChange({ ...props.occurrence, synonyms })}
       values={props.occurrence.synonyms}

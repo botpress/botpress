@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
+import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -208,7 +209,7 @@ const TrainIntentClassifier = async (
           .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
           .map(utt => ({
             label: i.name,
-            coordinates: utt.sentenceEmbedding
+            coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
           }))
       )
       .filter(x => !x.coordinates.some(isNaN))
@@ -242,7 +243,7 @@ const TrainContextClassifier = async (
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: utt.sentenceEmbedding
+          coordinates: getSentenceEmbeddingForCtx(utt)
         }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
