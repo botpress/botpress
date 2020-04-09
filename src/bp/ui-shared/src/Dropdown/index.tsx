@@ -23,7 +23,7 @@ const itemRenderer = (option, { modifiers, handleClick }) => {
 }
 
 const Dropdown: FC<DropdownProps> = props => {
-  const { defaultItem, items, onChange, small, icon, rightIcon, spaced, className } = props
+  const { defaultItem, items, onChange, small, icon, rightIcon, spaced, className, filterable } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const SimpleDropdown = Select.ofType<Option>()
 
@@ -33,6 +33,7 @@ const Dropdown: FC<DropdownProps> = props => {
 
   return (
     <SimpleDropdown
+      filterable={filterable}
       className={className}
       items={items}
       activeItem={activeItem}

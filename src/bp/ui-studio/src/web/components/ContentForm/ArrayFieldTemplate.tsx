@@ -1,4 +1,5 @@
 import { Button, Intent, Position, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React from 'react'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
@@ -10,7 +11,7 @@ const ArrayFieldTemplate = props => {
 
   const renderDeleteBtn = (element, className?) => (
     <div className={className}>
-      <Tooltip content="Delete" position={Position.TOP}>
+      <Tooltip content={lang.tr('delete')} position={Position.TOP}>
         <Button
           icon="trash"
           minimal
@@ -52,7 +53,7 @@ const ArrayFieldTemplate = props => {
 
       {canAdd && (
         <Button onClick={onAddClick} className={style.addContentBtn} large={true}>
-          Add {schema.title}
+          {lang.tr('add')} {schema.title}
         </Button>
       )}
     </div>

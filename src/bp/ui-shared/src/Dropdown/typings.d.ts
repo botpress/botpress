@@ -4,6 +4,7 @@ export interface Option {
 }
 
 export interface DropdownProps {
+  filterable?: boolean
   className?: string
   items: Option[]
   defaultItem?: Option | string

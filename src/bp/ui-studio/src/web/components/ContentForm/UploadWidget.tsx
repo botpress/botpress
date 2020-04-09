@@ -1,6 +1,7 @@
 import { Button, FileInput, Intent, Position, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
-import React, { FC, Fragment, useEffect, useReducer } from 'react'
+import { lang } from 'botpress/shared'
+import React, { FC, Fragment, useReducer } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
@@ -12,12 +13,12 @@ const UploadWidget: FC<any> = props => {
         error: null,
         uploading: true
       }
-    } else if (action.type === 'changeShowUploadBtn') {
-      const { showUploadBtn } = action.data
-
+    } else if (action.type === 'deleteFile') {
+      props.onChange(null)
       return {
         ...state,
-        showUploadBtn
+        error: null,
+        uploading: false
       }
     } else if (action.type === 'uploadError') {
       const { error } = action.data
@@ -33,7 +34,6 @@ const UploadWidget: FC<any> = props => {
       props.onChange(url)
       return {
         ...state,
-        showUploadBtn: false,
         error: null,
         uploading: false
       }
@@ -43,27 +43,14 @@ const UploadWidget: FC<any> = props => {
   }
 
   const [state, dispatch] = useReducer(uploadReducer, {
-    showUploadBtn: false,
     error: null,
     uploading: false
   })
 
-  const { showUploadBtn, error, uploading } = state
+  const { error, uploading } = state
 
-  useEffect(() => {
-    if (!props.value) {
-      showUpload()
-    } else {
-      hideUpload()
-    }
-  }, [props.value])
-
-  const showUpload = () => {
-    dispatch({ type: 'changeShowUploadBtn', data: { showUploadBtn: true } })
-  }
-
-  const hideUpload = () => {
-    dispatch({ type: 'changeShowUploadBtn', data: { showUploadBtn: false } })
+  const deleteFile = () => {
+    dispatch({ type: 'deleteFile' })
   }
 
   const startUpload = async event => {
@@ -94,22 +81,22 @@ const UploadWidget: FC<any> = props => {
     <AccessControl
       operation="write"
       resource="bot.media"
-      fallback={<em>You don&apos;t have permission to upload files for this bot. Talk to your team owner.</em>}
+      fallback={<em>{lang.tr('module.builtin.types.image.permissionDenied')}</em>}
     >
       <div className={style.fieldWrapper}>
-        {!showUploadBtn && (
+        {value && (
           <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
             <div className={style.imgWrapperActions}>
-              <Tooltip content="Delete" position={Position.TOP}>
-                <Button minimal small intent={Intent.DANGER} icon="trash" onClick={showUpload}></Button>
+              <Tooltip content={lang.tr('delete')} position={Position.TOP}>
+                <Button minimal small intent={Intent.DANGER} icon="trash" onClick={deleteFile}></Button>
               </Tooltip>
             </div>
           </div>
         )}
-        {showUploadBtn && (
+        {!value && (
           <Fragment>
             <FileInput
-              text="Upload Image"
+              text={lang.tr('module.builtin.types.image.uploadImage')}
               large
               inputProps={{
                 id: 'node-image',
@@ -118,11 +105,6 @@ const UploadWidget: FC<any> = props => {
                 onChange: startUpload
               }}
             />
-            {value && (
-              <Button className={style.alignBtnRight} minimal small onClick={hideUpload}>
-                Cancel
-              </Button>
-            )}
             {error && <p className={style.fieldError}>{error}</p>}
           </Fragment>
         )}

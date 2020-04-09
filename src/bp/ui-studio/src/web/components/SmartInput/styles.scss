@@ -19,7 +19,7 @@
     z-index: 5;
     right: 2px;
     top: 2px;
-    display: inline-block;
+    display: flex;
     transition: background 0.2s ease-in-out;
 
     &MoreSpacing {
@@ -37,7 +37,7 @@
     }
   }
 
-  &:hover {
+  &:hover, &:focus-within {
     .insertBtn {
       background: rgba(255, 255, 255, 0.9);
       span[icon] {

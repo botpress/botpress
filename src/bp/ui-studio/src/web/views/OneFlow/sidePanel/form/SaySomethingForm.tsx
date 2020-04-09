@@ -1,6 +1,6 @@
 import { Dropdown, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import {
   closeFlowNodeProps,
@@ -44,7 +44,7 @@ const shownCategories = ['builtin_text', 'builtin_image', 'builtin_carousel', 'b
 const SaySomethingForm: FC<Props> = props => {
   const [showOptions, setShowOptions] = useState(false)
   const { contentType, currentFlowNode, readOnly } = props
-  const changedContentType = useRef()
+  const changedContentType = useRef(contentType)
 
   useEffect(() => {
     if (!props.contentTypes?.length) {
@@ -69,7 +69,7 @@ const SaySomethingForm: FC<Props> = props => {
   const onCopy = () => {
     props.copyFlowNode()
     setShowOptions(false)
-    toastInfo('Copied to buffer')
+    toastInfo(lang.tr('studio.flow.copiedToBuffer'))
   }
 
   const handleContentTypeChange = value => {
@@ -82,12 +82,12 @@ const SaySomethingForm: FC<Props> = props => {
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       icon: 'duplicate',
-      label: 'Copy',
+      label: lang.tr('copy'),
       action: onCopy.bind(this)
     },
     {
       icon: 'trash',
-      label: 'Delete',
+      label: lang.tr('delete'),
       action: props?.onDeleteSelectedElements,
       type: 'delete'
     }
@@ -149,11 +149,11 @@ const SaySomethingForm: FC<Props> = props => {
   return (
     <Fragment>
       <div className={style.formHeader}>
-        <h4>Say Something</h4>
+        <h4>{lang.tr('studio.flow.node.saySomething')}</h4>
         <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
       </div>
       <label className={style.fieldWrapper}>
-        <span className={style.formLabel}>Node Name</span>
+        <span className={style.formLabel}>{lang.tr('studio.flow.node.nodeName')}</span>
         <EditableInput
           readOnly={readOnly}
           value={currentFlowNode.name}
@@ -163,9 +163,10 @@ const SaySomethingForm: FC<Props> = props => {
         />
       </label>
       <div className={style.fieldWrapper}>
-        <span className={style.formLabel}>Content Type</span>
+        <span className={style.formLabel}>{lang.tr('studio.content.contentType')}</span>
         {contentTypes && (
           <Dropdown
+            filterable={false}
             className={style.formSelect}
             items={contentTypes.map(cat => ({ value: cat.id, label: lang.tr(cat.title) }))}
             defaultItem={contentType || 'builtin_text'}

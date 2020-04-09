@@ -42,6 +42,13 @@
   }
 }
 
+input[type="checkbox"], input[type="radio"] {
+  &:focus {
+    outline: 1px solid $border-active !important;
+    outline-offset: 1px !important;
+  }
+}
+
 .formSelect {
   display: block;
   padding: 0;
@@ -49,10 +56,6 @@
 
   :global(.bp3-popover-target) {
     width: 100%;
-  }
-
-  &:active, &:focus {
-    border-color: $border-active
   }
 
   &, > * {
@@ -73,8 +76,9 @@
     padding: 8px 10px !important;
     width: 100% !important;
 
-    &:focus, :-moz-focusring {
+    &:focus, &:active {
       outline: 0;
+      border-color: $border-active !important;
     }
   }
 }
@@ -154,6 +158,9 @@
     left: 0;
   }
 }
+.fieldWrapper :global(.bp3-file-input:focus-within .bp3-file-upload-input) {
+  background: #2A87C3;
+}
 
 .fieldWrapper :global(.bp3-file-upload-input) {
   color: #fff;
@@ -191,7 +198,7 @@
   transition: border 0.3s !important;
   width: 100% !important;
 
-  &:focus {
+  &:focus, &:focus-within {
     border-color: $border-active !important;
     box-shadow: none !important;
   }
@@ -234,8 +241,14 @@ select:global(.form-control) {
 }
 
 .addContentBtn {
+  border: 1px solid $border !important;
+  box-shadow: none !important;
   cursor: pointer;
   width: 100%;
+
+  &:focus {
+    border-color: $border-active !important;
+  }
 }
 
 .emptyState {
