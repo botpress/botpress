@@ -1,5 +1,7 @@
 {
-  "fullName": "Compétences de base",
+  "callApi": "Appeler API",
   "choice": "Choix",
-  "callApi": "Appeler API"
+  "fullName": "Compétences de base",
+  "sendEmail": "Envoyer un courriel",
+  "slotFilling": "Remplissage de slot"
 }

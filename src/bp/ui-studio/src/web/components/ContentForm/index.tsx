@@ -130,7 +130,9 @@ const ContentForm: FC<Props> = props => {
       fields={fields}
       onChange={handleOnChange}
       schema={translatePropsRecursive(props.schema)}
-    />
+    >
+      {props.children}
+    </Form>
   )
 }
 

@@ -33,7 +33,7 @@ const User: FC<Props> = ({ user, showPicture, currentUserEmail, onUserUpdated, o
 
           <p>
             <span className="emailField">
-              <b>{lang.tr('admin.workspace.users.collaborators.email')}: </b>
+              <b>{lang.tr('email')}: </b>
               {user.email} ({user.strategy})
             </span>
           </p>

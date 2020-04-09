@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
 import { FLAG_REASON, FlaggedEvent } from '../types'
 
 import initApi from './api'
@@ -33,6 +35,7 @@ const onServerReady = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
+  translations: { en, fr },
   definition: {
     name: 'misunderstood',
     menuIcon: 'gesture',

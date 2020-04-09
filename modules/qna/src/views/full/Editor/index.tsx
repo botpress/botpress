@@ -207,16 +207,18 @@ export default class Editor extends Component<Props> {
     return (
       <div>
         {this.state.invalidFields.checkbox && (
-          <Callout intent={Intent.DANGER}>{lang.tr('qna.editor.checkRequired')}</Callout>
+          <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.checkRequired')}</Callout>
         )}
-        {hasInvalidInputs && <Callout intent={Intent.DANGER}>{lang.tr('qna.editor.inputsRequred')}</Callout>}
+        {hasInvalidInputs && <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.inputsRequred')}</Callout>}
         {this.state.hasDuplicates && (
-          <Callout intent={Intent.DANGER}>{lang.tr('qna.editor.duplicatesNotAllowed')}</Callout>
+          <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.duplicatesNotAllowed')}</Callout>
         )}
         {this.state.errorMessage && <Callout intent={Intent.DANGER}>{this.state.errorMessage}</Callout>}
-        {missingTranslations && <Callout intent={Intent.DANGER}>{lang.tr('qna.editor.missingTranslations')}</Callout>}
+        {missingTranslations && (
+          <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.missingTranslations')}</Callout>
+        )}
         {this.state.isIncorrectRedirection && (
-          <Callout intent={Intent.DANGER}>{lang.tr('qna.editor.incorrectRedirection')}</Callout>
+          <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.incorrectRedirection')}</Callout>
         )}
       </div>
     )
@@ -296,7 +298,10 @@ export default class Editor extends Component<Props> {
               />
             )}
 
-            <FormGroup helperText={lang.tr('qna.editor.pasteQuestionHere')} label={lang.tr('qna.editor.questions')}>
+            <FormGroup
+              helperText={lang.tr('module.qna.editor.pasteQuestionHere')}
+              label={lang.tr('module.qna.editor.questions')}
+            >
               <TextArea
                 id="input-questions"
                 tabIndex={1}
@@ -312,16 +317,16 @@ export default class Editor extends Component<Props> {
               />
             </FormGroup>
 
-            <H6>{lang.tr('qna.editor.answers')}</H6>
+            <H6>{lang.tr('module.qna.editor.answers')}</H6>
             <Checkbox
-              label={lang.tr('qna.editor.botWillSay')}
+              label={lang.tr('module.qna.editor.botWillSay')}
               checked={!flowsList || this.state.isText}
               onChange={this.changeItemAction('isText')}
               tabIndex={-1}
             />
 
             <ElementsList
-              placeholder={lang.tr('qna.editor.typePressAddAnswer')}
+              placeholder={lang.tr('module.qna.editor.typePressAddAnswer')}
               elements={this.itemAnswers}
               allowMultiline
               onInvalid={this.state.invalidFields.answer}
@@ -334,13 +339,13 @@ export default class Editor extends Component<Props> {
               <React.Fragment>
                 <div className={style.qnaAndOr}>
                   <div className={style.qnaAndOrLine} />
-                  <div className={style.qnaAndOrText}>{lang.tr('qna.editor.AndOr')}</div>
+                  <div className={style.qnaAndOrText}>{lang.tr('module.qna.editor.andOr')}</div>
                   <div className={style.qnaAndOrLine} />
                 </div>
                 <div className={style.qnaRedirect}>
                   <div className={style.qnaRedirectToFlow}>
                     <Checkbox
-                      label={lang.tr('qna.editor.redirectToFlow')}
+                      label={lang.tr('module.qna.editor.redirectToFlow')}
                       id="redirect"
                       checked={this.state.isRedirect}
                       onChange={this.changeItemAction('isRedirect')}
@@ -357,7 +362,7 @@ export default class Editor extends Component<Props> {
                     />
                   </div>
                   <div className={style.qnaRedirectNode}>
-                    <strong>{lang.tr('qna.editor.node')}</strong>
+                    <strong>{lang.tr('module.qna.editor.node')}</strong>
 
                     <Select
                       className={classnames({ qnaCategoryError: invalidFields.redirectNode })}

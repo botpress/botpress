@@ -1,0 +1,59 @@
+{
+  "addNew": "Add new",
+  "answer": "Answer",
+  "confirmDelete": "Do you want to delete the question?",
+  "context": {
+    "canTypeToCreate": "You can type in the select bar to add new contexts.",
+    "create": "Create \"{query}\"",
+    "filterByContexts": "Filter by contexts",
+    "selectContext": "Select context...",
+    "title": "Contexts"
+  },
+  "contexts": "Contexts",
+  "create": "Create a new Q&A",
+  "edit": "Edit Q&A",
+  "editor": {
+    "andOr": "and / or",
+    "answers": "Answers",
+    "botWillSay": "Bot will say: ",
+    "checkboxRequired": "Action checkbox is required",
+    "duplicatesNotAllowed": "Duplicated questions aren't allowed.",
+    "incorrectRedirection": "Incorrect redirection",
+    "inputsRequred": "Inputs are required.",
+    "missingTranslations": "Missing translations",
+    "node": "Node",
+    "pasteQuestionHere": "Type/Paste your questions here separated with a new line",
+    "questions": "Questions",
+    "redirectToFlow": "Redirect to flow",
+    "typePressAddAnswer": "Type and press enter to add an answer. Use ALT+Enter for a new line"
+  },
+  "exportToJson": "Export to JSON",
+  "fullName": "Q&A",
+  "hint": {
+    "addMoreQuestions": "Add {moreQuestions} to make your Q&A more resilient.",
+    "exactMatchOnly": "exact match only",
+    "moreQuestions": "{remaining} more {remaining, plural, one {question} other {questions}}",
+    "willBeExact": "This Q&A will use {exactMatchOnly}. To enable machine learning, add at leastd {remaining} more {remaining, plural, one {question} other {questions}}",
+    "willBeIgnored": "This Q&A will be ignored, start adding questions to make it trainable."
+  },
+  "import": {
+    "analysis": "Analysis",
+    "botContains": "The bot contains {qnaCount} questions and {cmsCount} content elements.",
+    "clearQuestionsThenInsert": "Clear existing questions, then insert my new questions and create/update content elements",
+    "fileContains": "Your file contains {fileQnaCount} questions and {fileCmsCount} content elements.",
+    "insertNewQuestions": "Insert the new questions from my file and create/update associated content elements",
+    "notAbleToExtract": "We were not able to extract any data from your file. Either the file is empty, or it doesn't match any known format.",
+    "selectJson": "Select your JSON file",
+    "selectJsonHelp": "Select a JSON file exported from the module QNA. You will see a summary of modifications when clicking on Next",
+    "uploadFile": "Upload File",
+    "uploadStatus": "Upload status",
+    "uploadSuccessful": "Upload successful",
+    "whatLikeDo": "What would you like to do?"
+  },
+  "importJson": "Import JSON",
+  "missingTranslations": "Missing translations",
+  "noQuestionsYet": "No questions have been added yet.",
+  "question": "Question",
+  "redirectsAssociated": "There are redirects associated to this questions, you can view them in the edit form",
+  "search": "Search for a question"
+}

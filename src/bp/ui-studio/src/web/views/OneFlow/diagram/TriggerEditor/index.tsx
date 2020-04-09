@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import { Condition } from 'botpress/sdk'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -89,7 +89,9 @@ const EditTriggerModal: FC<Props> = props => {
   }
 
   const onConditionDeleted = async (condition: Condition) => {
-    if (await confirmDialog('Are you sure to delete this condition?', { acceptLabel: 'Delete' })) {
+    if (
+      await confirmDialog(lang.tr('studio.flow.condition.confirmDeleteCondition'), { acceptLabel: lang.tr('delete') })
+    ) {
       save([...conditions.filter(cond => cond.id !== condition.id)])
 
       const def = props.backendConditions.find(x => x.id === condition.id)
@@ -125,16 +127,16 @@ const EditTriggerModal: FC<Props> = props => {
       className={triggerStyles.dialog}
       style={{ width: 750, minHeight: 380 }}
       icon="edit"
-      title={`Edit Triggers`}
+      title={lang.tr('studio.flow.condition.editTriggers')}
     >
       <DialogBody>
         <div className={cx(triggerStyles.formHeader, { [triggerStyles.editing]: isEditing })}>
           {isEditing && (
             <Button icon="arrow-left" small minimal onClick={() => setEditing(false)}>
-              Back to list
+              {lang.tr('studio.flow.condition.backToList')}
             </Button>
           )}
-          <p className={triggerStyles.tip}>Changes will be saved automatically</p>
+          <p className={triggerStyles.tip}>{lang.tr('studio.flow.condition.savedAutomatically')}</p>
         </div>
         {isEditing && (
           <div>
@@ -168,7 +170,12 @@ const EditTriggerModal: FC<Props> = props => {
             {conditions?.length !== backendConditions?.length && (
               <ButtonGroup>
                 <ConditionDropdown onChange={con => setCurrentCondition(con)} ignored={conditions} />
-                <Button icon="add" minimal text="Add condition" onClick={() => addCondition(currentCondition)} />
+                <Button
+                  icon="add"
+                  minimal
+                  text={lang.tr('studio.flow.condition.addCondition')}
+                  onClick={() => addCondition(currentCondition)}
+                />
               </ButtonGroup>
             )}
           </div>

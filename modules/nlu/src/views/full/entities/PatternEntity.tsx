@@ -82,12 +82,12 @@ export const PatternEntityEditor: React.FC<Props> = props => {
     <div className={style.entityEditorBody}>
       <div className={style.dataPane}>
         <FormGroup
-          label={lang.tr('nlu.entities.patternLabel')}
+          label={lang.tr('module.nlu.entities.patternLabel')}
           labelFor="pattern"
           labelInfo={
             patternValid ? null : (
               <Tag intent="danger" minimal className={style.validationTag}>
-                {lang.tr('nlu.entities.patternInvalid')}
+                {lang.tr('module.nlu.entities.patternInvalid')}
               </Tag>
             )
           }
@@ -97,20 +97,22 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             rightElement={<Icon iconSize={20} className={style.regexInputDash} icon="slash" />}
             type="text"
             id="pattern"
-            placeholder={lang.tr('nlu.entities.patternPlaceholder')}
+            placeholder={lang.tr('module.nlu.entities.patternPlaceholder')}
             value={pattern}
             intent={patternValid ? 'none' : 'danger'}
             onChange={e => setPattern(e.target.value)}
           />
         </FormGroup>
         <FormGroup
-          label={lang.tr('nlu.entities.examplesLabel')}
+          label={lang.tr('module.nlu.entities.examplesLabel')}
           labelFor="examples"
           labelInfo={
             examplesStr &&
             patternValid && (
               <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal className={style.validationTag}>
-                {allExamplesMatch ? lang.tr('nlu.entities.matchingSuccess') : lang.tr('nlu.entities.matchingError')}
+                {allExamplesMatch
+                  ? lang.tr('module.nlu.entities.matchingSuccess')
+                  : lang.tr('module.nlu.entities.matchingError')}
               </Tag>
             )
           }
@@ -120,7 +122,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             fill
             rows={6}
             growVertically={true}
-            placeholder={lang.tr('nlu.entities.examplesPlaceholder')}
+            placeholder={lang.tr('module.nlu.entities.examplesPlaceholder')}
             value={examplesStr}
             intent={allExamplesMatch ? 'none' : 'danger'}
             onChange={e => setExampleStr(e.target.value)}
@@ -128,14 +130,14 @@ export const PatternEntityEditor: React.FC<Props> = props => {
         </FormGroup>
       </div>
       <div className={style.configPane}>
-        <Label>{lang.tr('nlu.entities.optionsLabel')}</Label>
+        <Label>{lang.tr('options')}</Label>
         <Checkbox
           checked={matchCase}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMatchCase(e.target.checked)}
         >
-          <span>{lang.tr('nlu.entities.matchCaseLabel')}</span>&nbsp;
+          <span>{lang.tr('module.nlu.entities.matchCaseLabel')}</span>&nbsp;
           <Tooltip
-            content={lang.tr('nlu.entities.matchCaseTooltip')}
+            content={lang.tr('module.nlu.entities.matchCaseTooltip')}
             position={Position.RIGHT}
             popoverClassName={style.configPopover}
           >
@@ -146,9 +148,9 @@ export const PatternEntityEditor: React.FC<Props> = props => {
           checked={sensitive}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSensitive(e.target.checked)}
         >
-          <span>{lang.tr('nlu.entities.sensitiveLabel')}</span>&nbsp;
+          <span>{lang.tr('module.nlu.entities.sensitiveLabel')}</span>&nbsp;
           <Tooltip
-            content={lang.tr('nlu.entities.sensitiveTooltip')}
+            content={lang.tr('module.nlu.entities.sensitiveTooltip')}
             position={Position.RIGHT}
             popoverClassName={style.configPopover}
           >

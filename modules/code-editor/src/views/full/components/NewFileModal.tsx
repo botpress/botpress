@@ -84,13 +84,13 @@ const NewFileModal: FC<Props> = props => {
       onClose={closeModal}
       transitionDuration={0}
       icon="add"
-      title={lang.tr(`editor.newFileModal.createNew`, { name: props.selectedType })}
+      title={lang.tr('module.code-editor.newFileModal.createNew', { name: props.selectedType })}
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
           <FormGroup
-            label={lang.tr(`editor.newFileModal.fileName`)}
-            helperText={lang.tr(`editor.newFileModal.fileNameHelp`)}
+            label={lang.tr('module.code-editor.newFileModal.fileName')}
+            helperText={lang.tr('module.code-editor.newFileModal.fileNameHelp')}
           >
             <InputGroup
               id="input-name"
@@ -105,7 +105,7 @@ const NewFileModal: FC<Props> = props => {
 
           {fileDefinition.allowScoped && canBeBotScoped() && (
             <Checkbox
-              label={lang.tr(`editor.newFileModal.createForCurrent`)}
+              label={lang.tr('module.code-editor.newFileModal.createForCurrent')}
               checked={isScoped}
               disabled={!fileDefinition.allowGlobal || !canGlobalWrite}
               onChange={e => setScoped(e.currentTarget.checked)}

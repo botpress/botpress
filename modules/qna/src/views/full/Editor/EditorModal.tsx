@@ -8,7 +8,7 @@ import Editor, { Props as EditorProps } from '.'
 const EditorModal: FC<{ showQnAModal: boolean } & EditorProps> = props => {
   return (
     <Dialog
-      title={props.isEditing ? lang.tr('qna.edit') : lang.tr('qna.create')}
+      title={props.isEditing ? lang.tr('module.qna.edit') : lang.tr('module.qna.create')}
       icon={props.isEditing ? 'edit' : 'add'}
       isOpen={props.showQnAModal}
       onClose={props.closeQnAModal}

@@ -1,0 +1,59 @@
+{
+  "addNew": "Ajouter un élément",
+  "answer": "Réponse",
+  "confirmDelete": "Voulez-vous supprimer la question?",
+  "context": {
+    "canTypeToCreate": "Vous pouvez taper dans la barre de sélection pour créer de nouveaux contextes.",
+    "create": "Créer \"{query}\"",
+    "filterByContexts": "Filtrer par contextes",
+    "selectContext": "Sélectionnez le contexte...",
+    "title": "Contextes"
+  },
+  "contexts": "Contextes",
+  "create": "Créer un nouvel élément",
+  "edit": "Modifier Q&R",
+  "editor": {
+    "andOr": "et / ou",
+    "answers": "Réponses",
+    "botWillSay": "Le bot écrira: ",
+    "checkboxRequired": "La case à cocher de l'action est obligatoire",
+    "duplicatesNotAllowed": "Les questions en double ne sont pas autorisées.",
+    "incorrectRedirection": "Traductions manquantes",
+    "inputsRequred": "Des entrées sont requises.",
+    "missingTranslations": "Missing translations",
+    "node": "Noeud",
+    "pasteQuestionHere": "Saisissez ou copier-coller vos questions ici, une question par ligne.",
+    "questions": "Questions",
+    "redirectToFlow": "Rediriger vers le flow",
+    "typePressAddAnswer": "Tapez et appuyez sur Entrée pour ajouter une réponse. Utilisez ALT + Entrée pour une nouvelle ligne"
+  },
+  "exportToJson": "Exporter JSON",
+  "fullName": "Q&R",
+  "hint": {
+    "addMoreQuestions": "Ajoutez {moreQuestions} pour rendre votre Q&R plus résilient.",
+    "exactMatchOnly": "correspondance exacte uniquement",
+    "moreQuestions": "{remaining} {remaining, plural, one {question} other {questions}} de plus",
+    "willBeExact": "Ce Q&R utilisera des {exactMatchOnly}. Pour activer l'apprentissage automatique, ajoutez au moins {remaining} {remaining, plural, one {question} other {questions}}",
+    "willBeIgnored": "Cet élément sera ignoré. Ajoutez des questions pour débuter l'entraînement."
+  },
+  "import": {
+    "analysis": "Analyse",
+    "botContains": "Le bot contient {qnaCount} questions et {cmsCount} éléments de contenu.",
+    "clearQuestionsThenInsert": "Effacer les questions existantes, puis insérer mes nouvelles questions et créer / mettre à jour des éléments de contenu",
+    "fileContains": "Votre dossier contient {fileQnaCount} questions et {fileCmsCount} éléments de contenu.",
+    "insertNewQuestions": "Insérer les nouvelles questions de mon fichier et créer / mettre à jour les éléments de contenu associés",
+    "notAbleToExtract": "Nous n'avons pas pu extraire de données de votre fichier. Soit le fichier est vide, soit il ne correspond à aucun format connu.",
+    "selectJson": "Sélectionnez votre fichier JSON",
+    "selectJsonHelp": "Sélectionnez un fichier JSON exporté à partir du module Q&R. Vous verrez un résumé des modifications en cliquant sur Suivant",
+    "uploadFile": "Téléverser un fichier",
+    "uploadStatus": "Statut de téléversement",
+    "uploadSuccessful": "Téléchargement réussi",
+    "whatLikeDo": "Qu'aimeriez-vous faire?"
+  },
+  "importJson": "Importer JSON",
+  "missingTranslations": "Traductions manquantes",
+  "noQuestionsYet": "Aucune question n'a encore été ajoutée.",
+  "question": "Question",
+  "redirectsAssociated": "Il existe des redirections associées à ces questions, vous pouvez les visualiser dans le formulaire d'édition",
+  "search": "Chercher une question"
+}

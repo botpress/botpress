@@ -29,15 +29,15 @@ const createHint = (utterances, goodMLUtterances, minMLUtterances) => {
   const idealNumberOfUtt = goodMLUtterances
 
   if (!utterances.length) {
-    return <span>{lang.tr('qna.hint.willBeIgnored')}</span>
+    return <span>{lang.tr('module.qna.hint.willBeIgnored')}</span>
   }
 
   if (utterances.length && utterances.length < minMLUtterances) {
     const remaining = minMLUtterances - utterances.length
     return (
       <span>
-        {lang.tr('qna.hint.willBeExact', {
-          exactMatchOnly: <strong>{lang.tr('qna.hint.exactMatchOnly')}</strong>,
+        {lang.tr('module.qna.hint.willBeExact', {
+          exactMatchOnly: <strong>{lang.tr('module.qna.hint.exactMatchOnly')}</strong>,
           remaining
         })}
       </span>
@@ -48,8 +48,8 @@ const createHint = (utterances, goodMLUtterances, minMLUtterances) => {
     const remaining = idealNumberOfUtt - utterances.length
     return (
       <span>
-        {lang.tr('qna.hint.addMoreQuestions', {
-          moreQuestions: <strong>{lang.tr('qna.hint.moreQuestions', { remaining })}</strong>
+        {lang.tr('module.qna.hint.addMoreQuestions', {
+          moreQuestions: <strong>{lang.tr('module.qna.hint.moreQuestions', { remaining })}</strong>
         })}
       </span>
     )
