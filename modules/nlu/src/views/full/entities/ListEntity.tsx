@@ -1,6 +1,6 @@
 import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, toastFailure } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
@@ -71,6 +71,9 @@ export const ListEntityEditor: React.FC<Props> = props => {
       return
     }
 
+    const uniqOcurrences = _.uniq(state.occurrences.map(occ => occ.name))
+    if (uniqOcurrences.includes(newOccurrence)) return toastFailure('Occurrences duplication is not allowed')
+
     dispatch({
       type: 'setOccurrences',
       data: { occurrences: [...state.occurrences, { name: newOccurrence, synonyms: [] }] }
@@ -79,6 +82,11 @@ export const ListEntityEditor: React.FC<Props> = props => {
   }
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
+    const newSynonym = _.last(occurrence.synonyms)
+    if (occurrence.synonyms.indexOf(newSynonym) !== occurrence.synonyms.length - 1) {
+      return toastFailure('Synonyms duplication is not allowed')
+    }
+
     const occurrences = [...state.occurrences.slice(0, idx), occurrence, ...state.occurrences.slice(idx + 1)]
     dispatch({
       type: 'setOccurrences',
@@ -92,6 +100,10 @@ export const ListEntityEditor: React.FC<Props> = props => {
       type: 'setOccurrences',
       data: { occurrences }
     })
+  }
+
+  const sortOccurernces = () => {
+    dispatch({ type: 'setOccurrences', data: { occurrences: _.sortBy(state.occurrences, 'name') } })
   }
 
   const handleFuzzyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,15 +144,28 @@ export const ListEntityEditor: React.FC<Props> = props => {
           />
         </FormGroup>
         {state.occurrences.length > 0 && (
-          <FormGroup label={lang.tr('nlu.entities.occurrenceLabel')}>
-            {state.occurrences.map((o, i) => (
-              <Occurrence
-                key={o.name}
-                occurrence={o}
-                remove={removeOccurrence.bind(null, i)}
-                onChange={editOccurrence.bind(null, i)}
-              />
-            ))}
+          <FormGroup
+            label={
+              <span>
+                <Tooltip position={Position.LEFT} popoverClassName={style.configPopover}>
+                  <span>
+                    {lang.tr('nlu.entities.occurrenceLabel')}&nbsp;
+                    <Button icon="sort" minimal text="" onClick={sortOccurernces} />
+                  </span>
+                </Tooltip>
+              </span>
+            }
+          >
+            <div className={style.occurrencesList}>
+              {state.occurrences.map((o, i) => (
+                <Occurrence
+                  key={o.name}
+                  occurrence={o}
+                  remove={removeOccurrence.bind(null, i)}
+                  onChange={editOccurrence.bind(null, i)}
+                />
+              ))}
+            </div>
           </FormGroup>
         )}
       </div>
