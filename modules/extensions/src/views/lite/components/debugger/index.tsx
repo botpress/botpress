@@ -1,5 +1,4 @@
 import { Icon, Tab, Tabs } from '@blueprintjs/core'
-import '@blueprintjs/core/lib/css/blueprint.css'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'

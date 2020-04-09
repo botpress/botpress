@@ -30,6 +30,7 @@ import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvi
 import { initializeTranslations } from './translations'
 /* eslint-enable */
 
+import '@blueprintjs/core/lib/css/blueprint.css'
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.min.css')
 require('./theme.scss')
