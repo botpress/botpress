@@ -23,8 +23,7 @@ const passThroughNodeProps: string[] = [
   'next',
   'skill',
   'conditions',
-  'formData',
-  'contentType'
+  'content'
 ]
 export const DIAGRAM_PADDING: number = 100
 

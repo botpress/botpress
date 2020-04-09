@@ -26,7 +26,7 @@ export class SaySomethingWidget extends Component<{
       >
         {showHeader({ nodeType: 'Say', nodeName: node.name, isStartNode: node.isStartNode })}
         <div className={style.content}>
-          <SayNodeContent node={node} data={node.formData} contentType={node.contentType} />
+          <SayNodeContent node={node} data={node.content?.formData} contentType={node.content?.contentType} />
         </div>
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />
@@ -38,31 +38,18 @@ export class SaySomethingWidget extends Component<{
 }
 
 export class SaySomethingNodeModel extends BaseNodeModel {
-  public contentType
-  public formData = {}
+  public content = { contentType: null, formData: {} }
 
-  constructor({
-    id,
-    x,
-    y,
-    name,
-    onEnter = [],
-    next = [],
-    contentType,
-    formData = {},
-    isStartNode = false,
-    isHighlighted = false
-  }) {
+  constructor({ id, x, y, name, onEnter = [], next = [], content, isStartNode = false, isHighlighted = false }) {
     super('say_something', id)
-    this.setData({ name, onEnter, next, contentType, formData, isStartNode, isHighlighted })
+    this.setData({ name, onEnter, next, content, isStartNode, isHighlighted })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
   }
 
-  setData({ contentType, formData, ...data }: any) {
-    this.contentType = contentType
-    this.formData = formData
+  setData({ content, ...data }: any) {
+    this.content = content
 
     super.setData(data as any)
   }

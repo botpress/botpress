@@ -1,6 +1,6 @@
 import { Dropdown, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
+import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import {
   closeFlowNodeProps,
@@ -44,6 +44,7 @@ const shownCategories = ['builtin_text', 'builtin_image', 'builtin_carousel', 'b
 const SaySomethingForm: FC<Props> = props => {
   const [showOptions, setShowOptions] = useState(false)
   const { contentType, currentFlowNode, readOnly } = props
+  const changedContentType = useRef()
 
   useEffect(() => {
     if (!props.contentTypes?.length) {
@@ -72,7 +73,8 @@ const SaySomethingForm: FC<Props> = props => {
   }
 
   const handleContentTypeChange = value => {
-    props.updateNode({ contentType: value, formData: {} })
+    changedContentType.current = value
+    props.updateNode({ content: { contentType: value, formData: {} } })
   }
 
   const contentTypes = props.contentTypes?.filter(cat => shownCategories.includes(cat.id))
@@ -114,10 +116,8 @@ const SaySomethingForm: FC<Props> = props => {
     return { properties: newProperties, ...leftover }
   }
 
-  const getCurrentContentType = () => {
-    const currentType = contentType || 'builtin_text'
-
-    if (!contentTypes) {
+  const getCurrentContentType = (contentType: string) => {
+    if (!contentType || !contentTypes) {
       return
     }
 
@@ -127,18 +127,21 @@ const SaySomethingForm: FC<Props> = props => {
         ...schema
       },
       ...restContentType
-    } = contentTypes?.find(cat => cat.id === currentType)
+    } = contentTypes?.find(cat => cat.id === contentType)
 
     // just a way to remove the descriptions since we don't want it in the sidebar form, but still want it in the CMS
     return { ...restContentType, schema: { json: removeDescriptions(json), ...schema } }
   }
 
-  const currentContentType = getCurrentContentType()
+  const currentContentType = getCurrentContentType(contentType || 'builtin_text')
 
   const handleEdit = event => {
-    if (!_.isEqual(event.formData, props.formData)) {
+    if (contentType === changedContentType.current && !_.isEqual(event.formData, props.formData)) {
       props.updateNode({
-        formData: event.formData
+        content: {
+          contentType: changedContentType.current || contentType,
+          formData: event.formData
+        }
       })
     }
   }
@@ -178,7 +181,7 @@ const SaySomethingForm: FC<Props> = props => {
         <ContentForm
           schema={currentContentType?.schema.json}
           uiSchema={currentContentType?.schema.ui}
-          formData={currentFlowNode.formData}
+          formData={currentFlowNode?.content?.formData}
           isEditing={true}
           onChange={handleEdit}
         >
