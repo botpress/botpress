@@ -69,7 +69,7 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
   renderCarousel() {
     const Carousel = getComponent('channel-web', 'Carousel')
     return Carousel ? (
-      <Carousel carousel={this.props.message.raw_message} forHitl={true} />
+      <Carousel style={{ maxWidth: '400px' }} carousel={this.props.message.raw_message} />
     ) : (
       <span>Could not display carousel</span>
     )
