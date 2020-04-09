@@ -1,0 +1,111 @@
+// Copyright 2017 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "../../common/variables";
+@import "../../common/mixins";
+@import "common";
+
+/*
+Form groups
+
+Markup:
+<div class="#{$ns}-form-group {{.modifier}}">
+  <label class="#{$ns}-label" for="form-group-input">
+    Label
+    <span class="#{$ns}-text-muted">(required)</span>
+  </label>
+  <div class="#{$ns}-form-content">
+    <div class="#{$ns}-input-group {{.modifier}}">
+      <span class="#{$ns}-icon #{$ns}-icon-calendar"></span>
+      <input id="form-group-input" type="text" {{:modifier}} class="#{$ns}-input"
+             style="width: 200px;" placeholder="Placeholder text" dir="auto" />
+    </div>
+    <div class="#{$ns}-form-helper-text">Please enter a value</div>
+  </div>
+</div>
+
+:disabled - Disable the input.
+.#{$ns}-disabled - Disabled styles. Input must be disabled separately via attribute.
+.#{$ns}-inline - Label and content appear side by side.
+.#{$ns}-intent-primary - Apply intent to form group and input separately.
+
+Styleguide form-group
+*/
+
+.#{$ns}-form-group {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 ($pt-grid-size * 1.5);
+
+  label.#{$ns}-label {
+    margin-bottom: $pt-grid-size / 2;
+  }
+
+  .#{$ns}-control {
+    margin-top: ($pt-input-height - $control-indicator-size) / 2;
+  }
+
+  .#{$ns}-form-helper-text {
+    margin-top: $pt-grid-size / 2;
+    color: $pt-text-color-muted;
+    font-size: $pt-font-size-small;
+  }
+
+  // stylelint-disable-next-line order/declaration-block-order
+  @each $intent, $color in $pt-intent-text-colors {
+    &.#{$ns}-intent-#{$intent} {
+      .#{$ns}-form-helper-text {
+        color: $color;
+      }
+    }
+  }
+
+  &.#{$ns}-inline {
+    flex-direction: row;
+    align-items: flex-start;
+
+    &.#{$ns}-large label.#{$ns}-label {
+      margin: 0 $pt-grid-size 0 0;
+      line-height: $pt-input-height-large;
+    }
+
+    label.#{$ns}-label {
+      margin: 0 $pt-grid-size 0 0;
+      line-height: $pt-input-height;
+    }
+  }
+
+  &.#{$ns}-disabled {
+    .#{$ns}-label,
+    .#{$ns}-text-muted,
+    .#{$ns}-form-helper-text {
+      // disabled state always overrides over styles
+      // stylelint-disable-next-line declaration-no-important
+      color: $pt-text-color-disabled !important;
+    }
+  }
+
+  .#{$ns}-dark & {
+    @each $intent, $color in $pt-dark-intent-text-colors {
+      &.#{$ns}-intent-#{$intent} {
+        .#{$ns}-form-helper-text {
+          color: $color;
+        }
+      }
+    }
+
+    .#{$ns}-form-helper-text {
+      color: $pt-dark-text-color-muted;
+    }
+
+    &.#{$ns}-disabled {
+      .#{$ns}-label,
+      .#{$ns}-text-muted,
+      .#{$ns}-form-helper-text {
+        // disabled state always overrides over styles
+        // stylelint-disable-next-line declaration-no-important
+        color: $pt-dark-text-color-disabled !important;
+      }
+    }
+  }
+}
