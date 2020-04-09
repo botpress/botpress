@@ -9,7 +9,7 @@
     "examplesPlaceholder": "Ajoutez des exemples qui respectent votre expression (un exemple par ligne)",
     "filterPlaceholder": "Filtrer les entités",
     "fuzzyLabel": "Options de correspondance",
-    "fuzzyTooltip": "Les options de correspondance déterminent la tolérence au nideau de l'ortographe (ex: erreur de frappe) dans les mots de 4 caractères ou plus. Stricte signifie qu'aucune erreur n'est permise.",
+    "fuzzyTooltip": "Les options de correspondance déterminent la tolérance au niveau de l’orthographe (ex: erreur de frappe) dans les mots de 4 caractères ou plus. Stricte signifie qu'aucune erreur n'est permise.",
     "loose": "Indulgent",
     "matchCaseLabel": "Sensible à la casse",
     "matchCaseTooltip": "Est-ce que votre expression doit respecter la casse?",
