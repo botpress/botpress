@@ -1,4 +1,4 @@
-import { keyMap, lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 import { Dropdown } from 'react-bootstrap'
@@ -83,7 +83,7 @@ class LangSwitcher extends React.Component<Props> {
     return (
       <Fragment>
         <ActionItem
-          shortcut={keyMap['lang-switcher']}
+          shortcut={utils.keyMap['lang-switcher']}
           title={lang.tr('statusBar.contentLanguage')}
           description={lang.tr('statusBar.switchLang', { currentLang: this.props.contentLang.toUpperCase() })}
           onClick={this.props.toggleLangSwitcher}

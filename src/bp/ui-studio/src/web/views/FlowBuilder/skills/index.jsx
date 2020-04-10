@@ -13,7 +13,9 @@ const style = require('./style.scss')
 const VALID_WINDOW_SIZES = ['normal', 'large', 'small']
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { lang, BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
+import { lang, BaseDialog } from 'botpress/shared'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 class WrappedInjectedModule extends React.Component {
   shouldComponentUpdate(nextProps) {
@@ -162,7 +164,7 @@ class SkillsBuilder extends React.Component {
       this.props.action === 'new' ? lang.tr('studio.flow.skills.insert') : lang.tr('studio.flow.skills.edit')
 
     return (
-      <BaseDialog
+      <Dialog
         title={`${title} | ${lang.tr(skill && skill.name)}`}
         size="lg"
         className={modalClassName}
@@ -186,7 +188,7 @@ class SkillsBuilder extends React.Component {
             {submitName}
           </Button>
         </DialogFooter>
-      </BaseDialog>
+      </Dialog>
     )
   }
 }

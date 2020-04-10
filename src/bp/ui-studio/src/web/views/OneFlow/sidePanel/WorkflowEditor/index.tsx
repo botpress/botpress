@@ -1,15 +1,16 @@
 import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import { Option } from 'botpress/sdk'
-import { Dropdown, lang } from 'botpress/shared'
+import { BaseDialog, Dropdown, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, renameFlow, updateFlow } from '~/actions'
-import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
 
 import { buildFlowName, parseFlowName } from './utils'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface OwnProps {
   isOpen: boolean
@@ -88,7 +89,7 @@ const WorkflowEditor: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog isOpen={props.isOpen} onClose={closeModal} onSubmit={submit} {...dialog}>
+    <Dialog isOpen={props.isOpen} onClose={closeModal} onSubmit={submit} {...dialog}>
       <DialogBody>
         <div>
           <div style={{ display: 'flex' }}>
@@ -132,7 +133,7 @@ const WorkflowEditor: FC<Props> = props => {
       <DialogFooter>
         <Button type="submit" id="btn-submit" tabIndex={4} text={lang.tr('saveChanges')} intent={Intent.PRIMARY} />
       </DialogFooter>
-    </BaseDialog>
+    </Dialog>
   )
 }
 

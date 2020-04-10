@@ -1,5 +1,5 @@
 import { Button, FormGroup } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter, lang } from 'botpress/shared'
+import { BaseDialog, lang } from 'botpress/shared'
 import { AuthRole, AuthStrategyConfig, CreatedUser, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -10,6 +10,8 @@ import api from '../../../api'
 import { fetchAvailableUsers } from '../../../reducers/user'
 
 import AuthStrategyDropdown from './AuthStrategyDropdown'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface OwnProps {
   isOpen?: boolean
@@ -86,7 +88,7 @@ export const CreateUserModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog
       title={lang.tr('admin.workspace.users.collaborators.add')}
       icon="add"
       isOpen={props.isOpen}
@@ -133,7 +135,7 @@ export const CreateUserModal: FC<Props> = props => {
           disabled={!isValid}
         />
       </DialogFooter>
-    </BaseDialog>
+    </Dialog>
   )
 }
 

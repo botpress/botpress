@@ -1,8 +1,9 @@
-import { lang } from 'botpress/shared'
+import { BaseDialog, lang } from 'botpress/shared'
 import React, { FC } from 'react'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 import withLanguage from '~/components/Util/withLanguage'
+
+const { Dialog, DialogBody } = BaseDialog
 
 interface Props {
   selectedTopic: string
@@ -13,7 +14,7 @@ interface Props {
 
 const EditTopicQnAModal: FC<Props> = props => {
   return (
-    <BaseDialog
+    <Dialog
       title={lang.tr('studio.flow.editQna')}
       icon="edit"
       isOpen={props.isOpen}
@@ -29,7 +30,7 @@ const EditTopicQnAModal: FC<Props> = props => {
           extraProps={{ topicName: props.selectedTopic }}
         />
       </DialogBody>
-    </BaseDialog>
+    </Dialog>
   )
 }
 

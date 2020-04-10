@@ -1,6 +1,8 @@
 import { Button, FormGroup, Intent } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter, Dropdown, lang, Option } from 'botpress/shared'
+import { BaseDialog, Dropdown, lang, Option } from 'botpress/shared'
 import React, { FC, useState } from 'react'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface Props {
   isOpen: boolean
@@ -28,7 +30,7 @@ const ChangeLanguage: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog
       title={lang.tr('admin.changeLanguage')}
       icon="translate"
       isOpen={props.isOpen}
@@ -43,7 +45,7 @@ const ChangeLanguage: FC<Props> = props => {
       <DialogFooter>
         <Button id="btn-submit" type="submit" text={lang.tr('save')} tabIndex={4} intent={Intent.PRIMARY} />
       </DialogFooter>
-    </BaseDialog>
+    </Dialog>
   )
 }
 

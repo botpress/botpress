@@ -1,11 +1,10 @@
 import { Button, Checkbox, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import 'bluebird-global'
-import { lang } from 'botpress/shared'
+import { BaseDialog, lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
-import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils'
 
 import { ElementType } from '..'
@@ -13,6 +12,8 @@ import { ExportedFlow, ExportedTopic, ImportAction } from '../typings'
 import { analyzeWorkflowFile, executeWorkflowActions, getWorkflowAction } from '../WorkflowEditor/import'
 
 import { analyzeTopicFile, detectFileType, executeTopicActions, fields, getTopicAction, renameTopic } from './import'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface Topic {
   name: string
@@ -292,14 +293,14 @@ const ImportModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog
       title={lang.tr('studio.flow.topicEditor.importContent')}
       icon="import"
       isOpen={props.isOpen}
       onClose={closeDialog}
     >
       {actions !== undefined ? renderDetails() : renderUpload()}
-    </BaseDialog>
+    </Dialog>
   )
 }
 

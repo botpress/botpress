@@ -1,4 +1,4 @@
-import { isInputFocused, lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
@@ -24,6 +24,8 @@ import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
 import BottomPanel from './Toolbar/BottomPanel'
+
+const { isInputFocused } = utils
 
 interface ILayoutProps {
   viewModeChanged: any

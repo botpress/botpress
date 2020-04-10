@@ -1,11 +1,13 @@
 import { Button, Radio, RadioGroup } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
+import { BaseDialog } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 import InviteCode from './InviteCode'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface Props {
   workspaceId: string
@@ -80,7 +82,7 @@ const RolloutStrategyModal: FC<Props> = props => {
   const inviteRequired = ['anonymous-invite', 'authenticated-invite'].includes(strategy)
 
   return (
-    <BaseDialog
+    <Dialog
       title="Rollout Strategy"
       icon="send-to-graph"
       isOpen={props.isOpen}
@@ -121,7 +123,7 @@ const RolloutStrategyModal: FC<Props> = props => {
       <DialogFooter>
         <Button id="btn-submit" text="Submit" onClick={submit} />
       </DialogFooter>
-    </BaseDialog>
+    </Dialog>
   )
 }
 

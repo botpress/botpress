@@ -6,7 +6,9 @@ import style from './style.scss'
 import { connect } from 'react-redux'
 import SmartInput from '~/components/SmartInput'
 import { getFlowLabel, reorderFlows } from '~/components/Shared/Utils'
-import { lang, BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
+import { lang, BaseDialog } from 'botpress/shared'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 const availableProps = [
   { label: 'User Data', value: 'user' },
@@ -393,7 +395,7 @@ class ConditionModalForm extends Component {
 
   render() {
     return (
-      <BaseDialog
+      <Dialog
         title={
           this.state.isEdit ? lang.tr('studio.flow.node.transition.edit') : lang.tr('studio.flow.node.transition.new')
         }
@@ -412,7 +414,7 @@ class ConditionModalForm extends Component {
             {this.state.isEdit ? lang.tr('update') : lang.tr('create')}
           </Button>
         </DialogFooter>
-      </BaseDialog>
+      </Dialog>
     )
   }
 }

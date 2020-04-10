@@ -1,4 +1,4 @@
-import { isInputFocused, lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
@@ -139,7 +139,7 @@ const FlowBuilder = (props: Props) => {
       toastInfo(lang.tr('studio.nowSaveAuto'), Timeout.LONG)
     },
     delete: e => {
-      if (!isInputFocused()) {
+      if (!utils.isInputFocused()) {
         e.preventDefault()
         diagram?.deleteSelectedElements()
       }

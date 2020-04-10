@@ -1,17 +1,15 @@
 import { Button, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { Topic } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { BaseDialog, lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { fetchFlows, fetchTopics, renameFlow } from '~/actions'
-import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
 
-import style from '../style.scss'
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface Props {
   selectedTopic: string
@@ -55,7 +53,7 @@ const EditTopicModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog
       title={lang.tr('studio.flow.topicEditor.editTopic')}
       icon="edit"
       isOpen={props.isOpen}
@@ -93,7 +91,7 @@ const EditTopicModal: FC<Props> = props => {
       <DialogFooter>
         <Button type="submit" id="btn-submit" text={lang.tr('saveChanges')} intent={Intent.PRIMARY} />
       </DialogFooter>
-    </BaseDialog>
+    </Dialog>
   )
 }
 

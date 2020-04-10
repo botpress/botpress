@@ -1,13 +1,12 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import { Condition } from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
+import { BaseDialog, confirmDialog, lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { switchFlowNode, updateFlowNode } from '~/actions'
-import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
 
 import { FlowView } from '../../../../../../../../../out/bp/common/typings'
 import withLanguage from '../../../../components/Util/withLanguage'
@@ -18,6 +17,8 @@ import triggerStyles from './style.scss'
 import ConditionDropdown from './Condition/ConditionDropdown'
 import ConditionEditor from './Condition/Editor'
 import ConditionItem from './Condition/Item'
+
+const { Dialog, DialogBody } = BaseDialog
 
 interface OwnProps {
   node: TriggerNodeModel
@@ -121,7 +122,7 @@ const EditTriggerModal: FC<Props> = props => {
   const { isOpen, contentLang, backendConditions } = props
 
   return (
-    <BaseDialog
+    <Dialog
       isOpen={isOpen}
       onClose={close}
       className={triggerStyles.dialog}
@@ -181,7 +182,7 @@ const EditTriggerModal: FC<Props> = props => {
           </div>
         )}
       </DialogBody>
-    </BaseDialog>
+    </Dialog>
   )
 }
 

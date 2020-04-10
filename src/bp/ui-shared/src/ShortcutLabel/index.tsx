@@ -2,7 +2,7 @@ import { Icon, IconName } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
-import { keyMap } from '../keyboardShortcuts'
+import { keyMap } from '../utils/keyboardShortcuts'
 
 import style from './style.scss'
 import { ShortcutLabelProps } from './typings'

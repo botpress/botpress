@@ -1,14 +1,14 @@
 import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
-import { Topic } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { BaseDialog, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
 import { fetchTopics } from '~/actions'
-import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
@@ -40,7 +40,7 @@ const CreateTopicModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog
       title={lang.tr('studio.flow.topicEditor.createNewTopic')}
       icon="add"
       isOpen={props.isOpen}
@@ -83,7 +83,7 @@ const CreateTopicModal: FC<Props> = props => {
           disabled={!name}
         />
       </DialogFooter>
-    </BaseDialog>
+    </Dialog>
   )
 }
 

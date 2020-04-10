@@ -1,5 +1,5 @@
 import { Icon, Tooltip } from '@blueprintjs/core'
-import { keyMap, lang, ShortcutLabel } from 'botpress/shared'
+import { lang, ShortcutLabel } from 'botpress/shared'
 import classNames from 'classnames'
 import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'

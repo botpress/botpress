@@ -1,4 +1,4 @@
-import { BaseDialog, confirmDialog, DialogBody, DialogFooter, lang } from 'botpress/shared'
+import { BaseDialog, confirmDialog, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { Button, OverlayTrigger, Radio, Tooltip } from 'react-bootstrap'
@@ -11,6 +11,8 @@ import { RootReducer } from '~/reducers'
 import style from './style.scss'
 import ParametersTable from './ParametersTable'
 import SelectActionDropdown from './SelectActionDropdown'
+
+const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface OwnProps {
   show: boolean
@@ -214,7 +216,7 @@ class ActionModalForm extends Component<Props, State> {
 
   render() {
     return (
-      <BaseDialog
+      <Dialog
         title={this.state.isEdit ? lang.tr('studio.flow.node.editAction') : lang.tr('studio.flow.node.addAction')}
         isOpen={this.props.show}
         onClose={this.onClose}
@@ -249,7 +251,7 @@ class ActionModalForm extends Component<Props, State> {
             (Alt+Enter)
           </Button>
         </DialogFooter>
-      </BaseDialog>
+      </Dialog>
     )
   }
 }
