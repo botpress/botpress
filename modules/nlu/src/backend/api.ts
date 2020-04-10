@@ -196,6 +196,11 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const { botId } = req.params
     const ghost = bp.ghost.forBot(botId)
     const entities = await getEntities(ghost)
+
+    if (req.query.asOption) {
+      return res.json(entities.map(x => ({ value: `${x.type}.${x.name}`, label: `${x.type}.${x.name}` })))
+    }
+
     res.json(entities)
   })
 
