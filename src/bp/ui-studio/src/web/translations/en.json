@@ -68,6 +68,7 @@
         "uploadStatus": "Upload status",
         "whatLikeDo": "What would you like to do?"
       },
+      "insertVariable": "Insert Variable",
       "mustBeDefaultLang": "Content element must be created in your default language first.",
       "noContent": "There's no content here.",
       "noContentDefined": "We think you don't have any content types defined.",
@@ -153,10 +154,11 @@
         "missingLink": "Missing Link",
         "noActionsFound": "No actions found on this action server",
         "noDescription": "No description",
+        "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",
         "return": "Return",
-        "saySomething": "💬 Say something",
+        "saySomething": "Say Something",
         "theBotWill": "The bot will",
         "transition": {
           "action": {

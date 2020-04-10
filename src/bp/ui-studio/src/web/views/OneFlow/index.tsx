@@ -166,6 +166,7 @@ const FlowBuilder = (props: Props) => {
   return (
     <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
       <SidePanel
+        onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
         readOnly={readOnly}
         mutexInfo={mutex}
         permissions={actions}
