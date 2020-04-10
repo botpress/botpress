@@ -4,6 +4,8 @@ import { lang, langAvaibale, langExtend, langInit, langLocale } from './translat
 import { BaseDialog, DialogBody, DialogFooter } from './BaseDialog'
 import confirmDialog from './ConfirmDialog'
 import Dropdown from './Dropdown'
+import MarkdownContent from './MarkdownContent'
+import MoreOptions from './MoreOptions'
 import ShortcutLabel from './ShortcutLabel'
 import { toastFailure } from './Toaster'
 import TreeView from './TreeView'
@@ -15,7 +17,6 @@ exports.BaseDialog = BaseDialog
 exports.DialogFooter = DialogFooter
 exports.DialogBody = DialogBody
 exports.confirmDialog = confirmDialog
-exports.style = { TooltipStyle }
 exports.TreeView = TreeView
 exports.lang = {
   tr: lang,
@@ -24,5 +25,8 @@ exports.lang = {
   getLocale: langLocale,
   getAvailable: langAvaibale
 }
+exports.MarkdownContent = MarkdownContent
 exports.toastFailure = toastFailure
 exports.Dropdown = Dropdown
+exports.MoreOptions = MoreOptions
+exports.TreeView = TreeView

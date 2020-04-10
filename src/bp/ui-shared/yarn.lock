@@ -4646,6 +4646,11 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
+snarkdown@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/snarkdown/-/snarkdown-1.2.2.tgz#0cfe2f3012b804de120fc0c9f7791e869c59cc74"
+  integrity sha1-DP4vMBK4BN4SD8DJ93kehpxZzHQ=
+
 sort-keys@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/sort-keys/-/sort-keys-1.1.2.tgz#441b6d4d346798f1b4e49e8920adfba0e543f9ad"

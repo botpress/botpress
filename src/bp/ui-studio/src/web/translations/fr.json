@@ -68,6 +68,7 @@
         "uploadStatus": "Statut de téléversement",
         "whatLikeDo": "Qu'est-ce que vous aimeriez faire?"
       },
+      "insertVariable": "Insérer une variable",
       "mustBeDefaultLang": "L'élément doit d'abord être créé dans la langue par défaut.",
       "noContent": "Il n'y a pas de contenu ici.",
       "noContentDefined": "Nous pensons que vous n'avez défini aucun type de contenu.",
@@ -140,10 +141,11 @@
         "missingLink": "Lien manquant",
         "noActionsFound": "Aucune action trouvée sur ce serveur d'actions",
         "noDescription": "Pas de description",
+        "nodeName": "Nom du node",
         "onEnter": "Sur Entrée",
         "onReceive": "Sur réception",
         "return": "Revenir",
-        "saySomething": "💬 Écrire quelque chose",
+        "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",
         "transition": {
           "action": {
