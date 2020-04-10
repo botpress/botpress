@@ -1,3 +1,14 @@
+.tooltip {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  line-height: 1.25;
+
+  .shortcutLabel {
+    margin-left: 4px;
+  }
+}
+
 .toolbar {
   background: #fff;
   border-bottom: 1px solid var(--c-neutral--light-2);
@@ -11,7 +22,6 @@
     align-items: center;
     display: flex;
     justify-content: flex-end;
-    list-style-type: none;
     margin: 0;
     padding: 10px 15px;
     width: 100%;
@@ -25,18 +35,24 @@
     }
 
     .item {
+      border: none;
+      border-radius: 5px;
       color: var(--c-content-color-darker);
       display: flex;
       align-items: center;
       height: 100%;
       line-height: 0;
-      padding: 6px;
+      padding: 7px 8px;
       transition: background 0.3s;
       vertical-align: middle;
       white-space: pre;
 
+      &Spacing {
+        margin-left: 10px;
+      }
+
       &:hover {
-        background: var(--c-background--light-3);
+        background: var(--c-neutral--light-2);
       }
 
       .label {
@@ -52,10 +68,6 @@
           cursor: pointer;
         }
       }
-    }
-
-    .item + .item {
-      margin-left: 10px;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { lang } from 'botpress/shared'
+import { isInputFocused, lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -18,7 +18,6 @@ import { Container } from '~/components/Shared/Interface'
 import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
-import { isInputFocused } from '~/keyboardShortcuts'
 import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 

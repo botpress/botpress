@@ -1,11 +1,16 @@
+import { isInputFocused, keyMap } from './keyboardShortcuts'
 import TooltipStyle from './style/tooltip.scss'
 import { lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { BaseDialog, DialogBody, DialogFooter } from './BaseDialog'
 import confirmDialog from './ConfirmDialog'
 import Dropdown from './Dropdown'
+import ShortcutLabel from './ShortcutLabel'
 import { toastFailure } from './Toaster'
 import TreeView from './TreeView'
 
+exports.keyMap = keyMap
+exports.isInputFocused = isInputFocused
+exports.ShortcutLabel = ShortcutLabel
 exports.BaseDialog = BaseDialog
 exports.DialogFooter = DialogFooter
 exports.DialogBody = DialogBody
