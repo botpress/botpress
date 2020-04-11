@@ -62,7 +62,7 @@ const WfIdToTopic = (wfId: string): string | undefined => {
   return wfId.split('/')[0]
 }
 
-export const DEFAULT_MIN_CONFIDENCE = 10
+export const DEFAULT_MIN_CONFIDENCE = 0.1
 
 export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
@@ -77,7 +77,7 @@ export class UnderstandingEngine {
 
   constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[], config: Config) {
     this.trainer = new this.bp.MLToolkit.SVM.Trainer()
-    this._minConfidence = (config.minimumConfidence ?? DEFAULT_MIN_CONFIDENCE) / 100
+    this._minConfidence = config.minimumConfidence ?? DEFAULT_MIN_CONFIDENCE
   }
 
   featToVec(features: Features): number[] {
