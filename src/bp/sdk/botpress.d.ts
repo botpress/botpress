@@ -545,7 +545,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue'
+      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode'
       data?: SendContent | FlowRedirect
     }
 

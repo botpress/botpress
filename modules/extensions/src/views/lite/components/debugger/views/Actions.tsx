@@ -30,6 +30,12 @@ export const Actions: FC<Props> = props => {
                     <Icon icon="flow-linear" /> Start Workflow {(data as sdk.NDU.FlowRedirect).flow}
                   </div>
                 )
+              case 'goToNode':
+                return (
+                  <div className={style.truncate}>
+                    <Icon icon="flow-linear" /> Go to node {(data as sdk.NDU.FlowRedirect).node}
+                  </div>
+                )
               case 'redirect':
                 return (
                   <div className={style.truncate}>
