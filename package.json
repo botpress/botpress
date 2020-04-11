@@ -48,6 +48,7 @@
     "inversify": "^4.13.0",
     "joi": "^13.6.0",
     "json-schema-defaults": "^0.4.0",
+    "jsonlint-mod": "^1.7.5",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.20.1",
     "ldapauth-fork": "^4.2.0",
