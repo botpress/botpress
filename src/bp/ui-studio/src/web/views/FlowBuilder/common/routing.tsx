@@ -47,7 +47,7 @@ const getLabel = parsedCondition => {
   } else if (type === 'intent') {
     return `Intent is ${value}`
   } else if (type === 'props') {
-    return `Property ${value.field} is ${value.expression}`
+    return `Property ${value?.field} is ${value?.expression}`
   } else if (type === 'raw') {
     return value
   }
