@@ -4,7 +4,7 @@ import _ from 'lodash'
 const AMBIGUITY_GAP = 0.15
 
 export default {
-  id: 'topic-is-ambiguous',
+  id: 'topic_is_ambiguous',
   label: 'Detected topics are ambiguous',
   description: 'What user said might refer to multiple topics ',
   displayOrder: 2,

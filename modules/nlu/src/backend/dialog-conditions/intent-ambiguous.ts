@@ -4,7 +4,7 @@ import _ from 'lodash'
 const AMBIGUITY_GAP = 0.15
 
 export default {
-  id: 'intent-is-ambiguous',
+  id: 'intent_is_ambiguous',
   label: 'Intent is ambiguous within topic',
   description: `The users's intention is can be interpreted as multiple intents within the same topic`,
   displayOrder: 1,
