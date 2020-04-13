@@ -16,6 +16,7 @@
     "webpack": "^4.20.2"
   },
   "dependencies": {
+    "jsonlint-mod": "^1.7.5",
     "mobx": "^5.10.1",
     "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",

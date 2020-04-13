@@ -1,3 +1,12 @@
+## [12.8.3](https://github.com/botpress/botpress/compare/v12.8.2...v12.8.3) (2020-04-10)
+
+
+### Bug Fixes
+
+* **studio:** issue [#3169](https://github.com/botpress/botpress/issues/3169) cannot create content when in a modal ([#3175](https://github.com/botpress/botpress/issues/3175)) ([8690e03](https://github.com/botpress/botpress/commit/8690e03))
+
+
+
 ## [12.8.2](https://github.com/botpress/botpress/compare/v12.8.0...v12.8.2) (2020-04-07)
 
 
