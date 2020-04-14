@@ -201,6 +201,10 @@
   }
 }
 
+.bp-sa-wrapper {
+  padding-bottom: 28px;
+}
+
 .statusBar {
   align-items: center;
   background-color: var(--c-background--dark-2);
@@ -212,7 +216,7 @@
   height: var(--statusbar-height);
   line-height: 1.25;
   padding: 0 12px;
-  position: absolute;
+  position: fixed;
   right: 0;
   width: 100%;
   z-index: 1000;
