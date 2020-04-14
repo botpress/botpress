@@ -4,6 +4,7 @@ import { keyMap } from './utils/keyboardShortcuts'
 import confirmDialog from './ConfirmDialog'
 import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
+import MainContainer from './MainContainer'
 import MarkdownContent from './MarkdownContent'
 import MoreOptions from './MoreOptions'
 import ShortcutLabel from './ShortcutLabel'
@@ -12,6 +13,7 @@ import TreeView from './TreeView'
 
 exports.Dialog = { Wrapper, Footer, Body }
 exports.Dropdown = Dropdown
+exports.MainContainer = MainContainer
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.ShortcutLabel = ShortcutLabel

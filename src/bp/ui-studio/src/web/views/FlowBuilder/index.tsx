@@ -1,4 +1,4 @@
-import { lang, utils } from 'botpress/shared'
+import { lang, MainContainer, utils } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -227,7 +227,7 @@ class FlowBuilder extends Component<Props, State> {
     }
 
     return (
-      <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
+      <MainContainer keyHandlers={keyHandlers}>
         <SidePanel
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
@@ -254,7 +254,7 @@ class FlowBuilder extends Component<Props, State> {
 
         <DocumentationProvider file="main/dialog" />
         <SkillsBuilder />
-      </Container>
+      </MainContainer>
     )
   }
 }
