@@ -23,7 +23,7 @@ export default {
         .first()
         .value() || []
 
-    if (currentTopic && highestTopic && currentTopic !== highestTopic) {
+    if (!currentTopic || !highestTopic || currentTopic !== highestTopic) {
       return 0
     }
 
