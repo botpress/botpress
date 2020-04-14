@@ -1,4 +1,4 @@
-import { lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
@@ -19,7 +19,6 @@ import { Container } from '~/components/Shared/Interface'
 import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
-import { isInputFocused } from '~/keyboardShortcuts'
 import { RootReducer } from '~/reducers'
 
 import { PanelPermissions } from '../FlowBuilder/sidePanel'
@@ -140,7 +139,7 @@ const FlowBuilder = (props: Props) => {
       toastInfo(lang.tr('studio.nowSaveAuto'), Timeout.LONG)
     },
     delete: e => {
-      if (!isInputFocused()) {
+      if (!utils.isInputFocused()) {
         e.preventDefault()
         diagram?.deleteSelectedElements()
       }
@@ -166,6 +165,7 @@ const FlowBuilder = (props: Props) => {
   return (
     <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
       <SidePanel
+        onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
         readOnly={readOnly}
         mutexInfo={mutex}
         permissions={actions}
@@ -189,7 +189,7 @@ const FlowBuilder = (props: Props) => {
         />
       </div>
 
-      <DocumentationProvider file="flows" />
+      <DocumentationProvider file="main/dialog" />
       <SkillsBuilder />
     </Container>
   )

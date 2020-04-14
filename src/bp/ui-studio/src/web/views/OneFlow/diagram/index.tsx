@@ -12,7 +12,6 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
-import { FlowView, LibraryElement } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -54,10 +53,10 @@ import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diag
 import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
-import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
+import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
 import TriggerEditor from './TriggerEditor'
 
@@ -427,6 +426,7 @@ class Diagram extends Component<Props> {
 
     const targetModel = target.model
     return (
+      targetModel instanceof SaySomethingNodeModel ||
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
       targetModel instanceof RouterNodeModel
@@ -509,6 +509,7 @@ class Diagram extends Component<Props> {
       }
     }
 
+    this.props.closeFlowNodeProps()
     this.diagramWidget.forceUpdate()
     this.checkForProblems()
   }

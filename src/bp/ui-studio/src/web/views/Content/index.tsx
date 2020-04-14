@@ -225,6 +225,7 @@ class ContentView extends Component<Props, State> {
               ? _.sumBy(categories, 'count') || 0
               : _.find(categories, { id: this.state.selectedId }).count
           }
+          className={style.contentListWrapper}
           contentItems={this.props.contentItems ?? []}
           handleRefresh={this.handleRefresh}
           handleEdit={this.handleModalShowForEdit}
@@ -245,7 +246,7 @@ class ContentView extends Component<Props, State> {
             handleClose={this.handleCloseModal}
           />
         )}
-        <DocumentationProvider file="content" />
+        <DocumentationProvider file="main/content" />
       </Container>
     )
   }

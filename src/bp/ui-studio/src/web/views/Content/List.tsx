@@ -1,6 +1,6 @@
 import { AnchorButton, Button, Divider, InputGroup, Position, Tooltip } from '@blueprintjs/core'
 import { confirmDialog, lang } from 'botpress/shared'
-import classnames from 'classnames'
+import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
@@ -235,7 +235,7 @@ class ListView extends Component<Props, State> {
         filterable: false,
         Cell: x => {
           const preview = x.original.previews?.[this.props.contentLang]
-          const className = classnames({ [style.missingTranslation]: preview.startsWith('(missing translation) ') })
+          const className = cx({ [style.missingTranslation]: preview.startsWith('(missing translation) ') })
           return (
             <React.Fragment>
               <span className={className}>
@@ -392,7 +392,7 @@ class ListView extends Component<Props, State> {
             />
           </RightToolbarButtons> */}
         </Toolbar>
-        <div style={{ padding: 5 }}>{this.renderTable()}</div>
+        <div className={cx(style.tableWrapper, this.props.className)}>{this.renderTable()}</div>
         <UsageModal
           usage={this.state.contentUsage}
           handleClose={() => this.setState({ showUsageModal: false })}
@@ -405,6 +405,7 @@ class ListView extends Component<Props, State> {
 export default withLanguage(ListView)
 
 interface Props {
+  className: string
   count: number
   contentItems: any
   readOnly: boolean

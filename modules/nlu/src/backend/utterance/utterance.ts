@@ -1,11 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getClosestToken } from '../language/ft_featurizer'
 import { POSClass } from '../language/pos-tagger'
+import { SPECIAL_CHARSET } from '../tools/chars'
 import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
+import { getClosestToken } from '../tools/vocab'
 import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
 
 import { parseUtterance } from './utterance-parser'
@@ -320,7 +321,7 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
   return _.chain(utterance.tokens)
     .map(token => {
       const strTok = token.toString({ lowerCase: true })
-      if (!token.isWord || vocabVectors[strTok]) {
+      if (!token.isWord || vocabVectors[strTok] || !_.isEmpty(token.entities)) {
         return uttTok2altTok(token)
       }
 
@@ -355,7 +356,7 @@ export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2
  * @param str sentence as a textual value
  */
 export function makeTestUtterance(str: string): Utterance {
-  const toks = str.split(/(\s)/g)
+  const toks = str.split(new RegExp(`(${SPECIAL_CHARSET.join('|')}|\\s)`, 'gi'))
   const vecs = new Array(toks.length).fill([0])
   const pos = new Array(toks.length).fill('N/A')
   return new Utterance(toks, vecs, pos, 'en')
