@@ -24,6 +24,7 @@ export default {
         .value() || []
 
     if (!currentTopic || !highestTopic || currentTopic !== highestTopic) {
+      // consider intent confusion only when predicted topic is same as current topic
       return 0
     }
 
