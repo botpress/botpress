@@ -83,5 +83,41 @@
   "undo": "Annuler",
   "update": "Actualiser",
   "upload": "Téléverser",
-  "usage": "Utilisation"
+  "usage": "Utilisation",
+  "sideMenu": {
+    "alerting": "Alertes et incidents",
+    "announcements": "Annonces",
+    "bots": "Bots",
+    "collaborators": "Collaborateurs",
+    "debug": "Débogage",
+    "health": "Santé",
+    "languages": "Langues",
+    "latestReleases": "Dernières nouveautés",
+    "logs": "Journaux",
+    "management": "Gestion",
+    "monitoring": "Surveillance",
+    "productionChecklist": "Liste de contrôle de production",
+    "roles": "Rôles",
+    "serverLicense": "Licence de serveur",
+    "sourceControl": "Contrôle de source",
+    "workspace": "Espace de travail"
+  },
+  "commander": {
+    "searchCommand": "Rechercher une commande",
+    "toNavigate": "pour naviguer",
+    "toSelect": "pour sélectionner",
+    "toDismiss": "pour annuler",
+    "typeCommand": "Tapez une commande",
+    "switchWorkspace": "Changer d'espace de travail: {name}",
+    "switchBot": "Changer de bot: {name}",
+    "openInPopup": "Ouvrir le clavardage dans une fenêtre contextuelle",
+    "backToAdmin": "Retour à l'admin",
+    "category": {
+      "admin": "Admin",
+      "studio": "Studio",
+      "external": "Externe",
+      "module": "Module",
+      "command": "Commande"
+    }
+  }
 }

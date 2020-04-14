@@ -83,5 +83,41 @@
   "undo": "Undo",
   "update": "Update",
   "upload": "Upload",
-  "usage": "Usage"
+  "usage": "Usage",
+  "sideMenu": {
+    "alerting": "Alerting",
+    "announcements": "Announcements",
+    "bots": "Bots",
+    "collaborators": "Collaborators",
+    "debug": "Debug",
+    "health": "Health",
+    "languages": "Languages",
+    "latestReleases": "Latest Releases",
+    "logs": "Logs",
+    "management": "Management",
+    "monitoring": "Monitoring",
+    "productionChecklist": "Production Checklist",
+    "roles": "Roles",
+    "serverLicense": "Server License",
+    "sourceControl": "Source Control",
+    "workspace": "Workspace"
+  },
+  "commander": {
+    "searchCommand": "Search for a command",
+    "toNavigate": "to navigate",
+    "toSelect": "to select",
+    "toDismiss": " to dismiss",
+    "typeCommand": "Type a command",
+    "switchWorkspace": "Switch to workspace: {name}",
+    "switchBot": "Switch to bot: {name}",
+    "openInPopup": "Open Webchat in popup",
+    "backToAdmin": "Back to Admin",
+    "category": {
+      "admin": "Admin",
+      "studio": "Studio",
+      "external": "External",
+      "module": "Module",
+      "command": "Command"
+    }
+  }
 }

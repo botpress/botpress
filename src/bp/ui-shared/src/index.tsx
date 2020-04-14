@@ -1,6 +1,7 @@
 import TooltipStyle from './style/tooltip.scss'
 import { lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { BaseDialog, DialogBody, DialogFooter } from './BaseDialog'
+import { Commander } from './Commander'
 import confirmDialog from './ConfirmDialog'
 import Dropdown from './Dropdown'
 import MarkdownContent from './MarkdownContent'
@@ -25,3 +26,5 @@ exports.toastFailure = toastFailure
 exports.Dropdown = Dropdown
 exports.MoreOptions = MoreOptions
 exports.TreeView = TreeView
+
+exports.Commander = Commander

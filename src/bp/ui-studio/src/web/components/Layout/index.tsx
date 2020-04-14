@@ -19,6 +19,7 @@ import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
 import BotUmountedWarning from './BotUnmountedWarning'
+import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
@@ -155,6 +156,7 @@ const Layout: FC<ILayoutProps> = props => {
   return (
     <Fragment>
       <HotKeys handlers={keyHandlers} id="mainLayout" className={layout.mainLayout}>
+        <CommandPalette toggleEmulator={toggleEmulator} />
         <DocumentationModal />
         <Sidebar />
         <div className={layout.container}>

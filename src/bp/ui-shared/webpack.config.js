@@ -18,7 +18,10 @@ const config = {
     filename: 'index.js'
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.css']
+    extensions: ['.tsx', '.ts', '.js', '.css'],
+    alias: {
+      'common/typings': path.resolve(__dirname, '../../../out/bp/common/typings.d.ts')
+    }
   },
   externals: {
     react: 'React',

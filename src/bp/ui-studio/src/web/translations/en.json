@@ -308,6 +308,8 @@
     "readDoc": "Read Documentation",
     "showEmulator": "Show Emulator",
     "toggleLogsPanel": "Toggle Logs Panel",
+    "toggleEmulator": "Toggle Emulator",
+    "toggleSidePanel": "Toggle Side Panel",
     "bottomPanel": {
       "scrollToFollow": "Scroll to follow logs",
       "downloadLogs": "Download Logs",

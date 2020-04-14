@@ -7,6 +7,7 @@ import { MarkdownContentProps } from './MarkdownContent/typings'
 import { MoreOptionsProps } from './MoreOptions/typings'
 import { TreeViewProps } from './TreeView/typings'
 import { ToastOptions } from './Toaster'
+import { CommanderProps, QuickShortcut } from './Commander/typings'
 
 declare module 'botpress/shared' {
   export function BaseDialog(props: BaseDialogProps): JSX.Element
@@ -25,5 +26,6 @@ declare module 'botpress/shared' {
     getAvailable(): string[]
   }
   export function toastFailure(message: string, details?: string, options?: ToastOptions)
-  export { Option, MoreOptionsItems }
+  export function Commander(props: CommanderProps): JSX.Element
+  export { Option, MoreOptionsItems, QuickShortcut }
 }
