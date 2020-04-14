@@ -8,7 +8,6 @@ declare global {
     __BP_VISITOR_ID: string
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
     botpressWebChat: any
-    DOCS: any
     APP_NAME: string
     BOT_API_PATH: string
     API_PATH: string

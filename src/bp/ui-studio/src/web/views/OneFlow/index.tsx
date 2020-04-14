@@ -189,7 +189,7 @@ const FlowBuilder = (props: Props) => {
         />
       </div>
 
-      <DocumentationProvider file="flows" />
+      <DocumentationProvider file="main/dialog" />
       <SkillsBuilder />
     </Container>
   )

@@ -84,7 +84,7 @@ const Layout: FC<ILayoutProps> = props => {
     e.preventDefault()
 
     if (props.docHints.length) {
-      window.open(`https://botpress.com/docs/${window.DOCS?.[props.docHints[0]]}`, '_blank')
+      window.open(`https://botpress.com/docs/${props.docHints[0]}`, '_blank')
     }
   }
 
@@ -155,7 +155,7 @@ const Layout: FC<ILayoutProps> = props => {
         <Sidebar />
         <div className={layout.container}>
           <Toolbar
-            hasDoc={props.docHints?.length && window.DOCS?.[props.docHints[0]]}
+            hasDoc={props.docHints?.length}
             toggleDocs={toggleDocs}
             onToggleEmulator={toggleEmulator}
             toggleBottomPanel={props.toggleBottomPanel}

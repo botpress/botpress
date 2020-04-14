@@ -25,9 +25,7 @@ const _LinkDocumentationProvider = props => {
   const onClick = e => {
     e.preventDefault()
 
-    if (window.DOCS && window.DOCS[props.file]) {
-      window.open(`https://botpress.com/docs/${window.DOCS[props.file]}`, '_blank')
-    }
+    window.open(`https://botpress.com/docs/${props.file}`, '_blank')
   }
   return (
     <a {...passthroughProps} onClick={onClick}>

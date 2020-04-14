@@ -252,7 +252,7 @@ class FlowBuilder extends Component<Props, State> {
           />
         </div>
 
-        <DocumentationProvider file="flows" />
+        <DocumentationProvider file="main/dialog" />
         <SkillsBuilder />
       </Container>
     )

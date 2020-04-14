@@ -114,7 +114,7 @@ class ActionModalForm extends Component<Props, State> {
       </OverlayTrigger>
     )
 
-    const paramsHelp = <LinkDocumentationProvider file="memory" />
+    const paramsHelp = <LinkDocumentationProvider file="main/memory" />
 
     const onParamsChange = params => {
       params = _.values(params).reduce((sum, n) => {
@@ -231,7 +231,7 @@ class ActionModalForm extends Component<Props, State> {
                   {lang.tr('studio.flow.node.saySomething')}
                 </Radio>
                 <Radio checked={this.state.actionType === 'code'} onChange={this.onChangeType('code')}>
-                  {lang.tr('studio.flow.node.executeCode')} <LinkDocumentationProvider file="action" />
+                  {lang.tr('studio.flow.node.executeCode')} <LinkDocumentationProvider file="main/code" />
                 </Radio>
               </div>
               {this.state.actionType === 'message' ? this.renderSectionMessage() : this.renderSectionAction()}
