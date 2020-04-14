@@ -1,10 +1,8 @@
 import { Button, Intent, Pre } from '@blueprintjs/core'
-import { BaseDialog, lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { toastInfo } from '~/utils/toaster'
-
-const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface Props {
   isOpen: boolean
@@ -33,7 +31,7 @@ const ShowInfoModal: FC<Props> = props => {
   }
 
   return (
-    <Dialog
+    <Dialog.Wrapper
       title={
         props.messageId === 'newAccount'
           ? lang.tr('admin.workspace.users.collaborators.accountReady')
@@ -43,10 +41,10 @@ const ShowInfoModal: FC<Props> = props => {
       isOpen={props.isOpen}
       onClose={props.toggle}
     >
-      <DialogBody>
+      <Dialog.Body>
         <Pre>{messages[props.messageId]}</Pre>
-      </DialogBody>
-      <DialogFooter>
+      </Dialog.Body>
+      <Dialog.Footer>
         <CopyToClipboard
           text={messages[props.messageId]}
           onCopy={() => toastInfo(lang.tr('admin.workspace.users.collaborators.copiedToClipboard'))}
@@ -63,8 +61,8 @@ const ShowInfoModal: FC<Props> = props => {
             intent={Intent.PRIMARY}
           />
         </CopyToClipboard>
-      </DialogFooter>
-    </Dialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

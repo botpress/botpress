@@ -1,5 +1,5 @@
 import { Button, FormGroup } from '@blueprintjs/core'
-import { BaseDialog, lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import { AuthRole, AuthStrategyConfig, CreatedUser, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -10,8 +10,6 @@ import api from '../../../api'
 import { fetchAvailableUsers } from '../../../reducers/user'
 
 import AuthStrategyDropdown from './AuthStrategyDropdown'
-
-const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface OwnProps {
   isOpen?: boolean
@@ -88,14 +86,14 @@ export const CreateUserModal: FC<Props> = props => {
   }
 
   return (
-    <Dialog
+    <Dialog.Wrapper
       title={lang.tr('admin.workspace.users.collaborators.add')}
       icon="add"
       isOpen={props.isOpen}
       onClose={props.toggleOpen}
       onSubmit={createUser}
     >
-      <DialogBody>
+      <Dialog.Body>
         <FormGroup
           label={lang.tr('email')}
           labelFor="select-email"
@@ -121,8 +119,8 @@ export const CreateUserModal: FC<Props> = props => {
         <FormGroup label={lang.tr('admin.workspace.users.collaborators.chooseRole')} labelFor="select-role">
           <RoleDropdown onChange={role => setRole(role)} />
         </FormGroup>
-      </DialogBody>
-      <DialogFooter>
+      </Dialog.Body>
+      <Dialog.Footer>
         <Button
           id="btn-submit"
           className="float-right"
@@ -134,8 +132,8 @@ export const CreateUserModal: FC<Props> = props => {
           }
           disabled={!isValid}
         />
-      </DialogFooter>
-    </Dialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

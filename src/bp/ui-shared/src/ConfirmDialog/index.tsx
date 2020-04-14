@@ -3,7 +3,7 @@ import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
 import { lang } from '../translations'
-import { BaseDialog, DialogBody, DialogFooter } from '../BaseDialog'
+import { Body, Footer, Wrapper } from '../Dialog'
 
 import styles from './style.scss'
 import { ConfirmDialogOptions, ConfirmDialogProps } from './typings'
@@ -22,15 +22,15 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   }
 
   return (
-    <BaseDialog
+    <Wrapper
       title={props.title || lang('confirmPrompt')}
       icon="warning-sign"
       usePortal={false}
       isOpen
       onClose={onDecline}
     >
-      <DialogBody>{props.message}</DialogBody>
-      <DialogFooter>
+      <Body>{props.message}</Body>
+      <Footer>
         <Button
           id="confirm-dialog-decline"
           className={Classes.BUTTON}
@@ -49,8 +49,8 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
           tabIndex={3}
           intent={Intent.PRIMARY}
         />
-      </DialogFooter>
-    </BaseDialog>
+      </Footer>
+    </Wrapper>
   )
 }
 

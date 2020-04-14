@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { BaseDialog, lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { Alert, Button } from 'react-bootstrap'
@@ -13,8 +13,6 @@ import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
 
 import style from './style.scss'
-
-const { Dialog, DialogBody } = BaseDialog
 
 const SEARCH_RESULTS_LIMIT = 10
 
@@ -341,8 +339,8 @@ class SelectContent extends Component<Props, State> {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Dialog title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
-        <DialogBody>{this.renderBody()}</DialogBody>
+      <Dialog.Wrapper title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
+        <Dialog.Body>{this.renderBody()}</Dialog.Body>
         <CreateOrEditModal
           show={!!newItemCategory}
           schema={schema.json}
@@ -352,7 +350,7 @@ class SelectContent extends Component<Props, State> {
           handleEdit={this.handleFormEdited}
           handleCreateOrUpdate={this.handleCreate}
         />
-      </Dialog>
+      </Dialog.Wrapper>
     )
   }
 }

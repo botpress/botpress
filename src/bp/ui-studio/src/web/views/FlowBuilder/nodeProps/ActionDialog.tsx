@@ -1,13 +1,11 @@
 import { Button, FormGroup, HTMLSelect, Intent, NonIdealState } from '@blueprintjs/core'
 import { ItemRenderer, Select } from '@blueprintjs/select'
 import axios from 'axios'
-import { BaseDialog, lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import { ActionDefinition, ActionParameterDefinition, ActionServer, ActionServerWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { InfoTooltip } from '~/components/Shared/Interface'
-
-const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
 
@@ -185,7 +183,7 @@ const ActionDialog: FC<{
   }
 
   return (
-    <Dialog
+    <Dialog.Wrapper
       isOpen={isOpen}
       title={lang.tr('studio.flow.node.editAction')}
       icon="offline"
@@ -193,12 +191,12 @@ const ActionDialog: FC<{
       onOpening={() => setOpening(true)}
     >
       {!isLoading && (
-        <DialogBody>
+        <Dialog.Body>
           <div>{lang.tr('studio.flow.node.loadingActionServer')}</div>
-        </DialogBody>
+        </Dialog.Body>
       )}
       {isLoading && (
-        <DialogBody>
+        <Dialog.Body>
           <div onMouseDown={e => e.stopPropagation()} onContextMenu={e => e.stopPropagation()}>
             {!errorFetchingServers && (
               <ActionServers
@@ -250,10 +248,10 @@ const ActionDialog: FC<{
               </>
             )}
           </div>
-        </DialogBody>
+        </Dialog.Body>
       )}
 
-      <DialogFooter>
+      <Dialog.Footer>
         <Button text={lang.tr('cancel')} id="btn-cancel" onClick={closeDialog} />
         <Button
           text={lang.tr('save')}
@@ -261,8 +259,8 @@ const ActionDialog: FC<{
           onClick={() => onSave({ name, actionServerId, parameters })}
           disabled={!isActionValid || isLoading}
         />
-      </DialogFooter>
-    </Dialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

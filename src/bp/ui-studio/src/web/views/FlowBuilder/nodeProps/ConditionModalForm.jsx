@@ -6,9 +6,7 @@ import style from './style.scss'
 import { connect } from 'react-redux'
 import SmartInput from '~/components/SmartInput'
 import { getFlowLabel, reorderFlows } from '~/components/Shared/Utils'
-import { lang, BaseDialog } from 'botpress/shared'
-
-const { Dialog, DialogBody, DialogFooter } = BaseDialog
+import { lang, Dialog } from 'botpress/shared'
 
 const availableProps = [
   { label: 'User Data', value: 'user' },
@@ -395,26 +393,26 @@ class ConditionModalForm extends Component {
 
   render() {
     return (
-      <Dialog
+      <Dialog.Wrapper
         title={
           this.state.isEdit ? lang.tr('studio.flow.node.transition.edit') : lang.tr('studio.flow.node.transition.new')
         }
         isOpen={this.props.show}
         onClose={this.props.onClose}
       >
-        <DialogBody>
+        <Dialog.Body>
           <h5>{lang.tr('studio.flow.node.transition.showCondition')}:</h5>
           {this.renderConditions()}
           <h5>{lang.tr('studio.flow.node.transition.whenMetDo')}:</h5>
           {this.renderActions()}
-        </DialogBody>
-        <DialogFooter>
+        </Dialog.Body>
+        <Dialog.Footer>
           <Button onClick={this.props.onClose}>{lang.tr('cancel')}</Button>
           <Button onClick={this.onSubmitClick} bsStyle="primary">
             {this.state.isEdit ? lang.tr('update') : lang.tr('create')}
           </Button>
-        </DialogFooter>
-      </Dialog>
+        </Dialog.Footer>
+      </Dialog.Wrapper>
     )
   }
 }

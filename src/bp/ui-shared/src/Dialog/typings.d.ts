@@ -1,6 +1,6 @@
 import { IDialogProps } from '@blueprintjs/core'
 
-export interface BaseDialogProps extends IDialogProps {
+export interface DialogProps extends IDialogProps {
   onSubmit?: () => void
   children: any
   isOpen?: boolean

@@ -1,4 +1,4 @@
-import { BaseDialog, confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, Dialog, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { Button, OverlayTrigger, Radio, Tooltip } from 'react-bootstrap'
@@ -11,8 +11,6 @@ import { RootReducer } from '~/reducers'
 import style from './style.scss'
 import ParametersTable from './ParametersTable'
 import SelectActionDropdown from './SelectActionDropdown'
-
-const { Dialog, DialogBody, DialogFooter } = BaseDialog
 
 interface OwnProps {
   show: boolean
@@ -216,13 +214,13 @@ class ActionModalForm extends Component<Props, State> {
 
   render() {
     return (
-      <Dialog
+      <Dialog.Wrapper
         title={this.state.isEdit ? lang.tr('studio.flow.node.editAction') : lang.tr('studio.flow.node.addAction')}
         isOpen={this.props.show}
         onClose={this.onClose}
         onSubmit={this.onSubmit}
       >
-        <DialogBody>
+        <Dialog.Body>
           {!this.props.layoutv2 ? (
             <div>
               <h5>{lang.tr('studio.flow.node.theBotWill')}:</h5>
@@ -239,8 +237,8 @@ class ActionModalForm extends Component<Props, State> {
           ) : (
             this.renderSectionAction()
           )}
-        </DialogBody>
-        <DialogFooter>
+        </Dialog.Body>
+        <Dialog.Footer>
           <Button id="btn-cancel-action" onClick={this.onClose}>
             {lang.tr('cancel')}
           </Button>
@@ -250,8 +248,8 @@ class ActionModalForm extends Component<Props, State> {
               : lang.tr('studio.flow.node.finishAddAction')}{' '}
             (Alt+Enter)
           </Button>
-        </DialogFooter>
-      </Dialog>
+        </Dialog.Footer>
+      </Dialog.Wrapper>
     )
   }
 }

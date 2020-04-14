@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import { Condition } from 'botpress/sdk'
-import { BaseDialog, confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, Dialog, lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -17,8 +17,6 @@ import triggerStyles from './style.scss'
 import ConditionDropdown from './Condition/ConditionDropdown'
 import ConditionEditor from './Condition/Editor'
 import ConditionItem from './Condition/Item'
-
-const { Dialog, DialogBody } = BaseDialog
 
 interface OwnProps {
   node: TriggerNodeModel
@@ -122,7 +120,7 @@ const EditTriggerModal: FC<Props> = props => {
   const { isOpen, contentLang, backendConditions } = props
 
   return (
-    <Dialog
+    <Dialog.Wrapper
       isOpen={isOpen}
       onClose={close}
       className={triggerStyles.dialog}
@@ -130,7 +128,7 @@ const EditTriggerModal: FC<Props> = props => {
       icon="edit"
       title={lang.tr('studio.flow.condition.editTriggers')}
     >
-      <DialogBody>
+      <Dialog.Body>
         <div className={cx(triggerStyles.formHeader, { [triggerStyles.editing]: isEditing })}>
           {isEditing && (
             <Button icon="arrow-left" small minimal onClick={() => setEditing(false)}>
@@ -181,8 +179,8 @@ const EditTriggerModal: FC<Props> = props => {
             )}
           </div>
         )}
-      </DialogBody>
-    </Dialog>
+      </Dialog.Body>
+    </Dialog.Wrapper>
   )
 }
 

@@ -3,9 +3,9 @@ import cx from 'classnames'
 import React, { FC } from 'react'
 
 import style from './style.scss'
-import { BaseDialogProps } from './typings'
+import { DialogProps } from './typings'
 
-export const BaseDialog: FC<BaseDialogProps> = props => {
+export const Wrapper: FC<DialogProps> = props => {
   let width = 500
   if (props.size === 'md') {
     width = 700
@@ -38,11 +38,11 @@ export const BaseDialog: FC<BaseDialogProps> = props => {
   )
 }
 
-export const DialogBody = ({ children }) => {
+export const Body = ({ children }) => {
   return <div className={cx(Classes.DIALOG_BODY, Classes.UI_TEXT, style.dialogBody)}>{children}</div>
 }
 
-export const DialogFooter = ({ children }) => {
+export const Footer = ({ children }) => {
   return (
     <div className={Classes.DIALOG_FOOTER}>
       <div className={Classes.DIALOG_FOOTER_ACTIONS}>{children}</div>
