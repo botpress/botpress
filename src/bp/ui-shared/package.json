@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node ./webpack.config.js --watch",
-    "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap"
+    "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap & yarn scss",
+    "scss": "node-sass src/theme/main.scss dist/theme.css --importer=node_modules/node-sass-tilde-importer"
   },
   "devDependencies": {
     "@blueprintjs/core": "^3.23.1",
@@ -22,6 +23,7 @@
     "css-modules-typescript-loader": "^2.0.3",
     "hard-source-webpack-plugin": "^0.13.1",
     "node-sass": "^4.8.3",
+    "node-sass-tilde-importer": "^1.0.2",
     "postcss-loader": "^2.0.8",
     "prop-types": "^15.6.0",
     "react": "^16.8.6",

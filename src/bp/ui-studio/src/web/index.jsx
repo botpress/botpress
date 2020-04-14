@@ -31,6 +31,7 @@ import { initializeTranslations } from './translations'
 /* eslint-enable */
 import { utils } from 'botpress/shared'
 
+import 'ui-shared/dist/theme.css'
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.min.css')
 require('./theme.scss')

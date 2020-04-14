@@ -1,0 +1,156 @@
+// Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "../../common/variables";
+@import "../forms/common";
+
+.#{$ns}-editable-text {
+  display: inline-block;
+  position: relative;
+  cursor: text;
+  max-width: 100%;
+  vertical-align: top;
+  white-space: nowrap;
+
+  // input styles on the ::before
+  &::before {
+    @include position-all(absolute, -$pt-border-radius);
+    border-radius: $pt-border-radius;
+    content: "";
+    transition: background-color $pt-transition-duration $pt-transition-ease,
+                box-shadow $pt-transition-duration $pt-transition-ease;
+  }
+
+  &:hover::before {
+    box-shadow: input-transition-shadow($input-shadow-color-focus),
+                inset 0 0 0 1px $pt-divider-black;
+  }
+
+  &.#{$ns}-editable-text-editing::before {
+    box-shadow: input-transition-shadow($input-shadow-color-focus, true), $input-box-shadow-focus;
+    background-color: $input-background-color;
+  }
+
+  &.#{$ns}-disabled::before {
+    box-shadow: none;
+  }
+
+  @each $intent, $color in $pt-intent-colors {
+    &.#{$ns}-intent-#{$intent} {
+      .#{$ns}-editable-text-input,
+      .#{$ns}-editable-text-content {
+        color: $color;
+      }
+
+      &:hover::before {
+        box-shadow: input-transition-shadow($color), inset border-shadow(0.4, $color, 1px);
+      }
+
+      &.#{$ns}-editable-text-editing::before {
+        box-shadow: input-transition-shadow($color, true), $input-box-shadow-focus;
+      }
+    }
+  }
+
+  .#{$ns}-dark & {
+    &:hover::before {
+      box-shadow: input-transition-shadow($dark-input-shadow-color-focus),
+                  inset 0 0 0 1px $pt-dark-divider-white;
+    }
+
+    &.#{$ns}-editable-text-editing::before {
+      box-shadow: input-transition-shadow($dark-input-shadow-color-focus, true),
+                  $pt-dark-input-box-shadow;
+      background-color: $dark-input-background-color;
+    }
+
+    &.#{$ns}-disabled::before {
+      box-shadow: none;
+    }
+
+    @each $intent, $color in $pt-dark-intent-text-colors {
+      &.#{$ns}-intent-#{$intent} {
+        .#{$ns}-editable-text-content {
+          color: $color;
+        }
+
+        &:hover::before {
+          box-shadow: input-transition-shadow($color), inset border-shadow(0.4, $color, 1px);
+        }
+
+        &.#{$ns}-editable-text-editing::before {
+          box-shadow: input-transition-shadow($color, true), $pt-dark-input-box-shadow;
+        }
+      }
+    }
+  }
+}
+
+.#{$ns}-editable-text-input,
+.#{$ns}-editable-text-content {
+  display: inherit;
+  position: relative;
+  // inherit and respect parent bounds and text styles
+  min-width: inherit;
+  max-width: inherit;
+  vertical-align: top;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  font: inherit;
+  // prevent user resizing of textarea
+  resize: none;
+}
+
+.#{$ns}-editable-text-input {
+  @include pt-input-placeholder();
+  // reset browser input styles (we're using an input solely because you can type in it)
+  border: none;
+  box-shadow: none;
+  background: none;
+  width: 100%;
+  padding: 0;
+  // IE11's textarea will otherwise inherit the white-space property from its direct parent
+  white-space: pre-wrap;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::-ms-clear {
+    display: none;
+  }
+}
+
+.#{$ns}-editable-text-content {
+  overflow: hidden;
+  // magical number to account for slight increase in input width for cursor bar
+  padding-right: 2px;
+  text-overflow: ellipsis;
+  // preserve so trailing whitespace is included in scrollWidth
+  white-space: pre;
+
+  .#{$ns}-editable-text-editing > & {
+    position: absolute;
+    left: 0;
+    visibility: hidden;
+  }
+
+  .#{$ns}-editable-text-placeholder > & {
+    color: $input-placeholder-color;
+
+    .#{$ns}-dark & {
+      color: $dark-input-placeholder-color;
+    }
+  }
+}
+
+.#{$ns}-editable-text.#{$ns}-multiline {
+  display: block;
+
+  .#{$ns}-editable-text-content {
+    overflow: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+}
