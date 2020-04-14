@@ -1,20 +1,25 @@
 import { Condition, IO } from 'botpress/sdk'
 import _ from 'lodash'
 
-const AMBIGUITY_GAP = 0.15
+interface Params {
+  ambiguityThreshold: number
+}
 
 export default {
   id: 'topic_is_ambiguous',
   label: 'Detected topics are ambiguous',
   description: 'What user said might refer to multiple topics ',
   displayOrder: 2,
-  evaluate: (event: IO.IncomingEvent) => {
+  params: {
+    ambiguityThreshold: { label: 'Ambiguity threshold', type: 'number', defaultValue: 0.15 }
+  },
+  evaluate: (event: IO.IncomingEvent, { ambiguityThreshold }: Params) => {
     const highestTopics: number[] = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()
       .filter(x => x[0] !== 'oos')
-      .orderBy(x => x[1].confidence, 'desc')
+      .orderBy('1.confidence', 'desc')
       .map('1.confidence')
-      .take(3)
+      .take(2)
       .value()
 
     if (highestTopics.length <= 1) {
@@ -22,11 +27,11 @@ export default {
       return 0
     }
 
-    const gap = Math.max(...highestTopics) - Math.min(...highestTopics)
-    if (gap > AMBIGUITY_GAP) {
+    const gap = highestTopics[0] - highestTopics[1]
+    if (gap > ambiguityThreshold) {
       return 0
     }
 
-    return 1 - gap / AMBIGUITY_GAP
+    return 1 - gap / ambiguityThreshold
   }
 } as Condition
