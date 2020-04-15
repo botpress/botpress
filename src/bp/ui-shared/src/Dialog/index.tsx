@@ -7,7 +7,9 @@ import { DialogProps } from './typings'
 
 export const Wrapper: FC<DialogProps> = props => {
   let width = 500
-  if (props.size === 'md') {
+  if (props.size === 'sm') {
+    width = 360
+  } else if (props.size === 'md') {
     width = 700
   } else if (props.size === 'lg') {
     width = 900
