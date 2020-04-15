@@ -57,7 +57,7 @@ class Composer extends React.Component<ComposerProps> {
 
   render() {
     const placeholder =
-      this.props.placeholder ||
+      this.props.composerPlaceholder ||
       this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })
 
     return (
@@ -99,7 +99,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   sendMessage: store.sendMessage,
   recallHistory: store.composer.recallHistory,
   botName: store.botName,
-  placeholder: store.placeholder,
+  composerPlaceholder: store.composer.composerPlaceholder,
   setFocus: store.view.setFocus,
   focusedArea: store.view.focusedArea,
   focusPrevious: store.view.focusPrevious,
@@ -111,12 +111,12 @@ export default inject(({ store }: { store: RootStore }) => ({
 
 type ComposerProps = {
   focused: boolean
-  placeholder: string
+  composerPlaceholder: string
 } & InjectedIntlProps &
   Pick<
     StoreDef,
     | 'botName'
-    | 'placeholder'
+    | 'composerPlaceholder'
     | 'intl'
     | 'focusedArea'
     | 'sendMessage'
