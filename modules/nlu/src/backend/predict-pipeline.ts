@@ -280,7 +280,7 @@ function electIntent(input: PredictStep): PredictStep {
         .orderBy('confidence', 'desc')
         .value()
       if (intentPreds[0].confidence === 1 || intentPreds.length === 1) {
-        return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: ctxConf }]
+        return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
       } // are we sure theres always at least two intents ? otherwise down there it may crash
 
       if (predictionsReallyConfused(intentPreds)) {
