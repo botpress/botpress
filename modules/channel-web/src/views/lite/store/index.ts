@@ -89,6 +89,11 @@ class RootStore {
   }
 
   @computed
+  get placeholder(): string {
+    return this.config?.placeholder
+  }
+
+  @computed
   get hasBotInfoDescription(): boolean {
     return !!this.config.botConvoDescription?.length
   }
