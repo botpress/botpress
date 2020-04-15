@@ -1,11 +1,10 @@
 .diagram {
   height: calc(100%);
-  background-color: white;
+  background-color: #f1f1f1;
 }
 
 .diagram :global(.srd-diagram) {
   height: calc(100%);
-  background: url('assets/ui-studio/public/img/grid.png') repeat;
 }
 
 .wrapper {

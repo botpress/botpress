@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Alignment, Button, Icon, Navbar, NavbarGroup, Tab, Tabs } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -20,6 +20,7 @@ import { getAllFlows, getCurrentFlow, getFlowNamesList, RootReducer } from '~/re
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
 
+import style from './style.scss'
 import Library from './Library'
 import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
@@ -155,49 +156,51 @@ const SidePanelContent: FC<Props> = props => {
   const importWorkflow = () => setImportWorkflowModalOpen(!importWorkflowModalOpen)
   const canDelete = props.permissions.includes('delete')
 
+  const onTabChanged = tabId => {}
+
   return (
     <SidePanel>
       {props.showFlowNodeProps ? (
         <Inspector onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
         <React.Fragment>
-          <SearchBar
-            icon="filter"
-            placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
-            onChange={setTopicFilter}
-          />
-
-          <SidePanelSection label={lang.tr('topics')} actions={topicActions}>
-            <TopicList
-              readOnly={props.readOnly}
-              canDelete={canDelete}
-              flows={props.flowsName}
-              qnaCountByTopic={props.qnaCountByTopic}
-              goToFlow={goToFlow}
-              deleteFlow={props.deleteFlow}
-              duplicateFlow={duplicateFlow}
-              currentFlow={props.currentFlow}
-              editWorkflow={editWorkflow}
-              createWorkflow={createWorkflow}
-              exportWorkflow={exportWorkflow}
-              importWorkflow={importWorkflow}
-              filter={topicFilter}
-              editTopic={editTopic}
-              editQnA={editQnA}
-              topics={props.topics}
-              exportTopic={exportTopic}
-              fetchTopics={props.fetchTopics}
-            />
-          </SidePanelSection>
-
-          <SidePanelSection label={lang.tr('library')}>
-            <SearchBar
-              icon="filter"
-              placeholder={lang.tr('studio.flow.sidePanel.filterLibrary')}
-              onChange={setLibraryFilter}
-            />
-            <Library filter={libraryFilter} />
-          </SidePanelSection>
+          <Navbar className={style.topicsNavbar}>
+            <NavbarGroup>
+              <Tabs onChange={onTabChanged}>
+                <Tab
+                  id="topics"
+                  title={lang.tr('topics')}
+                  panel={
+                    <TopicList
+                      readOnly={props.readOnly}
+                      canDelete={canDelete}
+                      flows={props.flowsName}
+                      qnaCountByTopic={props.qnaCountByTopic}
+                      goToFlow={goToFlow}
+                      deleteFlow={props.deleteFlow}
+                      duplicateFlow={duplicateFlow}
+                      currentFlow={props.currentFlow}
+                      editWorkflow={editWorkflow}
+                      createWorkflow={createWorkflow}
+                      exportWorkflow={exportWorkflow}
+                      importWorkflow={importWorkflow}
+                      filter={topicFilter}
+                      editTopic={editTopic}
+                      editQnA={editQnA}
+                      topics={props.topics}
+                      exportTopic={exportTopic}
+                      fetchTopics={props.fetchTopics}
+                    />
+                  }
+                />
+                <Tab id="library" title={lang.tr('library')} />
+              </Tabs>
+            </NavbarGroup>
+            <NavbarGroup align={Alignment.RIGHT}>
+              <Button icon="import" />
+              <Button icon="plus" />
+            </NavbarGroup>
+          </Navbar>
         </React.Fragment>
       )}
 

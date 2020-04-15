@@ -90,3 +90,19 @@
 .referencedWorkflows {
   color: #2458b3;
 }
+
+.topicsNavbar {
+  height: 30px;
+  padding: 0px 12px;
+  box-shadow: unset;
+  -webkit-box-shadow: unset;
+
+  :global(.bp3-tab) {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  :global(.bp3-navbar-group) {
+    height: 30px;
+  }
+}

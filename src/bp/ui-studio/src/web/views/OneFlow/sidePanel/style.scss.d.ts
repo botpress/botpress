@@ -12,6 +12,7 @@ interface CssExports {
   'title': string;
   'toolItem': string;
   'toolPanel': string;
+  'topicsNavbar': string;
   'treeNode': string;
 }
 declare var cssExports: CssExports;
