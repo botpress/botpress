@@ -140,6 +140,7 @@ export type Config = {
   enableTranscriptDownload: boolean
   enableArrowNavigation: boolean
   botName?: string
+  composerPlaceholder?: string
   avatarUrl?: string
   /** Force the display language of the webchat (en, fr, ar, ru, etc..)
    * Defaults to the user's browser language if not set
