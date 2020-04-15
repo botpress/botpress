@@ -1,3 +1,5 @@
+@import '../variables.scss';
+
 .ConfirmDialogContainer > div {
   z-index: 9999;
 
@@ -7,8 +9,7 @@
 }
 
 .icon {
-  display: block !important;
   float: left !important;
   margin-right: 16px;
-  color: #f66f48 !important;
+  color: $main-confirm-warning !important;
 }
