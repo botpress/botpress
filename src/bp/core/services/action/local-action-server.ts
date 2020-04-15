@@ -71,7 +71,7 @@ export class LocalActionServer {
   }
 
   public listen() {
-    const port = process.env.BOTPRESS_PORT || process.env.PORT
+    const port = process.env.PORT
 
     this._initializeApp()
     this.app.listen(port, () => this.logger.info(`Local Action Server listening on port ${port}`))
