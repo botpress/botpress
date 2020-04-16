@@ -220,7 +220,6 @@ class Header extends React.Component<HeaderProps> {
 
 export default inject(({ store }: { store: RootStore }) => ({
   intl: store.intl,
-  botUILanguage: store.botUILanguage,
   isConversationsDisplayed: store.view.isConversationsDisplayed,
   showDownloadButton: store.view.showDownloadButton,
   showBotInfoButton: store.view.showBotInfoButton,
@@ -250,7 +249,6 @@ export default inject(({ store }: { store: RootStore }) => ({
 type HeaderProps = Pick<
   StoreDef,
   | 'intl'
-  | 'botUILanguage'
   | 'sendMessage'
   | 'focusPrevious'
   | 'focusNext'
