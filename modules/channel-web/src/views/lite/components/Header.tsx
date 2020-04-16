@@ -145,7 +145,10 @@ class Header extends React.Component<HeaderProps> {
       <button
         type="button"
         id="btn-close"
-        aria-label={this.props.botUILanguage === 'fr' ? 'Cacher la fenêtre de clavardage' : 'Hide the chat window'}
+        aria-label={this.props.intl.formatMessage({
+          id: 'header.hideChatWindow',
+          defaultMessage: 'Hide the chat window'
+        })}
         ref={el => (this.btnEls[4] = el)}
         className={'bpw-header-icon bpw-header-icon-close'}
         onClick={this.props.hideChat}

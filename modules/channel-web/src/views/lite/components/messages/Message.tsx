@@ -145,8 +145,6 @@ class Message extends Component<MessageProps> {
         </div>
       )
     }
-    const lang = this.props.store.botUILanguage
-    const saysLabel = lang == 'fr' ? ' dit : ' : ' says : '
 
     return (
       <div
@@ -162,7 +160,12 @@ class Message extends Component<MessageProps> {
           className="bpw-chat-bubble-content"
           onContextMenu={type !== 'session_reset' ? this.handleContextMenu : () => {}}
         >
-          <span className="sr-only">{`${this.props.fromLabel}${saysLabel}`}</span>
+          <span className="sr-only">
+            {this.props.store.intl.formatMessage({
+              id: this.props.isBotMessage ? 'message.botSaid' : 'message.iSaid',
+              defaultMessage: this.props.isBotMessage ? 'Virtual assistant said : ' : 'I said : '
+            })}
+          </span>
           {rendered}
           {this.props.store.config.showTimestamp && this.renderTimestamp()}
         </div>

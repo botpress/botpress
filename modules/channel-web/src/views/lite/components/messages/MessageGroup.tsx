@@ -51,10 +51,10 @@ class MessageGroup extends React.Component<Props> {
   }
 
   render() {
-    const lang = this.props.store.botUILanguage
-    const fromBotLabel = lang == 'fr' ? 'Assistant virtuel' : 'Virtual Assistant'
-    const fromMeLabel = lang == 'fr' ? 'Moi' : 'Me'
-    const fromLabel = this.props.isBot ? fromBotLabel : fromMeLabel
+    const fromLabel = this.props.store.intl.formatMessage({
+      id: this.props.isBot ? 'message.fromBotLabel' : 'message.fromMeLabel',
+      defaultMessage: 'Me'
+    })
 
     if (this.state.hasError) {
       return '* Cannot display message *'

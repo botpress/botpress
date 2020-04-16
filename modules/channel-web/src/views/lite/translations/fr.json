@@ -1,7 +1,9 @@
 {
   "composer.placeholder": "Répondre à {name}",
+  "composer.message": "Message à envoyer",
   "composer.send": "Envoyer",
   "header.conversations": "Conversations",
+  "header.hideChatWindow": "Cacher la fenêtre de clavardage",
   "conversationList.untitledConversation": "Conversation sans titre",
   "botInfo.backToConversation": "Retour à la conversation",
   "botInfo.startConversation": "Démarrer la conversation",
@@ -9,7 +11,12 @@
   "botInfo.termsAndConditions": "Termes et conditions",
   "botInfo.preferredLanguage": "Langue préférée",
   "store.resetSessionMessage": "Réinitialisation de la conversation",
+  "message.botSaid": "L'assistant virtuel a dit : ",
+  "message.fromBotLabel": "Assistant virtuel",
+  "message.fromMeLabel": "Moi",
+  "message.iSaid": "J'ai dit : ",
   "messages.newMessage": "Nouveau message",
   "messages.newMessages": "Nouveaux messages",
+  "widget.title": "Fenêtre de clavardage",
   "widget.toggle": "Ouvrir ou fermer la conversation"
 }

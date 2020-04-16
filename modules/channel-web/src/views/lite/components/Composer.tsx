@@ -72,7 +72,10 @@ class Composer extends React.Component<ComposerProps> {
             value={this.props.message}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
-            aria-label={this.props.lang === 'fr' ? 'Message à envoyer' : 'Message to send'}
+            aria-label={this.props.intl.formatMessage({
+              id: 'composer.message',
+              defaultMessage: 'Message to send'
+            })}
           />
           <label htmlFor="input-message" style={{ display: 'none' }}>
             {placeholder}
@@ -82,7 +85,10 @@ class Composer extends React.Component<ComposerProps> {
             className={'bpw-send-button'}
             disabled={!this.props.message.length}
             onClick={this.props.sendMessage.bind(this, undefined)}
-            aria-label={this.props.lang === 'fr' ? 'Envoyer' : 'Send'}
+            aria-label={this.props.intl.formatMessage({
+              id: 'composer.send',
+              defaultMessage: 'Send'
+            })}
             id="btn-send"
           >
             <FormattedMessage id={'composer.send'} />
@@ -100,7 +106,6 @@ export default inject(({ store }: { store: RootStore }) => ({
   sendMessage: store.sendMessage,
   recallHistory: store.composer.recallHistory,
   botName: store.botName,
-  lang: store.botUILanguage,
   composerPlaceholder: store.composer.composerPlaceholder,
   setFocus: store.view.setFocus,
   focusedArea: store.view.focusedArea,
@@ -113,7 +118,6 @@ export default inject(({ store }: { store: RootStore }) => ({
 
 type ComposerProps = {
   focused: boolean
-  lang: string
   composerPlaceholder: string
 } & InjectedIntlProps &
   Pick<
@@ -121,7 +125,6 @@ type ComposerProps = {
     | 'botName'
     | 'composerPlaceholder'
     | 'intl'
-    | 'botUILanguage'
     | 'focusedArea'
     | 'sendMessage'
     | 'focusPrevious'
