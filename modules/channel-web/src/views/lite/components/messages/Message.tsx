@@ -145,18 +145,24 @@ class Message extends Component<MessageProps> {
         </div>
       )
     }
+    const lang = this.props.store.botUILanguage
+    const saysLabel = lang == 'fr' ? ' dit : ' : ' says : '
 
     return (
       <div
         className={classnames(this.props.className, wrappedClass, 'bpw-chat-bubble', 'bpw-bubble-' + type, {
           'bpw-bubble-highlight': this.props.isHighlighted
         })}
+        data-from={this.props.fromLabel}
+        tabIndex={-1}
         style={additionalStyle}
       >
         <div
+          tabIndex={-1}
           className="bpw-chat-bubble-content"
           onContextMenu={type !== 'session_reset' ? this.handleContextMenu : () => {}}
         >
+          <span className="sr-only">{`${this.props.fromLabel}${saysLabel}`}</span>
           {rendered}
           {this.props.store.config.showTimestamp && this.renderTimestamp()}
         </div>
