@@ -72,6 +72,8 @@ const SidePanelContent: FC<Props> = props => {
   const [topicFilter, setTopicFilter] = useState('')
   const [libraryFilter, setLibraryFilter] = useState('')
 
+  const [currentTab, setCurrentTab] = useState('topics')
+
   useEffect(() => {
     props.refreshConditions()
     props.fetchTopics()
@@ -79,22 +81,6 @@ const SidePanelContent: FC<Props> = props => {
   }, [])
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
-
-  const createTopicAction = {
-    id: 'btn-add-flow',
-    icon: <Icon icon="add" />,
-    key: 'create',
-    tooltip: lang.tr('studio.flow.sidePanel.createNewTopic'),
-    onClick: () => setCreateTopicOpen(true)
-  }
-
-  const importAction = {
-    id: 'btn-import',
-    icon: <Icon icon="import" />,
-    key: 'import',
-    tooltip: lang.tr('studio.flow.sidePanel.importContent'),
-    onClick: () => setImportModalOpen(true)
-  }
 
   const editQnA = (topicName: string) => {
     setSelectedTopic(topicName)
@@ -152,11 +138,12 @@ const SidePanelContent: FC<Props> = props => {
     setTopicQnAModalOpen(!topicQnAModalOpen)
   }
 
-  const topicActions = props.permissions.includes('create') && [importAction, createTopicAction]
   const importWorkflow = () => setImportWorkflowModalOpen(!importWorkflowModalOpen)
   const canDelete = props.permissions.includes('delete')
 
-  const onTabChanged = tabId => {}
+  const onTabChanged = tabId => {
+    setCurrentTab(tabId)
+  }
 
   return (
     <SidePanel>
@@ -167,40 +154,42 @@ const SidePanelContent: FC<Props> = props => {
           <Navbar className={style.topicsNavbar}>
             <NavbarGroup>
               <Tabs onChange={onTabChanged}>
-                <Tab
-                  id="topics"
-                  title={lang.tr('topics')}
-                  panel={
-                    <TopicList
-                      readOnly={props.readOnly}
-                      canDelete={canDelete}
-                      flows={props.flowsName}
-                      qnaCountByTopic={props.qnaCountByTopic}
-                      goToFlow={goToFlow}
-                      deleteFlow={props.deleteFlow}
-                      duplicateFlow={duplicateFlow}
-                      currentFlow={props.currentFlow}
-                      editWorkflow={editWorkflow}
-                      createWorkflow={createWorkflow}
-                      exportWorkflow={exportWorkflow}
-                      importWorkflow={importWorkflow}
-                      filter={topicFilter}
-                      editTopic={editTopic}
-                      editQnA={editQnA}
-                      topics={props.topics}
-                      exportTopic={exportTopic}
-                      fetchTopics={props.fetchTopics}
-                    />
-                  }
-                />
+                <Tab id="topics" title={lang.tr('topics')} />
                 <Tab id="library" title={lang.tr('library')} />
               </Tabs>
             </NavbarGroup>
-            <NavbarGroup align={Alignment.RIGHT}>
-              <Button icon="import" />
-              <Button icon="plus" />
-            </NavbarGroup>
+            {props.permissions.includes('create') && (
+              <NavbarGroup align={Alignment.RIGHT}>
+                <Button icon="import" onClick={() => setImportModalOpen(true)} />
+                <Button icon="plus" onClick={() => setCreateTopicOpen(true)} />
+              </NavbarGroup>
+            )}
           </Navbar>
+
+          {currentTab === 'topics' && (
+            <TopicList
+              readOnly={props.readOnly}
+              canDelete={canDelete}
+              flows={props.flowsName}
+              qnaCountByTopic={props.qnaCountByTopic}
+              goToFlow={goToFlow}
+              deleteFlow={props.deleteFlow}
+              duplicateFlow={duplicateFlow}
+              currentFlow={props.currentFlow}
+              editWorkflow={editWorkflow}
+              createWorkflow={createWorkflow}
+              exportWorkflow={exportWorkflow}
+              importWorkflow={importWorkflow}
+              filter={topicFilter}
+              editTopic={editTopic}
+              editQnA={editQnA}
+              topics={props.topics}
+              exportTopic={exportTopic}
+              fetchTopics={props.fetchTopics}
+            />
+          )}
+
+          {currentTab === 'library' && <Library filter={libraryFilter} />}
         </React.Fragment>
       )}
 

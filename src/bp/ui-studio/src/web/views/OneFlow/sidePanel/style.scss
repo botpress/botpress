@@ -92,7 +92,7 @@
 }
 
 .topicsNavbar {
-  height: 30px;
+  height: 40px;
   padding: 0px 12px;
   box-shadow: unset;
   -webkit-box-shadow: unset;
@@ -102,7 +102,32 @@
     font-weight: bold;
   }
 
+  :global(.bp3-tab) {
+    height: 40px;
+    line-height: 40px;
+  }
+
   :global(.bp3-navbar-group) {
-    height: 30px;
+    height: 40px;
+  }
+
+  :global(.bp3-tab[aria-selected='true']) {
+    color: #182026 !important;
+  }
+
+  :global(.bp3-tab[aria-selected='false']) {
+    color: #e3e3e3;
+  }
+
+  :global(.bp3-tab:hover) {
+    color: #d6d6d6;
+  }
+
+  :global(.bp3-icon) {
+    color: #1a1e22;
+  }
+
+  :global(.bp3-tab-indicator-wrapper) {
+    height: 3px !important;
   }
 }
