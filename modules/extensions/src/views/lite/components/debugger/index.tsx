@@ -1,11 +1,11 @@
 import { Icon, Tab, Tabs } from '@blueprintjs/core'
-import '@blueprintjs/core/lib/css/blueprint.css'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import React from 'react'
 import { MdBugReport } from 'react-icons/md'
+import 'ui-shared/dist/theme.css'
 
 import Settings from './settings'
 import style from './style.scss'
