@@ -9,6 +9,9 @@ import { MoreOptionsProps } from './MoreOptions/typings'
 import { TreeViewProps } from './TreeView/typings'
 import { ToastOptions } from './Toaster'
 import { ShortcutLabelProps } from './ShortcutLabel/typings'
+import { HeaderProps, HeaderButtonProps } from './MainContent/Header/typings'
+import { WrapperProps } from './MainContent/Wrapper/typings'
+import { EmptyStateProps } from './EmptyState/typings'
 
 declare module 'botpress/shared' {
   export const Dialog: {
@@ -16,7 +19,12 @@ declare module 'botpress/shared' {
     Body(props: { children: any }): JSX.Element
     Footer(props: { children: any }): JSX.Element
   }
+  export const MainContent: {
+    Header(props: HeaderProps): JSX.Element,
+    Wrapper(props: WrapperProps): JSX.Element
+  }
   export function Dropdown(props: DropdownProps): JSX.Element
+  export function EmptyState(props: EmptyStateProps): JSX.Element
   export function MainContainer(props: MainContainerProps): JSX.Element
   export function MarkdownContent(props: MarkdownContentProps): JSX.Element
   export function MoreOptions(props: MoreOptionsProps): JSX.Element
@@ -36,5 +44,5 @@ declare module 'botpress/shared' {
     keyMap: {[key: string]: string}
     isInputFocused(): boolean
   }
-  export { Option, MoreOptionsItems }
+  export { Option, MoreOptionsItems, HeaderButtonProps }
 }
