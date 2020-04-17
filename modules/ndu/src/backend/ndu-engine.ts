@@ -291,18 +291,30 @@ export class UnderstandingEngine {
     const electedTrigger = event.ndu.triggers[actionToTrigger[topAction]]
 
     if (electedTrigger) {
-      switch (electedTrigger.trigger.type) {
+      const { trigger } = electedTrigger
+
+      switch (trigger.type) {
         case 'workflow':
-          event.ndu.actions = [
-            {
+          const sameWorkflow = trigger.workflowId === currentFlow?.replace('.flow.json', '')
+          const sameNode = trigger.nodeId === currentNode
+
+          event.ndu.actions = [{ action: 'continue' }]
+
+          if (sameWorkflow && !sameNode) {
+            event.ndu.actions.unshift({
+              action: 'goToNode',
+              data: { flow: trigger.workflowId, node: trigger.nodeId }
+            })
+          } else if (!sameWorkflow && !sameNode) {
+            event.ndu.actions.unshift({
               action: 'startWorkflow',
-              data: { flow: electedTrigger.trigger.workflowId, node: electedTrigger.trigger.nodeId }
-            },
-            { action: 'continue' }
-          ]
+              data: { flow: trigger.workflowId, node: trigger.nodeId }
+            })
+          }
+
           break
         case 'faq':
-          const qnaActions = await this.queryQna(electedTrigger.trigger.faqId, event)
+          const qnaActions = await this.queryQna(trigger.faqId, event)
           event.ndu.actions = [...qnaActions]
           break
         case 'node':
@@ -336,11 +348,12 @@ export class UnderstandingEngine {
 
     event.ndu.triggers = {}
 
+    const { currentFlow, currentNode } = event.state.context
+
     for (const trigger of triggers) {
       if (
         trigger.type === 'node' &&
-        (event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json` ||
-          event.state?.context?.currentNode !== trigger.nodeId)
+        (currentFlow !== `${trigger.workflowId}.flow.json` || currentNode !== trigger.nodeId)
       ) {
         continue
       }
