@@ -735,6 +735,8 @@ declare module 'botpress/sdk' {
       flow: string
       /** The name of the previous node to return to when we exit a subflow */
       node: string
+      /** When a jump point is used, it will be removed from the list on the next transition */
+      used?: boolean
     }
 
     export interface DialogContext {
