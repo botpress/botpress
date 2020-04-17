@@ -1,9 +1,10 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 interface Props {
   formData: any
+  formContext: any
   schema: any
   required?: boolean
   uiSchema: any
@@ -12,21 +13,28 @@ interface Props {
 
 const Text: FC<Props> = props => {
   const [value, setValue] = useState('')
+  const { formContext, formData, schema, required, uiSchema, onChange } = props
+  const key = useRef(`${formContext?.customKey}`)
 
   useEffect(() => {
-    setValue(props.formData)
-  }, [props.formData])
+    setValue(formData)
+  }, [formData])
+
+  useEffect(() => {
+    key.current = `${formContext?.customKey}`
+  }, [formContext?.customKey])
 
   return (
     <div className={style.fieldWrapper}>
       <span className={style.formLabel}>
-        {props.schema.title} {props.required && '*'}
+        {schema.title} {required && '*'}
       </span>
       <div className={style.innerWrapper}>
         <SmartInput
-          singleLine={props.uiSchema.$subtype !== 'textarea'}
+          key={key.current}
+          singleLine={uiSchema.$subtype !== 'textarea'}
           value={value}
-          onChange={props.onChange}
+          onChange={onChange}
           className={style.textarea}
           isSideForm
         />

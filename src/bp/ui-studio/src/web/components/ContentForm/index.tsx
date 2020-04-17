@@ -20,6 +20,7 @@ interface Props {
   contentLang: string
   onChange: any
   formData: any
+  customKey: string
   schema: any
   defaultLanguage: string
 }
@@ -29,15 +30,15 @@ const CustomBaseInput = props => {
 
   if (type === 'string') {
     if ($subtype === 'ref') {
-      return <RefWidget {...props} />
+      return <RefWidget key={props?.formContext?.customKey} {...props} />
     } else if ($subtype === 'media') {
-      return <UploadWidget {...props} />
+      return <UploadWidget key={props?.formContext?.customKey} {...props} />
     } else if ($subtype === 'flow') {
-      return <FlowPickWidget {...props} />
+      return <FlowPickWidget key={props?.formContext?.customKey} {...props} />
     }
   }
 
-  return <SmartInput {...props} singleLine={true} className={style.textarea} />
+  return <SmartInput key={props?.formContext?.customKey} {...props} singleLine={true} className={style.textarea} />
 }
 
 const widgets = {
@@ -89,6 +90,7 @@ const ContentForm: FC<Props> = props => {
 
   const context = {
     ...formData,
+    customKey: props.customKey,
     activeLang: contentLang,
     defaultLang: defaultLanguage
   }

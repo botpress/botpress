@@ -1,13 +1,18 @@
 import { Button, Intent, Position, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 import SmartInput from '../SmartInput'
 
 const ArrayFieldTemplate = props => {
-  const { canAdd, onAddClick, items, schema } = props
+  const { canAdd, onAddClick, items, schema, formContext } = props
+  const key = useRef(`${formContext?.customKey}`)
+
+  useEffect(() => {
+    key.current = formContext.customKey
+  }, [formContext?.customKey])
 
   const renderDeleteBtn = (element, className?) => (
     <div className={className}>
@@ -33,6 +38,7 @@ const ArrayFieldTemplate = props => {
           <div key={element.key} className={style.innerWrapper}>
             {type === 'string' ? (
               <SmartInput
+                key={`${key.current}${element.key}`}
                 value={element.children?.props?.formData}
                 onChange={element.children?.props?.onChange}
                 className={cx(style.textarea, style.multipleInputs)}

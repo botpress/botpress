@@ -3,6 +3,7 @@ import { TreeViewProps } from './TreeView/typings'
 import { DialogProps } from './Dialog/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
+import { MainContainerProps } from './MainContainer/typings'
 import { MarkdownContentProps } from './MarkdownContent/typings'
 import { MoreOptionsProps } from './MoreOptions/typings'
 import { TreeViewProps } from './TreeView/typings'
@@ -16,6 +17,7 @@ declare module 'botpress/shared' {
     Footer(props: { children: any }): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
+  export function MainContainer(props: MainContainerProps): JSX.Element
   export function MarkdownContent(props: MarkdownContentProps): JSX.Element
   export function MoreOptions(props: MoreOptionsProps): JSX.Element
   export function ShortcutLabel(props: ShortcutLabelProps): JSX.Element
