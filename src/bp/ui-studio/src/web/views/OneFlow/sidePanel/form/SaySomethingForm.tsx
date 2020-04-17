@@ -183,6 +183,7 @@ const SaySomethingForm: FC<Props> = props => {
           schema={currentContentType?.schema.json}
           uiSchema={currentContentType?.schema.ui}
           formData={currentFlowNode?.content?.formData}
+          customKey={currentFlowNode?.name}
           isEditing={true}
           onChange={handleEdit}
         >
