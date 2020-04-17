@@ -2,6 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import yn from 'yn'
 
+import { generateFlowNdu } from './choice_ndu'
+
 const setup = async bp => {
   const router = bp.http.createRouterForBot('basic-skills')
 
@@ -37,6 +39,10 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
   const hardRetryLimit = 10
   const nbMaxRetries = Math.min(Number(data.config.nbMaxRetries), hardRetryLimit)
   const repeatQuestion = yn(data.config.repeatChoicesOnInvalid)
+
+  if (metadata.isOneFlow) {
+    return generateFlowNdu(data)
+  }
 
   const sorrySteps = []
 
