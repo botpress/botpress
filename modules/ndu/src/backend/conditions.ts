@@ -128,20 +128,20 @@ export const dialogConditions: sdk.Condition[] = [
     label: 'The user typed something specific',
     description: `The user typed {text}`,
     params: {
-      text: { label: 'One or multiple words to detect (one per line)', type: 'array', rows: 5 },
-      partial: { label: 'Allow partial match', type: 'boolean', defaultValue: true },
+      candidate: { label: 'One or multiple words to detect (one per line)', type: 'array', rows: 5 },
+      exactMatch: { label: 'Must be an exact match', type: 'boolean', defaultValue: false },
       caseSensitive: { label: 'Case sensitive', type: 'boolean', defaultValue: false }
     },
     evaluate: (event, params) => {
-      const { text, partial, caseSensitive } = params
+      const { candidate, exactMatch, caseSensitive } = params
 
       const preview = caseSensitive ? event.preview : event.preview?.toLowerCase() || ''
       const userText = caseSensitive ? event.payload?.text : event.payload?.text?.toLowerCase() || ''
 
-      const foundMatch = (text || []).find(
+      const foundMatch = (candidate || []).find(
         word =>
-          (partial && (preview.includes(word) || userText.includes(word))) ||
-          (!partial && (preview === word || userText === word))
+          (!exactMatch && (preview.includes(word) || userText.includes(word))) ||
+          (exactMatch && (preview === word || userText === word))
       )
 
       return foundMatch ? 1 : 0
