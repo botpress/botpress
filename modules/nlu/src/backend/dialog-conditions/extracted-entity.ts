@@ -11,8 +11,8 @@ export default {
       label: 'Select the type of entity',
       type: 'list',
       list: {
-        endpoint: 'BOT_API_PATH/mod/nlu/entities?asOption=true',
-        valueField: 'value',
+        endpoint: 'BOT_API_PATH/mod/nlu/entities',
+        valueField: 'label',
         labelField: 'label'
       }
     },
