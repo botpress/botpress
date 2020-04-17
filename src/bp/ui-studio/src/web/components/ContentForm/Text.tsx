@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import shortid from 'shortid'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
