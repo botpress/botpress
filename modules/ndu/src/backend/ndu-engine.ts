@@ -3,6 +3,8 @@ import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { Config } from '../config'
+
 import { BASE_DATA } from './base-data'
 import { Features } from './typings'
 
@@ -60,17 +62,22 @@ const WfIdToTopic = (wfId: string): string | undefined => {
   return wfId.split('/')[0]
 }
 
+export const DEFAULT_MIN_CONFIDENCE = 0.1
+
 export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
   private _allNodeIds: Set<string> = new Set()
   private _allWfIds: Set<string> = new Set()
 
   private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
+  private _minConfidence: number
+
   trainer: sdk.MLToolkit.SVM.Trainer
   predictor: sdk.MLToolkit.SVM.Predictor
 
-  constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[]) {
+  constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[], config: Config) {
     this.trainer = new this.bp.MLToolkit.SVM.Trainer()
+    this._minConfidence = config.minimumConfidence ?? DEFAULT_MIN_CONFIDENCE
   }
 
   featToVec(features: Features): number[] {
@@ -210,16 +217,17 @@ export class UnderstandingEngine {
     const fInWf = (t: typeof triggers) => t.filter(x => `${x.wf}.flow.json` === currentFlow)
     const fOnNode = (t: typeof triggers) => t.filter(x => x.nodeId === currentNode)
     const fMax = (t: typeof triggers) => _.maxBy(t, 'confidence') || { confidence: 0, id: 'n/a' }
+    const fMinConf = (t: typeof triggers) => t.filter(x => x.confidence >= this._minConfidence)
 
     const actionFeatures = {
       conf_all: fMax(triggers),
-      conf_faq_trigger_outside_topic: fMax(fOutTopic(fType('faq')(triggers))),
-      conf_faq_trigger_inside_topic: fMax(fInTopic(fType('faq')(triggers))),
+      conf_faq_trigger_outside_topic: fMax(fOutTopic(fType('faq')(fMinConf(triggers)))),
+      conf_faq_trigger_inside_topic: fMax(fInTopic(fType('faq')(fMinConf(triggers)))),
       conf_faq_trigger_parameter: 0, // TODO: doesn't exist yet
-      conf_wf_trigger_inside_topic: fMax(fInTopic(fType('workflow')(triggers))),
-      conf_wf_trigger_outside_topic: fMax(fOutTopic(fType('workflow')(triggers))),
+      conf_wf_trigger_inside_topic: fMax(fInTopic(fType('workflow')(fMinConf(triggers)))),
+      conf_wf_trigger_outside_topic: fMax(fOutTopic(fType('workflow')(fMinConf(triggers)))),
       conf_wf_trigger_inside_wf: 0, // TODO: doesn't exist yet
-      conf_node_trigger_inside_wf: fMax(fInTopic(fType('node')(fInWf(fOnNode(triggers)))))
+      conf_node_trigger_inside_wf: fMax(fInTopic(fType('node')(fInWf(fOnNode(fMinConf(triggers))))))
     }
 
     const features: Features = {
