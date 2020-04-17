@@ -19,6 +19,14 @@ Then append the name of your new contexts to `qnaCategories` like so:
 }
 ```
 
+### From version 12.8 onwards
+
+The list of available contexts come from your bot's existing questions, instead of the qna.json configuration. To create a new context, open or add a Q&A, input the context in the **Contexts** field, then select **+ Create context**:
+
+![Category](assets/faq-qna-new-context.png)
+
+It needs to remain linked to at least one question, otherwise is it cleared from the context list.
+
 ## Add a QNA
 
 Once you have created your contexts, you can create your QNAs and assign a context to them. From the `category` menu, choose one of your contexts:
