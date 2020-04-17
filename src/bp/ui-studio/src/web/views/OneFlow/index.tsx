@@ -1,4 +1,4 @@
-import { lang, utils } from 'botpress/shared'
+import { lang, MainContainer, utils } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
@@ -163,7 +163,7 @@ const FlowBuilder = (props: Props) => {
   }
 
   return (
-    <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
+    <MainContainer keyHandlers={keyHandlers}>
       <SidePanel
         onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
         readOnly={readOnly}
@@ -189,9 +189,9 @@ const FlowBuilder = (props: Props) => {
         />
       </div>
 
-      <DocumentationProvider file="main/dialog" />
+      <DocumentationProvider file="flows" />
       <SkillsBuilder />
-    </Container>
+    </MainContainer>
   )
 }
 
