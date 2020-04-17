@@ -165,9 +165,9 @@ export default class Storage {
   async getQnaItem(id: string): Promise<QnaItem> {
     const filename = `${id}.json`
 
-    const data = await this.bp.ghost.forBot(this.botId).readFileAsString(this.config.qnaDir, filename)
+    const data = await this.bp.ghost.forBot(this.botId).readFileAsObject(this.config.qnaDir, filename)
 
-    return this.migrate_11_2_to_11_3(JSON.parse(data))
+    return this.migrate_11_2_to_11_3(data)
   }
 
   async fetchQNAs(opts?: Paging) {

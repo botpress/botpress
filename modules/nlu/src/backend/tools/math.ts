@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { log, std, mean } from 'mathjs'
 
 /**
  * Vectorial distance between two N-dimentional points
@@ -110,4 +111,11 @@ export function computeQuantile(quantile: number, target: number, upperBound: nu
   return Math.min(quantile, Math.max(Math.ceil(quantile * ((target - lowerBound) / (upperBound - lowerBound))), 1))
 }
 
-export { log, std } from 'mathjs'
+/**
+ * @returns relative standard dev
+ */
+export function relativeStd(vec: number[]): number {
+  return std(vec) / mean(vec)
+}
+
+export { log, std, mean }

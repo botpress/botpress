@@ -1,6 +1,6 @@
 import last from 'lodash/last'
 import takeRight from 'lodash/takeRight'
-import { action, observable } from 'mobx'
+import { action, computed, observable } from 'mobx'
 
 import constants from '../core/constants'
 
@@ -27,6 +27,11 @@ class ComposerStore {
     if (window.BP_STORAGE) {
       this._sentHistory = JSON.parse(window.BP_STORAGE.get(SENT_HISTORY_KEY) || '[]')
     }
+  }
+
+  @computed
+  get composerPlaceholder(): string {
+    return this.rootStore.config?.composerPlaceholder
   }
 
   @action.bound
