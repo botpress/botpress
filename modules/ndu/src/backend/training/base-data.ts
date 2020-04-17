@@ -1,4 +1,4 @@
-import { Features } from './typings'
+import { Features } from '../typings'
 
 export const BASE_DATA: [Partial<Features>, string][] =
   /*

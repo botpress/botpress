@@ -1,4 +1,3 @@
-import * as sdk from 'botpress/sdk'
 import { UnderstandingEngine } from './ndu-engine'
 
 export type MountedBots = { [key: string]: UnderstandingEngine }
@@ -18,4 +17,9 @@ export type Features = {
   last_turn_action_name: string
   last_turn_same_node: boolean
   last_turn_same_highest_ranking_trigger_id: boolean
+}
+
+export interface InputData {
+  label: string
+  coordinates: number[]
 }

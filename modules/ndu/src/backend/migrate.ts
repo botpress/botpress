@@ -183,7 +183,7 @@ const migrateBot = async (bp: typeof sdk, botId: string) => {
   await bp.config.mergeBotConfig(botId, { oneflow: true })
 
   // Ensure the NDU will process events for that bot
-  mountedBots[botId] = new UnderstandingEngine(bp, conditions, { minimumConfidence: DEFAULT_MIN_CONFIDENCE })
+  mountedBots[botId] = new UnderstandingEngine(bp, botId, conditions, { minimumConfidence: DEFAULT_MIN_CONFIDENCE })
 }
 
 export default migrateBot
