@@ -27,6 +27,7 @@
     "redirectToFlow": "Rediriger vers le flow",
     "typePressAddAnswer": "Tapez et appuyez sur Entrée pour ajouter une réponse. Utilisez ALT + Entrée pour une nouvelle ligne"
   },
+  "emptyState": "Appuyez sur le + dans la bar d'outils pour ajouter votre première question.",
   "exportToJson": "Exporter JSON",
   "fullName": "Q&R",
   "hint": {

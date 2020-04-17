@@ -27,6 +27,7 @@
     "redirectToFlow": "Redirect to flow",
     "typePressAddAnswer": "Type and press enter to add an answer. Use ALT+Enter for a new line"
   },
+  "emptyState": "Tap + in the toolbar to add your first question.",
   "exportToJson": "Export to JSON",
   "fullName": "Q&A",
   "hint": {
