@@ -203,7 +203,7 @@ class MessageList extends React.Component<MessageListProps, State> {
   render() {
     return (
       <div
-        tabIndex={-1}
+        tabIndex={0}
         onKeyDown={this.handleKeyDown}
         className={'bpw-msg-list'}
         ref={m => {

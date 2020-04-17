@@ -29,6 +29,7 @@ export namespace Renderer {
     payload?: any
     store?: RootStore
     bp?: StudioConnector
+    fromLabel?: string
     incomingEventId?: string
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean

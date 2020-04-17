@@ -64,7 +64,6 @@ class Composer extends React.Component<ComposerProps> {
       <div role="region" className={'bpw-composer'}>
         <div className={'bpw-composer-inner'}>
           <textarea
-            tabIndex={1}
             ref={this.textInput}
             id="input-message"
             onFocus={this.props.setFocus.bind(this, 'input')}
@@ -73,6 +72,10 @@ class Composer extends React.Component<ComposerProps> {
             value={this.props.message}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
+            aria-label={this.props.intl.formatMessage({
+              id: 'composer.message',
+              defaultMessage: 'Message to send'
+            })}
           />
           <label htmlFor="input-message" style={{ display: 'none' }}>
             {placeholder}
@@ -82,6 +85,10 @@ class Composer extends React.Component<ComposerProps> {
             className={'bpw-send-button'}
             disabled={!this.props.message.length}
             onClick={this.props.sendMessage.bind(this, undefined)}
+            aria-label={this.props.intl.formatMessage({
+              id: 'composer.send',
+              defaultMessage: 'Send'
+            })}
             id="btn-send"
           >
             <FormattedMessage id={'composer.send'} />
