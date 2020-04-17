@@ -244,6 +244,7 @@ select:global(.form-control) {
   border: 1px solid $border !important;
   box-shadow: none !important;
   cursor: pointer;
+  line-height: 1.25;
   width: 100%;
 
   &:focus {

@@ -242,7 +242,13 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition], ...moreProps })
     },
     sayNode: (point: Point, moreProps) => {
-      this.props.createFlowNode({ ...point, type: 'say_something', next: [defaultTransition], ...moreProps })
+      this.props.createFlowNode({
+        ...point,
+        type: 'say_something',
+        content: { contentType: 'builtin_text' },
+        next: [defaultTransition],
+        ...moreProps
+      })
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
