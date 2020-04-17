@@ -1172,7 +1172,7 @@ declare module 'botpress/sdk' {
     /** The description holds placeholders for param values so they can be displayed in the view */
     description?: string
     /** The definition of all parameters used by this condition */
-    params?: ConditionParams
+    params?: { [paramName: string]: ConditionParam }
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
     /** This callback url is called when the condition is deleted or pasted in the flow */
@@ -1185,16 +1185,18 @@ declare module 'botpress/sdk' {
     evaluate: (event: IO.IncomingEvent, params: any) => number
   }
 
-  export interface ConditionParams {
-    [paramName: string]: {
-      label: string
-      /** Each type provides a different kind of editor */
-      type: 'string' | 'number' | 'boolean' | 'list'
-      required?: boolean
-      defaultValue?: any
-      /** When type is list, this variable must be configured */
-      list?: ConditionListOptions
-    }
+  export interface ConditionParam {
+    label: string
+    /** Each type provides a different kind of editor */
+    type: 'string' | 'number' | 'boolean' | 'list' | 'radio' | 'array' | 'content'
+    /** Different components can be used to display certain types (eg: boolean/list) */
+    subType?: 'switch' | 'radio'
+    required?: boolean
+    defaultValue?: any
+    /** Number of rows (for types which supports it, ex: string, array) */
+    rows?: number
+    /** When type is list, this variable must be configured */
+    list?: ConditionListOptions
   }
 
   export interface ConditionListOptions {
@@ -1204,9 +1206,9 @@ declare module 'botpress/sdk' {
     endpoint?: string
     /** The path to the list of elements (eg: language.available) */
     path?: string
-    /** Name of the field which will be used as the value */
+    /** Name of the field which will be used as the value. Default to value */
     valueField?: string
-    /** Friendly name displayed in the dropdown menu */
+    /** Friendly name displayed in the dropdown menu. Default to label */
     labelField?: string
   }
 

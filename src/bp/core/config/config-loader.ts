@@ -52,7 +52,8 @@ export class ConfigProvider {
 
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
 
-    config.httpServer.port = process.env.PORT ? parseInt(process.env.PORT) : config.httpServer.port
+    const envPort = process.env.BP_PORT || process.env.PORT
+    config.httpServer.port = envPort ? parseInt(envPort) : config.httpServer.port
     config.httpServer.host = process.env.BP_HOST || config.httpServer.host
     process.PROXY = process.core_env.BP_PROXY || config.httpServer.proxy
 

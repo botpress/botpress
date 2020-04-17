@@ -51,6 +51,11 @@ class MessageGroup extends React.Component<Props> {
   }
 
   render() {
+    const fromLabel = this.props.store.intl.formatMessage({
+      id: this.props.isBot ? 'message.fromBotLabel' : 'message.fromMeLabel',
+      defaultMessage: 'Me'
+    })
+
     if (this.state.hasError) {
       return '* Cannot display message *'
     }
@@ -67,6 +72,9 @@ class MessageGroup extends React.Component<Props> {
         <div role="region" className={'bpw-message-container'}>
           {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
           <div aria-live="assertive" role="log" className={'bpw-message-group'}>
+            <span data-from={fromLabel} className="from hidden" aria-hidden="true">
+              {fromLabel}
+            </span>
             {this.props.messages.map((data, i) => {
               const isLastMsg = i == this.props.messages.length - 1
               const payload = this.convertPayloadFromOldFormat(data)
@@ -91,6 +99,7 @@ class MessageGroup extends React.Component<Props> {
                       />
                     )
                   }
+                  fromLabel={fromLabel}
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}
                   isBotMessage={!data.userId}
