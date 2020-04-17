@@ -358,6 +358,14 @@ export class UnderstandingEngine {
         continue
       }
 
+      if (
+        trigger.type === 'workflow' &&
+        trigger.activeWorkflow &&
+        event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json`
+      ) {
+        continue
+      }
+
       const id = this.getTriggerId(trigger)
       const result = this._testConditions(event, trigger.conditions)
       event.ndu.triggers[id] = { result, trigger }
@@ -434,6 +442,7 @@ export class UnderstandingEngine {
             })),
             type: 'workflow',
             workflowId: flowName,
+            activeWorkflow: tn.activeWorkflow,
             nodeId: tn.name
           })
         } else if ((<sdk.ListenNode>node)?.triggers?.length) {
