@@ -45,6 +45,7 @@ export enum ElementType {
 
 interface OwnProps {
   onCreateFlow: (flowName: string) => void
+  onDeleteSelectedElements: () => void
   history: any
   permissions: PanelPermissions[]
   readOnly: boolean
@@ -156,10 +157,8 @@ const SidePanelContent: FC<Props> = props => {
 
   return (
     <SidePanel>
-      <Toolbar mutexInfo={props.mutexInfo} />
-
       {props.showFlowNodeProps ? (
-        <Inspector />
+        <Inspector onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
         <React.Fragment>
           <SearchBar

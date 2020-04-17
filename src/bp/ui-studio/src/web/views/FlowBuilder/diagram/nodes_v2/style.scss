@@ -1,47 +1,74 @@
+@import '../../../../palette.scss';
+
+:global(.srd-node--selected)>.baseNode.nodeSaySomething {
+  border: 1px solid #52B1EE !important;
+}
+
 .baseNode {
+  background-color: $node-bg;
+  border-radius: 3px;
+  border: 1px solid $main-dark-color;
+  min-height: 80px;
+  padding: 8px 18px;
   width: 200px;
-  background-color: #ededed;
-  border: 1px solid #dedede;
-  border-radius: 10px;
-  overflow: hidden;
 
   :global(.port) {
-    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    height: 10px;
+    width: 10px;
+    background: $node-say-something;
 
     &:global(.selected) {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(19, 124, 189, 0.5);
     }
   }
 
   .header {
-    background: #a1c6e8;
-    color: #ffffff;
-    height: 20px;
-    padding: 2px 10px;
-    font-size: 12px;
+    background: $node-say-something;
+    border-radius: 15px;
+    color: $main-dark-color;
     display: flex;
+    font-size: 12px;
+    line-height: 1;
+    height: 20px;
     justify-content: space-between;
+    padding: 3px 8px 2px;
+
+    & > span + span {
+      margin-left: 4px;
+    }
+
+    span {
+      display: inline-block;
+      vertical-align: middle;
+    }
   }
 
   .content {
-    padding: 4px;
-    word-wrap: break-word;
-    text-overflow: ellipsis;
-    max-height: 78px;
-    overflow-y: scroll;
     font-size: 12px;
+    line-height: 1.4;
+    padding: 10px 0 0;
+    word-break: break-word;
+    word-wrap: break-word;
   }
 
   .ports {
     .in {
       position: absolute;
-      bottom: 0px;
-      left: -8px;
+      bottom: 20%;
+      left: 0;
+      transform: translate(-50%, 0);
     }
     .out {
       position: absolute;
-      bottom: 0px;
-      right: -8px;
+      bottom: 20%;
+      right: 0;
+      transform: translate(50%, 0);
+    }
+    .outRouting {
+      position: absolute;
+      right: 0;
+      transform: translate(50%, 25%);
     }
   }
 }
@@ -52,22 +79,22 @@
 
 .nodeSaySomething {
   .header {
-    background: #a1c6e8;
-    color: #ffffff;
+    background: $node-say-something;
+    color: $main-dark-color;
   }
 }
 
 .nodeExecute {
   .header {
-    background: #d5a5bc;
-    color: #ffffff;
+    background: $node-execute;
+    color: $main-dark-color;
   }
 }
 
 .nodeListen {
   .header {
-    background: #ffe699;
-    color: #000000;
+    background: $node-listen;
+    color: $main-dark-color;
   }
 }
 
@@ -108,8 +135,8 @@
 
 .nodeRouter {
   .header {
-    background: #a1c4c9;
-    color: #000000;
+    background: $node-router;
+    color: $main-dark-color;
   }
 
   .content {

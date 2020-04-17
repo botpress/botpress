@@ -1,4 +1,4 @@
-import { ModuleDefinition } from 'botpress/sdk'
+import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { combineReducers } from 'redux'
 
 import bot from './bot'
@@ -39,4 +39,5 @@ export interface RootReducer {
   ndu: NduReducer
   modules: ModuleDefinition[]
   ui: UiReducer
+  bot: BotConfig
 }

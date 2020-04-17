@@ -1,22 +1,19 @@
-import { lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { toggleBottomPanel, updateDocumentationModal, viewModeChanged } from '~/actions'
+import { toggleBottomPanel, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
-import DocumentationModal from '~/components/Layout/DocumentationModal'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
-import { isInputFocused } from '~/keyboardShortcuts'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
-import Notifications from '~/views/Notifications'
 import OneFlow from '~/views/OneFlow'
 
 import BotUmountedWarning from './BotUnmountedWarning'
@@ -25,14 +22,16 @@ import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
-import BottomPanel from './StatusBar/BottomPanel'
+import Toolbar from './Toolbar'
+import BottomPanel from './Toolbar/BottomPanel'
+
+const { isInputFocused } = utils
 
 interface ILayoutProps {
   viewModeChanged: any
   viewMode: number
   docModal: any
   docHints: any
-  updateDocumentationModal: any
   location: any
   toggleBottomPanel: () => null
   history: any
@@ -84,10 +83,8 @@ const Layout: FC<ILayoutProps> = props => {
   const toggleDocs = e => {
     e.preventDefault()
 
-    if (props.docModal) {
-      props.updateDocumentationModal(null)
-    } else if (props.docHints.length) {
-      props.updateDocumentationModal(props.docHints[0])
+    if (props.docHints.length) {
+      window.open(`https://botpress.com/docs/${props.docHints[0]}`, '_blank')
     }
   }
 
@@ -155,15 +152,21 @@ const Layout: FC<ILayoutProps> = props => {
   return (
     <Fragment>
       <HotKeys handlers={keyHandlers} id="mainLayout" className={layout.mainLayout}>
-        <DocumentationModal />
         <Sidebar />
         <div className={layout.container}>
+          <Toolbar
+            hasDoc={props.docHints?.length}
+            toggleDocs={toggleDocs}
+            onToggleEmulator={toggleEmulator}
+            toggleBottomPanel={props.toggleBottomPanel}
+          />
           <SplitPane
             split={'horizontal'}
             defaultSize={lastSize}
             onChange={size => size > 100 && localStorage.setItem(splitPanelLastSizeKey, size.toString())}
             size={bottomBarSize}
             maxSize={-100}
+            className={layout.mainSplitPaneWToolbar}
           >
             <main ref={mainElRef} className={layout.main} id="main" tabIndex={9999}>
               <Switch>
@@ -183,7 +186,6 @@ const Layout: FC<ILayoutProps> = props => {
                 <Route exact path="/config" component={Config} />
                 <Route exact path="/oneflow/:flow*" component={OneFlow} />
                 <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
-                <Route exact path="/notifications" component={Notifications} />
                 <Route exact path="/logs" component={Logs} />
               </Switch>
             </main>
@@ -215,7 +217,6 @@ const mapStateToProps = state => ({
   translations: state.language.translations
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, updateDocumentationModal, toggleBottomPanel }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, toggleBottomPanel }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

@@ -3,7 +3,7 @@ import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { MdErrorOutline } from 'react-icons/md'
 
-import style from './style.scss'
+import style from '../style.scss'
 
 interface Props {
   formData: any
@@ -63,9 +63,9 @@ export default class I18nManager extends React.Component<Props, State> {
 
     return (
       <div className={style.flexContainer}>
-        <div style={{ width: '100%' }}>{component}</div>
-        <div className={style.missingIcon}>
-          {isMissing && (
+        {component}
+        {isMissing && (
+          <div className={style.missingIcon}>
             <OverlayTrigger
               placement="bottom"
               overlay={
@@ -77,8 +77,8 @@ export default class I18nManager extends React.Component<Props, State> {
             >
               <MdErrorOutline onClick={this.useDefaultLangText} />
             </OverlayTrigger>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     )
   }
