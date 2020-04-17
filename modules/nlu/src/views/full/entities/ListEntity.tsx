@@ -83,7 +83,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
     const newSynonym = _.last(occurrence.synonyms)
-    if (occurrence.synonyms.indexOf(newSynonym) !== occurrence.synonyms.length - 1) {
+    if (occurrence.synonyms.filter(synonym => synonym === newSynonym).length > 1) {
       return toastFailure('Synonyms duplication is not allowed')
     }
 
@@ -102,7 +102,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
     })
   }
 
-  const sortOccurernces = () => {
+  const sortOccurrences = () => {
     dispatch({ type: 'setOccurrences', data: { occurrences: _.sortBy(state.occurrences, 'name') } })
   }
 
@@ -150,7 +150,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
                 <Tooltip position={Position.LEFT} popoverClassName={style.configPopover}>
                   <span>
                     {lang.tr('nlu.entities.occurrenceLabel')}&nbsp;
-                    <Button icon="sort" minimal text="" onClick={sortOccurernces} />
+                    <Button icon="sort" minimal text="" onClick={sortOccurrences} />
                   </span>
                 </Tooltip>
               </span>
