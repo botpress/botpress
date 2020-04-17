@@ -1,11 +1,3 @@
-.wrapper {
-  background: var(--seashell);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 0 var(--spacing-x-large);
-}
-
 .content {
   flex-grow: 1;
   display: flex;

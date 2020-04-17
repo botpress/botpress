@@ -7,8 +7,9 @@ import EmptyStateIcon from './Icons/EmptyStateIcon'
 const ITEMS_PER_PAGE = 20
 
 interface State {
-  items: any[]
   count: number
+  items: any[]
+  loading: boolean
   page: number
 }
 
@@ -18,8 +19,9 @@ const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      items,
       count,
+      items,
+      loading: false,
       page
     }
   } else {
@@ -30,8 +32,9 @@ const fetchReducer = (state: State, action): State => {
 const QnA: FC<any> = props => {
   const [currentTab, setCurrentTab] = useState('qna')
   const [state, dispatch] = React.useReducer(fetchReducer, {
-    items: [],
     count: 0,
+    items: [],
+    loading: true,
     page: 1
   })
 
@@ -86,16 +89,16 @@ const QnA: FC<any> = props => {
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
   }
 
-  const { items } = state
+  const { items, loading } = state
 
   return (
-    <div className={style.wrapper}>
+    <MainContent.Wrapper>
       <MainContent.Header tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
       <div className={style.content}>
         {!!items.length && state.count}
-        {!items.length && <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.emptyState')} />}
+        {!items.length && !loading && <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.emptyState')} />}
       </div>
-    </div>
+    </MainContent.Wrapper>
   )
 }
 
