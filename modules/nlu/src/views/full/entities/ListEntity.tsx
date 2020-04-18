@@ -72,7 +72,9 @@ export const ListEntityEditor: React.FC<Props> = props => {
     }
 
     const uniqOcurrences = _.uniq(state.occurrences.map(occ => occ.name))
-    if (uniqOcurrences.includes(newOccurrence)) return toastFailure('Occurrences duplication is not allowed')
+    if (uniqOcurrences.includes(newOccurrence)) {
+      return toastFailure('Occurrences duplication is not allowed')
+    }
 
     dispatch({
       type: 'setOccurrences',
