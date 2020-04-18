@@ -21,7 +21,7 @@ Then append the name of your new contexts to `qnaCategories` like so:
 
 ### From version 12.8 onwards
 
-The list of available contexts come from your bot's existing questions, instead of the qna.json configuration. To create a new context, open or add a Q&A, input the context in the **Contexts** field, then select **+ Create context**:
+Contexts listed in the dropdown menu are sourced from all your existing content (questions & NLU intents). The `qna.json` configuration file is no longer used to provide a list of contexts. To create a new context, open or add a Q&A, input the context in the **Contexts** field, then select **+ Create context**:
 
 ![Category](assets/faq-qna-new-context.png)
 
