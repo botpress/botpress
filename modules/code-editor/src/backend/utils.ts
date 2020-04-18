@@ -4,6 +4,7 @@ import { FileDefinition, FileTypes } from './definitions'
 import { FILENAME_REGEX } from './editor'
 import { EditorError } from './editorError'
 import { EditableFile, FilePermissions, FileType } from './typings'
+import jsonlintMod from 'jsonlint-mod'
 
 export const RAW_TYPE: FileType = 'raw'
 
@@ -46,7 +47,11 @@ export const assertValidJson = (content: string): boolean => {
     JSON.parse(content)
     return true
   } catch (err) {
-    throw new EditorError('module.code-editor.error.invalidJson', err.message)
+    try {
+      jsonlintMod.parse(content)
+    } catch (e) {
+      throw new Error(`Invalid JSON file. ${e.message.split(':')[0]}`)
+    }
   }
 }
 

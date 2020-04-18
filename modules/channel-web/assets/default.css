@@ -16,6 +16,11 @@ body {
   outline: none !important;
 }
 
+.hidden {
+  visibility: hidden !important;
+  height: 0 !important;
+}
+
 .bpw-from-user .bpw-chat-bubble .bpw-chat-bubble-content {
   background-color: #000000;
   color: #ffffff;
@@ -182,7 +187,7 @@ body {
   width: 100%;
 }
 
-.bpw-message-group > :not(:last-child) {
+.bpw-message-group > :not(:last-child):not(.hidden) {
   margin-bottom: 2px;
 }
 
@@ -709,7 +714,22 @@ body {
   background-color: #ff5d5d;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .bpw-header-icon {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
   color: #bbb;
   margin-left: 17px;
   text-align: right;

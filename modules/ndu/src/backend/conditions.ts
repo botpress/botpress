@@ -73,7 +73,7 @@ export const dialogConditions: sdk.Condition[] = [
     label: 'Raw JS expression',
     description: `{label}`,
     params: {
-      expression: { label: 'Expression to evaluate', type: 'string' },
+      expression: { label: 'Expression to evaluate', type: 'string', rows: 5 },
       label: { label: 'Custom label', type: 'string', defaultValue: 'Raw JS expression' }
     },
     evaluate: (event, params) => {
@@ -121,6 +121,30 @@ export const dialogConditions: sdk.Condition[] = [
     label: 'This condition is always true',
     evaluate: () => {
       return 1
+    }
+  },
+  {
+    id: 'type_text',
+    label: 'The user typed something specific',
+    description: `The user typed {text}`,
+    params: {
+      candidate: { label: 'One or multiple words to detect (one per line)', type: 'array', rows: 5 },
+      exactMatch: { label: 'Must be an exact match', type: 'boolean', defaultValue: false },
+      caseSensitive: { label: 'Case sensitive', type: 'boolean', defaultValue: false }
+    },
+    evaluate: (event, params) => {
+      const { candidate, exactMatch, caseSensitive } = params
+
+      const preview = caseSensitive ? event.preview : event.preview?.toLowerCase() || ''
+      const userText = caseSensitive ? event.payload?.text : event.payload?.text?.toLowerCase() || ''
+
+      const foundMatch = (candidate || []).find(
+        word =>
+          (!exactMatch && (preview.includes(word) || userText.includes(word))) ||
+          (exactMatch && (preview === word || userText === word))
+      )
+
+      return foundMatch ? 1 : 0
     }
   }
 ]
