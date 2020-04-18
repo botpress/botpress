@@ -115,22 +115,6 @@ const getTemplateFiles = async (bp: typeof sdk): Promise<TemplateFile[]> => {
   }))
 }
 
-const moveExistingFlows = async (ghost: sdk.ScopedGhostService) => {
-  const renames = [
-    { from: 'error', to: 'error' },
-    { from: 'main', to: 'welcome' }
-  ]
-
-  for (const { from, to } of renames) {
-    if (await ghost.fileExists('flows', `${from}.flow.json`)) {
-      await ghost.renameFile('flows', `${from}.flow.json`, `Built-In/${to}.flow.json`)
-      await ghost.renameFile('flows', `${from}.ui.json`, `Built-In/${to}.ui.json`)
-
-      debug(`Renaming file from ${from}.flow.json to Built-In/${to}.flow.json`)
-    }
-  }
-}
-
 const getIntentContexts = async (ghost: sdk.ScopedGhostService) => {
   try {
     const intentNames = await ghost.directoryListing('intents', '*.json')
@@ -169,8 +153,6 @@ const createTopicsFromContexts = async (bp: typeof sdk, ghost: sdk.ScopedGhostSe
 const migrateBot = async (bp: typeof sdk, botId: string) => {
   const ghost = bp.ghost.forBot(botId)
   const templateFiles = await getTemplateFiles(bp)
-
-  await moveExistingFlows(ghost)
 
   await upsertNewFlows(ghost, templateFiles)
   await createMissingElements(bp, botId, templateFiles)

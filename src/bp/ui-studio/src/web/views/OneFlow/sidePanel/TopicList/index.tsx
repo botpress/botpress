@@ -7,7 +7,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 
-const lockedFlows = ['Built-In/welcome.flow.json', 'Built-In/error.flow.json', 'Built-In/feedback.flow.json']
+const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']
 
 export const TYPE_TOPIC = 'topic'
 export const TYPES = {
