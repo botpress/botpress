@@ -25,7 +25,7 @@ The list of available contexts come from your bot's existing questions, instead 
 
 ![Category](assets/faq-qna-new-context.png)
 
-It needs to remain linked to at least one question, otherwise is it cleared from the context list.
+When you create a new context this way, you need to save your changes for the context to be persisted. 
 
 ## Add a QNA
 
