@@ -763,7 +763,8 @@ declare module 'botpress/sdk' {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
       nduContext?: NduContext
-      lastWorkflows: WorkflowHistory[]
+      workflows: WorkflowHistory[]
+      currentWorkflow?: string
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
     }
@@ -771,8 +772,10 @@ declare module 'botpress/sdk' {
     export interface WorkflowHistory {
       workflow: string
       eventId: string
+      parent?: string
+      /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
+      status: 'active' | 'pending' | 'completed'
       success?: boolean
-      active?: boolean
     }
 
     export type StoredEvent = {
