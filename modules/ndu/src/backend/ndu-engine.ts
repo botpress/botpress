@@ -438,7 +438,7 @@ export class UnderstandingEngine {
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions.map(x => ({
               ...x,
-              params: { ...x.params, topicName }
+              params: { ...x.params, topicName, wfName: flowName }
             })),
             type: 'workflow',
             workflowId: flowName,
@@ -454,7 +454,7 @@ export class UnderstandingEngine {
                   nodeId: ln.name,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { ...x.params, topicName }
+                    params: { ...x.params, topicName, wfName: flowName }
                   })),
                   type: 'node',
                   workflowId: flowName
