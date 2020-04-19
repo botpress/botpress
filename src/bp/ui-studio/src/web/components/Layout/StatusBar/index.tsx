@@ -2,7 +2,6 @@ import axios from 'axios'
 import _ from 'lodash'
 import React, { FC, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { updateDocumentationModal } from '~/actions'
 import EventBus from '~/util/EventBus'
 
 import style from './style.scss'
@@ -131,4 +130,4 @@ const mapStateToProps = state => ({
   contentLang: state.language.contentLang
 })
 
-export default connect(mapStateToProps, { updateDocumentationModal })(StatusBar)
+export default connect(mapStateToProps)(StatusBar)

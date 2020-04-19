@@ -8,7 +8,6 @@ import { getToken } from '~/util/Auth'
 import { Provider } from 'react-redux'
 
 import store from './store'
-import { keyMap } from './keyboardShortcuts'
 
 // Required to fix outline issue
 import './style.scss'
@@ -30,7 +29,9 @@ import 'expose-loader?BotpressUtils!~/components/Shared/Utils'
 import 'expose-loader?DocumentationProvider!~/components/Util/DocumentationProvider'
 import { initializeTranslations } from './translations'
 /* eslint-enable */
+import { utils } from 'botpress/shared'
 
+import 'ui-shared/dist/theme.css'
 require('bootstrap/dist/css/bootstrap.css')
 require('storm-react-diagrams/dist/style.min.css')
 require('./theme.scss')
@@ -52,7 +53,7 @@ if (!window.BOT_ID) {
 
   ReactDOM.render(
     <Provider store={store}>
-      <HotKeys keyMap={keyMap}>
+      <HotKeys keyMap={utils.keyMap}>
         <App />
       </HotKeys>
     </Provider>,

@@ -246,7 +246,7 @@ class ContentView extends Component<Props, State> {
             handleClose={this.handleCloseModal}
           />
         )}
-        <DocumentationProvider file="content" />
+        <DocumentationProvider file="main/content" />
       </Container>
     )
   }

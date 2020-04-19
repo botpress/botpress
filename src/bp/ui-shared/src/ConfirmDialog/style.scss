@@ -1,3 +1,15 @@
-.ConfirmDialogContainer > div{
+@import '../variables.scss';
+
+.ConfirmDialogContainer > div {
   z-index: 9999;
+
+  :global(.bp3-button-text) {
+    font-size: 12px !important;
+  }
+}
+
+.icon {
+  float: left !important;
+  margin-right: 16px;
+  color: $main-confirm-warning !important;
 }

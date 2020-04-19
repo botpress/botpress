@@ -1,16 +1,14 @@
-import { lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { toggleBottomPanel, updateDocumentationModal, viewModeChanged } from '~/actions'
+import { toggleBottomPanel, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
-import DocumentationModal from '~/components/Layout/DocumentationModal'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
-import { isInputFocused } from '~/keyboardShortcuts'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -28,12 +26,13 @@ import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
 import BottomPanel from './Toolbar/BottomPanel'
 
+const { isInputFocused } = utils
+
 interface ILayoutProps {
   viewModeChanged: any
   viewMode: number
   docModal: any
   docHints: any
-  updateDocumentationModal: any
   location: any
   toggleBottomPanel: () => null
   history: any
@@ -85,10 +84,8 @@ const Layout: FC<ILayoutProps> = props => {
   const toggleDocs = e => {
     e.preventDefault()
 
-    if (props.docModal) {
-      props.updateDocumentationModal(null)
-    } else if (props.docHints.length) {
-      props.updateDocumentationModal(props.docHints[0])
+    if (props.docHints.length) {
+      window.open(`https://botpress.com/docs/${props.docHints[0]}`, '_blank')
     }
   }
 
@@ -156,11 +153,14 @@ const Layout: FC<ILayoutProps> = props => {
   return (
     <Fragment>
       <HotKeys handlers={keyHandlers} id="mainLayout" className={layout.mainLayout}>
-        <CommandPalette toggleEmulator={toggleEmulator} />
-        <DocumentationModal />
         <Sidebar />
         <div className={layout.container}>
-          <Toolbar onToggleEmulator={toggleEmulator} toggleBottomPanel={props.toggleBottomPanel} />
+          <Toolbar
+            hasDoc={props.docHints?.length}
+            toggleDocs={toggleDocs}
+            onToggleEmulator={toggleEmulator}
+            toggleBottomPanel={props.toggleBottomPanel}
+          />
           <SplitPane
             split={'horizontal'}
             defaultSize={lastSize}
@@ -207,6 +207,7 @@ const Layout: FC<ILayoutProps> = props => {
         onToggleGuidedTour={toggleGuidedTour}
         toggleBottomPanel={props.toggleBottomPanel}
       />
+      <CommandPalette toggleEmulator={toggleEmulator} />
     </Fragment>
   )
 }
@@ -218,7 +219,6 @@ const mapStateToProps = state => ({
   translations: state.language.translations
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, updateDocumentationModal, toggleBottomPanel }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, toggleBottomPanel }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

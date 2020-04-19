@@ -1,72 +1,79 @@
-import { Icon } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { Icon, Tooltip } from '@blueprintjs/core'
+import { lang, ShortcutLabel } from 'botpress/shared'
 import classNames from 'classnames'
 import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { updateDocumentationModal } from '~/actions'
 import { AccessControl } from '~/components/Shared/Utils'
-import { keyMap } from '~/keyboardShortcuts'
 
 import { RootReducer } from '../../../reducers'
 
 import style from './style.scss'
-import ActionItem from './ActionItem'
 
 interface OwnProps {
   isEmulatorOpen: boolean
-  onToggleGuidedTour: () => void
+  hasDoc: boolean
+  toggleDocs: () => void
   toggleBottomPanel: () => void
   onToggleEmulator: () => void
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
 
-type Props = StateProps & DispatchProps & OwnProps
+type Props = StateProps & OwnProps
 
 const Toolbar: FC<Props> = props => {
-  const { updateDocumentationModal, docHints, onToggleEmulator, isEmulatorOpen, toggleBottomPanel } = props
+  const { toggleDocs, hasDoc, onToggleEmulator, isEmulatorOpen, toggleBottomPanel } = props
 
   return (
     <header className={style.toolbar}>
-      <ul className={style.list}>
-        {!!docHints.length && (
+      <div className={style.list}>
+        {hasDoc && (
           <Fragment>
-            <ActionItem
-              title={lang.tr('toolbar.readDoc')}
-              shortcut={keyMap['docs-toggle']}
-              description={lang.tr('toolbar.documentationAvailable')}
-              onClick={() => updateDocumentationModal(docHints[0])}
+            <Tooltip
+              content={
+                <div className={style.tooltip}>
+                  {lang.tr('toolbar.help')}
+                  <div className={style.shortcutLabel}>
+                    <ShortcutLabel light shortcut="docs-toggle" />
+                  </div>
+                </div>
+              }
             >
-              <Icon color="#1a1e22" icon="help" iconSize={16} />
-            </ActionItem>
-            <li className={style.divider}></li>
+              <button className={style.item} onClick={toggleDocs}>
+                <Icon color="#1a1e22" icon="help" iconSize={16} />
+              </button>
+            </Tooltip>
+            <span className={style.divider}></span>
           </Fragment>
         )}
         <AccessControl resource="bot.logs" operation="read">
-          <ActionItem
-            id="statusbar_logs"
-            title={lang.tr('toolbar.logsPanel')}
-            shortcut={keyMap['bottom-bar']}
-            description={lang.tr('toolbar.toggleLogsPanel')}
-            onClick={toggleBottomPanel}
+          <Tooltip
+            content={
+              <div className={style.tooltip}>
+                {lang.tr('toolbar.logsPanel')}
+                <div className={style.shortcutLabel}>
+                  <ShortcutLabel light shortcut="bottom-bar" />
+                </div>
+              </div>
+            }
           >
-            <Icon color="#1a1e22" icon="console" iconSize={16} />
-          </ActionItem>
+            <button className={style.item} onClick={toggleBottomPanel}>
+              <Icon color="#1a1e22" icon="console" iconSize={16} />
+            </button>
+          </Tooltip>
         </AccessControl>
         {window.IS_BOT_MOUNTED && (
-          <ActionItem
-            title={lang.tr('toolbar.showEmulator')}
-            id={'statusbar_emulator'}
-            shortcut={keyMap['emulator-focus']}
-            onClick={onToggleEmulator}
-            className={classNames({ [style.active]: isEmulatorOpen })}
-          >
-            <Icon color="#1a1e22" icon="chat" iconSize={16} />
-            <span className={style.label}>{lang.tr('toolbar.emulator')}</span>
-          </ActionItem>
+          <Tooltip content={<ShortcutLabel light shortcut="emulator-focus" />}>
+            <button
+              className={classNames(style.item, style.itemSpacing, { [style.active]: isEmulatorOpen })}
+              onClick={onToggleEmulator}
+            >
+              <Icon color="#1a1e22" icon="chat" iconSize={16} />
+              <span className={style.label}>{lang.tr('toolbar.emulator')}</span>
+            </button>
+          </Tooltip>
         )}
-      </ul>
+      </div>
     </header>
   )
 }
@@ -77,8 +84,4 @@ const mapStateToProps = (state: RootReducer) => ({
   docHints: state.ui.docHints
 })
 
-const mapDispatchToProps = {
-  updateDocumentationModal
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Toolbar)
+export default connect(mapStateToProps)(Toolbar)

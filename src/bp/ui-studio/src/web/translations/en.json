@@ -302,8 +302,8 @@
     }
   },
   "toolbar": {
-    "documentationAvailable": "This screen has documentation available.",
     "emulator": "Emulator",
+    "help": "Help",
     "logsPanel": "Logs Panel",
     "readDoc": "Read Documentation",
     "showEmulator": "Show Emulator",

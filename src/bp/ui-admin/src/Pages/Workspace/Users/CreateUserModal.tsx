@@ -1,5 +1,5 @@
 import { Button, FormGroup } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter, lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import { AuthRole, AuthStrategyConfig, CreatedUser, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -86,14 +86,14 @@ export const CreateUserModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog.Wrapper
       title={lang.tr('admin.workspace.users.collaborators.add')}
       icon="add"
       isOpen={props.isOpen}
       onClose={props.toggleOpen}
       onSubmit={createUser}
     >
-      <DialogBody>
+      <Dialog.Body>
         <FormGroup
           label={lang.tr('email')}
           labelFor="select-email"
@@ -119,8 +119,8 @@ export const CreateUserModal: FC<Props> = props => {
         <FormGroup label={lang.tr('admin.workspace.users.collaborators.chooseRole')} labelFor="select-role">
           <RoleDropdown onChange={role => setRole(role)} />
         </FormGroup>
-      </DialogBody>
-      <DialogFooter>
+      </Dialog.Body>
+      <Dialog.Footer>
         <Button
           id="btn-submit"
           className="float-right"
@@ -132,8 +132,8 @@ export const CreateUserModal: FC<Props> = props => {
           }
           disabled={!isValid}
         />
-      </DialogFooter>
-    </BaseDialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 
