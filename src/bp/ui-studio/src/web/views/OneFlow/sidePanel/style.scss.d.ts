@@ -8,13 +8,14 @@ interface CssExports {
   'overhidden': string;
   'referencedWorkflows': string;
   'section': string;
+  'sidePanel': string;
   'tabs': string;
   'tag': string;
   'title': string;
   'toolItem': string;
   'toolPanel': string;
-  'topicsNavbar': string;
   'topicName': string;
+  'topicsNavbar': string;
   'treeNode': string;
 }
 declare var cssExports: CssExports;

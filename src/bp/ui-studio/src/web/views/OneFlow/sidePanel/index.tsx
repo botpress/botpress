@@ -1,4 +1,4 @@
-import { Alignment, Button, Icon, Navbar, NavbarGroup, Tab, Tabs } from '@blueprintjs/core'
+import { Alignment, Button, Icon, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -146,7 +146,7 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   return (
-    <SidePanel>
+    <div className={style.sidePanel}>
       {props.showFlowNodeProps ? (
         <Inspector onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
@@ -160,8 +160,12 @@ const SidePanelContent: FC<Props> = props => {
             </NavbarGroup>
             {props.permissions.includes('create') && (
               <NavbarGroup align={Alignment.RIGHT}>
-                <Button icon="import" onClick={() => setImportModalOpen(true)} />
-                <Button icon="plus" onClick={() => setCreateTopicOpen(true)} />
+                <Tooltip content={lang.tr('studio.flow.sidePanel.importContent')}>
+                  <Button icon="import" onClick={() => setImportModalOpen(true)} />
+                </Tooltip>
+                <Tooltip content={lang.tr('studio.flow.sidePanel.createFlow')}>
+                  <Button icon="plus" onClick={() => setCreateTopicOpen(true)} />
+                </Tooltip>
               </NavbarGroup>
             )}
           </Navbar>
@@ -224,7 +228,7 @@ const SidePanelContent: FC<Props> = props => {
         flows={props.flows}
         topics={props.topics}
       />
-    </SidePanel>
+    </div>
   )
 }
 
