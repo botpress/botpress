@@ -30,7 +30,9 @@ class Message extends Component<MessageProps> {
 
     if (maxLength && message.length > maxLength) {
       if (!this.state.showMore) {
-        message = message.substring(0, maxLength)
+        const newMessage = message.substring(0, maxLength)
+
+        message = `${message.substring(0, maxLength)}${newMessage.substring(-1) !== '.' && '...'}`
       }
 
       return (
