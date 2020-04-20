@@ -5,6 +5,7 @@ import CommandPalette from 'react-command-palette'
 import { generatePath } from 'react-router'
 
 import { lang } from '../translations'
+import { controlKey } from '../utils/keyboardShortcuts'
 import { isOperationAllowed } from '../AccessControl'
 
 import { getShortcuts } from './shortcuts'
@@ -115,7 +116,7 @@ const Commander: FC<CommanderProps> = props => {
 
   return (
     <CommandPalette
-      hotKeys="ctrl+shift+p"
+      hotKeys={`${controlKey}+shift+p`}
       maxDisplayed={15}
       commands={commands}
       trigger={<span />}

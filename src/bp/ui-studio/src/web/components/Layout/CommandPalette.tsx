@@ -26,6 +26,10 @@ const CommandPalette: FC<Props> = props => {
       return
     }
 
+    const getBotDisplayName = bot => {
+      return props.bots.filter(x => x.name === bot.name).length > 1 ? `${bot.name} (${bot.id})` : bot.name
+    }
+
     const commands: QuickShortcut[] = [
       { label: lang.tr('flows'), type: 'goto', category: 'studio', url: '/flows/main' },
       { label: lang.tr('content'), type: 'goto', category: 'studio', url: '/content' },
@@ -61,35 +65,23 @@ const CommandPalette: FC<Props> = props => {
         shortcut: 'ctrl+b',
         type: 'execute',
         method: () => window.toggleSidePanel()
-      }
-    ]
-
-    const getBotDisplayName = bot => {
-      return props.bots.filter(x => x.name === bot.name).length > 1 ? `${bot.name} (${bot.id})` : bot.name
-    }
-
-    for (const bot of props.bots) {
-      commands.push({
+      },
+      ...props.bots.map(bot => ({
         label: lang.tr('commander.switchBot', { name: getBotDisplayName(bot) }),
-        type: 'redirect',
+        type: 'redirect' as any,
         category: 'studio',
         url: window.location.origin + '/studio/' + bot.id
-      })
-    }
-
-    for (const module of props.modules) {
-      if (module.noInterface) {
-        continue
-      }
-
-      commands.push({
-        label: `${lang.tr(`module.${module.name}.fullName`)}`,
-        type: 'goto',
-        category: 'module',
-        url: `/modules/${module.name}`,
-        permission: { resource: `module.${module.name}`, operation: 'write' }
-      })
-    }
+      })),
+      ...props.modules
+        .filter(module => !module.noInterface)
+        .map(module => ({
+          label: `${lang.tr(`module.${module.name}.fullName`)}`,
+          type: 'goto',
+          category: 'module',
+          url: `/modules/${module.name}`,
+          permission: { resource: `module.${module.name}`, operation: 'write' }
+        }))
+    ]
 
     setCommands(commands)
   }, [props.modules, props.bots, props.contentTypes])

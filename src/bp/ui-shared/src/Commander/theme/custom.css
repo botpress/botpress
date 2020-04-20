@@ -55,9 +55,6 @@
   font-size: 12px;
 }
 
-.bpcmd-containerOpen {
-}
-
 .bpcmd-input {
   font-size: 14px;
   border-radius: 4px;
@@ -70,15 +67,9 @@
   caret-color: #568af2;
 }
 
-.bpcmd-inputOpen {
-}
-
 .bpcmd-inputFocused {
   border: 2px solid #568af2;
   background-color: #1b1d23;
-}
-
-.bpcmd-suggestionsContainer {
 }
 
 .bpcmd-suggestionsContainerOpen {
@@ -108,8 +99,6 @@
 .bpcmd-suggestion b {
   color: #598cef;
   font-weight: bold;
-}
-.bpcmd-suggestionFirst {
 }
 
 .bpcmd-suggestionHighlighted {

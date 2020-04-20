@@ -21,16 +21,12 @@ const CommandPalette = props => {
       return props.bots.filter(x => x.name === bot.name).length > 1 ? `${bot.name} (${bot.id})` : bot.name
     }
 
-    const commands: QuickShortcut[] = []
-
-    for (const bot of props.bots) {
-      commands.push({
-        label: lang.tr('commander.viewBot', { name: getBotDisplayName(bot) }),
-        category: 'studio',
-        type: 'redirect',
-        url: window.location.origin + '/studio/' + bot.id
-      })
-    }
+    const commands: QuickShortcut[] = props.bots.map(bot => ({
+      label: lang.tr('commander.viewBot', { name: getBotDisplayName(bot) }),
+      category: 'studio',
+      type: 'redirect',
+      url: window.location.origin + '/studio/' + bot.id
+    }))
 
     if (props.workspaces.length > 1) {
       for (const workspace of props.workspaces) {
