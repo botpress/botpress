@@ -36,7 +36,7 @@ const CommandPalette: FC<Props> = props => {
         url: `${window.location.origin}/admin`
       },
       {
-        label: lang.tr('commander.openInPopup'),
+        label: lang.tr('commander.links.chat'),
         category: 'external',
         type: 'popup',
         url: `${window.location.origin}/s/${window.BOT_ID}`

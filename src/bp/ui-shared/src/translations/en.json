@@ -10,6 +10,30 @@
   "chips": "Chips",
   "chooseFile": "Choose file...",
   "close": "Close",
+  "commander": {
+    "backToAdmin": "Back to Admin",
+    "category": {
+      "admin": "Admin",
+      "command": "Command",
+      "external": "External",
+      "module": "Module",
+      "studio": "Studio"
+    },
+    "goTo": "Go to {destination}",
+    "inNewTab": "Open {destination} in a new tab",
+    "links": {
+      "chat": "chat",
+      "documentation": "documentation"
+    },
+    "searchCommand": "Search for a command",
+    "switchBot": "Switch to bot: {name}",
+    "switchWorkspace": "Switch to workspace: {name}",
+    "toDismiss": "to dismiss",
+    "toNavigate": "to navigate",
+    "toSelect": "to select",
+    "typeCommand": "Type a command",
+    "viewBot": "View bot: {name}"
+  },
   "configuration": "Config",
   "confirmPrompt": "Confirmation Required",
   "content": "Content",
@@ -69,21 +93,6 @@
   "saveChanges": "Save Changes",
   "say": "Say",
   "search": "Search",
-  "skills": "Skills",
-  "split": "Split",
-  "status": "Status",
-  "submit": "Submit",
-  "subtitle": "Subtitle",
-  "text": "Text",
-  "title": "Title",
-  "tools": "Tools",
-  "topics": "Topics",
-  "trigger": "Trigger",
-  "type": "Type",
-  "undo": "Undo",
-  "update": "Update",
-  "upload": "Upload",
-  "usage": "Usage",
   "sideMenu": {
     "alerting": "Alerting",
     "announcements": "Announcements",
@@ -102,22 +111,19 @@
     "sourceControl": "Source Control",
     "workspace": "Workspace"
   },
-  "commander": {
-    "searchCommand": "Search for a command",
-    "toNavigate": "to navigate",
-    "toSelect": "to select",
-    "toDismiss": " to dismiss",
-    "typeCommand": "Type a command",
-    "switchWorkspace": "Switch to workspace: {name}",
-    "switchBot": "Switch to bot: {name}",
-    "openInPopup": "Open Webchat in popup",
-    "backToAdmin": "Back to Admin",
-    "category": {
-      "admin": "Admin",
-      "studio": "Studio",
-      "external": "External",
-      "module": "Module",
-      "command": "Command"
-    }
-  }
+  "skills": "Skills",
+  "split": "Split",
+  "status": "Status",
+  "submit": "Submit",
+  "subtitle": "Subtitle",
+  "text": "Text",
+  "title": "Title",
+  "tools": "Tools",
+  "topics": "Topics",
+  "trigger": "Trigger",
+  "type": "Type",
+  "undo": "Undo",
+  "update": "Update",
+  "upload": "Upload",
+  "usage": "Usage"
 }

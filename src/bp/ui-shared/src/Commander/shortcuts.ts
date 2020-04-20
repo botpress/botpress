@@ -78,7 +78,12 @@ export const getShortcuts = () => {
   ]
 
   const shortcuts: QuickShortcut[] = [
-    { label: 'Documentation', type: 'popup', category: 'external', url: `https://botpress.io/docs/introduction/` },
+    {
+      label: lang('commander.links.documentation'),
+      type: 'popup',
+      category: 'external',
+      url: `https://botpress.io/docs/introduction/`
+    },
     ...adminShortcuts.map(x => ({ ...x, category: 'admin', parent: 'admin' as any }))
   ]
 

@@ -25,8 +25,17 @@ const Commander: FC<CommanderProps> = props => {
       x => !x.permission || (x.permission && isOperationAllowed({ ...x.permission, user: props.user }))
     )
 
+    const getLabel = (label: string, shortcutType: string) => {
+      if (shortcutType === 'goto') {
+        return lang('commander.goTo', { destination: label })
+      } else if (shortcutType === 'popup') {
+        return lang('commander.inNewTab', { destination: label })
+      }
+      return label
+    }
+
     const commands: Command[] = allowedShortcuts.map(shortcut => ({
-      name: shortcut.label,
+      name: getLabel(shortcut.label, shortcut.type),
       category: shortcut.category,
       shortcut: shortcut.shortcut,
       command: () => {

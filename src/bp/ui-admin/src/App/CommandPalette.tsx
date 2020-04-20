@@ -25,7 +25,7 @@ const CommandPalette = props => {
 
     for (const bot of props.bots) {
       commands.push({
-        label: lang.tr('commander.switchBot', { name: getBotDisplayName(bot) }),
+        label: lang.tr('commander.viewBot', { name: getBotDisplayName(bot) }),
         category: 'studio',
         type: 'redirect',
         url: window.location.origin + '/studio/' + bot.id
@@ -45,7 +45,7 @@ const CommandPalette = props => {
     }
 
     setCommands(commands)
-  }, [props.workspaces, props.bots, props.contentTypes])
+  }, [props.workspaces, props.bots])
 
   return <Commander parent="admin" history={props.history} user={props.user} shortcuts={commands}></Commander>
 }
