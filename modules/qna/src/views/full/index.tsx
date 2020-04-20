@@ -1,7 +1,8 @@
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useReducer, useState } from 'react'
 
 import style from './style.scss'
+import Question from './Components/Question'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const ITEMS_PER_PAGE = 20
@@ -29,9 +30,13 @@ const fetchReducer = (state: State, action): State => {
   }
 }
 
-const QnA: FC<any> = props => {
+interface Props {
+  bp: any
+}
+
+const QnA: FC<Props> = props => {
   const [currentTab, setCurrentTab] = useState('qna')
-  const [state, dispatch] = React.useReducer(fetchReducer, {
+  const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
     loading: true,
@@ -95,7 +100,7 @@ const QnA: FC<any> = props => {
     <MainContent.Wrapper>
       <MainContent.Header tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
       <div className={style.content}>
-        {!!items.length && state.count}
+        {!!items.length && items.map(item => <Question key={item.id} question={item} />)}
         {!items.length && !loading && <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.emptyState')} />}
       </div>
     </MainContent.Wrapper>

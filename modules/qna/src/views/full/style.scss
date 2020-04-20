@@ -1,4 +1,15 @@
 .content {
   flex-grow: 1;
-  display: flex;
+  margin-top: var(--spacing-xxx-large);
+}
+
+.questionWrapper {
+  background: #fff;
+  border-radius: 5px;
+  display: grid;
+  grid-column-gap: var(--spacing-xx-large);
+  grid-template-columns: 50% 50%;
+  margin-bottom: var(--spacing-large);
+  padding: var(--spacing-large);
+  width: 100%;
 }
