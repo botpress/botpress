@@ -127,24 +127,9 @@ const TopicList: FC<Props> = props => {
       label: (
         <div className={style.treeNode}>
           <span>{folder}</span>
-          <div className={style.overhidden} id="actions">
-            <Tooltip
-              content={<span>{lang.tr('studio.flow.topicList.editTopic')}</span>}
-              hoverOpenDelay={500}
-              position={Position.BOTTOM}
-            >
-              <Button icon="edit" minimal onClick={editTopic} />
-            </Tooltip>
-            <Tooltip
-              content={<span>{lang.tr('studio.flow.topicList.createNewWorkflow')}</span>}
-              hoverOpenDelay={500}
-              position={Position.BOTTOM}
-            >
-              <Button icon="insert" minimal onClick={createWorkflow} />
-            </Tooltip>
-          </div>
         </div>
-      )
+      ),
+      icon: 'none'
     }
   }
 
@@ -332,7 +317,7 @@ const TopicList: FC<Props> = props => {
           </div>
         </div>
       ),
-      icon
+      icon: 'npne'
     }
   }
 

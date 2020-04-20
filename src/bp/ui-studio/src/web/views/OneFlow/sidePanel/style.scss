@@ -11,6 +11,19 @@
     .bp3-tab {
       font-size: 12px !important;
     }
+
+    .bp3-tree-node-list > .bp3-tree-node > .bp3-tree-node-content > .bp3-tree-node-icon {
+      display: none;
+    }
+
+    .bp3-tree-node-list,
+    .bp3-icon {
+      color: #1a1e22;
+    }
+
+    .bp3-elevation-0 {
+      box-shadow: unset !important;
+    }
   }
 }
 
@@ -125,6 +138,7 @@
   height: $height;
   padding: 0px 12px;
   box-shadow: unset;
+  margin-bottom: 10px;
 
   :global {
     .bp3-button {
