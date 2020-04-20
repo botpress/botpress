@@ -2,6 +2,7 @@ import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } f
 import axios from 'axios'
 import { BotConfig } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import { confirmDialog } from 'botpress/shared'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -13,7 +14,6 @@ import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Inte
 import { Item } from '~/components/Shared/Interface/typings'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
-import confirmDialog from '../../../../../ui-shared/src/ConfirmDialog'
 import { ItemList } from '../../components/Shared/Interface'
 
 import style from './style.scss'
