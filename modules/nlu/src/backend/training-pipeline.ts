@@ -420,6 +420,8 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
 const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
+    c: [10],
+    gamma: [0.1],
     kernel: 'LINEAR',
     classifier: 'C_SVC',
     reduce: false
