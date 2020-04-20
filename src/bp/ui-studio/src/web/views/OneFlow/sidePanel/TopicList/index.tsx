@@ -2,6 +2,7 @@ import { AnchorButton, Button, Intent, Menu, MenuDivider, MenuItem, Position, To
 import axios from 'axios'
 import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, lang, TreeView } from 'botpress/shared'
+import classNames from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
@@ -56,7 +57,7 @@ interface NodeData {
   countByTopic?: CountByTopic
 }
 
-type NodeType = 'workflow' | 'folder' | 'topic' | 'qna'
+type NodeType = 'workflow' | 'folder' | 'topic' | 'qna' | 'adder'
 
 interface IFlow {
   name: string
@@ -134,7 +135,7 @@ const TopicList: FC<Props> = props => {
   }
 
   const handleContextMenu = (element: NodeData | string, elementType) => {
-    if (elementType === 'folder') {
+    if (elementType === 'folder' && (element as NodeData).type !== 'adder') {
       const folder = element as string
       return (
         <Menu>
@@ -189,7 +190,7 @@ const TopicList: FC<Props> = props => {
           />
         </Menu>
       )
-    } else {
+    } else if (elementType === 'document') {
       const { name } = element as NodeData
 
       return (
@@ -288,13 +289,16 @@ const TopicList: FC<Props> = props => {
           </span>
         </div>
       ),
-      icon: 'npne'
+      icon: 'none'
     }
   }
 
   const onClick = (el: NodeData | string, type) => {
     if ((el as NodeData)?.type === 'qna') {
       // Return true will mimic preventDefault for TreeView's onClick
+      return true
+    } else if ((el as NodeData)?.type === 'adder') {
+      props.createWorkflow((el as any).topic)
       return true
     }
 
@@ -304,15 +308,16 @@ const TopicList: FC<Props> = props => {
   }
 
   const onDoubleClick = (el: NodeData, type) => {
-    if (el.type === 'qna') {
+    if (el?.type === 'qna') {
       props.editQnA(el.name.replace('/qna', ''))
-    } else if (type === 'document') {
+    } else if (el?.type !== 'adder' && type === 'document') {
       props.editWorkflow(el.name, el)
     }
   }
 
   const postProcessing = tree => {
     tree.forEach(parent => {
+      console.log(parent)
       parent.childNodes?.forEach(node => {
         if (node.id === `${parent.id}/qna`) {
           const wfCount = parent.childNodes?.filter(parentNode => node.id !== parentNode.id).length
@@ -326,6 +331,25 @@ const TopicList: FC<Props> = props => {
           )
         }
       })
+
+      if (parent.id !== 'Built-In') {
+        parent.childNodes?.push({
+          id: 'adder',
+          name: 'adder',
+          label: (
+            <div className={classNames(style.treeNode, style.treeNodeAdder)}>
+              <span>Add Workflow</span>
+            </div>
+          ),
+          parent,
+          icon: 'plus',
+          type: 'adder',
+          nodeData: {
+            type: 'adder',
+            topic: parent.id
+          }
+        })
+      }
     })
 
     return tree

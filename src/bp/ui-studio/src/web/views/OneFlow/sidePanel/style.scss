@@ -12,8 +12,12 @@
       font-size: 12px !important;
     }
 
-    .bp3-tree-node-list > .bp3-tree-node > .bp3-tree-node-content > .bp3-tree-node-icon {
+    .bp3-tree-root > .bp3-tree-node > .bp3-tree-node-content > .bp3-tree-node-icon {
       display: none;
+    }
+
+    .bp3-tree-node-caret-none {
+      min-width: 8px;
     }
 
     .bp3-tree-node-list,
@@ -37,6 +41,10 @@
       display: block;
     }
   }
+}
+
+.treeNodeAdder {
+  color: #3276ea !important;
 }
 
 .overhidden {

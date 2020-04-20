@@ -17,6 +17,7 @@ interface CssExports {
   'topicName': string;
   'topicsNavbar': string;
   'treeNode': string;
+  'treeNodeAdder': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
