@@ -327,7 +327,7 @@ function electIntent(input: PredictStep): PredictStep {
     predictions = _.orderBy(
       [
         ...predictions.filter(p => p.name !== NONE_INTENT),
-        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions.confidence }
+        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions?.confidence ?? 1 }
       ],
       'confidence'
     )
