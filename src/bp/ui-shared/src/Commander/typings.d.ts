@@ -4,7 +4,7 @@ interface GenericShortcut {
   label: string
   category?: 'studio' | 'admin' | 'module' | 'external' | 'command' | string
   shortcut?: string
-  parent?: 'studio' | 'admin'
+  location?: 'studio' | 'admin'
   permission?: RequiredPermission
 }
 
@@ -21,7 +21,7 @@ interface ShortcutExecute extends GenericShortcut {
 export type QuickShortcut = ShortcutRedirect | ShortcutExecute
 
 export type CommanderProps = {
-  parent?: 'studio' | 'admin'
+  location?: 'studio' | 'admin'
   shortcuts: QuickShortcut[]
   history: any
   user: Pick<UserProfile, 'isSuperAdmin' | 'permissions'>

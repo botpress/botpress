@@ -84,7 +84,7 @@ export const getShortcuts = () => {
       category: 'external',
       url: `https://botpress.io/docs/introduction/`
     },
-    ...adminShortcuts.map(x => ({ ...x, category: 'admin', parent: 'admin' as any }))
+    ...adminShortcuts.map(x => ({ ...x, category: 'admin', location: 'admin' as any }))
   ]
 
   return shortcuts

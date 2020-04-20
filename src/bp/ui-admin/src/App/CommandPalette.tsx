@@ -47,7 +47,7 @@ const CommandPalette = props => {
     setCommands(commands)
   }, [props.workspaces, props.bots])
 
-  return <Commander parent="admin" history={props.history} user={props.user} shortcuts={commands}></Commander>
+  return <Commander location="admin" history={props.history} user={props.user} shortcuts={commands} />
 }
 
 const mapStateToProps = state => ({

@@ -47,7 +47,7 @@ const Commander: FC<CommanderProps> = props => {
             })
 
             // Handle admin panel links when on studio or admin
-            if (!shortcut.parent || props.parent === shortcut.parent) {
+            if (!shortcut.location || props.location === shortcut.location) {
               props.history.push(path)
             } else {
               window.location.href = `/admin${path}`

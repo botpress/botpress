@@ -94,7 +94,7 @@ const CommandPalette: FC<Props> = props => {
     setCommands(commands)
   }, [props.modules, props.bots, props.contentTypes])
 
-  return <Commander parent="studio" history={props.history} user={props.user} shortcuts={commands}></Commander>
+  return <Commander location="studio" history={props.history} user={props.user} shortcuts={commands} />
 }
 
 const mapStateToProps = (state: RootReducer) => ({
