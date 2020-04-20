@@ -268,7 +268,7 @@ function electIntent(input: PredictStep): PredictStep {
               ...preds,
               {
                 label: NONE_INTENT,
-                confidence: input.oos_predictions.confidence,
+                confidence: input.oos_predictions?.confidence ?? 1,
                 context: ctx,
                 l0Confidence: ctxConf
               }
