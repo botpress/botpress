@@ -66,7 +66,7 @@ export class DecisionEngine {
           source: content.source,
           details: content.sourceDetails!
         })
-      } else if (action === 'redirect' || action === 'startWorkflow') {
+      } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
         const { flow, node } = data as NDU.FlowRedirect
         const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
 

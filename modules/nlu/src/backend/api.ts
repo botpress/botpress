@@ -196,7 +196,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const { botId } = req.params
     const ghost = bp.ghost.forBot(botId)
     const entities = await getEntities(ghost)
-    res.json(entities)
+
+    res.json(entities.map(x => ({ ...x, label: `${x.type}.${x.name}` })))
   })
 
   router.get('/entities/:entityName', async (req, res) => {
