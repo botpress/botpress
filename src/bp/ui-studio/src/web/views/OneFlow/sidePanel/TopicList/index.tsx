@@ -286,35 +286,6 @@ const TopicList: FC<Props> = props => {
           <span>
             {displayName} {type !== 'qna' ? tooltip : qnaTooltip}
           </span>
-          <div className={style.overhidden} id="actions">
-            {type !== 'qna' && (
-              <Fragment>
-                <Tooltip
-                  content={<span>{lang.tr('studio.flow.topicList.editWorkflow')}</span>}
-                  hoverOpenDelay={500}
-                  position={Position.BOTTOM}
-                >
-                  <Button icon="edit" minimal onClick={editWorkflow} />
-                </Tooltip>
-                <Tooltip
-                  content={<span>{lang.tr('studio.flow.topicList.deleteWorkflow')}</span>}
-                  hoverOpenDelay={500}
-                  position={Position.BOTTOM}
-                >
-                  <AnchorButton icon="trash" minimal onClick={deleteWorkflow} disabled={lockedFlows.includes(name)} />
-                </Tooltip>
-              </Fragment>
-            )}
-            {type === 'qna' && (
-              <Tooltip
-                content={<span>{lang.tr('studio.flow.topicList.editQna')}</span>}
-                hoverOpenDelay={500}
-                position={Position.BOTTOM}
-              >
-                <Button icon="edit" minimal onClick={editQnA} />
-              </Tooltip>
-            )}
-          </div>
         </div>
       ),
       icon: 'npne'
