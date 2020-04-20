@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
+import { Config } from '../config'
+
 import api from './api'
 import { dialogConditions } from './conditions'
 import { registerMiddleware } from './middleware'
@@ -23,7 +25,8 @@ const onServerReady = async (bp: typeof sdk) => {
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   const botConfig = await bp.bots.getBotById(botId)
   if (botConfig.oneflow) {
-    bots[botId] = new UnderstandingEngine(bp, conditions)
+    const config = (await bp.config.getModuleConfigForBot('ndu', botId)) as Config
+    bots[botId] = new UnderstandingEngine(bp, conditions, config)
   }
 }
 

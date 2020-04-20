@@ -6,6 +6,20 @@
       "description": "Un bouton qui déclenche une action, souvent utilisé dans les cartes",
       "title": "Bouton d'action"
     },
+    "card": {
+      "description": "Un message sur carte avec un titre, un sous-titre optionnel, une image des boutons d'action.",
+      "title": "Carte"
+    },
+    "carousel": {
+      "cards": "Carrousel de cartes",
+      "description": "Un carrousel est un trableau de cartes",
+      "title": "Carrousel"
+    },
+    "image": {
+      "description": "Un message qui montre une image avec un titre optionnel",
+      "imageLabel": "Titre (optionnel)",
+      "labelDesc": "Certaines plateformes requièrent de nommer les images."
+    },
     "singleChoice": {
       "choice": "Choix",
       "description": "Suggérer un choix à l'utilisateur avec l'intention de n'en sélectionner qu'un (avec un message optionnel)",
@@ -15,7 +29,8 @@
     },
     "text": {
       "alternatives": "Alternatives (optionnel)",
-      "description": "Un texte régulier"
+      "description": "Un texte régulier",
+      "title": "Texte"
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",

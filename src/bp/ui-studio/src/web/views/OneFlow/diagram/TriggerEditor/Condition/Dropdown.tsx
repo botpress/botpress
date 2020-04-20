@@ -45,7 +45,7 @@ const Dropdown: FC<Props> = props => {
       )
       const elements = path ? _.get(data, path) : data
 
-      setElements(elements.map(x => ({ label: x[labelField], value: x[valueField] })))
+      setElements(elements.map(x => ({ label: x[labelField || 'label'], value: x[valueField || 'value'] })))
     } catch (err) {
       console.error(err)
     }
