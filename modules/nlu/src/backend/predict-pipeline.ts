@@ -197,13 +197,20 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       let preds = await predictor.predict(features)
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
+        const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
+        preds.splice(idxToRemove, 1)
         preds.unshift(exactPred)
       }
 
       if (input.alternateUtterance) {
-        // Do we want exact preds as well ?
         const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
         const alternatePreds = await predictor.predict(alternateFeats)
+        const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.alternateUtterance, ctx)
+        if (exactPred) {
+          const idxToRemove = alternatePreds.findIndex(p => p.label === exactPred.label)
+          alternatePreds.splice(idxToRemove, 1)
+          alternatePreds.unshift(exactPred)
+        }
 
         // we might want to do this in intent election intead or in NDU
         if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > preds[0].confidence) {
