@@ -1,10 +1,7 @@
-import { inject, observer } from 'mobx-react'
-import React, { FC } from 'react'
+import React from 'react'
 import { FormattedMessage } from 'react-intl'
 
-import { RootStore, StoreDef } from '../store'
-
-const Footer: FC<FooterProps> = props => {
+const Footer = props => {
   console.log(props)
   return (
     <span>
@@ -40,8 +37,4 @@ const Footer: FC<FooterProps> = props => {
   )
 }
 
-export default inject(({ store }: { store: RootStore }) => ({
-  intl: store.intl
-}))(observer(Footer))
-
-type FooterProps = Pick<StoreDef, 'intl'>
+export default Footer
