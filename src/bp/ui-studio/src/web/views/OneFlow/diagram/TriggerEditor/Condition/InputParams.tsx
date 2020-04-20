@@ -19,20 +19,18 @@ const InputParams: FC<Props> = props => {
   return (
     <div className={style.inputParamWrapper}>
       {Object.keys(props.condition.params).map(key => {
-        const { defaultValue, label, type, list } = props.condition.params[key]
+        const { defaultValue, label } = props.condition.params[key]
         const value = props.params?.[key]
 
-        if (!value && defaultValue) {
+        if (value === undefined && defaultValue !== undefined) {
           updateParam(key, defaultValue)
         }
 
         return (
           <SingleParam
             key={label}
-            label={label}
+            {...props.condition.params[key]}
             value={value}
-            type={type}
-            list={list}
             updateValue={val => updateParam(key, val)}
           />
         )
