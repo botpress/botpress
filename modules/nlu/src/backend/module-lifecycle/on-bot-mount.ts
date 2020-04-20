@@ -30,7 +30,7 @@ export function getOnBotMount(state: NLUState) {
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
-        if (!state.nluByBot[botId]) {
+        if (!state.nluByBot[botId] || yn(process.env.BP_NLU_DISABLE_TRAINING)) {
           return
         }
 
