@@ -1,4 +1,5 @@
 {
+  "composer.dropdownPlaceholder": "Sélectionnez un choix",
   "composer.placeholder": "Répondre à {name}",
   "composer.message": "Message à envoyer",
   "composer.send": "Envoyer",
