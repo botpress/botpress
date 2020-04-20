@@ -59,6 +59,8 @@ type E1IntentPred = {
 
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
+const OOS_AS_NONE_TRESH = 0.3
+const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 
 async function DetectLanguage(
   input: PredictInput,
@@ -197,13 +199,20 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       let preds = await predictor.predict(features)
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
+        const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
+        preds.splice(idxToRemove, 1)
         preds.unshift(exactPred)
       }
 
       if (input.alternateUtterance) {
-        // Do we want exact preds as well ?
         const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
         const alternatePreds = await predictor.predict(alternateFeats)
+        const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.alternateUtterance, ctx)
+        if (exactPred) {
+          const idxToRemove = alternatePreds.findIndex(p => p.label === exactPred.label)
+          alternatePreds.splice(idxToRemove, 1)
+          alternatePreds.unshift(exactPred)
+        }
 
         // we might want to do this in intent election intead or in NDU
         if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > preds[0].confidence) {
@@ -261,13 +270,12 @@ function electIntent(input: PredictStep): PredictStep {
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
       const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
         .thru(preds => {
-          const { oos_predictions } = input
-          if (oos_predictions && oos_predictions.label === 'out') {
+          if (input.oos_predictions?.confidence > OOS_AS_NONE_TRESH) {
             return [
               ...preds,
               {
                 label: NONE_INTENT,
-                confidence: oos_predictions.confidence,
+                confidence: input.oos_predictions?.confidence ?? 1,
                 context: ctx,
                 l0Confidence: ctxConf
               }
@@ -313,13 +321,13 @@ function electIntent(input: PredictStep): PredictStep {
   const shouldConsiderOOS =
     predictions.length &&
     predictions[0].name !== NONE_INTENT &&
-    predictions[0].confidence < 0.4 &&
-    _.get(input, 'oos_predictions.label') === 'out'
+    predictions[0].confidence < LOW_INTENT_CONFIDENCE_TRESH &&
+    input.oos_predictions?.confidence > OOS_AS_NONE_TRESH
   if (!predictions.length || shouldConsiderOOS) {
     predictions = _.orderBy(
       [
         ...predictions.filter(p => p.name !== NONE_INTENT),
-        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions.confidence }
+        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions?.confidence ?? 1 }
       ],
       'confidence'
     )
@@ -337,14 +345,11 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors, too
   const utt = input.alternateUtterance || input.utterance
   const feats = getUtteranceFeatures(utt)
   const preds = await predictors.oos_classifier.predict(feats)
-  const outConf = _.sumBy(
+  const confidence = _.sumBy(
     preds.filter(p => p.label.startsWith('out')),
     'confidence'
   )
-  const inConf = preds.filter(p => !p.label.startsWith('out'))[0].confidence
-  const confidence = Math.max(outConf, inConf)
-  const label = outConf > inConf ? 'out' : 'in'
-  const oos_predictions = { label, confidence }
+  const oos_predictions = { label: 'out', confidence }
 
   return {
     ...input,
@@ -458,7 +463,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
             confidence: 1 // this will be be computed as
           }
         ],
-        confidence: step.oos_predictions?.label === 'out' ? step.oos_predictions.confidence : 0
+        confidence: step.oos_predictions?.confidence ?? 0
       }
     }
   )
