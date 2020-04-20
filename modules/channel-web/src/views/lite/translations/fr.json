@@ -1,7 +1,9 @@
 {
+  "composer.dropdownPlaceholder": "Sélectionnez un choix",
   "composer.placeholder": "Répondre à {name}",
   "composer.message": "Message à envoyer",
   "composer.send": "Envoyer",
+  "footer.poweredBy": "Propulsé par {link}",
   "header.conversations": "Conversations",
   "header.hideChatWindow": "Cacher la fenêtre de clavardage",
   "conversationList.untitledConversation": "Conversation sans titre",
@@ -17,6 +19,8 @@
   "message.iSaid": "J'ai dit : ",
   "messages.newMessage": "Nouveau message",
   "messages.newMessages": "Nouveaux messages",
+  "messages.readMore": "Afficher la suite",
+  "messages.showLess": "Afficher moins",
   "widget.title": "Fenêtre de clavardage",
   "widget.toggle": "Ouvrir ou fermer la conversation"
 }

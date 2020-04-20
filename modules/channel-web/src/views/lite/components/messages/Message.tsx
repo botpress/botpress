@@ -1,7 +1,7 @@
 import classnames from 'classnames'
 import pick from 'lodash/pick'
 import { inject } from 'mobx-react'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 
 import { RootStore, StoreDef } from '../../store'
 import { Renderer } from '../../typings'
@@ -11,7 +11,8 @@ import { Carousel, FileMessage, LoginPrompt, Text } from './renderer'
 
 class Message extends Component<MessageProps> {
   state = {
-    hasError: false
+    hasError: false,
+    showMore: false
   }
 
   static getDerivedStateFromError(_error) {
@@ -20,12 +21,44 @@ class Message extends Component<MessageProps> {
 
   render_text(textMessage?: string) {
     const { text, markdown } = this.props.payload
+    let message = textMessage || text
+    const maxLength = this.props.payload.trimLength
 
-    if (!textMessage && !text) {
+    if (!message) {
       return null
     }
 
-    return <Text markdown={markdown} text={textMessage || text} escapeHTML={this.props.store.escapeHTML} />
+    if (maxLength && message.length > maxLength) {
+      if (!this.state.showMore) {
+        const newMessage = message.substring(0, maxLength)
+
+        message = `${message.substring(0, maxLength)}${newMessage.substring(-1) !== '.' && '...'}`
+      }
+
+      return (
+        <Fragment>
+          <Text markdown={markdown} text={message} escapeHTML={this.props.store.escapeHTML} />
+          <button
+            type="button"
+            onClick={e => this.setState({ showMore: !this.state.showMore })}
+            className="bpw-message-read-more"
+          >
+            {this.state.showMore &&
+              this.props.store.intl.formatMessage({
+                id: 'messages.showLess',
+                defaultMessage: 'Show Less'
+              })}
+            {!this.state.showMore &&
+              this.props.store.intl.formatMessage({
+                id: 'messages.readMore',
+                defaultMessage: 'Read More'
+              })}
+          </button>
+        </Fragment>
+      )
+    }
+
+    return <Text markdown={markdown} text={message} escapeHTML={this.props.store.escapeHTML} />
   }
 
   render_quick_reply() {

@@ -47,6 +47,19 @@ body {
   background-color: #000000;
 }
 
+.bpw-message-read-more {
+  color: #00f;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 15px;
+  line-height: 23px;
+  margin: 5px 0 0;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+}
+
 .bpw-widget-btn:focus,
 .bpw-widget-btn:hover {
   background-color: #333;
