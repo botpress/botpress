@@ -6,8 +6,7 @@ import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
 import EmptyState from './EmptyState'
 import MainContainer from './MainContainer'
-import Header from './MainContent/Header'
-import MainContentWrapper from './MainContent/Wrapper'
+import MainContent from './MainContent'
 import MarkdownContent from './MarkdownContent'
 import MoreOptions from './MoreOptions'
 import ShortcutLabel from './ShortcutLabel'
@@ -18,7 +17,7 @@ exports.Dialog = { Wrapper, Footer, Body }
 exports.Dropdown = Dropdown
 exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
-exports.MainContent = { Header, Wrapper: MainContentWrapper }
+exports.MainContent = MainContent
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.ShortcutLabel = ShortcutLabel
