@@ -1,8 +1,7 @@
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
 
-const Footer = props => {
-  console.log(props)
+const Footer = () => {
   return (
     <span>
       <div className={'bpw-powered'}>
