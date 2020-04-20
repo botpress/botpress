@@ -265,16 +265,23 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     return checkSlotMatch(nlu, key.split(':')[1], expected)
   }
   if (key === 'context') {
-    if (expected === 'none') {
-      expected = 'oos'
-    }
-    const [received, { confidence }] = _.chain(nlu.predictions)
+    // @ts-ignore
+    const [received, ctxPredObj] = _.chain(nlu.predictions)
       .toPairs()
       .maxBy('1.confidence')
       .value()
 
-    const success = expected === received
-    const conf = Math.round(confidence * 100)
+    let conf = ctxPredObj.confidence
+    let success = expected === received
+
+    if (expected === 'none') {
+      const inConf = ctxPredObj.confidence * ctxPredObj.intents[0].confidence
+      // @ts-ignore
+      const outConf = ctxPredObj.oos
+      success = outConf > inConf
+      conf = success ? outConf : conf
+    }
+
     return {
       success,
       reason: success
@@ -286,11 +293,13 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   }
 
   if (key === 'intent') {
-    const oosConfidence = nlu.predictions.oos.confidence
+    // const oosConfidence = nlu.predictions.oos.confidence
     const highestRankingIntent = _.chain(nlu.predictions)
       .toPairs()
       .flatMap(([ctx, ctxPredObj]) => {
         return ctxPredObj.intents.map(intentPred => {
+          // @ts-ignore
+          const oosConfidence = ctxPredObj.oos
           const oosFactor = ctx === 'oos' ? 1 : 1 - oosConfidence
           return {
             label: intentPred.label,

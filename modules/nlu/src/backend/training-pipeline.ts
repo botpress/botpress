@@ -417,14 +417,17 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
   return slotTagger.serialized
 }
 
-const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
+const TrainOutOfScope = async (
+  input: TrainOutput,
+  tools: Tools,
+  progress: progressCB
+): Promise<_.Dictionary<string>> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10],
     gamma: [0.1],
     kernel: 'LINEAR',
-    classifier: 'C_SVC',
-    reduce: false
+    classifier: 'C_SVC'
   }
 
   const noneUtts = _.chain(input.intents)
@@ -434,22 +437,28 @@ const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progr
 
   if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
     progress()
-    return
+    return {}
   }
 
   const oos_points = featurizeOOSUtterances(noneUtts, tools)
+  const ctxModels: [string, string][] = await Promise.map(input.contexts, async ctx => {
+    const in_scope_points = _.chain(input.intents)
+      .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
+      .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
+      .value()
 
-  const in_scope_points = _.chain(input.intents)
-    .filter(i => i.name !== NONE_INTENT)
-    .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
-    .value()
-
-  const svm = new tools.mlToolkit.SVM.Trainer()
-  const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
-    progress(_.round(p, 2))
+    const svm = new tools.mlToolkit.SVM.Trainer()
+    const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
+      progress(_.round(p, 2))
+    })
+    return [ctx, model] as [string, string]
   })
+
   debugTraining.forBot(input.botId, 'Done training out of scope')
-  return model
+  return ctxModels.reduce((acc, [ctx, model]) => {
+    acc[ctx] = model
+    return acc
+  }, {})
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
@@ -484,6 +493,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
+    const time = process.hrtime()
     let output = await PreprocessInput(input, tools)
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
@@ -500,6 +510,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
+      // @ts-ignore
       oos_model,
       tfidf: output.tfIdf,
       ctx_model,
@@ -510,6 +521,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
 
+    console.log('training completed :::', process.hrtime(time))
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
     if (err instanceof TrainingCanceledError) {

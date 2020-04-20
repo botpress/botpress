@@ -153,7 +153,11 @@ export default class Engine implements NLUEngine {
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
-    const oos_classifier = isPOSAvailable(model.languageCode) ? new tools.mlToolkit.SVM.Predictor(oos_model) : undefined
+    const oos_classifier = _.toPairs(oos_model).reduce(
+      (c, [ctx, mod]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(mod) }),
+      {}
+      // isPOSAvailable(model.languageCode) ? new tools.mlToolkit.SVM.Predictor(oos_model) : undefined
+    )
     const slot_tagger = new SlotTagger(tools.mlToolkit)
     slot_tagger.load(artefacts.slots_model)
 
@@ -162,6 +166,7 @@ export default class Engine implements NLUEngine {
     return {
       ...artefacts,
       ctx_classifier,
+      // @ts-ignore
       oos_classifier,
       intent_classifier_per_ctx,
       slot_tagger,

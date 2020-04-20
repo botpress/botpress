@@ -206,7 +206,10 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
         const alternatePreds = await predictor.predict(alternateFeats)
 
         // we might want to do this in intent election intead or in NDU
-        if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > preds[0].confidence) {
+        if (
+          (alternatePreds && alternatePreds[0]?.confidence) ??
+          0 > preds.filter(p => p.label !== NONE_INTENT)[0].confidence
+        ) {
           // mean
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')
@@ -261,12 +264,12 @@ function electIntent(input: PredictStep): PredictStep {
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
       const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
         .thru(preds => {
-          if (input.oos_predictions?.confidence > 0.3) {
+          if (input.oos_predictions[ctx]?.confidence > 0.65) {
             return [
               ...preds,
               {
                 label: NONE_INTENT,
-                confidence: input.oos_predictions.confidence,
+                confidence: input.oos_predictions[ctx].confidence,
                 context: ctx,
                 l0Confidence: ctxConf
               }
@@ -277,7 +280,7 @@ function electIntent(input: PredictStep): PredictStep {
         })
         .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
         .orderBy('confidence', 'desc')
-        .value()
+        .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
       if (intentPreds[0].confidence === 1 || intentPreds.length === 1) {
         return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
       } // are we sure theres always at least two intents ? otherwise down there it may crash
@@ -313,12 +316,12 @@ function electIntent(input: PredictStep): PredictStep {
     predictions.length &&
     predictions[0].name !== NONE_INTENT &&
     predictions[0].confidence < 0.4 &&
-    input.oos_predictions?.confidence > 0.3
+    input.oos_predictions[ctx]?.confidence > 0.3
   if (!predictions.length || shouldConsiderOOS) {
     predictions = _.orderBy(
       [
         ...predictions.filter(p => p.name !== NONE_INTENT),
-        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions.confidence }
+        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions[ctx].confidence }
       ],
       'confidence'
     )
@@ -329,21 +332,34 @@ function electIntent(input: PredictStep): PredictStep {
   })
 }
 
+// @ts-ignore
 async function predictOutOfScope(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   if (!isPOSAvailable(input.languageCode) || !predictors.oos_classifier) {
     return input
   }
+
+  const oos_predictions = {}
   const utt = input.alternateUtterance || input.utterance
   const feats = getUtteranceFeatures(utt)
-  const preds = await predictors.oos_classifier.predict(feats)
-  const confidence = _.sumBy(
-    preds.filter(p => p.label.startsWith('out')),
-    'confidence'
-  )
-  const oos_predictions = { label: 'out', confidence }
+  for (const ctx of predictors.contexts) {
+    const preds = await predictors.oos_classifier[ctx].predict(feats)
+    const confidence = _.sumBy(
+      preds.filter(p => p.label.startsWith('out')),
+      'confidence'
+    )
+    oos_predictions[ctx] = { label: 'out', confidence }
+  }
+
+  // const preds = await predictors.oos_classifier.predict(feats)
+  // const confidence = _.sumBy(
+  //   preds.filter(p => p.label.startsWith('out')),
+  //   'confidence'
+  // )
+  // const oos_predictions = { label: 'out', confidence }
 
   return {
     ...input,
+    // @ts-ignore
     oos_predictions
   }
 }
@@ -422,6 +438,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         ...preds,
         [label]: {
           confidence: confidence,
+          oos: step.oos_predictions[label].confidence,
           intents: step.intent_predictions.per_ctx[label].map(i => ({
             ...i,
             slots: (step.slot_predictions_per_intent[i.label] || []).reduce((slots, s) => {
@@ -478,7 +495,6 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
   }
 }
 
-// TODO move this in exact match module
 export function findExactIntentForCtx(
   exactMatchIndex: ExactMatchIndex,
   utterance: Utterance,

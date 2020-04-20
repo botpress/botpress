@@ -7,7 +7,7 @@ export default {
   description: `The user's intention is misunderstood`,
   displayOrder: 3,
   evaluate: event => {
-    const oos = _.get(event, `nlu.predictions.oos.confidence`, 0)
+    const oos = _.get(event, `nlu.predictions.oos.confidence`, 0) // TODO check what is up with that
     const highestCtx = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()
       .orderBy(x => x[1].confidence, 'desc')
