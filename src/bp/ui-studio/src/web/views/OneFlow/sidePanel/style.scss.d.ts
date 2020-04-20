@@ -9,10 +9,12 @@ interface CssExports {
   'referencedWorkflows': string;
   'section': string;
   'tabs': string;
+  'tag': string;
   'title': string;
   'toolItem': string;
   'toolPanel': string;
   'topicsNavbar': string;
+  'topicName': string;
   'treeNode': string;
 }
 declare var cssExports: CssExports;
