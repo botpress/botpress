@@ -1,3 +1,5 @@
+@import '../../ui-shared/src/style/variables.scss';
+
 // Top header
 
 $logo-color: #fff;
@@ -11,8 +13,6 @@ $light-background: #f4f4f4;
 $fontFamily: Roboto;
 
 :root {
-  --font-family: Sans-Serif;
-
   --c-neutral--dark-2: #000;
   --c-neutral--dark-1: #4a4a4a;
   --c-neutral: #9b9b9b;
