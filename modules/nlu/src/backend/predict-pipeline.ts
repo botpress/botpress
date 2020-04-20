@@ -59,6 +59,8 @@ type E1IntentPred = {
 
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
+const OOS_AS_NONE_TRESH = 0.3
+const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 
 async function DetectLanguage(
   input: PredictInput,
@@ -261,7 +263,7 @@ function electIntent(input: PredictStep): PredictStep {
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
       const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
         .thru(preds => {
-          if (input.oos_predictions?.confidence > 0.3) {
+          if (input.oos_predictions?.confidence > OOS_AS_NONE_TRESH) {
             return [
               ...preds,
               {
@@ -312,8 +314,8 @@ function electIntent(input: PredictStep): PredictStep {
   const shouldConsiderOOS =
     predictions.length &&
     predictions[0].name !== NONE_INTENT &&
-    predictions[0].confidence < 0.4 &&
-    input.oos_predictions?.confidence > 0.3
+    predictions[0].confidence < LOW_INTENT_CONFIDENCE_TRESH &&
+    input.oos_predictions?.confidence > OOS_AS_NONE_TRESH
   if (!predictions.length || shouldConsiderOOS) {
     predictions = _.orderBy(
       [
