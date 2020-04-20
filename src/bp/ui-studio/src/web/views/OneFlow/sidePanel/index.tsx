@@ -160,10 +160,10 @@ const SidePanelContent: FC<Props> = props => {
             </NavbarGroup>
             {props.permissions.includes('create') && (
               <NavbarGroup align={Alignment.RIGHT}>
-                <Tooltip content={lang.tr('studio.flow.sidePanel.importContent')}>
+                <Tooltip content={lang.tr('studio.flow.sidePanel.importTopic')}>
                   <Button icon="import" onClick={() => setImportModalOpen(true)} />
                 </Tooltip>
-                <Tooltip content={lang.tr('studio.flow.sidePanel.createFlow')}>
+                <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
                   <Button icon="plus" onClick={() => setCreateTopicOpen(true)} />
                 </Tooltip>
               </NavbarGroup>

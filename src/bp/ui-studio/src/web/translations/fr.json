@@ -216,7 +216,9 @@
         "nameInUse": "Nom déjà utilisé",
         "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
         "node": "Noeud",
-        "renameFlow": "Renommer le flow"
+        "renameFlow": "Renommer le flow",
+        "importTopic": "Importer sujet",
+        "addTopic": "Ajouter sujet"
       },
       "skills": {
         "couldNotLoad": "Impossible de charger la vue des compétences",

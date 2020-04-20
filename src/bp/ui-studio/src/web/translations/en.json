@@ -229,7 +229,9 @@
         "nameInUse": "Name already in use",
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
         "node": "Node",
-        "renameFlow": "Rename Flow"
+        "renameFlow": "Rename Flow",
+        "importTopic": "Import Topic",
+        "addTopic": "Add Topic"
       },
       "skills": {
         "couldNotLoad": "Could not load skills view",
