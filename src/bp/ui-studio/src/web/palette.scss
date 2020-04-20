@@ -1,3 +1,5 @@
+@import '../../../ui-shared/src/style/variables.scss';
+
 $background-color: #eee;
 $light-background: #f4f4f4;
 $sidebar-color: #181818;
@@ -38,8 +40,6 @@ $sidebar-primary-color: #58d1b0;
 $fontFamily: Roboto;
 
 :root {
-  --font-family: Sans-Serif;
-
   --c-brand--light-2: #66aee2;
   --c-brand--light-1: #3393d8;
   --c-brand: #0078cf;
