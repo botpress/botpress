@@ -1,0 +1,24 @@
+:root {
+  --font-family: Roboto;
+
+  // Albert variables
+  // We should start using these variables from now on and phase out the rest of this file
+  --white: #ffffff;
+  --seashell: #f5f6f8;
+  --gray: #bec5c9;
+  --reef: #5c7080;
+  --shark: #1a1e22;
+  --overlay: rgba(26, 30, 34, 0.8);
+  --say: #a4ded0;
+  --lighthouse: #f66f48;
+  --hover-lighthouse: #f39c82;
+  --hover-lighthouse-30: #f9ddd5;
+  --ocean: #3276ea;
+  --hover-ocean: #cad7f5;
+
+  --spacing-x-small: 2px;
+  --spacing-small: 4px;
+  --spacing-medium: 8px;
+  --spacing-large: 12px;
+  --spacing-x-large: 16px;
+}
