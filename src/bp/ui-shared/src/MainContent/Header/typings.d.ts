@@ -2,7 +2,7 @@ import { IButtonProps, ITabProps, IconName } from '@blueprintjs/core'
 
 export interface HeaderProps {
   tabs?: ITabProps[]
-  tabChange?: () => void
+  tabChange?: (tab: string) => void
   buttons?: HeaderButtonProps[]
 }
 
