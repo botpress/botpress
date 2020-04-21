@@ -25,7 +25,7 @@ export const Text = injectIntl((props: TextProps) => {
     if (!showMore) {
       const newMessage = text.substring(0, maxLength)
 
-      text = `${text.substring(0, maxLength)}${newMessage.substring(-1) !== '.' && '...'}`
+      text = `${newMessage}${newMessage.substring(-1) !== '.' && '...'}`
     }
   }
 
