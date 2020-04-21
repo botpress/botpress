@@ -59,6 +59,7 @@ export namespace Renderer {
     text: string
     markdown: boolean
     escapeHTML: boolean
+    maxLength?: number
   } & Message
 
   export type QuickReply = {
