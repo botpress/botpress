@@ -17,7 +17,7 @@ export const Text = (props: Renderer.Text) => {
   let text = props.text
   let hasShowMore
 
-  if (maxLength && text.length > maxLength) {
+  if (intl && maxLength && text.length > maxLength) {
     hasShowMore = true
     if (!showMore) {
       const newMessage = text.substring(0, maxLength)
