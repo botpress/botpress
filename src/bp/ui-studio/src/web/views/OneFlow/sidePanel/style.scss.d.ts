@@ -15,6 +15,9 @@ interface CssExports {
   'toolItem': string;
   'toolPanel': string;
   'topicName': string;
+  'topicsEmptyState': string;
+  'topicsEmptyStateBlock': string;
+  'topicsEmptyStateText': string;
   'topicsNavbar': string;
   'treeNode': string;
   'treeNodeAdder': string;

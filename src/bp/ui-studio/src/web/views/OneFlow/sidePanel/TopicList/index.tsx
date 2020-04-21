@@ -1,4 +1,4 @@
-import { AnchorButton, Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
+import { AnchorButton, Button, Icon, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, lang, TreeView } from 'botpress/shared'
@@ -358,19 +358,32 @@ const TopicList: FC<Props> = props => {
 
   const activeFlow = props.currentFlow?.name
   return (
-    <TreeView<NodeData>
-      elements={flows}
-      nodeRenderer={nodeRenderer}
-      folderRenderer={folderRenderer}
-      postProcessing={postProcessing}
-      onContextMenu={handleContextMenu}
-      onClick={onClick}
-      visibleElements={activeFlow && [{ field: 'name', value: activeFlow }]}
-      onDoubleClick={onDoubleClick}
-      filterText={props.filter}
-      pathProps="name"
-      filterProps="name"
-    />
+    <React.Fragment>
+      {console.log(flows)}
+      {flows.length <= 3 && (
+        <div className={style.topicsEmptyState}>
+          <div className={style.topicsEmptyStateBlock}>
+            <Icon icon="folder-open" iconSize={70} />
+            <div className={style.topicsEmptyStateText}>
+              Tap icons in the toolbar to import or add your first topic.
+            </div>
+          </div>
+        </div>
+      )}
+      <TreeView<NodeData>
+        elements={flows}
+        nodeRenderer={nodeRenderer}
+        folderRenderer={folderRenderer}
+        postProcessing={postProcessing}
+        onContextMenu={handleContextMenu}
+        onClick={onClick}
+        visibleElements={activeFlow && [{ field: 'name', value: activeFlow }]}
+        onDoubleClick={onDoubleClick}
+        filterText={props.filter}
+        pathProps="name"
+        filterProps="name"
+      />
+    </React.Fragment>
   )
 }
 

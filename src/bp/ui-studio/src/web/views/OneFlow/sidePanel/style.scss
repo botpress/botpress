@@ -1,6 +1,7 @@
 @import '../../../palette.scss';
 
 .sidePanel {
+  position: relative;
   background-color: #ffffff;
   height: 100%;
   overflow-y: auto;
@@ -56,6 +57,41 @@
       box-shadow: unset !important;
     }
   }
+}
+
+.topicsEmptyState {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+}
+
+.topicsEmptyStateBlock {
+  z-index: 10;
+  text-align: center;
+  left: 0;
+  right: 0;
+  height: 121px;
+  margin: auto;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  :global {
+    .bp3-icon {
+      color: #3276ea;
+      margin: auto;
+    }
+  }
+}
+
+.topicsEmptyStateText {
+  font-size: 12px;
+  color: #1a1e22;
+  margin-top: 8px;
+  margin: 0px 20px;
 }
 
 .treeNode {
