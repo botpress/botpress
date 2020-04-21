@@ -4,7 +4,6 @@
   background-color: #ffffff;
   height: 100%;
   overflow-y: auto;
-  padding-bottom: 20px;
   font-size: 12px !important;
 
   :global {
@@ -14,6 +13,21 @@
 
     .bp3-tree-root > .bp3-tree-node > .bp3-tree-node-content > .bp3-tree-node-icon {
       display: none;
+    }
+
+    .bp3-tree-root > :last-child {
+      margin-top: auto !important;
+    }
+
+    .bp3-tree-root {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      margin-bottom: 0px !important;
+    }
+
+    .bp3-tree {
+      height: calc(100% - 48px);
     }
 
     .bp3-tree-node-caret-none {
