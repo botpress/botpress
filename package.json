@@ -91,6 +91,7 @@
     "yn": "^2.0.0"
   },
   "resolutions": {
+    "socket.io/**/debug": "^3.2.6",
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.12"
   },
