@@ -40,6 +40,7 @@ export class TriggerWidget extends Component<{ node: TriggerNodeModel; diagramEn
 
 export class TriggerNodeModel extends BaseNodeModel {
   public conditions = []
+  public activeWorkflow: boolean
 
   constructor({
     id,
@@ -49,18 +50,20 @@ export class TriggerNodeModel extends BaseNodeModel {
     onEnter = [],
     next = [],
     conditions = [],
+    activeWorkflow = false,
     isStartNode = false,
     isHighlighted = false
   }) {
     super('trigger', id)
-    this.setData({ name, onEnter, next, isStartNode, isHighlighted, conditions })
+    this.setData({ name, onEnter, next, isStartNode, isHighlighted, conditions, activeWorkflow })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
   }
 
-  setData({ conditions = [], ...data }) {
+  setData({ conditions = [], activeWorkflow = false, ...data }) {
     this.conditions = conditions
+    this.activeWorkflow = activeWorkflow
 
     super.setData(data as any)
   }

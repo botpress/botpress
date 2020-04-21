@@ -1,0 +1,15 @@
+@import '../variables.scss';
+
+.emptyState {
+  align-self: center;
+  color: var(--shark);
+  font-size: 12px;
+  line-height: 1.25;
+  margin: 0 auto;
+  max-width: 130px;
+  text-align: center;
+
+  p {
+    margin: var(--spacing-large) 0 0;
+  }
+}

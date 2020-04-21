@@ -8,7 +8,6 @@ import Utterance from './utterance/utterance'
 export type POS_SET = POSClass[]
 const POS1_SET: POS_SET = ['VERB', 'NOUN']
 const POS2_SET: POS_SET = ['DET', 'PROPN', 'PRON', 'ADJ', 'AUX']
-const POS3_SET: POS_SET = ['CONJ', 'CCONJ', 'INTJ', 'SCONJ', 'ADV']
 
 const K_CLUSTERS = 3
 const KMEANS_OPTIONS = {
@@ -29,8 +28,8 @@ function averageByPOS(utt: Utterance, posClasses: POS_SET) {
 export function getUtteranceFeatures(utt: Utterance): number[] {
   const pos1 = averageByPOS(utt, POS1_SET)
   const pos2 = averageByPOS(utt, POS2_SET)
-  const pos3 = averageByPOS(utt, POS3_SET)
-  const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
+  // maybe add % of tokens in vocab as feature
+  const feats = [...pos1, ...pos2, utt.tokens.length]
   return feats
 }
 

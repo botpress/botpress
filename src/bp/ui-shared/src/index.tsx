@@ -1,19 +1,25 @@
 import { lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
 import { keyMap } from './utils/keyboardShortcuts'
+import { Commander } from './Commander'
 import confirmDialog from './ConfirmDialog'
 import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
+import EmptyState from './EmptyState'
 import MainContainer from './MainContainer'
+import MainContent from './MainContent'
 import MarkdownContent from './MarkdownContent'
 import MoreOptions from './MoreOptions'
 import ShortcutLabel from './ShortcutLabel'
-import { toastFailure } from './Toaster'
+import { toast } from './Toaster'
 import TreeView from './TreeView'
 
+exports.Commander = Commander
 exports.Dialog = { Wrapper, Footer, Body }
 exports.Dropdown = Dropdown
+exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
+exports.MainContent = MainContent
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.ShortcutLabel = ShortcutLabel
@@ -27,5 +33,5 @@ exports.lang = {
   getLocale: langLocale,
   getAvailable: langAvaibale
 }
-exports.toastFailure = toastFailure
+exports.toast = toast
 exports.utils = { keyMap, isInputFocused }
