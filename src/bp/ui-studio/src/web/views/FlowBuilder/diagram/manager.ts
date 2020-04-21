@@ -3,6 +3,8 @@ import _ from 'lodash'
 import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
 
+import { SaySomethingNodeModel } from '../../OneFlow/diagram/nodes/SaySomethingNode'
+
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
@@ -11,11 +13,19 @@ import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
 import { FailureNodeModel } from './nodes_v2/FailureNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
-import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
 import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
-const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill', 'conditions']
+const passThroughNodeProps: string[] = [
+  'name',
+  'onEnter',
+  'onReceive',
+  'next',
+  'skill',
+  'conditions',
+  'content',
+  'activeWorkflow'
+]
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something

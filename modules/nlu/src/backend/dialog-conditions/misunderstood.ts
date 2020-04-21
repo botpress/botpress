@@ -6,8 +6,16 @@ export default {
   label: 'Users says something misunderstood (intent)',
   description: `The user's intention is misunderstood`,
   displayOrder: 3,
-  evaluate: event => {
-    const oos = _.get(event, `nlu.predictions.oos.confidence`, 0) // TODO check what is up with that
+  params: {
+    maxConfidence: {
+      label: 'Maximum reachable confidence (%)',
+      type: 'number',
+      defaultValue: 100,
+      required: true
+    }
+  },
+  evaluate: (event, params) => {
+    const oos = _.get(event, `nlu.predictions.oos.confidence`, 0) // TODO check what we do to handle oos by ctx
     const highestCtx = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()
       .orderBy(x => x[1].confidence, 'desc')
@@ -22,6 +30,7 @@ export default {
       .get('confidence', 0)
       .value()
 
-    return Math.max(highest_none, oos)
+    const max = Math.max(highest_none, oos)
+    return params.maxConfidence ? max * (params.maxConfidence / 100) : max
   }
 } as Condition

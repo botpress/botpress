@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
+import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './language/language-identifier'
 import { isPOSAvailable } from './language/pos-tagger'
@@ -59,6 +59,8 @@ type E1IntentPred = {
 
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
+const OOS_AS_NONE_TRESH = 0.3
+const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 
 async function DetectLanguage(
   input: PredictInput,
@@ -129,13 +131,12 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { utterance } = input
-  const sysEntities = (await tools.duckling.extract(utterance.toString(), utterance.languageCode)).map(mapE1toE2Entity)
 
   _.forEach(
     [
-      ...extractListEntities(input.utterance, predictors.list_entities),
+      ...extractListEntities(input.utterance, predictors.list_entities, true),
       ...extractPatternEntities(utterance, predictors.pattern_entities),
-      ...sysEntities
+      ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],
     entityRes => {
       input.utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
@@ -197,13 +198,20 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       let preds = await predictor.predict(features)
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
+        const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
+        preds.splice(idxToRemove, 1)
         preds.unshift(exactPred)
       }
 
       if (input.alternateUtterance) {
-        // Do we want exact preds as well ?
         const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
         const alternatePreds = await predictor.predict(alternateFeats)
+        const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.alternateUtterance, ctx)
+        if (exactPred) {
+          const idxToRemove = alternatePreds.findIndex(p => p.label === exactPred.label)
+          alternatePreds.splice(idxToRemove, 1)
+          alternatePreds.unshift(exactPred)
+        }
 
         // we might want to do this in intent election intead or in NDU
         if (
@@ -269,7 +277,7 @@ function electIntent(input: PredictStep): PredictStep {
               ...preds,
               {
                 label: NONE_INTENT,
-                confidence: input.oos_predictions[ctx].confidence,
+                confidence: input.oos_predictions[ctx]?.confidence ?? 1,
                 context: ctx,
                 l0Confidence: ctxConf
               }
@@ -315,13 +323,13 @@ function electIntent(input: PredictStep): PredictStep {
   const shouldConsiderOOS =
     predictions.length &&
     predictions[0].name !== NONE_INTENT &&
-    predictions[0].confidence < 0.4 &&
-    input.oos_predictions[ctx]?.confidence > 0.3
+    predictions[0].confidence < LOW_INTENT_CONFIDENCE_TRESH &&
+    input.oos_predictions[ctx]?.confidence > OOS_AS_NONE_TRESH
   if (!predictions.length || shouldConsiderOOS) {
     predictions = _.orderBy(
       [
         ...predictions.filter(p => p.name !== NONE_INTENT),
-        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions[ctx].confidence }
+        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions[ctx]?.confidence ?? 1 }
       ],
       'confidence'
     )

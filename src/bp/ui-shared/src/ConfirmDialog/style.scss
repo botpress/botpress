@@ -1,3 +1,31 @@
-.ConfirmDialogContainer > div{
+@import '../variables.scss';
+
+.ConfirmDialogContainer > div {
   z-index: 9999;
+
+  :global {
+    .bp3-button-text {
+      font-size: 12px !important;
+    }
+
+    .bp3-button {
+      box-shadow: unset !important;
+      background-image: unset !important;
+      border-radius: 5px !important;
+    }
+
+    .bp3-button.bp3-intent-warning {
+      background-color: $main-confirm-warning;
+    }
+
+    .bp3-button:not([class*='bp3-intent']) {
+      background-color: white;
+    }
+  }
+}
+
+.icon {
+  float: left !important;
+  margin-right: 16px;
+  color: $main-confirm-warning !important;
 }

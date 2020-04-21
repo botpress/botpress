@@ -261,6 +261,12 @@ class Web extends React.Component<MainProps> {
       <div onFocus={this.handleResetUnreadCount}>
         {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
         {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
+        <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
+          {this.props.intl.formatMessage({
+            id: 'widget.title',
+            defaultMessage: 'Chat window'
+          })}
+        </h1>
         {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )

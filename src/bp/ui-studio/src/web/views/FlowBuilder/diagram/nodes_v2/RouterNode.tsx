@@ -17,14 +17,14 @@ export class RouterWidget extends Component<{ node: RouterNodeModel; diagramEngi
     return (
       <div className={classnames(style.baseNode, style.nodeRouter, { [style.highlightedNode]: node.isHighlighted })}>
         {showHeader({ nodeType: 'Router', nodeName: node.name, isStartNode: node.isStartNode })}
-        <div className={style.content}>
+        <div className={classnames(style.content, style.ports)}>
           {node.next &&
             node.next.map((item, i) => {
               const outputPortName = `out${i}`
               return (
                 <div key={`${i}.${item}`} style={{ display: 'flex', justifyContent: 'space-between', padding: 1 }}>
                   <RoutingItem condition={item} position={i} />
-                  <StandardPortWidget name={outputPortName} node={node} />
+                  <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
                 </div>
               )
             })}

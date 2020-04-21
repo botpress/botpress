@@ -222,7 +222,10 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
   if (key === 'intent') {
     expected = expected.endsWith('none') ? 'none' : expected
     const received = nlu.intent.name
-    const success = expected === received
+    let success = expected === received
+    if (expected.endsWith('disambiguation')) {
+      success = !!nlu.ambiguous
+    }
 
     return {
       success,

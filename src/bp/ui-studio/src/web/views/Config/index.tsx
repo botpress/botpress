@@ -2,6 +2,7 @@ import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } f
 import axios from 'axios'
 import { BotConfig } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import { confirmDialog } from 'botpress/shared'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -13,7 +14,6 @@ import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Inte
 import { Item } from '~/components/Shared/Interface/typings'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
-import confirmDialog from '../../../../../ui-shared/src/ConfirmDialog'
 import { ItemList } from '../../components/Shared/Interface'
 
 import style from './style.scss'
@@ -323,7 +323,7 @@ class ConfigView extends Component<Props, State> {
           <form>
             {this.state.activeTab === 'main' && (
               <div>
-                <h1>{lang.tr('general')}</h1>
+                <h1 className={style.title}>{lang.tr('general')}</h1>
                 <FormGroup label={lang.tr('name')} labelFor="name">
                   <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
                 </FormGroup>

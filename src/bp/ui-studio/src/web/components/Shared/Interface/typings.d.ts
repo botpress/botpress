@@ -14,10 +14,6 @@ declare module 'botpress/ui' {
   export function LeftToolbarButtons(props: ToolbarButtonsProps): JSX.Element
   export function RightToolbarButtons(props: ToolbarButtonsProps): JSX.Element
   export function InfoTooltip(props: InfoTooltipProps): JSX.Element
-  export function BaseDialog(props: BaseDialogProps): JSX.Element
-  export function DialogBody({ children }): JSX.Element
-  export function DialogFooter({ children }): JSX.Element
-
   export const { Item, ItemAction, SectionAction }
 }
 
@@ -184,8 +180,3 @@ export interface ToolbarButtonsProps {
   /** Elements of the button group */
   children?: JSX.Element | JSX.Element[]
 }
-
-export type BaseDialogProps = {
-  onSubmit?: () => void
-  size?: 'sm' | 'md' | 'lg'
-} & Partial<IDialogProps>

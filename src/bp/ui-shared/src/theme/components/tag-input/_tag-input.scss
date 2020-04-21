@@ -1,0 +1,165 @@
+// Copyright 2017 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "../../common/variables";
+@import "../forms/common";
+@import "../tag/common";
+
+$tag-input-padding: ($pt-input-height - $tag-height) / 2 !default;
+
+$tag-input-icon-padding: ($pt-input-height - $pt-icon-size-standard) / 2 !default;
+$tag-input-icon-padding-large: ($pt-input-height-large - $pt-icon-size-large) / 2 !default;
+
+.#{$ns}-tag-input {
+  @include pt-flex-container(row, $fill: ".#{$ns}-tag-input-values");
+  align-items: flex-start;
+  cursor: text;
+  height: auto;
+  min-height: $pt-input-height;
+  padding-right: 0;
+  padding-left: $tag-input-padding;
+  line-height: inherit;
+
+  .#{$ns}-tag-input-icon {
+    // margins to center icon in one-line input
+    margin-top: $tag-input-icon-padding;
+    margin-right: $tag-input-icon-padding;
+    margin-left: $tag-input-icon-padding - $tag-input-padding;
+    color: $pt-icon-color;
+  }
+
+  .#{$ns}-tag-input-values {
+    @include pt-flex-container(row, $tag-input-padding);
+    flex-wrap: wrap;
+    align-items: center;
+    // fill vertical height
+    align-self: stretch;
+    margin-top: $tag-input-padding;
+    margin-right: $tag-input-icon-padding;
+    // allow tags to ellipse and not overflow the container
+    min-width: 0;
+
+    // use the larger, conventional input padding when there are no tags and no left icon present.
+    // see: https://github.com/palantir/blueprint/issues/2872
+    &:first-child .#{$ns}-input-ghost:first-child {
+      // recall that some padding-left is already applied on the root component.
+      padding-left: $input-padding-horizontal - $tag-input-padding;
+    }
+
+    > * {
+      margin-bottom: $tag-input-padding;
+    }
+  }
+
+  .#{$ns}-tag {
+    // NOTE: in order to wrap long words, you must set explicit width on TagInput,
+    // or use .#{$ns}-fill CSS class modifier.
+    overflow-wrap: break-word;
+
+    &.#{$ns}-active {
+      @include focus-outline(0);
+    }
+  }
+
+  .#{$ns}-input-ghost {
+    // input fills remaining line
+    flex: 1 1 auto;
+    // essentially a min-width, cuz flex allows it to grow or shrink:
+    width: $pt-grid-size * 8;
+    line-height: $tag-height;
+
+    &:disabled,
+    &.#{$ns}-disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  .#{$ns}-button,
+  .#{$ns}-spinner {
+    margin: ($pt-input-height - $pt-button-height-small) / 2;
+    margin-left: 0;
+  }
+
+  .#{$ns}-button {
+    @include pt-button-height-small();
+  }
+
+  &.#{$ns}-large {
+    @include pt-flex-margin(row, $tag-input-icon-padding-large);
+    height: auto;
+    min-height: $pt-input-height-large;
+
+    .#{$ns}-tag-input-icon {
+      margin-top: $tag-input-icon-padding-large;
+      margin-left: $tag-input-icon-padding-large - $tag-input-padding;
+    }
+
+    .#{$ns}-input-ghost {
+      line-height: $tag-height-large;
+    }
+
+    .#{$ns}-button {
+      @include pt-button-height-default();
+      margin: ($pt-input-height-large - $pt-button-height) / 2;
+      margin-left: 0;
+    }
+
+    .#{$ns}-spinner {
+      margin: ($pt-input-height-large - $pt-button-height-small) / 2;
+      margin-left: 0;
+    }
+  }
+
+  &.#{$ns}-active {
+    box-shadow: input-transition-shadow($input-shadow-color-focus, true), $input-box-shadow-focus;
+    background-color: $input-background-color;
+
+    @each $intent, $color in $pt-intent-text-colors {
+      &.#{$ns}-intent-#{$intent} {
+        box-shadow: input-transition-shadow($color, true), $input-box-shadow-focus;
+      }
+    }
+  }
+
+  .#{$ns}-dark &,
+  &.#{$ns}-dark {
+    .#{$ns}-tag-input-icon {
+      color: $pt-dark-icon-color;
+    }
+
+    .#{$ns}-input-ghost {
+      @include pt-dark-input-placeholder();
+
+      color: $dark-input-color;
+    }
+
+    &.#{$ns}-active {
+      box-shadow: dark-input-transition-shadow($dark-input-shadow-color-focus, true),
+                  $pt-dark-input-box-shadow;
+      background-color: $dark-input-background-color;
+
+      @each $intent, $color in $pt-intent-text-colors {
+        &.#{$ns}-intent-#{$intent} {
+          box-shadow: input-transition-shadow($color, true), $pt-dark-input-box-shadow;
+        }
+      }
+    }
+  }
+}
+
+// TODO: this is probably a useful modifier that we should pull into core, and use in EditableText
+.#{$ns}-input-ghost {
+  @include pt-input-placeholder();
+
+  // reset browser input styles (we're using an input solely because you can type in it)
+  border: none;
+  box-shadow: none;
+  background: none;
+  padding: 0;
+
+  &:focus {
+    // remove focus state too
+    // stylelint-disable-next-line declaration-no-important
+    outline: none !important;
+  }
+}

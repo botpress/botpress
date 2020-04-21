@@ -4,7 +4,7 @@ import _ from 'lodash'
 import generate from 'nanoid/generate'
 
 import { bots as mountedBots, conditions } from '.'
-import { UnderstandingEngine } from './ndu-engine'
+import { DEFAULT_MIN_CONFIDENCE, UnderstandingEngine } from './ndu-engine'
 
 const prettyId = (length = 10) => generate('1234567890abcdef', length)
 const debug = DEBUG('ndu').sub('migrate')
@@ -35,7 +35,7 @@ const addTriggersToListenNodes = (flow: sdk.Flow, flowPath: string) => {
 }
 
 const addSuccessFailureNodes = (flow: sdk.Flow, flowPath: string, flowUi: FlowNodeView) => {
-  const addNode = (type: string) => {
+  const addNode = (type: sdk.FlowNodeType) => {
     const id = prettyId()
     flow.nodes.push({
       id,
@@ -58,7 +58,7 @@ const addSuccessFailureNodes = (flow: sdk.Flow, flowPath: string, flowUi: FlowNo
     debug(`Add ${type} node to flow ${flowPath}`)
   }
 
-  const nodeTypes = ['success', 'failure']
+  const nodeTypes: sdk.FlowNodeType[] = ['success', 'failure']
   nodeTypes.forEach(type => !flow.nodes.find(x => x.type === type) && addNode(type))
 }
 
@@ -183,7 +183,7 @@ const migrateBot = async (bp: typeof sdk, botId: string) => {
   await bp.config.mergeBotConfig(botId, { oneflow: true })
 
   // Ensure the NDU will process events for that bot
-  mountedBots[botId] = new UnderstandingEngine(bp, conditions)
+  mountedBots[botId] = new UnderstandingEngine(bp, conditions, { minimumConfidence: DEFAULT_MIN_CONFIDENCE })
 }
 
 export default migrateBot

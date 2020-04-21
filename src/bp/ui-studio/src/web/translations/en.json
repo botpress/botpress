@@ -43,27 +43,8 @@
     "public": "Published"
   },
   "statusBar": {
-    "backToAdmin": "Back to admin",
-    "bottomPanel": {
-      "clearHistory": "Clear log history",
-      "closePanel": "Close Panel",
-      "downloadLogs": "Download Logs",
-      "endOfLogs": "End of logs",
-      "scrollToFollow": "Scroll to follow logs"
-    },
     "contentLanguage": "Content Language",
-    "documentationAvailable": "This screen has documentation available.",
-    "emulator": "Emulator",
-    "logsPanel": "Logs Panel",
-    "notifications": "Notifications",
-    "readDoc": "Read Documentation",
-    "showEmulator": "Show Emulator",
-    "switchBot": "Switch Bot",
-    "switchBotWarning": "Switch to another bot. You will leave this interface.",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
-    "toggleGuidedTour": "Toggle Guided Tour",
-    "toggleLogsPanel": "Toggle Logs Panel",
-    "viewNotifications": "View Notifications"
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
   },
   "studio": {
     "content": {
@@ -87,6 +68,7 @@
         "uploadStatus": "Upload status",
         "whatLikeDo": "What would you like to do?"
       },
+      "insertVariable": "Insert Variable",
       "mustBeDefaultLang": "Content element must be created in your default language first.",
       "noContent": "There's no content here.",
       "noContentDefined": "We think you don't have any content types defined.",
@@ -120,7 +102,10 @@
         "backToList": "Back to list",
         "chooseElement": "Choose an element",
         "confirmDeleteCondition": "Are you sure to delete this condition?",
+        "editCondition": "Edit Condition",
         "editTriggers": "Edit Triggers",
+        "listenActiveWorkflow": "Listen in active workflow",
+        "listenActiveWorkflowHelp": "When enabled, this trigger will only be active when the user is in the workflow where it is located.",
         "noResults": "No results.",
         "savedAutomatically": "Changes will be saved automatically",
         "selectCondition": "Select a condition"
@@ -172,10 +157,11 @@
         "missingLink": "Missing Link",
         "noActionsFound": "No actions found on this action server",
         "noDescription": "No description",
+        "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",
         "return": "Return",
-        "saySomething": "💬 Say something",
+        "saySomething": "Say Something",
         "theBotWill": "The bot will",
         "transition": {
           "action": {
@@ -316,6 +302,23 @@
       "config": "Config",
       "content": "Content",
       "flows": "Flows"
+    }
+  },
+  "toolbar": {
+    "emulator": "Emulator",
+    "help": "Help",
+    "logsPanel": "Logs Panel",
+    "readDoc": "Read Documentation",
+    "showEmulator": "Show Emulator",
+    "toggleLogsPanel": "Toggle Logs Panel",
+    "toggleEmulator": "Toggle Emulator",
+    "toggleSidePanel": "Toggle Side Panel",
+    "bottomPanel": {
+      "scrollToFollow": "Scroll to follow logs",
+      "downloadLogs": "Download Logs",
+      "clearHistory": "Clear log history",
+      "closePanel": "Close Panel",
+      "endOfLogs": "End of logs"
     }
   }
 }

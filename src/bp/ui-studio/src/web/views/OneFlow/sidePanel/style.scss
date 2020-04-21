@@ -38,6 +38,20 @@
   }
 }
 
+.topicName {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tag {
+  background: var(--c-neutral--light-2);
+  border-radius: 3px;
+  color: var(--c-background--dark-2);
+  font-size: 8px;
+  padding: 6px 6px 5px;
+}
+
 .toolItem {
   width: 100%;
   margin: 0 3px 3px 0;
