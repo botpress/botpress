@@ -11,6 +11,19 @@
       font-size: 12px !important;
     }
 
+    .bp3-tree-node.bp3-tree-node-selected > .bp3-tree-node-content {
+      color: #1a1e22;
+      background-color: #cad7f5;
+    }
+
+    .bp3-tree-node .bp3-tree-node {
+      margin: 0px 8px;
+
+      .bp3-tree-node-content {
+        border-radius: 5px;
+      }
+    }
+
     .bp3-tree-root > .bp3-tree-node > .bp3-tree-node-content > .bp3-tree-node-icon {
       display: none;
     }
