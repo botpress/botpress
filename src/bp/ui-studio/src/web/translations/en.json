@@ -102,7 +102,10 @@
         "backToList": "Back to list",
         "chooseElement": "Choose an element",
         "confirmDeleteCondition": "Are you sure to delete this condition?",
+        "editCondition": "Edit Condition",
         "editTriggers": "Edit Triggers",
+        "listenActiveWorkflow": "Listen in active workflow",
+        "listenActiveWorkflowHelp": "When enabled, this trigger will only be active when the user is in the workflow where it is located.",
         "noResults": "No results.",
         "savedAutomatically": "Changes will be saved automatically",
         "selectCondition": "Select a condition"

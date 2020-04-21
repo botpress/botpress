@@ -3,36 +3,56 @@ import _ from 'lodash'
 
 import { lang } from '../translations'
 
-export enum Timeout {
-  SHORT = 1000,
-  MEDIUM = 3000,
-  LONG = 5000
-}
-
 export interface ToastOptions {
-  delayed: boolean
-  timeout: Timeout
+  // Delaying to avoid the react lifecycle issue (executing before it is rendered)
+  delayed?: boolean
+  timeout?: 'short' | 'medium' | 'long'
   onDismiss?: (didTimeoutExpire: boolean) => void
 }
 
-export const toastFailure = (
+const success = (
   message: string,
   details?: string,
   options: ToastOptions = {
     delayed: false,
-    timeout: Timeout.MEDIUM
+    timeout: 'short'
+  }
+) => showToast(lang(message, { details }), Intent.SUCCESS, options)
+
+const failure = (
+  message: string,
+  details?: string,
+  options: ToastOptions = {
+    delayed: true,
+    timeout: 'medium'
   }
 ) => {
-  toast(lang(message, { details }), Intent.DANGER, options.timeout, options.onDismiss, options)
+  showToast(lang(message, { details }), Intent.DANGER, options)
 }
 
-const toast = (message, intent, timeout, onDismiss, options?) => {
+const info = (
+  message: string,
+  details?: string,
+  options: ToastOptions = {
+    delayed: false,
+    timeout: 'short'
+  }
+) => showToast(lang(message, { details }), Intent.PRIMARY, options)
+
+const showToast = (message: string, intent, options?: ToastOptions) => {
+  let timeout = 1000
+  if (options?.timeout === 'medium') {
+    timeout = 3000
+  } else if (options?.timeout === 'long') {
+    timeout = 5000
+  }
+
   const showToast = () => {
     Toaster.create({ className: 'recipe-toaster', position: Position.TOP_RIGHT }).show({
       message,
       intent,
       timeout,
-      onDismiss
+      onDismiss: options?.onDismiss
     })
   }
 
@@ -41,6 +61,8 @@ const toast = (message, intent, timeout, onDismiss, options?) => {
   } else {
     setTimeout(() => {
       showToast()
-    }, 500)
+    }, 200)
   }
 }
+
+export const toast = { success, failure, info }

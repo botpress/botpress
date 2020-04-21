@@ -22,7 +22,7 @@ export const Occurrence: FC<Props> = props => {
           </Tag>
         </div>
       }
-      placeholder={lang.tr('module.nlu.entities.synonmymPlaceholder')}
+      placeholder={lang.tr('module.nlu.entities.synonymPlaceholder')}
       rightElement={<Button icon="delete" minimal onClick={props.remove} />}
       onChange={(synonyms: string[]) => props.onChange({ ...props.occurrence, synonyms })}
       values={props.occurrence.synonyms}

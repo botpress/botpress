@@ -74,7 +74,8 @@ class Header extends React.Component<HeaderProps> {
 
   renderResetButton() {
     return (
-      <span
+      <button
+        type="button"
         tabIndex={-1}
         id="btn-reset"
         ref={el => (this.btnEls[0] = el)}
@@ -84,13 +85,14 @@ class Header extends React.Component<HeaderProps> {
         onBlur={this.onBlur}
       >
         <Reload />
-      </span>
+      </button>
     )
   }
 
   renderDownloadButton() {
     return (
-      <span
+      <button
+        type="button"
         tabIndex={-1}
         id="btn-download"
         ref={el => (this.btnEls[1] = el)}
@@ -100,13 +102,14 @@ class Header extends React.Component<HeaderProps> {
         onBlur={this.onBlur}
       >
         <Download />
-      </span>
+      </button>
     )
   }
 
   renderConvoButton() {
     return (
-      <span
+      <button
+        type="button"
         tabIndex={-1}
         id="btn-conversations"
         ref={el => (this.btnEls[2] = el)}
@@ -116,13 +119,14 @@ class Header extends React.Component<HeaderProps> {
         onBlur={this.onBlur}
       >
         <List />
-      </span>
+      </button>
     )
   }
 
   renderBotInfoButton() {
     return (
-      <span
+      <button
+        type="button"
         tabIndex={-1}
         id="btn-botinfo"
         ref={el => (this.btnEls[3] = el)}
@@ -132,15 +136,19 @@ class Header extends React.Component<HeaderProps> {
         onBlur={this.onBlur}
       >
         <Information />
-      </span>
+      </button>
     )
   }
 
   renderCloseButton() {
     return (
-      <span
-        tabIndex={-1}
+      <button
+        type="button"
         id="btn-close"
+        aria-label={this.props.intl.formatMessage({
+          id: 'header.hideChatWindow',
+          defaultMessage: 'Hide the chat window'
+        })}
         ref={el => (this.btnEls[4] = el)}
         className={'bpw-header-icon bpw-header-icon-close'}
         onClick={this.props.hideChat}
@@ -148,7 +156,7 @@ class Header extends React.Component<HeaderProps> {
         onBlur={this.onBlur}
       >
         <Close />
-      </span>
+      </button>
     )
   }
 
@@ -156,7 +164,8 @@ class Header extends React.Component<HeaderProps> {
     return this.props.customButtons.map(btn => {
       const Icon: any = btn.icon
       return (
-        <span
+        <button
+          type="button"
           key={btn.id}
           id={`btn-${btn.id}`}
           tabIndex={-1}
@@ -165,7 +174,7 @@ class Header extends React.Component<HeaderProps> {
           title={btn.label || ''}
         >
           {typeof Icon === 'function' ? <Icon /> : Icon}
-        </span>
+        </button>
       )
     })
   }

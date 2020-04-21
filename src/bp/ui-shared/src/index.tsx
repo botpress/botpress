@@ -11,7 +11,7 @@ import MainContent from './MainContent'
 import MarkdownContent from './MarkdownContent'
 import MoreOptions from './MoreOptions'
 import ShortcutLabel from './ShortcutLabel'
-import { toastFailure } from './Toaster'
+import { toast } from './Toaster'
 import TreeView from './TreeView'
 
 exports.Commander = Commander
@@ -33,5 +33,5 @@ exports.lang = {
   getLocale: langLocale,
   getAvailable: langAvaibale
 }
-exports.toastFailure = toastFailure
+exports.toast = toast
 exports.utils = { keyMap, isInputFocused }
