@@ -27,7 +27,7 @@
     },
     "searchCommand": "Search for a command",
     "switchBot": "Switch to bot: {name}",
-    "switchWorkspace": "Switch to workspace: {name}",
+    "switchWorkspace": "workspace: {name}",
     "toDismiss": "to dismiss",
     "toNavigate": "to navigate",
     "toSelect": "to select",

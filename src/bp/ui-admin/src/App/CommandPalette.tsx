@@ -30,7 +30,7 @@ const CommandPalette = props => {
 
     if (props.workspaces.length > 1) {
       for (const workspace of props.workspaces) {
-        const [, , , urlPage] = props.location.pathname.split('/')
+        const urlPage = props.location.pathname.split('/')[3]
         commands.push({
           label: lang.tr('commander.switchWorkspace', { name: workspace.workspaceName }),
           category: 'admin',

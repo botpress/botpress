@@ -8,7 +8,7 @@ import { lang } from '../translations'
 import { controlKey } from '../utils/keyboardShortcuts'
 import { isOperationAllowed } from '../AccessControl'
 
-import { getShortcuts } from './shortcuts'
+import { getCommonShortcuts } from './shortcuts'
 import style from './style.scss'
 import bpTheme from './theme/bp-theme'
 import './theme/custom.css'
@@ -22,7 +22,7 @@ const Commander: FC<CommanderProps> = props => {
       return
     }
 
-    const allowedShortcuts = [...props.shortcuts, ...getShortcuts()].filter(
+    const allowedShortcuts = [...props.shortcuts, ...getCommonShortcuts()].filter(
       x => !x.permission || (x.permission && isOperationAllowed({ ...x.permission, user: props.user }))
     )
 

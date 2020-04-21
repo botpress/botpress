@@ -2,7 +2,7 @@ import { lang } from '../translations'
 
 import { QuickShortcut } from './typings'
 
-export const getShortcuts = () => {
+export const getCommonShortcuts = () => {
   const adminShortcuts: QuickShortcut[] = [
     {
       label: `${lang('sideMenu.workspace')} - ${lang('sideMenu.bots')}`,
