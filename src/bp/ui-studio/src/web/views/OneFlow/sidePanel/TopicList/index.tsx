@@ -2,7 +2,7 @@ import { AnchorButton, Button, Intent, Menu, MenuDivider, MenuItem, Position, To
 import axios from 'axios'
 import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, lang, TreeView } from 'botpress/shared'
-import classNames from 'classnames'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
@@ -52,12 +52,13 @@ interface NodeData {
   id?: any
   icon?: string
   triggerCount?: number
+  topic?: string
   /** List of workflows which have a reference to it */
   referencedIn?: string[]
   countByTopic?: CountByTopic
 }
 
-type NodeType = 'workflow' | 'folder' | 'topic' | 'qna' | 'adder'
+type NodeType = 'workflow' | 'folder' | 'topic' | 'qna' | 'addWorkflow'
 
 interface IFlow {
   name: string
@@ -135,7 +136,7 @@ const TopicList: FC<Props> = props => {
   }
 
   const handleContextMenu = (element: NodeData | string, elementType) => {
-    if (elementType === 'folder' && (element as NodeData).type !== 'adder') {
+    if (elementType === 'folder' && (element as NodeData).type !== 'addWorkflow') {
       const folder = element as string
       return (
         <Menu>
@@ -294,11 +295,12 @@ const TopicList: FC<Props> = props => {
   }
 
   const onClick = (el: NodeData | string, type) => {
-    if ((el as NodeData)?.type === 'qna') {
+    const nodeData = el as NodeData
+    if (nodeData?.type === 'qna') {
       // Return true will mimic preventDefault for TreeView's onClick
       return true
-    } else if ((el as NodeData)?.type === 'adder') {
-      props.createWorkflow((el as any).topic)
+    } else if (nodeData?.type === 'addWorkflow') {
+      props.createWorkflow(nodeData.topic)
       return true
     }
 
@@ -310,7 +312,7 @@ const TopicList: FC<Props> = props => {
   const onDoubleClick = (el: NodeData, type) => {
     if (el?.type === 'qna') {
       props.editQnA(el.name.replace('/qna', ''))
-    } else if (el?.type !== 'adder' && type === 'document') {
+    } else if (el?.type !== 'addWorkflow' && type === 'document') {
       props.editWorkflow(el.name, el)
     }
   }
@@ -333,18 +335,18 @@ const TopicList: FC<Props> = props => {
 
       if (parent.id !== 'Built-In') {
         parent.childNodes?.push({
-          id: 'adder',
-          name: 'adder',
+          id: 'addWorkflow',
+          name: 'addWorkflow',
           label: (
-            <div className={classNames(style.treeNode, style.treeNodeAdder)}>
+            <div className={cx(style.treeNode, style.treeNodeAdder)}>
               <span>Add Workflow</span>
             </div>
           ),
           parent,
           icon: 'plus',
-          type: 'adder',
+          type: 'addWorkflow',
           nodeData: {
-            type: 'adder',
+            type: 'addWorkflow',
             topic: parent.id
           }
         })
