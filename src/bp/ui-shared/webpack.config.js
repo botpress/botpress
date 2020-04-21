@@ -20,7 +20,7 @@ const config = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.css'],
     alias: {
-      'common/typings': path.resolve(__dirname, '../../../out/bp/common/typings.d.ts')
+      common: path.resolve(__dirname, '../../../out/bp/common')
     }
   },
   externals: {

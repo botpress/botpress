@@ -1,6 +1,5 @@
+import { checkRule } from 'common/auth'
 import { UserProfile } from 'common/typings'
-
-import { checkRule } from './auth'
 
 export interface RequiredPermission {
   /** The resource to check permissions. Ex: module.qna */

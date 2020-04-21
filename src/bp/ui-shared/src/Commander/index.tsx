@@ -78,7 +78,7 @@ const Commander: FC<CommanderProps> = props => {
   const options = {
     key: 'name',
     keys: ['name'],
-    limit: 50,
+    limit: 100,
     allowTypo: true
   }
 
@@ -117,7 +117,7 @@ const Commander: FC<CommanderProps> = props => {
   return (
     <CommandPalette
       hotKeys={`${controlKey}+shift+p`}
-      maxDisplayed={15}
+      maxDisplayed={100}
       commands={commands}
       trigger={<span />}
       placeholder={lang('commander.typeCommand')}
