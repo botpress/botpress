@@ -59,6 +59,7 @@ export namespace Renderer {
     text: string
     markdown: boolean
     escapeHTML: boolean
+    intl?: any
     maxLength?: number
   } & Message
 

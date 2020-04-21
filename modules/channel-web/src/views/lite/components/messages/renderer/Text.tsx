@@ -1,11 +1,8 @@
 import React, { useState } from 'react'
-import { InjectedIntlProps, injectIntl } from 'react-intl'
 import Linkify from 'react-linkify'
 
 import { Renderer } from '../../../typings'
 import { renderUnsafeHTML } from '../../../utils'
-
-type TextProps = Renderer.Text & InjectedIntlProps
 
 /**
  * A simple text element with optional markdown
@@ -14,7 +11,7 @@ type TextProps = Renderer.Text & InjectedIntlProps
  * @param {boolean} escapeHTML Prevent unsafe HTML rendering when markdown is enabled
  * @param {number} maxLength Enables show more button when text overflows limit
  */
-export const Text = injectIntl((props: TextProps) => {
+export const Text = (props: Renderer.Text) => {
   const [showMore, setShowMore] = useState(false)
   const { maxLength, markdown, escapeHTML, intl } = props
   let text = props.text
@@ -56,6 +53,6 @@ export const Text = injectIntl((props: TextProps) => {
       )}
     </Linkify>
   )
-})
+}
 
 export default Text
