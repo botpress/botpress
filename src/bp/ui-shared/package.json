@@ -17,7 +17,6 @@
     "@blueprintjs/select": "^3.12.0",
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
-    "snarkdown": "^1.2.2",
     "react-hotkeys": "^1.1.4",
     "cross-env": "^5.2.0",
     "css-loader": "^0.28.11",
@@ -32,6 +31,7 @@
     "react-intl": "^3.12.1",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
+    "snarkdown": "^1.2.2",
     "style-loader": "^0.13.1",
     "terser-webpack-plugin": "^2.2.2",
     "ts-loader": "^6.0.2",
@@ -42,5 +42,8 @@
   "files": [
     "dist"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "react-router": "4.3.1",
+    "react-command-palette": "^0.12.0-0"
+  }
 }

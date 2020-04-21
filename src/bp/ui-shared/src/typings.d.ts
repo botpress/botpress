@@ -2,11 +2,13 @@ import React from 'react'
 import { TreeViewProps } from './TreeView/typings'
 import { DialogProps } from './Dialog/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
+import { CommanderProps, QuickShortcut } from './Commander/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { MainContainerProps } from './MainContainer/typings'
 import { MarkdownContentProps } from './MarkdownContent/typings'
 import { MoreOptionsProps } from './MoreOptions/typings'
 import { TreeViewProps } from './TreeView/typings'
+
 import { ToastOptions } from './Toaster'
 import { ShortcutLabelProps } from './ShortcutLabel/typings'
 import { HeaderProps, HeaderButtonProps } from './MainContent/Header/typings'
@@ -14,13 +16,14 @@ import { WrapperProps } from './MainContent/Wrapper/typings'
 import { EmptyStateProps } from './EmptyState/typings'
 
 declare module 'botpress/shared' {
+  export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
     Wrapper(props: DialogProps): JSX.Element
     Body(props: { children: any }): JSX.Element
     Footer(props: { children: any }): JSX.Element
   }
   export const MainContent: {
-    Header(props: HeaderProps): JSX.Element,
+    Header(props: HeaderProps): JSX.Element
     Wrapper(props: WrapperProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
@@ -41,8 +44,8 @@ declare module 'botpress/shared' {
   }
   export function toastFailure(message: string, details?: string, options?: ToastOptions)
   export const utils: {
-    keyMap: {[key: string]: string}
+    keyMap: { [key: string]: string }
     isInputFocused(): boolean
   }
-  export { Option, MoreOptionsItems, HeaderButtonProps }
+  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut }
 }

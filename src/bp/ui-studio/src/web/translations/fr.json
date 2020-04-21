@@ -294,7 +294,9 @@
     "logsPanel": "Panneau de journalisation",
     "readDoc": "Lire la documentation",
     "showEmulator": "Afficher l'émulateur",
-    "toggleLogsPanel": "Basculer le panneau",
+    "toggleLogsPanel": "Basculer le panneau de journalisation",
+    "toggleEmulator": "Basculer l'émulateur",
+    "toggleSidePanel": "Basculer le panneau latéral",
     "bottomPanel": {
       "scrollToFollow": "Suivre les journaux",
       "downloadLogs": "Télécharger",
