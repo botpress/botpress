@@ -12,6 +12,8 @@ import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
+import { filter } from 'bluebird'
+import { label } from 'joi'
 
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
@@ -130,7 +132,7 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 }
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  const { utterance } = input
+  const { utterance, alternateUtterance } = input
 
   _.forEach(
     [
@@ -142,6 +144,19 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
       input.utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
     }
   )
+
+  if (alternateUtterance) {
+    _.forEach(
+      [
+        ...extractListEntities(alternateUtterance, predictors.list_entities),
+        ...extractPatternEntities(alternateUtterance, predictors.pattern_entities),
+        ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
+      ],
+      entityRes => {
+        input.alternateUtterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+      }
+    )
+  }
 
   return { ...input }
 }
@@ -214,10 +229,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
         }
 
         // we might want to do this in intent election intead or in NDU
-        if (
-          (alternatePreds && alternatePreds[0]?.confidence) ??
-          0 > preds.filter(p => p.label !== NONE_INTENT)[0].confidence
-        ) {
+        if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 >= preds.filter(p => p.label !== NONE_INTENT)[0].confidence) {
           // mean
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')
