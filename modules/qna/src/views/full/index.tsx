@@ -1,4 +1,5 @@
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC, useEffect, useReducer, useState } from 'react'
 
 import style from './style.scss'
@@ -25,6 +26,28 @@ const fetchReducer = (state: State, action): State => {
       loading: false,
       page
     }
+  } else if (action.type === 'updateQnA') {
+    const { data, index } = action.data
+    const newItems = state.items
+
+    newItems[index] = { ...newItems[index], data }
+
+    return {
+      ...state,
+      items: newItems
+    }
+  } else if (action.type === 'deleteQnA') {
+    const { index } = action.data
+    const newItems = state.items
+
+    console.log(index)
+
+    newItems.splice(index, 1)
+
+    return {
+      ...state,
+      items: newItems
+    }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
@@ -36,12 +59,14 @@ interface Props {
 
 const QnA: FC<Props> = props => {
   const [currentTab, setCurrentTab] = useState('qna')
+  const [currentLang, setCurrentLang] = useState('fr')
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
     loading: true,
     page: 1
   })
+  const { items, loading } = state
 
   useEffect(() => {
     fetchData()
@@ -63,22 +88,35 @@ const QnA: FC<Props> = props => {
   const buttons: HeaderButtonProps[] = [
     {
       icon: 'translate',
-      disabled: true,
-      onClick: () => {}
+      optionsItems: [
+        {
+          label: 'FR',
+          action: () => {
+            setCurrentLang('fr')
+          }
+        },
+        {
+          label: 'EN',
+          action: () => {
+            setCurrentLang('en')
+          }
+        }
+      ],
+      disabled: !items.length
     },
     {
       icon: 'filter',
-      disabled: true,
+      disabled: !items.length,
       onClick: () => {}
     },
     {
       icon: 'sort',
-      disabled: true,
+      disabled: !items.length,
       onClick: () => {}
     },
     {
       icon: 'collapse-all',
-      disabled: true,
+      disabled: !items.length,
       onClick: () => {}
     },
     {
@@ -94,14 +132,23 @@ const QnA: FC<Props> = props => {
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
   }
 
-  const { items, loading } = state
-
   return (
     <MainContent.Wrapper>
       <MainContent.Header tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
-      <div className={style.content}>
-        {!!items.length && items.map(item => <Question key={item.id} question={item} />)}
-        {!items.length && !loading && <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.emptyState')} />}
+      <div className={cx(style.content, { [style.empty]: !items.length })}>
+        {!!items.length &&
+          items.map((item, index) => (
+            <Question
+              updateQnA={data => dispatch({ type: 'updateQnA', data: { data, index } })}
+              key={item.id}
+              deleteQuestion={() => dispatch({ type: 'deleteQnA', data: { index } })}
+              contentLang={currentLang}
+              question={item}
+            />
+          ))}
+        {!items.length && !loading && (
+          <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.form.emptyState')} />
+        )}
       </div>
     </MainContent.Wrapper>
   )

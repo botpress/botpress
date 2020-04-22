@@ -27,8 +27,16 @@
     "redirectToFlow": "Redirect to flow",
     "typePressAddAnswer": "Type and press enter to add an answer. Use ALT+Enter for a new line"
   },
-  "emptyState": "Tap + in the toolbar to add your first question.",
   "exportToJson": "Export to JSON",
+  "form": {
+    "addAnswerAlternative": "Add Answer Alternatives",
+    "addContent": "Add Content",
+    "addQuestionAlternative": "Add Question Alternatives",
+    "deleteQuestion": "Delete Question",
+    "disableQuestion": "Disable Question",
+    "emptyState": "Tap + in the toolbar to add your first question.",
+    "enableQuestion": "Enable Question"
+  },
   "fullName": "Q&A",
   "hint": {
     "addMoreQuestions": "Add {moreQuestions} to make your Q&A more resilient.",

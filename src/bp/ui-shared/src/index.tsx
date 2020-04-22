@@ -10,6 +10,7 @@ import MainContent from './MainContent'
 import MarkdownContent from './MarkdownContent'
 import MoreOptions from './MoreOptions'
 import ShortcutLabel from './ShortcutLabel'
+import Textarea from './Textarea'
 import { toastFailure } from './Toaster'
 import TreeView from './TreeView'
 
@@ -21,6 +22,7 @@ exports.MainContent = MainContent
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.ShortcutLabel = ShortcutLabel
+exports.Textarea = Textarea
 exports.TreeView = TreeView
 
 exports.confirmDialog = confirmDialog

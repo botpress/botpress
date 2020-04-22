@@ -8,6 +8,10 @@
     margin-top: 5px;
   }
 
+  .btnWrapper {
+    position: relative;
+  }
+
   :global(.bp3-tab) {
     text-transform: uppercase;
     font-weight: bold;

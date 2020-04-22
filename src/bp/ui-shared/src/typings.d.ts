@@ -12,6 +12,7 @@ import { ShortcutLabelProps } from './ShortcutLabel/typings'
 import { HeaderProps, HeaderButtonProps } from './MainContent/Header/typings'
 import { WrapperProps } from './MainContent/Wrapper/typings'
 import { EmptyStateProps } from './EmptyState/typings'
+import { TextareaProps } from './Textarea/typings'
 
 declare module 'botpress/shared' {
   export const Dialog: {
@@ -29,6 +30,7 @@ declare module 'botpress/shared' {
   export function MarkdownContent(props: MarkdownContentProps): JSX.Element
   export function MoreOptions(props: MoreOptionsProps): JSX.Element
   export function ShortcutLabel(props: ShortcutLabelProps): JSX.Element
+  export function Textarea<T>(props: TextareaProps<T>): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
 
   export function confirmDialog(message: string | JSX.Element, options: ConfirmDialogOptions): Promise<boolean>

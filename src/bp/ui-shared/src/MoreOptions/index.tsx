@@ -6,17 +6,31 @@ import style from './style.scss'
 import { MoreOptionsProps } from './typings'
 
 const MoreOptions: FC<MoreOptionsProps> = props => {
-  const { show, onToggle, items } = props
+  const { show, onToggle, items, element } = props
+
+  const handleToggle = e => {
+    e.stopPropagation()
+    onToggle(!show)
+  }
+
+  const onAction = (e, action) => {
+    e.stopPropagation()
+    action()
+  }
 
   return (
     <Fragment>
-      <button onClick={() => onToggle(!show)} type="button" className={cx(style.moreBtn, { [style.active]: show })}>
-        <span className={style.moreBtnDots}></span>
-      </button>
+      {!element && (
+        <button onClick={handleToggle} type="button" className={cx(style.moreBtn, { [style.active]: show })}>
+          <span className={style.moreBtnDots}></span>
+        </button>
+      )}
+      {element}
       {show && (
         <ul className={style.moreMenu}>
           {items.map((item, index) => {
             const { action, icon, label, type } = item
+
             return (
               <li key={index}>
                 {action && (
@@ -24,7 +38,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
                     icon={icon}
                     minimal
                     className={cx(style.moreMenuItem, { [style.delete]: type === 'delete' })}
-                    onClick={action}
+                    onClick={e => onAction(e, action)}
                   >
                     {label}
                   </Button>
@@ -40,7 +54,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
           })}
         </ul>
       )}
-      {show && <div className={style.overlay} onClick={() => onToggle(false)}></div>}
+      {show && <div className={style.overlay} onClick={handleToggle}></div>}
     </Fragment>
   )
 }

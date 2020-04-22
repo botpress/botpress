@@ -4,6 +4,7 @@ export interface MoreOptionsProps {
   show: boolean
   onToggle: (value: boolean) => void
   children?: any
+  element?: JSX.Element
   items: MoreOptionsItems[]
 }
 
