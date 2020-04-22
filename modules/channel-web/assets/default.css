@@ -315,6 +315,13 @@ body {
   justify-content: flex-end;
 }
 
+.bpw-message-feedback button {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+}
+
 .bpw-message-feedback i {
   cursor: pointer;
   height: 16px;
