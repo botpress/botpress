@@ -7,12 +7,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - name: Install Dependencies
+      - name: Docker build and push
         uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: botpress/botpress
+          repository: botpress/botpress/test
           tag_with_ref: true
           tag_with_sha: true
