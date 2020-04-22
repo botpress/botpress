@@ -130,7 +130,7 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 }
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  const { utterance } = input
+  const { utterance, alternateUtterance } = input
   const sysEntities = (await tools.duckling.extract(utterance.toString(), utterance.languageCode)).map(mapE1toE2Entity)
 
   _.forEach(
@@ -143,6 +143,23 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
       input.utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
     }
   )
+
+  if (alternateUtterance) {
+    const sysEntities = (await tools.duckling.extract(alternateUtterance.toString(), utterance.languageCode)).map(
+      mapE1toE2Entity
+    )
+
+    _.forEach(
+      [
+        ...extractListEntities(alternateUtterance, predictors.list_entities),
+        ...extractPatternEntities(alternateUtterance, predictors.pattern_entities),
+        ...sysEntities
+      ],
+      entityRes => {
+        input.alternateUtterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+      }
+    )
+  }
 
   return { ...input }
 }
@@ -215,7 +232,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
         }
 
         // we might want to do this in intent election intead or in NDU
-        if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > preds[0].confidence) {
+        if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 >= preds[0].confidence) {
           // mean
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')
