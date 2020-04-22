@@ -1,7 +1,9 @@
 {
+  "composer.dropdownPlaceholder": "Select a choice",
   "composer.placeholder": "Reply to {name}",
   "composer.message": "Message to send",
   "composer.send": "Send",
+  "footer.poweredBy": "We're {icon} by {link}",
   "header.conversations": "Conversations",
   "header.hideChatWindow": "Hide the chat window",
   "conversationList.untitledConversation": "Untitled Conversation",
@@ -22,6 +24,10 @@
   "message.iSaid": "I said : ",
   "messages.newMessage": "New message",
   "messages.newMessages": "New messages",
+  "messages.readMore": "Read More",
+  "messages.showLess": "Show Less",
+  "message.thumbsUp": "Thumbs Up",
+  "message.thumbsDown": "Thumbs Down",
   "widget.title": "Chat window",
   "widget.toggle": "Toggle chatbot window"
 }

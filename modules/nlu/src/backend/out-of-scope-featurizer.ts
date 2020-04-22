@@ -30,6 +30,7 @@ export function getUtteranceFeatures(utt: Utterance): number[] {
   const pos1 = averageByPOS(utt, POS1_SET)
   const pos2 = averageByPOS(utt, POS2_SET)
   const pos3 = averageByPOS(utt, POS3_SET)
+  // maybe add % of tokens in vocab as feature
   const feats = [...pos1, ...pos2, ...pos3, utt.tokens.length]
   return feats
 }
