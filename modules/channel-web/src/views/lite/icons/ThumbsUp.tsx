@@ -3,7 +3,7 @@ import React from 'react'
 export default () => (
   <i>
     <svg version="1.1" width="16" height="16" viewBox="0 0 16 16">
-      <g id="thumbs_down">
+      <g id="thumbs_up">
         <g>
           <path
             d="M15.99,9.62c-0.08-0.58-0.73-0.96-1.43-1.05c-0.15-0.02-0.32-0.04-0.49-0.05

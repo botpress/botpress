@@ -9,9 +9,10 @@ interface Props {
   onFeedback: (feedback: number, eventId: string) => void
   incomingEventId: string
   eventFeedbacks: EventFeedback[]
+  intl: any
 }
 
-export const InlineFeedback: FC<Props> = ({ eventFeedbacks, incomingEventId, onFeedback }) => {
+export const InlineFeedback: FC<Props> = ({ eventFeedbacks, incomingEventId, onFeedback, intl }) => {
   const [feedbackSent, setFeedbackSent] = useState(false)
 
   useEffect(() => {
@@ -32,13 +33,27 @@ export const InlineFeedback: FC<Props> = ({ eventFeedbacks, incomingEventId, onF
   return (
     <div className="bpw-message-feedback">
       <div>
-        <span onClick={() => handleSendFeedback(1)}>
+        <button
+          type="button"
+          aria-label={intl.formatMessage({
+            id: 'message.thumbsUp',
+            defaultMessage: 'Thumbs Up'
+          })}
+          onClick={() => handleSendFeedback(1)}
+        >
           <ThumbsUp />
-        </span>
+        </button>
 
-        <span onClick={() => handleSendFeedback(-1)}>
+        <button
+          type="button"
+          aria-label={intl.formatMessage({
+            id: 'message.thumbsDown',
+            defaultMessage: 'Thumbs Down'
+          })}
+          onClick={() => handleSendFeedback(-1)}
+        >
           <ThumbsDown />
-        </span>
+        </button>
       </div>
     </div>
   )
