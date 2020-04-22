@@ -1,0 +1,18 @@
+name: Docker
+on: [pull_request]
+jobs:
+  build_and_push:
+    name: Build and push Docker image to GitHub Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Install Dependencies
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: botpress/botpress
+          tag_with_ref: true
+          tag_with_sha: true
