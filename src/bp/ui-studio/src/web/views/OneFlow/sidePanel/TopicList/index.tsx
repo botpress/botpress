@@ -339,7 +339,7 @@ const TopicList: FC<Props> = props => {
           name: 'addWorkflow',
           label: (
             <div className={cx(style.treeNode, style.treeNodeAdder)}>
-              <span>Add Workflow</span>
+              <span>{lang.tr('studio.flow.sidePanel.addWorkflow')}</span>
             </div>
           ),
           parent,
@@ -364,9 +364,7 @@ const TopicList: FC<Props> = props => {
         <div className={style.topicsEmptyState}>
           <div className={style.topicsEmptyStateBlock}>
             <Icon icon="folder-open" iconSize={70} />
-            <div className={style.topicsEmptyStateText}>
-              Tap icons in the toolbar to import or add your first topic.
-            </div>
+            <div className={style.topicsEmptyStateText}>{lang.tr('studio.flow.sidePanel.tapIconsToAdd')}</div>
           </div>
         </div>
       )}
