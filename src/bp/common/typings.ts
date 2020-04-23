@@ -194,6 +194,7 @@ export interface ModuleInfo {
   /** The complete location of the module */
   fullPath: string
   enabled: boolean
+  status?: 'stable' | 'experimental'
 }
 
 export interface LibraryElement {

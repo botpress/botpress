@@ -1,7 +1,9 @@
 {
   "name": "channel-slack",
+  "fullName": "Channel - Slack",
   "version": "1.0.0",
-  "description": "",
+  "status": "stable",
+  "description": "A Botpress connector for Slack",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",

@@ -47,6 +47,12 @@ export const getCommonShortcuts = () => {
       permission: { superAdmin: true }
     },
     {
+      label: `${lang('sideMenu.management')} - ${lang('sideMenu.modules')}`,
+      type: 'goto',
+      url: '/modules',
+      permission: { superAdmin: true }
+    },
+    {
       label: `${lang('sideMenu.management')} - ${lang('sideMenu.productionChecklist')}`,
       type: 'goto',
       url: '/checklist',
