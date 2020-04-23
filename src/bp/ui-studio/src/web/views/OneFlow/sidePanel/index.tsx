@@ -1,9 +1,11 @@
 import { Alignment, Button, Icon, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import axios from 'axios'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import {
+  createFlow,
   deleteFlow,
   duplicateFlow,
   fetchFlows,
@@ -31,6 +33,7 @@ import TopicList, { CountByTopic } from './TopicList'
 import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 import WorkflowEditor from './WorkflowEditor'
 import { exportCompleteWorkflow } from './WorkflowEditor/export'
+import { buildFlowName } from './WorkflowEditor/utils'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -103,9 +106,31 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const createWorkflow = (topicName: string) => {
-    setSelectedTopic(topicName)
-    setSelectedWorkflow('')
-    setEditWorkflowModalOpen(true)
+    const originalName = 'New Workflow'
+    let name = originalName
+    let fullName = buildFlowName({ topic: topicName, workflow: name }, true)
+    let index = 0
+    while (props.flows.find(f => f.name === fullName)) {
+      index++
+      name = `${originalName} (${index})`
+      fullName = buildFlowName({ topic: topicName, workflow: name }, true)
+    }
+
+    props.createFlow(fullName)
+  }
+
+  const createTopic = async () => {
+    const originalName = 'New Topic'
+    let name = originalName
+    let index = 0
+    while (props.topics.find(t => t.name === name)) {
+      index++
+      name = `${originalName} (${index})`
+    }
+
+    console.log(name)
+    await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })
+    props.fetchTopics()
   }
 
   const downloadTextFile = (text, fileName) => {
@@ -165,7 +190,7 @@ const SidePanelContent: FC<Props> = props => {
                   <Button icon="import" onClick={() => setImportModalOpen(true)} />
                 </Tooltip>
                 <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
-                  <Button icon="plus" onClick={() => setCreateTopicOpen(true)} />
+                  <Button icon="plus" onClick={() => createTopic()} />
                 </Tooltip>
               </NavbarGroup>
             )}
@@ -246,6 +271,7 @@ const mapStateToProps = (state: RootReducer) => ({
 })
 
 const mapDispatchToProps = {
+  createFlow,
   switchFlow,
   deleteFlow,
   duplicateFlow,
