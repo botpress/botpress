@@ -30,7 +30,8 @@ export default async (bp: typeof sdk, db: Database) => {
     const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
 
     if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+      bp.logger.warn(`Unsupported event type: ${event.type}`)
+      return next(undefined, true)
     }
 
     const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt']
@@ -58,7 +59,7 @@ export default async (bp: typeof sdk, db: Database) => {
       )
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
-      throw new Error(`Message type "${messageType}" not implemented yet`)
+      bp.logger.warn(`Message type "${messageType}" not implemented yet`)
     }
 
     next(undefined, false)
