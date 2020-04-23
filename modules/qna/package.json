@@ -1,7 +1,9 @@
 {
   "name": "qna",
-  "version": "10.47.1",
-  "description": "Botpress Q&A module",
+  "fullName": "Questions & Answers",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "Provides an easy-to-use interface to provide answers to user's questions",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {

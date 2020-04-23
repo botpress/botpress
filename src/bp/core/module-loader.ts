@@ -86,7 +86,7 @@ const extractModuleInfo = async ({ location, enabled }, resolver: ModuleResolver
 
     return {
       ...moduleInfo,
-      ..._.pick(require(path.resolve(status.path, 'package.json')), ['name', 'fullName', 'description'])
+      ..._.pick(require(path.resolve(status.path, 'package.json')), ['name', 'fullName', 'description', 'status'])
     }
     // silent catch
   } catch (err) {}

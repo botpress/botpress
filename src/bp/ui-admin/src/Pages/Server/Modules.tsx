@@ -77,6 +77,37 @@ const Modules: FC<Props> = props => {
     }
   }
 
+  const showModule = module => {
+    return (
+      <div className="moduleItem" key={module.name}>
+        <div className="moduleItemSwitch">
+          {!module.archived && (
+            <Switch
+              checked={module.enabled}
+              onChange={e => updateModuleStatus(module.name, e.currentTarget.checked)}
+              className="moduleItemSwitch"
+            />
+          )}
+        </div>
+        <div>
+          <strong>{module.fullName || module.name}</strong>
+
+          <p>
+            {module.archived ? (
+              <span>
+                This module is compressed. Unpack it to display more informations{' '}
+                <Button text="Unpack module" onClick={() => unpackModule(module.name)} />
+              </span>
+            ) : (
+              module.description || 'No description available'
+            )}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  console.log(props.modules)
   return (
     <PageContainer
       title="Modules"
@@ -104,33 +135,20 @@ const Modules: FC<Props> = props => {
           />
         </Callout>
       )}
-      {props.modules.map(module => (
-        <div className="moduleItem" key={module.name}>
-          <div className="moduleItemSwitch">
-            {!module.archived && (
-              <Switch
-                checked={module.enabled}
-                onChange={e => updateModuleStatus(module.name, e.currentTarget.checked)}
-                className="moduleItemSwitch"
-              />
-            )}
-          </div>
-          <div>
-            <strong>{module.fullName || module.name}</strong>
+      <div>
+        <h3>Stable Modules</h3>
+        <div>{props.modules.filter(x => x.status !== 'experimental').map(module => showModule(module))}</div>
+      </div>
 
-            <p>
-              {module.archived ? (
-                <span>
-                  This module is compressed. Unpack it to display more informations{' '}
-                  <Button text="Unpack module" onClick={() => unpackModule(module.name)} />
-                </span>
-              ) : (
-                module.description || 'No description available'
-              )}
-            </p>
-          </div>
-        </div>
-      ))}
+      <div>
+        <h3>Experimental Modules</h3>
+        <p>
+          Modules below are experimental and their use in production is not recommended, since they may change
+          drastically before their official release. Migration will not be automatic when upgrading to a newer Botpress
+          version. Use at your own risk.
+        </p>
+        <div>{props.modules.filter(x => x.status === 'experimental').map(module => showModule(module))}</div>
+      </div>
     </PageContainer>
   )
 }

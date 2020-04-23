@@ -1,7 +1,9 @@
 {
   "name": "code-editor",
+  "fullName": "Code Editor",
   "version": "1.0.0",
-  "description": "",
+  "status": "stable",
+  "description": "Provides an online editor to easily develop various components: actions, hooks, configurations...",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",

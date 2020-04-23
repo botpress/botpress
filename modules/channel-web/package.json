@@ -1,7 +1,9 @@
 {
   "name": "channel-web",
-  "version": "11.9.0",
-  "description": "An embeddable webchat for Botpress",
+  "fullName": "Channel - Web",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "Provides an embeddable webchat that can be integrated easily in an existing website. It is also used when developing the bot.",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
