@@ -116,7 +116,9 @@ export class DucklingEntityExtractor {
   }
 
   public async extractMultiple(inputs: string[], lang: string, useCache?: boolean): Promise<sdk.NLU.Entity[][]> {
-    if (!DucklingEntityExtractor.enabled) return Array(inputs.length).fill([])
+    if (!DucklingEntityExtractor.enabled) {
+      return Array(inputs.length).fill([])
+    }
     const options = {
       lang,
       tz: this._getTz(),
