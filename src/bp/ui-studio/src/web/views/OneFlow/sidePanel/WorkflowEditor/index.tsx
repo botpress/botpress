@@ -52,7 +52,6 @@ const WorkflowEditor: FC<Props> = props => {
   }, [props.isOpen])
 
   const submit = async () => {
-    console.log(name)
     const fullName = buildFlowName({ topic: topic?.value, workflow: name }, true)
 
     if (isCreate) {
@@ -61,11 +60,6 @@ const WorkflowEditor: FC<Props> = props => {
       const originalFlow = props.flows.find(x => x.name === props.selectedWorkflow)
 
       // TODO: fix flow edition
-      console.log(originalFlow.name)
-      console.log(fullName)
-      console.log(description)
-      console.log(label)
-
       if (originalFlow.name !== fullName) {
         props.renameFlow({ targetFlow: originalFlow.name, name: fullName })
       }
