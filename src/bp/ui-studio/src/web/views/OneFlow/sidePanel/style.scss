@@ -12,6 +12,17 @@
       font-size: 12px !important;
     }
 
+    .bp3-editable-text-editing {
+      border-radius: 5px;
+      height: 20px;
+      margin: 5px 5px;
+    }
+
+    .bp3-editable-text.bp3-editable-text-editing::before {
+      box-shadow: unset;
+      border: solid 1px var(--ocean);
+    }
+
     .bp3-tree-node.bp3-tree-node-selected > .bp3-tree-node-content {
       color: #1a1e22;
       background-color: #cad7f5;
