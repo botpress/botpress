@@ -126,14 +126,14 @@
     },
     "modules": {
       "experimental": "Experimental Modules",
-      "experimentalWarning": "Modules below are experimental and their use in production is not recommended, since they may change drastically before their official release. Migration will not be automatic when upgrading to a newer Botpress version. Use at your own risk.",
-      "helpText": "Changing the status of a module will update the module status in botpress.config.json. If cluster mode is disabled and Botpress is not in production mode, the module will be mounted or unmounted",
+      "experimentalWarning": "The modules below are experimental, and may change drastically before their official release. Their use in production is not recommended. Migration will not be automatic for version upgrades",
+      "helpText": "Enabling/disabling a module will update its status in the configuration files. If running a cluster in production, a restart of each node will be required for the change to take effect. Otherwise, the change will be immediate.",
       "noDescription": "No description available",
       "rebootRequired": "Your Botpress configuration file was updated successfully. The server must be restarted for changes to take effect.",
       "restartNow": "Restart server now",
       "stable": "Stable Modules",
       "unpackModule": "Unpack module",
-      "unpackRequired": "This module is compressed. Unpack it to display more informations"
+      "unpackRequired": "This module is compressed. Unpack it to display more information"
     },
     "monitoring": {
       "areYouSure": "Are you sure?",

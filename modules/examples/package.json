@@ -3,7 +3,7 @@
   "fullName": "Examples",
   "version": "1.0.0",
   "status": "stable",
-  "description": "Provides an online editor to easily develop various components: actions, hooks, configurations...",
+  "description": "Provides code examples accessible via the online editor to help develop actions, hooks, and configurations.",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",

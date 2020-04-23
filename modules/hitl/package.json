@@ -3,7 +3,7 @@
   "fullName": "Human In The Loop",
   "version": "1.0.0",
   "status": "stable",
-  "description": "Provides an interface for an agent logged on the studio to take over conversations with a user",
+  "description": "Provides an interface for a Botpress user to take over conversations with chat users",
   "private": true,
   "main": "dist/backend/index.js",
   "botpress": {
