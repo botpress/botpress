@@ -1,11 +1,13 @@
-import { AnchorButton, Button, Icon, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
+import { EditableText, Icon, Intent, Menu, MenuDivider, MenuItem, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, lang, TreeView } from 'botpress/shared'
 import cx from 'classnames'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
+import { buildFlowName } from '..//WorkflowEditor/utils'
 import style from '../style.scss'
 
 const lockedFlows = ['Built-In/welcome.flow.json', 'Built-In/error.flow.json', 'Built-In/feedback.flow.json']
@@ -36,6 +38,9 @@ interface Props {
   deleteFlow: Function
   exportWorkflow: Function
   fetchTopics: () => void
+  fetchFlows: () => void
+  renameFlow: (flow: { targetFlow: string; name: string }) => void
+  updateFlow: (flow: Partial<FlowView>) => void
 
   importWorkflow: (topicId: string) => void
   createWorkflow: (topicId: string) => void
@@ -115,20 +120,13 @@ const TopicList: FC<Props> = props => {
   }
 
   const folderRenderer = (folder: string) => {
-    const createWorkflow = e => {
-      e.stopPropagation()
-      props.createWorkflow(folder)
+    const editTopic = async x => {
+      await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: x, description: undefined })
     }
-
-    const editTopic = e => {
-      e.stopPropagation()
-      props.editTopic(folder)
-    }
-
     return {
       label: (
         <div className={style.treeNode}>
-          <span>{folder}</span>
+          {folder !== 'Built-In' ? <EditableText onConfirm={editTopic} defaultValue={folder} /> : <span>{folder}</span>}
         </div>
       ),
       icon: 'none'
@@ -232,21 +230,13 @@ const TopicList: FC<Props> = props => {
 
   const nodeRenderer = (el: NodeData) => {
     const { name, label, icon, type, triggerCount, referencedIn, countByTopic } = el
-
-    const editWorkflow = e => {
-      e.stopPropagation()
-      props.editWorkflow(name, el)
-    }
-    const deleteWorkflow = async e => {
-      e.stopPropagation()
-      await deleteFlow(name)
-    }
-    const editQnA = e => {
-      e.stopPropagation()
-      props.editQnA(name.replace('/qna', ''))
-    }
-
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
+
+    const editWorkflow = x => {
+      const fullName = buildFlowName({ topic: el.topic, workflow: x }, true)
+      props.renameFlow({ targetFlow: name, name: fullName })
+      props.updateFlow({ name: fullName })
+    }
 
     const qnaTooltip = (
       <Tooltip content={lang.tr('studio.flow.topicList.nbQuestionsInTopic')} hoverOpenDelay={500}>
@@ -286,7 +276,15 @@ const TopicList: FC<Props> = props => {
       label: (
         <div className={style.treeNode}>
           <span>
-            {displayName} {type !== 'qna' ? tooltip : qnaTooltip}
+            {type !== 'qna' ? (
+              <React.Fragment>
+                <EditableText onConfirm={editWorkflow} defaultValue={displayName} /> {tooltip}
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <span>{displayName}</span> {qnaTooltip}
+              </React.Fragment>
+            )}
           </span>
         </div>
       ),
@@ -320,6 +318,7 @@ const TopicList: FC<Props> = props => {
   const postProcessing = tree => {
     tree.forEach(parent => {
       parent.childNodes?.forEach(node => {
+        node.nodeData.topic = parent.id
         if (node.id === `${parent.id}/qna`) {
           const wfCount = parent.childNodes?.filter(parentNode => node.id !== parentNode.id).length
           parent.label = (
@@ -359,7 +358,6 @@ const TopicList: FC<Props> = props => {
   const activeFlow = props.currentFlow?.name
   return (
     <React.Fragment>
-      {console.log(flows)}
       {flows.length <= 3 && (
         <div className={style.topicsEmptyState}>
           <div className={style.topicsEmptyStateBlock}>

@@ -11,7 +11,8 @@ import {
   getQnaCountByTopic,
   refreshConditions,
   renameFlow,
-  switchFlow
+  switchFlow,
+  updateFlow
 } from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
@@ -184,12 +185,15 @@ const SidePanelContent: FC<Props> = props => {
               createWorkflow={createWorkflow}
               exportWorkflow={exportWorkflow}
               importWorkflow={importWorkflow}
+              renameFlow={props.renameFlow}
+              updateFlow={props.updateFlow}
               filter={topicFilter}
               editTopic={editTopic}
               editQnA={editQnA}
               topics={props.topics}
               exportTopic={exportTopic}
               fetchTopics={props.fetchTopics}
+              fetchFlows={props.fetchFlows}
             />
           )}
 
@@ -246,6 +250,7 @@ const mapDispatchToProps = {
   deleteFlow,
   duplicateFlow,
   renameFlow,
+  updateFlow,
   refreshConditions,
   fetchTopics,
   fetchFlows,
