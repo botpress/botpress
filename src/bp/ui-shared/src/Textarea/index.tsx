@@ -15,6 +15,15 @@ const Textarea: FC<TextareaProps> = props => {
     }
   }, [])
 
+  useEffect(() => {
+    if (inputRef.current && props.isFocused) {
+      const length = inputRef.current.value?.length
+
+      inputRef.current.focus()
+      inputRef.current.setSelectionRange(length, length)
+    }
+  }, [props.isFocused])
+
   const onInput = () => {
     if (inputRef.current) {
       inputRef.current.style.height = '0'

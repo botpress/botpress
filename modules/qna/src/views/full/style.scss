@@ -11,18 +11,14 @@
   background: #fff;
   border-radius: 5px;
   margin-bottom: var(--spacing-large);
-  padding: var(--spacing-x-large);
   width: 100%;
-
-  &.collapsed {
-    cursor: pointer;
-  }
 
   .collapsibleWrapper {
     display: grid;
     grid-column-gap: var(--spacing-xx-large);
     grid-template-columns: 1fr 1fr;
-    margin-top: var(--spacing-xxxx-large);
+    margin-top: var(--spacing-large);
+    padding: 0 var(--spacing-x-large) var(--spacing-x-large);
   }
 
   .items {
@@ -43,45 +39,40 @@
       fill: var(--ocean);
     }
 
-    &:hover {
+    &:hover, &:focus {
       color: var(--ocean);
       background:  var(--hover-ocean);
     }
   }
 
-  .questionHeader {
-    align-items: center;
-    display: flex;
+  .headerWrapper {
     position: relative;
 
-    h1 {
-      color: var(--shark);
-      flex-grow: 1;
-      font-size: 14px;
-      font-weight: normal;
-      line-height: 1.29;
-      margin: 0 0 0 var(--spacing-small);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    :global(.more-options-btn) {
+      right: var(--spacing-x-large);
+      top: 50%;
+      transform: translate(0, -50%);
     }
 
-    button {
-      color: var(--shark);
-      display: block;
-      flex-grow: 0;
-      flex-shrink: 1;
-      font-size: 14px;
-      font-weight: normal;
-      line-height: 1.29;
-      margin: 0 0 0 var(--spacing-small);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    :global(.more-options-more-menu) {
+      right: var(--spacing-small);
+      top: 50%;
+      margin-top: 20px;
+    }
+  }
 
-      &:hover {
-        background: none;
-      }
+  .questionHeader {
+    justify-content: flex-start;
+    padding: var(--spacing-x-large) 50px var(--spacing-x-large) var(--spacing-x-large);
+    width: 100%;
+
+    &:hover {
+      background: #fff;
+    }
+
+    :global(.bp3-button-text) {
+      display: flex;
+      width: 100%;
     }
 
     .left {
@@ -90,6 +81,34 @@
       flex-grow: 1;
       overflow: hidden;
       padding-right: var(--spacing-xxxx-large);
+
+      h1 {
+        color: var(--shark);
+        display: block;
+        flex-grow: 0;
+        flex-shrink: 1;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.29;
+        margin: 0 0 0 var(--spacing-medium);
+        overflow: hidden;
+        padding: 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+      }
+    }
+
+    .tag {
+      background: var(--seashell);
+      border-radius: 3px;
+      color: var(--shark);
+      display: inline-block;
+      font-size: 8px;
+      height: 20px;
+      line-height: 20px;
+      padding: 1px 6px 0;
+      text-transform: uppercase;
     }
 
     .right {
@@ -97,6 +116,7 @@
       display: flex;
       flex-grow: 0;
       flex-shrink: 1;
+      position: relative;
     }
   }
 

@@ -3,7 +3,7 @@ import cx from 'classnames'
 import React, { FC, useEffect, useReducer, useState } from 'react'
 
 import style from './style.scss'
-import Question from './Components/Question'
+import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const ITEMS_PER_PAGE = 20
@@ -48,6 +48,26 @@ const fetchReducer = (state: State, action): State => {
       ...state,
       items: newItems
     }
+  } else if (action.type === 'disableQnA') {
+    const { index } = action.data
+    const newItems = state.items
+
+    newItems[index].enabled = false
+
+    return {
+      ...state,
+      items: newItems
+    }
+  } else if (action.type === 'toogleEnabledQnA') {
+    const { index } = action.data
+    const newItems = state.items
+
+    newItems[index].data.enabled = !newItems[index].data.enabled
+
+    return {
+      ...state,
+      items: newItems
+    }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
@@ -55,11 +75,14 @@ const fetchReducer = (state: State, action): State => {
 
 interface Props {
   bp: any
+  contentLang: string
+  defaultLanguage: string
+  languages: string[]
 }
 
-const QnA: FC<Props> = props => {
+const QnAList: FC<Props> = props => {
   const [currentTab, setCurrentTab] = useState('qna')
-  const [currentLang, setCurrentLang] = useState('fr')
+  const [currentLang, setCurrentLang] = useState(props.contentLang)
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
@@ -88,20 +111,12 @@ const QnA: FC<Props> = props => {
   const buttons: HeaderButtonProps[] = [
     {
       icon: 'translate',
-      optionsItems: [
-        {
-          label: 'FR',
-          action: () => {
-            setCurrentLang('fr')
-          }
-        },
-        {
-          label: 'EN',
-          action: () => {
-            setCurrentLang('en')
-          }
+      optionsItems: props.languages?.map(language => ({
+        label: lang.tr(`isoLangs.${language}.name`),
+        action: () => {
+          setCurrentLang(language)
         }
-      ],
+      })),
       disabled: !items.length
     },
     {
@@ -138,10 +153,11 @@ const QnA: FC<Props> = props => {
       <div className={cx(style.content, { [style.empty]: !items.length })}>
         {!!items.length &&
           items.map((item, index) => (
-            <Question
+            <QnA
               updateQnA={data => dispatch({ type: 'updateQnA', data: { data, index } })}
               key={item.id}
-              deleteQuestion={() => dispatch({ type: 'deleteQnA', data: { index } })}
+              deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index } })}
+              toogleEnabledQnA={() => dispatch({ type: 'toogleEnabledQnA', data: { index } })}
               contentLang={currentLang}
               question={item}
             />
@@ -154,4 +170,4 @@ const QnA: FC<Props> = props => {
   )
 }
 
-export default QnA
+export default QnAList

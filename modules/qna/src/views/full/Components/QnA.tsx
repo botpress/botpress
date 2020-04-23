@@ -1,7 +1,7 @@
-import { Button } from '@blueprintjs/core'
-import { lang, MoreOptions, Textarea } from 'botpress/shared'
-import cx from 'classnames'
-import React, { FC, useState } from 'react'
+import { Button, Icon } from '@blueprintjs/core'
+import { confirmDialog, lang, MoreOptions, Textarea } from 'botpress/shared'
+import _uniqueId from 'lodash/uniqueId'
+import React, { FC, useEffect, useRef, useState } from 'react'
 
 import { MoreOptionsItems } from '../../../../../../src/bp/ui-shared/src/MoreOptions/typings'
 import style from '../style.scss'
@@ -10,20 +10,29 @@ interface Props {
   question: any
   contentLang: string
   updateQnA: (questions: any) => void
-  deleteQuestion: () => void
+  deleteQnA: () => void
+  toogleEnabledQnA: () => void
 }
 
-const Question: FC<Props> = props => {
+const QnA: FC<Props> = props => {
   const [showOption, setShowOption] = useState(false)
   const [collapsed, setCollapsed] = useState(true)
+  const focusedElement = useRef('')
   const {
     contentLang,
     question: { data },
     updateQnA
   } = props
-
+  const questionKeys = useRef([])
+  const answerKeys = useRef([])
   const questions = data.questions[contentLang]
   const answers = data.answers[contentLang]
+
+  useEffect(() => {
+    focusedElement.current = `question-${questions.length - 1}`
+    questionKeys.current = [...Array(questions.length)].map(x => _uniqueId())
+    answerKeys.current = [...Array(answers.length)].map(x => _uniqueId())
+  }, [])
 
   const updateQuestion = (index, value) => {
     questions[index] = value
@@ -37,32 +46,63 @@ const Question: FC<Props> = props => {
 
   const addQuestionAlternative = () => {
     questions.push('')
+    questionKeys.current.push(_uniqueId())
+    focusedElement.current = `question-${questions.length - 1}`
     updateQnA({ ...data, questions: { ...data.questions, [contentLang]: questions }, answers: data.answers })
   }
+
   const addAnswerAlternative = () => {
     answers.push('')
+    answerKeys.current.push(_uniqueId())
+    focusedElement.current = `answer-${answers.length - 1}`
     updateQnA({ ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: answers } })
+  }
+
+  const onDelete = async () => {
+    if (
+      await confirmDialog(lang.tr('module.qna.form.confirmDeleteQuestion'), {
+        acceptLabel: lang.tr('delete'),
+        declineLabel: lang.tr('cancel')
+      })
+    ) {
+      props.deleteQnA()
+    }
   }
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       label: lang.tr(data.enabled ? 'module.qna.form.disableQuestion' : 'module.qna.form.enableQuestion'),
-      action: () => {}
+      action: props.toogleEnabledQnA
     },
     {
       label: lang.tr('module.qna.form.deleteQuestion'),
       type: 'delete',
-      action: props.deleteQuestion
+      action: onDelete
     }
   ]
 
   const onKeyDown = (e, index, type) => {
-    console.log(e.key)
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault()
+      type === 'question' ? addQuestionAlternative() : addAnswerAlternative()
+    }
     if (
       e.key === 'Backspace' &&
-      ((type === 'question' && !questions[index].length) || (type === 'answer' && !answers[index].length))
+      ((type === 'question' && questions.length > 1 && !questions[index].length) ||
+        (type === 'answer' && answers.length > 1 && !answers[index].length))
     ) {
-      type === 'question' ? questions.splice(index, 1) : answers.splice(index, 1)
+      e.preventDefault()
+
+      if (type === 'question') {
+        questions.splice(index, 1)
+        questionKeys.current.splice(index, 1)
+      } else {
+        answerKeys.current.splice(index, 1)
+        answers.splice(index, 1)
+      }
+
+      focusedElement.current = `${type}-${index === 0 ? 0 : index - 1}`
+
       updateQnA({
         ...data,
         questions: { ...data.questions, [contentLang]: questions },
@@ -72,23 +112,15 @@ const Question: FC<Props> = props => {
   }
 
   return (
-    <div
-      className={cx(style.questionWrapper, { [style.collapsed]: collapsed })}
-      onClick={() => collapsed && setCollapsed(!collapsed)}
-    >
-      <div className={style.questionHeader}>
-        <div className={style.left}>
-          <Button
-            minimal
-            small
-            icon={collapsed ? 'chevron-right' : 'chevron-down'}
-            onClick={() => setCollapsed(!collapsed)}
-          ></Button>
-          <h1>{questions?.[0]}</h1>
-        </div>
-        <div className={style.right}>
-          <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />
-        </div>
+    <div className={style.questionWrapper}>
+      <div className={style.headerWrapper}>
+        <Button minimal small onClick={() => setCollapsed(!collapsed)} className={style.questionHeader}>
+          <div className={style.left}>
+            <Icon icon={collapsed ? 'chevron-right' : 'chevron-down'} /> <h1>{questions?.[0]}</h1>
+          </div>
+          <div className={style.right}>{!data.enabled && <span className={style.tag}>Disabled</span>}</div>
+        </Button>
+        <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />
       </div>
       {!collapsed && (
         <div className={style.collapsibleWrapper}>
@@ -97,7 +129,8 @@ const Question: FC<Props> = props => {
             {!!questions?.length &&
               questions?.map((question, index) => (
                 <Textarea
-                  key={index}
+                  key={questionKeys.current[index]}
+                  isFocused={focusedElement.current === `question-${index}`}
                   className={style.textarea}
                   onChange={e => updateQuestion(index, e.currentTarget.value)}
                   onKeyDown={e => onKeyDown(e, index, 'question')}
@@ -113,7 +146,8 @@ const Question: FC<Props> = props => {
             {!!answers?.length &&
               answers?.map((answer, index) => (
                 <Textarea
-                  key={index}
+                  key={answerKeys.current[index]}
+                  isFocused={focusedElement.current === `answer-${index}`}
                   className={style.textarea}
                   onChange={e => updateAnswer(index, e.currentTarget.value)}
                   onKeyDown={e => onKeyDown(e, index, 'answer')}
@@ -133,4 +167,4 @@ const Question: FC<Props> = props => {
   )
 }
 
-export default Question
+export default QnA

@@ -21,13 +21,17 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
   return (
     <Fragment>
       {!element && (
-        <button onClick={handleToggle} type="button" className={cx(style.moreBtn, { [style.active]: show })}>
+        <button
+          onClick={handleToggle}
+          type="button"
+          className={cx(style.moreBtn, 'more-options-btn', { [style.active]: show })}
+        >
           <span className={style.moreBtnDots}></span>
         </button>
       )}
       {element}
       {show && (
-        <ul className={style.moreMenu}>
+        <ul className={cx(style.moreMenu, 'more-options-more-menu')}>
           {items.map((item, index) => {
             const { action, icon, label, type } = item
 

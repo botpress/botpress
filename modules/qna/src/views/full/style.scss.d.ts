@@ -2,15 +2,16 @@
 // Please do not change this file!
 interface CssExports {
   'addBtn': string;
-  'collapsed': string;
   'collapsibleWrapper': string;
   'content': string;
   'empty': string;
+  'headerWrapper': string;
   'items': string;
   'left': string;
   'questionHeader': string;
   'questionWrapper': string;
   'right': string;
+  'tag': string;
   'textarea': string;
 }
 declare var cssExports: CssExports;

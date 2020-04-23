@@ -32,6 +32,7 @@
     "addAnswerAlternative": "Ajouter une alternative à la réponse",
     "addContent": "Ajouter un contenu",
     "addQuestionAlternative": "Ajouter une alternative à la question",
+    "confirmDeleteQuestion": "Êtes-vous certain de vouloir supprimer cette question? Les questions et réponses alternatives seront aussi supprimé.",
     "deleteQuestion": "Supprimer la question",
     "disableQuestion": "Désactiver la question",
     "emptyState": "Appuyez sur le + dans la bar d'outils pour ajouter votre première question.",
