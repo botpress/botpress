@@ -1,5 +1,5 @@
 import { Button, Callout, Intent, Switch } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { ModuleInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -95,11 +95,11 @@ const Modules: FC<Props> = props => {
           <p>
             {module.archived ? (
               <span>
-                This module is compressed. Unpack it to display more informations{' '}
-                <Button text="Unpack module" onClick={() => unpackModule(module.name)} />
+                {lang.tr('admin.modules.unpackRequired')}{' '}
+                <Button text={lang.tr('admin.modules.unpackModule')} onClick={() => unpackModule(module.name)} />
               </span>
             ) : (
-              module.description || 'No description available'
+              module.description || lang.tr('admin.modules.noDescription')
             )}
           </p>
         </div>
@@ -107,27 +107,20 @@ const Modules: FC<Props> = props => {
     )
   }
 
-  console.log(props.modules)
   return (
     <PageContainer
-      title="Modules"
-      helpText={
-        <div>
-          Changing the status of a module will update the module status in botpress.config.json. If cluster mode is
-          disabled and Botpress is not in production mode, the module will be mounted or unmounted
-        </div>
-      }
+      title={lang.tr('sideMenu.modules')}
+      helpText={<div>{lang.tr('admin.modules.helpText')}</div>}
       superAdmin
     >
       {rebootRequired && (
         <Callout intent={Intent.SUCCESS} style={{ marginBottom: 20 }}>
-          Your Botpress configuration file was updated successfully. The server must be restarted for changes to take
-          effect.
+          {lang.tr('admin.modules.rebootRequired')}
           <br />
           <br />
           <Button
             id="btn-restart"
-            text={isRestarting ? 'Please wait...' : 'Restart server now'}
+            text={isRestarting ? lang.tr('pleaseWait') : lang.tr('admin.modules.restartNow')}
             disabled={isRestarting}
             onClick={restartServer}
             intent={Intent.PRIMARY}
@@ -136,17 +129,13 @@ const Modules: FC<Props> = props => {
         </Callout>
       )}
       <div>
-        <h3>Stable Modules</h3>
+        <h3>{lang.tr('admin.modules.stable')}</h3>
         <div>{props.modules.filter(x => x.status !== 'experimental').map(module => showModule(module))}</div>
       </div>
 
       <div>
-        <h3>Experimental Modules</h3>
-        <p>
-          Modules below are experimental and their use in production is not recommended, since they may change
-          drastically before their official release. Migration will not be automatic when upgrading to a newer Botpress
-          version. Use at your own risk.
-        </p>
+        <h3>{lang.tr('admin.modules.experimental')}</h3>
+        <p>{lang.tr('admin.modules.experimentalWarning')}</p>
         <div>{props.modules.filter(x => x.status === 'experimental').map(module => showModule(module))}</div>
       </div>
     </PageContainer>
