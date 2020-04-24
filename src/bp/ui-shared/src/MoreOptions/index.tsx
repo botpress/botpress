@@ -15,6 +15,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
 
   const onAction = (e, action) => {
     e.stopPropagation()
+    onToggle(false)
     action()
   }
 
@@ -33,7 +34,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
       {show && (
         <ul className={cx(style.moreMenu, 'more-options-more-menu')}>
           {items.map((item, index) => {
-            const { action, icon, label, type } = item
+            const { action, icon, label, type, selected } = item
 
             return (
               <li key={index}>
@@ -41,10 +42,14 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
                   <Button
                     icon={icon}
                     minimal
-                    className={cx(style.moreMenuItem, { [style.delete]: type === 'delete' })}
+                    className={cx(style.moreMenuItem, {
+                      [style.delete]: type === 'delete',
+                      ['more-options-selected-option']: selected
+                    })}
                     onClick={e => onAction(e, action)}
                   >
                     {label}
+                    {selected && <Icon icon="tick" iconSize={12} />}
                   </Button>
                 )}
                 {!action && (

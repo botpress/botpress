@@ -1,5 +1,7 @@
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
+import _ from 'lodash'
+import _uniqueId from 'lodash/uniqueId'
 import React, { FC, useEffect, useReducer, useState } from 'react'
 
 import style from './style.scss'
@@ -36,11 +38,27 @@ const fetchReducer = (state: State, action): State => {
       ...state,
       items: newItems
     }
+  } else if (action.type === 'addQnA') {
+    const newItems = state.items
+    const languageArrays = action.data.languages.reduce((acc, lang) => ({ ...acc, [lang]: [''] }), {})
+
+    newItems.unshift({
+      id: _uniqueId('qna-'),
+      isNew: true,
+      data: {
+        enabled: true,
+        answers: _.cloneDeep(languageArrays),
+        questions: _.cloneDeep(languageArrays)
+      }
+    })
+
+    return {
+      ...state,
+      items: newItems
+    }
   } else if (action.type === 'deleteQnA') {
     const { index } = action.data
     const newItems = state.items
-
-    console.log(index)
 
     newItems.splice(index, 1)
 
@@ -90,16 +108,13 @@ const QnAList: FC<Props> = props => {
     page: 1
   })
   const { items, loading } = state
+  const { languages } = props
 
   useEffect(() => {
     fetchData()
       .then(() => {})
       .catch(() => {})
   }, [])
-
-  const addQnA = () => {
-    console.log('add')
-  }
 
   const tabs = [
     {
@@ -111,8 +126,9 @@ const QnAList: FC<Props> = props => {
   const buttons: HeaderButtonProps[] = [
     {
       icon: 'translate',
-      optionsItems: props.languages?.map(language => ({
+      optionsItems: languages?.map(language => ({
         label: lang.tr(`isoLangs.${language}.name`),
+        selected: currentLang === language,
         action: () => {
           setCurrentLang(language)
         }
@@ -121,22 +137,22 @@ const QnAList: FC<Props> = props => {
     },
     {
       icon: 'filter',
-      disabled: !items.length,
+      disabled: true,
       onClick: () => {}
     },
     {
       icon: 'sort',
-      disabled: !items.length,
+      disabled: true,
       onClick: () => {}
     },
     {
       icon: 'collapse-all',
-      disabled: !items.length,
+      disabled: true,
       onClick: () => {}
     },
     {
       icon: 'plus',
-      onClick: addQnA
+      onClick: () => dispatch({ type: 'addQnA', data: { languages } })
     }
   ]
 
@@ -149,7 +165,7 @@ const QnAList: FC<Props> = props => {
 
   return (
     <MainContent.Wrapper>
-      <MainContent.Header tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+      <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
       <div className={cx(style.content, { [style.empty]: !items.length })}>
         {!!items.length &&
           items.map((item, index) => (

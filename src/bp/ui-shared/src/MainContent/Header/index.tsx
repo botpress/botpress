@@ -1,5 +1,6 @@
 import { Alignment, Button, Navbar, NavbarGroup, Tab, Tabs } from '@blueprintjs/core'
-import React, { FC, Fragment, useState } from 'react'
+import cx from 'classnames'
+import React, { FC, useState } from 'react'
 
 import MoreOptions from '../../MoreOptions'
 
@@ -9,7 +10,7 @@ import { HeaderProps } from './typings'
 const Header: FC<HeaderProps> = props => {
   const [showingOption, setShowingOption] = useState()
   return (
-    <Navbar className={style.header}>
+    <Navbar className={cx(style.header, props.className)}>
       {!!props.tabs?.length && (
         <NavbarGroup>
           <Tabs onChange={props.tabChange}>

@@ -5,6 +5,7 @@ export interface HeaderProps {
   tabs?: ITabProps[]
   tabChange?: (tab: string) => void
   buttons?: HeaderButtonProps[]
+  className?: string
 }
 
 export interface HeaderButtonProps {

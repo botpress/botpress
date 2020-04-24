@@ -4,7 +4,7 @@
   "confirmDelete": "Voulez-vous supprimer la question?",
   "context": {
     "canTypeToCreate": "Vous pouvez taper dans la barre de sélection pour créer de nouveaux contextes.",
-    "createQuery": "Créer le contexte",
+    "create": "Créer \"{query}\"",
     "filterByContexts": "Filtrer par contextes",
     "selectContext": "Sélectionnez le contexte...",
     "title": "Contextes"
@@ -31,12 +31,18 @@
   "form": {
     "addAnswerAlternative": "Ajouter une alternative à la réponse",
     "addContent": "Ajouter un contenu",
+    "addMoreQuestionsPlural": "Rédigez au moins {count} autres questions alternatives pour rendre votre agent conversationnel plus résilient",
+    "addMoreQuestionsSingular": "Rédigez au moins une autre question alternative pour rendre votre agent conversationnel plus résilient",
     "addQuestionAlternative": "Ajouter une alternative à la question",
+    "chatbotWillRandomlyChoose": "L'agent conversationnel répondra au hasard parmi ces alternatives",
     "confirmDeleteQuestion": "Êtes-vous certain de vouloir supprimer cette question? Les questions et réponses alternatives seront aussi supprimé.",
     "deleteQuestion": "Supprimer la question",
     "disableQuestion": "Désactiver la question",
     "emptyState": "Appuyez sur le + dans la bar d'outils pour ajouter votre première question.",
-    "enableQuestion": "Activer la question"
+    "enableQuestion": "Activer la question",
+    "writeAtLeastTwoMoreQuestions": "Rédiger au moins 2 questions alternatives pour permettre l'apprentissage de l'agent conversationnel",
+    "writeFirstQuestion": "Rédigez une phrase que votre utilisateur serait suceptible d'écrire pour poser sa question",
+    "writeTheAnswer": "Rédigez la réponse à la question"
   },
   "fullName": "Q&R",
   "hint": {

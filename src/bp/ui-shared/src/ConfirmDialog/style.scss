@@ -22,7 +22,7 @@
     .bp3-button.bp3-intent-warning {
       background-color: var(--lighthouse);
 
-      &:hover {
+      &:hover, &:focus {
         background-color: var(--hover-lighthouse);
       }
     }
@@ -30,7 +30,7 @@
     .bp3-button:not([class*='bp3-intent']) {
       background-color: white;
 
-      &:hover {
+      &:hover, &:focus {
         background-color: var(--seashell);
       }
     }

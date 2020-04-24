@@ -11,6 +11,7 @@ export interface MoreOptionsProps {
 export interface MoreOptionsItems {
   icon?: IconName
   label: string
+  selected?: boolean
   action?: () => void
   type?: 'delete'
 }

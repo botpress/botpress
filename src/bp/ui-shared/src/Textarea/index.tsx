@@ -37,6 +37,7 @@ const Textarea: FC<TextareaProps> = props => {
       ref={inputRef}
       className={cx(style.textarea, props.className)}
       value={props.value}
+      placeholder={props.placeholder}
       onChange={props.onChange}
       onKeyDown={props.onKeyDown}
       onInput={onInput}

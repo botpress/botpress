@@ -94,7 +94,7 @@
     font-size: 12px !important;
     justify-content: flex-start !important;
     line-height: 1.25;
-    margin: 0 !important;
+    margin: var(--spacing-x-small) 0 0 !important;
     min-width: 100%;
     padding: 8px 10px 7px !important;
     white-space: nowrap;
@@ -132,6 +132,18 @@
         fill: var(--lighthouse) !important;
       }
     }
+
+    :global(.bp3-button-text) {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+
+      :global(.bp3-icon) {
+        margin: 0 !important;
+      }
+    }
+
   }
 }
 

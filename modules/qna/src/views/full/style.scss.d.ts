@@ -4,8 +4,11 @@ interface CssExports {
   'addBtn': string;
   'collapsibleWrapper': string;
   'content': string;
+  'contentAnswer': string;
   'empty': string;
+  'header': string;
   'headerWrapper': string;
+  'incomplete': string;
   'items': string;
   'left': string;
   'questionHeader': string;
