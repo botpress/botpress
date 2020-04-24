@@ -2,6 +2,7 @@ import { Logger } from 'botpress/sdk'
 import crypto from 'crypto'
 import globrex from 'globrex'
 import _ from 'lodash'
+import path from 'path'
 
 export type MockObject<T> = { T: T } & { readonly [key in keyof T]: jest.Mock }
 
@@ -119,3 +120,17 @@ export const calculateHash = (content: string) =>
     .createHash('sha256')
     .update(content)
     .digest('hex')
+
+const regex = {
+  illegalFile: /[\/\?<>\\:\*\|"]/g,
+  illegalFolder: /[\?<>\\:\*\|"]/g,
+  control: /[\x00-\x1f\x80-\x9f]/g,
+  reserved: /^\.+$/
+}
+
+export const sanitize = (input: string, type?: 'file' | 'folder') => {
+  return input
+    .replace(regex.control, '')
+    .replace(regex.reserved, '')
+    .replace(type === 'folder' ? regex.illegalFolder : regex.illegalFile, '')
+}
