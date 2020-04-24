@@ -8,6 +8,7 @@ import { StandardPortWidget } from '../nodes/Ports'
 
 import style from './style.scss'
 import { showHeader } from './utils'
+import OutcomeUsage from './OutcomeUsage'
 
 export class FailureWidget extends Component<{ node: FailureNodeModel; diagramEngine: any }> {
   render() {
@@ -15,7 +16,7 @@ export class FailureWidget extends Component<{ node: FailureNodeModel; diagramEn
 
     return (
       <div className={classnames(style.baseNode, style.nodeFailure, { [style.highlightedNode]: node.isHighlighted })}>
-        {showHeader({ nodeType: 'Failure', nodeName: node.name, isStartNode: false })}
+        <OutcomeUsage nodeName={node.name} nodeLabel={node.friendlyName} />
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />
         </div>

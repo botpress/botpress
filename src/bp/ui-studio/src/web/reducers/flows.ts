@@ -1,4 +1,5 @@
 import { FlowNode } from 'botpress/sdk'
+import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
@@ -26,6 +27,7 @@ import {
   requestInsertNewSkillNode,
   requestPasteFlowNode,
   requestPasteFlowNodeElement,
+  requestRefreshParentFlow,
   requestRemoveFlowNode,
   requestRenameFlow,
   requestUpdateFlow,
@@ -46,6 +48,7 @@ export interface FlowReducer {
   flowsByName: _.Dictionary<FlowView>
   currentDiagramAction: string
   nodeInBuffer?: FlowNode
+  currentHashes: { [flowName: string]: string }
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -261,6 +264,8 @@ const doCreateNewFlow = name => {
     )
   }
 
+  const { parentWorkflowPath } = parseFlowName(name, true)
+
   return {
     version: '0.1',
     name: name,
@@ -270,8 +275,8 @@ const doCreateNewFlow = name => {
     startNode: 'entry',
     catchAll: {},
     links: [],
-    triggers: [], // TODO: NDU Change to be a node instead
-    nodes
+    nodes,
+    parent: parentWorkflowPath
   }
 }
 
@@ -291,6 +296,15 @@ function isActualDelete(state, modification): boolean {
 
 function isActualRename(state, modification): boolean {
   return modification.newName && !_.keys(state.flowsByName).includes(modification.newName)
+}
+
+const getNextNodeName = (type: string, nodes) => {
+  const filteredNodes = nodes
+    .filter(x => x.type === type && x.name.startsWith(`${type}-`))
+    .map(x => Number(x.name.replace(`${type}-`, '')))
+
+  const highest: number = _.max(filteredNodes) ?? 0
+  return `${type}-${highest + 1}`
 }
 
 // *****
@@ -369,8 +383,13 @@ let reducer = handleActions(
 
     [receiveFlows]: (state, { payload }) => {
       const flows = _.keys(payload).filter(key => !payload[key].skillData)
-      const newFlow = _.keys(payload).includes('Built-In/welcome.flow.json') && 'Built-In/welcome.flow.json'
-      const defaultFlow = newFlow || (_.keys(payload).includes('main.flow.json') ? 'main.flow.json' : _.first(flows))
+
+      // Temporary until we change the default to misunderstood
+      const welcomeFlow = _.keys(payload).includes('Built-In/welcome.flow.json') && 'Built-In/welcome.flow.json'
+      const newFlow = _.keys(payload).includes('misunderstood.flow.json') && 'misunderstood.flow.json'
+      const mainFlow = _.keys(payload).includes('main.flow.json') && 'main.flow.json'
+
+      const defaultFlow = welcomeFlow || newFlow || mainFlow || _.first(flows)
 
       const newState = {
         ...state,
@@ -511,14 +530,55 @@ reducer = reduceReducers(
         flowsByName: doDeleteFlow({ name, flowsByName: state.flowsByName })
       }),
 
+      [requestRefreshParentFlow]: (state: FlowReducer, { payload }) => {
+        const activeFlow = payload || state.currentFlow
+        const currentFlow = state.flowsByName[activeFlow]
+        const parentFlowName = state.flowsByName[activeFlow].parent
+
+        if (!parentFlowName) {
+          return state
+        }
+
+        const outcomeNodes = currentFlow.nodes.filter(x => ['success', 'failure'].includes(x.type))
+        const outcomes = _.orderBy(outcomeNodes, 'type', 'desc').map(x => ({
+          condition: `lastNode=${x.name}`,
+          caption: x.friendlyName || x.name,
+          node: ''
+        }))
+
+        const updatedNodes = state.flowsByName[parentFlowName].nodes.map(node => {
+          if (node.flow !== activeFlow) {
+            return node
+          }
+
+          return {
+            ...node,
+            next: outcomes.map(o => ({ ...o, node: node.next.find(n => n.condition === o.condition)?.node || '' }))
+          }
+        })
+
+        return {
+          ...state,
+          flowsByName: {
+            ...state.flowsByName,
+            [parentFlowName]: {
+              ...state.flowsByName[parentFlowName],
+              nodes: updatedNodes
+            }
+          }
+        }
+      },
+
       // Inserting a new skill essentially:
       // 1. creates a new flow
       // 2. creates a new "skill" node
       // 3. puts that new node in the "insert buffer", waiting for user to place it on the canvas
-      [requestInsertNewSkill]: (state, { payload }) => {
+      [requestInsertNewSkill]: (state: FlowReducer, { payload }) => {
         const skillId = payload.skillId
         const flowRandomId = prettyId(6)
-        const flowName = `skills/${skillId}-${flowRandomId}.flow.json`
+
+        const flowPrefix = window.USE_ONEFLOW ? `${parseFlowName(state.currentFlow).workflowPath}/` : ''
+        const flowName = `${flowPrefix}skills-${skillId}-${flowRandomId}.flow.json`
 
         const newFlow = Object.assign({}, payload.generatedFlow, {
           skillData: payload.data,
@@ -779,7 +839,7 @@ reducer = reduceReducers(
               _.merge(
                 {
                   id: prettyId(),
-                  name: `node-${prettyId(4)}`,
+                  name: getNextNodeName(payload.type, state.flowsByName[state.currentFlow].nodes),
                   x: 0,
                   y: 0,
                   next: [],

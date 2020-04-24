@@ -169,6 +169,19 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
   }
 )
 
+export const requestRefreshParentFlow = createAction('FLOWS/REFRESH_PARENT_FLOW')
+
+const updateParentFlow = async (_payload, state) => {
+  const flowState = state.flows
+  const parentFlow = flowState.flowsByName[flowState.currentFlow].parent
+
+  if (parentFlow) {
+    return FlowsAPI.updateFlow(flowState, parentFlow)
+  }
+}
+
+export const refreshParentFlow: (currentFlow?: string) => void = wrapAction(requestRefreshParentFlow, updateParentFlow)
+
 type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
 
 export const updateFlowNode: (props: AllPartialNode) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)

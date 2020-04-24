@@ -12,14 +12,36 @@ import { FailureNodeModel } from './nodes_v2/FailureNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SaySomethingNodeModel } from './nodes_v2/SaySomethingNode'
+import { SubWorkflowNodeModel } from './nodes_v2/SubWorkflowNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
 import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
-const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill', 'conditions', 'activeWorkflow']
+const passThroughNodeProps: string[] = [
+  'name',
+  'onEnter',
+  'onReceive',
+  'next',
+  'skill',
+  'conditions',
+  'activeWorkflow',
+  'friendlyName'
+]
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router', 'action']
+export const nodeTypes = [
+  'standard',
+  'trigger',
+  'skill-call',
+  'say_something',
+  'execute',
+  'listen',
+  'router',
+  'action',
+  'sub-workflow'
+]
+
+export const outcomeNodeTypes = ['success', 'failure']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
@@ -36,6 +58,8 @@ const createNodeModel = (node, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
+  } else if (type === 'sub-workflow') {
+    return new SubWorkflowNodeModel(modelProps)
   } else if (type === 'say_something') {
     return new SaySomethingNodeModel(modelProps)
   } else if (type === 'execute') {

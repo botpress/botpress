@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toastFailure } from 'botpress/shared'
 import { FlowView, LibraryElement } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -29,6 +29,7 @@ import {
   insertNewSkillNode,
   openFlowNodeProps,
   pasteFlowNode,
+  refreshParentFlow,
   removeFlowNode,
   switchFlow,
   switchFlowNode,
@@ -37,14 +38,22 @@ import {
   updateFlowProblems
 } from '~/actions'
 import { toastSuccess } from '~/components/Shared/Utils'
-import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
+import {
+  getCurrentFlow,
+  getCurrentFlowNode,
+  getCurrentFlowSubFlows,
+  getParentFlowOutcomeUsage,
+  RootReducer
+} from '~/reducers'
 import {
   defaultTransition,
   DIAGRAM_PADDING,
   DiagramManager,
   nodeTypes,
+  outcomeNodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
+import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
@@ -55,6 +64,7 @@ import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diag
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
+import { SubWorkflowNodeModel, SubWorkflowWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SubWorkflowNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
@@ -112,6 +122,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new TriggerWidgetFactory())
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
+    this.diagramEngine.registerNodeFactory(new SubWorkflowWidgetFactory())
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
@@ -256,7 +267,19 @@ class Diagram extends Component<Props> {
         triggers: [{ conditions: [{ id: 'always' }] }]
       }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
-    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' })
+    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
+    successNode: (point: Point) => {
+      this.props.createFlowNode({ ...point, type: 'success' })
+      this.props.refreshParentFlow()
+    },
+    failureNode: (point: Point) => {
+      this.props.createFlowNode({ ...point, type: 'failure' })
+      this.props.refreshParentFlow()
+    },
+    gotoSubWorkflow: (point: Point, flowName: string) => {
+      this.props.createFlowNode({ ...point, type: 'sub-workflow', flow: flowName })
+      this.props.refreshParentFlow(flowName)
+    }
   }
 
   onDiagramDoubleClick = (event?: MouseEvent) => {
@@ -282,6 +305,8 @@ class Diagram extends Component<Props> {
       clearStartPortOnClose = false
       addNodeMethod(...args)
     }
+
+    const hasSubFlows = !!this.props.currentFlowSubFlows?.length
 
     ContextMenu.show(
       <Menu>
@@ -309,6 +334,17 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
         <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
+
+        <MenuItem text="Outcome" icon="take-action">
+          <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
+          <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
+        </MenuItem>
+
+        <MenuItem text="Go to Sub Workflow" icon="pivot" disabled={!hasSubFlows}>
+          {this.props.currentFlowSubFlows?.map(flow => (
+            <MenuItem text={flow.workflow} onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath)} />
+          ))}
+        </MenuItem>
 
         <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
@@ -340,16 +376,15 @@ class Diagram extends Component<Props> {
       return
     }
 
-    const targetModel = target && target.model
+    const targetModel = target && (target.model as BaseNodeModel)
     const point = this.manager.getRealPosition(event)
 
     const isNodeTargeted = targetModel instanceof NodeModel
     const isTriggerNode = targetModel instanceof TriggerNodeModel
     const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
 
-    const isSuccessNode = targetModel instanceof SuccessNodeModel
-    const isFailureNode = targetModel instanceof FailureNodeModel
-    const canDeleteNode = !(isSuccessNode || isFailureNode)
+    const isOutcomeNode = targetModel instanceof SuccessNodeModel || targetModel instanceof FailureNodeModel
+    const canDeleteNode = !isOutcomeNode || this.canDeleteOutcome(targetModel.type, targetModel.name)
 
     // Prevents displaying an empty menu
     if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
@@ -376,7 +411,7 @@ class Diagram extends Component<Props> {
               icon="trash"
               text={lang.tr('delete')}
               disabled={!canDeleteNode}
-              onClick={() => this.deleteSelectedElements()}
+              onClick={() => this.deleteElement(targetModel)}
             />
             <MenuItem
               icon="duplicate"
@@ -429,7 +464,10 @@ class Diagram extends Component<Props> {
     return (
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
-      targetModel instanceof RouterNodeModel
+      targetModel instanceof RouterNodeModel ||
+      targetModel instanceof SuccessNodeModel ||
+      targetModel instanceof FailureNodeModel ||
+      targetModel instanceof SubWorkflowNodeModel
     )
   }
 
@@ -488,25 +526,51 @@ class Diagram extends Component<Props> {
     })
   }
 
+  canDeleteOutcome(type: string, nodeName?: string, toastReason?: boolean) {
+    const successCount = this.props.currentFlow.nodes.filter(x => x.type === 'success').length
+    const failureCount = this.props.currentFlow.nodes.filter(x => x.type === 'failure').length
+    const isUsed =
+      nodeName === undefined ? false : !!this.props.outcomeUsage?.find(x => x.condition === `lastNode=${nodeName}`)
+
+    if (isUsed) {
+      toastReason && toastFailure(`Cannot delete an outcome which is currently used in the parent flow`)
+      return false
+    }
+
+    if ((type === 'success' && successCount === 1) || (type === 'failure' && failureCount === 1)) {
+      toastReason && toastFailure(`Workflows must have at least one success and one failure outcome`)
+      return false
+    }
+
+    return true
+  }
+
+  deleteElement(element) {
+    if (this.diagramEngine.isModelLocked(element)) {
+      return
+    }
+
+    if (outcomeNodeTypes.includes(element.type)) {
+      if (this.canDeleteOutcome(element.type, element['name'], true)) {
+        this.props.removeFlowNode(element)
+        this.props.refreshParentFlow()
+      }
+    } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
+      this.props.removeFlowNode(element)
+    } else if (element.type === 'default') {
+      element.remove()
+      this.checkForLinksUpdate()
+    } else {
+      element.remove() // it's a point or something else
+    }
+  }
+
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
-      if (!this.diagramEngine.isModelLocked(element)) {
-        if (element.type === 'success') {
-          return alert(lang.tr('studio.flow.cantDeleteSuccess'))
-        } else if (element.type === 'failure') {
-          return alert(lang.tr('studio.flow.cantDeleteFailure'))
-        } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
-          this.props.removeFlowNode(element)
-        } else if (element.type === 'default') {
-          element.remove()
-          this.checkForLinksUpdate()
-        } else {
-          element.remove() // it's a point or something else
-        }
-      }
+      this.deleteElement(element)
     }
 
     this.diagramWidget.forceUpdate()
@@ -670,6 +734,8 @@ class Diagram extends Component<Props> {
 
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
+  currentFlowSubFlows: getCurrentFlowSubFlows(state),
+  outcomeUsage: getParentFlowOutcomeUsage(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
@@ -684,6 +750,7 @@ const mapDispatchToProps = {
   closeFlowNodeProps,
   createFlowNode,
   removeFlowNode,
+  refreshParentFlow,
   createFlow,
   updateFlowNode,
   switchFlow,

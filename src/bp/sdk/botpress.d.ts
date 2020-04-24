@@ -1162,6 +1162,8 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
+    /** The name of the parent flow. It will be generated automatically */
+    readonly parent?: string
   }
 
   export interface DecisionTriggerCondition {
@@ -1254,8 +1256,12 @@ declare module 'botpress/sdk' {
   export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
 
   export type FlowNode = {
+    /** An auto-generated ID used internally for the flow builder */
     id?: string
+    /** The name used by the dialog engine to link to other nodes */
     name: string
+    /** A name to display instead of the internal name on the flow builder */
+    friendlyName?: string
     type?: any
     timeoutNode?: string
     flow?: string
