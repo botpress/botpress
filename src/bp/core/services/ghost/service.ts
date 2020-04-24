@@ -371,13 +371,13 @@ export class ScopedGhostService {
   }
 
   private _normalizeFolderName(rootFolder: string) {
-    return forceForwardSlashes(sanitize(path.join(this.baseDir, rootFolder), 'folder'))
+    return sanitize(forceForwardSlashes(path.join(this.baseDir, rootFolder)), 'folder')
   }
 
   private _normalizeFileName(rootFolder: string, file: string) {
     const fullPath = path.join(rootFolder, file)
     const folder = this._normalizeFolderName(path.dirname(fullPath))
-    return forceForwardSlashes(path.join(folder, path.basename(fullPath)))
+    return forceForwardSlashes(path.join(folder, sanitize(path.basename(fullPath))))
   }
 
   objectCacheKey = str => `object::${str}`
