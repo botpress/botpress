@@ -1,5 +1,4 @@
-import { lang } from 'botpress/shared'
-import { toastFailure } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 
 import { EditableFile, FilePermissions, FilesDS } from '../../../backend/typings'
@@ -104,7 +103,7 @@ export default class CodeEditorApi {
     const errorInfo = data.full || data.message
 
     customMessage
-      ? toastFailure(`${lang.tr(customMessage)}: ${lang.tr(errorInfo, { details: data.details })}`)
-      : toastFailure(errorInfo, data.details)
+      ? toast.failure(`${lang.tr(customMessage)}: ${lang.tr(errorInfo, { details: data.details })}`)
+      : toast.failure(errorInfo, data.details)
   }
 }

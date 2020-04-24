@@ -2,7 +2,7 @@ import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { combineReducers } from 'redux'
 
 import bot from './bot'
-import bots from './bots'
+import bots, { BotsReducer } from './bots'
 import content, { ContentReducer } from './content'
 import flows, { FlowReducer } from './flows'
 import hints from './hints'
@@ -40,4 +40,5 @@ export interface RootReducer {
   modules: ModuleDefinition[]
   ui: UiReducer
   bot: BotConfig
+  bots: BotsReducer
 }

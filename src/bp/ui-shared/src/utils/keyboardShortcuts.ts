@@ -1,6 +1,8 @@
 const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 const controlKey = isMac ? 'command' : 'ctrl'
 
+export { controlKey }
+
 export const keyMap = {
   add: `${controlKey}+a`,
   save: `${controlKey}+s`,

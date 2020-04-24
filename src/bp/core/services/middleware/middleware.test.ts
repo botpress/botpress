@@ -40,7 +40,7 @@ describe('Middleware', () => {
 
     const fn1 = (event, next) => {
       mock1(event)
-      // next() We swallow the event
+      next(undefined, false) // We swallow the event
     }
 
     middleware.use(fn1)
@@ -56,8 +56,9 @@ describe('Middleware', () => {
   it('should pass event to middleware', async () => {
     const mock = jest.fn()
 
-    middleware.use(event => {
+    middleware.use((event, cb) => {
       mock(event)
+      cb(undefined, true)
     })
 
     const event = {} as IO.Event

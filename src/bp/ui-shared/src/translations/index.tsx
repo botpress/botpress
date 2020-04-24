@@ -50,7 +50,12 @@ const langInit = () => {
     {
       locale,
       messages,
-      defaultLocale
+      defaultLocale,
+      onError: err => {
+        if (isDev) {
+          console.error(err)
+        }
+      }
     },
     cache
   )

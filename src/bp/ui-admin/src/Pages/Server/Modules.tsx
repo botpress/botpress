@@ -1,5 +1,5 @@
 import { Button, Callout, Intent, Switch } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { ModuleInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -77,26 +77,50 @@ const Modules: FC<Props> = props => {
     }
   }
 
+  const showModule = module => {
+    return (
+      <div className="moduleItem" key={module.name}>
+        <div className="moduleItemSwitch">
+          {!module.archived && (
+            <Switch
+              checked={module.enabled}
+              onChange={e => updateModuleStatus(module.name, e.currentTarget.checked)}
+              className="moduleItemSwitch"
+            />
+          )}
+        </div>
+        <div>
+          <strong>{module.fullName || module.name}</strong>
+
+          <p>
+            {module.archived ? (
+              <span>
+                {lang.tr('admin.modules.unpackRequired')}{' '}
+                <Button text={lang.tr('admin.modules.unpackModule')} onClick={() => unpackModule(module.name)} />
+              </span>
+            ) : (
+              module.description || lang.tr('admin.modules.noDescription')
+            )}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <PageContainer
-      title="Modules"
-      helpText={
-        <div>
-          Changing the status of a module will update the module status in botpress.config.json. If cluster mode is
-          disabled and Botpress is not in production mode, the module will be mounted or unmounted
-        </div>
-      }
+      title={lang.tr('sideMenu.modules')}
+      helpText={<div>{lang.tr('admin.modules.helpText')}</div>}
       superAdmin
     >
       {rebootRequired && (
         <Callout intent={Intent.SUCCESS} style={{ marginBottom: 20 }}>
-          Your Botpress configuration file was updated successfully. The server must be restarted for changes to take
-          effect.
+          {lang.tr('admin.modules.rebootRequired')}
           <br />
           <br />
           <Button
             id="btn-restart"
-            text={isRestarting ? 'Please wait...' : 'Restart server now'}
+            text={isRestarting ? lang.tr('pleaseWait') : lang.tr('admin.modules.restartNow')}
             disabled={isRestarting}
             onClick={restartServer}
             intent={Intent.PRIMARY}
@@ -104,33 +128,16 @@ const Modules: FC<Props> = props => {
           />
         </Callout>
       )}
-      {props.modules.map(module => (
-        <div className="moduleItem" key={module.name}>
-          <div className="moduleItemSwitch">
-            {!module.archived && (
-              <Switch
-                checked={module.enabled}
-                onChange={e => updateModuleStatus(module.name, e.currentTarget.checked)}
-                className="moduleItemSwitch"
-              />
-            )}
-          </div>
-          <div>
-            <strong>{module.fullName || module.name}</strong>
+      <div>
+        <h3>{lang.tr('admin.modules.stable')}</h3>
+        <div>{props.modules.filter(x => x.status !== 'experimental').map(module => showModule(module))}</div>
+      </div>
 
-            <p>
-              {module.archived ? (
-                <span>
-                  This module is compressed. Unpack it to display more informations{' '}
-                  <Button text="Unpack module" onClick={() => unpackModule(module.name)} />
-                </span>
-              ) : (
-                module.description || 'No description available'
-              )}
-            </p>
-          </div>
-        </div>
-      ))}
+      <div>
+        <h3>{lang.tr('admin.modules.experimental')}</h3>
+        <p>{lang.tr('admin.modules.experimentalWarning')}</p>
+        <div>{props.modules.filter(x => x.status === 'experimental').map(module => showModule(module))}</div>
+      </div>
     </PageContainer>
   )
 }

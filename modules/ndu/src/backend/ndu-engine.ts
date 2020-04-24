@@ -3,6 +3,8 @@ import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { Config } from '../config'
+
 import { BASE_DATA } from './base-data'
 import { Features } from './typings'
 
@@ -60,17 +62,22 @@ const WfIdToTopic = (wfId: string): string | undefined => {
   return wfId.split('/')[0]
 }
 
+export const DEFAULT_MIN_CONFIDENCE = 0.1
+
 export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
   private _allNodeIds: Set<string> = new Set()
   private _allWfIds: Set<string> = new Set()
 
   private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
+  private _minConfidence: number
+
   trainer: sdk.MLToolkit.SVM.Trainer
   predictor: sdk.MLToolkit.SVM.Predictor
 
-  constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[]) {
+  constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[], config: Config) {
     this.trainer = new this.bp.MLToolkit.SVM.Trainer()
+    this._minConfidence = config.minimumConfidence ?? DEFAULT_MIN_CONFIDENCE
   }
 
   featToVec(features: Features): number[] {
@@ -210,16 +217,17 @@ export class UnderstandingEngine {
     const fInWf = (t: typeof triggers) => t.filter(x => `${x.wf}.flow.json` === currentFlow)
     const fOnNode = (t: typeof triggers) => t.filter(x => x.nodeId === currentNode)
     const fMax = (t: typeof triggers) => _.maxBy(t, 'confidence') || { confidence: 0, id: 'n/a' }
+    const fMinConf = (t: typeof triggers) => t.filter(x => x.confidence >= this._minConfidence)
 
     const actionFeatures = {
       conf_all: fMax(triggers),
-      conf_faq_trigger_outside_topic: fMax(fOutTopic(fType('faq')(triggers))),
-      conf_faq_trigger_inside_topic: fMax(fInTopic(fType('faq')(triggers))),
+      conf_faq_trigger_outside_topic: fMax(fOutTopic(fType('faq')(fMinConf(triggers)))),
+      conf_faq_trigger_inside_topic: fMax(fInTopic(fType('faq')(fMinConf(triggers)))),
       conf_faq_trigger_parameter: 0, // TODO: doesn't exist yet
-      conf_wf_trigger_inside_topic: fMax(fInTopic(fType('workflow')(triggers))),
-      conf_wf_trigger_outside_topic: fMax(fOutTopic(fType('workflow')(triggers))),
+      conf_wf_trigger_inside_topic: fMax(fInTopic(fType('workflow')(fMinConf(triggers)))),
+      conf_wf_trigger_outside_topic: fMax(fOutTopic(fType('workflow')(fMinConf(triggers)))),
       conf_wf_trigger_inside_wf: 0, // TODO: doesn't exist yet
-      conf_node_trigger_inside_wf: fMax(fInTopic(fType('node')(fInWf(fOnNode(triggers)))))
+      conf_node_trigger_inside_wf: fMax(fInTopic(fType('node')(fInWf(fOnNode(fMinConf(triggers))))))
     }
 
     const features: Features = {
@@ -283,18 +291,30 @@ export class UnderstandingEngine {
     const electedTrigger = event.ndu.triggers[actionToTrigger[topAction]]
 
     if (electedTrigger) {
-      switch (electedTrigger.trigger.type) {
+      const { trigger } = electedTrigger
+
+      switch (trigger.type) {
         case 'workflow':
-          event.ndu.actions = [
-            {
+          const sameWorkflow = trigger.workflowId === currentFlow?.replace('.flow.json', '')
+          const sameNode = trigger.nodeId === currentNode
+
+          event.ndu.actions = [{ action: 'continue' }]
+
+          if (sameWorkflow && !sameNode) {
+            event.ndu.actions.unshift({
+              action: 'goToNode',
+              data: { flow: trigger.workflowId, node: trigger.nodeId }
+            })
+          } else if (!sameWorkflow && !sameNode) {
+            event.ndu.actions.unshift({
               action: 'startWorkflow',
-              data: { flow: electedTrigger.trigger.workflowId, node: electedTrigger.trigger.nodeId }
-            },
-            { action: 'continue' }
-          ]
+              data: { flow: trigger.workflowId, node: trigger.nodeId }
+            })
+          }
+
           break
         case 'faq':
-          const qnaActions = await this.queryQna(electedTrigger.trigger.faqId, event)
+          const qnaActions = await this.queryQna(trigger.faqId, event)
           event.ndu.actions = [...qnaActions]
           break
         case 'node':
@@ -328,11 +348,20 @@ export class UnderstandingEngine {
 
     event.ndu.triggers = {}
 
+    const { currentFlow, currentNode } = event.state.context
+
     for (const trigger of triggers) {
       if (
         trigger.type === 'node' &&
-        (event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json` ||
-          event.state?.context?.currentNode !== trigger.nodeId)
+        (currentFlow !== `${trigger.workflowId}.flow.json` || currentNode !== trigger.nodeId)
+      ) {
+        continue
+      }
+
+      if (
+        trigger.type === 'workflow' &&
+        trigger.activeWorkflow &&
+        event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json`
       ) {
         continue
       }
@@ -409,10 +438,11 @@ export class UnderstandingEngine {
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions.map(x => ({
               ...x,
-              params: { ...x.params, topicName }
+              params: { ...x.params, topicName, wfName: flowName }
             })),
             type: 'workflow',
             workflowId: flowName,
+            activeWorkflow: tn.activeWorkflow,
             nodeId: tn.name
           })
         } else if ((<sdk.ListenNode>node)?.triggers?.length) {
@@ -424,7 +454,7 @@ export class UnderstandingEngine {
                   nodeId: ln.name,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { ...x.params, topicName }
+                    params: { ...x.params, topicName, wfName: flowName }
                   })),
                   type: 'node',
                   workflowId: flowName

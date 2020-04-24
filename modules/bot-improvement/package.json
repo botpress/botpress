@@ -1,6 +1,8 @@
 {
   "name": "bot-improvement",
+  "fullName": "Bot Improvement",
   "version": "1.0.0",
+  "status": "experimental",
   "description": "Fix bot mistakes based on chat user feedback",
   "private": true,
   "main": "dist/backend/index.js",

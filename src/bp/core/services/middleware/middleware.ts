@@ -30,7 +30,7 @@ export class MiddlewareChain {
       const mwPromise = Promise.fromCallback<boolean>(cb => mw(event, cb))
       const result = await Promise.race([timePromise, mwPromise])
       if (timedOut) {
-        break
+        continue
       } else if (typeof result !== 'undefined') {
         // middleware calling next(null, false) will swallow the event
         if (!result) {

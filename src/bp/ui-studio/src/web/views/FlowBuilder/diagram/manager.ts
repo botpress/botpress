@@ -16,7 +16,16 @@ import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
 import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
-const passThroughNodeProps: string[] = ['name', 'onEnter', 'onReceive', 'next', 'skill', 'conditions', 'content']
+const passThroughNodeProps: string[] = [
+  'name',
+  'onEnter',
+  'onReceive',
+  'next',
+  'skill',
+  'conditions',
+  'content',
+  'activeWorkflow'
+]
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something

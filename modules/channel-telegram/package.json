@@ -1,6 +1,8 @@
 {
   "name": "channel-telegram",
-  "version": "11.5.0",
+  "fullName": "Channel - Telegram",
+  "version": "1.0.0",
+  "status": "stable",
   "description": "A Botpress connector for Telegram",
   "private": true,
   "main": "dist/backend/index.js",

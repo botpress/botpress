@@ -4,7 +4,7 @@
   "confirmDelete": "Do you want to delete the question?",
   "context": {
     "canTypeToCreate": "You can type in the select bar to add new contexts.",
-    "create": "Create \"{query}\"",
+    "createQuery": "Create context",
     "filterByContexts": "Filter by contexts",
     "selectContext": "Select context...",
     "title": "Contexts"

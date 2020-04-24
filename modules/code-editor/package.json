@@ -1,7 +1,9 @@
 {
   "name": "code-editor",
+  "fullName": "Code Editor",
   "version": "1.0.0",
-  "description": "",
+  "status": "stable",
+  "description": "Provides an online editor to easily develop various components: actions, hooks, configurations...",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",
@@ -16,6 +18,7 @@
     "webpack": "^4.20.2"
   },
   "dependencies": {
+    "jsonlint-mod": "^1.7.5",
     "mobx": "^5.10.1",
     "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",
