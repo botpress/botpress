@@ -7,6 +7,7 @@ import { diffLines } from 'diff'
 import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
+import jsonlintMod from 'jsonlint-mod'
 import _ from 'lodash'
 import minimatch from 'minimatch'
 import mkdirp from 'mkdirp'
@@ -14,7 +15,6 @@ import path from 'path'
 import replace from 'replace-in-file'
 import tmp, { file } from 'tmp'
 import { VError } from 'verror'
-import jsonlintMod from 'jsonlint-mod'
 
 import { createArchive } from '../../misc/archive'
 import { TYPES } from '../../types'
@@ -41,7 +41,7 @@ export interface FileChange {
 
 export type FileChangeAction = 'add' | 'edit' | 'del'
 
-const MAX_GHOST_FILE_SIZE = '100mb'
+const MAX_GHOST_FILE_SIZE = process.core_env.BP_BPFS_MAX_FILE_SIZE || '100mb'
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'

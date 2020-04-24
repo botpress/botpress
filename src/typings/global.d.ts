@@ -216,6 +216,12 @@ declare type BotpressEnvironmentVariables = {
    * @default 4
    */
   readonly BP_NUM_ML_WORKERS?: number
+
+  /**
+   * Overrides the maximum file size allowed for the BPFS
+   * @default 100mb
+   */
+  readonly BP_BPFS_MAX_FILE_SIZE?: string
 }
 
 interface IDebug {

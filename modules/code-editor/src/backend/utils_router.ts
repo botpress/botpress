@@ -67,3 +67,19 @@ export const validateFilePayloadMw = (actionType: 'read' | 'write') => async (re
     next(err)
   }
 }
+
+export const validateFileUploadMw = async (req, res, next) => {
+  if (!req.permissions || !req.body) {
+    next(new Error('module.code-editor.error.missingParameters'))
+  }
+
+  if (!req.permissions['root.raw'].write) {
+    next(new Error('module.code-editor.error.lackUploadPermissions'))
+  }
+
+  if (process.env.BP_MODULE_CODE_EDITOR_DISABLE_UPLOAD) {
+    next(new Error('module.code-editor.error.fileUploadDisabled'))
+  }
+
+  next()
+}
