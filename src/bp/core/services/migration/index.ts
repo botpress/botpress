@@ -121,7 +121,12 @@ export class MigrationService {
       return this.logger.error(`Could not complete bot migration. It may behave unexpectedly.`)
     }
 
-    await this.configProvider.mergeBotConfig(botId, { version: this.currentVersion })
+    const existingConfig = await this.configProvider.getBotConfig(botId)
+
+    await this.configProvider.mergeBotConfig(botId, {
+      version: this.currentVersion,
+      history: [...(existingConfig.history || []), { version: botVersion, date: new Date(), reason: 'migrated' }]
+    })
   }
 
   private async executeMigrations(missingMigrations: MigrationFile[]) {

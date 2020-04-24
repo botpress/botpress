@@ -1010,6 +1010,13 @@ declare module 'botpress/sdk' {
     locked: boolean
     pipeline_status: BotPipelineStatus
     oneflow?: boolean
+    history: UpgradeHistory[]
+  }
+
+  export interface UpgradeHistory {
+    reason: 'created' | 'migrated' | 'imported'
+    version: string
+    date: Date
   }
 
   export type Pipeline = Stage[]

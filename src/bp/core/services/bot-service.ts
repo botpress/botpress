@@ -289,7 +289,11 @@ export class BotService {
               promoted_by: 'system',
               promoted_on: new Date()
             }
-          }
+          },
+          history: [
+            ...(originalConfig.history || []),
+            { version: process.BOTPRESS_VERSION, date: new Date(), reason: 'imported' }
+          ]
         }
         if (await this.botExists(botId)) {
           await this.unmountBot(botId)
@@ -541,7 +545,8 @@ export class BotService {
           ...DEFAULT_BOT_CONFIGS,
           ...templateConfig,
           ...botConfig,
-          version: process.BOTPRESS_VERSION
+          version: process.BOTPRESS_VERSION,
+          history: [{ version: process.BOTPRESS_VERSION, date: new Date(), reason: 'created' }]
         }
 
         if (!mergedConfigs.imports.contentTypes) {

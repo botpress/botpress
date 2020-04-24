@@ -23,6 +23,13 @@ export type BotConfig = {
   locked: boolean
   pipeline_status: BotPipelineStatus
   oneflow?: boolean
+  history: UpgradeHistory[]
+}
+
+export interface UpgradeHistory {
+  reason: 'created' | 'migrated' | 'imported'
+  version: string
+  date: Date
 }
 
 export interface BotPipelineStatus {
