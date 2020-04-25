@@ -179,17 +179,17 @@ const watchModules = cb => {
   const command = process.argv[process.argv.length - 2]
   const moduleArgs = process.argv[process.argv.length - 1].split(',')
 
-  const modules =
-    command === '--m'
-      ? allModuleNames.filter(m => moduleArgs.includes(m))
-      : allModuleNames.filter(m => moduleArgs.find(x => m.includes(x)))
-
   if (!['--m', '--a'].includes(command)) {
     console.error(`Argument missing. Use --m for specific modules, or --a for a partial match. 
 Modules must be comma-separated.
 Example: 'yarn watch:modules --m channel-web,nlu,qna' or 'yarn watch:modules --a web,qna,basic'`)
     return cb()
   }
+
+  const modules =
+    command === '--m'
+      ? allModuleNames.filter(m => moduleArgs.includes(m))
+      : allModuleNames.filter(m => moduleArgs.find(x => m.includes(x)))
 
   if (!modules.length) {
     console.error('No module found matching provided arguments')
