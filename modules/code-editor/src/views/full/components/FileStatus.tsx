@@ -16,30 +16,30 @@ const FileStatus = props => {
   const problems = props.editor.fileProblems
   if (!problems || !problems.length) {
     return (
-      <SidePanelSection label={lang.tr('editor.fileStatus.fileInformation')} actions={actions}>
+      <SidePanelSection label={lang.tr('module.code-editor.fileStatus.fileInformation')} actions={actions}>
         <React.Fragment />
       </SidePanelSection>
     )
   }
 
   return (
-    <SidePanelSection label={lang.tr('editor.fileStatus.fileInformation')} actions={actions}>
+    <SidePanelSection label={lang.tr('module.code-editor.fileStatus.fileInformation')} actions={actions}>
       <div style={{ padding: 5 }}>
         <strong>{lang.tr('warning')}</strong>
-        <p>{lang.tr('editor.fileStatus.thereAreErrors', { count: problems.length })}</p>
-        <p>{lang.tr('editor.fileStatus.fixThem', { count: problems.length })}</p>
+        <p>{lang.tr('module.code-editor.fileStatus.thereAreErrors', { count: problems.length })}</p>
+        <p>{lang.tr('module.code-editor.fileStatus.fixThem', { count: problems.length })}</p>
 
         <span onClick={() => setErrorDisplayed(!showErrors)} style={{ cursor: 'pointer' }}>
           {showErrors && <Icon icon="caret-down" />}
           {!showErrors && <Icon icon="caret-up" />}
-          {lang.tr('editor.fileStatus.viewDetails')}
+          {lang.tr('module.code-editor.fileStatus.viewDetails')}
         </span>
 
         <Collapse isOpen={showErrors}>
           <div style={{ paddingLeft: 15 }}>
             {problems.map(x => (
               <div key={x.message} style={{ marginBottom: 10 }}>
-                {lang.tr('editor.fileStatus.line')} <strong>{x.startLineNumber}</strong>
+                {lang.tr('line')} <strong>{x.startLineNumber}</strong>
                 <br />
                 {x.message}
               </div>

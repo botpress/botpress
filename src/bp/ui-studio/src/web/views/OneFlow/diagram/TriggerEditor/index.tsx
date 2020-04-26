@@ -1,7 +1,7 @@
-import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
+import { Button, ButtonGroup, Icon, Intent, Switch, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { Condition } from 'botpress/sdk'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -43,10 +43,13 @@ type Props = StateProps & DispatchProps & OwnProps
 const EditTriggerModal: FC<Props> = props => {
   const [isEditing, setEditing] = useState(false)
   const [conditions, setConditions] = useState<Condition[]>([])
-  const [currentFlowCondition, setCurrentFlowCondition] = useState()
+  const [currentFlowCondition, setCurrentFlowCondition] = useState<Condition>()
   const [currentCondition, setCurrentCondition] = useState<Condition>()
   const [topicName, setTopicName] = useState('')
   const [forceSave, setForceSave] = useState(false)
+  const [isActiveWorkflow, setActiveWorkflow] = useState(false)
+
+  const { node, switchFlowNode, updateFlowNode } = props
 
   useEffect(() => {
     setConditions([])
@@ -54,11 +57,12 @@ const EditTriggerModal: FC<Props> = props => {
 
     if (props.node) {
       const {
-        node: { conditions },
+        node: { conditions, activeWorkflow },
         currentFlow
       } = props
 
       setConditions(conditions)
+      setActiveWorkflow(activeWorkflow)
       setTopicName(currentFlow?.location?.split('/')[0])
     }
   }, [props.node])
@@ -89,7 +93,9 @@ const EditTriggerModal: FC<Props> = props => {
   }
 
   const onConditionDeleted = async (condition: Condition) => {
-    if (await confirmDialog('Are you sure to delete this condition?', { acceptLabel: 'Delete' })) {
+    if (
+      await confirmDialog(lang.tr('studio.flow.condition.confirmDeleteCondition'), { acceptLabel: lang.tr('delete') })
+    ) {
       save([...conditions.filter(cond => cond.id !== condition.id)])
 
       const def = props.backendConditions.find(x => x.id === condition.id)
@@ -99,11 +105,16 @@ const EditTriggerModal: FC<Props> = props => {
     }
   }
 
-  const save = updatedConditions => {
-    const { node, switchFlowNode, updateFlowNode } = props
+  const onActiveWorkflowChanged = e => {
+    setActiveWorkflow(e.currentTarget.checked)
 
-    switchFlowNode?.(node.id)
-    updateFlowNode?.({ conditions: updatedConditions })
+    switchFlowNode(node.id)
+    updateFlowNode({ activeWorkflow: e.currentTarget.checked })
+  }
+
+  const save = updatedConditions => {
+    switchFlowNode(node.id)
+    updateFlowNode({ conditions: updatedConditions, activeWorkflow: isActiveWorkflow })
     setConditions(updatedConditions)
   }
 
@@ -125,22 +136,39 @@ const EditTriggerModal: FC<Props> = props => {
       className={triggerStyles.dialog}
       style={{ width: 750, minHeight: 380 }}
       icon="edit"
-      title={`Edit Triggers`}
+      title={
+        !isEditing
+          ? lang.tr('studio.flow.condition.editTriggers')
+          : `${lang.tr('studio.flow.condition.editCondition')} - ${currentCondition.label}`
+      }
     >
       <DialogBody>
         <div className={cx(triggerStyles.formHeader, { [triggerStyles.editing]: isEditing })}>
           {isEditing && (
             <Button icon="arrow-left" small minimal onClick={() => setEditing(false)}>
-              Back to list
+              {lang.tr('studio.flow.condition.backToList')}
             </Button>
           )}
-          <p className={triggerStyles.tip}>Changes will be saved automatically</p>
+          <div className={triggerStyles.tip}>
+            {lang.tr('studio.flow.condition.savedAutomatically')}
+
+            {!isEditing && (
+              <div style={{ padding: 5 }}>
+                <Switch checked={isActiveWorkflow} onChange={onActiveWorkflowChanged}>
+                  {lang.tr('studio.flow.condition.listenActiveWorkflow')}&nbsp;
+                  <Tooltip content={lang.tr('studio.flow.condition.listenActiveWorkflowHelp')}>
+                    <Icon icon="help"></Icon>
+                  </Tooltip>
+                </Switch>
+              </div>
+            )}
+          </div>
         </div>
         {isEditing && (
           <div>
             <ConditionEditor
               condition={currentCondition}
-              params={currentFlowCondition && currentFlowCondition.params}
+              params={currentFlowCondition?.params}
               updateParams={onParamsChanged}
               topicName={topicName}
               contentLang={contentLang}
@@ -168,7 +196,12 @@ const EditTriggerModal: FC<Props> = props => {
             {conditions?.length !== backendConditions?.length && (
               <ButtonGroup>
                 <ConditionDropdown onChange={con => setCurrentCondition(con)} ignored={conditions} />
-                <Button icon="add" minimal text="Add condition" onClick={() => addCondition(currentCondition)} />
+                <Button
+                  icon="add"
+                  minimal
+                  text={lang.tr('studio.flow.condition.addCondition')}
+                  onClick={() => addCondition(currentCondition)}
+                />
               </ButtonGroup>
             )}
           </div>

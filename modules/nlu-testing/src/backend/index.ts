@@ -1,6 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
+
 import api from './api'
 
 export type SDK = typeof sdk
@@ -33,6 +36,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
+  translations: { en, fr },
   definition: {
     name: 'nlu-testing',
     menuIcon: 'done_outline',

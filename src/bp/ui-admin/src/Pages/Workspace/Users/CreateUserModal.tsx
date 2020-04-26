@@ -95,7 +95,7 @@ export const CreateUserModal: FC<Props> = props => {
     >
       <DialogBody>
         <FormGroup
-          label={lang.tr('admin.workspace.users.collaborators.email')}
+          label={lang.tr('email')}
           labelFor="select-email"
           helperText={lang.tr('admin.workspace.users.collaborators.inviteExistingUser')}
         >

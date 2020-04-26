@@ -88,10 +88,10 @@ const MiniToolbar = props => {
   return (
     <Toolbar>
       <LeftToolbarButtons>
-        <Tooltip content={lang.tr('studio.flow.toolbar.undo')} position={Position.BOTTOM}>
+        <Tooltip content={lang.tr('undo')} position={Position.BOTTOM}>
           <AnchorButton id="btn-undo" icon="undo" disabled={!props.canUndo} onClick={props.undo} />
         </Tooltip>
-        <Tooltip content={lang.tr('studio.flow.toolbar.redo')} position={Position.BOTTOM}>
+        <Tooltip content={lang.tr('redo')} position={Position.BOTTOM}>
           <AnchorButton id="btn-redo" icon="redo" disabled={!props.canRedo} onClick={props.redo} />
         </Tooltip>
       </LeftToolbarButtons>

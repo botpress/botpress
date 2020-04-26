@@ -17,9 +17,15 @@ declare module 'botpress/shared' {
     tr(id: string | { [lang: string]: string }, values?: { [variable: string]: any }): string
     init()
     extend(langs)
-    locale(): string
+    getLocale(): string
+    getAvailable(): string[]
   }
-  export function toastFailure(message: string, details?: string, options?: ToastOptions)
+
+  export const toast: {
+    success: (message: string, details?: string, options?: ToastOptions) => void
+    failure: (message: string, details?: string, options?: ToastOptions) => void
+    info: (message: string, details?: string, options?: ToastOptions) => void
+  }
 
   export const style: { TooltipStyle }
   export { Option }

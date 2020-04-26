@@ -1,8 +1,8 @@
-import { lang } from 'botpress/shared'
+import { BaseDialog, DialogBody, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
-import { Button, Modal } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 import ContentForm from '~/components/ContentForm'
 
 import withLanguage from '../Util/withLanguage'
@@ -55,11 +55,11 @@ class CreateOrEditModal extends React.Component<Props, State> {
       <div>
         <div style={{ height: 100 }}>
           <h4>{lang.tr('actionRequired')}</h4>
-          {lang.tr('studio.flow.content.mustBeDefaultLang')}
+          {lang.tr('studio.content.mustBeDefaultLang')}
         </div>
         <p>
           <Button onClick={this.useDefaultLang} bsStyle="primary">
-            {lang.tr('studio.flow.content.switchToDefaultLang', {
+            {lang.tr('studio.content.switchToDefaultLang', {
               defaultLang: this.props.defaultLanguage.toUpperCase()
             })}
           </Button>
@@ -82,26 +82,29 @@ class CreateOrEditModal extends React.Component<Props, State> {
           isEditing={this.props.isEditing}
           onChange={this.handleEdit}
           onSubmit={this.handleSave}
-        />
-        <button className={classnames('bp-button', 'bp-button-danger', style.cancel)} onClick={this.props.handleClose}>
-          {lang.tr('cancel')}
-        </button>
+        >
+          <div className={style.formBtns}>
+            <button
+              className={classnames('bp-button', 'bp-button-danger')}
+              onClick={this.props.handleClose}
+              type="button"
+            >
+              {lang.tr('cancel')}
+            </button>
+            <button className={classnames('bp-button')} type="submit">
+              {lang.tr('submit')}
+            </button>
+          </div>
+        </ContentForm>
       </div>
     )
   }
 
   render() {
     return (
-      <Modal
-        container={document.getElementById('app')}
-        className={style.modal}
-        show={this.props.show}
-        onHide={this.props.handleClose}
-        backdrop={'static'}
-        style={{ zIndex: 1052 }}
-      >
-        <Modal.Body>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</Modal.Body>
-      </Modal>
+      <BaseDialog isOpen={this.props.show} onClose={this.props.handleClose}>
+        <DialogBody>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</DialogBody>
+      </BaseDialog>
     )
   }
 }

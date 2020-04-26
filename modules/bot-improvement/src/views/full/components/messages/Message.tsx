@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import mimeTypes from 'mime/lite'
@@ -49,7 +50,7 @@ export default (props: { message: Message }) => {
       )
     }
 
-    return <p>Unsupported media</p>
+    return <p>{lang.tr('module.bot-improvement.unsupported')}</p>
   }
 
   const renderText = (text?: string) => {
@@ -66,7 +67,11 @@ export default (props: { message: Message }) => {
 
   const renderCarousel = () => {
     const Carousel = getComponent('channel-web', 'Carousel')
-    return Carousel ? <Carousel carousel={props.message.raw_message} /> : <span>Could not display carousel</span>
+    return Carousel ? (
+      <Carousel carousel={props.message.raw_message} />
+    ) : (
+      <span>{lang.tr('module.bot-improvement.cantDisplayCarousel')}</span>
+    )
   }
 
   const renderQuickReply = quickReplies => {
@@ -80,7 +85,7 @@ export default (props: { message: Message }) => {
         <QuickReplies quick_replies={quickReplies} isLastGroup={true} isLastOfGroup={true} />
       </span>
     ) : (
-      <span>Could not display quick replies</span>
+      <span>{lang.tr('module.bot-improvement.cantDisplayQuickReplies')}</span>
     )
   }
 
@@ -100,14 +105,15 @@ export default (props: { message: Message }) => {
 
       return (
         <span>
-          Bot sent custom component: [Module: {raw_message.module}, Component: {raw_message.component}]
+          {lang.tr('module.bot-improvement.botSentCustom')}: [{lang.tr('module.bot-improvement.module')}:{' '}
+          {raw_message.module}, {lang.tr('module.bot-improvement.component')}: {raw_message.component}]
         </span>
       )
     } else if (type === 'carousel') {
       return renderCarousel()
     }
 
-    return <span>Cannot display this message</span>
+    return <span>{lang.tr('module.bot-improvement.cantDisplayMessage')}</span>
   }
 
   const renderMessage = () => {
@@ -119,7 +125,9 @@ export default (props: { message: Message }) => {
       if (type === 'visit') {
         return (
           <div className={classnames(style.message, style.fromSystem)}>
-            <p>User visit: {date}</p>
+            <p>
+              {lang.tr('module.bot-improvement.userVisit')}: {date}
+            </p>
           </div>
         )
       }

@@ -94,13 +94,13 @@ class RootStore {
 
   @action.bound
   async createFilePrompt(type: FileType, isGlobal?: boolean, hookType?: string) {
-    let name = window.prompt(lang.tr('editor.store.chooseName', { type }))
+    let name = window.prompt(lang.tr('module.code-editor.store.chooseName', { type }))
     if (!name) {
       return
     }
 
     if (!FILENAME_REGEX.test(name)) {
-      alert(lang.tr('editor.store.invalidFilename'))
+      alert(lang.tr('module.code-editor.store.invalidFilename'))
       return
     }
 
@@ -138,13 +138,13 @@ class RootStore {
   @action.bound
   async deleteFile(file: EditableFile): Promise<void> {
     if (
-      await confirmDialog(lang.tr('editor.store.confirmDeleteFile', { file: file.name }), {
+      await confirmDialog(lang.tr('module.code-editor.store.confirmDeleteFile', { file: file.name }), {
         acceptLabel: lang.tr('delete')
       })
     ) {
       if (await this.api.deleteFile(file)) {
         this.editor.closeFile()
-        toastSuccess(lang.tr('editor.store.fileDeleted'))
+        toastSuccess(lang.tr('module.code-editor.store.fileDeleted'))
         await this.fetchFiles()
       }
     }
@@ -154,7 +154,7 @@ class RootStore {
   async disableFile(file: EditableFile): Promise<void> {
     const newName = file.name.charAt(0) !== '.' ? '.' + file.name : file.name
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess(lang.tr('editor.store.fileDisabled'))
+      toastSuccess(lang.tr('module.code-editor.store.fileDisabled'))
       await this.fetchFiles()
     }
   }
@@ -164,7 +164,7 @@ class RootStore {
     const newName = file.name.charAt(0) === '.' ? file.name.substr(1) : file.name
 
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess(lang.tr('editor.store.fileEnabled'))
+      toastSuccess(lang.tr('module.code-editor.store.fileEnabled'))
       await this.fetchFiles()
     }
   }
@@ -172,7 +172,7 @@ class RootStore {
   @action.bound
   async renameFile(file: EditableFile, newName: string) {
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess(lang.tr('editor.store.fileRenamed'))
+      toastSuccess(lang.tr('module.code-editor.store.fileRenamed'))
       await this.fetchFiles()
     }
   }
@@ -192,12 +192,12 @@ class RootStore {
     }
 
     if (await this.api.fileExists(duplicate)) {
-      toastFailure(lang.tr('editor.store.alreadyExists'))
+      toastFailure(lang.tr('module.code-editor.store.alreadyExists'))
       return
     }
 
     if (await this.api.saveFile(duplicate)) {
-      toastSuccess(lang.tr('editor.store.fileDuplicated'))
+      toastSuccess(lang.tr('module.code-editor.store.fileDuplicated'))
       await this.fetchFiles()
     }
   }

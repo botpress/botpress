@@ -29,6 +29,7 @@ export namespace Renderer {
     payload?: any
     store?: RootStore
     bp?: StudioConnector
+    fromLabel?: string
     incomingEventId?: string
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean
@@ -58,6 +59,8 @@ export namespace Renderer {
     text: string
     markdown: boolean
     escapeHTML: boolean
+    intl?: any
+    maxLength?: number
   } & Message
 
   export type QuickReply = {
@@ -140,6 +143,7 @@ export type Config = {
   enableTranscriptDownload: boolean
   enableArrowNavigation: boolean
   botName?: string
+  composerPlaceholder?: string
   avatarUrl?: string
   /** Force the display language of the webchat (en, fr, ar, ru, etc..)
    * Defaults to the user's browser language if not set

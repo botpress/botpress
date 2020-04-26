@@ -10,6 +10,7 @@ interface CssExports {
   'diffNumberUp': string;
   'empty': string;
   'emptyState': string;
+  'exportButton': string;
   'filterItem': string;
   'filters': string;
   'filtersShowing': string;

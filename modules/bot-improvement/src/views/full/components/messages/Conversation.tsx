@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import { BotImprovementApi } from 'full/api'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -26,7 +27,7 @@ const Conversation: FC<{ api: BotImprovementApi; feedbackItem: FeedbackItem }> =
 
   return (
     <div className={style.conversation} style={{ overflow: 'hidden' }}>
-      <ConversationHeader displayName="Conversation Preview" />
+      <ConversationHeader displayName={lang.tr('module.bot-improvement.converationPreview')} />
       <MessageList messageGroups={messageGroups} />
     </div>
   )

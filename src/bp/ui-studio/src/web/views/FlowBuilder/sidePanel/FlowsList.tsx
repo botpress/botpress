@@ -89,21 +89,21 @@ export default class FlowsList extends Component<Props, State> {
           id="btn-rename"
           disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canRename || this.props.readOnly}
           icon="edit"
-          text={lang.tr('studio.flow.sidePanel.rename')}
+          text={lang.tr('rename')}
           onClick={() => this.props.renameFlow(node.nodeData.name)}
         />
         <MenuItem
           id="btn-duplicate"
           disabled={this.props.readOnly}
           icon="duplicate"
-          text={lang.tr('studio.flow.sidePanel.duplicate')}
+          text={lang.tr('duplicate')}
           onClick={() => this.props.duplicateFlow(node.nodeData.name)}
         />
         <MenuItem
           id="btn-delete"
           disabled={lockedFlows.includes(node.nodeData.name) || !this.props.canDelete || this.props.readOnly}
           icon="delete"
-          text={lang.tr('studio.flow.sidePanel.delete')}
+          text={lang.tr('delete')}
           onClick={() => this.handleDelete(node.nodeData)}
         />
       </Menu>,

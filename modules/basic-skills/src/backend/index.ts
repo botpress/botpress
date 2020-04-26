@@ -33,13 +33,13 @@ const skillsToRegister: sdk.Skill[] = [
   },
   {
     id: 'Slot',
-    name: 'Slot Filling',
+    name: 'module.basic-skills.slotFilling',
     icon: 'comparison',
     flowGenerator: slot.generateFlow
   },
   {
     id: 'SendEmail',
-    name: 'Send Email',
+    name: 'module.basic-skills.sendEmail',
     icon: 'envelope',
     flowGenerator: email.generateFlow
   }

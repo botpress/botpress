@@ -1,6 +1,7 @@
 import { Button, Checkbox, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import 'bluebird-global'
+import { lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
@@ -63,7 +64,7 @@ const ImportModal: FC<Props> = props => {
         setName(content?.name)
         setDetected(detectFileType(content))
       } catch (err) {
-        toastFailure(`Could not parse JSON file: ${err.message}`)
+        toastFailure(lang.tr('studio.flow.topicEditor.couldNotParseFile', { msg: err.message }))
         console.error(err)
       }
     }
@@ -114,7 +115,7 @@ const ImportModal: FC<Props> = props => {
         await executeWorkflowActions(actions)
       }
 
-      toastSuccess(`${detected} imported successfully!`)
+      toastSuccess(lang.tr('studio.flow.topicEditor.importedSuccessfully', { detected }))
       props.onImportCompleted()
       closeDialog()
     } catch (err) {
@@ -144,7 +145,7 @@ const ImportModal: FC<Props> = props => {
         <DialogBody>
           {!!missing.length && (
             <div>
-              <strong>These elements don't exist and will be created</strong>
+              <strong>{lang.tr('studio.flow.topicEditor.dontExisteWillCreate')}</strong>
               <div style={{ padding: 5 }}>
                 <ul>
                   {missing.map(x => (
@@ -159,7 +160,7 @@ const ImportModal: FC<Props> = props => {
 
           {!!existing.length && (
             <div>
-              <strong>These elements already exist but are different</strong>
+              <strong>{lang.tr('studio.flow.topicEditor.alreadyExistButDifferent')}</strong>
               <div style={{ padding: 5 }}>
                 <ul>
                   {existing.map(x => (
@@ -170,7 +171,7 @@ const ImportModal: FC<Props> = props => {
                 </ul>
 
                 <Checkbox
-                  label="Overwrite existing content"
+                  label={lang.tr('studio.flow.topicEditor.overwrite')}
                   checked={overwrite}
                   onChange={e => setOverwrite(e.currentTarget.checked)}
                 />
@@ -179,10 +180,10 @@ const ImportModal: FC<Props> = props => {
           )}
         </DialogBody>
         <DialogFooter>
-          <Button id="btn-back" text="Back" disabled={isLoading} onClick={() => setActions(undefined)} />
+          <Button id="btn-back" text={lang.tr('back')} disabled={isLoading} onClick={() => setActions(undefined)} />
           <Button
             id="btn-next"
-            text={isLoading ? 'Please wait...' : 'Import'}
+            text={isLoading ? lang.tr('pleaseWait') : lang.tr('import')}
             onClick={doImport}
             intent={Intent.PRIMARY}
           />
@@ -197,7 +198,7 @@ const ImportModal: FC<Props> = props => {
     }
 
     if (detected === 'unknown') {
-      return <div>Unknown file type or invalid format</div>
+      return <div>{lang.tr('studio.flow.topicEditor.unknownFileType')}</div>
     }
 
     let alreadyExist = !!topics?.find(x => x.name === name)
@@ -208,11 +209,15 @@ const ImportModal: FC<Props> = props => {
     return (
       <div>
         <FormGroup
-          label={detected === 'topic' ? 'Topic Name' : 'Workflow Name'}
+          label={
+            detected === 'topic'
+              ? lang.tr('studio.flow.topicEditor.topicName')
+              : lang.tr('studio.flow.topicEditor.workflowName')
+          }
           helperText={
             alreadyExist
-              ? 'An element with that name already exist. Content will be overwritten'
-              : `This element doesn't exist and will be created`
+              ? lang.tr('studio.flow.topicEditor.willBeOverwritten')
+              : lang.tr('studio.flow.topicEditor.willBeCreated')
           }
         >
           <InputGroup
@@ -223,7 +228,7 @@ const ImportModal: FC<Props> = props => {
             onChange={e => setName(e.target.value)}
           />
         </FormGroup>
-        <h4>Content Overview</h4>
+        <h4>{lang.tr('studio.flow.topicEditor.contentOverview')}</h4>
         <ul>
           {Object.keys(fields[detected]).map(field => {
             const count = fileContent[field]?.length
@@ -249,9 +254,9 @@ const ImportModal: FC<Props> = props => {
         }}
       >
         <DialogBody>
-          <FormGroup label={<span>Select your JSON file</span>} labelFor="input-archive">
+          <FormGroup label={<span>{lang.tr('studio.flow.topicEditor.selectJson')}</span>} labelFor="input-archive">
             <FileInput
-              text={filePath || 'Choose file...'}
+              text={filePath || lang.tr('chooseFile')}
               onChange={e => readFile((e.target as HTMLInputElement).files)}
               fill
             />
@@ -263,7 +268,7 @@ const ImportModal: FC<Props> = props => {
           {fileContent && (
             <Button
               id="btn-next"
-              text={isLoading ? 'Please wait...' : 'Next'}
+              text={isLoading ? lang.tr('pleaseWait') : lang.tr('next')}
               disabled={isLoading}
               onClick={analyzeImport}
               intent={Intent.PRIMARY}
@@ -277,19 +282,22 @@ const ImportModal: FC<Props> = props => {
   const renderNoChanges = () => {
     return (
       <Fragment>
-        <DialogBody>
-          There are no changes to apply, or everything in the file is identical to the existing content
-        </DialogBody>
+        <DialogBody>{lang.tr('studio.flow.topicEditor.noChangesToApply')}</DialogBody>
         <DialogFooter>
-          <Button id="btn-back" text="Back" onClick={() => setActions(undefined)} />
-          <Button id="btn-close" text="Close" onClick={closeDialog} />
+          <Button id="btn-back" text={lang.tr('back')} onClick={() => setActions(undefined)} />
+          <Button id="btn-close" text={lang.tr('close')} onClick={closeDialog} />
         </DialogFooter>
       </Fragment>
     )
   }
 
   return (
-    <BaseDialog title="Import Content" icon="import" isOpen={props.isOpen} onClose={closeDialog}>
+    <BaseDialog
+      title={lang.tr('studio.flow.topicEditor.importContent')}
+      icon="import"
+      isOpen={props.isOpen}
+      onClose={closeDialog}
+    >
       {actions !== undefined ? renderDetails() : renderUpload()}
     </BaseDialog>
   )

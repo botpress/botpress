@@ -1,8 +1,11 @@
-import { merge } from 'lodash'
+import { isEmpty, merge } from 'lodash'
 import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
+import en from './en.json'
+import fr from './fr.json'
+
 const defaultLocale = 'en'
-const translations = {}
+let translations = {}
 
 let locale: string
 let intl: IntlShape
@@ -18,6 +21,10 @@ document.addEventListener('keydown', function(event) {
 })
 
 const langExtend = langs => {
+  if (isEmpty(translations)) {
+    translations = { en, fr }
+  }
+
   for (const [key, value] of Object.entries(langs)) {
     if (translations[key]) {
       merge(translations[key], value)
@@ -43,7 +50,12 @@ const langInit = () => {
     {
       locale,
       messages,
-      defaultLocale
+      defaultLocale,
+      onError: err => {
+        if (isDev) {
+          console.error(err)
+        }
+      }
     },
     cache
   )
@@ -51,6 +63,10 @@ const langInit = () => {
 
 const langLocale = (): string => {
   return locale
+}
+
+const langAvaibale = (): string[] => {
+  return Object.keys(translations)
 }
 
 const squash = (space, root = {}, path = '') => {
@@ -67,9 +83,9 @@ const squash = (space, root = {}, path = '') => {
 const getUserLocale = () => {
   const code = str => str.split('-')[0]
   const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
-  const locale = code(browserLocale || '')
+  const storageLocale = code(localStorage.getItem('uiLanguage') || '')
 
-  return translations[locale] ? locale : defaultLocale
+  return translations[storageLocale] ? storageLocale : translations[browserLocale] ? browserLocale : defaultLocale
 }
 
 /**
@@ -91,4 +107,4 @@ const lang = (id: string | { [lang: string]: string }, values?: { [variable: str
   }
 }
 
-export { lang, langInit, langExtend, langLocale }
+export { lang, langInit, langExtend, langLocale, langAvaibale }
