@@ -1,3 +1,27 @@
+## [12.8.6](https://github.com/botpress/botpress/compare/v12.8.4...v12.8.6) (2020-04-26)
+
+
+### Bug Fixes
+
+* **analytics:** added export data as csv ([#3268](https://github.com/botpress/botpress/issues/3268)) ([febb07e](https://github.com/botpress/botpress/commit/febb07e))
+* **bot-improvement:** search in dropdown & using radios ([#3260](https://github.com/botpress/botpress/issues/3260)) ([04da7bd](https://github.com/botpress/botpress/commit/04da7bd))
+* **channel-web:** support html in truncate ([#3259](https://github.com/botpress/botpress/issues/3259)) ([daf2c6f](https://github.com/botpress/botpress/commit/daf2c6f))
+* **core:** additional validations for bot & user id ([#3281](https://github.com/botpress/botpress/issues/3281)) ([f8a8bc6](https://github.com/botpress/botpress/commit/f8a8bc6))
+* **core:** bring back previous flow/node ([#3271](https://github.com/botpress/botpress/issues/3271)) ([a524fa3](https://github.com/botpress/botpress/commit/a524fa3))
+* **core:** clean paths ([#3277](https://github.com/botpress/botpress/issues/3277)) ([63891b5](https://github.com/botpress/botpress/commit/63891b5))
+* **core:** fix debugging for sub-processes ([#3258](https://github.com/botpress/botpress/issues/3258)) ([765aeb9](https://github.com/botpress/botpress/commit/765aeb9))
+* **core:** jwks auth for extenal users ([#3269](https://github.com/botpress/botpress/issues/3269)) ([193d22e](https://github.com/botpress/botpress/commit/193d22e))
+* **core:** remove misleading error when using qna redirect ([#3256](https://github.com/botpress/botpress/issues/3256)) ([14faca3](https://github.com/botpress/botpress/commit/14faca3))
+* **debugger:** expand inspector nodes easily ([#3278](https://github.com/botpress/botpress/issues/3278)) ([05f23e5](https://github.com/botpress/botpress/commit/05f23e5))
+* **ndu:** ignore trigger with no conditions ([#3276](https://github.com/botpress/botpress/issues/3276)) ([bfe5a96](https://github.com/botpress/botpress/commit/bfe5a96))
+* **nlu:** multiple fixes ([#3249](https://github.com/botpress/botpress/issues/3249)) ([1d438d8](https://github.com/botpress/botpress/commit/1d438d8))
+* **nlu:** train only if not disabled ([c65a5e0](https://github.com/botpress/botpress/commit/c65a5e0))
+* **skill-choice:** also match on choice value ([#3261](https://github.com/botpress/botpress/issues/3261)) ([272e8cf](https://github.com/botpress/botpress/commit/272e8cf))
+* **studio:** actions menu sometime empty ([#3266](https://github.com/botpress/botpress/issues/3266)) ([8bc2ce2](https://github.com/botpress/botpress/commit/8bc2ce2))
+* **webchat:** accessibility issues ([#3250](https://github.com/botpress/botpress/issues/3250)) ([f4b1809](https://github.com/botpress/botpress/commit/f4b1809))
+
+
+
 ## [12.8.5](https://github.com/botpress/botpress/compare/v12.8.4...v12.8.5) (2020-04-22)
 
 
