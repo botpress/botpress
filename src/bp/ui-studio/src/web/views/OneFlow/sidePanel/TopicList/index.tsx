@@ -361,7 +361,7 @@ const TopicList: FC<Props> = props => {
       {flows.length <= 3 && (
         <div className={style.topicsEmptyState}>
           <div className={style.topicsEmptyStateBlock}>
-            <Icon icon="folder-open" iconSize={70} />
+            <img width="70" src="assets/ui-studio/public/img/empty-state.svg" alt="Botpress Logo" />
             <div className={style.topicsEmptyStateText}>{lang.tr('studio.flow.sidePanel.tapIconsToAdd')}</div>
           </div>
         </div>

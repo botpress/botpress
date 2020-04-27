@@ -84,7 +84,8 @@
   text-align: center;
   left: 0;
   right: 0;
-  height: 121px;
+  height: 180px;
+  padding-bottom: 60px;
   margin: auto;
   position: absolute;
   top: 50%;
@@ -101,8 +102,8 @@
 .topicsEmptyStateText {
   font-size: 12px;
   color: #1a1e22;
-  margin-top: var(--spacing-medium);
   margin: 0px 20px;
+  margin-top: var(--spacing-x-large);
 }
 
 .treeNode {
