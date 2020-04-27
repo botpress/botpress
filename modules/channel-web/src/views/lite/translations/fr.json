@@ -21,6 +21,8 @@
   "messages.newMessages": "Nouveaux messages",
   "messages.readMore": "Afficher la suite",
   "messages.showLess": "Afficher moins",
+  "message.thumbsUp": "Très bien",
+  "message.thumbsDown": "Mauvais",
   "widget.title": "Fenêtre de clavardage",
   "widget.toggle": "Ouvrir ou fermer la conversation"
 }
