@@ -161,13 +161,12 @@ const SidePanelContent: FC<Props> = props => {
         <Inspector onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
         <React.Fragment>
-          <SearchBar
-            icon="filter"
-            placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
-            onChange={setTopicFilter}
-          />
-
           <SidePanelSection label={lang.tr('topics')} actions={topicActions}>
+            <SearchBar
+              icon="filter"
+              placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
+              onChange={setTopicFilter}
+            />
             <TopicList
               readOnly={props.readOnly}
               canDelete={canDelete}
