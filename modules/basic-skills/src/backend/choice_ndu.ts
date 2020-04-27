@@ -1,9 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import nanoid from 'nanoid/generate'
 import yn from 'yn'
-
-const makeRandomId = () => nanoid('abcdefghijklmnopqrstuvwxyz0123456789', 10)
 
 const generateFlowNdu = async (data: any): Promise<sdk.FlowGenerationResult> => {
   const { randomId } = data
@@ -29,8 +26,6 @@ const generateFlowNdu = async (data: any): Promise<sdk.FlowGenerationResult> => 
     })
   }
 
-  const failNode = makeRandomId()
-
   const nodes: sdk.SkillFlowNode[] = [
     {
       name: 'entry',
@@ -50,7 +45,7 @@ const generateFlowNdu = async (data: any): Promise<sdk.FlowGenerationResult> => 
       next: [{ condition: 'true', node: 'wait' }]
     },
     {
-      name: failNode,
+      name: 'failure',
       type: 'trigger',
       conditions: [{ id: 'custom_confidence', params: { confidence: '0.3' } }],
       onEnter: [
@@ -69,7 +64,7 @@ const generateFlowNdu = async (data: any): Promise<sdk.FlowGenerationResult> => 
         },
         {
           condition: 'true',
-          node: failNode
+          node: 'failure'
         }
       ],
       activeWorkflow: true
@@ -77,65 +72,42 @@ const generateFlowNdu = async (data: any): Promise<sdk.FlowGenerationResult> => 
   ]
 
   Object.keys(data.keywords).forEach((choice, idx) => {
-    const successNodeId = `success-${idx}`
+    const index = idx + 1
+    const successNodeId = `success-${index}`
 
-    nodes.push({
-      name: makeRandomId(),
-      type: 'trigger',
-      activeWorkflow: true,
-      onEnter: [],
-      conditions: [{ id: 'type_text', params: { candidate: data.keywords[choice], exactMatch: false } }],
-      next: [
-        {
-          condition: 'true',
-          node: successNodeId
-        }
-      ]
-    })
-
-    nodes.push({
-      name: makeRandomId(),
-      type: 'trigger',
-      activeWorkflow: true,
-      onEnter: [],
-      conditions: [
-        { id: 'extracted_entity', params: { type: 'system.number', comparison: 'equal', expectedValue: idx + 1 } }
-      ],
-      next: [
-        {
-          condition: 'true',
-          node: successNodeId
-        }
-      ]
-    })
-
-    nodes.push({
-      name: makeRandomId(),
-      type: 'trigger',
-      activeWorkflow: true,
-      onEnter: [],
-      conditions: [
-        {
-          id: 'user_intent_is',
-          params: {
-            intentName: data.keywords[choice]
+    const addNode = (type: string, condition: any) => {
+      nodes.push({
+        name: `trigger-${index}-${type}`,
+        type: 'trigger',
+        activeWorkflow: true,
+        onEnter: [],
+        next: [
+          {
+            condition: 'true',
+            node: successNodeId
           }
-        }
-      ],
-      next: [
-        {
-          condition: 'true',
-          node: successNodeId
-        }
-      ]
+        ],
+        conditions: [condition]
+      })
+    }
+
+    addNode('entity', {
+      id: 'extracted_entity',
+      params: { type: 'system.number', comparison: 'equal', expectedValue: index }
     })
+
+    if (choice.startsWith('intent:')) {
+      addNode('intent', { id: 'user_intent_is', params: { intentName: data.keywords[choice].replace('intent:', '') } })
+    } else {
+      addNode('text', { id: 'type_text', params: { candidate: data.keywords[choice], exactMatch: false } })
+    }
 
     nodes.push({
       name: successNodeId,
       type: 'success',
       next: [
         {
-          condition: `true`,
+          condition: 'true',
           node: '#'
         }
       ]
@@ -159,7 +131,7 @@ const createTransitions = (data, randomId) => {
 
     return {
       caption: `User picked [${choiceShort}]`,
-      condition: `lastNode=success-${idx}`,
+      condition: `lastNode=success-${idx + 1}`,
       node: ''
     }
   })
