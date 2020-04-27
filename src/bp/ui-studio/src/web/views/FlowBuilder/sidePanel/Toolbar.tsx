@@ -1,4 +1,5 @@
 import { AnchorButton, Popover, Position, Tag, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { FlowMutex } from 'common/typings'
 import _ from 'lodash'
 import React from 'react'
@@ -31,9 +32,9 @@ const FlowProblems = props => {
       <Tooltip
         content={
           <span>
-            There are some problems with your flow.
+            {lang.tr('studio.flow.toolbar.problemsWithFlow')}
             <br />
-            Click for more details
+            {lang.tr('studio.flow.toolbar.clickDetails')}
           </span>
         }
         position={Position.BOTTOM}
@@ -48,7 +49,7 @@ const FlowProblems = props => {
             <a onClick={() => highlightNode(node.nodeName)}>
               <strong>{node.nodeName}</strong>
             </a>
-            : Missing <strong>{node.missingPorts}</strong> links
+            : {lang.tr('studio.flow.toolbar.missingDetails', { nb: <strong>{node.missingPorts}</strong> })}
           </div>
         ))}
       </div>
@@ -65,12 +66,12 @@ const FlowMutexInfo = (props: { mutexInfo: MutexInfo }) => {
   const { lastModifiedBy } = (props.mutexInfo.currentMutex || {}) as FlowMutex
 
   const tooltipContent = isLock ? (
-    <span>{lastModifiedBy + ' is currently editing this flow'}</span>
+    <span>{lang.tr('studio.flow.toolbar.currentlyEditing', { name: lastModifiedBy })}</span>
   ) : (
     <span>
-      Somebody is editing another flow
+      {lang.tr('studio.flow.toolbar.somebodyIsEditing')}
       <br />
-      Renaming and Deleting flows is disabled
+      {lang.tr('studio.flow.toolbar.renamingAndDeletingDisabled')}
     </span>
   )
 
@@ -87,10 +88,10 @@ const MiniToolbar = props => {
   return (
     <Toolbar>
       <LeftToolbarButtons>
-        <Tooltip content="Undo" position={Position.BOTTOM}>
+        <Tooltip content={lang.tr('undo')} position={Position.BOTTOM}>
           <AnchorButton id="btn-undo" icon="undo" disabled={!props.canUndo} onClick={props.undo} />
         </Tooltip>
-        <Tooltip content="Redo" position={Position.BOTTOM}>
+        <Tooltip content={lang.tr('redo')} position={Position.BOTTOM}>
           <AnchorButton id="btn-redo" icon="redo" disabled={!props.canRedo} onClick={props.redo} />
         </Tooltip>
       </LeftToolbarButtons>
@@ -114,7 +115,4 @@ const mapDispatchToProps = {
   redo: flowEditorRedo
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MiniToolbar)
+export default connect(mapStateToProps, mapDispatchToProps)(MiniToolbar)

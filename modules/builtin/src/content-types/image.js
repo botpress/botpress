@@ -18,7 +18,8 @@ function render(data) {
     {
       type: 'file',
       title: data.title,
-      url: url.resolve(data.BOT_URL, data.image)
+      url: url.resolve(data.BOT_URL, data.image),
+      collectFeedback: data.collectFeedback
     }
   ]
 }
@@ -131,10 +132,10 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_image',
   group: 'Built-in Messages',
-  title: 'Image',
+  title: 'image',
 
   jsonSchema: {
-    description: 'A message showing an image with an optional title',
+    description: 'module.builtin.types.image.description',
     type: 'object',
     required: ['image'],
     properties: {
@@ -142,12 +143,12 @@ module.exports = {
         type: 'string',
         $subtype: 'media',
         $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
-        title: 'Image'
+        title: 'module.builtin.types.image.title'
       },
       title: {
         type: 'string',
-        description: 'Some platforms require to name the images.',
-        title: 'Title (optional)'
+        title: 'module.builtin.types.image.imageLabel',
+        description: 'module.builtin.types.image.labelDesc'
       },
       ...base.typingIndicators
     }

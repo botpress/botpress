@@ -1,8 +1,12 @@
+import { Tooltip } from '@blueprintjs/core'
+import * as sdk from 'botpress/sdk'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { DefaultPortModel, PortWidget } from 'storm-react-diagrams'
+import { getFlowNames, getFlowNamesList } from '~/reducers'
 
 import { newNodeTypes } from '../manager'
 
@@ -40,19 +44,23 @@ type Props = {
   className?: string
   name: string
   node: any
+  next?: sdk.NodeTransition[]
+  flowsName: any
 } & RouteComponentProps
 
-export class StandardPortWidgetDisconnected extends React.Component<Props> {
+export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
   renderSubflowNode() {
-    const node = this.props.node
     const index = Number(this.props.name.replace('out', ''))
-    const subflow = node.next[index].node.replace(/\.flow\.json$/i, '')
+    const subflow = this.props.node.next[index].node.replace(/\.flow\.json$/i, '')
+    const isInvalid = !this.props.flowsName.find(x => x === this.props.node.next[index].node)
 
     return (
-      <div className={style.label}>
-        <a href="javascript:void(0);" onClick={() => this.props.history.push(`/flows/${subflow}`)}>
-          {subflow}
-        </a>
+      <div className={classnames(style.label, { [style.invalidFlow]: isInvalid })}>
+        {isInvalid ? (
+          <Tooltip content="The destination for this transition is invalid">{subflow}</Tooltip>
+        ) : (
+          <Link to={`/flows/${subflow}`}>{subflow}</Link>
+        )}
       </div>
     )
   }
@@ -122,4 +130,6 @@ export class StandardPortWidgetDisconnected extends React.Component<Props> {
   }
 }
 
-export const StandardPortWidget = withRouter(StandardPortWidgetDisconnected)
+const mapStateToProps = state => ({ flowsName: getFlowNames(state) })
+
+export const StandardPortWidget = connect(mapStateToProps)(withRouter(StandardPortWidgetDisconnected))

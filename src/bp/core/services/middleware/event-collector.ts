@@ -30,6 +30,7 @@ export class EventCollector {
   private batch: BatchEvent[] = []
   private ignoredTypes: string[] = []
   private ignoredProperties: string[] = []
+  private debuggerProperties: string[] = []
 
   constructor(
     @inject(TYPES.Logger)
@@ -50,6 +51,7 @@ export class EventCollector {
     this.retentionPeriod = ms(config.retentionPeriod)
     this.ignoredTypes = config.ignoredEventTypes || []
     this.ignoredProperties = config.ignoredEventProperties || []
+    this.debuggerProperties = config.debuggerProperties || []
     this.enabled = true
   }
 
@@ -66,6 +68,20 @@ export class EventCollector {
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
+    const lastWf = (event as sdk.IO.IncomingEvent).state.session?.lastWorkflows?.[0]
+    const workflowId = lastWf?.active ? lastWf.eventId : undefined
+    const success = lastWf?.active ? lastWf?.success : undefined
+
+    // Once the workflow is a success or failure, it becomes inactive
+    if (lastWf?.success !== undefined) {
+      const metric = lastWf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
+      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: lastWf.workflow })
+
+      lastWf.active = false
+    }
+
+    const ignoredProps = [...this.ignoredProperties, ...(event.debugger ? [] : this.debuggerProperties)]
+    delete event.debugger
 
     this.batch.push({
       botId,
@@ -74,8 +90,10 @@ export class EventCollector {
       target,
       sessionId,
       direction,
+      workflowId,
+      success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
-      event: this.knex.json.set(this.ignoredProperties ? _.omit(event, this.ignoredProperties) : event || {}),
+      event: this.knex.json.set(ignoredProps.length ? _.omit(event, ignoredProps) : event || {}),
       createdOn: this.knex.date.now()
     })
   }

@@ -90,20 +90,20 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: 'Single Choice',
+  title: 'module.builtin.types.singleChoice.title',
 
   jsonSchema: {
-    description: 'Suggest choices to the user with the intention of picking only one (with an optional message)',
+    description: 'module.builtin.types.singleChoice.description',
     type: 'object',
     required: ['choices'],
     properties: {
       text: {
         type: 'string',
-        title: 'Message'
+        title: 'message'
       },
       choices: {
         type: 'array',
-        title: 'Choices',
+        title: 'module.builtin.types.singleChoice.choice',
         minItems: 1,
         maxItems: 10,
         items: {
@@ -111,13 +111,12 @@ module.exports = {
           required: ['title', 'value'],
           properties: {
             title: {
-              description: 'The title of the choice (this is what gets shown to the user)',
+              description: 'module.builtin.types.singleChoice.itemTitle',
               type: 'string',
               title: 'Message'
             },
             value: {
-              description:
-                'The value that your bot gets when the user picks this choice (usually hidden from the user)',
+              description: 'module.builtin.types.singleChoice.itemValue',
               type: 'string',
               title: 'Value'
             }
@@ -126,7 +125,7 @@ module.exports = {
       },
       markdown: {
         type: 'boolean',
-        title: 'Use markdown',
+        title: 'module.builtin.useMarkdown',
         default: true
       },
       ...base.typingIndicators

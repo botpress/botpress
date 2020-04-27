@@ -1,10 +1,12 @@
 import * as sdk from 'botpress/sdk'
+import { Config } from 'src/config'
+import Storage from './storage'
 
 export type Action = 'text' | 'redirect' | 'text_redirect'
 
 export interface QnaEntry {
   action: Action
-  category: string
+  contexts: string[]
   enabled: boolean
   questions: {
     [lang: string]: string[]
@@ -19,4 +21,14 @@ export interface QnaEntry {
 export interface QnaItem {
   id: string
   data: QnaEntry
+}
+
+export interface ScopedBots {
+  [botId: string]: BotParams
+}
+
+export interface BotParams {
+  config: Config
+  storage: Storage
+  defaultLang: string
 }

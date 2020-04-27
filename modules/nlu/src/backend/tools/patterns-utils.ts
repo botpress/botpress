@@ -1,6 +1,3 @@
-const ESCAPED_CHARS = /[.+?^${}()|[\]\\]/g
-const WILDCARD = /\*/g
-
 interface ExtractedPattern {
   value: string
   sourceIndex: number
@@ -15,10 +12,6 @@ export function isPatternValid(pattern: string): boolean {
   }
 }
 
-export function escapeRegex(pattern: string): string {
-  return pattern.replace(ESCAPED_CHARS, '\\$&').replace(WILDCARD, '.+?')
-}
-
 // Padding is necessary due to the recursive nature of this function.
 // Every found pattern is removed from the candidate, therefor the length of the extracted value (padding) is needed to compute sourceIndex of future extractions
 export function extractPattern(
@@ -28,7 +21,9 @@ export function extractPattern(
   padding = 0
 ): ExtractedPattern[] {
   const res = pattern.exec(candidate)
-  if (!res) return extracted
+  if (!res) {
+    return extracted
+  }
 
   const value = res[0]
   const nextPadding = padding + value.length

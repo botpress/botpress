@@ -5,7 +5,7 @@ title: Licensing
 
 ## Obtaining a License
 
-Please contact us through our [webform](https://botpress.typeform.com/to/QaznSq).
+Please contact our sales team using the request demo form on our [website](https://botpress.com/request-demo).
 
 ## Activate your License
 

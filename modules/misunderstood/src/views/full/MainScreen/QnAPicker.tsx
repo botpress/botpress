@@ -1,6 +1,7 @@
 import { Button, Card, ControlGroup, InputGroup, MenuItem } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
 import { AxiosStatic } from 'axios'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React from 'react'
 
@@ -133,7 +134,7 @@ class QnAPicker extends React.Component<Props, State> {
           large
           leftIcon="filter"
           onChange={this.handleFilterChange}
-          placeholder="Search for a question..."
+          placeholder={lang.tr('module.misunderstood.searchForAQuestion')}
           value={this.state.filterQuestion}
         />
 
@@ -142,7 +143,7 @@ class QnAPicker extends React.Component<Props, State> {
             items={this.state.categoryOptions}
             selectedItems={this.state.filterCategories}
             onItemSelect={this.handleCategorySelect}
-            placeholder="Search for a category..."
+            placeholder={lang.tr('module.misunderstood.searchForACategory')}
             popoverProps={{
               minimal: true
             }}
@@ -211,7 +212,11 @@ class QnAPicker extends React.Component<Props, State> {
           </p>
         )}
 
-        {data.category && <p>Category:&nbsp;{data.category}</p>}
+        {data.category && (
+          <p>
+            {lang.tr('module.misunderstood.category')}:&nbsp;{data.category}
+          </p>
+        )}
 
         {isSelected && (
           <Button
@@ -220,7 +225,7 @@ class QnAPicker extends React.Component<Props, State> {
             }}
             icon="undo"
           >
-            Select another
+            {lang.tr('module.misunderstood.selectAnother')}
           </Button>
         )}
       </Card>
@@ -234,7 +239,13 @@ class QnAPicker extends React.Component<Props, State> {
       return items.map(item => this.renderListItem(item))
     }
 
-    return <h3>{filterQuestion || filterCategories.length ? 'No questions match the query.' : 'No questions found'}</h3>
+    return (
+      <h3>
+        {filterQuestion || filterCategories.length
+          ? lang.tr('module.misunderstood.noQuestionsMatchQuery')
+          : lang.tr('module.misunderstood.noQuestionsFound')}
+      </h3>
+    )
   }
 
   async componentDidMount() {

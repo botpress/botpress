@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { log, std, mean } from 'mathjs'
 
 /**
  * Vectorial distance between two N-dimentional points
@@ -67,12 +68,36 @@ export function scalarMultiply(vec: number[], multiplier: number): number[] {
   return vec.map(x => x * multiplier)
 }
 
+export function averageVectors(vecs: number[][]): number[] {
+  if (!vecs.length) {
+    return []
+  }
+
+  if (_.uniqBy(vecs, 'length').length > 1) {
+    throw new Error('Vectors must all be of the same size')
+  }
+
+  const normalized = vecs
+    .map(vec => {
+      const norm = computeNorm(vec)
+      if (norm) {
+        return scalarDivide(vec, norm)
+      }
+    })
+    .filter(Boolean)
+  return vectorAdd(...normalized)
+}
+
 export function scalarDivide(vec: number[], divider: number): number[] {
   return scalarMultiply(vec, 1 / divider)
 }
 
 export function allInRange(vec: number[], lower: number, upper: number): boolean {
   return vec.map(v => _.inRange(v, lower, upper)).every(_.identity)
+}
+
+export function zeroes(len: number): number[] {
+  return Array(len).fill(0)
 }
 
 /**
@@ -86,4 +111,11 @@ export function computeQuantile(quantile: number, target: number, upperBound: nu
   return Math.min(quantile, Math.max(Math.ceil(quantile * ((target - lowerBound) / (upperBound - lowerBound))), 1))
 }
 
-export { log, std } from 'mathjs'
+/**
+ * @returns relative standard dev
+ */
+export function relativeStd(vec: number[]): number {
+  return std(vec) / mean(vec)
+}
+
+export { log, std, mean }

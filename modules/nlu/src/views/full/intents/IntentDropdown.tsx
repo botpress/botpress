@@ -1,6 +1,7 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
 }
 
 const SelectDropdown = Select.ofType<NLU.IntentDefinition>()
-const noIntent: any = { name: 'Select an existing intent' }
+const noIntent: any = { name: lang.tr('module.nlu.intents.selectIntentLabel') }
 
 const IntentDropdown: FC<Props> = props => {
   const [selected, setSelected] = useState<NLU.IntentDefinition>()
@@ -35,7 +36,7 @@ const IntentDropdown: FC<Props> = props => {
       itemRenderer={renderOption}
       activeItem={selected}
       popoverProps={{ minimal: true }}
-      noResults={<MenuItem disabled={true} text="No results." />}
+      noResults={<MenuItem disabled={true} text={lang.tr('module.nlu.intents.selectIntentNoResults')} />}
       onItemSelect={option => selectItem(option)}
       onActiveItemChange={option => selectItem(option)}
     >

@@ -2,13 +2,17 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import makeApi from '../api'
-import { getModel } from '../engine2/model-service'
-import { setTrainingSession } from '../engine2/train-session-service'
+import { getModel } from '../model-service'
+import { setTrainingSession } from '../train-session-service'
 import { NLUState, TrainingSession } from '../typings'
 
 export function getOnServerReady(state: NLUState) {
   return async (bp: typeof sdk) => {
     const loadModel = async (botId: string, hash: string, language: string) => {
+      if (!state.nluByBot[botId]) {
+        return
+      }
+
       const ghost = bp.ghost.forBot(botId)
       const model = await getModel(ghost, hash, language)
       if (model) {

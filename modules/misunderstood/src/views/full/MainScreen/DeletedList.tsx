@@ -1,4 +1,5 @@
 import { Button, HTMLTable, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React from 'react'
 
 import { DbFlaggedEvent } from '../../../types'
@@ -12,13 +13,13 @@ interface Props {
 
 const DeletedList = ({ events, totalEventsCount, undeleteEvent }: Props) => (
   <>
-    <h3>Ignored Misunderstood ({totalEventsCount})</h3>
+    <h3>{lang.tr('module.misunderstood.ignoredMisunderstood', { count: totalEventsCount })}</h3>
     {events && !!events.length && (
       <HTMLTable className={style.mainViewTable} condensed interactive striped>
         <thead>
           <tr>
-            <th>Phrase</th>
-            <th className={style.thUpdated}>Deleted</th>
+            <th>{lang.tr('module.misunderstood.phrase')}</th>
+            <th className={style.thUpdated}>{lang.tr('module.misunderstood.deleted')}</th>
             <th className={style.thAction}>&nbsp;</th>
           </tr>
         </thead>
@@ -29,7 +30,7 @@ const DeletedList = ({ events, totalEventsCount, undeleteEvent }: Props) => (
               <td>{event.updatedAt}</td>
               <td>
                 <Button onClick={() => undeleteEvent('' + event.id)} small icon="refresh" intent={Intent.PRIMARY}>
-                  Restore
+                  {lang.tr('module.misunderstood.restore')}
                 </Button>
               </td>
             </tr>

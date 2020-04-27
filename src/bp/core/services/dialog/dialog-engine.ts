@@ -39,7 +39,7 @@ export class DialogEngine {
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
     if (_.get(currentNode, 'type') === 'skill-call' && !this._exitingSubflow(event)) {
-      return this._goToSubflow(botId, event, sessionId, currentNode, currentFlow)
+      return this._goToSubflow(botId, event, sessionId, currentFlow, currentNode)
     }
 
     const queueBuilder = new InstructionsQueueBuilder(currentNode, currentFlow)
@@ -52,6 +52,19 @@ export class DialogEngine {
       queue = InstructionsQueueBuilder.fromInstructions(context.queue.instructions)
     } else {
       queue = queueBuilder.build()
+    }
+
+    if (currentNode?.type === 'success') {
+      const wf = event.state.session.lastWorkflows.find(x => x.workflow === context.currentFlow)
+      wf && (wf.success = true)
+
+      queue.instructions = [
+        ...queue.instructions,
+        { type: 'transition', fn: 'true', node: 'Built-In/feedback.flow.json' }
+      ]
+    } else if (currentNode?.type === 'failure') {
+      const wf = event.state.session.lastWorkflows.find(x => x.workflow === context.currentFlow)
+      wf && (wf.success = false)
     }
 
     const instruction = queue.dequeue()
@@ -92,8 +105,8 @@ export class DialogEngine {
           }
 
           const { onErrorFlowTo } = event.state.temp
-          const errorFlow =
-            typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+          const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
+          const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
 
           return this._transition(sessionId, event, errorFlow)
         })
@@ -195,7 +208,7 @@ export class DialogEngine {
   }
 
   private initializeContext(event) {
-    const defaultFlow = this._findFlow(event.botId, 'main.flow.json')
+    const defaultFlow = this._findFlow(event.botId, event.ndu ? 'Built-In/welcome.flow.json' : 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.__stacktrace.push({ flow: defaultFlow.name, node: startNode.name })
     event.state.context = {
@@ -207,13 +220,16 @@ export class DialogEngine {
     return event.state.context
   }
 
-  protected async _transition(sessionId, event, transitionTo) {
+  protected async _transition(sessionId: string, event: IO.IncomingEvent, transitionTo: string) {
     let context: IO.DialogContext = event.state.context
     if (!event.state.__error) {
       this._detectInfiniteLoop(event.state.__stacktrace, event.botId)
     }
 
+    context.jumpPoints = context.jumpPoints?.filter(x => !x.used)
+
     if (transitionTo.includes('.flow.json')) {
+      BOTPRESS_CORE_EVENT('bp_core_enter_flow', { botId: event.botId, channel: event.channel, flowName: transitionTo })
       // Transition to other flow
       const flow = this._findFlow(event.botId, transitionTo)
       const startNode = this._findNode(event.botId, flow, flow.startNode)
@@ -222,15 +238,14 @@ export class DialogEngine {
       context = {
         currentFlow: flow.name,
         currentNode: startNode.name,
-        // We keep a reference of the previous flow so we can return to it later on.
-        // TODO: drop previousFlow/previousNode in favor of jumpPoints
+        // Those two are not used in the backend logic, but keeping them since users rely on them
         previousFlow: event.state.context.currentFlow,
         previousNode: event.state.context.currentNode,
         jumpPoints: [
-          ...(event.state.context.jumpPoints || []),
+          ...(context.jumpPoints || []),
           {
-            flow: event.state.context.currentFlow,
-            node: event.state.context.currentNode
+            flow: context.currentFlow!,
+            node: context.currentNode!
           }
         ]
       }
@@ -245,16 +260,17 @@ export class DialogEngine {
       )
     } else if (transitionTo.indexOf('#') === 0) {
       // Return to the parent node (coming from a flow)
-      const jumpPoints = event.state.context.jumpPoints
-      if (!jumpPoints) {
-        this._debug(
-          event.botId,
-          event.target,
-          'no previous flow found, current node is ' + event.state.context.currentNode
-        )
+      const jumpPoints = context.jumpPoints
+      const prevJumpPoint = _.findLast(jumpPoints, j => !j.used)
+
+      if (!jumpPoints || !prevJumpPoint) {
+        this._debug(event.botId, event.target, 'no previous flow found, current node is ' + context.currentNode)
         return event
       }
-      const prevJumpPoint = jumpPoints.pop()
+
+      // Multiple transitions on a node triggers each a processEvent, if we simply remove it, the second transition is no longer "exiting a subflow"
+      prevJumpPoint.used = true
+
       const parentFlow = this._findFlow(event.botId, prevJumpPoint.flow)
       const specificNode = transitionTo.split('#')[1]
       const parentNode = this._findNode(event.botId, parentFlow, specificNode || prevJumpPoint.node)
@@ -276,7 +292,7 @@ export class DialogEngine {
         event.botId,
         event.target,
         context.currentFlow,
-        context.currentFlow,
+        context.currentNode,
         parentFlow.name,
         parentNode.name
       )
@@ -289,7 +305,7 @@ export class DialogEngine {
       // Transition to the target node in the current flow
       this._logTransition(event.botId, event.target, context.currentFlow, context.currentNode, transitionTo)
 
-      event.state.__stacktrace.push({ flow: context.currentFlow, node: transitionTo })
+      event.state.__stacktrace.push({ flow: context.currentFlow!, node: transitionTo })
       // When we're in a skill, we must remember the location of the main node for when we will exit
       const isInSkill = context.currentFlow && context.currentFlow.startsWith('skills/')
       if (isInSkill) {
@@ -303,13 +319,10 @@ export class DialogEngine {
     return this.processEvent(sessionId, event)
   }
 
-  private async _goToSubflow(botId, event, sessionId, parentNode, parentFlow) {
+  private async _goToSubflow(botId: string, event: IO.IncomingEvent, sessionId: string, parentFlow, parentNode) {
     const subflowName = parentNode.flow // Name of the subflow to transition to
     const subflow = this._findFlow(botId, subflowName)
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
-
-    // We only update previousNodeName and previousFlowName when we transition to a subflow.
-    // When the subflow ends, we will transition back to previousNodeName / previousFlowName.
 
     event.state.context = {
       currentFlow: subflow.name,
@@ -393,9 +406,11 @@ export class DialogEngine {
       )
   }
 
-  private _exitingSubflow(event) {
-    const { currentFlow, currentNode, previousFlow, previousNode } = event.state.context
-    return previousFlow === currentFlow && previousNode === currentNode
+  private _exitingSubflow(event: IO.IncomingEvent) {
+    const { currentFlow, currentNode, jumpPoints } = event.state.context
+    const recentUsed = jumpPoints?.find(j => j.used)
+
+    return recentUsed?.flow === currentFlow && recentUsed?.node === currentNode
   }
 
   private _debug(botId: string, target: string, action: string, args?: any) {

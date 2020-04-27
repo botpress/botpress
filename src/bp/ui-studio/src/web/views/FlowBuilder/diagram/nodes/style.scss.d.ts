@@ -5,6 +5,7 @@ interface CssExports {
   'fn': string;
   'highlightedNode': string;
   'iconContainer': string;
+  'invalidFlow': string;
   'item': string;
   'label': string;
   'missingConnection': string;

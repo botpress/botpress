@@ -1,4 +1,5 @@
 import { Button, MenuItem } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { Downloader } from 'botpress/utils'
 import React, { FC, Fragment, useState } from 'react'
 
@@ -17,9 +18,15 @@ export const ExportButton: FC<Props> = props => {
   return (
     <Fragment>
       {props.asMenu ? (
-        <MenuItem id="btn-export" icon="upload" text="Export to JSON" onClick={startDownload} />
+        <MenuItem id="btn-export" icon="upload" text={lang.tr('module.qna.exportToJson')} onClick={startDownload} />
       ) : (
-        <Button id="btn-export" icon="upload" text="Export to JSON" onClick={startDownload} style={{ marginLeft: 5 }} />
+        <Button
+          id="btn-export"
+          icon="upload"
+          text={lang.tr('module.qna.exportToJson')}
+          onClick={startDownload}
+          style={{ marginLeft: 5 }}
+        />
       )}
 
       <Downloader url={url} />

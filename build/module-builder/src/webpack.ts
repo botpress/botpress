@@ -33,6 +33,7 @@ export function config(projectPath) {
       'react-dom': 'ReactDOM',
       'react-bootstrap': 'ReactBootstrap',
       '@blueprintjs/core': 'BlueprintJsCore',
+      '@blueprintjs/select': 'BlueprintJsSelect',
       'botpress/ui': 'BotpressUI',
       'botpress/content-picker': 'BotpressContentPicker',
       'botpress/documentation': 'DocumentationProvider',
@@ -129,16 +130,16 @@ export function config(projectPath) {
 
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')
   if (fs.existsSync(webpackFile)) {
-    debug('Webpack override found for frontend')
+    debug('Webpack override found for frontend', path.basename(projectPath))
     return require(webpackFile)({ full, lite })
   }
 
   return [full, lite]
 }
 
-function writeStats(err, stats, exitOnError = true) {
+function writeStats(err, stats, exitOnError = true, callback?, moduleName?: string) {
   if (err || stats.hasErrors()) {
-    error(stats.toString('minimal'))
+    error(stats.toString('minimal'), moduleName)
 
     if (exitOnError) {
       return process.exit(1)
@@ -146,17 +147,22 @@ function writeStats(err, stats, exitOnError = true) {
   }
 
   for (const child of stats.toJson().children) {
-    normal(`Generated frontend bundle (${child.time} ms)`)
+    normal(`Generated frontend bundle (${child.time} ms)`, moduleName)
   }
+
+  callback?.()
 }
 
 export function watch(projectPath: string) {
   const confs = config(projectPath)
   const compiler = webpack(confs)
-  compiler.watch({}, (err, stats) => writeStats(err, stats, false))
+  compiler.watch({}, (err, stats) => writeStats(err, stats, false, undefined, path.basename(projectPath)))
 }
 
-export function build(projectPath: string) {
+export async function build(projectPath: string): Promise<void> {
   const confs = config(projectPath)
-  webpack(confs, (err, stats) => writeStats(err, stats, true))
+
+  await new Promise(resolve => {
+    webpack(confs, (err, stats) => writeStats(err, stats, true, resolve, path.basename(projectPath)))
+  })
 }

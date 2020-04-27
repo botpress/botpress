@@ -1,4 +1,5 @@
 import { Button, Callout, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -50,14 +51,14 @@ const FlowNameModal: FC<Props> = props => {
   const alreadyExists =
     !isIdentical && _.some(props.flowsNames, n => n.toLowerCase() === `${name}.flow.json`.toLowerCase())
 
-  let dialog: { icon: any; title: string } = { icon: 'add', title: 'Create Flow' }
-  let submitText = 'Create'
+  let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('studio.flow.sidePanel.createFlow') }
+  let submitText = lang.tr('create')
   if (props.action === 'duplicate') {
-    dialog = { icon: 'duplicate', title: 'Duplicate Flow' }
-    submitText = 'Duplicate'
+    dialog = { icon: 'duplicate', title: lang.tr('studio.flow.sidePanel.duplicateFlow') }
+    submitText = lang.tr('duplicate')
   } else if (props.action === 'rename') {
-    dialog = { icon: 'edit', title: 'Rename Flow' }
-    submitText = 'Rename'
+    dialog = { icon: 'edit', title: lang.tr('studio.flow.sidePanel.renameFlow') }
+    submitText = lang.tr('rename')
   }
 
   return (
@@ -65,13 +66,13 @@ const FlowNameModal: FC<Props> = props => {
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
           <FormGroup
-            label="Flow Name"
-            helperText={`It can only contain letters, numbers, underscores and hyphens. You can also use slashes to create folders (ex: myfolder/mynewflow)`}
+            label={lang.tr('studio.flow.sidePanel.flowName')}
+            helperText={lang.tr('studio.flow.sidePanel.flowNameHelp')}
           >
             <InputGroup
               id="input-flow-name"
               tabIndex={1}
-              placeholder="Choose a name for your flow"
+              placeholder={lang.tr('studio.flow.sidePanel.flowNamePlaceholder')}
               required
               value={name}
               onChange={e => setName(sanitizeName(e.currentTarget.value))}
@@ -80,8 +81,8 @@ const FlowNameModal: FC<Props> = props => {
           </FormGroup>
 
           {alreadyExists && (
-            <Callout title="Name already in use" intent={Intent.DANGER}>
-              A flow with that name already exists. Please choose another one.
+            <Callout title={lang.tr('studio.flow.sidePanel.nameInUse')} intent={Intent.DANGER}>
+              {lang.tr('studio.flow.sidePanel.nameInUseMessage')}
             </Callout>
           )}
         </div>

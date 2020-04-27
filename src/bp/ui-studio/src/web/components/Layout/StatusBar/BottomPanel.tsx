@@ -1,6 +1,7 @@
 import { Button, ButtonGroup, Divider, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import anser from 'anser'
 import axios from 'axios'
+import { lang } from 'botpress/shared'
 import cn from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
@@ -155,7 +156,7 @@ class BottomPanel extends React.Component<Props, State> {
     const LogsPanel = (
       <ul className={style.logs} ref={this.messageListRef} onScroll={this.handleLogsScrolled}>
         {allLogs.map(e => this.renderEntry(e))}
-        <li className={style.end}>End of logs</li>
+        <li className={style.end}>{lang.tr('statusBar.bottomPanel.endOfLogs')}</li>
       </ul>
     )
 
@@ -167,10 +168,10 @@ class BottomPanel extends React.Component<Props, State> {
           onChange={this.handleTabChange}
           selectedTabId={this.state.selectedPanel}
         >
-          <Tab id="bt-panel-logs" className={style.tab} title="Logs" panel={LogsPanel} />
+          <Tab id="bt-panel-logs" className={style.tab} title={lang.tr('logs')} panel={LogsPanel} />
           <Tabs.Expander />
           <ButtonGroup minimal={true}>
-            <Tooltip content="Scroll to follow logs">
+            <Tooltip content={lang.tr('statusBar.bottomPanel.scrollToFollow')}>
               <Button
                 id="btn-logs-follow"
                 icon={'sort'}
@@ -181,7 +182,7 @@ class BottomPanel extends React.Component<Props, State> {
               />
             </Tooltip>
 
-            <Tooltip content="Download Logs">
+            <Tooltip content={lang.tr('statusBar.bottomPanel.downloadLogs')}>
               <Button
                 id="btn-logs-download"
                 icon={'import'}
@@ -193,13 +194,13 @@ class BottomPanel extends React.Component<Props, State> {
 
             <Divider />
 
-            <Tooltip content="Clear log history">
+            <Tooltip content={lang.tr('statusBar.bottomPanel.clearHistory')}>
               <Button id="btn-logs-clear" icon={'trash'} small={true} type="button" onClick={this.handleClearLogs} />
             </Tooltip>
 
             <Divider />
 
-            <Tooltip content="Close Panel">
+            <Tooltip content={lang.tr('statusBar.bottomPanel.closePanel')}>
               <Button
                 id="btn-logs-close"
                 icon={'cross'}

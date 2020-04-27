@@ -23,7 +23,9 @@
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",
-    "category": "giraffes",
-    "enabled": true
+    "enabled": true,
+    "contexts": [
+      "giraffes"
+    ]
   }
 }

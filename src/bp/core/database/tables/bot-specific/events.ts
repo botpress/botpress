@@ -15,6 +15,9 @@ export class EventsTable extends Table {
       table.string('sessionId').nullable()
       table.string('direction').notNullable()
       table.string('incomingEventId').nullable()
+      table.string('workflowId').nullable()
+      table.integer('feedback').nullable()
+      table.boolean('success').nullable()
       table.json('event').notNullable()
       table.timestamp('createdOn').notNullable()
       created = true

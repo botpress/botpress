@@ -1,14 +1,18 @@
 // Top header
 
 $logo-color: #fff;
-
+$danger-color: #d14319;
 $dark-background: #292929;
 $dark-background-hover: #212121;
 $dark-light-text: #fff;
 
 $light-background: #f4f4f4;
 
+$fontFamily: Sans-Serif;
+
 :root {
+  --font-family: $fontFamily;
+
   --c-neutral--dark-2: #000;
   --c-neutral--dark-1: #4a4a4a;
   --c-neutral: #9b9b9b;

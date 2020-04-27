@@ -1,4 +1,4 @@
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
@@ -29,6 +29,9 @@ class EditorStore {
   private _isFileLoaded: boolean
 
   @observable
+  public isAdvanced: boolean = false
+
+  @observable
   private _originalHash: string
 
   constructor(rootStore: RootStore) {
@@ -47,8 +50,6 @@ class EditorStore {
 
   @action.bound
   async openFile(file: EditableFile) {
-    const { type, hookType } = file
-
     let content = file.content
     if (!content) {
       content = await this.rootStore.api.readFile(file)
@@ -56,7 +57,7 @@ class EditorStore {
 
     runInAction('-> setFileContent', () => {
       this.fileContent = content
-      this.fileContentWrapped = wrapper.add(content, type, hookType)
+      this.fileContentWrapped = wrapper.add(file, content)
 
       this.currentFile = file
       this._isFileLoaded = true
@@ -82,6 +83,16 @@ class EditorStore {
   }
 
   @action.bound
+  async setAdvanced(isAdvanced) {
+    if (this.rootStore.permissions?.['root.raw']?.read) {
+      this.isAdvanced = isAdvanced
+      await this.rootStore.fetchFiles()
+    } else {
+      console.error(lang.tr('module.code-editor.store.onlySuperAdmins'))
+    }
+  }
+
+  @action.bound
   async saveChanges() {
     if (!this.fileContent || this.currentFile.readOnly || this.currentFile.isExample) {
       return
@@ -90,7 +101,7 @@ class EditorStore {
     await this._editorRef.getAction('editor.action.formatDocument').run()
 
     if (await this.rootStore.api.saveFile({ ...this.currentFile, content: this.fileContent })) {
-      toastSuccess('File saved successfully!')
+      toastSuccess(lang.tr('module.code-editor.store.fileSaved'))
 
       await this.rootStore.fetchFiles()
       this.resetOriginalHash()
@@ -101,9 +112,9 @@ class EditorStore {
   async discardChanges() {
     if (this.isDirty && this.fileContent) {
       if (
-        await confirmDialog(`Do you want to save the changes you made to ${this.currentFile.name}?`, {
-          acceptLabel: 'Save',
-          declineLabel: 'Discard'
+        await confirmDialog(lang.tr('module.code-editor.store.confirmSaveFile', { file: this.currentFile.name }), {
+          acceptLabel: lang.tr('save'),
+          declineLabel: lang.tr('discard')
         })
       ) {
         await this.saveChanges()

@@ -1,4 +1,5 @@
 import { Position, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import find from 'lodash/find'
 import React from 'react'
@@ -16,7 +17,11 @@ const getFlowInfo = (flowId: string, flowName: string) => {
     return {
       icon: MAIN_FLOW_ICON,
       label: (
-        <Tooltip content={<span>Every user session starts here</span>} hoverOpenDelay={500} position={Position.BOTTOM}>
+        <Tooltip
+          content={<span>{lang.tr('studio.flow.sessionStartsHere')}</span>}
+          hoverOpenDelay={500}
+          position={Position.BOTTOM}
+        >
           <strong>{getFlowLabel(flowName)}</strong>
         </Tooltip>
       )
@@ -26,12 +31,7 @@ const getFlowInfo = (flowId: string, flowName: string) => {
       icon: ERROR_FLOW_ICON,
       label: (
         <Tooltip
-          content={
-            <span>
-              When an error is encountered in the flow,
-              <br /> the user is redirected here
-            </span>
-          }
+          content={<span>{lang.tr('studio.flow.whenErrorEncountered')}</span>}
           hoverOpenDelay={500}
           position={Position.BOTTOM}
         >
@@ -44,13 +44,7 @@ const getFlowInfo = (flowId: string, flowName: string) => {
       icon: TIMEOUT_ICON,
       label: (
         <Tooltip
-          content={
-            <span>
-              When a discussion timeouts (user doesn't answer in
-              <br />
-              the configured timeframe) he will be redirected here.
-            </span>
-          }
+          content={<span>{lang.tr('studio.flow.whenDiscussionTimeouts')}</span>}
           hoverOpenDelay={500}
           position={Position.BOTTOM}
         >

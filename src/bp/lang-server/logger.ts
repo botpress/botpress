@@ -1,9 +1,24 @@
 import chalk from 'chalk'
+import _ from 'lodash'
 import moment from 'moment'
 import os from 'os'
 import util from 'util'
 
 import { LoggerLevel, LogLevel } from '../core/sdk/enums'
+
+export function serializeArgs(args: any): string {
+  if (_.isArray(args)) {
+    return args.map(arg => serializeArgs(arg)).join(', ')
+  } else if (_.isObject(args)) {
+    return util.inspect(args, false, 2, true)
+  } else if (_.isString(args)) {
+    return args.trim()
+  } else if (args && args.toString) {
+    return args.toString()
+  } else {
+    return ''
+  }
+}
 
 export class LangServerLogger {
   private attachedError: Error | undefined
@@ -32,8 +47,8 @@ export class LangServerLogger {
   }
 
   private print(level: LoggerLevel, message: string, metadata: any) {
-    const serializedMetadata = metadata ? util.inspect(metadata, false, 2, true) : ''
-    const timeFormat = 'HH:mm:ss.SSS'
+    const serializedMetadata = metadata ? serializeArgs(metadata) : ''
+    const timeFormat = 'L HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name

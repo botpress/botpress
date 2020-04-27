@@ -16,6 +16,8 @@ const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 
+const USER_ID_MAX_LENGTH = 40
+
 export default async (bp: typeof sdk, db: Database) => {
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
 
@@ -108,6 +110,7 @@ export default async (bp: typeof sdk, db: Database) => {
         description: (config.infoPage && config.infoPage.description) || botInfo.description,
         details: botInfo.details,
         languages: botInfo.languages,
+        extraStylesheet: config.extraStylesheet,
         security
       })
     })
@@ -124,7 +127,7 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      const user = await bp.users.getOrCreateUser('web', userId)
+      const user = await bp.users.getOrCreateUser('web', userId, botId)
       const payload = req.body || {}
 
       let { conversationId = undefined } = req.query || {}
@@ -158,7 +161,7 @@ export default async (bp: typeof sdk, db: Database) => {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials, !!req.headers.authorization)
 
       return res.sendStatus(200)
     })
@@ -176,7 +179,7 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.status(400).send(ERR_USER_ID_REQ)
       }
 
-      await bp.users.getOrCreateUser('web', userId) // Just to create the user if it doesn't exist
+      await bp.users.getOrCreateUser('web', userId, botId) // Just to create the user if it doesn't exist
 
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
@@ -221,7 +224,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    await bp.users.getOrCreateUser('web', userId)
+    await bp.users.getOrCreateUser('web', userId, botId)
 
     const conversations = await db.listConversations(userId, botId)
 
@@ -234,11 +237,22 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   })
 
-  function validateUserId(userId) {
+  function validateUserId(userId: string) {
+    if (!userId || userId.length > USER_ID_MAX_LENGTH) {
+      return false
+    }
+
     return /[a-z0-9-_]+/i.test(userId)
   }
 
-  async function sendNewMessage(botId: string, userId: string, conversationId, payload, credentials: any) {
+  async function sendNewMessage(
+    botId: string,
+    userId: string,
+    conversationId,
+    payload,
+    credentials: any,
+    useDebugger?: boolean
+  ) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     if (
@@ -265,6 +279,10 @@ export default async (bp: typeof sdk, db: Database) => {
       credentials
     })
 
+    if (useDebugger) {
+      event.debugger = true
+    }
+
     const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id)
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
@@ -277,7 +295,7 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncApi(async (req, res) => {
       const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
-      await bp.users.getOrCreateUser('web', userId)
+      await bp.users.getOrCreateUser('web', userId, botId)
       const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
 
       const event = bp.IO.Event({
@@ -297,11 +315,44 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
+    '/saveFeedback',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const { eventId, target, feedback } = req.body
+
+      if (!target || !eventId || !feedback) {
+        return res.status(400).send('Missing required fields')
+      }
+
+      try {
+        await bp.events.saveUserFeedback(eventId, target, feedback, 'qna')
+        res.sendStatus(200)
+      } catch (err) {
+        res.status(400).send(err)
+      }
+    })
+  )
+
+  router.post(
+    '/feedbackInfo',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const { target, eventIds } = req.body
+
+      if (!target || !eventIds) {
+        return res.status(400).send('Missing required fields')
+      }
+
+      res.send(await db.getFeedbackInfoForEventIds(target, eventIds))
+    })
+  )
+
+  router.post(
     '/conversations/:userId/:conversationId/reset',
     bp.http.extractExternalToken,
     asyncApi(async (req, res) => {
       const { botId, userId, conversationId } = req.params
-      await bp.users.getOrCreateUser('web', userId)
+      await bp.users.getOrCreateUser('web', userId, botId)
 
       const payload = {
         text: `Reset the conversation`,
@@ -327,7 +378,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { botId, userId, reference } = req.params
       let { conversationId } = req.params
 
-      await bp.users.getOrCreateUser('web', userId)
+      await bp.users.getOrCreateUser('web', userId, botId)
 
       if (typeof reference !== 'string' || !reference.length || reference.indexOf('=') === -1) {
         throw new Error('Invalid reference')
@@ -359,7 +410,7 @@ export default async (bp: typeof sdk, db: Database) => {
         threadId: conversationId,
         type: payload.type,
         payload,
-        credentials: req.credentials
+        credentials: req['credentials']
       })
 
       await bp.events.sendEvent(event)
@@ -370,8 +421,8 @@ export default async (bp: typeof sdk, db: Database) => {
   })
 
   router.get('/preferences/:userId', async (req, res) => {
-    const { userId } = req.params
-    const { result } = await bp.users.getOrCreateUser('web', userId)
+    const { userId, botId } = req.params
+    const { result } = await bp.users.getOrCreateUser('web', userId, botId)
 
     return res.send({ language: result.attributes.language })
   })

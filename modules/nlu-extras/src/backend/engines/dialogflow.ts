@@ -32,7 +32,7 @@ export const createZip = async (dataset: Dataset, config: DialogflowConfig): Pro
     .forEach(entity => {
       entities.file(
         `${entity.name}.json`,
-        Files['entities/<name>.json']({ name: entity.name, isFuzzy: entity.fuzzy, type: 'list' })
+        Files['entities/<name>.json']({ name: entity.name, isFuzzy: entity.fuzzy > 0, type: 'list' })
       )
       entities.file(
         `${entity.name}_entries_${dataset.defaultLanguage}.json`,
