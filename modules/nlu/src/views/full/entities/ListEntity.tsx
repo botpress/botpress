@@ -1,6 +1,7 @@
 import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
-import { lang, toastFailure } from 'botpress/shared'
+import { lang } from 'botpress/shared'
+import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
@@ -104,10 +105,6 @@ export const ListEntityEditor: React.FC<Props> = props => {
     })
   }
 
-  const sortOccurrences = () => {
-    dispatch({ type: 'setOccurrences', data: { occurrences: _.sortBy(state.occurrences, 'name') } })
-  }
-
   const handleFuzzyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     dispatch({
       type: 'setFuzzy',
@@ -146,18 +143,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
           />
         </FormGroup>
         {state.occurrences.length > 0 && (
-          <FormGroup
-            label={
-              <span>
-                <Tooltip position={Position.LEFT} popoverClassName={style.configPopover}>
-                  <span>
-                    {lang.tr('nlu.entities.occurrenceLabel')}&nbsp;
-                    <Button icon="sort" minimal text="" onClick={sortOccurrences} />
-                  </span>
-                </Tooltip>
-              </span>
-            }
-          >
+          <FormGroup label={lang.tr('module.nlu.entities.occurrenceLabel')}>
             <div className={style.occurrencesList}>
               {state.occurrences.map((o, i) => (
                 <Occurrence
