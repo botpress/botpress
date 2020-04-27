@@ -1,7 +1,8 @@
 import classnames from 'classnames'
 import pick from 'lodash/pick'
-import { inject } from 'mobx-react'
+import { inject, observer } from 'mobx-react'
 import React, { Component, Fragment } from 'react'
+import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import { RootStore, StoreDef } from '../../store'
 import { Renderer } from '../../typings'
@@ -21,44 +22,17 @@ class Message extends Component<MessageProps> {
 
   render_text(textMessage?: string) {
     const { text, markdown } = this.props.payload
-    let message = textMessage || text
-    const maxLength = this.props.payload.trimLength
+    const message = textMessage || text
 
-    if (!message) {
-      return null
-    }
-
-    if (maxLength && message.length > maxLength) {
-      if (!this.state.showMore) {
-        const newMessage = message.substring(0, maxLength)
-
-        message = `${message.substring(0, maxLength)}${newMessage.substring(-1) !== '.' && '...'}`
-      }
-
-      return (
-        <Fragment>
-          <Text markdown={markdown} text={message} escapeHTML={this.props.store.escapeHTML} />
-          <button
-            type="button"
-            onClick={e => this.setState({ showMore: !this.state.showMore })}
-            className="bpw-message-read-more"
-          >
-            {this.state.showMore &&
-              this.props.store.intl.formatMessage({
-                id: 'messages.showLess',
-                defaultMessage: 'Show Less'
-              })}
-            {!this.state.showMore &&
-              this.props.store.intl.formatMessage({
-                id: 'messages.readMore',
-                defaultMessage: 'Read More'
-              })}
-          </button>
-        </Fragment>
-      )
-    }
-
-    return <Text markdown={markdown} text={message} escapeHTML={this.props.store.escapeHTML} />
+    return (
+      <Text
+        markdown={markdown}
+        text={message}
+        intl={this.props.intl}
+        maxLength={this.props.payload.trimLength}
+        escapeHTML={this.props.store.escapeHTML}
+      />
+    )
   }
 
   render_quick_reply() {
@@ -114,7 +88,8 @@ class Message extends Component<MessageProps> {
       'onFileUpload',
       'sentOn',
       'store',
-      'className'
+      'className',
+      'intl'
     ])
 
     const props = {
@@ -208,6 +183,8 @@ class Message extends Component<MessageProps> {
   }
 }
 
-export default inject(({ store }: { store: RootStore }) => ({ store }))(Message)
+export default inject(({ store }: { store: RootStore }) => ({
+  intl: store.intl
+}))(injectIntl(observer(Message)))
 
-type MessageProps = Renderer.Message & StoreDef
+type MessageProps = Renderer.Message & InjectedIntlProps & Pick<StoreDef, 'intl'>

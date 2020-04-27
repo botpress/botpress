@@ -1,7 +1,11 @@
 {
   "error": {
     "cannotSaveFile": "Could not save your file",
-    "invalidJson": "Invalid JSON file: {details}"
+    "cannotUploadFile": "Cannot upload your file",
+    "fileUploadDisabled": "File upload disabled by an environment variable.",
+    "invalidJson": "Invalid JSON file: {details}",
+    "lackUploadPermissions": "You do not have sufficient permissions to upload files",
+    "missingParameters": "Missing parameters"
   },
   "fileStatus": {
     "fileInformation": "File Information",
@@ -71,7 +75,15 @@
     "fileEnabled": "File enabled successfully!",
     "fileRenamed": "File renamed successfully!",
     "fileSaved": "File saved successfully!",
+    "fileUploaded": "File uploaded successfully!",
     "invalidFilename": "Invalid filename",
     "onlySuperAdmins": "Only Super Admins can use the raw file editor"
+  },
+  "uploadModal": {
+    "completeFilePath": "Complete File Path",
+    "filePathHelp": "Type the complete path to the file, including the extension, relative to /data",
+    "overwrite": "Overwrite existing file",
+    "selectFile": "Select your file",
+    "uploadFile": "Upload File"
   }
 }

@@ -1,5 +1,5 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
-import { Select } from '@blueprintjs/select'
+import { ItemPredicate, Select } from '@blueprintjs/select'
 import { FC, useEffect, useState } from 'react'
 import React from 'react'
 
@@ -22,6 +22,10 @@ const itemRenderer = (option, { modifiers, handleClick }) => {
   )
 }
 
+const filterOptions: ItemPredicate<Option> = (query, option) => {
+  return `${option.label.toLowerCase()} ${option.value}`.indexOf(query.toLowerCase()) > -1
+}
+
 const Dropdown: FC<DropdownProps> = props => {
   const { defaultItem, items, onChange, small, icon, rightIcon, spaced, className, filterable } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
@@ -39,6 +43,7 @@ const Dropdown: FC<DropdownProps> = props => {
       activeItem={activeItem}
       popoverProps={{ minimal: true }}
       itemRenderer={itemRenderer}
+      itemPredicate={filterOptions}
       onItemSelect={option => {
         onChange(option)
         setActiveItem(option)

@@ -26,6 +26,8 @@
   "messages.newMessages": "New messages",
   "messages.readMore": "Read More",
   "messages.showLess": "Show Less",
+  "message.thumbsUp": "Thumbs Up",
+  "message.thumbsDown": "Thumbs Down",
   "widget.title": "Chat window",
   "widget.toggle": "Toggle chatbot window"
 }

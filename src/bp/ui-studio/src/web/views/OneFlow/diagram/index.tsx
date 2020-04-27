@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, MainContent } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -59,6 +59,7 @@ import style from '~/views/FlowBuilder/diagram/style.scss'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
 import TriggerEditor from './TriggerEditor'
+import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
   showSearch: boolean
@@ -643,6 +644,41 @@ class Diagram extends Component<Props> {
   }
 
   render() {
+    return (
+      <MainContent.Wrapper>
+        <WorkflowToolbar />
+        <Fragment>
+          <div
+            id="diagramContainer"
+            ref={ref => (this.diagramContainer = ref)}
+            tabIndex={1}
+            style={{ outline: 'none', width: '100%', height: '100%' }}
+            onContextMenu={this.handleContextMenu}
+            onDrop={this.handleToolDropped}
+            onDragOver={event => event.preventDefault()}
+          >
+            <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+            <DiagramWidget
+              ref={w => (this.diagramWidget = w)}
+              deleteKeys={[]}
+              diagramEngine={this.diagramEngine}
+              inverseZoom={true}
+            />
+          </div>
+
+          <TriggerEditor
+            node={this.state.currentTriggerNode}
+            isOpen={this.state.isTriggerEditOpen}
+            diagramEngine={this.diagramEngine}
+            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
+          />
+        </Fragment>
+      </MainContent.Wrapper>
+    )
+  }
+
+  render22() {
     return (
       <Fragment>
         <div
