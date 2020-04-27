@@ -40,8 +40,16 @@
       display: none;
     }
 
-    .bp3-tree-root > :last-child {
-      margin-top: auto !important;
+    .bp3-tree-root > :nth-last-child(2) {
+      pointer-events: none;
+      .bp3-tree-node-content {
+        height: 18px;
+      }
+      margin-top: auto;
+      height: 18px;
+      hr {
+        color: var(--gray);
+      }
     }
 
     .bp3-tree-root {
