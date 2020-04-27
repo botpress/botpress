@@ -29,7 +29,7 @@
     }
 
     .bp3-tree-node .bp3-tree-node {
-      margin: 0px 8px;
+      margin: 0px var(--spacing-medium);
 
       .bp3-tree-node-content {
         border-radius: 5px;
@@ -101,7 +101,7 @@
 .topicsEmptyStateText {
   font-size: 12px;
   color: #1a1e22;
-  margin-top: 8px;
+  margin-top: var(--spacing-medium);
   margin: 0px 20px;
 }
 
@@ -218,7 +218,7 @@
   $height: 34px;
 
   height: $height;
-  padding: 0px 12px;
+  padding: 0px var(--spacing-large);
   box-shadow: unset;
   margin-bottom: 6px;
 
@@ -263,7 +263,7 @@
     }
 
     .bp3-tab-list > *:not(:last-child) {
-      margin-right: 16px;
+      margin-right: var(--spacing-x-large);
     }
   }
 }
