@@ -43,27 +43,8 @@
     "public": "Publié"
   },
   "statusBar": {
-    "backToAdmin": "Retour à l'admin",
-    "bottomPanel": {
-      "clearHistory": "Effacer l'historique",
-      "closePanel": "Fermer le panneau",
-      "downloadLogs": "Télécharger",
-      "endOfLogs": "Fin des journaux",
-      "scrollToFollow": "Suivre les journaux"
-    },
     "contentLanguage": "Langue du contenu",
-    "documentationAvailable": "Cet écran possède de la documentation supplémentaire.",
-    "emulator": "Émulateur",
-    "logsPanel": "Panneau de journalisation",
-    "notifications": "Notifications",
-    "readDoc": "Lire la documentation",
-    "showEmulator": "Afficher l'émulateur",
-    "switchBot": "Changer de bot",
-    "switchBotWarning": "Changer de bot. Vous allez quitter cette interface.",
-    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
-    "toggleGuidedTour": "Basculer le tour guidé",
-    "toggleLogsPanel": "Basculer le panneau",
-    "viewNotifications": "Voir les notifications"
+    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}"
   },
   "studio": {
     "content": {
@@ -87,6 +68,7 @@
         "uploadStatus": "Statut de téléversement",
         "whatLikeDo": "Qu'est-ce que vous aimeriez faire?"
       },
+      "insertVariable": "Insérer une variable",
       "mustBeDefaultLang": "L'élément doit d'abord être créé dans la langue par défaut.",
       "noContent": "Il n'y a pas de contenu ici.",
       "noContentDefined": "Nous pensons que vous n'avez défini aucun type de contenu.",
@@ -173,10 +155,11 @@
         "missingLink": "Lien manquant",
         "noActionsFound": "Aucune action trouvée sur ce serveur d'actions",
         "noDescription": "Pas de description",
+        "nodeName": "Nom du node",
         "onEnter": "Sur Entrée",
         "onReceive": "Sur réception",
         "return": "Revenir",
-        "saySomething": "💬 Écrire quelque chose",
+        "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",
         "transition": {
           "action": {
@@ -317,6 +300,23 @@
       "config": "Configuration",
       "content": "Contenu",
       "flows": "Flows"
+    }
+  },
+  "toolbar": {
+    "emulator": "Émulateur",
+    "help": "Aide",
+    "logsPanel": "Panneau de journalisation",
+    "readDoc": "Lire la documentation",
+    "showEmulator": "Afficher l'émulateur",
+    "toggleLogsPanel": "Basculer le panneau de journalisation",
+    "toggleEmulator": "Basculer l'émulateur",
+    "toggleSidePanel": "Basculer le panneau latéral",
+    "bottomPanel": {
+      "scrollToFollow": "Suivre les journaux",
+      "downloadLogs": "Télécharger",
+      "clearHistory": "Effacer l'historique",
+      "closePanel": "Fermer le panneau",
+      "endOfLogs": "Fin des journaux"
     }
   }
 }

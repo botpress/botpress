@@ -1,7 +1,8 @@
 {
   "name": "channel-messenger",
+  "fullName": "Channel Messenger",
   "version": "1.0.0",
-  "description": "Messenger Channel for Botpress",
+  "description": "A Botpress connector for Messenger",
   "private": true,
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",

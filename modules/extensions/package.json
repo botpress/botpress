@@ -1,6 +1,8 @@
 {
   "name": "extensions",
+  "fullName": "Channel Web Extensions",
   "version": "1.0.0",
+  "status": "stable",
   "description": "Advanced components for the webchat",
   "private": true,
   "main": "dist/backend/index.js",

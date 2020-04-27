@@ -1,6 +1,6 @@
+import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { Request, Response } from 'express'
-import axios from 'axios'
 
 import { FLAGGED_MESSAGE_STATUSES, FlaggedEvent } from '../types'
 

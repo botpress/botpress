@@ -1,3 +1,5 @@
+@import url('/assets/ui-studio/public/external/font-roboto.css');
+
 :root {
   --main-bg-color: #ffffff;
   --main-bg-color-hover: rgba(255, 255, 255, 0.9);
@@ -7,7 +9,7 @@
 
 body {
   margin: 0 !important;
-  font-family: var(--font-family) !important;
+  font-family: Roboto !important;
   overflow: hidden;
 }
 

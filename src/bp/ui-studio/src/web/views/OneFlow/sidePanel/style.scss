@@ -4,6 +4,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 
   &:hover {
     .overhidden {
@@ -36,6 +37,20 @@
   .section {
     flex-wrap: wrap;
   }
+}
+
+.topicName {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tag {
+  background: var(--c-neutral--light-2);
+  border-radius: 3px;
+  color: var(--c-background--dark-2);
+  font-size: 8px;
+  padding: 6px 6px 5px;
 }
 
 .toolItem {

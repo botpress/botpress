@@ -9,18 +9,21 @@
   },
   "scripts": {
     "start": "node ./webpack.config.js --watch",
-    "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap"
+    "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap & yarn scss",
+    "scss": "node-sass src/theme/main.scss dist/theme.css --importer=node_modules/node-sass-tilde-importer"
   },
   "devDependencies": {
     "@blueprintjs/core": "^3.23.1",
     "@blueprintjs/select": "^3.12.0",
     "@types/react": "^16.8.19",
     "@types/react-dom": "^16.8.4",
+    "react-hotkeys": "^1.1.4",
     "cross-env": "^5.2.0",
     "css-loader": "^0.28.11",
     "css-modules-typescript-loader": "^2.0.3",
     "hard-source-webpack-plugin": "^0.13.1",
     "node-sass": "^4.8.3",
+    "node-sass-tilde-importer": "^1.0.2",
     "postcss-loader": "^2.0.8",
     "prop-types": "^15.6.0",
     "react": "^16.8.6",
@@ -28,6 +31,7 @@
     "react-intl": "^3.12.1",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
+    "snarkdown": "^1.2.2",
     "style-loader": "^0.13.1",
     "terser-webpack-plugin": "^2.2.2",
     "ts-loader": "^6.0.2",
@@ -38,5 +42,8 @@
   "files": [
     "dist"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "react-router": "4.3.1",
+    "react-command-palette": "^0.12.0-0"
+  }
 }

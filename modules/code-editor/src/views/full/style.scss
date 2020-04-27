@@ -5,7 +5,11 @@
 .editor {
   flex-grow: 1;
   color: #b1b1b1;
-  height: calc(100vh - 30px);
+  height: calc(100% - 35px);
+}
+
+.hidden {
+  display: none;
 }
 
 .editorContainer {
@@ -24,7 +28,7 @@
 }
 
 .tabsContainer {
-  display: 'flex';
+  display: flex;
   height: 35px;
   padding-left: 0px;
 }

@@ -4,7 +4,9 @@
   "types": {
     "actionButton": {
       "buttonTitle": "Title of the button",
-      "description": "A button that triggers an action, often used in cards"
+      "description": "A button that triggers an action, often used in cards",
+      "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
+      "title": "Action Button"
     },
     "card": {
       "description": "A card message with a title with optional subtitle, image and action buttons."
@@ -16,8 +18,11 @@
     },
     "image": {
       "description": "A message showing an image with an optional title",
-      "imageLabel": "Title (optional)",
-      "labelDesc": "Some platforms require to name the images."
+      "imageLabel": "Title",
+      "labelDesc": "Some platforms require to name the images.",
+      "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
+      "title": "Image",
+      "uploadImage": "Upload Image"
     },
     "singleChoice": {
       "choice": "Choice",
@@ -27,8 +32,9 @@
       "title": "Single Choice"
     },
     "text": {
-      "alternatives": "Alternates (optional)",
-      "description": "A regular text message with optional typing indicators and alternates"
+      "alternatives": "Alternates",
+      "description": "A regular text message with optional typing indicators and alternates",
+      "message": "Message"
     }
   },
   "typingIndicator": "Show typing indicators",

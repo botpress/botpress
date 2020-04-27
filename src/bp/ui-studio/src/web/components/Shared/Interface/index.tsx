@@ -20,7 +20,6 @@ import SplitPane from 'react-split-pane'
 
 import style from './style.scss'
 import {
-  BaseDialogProps,
   ContainerProps,
   InfoTooltipProps,
   ItemListProps,
@@ -48,10 +47,18 @@ export const Container = (props: ContainerProps) => {
   }
 
   const children = React.Children.toArray(props.children)
+
   return (
     <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} className={style.fullsize} focused>
       <div className={classnames(style.container, { [style.sidePanel_hidden]: !sidePanelVisible })}>
-        <SplitPane split={'vertical'} defaultSize={width} size={sidePanelVisible ? width : 0}>
+        <SplitPane
+          split={'vertical'}
+          defaultSize={width}
+          size={sidePanelVisible ? width : 0}
+          pane2Style={{
+            overflowX: 'auto'
+          }}
+        >
           {children[0]}
           <div className={classnames(style.fullsize, { [style.yOverflowScroll]: props.yOverflowScroll })}>
             {children.slice(1)}
@@ -237,42 +244,3 @@ export const InfoTooltip = (props: InfoTooltipProps) => (
     <Icon icon={props.icon || 'info-sign'} iconSize={13} className={style.infoTooltip} />
   </Tooltip>
 )
-
-export const BaseDialog: FC<BaseDialogProps> = props => {
-  let width = 500
-  if (props.size === 'md') {
-    width = 700
-  } else if (props.size === 'lg') {
-    width = 900
-  }
-
-  const onSubmit = e => {
-    e.preventDefault()
-    props.onSubmit!()
-  }
-
-  return (
-    <Dialog
-      transitionDuration={0}
-      canOutsideClickClose={false}
-      canEscapeKeyClose={true}
-      enforceFocus={false}
-      style={{ width }}
-      {...props}
-    >
-      {props.onSubmit ? <form onSubmit={onSubmit}>{props.children}</form> : props.children}
-    </Dialog>
-  )
-}
-
-export const DialogBody = ({ children, hidden }: { children; hidden?: boolean }) => {
-  return !hidden ? <div className={classnames(Classes.DIALOG_BODY, Classes.UI_TEXT)}>{children}</div> : null
-}
-
-export const DialogFooter = ({ children }) => {
-  return (
-    <div className={Classes.DIALOG_FOOTER}>
-      <div className={Classes.DIALOG_FOOTER_ACTIONS}>{children}</div>
-    </div>
-  )
-}

@@ -1,3 +1,32 @@
+# [12.9.0](https://github.com/botpress/botpress/compare/v12.8.6...v12.9.0) (2020-04-27)
+
+
+### Bug Fixes
+
+* **core:** more details when error with actions required ([#3181](https://github.com/botpress/botpress/issues/3181)) ([173274e](https://github.com/botpress/botpress/commit/173274e))
+* **nlu:** model serialization of models prior 12.9 have no cache ([5551b2a](https://github.com/botpress/botpress/commit/5551b2a))
+* **ui:** minor fix to ui ([#3287](https://github.com/botpress/botpress/issues/3287)) ([56a0d66](https://github.com/botpress/botpress/commit/56a0d66))
+* **ui:** restore global styling to default ([#3241](https://github.com/botpress/botpress/issues/3241)) ([9ce0d6f](https://github.com/botpress/botpress/commit/9ce0d6f))
+
+
+### Features
+
+* **admin:** add module management page ([#3262](https://github.com/botpress/botpress/issues/3262)) ([ee9e47b](https://github.com/botpress/botpress/commit/ee9e47b))
+* **code-editor:** add file upload to advanced editor ([#3273](https://github.com/botpress/botpress/issues/3273)) ([6d5dc7a](https://github.com/botpress/botpress/commit/6d5dc7a))
+* **commander:** shared commands between admin and studio ([#3204](https://github.com/botpress/botpress/issues/3204)) ([6d1b13c](https://github.com/botpress/botpress/commit/6d1b13c))
+* **core:** added support for elements in flow nodes ([#3182](https://github.com/botpress/botpress/issues/3182)) ([11f1647](https://github.com/botpress/botpress/commit/11f1647))
+* **nlu:** custom entity caching ([71e7d75](https://github.com/botpress/botpress/commit/71e7d75))
+* **shared:** reusable 2nd toolbar, empty state and content wrapper ([#3229](https://github.com/botpress/botpress/issues/3229)) ([e0058e2](https://github.com/botpress/botpress/commit/e0058e2))
+* **studio:** improvements on the toolbar ([#3190](https://github.com/botpress/botpress/issues/3190)) ([5c4dbf1](https://github.com/botpress/botpress/commit/5c4dbf1))
+* **studio:** new toolbar and status bar ([#3172](https://github.com/botpress/botpress/issues/3172)) ([420578a](https://github.com/botpress/botpress/commit/420578a))
+* **studio:** oneflow has fixed size sidebar and topics have Q&A and WF counts ([#3221](https://github.com/botpress/botpress/issues/3221)) ([c32e4d1](https://github.com/botpress/botpress/commit/c32e4d1))
+* **studio:** say node sidebar form ([#3120](https://github.com/botpress/botpress/issues/3120)) ([00f0230](https://github.com/botpress/botpress/commit/00f0230))
+* **ui:** add a customizable blueprint theme ([#3186](https://github.com/botpress/botpress/issues/3186)) ([9cd9655](https://github.com/botpress/botpress/commit/9cd9655))
+* **ui:** change to roboto ([#3187](https://github.com/botpress/botpress/issues/3187)) ([54b9ad1](https://github.com/botpress/botpress/commit/54b9ad1))
+* **ui:** confirm dialog redesign ([#3208](https://github.com/botpress/botpress/issues/3208)) ([4e35865](https://github.com/botpress/botpress/commit/4e35865))
+
+
+
 ## [12.8.6](https://github.com/botpress/botpress/compare/v12.8.4...v12.8.6) (2020-04-26)
 
 

@@ -79,7 +79,7 @@ module.exports = {
     properties: {
       text: {
         type: 'string',
-        title: 'Message'
+        title: 'module.builtin.types.text.message'
       },
       variations: {
         type: 'array',
@@ -109,7 +109,7 @@ module.exports = {
       }
     }
   },
-  computePreviewText: formData => formData.text && 'Text: ' + formData.text,
+  computePreviewText: formData => formData.text,
 
   renderElement: renderElement
 }

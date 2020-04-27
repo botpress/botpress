@@ -1,4 +1,4 @@
-import { BaseDialog, DialogBody, lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
@@ -102,9 +102,9 @@ class CreateOrEditModal extends React.Component<Props, State> {
 
   render() {
     return (
-      <BaseDialog isOpen={this.props.show} onClose={this.props.handleClose}>
-        <DialogBody>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</DialogBody>
-      </BaseDialog>
+      <Dialog.Wrapper isOpen={this.props.show} onClose={this.props.handleClose}>
+        <Dialog.Body>{this.state.mustChangeLang ? this.renderSwitchLang() : this.renderForm()}</Dialog.Body>
+      </Dialog.Wrapper>
     )
   }
 }
