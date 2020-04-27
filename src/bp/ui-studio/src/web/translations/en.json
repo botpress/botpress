@@ -236,7 +236,7 @@
         "importTopic": "Import Topic",
         "addTopic": "Add Topic",
         "addWorkflow": "Add Workflow",
-        "tapIconsToAdd": "Use the toolbar buttons to import or add your first topic."
+        "tapIconsToAdd": "Tap icons in the toolbar to import or add your first topic."
       },
       "skills": {
         "couldNotLoad": "Could not load skills view",

@@ -220,7 +220,7 @@
         "importTopic": "Importer sujet",
         "addTopic": "Ajouter sujet",
         "addWorkflow": "Ajouter workflow",
-        "tapIconsToAdd": "Utilisez les boutons de la barre d'outils pour importer ou ajouter votre premier sujet."
+        "tapIconsToAdd": "Appuyez sur les icônes de la barre d'outils pour importer ou ajouter votre premier sujet."
       },
       "skills": {
         "couldNotLoad": "Impossible de charger la vue des compétences",
