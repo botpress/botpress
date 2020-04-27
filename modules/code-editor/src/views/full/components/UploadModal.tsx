@@ -136,10 +136,7 @@ export const UploadModal: FC<Props> = props => {
         }}
       >
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup
-            label={<span>{lang.tr('module.code-editor.uploadModal.selectFile')}</span>}
-            labelFor="input-archive"
-          >
+          <FormGroup label={<span>{lang.tr('module.code-editor.uploadModal.selectFile')}</span>}>
             <FileInput
               text={filePath || `${lang.tr('chooseFile')}...`}
               onChange={e => readFile((e.target as HTMLInputElement).files)}
