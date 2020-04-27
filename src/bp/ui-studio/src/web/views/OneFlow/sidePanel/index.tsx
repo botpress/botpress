@@ -77,6 +77,7 @@ const SidePanelContent: FC<Props> = props => {
   const [libraryFilter, setLibraryFilter] = useState('')
 
   const [currentTab, setCurrentTab] = useState('topics')
+  const [forceOpenTopic, setForceOpenTopic] = useState('')
 
   useEffect(() => {
     props.refreshConditions()
@@ -128,8 +129,8 @@ const SidePanelContent: FC<Props> = props => {
       name = `${originalName} (${index})`
     }
 
-    console.log(name)
     await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })
+    setForceOpenTopic(name)
     props.fetchTopics()
   }
 
@@ -225,6 +226,7 @@ const SidePanelContent: FC<Props> = props => {
                 exportTopic={exportTopic}
                 fetchTopics={props.fetchTopics}
                 fetchFlows={props.fetchFlows}
+                forceOpenTopic={forceOpenTopic}
               />
             </React.Fragment>
           )}

@@ -31,10 +31,9 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
     })
 
     traverseTree(nodes, node => {
-      if (props.visibleElements?.find(x => node.nodeData?.[x.field] === x.value)) {
-        handleInitialNodeExpansion(node.parent!, true)
-        node.parent!.isExpanded = true
-        node.isSelected = true
+      if (props.visibleElements?.find(x => node?.[x.field] === x.value)) {
+        handleInitialNodeExpansion(node, true)
+        node.isExpanded = true
       }
 
       if (filterText || expanded.find(path => path === node.fullPath)) {
@@ -56,7 +55,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   const handleInitialNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
     changeNodeExpansion(node, isExpanded)
 
-    if (node.parent) {
+    if (node.parent?.parent) {
       handleInitialNodeExpansion(node.parent!, isExpanded)
     }
   }

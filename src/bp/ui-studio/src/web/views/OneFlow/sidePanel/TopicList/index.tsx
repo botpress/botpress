@@ -48,6 +48,7 @@ interface Props {
   editWorkflow: (wfId: any, data: any) => void
   editTopic: (topicName: string | NodeData) => void
   exportTopic: (topicName: string | NodeData) => void
+  forceOpenTopic: string
 }
 
 interface NodeData {
@@ -346,7 +347,7 @@ const TopicList: FC<Props> = props => {
         postProcessing={postProcessing}
         onContextMenu={handleContextMenu}
         onClick={onClick}
-        visibleElements={activeFlow && [{ field: 'name', value: activeFlow }]}
+        visibleElements={[{ field: 'id', value: props.forceOpenTopic }]}
         onDoubleClick={onDoubleClick}
         filterText={props.filter}
         pathProps="name"
