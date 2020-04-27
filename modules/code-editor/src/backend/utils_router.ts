@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import yn from 'yn'
 
 import { FileTypes } from './definitions'
 import { EditableFile, FilePermissions } from './typings'
@@ -22,7 +23,7 @@ export const getPermissionsMw = (bp: typeof sdk) => async (req: any, res, next):
       continue
     }
 
-    if (allowRoot) {
+    if (allowRoot && !yn(process.core_env.BP_CODE_EDITOR_DISABLE_ADVANCED)) {
       perms[rootKey] = {
         type,
         write: await permissionsChecker('write', rootKey),
@@ -77,7 +78,7 @@ export const validateFileUploadMw = async (req, res, next) => {
     next(new Error('module.code-editor.error.lackUploadPermissions'))
   }
 
-  if (process.env.BP_MODULE_CODE_EDITOR_DISABLE_UPLOAD) {
+  if (yn(process.core_env.BP_CODE_EDITOR_DISABLE_UPLOAD)) {
     next(new Error('module.code-editor.error.fileUploadDisabled'))
   }
 
