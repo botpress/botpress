@@ -76,6 +76,16 @@ class ActionModalForm extends Component<Props, State> {
       this.setState({ actionType: 'code' })
     }
 
+    this.prepareActions()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.actions !== this.props.actions) {
+      this.prepareActions()
+    }
+  }
+
+  prepareActions() {
     this.setState({
       avActions: (this.props.actions || []).map(x => {
         return {

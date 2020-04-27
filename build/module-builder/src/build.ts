@@ -71,7 +71,7 @@ export async function buildBackend(modulePath: string) {
     copyExtraFiles(modulePath)
     compileBackend(modulePath, babelConfig)
 
-    normal(`Generated backend (${Date.now() - start} ms)`)
+    normal(`Generated backend (${Date.now() - start} ms)`, path.basename(modulePath))
   }
 }
 

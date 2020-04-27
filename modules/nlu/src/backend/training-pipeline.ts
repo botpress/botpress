@@ -289,12 +289,12 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  // entities are extracted for better slot training so we extract only those which might have slots
-  const utterances = _.chain(input.intents)
-    .filter(i => i.name !== NONE_INTENT && !_.isEmpty(i.slot_definitions))
+  const utterances: Utterance[] = _.chain(input.intents)
+    .filter(i => i.name !== NONE_INTENT)
     .flatMap('utterances')
     .value()
 
+  // we extract sys entities for all utterances, helps on training and exact matcher
   const allSysEntities = (
     await tools.duckling.extractMultiple(
       utterances.map(u => u.toString()),
@@ -314,8 +314,9 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      const listEntities = extractListEntities(utt, listEntitiesToExtract)
-      const patternEntities = extractPatternEntities(utt, pattenEntitiesToExtract)
+      // temporary until we merge entity caching in
+      const listEntities = utt.slots.length ? extractListEntities(utt, listEntitiesToExtract) : []
+      const patternEntities = utt.slots.length ? extractPatternEntities(utt, pattenEntitiesToExtract) : []
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {

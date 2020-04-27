@@ -13,6 +13,7 @@ import fs from 'fs'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
+import jwksRsa from 'jwks-rsa'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -97,6 +98,9 @@ export default class HTTPServer {
     noAudit?: boolean
   ) => Promise<boolean>
   private indexCache: { [pageUrl: string]: string } = {}
+
+  private jwksClient?: jwksRsa.JwksClient
+  private jwksKeyId?: string
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
@@ -466,7 +470,19 @@ export default class HTTPServer {
       return
     }
 
-    const { publicKey, audience, algorithms, issuer } = externalAuth
+    const { audience, algorithms, issuer } = externalAuth
+    let publicKey = externalAuth.publicKey
+
+    if (this.jwksClient && this.jwksKeyId) {
+      try {
+        const key = await Promise.fromCallback<jwksRsa.SigningKey>(cb =>
+          this.jwksClient!.getSigningKey(this.jwksKeyId!, cb)
+        )
+        publicKey = key.getPublicKey()
+      } catch (err) {
+        return new Error(`There was an error while trying to fetch the jwks keys. ${err}`)
+      }
+    }
 
     const [scheme, token] = externalToken.split(' ')
     if (scheme.toLowerCase() !== 'bearer') {
@@ -485,24 +501,34 @@ export default class HTTPServer {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.pro.externalAuth
 
-    if (!config) {
+    if (!config || !config.enabled) {
       return
     }
 
-    if (config.enabled) {
-      if (!config.publicKey) {
-        try {
-          config.publicKey = await this.ghostService.global().readFileAsString('/', 'end_users_auth.pub')
-        } catch (error) {
-          this.logger
-            .attachError(error)
-            .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
-          return
-        }
-      } else if (config.publicKey.length < 128) {
-        this.logger.error(`External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.`)
+    if (config.jwksClient) {
+      const { keyId, jwksUri } = config.jwksClient
+
+      if (!keyId || !jwksUri) {
+        this.logger.error(
+          `External User Auth: Couldn't configure the JWKS Client. They keyId and jwksUri parameters must be set`
+        )
         return
       }
+
+      this.jwksClient = jwksRsa(config.jwksClient)
+      this.jwksKeyId = config.jwksClient.keyId
+    } else if (!config.publicKey) {
+      try {
+        config.publicKey = await this.ghostService.global().readFileAsString('/', 'end_users_auth.pub')
+      } catch (error) {
+        this.logger
+          .attachError(error)
+          .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
+        return
+      }
+    } else if (config.publicKey.length < 128) {
+      this.logger.error(`External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.`)
+      return
     }
 
     return config

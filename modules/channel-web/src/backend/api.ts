@@ -16,6 +16,8 @@ const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 
+const USER_ID_MAX_LENGTH = 40
+
 export default async (bp: typeof sdk, db: Database) => {
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
 
@@ -235,7 +237,11 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   })
 
-  function validateUserId(userId) {
+  function validateUserId(userId: string) {
+    if (!userId || userId.length > USER_ID_MAX_LENGTH) {
+      return false
+    }
+
     return /[a-z0-9-_]+/i.test(userId)
   }
 
