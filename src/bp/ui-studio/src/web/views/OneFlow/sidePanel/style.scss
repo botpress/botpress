@@ -42,14 +42,32 @@
 
     .bp3-tree-root > :nth-last-child(2) {
       pointer-events: none;
+      margin-top: auto;
+
       .bp3-tree-node-content {
         height: 18px;
       }
-      margin-top: auto;
-      height: 18px;
       hr {
         color: var(--gray);
       }
+    }
+
+    .bp3-tree-root > :not(:last-child) .bp3-tree-node-list > :last-child {
+      color: var(--ocean) !important;
+      .bp3-tree-node-content:hover {
+        background-color: var(--hover-ocean);
+      }
+      .bp3-icon {
+        color: var(--ocean) !important;
+      }
+    }
+
+    .bp3-tree-node {
+      cursor: pointer;
+    }
+
+    .bp3-tree-root > .bp3-tree-node > .bp3-tree-node-content:hover {
+      background-color: var(--white);
     }
 
     .bp3-tree-root {
@@ -123,10 +141,6 @@
       display: block;
     }
   }
-}
-
-.treeNodeAdder {
-  color: var(--ocean) !important;
 }
 
 .overhidden {
@@ -272,6 +286,10 @@
 
     .bp3-tab-list > *:not(:last-child) {
       margin-right: var(--spacing-x-large);
+    }
+
+    .bp3-tab-indicator {
+      background-color: var(--ocean);
     }
   }
 }

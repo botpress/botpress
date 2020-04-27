@@ -238,51 +238,17 @@ const TopicList: FC<Props> = props => {
       props.updateFlow({ name: fullName })
     }
 
-    const qnaTooltip = (
-      <Tooltip content={lang.tr('studio.flow.topicList.nbQuestionsInTopic')} hoverOpenDelay={500}>
-        <small>({countByTopic})</small>
-      </Tooltip>
-    )
-
-    const tooltip = (
-      <>
-        <Tooltip content={lang.tr('studio.flow.topicList.nbTriggersInWorkflow')} hoverOpenDelay={500}>
-          <small>({triggerCount})</small>
-        </Tooltip>
-        &nbsp;&nbsp;
-        {!!referencedIn?.length && (
-          <Tooltip
-            content={
-              <div>
-                {lang.tr('studio.flow.topicList.workflowReceiving')}{' '}
-                <ul>
-                  {referencedIn.map(x => (
-                    <li key={x}>{x}</li>
-                  ))}
-                </ul>
-              </div>
-            }
-            hoverOpenDelay={500}
-          >
-            <small>
-              <span className={style.referencedWorkflows}>({referencedIn?.length})</span>
-            </small>
-          </Tooltip>
-        )}
-      </>
-    )
-
     return {
       label: (
         <div className={style.treeNode}>
           <span>
             {type !== 'qna' ? (
               <React.Fragment>
-                <EditableText onConfirm={editWorkflow} defaultValue={displayName} /> {tooltip}
+                <EditableText onConfirm={editWorkflow} defaultValue={displayName} />
               </React.Fragment>
             ) : (
               <React.Fragment>
-                <span>{displayName}</span> {qnaTooltip}
+                <span>{displayName}</span>
               </React.Fragment>
             )}
           </span>
@@ -337,7 +303,7 @@ const TopicList: FC<Props> = props => {
           id: 'addWorkflow',
           name: 'addWorkflow',
           label: (
-            <div className={cx(style.treeNode, style.treeNodeAdder)}>
+            <div className={style.treeNode}>
               <span>{lang.tr('studio.flow.sidePanel.addWorkflow')}</span>
             </div>
           ),

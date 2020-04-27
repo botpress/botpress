@@ -20,7 +20,6 @@ interface CssExports {
   'topicsEmptyStateText': string;
   'topicsNavbar': string;
   'treeNode': string;
-  'treeNodeAdder': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
