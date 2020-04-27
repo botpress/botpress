@@ -205,7 +205,7 @@ export default async function(
     }
 
     downloadManager.cancelAndRemove(id)
-    res.status(200).send({ success: true })
+    res.send({ success: true })
   })
 
   app.use('/languages', waitForServiceMw, router)

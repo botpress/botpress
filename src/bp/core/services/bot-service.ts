@@ -140,8 +140,8 @@ export class BotService {
     return bots
   }
 
-  async getBotsIds(): Promise<string[]> {
-    if (!this._botIds) {
+  async getBotsIds(ignoreCache?: boolean): Promise<string[]> {
+    if (!this._botIds || ignoreCache) {
       this._botIds = (await this.ghostService.bots().directoryListing('/', BOT_CONFIG_FILENAME)).map(path.dirname)
     }
 
@@ -215,7 +215,7 @@ export class BotService {
     }
 
     if (actualBot.defaultLanguage !== updatedBot.defaultLanguage) {
-      await this.cms.translateContentProps(botId, actualBot.defaultLanguage, updatedBot.defaultLanguage)
+      await this.cms.translateContentProps(botId, actualBot.defaultLanguage, updatedBot.defaultLanguage!)
     }
 
     // This will regenerate previews for all the bot's languages
@@ -417,8 +417,8 @@ export class BotService {
     await this.mountBot(destBotId)
   }
 
-  public async botExists(botId: string): Promise<boolean> {
-    return (await this.getBotsIds()).includes(botId)
+  public async botExists(botId: string, ignoreCache?: boolean): Promise<boolean> {
+    return (await this.getBotsIds(ignoreCache)).includes(botId)
   }
 
   private async _executeStageChangeHooks(beforeRequestConfig: BotConfig, currentConfig: BotConfig) {
@@ -518,6 +518,13 @@ export class BotService {
     await this._cleanupRevisions(botId, true)
     await this.ghostService.forBot(botId).deleteFolder('/')
     this._invalidateBotIds()
+  }
+
+  public async getBotTemplate(moduleId: string, templateId: string): Promise<FileContent[]> {
+    const resourceLoader = new ModuleResourceLoader(this.logger, moduleId, this.ghostService)
+    const templatePath = await resourceLoader.getBotTemplatePath(templateId)
+
+    return this._loadBotTemplateFiles(templatePath)
   }
 
   private async _createBotFromTemplate(botConfig: BotConfig, template: BotTemplate): Promise<BotConfig | undefined> {

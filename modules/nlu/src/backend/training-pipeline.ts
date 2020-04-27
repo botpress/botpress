@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
+import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -208,7 +209,7 @@ const TrainIntentClassifier = async (
           .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
           .map(utt => ({
             label: i.name,
-            coordinates: utt.sentenceEmbedding
+            coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
           }))
       )
       .filter(x => !x.coordinates.some(isNaN))
@@ -242,7 +243,7 @@ const TrainContextClassifier = async (
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: utt.sentenceEmbedding
+          coordinates: getSentenceEmbeddingForCtx(utt)
         }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
@@ -288,12 +289,12 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  // entities are extracted for better slot training so we extract only those which might have slots
-  const utterances = _.chain(input.intents)
-    .filter(i => i.name !== NONE_INTENT && !_.isEmpty(i.slot_definitions))
+  const utterances: Utterance[] = _.chain(input.intents)
+    .filter(i => i.name !== NONE_INTENT)
     .flatMap('utterances')
     .value()
 
+  // we extract sys entities for all utterances, helps on training and exact matcher
   const allSysEntities = (
     await tools.duckling.extractMultiple(
       utterances.map(u => u.toString()),
@@ -313,8 +314,9 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      const listEntities = extractListEntities(utt, listEntitiesToExtract)
-      const patternEntities = extractPatternEntities(utt, pattenEntitiesToExtract)
+      // temporary until we merge entity caching in
+      const listEntities = utt.slots.length ? extractListEntities(utt, listEntitiesToExtract) : []
+      const patternEntities = utt.slots.length ? extractPatternEntities(utt, pattenEntitiesToExtract) : []
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
@@ -419,6 +421,8 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
 const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
+    c: [10],
+    gamma: [0.1],
     kernel: 'LINEAR',
     classifier: 'C_SVC',
     reduce: false

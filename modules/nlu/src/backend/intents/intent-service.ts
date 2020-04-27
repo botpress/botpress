@@ -1,3 +1,4 @@
+import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
@@ -101,4 +102,41 @@ export async function updateIntentsSlotsEntities(
       await updateIntent(ghost, intent.name, intent)
     }
   })
+}
+
+/**
+ * This method read every workflow to extract their intent usage, so they can be in sync with their topics.
+ * The list of intent names is not required, but it saves some processing
+ */
+export async function updateContextsFromTopics(ghost: sdk.ScopedGhostService, intentNames?: string[]): Promise<void> {
+  const flowsPaths = await ghost.directoryListing('flows', '*.flow.json')
+  const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
+    name: flowPath,
+    ...(await ghost.readFileAsObject<FlowView>('flows', flowPath))
+  }))
+
+  const intents: { [intentName: string]: string[] } = {}
+
+  for (const flow of flows) {
+    const topicName = flow.name.split('/')[0]
+
+    for (const node of flow.nodes.filter(x => x.type === 'trigger')) {
+      const tn = node as sdk.TriggerNode
+      const match = tn.conditions.find(x => x.id === 'user_intent_is')
+      const name = match?.params?.intentName
+
+      if (name && name !== 'none' && (!intentNames || intentNames.includes(name))) {
+        intents[name] = _.uniq([...(intents[name] || []), topicName])
+      }
+    }
+  }
+
+  for (const intentName of Object.keys(intents)) {
+    const intentDef = await getIntent(ghost, intentName)
+
+    if (!_.isEqual(intentDef.contexts.sort(), intents[intentName].sort())) {
+      intentDef.contexts = intents[intentName]
+      await saveIntent(ghost, intentDef)
+    }
+  }
 }

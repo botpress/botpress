@@ -144,7 +144,7 @@ export class MessengerService {
     if (body.object !== 'page') {
       // TODO: Handle other cases here
     } else {
-      res.status(200).send('EVENT_RECEIVED')
+      res.send('EVENT_RECEIVED')
     }
 
     for (const entry of body.entry) {
@@ -202,7 +202,7 @@ export class MessengerService {
 
     if (mode && token && mode === 'subscribe' && token === config.verifyToken) {
       this.bp.logger.debug('Webhook Verified')
-      res.status(200).send(challenge)
+      res.send(challenge)
     } else {
       res.sendStatus(403)
     }

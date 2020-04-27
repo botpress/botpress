@@ -3,6 +3,7 @@ import React from 'react'
 
 import style from './style.scss'
 import _ from 'lodash'
+import { lang } from 'botpress/shared'
 
 const QnaHint = props => {
   const utterances = props.questions.filter(q => q.length) || []
@@ -28,17 +29,17 @@ const createHint = (utterances, goodMLUtterances, minMLUtterances) => {
   const idealNumberOfUtt = goodMLUtterances
 
   if (!utterances.length) {
-    return <span>This Q&A will be ignored, start adding questions to make it trainable.</span>
+    return <span>{lang.tr('module.qna.hint.willBeIgnored')}</span>
   }
 
   if (utterances.length && utterances.length < minMLUtterances) {
     const remaining = minMLUtterances - utterances.length
     return (
       <span>
-        This Q&A will use <strong>exact match only</strong>. To enable machine learning, add at least{' '}
-        <strong>
-          {remaining} more question{remaining === 1 ? '' : 's'}
-        </strong>
+        {lang.tr('module.qna.hint.willBeExact', {
+          exactMatchOnly: <strong>{lang.tr('module.qna.hint.exactMatchOnly')}</strong>,
+          remaining
+        })}
       </span>
     )
   }
@@ -47,11 +48,9 @@ const createHint = (utterances, goodMLUtterances, minMLUtterances) => {
     const remaining = idealNumberOfUtt - utterances.length
     return (
       <span>
-        Add{' '}
-        <strong>
-          {remaining} more question{remaining === 1 ? '' : 's'}
-        </strong>{' '}
-        to make your Q&A more resilient.
+        {lang.tr('module.qna.hint.addMoreQuestions', {
+          moreQuestions: <strong>{lang.tr('module.qna.hint.moreQuestions', { remaining })}</strong>
+        })}
       </span>
     )
   }

@@ -1,4 +1,5 @@
 import { Tag } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -25,15 +26,14 @@ export const TagSlotPopover = props => {
     <div id="slot-menu" className={style['slotMenu']} style={{ top, left, width: MENU_WIDTH }}>
       {props.slots.length === 0 && (
         <React.Fragment>
-          <p>Selection can't be tagged</p>
-          <p>Define a slot first</p>
+          <p>{lang.tr('module.nlu.slots.noSlotsToTag')}</p>
         </React.Fragment>
       )}
 
       {props.slots.length > 0 && (
         <React.Fragment>
-          <p>Tag selection</p>
-          <p>Click on a slot or use numbers as keyboard shortcuts</p>
+          <p>{lang.tr('module.nlu.slots.tagSelectionLabel')}</p>
+          <p>{lang.tr('module.nlu.slots.tagSelectionMessage')}</p>
           <div>
             {props.slots.map((s, idx) => (
               <Tag

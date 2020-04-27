@@ -1,6 +1,8 @@
 import { Button, Callout, Checkbox, Classes, FormGroup, H6, Intent, TextArea } from '@blueprintjs/core'
 // @ts-ignore
 import ElementsList from 'botpress/elements-list'
+import { Flow, FlowNode } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import { AccessControl, getFlowLabel } from 'botpress/utils'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -9,6 +11,7 @@ import React, { Component } from 'react'
 import Select from 'react-select'
 
 import style from '../style.scss'
+import { ContextSelector } from '../ContextSelector'
 import QnaHint from '../QnaHint'
 
 export const ACTIONS = {
@@ -17,22 +20,33 @@ export const ACTIONS = {
   TEXT_REDIRECT: 'text_redirect'
 }
 
-interface Props {
+export interface Filter {
+  question?: string
+  contexts?: string[]
+}
+
+export interface Paging {
+  offset: number
+  limit: number
+}
+
+export interface Props {
   closeQnAModal: () => void
   fetchData: () => void
   updateQuestion: (data: any) => void
-  page: any
-  filters: any
+  page: Paging
+  filters: Filter
   id: string
+  hideContexts?: boolean
+  isLite?: boolean
   isEditing: boolean
   contentLang: string
-  categories?: any[]
+  contexts?: string[]
+  defaultContext?: string
   bp: any
-  flowsList?: any[]
-  flows?: any[]
+  flowsList?: { label: string; value: string }[]
+  flows?: Flow[]
 }
-
-const DEFAULT_CATEGORY = { label: 'global', value: 'global' }
 
 export default class Editor extends Component<Props> {
   state = this.defaultState
@@ -45,8 +59,8 @@ export default class Editor extends Component<Props> {
         redirectFlow: { label: '', value: '' },
         redirectNode: { label: '', value: '' },
         action: ACTIONS.TEXT,
-        category: DEFAULT_CATEGORY,
-        enabled: true
+        enabled: true,
+        contexts: this.props.defaultContext ? [this.props.defaultContext] : []
       },
       invalidFields: {
         category: false,
@@ -81,10 +95,9 @@ export default class Editor extends Component<Props> {
       data: { data: item }
     } = await this.props.bp.axios.get(`/mod/qna/questions/${this.props.id}`)
 
-    item.category = { label: item.category, value: item.category }
+    item.contexts = item.contexts || []
     item.redirectFlow = { label: getFlowLabel(item.redirectFlow), value: item.redirectFlow }
     item.redirectNode = { label: item.redirectNode, value: item.redirectNode }
-
     this.setState({
       item,
       isRedirect: [ACTIONS.REDIRECT, ACTIONS.TEXT_REDIRECT].includes(item.action),
@@ -93,8 +106,8 @@ export default class Editor extends Component<Props> {
   }
 
   closeAndClear = () => {
-    this.props.closeQnAModal()
     this.setState(this.defaultState)
+    this.props.closeQnAModal()
   }
 
   changeItemProperty = (keyPath, value) => {
@@ -136,7 +149,7 @@ export default class Editor extends Component<Props> {
   }
 
   isValidRedirection() {
-    if (!this.state.isRedirect) {
+    if (!this.state.isRedirect || this.props.isLite) {
       return true
     }
     const flow = _.find(this.props.flows, f => f.name === this.state.item.redirectFlow.value)
@@ -154,7 +167,6 @@ export default class Editor extends Component<Props> {
   }
 
   onCreate = async qnaItem => {
-    qnaItem.category = qnaItem.category.value
     qnaItem.redirectFlow = qnaItem.redirectFlow.value
     qnaItem.redirectNode = qnaItem.redirectNode.value
     try {
@@ -168,17 +180,16 @@ export default class Editor extends Component<Props> {
   }
 
   onEdit = async qnaItem => {
-    qnaItem.category = qnaItem.category.value
     qnaItem.redirectFlow = qnaItem.redirectFlow.value
     qnaItem.redirectNode = qnaItem.redirectNode.value
     const {
       page,
-      filters: { question, categories }
+      filters: { question, contexts }
     } = this.props
 
     try {
       const { data } = await this.props.bp.axios.post(`/mod/qna/questions/${this.props.id}`, qnaItem, {
-        params: { ...page, question, categories: categories.map(({ value }) => value) }
+        params: { ...page, question, filteredContexts: contexts }
       })
 
       this.props.updateQuestion(data)
@@ -195,12 +206,20 @@ export default class Editor extends Component<Props> {
 
     return (
       <div>
-        {this.state.invalidFields.checkbox && <Callout intent={Intent.DANGER}>Action checkbox is required</Callout>}
-        {hasInvalidInputs && <Callout intent={Intent.DANGER}>Inputs are required.</Callout>}
-        {this.state.hasDuplicates && <Callout intent={Intent.DANGER}>Duplicated questions aren't allowed.</Callout>}
+        {this.state.invalidFields.checkbox && (
+          <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.checkRequired')}</Callout>
+        )}
+        {hasInvalidInputs && <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.inputsRequred')}</Callout>}
+        {this.state.hasDuplicates && (
+          <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.duplicatesNotAllowed')}</Callout>
+        )}
         {this.state.errorMessage && <Callout intent={Intent.DANGER}>{this.state.errorMessage}</Callout>}
-        {missingTranslations && <Callout intent={Intent.DANGER}>Missing translations</Callout>}
-        {this.state.isIncorrectRedirection && <Callout intent={Intent.DANGER}>Incorrect redirection</Callout>}
+        {missingTranslations && (
+          <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.missingTranslations')}</Callout>
+        )}
+        {this.state.isIncorrectRedirection && (
+          <Callout intent={Intent.DANGER}>{lang.tr('module.qna.editor.incorrectRedirection')}</Callout>
+        )}
       </div>
     )
   }
@@ -259,10 +278,10 @@ export default class Editor extends Component<Props> {
       item: { redirectFlow },
       invalidFields
     } = this.state
-    const { flows, flowsList, categories, isEditing } = this.props
+    const { flows, flowsList, isEditing, hideContexts } = this.props
 
     const currentFlow = flows ? flows.find(({ name }) => name === redirectFlow.value) || { nodes: [] } : { nodes: [] }
-    const nodeList = currentFlow.nodes.map(({ name }) => ({ label: name, value: name }))
+    const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
 
     return (
       <div>
@@ -271,21 +290,18 @@ export default class Editor extends Component<Props> {
             {this.alertMessage()}
             <QnaHint questions={this.itemQuestions} mlRecommendations={this.mlRecommendations} />
 
-            {categories && !!categories.length && (
-              <FormGroup label="Category">
-                <Select
-                  id="select-category"
-                  className={classnames({ qnaCategoryError: invalidFields.category })}
-                  value={this.state.item.category}
-                  options={categories}
-                  onChange={this.handleSelect('category')}
-                  style={{ width: 250 }}
-                  placeholder="Search or choose category"
-                />
-              </FormGroup>
+            {!hideContexts && (
+              <ContextSelector
+                contexts={this.state.item.contexts}
+                saveContexts={this.handleSelect('contexts')}
+                bp={this.props.bp}
+              />
             )}
 
-            <FormGroup helperText="Type/Paste your questions here separated with a new line" label="Questions">
+            <FormGroup
+              helperText={lang.tr('module.qna.editor.pasteQuestionHere')}
+              label={lang.tr('module.qna.editor.questions')}
+            >
               <TextArea
                 id="input-questions"
                 tabIndex={1}
@@ -301,16 +317,16 @@ export default class Editor extends Component<Props> {
               />
             </FormGroup>
 
-            <H6>Answers</H6>
+            <H6>{lang.tr('module.qna.editor.answers')}</H6>
             <Checkbox
-              label={'Bot will say: '}
+              label={lang.tr('module.qna.editor.botWillSay')}
               checked={!flowsList || this.state.isText}
               onChange={this.changeItemAction('isText')}
               tabIndex={-1}
             />
 
             <ElementsList
-              placeholder="Type and press enter to add an answer. Use ALT+Enter for a new line"
+              placeholder={lang.tr('module.qna.editor.typePressAddAnswer')}
               elements={this.itemAnswers}
               allowMultiline
               onInvalid={this.state.invalidFields.answer}
@@ -323,13 +339,13 @@ export default class Editor extends Component<Props> {
               <React.Fragment>
                 <div className={style.qnaAndOr}>
                   <div className={style.qnaAndOrLine} />
-                  <div className={style.qnaAndOrText}>and / or</div>
+                  <div className={style.qnaAndOrText}>{lang.tr('module.qna.editor.andOr')}</div>
                   <div className={style.qnaAndOrLine} />
                 </div>
                 <div className={style.qnaRedirect}>
                   <div className={style.qnaRedirectToFlow}>
                     <Checkbox
-                      label="Redirect to flow"
+                      label={lang.tr('module.qna.editor.redirectToFlow')}
                       id="redirect"
                       checked={this.state.isRedirect}
                       onChange={this.changeItemAction('isRedirect')}
@@ -346,7 +362,7 @@ export default class Editor extends Component<Props> {
                     />
                   </div>
                   <div className={style.qnaRedirectNode}>
-                    <strong>Node</strong>
+                    <strong>{lang.tr('module.qna.editor.node')}</strong>
 
                     <Select
                       className={classnames({ qnaCategoryError: invalidFields.redirectNode })}
@@ -365,11 +381,11 @@ export default class Editor extends Component<Props> {
 
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button id="btn-cancel" text="Cancel" onClick={this.closeAndClear} />
+            <Button id="btn-cancel" text={lang.tr('cancel')} onClick={this.closeAndClear} />
             <AccessControl resource="module.qna" operation="write">
               <Button
                 id="btn-submit"
-                text={isEditing ? 'Save' : 'Add'}
+                text={isEditing ? lang.tr('save') : lang.tr('add')}
                 intent={Intent.PRIMARY}
                 onClick={this.handleSubmit}
               />

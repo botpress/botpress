@@ -1,13 +1,16 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
+
 import api from './api'
 
 export type SDK = typeof sdk
 
 const onServerStarted = async (bp: SDK) => {
   bp.logger.warn(
-    'You are using Botpress NLU Regression Testing module which meant to be used only by the botpress team.'
+    'You are using Botpress NLU Regression Testing module which is meant to be used only by the Botpress team.'
   )
 }
 
@@ -33,6 +36,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
+  translations: { en, fr },
   definition: {
     name: 'nlu-testing',
     menuIcon: 'done_outline',

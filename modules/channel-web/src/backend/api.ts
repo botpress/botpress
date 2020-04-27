@@ -16,6 +16,8 @@ const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 
+const USER_ID_MAX_LENGTH = 40
+
 export default async (bp: typeof sdk, db: Database) => {
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
 
@@ -108,6 +110,7 @@ export default async (bp: typeof sdk, db: Database) => {
         description: (config.infoPage && config.infoPage.description) || botInfo.description,
         details: botInfo.details,
         languages: botInfo.languages,
+        extraStylesheet: config.extraStylesheet,
         security
       })
     })
@@ -158,7 +161,7 @@ export default async (bp: typeof sdk, db: Database) => {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(botId, userId, conversationId, payload, req.credentials, !!req.headers.authorization)
 
       return res.sendStatus(200)
     })
@@ -234,11 +237,22 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   })
 
-  function validateUserId(userId) {
+  function validateUserId(userId: string) {
+    if (!userId || userId.length > USER_ID_MAX_LENGTH) {
+      return false
+    }
+
     return /[a-z0-9-_]+/i.test(userId)
   }
 
-  async function sendNewMessage(botId: string, userId: string, conversationId, payload, credentials: any) {
+  async function sendNewMessage(
+    botId: string,
+    userId: string,
+    conversationId,
+    payload,
+    credentials: any,
+    useDebugger?: boolean
+  ) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     if (
@@ -264,6 +278,10 @@ export default async (bp: typeof sdk, db: Database) => {
       type: payload.type,
       credentials
     })
+
+    if (useDebugger) {
+      event.debugger = true
+    }
 
     const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id)
 
@@ -293,6 +311,39 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await bp.events.sendEvent(event)
       res.sendStatus(200)
+    })
+  )
+
+  router.post(
+    '/saveFeedback',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const { eventId, target, feedback } = req.body
+
+      if (!target || !eventId || !feedback) {
+        return res.status(400).send('Missing required fields')
+      }
+
+      try {
+        await bp.events.saveUserFeedback(eventId, target, feedback, 'qna')
+        res.sendStatus(200)
+      } catch (err) {
+        res.status(400).send(err)
+      }
+    })
+  )
+
+  router.post(
+    '/feedbackInfo',
+    bp.http.extractExternalToken,
+    asyncApi(async (req, res) => {
+      const { target, eventIds } = req.body
+
+      if (!target || !eventIds) {
+        return res.status(400).send('Missing required fields')
+      }
+
+      res.send(await db.getFeedbackInfoForEventIds(target, eventIds))
     })
   )
 

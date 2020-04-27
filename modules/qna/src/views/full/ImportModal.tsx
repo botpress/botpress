@@ -1,5 +1,6 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import 'bluebird-global'
+import { lang } from 'botpress/shared'
 import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
@@ -49,8 +50,7 @@ export const ImportModal: FC<Props> = props => {
       const { data } = await props.axios.post('/mod/qna/analyzeImport', form, axiosConfig)
 
       if (!data.fileQnaCount && !data.fileCmsCount) {
-        setUploadStatus(`We were not able to extract any data from your file.
-Either the file is empty, or it doesn't match any known format.`)
+        setUploadStatus(lang.tr('module.qna.import.notAbleToExtract'))
         setHasError(true)
       }
 
@@ -86,7 +86,7 @@ Either the file is empty, or it doesn't match any known format.`)
     if (status === 'Completed') {
       clearStatus()
       closeDialog()
-      toastSuccess('Upload successful')
+      toastSuccess(lang.tr('module.qna.import.uploadSuccessful'))
       props.onImportCompleted()
     } else if (status.startsWith('Error')) {
       clearStatus()
@@ -131,17 +131,12 @@ Either the file is empty, or it doesn't match any known format.`)
       >
         <div className={Classes.DIALOG_BODY}>
           <FormGroup
-            label={<span>Select your JSON file</span>}
+            label={<span>{lang.tr('module.qna.import.selectJson')}</span>}
             labelFor="input-archive"
-            helperText={
-              <span>
-                Select a JSON file exported from the module QNA. You will see a summary of modifications when clicking
-                on Next
-              </span>
-            }
+            helperText={<span>{lang.tr('module.qna.import.selectJsonHelp')}</span>}
           >
             <FileInput
-              text={filePath || 'Choose file...'}
+              text={filePath || lang.tr('chooseFile')}
               onChange={e => readFile((e.target as HTMLInputElement).files)}
               inputProps={{ accept: '.json' }}
               fill
@@ -152,7 +147,7 @@ Either the file is empty, or it doesn't match any known format.`)
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               id="btn-next"
-              text={isLoading ? 'Please wait...' : 'Next'}
+              text={isLoading ? lang.tr('pleaseWait') : lang.tr('next')}
               disabled={!filePath || !file || isLoading}
               onClick={analyzeImport}
               intent={Intent.PRIMARY}
@@ -171,27 +166,28 @@ Either the file is empty, or it doesn't match any known format.`)
         <div className={Classes.DIALOG_BODY}>
           <div>
             <p>
-              Your file contains <strong>{fileQnaCount}</strong> questions and <strong>{fileCmsCount}</strong> content
-              elements.
+              {lang.tr('module.qna.import.fileContains', {
+                fileQnaCount: <strong>{fileQnaCount}</strong>,
+                fileCmsCount: <strong>{fileCmsCount}</strong>
+              })}
               <br />
               <br />
-              The bot contains <strong>{qnaCount}</strong> questions and <strong>{cmsCount}</strong> content elements.
+              {lang.tr('module.qna.import.botContains', {
+                qnaCount: <strong>{qnaCount}</strong>,
+                cmsCount: <strong>{cmsCount}</strong>
+              })}
             </p>
 
             <p style={{ marginTop: 30 }}>
               <RadioGroup
-                label=" What would you like to do? "
+                label={lang.tr('module.qna.import.whatLikeDo')}
                 onChange={e => setImportAction(e.target['value'])}
                 selectedValue={importAction}
               >
-                <Radio
-                  id="radio-insert"
-                  label="Insert the new questions from my file and create/update associated content elements"
-                  value="insert"
-                />
+                <Radio id="radio-insert" label={lang.tr('module.qna.import.insertNewQuestions')} value="insert" />
                 <Radio
                   id="radio-clearInsert"
-                  label="Clear existing questions, then insert my new questions and create/update content elements"
+                  label={lang.tr('module.qna.import.clearQuestionsThenInsert')}
                   value="clear_insert"
                 />
               </RadioGroup>
@@ -200,10 +196,10 @@ Either the file is empty, or it doesn't match any known format.`)
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button id="btn-back" text={'Back'} disabled={isLoading} onClick={clearState} />
+            <Button id="btn-back" text={lang.tr('back')} disabled={isLoading} onClick={clearState} />
             <Button
               id="btn-submit"
-              text={isLoading ? 'Please wait...' : 'Submit'}
+              text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
               disabled={isLoading || hasError}
               onClick={submitChanges}
               intent={Intent.PRIMARY}
@@ -218,13 +214,16 @@ Either the file is empty, or it doesn't match any known format.`)
     return (
       <Fragment>
         <div className={Classes.DIALOG_BODY}>
-          <Callout title={hasError ? 'Error' : 'Upload status'} intent={hasError ? Intent.DANGER : Intent.PRIMARY}>
+          <Callout
+            title={hasError ? lang.tr('error') : lang.tr('module.qna.import.uploadStatus')}
+            intent={hasError ? Intent.DANGER : Intent.PRIMARY}
+          >
             {uploadStatus}
           </Callout>
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            {hasError && <Button id="btn-back" text={'Back'} disabled={isLoading} onClick={clearState} />}
+            {hasError && <Button id="btn-back" text={lang.tr('back')} disabled={isLoading} onClick={clearState} />}
           </div>
         </div>
       </Fragment>
@@ -236,7 +235,7 @@ Either the file is empty, or it doesn't match any known format.`)
   return (
     <Fragment>
       <Dialog
-        title={analysis ? 'Analysis' : 'Upload File'}
+        title={analysis ? lang.tr('module.qna.import.analysis') : lang.tr('module.qna.import.uploadFile')}
         icon="import"
         isOpen={props.isOpen}
         onClose={closeDialog}

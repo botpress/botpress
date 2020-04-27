@@ -17,7 +17,7 @@ export default async (bp: typeof sdk) => {
 
     try {
       const token = jsonwebtoken.sign({}, process.APP_SECRET, { expiresIn })
-      res.status(200).send({ token })
+      res.send({ token })
     } catch (err) {
       res.status(400).send(err)
     }

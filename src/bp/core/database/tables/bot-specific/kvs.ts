@@ -9,6 +9,7 @@ export class KeyValueStoreTable extends Table {
       table.string('key')
       table.text('value').notNullable()
       table.string('botId').notNullable()
+      table.timestamp('expireOn').nullable()
       table.timestamp('modified_on')
       table.primary(['key', 'botId'])
       created = true

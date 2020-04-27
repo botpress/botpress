@@ -1,5 +1,6 @@
 import { Icon } from '@blueprintjs/core'
 import axios from 'axios'
+import { lang } from 'botpress/shared'
 import classNames from 'classnames'
 import _ from 'lodash'
 import { Line } from 'progressbar.js'
@@ -30,7 +31,7 @@ interface Props {
   onToggleGuidedTour: () => void
   toggleBottomPanel: () => void
   onToggleEmulator: () => void
-  toggleLangSwitcher: () => void
+  toggleLangSwitcher: (e: any) => void
 }
 
 const DEFAULT_STATE = {
@@ -145,9 +146,9 @@ class StatusBar extends React.Component<Props> {
 
     return (
       <ActionItem
-        title="Read Documentation"
+        title={lang.tr('statusBar.readDoc')}
         shortcut={keyMap['docs-toggle']}
-        description="This screen has documentation available."
+        description={lang.tr('statusBar.documentationAvailable')}
         onClick={onClick}
         className={style.right}
       >
@@ -163,16 +164,20 @@ class StatusBar extends React.Component<Props> {
           {window.IS_BOT_MOUNTED && (
             <React.Fragment>
               <ActionItem
-                title="Show Emulator"
+                title={lang.tr('statusBar.showEmulator')}
                 id={'statusbar_emulator'}
                 shortcut={keyMap['emulator-focus']}
                 onClick={this.props.onToggleEmulator}
                 className={classNames({ [style.active]: this.props.isEmulatorOpen }, style.right)}
               >
                 <Glyphicon glyph="comment" style={{ marginRight: '5px' }} />
-                Emulator
+                {lang.tr('statusBar.emulator')}
               </ActionItem>
-              <ActionItem title="Notification" description="View Notifications" className={style.right}>
+              <ActionItem
+                title={lang.tr('statusBar.notifications')}
+                description={lang.tr('statusBar.viewNotifications')}
+                className={style.right}
+              >
                 <NotificationHub />
               </ActionItem>
             </React.Fragment>
@@ -180,9 +185,9 @@ class StatusBar extends React.Component<Props> {
           <AccessControl resource="bot.logs" operation="read">
             <ActionItem
               id="statusbar_logs"
-              title="Logs Panel"
+              title={lang.tr('statusBar.logsPanel')}
               shortcut={keyMap['bottom-bar']}
-              description="Toggle Logs Panel"
+              description={lang.tr('statusBar.toggleLogsPanel')}
               className={style.right}
               onClick={this.props.toggleBottomPanel}
             >
@@ -192,7 +197,7 @@ class StatusBar extends React.Component<Props> {
           {window.IS_BOT_MOUNTED && (
             <ActionItem
               onClick={this.props.onToggleGuidedTour}
-              title="Toggle Guided Tour"
+              title={lang.tr('statusBar.toggleGuidedTour')}
               description=""
               className={style.right}
             >

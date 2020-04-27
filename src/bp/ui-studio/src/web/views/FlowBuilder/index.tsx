@@ -1,3 +1,4 @@
+import { lang, toast } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -14,7 +15,6 @@ import {
   switchFlow
 } from '~/actions'
 import { Container } from '~/components/Shared/Interface'
-import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { isInputFocused } from '~/keyboardShortcuts'
@@ -115,12 +115,9 @@ class FlowBuilder extends Component<Props, State> {
     }
 
     if (!prevProps.errorSavingFlows && this.props.errorSavingFlows) {
-      const { status } = this.props.errorSavingFlows
-      const message =
-        status === 403
-          ? 'Unauthorized flow update. You have insufficient role privileges to modify flows.'
-          : 'There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition'
-      toastFailure(message, Timeout.LONG, this.props.clearErrorSaveFlows)
+      const { status, data } = this.props.errorSavingFlows
+      const message = status === 403 ? 'studio.flow.unauthUpdate' : 'studio.flow.errorWhileSaving'
+      toast.failure(message, data, { timeout: 'long', delayed: true, onDismiss: this.props.clearErrorSaveFlows })
     }
 
     const flowsHaveChanged = !_.isEqual(prevProps.flowsByName, this.props.flowsByName)
@@ -214,7 +211,7 @@ class FlowBuilder extends Component<Props, State> {
       },
       save: e => {
         e.preventDefault()
-        toastInfo('Pssst! Flows now save automatically, no need to save anymore.', Timeout.LONG)
+        toast.info('studio.flow.nowSaveAuto')
       },
       delete: e => {
         if (!isInputFocused()) {
@@ -247,7 +244,6 @@ class FlowBuilder extends Component<Props, State> {
             hideSearch={this.hideSearch}
             ref={el => {
               if (!!el) {
-                // @ts-ignore
                 this.diagram = el.getWrappedInstance()
               }
             }}

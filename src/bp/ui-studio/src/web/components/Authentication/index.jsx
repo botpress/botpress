@@ -6,19 +6,9 @@ import qs from 'query-string'
 import axios from 'axios'
 import _ from 'lodash'
 
-import { getToken, logout, authEvents, setToken } from '~/util/Auth'
+import { authEvents, setToken, isTokenValid } from '~/util/Auth'
 
 const CHECK_AUTH_INTERVAL = 60 * 1000
-
-const validateToken = () => {
-  const token = getToken()
-  const elapsed = new Date() - new Date(token.time)
-  const tokenStillValid = !!token && elapsed < window.AUTH_TOKEN_DURATION
-  if (!tokenStillValid) {
-    logout()
-  }
-  return tokenStillValid
-}
 
 const ensureAuthenticated = WrappedComponent => {
   class AuthenticationWrapper extends React.Component {
@@ -72,7 +62,7 @@ const ensureAuthenticated = WrappedComponent => {
         )
       }
 
-      const tokenStillValid = validateToken()
+      const tokenStillValid = isTokenValid()
       this.setState({ authorized: tokenStillValid })
 
       if (tokenStillValid) {

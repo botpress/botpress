@@ -54,14 +54,13 @@ gulp.task('watch:studio', ui.watchStudio)
 gulp.task('watch:admin', ui.watchAdmin)
 gulp.task('watch:ui', ui.watchAll)
 gulp.task('watch:shared', ui.watchShared)
+gulp.task('watch:modules', modules.watchModules)
 
 gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
 gulp.task('clean:out', cb => rimraf('out', cb))
 gulp.task('clean:data', cb => rimraf('out/bp/data', cb))
 gulp.task('clean:db', cb => rimraf('out/bp/data/storage/core.sqlite', cb))
 
-// Example: yarn cmd dev:module --public nlu or yarn cmd dev:module --private bank
-gulp.task('dev:module', gulp.series([modules.cleanModuleAssets, modules.createModuleSymlink]))
 gulp.task('dev:modules', modules.createAllModulesSymlink())
 
 /**
@@ -69,6 +68,8 @@ gulp.task('dev:modules', modules.createAllModulesSymlink())
  * target can either be "core" or the name of any module
  */
 gulp.task('migration:create', core.createMigration)
+
+gulp.task('check-translations', core.checkTranslations)
 
 gulp.task('changelog', () => {
   // see options here: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages

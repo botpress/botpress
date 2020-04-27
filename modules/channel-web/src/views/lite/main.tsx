@@ -230,8 +230,9 @@ class Web extends React.Component<MainProps> {
     return (
       <button
         className={classnames('bpw-widget-btn', 'bpw-floating-button', {
-          ['bpw-anim-' + this.props.widgetTransition]: true
+          ['bpw-anim-' + this.props.widgetTransition || 'none']: true
         })}
+        aria-label={this.props.intl.formatMessage({ id: 'widget.toggle' })}
         onClick={this.props.showChat.bind(this)}
       >
         <ChatIcon />
@@ -260,6 +261,12 @@ class Web extends React.Component<MainProps> {
       <div onFocus={this.handleResetUnreadCount}>
         {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
         {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
+        <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
+          {this.props.intl.formatMessage({
+            id: 'widget.title',
+            defaultMessage: 'Chat window'
+          })}
+        </h1>
         {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )
@@ -294,7 +301,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   dimensions: store.view.dimensions,
   widgetTransition: store.view.widgetTransition,
   displayWidgetView: store.view.displayWidgetView,
-  setLoadingCompleted: store.view.setLoadingCompleted
+  setLoadingCompleted: store.view.setLoadingCompleted,
+  sendFeedback: store.sendFeedback
 }))(injectIntl(observer(Web)))
 
 type MainProps = { store: RootStore } & Pick<

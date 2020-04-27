@@ -3,7 +3,7 @@ import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import { BotConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
-import { Dropdown, Option } from 'botpress/shared'
+import { Dropdown, lang, Option } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import _ from 'lodash'
 import moment from 'moment'
@@ -19,16 +19,6 @@ import { fetchBots } from '../../reducers/bots'
 
 import { filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
 
-const LEVELS: Option[] = [
-  { label: 'All', value: '' },
-  { label: 'Info', value: 'info' },
-  { label: 'Warning', value: 'warn' },
-  { label: 'Error', value: 'error' },
-  { label: 'Critical', value: 'critical' }
-]
-
-const EVERYTHING: Option[] = [{ label: 'Everything', value: '' }]
-
 interface Props {
   bots: BotConfig[]
   fetchBots: () => void
@@ -39,6 +29,16 @@ interface Props {
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 const Logs: FC<Props> = props => {
+  const LEVELS: Option[] = [
+    { label: lang.tr('admin.logs.level.all'), value: '' },
+    { label: lang.tr('admin.logs.level.info'), value: 'info' },
+    { label: lang.tr('admin.logs.level.warning'), value: 'warn' },
+    { label: lang.tr('admin.logs.level.error'), value: 'error' },
+    { label: lang.tr('admin.logs.level.critical'), value: 'critical' }
+  ]
+
+  const EVERYTHING: Option[] = [{ label: lang.tr('admin.logs.level.everything'), value: '' }]
+
   const [data, setData] = useState<sdk.LoggerEntry[]>([])
   const [levelFilter, setLevelFilter] = useState<Option>(LEVELS[0])
   const [botFilter, setBotFilter] = useState<Option>(EVERYTHING[0])
@@ -98,7 +98,7 @@ const Logs: FC<Props> = props => {
       setHostNames(_.uniq(logs.map(x => x.hostname).filter(Boolean)))
 
       if (isRefreshing) {
-        toastSuccess('Logs refreshed')
+        toastSuccess(lang.tr('admin.logs.refreshed'))
       }
     } catch (err) {
       console.error(err)
@@ -160,7 +160,7 @@ const Logs: FC<Props> = props => {
   const getColumns = () => {
     const columns: Column[] = [
       {
-        Header: 'Date',
+        Header: lang.tr('admin.logs.column.date'),
         filterable: false,
         Cell: ({ original: { timestamp } }) => moment(timestamp).format(DATE_FORMAT),
         accessor: 'timestamp',
@@ -170,7 +170,7 @@ const Logs: FC<Props> = props => {
 
     if (hostNames && hostNames.length > 1) {
       columns.push({
-        Header: 'Hostname',
+        Header: lang.tr('admin.logs.column.hostname'),
         Filter: filterHostname,
         accessor: 'hostname',
         width: 130
@@ -180,23 +180,23 @@ const Logs: FC<Props> = props => {
     return [
       ...columns,
       {
-        Header: 'Bot ID',
+        Header: lang.tr('admin.logs.column.botId'),
         Filter: filterBot,
         accessor: 'botId',
         width: 150
       },
       {
-        Header: 'Level',
+        Header: lang.tr('admin.logs.column.level'),
         Cell: ({ original: { level } }) => {
           switch (level) {
             case 'info':
-              return <span className="logInfo">Info</span>
+              return <span className="logInfo">{lang.tr('admin.logs.level.info')}</span>
             case 'warn':
-              return <span className="logWarn">Warning</span>
+              return <span className="logWarn">{lang.tr('admin.logs.level.warning')}</span>
             case 'error':
-              return <span className="logError">Error</span>
+              return <span className="logError">{lang.tr('admin.logs.level.error')}</span>
             case 'critical':
-              return <span className="logCritical">Critical</span>
+              return <span className="logCritical">{lang.tr('admin.logs.level.critical')}</span>
           }
         },
         Filter: filterLevel,
@@ -205,13 +205,13 @@ const Logs: FC<Props> = props => {
         className: 'center'
       },
       {
-        Header: 'Scope',
+        Header: lang.tr('admin.logs.column.scope'),
         Filter: filterText,
         accessor: 'scope',
         width: 100
       },
       {
-        Header: 'Message',
+        Header: lang.tr('admin.logs.column.message'),
         Filter: filterText,
         Cell: ({ original: { message } }) => (
           <span dangerouslySetInnerHTML={{ __html: message.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;') }}></span>
@@ -228,7 +228,7 @@ const Logs: FC<Props> = props => {
     return (
       <small>
         {rows} rows ({getRangeLabel(dateRange)}){' '}
-        {rows === 2000 && <span className="logError">Row limit reached. Choose a different time range</span>}
+        {rows === 2000 && <span className="logError">{lang.tr('admin.logs.rowLimitReached')}</span>}
       </small>
     )
   }
@@ -239,7 +239,7 @@ const Logs: FC<Props> = props => {
         <div className="logToolbar-left">{renderRowHeader()}</div>
         <div className="logToolbar-right">
           <Popover>
-            <Button text="Date Time Range" icon="calendar" small />
+            <Button text={lang.tr('admin.logs.dateTimeRange')} icon="calendar" small />
 
             <DateRangePicker
               allowSingleDayRange
@@ -254,7 +254,7 @@ const Logs: FC<Props> = props => {
             checked={onlyWorkspace}
             onChange={e => setOnlyWorkspace(e.currentTarget.checked)}
             disabled={!props.profile.isSuperAdmin}
-            label={`Only bots from this workspace`}
+            label={lang.tr('admin.logs.onlyBotsFromThisWorkspace')}
             style={{ marginLeft: 10 }}
           />
         </div>
@@ -270,6 +270,12 @@ const Logs: FC<Props> = props => {
         filterable
         defaultSorted={[{ id: 'level', desc: false }]}
         className="-striped -highlight monitoringOverview"
+        previousText={lang.tr('previous')}
+        nextText={lang.tr('next')}
+        noDataText={lang.tr('noRowsFound')}
+        pageText={lang.tr('page')}
+        ofText={lang.tr('of')}
+        rowsText={lang.tr('rows')}
       />
     </PageContainer>
   )

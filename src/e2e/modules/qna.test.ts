@@ -18,15 +18,16 @@ describe('Module - QNA', () => {
   })
 
   it('Filter by category', async () => {
-    await fillField('#select-category', 'monkey')
+    await fillField('#select-context', 'monkeys')
 
     await Promise.all([
-      expectBotApiCallSuccess('mod/qna/questions?question=&categories[]=monkeys', 'GET'),
+      expectBotApiCallSuccess('mod/qna/questions?question=&filteredContexts[]=monkeys', 'GET'),
       page.keyboard.press('Enter')
     ])
 
     expect(await getQnaCount()).toBe(2)
     await page.keyboard.press('Delete')
+    await clickOn(`[class^='bp3-tag-remove']`)
   })
 
   it('Create new entry', async () => {

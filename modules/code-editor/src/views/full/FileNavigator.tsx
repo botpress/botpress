@@ -10,6 +10,7 @@ import {
   Tooltip,
   Tree
 } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -58,7 +59,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     const readOnlyIcon = (
-      <Tooltip content="This file is read only">
+      <Tooltip content={lang.tr('module.code-editor.navigator.isReadOnly')}>
         <Icon icon="lock" />
       </Tooltip>
     )
@@ -67,9 +68,9 @@ class FileNavigator extends React.Component<Props, State> {
       <Tooltip
         content={
           <span>
-            Those are code samples that you can copy
-            <br /> to add new features to your bots.
-            <br /> <br /> They cannot be edited directly
+            {lang.tr('module.code-editor.navigator.codeSamples')}
+            <br /> {lang.tr('module.code-editor.navigator.codeSamples2')}
+            <br /> <br /> {lang.tr('module.code-editor.navigator.cannotBeEdited')}
           </span>
         }
         hoverOpenDelay={500}
@@ -145,7 +146,7 @@ class FileNavigator extends React.Component<Props, State> {
             <MenuItem
               id="btn-duplicateCurrent"
               icon="duplicate"
-              text="Duplicate to current bot"
+              text={lang.tr('module.code-editor.navigator.duplicateToCurrent')}
               onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
             />
           </Menu>,
@@ -154,7 +155,12 @@ class FileNavigator extends React.Component<Props, State> {
       } else {
         ContextMenu.show(
           <Menu>
-            <MenuItem id="btn-delete" icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
+            <MenuItem
+              id="btn-delete"
+              icon="delete"
+              text={lang.tr('delete')}
+              onClick={() => this.props.deleteFile(file)}
+            />
           </Menu>,
           { left: e.clientX, top: e.clientY }
         )
@@ -164,13 +170,13 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     if (file.isExample) {
-      if (file.type === 'action') {
+      if (file.type === 'action_legacy') {
         ContextMenu.show(
           <Menu>
             <MenuItem
               id="btn-duplicateCurrent"
               icon="duplicate"
-              text="Copy example to my bot"
+              text={lang.tr('module.code-editor.navigator.copyExample')}
               onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
             />
           </Menu>,
@@ -183,14 +189,14 @@ class FileNavigator extends React.Component<Props, State> {
               <MenuItem
                 id="btn-duplicateCurrent"
                 icon="duplicate"
-                text="Copy example to my bot"
+                text={lang.tr('module.code-editor.navigator.copyExample')}
                 onClick={() => this.props.duplicateFile(file, { forCurrentBot: true, keepSameName: true })}
               />
             )}
             <MenuItem
               id="btn-duplicateCurrent"
               icon="duplicate"
-              text="Copy example to global hooks"
+              text={lang.tr('module.code-editor.navigator.copyExampleToHooks')}
               onClick={() => this.props.duplicateFile(file, { forCurrentBot: false, keepSameName: true })}
             />
           </Menu>,
@@ -207,24 +213,44 @@ class FileNavigator extends React.Component<Props, State> {
     ContextMenu.show(
       <Menu>
         {canMove ? (
-          <MenuItem id="btn-move" icon="edit" text="Rename / Move" onClick={() => this.props.moveFile(file)} />
+          <MenuItem
+            id="btn-move"
+            icon="edit"
+            text={lang.tr('module.code-editor.navigator.renameMove')}
+            onClick={() => this.props.moveFile(file)}
+          />
         ) : (
-          <MenuItem id="btn-rename" icon="edit" text="Rename" onClick={() => this.renameTreeNode(node)} />
+          <MenuItem id="btn-rename" icon="edit" text={lang.tr('rename')} onClick={() => this.renameTreeNode(node)} />
         )}
-        <MenuItem id="btn-delete" icon="delete" text="Delete" onClick={() => this.props.deleteFile(file)} />
+        <MenuItem id="btn-delete" icon="delete" text={lang.tr('delete')} onClick={() => this.props.deleteFile(file)} />
         <MenuDivider />
-        <MenuItem id="btn-duplicate" icon="duplicate" text="Duplicate" onClick={() => this.props.duplicateFile(file)} />
+        <MenuItem
+          id="btn-duplicate"
+          icon="duplicate"
+          text={lang.tr('duplicate')}
+          onClick={() => this.props.duplicateFile(file)}
+        />
         <MenuItem
           id="btn-download"
           icon="download"
-          text="Download"
+          text={lang.tr('download')}
           onClick={() => this.props.store.api.downloadFile(file)}
         />
         <MenuDivider />
         {isDisabled ? (
-          <MenuItem id="btn-enable" icon="endorsed" text="Enable" onClick={() => this.props.enableFile(file)} />
+          <MenuItem
+            id="btn-enable"
+            icon="endorsed"
+            text={lang.tr('enable')}
+            onClick={() => this.props.enableFile(file)}
+          />
         ) : (
-          <MenuItem id="btn-disable" icon="disable" text="Disable" onClick={() => this.props.disableFile(file)} />
+          <MenuItem
+            id="btn-disable"
+            icon="disable"
+            text={lang.tr('disable')}
+            onClick={() => this.props.disableFile(file)}
+          />
         )}
       </Menu>,
       { left: e.clientX, top: e.clientY }
@@ -262,7 +288,7 @@ class FileNavigator extends React.Component<Props, State> {
 
   render() {
     if (!this.state.nodes.length) {
-      return <div className={style.padding}>No files found in this category</div>
+      return <div className={style.padding}>{lang.tr('module.code-editor.navigator.noFilesFound')}</div>
     }
 
     return (

@@ -27,6 +27,7 @@ declare global {
     BP_STORAGE: BPStorage
     EXPERIMENTAL: boolean
     USE_SESSION_STORAGE: boolean
+    USE_ONEFLOW: boolean
     botpress: {
       [moduleName: string]: any
     }
