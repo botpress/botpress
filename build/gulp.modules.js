@@ -174,9 +174,52 @@ const createAllModulesSymlink = () => {
   return gulp.series(tasks)
 }
 
+const watchModules = cb => {
+  const allModuleNames = getAllModulesRoot().map(x => path.basename(x))
+  const command = process.argv[process.argv.length - 2]
+  const moduleArgs = process.argv[process.argv.length - 1].split(',')
+
+  if (!['--m', '--a'].includes(command)) {
+    console.error(`Argument missing. Use --m for specific modules, or --a for a partial match. 
+Modules must be comma-separated.
+Example: 'yarn watch:modules --m channel-web,nlu,qna' or 'yarn watch:modules --a web,qna,basic'`)
+    return cb()
+  }
+
+  const modules =
+    command === '--m'
+      ? allModuleNames.filter(m => moduleArgs.includes(m))
+      : allModuleNames.filter(m => moduleArgs.find(x => m.includes(x)))
+
+  if (!modules.length) {
+    console.error('No module found matching provided arguments')
+    return cb()
+  }
+
+  console.log(`Watching Modules: ${modules.join(', ')}`)
+
+  modules.forEach(moduleName => {
+    try {
+      gulp.src(`./out/bp/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf())
+      gulp
+        .src(`./modules/${moduleName}/assets/`)
+        .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
+    } catch (err) {
+      console.log('Cant create symlink for', moduleName)
+    }
+
+    const watch = exec('yarn && yarn watch', { cwd: `modules/${moduleName}` }, err => cb(err))
+    watch.stdout.pipe(process.stdout)
+    watch.stderr.pipe(process.stderr)
+  })
+
+  cb()
+}
+
 module.exports = {
   build,
   buildModules,
+  watchModules,
   packageModules,
   buildModuleBuilder,
   cleanModuleAssets,

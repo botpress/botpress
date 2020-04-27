@@ -151,8 +151,9 @@ export class LanguagesRouter extends CustomRouter {
         } catch (e) {
           try {
             const { languageSources } = await this.moduleLoader.configReader.getGlobal('nlu')
-            if (languageSources.length && languageSources[0].endpoint)
+            if (languageSources.length && languageSources[0].endpoint) {
               this.logger.warn(`Please remove the languageSources from nlu.json if you don't want to use it`)
+            }
           } catch (e) {
             this.logger.warn('NLU module is disabled')
           }

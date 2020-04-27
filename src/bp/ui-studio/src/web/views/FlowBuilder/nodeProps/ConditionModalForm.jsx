@@ -35,15 +35,7 @@ class ConditionModalForm extends Component {
       value: flow
     }))
 
-    const { currentFlow: flow, currentNodeName } = this.props
-    const nodes = (flow && flow.nodes) || []
-    const options = nodes
-      .filter(({ name }) => name !== currentNodeName)
-      .map(({ name }) => ({ label: name, value: name }))
-
-    const nodeOptions = [{ label: lang.tr('studio.flow.node.transition.noSpecific'), value: null }, ...options]
-
-    this.setState({ subflowOptions, nodeOptions })
+    this.setState({ subflowOptions })
   }
 
   componentDidUpdate(prevProps) {
@@ -59,6 +51,7 @@ class ConditionModalForm extends Component {
       let typeOfTransition = item.node.indexOf('.') !== -1 ? 'subflow' : 'node'
       typeOfTransition = item.node === 'END' ? 'end' : typeOfTransition
       typeOfTransition = /^#/.test(item.node) ? 'return' : typeOfTransition
+      const options = this.nodeOptions()
 
       this.setState({
         typeOfTransition,
@@ -66,10 +59,7 @@ class ConditionModalForm extends Component {
         condition,
         flowToSubflow:
           typeOfTransition === 'subflow' ? this.state.subflowOptions.find(x => x.value === item.node) : null,
-        flowToNode:
-          typeOfTransition === 'node'
-            ? this.state.nodeOptions.find(x => x.value === item.node)
-            : _.get(this.state.nodeOptions, '[0]'),
+        flowToNode: typeOfTransition === 'node' ? options.find(x => x.value === item.node) : _.first(options),
         returnToNode: typeOfTransition === 'return' ? item.node.substr(1) : ''
       })
     } else {
@@ -83,6 +73,16 @@ class ConditionModalForm extends Component {
     } else if (conditionType === 'props') {
       this.extractProps(condition)
     }
+  }
+
+  nodeOptions() {
+    const { currentFlow: flow, currentNodeName } = this.props
+    const nodes = (flow && flow.nodes) || []
+    const options = nodes
+      .filter(({ name }) => name !== currentNodeName)
+      .map(({ name }) => ({ label: name, value: name }))
+
+    return [{ label: lang.tr('studio.flow.node.transition.noSpecific'), value: null }, ...options]
   }
 
   getConditionType(condition) {
@@ -121,7 +121,7 @@ class ConditionModalForm extends Component {
     this.setState({
       typeOfTransition: type,
       flowToSubflow: this.state.flowToSubflow || _.get(this.state.subflowOptions, '[0]'),
-      flowToNode: this.state.flowToNode || _.get(this.state.nodeOptions, '[0]'),
+      flowToNode: this.state.flowToNode || _.first(this.nodeOptions()),
       transitionError: null
     })
   }
@@ -155,7 +155,7 @@ class ConditionModalForm extends Component {
     this.setState({
       typeOfTransition: 'node',
       flowToSubflow: null,
-      flowToNode: _.get(this.state.nodeOptions, '[0]'),
+      flowToNode: _.first(this.nodeOptions()),
       returnToNode: '',
       conditionError: null,
       transitionError: null,
@@ -241,7 +241,7 @@ class ConditionModalForm extends Component {
       <Select
         name="flowToNode"
         value={this.state.flowToNode}
-        options={this.state.nodeOptions}
+        options={this.nodeOptions()}
         onChange={flowToNode => this.setState({ flowToNode })}
       />
     )

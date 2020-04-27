@@ -366,6 +366,10 @@ export class UnderstandingEngine {
         continue
       }
 
+      if (!trigger.conditions.length) {
+        continue
+      }
+
       const id = this.getTriggerId(trigger)
       const result = this._testConditions(event, trigger.conditions)
       event.ndu.triggers[id] = { result, trigger }
@@ -438,7 +442,7 @@ export class UnderstandingEngine {
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions.map(x => ({
               ...x,
-              params: { ...x.params, topicName }
+              params: { ...x.params, topicName, wfName: flowName }
             })),
             type: 'workflow',
             workflowId: flowName,
@@ -454,7 +458,7 @@ export class UnderstandingEngine {
                   nodeId: ln.name,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { ...x.params, topicName }
+                    params: { ...x.params, topicName, wfName: flowName }
                   })),
                   type: 'node',
                   workflowId: flowName
