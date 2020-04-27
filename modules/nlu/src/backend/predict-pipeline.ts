@@ -100,7 +100,7 @@ async function DetectLanguage(
           for (const token of tokens) {
             sentence = sentence.replace(token, '')
           }
-          return { lang, confidence: (input.sentence.length - sentence.length) / input.sentence.length }
+          return { lang, confidence: 1 - sentence.length / input.sentence.length }
         })
         .filter(x => x.confidence >= threshold)
         .orderBy('confidence', 'desc')
