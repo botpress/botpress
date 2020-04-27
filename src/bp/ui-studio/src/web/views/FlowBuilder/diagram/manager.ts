@@ -124,31 +124,48 @@ export class DiagramManager {
       }
     })
 
-    this.currentFlow &&
-      this.currentFlow.nodes.forEach((node: NodeView) => {
-        const model = this.activeModel.getNode(node.id) as BpNodeModel
-        if (!model) {
-          // Node doesn't exist
-          this._addNode(node)
-        } else if (model.lastModified !== node.lastModified) {
-          // Node has been modified
-          this._syncNode(node, model, snapshot())
-          // TODO: Implement this correctly.
-          // Fixes an issue where links are at position 0,0 after adding a transition)
-          this.diagramEngine['flowBuilder'].checkForLinksUpdate()
-        } else {
-          // @ts-ignore
-          model.setData({
-            ..._.pick(node, passThroughNodeProps),
-            isStartNode: this.currentFlow.startNode === node.name,
-            isHighlighted: this.shouldHighlightNode(node.name)
-          })
-        }
-      })
+    this.currentNodes().forEach((node: NodeView) => {
+      const model = this.activeModel.getNode(node.id) as BpNodeModel
+      if (!model) {
+        // Node doesn't exist
+        this._addNode(node)
+      } else if (model.lastModified !== node.lastModified) {
+        // Node has been modified
+        this._syncNode(node, model, snapshot())
+        // TODO: Implement this correctly.
+        // Fixes an issue where links are at position 0,0 after adding a transition)
+        this.diagramEngine['flowBuilder'].checkForLinksUpdate()
+      } else {
+        // @ts-ignore
+        model.setData({
+          ..._.pick(node, passThroughNodeProps),
+          isStartNode: this.currentFlow.startNode === node.name,
+          isHighlighted: this.shouldHighlightNode(node.name)
+        })
+      }
+    })
 
     this.cleanPortLinks()
     this.activeModel.setLocked(this.isReadOnly)
     this.diagramWidget.forceUpdate()
+  }
+
+  currentNodes() {
+    const nodes = _.get(this, 'currentFlow.nodes', [])
+    const modelNodes: any = _.values(this.activeModel.getNodes())
+
+    if (modelNodes.length !== nodes.length) {
+      return nodes
+    }
+
+    const sortedModelNodes = _.sortBy(modelNodes, 'id')
+    const sortedNodes = _.sortBy(nodes, 'id')
+
+    // Order nodes so that renamed ones get processed first
+    const renamedNodeIndex = sortedNodes.findIndex(({ name }, i) => name !== sortedModelNodes[i].name)
+    return renamedNodeIndex !== -1
+      ? [sortedNodes[renamedNodeIndex], ...sortedNodes.filter((n, i) => i !== renamedNodeIndex)]
+      : nodes
   }
 
   clearModel() {
