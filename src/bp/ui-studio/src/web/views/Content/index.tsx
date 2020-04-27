@@ -199,7 +199,7 @@ class ContentView extends Component<Props, State> {
             <strong>{lang.tr('studio.content.noContentDefined')}</strong>{' '}
             {lang.tr('studio.content.pleaseReadDoc', {
               readTheDocs: (
-                <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
+                <a href="https://botpress.com/docs/main/content/" target="_blank" rel="noopener noreferrer">
                   <strong>{lang.tr('studio.content.readTheDocs')}</strong>
                 </a>
               )

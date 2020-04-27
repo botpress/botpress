@@ -66,7 +66,7 @@ export class DecisionEngine {
           source: content.source,
           details: content.sourceDetails!
         })
-      } else if (action === 'redirect' || action === 'startWorkflow') {
+      } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
         const { flow, node } = data as NDU.FlowRedirect
         const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
 
@@ -254,7 +254,7 @@ export class DecisionEngine {
     const result: SendSuggestionResult = { executeFlows: true }
 
     if (payloads) {
-      await this._sendContent(reply, event)
+      await this._sendContent({ ...reply, payloads }, event)
       result.executeFlows = false
     }
 

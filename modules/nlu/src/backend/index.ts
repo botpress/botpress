@@ -5,7 +5,7 @@ import _ from 'lodash'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
-import { dialogConditions } from './conditions'
+import dialogConditions from './dialog-conditions'
 import { getIntents, updateIntent } from './intents/intent-service'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'

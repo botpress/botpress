@@ -1,4 +1,4 @@
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -15,7 +15,6 @@ import {
   switchFlow
 } from '~/actions'
 import { Container } from '~/components/Shared/Interface'
-import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { isInputFocused } from '~/keyboardShortcuts'
@@ -116,9 +115,9 @@ class FlowBuilder extends Component<Props, State> {
     }
 
     if (!prevProps.errorSavingFlows && this.props.errorSavingFlows) {
-      const { status } = this.props.errorSavingFlows
-      const message = status === 403 ? lang.tr('studio.flow.unauthUpdate') : lang.tr('studio.flow.errorWhileSaving')
-      toastFailure(message, Timeout.LONG, this.props.clearErrorSaveFlows)
+      const { status, data } = this.props.errorSavingFlows
+      const message = status === 403 ? 'studio.flow.unauthUpdate' : 'studio.flow.errorWhileSaving'
+      toast.failure(message, data, { timeout: 'long', delayed: true, onDismiss: this.props.clearErrorSaveFlows })
     }
 
     const flowsHaveChanged = !_.isEqual(prevProps.flowsByName, this.props.flowsByName)
@@ -212,7 +211,7 @@ class FlowBuilder extends Component<Props, State> {
       },
       save: e => {
         e.preventDefault()
-        toastInfo(lang.tr('studio.flow.nowSaveAuto'), Timeout.LONG)
+        toast.info('studio.flow.nowSaveAuto')
       },
       delete: e => {
         if (!isInputFocused()) {
