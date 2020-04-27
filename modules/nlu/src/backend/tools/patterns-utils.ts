@@ -21,7 +21,9 @@ export function extractPattern(
   padding = 0
 ): ExtractedPattern[] {
   const res = pattern.exec(candidate)
-  if (!res) return extracted
+  if (!res) {
+    return extracted
+  }
 
   const value = res[0]
   const nextPadding = padding + value.length

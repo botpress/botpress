@@ -396,6 +396,23 @@ const Analytics: FC<any> = ({ bp }) => {
     }
   ]
 
+  const exportCsv = async () => {
+    const data = [
+      `"date","botId","channel","metric","subMetric","value"`,
+      ...state.metrics.map(entry => {
+        return [entry.date, entry.botId, entry.channel, entry.metric, entry.subMetric, entry.value]
+          .map(x => (x || 'N/A').toString().replace(/"/g, '\\"'))
+          .map(x => `"${x}"`)
+          .join(',')
+      })
+    ].join('\r\n')
+
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(new Blob([data]))
+    link.download = `analytics.csv`
+    link.click()
+  }
+
   return (
     <div className={style.mainWrapper}>
       <div className={style.innerWrapper}>
@@ -426,6 +443,8 @@ const Analytics: FC<any> = ({ bp }) => {
                 value={state.dateRange}
               />
             </Popover>
+
+            <Button className={style.exportButton} onClick={exportCsv} icon="export" text="Export CSV"></Button>
           </div>
         </div>
         <div className={style.sectionsWrapper}>

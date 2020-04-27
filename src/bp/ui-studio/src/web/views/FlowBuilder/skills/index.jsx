@@ -13,7 +13,7 @@ const style = require('./style.scss')
 const VALID_WINDOW_SIZES = ['normal', 'large', 'small']
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { lang, BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
+import { lang, Dialog } from 'botpress/shared'
 
 class WrappedInjectedModule extends React.Component {
   shouldComponentUpdate(nextProps) {
@@ -162,14 +162,14 @@ class SkillsBuilder extends React.Component {
       this.props.action === 'new' ? lang.tr('studio.flow.skills.insert') : lang.tr('studio.flow.skills.edit')
 
     return (
-      <BaseDialog
+      <Dialog.Wrapper
         title={`${title} | ${lang.tr(skill && skill.name)}`}
         size="lg"
         className={modalClassName}
         isOpen={this.props.opened}
         onClose={this.onCancel}
       >
-        <DialogBody>
+        <Dialog.Body>
           {this.renderLoading()}
           {!this.state.loading && (
             <WrappedInjectedModule
@@ -179,14 +179,14 @@ class SkillsBuilder extends React.Component {
               extraProps={this.state.moduleProps}
             />
           )}
-        </DialogBody>
-        <DialogFooter>
+        </Dialog.Body>
+        <Dialog.Footer>
           <Button onClick={this.onCancel}>{lang.tr('cancel')}</Button>
           <Button onClick={this.onSubmit} disabled={!this.state.canSubmit} bsStyle="primary">
             {submitName}
           </Button>
-        </DialogFooter>
-      </BaseDialog>
+        </Dialog.Footer>
+      </Dialog.Wrapper>
     )
   }
 }

@@ -68,14 +68,18 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error('Invalid text instruction. Expected an instruction along "say #text Something"')
     }
 
-    const outputType = chunks[1]
+    const outputType: string = chunks[1]
     let args: object = {}
 
-    if (params.length > 0) {
-      try {
-        args = JSON.parse(params)
-      } catch (err) {
-        throw new Error(`Say "${outputType}" has invalid arguments (not a valid JSON string): ${params}`)
+    if (outputType.startsWith('@')) {
+      args = instruction.args
+    } else {
+      if (params.length > 0) {
+        try {
+          args = JSON.parse(params)
+        } catch (err) {
+          throw new Error(`Say "${outputType}" has invalid arguments (not a valid JSON string): ${params}`)
+        }
       }
     }
 

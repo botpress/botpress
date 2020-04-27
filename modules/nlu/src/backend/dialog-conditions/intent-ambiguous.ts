@@ -3,6 +3,8 @@ import _ from 'lodash'
 
 interface Params {
   ambiguityThreshold: number
+  onlyIfActive: boolean
+  topicName: string
 }
 
 export default {
@@ -11,10 +13,16 @@ export default {
   description: `The users's intention is can be interpreted as multiple intents within the same topic`,
   displayOrder: 1,
   params: {
-    ambiguityThreshold: { label: 'Ambiguity threshold', type: 'number', defaultValue: 0.1 }
+    ambiguityThreshold: { label: 'Ambiguity threshold', type: 'number', defaultValue: 0.1 },
+    onlyIfActive: { label: 'Only if topic is already active', type: 'boolean', defaultValue: false }
   },
-  evaluate: (event: IO.IncomingEvent, { ambiguityThreshold }: Params) => {
+  evaluate: (event: IO.IncomingEvent, { ambiguityThreshold, onlyIfActive, topicName }: Params) => {
     const currentTopic = _.get(event.state.session, 'nduContext.last_topic')
+
+    if (onlyIfActive && currentTopic !== topicName) {
+      return 0
+    }
+
     const [highestTopic, topicPreds] =
       _.chain(event?.nlu?.predictions ?? {})
         .toPairs()
@@ -23,7 +31,7 @@ export default {
         .first()
         .value() || []
 
-    if (!currentTopic || !highestTopic || currentTopic !== highestTopic) {
+    if (!topicName || !highestTopic || topicName !== highestTopic) {
       // consider intent confusion only when predicted topic is same as current topic
       return 0
     }

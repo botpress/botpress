@@ -1,0 +1,21 @@
+:global(.bp3-dialog-container) {
+  height: 100%;
+}
+
+.dialog {
+  max-height: 90%;
+  background-color: white !important;
+
+  .form,
+  :global(.bp3-dialog-body) {
+    overflow: auto;
+  }
+}
+
+.dialogBody {
+  position: relative;
+  margin: 0 !important;
+  padding: 20px !important;
+  padding-bottom: 6px !important;
+  overflow: auto;
+}
