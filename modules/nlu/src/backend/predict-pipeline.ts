@@ -150,7 +150,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
       [
         ...extractListEntities(alternateUtterance, predictors.list_entities),
         ...extractPatternEntities(alternateUtterance, predictors.pattern_entities),
-        ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
+        ...(await tools.duckling.extract(alternateUtterance.toString(), utterance.languageCode))
       ],
       entityRes => {
         input.alternateUtterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
@@ -229,7 +229,10 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
         }
 
         // we might want to do this in intent election intead or in NDU
-        if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 >= preds.filter(p => p.label !== NONE_INTENT)[0].confidence) {
+        if (
+          (alternatePreds && alternatePreds[0]?.confidence) ??
+          0 >= preds.filter(p => p.label !== NONE_INTENT)[0].confidence
+        ) {
           // mean
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')

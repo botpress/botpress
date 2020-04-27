@@ -1,5 +1,6 @@
-import { Button, Card, Divider, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { Button, Card, Divider, Elevation, HTMLSelect, Label, Radio, RadioGroup } from '@blueprintjs/core'
+import { Dropdown, lang } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
@@ -58,22 +59,31 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
     await updateFeedbackItem({ status: 'pending' })
   }
 
-  const handleCorrectedActionTypeChange = async (correctedActionType: string) => {
+  const handleTypeChanged = async (correctedActionType: string) => {
     await updateFeedbackItem({
       correctedActionType,
       correctedObjectId: correctedActionType === 'qna' ? defaultQnaItemId : defaultGoalId
     })
   }
 
-  const handleCorrectedActionObjectIdChange = async (correctedObjectId: string) => {
+  const handleObjectIdChanged = async (correctedObjectId: string) => {
     await updateFeedbackItem({ correctedObjectId })
   }
 
+  const { correctedActionType, correctedObjectId, status, source } = feedbackItem
+
+  const actionItems = [
+    ...(correctedActionType === 'qna'
+      ? qnaItems.map(x => ({ label: x.data.questions[contentLang][0], value: x.id }))
+      : []),
+    ...(correctedActionType === 'start_goal' ? goals.map(x => ({ label: x.id, value: x.id })) : [])
+  ]
+
   return (
     <Card
-      interactive={true}
+      interactive
       elevation={current ? Elevation.THREE : Elevation.ZERO}
-      className={`${style.feedbackItem} ` + (current ? style.current : '')}
+      className={cx(style.feedbackItem, { [style.current]: current })}
       onClick={e => onItemClicked()}
     >
       <div style={{ marginRight: '5%' }}>
@@ -82,27 +92,21 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
           {lang.tr('module.bot-improvement.eventId')}: {feedbackItem.eventId}
         </div>
         <div>
-          {lang.tr('module.bot-improvement.sessionId')}: {feedbackItem.sessionId}
-        </div>
-        <div>
           {lang.tr('module.bot-improvement.timestamp')}:{' '}
           {moment(feedbackItem.timestamp).format('MMMM Do YYYY, h:mm:ss a')}
         </div>
         <div>
           <h4>{lang.tr('module.bot-improvement.detectedIntent')}</h4>
           {lang.tr('module.bot-improvement.type')}:{' '}
-          {feedbackItem.source.type === 'qna'
-            ? lang.tr('module.bot-improvement.qna')
-            : lang.tr('module.bot-improvement.startGoal')}
-          {feedbackItem.source.type === 'qna' && feedbackItem.source.qnaItem && (
+          {source.type === 'qna' ? lang.tr('module.bot-improvement.qna') : lang.tr('module.bot-improvement.startGoal')}
+          {source.type === 'qna' && source.qnaItem && (
             <div>
-              {lang.tr('module.bot-improvement.question')}:{' '}
-              {feedbackItem.source.qnaItem?.data.questions[contentLang][0]}
+              {lang.tr('module.bot-improvement.question')}: {source.qnaItem?.data.questions[contentLang][0]}
             </div>
           )}
-          {feedbackItem.source.type === 'goal' && (
+          {source.type === 'goal' && (
             <div>
-              {lang.tr('module.bot-improvement.goal')}: {feedbackItem.source.goal.id}
+              {lang.tr('module.bot-improvement.goal')}: {source.goal.id}
             </div>
           )}
         </div>
@@ -113,46 +117,34 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
 
         <Label>
           {lang.tr('module.bot-improvement.type')}
-          <HTMLSelect
-            onClick={e => e.stopPropagation()}
-            onChange={e => handleCorrectedActionTypeChange(e.target.value)}
-            value={feedbackItem.correctedActionType}
+          <RadioGroup
+            onChange={e => handleTypeChanged(e.currentTarget.value)}
+            selectedValue={correctedActionType}
+            inline
           >
-            {qnaItems.length > 0 && <option value="qna">{lang.tr('module.bot-improvement.qna')}</option>}
-            {goals.length > 0 && <option value="start_goal">{lang.tr('module.bot-improvement.startGoal')}</option>}
-          </HTMLSelect>
+            <Radio label={lang.tr('module.bot-improvement.qna')} value="qna" />
+            <Radio label={lang.tr('module.bot-improvement.startGoal')} value="start_goal" />
+          </RadioGroup>
         </Label>
 
         <Label>
-          {feedbackItem.correctedActionType === 'qna'
+          {correctedActionType === 'qna'
             ? lang.tr('module.bot-improvement.question')
             : lang.tr('module.bot-improvement.goal')}
-          <HTMLSelect
-            onClick={e => e.stopPropagation()}
-            onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
-            value={feedbackItem.correctedObjectId}
-          >
-            {feedbackItem.correctedActionType === 'qna' &&
-              qnaItems.map((i, idx) => (
-                <option key={`qnaItem-${idx}`} value={i.id}>
-                  {i.data.questions[contentLang][0]}
-                </option>
-              ))}
-            {feedbackItem.correctedActionType === 'start_goal' &&
-              goals.map((i, idx) => (
-                <option key={`goal-${idx}`} value={i.id}>
-                  {i.id}
-                </option>
-              ))}
-          </HTMLSelect>
+
+          <Dropdown
+            items={actionItems}
+            onChange={item => handleObjectIdChanged(item.value)}
+            defaultItem={actionItems.find(x => x.value === correctedObjectId)}
+          />
         </Label>
 
-        {feedbackItem.status === 'pending' && (
+        {status === 'pending' && (
           <Button icon="tick" onClick={e => markAsSolved()}>
             {lang.tr('module.bot-improvement.markSolved')}
           </Button>
         )}
-        {feedbackItem.status === 'solved' && (
+        {status === 'solved' && (
           <Button icon="issue" onClick={e => markAsPending()}>
             {lang.tr('module.bot-improvement.markPending')}
           </Button>

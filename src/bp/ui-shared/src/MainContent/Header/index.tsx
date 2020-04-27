@@ -1,4 +1,4 @@
-import { Alignment, Button, Navbar, NavbarGroup, Tab, Tabs } from '@blueprintjs/core'
+import { Alignment, AnchorButton, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import React, { FC } from 'react'
 
 import style from './style.scss'
@@ -18,7 +18,16 @@ const Header: FC<HeaderProps> = props => (
     {!!props.buttons?.length && (
       <NavbarGroup className={style.buttons} align={Alignment.RIGHT}>
         {props.buttons.map((button, index) => (
-          <Button key={index} minimal small onClick={button.onClick} icon={button.icon} disabled={button.disabled} />
+          <Tooltip content={button.tooltip}>
+            <AnchorButton
+              key={index}
+              minimal
+              small
+              onClick={button.onClick}
+              icon={button.icon}
+              disabled={button.disabled}
+            />
+          </Tooltip>
         ))}
       </NavbarGroup>
     )}

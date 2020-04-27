@@ -1,3 +1,4 @@
+import truncate from 'html-truncate'
 import React, { useState } from 'react'
 import Linkify from 'react-linkify'
 
@@ -13,24 +14,23 @@ import { renderUnsafeHTML } from '../../../utils'
  */
 export const Text = (props: Renderer.Text) => {
   const [showMore, setShowMore] = useState(false)
-  const { maxLength, markdown, escapeHTML, intl } = props
-  let text = props.text
+  const { maxLength, markdown, escapeHTML, intl, text } = props
   let hasShowMore
 
   if (intl && maxLength && text.length > maxLength) {
     hasShowMore = true
-    if (!showMore) {
-      const newMessage = text.substring(0, maxLength)
-
-      text = `${newMessage}${newMessage.substring(-1) !== '.' && '...'}`
-    }
   }
 
-  let message = <p>{text}</p>
+  const truncateIfRequired = message => {
+    return hasShowMore && !showMore ? truncate(message, maxLength) : message
+  }
+
+  let message
   if (markdown) {
     const html = renderUnsafeHTML(text, escapeHTML)
-
-    message = <div dangerouslySetInnerHTML={{ __html: html }} />
+    message = <div dangerouslySetInnerHTML={{ __html: truncateIfRequired(html) }} />
+  } else {
+    message = <p>{truncateIfRequired(text)}</p>
   }
 
   return (
