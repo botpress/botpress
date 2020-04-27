@@ -10,4 +10,5 @@ export interface HeaderButtonProps {
   onClick: () => void
   icon: IconName
   disabled?: boolean
+  tooltip?: string
 }
