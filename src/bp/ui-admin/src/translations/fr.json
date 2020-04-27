@@ -26,7 +26,7 @@
       "configureDebug": "Configurer le débogage",
       "helpText": "Cette page vous permet d'activer ou de désactiver certains éléments de débogage lors de l'utilisation de Botpress. Cette liste est populée pendant que les fonctionnalités sont utilisées, donc certains éléments peuvent être manquants.",
       "persist": "Persister",
-      "persistChecked": "Lorsqu'elles sont cochées, les options de débogage sélectionnées seront activées après chaque redémarrage du serveur"
+      "persistChecked": "Lorsque cochées, les options de débogage sélectionnées seront activées après chaque redémarrage du serveur"
     },
     "errorUpdatingPassword": "Erreur lors de la mise à jour du mot de passe: {msg}",
     "errorUpdatingProfile": "Erreur lors de la mise à jour du profil: {msg}",
