@@ -317,7 +317,6 @@ const TopicList: FC<Props> = props => {
 
   const postProcessing = tree => {
     tree.forEach(parent => {
-      console.log(parent)
       parent.childNodes?.forEach(node => {
         node.nodeData.topic = parent.id
         if (node.id === `${parent.id}/qna`) {
