@@ -23,6 +23,15 @@
       border: solid 1px var(--ocean);
     }
 
+    .bp3-editable-text.bp3-editable-text-editing {
+      width: 100%;
+      min-width: 0px !important;
+    }
+
+    .bp3-editable-text:hover::before {
+      box-shadow: unset !important;
+    }
+
     .bp3-tree-node.bp3-tree-node-selected > .bp3-tree-node-content {
       color: var(--shark);
       background-color: var(--hover-ocean);

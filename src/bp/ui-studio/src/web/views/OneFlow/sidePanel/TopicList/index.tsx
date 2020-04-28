@@ -50,7 +50,10 @@ interface Props {
   exportTopic: (topicName: string | NodeData) => void
   forceOpenTopic: string
   focusedText: string
+  newPath: string
   setFocusedText: (name: string) => void
+  setForceOpenTopic: (name: string) => void
+  setNewPath: (path: string) => void
 }
 
 interface NodeData {
@@ -125,14 +128,17 @@ const TopicList: FC<Props> = props => {
 
   const folderRenderer = (folder: string) => {
     const isFocused = folder === props.focusedText
+    const isNew = folder === props.newPath
 
     const editTopic = async x => {
-      if (isFocused && x === '') {
+      if (isNew && x === '') {
         await deleteTopic(folder, true)
       } else {
         await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: x, description: undefined })
+        props.setForceOpenTopic(x)
       }
       props.setFocusedText(undefined)
+      props.setNewPath(undefined)
     }
 
     return {
@@ -141,9 +147,11 @@ const TopicList: FC<Props> = props => {
           {folder !== 'Built-In' ? (
             <EditableText
               onConfirm={editTopic}
-              defaultValue={isFocused ? '' : folder}
+              defaultValue={isNew ? '' : folder}
               isEditing={isFocused}
+              disabled={!isFocused}
               placeholder={lang.tr('studio.flow.sidePanel.renameTopic')}
+              selectAllOnFocus={true}
             />
           ) : (
             <span>{folder}</span>
@@ -253,9 +261,10 @@ const TopicList: FC<Props> = props => {
     const { name, label, icon, type, triggerCount, referencedIn, countByTopic } = el
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
     const isFocused = name === props.focusedText
+    const isNew = name === props.newPath
 
     const editWorkflow = async x => {
-      if (isFocused && x === '') {
+      if (isNew && x === '') {
         await deleteFlow(name, true)
       } else {
         const fullName = buildFlowName({ topic: el.topic, workflow: x }, true)
@@ -263,27 +272,28 @@ const TopicList: FC<Props> = props => {
         props.updateFlow({ name: fullName })
       }
       props.setFocusedText(undefined)
+      props.setNewPath(undefined)
     }
 
     return {
       label: (
         <div className={style.treeNode}>
-          <span>
-            {type !== 'qna' ? (
-              <React.Fragment>
-                <EditableText
-                  onConfirm={editWorkflow}
-                  defaultValue={isFocused ? '' : displayName}
-                  isEditing={isFocused}
-                  placeholder={lang.tr('studio.flow.sidePanel.renameWorkflow')}
-                />
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <span>{displayName}</span>
-              </React.Fragment>
-            )}
-          </span>
+          {type !== 'qna' ? (
+            <React.Fragment>
+              <EditableText
+                onConfirm={editWorkflow}
+                defaultValue={isNew ? '' : displayName}
+                isEditing={isFocused}
+                disabled={!isFocused}
+                placeholder={lang.tr('studio.flow.sidePanel.renameWorkflow')}
+                selectAllOnFocus={true}
+              />
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <span>{displayName}</span>
+            </React.Fragment>
+          )}
         </div>
       ),
       icon: 'none'
@@ -305,11 +315,16 @@ const TopicList: FC<Props> = props => {
     }
   }
 
-  const onDoubleClick = (el: NodeData, type) => {
-    if (el?.type === 'qna') {
-      props.editQnA(el.name.replace('/qna', ''))
-    } else if (el?.type !== 'addWorkflow' && type === 'document') {
-      props.editWorkflow(el.name, el)
+  const onDoubleClick = (el: NodeData | string, type) => {
+    if (typeof el === 'string') {
+      props.setFocusedText(el)
+    } else {
+      const nodeData = el as NodeData
+      if (nodeData?.type === 'qna') {
+        props.editQnA(nodeData.name.replace('/qna', ''))
+      } else if (nodeData?.type !== 'addWorkflow' && type === 'document') {
+        props.setFocusedText(nodeData.name)
+      }
     }
   }
 
@@ -319,14 +334,16 @@ const TopicList: FC<Props> = props => {
         node.nodeData.topic = parent.id
         if (node.id === `${parent.id}/qna`) {
           const wfCount = parent.childNodes?.filter(parentNode => node.id !== parentNode.id).length
-          parent.label = (
-            <div className={style.topicName}>
-              {parent.label}{' '}
-              <span className={style.tag}>
-                {node.nodeData?.countByTopic} Q&A · {wfCount} WF
-              </span>
-            </div>
-          )
+          if (parent.id !== props.focusedText) {
+            parent.label = (
+              <div className={style.topicName}>
+                {parent.label}{' '}
+                <span className={style.tag}>
+                  {node.nodeData?.countByTopic} Q&A · {wfCount} WF
+                </span>
+              </div>
+            )
+          }
         }
       })
 
