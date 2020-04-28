@@ -212,7 +212,7 @@ const Analytics: FC<any> = ({ bp }) => {
   const getReturningUsers = () => {
     const activeUsersCount = getMetricCount('active_users_count')
     const newUsersCount = getMetricCount('new_users_count')
-    const percent = activeUsersCount && (newUsersCount / activeUsersCount) * 100
+    const percent = (activeUsersCount / (newUsersCount + activeUsersCount)) * 100
 
     return getNotNaN(percent, '%')
   }
@@ -220,7 +220,7 @@ const Analytics: FC<any> = ({ bp }) => {
   const getNewUsersPercent = () => {
     const existingUsersCount = getMetricCount('active_users_count')
     const newUsersCount = getMetricCount('new_users_count')
-    const percent = newUsersCount && (existingUsersCount / newUsersCount) * 100
+    const percent = (newUsersCount / (existingUsersCount + newUsersCount)) * 100
 
     return getNotNaN(percent, '%')
   }
