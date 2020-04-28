@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
+import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './language/language-identifier'
 import { isPOSAvailable } from './language/pos-tagger'
@@ -131,13 +131,12 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { utterance, alternateUtterance } = input
-  const sysEntities = (await tools.duckling.extract(utterance.toString(), utterance.languageCode)).map(mapE1toE2Entity)
 
   _.forEach(
     [
-      ...extractListEntities(input.utterance, predictors.list_entities),
+      ...extractListEntities(input.utterance, predictors.list_entities, true),
       ...extractPatternEntities(utterance, predictors.pattern_entities),
-      ...sysEntities
+      ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],
     entityRes => {
       input.utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
@@ -145,15 +144,11 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
   )
 
   if (alternateUtterance) {
-    const sysEntities = (await tools.duckling.extract(alternateUtterance.toString(), utterance.languageCode)).map(
-      mapE1toE2Entity
-    )
-
     _.forEach(
       [
         ...extractListEntities(alternateUtterance, predictors.list_entities),
         ...extractPatternEntities(alternateUtterance, predictors.pattern_entities),
-        ...sysEntities
+        ...(await tools.duckling.extract(alternateUtterance.toString(), utterance.languageCode))
       ],
       entityRes => {
         input.alternateUtterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)

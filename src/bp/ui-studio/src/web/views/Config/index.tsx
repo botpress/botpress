@@ -323,7 +323,7 @@ class ConfigView extends Component<Props, State> {
           <form>
             {this.state.activeTab === 'main' && (
               <div>
-                <h1>{lang.tr('general')}</h1>
+                <h1 className={style.title}>{lang.tr('general')}</h1>
                 <FormGroup label={lang.tr('name')} labelFor="name">
                   <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
                 </FormGroup>

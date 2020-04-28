@@ -1,7 +1,9 @@
 {
   "name": "nlu",
-  "version": "10.47.1",
-  "description": "Botpress NLU module",
+  "fullName": "Natural Language Understanding",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "Provides everything required to understand the user's request",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {

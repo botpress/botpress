@@ -1,5 +1,5 @@
 import { Button, FormGroup, Intent } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter, Dropdown, lang, Option } from 'botpress/shared'
+import { Dialog, Dropdown, lang, Option } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 
 interface Props {
@@ -28,22 +28,22 @@ const ChangeLanguage: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog.Wrapper
       title={lang.tr('admin.changeLanguage')}
       icon="translate"
       isOpen={props.isOpen}
       onClose={props.toggle}
       onSubmit={submit}
     >
-      <DialogBody>
+      <Dialog.Body>
         <FormGroup label={lang.tr('admin.uiLanguage')} helperText={lang.tr('admin.uiLanguageHelper')}>
           <Dropdown items={languages} defaultItem={language} onChange={setLanguage} />
         </FormGroup>
-      </DialogBody>
-      <DialogFooter>
+      </Dialog.Body>
+      <Dialog.Footer>
         <Button id="btn-submit" type="submit" text={lang.tr('save')} tabIndex={4} intent={Intent.PRIMARY} />
-      </DialogFooter>
-    </BaseDialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

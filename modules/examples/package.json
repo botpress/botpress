@@ -1,7 +1,9 @@
 {
   "name": "examples",
+  "fullName": "Examples",
   "version": "1.0.0",
-  "description": "",
+  "status": "stable",
+  "description": "Provides code examples accessible via the online editor to help develop actions, hooks, and configurations.",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",

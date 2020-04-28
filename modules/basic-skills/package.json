@@ -1,7 +1,9 @@
 {
   "name": "basic-skills",
+  "fullName": "Basic Skills",
   "version": "11.5.0",
-  "description": "Botpress Skill that allows users to pick an option",
+  "status": "stable",
+  "description": "Provides easy-to-use components to execute repetitive tasks",
   "private": true,
   "main": "dist/backend/index.js",
   "webpack": {

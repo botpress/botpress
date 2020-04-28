@@ -111,22 +111,7 @@ class ContentPickerWidget extends Component<Props> {
     const actionText = (contentItem && 'say #!' + contentItem.id) || 'say '
 
     if (this.props.layoutv2) {
-      return (
-        <div onDoubleClick={() => window.botpress.pickContent({ contentType }, this.onChange)}>
-          {contentItem ? (
-            <ActionItem text={actionText} layoutv2 />
-          ) : (
-            <div
-              className={style.actionBtn}
-              onClick={() => window.botpress.pickContent({ contentType }, this.onChange)}
-            >
-              &lt; Select Content &gt;
-            </div>
-          )}
-
-          {this.renderModal()}
-        </div>
-      )
+      return contentItem ? <ActionItem text={actionText} layoutv2={true} /> : null
     }
 
     return (

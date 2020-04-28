@@ -18,6 +18,7 @@ interface CssExports {
   'nodeTrigger': string;
   'nodeTriggerConditions': string;
   'out': string;
+  'outRouting': string;
   'ports': string;
   'section-next': string;
 }
