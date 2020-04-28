@@ -503,7 +503,8 @@ declare module 'botpress/sdk' {
     export interface Predictions {
       [context: string]: {
         confidence: number
-        intents: { label: string; confidence: number }[]
+        oos: number
+        intents: { label: string; confidence: number; slots: SlotCollection }[]
       }
     }
   }
