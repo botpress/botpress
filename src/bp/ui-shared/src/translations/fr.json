@@ -85,7 +85,7 @@
   "pleaseWait": "Veuillez patienter...",
   "preview": "Aperçu",
   "previous": "Précédent",
-  "redo": "Rétablir",
+  "redo": "Refaire",
   "refresh": "Rafraîchir",
   "remove": "Retirer",
   "rename": "Renommer",
@@ -115,7 +115,7 @@
     "sourceControl": "Contrôle de source",
     "workspace": "Espace de travail"
   },
-  "skills": "Compétence",
+  "skills": "Compétences",
   "split": "Séparer",
   "status": "Statut",
   "submit": "Soumettre",
