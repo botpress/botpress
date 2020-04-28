@@ -95,6 +95,17 @@ export default class CodeEditorApi {
     }
   }
 
+  async uploadFile(data: FormData): Promise<boolean> {
+    try {
+      await this.axios.post(`/mod/code-editor/upload`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      return true
+    } catch (err) {
+      this.handleApiError(err, 'module.code-editor.error.cannotUploadFile')
+    }
+  }
+
   handleApiError = (error, customMessage?: string) => {
     if (error.response && error.response.status === 403) {
       return // not enough permissions, nothing to do

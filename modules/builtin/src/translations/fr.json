@@ -1,24 +1,28 @@
 {
   "fullName": "Intégré",
+  "actionButton": "Bouton d'action",
   "types": {
     "actionButton": {
       "buttonTitle": "Titre du bouton",
       "description": "Un bouton qui déclenche une action, souvent utilisé dans les cartes",
+      "textTitle": "Entrez le text ou le ID d'un élément de contenu (ex: #!builtin_text-myid)",
       "title": "Bouton d'action"
     },
     "card": {
-      "description": "Un message sur carte avec un titre, un sous-titre optionnel, une image des boutons d'action.",
-      "title": "Carte"
+      "description": "Une carte est un message avec un titre, sous-titre optionel, une image et des boutons d'actions."
     },
     "carousel": {
-      "cards": "Carrousel de cartes",
-      "description": "Un carrousel est un trableau de cartes",
+      "cards": "Cartes de carrousel",
+      "description": "Un caroussel est un tableau de cartes",
       "title": "Carrousel"
     },
     "image": {
-      "description": "Un message qui montre une image avec un titre optionnel",
-      "imageLabel": "Titre (optionnel)",
-      "labelDesc": "Certaines plateformes requièrent de nommer les images."
+      "description": "Un message montrant une image avec un titre optionel",
+      "imageLabel": "Titre",
+      "labelDesc": "Certaines plateformes exigent que les images soient nommé.",
+      "permissionDenied": "Vous n'avez pas les permissions pour télécharger un fichier pour ce bot. Contactez votre chef d'équipe.",
+      "title": "Image",
+      "uploadImage": "Choisir une image"
     },
     "singleChoice": {
       "choice": "Choix",
@@ -28,9 +32,9 @@
       "title": "Choix Unique"
     },
     "text": {
-      "alternatives": "Alternatives (optionnel)",
+      "alternatives": "Alternatives",
       "description": "Un texte régulier",
-      "title": "Texte"
+      "message": "Message"
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",

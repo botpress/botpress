@@ -36,7 +36,7 @@ export interface FeedbackItem {
   }
   user: any // TODO: check if user is necessary
   status: FeedbackItemStatus
-  correctedActionType: string
+  correctedActionType: CorrectedActionType
   correctedObjectId: string
 }
 

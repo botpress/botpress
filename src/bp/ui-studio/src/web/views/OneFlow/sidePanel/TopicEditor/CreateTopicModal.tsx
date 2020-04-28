@@ -1,12 +1,10 @@
 import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
-import { Topic } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
 import { fetchTopics } from '~/actions'
-import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
 
@@ -40,7 +38,7 @@ const CreateTopicModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog.Wrapper
       title={lang.tr('studio.flow.topicEditor.createNewTopic')}
       icon="add"
       isOpen={props.isOpen}
@@ -48,7 +46,7 @@ const CreateTopicModal: FC<Props> = props => {
       size="sm"
       onSubmit={submit}
     >
-      <DialogBody>
+      <Dialog.Body>
         <FormGroup
           label={lang.tr('studio.flow.topicEditor.topicName')}
           helperText={lang.tr('studio.flow.topicEditor.topicNameHelp')}
@@ -73,8 +71,8 @@ const CreateTopicModal: FC<Props> = props => {
             onChange={e => setDescription(e.currentTarget.value)}
           />
         </FormGroup>
-      </DialogBody>
-      <DialogFooter>
+      </Dialog.Body>
+      <Dialog.Footer>
         <Button
           text={lang.tr('studio.flow.topicEditor.createTopic')}
           tabIndex={3}
@@ -82,8 +80,8 @@ const CreateTopicModal: FC<Props> = props => {
           type="submit"
           disabled={!name}
         />
-      </DialogFooter>
-    </BaseDialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

@@ -5,7 +5,6 @@ import { toastFailure } from '~/components/Shared/Utils'
 import EventBus from '~/util/EventBus'
 
 import ActionItem from './ActionItem'
-import style from './StatusBar.styl'
 
 const adminUrl = `${window['API_PATH']}/admin/server`
 
@@ -64,7 +63,6 @@ const ConfigStatus = () => {
         id="statusbar_configstatus"
         title="Config Status"
         description="Pending changes"
-        className={style.right}
         onClick={() => setOpen(true)}
       >
         {isDifferent && <Icon icon="cog" style={{ color: Colors.RED5 }} />}
