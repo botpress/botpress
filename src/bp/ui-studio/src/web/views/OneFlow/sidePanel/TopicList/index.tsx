@@ -139,7 +139,12 @@ const TopicList: FC<Props> = props => {
       label: (
         <div className={style.treeNode}>
           {folder !== 'Built-In' ? (
-            <EditableText onConfirm={editTopic} defaultValue={isFocused ? '' : folder} isEditing={isFocused} />
+            <EditableText
+              onConfirm={editTopic}
+              defaultValue={isFocused ? '' : folder}
+              isEditing={isFocused}
+              placeholder={lang.tr('studio.flow.sidePanel.renameTopic')}
+            />
           ) : (
             <span>{folder}</span>
           )}
@@ -270,6 +275,7 @@ const TopicList: FC<Props> = props => {
                   onConfirm={editWorkflow}
                   defaultValue={isFocused ? '' : displayName}
                   isEditing={isFocused}
+                  placeholder={lang.tr('studio.flow.sidePanel.renameWorkflow')}
                 />
               </React.Fragment>
             ) : (
