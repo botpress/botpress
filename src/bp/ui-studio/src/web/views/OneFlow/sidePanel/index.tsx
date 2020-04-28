@@ -78,6 +78,7 @@ const SidePanelContent: FC<Props> = props => {
 
   const [currentTab, setCurrentTab] = useState('topics')
   const [forceOpenTopic, setForceOpenTopic] = useState('')
+  const [focusedText, setFocusedText] = useState('')
 
   useEffect(() => {
     props.refreshConditions()
@@ -117,6 +118,7 @@ const SidePanelContent: FC<Props> = props => {
       fullName = buildFlowName({ topic: topicName, workflow: name }, true)
     }
 
+    setFocusedText(fullName)
     props.createFlow(fullName)
   }
 
@@ -131,6 +133,7 @@ const SidePanelContent: FC<Props> = props => {
 
     await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })
     setForceOpenTopic(name)
+    setFocusedText(name)
     props.fetchTopics()
   }
 
@@ -227,6 +230,8 @@ const SidePanelContent: FC<Props> = props => {
                 fetchTopics={props.fetchTopics}
                 fetchFlows={props.fetchFlows}
                 forceOpenTopic={forceOpenTopic}
+                focusedText={focusedText}
+                setFocusedText={x => setFocusedText(x)}
               />
             </React.Fragment>
           )}

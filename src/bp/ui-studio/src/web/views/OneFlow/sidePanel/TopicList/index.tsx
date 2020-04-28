@@ -49,6 +49,8 @@ interface Props {
   editTopic: (topicName: string | NodeData) => void
   exportTopic: (topicName: string | NodeData) => void
   forceOpenTopic: string
+  focusedText: string
+  setFocusedText: (name: string) => void
 }
 
 interface NodeData {
@@ -86,18 +88,19 @@ const TopicList: FC<Props> = props => {
     setFlows([...qna, ...props.flows])
   }, [props.flows, props.topics, props.qnaCountByTopic])
 
-  const deleteFlow = async (name: string) => {
-    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {})) {
+  const deleteFlow = async (name: string, skipDialog: boolean = false) => {
+    if (skipDialog || (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {}))) {
       props.deleteFlow(name)
     }
   }
 
-  const deleteTopic = async (name: string) => {
+  const deleteTopic = async (name: string, skipDialog: boolean = false) => {
     const matcher = new RegExp(`^${name}/`)
     const flowsToDelete = props.flows.filter(x => matcher.test(x.name))
 
     if (
-      await confirmDialog(
+      skipDialog ||
+      (await confirmDialog(
         <span>
           {lang.tr('studio.flow.topicList.confirmDeleteTopic', { name })}
           <br />
@@ -112,7 +115,7 @@ const TopicList: FC<Props> = props => {
           )}
         </span>,
         {}
-      )
+      ))
     ) {
       await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
       flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
@@ -121,13 +124,25 @@ const TopicList: FC<Props> = props => {
   }
 
   const folderRenderer = (folder: string) => {
+    const isFocused = folder === props.focusedText
+
     const editTopic = async x => {
-      await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: x, description: undefined })
+      if (isFocused && x === '') {
+        await deleteTopic(folder, true)
+      } else {
+        await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: x, description: undefined })
+      }
+      props.setFocusedText(undefined)
     }
+
     return {
       label: (
         <div className={style.treeNode}>
-          {folder !== 'Built-In' ? <EditableText onConfirm={editTopic} defaultValue={folder} /> : <span>{folder}</span>}
+          {folder !== 'Built-In' ? (
+            <EditableText onConfirm={editTopic} defaultValue={isFocused ? '' : folder} isEditing={isFocused} />
+          ) : (
+            <span>{folder}</span>
+          )}
         </div>
       ),
       icon: 'none'
@@ -232,11 +247,17 @@ const TopicList: FC<Props> = props => {
   const nodeRenderer = (el: NodeData) => {
     const { name, label, icon, type, triggerCount, referencedIn, countByTopic } = el
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
+    const isFocused = name === props.focusedText
 
-    const editWorkflow = x => {
-      const fullName = buildFlowName({ topic: el.topic, workflow: x }, true)
-      props.renameFlow({ targetFlow: name, name: fullName })
-      props.updateFlow({ name: fullName })
+    const editWorkflow = async x => {
+      if (isFocused && x === '') {
+        await deleteFlow(name, true)
+      } else {
+        const fullName = buildFlowName({ topic: el.topic, workflow: x }, true)
+        props.renameFlow({ targetFlow: name, name: fullName })
+        props.updateFlow({ name: fullName })
+      }
+      props.setFocusedText(undefined)
     }
 
     return {
@@ -245,7 +266,11 @@ const TopicList: FC<Props> = props => {
           <span>
             {type !== 'qna' ? (
               <React.Fragment>
-                <EditableText onConfirm={editWorkflow} defaultValue={displayName} />
+                <EditableText
+                  onConfirm={editWorkflow}
+                  defaultValue={isFocused ? '' : displayName}
+                  isEditing={isFocused}
+                />
               </React.Fragment>
             ) : (
               <React.Fragment>
