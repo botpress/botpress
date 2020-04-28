@@ -159,16 +159,6 @@ export default async (bp: typeof sdk) => {
     })
 
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
-    // uncomment this when working on out of scope
-    // const f1Scorer = new MultiClassF1Scorer()
-    // _.zip(tests, _.flatten(resultsBatch)).forEach(([test, res]) => {
-    //   const expected = test.conditions[0][2].endsWith('none') ? 'out' : 'in'
-    //   // @ts-ignore
-    //   const actual = res.nlu.outOfScope[test.context].label
-    //   f1Scorer.record(expected, actual)
-    //   // @ts-ignore
-    // })
-    // testResults.OOSF1 = f1Scorer.getResults()
     res.send(testResults)
   })
 }
@@ -268,7 +258,6 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     return checkSlotMatch(nlu, key.split(':')[1], expected)
   }
   if (key === 'context') {
-    // @ts-ignore
     const [received, ctxPredObj] = _.chain(nlu.predictions)
       .toPairs()
       .maxBy('1.confidence')
@@ -278,8 +267,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     let success = expected === received
 
     if (expected === 'none') {
-      const inConf = ctxPredObj.confidence * ctxPredObj.intents[0].confidence
-      // @ts-ignore
+      const inConf = ctxPredObj.confidence * ctxPredObj.intents.filter(i => i.label !== 'none')[0].confidence
       const outConf = ctxPredObj.oos
       success = outConf > inConf
       conf = success ? outConf : conf
@@ -296,14 +284,11 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   }
 
   if (key === 'intent') {
-    // const oosConfidence = nlu.predictions.oos.confidence
     const highestRankingIntent = _.chain(nlu.predictions)
       .toPairs()
       .flatMap(([ctx, ctxPredObj]) => {
         return ctxPredObj.intents.map(intentPred => {
-          // @ts-ignore
-          const oosConfidence = ctxPredObj.oos
-          const oosFactor = ctx === 'oos' ? 1 : 1 - oosConfidence
+          const oosFactor = 1 - ctxPredObj.oos
           return {
             label: intentPred.label,
             confidence: intentPred.confidence * oosFactor * ctxPredObj.confidence // copy pasted from ndu conditions.ts (now how we elect intent)
