@@ -35,7 +35,7 @@ const addTriggersToListenNodes = (flow: sdk.Flow, flowPath: string) => {
 }
 
 const addSuccessFailureNodes = (flow: sdk.Flow, flowPath: string, flowUi: FlowNodeView) => {
-  const addNode = (type: string) => {
+  const addNode = (type: sdk.FlowNodeType) => {
     const id = prettyId()
     flow.nodes.push({
       id,
@@ -58,7 +58,7 @@ const addSuccessFailureNodes = (flow: sdk.Flow, flowPath: string, flowUi: FlowNo
     debug(`Add ${type} node to flow ${flowPath}`)
   }
 
-  const nodeTypes = ['success', 'failure']
+  const nodeTypes: sdk.FlowNodeType[] = ['success', 'failure']
   nodeTypes.forEach(type => !flow.nodes.find(x => x.type === type) && addNode(type))
 }
 

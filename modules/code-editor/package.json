@@ -1,7 +1,9 @@
 {
   "name": "code-editor",
+  "fullName": "Code Editor",
   "version": "1.0.0",
-  "description": "",
+  "status": "stable",
+  "description": "Provides an online editor to easily develop various components: actions, hooks, configurations...",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",
@@ -12,6 +14,7 @@
     "package": "node ../../build/module-builder/bin/entry package"
   },
   "devDependencies": {
+    "@types/multer": "^1.4.3",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "webpack": "^4.20.2"
   },
@@ -20,8 +23,10 @@
     "mobx": "^5.10.1",
     "mobx-react": "^6.1.1",
     "monaco-editor": "^0.17.0",
+    "multer": "^1.4.2",
     "prettier": "^1.19.1",
-    "react-icons": "^3.8.0"
+    "react-icons": "^3.8.0",
+    "yn": "^4.0.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

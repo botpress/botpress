@@ -1,4 +1,4 @@
-import { lang, toast } from 'botpress/shared'
+import { toast, utils } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -17,7 +17,6 @@ import {
 import { Container } from '~/components/Shared/Interface'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
-import { isInputFocused } from '~/keyboardShortcuts'
 import { getDirtyFlows, RootReducer } from '~/reducers'
 import { UserReducer } from '~/reducers/user'
 
@@ -214,7 +213,7 @@ class FlowBuilder extends Component<Props, State> {
         toast.info('studio.flow.nowSaveAuto')
       },
       delete: e => {
-        if (!isInputFocused()) {
+        if (!utils.isInputFocused()) {
           e.preventDefault()
           this.diagram.deleteSelectedElements()
         }
@@ -227,7 +226,7 @@ class FlowBuilder extends Component<Props, State> {
     }
 
     return (
-      <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
+      <Container keyHandlers={keyHandlers}>
         <SidePanel
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
@@ -252,7 +251,7 @@ class FlowBuilder extends Component<Props, State> {
           />
         </div>
 
-        <DocumentationProvider file="flows" />
+        <DocumentationProvider file="main/dialog" />
         <SkillsBuilder />
       </Container>
     )

@@ -1,6 +1,8 @@
 {
   "name": "analytics",
+  "fullName": "Analytics",
   "version": "12.6.0",
+  "status": "stable",
   "description": "Provides high level analytics about your bot's usage",
   "private": true,
   "main": "dist/backend/index.js",

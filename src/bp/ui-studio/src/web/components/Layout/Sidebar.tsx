@@ -2,7 +2,7 @@ import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { GoBeaker } from 'react-icons/go'
 import { connect } from 'react-redux'
@@ -116,30 +116,25 @@ class Sidebar extends React.Component<Props, State> {
 
   render() {
     return (
-      <aside style={{ zIndex: 1000 }}>
-        <div className={classnames(style.sidebar, 'bp-sidebar')}>
-          <div style={{ padding: '8px 13px', overflowX: 'hidden' }}>
-            <a href="admin/" className={classnames(style.logo, 'bp-logo')}>
-              <img width="125" src="assets/ui-studio/public/img/logo_white.png" alt="Botpress Logo" />
-            </a>
-          </div>
-          <ul className={classnames('nav', style.mainMenu)}>
-            {window.IS_BOT_MOUNTED ? (
-              <React.Fragment>
-                {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
-                {this.props.modules.filter(m => !m.noInterface).map(this.renderModuleItem)}
-                {this.renderBasicItem(configItem)}
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                {this.props.modules.filter(m => m.name === 'code-editor').map(this.renderModuleItem)}
-                {this.renderBasicItem(configItem)}
-              </React.Fragment>
-            )}
-            <li className={classnames(style.empty, 'bp-empty')} />
-          </ul>
-        </div>
-        {this.props.children}
+      <aside className={classnames(style.sidebar, 'bp-sidebar')}>
+        <a href="admin/" className={classnames(style.logo, 'bp-logo')}>
+          <img width="125" src="assets/ui-studio/public/img/logo_white.png" alt="Botpress Logo" />
+        </a>
+        <ul className={classnames('nav', style.mainMenu)}>
+          {window.IS_BOT_MOUNTED ? (
+            <Fragment>
+              {BASIC_MENU_ITEMS.map(this.renderBasicItem)}
+              {this.props.modules.filter(m => !m.noInterface).map(this.renderModuleItem)}
+              {this.renderBasicItem(configItem)}
+            </Fragment>
+          ) : (
+            <Fragment>
+              {this.props.modules.filter(m => m.name === 'code-editor').map(this.renderModuleItem)}
+              {this.renderBasicItem(configItem)}
+            </Fragment>
+          )}
+          <li className={classnames(style.empty, 'bp-empty')} />
+        </ul>
       </aside>
     )
   }

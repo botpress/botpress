@@ -307,6 +307,24 @@ export interface ExternalAuthConfig {
    * @default insert key here
    */
   publicKey?: string
+  /**
+   * Alternatively, you can configure a client to fetch a JWKS file for the public key.
+   * The audience, issuer and algorithms must also be provided.
+   */
+  jwksClient?: {
+    /**
+     * The full URL to the jwks.json file
+     */
+    jwksUri: string
+    /**
+     * The ID of the key in the jwks file
+     */
+    keyId: string
+    /**
+     * Provide additional options to pass to jwks-rsa (https://github.com/auth0/node-jwks-rsa)
+     */
+    [keyName: string]: any
+  }
 }
 
 export interface DataRetentionConfig {

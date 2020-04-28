@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { BaseDialog, DialogBody, lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { Alert, Button } from 'react-bootstrap'
@@ -339,8 +339,8 @@ class SelectContent extends Component<Props, State> {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <BaseDialog title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
-        <DialogBody>{this.renderBody()}</DialogBody>
+      <Dialog.Wrapper title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
+        <Dialog.Body>{this.renderBody()}</Dialog.Body>
         <CreateOrEditModal
           show={!!newItemCategory}
           schema={schema.json}
@@ -350,7 +350,7 @@ class SelectContent extends Component<Props, State> {
           handleEdit={this.handleFormEdited}
           handleCreateOrUpdate={this.handleCreate}
         />
-      </BaseDialog>
+      </Dialog.Wrapper>
     )
   }
 }

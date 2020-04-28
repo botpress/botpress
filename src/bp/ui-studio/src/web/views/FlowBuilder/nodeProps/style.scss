@@ -1,3 +1,5 @@
+@import '../../../palette.scss';
+
 h5 {
   font-weight: 500;
 }
@@ -137,6 +139,17 @@ h5 {
     height: 30px;
     border: 1px solid #ddd;
     border-radius: unset;
+  }
+}
+
+.formHeader {
+  position: relative;
+
+  h4 {
+    font-size: 22px;
+    font-weight: 500;
+    color: $main-dark-color;
+    margin: 0 0 5px;
   }
 }
 

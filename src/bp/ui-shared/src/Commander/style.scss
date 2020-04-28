@@ -1,0 +1,70 @@
+.categoryWrapper {
+  min-width: 60px;
+  display: inline-block;
+}
+
+.category {
+  color: #fff;
+  margin-right: 6px;
+  border-radius: 2px;
+  padding: 1.2px 3px;
+}
+
+.shortcut {
+  float: right;
+  margin-right: 2px;
+  color: rgb(150, 150, 150);
+  display: inline-block;
+
+  margin-left: 0.45454545em;
+  padding: 0 0.375em;
+  line-height: 2;
+  margin-top: -0.375em;
+  font-family: inherit;
+  font-size: 1em;
+  letter-spacing: 0.1em;
+  border-radius: 3px;
+  color: #fff;
+  background-color: #4d78cc;
+}
+
+.command {
+  background: rgb(0, 188, 212);
+}
+
+.studio {
+  background: rgb(76, 174, 80);
+}
+
+.admin {
+  background: rgb(63, 81, 181);
+}
+
+.external {
+  background: rgb(255, 182, 0);
+}
+
+.module {
+  background: rgb(0, 149, 136);
+}
+
+.headerWrapper {
+  font-family: arial;
+  font-size: 12px;
+  color: rgb(172, 172, 172);
+  margin-bottom: 6px;
+  display: inline-block;
+}
+
+.headerWrapper .item {
+  padding-right: 32px;
+}
+
+.headerWrapper .kbd {
+  background-color: rgb(23, 23, 23);
+  font-size: 12px;
+  color: #b9b9b9;
+  padding: 2px 4px;
+  margin-right: 6px;
+  border-radius: 4px;
+}

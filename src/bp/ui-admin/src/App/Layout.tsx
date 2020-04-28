@@ -13,6 +13,7 @@ import { fetchLicensing } from '../reducers/license'
 import { fetchProfile } from '../reducers/user'
 import { fetchCurrentVersion } from '../reducers/versions'
 
+import CommandPalette from './CommandPalette'
 import Menu from './Menu'
 import UserDropdownMenu from './UserDropdownMenu'
 
@@ -74,6 +75,7 @@ const App: FC<Props> = props => {
   return (
     <Fragment>
       <Header />
+      <CommandPalette />
 
       <div className="bp-sa-wrapper">
         <Menu />
@@ -110,11 +112,7 @@ const Header = () => (
 
 const Footer = props => (
   <footer className="statusBar">
-    <div className="statusBar-list">
-      <div className="statusBar-item">
-        <strong>{props.version}</strong>
-      </div>
-    </div>
+    <div className="statusBar-item">{props.version}</div>
   </footer>
 )
 
