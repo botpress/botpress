@@ -14,5 +14,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: botpress/botpress/botpress
-          tag_with_ref: true
+          tag_with_ref: false
           tag_with_sha: true
