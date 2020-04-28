@@ -1,4 +1,13 @@
-import { Button, HTMLSelect, IconName, MaybeElement, Popover, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
+import {
+  Button,
+  ButtonGroup,
+  HTMLSelect,
+  IconName,
+  MaybeElement,
+  Popover,
+  Position,
+  Tooltip as BpTooltip
+} from '@blueprintjs/core'
 import { DateRange, DateRangePicker, IDateRangeShortcut } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
@@ -412,6 +421,28 @@ const Analytics: FC<any> = ({ bp }) => {
     link.download = `analytics.csv`
     link.click()
   }
+  const exportJson = () => {
+    const { dateRange, metrics, previousDateRange, previousRangeMetrics } = state
+    const formatDate = date => moment(date).format('YYYY-MM-DD')
+
+    const json = [
+      {
+        startDate: formatDate(dateRange?.[0]),
+        endDate: formatDate(dateRange?.[1]),
+        metrics
+      },
+      {
+        startDate: formatDate(previousDateRange?.[0]),
+        endDate: formatDate(previousDateRange?.[1]),
+        metrics: previousRangeMetrics
+      }
+    ]
+
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(new Blob([JSON.stringify(json, undefined, 2)]))
+    link.download = `analytics.json`
+    link.click()
+  }
 
   return (
     <div className={style.mainWrapper}>
@@ -444,7 +475,19 @@ const Analytics: FC<any> = ({ bp }) => {
               />
             </Popover>
 
-            <Button className={style.exportButton} onClick={exportCsv} icon="export" text="Export CSV"></Button>
+            <Popover
+              content={
+                <div style={{ padding: 5 }}>
+                  <ButtonGroup>
+                    <Button onClick={exportCsv} text={lang.tr('module.analytics.exportCsv')}></Button>
+                    <Button onClick={exportJson} text={lang.tr('module.analytics.exportJson')}></Button>
+                  </ButtonGroup>
+                </div>
+              }
+              position={Position.BOTTOM}
+            >
+              <Button className={style.exportButton} icon="export" text={lang.tr('module.analytics.export')}></Button>
+            </Popover>
           </div>
         </div>
         <div className={style.sectionsWrapper}>
