@@ -206,9 +206,11 @@ const TrainIntentClassifier = async (
   debugTraining.forBot(input.botId, 'Training intent classifier')
   const svmPerCtx: _.Dictionary<string> = {}
 
-  const noneUtts = input.intents
-    .find(i => i.name === NONE_INTENT)
-    .utterances.filter(u => u.tokens.filter(t => t.isWord).length >= 3)
+  const noneUtts = _.chain(input.intents)
+    .filter(i => i.name === NONE_INTENT) // in case use defines a none intent we want to combine utterances
+    .flatMap(i => i.utterances)
+    .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
+    .value()
 
   for (let i = 0; i < input.contexts.length; i++) {
     const ctx = input.contexts[i]
@@ -224,7 +226,7 @@ const TrainIntentClassifier = async (
           name: NONE_INTENT,
           utterances: _.chain(noneUtts)
             .shuffle()
-            .take(nAvgUtts * 2.5)
+            .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
             .value()
         }
       ])
