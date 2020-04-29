@@ -1,3 +1,15 @@
+## [12.9.1](https://github.com/botpress/botpress/compare/v12.9.0...v12.9.1) (2020-04-29)
+
+
+### Bug Fixes
+
+* **analytics:** fix wrong stats ([#3289](https://github.com/botpress/botpress/issues/3289)) ([c0c7125](https://github.com/botpress/botpress/commit/c0c7125))
+* **channel-web:** fix button height [#3200](https://github.com/botpress/botpress/issues/3200) ([#3288](https://github.com/botpress/botpress/issues/3288)) ([e110959](https://github.com/botpress/botpress/commit/e110959))
+* **core:** fix revision history [#3129](https://github.com/botpress/botpress/issues/3129) ([#3290](https://github.com/botpress/botpress/issues/3290)) ([01de6ee](https://github.com/botpress/botpress/commit/01de6ee))
+* **nlu:** fallback LID on vocab ([#3284](https://github.com/botpress/botpress/issues/3284)) ([aa8c453](https://github.com/botpress/botpress/commit/aa8c453))
+
+
+
 # [12.9.0](https://github.com/botpress/botpress/compare/v12.8.6...v12.9.0) (2020-04-27)
 
 
