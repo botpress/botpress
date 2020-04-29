@@ -49,23 +49,7 @@
       display: none;
     }
 
-    .bp3-tree-root > :nth-last-child(2) {
-      pointer-events: none;
-      margin-top: auto;
-
-      .bp3-tree-node-content {
-        height: 18px;
-      }
-      hr {
-        color: var(--gray);
-      }
-    }
-
-    .bp3-tree-root > :not(:last-child) .bp3-tree-node-list > :last-child {
-      color: var(--ocean) !important;
-      .bp3-tree-node-content:hover {
-        background-color: var(--hover-ocean);
-      }
+    .bp3-tree-root .bp3-tree-node-list > :last-child {
       .bp3-icon {
         color: var(--ocean) !important;
       }
@@ -87,7 +71,7 @@
     }
 
     .bp3-tree {
-      height: calc(100% - 98px);
+      height: 100%;
     }
 
     .bp3-tree-node-caret-none {
@@ -101,6 +85,31 @@
 
     .bp3-elevation-0 {
       box-shadow: unset !important;
+    }
+  }
+}
+
+.addWorkflowNode {
+  color: var(--ocean);
+}
+
+.tree {
+  overflow: auto;
+  height: calc(100% - 98px);
+}
+
+.unfilteredTree {
+  :global {
+    .bp3-tree-root > :nth-last-child(2) {
+      pointer-events: none;
+      margin-top: auto;
+
+      .bp3-tree-node-content {
+        height: 18px;
+      }
+      hr {
+        color: var(--gray);
+      }
     }
   }
 }

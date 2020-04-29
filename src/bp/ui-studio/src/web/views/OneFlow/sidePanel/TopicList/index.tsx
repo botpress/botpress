@@ -1,5 +1,6 @@
 import { EditableText, Icon, Intent, Menu, MenuDivider, MenuItem, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
+import { filter } from 'bluebird'
 import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, lang, TreeView } from 'botpress/shared'
 import cx from 'classnames'
@@ -367,7 +368,7 @@ const TopicList: FC<Props> = props => {
           id: 'addWorkflow',
           name: 'addWorkflow',
           label: (
-            <div className={style.treeNode}>
+            <div className={cx(style.treeNode, style.addWorkflowNode)}>
               <span>{lang.tr('studio.flow.sidePanel.addWorkflow')}</span>
             </div>
           ),
@@ -382,12 +383,14 @@ const TopicList: FC<Props> = props => {
       }
     })
 
-    const separator = {
-      id: 'separator',
-      label: <hr />
-    }
+    if (!props.filter) {
+      const separator = {
+        id: 'separator',
+        label: <hr />
+      }
 
-    tree.splice(tree.length - 1, 0, separator)
+      tree.splice(tree.length - 1, 0, separator)
+    }
 
     return tree
   }
@@ -403,21 +406,23 @@ const TopicList: FC<Props> = props => {
           </div>
         </div>
       )}
-      <TreeView<NodeData>
-        elements={flows}
-        nodeRenderer={nodeRenderer}
-        folderRenderer={folderRenderer}
-        postProcessing={postProcessing}
-        onContextMenu={handleContextMenu}
-        onClick={onClick}
-        expandedPaths={props.expandedPaths}
-        onExpandToggle={props.onExpandToggle}
-        onDoubleClick={onDoubleClick}
-        waitDoubleClick={waitDoubleClick}
-        filterText={props.filter}
-        pathProps="name"
-        filterProps="name"
-      />
+      <div className={cx(style.tree, props.filter ? '' : style.unfilteredTree)}>
+        <TreeView<NodeData>
+          elements={flows}
+          nodeRenderer={nodeRenderer}
+          folderRenderer={folderRenderer}
+          postProcessing={postProcessing}
+          onContextMenu={handleContextMenu}
+          onClick={onClick}
+          expandedPaths={props.expandedPaths}
+          onExpandToggle={props.onExpandToggle}
+          onDoubleClick={onDoubleClick}
+          waitDoubleClick={waitDoubleClick}
+          filterText={props.filter}
+          pathProps="name"
+          filterProps="name"
+        />
+      </div>
     </React.Fragment>
   )
 }
