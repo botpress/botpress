@@ -756,7 +756,7 @@ export class BotService {
   }
 
   private async _cleanupRevisions(botId: string, cleanAll: boolean = false): Promise<void> {
-    const revs = await this.listRevisions(botId)
+    const revs = (await this.listRevisions(botId)).reverse()
     const outDated = revs.filter((_, i) => cleanAll || i > MAX_REV)
 
     const globalGhost = this.ghostService.global()
