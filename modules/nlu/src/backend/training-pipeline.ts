@@ -463,20 +463,23 @@ const TrainOutOfScope = async (
   }
 
   const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
+  let combinedProgress = 0
   const ctxModels: [string, string][] = await Promise.map(input.contexts, async ctx => {
-    const in_scope_points = _.chain(input.intents)
+    const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
       .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
       .value()
 
     const svm = new tools.mlToolkit.SVM.Trainer()
-    const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
-      progress(_.round(p, 2))
+    const model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
+      combinedProgress += p / input.contexts.length
+      progress(combinedProgress)
     })
     return [ctx, model] as [string, string]
   })
 
   debugTraining.forBot(input.botId, 'Done training out of scope')
+  progress(1)
   return ctxModels.reduce((acc, [ctx, model]) => {
     acc[ctx] = model
     return acc
