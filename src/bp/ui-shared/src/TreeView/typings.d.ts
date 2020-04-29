@@ -1,3 +1,5 @@
+import { string } from 'joi'
+
 export interface TreeViewProps<T> {
   /** List of elements to display in the tree view */
   elements?: T[]
@@ -22,10 +24,11 @@ export interface TreeViewProps<T> {
   /** Whether or not to highlight the folder's name on click */
   highlightFolders?: boolean
 
+  waitDoubleClick?: (element: T | string, elementType: ElementType) => number
   onDoubleClick?: (element: T | string, elementType: ElementType) => void
   onClick?: (element: T | string, elementType: ElementType) => undefined | boolean
   onContextMenu?: (element: T | string, elementType: ElementType) => JSX.Element | undefined
-  onExpandToggle?: (node: TreeNode<T>, isExpanded: boolean) => void
+  onExpandToggle?: (path: string, isExpanded: boolean) => void
 }
 
 /** These are the default properties required if you want to avoid providing any renderers */

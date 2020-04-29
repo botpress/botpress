@@ -12,6 +12,8 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   const [nodes, setNodes] = useState<TreeNode<T>[]>([])
   const [expanded, setExpanded] = useState(props.expandedPaths || [])
   const [, forceUpdate] = useReducer(x => x + 1, 0)
+  let timer: any = null
+  let prevent = false
 
   const { elements, filterText, filterProps, nodeRenderer, folderRenderer, postProcessing, pathProps } = props
 
@@ -36,7 +38,8 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         node.isExpanded = true
       }
 
-      if (filterText || expanded.find(path => path === node.fullPath)) {
+      const expandedNodes = props.expandedPaths || expanded
+      if (filterText || expandedNodes.find(path => path === node.fullPath)) {
         node.isExpanded = true
       }
     })
@@ -61,39 +64,63 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   }
 
   const changeNodeExpansion = (node: TreeNode<T>, isExpanded: boolean) => {
-    isExpanded ? setExpanded([...expanded, node.fullPath]) : setExpanded(expanded.filter(x => x !== node.fullPath))
+    if (props.expandedPaths) {
+      props.onExpandToggle?.(node.fullPath, isExpanded)
+    } else {
+      isExpanded ? setExpanded([...expanded, node.fullPath]) : setExpanded(expanded.filter(x => x !== node.fullPath))
+    }
     node.isExpanded = isExpanded
-
-    props.onExpandToggle?.(node, isExpanded)
   }
 
   const handleNodeClick = (selectedNode: TreeNode<T>) => {
-    const preventClick = selectedNode.nodeData
-      ? props.onClick?.(selectedNode.nodeData, 'document')
-      : props.onClick?.(selectedNode.fullPath, 'folder')
+    const clickAction = () => {
+      const preventClick = selectedNode.nodeData
+        ? props.onClick?.(selectedNode.nodeData, 'document')
+        : props.onClick?.(selectedNode.fullPath, 'folder')
 
-    if (preventClick) {
-      return
+      if (preventClick) {
+        return
+      }
+
+      traverseTree(nodes, node => {
+        if (node === selectedNode) {
+          if (props.highlightFolders || (!props.highlightFolders && node.type !== 'folder')) {
+            node.isSelected = true
+          }
+
+          if (!node.nodeData) {
+            changeNodeExpansion(node, !node.isExpanded)
+          }
+        } else {
+          node.isSelected = false
+        }
+      })
+
+      forceUpdate()
     }
 
-    traverseTree(nodes, node => {
-      if (node === selectedNode) {
-        if (props.highlightFolders || (!props.highlightFolders && node.type !== 'folder')) {
-          node.isSelected = true
+    const wait = selectedNode.nodeData
+      ? props.waitDoubleClick?.(selectedNode.nodeData, 'document')
+      : props.waitDoubleClick?.(selectedNode.fullPath, 'folder')
+
+    if (wait) {
+      timer = setTimeout(() => {
+        if (prevent) {
+          prevent = false
+          return
         }
 
-        if (!node.nodeData) {
-          changeNodeExpansion(node, !node.isExpanded)
-        }
-      } else {
-        node.isSelected = false
-      }
-    })
-
-    forceUpdate()
+        clickAction()
+      }, wait)
+    } else {
+      clickAction()
+    }
   }
 
   const handleNodeDoubleClick = (selectedNode: TreeNode<T>) => {
+    clearTimeout(timer)
+    prevent = true
+
     if (selectedNode.nodeData) {
       props.onDoubleClick?.(selectedNode.nodeData, 'document')
     } else {

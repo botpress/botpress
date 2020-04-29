@@ -5,7 +5,7 @@ import { confirmDialog, lang, TreeView } from 'botpress/shared'
 import cx from 'classnames'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import { buildFlowName } from '..//WorkflowEditor/utils'
 import style from '../style.scss'
@@ -48,12 +48,13 @@ interface Props {
   editWorkflow: (wfId: any, data: any) => void
   editTopic: (topicName: string | NodeData) => void
   exportTopic: (topicName: string | NodeData) => void
-  forceOpenTopic: string
   focusedText: string
   newPath: string
   setFocusedText: (name: string) => void
-  setForceOpenTopic: (name: string) => void
   setNewPath: (path: string) => void
+
+  expandedPaths: string[]
+  onExpandToggle: (node, isExpanded: boolean) => void
 }
 
 interface NodeData {
@@ -135,7 +136,9 @@ const TopicList: FC<Props> = props => {
         await deleteTopic(folder, true)
       } else {
         await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: x, description: undefined })
-        props.setForceOpenTopic(x)
+        if (props.expandedPaths.includes(folder)) {
+          props.onExpandToggle(x, true)
+        }
       }
       props.setFocusedText(undefined)
       props.setNewPath(undefined)
@@ -300,6 +303,12 @@ const TopicList: FC<Props> = props => {
     }
   }
 
+  const waitDoubleClick = (el: NodeData | string, type) => {
+    if (type === 'folder') {
+      return 200
+    }
+  }
+
   const onClick = (el: NodeData | string, type) => {
     const nodeData = el as NodeData
     if (nodeData?.type === 'qna') {
@@ -395,8 +404,10 @@ const TopicList: FC<Props> = props => {
         postProcessing={postProcessing}
         onContextMenu={handleContextMenu}
         onClick={onClick}
-        visibleElements={[{ field: 'id', value: props.forceOpenTopic }]}
+        expandedPaths={props.expandedPaths}
+        onExpandToggle={props.onExpandToggle}
         onDoubleClick={onDoubleClick}
+        waitDoubleClick={waitDoubleClick}
         filterText={props.filter}
         pathProps="name"
         filterProps="name"

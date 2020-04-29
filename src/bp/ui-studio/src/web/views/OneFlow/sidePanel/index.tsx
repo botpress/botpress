@@ -77,9 +77,10 @@ const SidePanelContent: FC<Props> = props => {
   const [libraryFilter, setLibraryFilter] = useState('')
 
   const [currentTab, setCurrentTab] = useState('topics')
-  const [forceOpenTopic, setForceOpenTopic] = useState('')
   const [focusedText, setFocusedText] = useState('')
   const [newPath, setNewPath] = useState('')
+
+  const [expandedPaths, setExpandedPaths] = useState<string[]>([])
 
   useEffect(() => {
     props.refreshConditions()
@@ -136,7 +137,7 @@ const SidePanelContent: FC<Props> = props => {
     await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })
     setNewPath(name)
     setFocusedText(name)
-    setForceOpenTopic(name)
+    onExpandToggle(name, true)
     props.fetchTopics()
   }
 
@@ -176,6 +177,14 @@ const SidePanelContent: FC<Props> = props => {
 
   const onTabChanged = tabId => {
     setCurrentTab(tabId)
+  }
+
+  const onExpandToggle = (path, isExpanded) => {
+    if (isExpanded) {
+      setExpandedPaths([path, ...expandedPaths])
+    } else {
+      setExpandedPaths(expandedPaths.filter(x => x !== path))
+    }
   }
 
   return (
@@ -232,15 +241,15 @@ const SidePanelContent: FC<Props> = props => {
                 exportTopic={exportTopic}
                 fetchTopics={props.fetchTopics}
                 fetchFlows={props.fetchFlows}
-                forceOpenTopic={forceOpenTopic}
                 focusedText={focusedText}
+                expandedPaths={expandedPaths}
                 newPath={newPath}
                 setFocusedText={x => {
                   setFocusedText(x)
                   props.fetchTopics()
                 }}
-                setForceOpenTopic={setForceOpenTopic}
                 setNewPath={setNewPath}
+                onExpandToggle={onExpandToggle}
               />
             </React.Fragment>
           )}
