@@ -1,7 +1,11 @@
 {
   "error": {
     "cannotSaveFile": "Impossible de sauvegarder le fichier",
-    "invalidJson": "Fichier JSON invalide: {details}"
+    "cannotUploadFile": "Impossible de téléverser votre fichier",
+    "fileUploadDisabled": "L'envoi de fichier a été désactivé via une variable d'environnement.",
+    "invalidJson": "Fichier JSON invalide: {details}",
+    "lackUploadPermissions": "Vous n'avez pas suffisament de permissions pour envoyer un fichier.",
+    "missingParameters": "Paramètres manquants"
   },
   "fileStatus": {
     "fileInformation": "Informations sur le fichier",
@@ -71,7 +75,15 @@
     "fileEnabled": "Fichier activé avec succès!",
     "fileRenamed": "Fichier renommé avec succès!",
     "fileSaved": "Fichier enregistré avec succès!",
+    "fileUploaded": "Fichier envoyé avec succès!",
     "invalidFilename": "Nom de fichier non valide",
     "onlySuperAdmins": "Seuls les super administrateurs peuvent utiliser l'éditeur de fichiers avancé"
+  },
+  "uploadModal": {
+    "completeFilePath": "Chemin complet du fichier",
+    "filePathHelp": "Tapez le chemin complet, incluant les dossier ainsi que l'extension. Chemin relatif à /data",
+    "overwrite": "Écraser le fichier existant",
+    "selectFile": "Sélectionnez votre fichier",
+    "uploadFile": "Téléverser un fichier"
   }
 }

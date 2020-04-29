@@ -103,7 +103,7 @@ export class CallAPI extends React.Component {
   }
 
   render() {
-    const paramsHelp = <LinkDocumentationProvider file="memory" />
+    const paramsHelp = <LinkDocumentationProvider file="main/memory" />
 
     return (
       <div className={style.modalContent}>

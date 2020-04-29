@@ -433,7 +433,7 @@ export class UnderstandingEngine {
       this._allWfIds.add(flowName)
 
       for (const node of flow.nodes) {
-        if (node.type === 'listener') {
+        if (node.type === ('listener' as sdk.FlowNodeType)) {
           this._allNodeIds.add(node.id)
         }
 
