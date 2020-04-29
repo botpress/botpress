@@ -139,6 +139,8 @@ const TopicList: FC<Props> = props => {
         if (props.expandedPaths.includes(folder)) {
           props.onExpandToggle(x, true)
         }
+        await props.fetchFlows()
+        await props.fetchTopics()
       }
       props.setFocusedText(undefined)
       props.setNewPath(undefined)
