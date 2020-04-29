@@ -310,6 +310,10 @@ const TopicList: FC<Props> = props => {
   }
 
   const onClick = (el: NodeData | string, type) => {
+    if (el === props.focusedText) {
+      return true
+    }
+
     const nodeData = el as NodeData
     if (nodeData?.type === 'qna') {
       // Return true will mimic preventDefault for TreeView's onClick
