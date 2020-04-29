@@ -16,14 +16,14 @@ const Metric = <const>[
   'enter_flow_count',
   'msg_nlu_intent',
 
-  // TODO: implement these below in 12.8+
-  'goals_started_count',
-  'goals_completed_count',
-  'goals_failed_count',
+  'workflow_started_count',
+  'workflow_completed_count',
+  'workflow_failed_count',
+
   'feedback_positive_qna',
   'feedback_negative_qna',
-  'feedback_positive_goal',
-  'feedback_negative_goal'
+  'feedback_positive_workflow',
+  'feedback_negative_workflow'
 ]
 type MetricTypes = typeof Metric[number]
 
@@ -64,7 +64,7 @@ export default class Database {
 
   private getCacheKey(botId: string, channel: string, metric: string, subMetric?: string) {
     const today = moment().format('YYYY-MM-DD')
-    return `${today}/${botId}/${channel}/${metric}/${subMetric || ''}`
+    return `${today}|${botId}|${channel}|${metric}|${subMetric || ''}`
   }
 
   incrementMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string) {
@@ -91,7 +91,7 @@ export default class Database {
 
       const values = keys
         .map(key => {
-          const [date, botId, channel, metric, subMetric] = key.split('/')
+          const [date, botId, channel, metric, subMetric] = key.split('|')
           const value = original[key]
           return this.knex
             .raw(`(:date:, :botId, :channel, :metric, :subMetric, :value)`, {

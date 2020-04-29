@@ -1,7 +1,7 @@
 import { Flow } from 'botpress/sdk'
 import _ from 'lodash'
 
-export function validateFlowSchema(flow: Flow) {
+export function validateFlowSchema(flow: Flow, isOneFlow: boolean) {
   // const errorPrefix = `[Flow] Invalid flow "${flow && flow.location}"`
   const errorPrefix = `[Flow] Invalid flow "${flow}"`
 
@@ -17,7 +17,7 @@ export function validateFlowSchema(flow: Flow) {
     return `${errorPrefix}, unsupported version of the schema "${flow.version}"`
   }
 
-  if (!_.isString(flow.startNode)) {
+  if (!isOneFlow && !_.isString(flow.startNode)) {
     return `${errorPrefix}, expected valid 'startNode'`
   }
 
@@ -25,7 +25,8 @@ export function validateFlowSchema(flow: Flow) {
     return `${errorPrefix}, expected 'nodes' to be an array of nodes`
   }
 
-  if (!_.find(flow.nodes, { name: flow.startNode })) {
+  // This rule is no longer valid when using oneflow, since we have no start node
+  if (!isOneFlow && !_.find(flow.nodes, { name: flow.startNode })) {
     return `${errorPrefix}, expected 'startNode' to point to a valid node name`
   }
 

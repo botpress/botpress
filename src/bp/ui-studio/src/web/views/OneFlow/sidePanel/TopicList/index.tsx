@@ -1,229 +1,396 @@
-import { Classes, ContextMenu, ITreeNode, Menu, MenuDivider, MenuItem, Tree } from '@blueprintjs/core'
-import { Flow } from 'botpress/sdk'
-import { isEqual } from 'lodash'
-import React, { Component } from 'react'
-import { traverseTree } from '~/util/tree_common'
+import { AnchorButton, Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
+import axios from 'axios'
+import { Flow, Topic } from 'botpress/sdk'
+import { confirmDialog, lang, TreeView } from 'botpress/shared'
+import _ from 'lodash'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
-import { buildFlowsTree } from './tree_util'
+import style from '../style.scss'
 
-const lockedFlows = ['main.flow.json', 'error.flow.json']
+const lockedFlows = ['Built-In/welcome.flow.json', 'Built-In/error.flow.json', 'Built-In/feedback.flow.json']
 
 export const TYPE_TOPIC = 'topic'
 export const TYPES = {
   Topic: 'topic',
-  Goal: 'goal',
+  Workflow: 'workflow',
   Folder: 'folder'
+}
+
+export interface CountByTopic {
+  [topicName: string]: number
 }
 
 interface Props {
   filter: string
   readOnly: boolean
   currentFlow: Flow
+  topics: Topic[]
+  qnaCountByTopic: CountByTopic[]
 
   canDelete: boolean
   goToFlow: Function
-  flows: { name: string; label: string }[]
+  flows: IFlow[]
 
   duplicateFlow: Function
   deleteFlow: Function
-  exportGoal: Function
+  exportWorkflow: Function
+  fetchTopics: () => void
 
-  importGoal: (topicId: string) => void
-  createGoal: (topicId: string) => void
-  editGoal: (goalId: any, data: any) => void
-  editTopic: (topicName: string) => void
-  exportTopic: (topicName: string) => void
-}
-
-interface State {
-  nodes: ITreeNode<NodeData>[]
+  importWorkflow: (topicId: string) => void
+  createWorkflow: (topicId: string) => void
+  editQnA: (topicName: string) => void
+  editWorkflow: (wfId: any, data: any) => void
+  editTopic: (topicName: string | NodeData) => void
+  exportTopic: (topicName: string | NodeData) => void
 }
 
 interface NodeData {
   name: string
-  type: 'goal' | 'folder' | 'topic'
+  type?: NodeType
   label?: string
+  id?: any
+  icon?: string
+  triggerCount?: number
+  /** List of workflows which have a reference to it */
+  referencedIn?: string[]
+  countByTopic?: CountByTopic
 }
 
-export default class FlowsList extends Component<Props, State> {
-  private expandedNodes = {}
+type NodeType = 'workflow' | 'folder' | 'topic' | 'qna'
 
-  state: State = {
-    nodes: []
-  }
+interface IFlow {
+  name: string
+  label: string
+}
 
-  componentDidMount() {
-    this.updateFlows()
-  }
+const TopicList: FC<Props> = props => {
+  const [flows, setFlows] = useState<NodeData[]>([])
 
-  componentDidUpdate(prevProps) {
-    if (!isEqual(prevProps.flows, this.props.flows)) {
-      this.updateFlows()
-    }
+  useEffect(() => {
+    const qna = props.topics.map(topic => ({
+      name: `${topic.name}/qna`,
+      label: lang.tr('module.qna.fullName'),
+      type: 'qna' as NodeType,
+      icon: 'chat',
+      countByTopic: props.qnaCountByTopic?.[topic.name] || 0
+    }))
 
-    if (this.props.currentFlow && prevProps.currentFlow !== this.props.currentFlow) {
-      traverseTree(this.state.nodes, (n: ITreeNode<NodeData>) => {
-        return (n.isSelected = n.nodeData && n.nodeData.name === this.props.currentFlow['name'])
-      })
-    }
+    setFlows([...qna, ...props.flows])
+  }, [props.flows, props.topics, props.qnaCountByTopic])
 
-    if (this.props.filter !== prevProps.filter) {
-      this.updateFlows()
-    }
-  }
-
-  updateNodeExpanded = (id: string, isExpanded: boolean) => {
-    if (isExpanded) {
-      this.expandedNodes[id] = true
-    } else {
-      delete this.expandedNodes[id]
+  const deleteFlow = async (name: string) => {
+    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {})) {
+      props.deleteFlow(name)
     }
   }
 
-  updateFlows() {
-    const actions = {
-      createGoal: this.props.createGoal,
-      editTopic: this.props.editTopic,
-      importGoal: this.props.importGoal
+  const deleteTopic = async (name: string) => {
+    const matcher = new RegExp(`^${name}/`)
+    const flowsToDelete = props.flows.filter(x => matcher.test(x.name))
+
+    if (
+      await confirmDialog(
+        <span>
+          {lang.tr('studio.flow.topicList.confirmDeleteTopic', { name })}
+          <br />
+          <br />
+          {!!flowsToDelete.length && (
+            <>
+              {lang.tr('studio.flow.topicList.flowsAssociatedDelete', {
+                warning: <strong>{lang.tr('studio.flow.topicList.bigWarning')}</strong>,
+                count: flowsToDelete.length
+              })}
+            </>
+          )}
+        </span>,
+        {}
+      )
+    ) {
+      await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
+      flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
+      props.fetchTopics()
     }
-
-    const flows = this.props.flows.filter(x => x.name !== 'main.flow.json')
-    const nodes = buildFlowsTree(flows, this.expandedNodes, this.props.filter, actions)
-
-    if (this.props.filter) {
-      traverseTree(nodes, n => (n.isExpanded = true))
-    }
-
-    this.setState({ nodes })
   }
 
-  handleDelete = flow => {
-    if (confirm(`Are you sure you want to delete the flow ${flow.name}?`)) {
-      this.props.deleteFlow(flow.name)
+  const folderRenderer = (folder: string) => {
+    const createWorkflow = e => {
+      e.stopPropagation()
+      props.createWorkflow(folder)
+    }
+
+    const editTopic = e => {
+      e.stopPropagation()
+      props.editTopic(folder)
+    }
+
+    return {
+      label: (
+        <div className={style.treeNode}>
+          <span>{folder}</span>
+          <div className={style.overhidden} id="actions">
+            <Tooltip
+              content={<span>{lang.tr('studio.flow.topicList.editTopic')}</span>}
+              hoverOpenDelay={500}
+              position={Position.BOTTOM}
+            >
+              <Button icon="edit" minimal onClick={editTopic} />
+            </Tooltip>
+            <Tooltip
+              content={<span>{lang.tr('studio.flow.topicList.createNewWorkflow')}</span>}
+              hoverOpenDelay={500}
+              position={Position.BOTTOM}
+            >
+              <Button icon="insert" minimal onClick={createWorkflow} />
+            </Tooltip>
+          </div>
+        </div>
+      )
     }
   }
 
-  handleContextMenu = (node: ITreeNode<NodeData>, path, e) => {
-    const { name, type } = node.nodeData
-
-    e.preventDefault()
-
-    if (type === TYPES.Topic) {
-      ContextMenu.show(
+  const handleContextMenu = (element: NodeData | string, elementType) => {
+    if (elementType === 'folder') {
+      const folder = element as string
+      return (
         <Menu>
           <MenuItem
             id="btn-edit"
             icon="edit"
-            text="Edit Topic"
-            onClick={() => this.props.editTopic(node.id as string)}
+            text={lang.tr('studio.flow.topicList.editTopic')}
+            onClick={() => props.editTopic(folder)}
           />
           <MenuItem
             id="btn-export"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="upload"
-            text="Export Topic"
-            onClick={() => this.props.exportTopic(node.id as string)}
+            text={lang.tr('studio.flow.topicList.exportTopic')}
+            onClick={() => props.exportTopic(folder)}
+          />
+          <MenuItem
+            id="btn-delete"
+            icon="trash"
+            text={lang.tr('studio.flow.topicList.deleteTopic')}
+            intent={Intent.DANGER}
+            onClick={() => deleteTopic(folder)}
           />
           <MenuDivider />
           <MenuItem
             id="btn-create"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="add"
-            text="Create new Goal"
-            onClick={() => this.props.createGoal(name)}
+            text={lang.tr('studio.flow.topicList.createNewWorkflow')}
+            onClick={() => props.createWorkflow(name)}
           />
           <MenuItem
             id="btn-import"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="download"
-            text="Import existing Goal"
-            onClick={() => this.props.importGoal(name)}
+            text={lang.tr('studio.flow.topicList.importExisting')}
+            onClick={() => props.importWorkflow(name)}
           />
-        </Menu>,
-        { left: e.clientX, top: e.clientY }
+        </Menu>
       )
-    } else if (type === TYPES.Goal) {
-      ContextMenu.show(
+    } else if (_.isObject(element) && (element as NodeData).type === 'qna') {
+      const { name } = element as NodeData
+
+      return (
         <Menu>
           <MenuItem
             id="btn-edit"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="edit"
-            text="Edit Goal"
-            onClick={() => this.props.editGoal(name, node.nodeData)}
+            text={lang.tr('edit')}
+            onClick={() => props.editQnA(name.replace('/qna', ''))}
+          />
+        </Menu>
+      )
+    } else {
+      const { name } = element as NodeData
+
+      return (
+        <Menu>
+          <MenuItem
+            id="btn-edit"
+            disabled={props.readOnly}
+            icon="edit"
+            text={lang.tr('studio.flow.topicList.editWorkflow')}
+            onClick={() => props.editWorkflow(name, element)}
           />
           <MenuItem
             id="btn-duplicate"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="duplicate"
-            text="Duplicate"
-            onClick={() => this.props.duplicateFlow(name)}
+            text={lang.tr('duplicate')}
+            onClick={() => props.duplicateFlow(name)}
           />
           <MenuItem
             id="btn-export"
-            disabled={this.props.readOnly}
+            disabled={props.readOnly}
             icon="export"
-            text="Export"
-            onClick={() => this.props.exportGoal(name)}
+            text={lang.tr('export')}
+            onClick={() => props.exportWorkflow(name)}
           />
           <MenuDivider />
           <MenuItem
             id="btn-delete"
-            disabled={lockedFlows.includes(name) || !this.props.canDelete || this.props.readOnly}
+            disabled={lockedFlows.includes(name) || !props.canDelete || props.readOnly}
             icon="delete"
-            text="Delete"
-            onClick={() => this.handleDelete(node.nodeData)}
+            text={lang.tr('delete')}
+            onClick={() => deleteFlow(name)}
           />
-        </Menu>,
-        { left: e.clientX, top: e.clientY }
+        </Menu>
       )
     }
   }
 
-  private handleNodeClick = (node: ITreeNode<NodeData>) => {
-    const { type, name } = node.nodeData
-    const originallySelected = node.isSelected
+  const nodeRenderer = (el: NodeData) => {
+    const { name, label, icon, type, triggerCount, referencedIn, countByTopic } = el
 
-    traverseTree(this.state.nodes, n => (n.isSelected = false))
-
-    if (type !== TYPES.Topic && type !== TYPES.Folder) {
-      node.isSelected = originallySelected !== null
+    const editWorkflow = e => {
+      e.stopPropagation()
+      props.editWorkflow(name, el)
+    }
+    const deleteWorkflow = async e => {
+      e.stopPropagation()
+      await deleteFlow(name)
+    }
+    const editQnA = e => {
+      e.stopPropagation()
+      props.editQnA(name.replace('/qna', ''))
     }
 
-    if (type === TYPES.Goal) {
-      this.props.goToFlow(name)
-    } else {
-      this.handleNodeExpand(node, !node.isExpanded)
-    }
+    const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
 
-    this.forceUpdate()
-  }
-
-  private handleNodeDoubleClick = (node: ITreeNode<NodeData>) => {
-    if (node.nodeData.type === TYPES.Goal) {
-      this.props.editGoal(node.label, node.nodeData)
-    }
-
-    this.forceUpdate()
-  }
-
-  private handleNodeExpand = (node: ITreeNode, isExpanded: boolean) => {
-    this.updateNodeExpanded(node.id as string, isExpanded)
-    node.isExpanded = isExpanded
-    this.forceUpdate()
-  }
-
-  render() {
-    return (
-      <Tree
-        contents={this.state.nodes}
-        onNodeContextMenu={this.handleContextMenu}
-        onNodeClick={this.handleNodeClick}
-        onNodeDoubleClick={this.handleNodeDoubleClick}
-        onNodeCollapse={n => this.handleNodeExpand(n, false)}
-        onNodeExpand={n => this.handleNodeExpand(n, true)}
-        className={Classes.ELEVATION_0}
-      />
+    const qnaTooltip = (
+      <Tooltip content={lang.tr('studio.flow.topicList.nbQuestionsInTopic')} hoverOpenDelay={500}>
+        <small>({countByTopic})</small>
+      </Tooltip>
     )
+
+    const tooltip = (
+      <>
+        <Tooltip content={lang.tr('studio.flow.topicList.nbTriggersInWorkflow')} hoverOpenDelay={500}>
+          <small>({triggerCount})</small>
+        </Tooltip>
+        &nbsp;&nbsp;
+        {!!referencedIn?.length && (
+          <Tooltip
+            content={
+              <div>
+                {lang.tr('studio.flow.topicList.workflowReceiving')}{' '}
+                <ul>
+                  {referencedIn.map(x => (
+                    <li key={x}>{x}</li>
+                  ))}
+                </ul>
+              </div>
+            }
+            hoverOpenDelay={500}
+          >
+            <small>
+              <span className={style.referencedWorkflows}>({referencedIn?.length})</span>
+            </small>
+          </Tooltip>
+        )}
+      </>
+    )
+
+    return {
+      label: (
+        <div className={style.treeNode}>
+          <span>
+            {displayName} {type !== 'qna' ? tooltip : qnaTooltip}
+          </span>
+          <div className={style.overhidden} id="actions">
+            {type !== 'qna' && (
+              <Fragment>
+                <Tooltip
+                  content={<span>{lang.tr('studio.flow.topicList.editWorkflow')}</span>}
+                  hoverOpenDelay={500}
+                  position={Position.BOTTOM}
+                >
+                  <Button icon="edit" minimal onClick={editWorkflow} />
+                </Tooltip>
+                <Tooltip
+                  content={<span>{lang.tr('studio.flow.topicList.deleteWorkflow')}</span>}
+                  hoverOpenDelay={500}
+                  position={Position.BOTTOM}
+                >
+                  <AnchorButton icon="trash" minimal onClick={deleteWorkflow} disabled={lockedFlows.includes(name)} />
+                </Tooltip>
+              </Fragment>
+            )}
+            {type === 'qna' && (
+              <Tooltip
+                content={<span>{lang.tr('studio.flow.topicList.editQna')}</span>}
+                hoverOpenDelay={500}
+                position={Position.BOTTOM}
+              >
+                <Button icon="edit" minimal onClick={editQnA} />
+              </Tooltip>
+            )}
+          </div>
+        </div>
+      ),
+      icon
+    }
   }
+
+  const onClick = (el: NodeData | string, type) => {
+    if ((el as NodeData)?.type === 'qna') {
+      // Return true will mimic preventDefault for TreeView's onClick
+      return true
+    }
+
+    if (type === 'document') {
+      props.goToFlow((el as NodeData).name)
+    }
+  }
+
+  const onDoubleClick = (el: NodeData, type) => {
+    if (el.type === 'qna') {
+      props.editQnA(el.name.replace('/qna', ''))
+    } else if (type === 'document') {
+      props.editWorkflow(el.name, el)
+    }
+  }
+
+  const postProcessing = tree => {
+    tree.forEach(parent => {
+      parent.childNodes?.forEach(node => {
+        if (node.id === `${parent.id}/qna`) {
+          const wfCount = parent.childNodes?.filter(parentNode => node.id !== parentNode.id).length
+          parent.label = (
+            <div className={style.topicName}>
+              {parent.label}{' '}
+              <span className={style.tag}>
+                {node.nodeData?.countByTopic} Q&A · {wfCount} WF
+              </span>
+            </div>
+          )
+        }
+      })
+    })
+
+    return tree
+  }
+
+  const activeFlow = props.currentFlow?.name
+  return (
+    <TreeView<NodeData>
+      elements={flows}
+      nodeRenderer={nodeRenderer}
+      folderRenderer={folderRenderer}
+      postProcessing={postProcessing}
+      onContextMenu={handleContextMenu}
+      onClick={onClick}
+      visibleElements={activeFlow && [{ field: 'name', value: activeFlow }]}
+      onDoubleClick={onDoubleClick}
+      filterText={props.filter}
+      pathProps="name"
+      filterProps="name"
+    />
+  )
 }
+
+export default TopicList

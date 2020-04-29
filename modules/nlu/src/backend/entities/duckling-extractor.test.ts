@@ -80,25 +80,25 @@ describe('Extract Multiple', () => {
     // with JoinChar   one two three::_::nothing::_::now and then
     //                 012345678901234567890123456789012345678901
     const extractedEntities = [
-      { meta: { start: 0, end: 3 } },
-      { meta: { start: 4, end: 7 } },
-      { meta: { start: 8, end: 13 } },
-      { meta: { start: 30, end: 33 } }
+      { start: 0, end: 3 },
+      { start: 4, end: 7 },
+      { start: 8, end: 13 },
+      { start: 30, end: 33 }
     ]
 
     mockedFetch.mockResolvedValueOnce(extractedEntities)
     const res = await duck.extractMultiple(examples, 'en')
     expect(res[0].length).toEqual(3)
-    expect(res[0][0].meta.start).toEqual(0)
-    expect(res[0][0].meta.end).toEqual(3)
-    expect(res[0][1].meta.start).toEqual(4)
-    expect(res[0][1].meta.end).toEqual(7)
-    expect(res[0][2].meta.start).toEqual(8)
-    expect(res[0][2].meta.end).toEqual(13)
+    expect(res[0][0].start).toEqual(0)
+    expect(res[0][0].end).toEqual(3)
+    expect(res[0][1].start).toEqual(4)
+    expect(res[0][1].end).toEqual(7)
+    expect(res[0][2].start).toEqual(8)
+    expect(res[0][2].end).toEqual(13)
     expect(res[1].length).toEqual(0)
     expect(res[2].length).toEqual(1)
-    expect(res[2][0].meta.start).toEqual(0)
-    expect(res[2][0].meta.end).toEqual(3)
+    expect(res[2][0].end).toEqual(3)
+    expect(res[2][0].start).toEqual(0)
   })
 
   test('cache is not used when useCache is false', async () => {
@@ -115,7 +115,7 @@ describe('Extract Multiple', () => {
 
   test('cached results are returned in the same order', async () => {
     const cachedEx = 'one two three'
-    const cachedExRes = [{ meta: { start: 0, end: 3 } }]
+    const cachedExRes = [{ start: 0, end: 3 }]
 
     mockedFetch.mockResolvedValueOnce(cachedExRes)
     mockedFetch.mockResolvedValue([])

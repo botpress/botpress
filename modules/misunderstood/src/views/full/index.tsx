@@ -1,4 +1,5 @@
 import { AxiosStatic } from 'axios'
+import { lang } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import classnames from 'classnames'
 import React from 'react'
@@ -211,7 +212,10 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             />
           </div>
         ) : (
-          <SplashScreen title="Loading..." description="Please wait while we're loading data" />
+          <SplashScreen
+            title={lang.tr('module.misunderstood.loading')}
+            description={lang.tr('module.misunderstood.waitWhileDataLoading')}
+          />
         )}
       </Container>
     )

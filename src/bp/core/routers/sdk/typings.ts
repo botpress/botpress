@@ -4,7 +4,6 @@ declare module 'botpress/apiSdk' {
   export interface SdkApiPayload {
     botId: string
     workspace: string
-    taskId: string
     scopes: string[]
   }
 

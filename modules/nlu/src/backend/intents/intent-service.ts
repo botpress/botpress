@@ -1,7 +1,8 @@
+import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getEntities } from '../entities/entities-service'
+import { EntityService } from '../typings'
 
 const INTENTS_DIR = './intents'
 
@@ -35,14 +36,15 @@ export async function getIntent(ghost: sdk.ScopedGhostService, intentName: strin
 
 export async function saveIntent(
   ghost: sdk.ScopedGhostService,
-  intent: sdk.NLU.IntentDefinition
+  intent: sdk.NLU.IntentDefinition,
+  entityService: EntityService
 ): Promise<sdk.NLU.IntentDefinition> {
   const name = sanitizeFileName(intent.name)
   if (name.length < 1) {
     throw new Error('Invalid intent name, expected at least one character')
   }
 
-  const availableEntities = await getEntities(ghost)
+  const availableEntities = await entityService.getEntities()
 
   _.chain(intent.slots)
     .flatMap('entities')
@@ -60,7 +62,8 @@ export async function saveIntent(
 export async function updateIntent(
   ghost: sdk.ScopedGhostService,
   name: string,
-  content: Partial<sdk.NLU.IntentDefinition>
+  content: Partial<sdk.NLU.IntentDefinition>,
+  entityService: EntityService
 ): Promise<sdk.NLU.IntentDefinition> {
   const intentDef = await getIntent(ghost, name)
   const merged = _.merge(intentDef, content) as sdk.NLU.IntentDefinition
@@ -68,7 +71,7 @@ export async function updateIntent(
     await deleteIntent(ghost, name)
     name = content.name
   }
-  return saveIntent(ghost, merged)
+  return saveIntent(ghost, merged, entityService)
 }
 
 export async function deleteIntent(ghost: sdk.ScopedGhostService, intentName: string): Promise<void> {
@@ -85,7 +88,8 @@ export async function deleteIntent(ghost: sdk.ScopedGhostService, intentName: st
 export async function updateIntentsSlotsEntities(
   ghost: sdk.ScopedGhostService,
   prevEntityName: string,
-  newEntityName: string
+  newEntityName: string,
+  entityService: EntityService
 ): Promise<void> {
   _.each(await getIntents(ghost), async intent => {
     let modified = false
@@ -98,7 +102,48 @@ export async function updateIntentsSlotsEntities(
       })
     })
     if (modified) {
-      await updateIntent(ghost, intent.name, intent)
+      await updateIntent(ghost, intent.name, intent, entityService)
     }
   })
+}
+
+/**
+ * This method read every workflow to extract their intent usage, so they can be in sync with their topics.
+ * The list of intent names is not required, but it saves some processing
+ */
+export async function updateContextsFromTopics(
+  ghost: sdk.ScopedGhostService,
+  entityService: EntityService,
+  intentNames?: string[]
+): Promise<void> {
+  const flowsPaths = await ghost.directoryListing('flows', '*.flow.json')
+  const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
+    name: flowPath,
+    ...(await ghost.readFileAsObject<FlowView>('flows', flowPath))
+  }))
+
+  const intents: { [intentName: string]: string[] } = {}
+
+  for (const flow of flows) {
+    const topicName = flow.name.split('/')[0]
+
+    for (const node of flow.nodes.filter(x => x.type === 'trigger')) {
+      const tn = node as sdk.TriggerNode
+      const match = tn.conditions.find(x => x.id === 'user_intent_is')
+      const name = match?.params?.intentName
+
+      if (name && name !== 'none' && (!intentNames || intentNames.includes(name))) {
+        intents[name] = _.uniq([...(intents[name] || []), topicName])
+      }
+    }
+  }
+
+  for (const intentName of Object.keys(intents)) {
+    const intentDef = await getIntent(ghost, intentName)
+
+    if (!_.isEqual(intentDef.contexts.sort(), intents[intentName].sort())) {
+      intentDef.contexts = intents[intentName]
+      await saveIntent(ghost, intentDef, entityService)
+    }
+  }
 }

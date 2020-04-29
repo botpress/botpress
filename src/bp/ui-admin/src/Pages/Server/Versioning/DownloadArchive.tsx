@@ -1,4 +1,5 @@
 import { Button } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useState } from 'react'
 import { toastInfo } from '~/utils/toaster'
@@ -15,7 +16,7 @@ const DownloadArchive = () => {
 
   const downloadCompleted = () => {
     setIsLoading(false)
-    toastInfo('Archive ready')
+    toastInfo(lang.tr('admin.versioning.archiveReady'))
   }
 
   return (
@@ -25,7 +26,7 @@ const DownloadArchive = () => {
         icon="download"
         onClick={downloadArchive}
         disabled={isLoading}
-        text={isLoading ? 'Please wait...' : 'Download archive'}
+        text={isLoading ? lang.tr('admin.versioning.pleaseWait') : lang.tr('admin.versioning.downloadArchive')}
       />
       <Downloader url={downloadUrl} filename={'archive.tgz'} onDownloadCompleted={downloadCompleted} />
     </div>

@@ -1,4 +1,6 @@
-import { Button, Card, Divider, Elevation, HTMLSelect, Label } from '@blueprintjs/core'
+import { Button, Card, Divider, Elevation, HTMLSelect, Label, Radio, RadioGroup } from '@blueprintjs/core'
+import { Dropdown, lang } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
@@ -57,84 +59,94 @@ const FeedbackItemComponent: FC<FeedbackItemComponentProps> = props => {
     await updateFeedbackItem({ status: 'pending' })
   }
 
-  const handleCorrectedActionTypeChange = async (correctedActionType: string) => {
+  const handleTypeChanged = async (correctedActionType: string) => {
     await updateFeedbackItem({
       correctedActionType,
       correctedObjectId: correctedActionType === 'qna' ? defaultQnaItemId : defaultGoalId
     })
   }
 
-  const handleCorrectedActionObjectIdChange = async (correctedObjectId: string) => {
+  const handleObjectIdChanged = async (correctedObjectId: string) => {
     await updateFeedbackItem({ correctedObjectId })
   }
 
+  const { correctedActionType, correctedObjectId, status, source } = feedbackItem
+
+  const actionItems = [
+    ...(correctedActionType === 'qna'
+      ? qnaItems.map(x => ({ label: x.data.questions[contentLang][0], value: x.id }))
+      : []),
+    ...(correctedActionType === 'start_goal' ? goals.map(x => ({ label: x.id, value: x.id })) : [])
+  ]
+
   return (
     <Card
-      interactive={true}
+      interactive
       elevation={current ? Elevation.THREE : Elevation.ZERO}
-      className={`${style.feedbackItem} ` + (current ? style.current : '')}
+      className={cx(style.feedbackItem, { [style.current]: current })}
       onClick={e => onItemClicked()}
     >
       <div style={{ marginRight: '5%' }}>
-        <h4>Details</h4>
-        <div>Event Id: {feedbackItem.eventId}</div>
-        <div>Session ID: {feedbackItem.sessionId}</div>
-        <div>Timestamp: {moment(feedbackItem.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</div>
+        <h4>{lang.tr('module.bot-improvement.details')}</h4>
         <div>
-          <h4>Detected Intent</h4>
-          Type: {feedbackItem.source.type === 'qna' ? 'Q&A' : 'Start Goal'}
-          {feedbackItem.source.type === 'qna' && feedbackItem.source.qnaItem && (
-            <div>Question: {feedbackItem.source.qnaItem?.data.questions[contentLang][0]}</div>
+          {lang.tr('module.bot-improvement.eventId')}: {feedbackItem.eventId}
+        </div>
+        <div>
+          {lang.tr('module.bot-improvement.timestamp')}:{' '}
+          {moment(feedbackItem.timestamp).format('MMMM Do YYYY, h:mm:ss a')}
+        </div>
+        <div>
+          <h4>{lang.tr('module.bot-improvement.detectedIntent')}</h4>
+          {lang.tr('module.bot-improvement.type')}:{' '}
+          {source.type === 'qna' ? lang.tr('module.bot-improvement.qna') : lang.tr('module.bot-improvement.startGoal')}
+          {source.type === 'qna' && source.qnaItem && (
+            <div>
+              {lang.tr('module.bot-improvement.question')}: {source.qnaItem?.data.questions[contentLang][0]}
+            </div>
           )}
-          {feedbackItem.source.type === 'goal' && <div>Goal: {feedbackItem.source.goal.id}</div>}
+          {source.type === 'goal' && (
+            <div>
+              {lang.tr('module.bot-improvement.goal')}: {source.goal.id}
+            </div>
+          )}
         </div>
       </div>
       <Divider style={{ marginRight: '3%' }} />
       <div className={style.intentCorrectionForm}>
-        <h4>Intent shoud have been:</h4>
+        <h4>{lang.tr('module.bot-improvement.intentShouldHaveBeen')}:</h4>
 
         <Label>
-          Type
-          <HTMLSelect
-            onClick={e => e.stopPropagation()}
-            onChange={e => handleCorrectedActionTypeChange(e.target.value)}
-            value={feedbackItem.correctedActionType}
+          {lang.tr('module.bot-improvement.type')}
+          <RadioGroup
+            onChange={e => handleTypeChanged(e.currentTarget.value)}
+            selectedValue={correctedActionType}
+            inline
           >
-            {qnaItems.length > 0 && <option value="qna">Q&A</option>}
-            {goals.length > 0 && <option value="start_goal">Start Goal</option>}
-          </HTMLSelect>
+            <Radio label={lang.tr('module.bot-improvement.qna')} value="qna" />
+            <Radio label={lang.tr('module.bot-improvement.startGoal')} value="start_goal" />
+          </RadioGroup>
         </Label>
 
         <Label>
-          {feedbackItem.correctedActionType === 'qna' ? 'Question' : 'Goal'}
-          <HTMLSelect
-            onClick={e => e.stopPropagation()}
-            onChange={e => handleCorrectedActionObjectIdChange(e.target.value)}
-            value={feedbackItem.correctedObjectId}
-          >
-            {feedbackItem.correctedActionType === 'qna' &&
-              qnaItems.map((i, idx) => (
-                <option key={`qnaItem-${idx}`} value={i.id}>
-                  {i.data.questions[contentLang][0]}
-                </option>
-              ))}
-            {feedbackItem.correctedActionType === 'start_goal' &&
-              goals.map((i, idx) => (
-                <option key={`goal-${idx}`} value={i.id}>
-                  {i.id}
-                </option>
-              ))}
-          </HTMLSelect>
+          {correctedActionType === 'qna'
+            ? lang.tr('module.bot-improvement.question')
+            : lang.tr('module.bot-improvement.goal')}
+
+          <Dropdown
+            items={actionItems}
+            onChange={item => handleObjectIdChanged(item.value)}
+            defaultItem={actionItems.find(x => x.value === correctedObjectId)}
+          />
         </Label>
 
-        {feedbackItem.status === 'pending' && (
+        {status === 'pending' && (
           <Button icon="tick" onClick={e => markAsSolved()}>
-            Mark as solved
+            {lang.tr('module.bot-improvement.markSolved')}
           </Button>
         )}
-        {feedbackItem.status === 'solved' && (
+        {status === 'solved' && (
           <Button icon="issue" onClick={e => markAsPending()}>
-            Mark as pending
+            {lang.tr('module.bot-improvement.markPending')}
           </Button>
         )}
       </div>

@@ -76,6 +76,13 @@ export interface TokenUser {
   strategy: string
   isSuperAdmin: boolean
   exp?: number
+  iat?: number
+}
+
+export interface StoredToken {
+  token: string
+  expiresAt: number
+  issuedAt: number
 }
 
 export type RequestWithUser = Request & {
@@ -155,6 +162,11 @@ export interface ServerConfig {
   live: { [keyName: string]: string }
 }
 
+export interface NodeProblem {
+  nodeName: string
+  missingPorts: any
+}
+
 export interface ChatUserAuth {
   sessionId: string
   botId: string
@@ -182,6 +194,14 @@ export interface ModuleInfo {
   /** The complete location of the module */
   fullPath: string
   enabled: boolean
+  status?: 'stable' | 'experimental'
+}
+
+export interface LibraryElement {
+  contentId: string
+  type: 'say_something' | 'execute'
+  preview: string
+  path: string
 }
 
 export interface ServerHealth {
@@ -195,4 +215,38 @@ export interface BotHealth {
   errorCount: number
   criticalCount: number
   warningCount: number
+}
+
+export interface ActionServer {
+  id: string
+  baseUrl: string
+}
+
+export type ActionScope = 'bot' | 'global'
+
+export interface ActionDefinition {
+  name: string
+  category: string
+  description: string
+  author: string
+  params: ActionParameterDefinition[]
+}
+
+export type LocalActionDefinition = ActionDefinition & {
+  title: string
+  scope: ActionScope
+  legacy: boolean
+  hidden: boolean
+}
+
+export interface ActionParameterDefinition {
+  name: string
+  description: string
+  required: boolean
+  type: string
+  default: any
+}
+
+export type ActionServerWithActions = ActionServer & {
+  actions: ActionDefinition[] | undefined
 }

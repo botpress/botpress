@@ -192,6 +192,12 @@ declare type BotpressEnvironmentVariables = {
    */
   readonly DISABLE_GLOBAL_SANDBOX?: boolean
 
+  /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
+  readonly TESTMIG_ALL?: boolean
+
+  /** Runs future migrations, ignore completed migrations & sets the config version to the version in package.json */
+  readonly TESTMIG_NEW?: boolean
+
   /** Migration Testing: Simulate a specific version for the server, ex: 12.5.0 */
   readonly TESTMIG_BP_VERSION?: string
 
@@ -210,6 +216,24 @@ declare type BotpressEnvironmentVariables = {
    * @default 4
    */
   readonly BP_NUM_ML_WORKERS?: number
+
+  /**
+   * Overrides the maximum file size allowed for the BPFS
+   * @default 100mb
+   */
+  readonly BP_BPFS_MAX_FILE_SIZE?: string
+
+  /**
+   * Disable the file upload feature on the Code Editor
+   * @default false
+   */
+  readonly BP_CODE_EDITOR_DISABLE_UPLOAD?: boolean
+
+  /**
+   * Disable the advanced editor feature on the Code Editor
+   * @default false
+   */
+  readonly BP_CODE_EDITOR_DISABLE_ADVANCED?: boolean
 }
 
 interface IDebug {
@@ -247,11 +271,14 @@ declare interface Dic<T> {
 
 declare type BOTPRESS_CORE_EVENTS = {
   bp_core_session_created: { botId: string; channel: string }
+  bp_core_send_content: { botId: string; channel: string; source: string; details: string }
   bp_core_decision_elected: { botId: string; channel: string; source: string }
-  bp_core_goal_started: { botId: string; channel: string; goalName: string }
-  bp_core_goal_completed: { botId: string; channel: string; goalName: string }
-  bp_core_goal_failed: { botId: string; channel: string; goalName: string }
+  bp_core_workflow_started: { botId: string; channel: string; wfName: string }
+  bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
+  bp_core_workflow_failed: { botId: string; channel: string; wfName: string }
   bp_core_enter_flow: { botId: string; channel: string; flowName: string }
+  bp_core_feedback_positive: { botId: string; channel: string; type: string; eventId?: number }
+  bp_core_feedback_negative: { botId: string; channel: string; type: string; eventId?: number }
 }
 
 interface IEmitCoreEvent {

@@ -1,32 +1,40 @@
 import { Icon } from '@blueprintjs/core'
-import { FlowView } from 'common/typings'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
-import reject from 'lodash/reject'
-import values from 'lodash/values'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, refreshConditions, renameFlow } from '~/actions'
+import {
+  deleteFlow,
+  duplicateFlow,
+  fetchFlows,
+  fetchTopics,
+  getQnaCountByTopic,
+  refreshConditions,
+  renameFlow,
+  switchFlow
+} from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
-import { getCurrentFlow, getDirtyFlows } from '~/reducers'
+import { getAllFlows, getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
 
-import EditGoalModal from './GoalEditor'
-import { exportCompleteGoal } from './GoalEditor/export'
 import Library from './Library'
 import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
-import TopicList from './TopicList'
+import TopicList, { CountByTopic } from './TopicList'
+import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
+import WorkflowEditor from './WorkflowEditor'
+import { exportCompleteWorkflow } from './WorkflowEditor/export'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
 export enum ElementType {
   Topic = 'topic',
-  Goal = 'goal',
+  Workflow = 'workflow',
   Content = 'content',
   Action = 'action',
   Intent = 'intent',
@@ -37,70 +45,59 @@ export enum ElementType {
 
 interface OwnProps {
   onCreateFlow: (flowName: string) => void
+  onDeleteSelectedElements: () => void
   history: any
   permissions: PanelPermissions[]
   readOnly: boolean
+  mutexInfo: any
 }
 
-interface StateProps {
-  flowsNames: string[]
-  showFlowNodeProps: boolean
-  flows: FlowView[]
-  currentFlow: any
-  dirtyFlows: any
-  flowPreview: boolean
-  mutexInfo: string
-  topics: any
-}
-
-interface DispatchProps {
-  refreshConditions: () => void
-  fetchTopics: () => void
-  fetchFlows: () => void
-  deleteFlow: (flowName: string) => void
-  renameFlow: any
-  duplicateFlow: any
-}
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
 
 type Props = StateProps & DispatchProps & OwnProps
 
 const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
   const [topicModalOpen, setTopicModalOpen] = useState(false)
-  const [goalModalOpen, setGoalModalOpen] = useState(false)
-  const [importGoalModalOpen, setImportGoalModalOpen] = useState(false)
+  const [topicQnAModalOpen, setTopicQnAModalOpen] = useState(false)
+  const [editWorkflowModalOpen, setEditWorkflowModalOpen] = useState(false)
+  const [importWorkflowModalOpen, setImportWorkflowModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
 
-  const [selectedGoal, setSelectedGoal] = useState<string>('')
+  const [selectedWorkflow, setSelectedWorkflow] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
 
-  const [goalFilter, setGoalFilter] = useState('')
+  const [topicFilter, setTopicFilter] = useState('')
   const [libraryFilter, setLibraryFilter] = useState('')
 
   useEffect(() => {
     props.refreshConditions()
     props.fetchTopics()
+    props.getQnaCountByTopic()
   }, [])
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
 
-  const normalFlows = reject(props.flows, x => x.name && x.name.startsWith('skills/'))
-  const flowsName = normalFlows.map(x => ({ name: x.name, label: x.label }))
-
   const createTopicAction = {
     id: 'btn-add-flow',
-    icon: <Icon icon="cube-add" />,
+    icon: <Icon icon="add" />,
     key: 'create',
-    tooltip: 'Create new topic',
+    tooltip: lang.tr('studio.flow.sidePanel.createNewTopic'),
     onClick: () => setCreateTopicOpen(true)
   }
 
   const importAction = {
     id: 'btn-import',
-    icon: <Icon icon="download" />,
+    icon: <Icon icon="import" />,
     key: 'import',
-    tooltip: 'Import content',
+    tooltip: lang.tr('studio.flow.sidePanel.importContent'),
     onClick: () => setImportModalOpen(true)
+  }
+
+  const editQnA = (topicName: string) => {
+    setSelectedTopic(topicName)
+    setTopicQnAModalOpen(true)
   }
 
   const editTopic = (topicName: string) => {
@@ -110,15 +107,17 @@ const SidePanelContent: FC<Props> = props => {
 
   const duplicateFlow = (flowName: string) => {}
 
-  const editGoal = (goalId: string) => {
-    setSelectedGoal(goalId)
-    setGoalModalOpen(!goalModalOpen)
+  const editWorkflow = (workflowId: string, data) => {
+    props.switchFlow(data.name)
+    setSelectedTopic(data.name.split('/')[0])
+    setSelectedWorkflow(workflowId)
+    setEditWorkflowModalOpen(true)
   }
 
-  const createGoal = (topicName: string) => {
+  const createWorkflow = (topicName: string) => {
     setSelectedTopic(topicName)
-    setSelectedGoal('')
-    setGoalModalOpen(true)
+    setSelectedWorkflow('')
+    setEditWorkflowModalOpen(true)
   }
 
   const downloadTextFile = (text, fileName) => {
@@ -133,9 +132,9 @@ const SidePanelContent: FC<Props> = props => {
     downloadTextFile(JSON.stringify(topic), `${topicName}.json`)
   }
 
-  const exportGoal = async goalName => {
-    const goal = await exportCompleteGoal(goalName)
-    downloadTextFile(JSON.stringify(goal), `${goalName}.json`)
+  const exportWorkflow = async name => {
+    const workflow = await exportCompleteWorkflow(name)
+    downloadTextFile(JSON.stringify(workflow), `${name}.json`)
   }
 
   const onImportCompleted = () => {
@@ -143,40 +142,59 @@ const SidePanelContent: FC<Props> = props => {
     props.fetchTopics()
   }
 
+  const toggleQnaModal = () => {
+    // TODO: only update when dirty
+    if (topicQnAModalOpen) {
+      props.getQnaCountByTopic()
+    }
+
+    setTopicQnAModalOpen(!topicQnAModalOpen)
+  }
+
+  const topicActions = props.permissions.includes('create') && [importAction, createTopicAction]
+  const importWorkflow = () => setImportWorkflowModalOpen(!importWorkflowModalOpen)
+  const canDelete = props.permissions.includes('delete')
+
   return (
     <SidePanel>
-      <Toolbar mutexInfo={props.mutexInfo} />
-
       {props.showFlowNodeProps ? (
-        <Inspector />
+        <Inspector onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
         <React.Fragment>
-          <SearchBar icon="filter" placeholder="Filter topics and goals" onChange={setGoalFilter} />
-
-          <SidePanelSection
-            label="Topics"
-            actions={props.permissions.includes('create') && [createTopicAction, importAction]}
-          >
+          <SidePanelSection label={lang.tr('topics')} actions={topicActions}>
+            <SearchBar
+              icon="filter"
+              placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
+              onChange={setTopicFilter}
+            />
             <TopicList
               readOnly={props.readOnly}
-              canDelete={props.permissions.includes('delete')}
-              flows={flowsName}
+              canDelete={canDelete}
+              flows={props.flowsName}
+              qnaCountByTopic={props.qnaCountByTopic}
               goToFlow={goToFlow}
               deleteFlow={props.deleteFlow}
               duplicateFlow={duplicateFlow}
               currentFlow={props.currentFlow}
-              editGoal={editGoal}
-              createGoal={createGoal}
-              exportGoal={exportGoal}
-              importGoal={() => setImportGoalModalOpen(!importGoalModalOpen)}
-              filter={goalFilter}
+              editWorkflow={editWorkflow}
+              createWorkflow={createWorkflow}
+              exportWorkflow={exportWorkflow}
+              importWorkflow={importWorkflow}
+              filter={topicFilter}
               editTopic={editTopic}
+              editQnA={editQnA}
+              topics={props.topics}
               exportTopic={exportTopic}
+              fetchTopics={props.fetchTopics}
             />
           </SidePanelSection>
 
-          <SidePanelSection label="Library">
-            <SearchBar icon="filter" placeholder="Filter library" onChange={setLibraryFilter} />
+          <SidePanelSection label={lang.tr('library')}>
+            <SearchBar
+              icon="filter"
+              placeholder={lang.tr('studio.flow.sidePanel.filterLibrary')}
+              onChange={setLibraryFilter}
+            />
             <Library filter={libraryFilter} />
           </SidePanelSection>
         </React.Fragment>
@@ -188,16 +206,18 @@ const SidePanelContent: FC<Props> = props => {
         toggle={() => setTopicModalOpen(!topicModalOpen)}
       />
 
+      <EditTopicQnAModal selectedTopic={selectedTopic} isOpen={topicQnAModalOpen} toggle={toggleQnaModal} />
+
       <CreateTopicModal
         isOpen={createTopicOpen}
         toggle={() => setCreateTopicOpen(!createTopicOpen)}
         onCreateFlow={props.onCreateFlow}
       />
 
-      <EditGoalModal
-        isOpen={goalModalOpen}
-        toggle={() => setGoalModalOpen(!goalModalOpen)}
-        selectedGoal={selectedGoal}
+      <WorkflowEditor
+        isOpen={editWorkflowModalOpen}
+        toggle={() => setEditWorkflowModalOpen(!editWorkflowModalOpen)}
+        selectedWorkflow={selectedWorkflow}
         selectedTopic={selectedTopic}
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}
@@ -215,23 +235,24 @@ const SidePanelContent: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
-  flows: values(state.flows.flowsByName),
-  dirtyFlows: getDirtyFlows(state),
-  flowProblems: state.flows.flowProblems,
-  flowsNames: _.keys(state.flows.flowsByName),
+  flows: getAllFlows(state),
+  flowsName: getFlowNamesList(state),
   showFlowNodeProps: state.flows.showFlowNodeProps,
-  topics: state.ndu.topics
+  topics: state.ndu.topics,
+  qnaCountByTopic: state.ndu.qnaCountByTopic
 })
 
 const mapDispatchToProps = {
+  switchFlow,
   deleteFlow,
   duplicateFlow,
   renameFlow,
   refreshConditions,
   fetchTopics,
-  fetchFlows
+  fetchFlows,
+  getQnaCountByTopic
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SidePanelContent)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(SidePanelContent)

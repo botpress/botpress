@@ -1,6 +1,7 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import axios from 'axios'
 import 'bluebird-global'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
 import { AccessControl, toastFailure } from '~/components/Shared/Utils'
@@ -35,13 +36,14 @@ export const ImportModal: FC<Props> = props => {
       const { data } = await axios.post(`${window.BOT_API_PATH}/content/analyzeImport`, form, axiosConfig)
 
       if (!data.fileCmsCount) {
-        setUploadStatus(`We were not able to extract any data from your file.
-Either the file is empty, or it doesn't match any known format.`)
+        setUploadStatus(lang.tr('studio.content.import.notAbleToExtractData'))
         setHasError(true)
       }
 
       if (data.missingContentTypes.length) {
-        setUploadStatus(`Your bot is missing these content types: ${data.missingContentTypes.join(', ')}.`)
+        setUploadStatus(
+          lang.tr('studio.content.import.missingContentTypes', { types: data.missingContentTypes.join(', ') })
+        )
         setHasError(true)
       }
 
@@ -109,17 +111,12 @@ Either the file is empty, or it doesn't match any known format.`)
       >
         <div className={Classes.DIALOG_BODY}>
           <FormGroup
-            label={<span>Select your JSON file</span>}
+            label={<span>{lang.tr('studio.content.import.selectFile')}</span>}
             labelFor="input-json"
-            helperText={
-              <span>
-                Select a JSON file. It must be exported from the Content page. You will see a summary of modifications
-                when clicking on Next
-              </span>
-            }
+            helperText={<span>{lang.tr('studio.content.import.selectFileMore')}</span>}
           >
             <FileInput
-              text={filePath || 'Choose file...'}
+              text={filePath || lang.tr('chooseFile')}
               onChange={e => readFile((e.target as HTMLInputElement).files)}
               inputProps={{ accept: '.json' }}
               fill={true}
@@ -130,7 +127,7 @@ Either the file is empty, or it doesn't match any known format.`)
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               id="btn-next"
-              text={isLoading ? 'Please wait...' : 'Next'}
+              text={isLoading ? lang.tr('pleaseWait') : lang.tr('next')}
               disabled={!filePath || !file || isLoading}
               onClick={analyzeImport}
               intent={Intent.PRIMARY}
@@ -149,20 +146,22 @@ Either the file is empty, or it doesn't match any known format.`)
         <div className={Classes.DIALOG_BODY}>
           <div>
             <p>
-              Your file contains <strong>{fileCmsCount}</strong> content elements, while this bot contains{' '}
-              <strong>{cmsCount}</strong> elements.
+              {lang.tr('studio.content.import.compareNbElements', {
+                fileCmsCount: <strong>{fileCmsCount}</strong>,
+                cmsCount: <strong>{cmsCount}</strong>
+              })}
             </p>
 
             <div style={{ marginTop: 30 }}>
               <RadioGroup
-                label=" What would you like to do? "
+                label={lang.tr('studio.content.import.whatLikeDo')}
                 onChange={e => setImportAction(e.target['value'])}
                 selectedValue={importAction}
               >
-                <Radio id="radio-insert" label="Update or create missing elements present in my file" value="insert" />
+                <Radio id="radio-insert" label={lang.tr('studio.content.import.updateMissing')} value="insert" />
                 <Radio
                   id="radio-clearInsert"
-                  label="Clear all existing elements, them import those from my file"
+                  label={lang.tr('studio.content.import.clearExisting')}
                   value="clear_insert"
                 />
               </RadioGroup>
@@ -171,10 +170,10 @@ Either the file is empty, or it doesn't match any known format.`)
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button id="btn-back" text={'Back'} disabled={isLoading} onClick={clearState} />
+            <Button id="btn-back" text={lang.tr('back')} disabled={isLoading} onClick={clearState} />
             <Button
               id="btn-submit"
-              text={isLoading ? 'Please wait...' : 'Submit'}
+              text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
               disabled={isLoading || hasError}
               onClick={submitChanges}
               intent={Intent.PRIMARY}
@@ -189,13 +188,16 @@ Either the file is empty, or it doesn't match any known format.`)
     return (
       <Fragment>
         <div className={Classes.DIALOG_BODY}>
-          <Callout title={hasError ? 'Error' : 'Upload status'} intent={hasError ? Intent.DANGER : Intent.PRIMARY}>
+          <Callout
+            title={hasError ? lang.tr('error') : lang.tr('studio.content.import.uploadStatus')}
+            intent={hasError ? Intent.DANGER : Intent.PRIMARY}
+          >
             {uploadStatus}
           </Callout>
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            {hasError && <Button id="btn-back" text={'Back'} disabled={isLoading} onClick={clearState} />}
+            {hasError && <Button id="btn-back" text={lang.tr('back')} disabled={isLoading} onClick={clearState} />}
           </div>
         </div>
       </Fragment>
@@ -207,11 +209,16 @@ Either the file is empty, or it doesn't match any known format.`)
   return (
     <Fragment>
       <AccessControl resource="content" operation="write">
-        <Button icon="download" id="btn-importJson" text="Import JSON" onClick={() => setDialogOpen(true)} />
+        <Button
+          icon="download"
+          id="btn-importJson"
+          text={lang.tr('studio.content.import.import')}
+          onClick={() => setDialogOpen(true)}
+        />
       </AccessControl>
 
       <Dialog
-        title={analysis ? 'Analysis' : 'Upload File'}
+        title={analysis ? lang.tr('studio.content.import.analysis') : lang.tr('studio.content.import.upload')}
         icon="import"
         isOpen={isDialogOpen}
         onClose={closeDialog}

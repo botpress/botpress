@@ -1,4 +1,4 @@
-import { IO, Logger } from 'botpress/sdk'
+import { IO, Logger, NDU } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
@@ -47,20 +47,43 @@ export class DecisionEngine {
       return
     }
 
-    for (const { action, data } of event.ndu.actions) {
-      if (action === 'send') {
-        await this._sendSuggestion(data, sessionId, event)
-      } else if (action === 'redirect') {
-        await this.dialogEngine.jumpTo(sessionId, event, data.flow, data.node)
+    let eventProcessedCalled = false
+    const processEvent = async (event: IO.IncomingEvent) => {
+      if (!eventProcessedCalled) {
+        eventProcessedCalled = true
+        this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
+      }
+    }
 
-        event.state.session.lastGoals = [
-          {
-            goal: data.flow,
-            eventId: event.id,
-            active: true
-          },
-          ...(event.state.session.lastGoals || [])
-        ]
+    for (const { action, data } of event.ndu.actions) {
+      if (action === 'send' && data) {
+        const content = data as NDU.SendContent
+        await this._sendContent(content, event)
+
+        BOTPRESS_CORE_EVENT('bp_core_send_content', {
+          botId: event.botId,
+          channel: event.channel,
+          source: content.source,
+          details: content.sourceDetails!
+        })
+      } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
+        const { flow, node } = data as NDU.FlowRedirect
+        const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
+
+        await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
+
+        if (action === 'startWorkflow') {
+          event.state.session.lastWorkflows = [
+            {
+              workflow: flowName,
+              eventId: event.id,
+              active: true
+            },
+            ...(event.state.session.lastWorkflows || [])
+          ]
+
+          BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: flow })
+        }
       }
     }
 
@@ -70,16 +93,17 @@ export class DecisionEngine {
 
       // In case there are no unknown errors, remove skills/ flow from the stacktrace
       processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
-      this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
-
+      await processEvent(processedEvent)
       await this.stateManager.persist(processedEvent, false)
       return
     }
 
     if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
-      this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
+      await processEvent(event)
       await this.stateManager.persist(event, false)
     }
+
+    await processEvent(event)
   }
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent) {
@@ -201,6 +225,26 @@ export class DecisionEngine {
     }
   }
 
+  private async _sendContent(
+    { payloads, source, sourceDetails, confidence }: NDU.SendContent | IO.Suggestion,
+    event: IO.IncomingEvent
+  ) {
+    await this.eventEngine.replyToEvent(event, payloads, event.id)
+
+    const message: IO.DialogTurnHistory = {
+      eventId: event.id,
+      replyDate: new Date(),
+      replySource: source + ' ' + sourceDetails,
+      incomingPreview: event.preview,
+      replyConfidence: confidence,
+      replyPreview: _.find(payloads, p => p.text !== undefined)
+    }
+
+    event.state.session.lastMessages.push(message)
+
+    await this.stateManager.persist(event, true)
+  }
+
   private async _sendSuggestion(
     reply: IO.Suggestion,
     sessionId,
@@ -210,21 +254,8 @@ export class DecisionEngine {
     const result: SendSuggestionResult = { executeFlows: true }
 
     if (payloads) {
-      await this.eventEngine.replyToEvent(event, payloads, event.id)
-
-      const message: IO.DialogTurnHistory = {
-        eventId: event.id,
-        replyDate: new Date(),
-        replySource: reply.source + ' ' + reply.sourceDetails,
-        incomingPreview: event.preview,
-        replyConfidence: reply.confidence,
-        replyPreview: _.find(payloads, p => p.text !== undefined)
-      }
-
+      await this._sendContent({ ...reply, payloads }, event)
       result.executeFlows = false
-      event.state.session.lastMessages.push(message)
-
-      await this.stateManager.persist(event, true)
     }
 
     const redirect = _.find(reply.payloads, p => p.type === 'redirect')

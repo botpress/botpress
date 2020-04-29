@@ -1,6 +1,6 @@
-import '@blueprintjs/core/lib/css/blueprint.css'
 import 'babel-polyfill'
 import 'element-closest-polyfill'
+import 'ui-shared/dist/theme.css'
 
 /* tslint:disable */
 import 'expose-loader?React!react'
@@ -20,6 +20,7 @@ import * as BlueprintJsSelect from 'expose-loader?BlueprintJsSelect!@blueprintjs
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { initializeTranslations } from '~/translations'
 import './index.css'
 import { makeMainRoutes } from './routes'
 
@@ -28,4 +29,5 @@ const routes = makeMainRoutes()
 window['BlueprintJsCore'] = BlueprintJsCore
 window['BlueprintJsSelect'] = BlueprintJsSelect
 
+initializeTranslations()
 ReactDOM.render(<div>{routes}</div>, document.getElementById('root'))

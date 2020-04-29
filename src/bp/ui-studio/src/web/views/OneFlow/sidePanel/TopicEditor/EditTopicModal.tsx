@@ -1,16 +1,13 @@
-import { Button, Classes, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
+import { Button, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { Topic } from 'botpress/sdk'
+import { Dialog, lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { fetchTopics, renameFlow } from '~/actions'
-import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { BaseDialog, DialogBody } from '~/components/Shared/Interface'
+import { fetchFlows, fetchTopics, renameFlow } from '~/actions'
 import { sanitizeName } from '~/util'
-
-import style from '../style.scss'
 
 interface Props {
   selectedTopic: string
@@ -20,16 +17,15 @@ interface Props {
   toggle: () => void
   renameFlow: (flow: { targetFlow: string; name: string }) => void
   fetchTopics: () => void
+  fetchFlows: () => void
 }
 
 const EditTopicModal: FC<Props> = props => {
   const [name, setName] = useState<string>('')
   const [description, setDescription] = useState<string>('')
-  const [tab, setTab] = useState<string>('overview')
 
   useEffect(() => {
     setName(props.selectedTopic)
-    setTab('overview')
 
     if (props.topics) {
       const topic = props.topics.find(x => x && x.name === props.selectedTopic)
@@ -38,16 +34,10 @@ const EditTopicModal: FC<Props> = props => {
   }, [props.isOpen])
 
   const submit = async () => {
-    await axios.post(`${window.BOT_API_PATH}/mod/ndu/topic/${props.selectedTopic}`, { name, description })
+    await axios.post(`${window.BOT_API_PATH}/topic/${props.selectedTopic}`, { name, description })
 
     if (name !== props.selectedTopic) {
-      props.flows
-        .filter(f => f.name.startsWith(`${props.selectedTopic}/`))
-        .forEach(f =>
-          props.renameFlow({ targetFlow: f.name, name: f.name.replace(`${props.selectedTopic}/`, `${name}/`) })
-        )
-
-      // TODO: Update knowledge items
+      await props.fetchFlows()
     }
 
     props.fetchTopics()
@@ -61,73 +51,45 @@ const EditTopicModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
-      title="Edit topic"
+    <Dialog.Wrapper
+      title={lang.tr('studio.flow.topicEditor.editTopic')}
       icon="edit"
       isOpen={props.isOpen}
       onClose={closeModal}
-      size="md"
-      style={{ width: 900, minHeight: 475 }}
+      size="sm"
       onSubmit={submit}
     >
-      <DialogBody>
-        <Tabs id="tabs" vertical={true} onChange={tab => setTab(tab as string)} selectedTabId={tab}>
-          <Tab
-            id="overview"
-            title="Overview"
-            className={style.tabs}
-            panel={
-              <div>
-                <FormGroup label="Topic Name">
-                  <InputGroup
-                    id="input-flow-name"
-                    tabIndex={1}
-                    required={true}
-                    value={name}
-                    maxLength={50}
-                    onChange={e => setName(sanitizeName(e.currentTarget.value))}
-                    autoFocus={true}
-                  />
-                </FormGroup>
+      <Dialog.Body>
+        <div>
+          <FormGroup label={lang.tr('studio.flow.topicEditor.topicName')}>
+            <InputGroup
+              id="input-flow-name"
+              tabIndex={1}
+              required={true}
+              value={name}
+              maxLength={50}
+              onChange={e => setName(sanitizeName(e.currentTarget.value))}
+              autoFocus={true}
+            />
+          </FormGroup>
 
-                <FormGroup label="Description">
-                  <TextArea
-                    id="input-flow-name"
-                    rows={3}
-                    value={description}
-                    maxLength={250}
-                    fill={true}
-                    onChange={e => setDescription(e.currentTarget.value)}
-                  />
-                </FormGroup>
+          <FormGroup label={lang.tr('description')}>
+            <TextArea
+              id="input-flow-description"
+              rows={3}
+              value={description}
+              maxLength={250}
+              fill={true}
+              onChange={e => setDescription(e.currentTarget.value)}
+            />
+          </FormGroup>
+        </div>
+      </Dialog.Body>
 
-                <Button
-                  type="submit"
-                  id="btn-submit"
-                  text="Save changes"
-                  intent={Intent.PRIMARY}
-                  className={style.modalFooter}
-                />
-              </div>
-            }
-          />
-
-          <Tab
-            id="knowledge"
-            title="Knowledge"
-            className={style.tabs}
-            panel={
-              <InjectedModuleView
-                moduleName="qna"
-                componentName="LiteEditor"
-                contentLang="en"
-                extraProps={{ topicName: name }}
-              />
-            }
-          />
-        </Tabs>
-      </DialogBody>
-    </BaseDialog>
+      <Dialog.Footer>
+        <Button type="submit" id="btn-submit" text={lang.tr('saveChanges')} intent={Intent.PRIMARY} />
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 
@@ -138,7 +100,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   renameFlow,
-  fetchTopics
+  fetchTopics,
+  fetchFlows
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditTopicModal)

@@ -1,22 +1,46 @@
-import { ChatUserAuth } from 'common/typings'
+import { ChatUserAuth, StoredToken, TokenUser } from 'common/typings'
+import moment from 'moment'
 import ms from 'ms'
 
 import api from '../api'
 import history from '../history'
-
 export const TOKEN_KEY = 'bp/token'
 export const WORKSPACE_KEY = 'bp/workspace'
 export const CHAT_USER_AUTH_KEY = 'bp/chat_user_auth'
 const HOME_ROUTE = '/home'
 
-export function pullToken() {
-  const ls = localStorage.getItem(TOKEN_KEY)
-  return (ls && JSON.parse(ls)) || { token: null, expires: 0 }
+export const REFRESH_INTERVAL = ms('5m')
+const MIN_MS_LEFT_BEFORE_REFRESH = ms('10m')
+
+export const getToken = (onlyToken: boolean = true): StoredToken | string | undefined => {
+  const token = localStorage.getItem(TOKEN_KEY)
+  const parsed = token && JSON.parse(token)
+
+  return onlyToken ? parsed && parsed.token : parsed
 }
 
-export function setToken(token, expiresAt) {
-  const ls = JSON.stringify({ token, expires: expiresAt || Date.now() + ms('4h'), time: new Date() })
-  localStorage.setItem(TOKEN_KEY, ls)
+export const setToken = (token: string): void => {
+  const [, payload] = token.split('.')
+  const tokenUser = JSON.parse(atob(payload)) as TokenUser
+  const storedToken: StoredToken = { token, expiresAt: tokenUser.exp!, issuedAt: tokenUser.iat! }
+
+  localStorage.setItem(TOKEN_KEY, JSON.stringify(storedToken))
+}
+
+export const isTokenValid = (): boolean => {
+  const storedToken = getToken(false) as StoredToken
+  if (storedToken) {
+    const { token, expiresAt } = storedToken
+    return !!token && moment().unix() < expiresAt
+  }
+  return false
+}
+
+export const tokenNeedsRefresh = () => {
+  const tokenData = getToken(false) as StoredToken
+  const duration = moment.duration(moment.unix(tokenData.expiresAt).diff(moment()))
+
+  return duration.asMilliseconds() < MIN_MS_LEFT_BEFORE_REFRESH
 }
 
 export function setActiveWorkspace(workspaceName) {
@@ -62,8 +86,7 @@ export default class BasicAuthentication {
       .getAnonymous({ toastErrors: false })
       .post('/auth' + loginUrl, credentials, { timeout: 15000 })
 
-    const { token } = data.payload
-    this.setSession({ expiresIn: 7200, idToken: token })
+    setToken(data.payload.token)
 
     await this.afterLoginRedirect(returnTo)
   }
@@ -105,22 +128,10 @@ export default class BasicAuthentication {
       password
     })
 
-    this.setSession({ expiresIn: 7200, idToken: data.payload.token })
+    setToken(data.payload.token)
     await this.afterLoginRedirect()
 
     history.replace(HOME_ROUTE)
-  }
-
-  setSession({ expiresIn, idToken }) {
-    // Set the time that the access token will expire at
-    const expiresAt = JSON.stringify((expiresIn || 7200) * 1000 + new Date().getTime())
-    setToken(idToken, expiresAt)
-  }
-
-  parseJwt(token) {
-    const base64Url = token.split('.')[1]
-    const base64 = base64Url.replace('-', '+').replace('_', '/')
-    return JSON.parse(window.atob(base64))
   }
 
   logout = () => {
@@ -128,9 +139,6 @@ export default class BasicAuthentication {
   }
 
   isAuthenticated() {
-    // Check whether the current time is past the
-    // access token's expiry time
-    const { token, expires } = pullToken()
-    return token && new Date().getTime() < expires
+    return isTokenValid()
   }
 }

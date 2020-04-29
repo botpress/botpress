@@ -24,10 +24,10 @@ export type FlaggedEvent = {
   language: string
   preview: string
   reason: FLAG_REASON
-  status: FLAGGED_MESSAGE_STATUS
-  resolutionType: RESOLUTION_TYPE
-  resolution: string | null
-  resolutionParams: string | object | null
+  status?: FLAGGED_MESSAGE_STATUS
+  resolutionType?: RESOLUTION_TYPE
+  resolution?: string | null
+  resolutionParams?: string | object | null
 }
 
 export type DbFlaggedEvent = FlaggedEvent & {

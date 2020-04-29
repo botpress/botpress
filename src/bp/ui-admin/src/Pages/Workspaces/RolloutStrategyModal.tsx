@@ -1,10 +1,9 @@
 import { Button, Radio, RadioGroup } from '@blueprintjs/core'
+import { Dialog } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
-
-import { BaseDialog, DialogBody, DialogFooter } from '../Components/BaseDialog'
 
 import InviteCode from './InviteCode'
 
@@ -81,14 +80,14 @@ const RolloutStrategyModal: FC<Props> = props => {
   const inviteRequired = ['anonymous-invite', 'authenticated-invite'].includes(strategy)
 
   return (
-    <BaseDialog
+    <Dialog.Wrapper
       title="Rollout Strategy"
       icon="send-to-graph"
       isOpen={props.isOpen}
       onClose={() => props.toggle()}
       size="md"
     >
-      <DialogBody>
+      <Dialog.Body>
         <p>
           The rollout strategy is applied to all bots of the workspace when a user encounters an Auth Gate on the flow.
           Without an Auth Gate, the policy has no effect.
@@ -118,11 +117,11 @@ const RolloutStrategyModal: FC<Props> = props => {
             workspaceId={props.workspaceId}
           />
         )}
-      </DialogBody>
-      <DialogFooter>
+      </Dialog.Body>
+      <Dialog.Footer>
         <Button id="btn-submit" text="Submit" onClick={submit} />
-      </DialogFooter>
-    </BaseDialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

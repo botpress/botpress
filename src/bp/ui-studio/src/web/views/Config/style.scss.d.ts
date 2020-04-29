@@ -7,6 +7,7 @@ interface CssExports {
   'container': string;
   'coverPreview': string;
   'textarea': string;
+  'title': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

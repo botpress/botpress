@@ -1,4 +1,5 @@
 import { Classes, Dialog } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 import ReactTable from 'react-table'
 import { getFlowLabel } from '~/components/Shared/Utils'
@@ -18,13 +19,13 @@ export const UsageModal: FC<Props> = props => {
 
   const columns = [
     {
-      Header: 'Type',
+      Header: lang.tr('type'),
       filterable: false,
       accessor: 'type',
       width: 100
     },
     {
-      Header: 'Name',
+      Header: lang.tr('name'),
       filterable: false,
       accessor: 'name',
       Cell: x => {
@@ -34,7 +35,7 @@ export const UsageModal: FC<Props> = props => {
       }
     },
     {
-      Header: 'Node',
+      Header: lang.tr('studio.content.usageModal.node'),
       filterable: false,
       accessor: 'node',
       Cell: x => {
@@ -43,7 +44,7 @@ export const UsageModal: FC<Props> = props => {
       }
     },
     {
-      Header: 'Count',
+      Header: lang.tr('count'),
       filterable: false,
       accessor: 'count',
       width: 80,
@@ -73,7 +74,7 @@ export const UsageModal: FC<Props> = props => {
   const pageCount = Math.ceil(props.usage.length / getPageSize)
   return (
     <Dialog
-      title="Content Usage"
+      title={lang.tr('studio.content.usageModal.contentUsage')}
       isOpen={props.isOpen}
       className={style.modal}
       onClose={props.handleClose}
@@ -91,6 +92,11 @@ export const UsageModal: FC<Props> = props => {
           defaultPageSize={getPageSize}
           className="-striped -highlight"
           pages={pageCount}
+          previousText={lang.tr('previous')}
+          nextText={lang.tr('next')}
+          pageText={lang.tr('page')}
+          ofText={lang.tr('of')}
+          rowsText={lang.tr('rows')}
         />
       </div>
     </Dialog>

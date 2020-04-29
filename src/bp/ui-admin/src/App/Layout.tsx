@@ -1,8 +1,11 @@
 import { Alignment, Icon, Navbar } from '@blueprintjs/core'
-import { UserProfile } from 'common/typings'
-import React, { FC, Fragment, useEffect } from 'react'
+import { lang } from 'botpress/shared'
+import { StoredToken, UserProfile } from 'common/typings'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { NavLink } from 'reactstrap'
+import api from '~/api'
+import { getToken, REFRESH_INTERVAL, setToken, tokenNeedsRefresh } from '~/Auth'
 import WorkspaceSelect from '~/Pages/Components/WorkspaceSelect'
 
 import logo from '../media/logo_white.png'
@@ -10,6 +13,7 @@ import { fetchLicensing } from '../reducers/license'
 import { fetchProfile } from '../reducers/user'
 import { fetchCurrentVersion } from '../reducers/versions'
 
+import CommandPalette from './CommandPalette'
 import Menu from './Menu'
 import UserDropdownMenu from './UserDropdownMenu'
 
@@ -23,6 +27,8 @@ interface Props {
 }
 
 const App: FC<Props> = props => {
+  const [tokenInterval, setTokenInterval] = useState()
+
   useEffect(() => {
     props.fetchLicensing()
     props.fetchProfile()
@@ -30,7 +36,35 @@ const App: FC<Props> = props => {
     if (!props.version) {
       props.fetchCurrentVersion()
     }
+
+    setTokenInterval(
+      setInterval(async () => {
+        await tryRefreshToken()
+      }, REFRESH_INTERVAL)
+    )
   }, [])
+
+  const tryRefreshToken = async () => {
+    try {
+      if (!tokenNeedsRefresh()) {
+        return
+      }
+
+      const tokenData = getToken(false) as StoredToken
+
+      const { data } = await api.getSecured().get(`/auth/refresh`)
+      const { newToken } = data.payload
+
+      if (newToken !== tokenData.token) {
+        setToken(newToken)
+        console.log(`Token refreshed successfully`)
+      } else {
+        clearInterval(tokenInterval)
+      }
+    } catch (err) {
+      console.error(`Error validating & refreshing token`, err)
+    }
+  }
 
   if (!props.profile) {
     return null
@@ -41,6 +75,7 @@ const App: FC<Props> = props => {
   return (
     <Fragment>
       <Header />
+      <CommandPalette />
 
       <div className="bp-sa-wrapper">
         <Menu />
@@ -77,11 +112,7 @@ const Header = () => (
 
 const Footer = props => (
   <footer className="statusBar">
-    <div className="statusBar-list">
-      <div className="statusBar-item">
-        <strong>{props.version}</strong>
-      </div>
-    </div>
+    <div className="statusBar-item">{props.version}</div>
   </footer>
 )
 
@@ -89,7 +120,7 @@ const Unlicensed = () => (
   <div className="bp-header__warning">
     <NavLink href="/admin/server/license">
       <Icon icon="warning-sign" />
-      Botpress is currently not licensed. Please update your license to re-enable all features.
+      {lang.tr('admin.botpressIsNotLicensed')}
     </NavLink>
   </div>
 )
@@ -106,7 +137,4 @@ const mapDispatchToProps = {
   fetchCurrentVersion
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App)
+export default connect(mapStateToProps, mapDispatchToProps)(App)

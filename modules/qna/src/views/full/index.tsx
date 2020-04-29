@@ -1,14 +1,14 @@
-import { Button, ControlGroup, Intent } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { Button, Intent } from '@blueprintjs/core'
+import { confirmDialog, lang } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
-import classnames from 'classnames'
-import React, { Component } from 'react'
-import { ButtonToolbar, FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
-import Select from 'react-select'
+import cx from 'classnames'
+import React, { Component, Fragment } from 'react'
+import { FormControl, FormGroup, Pagination, Panel } from 'react-bootstrap'
 
 import './button.css'
 import style from './style.scss'
+import { ContextSelector } from './ContextSelector'
 import EditorModal from './Editor/EditorModal'
 import { ExportButton } from './ExportButton'
 import { ImportModal } from './ImportModal'
@@ -16,7 +16,7 @@ import Item from './Item'
 
 export { LiteEditor } from './LiteEditor'
 
-const ITEMS_PER_PAGE = 5
+const ITEMS_PER_PAGE = 20
 const QNA_PARAM_NAME = 'id'
 
 interface Props {
@@ -35,13 +35,11 @@ export default class QnaAdmin extends Component<Props> {
     page: 1,
     overallItemsCount: 0,
     showQnAModal: false,
-    category: '',
     isEditing: false,
     importDialogOpen: false,
-    categoryOptions: [],
-    filterCategory: [],
     filterQuestion: '',
-    selectedQuestion: []
+    selectedQuestion: [],
+    filterContexts: []
   }
 
   fetchFlows() {
@@ -64,17 +62,8 @@ export default class QnaAdmin extends Component<Props> {
     })
   }
 
-  fetchCategories() {
-    this.props.bp.axios.get('/mod/qna/categories').then(({ data: { categories } }) => {
-      if (categories) {
-        const categoryOptions = categories.map(category => ({ label: category, value: category }))
-        this.setState({ categoryOptions })
-      }
-    })
-  }
-
-  componentDidUpdate(prevprops) {
-    if (prevprops.contentLang !== this.props.contentLang) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.contentLang !== this.props.contentLang) {
       this.filterOrFetch()
     }
     this.editQnaFromPath()
@@ -83,7 +72,6 @@ export default class QnaAdmin extends Component<Props> {
   componentDidMount() {
     this.filterOrFetch()
     this.fetchFlows()
-    this.fetchCategories()
     this.editQnaFromPath()
   }
 
@@ -112,8 +100,6 @@ export default class QnaAdmin extends Component<Props> {
     }
   }
 
-  onCategoriesFilter = filterCategory => this.setState({ filterCategory }, this.filterQuestions)
-
   onQuestionsFilter = event => this.setState({ filterQuestion: event.target.value }, this.filterQuestions)
 
   filterQuestions = (page = 1) => {
@@ -124,8 +110,8 @@ export default class QnaAdmin extends Component<Props> {
 
   renderPagination = () => {
     const pagesCount = Math.ceil(this.state.overallItemsCount / ITEMS_PER_PAGE)
-    const { filterQuestion, filterCategory } = this.state
-    const isFilter = filterQuestion || filterCategory.length
+    const { filterQuestion, filterContexts } = this.state
+    const isFilter = filterQuestion || filterContexts.length
 
     if (pagesCount <= 1) {
       return null
@@ -168,76 +154,73 @@ export default class QnaAdmin extends Component<Props> {
   }
 
   renderQnAHeader = () => (
-    <FormGroup className={style.qnaHeader}>
-      <ButtonToolbar>
+    <Fragment>
+      <FormGroup className={style.qnaHeader}>
         <div className={style.searchBar}>{this.renderSearch()}</div>
-        <ControlGroup style={{ float: 'right' }}>
+        <div className={style.headerBtns}>
           <AccessControl resource="module.qna" operation="write">
             <Button
-              text="Import JSON"
+              text={lang.tr('module.qna.importJson')}
               icon="download"
               id="btn-importJson"
               onClick={() => this.setState({ importDialogOpen: true })}
             />
           </AccessControl>
           <ExportButton />
-        </ControlGroup>
-      </ButtonToolbar>
 
+          <AccessControl resource="module.qna" operation="write">
+            <Button
+              id="btn-create-qna"
+              text={lang.tr('module.qna.addNew')}
+              icon="add"
+              intent={Intent.PRIMARY}
+              onClick={() => this.setState({ isEditing: false, currentItemId: null, showQnAModal: true })}
+            />
+          </AccessControl>
+        </div>
+      </FormGroup>
       <ImportModal
         axios={this.props.bp.axios}
         onImportCompleted={this.fetchData}
         isOpen={this.state.importDialogOpen}
         toggle={() => this.setState({ importDialogOpen: !this.state.importDialogOpen })}
       />
-    </FormGroup>
+    </Fragment>
   )
 
   renderSearch = () => (
-    <React.Fragment>
+    <Fragment>
       <FormControl
         id="input-search"
         value={this.state.filterQuestion}
         onChange={this.onQuestionsFilter}
-        placeholder="Search for a question"
+        placeholder={lang.tr('module.qna.search')}
         className={style.searchField}
       />
 
-      <Select
-        id="select-category"
+      <ContextSelector
         className={style.categoryFilter}
-        isMulti
-        value={this.state.filterCategory}
-        options={this.state.categoryOptions}
-        onChange={this.onCategoriesFilter}
-        placeholder="Search for a category"
+        contexts={this.state.filterContexts}
+        saveContexts={contexts => this.setState({ filterContexts: contexts }, this.filterQuestions)}
+        bp={this.props.bp}
+        isSearch
       />
-
-      <AccessControl resource="module.qna" operation="write">
-        <Button
-          id="btn-create-qna"
-          text="Add new"
-          icon="add"
-          intent={Intent.PRIMARY}
-          onClick={() => this.setState({ isEditing: false, currentItemId: null, showQnAModal: true })}
-        />
-      </AccessControl>
-    </React.Fragment>
+    </Fragment>
   )
 
   getQueryParams = (overridePage?: number) => {
-    const { filterQuestion, filterCategory, page } = this.state
+    const { filterQuestion, filterContexts, page } = this.state
     return {
       question: filterQuestion,
-      categories: filterCategory.map(({ value }) => value),
+      filteredContexts: filterContexts,
       limit: ITEMS_PER_PAGE,
       offset: ((overridePage || page) - 1) * ITEMS_PER_PAGE
     }
   }
 
   deleteItem = (id: string) => async () => {
-    const needDelete = await confirmDialog('Do you want to delete the question?', {
-      acceptLabel: 'Delete'
+    const needDelete = await confirmDialog(lang.tr('module.qna.confirmDelete'), {
+      acceptLabel: lang.tr('delete')
     })
     const params = this.getQueryParams()
 
@@ -275,21 +258,32 @@ export default class QnaAdmin extends Component<Props> {
 
   questionsList = () => {
     if (!this.state.items.length) {
-      return <h3>No questions have been added yet.</h3>
+      return <h3>{lang.tr('module.qna.noQuestionsYet')}</h3>
     }
 
-    return this.state.items.map(({ id, data }) => (
-      <Item
-        key={id}
-        id={id}
-        item={data}
-        flows={this.state.flows}
-        contentLang={this.props.contentLang}
-        onEditItem={this.editItem(id)}
-        onToggleItem={this.toggleEnableItem.bind(this)}
-        onDeleteItem={this.deleteItem(id)}
-      />
-    ))
+    return (
+      <div className={style.questionTable}>
+        <div className={cx(style.questionTableRow, style.header)}>
+          <div className={cx(style.questionTableCell, style.question)}>{lang.tr('module.qna.question')}</div>
+          <div className={style.questionTableCell}>{lang.tr('module.qna.answer')}</div>
+          <div className={style.questionTableCell}>{lang.tr('module.qna.contexts')}</div>
+          <div className={cx(style.questionTableCell, style.actions)}></div>
+        </div>
+        {this.state.items.map(({ id, data }, index) => (
+          <Item
+            key={id}
+            id={id}
+            item={data}
+            last={!this.state.items[index + 1]}
+            flows={this.state.flows}
+            contentLang={this.props.contentLang}
+            onEditItem={this.editItem(id)}
+            onToggleItem={this.toggleEnableItem.bind(this)}
+            onDeleteItem={this.deleteItem(id)}
+          />
+        ))}
+      </div>
+    )
   }
 
   updateQuestion = ({ items }) => this.setState({ items })
@@ -298,7 +292,7 @@ export default class QnaAdmin extends Component<Props> {
     return (
       <Container sidePanelHidden>
         <div />
-        <Panel className={classnames(style.qnaContainer, 'qnaContainer')}>
+        <Panel className={cx(style.qnaContainer, 'qnaContainer')}>
           <Panel.Body>
             {this.renderQnAHeader()}
             {this.renderPagination()}
@@ -311,13 +305,13 @@ export default class QnaAdmin extends Component<Props> {
               bp={this.props.bp}
               showQnAModal={this.state.showQnAModal}
               closeQnAModal={this.closeQnAModal}
-              categories={this.state.categoryOptions}
               fetchData={this.fetchData}
               id={this.state.currentItemId}
               isEditing={this.state.isEditing}
+              defaultContext="global"
               page={{ offset: (this.state.page - 1) * ITEMS_PER_PAGE, limit: ITEMS_PER_PAGE }}
               updateQuestion={this.updateQuestion}
-              filters={{ question: this.state.filterQuestion, categories: this.state.filterCategory }}
+              filters={{ question: this.state.filterQuestion, contexts: this.state.filterContexts }}
             />
           </Panel.Body>
         </Panel>

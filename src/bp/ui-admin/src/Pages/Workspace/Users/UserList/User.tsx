@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import { WorkspaceUser } from 'common/typings'
 import _ from 'lodash'
 import moment from 'moment'
@@ -32,18 +33,18 @@ const User: FC<Props> = ({ user, showPicture, currentUserEmail, onUserUpdated, o
 
           <p>
             <span className="emailField">
-              <b>Email: </b>
+              <b>{lang.tr('email')}: </b>
               {user.email} ({user.strategy})
             </span>
           </p>
         </div>
         <div className="dates">
           <span className="field">
-            <b>Created: </b>
+            <b>{lang.tr('admin.workspace.users.collaborators.created')}: </b>
             {moment(user.attributes.created_at || user.attributes.createdOn).fromNow()}
           </span>
           <span className="field">
-            <b>Last Login: </b>
+            <b>{lang.tr('admin.workspace.users.collaborators.lastLogin')}: </b>
             {user.attributes.last_logon ? moment(user.attributes.last_logon).fromNow() : 'never'}
           </span>
         </div>

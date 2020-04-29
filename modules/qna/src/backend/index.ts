@@ -1,26 +1,29 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import api from './api'
-import { initBot, initModule } from './setup'
-import Storage from './storage'
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
 
-const botScopedStorage: Map<string, Storage> = new Map<string, Storage>()
+import api from './api'
+import { ScopedBots } from './qna'
+import { initBot, initModule } from './setup'
+
+const bots: ScopedBots = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
-  await initModule(bp, botScopedStorage)
+  await initModule(bp, bots)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, botScopedStorage)
+  await api(bp, bots)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
-  await initBot(bp, botScopedStorage, botId)
+  await initBot(bp, botId, bots)
 }
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {
-  botScopedStorage.delete(botId)
+  delete bots[botId]
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
@@ -28,10 +31,35 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('qna')
 }
 
+const onTopicChanged = async (bp: typeof sdk, botId: string, oldName: string, newName: string) => {
+  const isRenaming = !!(oldName && newName)
+  const isDeleting = !newName
+
+  if (!isRenaming && !isDeleting) {
+    return
+  }
+
+  const { storage } = bots[botId]
+  const questions = await storage.getQuestions({ filteredContexts: [oldName] }, { limit: 150, offset: 0 })
+
+  for (const item of questions.items) {
+    const ctxIdx = item.data.contexts.indexOf(oldName)
+    if (ctxIdx !== -1) {
+      item.data.contexts.splice(ctxIdx, 1)
+
+      if (isRenaming) {
+        item.data.contexts.push(newName)
+      }
+
+      await storage.update(item.data, item.id)
+    }
+  }
+}
+
 const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {
   const oldFlow = await bp.ghost.forBot(botId).readFileAsObject<sdk.Flow>('./flows', newFlow.location)
-  const qnaStorage = botScopedStorage.get(botId)
-  const questions = await qnaStorage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
+  const { storage } = bots[botId]
+  const questions = await storage.getQuestions({ question: '', filteredContexts: [] }, { limit: 0, offset: 0 })
 
   // Detect nodes that had their name changed
   for (const oldNode of oldFlow.nodes) {
@@ -46,7 +74,7 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
           })
 
         for (const item of updatedItems) {
-          await qnaStorage.update(item.data, item.id)
+          await storage.update(item.data, item.id)
           bp.logger.debug(`References to node "${oldNode.name}" have been updated to "${newNode.name}"`)
         }
       }
@@ -55,8 +83,8 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
 }
 
 const onFlowRenamed = async (bp: typeof sdk, botId: string, previousFlowName: string, newFlowName: string) => {
-  const qnaStorage = botScopedStorage.get(botId)
-  const questions = await qnaStorage.getQuestions({ question: '', categories: [] }, { limit: 0, offset: 0 })
+  const { storage } = bots[botId]
+  const questions = await storage.getQuestions({}, { limit: 0, offset: 0 })
 
   const updatedItems = questions.items
     .filter(q => q.data.redirectFlow === previousFlowName)
@@ -66,7 +94,7 @@ const onFlowRenamed = async (bp: typeof sdk, botId: string, previousFlowName: st
     })
 
   for (const item of updatedItems) {
-    await qnaStorage.update(item.data, item.id)
+    await storage.update(item.data, item.id)
     bp.logger.debug(`References to flow "${previousFlowName}" have been updated to "${newFlowName}"`)
   }
 }
@@ -77,8 +105,10 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
+  onTopicChanged,
   onFlowChanged,
   onFlowRenamed,
+  translations: { en, fr },
   definition: {
     name: 'qna',
     menuIcon: 'question_answer',

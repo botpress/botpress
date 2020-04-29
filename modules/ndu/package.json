@@ -1,7 +1,9 @@
 {
   "name": "ndu",
+  "fullName": "Natural Dialog Understanding",
   "version": "1.0.0",
-  "description": "Natural Dialog Understanding",
+  "status": "experimental",
+  "description": "Provides a new experience to understand conversations",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",
@@ -17,6 +19,7 @@
     "joi": "^13.6.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "ms": "^2.1.2"
+    "ms": "^2.1.2",
+    "nanoid": "^2.1.11"
   }
 }

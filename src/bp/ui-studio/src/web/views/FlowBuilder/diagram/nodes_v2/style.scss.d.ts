@@ -3,17 +3,22 @@
 interface CssExports {
   'baseNode': string;
   'content': string;
+  'fullSize': string;
   'header': string;
   'highlightedNode': string;
   'in': string;
   'item': string;
+  'nodeAction': string;
   'nodeExecute': string;
   'nodeFailure': string;
   'nodeListen': string;
   'nodeRouter': string;
   'nodeSaySomething': string;
   'nodeSuccess': string;
+  'nodeTrigger': string;
+  'nodeTriggerConditions': string;
   'out': string;
+  'outRouting': string;
   'ports': string;
   'section-next': string;
 }

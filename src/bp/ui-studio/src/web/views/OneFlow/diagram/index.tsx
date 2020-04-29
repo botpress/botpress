@@ -2,7 +2,6 @@ import {
   Button,
   ContextMenu,
   ControlGroup,
-  Icon,
   InputGroup,
   Intent,
   Menu,
@@ -12,12 +11,14 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { lang, MainContent } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
 import {
+  addElementToLibrary,
   buildNewSkill,
   closeFlowNodeProps,
   copyFlowNode,
@@ -28,16 +29,14 @@ import {
   openFlowNodeProps,
   pasteFlowNode,
   removeFlowNode,
-  setDiagramAction,
   switchFlow,
   switchFlowNode,
   updateFlow,
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { Timeout, toastInfo } from '~/components/Shared/Utils'
-import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
-import { prettyId } from '~/util'
+import { toastSuccess } from '~/components/Shared/Utils'
+import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import {
   defaultTransition,
   DIAGRAM_PADDING,
@@ -48,13 +47,41 @@ import {
 import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
+import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
+import { ActionWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ActionNode'
 import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
 import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
-import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
+import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
+import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
+
+import TriggerEditor from './TriggerEditor'
+import WorkflowToolbar from './WorkflowToolbar'
+
+interface OwnProps {
+  showSearch: boolean
+  hideSearch: () => void
+  readOnly: boolean
+  canPasteNode: boolean
+  flowPreview: boolean
+  highlightFilter: string
+  handleFilterChanged: (event: any) => void
+}
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+type Props = DispatchProps & StateProps & OwnProps
+
+type BpNodeModel = StandardNodeModel | SkillCallNodeModel
+
+type ExtendedDiagramEngine = {
+  enableLinkPoints?: boolean
+  flowBuilder?: any
+} & DiagramEngine
 
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
@@ -65,7 +92,9 @@ class Diagram extends Component<Props> {
   private dragPortSource: any
 
   state = {
-    highlightFilter: ''
+    highlightFilter: '',
+    currentTriggerNode: null,
+    isTriggerEditOpen: false
   }
 
   constructor(props) {
@@ -78,13 +107,19 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new TriggerWidgetFactory())
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
+
+    if (this.props.highlightFilter) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
+    }
 
     // @ts-ignore
     window.highlightNode = (flowName: string, nodeName: string) => {
@@ -150,9 +185,15 @@ class Diagram extends Component<Props> {
       this.manager.syncModel()
     }
 
+    // Refresh nodes when the filter is displayed
+    if (this.props.highlightFilter && this.props.showSearch) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.syncModel()
+    }
+
     // Refresh nodes when the filter is updated
-    if (this.state.highlightFilter !== prevState.highlightFilter) {
-      this.manager.setHighlightedNodes(this.state.highlightFilter)
+    if (this.props.highlightFilter !== prevProps.highlightFilter) {
+      this.manager.setHighlightedNodes(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
@@ -160,11 +201,6 @@ class Diagram extends Component<Props> {
     if (!this.props.showSearch && prevProps.showSearch) {
       this.manager.setHighlightedNodes([])
       this.manager.syncModel()
-    }
-
-    // Reset search when toggled
-    if (this.props.showSearch && !prevProps.showSearch) {
-      this.setState({ highlightFilter: '' })
     }
   }
 
@@ -203,18 +239,47 @@ class Diagram extends Component<Props> {
   add = {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
+    triggerNode: (point: Point, moreProps) => {
+      this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition], ...moreProps })
+    },
     sayNode: (point: Point, moreProps) => {
-      this.props.createFlowNode({ ...point, type: 'say_something', next: [defaultTransition], ...moreProps })
+      this.props.createFlowNode({
+        ...point,
+        type: 'say_something',
+        content: { contentType: 'builtin_text' },
+        next: [defaultTransition],
+        ...moreProps
+      })
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
     listenNode: (point: Point) =>
-      this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
-    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' })
+      this.props.createFlowNode({
+        ...point,
+        type: 'listen',
+        onReceive: [],
+        next: [defaultTransition],
+        triggers: [{ conditions: [{ id: 'always' }] }]
+      }),
+    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
+    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' })
+  }
+
+  onDiagramDoubleClick = (event?: MouseEvent) => {
+    if (!event) {
+      return
+    }
+
+    const target = this.diagramWidget.getMouseElement(event)
+
+    if (target?.model instanceof TriggerNodeModel) {
+      this.editTriggers(target.model)
+    }
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
     const point = this.manager.getRealPosition(event)
+    const originatesFromOutPort = _.get(this.dragPortSource, 'parent.sourcePort.name', '').startsWith('out')
 
     // When no element is chosen from the context menu, we reset the start port so it doesn't impact the next selected node
     let clearStartPortOnClose = true
@@ -227,21 +292,35 @@ class Diagram extends Component<Props> {
     ContextMenu.show(
       <Menu>
         {this.props.canPasteNode && (
-          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
+          <MenuItem icon="clipboard" text={lang.tr('paste')} onClick={() => this.pasteElementFromBuffer(point)} />
         )}
-        <MenuDivider title="Add Node" />
-        <MenuItem text="Standard Node" onClick={wrap(this.add.flowNode, point)} icon="chat" />
+        <MenuDivider title={lang.tr('studio.flow.addNode')} />
+        {!originatesFromOutPort && (
+          <MenuItem
+            text={lang.tr('studio.flow.nodeType.trigger')}
+            onClick={wrap(this.add.triggerNode, point)}
+            icon="send-to-graph"
+          />
+        )}
+        <MenuItem
+          text={lang.tr('studio.flow.nodeType.sendMessage')}
+          onClick={wrap(this.add.sayNode, point)}
+          icon="comment"
+        />
+        <MenuItem
+          text={lang.tr('studio.flow.nodeType.executeAction')}
+          onClick={wrap(this.add.executeNode, point)}
+          icon="code-block"
+        />
+        <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
+        <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
+        <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
-        <MenuItem text="Say" onClick={wrap(this.add.sayNode, point)} icon="comment" />
-        <MenuItem text="Execute" onClick={wrap(this.add.executeNode, point)} icon="code-block" />
-        <MenuItem text="Listen" onClick={wrap(this.add.listenNode, point)} icon="hand" />
-        <MenuItem text="Router" onClick={wrap(this.add.routerNode, point)} icon="search-around" />
-
-        <MenuItem tagName="button" text="Skills" icon="add">
+        <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
               key={skill.id}
-              text={skill.name}
+              text={lang.tr(skill.name)}
               tagName="button"
               onClick={wrap(this.add.skillNode, point, skill.id)}
               icon={skill.icon}
@@ -268,19 +347,15 @@ class Diagram extends Component<Props> {
     }
 
     const targetModel = target && target.model
-    const targetName = _.get(target, 'model.name')
     const point = this.manager.getRealPosition(event)
 
-    const setAsCurrentNode = () => this.props.updateFlow({ startNode: targetName })
-
     const isNodeTargeted = targetModel instanceof NodeModel
+    const isTriggerNode = targetModel instanceof TriggerNodeModel
     const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
 
-    const isStartNode = targetName === this.props.currentFlow.startNode
     const isSuccessNode = targetModel instanceof SuccessNodeModel
     const isFailureNode = targetModel instanceof FailureNodeModel
-    const canDeleteNode = !(isStartNode || isSuccessNode || isFailureNode)
-    const canMakeStartNode = !(isStartNode || isSuccessNode || isFailureNode)
+    const canDeleteNode = !(isSuccessNode || isFailureNode)
 
     // Prevents displaying an empty menu
     if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
@@ -296,53 +371,43 @@ class Diagram extends Component<Props> {
     ContextMenu.show(
       <Menu>
         {!isNodeTargeted && this.props.canPasteNode && (
-          <MenuItem icon="clipboard" text="Paste" onClick={() => this.pasteElementFromBuffer(point)} />
+          <MenuItem icon="clipboard" text={lang.tr('paste')} onClick={() => this.pasteElementFromBuffer(point)} />
         )}
         {isNodeTargeted && (
           <Fragment>
+            {isTriggerNode && (
+              <MenuItem icon="edit" text={lang.tr('edit')} onClick={() => this.editTriggers(targetModel)} />
+            )}
             <MenuItem
               icon="trash"
-              text="Delete"
+              text={lang.tr('delete')}
               disabled={!canDeleteNode}
               onClick={() => this.deleteSelectedElements()}
             />
             <MenuItem
               icon="duplicate"
-              text="Copy"
+              text={lang.tr('copy')}
               onClick={() => {
                 this.props.switchFlowNode(targetModel.id)
                 this.copySelectedElementToBuffer()
               }}
             />
-            <MenuDivider />
-            <MenuItem
-              icon="star"
-              text="Set as Start Node"
-              disabled={!canMakeStartNode}
-              onClick={() => setAsCurrentNode()}
-            />
-            <MenuItem
-              icon="minimize"
-              text="Disconnect Node"
-              onClick={() => {
-                this.manager.disconnectPorts(target)
-                this.checkForLinksUpdate()
-              }}
-            />
             {isLibraryNode && (
               <MenuItem
                 icon="book"
-                text="Add to library"
+                text={lang.tr('studio.flow.addToLibrary')}
                 onClick={() => {
-                  console.log(targetModel)
+                  const elementId = textToItemId((targetModel as SaySomethingNodeModel).onEnter?.[0])
+                  this.props.addElementToLibrary(elementId)
+                  toastSuccess(`Added to library`)
                 }}
               />
             )}
             {this.props.flowPreview && canAddChipToTarget ? (
               <React.Fragment>
                 <MenuDivider />
-                <MenuItem text="Chips">
-                  <MenuItem text="Transition" onClick={addTransitionNode} icon="flow-end" />
+                <MenuItem text={lang.tr('studio.flow.chips')}>
+                  <MenuItem text={lang.tr('studio.flow.transition')} onClick={addTransitionNode} icon="flow-end" />
                 </MenuItem>
               </React.Fragment>
             ) : null}
@@ -353,32 +418,12 @@ class Diagram extends Component<Props> {
     )
   }
 
-  checkForProblems() {
+  checkForProblems = _.debounce(() => {
     this.props.updateFlowProblems(this.manager.getNodeProblems())
-  }
+  }, 500)
 
   createFlow(name: string) {
     this.props.createFlow(name + '.flow.json')
-  }
-
-  onDiagramDoubleClick = (event?: MouseEvent) => {
-    if (event) {
-      // We only keep 3 events for dbl click: full flow, standard nodes and skills. Adding temporarily router so it's editable
-      const target = this.diagramWidget.getMouseElement(event)
-      if (
-        target &&
-        !(
-          target.model instanceof StandardNodeModel ||
-          target.model instanceof SkillCallNodeModel ||
-          target.model instanceof RouterNodeModel
-        )
-      ) {
-        return
-      }
-    }
-
-    // TODO: delete this once 12.2.1 is out
-    toastInfo('Pssst! Just click once a node to inspect it, no need to double-click anymore.', Timeout.LONG)
   }
 
   canTargetOpenInspector = target => {
@@ -388,9 +433,10 @@ class Diagram extends Component<Props> {
 
     const targetModel = target.model
     return (
+      targetModel instanceof SaySomethingNodeModel ||
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
-      target.model instanceof RouterNodeModel
+      targetModel instanceof RouterNodeModel
     )
   }
 
@@ -425,13 +471,28 @@ class Diagram extends Component<Props> {
     this.checkForLinksUpdate()
   }
 
-  checkForLinksUpdate() {
-    const links = this.manager.getLinksRequiringUpdate()
-    if (links) {
-      this.props.updateFlow({ links })
-    }
+  checkForLinksUpdate = _.debounce(
+    () => {
+      if (this.props.readOnly) {
+        return
+      }
 
-    this.checkForProblems()
+      const links = this.manager.getLinksRequiringUpdate()
+      if (links) {
+        this.props.updateFlow({ links })
+      }
+
+      this.checkForProblems()
+    },
+    500,
+    { leading: true }
+  )
+
+  editTriggers(node) {
+    this.setState({
+      currentTriggerNode: node,
+      isTriggerEditOpen: true
+    })
   }
 
   deleteSelectedElements() {
@@ -440,18 +501,12 @@ class Diagram extends Component<Props> {
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
       if (!this.diagramEngine.isModelLocked(element)) {
-        if (element['isStartNode']) {
-          return alert("You can't delete the start node.")
-        } else if (element.type === 'success') {
-          return alert("You can't delete the success node.")
+        if (element.type === 'success') {
+          return alert(lang.tr('studio.flow.cantDeleteSuccess'))
         } else if (element.type === 'failure') {
-          return alert("You can't delete the failure node.")
-        } else if (
-          // @ts-ignore
-          _.includes(nodeTypes, element.nodeType) ||
-          _.includes(nodeTypes, element.type)
-        ) {
-          this.props.removeFlowNode(element.id)
+          return alert(lang.tr('studio.flow.cantDeleteFailure'))
+        } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
+          this.props.removeFlowNode(element)
         } else if (element.type === 'default') {
           element.remove()
           this.checkForLinksUpdate()
@@ -461,6 +516,7 @@ class Diagram extends Component<Props> {
       }
     }
 
+    this.props.closeFlowNodeProps()
     this.diagramWidget.forceUpdate()
     this.checkForProblems()
   }
@@ -470,7 +526,7 @@ class Diagram extends Component<Props> {
     Toaster.create({
       className: 'recipe-toaster',
       position: Position.TOP_RIGHT
-    }).show({ message: 'Copied to buffer' })
+    }).show({ message: lang.tr('studio.flow.copiedToBuffer') })
   }
 
   pasteElementFromBuffer(position?) {
@@ -508,21 +564,21 @@ class Diagram extends Component<Props> {
     return (
       <div style={{ display: 'flex', marginTop: 5 }}>
         <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag> flow-wide
-          {nbNext === 1 ? ' transition' : ' transitions'}
+          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag>
+          {lang.tr('studio.flow.flowWideTransitions', { count: nbNext })}
         </Button>
         <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag> flow-wide
-          {nbReceive === 1 ? ' on receive' : ' on receives'}
+          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>
+          {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
         </Button>
         {this.props.showSearch && (
           <ControlGroup>
             <InputGroup
               id="input-highlight-name"
               tabIndex={1}
-              placeholder="Highlight nodes by name"
-              value={this.state.highlightFilter}
-              onChange={this.handleFilterChanged}
+              placeholder={lang.tr('studio.flow.highlightByName')}
+              value={this.props.highlightFilter}
+              onChange={this.props.handleFilterChanged}
               autoFocus={true}
             />
             <Button icon="small-cross" onClick={this.props.hideSearch} />
@@ -552,7 +608,8 @@ class Diagram extends Component<Props> {
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'say_something':
-          this.add.sayNode(point, data.contentId ? { onEnter: [`say ${data.contentId}`] } : {})
+          const contentId = data.contentId?.startsWith('#!') ? data.contentId : `#!${data.contentId}`
+          this.add.sayNode(point, contentId ? { onEnter: [`say ${contentId}`] } : {})
           break
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
@@ -562,6 +619,9 @@ class Diagram extends Component<Props> {
           break
         case 'router':
           this.add.routerNode(point)
+          break
+        case 'action':
+          this.add.actionNode(point)
           break
         default:
           this.add.flowNode(point)
@@ -585,75 +645,79 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <div
-        id="diagramContainer"
-        ref={ref => (this.diagramContainer = ref)}
-        tabIndex={1}
-        style={{ outline: 'none', width: '100%', height: '100%' }}
-        onContextMenu={this.handleContextMenu}
-        onDrop={this.handleToolDropped}
-        onDragOver={event => event.preventDefault()}
-      >
-        <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+      <MainContent.Wrapper>
+        <WorkflowToolbar />
+        <Fragment>
+          <div
+            id="diagramContainer"
+            ref={ref => (this.diagramContainer = ref)}
+            tabIndex={1}
+            style={{ outline: 'none', width: '100%', height: '100%' }}
+            onContextMenu={this.handleContextMenu}
+            onDrop={this.handleToolDropped}
+            onDragOver={event => event.preventDefault()}
+          >
+            <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
 
-        <DiagramWidget
-          ref={w => (this.diagramWidget = w)}
-          deleteKeys={[]}
+            <DiagramWidget
+              ref={w => (this.diagramWidget = w)}
+              deleteKeys={[]}
+              diagramEngine={this.diagramEngine}
+              inverseZoom={true}
+            />
+          </div>
+
+          <TriggerEditor
+            node={this.state.currentTriggerNode}
+            isOpen={this.state.isTriggerEditOpen}
+            diagramEngine={this.diagramEngine}
+            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
+          />
+        </Fragment>
+      </MainContent.Wrapper>
+    )
+  }
+
+  render22() {
+    return (
+      <Fragment>
+        <div
+          id="diagramContainer"
+          ref={ref => (this.diagramContainer = ref)}
+          tabIndex={1}
+          style={{ outline: 'none', width: '100%', height: '100%' }}
+          onContextMenu={this.handleContextMenu}
+          onDrop={this.handleToolDropped}
+          onDragOver={event => event.preventDefault()}
+        >
+          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+          <DiagramWidget
+            ref={w => (this.diagramWidget = w)}
+            deleteKeys={[]}
+            diagramEngine={this.diagramEngine}
+            inverseZoom={true}
+          />
+        </div>
+
+        <TriggerEditor
+          node={this.state.currentTriggerNode}
+          isOpen={this.state.isTriggerEditOpen}
           diagramEngine={this.diagramEngine}
-          inverseZoom={true}
+          toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
         />
-      </div>
+      </Fragment>
     )
   }
 }
 
-interface Props {
-  currentFlow: any
-  switchFlow: (flowName: string) => void
-  switchFlowNode: (nodeId: string) => any
-  updateFlowProblems: (problems: NodeProblem[]) => void
-  openFlowNodeProps: () => void
-  closeFlowNodeProps: () => void
-  updateFlow: any
-  createFlowNode: (props: any) => void
-  createFlow: (name: string) => void
-  insertNewSkillNode: any
-  updateFlowNode: any
-  fetchFlows: any
-  setDiagramAction: any
-  pasteFlowNode: ({ x, y }) => void
-  currentDiagramAction: any
-  copyFlowNode: () => void
-  currentFlowNode: any
-  removeFlowNode: any
-  buildSkill: any
-  readOnly: boolean
-  canPasteNode: boolean
-  flowPreview: boolean
-  showSearch: boolean
-  hideSearch: () => void
-  skills: any[]
-}
-
-interface NodeProblem {
-  nodeName: string
-  missingPorts: any
-}
-
-type BpNodeModel = StandardNodeModel | SkillCallNodeModel
-
-type ExtendedDiagramEngine = {
-  enableLinkPoints?: boolean
-  flowBuilder?: any
-} & DiagramEngine
-
-const mapStateToProps = state => ({
-  flows: state.flows,
+const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
-  skills: state.skills.installed
+  skills: state.skills.installed,
+  library: state.content.library
 })
 
 const mapDispatchToProps = {
@@ -661,7 +725,6 @@ const mapDispatchToProps = {
   switchFlowNode,
   openFlowNodeProps,
   closeFlowNodeProps,
-  setDiagramAction,
   createFlowNode,
   removeFlowNode,
   createFlow,
@@ -672,12 +735,10 @@ const mapDispatchToProps = {
   pasteFlowNode,
   insertNewSkillNode,
   updateFlowProblems,
-  buildSkill: buildNewSkill
+  buildSkill: buildNewSkill,
+  addElementToLibrary
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-  null,
-  { withRef: true }
-)(Diagram)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {
+  withRef: true
+})(Diagram)

@@ -1,4 +1,5 @@
 import { Button, Intent, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { calculateOverviewForHost, groupEntriesByTime, mergeEntriesByTime, Metric } from 'common/monitoring'
 import _ from 'lodash'
 import moment from 'moment'
@@ -383,7 +384,7 @@ class Monitoring extends Component<Props, State> {
 
   render() {
     return (
-      <PageContainer title="Server Monitoring" fullWidth={true} superAdmin={true}>
+      <PageContainer title={lang.tr('admin.sideMenu.monitoring')} fullWidth superAdmin>
         <CheckRequirements requirements={['redis', 'pro']} feature="monitoring">
           {this.renderChild()}
         </CheckRequirements>

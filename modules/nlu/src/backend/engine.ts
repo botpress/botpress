@@ -1,13 +1,14 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+import * as CacheManager from './cache-manager'
 import { isPOSAvailable } from './language/pos-tagger'
 import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { ListEntity, NLUEngine, Tools, TrainingSession } from './typings'
+import { EntityCacheDump, ListEntity, ListEntityModel, NLUEngine, Tools, TrainingSession } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -96,12 +97,17 @@ export default class Engine implements NLUEngine {
   }
 
   private modelAlreadyLoaded(model: Model) {
+    if (!model?.languageCode) {
+      return false
+    }
+    const lang = model.languageCode
+
     return (
-      this.predictorsByLang[model.languageCode] !== undefined &&
-      this.modelsByLang[model.languageCode] !== undefined &&
-      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input)
-      // TODO compare hash instead (need a migration)
-      // this.modelsByLang[model.languageCode].hash === model.hash
+      !!this.predictorsByLang[lang] &&
+      !!this.modelsByLang[lang] &&
+      !!this.modelsByLang[lang].hash &&
+      !!model.hash &&
+      this.modelsByLang[lang].hash === model.hash
     )
   }
 
@@ -124,9 +130,21 @@ export default class Engine implements NLUEngine {
       model.data.output = { intents } as TrainOutput
     }
 
-    // TODO if model or predictor not valid, throw and retry
+    this._warmEntitiesCaches(_.get(model, 'data.artefacts.list_entities', []))
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
+  }
+
+  private _warmEntitiesCaches(listEntities: ListEntityModel[]) {
+    for (const entity of listEntities) {
+      if (!entity.cache) {
+        // when loading a model trained in a previous version
+        entity.cache = CacheManager.getOrCreateCache(entity.entityName, this.botId)
+      }
+      if (CacheManager.isCacheDump(entity.cache)) {
+        entity.cache = CacheManager.loadCacheFromData(<EntityCacheDump>entity.cache, entity.entityName, this.botId)
+      }
+    }
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
@@ -136,7 +154,7 @@ export default class Engine implements NLUEngine {
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return { ...artefacts, intents: [], pattern_entities: input.pattern_entities } as Predictors
+      return { ...artefacts, contexts: [], intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
 
     const { ctx_model, intent_model_by_ctx, oos_model } = artefacts
@@ -159,7 +177,8 @@ export default class Engine implements NLUEngine {
       slot_tagger,
       kmeans,
       pattern_entities: input.pattern_entities,
-      intents: output.intents
+      intents: output.intents,
+      contexts: input.contexts
     }
   }
 

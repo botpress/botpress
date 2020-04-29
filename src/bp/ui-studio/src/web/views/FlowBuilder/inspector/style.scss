@@ -2,18 +2,24 @@
   background-color: #fcfcfc;
   padding: 5px;
 
-  h4 {
-    padding-top: 10px;
-    padding-left: 10px;
+  &.sideForm {
+    padding: 30px 25px;
   }
 
-  :global(ul[role='tablist'].nav > li > a) {
-    padding: 11px 8px;
-    font-size: 12px;
-  }
+  &:not(.sideForm) {
+    h4 {
+      padding-top: 10px;
+      padding-left: 10px;
+    }
 
-  :global(.tab-content) {
-    padding: 10px 10px;
+    :global(ul[role='tablist'].nav > li > a) {
+      padding: 11px 8px;
+      font-size: 12px;
+    }
+
+    :global(.tab-content) {
+      padding: 10px 10px;
+    }
   }
 }
 

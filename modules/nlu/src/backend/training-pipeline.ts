@@ -1,7 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
+import { getOrCreateCache } from './cache-manager'
+import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
+import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -87,7 +89,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
   debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
-    makeListEntityModel(list, input.languageCode, tools)
+    makeListEntityModel(list, input.botId, input.languageCode, tools)
   )
 
   const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
@@ -99,7 +101,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
   } as TrainOutput
 }
 
-const makeListEntityModel = async (entity: ListEntity, languageCode: string, tools: Tools) => {
+const makeListEntityModel = async (entity: ListEntity, botId: string, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
   const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
     toks.map(convertToRealSpaces)
@@ -117,7 +119,8 @@ const makeListEntityModel = async (entity: ListEntity, languageCode: string, too
         const idx = allValues.indexOf(syn)
         return allTokens[idx]
       })
-    )
+    ),
+    cache: getOrCreateCache(entity.name, botId)
   }
 }
 
@@ -208,7 +211,7 @@ const TrainIntentClassifier = async (
           .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
           .map(utt => ({
             label: i.name,
-            coordinates: utt.sentenceEmbedding
+            coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
           }))
       )
       .filter(x => !x.coordinates.some(isNaN))
@@ -242,7 +245,7 @@ const TrainContextClassifier = async (
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: utt.sentenceEmbedding
+          coordinates: getSentenceEmbeddingForCtx(utt)
         }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
@@ -288,19 +291,17 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
-  // entities are extracted for better slot training so we extract only those which might have slots
-  const utterances = _.chain(input.intents)
-    .filter(i => i.name !== NONE_INTENT && !_.isEmpty(i.slot_definitions))
+  const utterances: Utterance[] = _.chain(input.intents)
+    .filter(i => i.name !== NONE_INTENT)
     .flatMap('utterances')
     .value()
 
-  const allSysEntities = (
-    await tools.duckling.extractMultiple(
-      utterances.map(u => u.toString()),
-      input.languageCode,
-      true
-    )
-  ).map(ents => ents.map(mapE1toE2Entity))
+  // we extract sys entities for all utterances, helps on training and exact matcher
+  const allSysEntities = await tools.duckling.extractMultiple(
+    utterances.map(u => u.toString()),
+    input.languageCode,
+    true
+  )
 
   const customReferencedInSlots = _.chain(input.intents)
     .flatMap('slot_entities')
@@ -308,13 +309,15 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     .value()
 
   // only extract list entities referenced in slots
+  // TODO: remove this once we merge in entity encoding
   const listEntitiesToExtract = input.list_entities.filter(ent => customReferencedInSlots.includes(ent.entityName))
   const pattenEntitiesToExtract = input.pattern_entities.filter(ent => customReferencedInSlots.includes(ent.name))
 
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      const listEntities = extractListEntities(utt, listEntitiesToExtract)
-      const patternEntities = extractPatternEntities(utt, pattenEntitiesToExtract)
+      // TODO: remove this slot check once we merge in entity encoding
+      const listEntities = utt.slots.length ? extractListEntities(utt, listEntitiesToExtract) : []
+      const patternEntities = utt.slots.length ? extractPatternEntities(utt, pattenEntitiesToExtract) : []
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
@@ -419,6 +422,8 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
 const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
+    c: [10],
+    gamma: [0.1],
     kernel: 'LINEAR',
     classifier: 'C_SVC',
     reduce: false

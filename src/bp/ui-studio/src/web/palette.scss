@@ -1,4 +1,7 @@
+@import '../../../ui-shared/src/style/variables.scss';
+
 $background-color: #eee;
+$light-background: #f4f4f4;
 $sidebar-color: #181818;
 $sidebar-hover-color: #111111;
 $content-color: #ffffff;
@@ -34,24 +37,26 @@ $btn-danger-bg-color-hover: #b13434;
 $sidebar-text-color: #aaa;
 $sidebar-primary-color: #58d1b0;
 
-:root {
-  --c-brand--light-2: #66AEE2;
-  --c-brand--light-1: #3393D8;
-  --c-brand: #0078cf;
-  --c-brand--dark-1: #0060A5;
-  --c-brand--dark-2: #00487C;
+$fontFamily: Roboto;
 
-  --c-secondary--dark-2: #FFE666;
-  --c-secondary--dark-1: #FFDE33;
-  --c-secondary: #FFD600;
-  --c-secondary--light-1: #CCAB00;
+:root {
+  --c-brand--light-2: #66aee2;
+  --c-brand--light-1: #3393d8;
+  --c-brand: #0078cf;
+  --c-brand--dark-1: #0060a5;
+  --c-brand--dark-2: #00487c;
+
+  --c-secondary--dark-2: #ffe666;
+  --c-secondary--dark-1: #ffde33;
+  --c-secondary: #ffd600;
+  --c-secondary--light-1: #ccab00;
   --c-secondary--light-2: #998000;
 
-  --c-tertiary--dark-2: #F66CB1;
-  --c-tertiary--dark-1: #F33B97;
+  --c-tertiary--dark-2: #f66cb1;
+  --c-tertiary--dark-1: #f33b97;
   --c-tertiary: #f10a7e;
-  --c-tertiary--light-1: #C00864;
-  --c-tertiary--light-2: #90064B;
+  --c-tertiary--light-1: #c00864;
+  --c-tertiary--light-2: #90064b;
 
   --c-neutral--dark-2: #000;
   --c-neutral--dark-1: #4a4a4a;
@@ -65,10 +70,12 @@ $sidebar-primary-color: #58d1b0;
   --c-background--light-1: #626262;
   --c-background: #555556;
   --c-background--dark-1: #353535;
-  --c-background--dark-2: #1e1e1e;
+  --c-background--dark-2: #1a1e22;
   --c-background--dark-3: #000;
 
+  --c-content-color-darker: #2f2f2f;
   --c-text: var(--c-neutral--dark-1);
+  --c-text--light-gray: #5C7080;
   --c-text--light: #fff;
   --c-text--brand: var(--c-brand);
   --c-text--disabled: #ddd;
@@ -78,3 +85,15 @@ $sidebar-primary-color: #58d1b0;
   --c-positive: #80c18d;
   --c-negative: #d1495a;
 }
+
+// Section New colors from design
+$node-bg: #FCFCFC;
+$border: #D1D3D4;
+$border-active: #5BB3EC;
+$main-dark-color: #030303;
+$main-text-dark-color: #182026;
+$main-warning: #DE4343;
+$node-say-something: #D1E5F2;
+$node-execute: #D5A5BC;
+$node-listen: #FFE699;
+$node-router: #A1C4C9;

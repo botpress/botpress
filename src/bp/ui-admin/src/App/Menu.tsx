@@ -1,4 +1,5 @@
 import { Colors, ControlGroup, Icon, Intent, Tag } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect } from 'react'
@@ -79,11 +80,11 @@ const Menu: FC<MenuProps> = props => {
 
   return (
     <div className="bp-sa-menu">
-      <div className="bp-sa-menu-header"> Workspace</div>
+      <div className="bp-sa-menu-header">{lang.tr('admin.sideMenu.workspace')}</div>
       <ControlGroup vertical={true} fill={true}>
         <MenuItem
           id="btn-menu-bots"
-          text="Bots"
+          text={lang.tr('admin.sideMenu.bots')}
           icon={<MdAndroid color={Colors.GRAY1} />}
           url="/workspace/:workspaceId?/bots"
           resource="user.bots.*"
@@ -91,7 +92,7 @@ const Menu: FC<MenuProps> = props => {
         />
         <MenuItem
           id="btn-menu-users"
-          text="Collaborators"
+          text={lang.tr('admin.sideMenu.collaborators')}
           icon="user"
           url="/workspace/:workspaceId?/users"
           resource="admin.collaborators.*"
@@ -101,7 +102,7 @@ const Menu: FC<MenuProps> = props => {
 
         <MenuItem
           id="btn-menu-roles"
-          text="Roles"
+          text={lang.tr('admin.sideMenu.roles')}
           icon="shield"
           url="/workspace/:workspaceId?/roles"
           resource="admin.roles.*"
@@ -111,7 +112,7 @@ const Menu: FC<MenuProps> = props => {
 
         <MenuItem
           id="btn-menu-logs"
-          text="Logs"
+          text={lang.tr('admin.sideMenu.logs')}
           icon="manual"
           url="/workspace/:workspaceId?/logs"
           resource="admin.logs"
@@ -121,32 +122,58 @@ const Menu: FC<MenuProps> = props => {
 
       <AccessControl superAdmin={true}>
         <Fragment>
-          <div className="bp-sa-menu-header">Management</div>
+          <div className="bp-sa-menu-header">{lang.tr('admin.sideMenu.management')}</div>
           <ControlGroup vertical={true} fill={true}>
-            <MenuItem id="btn-menu-version" text="Source Control" icon="changes" url="/server/version" />
+            <MenuItem
+              id="btn-menu-version"
+              text={lang.tr('admin.sideMenu.sourceControl')}
+              icon="changes"
+              url="/server/version"
+            />
             <MenuItem
               id="btn-menu-license"
-              text="Server License"
+              text={lang.tr('admin.sideMenu.serverLicense')}
               icon={<MdCopyright color={Colors.GRAY1} />}
               url="/server/license"
             />
-            <MenuItem text="Languages" id="btn-menu-language" icon="globe-network" url="/server/languages" />
-            <MenuItem text="Production Checklist" id="btn-menu-checklist" icon="endorsed" url="/checklist" />
+            <MenuItem
+              text={lang.tr('admin.sideMenu.languages')}
+              id="btn-menu-language"
+              icon="globe-network"
+              url="/server/languages"
+            />
+            <MenuItem text={lang.tr('sideMenu.modules')} id="btn-menu-modules" icon="control" url="/modules" />
+            <MenuItem
+              text={lang.tr('admin.sideMenu.productionChecklist')}
+              id="btn-menu-checklist"
+              icon="endorsed"
+              url="/checklist"
+            />
           </ControlGroup>
 
-          <div className="bp-sa-menu-header">Health</div>
+          <div className="bp-sa-menu-header">{lang.tr('admin.sideMenu.health')}</div>
           <ControlGroup vertical={true} fill={true}>
-            <MenuItem id="btn-menu-monitoring" text="Monitoring" icon="timeline-line-chart" url="/server/monitoring" />
-            <MenuItem id="btn-menu-alerting" text="Alerting" icon="notifications" url="/server/alerting" />
-            <MenuItem text="Debug" id="btn-menu-debug" icon="console" url="/server/debug" />
+            <MenuItem
+              id="btn-menu-monitoring"
+              text={lang.tr('admin.sideMenu.monitoring')}
+              icon="timeline-line-chart"
+              url="/server/monitoring"
+            />
+            <MenuItem
+              id="btn-menu-alerting"
+              text={lang.tr('admin.sideMenu.alerting')}
+              icon="notifications"
+              url="/server/alerting"
+            />
+            <MenuItem text={lang.tr('admin.sideMenu.debug')} id="btn-menu-debug" icon="console" url="/server/debug" />
           </ControlGroup>
         </Fragment>
       </AccessControl>
 
-      <div className="bp-sa-menu-header">Announcements</div>
+      <div className="bp-sa-menu-header">{lang.tr('admin.sideMenu.announcements')}</div>
       <ControlGroup vertical={true} fill={true}>
         <MenuItem
-          text="Latest Releases"
+          text={lang.tr('admin.sideMenu.latestReleases')}
           id="btn-menu-releases"
           icon="feed"
           url="/latestReleases"

@@ -1,6 +1,9 @@
-import { Button, Classes, Dialog, Intent } from '@blueprintjs/core'
+import { Button, Classes, Icon, Intent } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
+
+import { lang } from '../translations'
+import { Body, Footer, Wrapper } from '../Dialog'
 
 import styles from './style.scss'
 import { ConfirmDialogOptions, ConfirmDialogProps } from './typings'
@@ -8,72 +11,48 @@ import { ConfirmDialogOptions, ConfirmDialogProps } from './typings'
 const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   const onAccept = () => {
     removeDialog()
-
-    if (props.accept) {
-      props.accept()
-    }
-
+    props.accept?.()
     props.resolve(true)
   }
 
   const onDecline = () => {
     removeDialog()
-
-    if (props.decline) {
-      props.decline()
-    }
-
+    props.decline?.()
     props.resolve(false)
   }
 
   return (
-    <Dialog
-      title={props.title}
-      icon="warning-sign"
-      usePortal={false}
-      enforceFocus={false}
-      isOpen={true}
-      onClose={onDecline}
-      transitionDuration={0}
-      canOutsideClickClose={false}
-    >
-      <div className={Classes.DIALOG_BODY}>{props.message}</div>
-      <div className={Classes.DIALOG_FOOTER}>
-        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button
-            id="confirm-dialog-decline"
-            className={Classes.BUTTON}
-            type="button"
-            onClick={onDecline}
-            text={props.declineLabel}
-            tabIndex={2}
-            intent={Intent.NONE}
-          />
-          <Button
-            id="confirm-dialog-accept"
-            className={Classes.BUTTON}
-            type="button"
-            onClick={onAccept}
-            text={props.acceptLabel}
-            tabIndex={3}
-            intent={Intent.PRIMARY}
-          />
-        </div>
-      </div>
-    </Dialog>
+    <Wrapper icon="warning-sign" usePortal={false} isOpen onClose={onDecline} size="sm">
+      <Body>
+        <Icon icon="warning-sign" iconSize={32} className={styles.icon} />
+        {props.message}
+      </Body>
+      <Footer>
+        <Button
+          id="confirm-dialog-decline"
+          className={Classes.BUTTON}
+          type="button"
+          onClick={onDecline}
+          text={props.declineLabel || lang('cancel')}
+          tabIndex={2}
+          intent={Intent.NONE}
+        />
+        <Button
+          id="confirm-dialog-accept"
+          className={Classes.BUTTON}
+          type="button"
+          onClick={onAccept}
+          text={props.acceptLabel || lang('ok')}
+          tabIndex={3}
+          intent={Intent.WARNING}
+        />
+      </Footer>
+    </Wrapper>
   )
 }
 
-ConfirmDialogComponent.defaultProps = {
-  title: 'Confirmation Needed',
-  acceptLabel: 'OK',
-  declineLabel: 'Cancel',
-  accept: () => {},
-  decline: () => {}
-}
-
 const confirmDialog = (message: string, options: ConfirmDialogOptions): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     addDialog({ message, ...options }, resolve)
   })
 }

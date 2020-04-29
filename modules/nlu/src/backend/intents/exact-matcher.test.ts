@@ -1,41 +1,32 @@
 import { findExactIntentForCtx } from '../predict-pipeline'
-import { BuildExactMatchIndex, TrainInput, TrainOutput } from '../training-pipeline'
+import { SPECIAL_CHARSET } from '../tools/chars'
+import { BuildExactMatchIndex, TrainOutput } from '../training-pipeline'
 import { Intent } from '../typings'
-import Utterance from '../utterance/utterance'
+import Utterance, { makeTestUtterance } from '../utterance/utterance'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'
 const u2 = "Hi I'm Justine and I'm a smart bot with very scoped skills"
 const u3 = 'Medication makes me high'
 
-const makeTestUtterances = (textUtterances: string[]): Utterance[] => {
-  return textUtterances.map(u => {
-    const toks = u.split(/(\s)/)
-    const vecs = new Array(toks.length)
-    vecs.fill([0])
-    const posTags = toks.map(_ => '_')
-    return new Utterance(toks, vecs, posTags, 'en')
-  })
-}
-
 const intent1: Intent<Utterance> = {
   name: 'intent1',
   contexts: ['global'],
   slot_definitions: [],
-  utterances: makeTestUtterances([u1, u2])
+  utterances: [u1, u2].map(makeTestUtterance)
 }
 
 const intent2: Intent<Utterance> = {
   name: 'intent2',
   contexts: ['global', 'marijane'],
   slot_definitions: [],
-  utterances: makeTestUtterances([u3])
+  utterances: [makeTestUtterance(u3)]
 }
 
 const noneIntent: Intent<Utterance> = {
   name: 'none',
   contexts: ['global'],
   slot_definitions: [],
-  utterances: makeTestUtterances(['lorem ipsum dolor sit amet'])
+  utterances: [makeTestUtterance('lorem ipsum dolor sit amet')]
 }
 
 describe('Exact match', () => {
@@ -52,12 +43,16 @@ describe('Exact match', () => {
     })
 
     test('index contains proper keys', () => {
-      const keys = [u1, u2, u3].map(u => u.replace(/\s/g, '').toLowerCase())
+      const keys = [u1, u2, u3].map(u =>
+        u.replace(new RegExp(`(${SPECIAL_CHARSET.join('|')}|\\s)`, 'gi'), '').toLowerCase()
+      )
       expect(Object.keys(exactMatchIndex)).toEqual(keys)
     })
 
     test('index content', () => {
-      const [k1, k2, k3] = [u1, u2, u3].map(u => u.replace(/\s/g, '').toLowerCase())
+      const [k1, k2, k3] = [u1, u2, u3].map(u =>
+        u.replace(new RegExp(`(${SPECIAL_CHARSET.join('|')}|\\s)`, 'gi'), '').toLowerCase()
+      )
       expect(exactMatchIndex[k1].intent).toEqual(intent1.name)
       expect(exactMatchIndex[k1].contexts).toEqual(intent1.contexts)
       expect(exactMatchIndex[k2].intent).toEqual(intent1.name)
@@ -68,7 +63,7 @@ describe('Exact match', () => {
   })
 
   test('find exact match', () => {
-    const [utt1, utt2, utt3] = makeTestUtterances([u1, u3, 'This is just a test'])
+    const [utt1, utt2, utt3] = [u1, u3, 'This is just a test'].map(makeTestUtterance)
     const pred1 = findExactIntentForCtx(exactMatchIndex, utt1, 'marijane')
     const pred2 = findExactIntentForCtx(exactMatchIndex, utt1, 'global')
     const pred3 = findExactIntentForCtx(exactMatchIndex, utt2, 'marijane')

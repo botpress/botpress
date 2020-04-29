@@ -1,0 +1,42 @@
+{
+  "actionButton": "Action Button",
+  "fullName": "Basic Skills",
+  "types": {
+    "actionButton": {
+      "buttonTitle": "Title of the button",
+      "description": "A button that triggers an action, often used in cards",
+      "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
+      "title": "Action Button"
+    },
+    "card": {
+      "description": "A card message with a title with optional subtitle, image and action buttons."
+    },
+    "carousel": {
+      "cards": "Carousel cards",
+      "description": "A carousel is an array of cards",
+      "title": "Carousel"
+    },
+    "image": {
+      "description": "A message showing an image with an optional title",
+      "imageLabel": "Title",
+      "labelDesc": "Some platforms require to name the images.",
+      "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
+      "title": "Image",
+      "uploadImage": "Upload Image"
+    },
+    "singleChoice": {
+      "choice": "Choice",
+      "description": "Suggest choices to the user with the intention of picking only one (with an optional message)",
+      "itemTitle": "The title of the choice (this is what gets shown to the user)",
+      "itemValue": "The value that your bot gets when the user picks this choice (usually hidden from the user)",
+      "title": "Single Choice"
+    },
+    "text": {
+      "alternatives": "Alternates",
+      "description": "A regular text message with optional typing indicators and alternates",
+      "message": "Message"
+    }
+  },
+  "typingIndicator": "Show typing indicators",
+  "useMarkdown": "Use markdown"
+}

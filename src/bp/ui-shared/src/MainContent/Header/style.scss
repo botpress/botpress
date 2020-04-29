@@ -1,0 +1,55 @@
+.header {
+  height: 23px !important;
+  box-shadow: unset !important;
+  background: none !important;
+  padding: 0 !important;
+
+  .buttons {
+    margin-top: 5px;
+  }
+
+  :global(.bp3-tab) {
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  :global(.bp3-tab) {
+    height: 23px;
+    line-height: 23px;
+  }
+
+  :global(.bp3-navbar-group) {
+    height: 23px;
+  }
+
+  :global(.bp3-tab[aria-selected='true']) {
+    color: var(--shark) !important;
+  }
+
+  :global(.bp3-tab[aria-selected='false']) {
+    color: #e3e3e3;
+  }
+
+  :global(.bp3-tab) {
+    background: none;
+    border: none;
+    border-top: 2px solid transparent;
+    display: block;
+    color: var(--shark);
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1.25;
+    margin: 0;
+    padding: 0;
+    padding-top: 6px;
+    transition: border 0.3s;
+  }
+
+  :global(.bp3-tab-indicator-wrapper) {
+    height: 2px !important;
+  }
+
+  :global(.bp3-tab-indicator) {
+    background-color: var(--ocean) !important;
+  }
+}

@@ -1,5 +1,7 @@
 import { Button, ControlGroup, FormGroup } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
+import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../../api'
@@ -16,6 +18,7 @@ interface IntentParams {
 interface Props {
   bp: any
   contentLang: string
+  forceSave: boolean
   topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
@@ -31,6 +34,15 @@ export const LiteEditor: FC<Props> = props => {
   const [intents, setIntents] = useState<NLU.IntentDefinition[]>([])
   const [currentIntent, setCurrentIntent] = useState(props.params.intentName)
   const [isModalOpen, setModalOpen] = useState(false)
+  const [dirtyIntents, setDirtyIntents] = useState([])
+
+  useEffect(() => {
+    // Ensure the current topic is in the intent's contexts
+    if (props.forceSave && dirtyIntents.length) {
+      // tslint:disable-next-line: no-floating-promises
+      api.syncIntentTopics()
+    }
+  }, [props.forceSave])
 
   const api = makeApi(props.bp)
 
@@ -38,6 +50,10 @@ export const LiteEditor: FC<Props> = props => {
     // tslint:disable-next-line: no-floating-promises
     loadIntents()
   }, [])
+
+  useEffect(() => {
+    setDirtyIntents([])
+  }, [isModalOpen])
 
   const loadIntents = async () => {
     setIntents(await api.fetchIntents())
@@ -57,8 +73,9 @@ export const LiteEditor: FC<Props> = props => {
     setCurrentIntent(sanitizedName)
   }
 
-  const onIntentChanged = intent => {
+  const onIntentChanged = async intent => {
     if (intent) {
+      setDirtyIntents([...dirtyIntents, currentIntent])
       setCurrentIntent(intent.name)
       props.updateParams({ intentName: intent.name })
     }
@@ -73,11 +90,11 @@ export const LiteEditor: FC<Props> = props => {
         toggle={toggleModal}
         intents={intents}
         onSubmit={createIntent}
-        title="Create Intent"
+        title={lang.tr('module.nlu.intents.createLabel')}
       />
       {currentIntent && (
         <IntentEditor
-          liteEditor={true}
+          liteEditor
           intent={currentIntent}
           api={api}
           contentLang={props.contentLang}
@@ -87,8 +104,8 @@ export const LiteEditor: FC<Props> = props => {
 
       <div className={style.chooseContainer}>
         <ControlGroup>
-          <FormGroup label="Choose a different intent for the condition">
-            <Button text="Create new intent" onClick={toggleModal} />
+          <FormGroup label={lang.tr('module.nlu.intents.chooseContainerLabel')}>
+            <Button text={lang.tr('module.nlu.intents.createLabel')} onClick={toggleModal} />
             <IntentDropdown intents={intents} currentIntent={currentIntent} onChange={onIntentChanged} />
           </FormGroup>
         </ControlGroup>

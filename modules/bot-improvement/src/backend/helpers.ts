@@ -3,8 +3,8 @@ import { IO } from 'botpress/sdk'
 import { FlowView, Goal } from './typings'
 
 const flowNameToGoal = (flowName: string): Goal => {
-  const [t, name] = flowName.split('/')
-  return { id: flowName.replace('.flow.json', ''), topic: t, name: name.replace('.flow.json', '') }
+  const { topic, workflow } = parseFlowName(flowName)
+  return { id: flowName.replace('.flow.json', ''), topic, name: workflow }
 }
 
 export const flowsToGoals = (flows: FlowView[]): Goal[] => {
@@ -28,4 +28,20 @@ export const getGoalFromEvent = (event: IO.IncomingEvent): Goal => {
   }
 
   return flowNameToGoal(goal.goal)
+}
+
+export const parseFlowName = (flowName: string, includeFolders?: boolean) => {
+  const chunks = flowName.replace(/\.flow\.json$/i, '').split('/')
+
+  if (chunks.length === 1) {
+    return { workflow: chunks[0] }
+  } else if (chunks.length === 2) {
+    return { topic: chunks[0], workflow: chunks[1] }
+  } else {
+    return {
+      topic: chunks[0],
+      workflow: includeFolders ? chunks.slice(1).join('/') : chunks[chunks.length - 1],
+      folders: chunks.slice(1, chunks.length - 1)
+    }
+  }
 }
