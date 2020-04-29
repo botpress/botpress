@@ -13,6 +13,8 @@ import path from 'path'
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
 
+const NONE = 'none'
+
 const TestsSchema = Joi.array().items(
   Joi.object({
     id: Joi.string().required(),
@@ -210,7 +212,7 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
 
 function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails {
   if (key === 'intent') {
-    expected = expected.endsWith('none') ? 'none' : expected
+    expected = expected.endsWith(NONE) ? NONE : expected
     const received = nlu.intent.name
     let success = expected === received
     if (expected.endsWith('disambiguation')) {
@@ -235,7 +237,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       .maxBy('1.confidence')
       .value()
 
-    received = received !== 'oos' ? received : 'none'
+    received = received !== 'oos' ? received : NONE
     const success = expected === received
     return {
       success,
@@ -266,8 +268,8 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     let conf = ctxPredObj.confidence
     let success = expected === received
 
-    if (expected === 'none') {
-      const inConf = ctxPredObj.confidence * ctxPredObj.intents.filter(i => i.label !== 'none')[0].confidence
+    if (expected === NONE) {
+      const inConf = ctxPredObj.confidence * ctxPredObj.intents.filter(i => i.label !== NONE)[0].confidence
       const outConf = ctxPredObj.oos
       success = outConf > inConf
       conf = success ? outConf : conf
@@ -285,13 +287,16 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
 
   if (key === 'intent') {
     const highestRankingIntent = _.chain(nlu.predictions)
-      .toPairs()
-      .flatMap(([ctx, ctxPredObj]) => {
-        return ctxPredObj.intents.map(intentPred => {
-          const oosFactor = 1 - ctxPredObj.oos
+      .values()
+      .flatMap(ctxPreds => {
+        return ctxPreds.intents.map(intentPred => {
+          let confidence = intentPred.confidence * (1 - ctxPreds.oos) * ctxPreds.confidence
+          if (intentPred.label === NONE) {
+            confidence = Math.min(intentPred.confidence * ctxPreds.confidence * ctxPreds.oos, 1)
+          }
           return {
             label: intentPred.label,
-            confidence: intentPred.confidence * oosFactor * ctxPredObj.confidence // copy pasted from ndu conditions.ts (now how we elect intent)
+            confidence
           }
         })
       })
