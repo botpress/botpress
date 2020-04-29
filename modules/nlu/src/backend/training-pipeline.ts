@@ -59,7 +59,7 @@ export interface TrainArtefacts {
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
-  oos_model: string
+  oos_model: _.Dictionary<string>
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -537,7 +537,6 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
     const artefacts: TrainArtefacts = {
       list_entities: output.list_entities,
-      // @ts-ignore
       oos_model,
       tfidf: output.tfIdf,
       ctx_model,
