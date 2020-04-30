@@ -27,8 +27,8 @@ export default async (botId: string, bp: SDK, db: Database) => {
           fnBody = 'return ' + fnBody
         }
 
-        const fn = new Function('bp', 'userId', 'platform', fnBody)
-        return Promise.method(fn(bp, row.userId, row.platform))
+        const fn = new Function('bp', 'userId', 'channel', fnBody)
+        return !fn(bp, row.userId, row.platform)
       }).then(values => {
         return _.some(values, v => {
           if (!_.isBoolean(v)) {
