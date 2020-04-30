@@ -18,7 +18,7 @@ const CommandPalette: FC<Props> = props => {
   const [commands, setCommands] = useState<QuickShortcut[]>([])
 
   useEffect(() => {
-    if (!props.bots.length) {
+    if (!props.bots) {
       props.fetchBotIds()
     }
 
