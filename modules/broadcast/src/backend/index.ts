@@ -1,10 +1,7 @@
 import 'bluebird-global'
-
-// @ts-ignore
 import * as sdk from 'botpress/sdk'
 
 import api from './api'
-
 import Daemon from './daemon'
 import BroadcastDb from './db'
 
@@ -24,8 +21,8 @@ const onServerReady = async (bp: SDK) => {
 }
 
 const onBotMount = async (bp: SDK, botId: string) => {
-  await bp.kvs.set(botId, 'broadcast/lock/sending', { sendingLock: false })
-  await bp.kvs.set(botId, 'broadcast/lock/scheduling', { schedulingLock: false })
+  await bp.kvs.forBot(botId).set('broadcast/lock/sending', { sendingLock: false })
+  await bp.kvs.forBot(botId).set('broadcast/lock/scheduling', { schedulingLock: false })
 
   await Daemon(botId, bp, db)
 }
