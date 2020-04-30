@@ -59,3 +59,12 @@
 .smallButton {
   min-width: 40px;
 }
+
+:global {
+  .modal {
+    z-index: 19;
+  }
+  .modal-backdrop {
+    z-index: 18;
+  }
+}
