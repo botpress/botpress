@@ -18,7 +18,7 @@ Variables exposed to the filter function:
 
 - `bp` botpress instance
 - `userId` the userId to send the message to
-- `platform` the platform on which the user is on
+- `channel` the channel on which the user is on
 
 The function needs to return a **boolean** or a **Promise of a boolean**.
 
@@ -29,29 +29,13 @@ The function needs to return a **boolean** or a **Promise of a boolean**.
 ##### Send a message only to users on Facebook
 
 ```js
-"platform === 'facebook'"
+channel === 'facebook'
 ```
 
-##### Send a message only to subscribed users
-
-**Note**: Assuming your bot has a `subscriptions` table that holds userId and platform
+##### Use the botpress SDK to check the kvs
 
 ```js
-// in your bot's index.js
-
-bp.isUserSubscribed = userId => {
-  return bp.db.get()
-  .then(knex =>
-    knex('subscriptions')
-    .where({ userId, platform })
-    .select('count(*) as count')
-    then().get(0).then(({count}) => count > 0)
-  )
-}
-```
-
-```js
-bp.isUserSubscribed(userId)
+bp.kvs.forBot('botName').get('keyName') === 'keyValue'
 ```
 
 ## API
@@ -76,12 +60,6 @@ Schedules a new broadcast.
   content: string // *required*, the text to be sent or the JavaScript code to execute,
   filters: [string] // filtering conditions, JavaScript code
 }
-```
-
-#### Response
-
-```
-"Hello, Human!"
 ```
 
 ### `POST /mod/broadcast/broadcasts`
