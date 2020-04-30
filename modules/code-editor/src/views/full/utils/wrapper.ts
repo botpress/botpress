@@ -5,10 +5,10 @@ const START_COMMENT = `/** Your code starts below */`
 const END_COMMENT = '/** Your code ends here */'
 
 const ACTION_HTTP_SIGNATURE =
-  'async function action(event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
+  'function action(event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 
 const ACTION_LEGACY_SIGNATURE =
-  'async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
+  'function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 
 const wrapper = {
   add: (file: EditableFile, content: string) => {
