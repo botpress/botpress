@@ -8,7 +8,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2.1.0
         with:
-          token: ${{ secrets.PAT_PLAYGROUND_PRO }}
+          token: ${{ secrets.PAT_DOCKER }}
           submodules: true
       - name: Setup Node.js
         uses: actions/setup-node@v1
