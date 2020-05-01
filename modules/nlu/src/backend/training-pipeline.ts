@@ -520,7 +520,6 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
-    const time = process.hrtime()
     let output = await PreprocessInput(input, tools)
     output = await TfidfTokens(output)
     output = ClusterTokens(output, tools)
@@ -547,7 +546,6 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
 
-    console.log('training completed :::', process.hrtime(time))
     _.merge(model, { success: true, data: { artefacts, output } })
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
