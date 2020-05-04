@@ -23,6 +23,10 @@
       border: solid 1px var(--ocean);
     }
 
+    .bp3-editable-text input {
+      height: 100% !important;
+    }
+
     .bp3-editable-text.bp3-editable-text-editing {
       width: 100%;
       min-width: 0px !important;
