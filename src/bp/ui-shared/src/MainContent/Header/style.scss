@@ -18,7 +18,7 @@
     button {
       transition: background 0.3s;
 
-      &:hover svg {
+      &:not(:disabled):hover svg {
         fill: var(--ocean) !important;
       }
     }

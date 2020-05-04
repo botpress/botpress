@@ -76,7 +76,7 @@ const fetchReducer = (state: State, action): State => {
       ...state,
       items: newItems
     }
-  } else if (action.type === 'toogleEnabledQnA') {
+  } else if (action.type === 'toggleEnabledQnA') {
     const { index } = action.data
     const newItems = state.items
 
@@ -173,9 +173,9 @@ const QnAList: FC<Props> = props => {
               updateQnA={data => dispatch({ type: 'updateQnA', data: { data, index } })}
               key={item.id}
               deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index } })}
-              toogleEnabledQnA={() => dispatch({ type: 'toogleEnabledQnA', data: { index } })}
+              toggleEnabledQnA={() => dispatch({ type: 'toggleEnabledQnA', data: { index } })}
               contentLang={currentLang}
-              question={item}
+              qnaItem={item}
             />
           ))}
         {!items.length && !loading && (

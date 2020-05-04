@@ -22,8 +22,12 @@
     .bp3-button.bp3-intent-warning {
       background-color: var(--lighthouse);
 
-      &:hover, &:focus {
+      &:hover {
         background-color: var(--hover-lighthouse);
+      }
+
+      &:focus {
+        background-color: var(--focus-lighthouse);
       }
     }
 

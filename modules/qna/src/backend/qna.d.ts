@@ -20,6 +20,7 @@ export interface QnaEntry {
 
 export interface QnaItem {
   id: string
+  isNew?: boolean
   data: QnaEntry
 }
 

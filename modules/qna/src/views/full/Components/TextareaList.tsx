@@ -10,7 +10,7 @@ import React, { FC, Fragment, useRef, useState } from 'react'
 import style from '../style.scss'
 
 interface Props {
-  updateItems: (items: any) => void
+  updateItems: (items: string[]) => void
   items: string[]
   placeholder: (index: number) => void
   addItemLabel: string
@@ -21,27 +21,27 @@ interface Props {
   canAddContent?: boolean
 }
 
-const TextareaList: FC<Props> = props => {
+const TextAreaList: FC<Props> = props => {
   const [showPicker, setShowPicker] = useState(false)
   const focusedElement = useRef(props.initialFocus || '')
   const { updateItems, keyPrefix, canAddContent, addItemLabel, label, items, placeholder } = props
 
   // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
-  const keys = useRef([...Array(items.length)].map(x => _uniqueId(keyPrefix)))
+  const keys = useRef(items.map(x => _uniqueId(keyPrefix)))
 
-  const updateItem = (index, value) => {
+  const updateItem = (index: number, value: string): void => {
     items[index] = value
     updateItems(items)
   }
 
-  const addItem = (value = '') => {
+  const addItem = (value = ''): void => {
     items.push(value)
     keys.current.push(_uniqueId(keyPrefix))
     focusedElement.current = `${keyPrefix}${items.length - 1}`
     updateItems(items)
   }
 
-  const onKeyDown = (e, index) => {
+  const onKeyDown = (e: KeyboardEvent, index: number): void => {
     if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault()
       addItem()
@@ -62,28 +62,27 @@ const TextareaList: FC<Props> = props => {
     <Fragment>
       <div className={style.items}>
         <h2>{label}</h2>
-        {!!items?.length &&
-          items?.map((value, index) =>
-            canAddContent && value.startsWith('#!') ? (
-              <div key={keys.current[index]} className={style.contentAnswer}>
-                <BotpressContentPicker
-                  itemId={value.replace('#!', '')}
-                  onClickChange={() => this.toggleEditMode(index)}
-                  onChange={this.onContentChange}
-                />
-              </div>
-            ) : (
-              <Textarea
-                key={keys.current[index]}
-                isFocused={focusedElement.current === `${keyPrefix}${index}`}
-                className={style.textarea}
-                placeholder={placeholder(index)}
-                onChange={e => updateItem(index, e.currentTarget.value)}
-                onKeyDown={e => onKeyDown(e, index)}
-                value={value}
+        {items?.map((item, index) =>
+          canAddContent && item.startsWith('#!') ? (
+            <div key={keys.current[index]} className={style.contentAnswer}>
+              <BotpressContentPicker
+                itemId={item.replace('#!', '')}
+                onClickChange={() => this.toggleEditMode(index)}
+                onChange={this.onContentChange}
               />
-            )
-          )}
+            </div>
+          ) : (
+            <Textarea
+              key={keys.current[index]}
+              isFocused={focusedElement.current === `${keyPrefix}${index}`}
+              className={style.textarea}
+              placeholder={placeholder(index)}
+              onChange={e => updateItem(index, e.currentTarget.item)}
+              onKeyDown={e => onKeyDown(e, index)}
+              value={item}
+            />
+          )
+        )}
         <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
           {addItemLabel}
         </Button>
@@ -106,4 +105,4 @@ const TextareaList: FC<Props> = props => {
   )
 }
 
-export default TextareaList
+export default TextAreaList
