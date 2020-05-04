@@ -37,9 +37,11 @@
     "chatbotWillRandomlyChoose": "L'agent conversationnel répondra au hasard parmi ces alternatives",
     "confirmDeleteQuestion": "Êtes-vous certain de vouloir supprimer cette question? Les questions et réponses alternatives seront aussi supprimé.",
     "deleteQuestion": "Supprimer la question",
+    "disabledTooltip": "Ce question-réponses ne sera pas affiché aux utilisateurs.",
     "disableQuestion": "Désactiver la question",
     "emptyState": "Appuyez sur le + dans la bar d'outils pour ajouter votre première question.",
     "enableQuestion": "Activer la question",
+    "incompleteTooltip": "Ce question-réponses utilisera uniquement la correspondance exacte.",
     "writeAtLeastTwoMoreQuestions": "Rédiger au moins 2 questions alternatives pour permettre l'apprentissage de l'agent conversationnel",
     "writeFirstQuestion": "Rédigez une phrase que votre utilisateur serait suceptible d'écrire pour poser sa question",
     "writeTheAnswer": "Rédigez la réponse à la question"

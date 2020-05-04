@@ -1,4 +1,4 @@
-import { Button, Icon } from '@blueprintjs/core'
+import { Button, Icon, Tooltip } from '@blueprintjs/core'
 import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
@@ -34,8 +34,8 @@ const QnA: FC<Props> = props => {
   const answerKeys = useRef([])
 
   useEffect(() => {
-    questionKeys.current = [...Array(questions.length)].map(x => _uniqueId())
-    answerKeys.current = [...Array(answers.length)].map(x => _uniqueId())
+    questionKeys.current = questions.map(x => _uniqueId())
+    answerKeys.current = answers.map(x => _uniqueId())
   }, [])
 
   const onDelete = async () => {
@@ -90,8 +90,16 @@ const QnA: FC<Props> = props => {
             <Icon icon={collapsed ? 'chevron-right' : 'chevron-down'} /> <h1>{questions?.[0]}</h1>
           </div>
           <div className={style.right}>
-            {!data.enabled && <span className={style.tag}>Disabled</span>}
-            {showIncomplete && <span className={cx(style.tag, style.incomplete)}>Incomplete</span>}
+            {!data.enabled && (
+              <Tooltip content={lang.tr('module.qna.form.disabledTooltip')}>
+                <span className={style.tag}>Disabled</span>
+              </Tooltip>
+            )}
+            {showIncomplete && (
+              <Tooltip content={lang.tr('module.qna.form.incompleteTooltip')}>
+                <span className={cx(style.tag, style.incomplete)}>Incomplete</span>
+              </Tooltip>
+            )}
           </div>
         </Button>
         <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />

@@ -77,7 +77,7 @@ const TextAreaList: FC<Props> = props => {
               isFocused={focusedElement.current === `${keyPrefix}${index}`}
               className={style.textarea}
               placeholder={placeholder(index)}
-              onChange={e => updateItem(index, e.currentTarget.item)}
+              onChange={e => updateItem(index, e.currentTarget.value)}
               onKeyDown={e => onKeyDown(e, index)}
               value={item}
             />
