@@ -60,7 +60,7 @@ const QnA: FC<Props> = props => {
     }
   ]
 
-  const getPlaceholder = (type: string, index: number): string => {
+  const getPlaceholder = (type: 'answer' | 'question', index: number): string => {
     if (type === 'question') {
       if (index === 0) {
         return lang.tr('module.qna.form.writeFirstQuestion')
