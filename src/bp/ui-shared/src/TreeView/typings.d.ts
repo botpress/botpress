@@ -49,7 +49,7 @@ export type TreeNode<T> = ITreeNode<T> & {
   childNodes?: TreeNode<T>[]
 }
 
-type ElementRenderer<T> = (element: T) => { label: JSX.Element | string; icon?: any }
+type ElementRenderer<T> = (element: T) => { label: JSX.Element | string; icon?: any; name?: string }
 type PostProcessing<T> = (nodes: TreeNode<T>[]) => TreeNode<T>[]
 
 interface BuildTreeParams<T> {

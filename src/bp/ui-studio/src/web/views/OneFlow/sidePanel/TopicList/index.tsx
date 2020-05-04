@@ -131,6 +131,8 @@ const TopicList: FC<Props> = props => {
   const folderRenderer = (folder: string) => {
     const isFocused = folder === props.focusedText
     const isNew = folder === props.newPath
+    const isBuiltIn = folder === 'Built-In'
+    const filterOrder = isBuiltIn ? 3 : isNew ? 2 : 1
 
     const editTopic = async x => {
       props.setFocusedText(undefined)
@@ -138,7 +140,7 @@ const TopicList: FC<Props> = props => {
       if (x === '') {
         await props.fetchFlows()
         await props.fetchTopics()
-      } else {
+      } else if (x !== folder) {
         await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: x, description: undefined })
         if (props.expandedPaths.includes(folder)) {
           props.onExpandToggle(x, true)
@@ -151,7 +153,7 @@ const TopicList: FC<Props> = props => {
     return {
       label: (
         <div className={style.treeNode}>
-          {folder !== 'Built-In' ? (
+          {!isBuiltIn ? (
             <EditableText
               onConfirm={editTopic}
               defaultValue={isNew ? '' : folder}
@@ -167,7 +169,8 @@ const TopicList: FC<Props> = props => {
           )}
         </div>
       ),
-      icon: 'none'
+      icon: 'none',
+      name: `${filterOrder}/${folder}`
     }
   }
 
@@ -271,6 +274,8 @@ const TopicList: FC<Props> = props => {
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
     const isFocused = name === props.focusedText
     const isNew = name === props.newPath
+    const isQna = type === 'qna'
+    const filterOrder = isNew ? 3 : !isQna ? 2 : 1
 
     const editWorkflow = async x => {
       props.setFocusedText(undefined)
@@ -278,7 +283,7 @@ const TopicList: FC<Props> = props => {
       if (x === '') {
         await props.fetchFlows()
         await props.fetchTopics()
-      } else {
+      } else if (x !== displayName) {
         const fullName = buildFlowName({ topic: el.topic, workflow: x }, true)
         props.renameFlow({ targetFlow: name, name: fullName })
         props.updateFlow({ name: fullName })
@@ -288,7 +293,7 @@ const TopicList: FC<Props> = props => {
     return {
       label: (
         <div className={style.treeNode}>
-          {type !== 'qna' ? (
+          {!isQna ? (
             <React.Fragment>
               <EditableText
                 onConfirm={editWorkflow}
@@ -310,7 +315,8 @@ const TopicList: FC<Props> = props => {
           )}
         </div>
       ),
-      icon: 'none'
+      icon: 'none',
+      name: `${filterOrder}/${displayName}`
     }
   }
 
@@ -374,7 +380,7 @@ const TopicList: FC<Props> = props => {
       if (parent.id !== 'Built-In') {
         parent.childNodes?.push({
           id: 'addWorkflow',
-          name: 'addWorkflow',
+          name: '4/addWorkflow',
           label: (
             <div className={cx(style.treeNode, style.addWorkflowNode)}>
               <span>{lang.tr('studio.flow.sidePanel.addWorkflow')}</span>
