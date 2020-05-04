@@ -136,12 +136,8 @@ const TopicList: FC<Props> = props => {
       props.setFocusedText(undefined)
       props.setNewPath(undefined)
       if (x === '') {
-        if (isNew) {
-          await deleteTopic(folder, true)
-        } else {
-          await props.fetchFlows()
-          await props.fetchTopics()
-        }
+        await props.fetchFlows()
+        await props.fetchTopics()
       } else {
         await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: x, description: undefined })
         if (props.expandedPaths.includes(folder)) {
@@ -280,12 +276,8 @@ const TopicList: FC<Props> = props => {
       props.setFocusedText(undefined)
       props.setNewPath(undefined)
       if (x === '') {
-        if (isNew) {
-          await deleteFlow(name, true)
-        } else {
-          await props.fetchFlows()
-          await props.fetchTopics()
-        }
+        await props.fetchFlows()
+        await props.fetchTopics()
       } else {
         const fullName = buildFlowName({ topic: el.topic, workflow: x }, true)
         props.renameFlow({ targetFlow: name, name: fullName })
