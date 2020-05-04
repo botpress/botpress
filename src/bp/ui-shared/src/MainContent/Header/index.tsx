@@ -1,4 +1,4 @@
-import { Alignment, Button, Navbar, NavbarGroup, Tab, Tabs } from '@blueprintjs/core'
+import { Alignment, AnchorButton, Button, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, useState } from 'react'
 
@@ -24,26 +24,28 @@ const Header: FC<HeaderProps> = props => {
         <NavbarGroup className={style.buttons} align={Alignment.RIGHT}>
           {props.buttons.map((button, index) => (
             <div key={index} className={style.btnWrapper}>
-              {!button.optionsItems?.length && (
-                <Button minimal small onClick={button.onClick} icon={button.icon} disabled={button.disabled} />
-              )}
+              <Tooltip content={button.tooltip}>
+                {!button.optionsItems?.length && (
+                  <Button minimal small onClick={button.onClick} icon={button.icon} disabled={button.disabled} />
+                )}
 
-              {!!button.optionsItems?.length && (
-                <MoreOptions
-                  element={
-                    <Button
-                      minimal
-                      small
-                      onClick={() => setShowingOption(index)}
-                      icon={button.icon}
-                      disabled={button.disabled}
-                    />
-                  }
-                  show={showingOption === index}
-                  onToggle={() => setShowingOption(null)}
-                  items={button.optionsItems}
-                />
-              )}
+                {!!button.optionsItems?.length && (
+                  <MoreOptions
+                    element={
+                      <Button
+                        minimal
+                        small
+                        onClick={() => setShowingOption(index)}
+                        icon={button.icon}
+                        disabled={button.disabled}
+                      />
+                    }
+                    show={showingOption === index}
+                    onToggle={() => setShowingOption(null)}
+                    items={button.optionsItems}
+                  />
+                )}
+              </Tooltip>
             </div>
           ))}
         </NavbarGroup>

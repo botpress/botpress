@@ -366,6 +366,10 @@ export class UnderstandingEngine {
         continue
       }
 
+      if (!trigger.conditions.length) {
+        continue
+      }
+
       const id = this.getTriggerId(trigger)
       const result = this._testConditions(event, trigger.conditions)
       event.ndu.triggers[id] = { result, trigger }

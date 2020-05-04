@@ -77,12 +77,11 @@ const SidePanelContent: FC<Props> = props => {
         <Inspector />
       ) : (
         <React.Fragment>
-          <SearchBar icon="filter" placeholder={lang.tr('studio.flow.sidePanel.filterFlows')} onChange={setFilter} />
-
           <SidePanelSection
             label={lang.tr('flows')}
             actions={props.permissions.includes('create') && [createFlowAction]}
           >
+            <SearchBar icon="filter" placeholder={lang.tr('studio.flow.sidePanel.filterFlows')} onChange={setFilter} />
             <FlowsList
               readOnly={props.readOnly}
               canDelete={props.permissions.includes('delete')}

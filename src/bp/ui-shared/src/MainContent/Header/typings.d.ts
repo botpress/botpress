@@ -13,4 +13,5 @@ export interface HeaderButtonProps {
   icon?: IconName
   optionsItems?: MoreOptionsItems[]
   disabled?: boolean
+  tooltip?: string
 }
