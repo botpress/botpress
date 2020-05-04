@@ -6,6 +6,9 @@ interface CssExports {
   'content': string;
   'contentAnswer': string;
   'empty': string;
+  'errorIcon': string;
+  'expanded': string;
+  'hasError': string;
   'header': string;
   'headerWrapper': string;
   'incomplete': string;
@@ -16,6 +19,7 @@ interface CssExports {
   'right': string;
   'tag': string;
   'textarea': string;
+  'textareaWrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

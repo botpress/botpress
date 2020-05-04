@@ -11,15 +11,21 @@
   .btnWrapper {
     position: relative;
 
-    :disabled svg {
-      fill: var(--gray) !important;
-    }
+    :global {
+      .bp3-button {
+        transition: background 0.3s;
 
-    button {
-      transition: background 0.3s;
+        &.bp3-disabled svg {
+          fill: var(--gray) !important;
+        }
 
-      &:not(:disabled):hover svg {
-        fill: var(--ocean) !important;
+        &:not(.bp3-disabled):hover {
+          background: var(--gray) !important;
+        }
+
+        &:not(.bp3-disabled).active svg {
+          fill: var(--ocean) !important;
+        }
       }
     }
 

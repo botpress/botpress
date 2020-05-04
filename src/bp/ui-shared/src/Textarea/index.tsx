@@ -7,12 +7,11 @@ import { TextareaProps } from './typings'
 const Textarea: FC<TextareaProps> = props => {
   const [forceUpdate, setForceUpdate] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const height = useRef(39)
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.style.height = '0'
-      inputRef.current.style.height = inputRef.current.scrollHeight + 'px'
-    }
+    height.current = inputRef.current?.scrollHeight || 39
+    setForceUpdate(!forceUpdate)
   }, [])
 
   useEffect(() => {
@@ -34,6 +33,7 @@ const Textarea: FC<TextareaProps> = props => {
 
   return (
     <textarea
+      style={{ height: height.current + 'px' }}
       ref={inputRef}
       className={cx(style.textarea, props.className)}
       value={props.value}

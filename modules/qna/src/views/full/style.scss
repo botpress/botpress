@@ -33,6 +33,14 @@
     padding: 0 var(--spacing-x-large) var(--spacing-x-large);
   }
 
+  .collapsibleWrapper:not(.expanded) {
+    height: 0;
+    margin: 0;
+    opacity: 0;
+    padding: 0;
+    visibility: hidden;
+  }
+
   .items {
     line-height: 0;
   }
@@ -113,6 +121,10 @@
       }
     }
 
+    .right :global(.bp3-popover-wrapper) + :global(.bp3-popover-wrapper) .tag, .right :global(.bp3-popover-wrapper) + .tag, .right .tag + :global(.bp3-popover-wrapper) .tag {
+      margin-left: var(--spacing-medium);
+    }
+
     .tag {
       background: var(--seashell);
       border-radius: 3px;
@@ -150,6 +162,46 @@
     margin: 0 0 var(--spacing-medium);
   }
 
+  .errorIcon {
+    position: absolute;
+    right: var(--spacing-large);
+    top: 50%;
+    transform: translate(0, -50%);
+
+    svg {
+      fill: var(--lighthouse) !important;
+    }
+  }
+
+  .textareaWrapper {
+    position: relative;
+
+    &:focus-within {
+      & + .textareaWrapper {
+        .textarea, .contentAnswer {
+          border-top-color: transparent;
+        }
+      }
+
+      .textarea, .contentAnswer {
+        border-top-color: var(--ocean);
+        border-bottom-color: var(--ocean);
+
+        &.hasError {
+          border-bottom-color: var(--lighthouse);
+
+          &:focus {
+            border-top-color: var(--lighthouse);
+
+            & + .textarea {
+              border-top-color: transparent;
+            }
+          }
+        }
+      }
+    }
+  }
+
   .textarea, .contentAnswer {
     background: transparent;
     border: none;
@@ -165,15 +217,6 @@
     resize: none;
     transition: border 0.3s;
     width: 100%;
-
-    &:focus {
-      border-top-color: var(--ocean);
-      border-bottom-color: var(--ocean);
-
-      & + .textarea {
-        border-top-color: transparent;
-      }
-    }
   }
 
   .contentAnswer {

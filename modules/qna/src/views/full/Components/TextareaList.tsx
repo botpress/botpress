@@ -1,9 +1,10 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Tooltip, Position, Icon } from '@blueprintjs/core'
+import cx from 'classnames'
 // @ts-ignore
 import BotpressContentPicker from 'botpress/content-picker'
 // @ts-ignore
 import BotpressContentTypePicker from 'botpress/content-type-picker'
-import { lang, Textarea } from 'botpress/shared'
+import { lang, ShortcutLabel, Textarea } from 'botpress/shared'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useRef, useState } from 'react'
 
@@ -18,13 +19,14 @@ interface Props {
   keyPrefix: string
   showPicker?: boolean
   initialFocus?: string
+  duplicateMsg?: string
   canAddContent?: boolean
 }
 
 const TextAreaList: FC<Props> = props => {
   const [showPicker, setShowPicker] = useState(false)
   const focusedElement = useRef(props.initialFocus || '')
-  const { updateItems, keyPrefix, canAddContent, addItemLabel, label, items, placeholder } = props
+  const { duplicateMsg, updateItems, keyPrefix, canAddContent, addItemLabel, label, items, placeholder } = props
 
   // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
   const keys = useRef(items.map(x => _uniqueId(keyPrefix)))
@@ -58,6 +60,15 @@ const TextAreaList: FC<Props> = props => {
     }
   }
 
+  const errors = items.map((item, index) =>
+    items
+      .slice(0, index)
+      .filter(item2 => item2.length)
+      .includes(item)
+      ? duplicateMsg
+      : ''
+  )
+
   return (
     <Fragment>
       <div className={style.items}>
@@ -72,20 +83,30 @@ const TextAreaList: FC<Props> = props => {
               />
             </div>
           ) : (
-            <Textarea
-              key={keys.current[index]}
-              isFocused={focusedElement.current === `${keyPrefix}${index}`}
-              className={style.textarea}
-              placeholder={placeholder(index)}
-              onChange={e => updateItem(index, e.currentTarget.value)}
-              onKeyDown={e => onKeyDown(e, index)}
-              value={item}
-            />
+            <div key={keys.current[index]} className={style.textareaWrapper}>
+              <Textarea
+                isFocused={focusedElement.current === `${keyPrefix}${index}`}
+                className={cx(style.textarea, { [style.hasError]: errors[index] })}
+                placeholder={placeholder(index)}
+                onChange={e => updateItem(index, e.currentTarget.value)}
+                onKeyDown={e => onKeyDown(e, index)}
+                value={item}
+              />
+              {errors[index] && (
+                <div className={style.errorIcon}>
+                  <Tooltip content={errors[index]} position={Position.BOTTOM}>
+                    <Icon icon="warning-sign" />
+                  </Tooltip>
+                </div>
+              )}
+            </div>
           )
         )}
-        <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
-          {addItemLabel}
-        </Button>
+        <Tooltip content={<ShortcutLabel light keys={['shift', 'enter']} />} position={Position.BOTTOM}>
+          <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
+            {addItemLabel}
+          </Button>
+        </Tooltip>
 
         {canAddContent && (
           <Button className={style.addBtn} minimal icon="plus" onClick={() => setShowPicker(true)}>

@@ -10,6 +10,7 @@
   "chips": "Chips",
   "chooseFile": "Choose file...",
   "close": "Close",
+  "collapseAll": "Collapse All",
   "commander": {
     "backToAdmin": "Back to Admin",
     "category": {
@@ -51,7 +52,9 @@
   "enabled": "Enabled",
   "error": "Error",
   "execute": "Execute",
+  "expandAll": "Expand All",
   "export": "Export",
+  "filterBy": "Filter By",
   "flows": "Flows",
   "general": "General",
   "id": "ID",
@@ -113,6 +116,7 @@
     "workspace": "Workspace"
   },
   "skills": "Skills",
+  "sortBy": "Sort By",
   "split": "Split",
   "status": "Status",
   "submit": "Submit",

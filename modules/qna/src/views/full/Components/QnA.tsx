@@ -1,4 +1,4 @@
-import { Button, Icon, Tooltip } from '@blueprintjs/core'
+import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
@@ -10,6 +10,8 @@ import style from '../style.scss'
 import TextAreaList from './TextAreaList'
 
 interface Props {
+  expanded: boolean
+  setExpanded: (expanded: boolean) => void
   qnaItem: QnaItem
   contentLang: string
   updateQnA: (questions: QnaEntry) => void
@@ -19,15 +21,15 @@ interface Props {
 
 const QnA: FC<Props> = props => {
   const [showOption, setShowOption] = useState(false)
-  const [collapsed, setCollapsed] = useState(!props.qnaItem.isNew)
   const {
     contentLang,
     qnaItem: { data },
-    updateQnA
+    updateQnA,
+    expanded,
+    setExpanded
   } = props
   const questions = data.questions[contentLang]
   const answers = data.answers[contentLang]
-  const focusedElement = useRef(`question-${questions.length - 1}`)
 
   // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
   const questionKeys = useRef([])
@@ -85,18 +87,23 @@ const QnA: FC<Props> = props => {
   return (
     <div className={style.questionWrapper}>
       <div className={style.headerWrapper}>
-        <Button minimal small onClick={() => setCollapsed(!collapsed)} className={style.questionHeader}>
+        <Button minimal small onClick={() => setExpanded(!expanded)} className={style.questionHeader}>
           <div className={style.left}>
-            <Icon icon={collapsed ? 'chevron-right' : 'chevron-down'} /> <h1>{questions?.[0]}</h1>
+            <Icon icon={!expanded ? 'chevron-right' : 'chevron-down'} /> <h1>{questions?.[0]}</h1>
           </div>
           <div className={style.right}>
+            {!expanded && (
+              <span className={style.tag}>{`${questions.filter(answer => answer.trim()).length} ${lang.tr(
+                'module.qna.form.q'
+              )} · ${answers.filter(answer => answer.trim()).length}  ${lang.tr('module.qna.form.a')}`}</span>
+            )}
             {!data.enabled && (
-              <Tooltip content={lang.tr('module.qna.form.disabledTooltip')}>
+              <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.disabledTooltip')}>
                 <span className={style.tag}>Disabled</span>
               </Tooltip>
             )}
             {showIncomplete && (
-              <Tooltip content={lang.tr('module.qna.form.incompleteTooltip')}>
+              <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
                 <span className={cx(style.tag, style.incomplete)}>Incomplete</span>
               </Tooltip>
             )}
@@ -104,35 +111,33 @@ const QnA: FC<Props> = props => {
         </Button>
         <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />
       </div>
-      {!collapsed && (
-        <div className={style.collapsibleWrapper}>
-          <TextAreaList
-            key="questions"
-            initialFocus={focusedElement.current}
-            items={questions}
-            updateItems={items =>
-              updateQnA({ ...data, questions: { ...data.questions, [contentLang]: items }, answers: data.answers })
-            }
-            keyPrefix="question-"
-            placeholder={index => getPlaceholder('question', index)}
-            label={lang.tr('module.qna.question')}
-            addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
-          />
-          <TextAreaList
-            key="answers"
-            initialFocus={focusedElement.current}
-            items={answers}
-            updateItems={items =>
-              updateQnA({ ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } })
-            }
-            keyPrefix="answer-"
-            placeholder={index => getPlaceholder('answer', index)}
-            label={lang.tr('module.qna.answer')}
-            canAddContent
-            addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
-          />
-        </div>
-      )}
+      <div className={cx(style.collapsibleWrapper, { [style.expanded]: expanded })}>
+        <TextAreaList
+          key="questions"
+          items={questions}
+          updateItems={items =>
+            updateQnA({ ...data, questions: { ...data.questions, [contentLang]: items }, answers: data.answers })
+          }
+          keyPrefix="question-"
+          duplicateMsg={lang.tr('module.qna.form.duplicateQuestion')}
+          placeholder={index => getPlaceholder('question', index)}
+          label={lang.tr('module.qna.question')}
+          addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
+        />
+        <TextAreaList
+          key="answers"
+          items={answers}
+          duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
+          updateItems={items =>
+            updateQnA({ ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } })
+          }
+          keyPrefix="answer-"
+          placeholder={index => getPlaceholder('answer', index)}
+          label={lang.tr('module.qna.answer')}
+          canAddContent
+          addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
+        />
+      </div>
     </div>
   )
 }

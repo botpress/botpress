@@ -1,4 +1,4 @@
-import { Alignment, AnchorButton, Button, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Alignment, AnchorButton, Navbar, NavbarGroup, Position, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, useState } from 'react'
 
@@ -24,18 +24,19 @@ const Header: FC<HeaderProps> = props => {
         <NavbarGroup className={style.buttons} align={Alignment.RIGHT}>
           {props.buttons.map((button, index) => (
             <div key={index} className={style.btnWrapper}>
-              <Tooltip content={button.tooltip}>
+              <Tooltip position={Position.BOTTOM} content={button.tooltip}>
                 {!button.optionsItems?.length && (
-                  <Button minimal small onClick={button.onClick} icon={button.icon} disabled={button.disabled} />
+                  <AnchorButton minimal small onClick={button.onClick} icon={button.icon} disabled={button.disabled} />
                 )}
 
                 {!!button.optionsItems?.length && (
                   <MoreOptions
                     element={
-                      <Button
+                      <AnchorButton
                         minimal
                         small
                         onClick={() => setShowingOption(index)}
+                        className={cx({ active: showingOption === index })}
                         icon={button.icon}
                         disabled={button.disabled}
                       />

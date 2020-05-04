@@ -100,6 +100,7 @@ interface Props {
 
 const QnAList: FC<Props> = props => {
   const [currentTab, setCurrentTab] = useState('qna')
+  const [expandedItems, setExpandedItems] = useState({})
   const [currentLang, setCurrentLang] = useState(props.contentLang)
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
@@ -123,6 +124,19 @@ const QnAList: FC<Props> = props => {
     }
   ]
 
+  const allExpanded = Object.keys(expandedItems).filter(itemId => expandedItems[itemId]).length === items.length
+
+  let noItemsTooltip
+  let languesTooltip = lang.tr('module.qna.form.translate')
+
+  if (!items.length) {
+    noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')
+  }
+
+  if (languages?.length <= 1) {
+    languesTooltip = lang.tr('module.qna.form.onlyOneLanguage')
+  }
+
   const buttons: HeaderButtonProps[] = [
     {
       icon: 'translate',
@@ -133,26 +147,33 @@ const QnAList: FC<Props> = props => {
           setCurrentLang(language)
         }
       })),
-      disabled: !items.length
+      disabled: !items.length || languages?.length <= 1,
+      tooltip: noItemsTooltip || languesTooltip
     },
     {
       icon: 'filter',
       disabled: true,
-      onClick: () => {}
+      onClick: () => {},
+      tooltip: noItemsTooltip || lang.tr('filterBy')
     },
     {
       icon: 'sort',
       disabled: true,
-      onClick: () => {}
+      onClick: () => {},
+      tooltip: noItemsTooltip || lang.tr('sortBy')
     },
     {
-      icon: 'collapse-all',
-      disabled: true,
-      onClick: () => {}
+      icon: allExpanded ? 'collapse-all' : 'expand-all',
+      disabled: !items.length,
+      onClick: () => {
+        setExpandedItems(items.reduce((acc, item) => ({ ...acc, [item.id]: allExpanded ? false : true }), {}))
+      },
+      tooltip: noItemsTooltip || lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
     },
     {
       icon: 'plus',
-      onClick: () => dispatch({ type: 'addQnA', data: { languages } })
+      onClick: () => dispatch({ type: 'addQnA', data: { languages } }),
+      tooltip: lang.tr('module.qna.form.addQuestion')
     }
   ]
 
@@ -167,17 +188,18 @@ const QnAList: FC<Props> = props => {
     <MainContent.Wrapper>
       <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
       <div className={cx(style.content, { [style.empty]: !items.length })}>
-        {!!items.length &&
-          items.map((item, index) => (
-            <QnA
-              updateQnA={data => dispatch({ type: 'updateQnA', data: { data, index } })}
-              key={item.id}
-              deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index } })}
-              toggleEnabledQnA={() => dispatch({ type: 'toggleEnabledQnA', data: { index } })}
-              contentLang={currentLang}
-              qnaItem={item}
-            />
-          ))}
+        {items.map((item, index) => (
+          <QnA
+            updateQnA={data => dispatch({ type: 'updateQnA', data: { data, index } })}
+            key={item.id}
+            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index } })}
+            toggleEnabledQnA={() => dispatch({ type: 'toggleEnabledQnA', data: { index } })}
+            contentLang={currentLang}
+            setExpanded={isExpanded => setExpandedItems({ ...expandedItems, [item.id]: isExpanded })}
+            expanded={expandedItems[item.id]}
+            qnaItem={item}
+          />
+        ))}
         {!items.length && !loading && (
           <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.form.emptyState')} />
         )}

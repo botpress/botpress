@@ -10,6 +10,7 @@
   "chips": "Chips",
   "chooseFile": "Choisir fichier...",
   "close": "Fermer",
+  "collapseAll": "Tout réduire",
   "commander": {
     "backToAdmin": "Retour à l'admin",
     "category": {
@@ -54,7 +55,9 @@
   "enabled": "Activé",
   "error": "Erreur",
   "execute": "Executer",
+  "expandAll": "Tout développer",
   "export": "Exporter",
+  "filterBy": "Filtrer par",
   "flows": "Flows",
   "general": "Général",
   "id": "ID",
@@ -116,6 +119,7 @@
     "workspace": "Espace de travail"
   },
   "skills": "Compétences",
+  "sortBy": "Trier par",
   "split": "Séparer",
   "status": "Statut",
   "submit": "Soumettre",
