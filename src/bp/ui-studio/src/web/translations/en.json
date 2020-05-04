@@ -238,7 +238,9 @@
         "addWorkflow": "Add Workflow",
         "tapIconsToAdd": "Tap icons in the toolbar to import or add your first topic.",
         "renameWorkflow": "Rename Workflow",
-        "renameTopic": "Rename Topic"
+        "renameTopic": "Rename Topic",
+        "nameWorkflow": "Name Workflow",
+        "nameTopic": "Name Topic"
       },
       "skills": {
         "couldNotLoad": "Could not load skills view",

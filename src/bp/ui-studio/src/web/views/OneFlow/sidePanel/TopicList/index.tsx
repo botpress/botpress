@@ -161,7 +161,9 @@ const TopicList: FC<Props> = props => {
               defaultValue={isNew ? '' : folder}
               isEditing={isFocused}
               disabled={!isFocused}
-              placeholder={lang.tr('studio.flow.sidePanel.renameTopic')}
+              placeholder={
+                isNew ? lang.tr('studio.flow.sidePanel.nameTopic') : lang.tr('studio.flow.sidePanel.renameTopic')
+              }
               selectAllOnFocus={true}
             />
           ) : (
@@ -301,7 +303,11 @@ const TopicList: FC<Props> = props => {
                 defaultValue={isNew ? '' : displayName}
                 isEditing={isFocused}
                 disabled={!isFocused}
-                placeholder={lang.tr('studio.flow.sidePanel.renameWorkflow')}
+                placeholder={
+                  isNew
+                    ? lang.tr('studio.flow.sidePanel.nameWorkflow')
+                    : lang.tr('studio.flow.sidePanel.renameWorkflow')
+                }
                 selectAllOnFocus={true}
               />
             </React.Fragment>
