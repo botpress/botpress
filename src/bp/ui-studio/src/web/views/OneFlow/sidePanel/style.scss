@@ -50,6 +50,9 @@
     }
 
     .bp3-tree-root .bp3-tree-node-list > :last-child {
+      :hover {
+        background-color: var(--hover-ocean);
+      }
       .bp3-icon {
         color: var(--ocean) !important;
       }
