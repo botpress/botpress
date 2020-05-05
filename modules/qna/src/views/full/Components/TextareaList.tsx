@@ -1,12 +1,13 @@
-import { Button, Tooltip, Position, Icon } from '@blueprintjs/core'
-import cx from 'classnames'
+import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 // @ts-ignore
 import BotpressContentPicker from 'botpress/content-picker'
 // @ts-ignore
 import BotpressContentTypePicker from 'botpress/content-type-picker'
 import { lang, ShortcutLabel, Textarea } from 'botpress/shared'
+import cx from 'classnames'
+import { debounce } from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, useRef, useState } from 'react'
+import React, { FC, Fragment, useCallback, useRef, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -25,8 +26,8 @@ interface Props {
 
 const TextAreaList: FC<Props> = props => {
   const [showPicker, setShowPicker] = useState(false)
-  const focusedElement = useRef(props.initialFocus || '')
   const { duplicateMsg, updateItems, keyPrefix, canAddContent, addItemLabel, label, items, placeholder } = props
+  const focusedElement = useRef(props.initialFocus || '')
 
   // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
   const keys = useRef(items.map(x => _uniqueId(keyPrefix)))
@@ -35,6 +36,8 @@ const TextAreaList: FC<Props> = props => {
     items[index] = value
     updateItems(items)
   }
+
+  const debounceUpdateItem = useCallback(debounce(updateItem, 300), [])
 
   const addItem = (value = ''): void => {
     items.push(value)
@@ -88,7 +91,7 @@ const TextAreaList: FC<Props> = props => {
                 isFocused={focusedElement.current === `${keyPrefix}${index}`}
                 className={cx(style.textarea, { [style.hasError]: errors[index] })}
                 placeholder={placeholder(index)}
-                onChange={e => updateItem(index, e.currentTarget.value)}
+                onChange={value => debounceUpdateItem(index, value)}
                 onKeyDown={e => onKeyDown(e, index)}
                 value={item}
               />

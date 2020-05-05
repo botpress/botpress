@@ -1,122 +1,61 @@
+import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
-import _ from 'lodash'
-import _uniqueId from 'lodash/uniqueId'
-import React, { FC, useEffect, useReducer, useState } from 'react'
+import React, { FC, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
+import {
+  dispatchMiddleware,
+  fetchReducer,
+  getFormErrors,
+  itemHasError,
+  ITEMS_PER_PAGE,
+  Props
+} from './utils/qnaList.utils'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
-const ITEMS_PER_PAGE = 20
-
-interface State {
-  count: number
-  items: any[]
-  loading: boolean
-  page: number
-}
-
-const fetchReducer = (state: State, action): State => {
-  if (action.type === 'dataSuccess') {
-    const { items, count, page } = action.data
-
-    return {
-      ...state,
-      count,
-      items,
-      loading: false,
-      page
-    }
-  } else if (action.type === 'updateQnA') {
-    const { data, index } = action.data
-    const newItems = state.items
-
-    newItems[index] = { ...newItems[index], data }
-
-    return {
-      ...state,
-      items: newItems
-    }
-  } else if (action.type === 'addQnA') {
-    const newItems = state.items
-    const languageArrays = action.data.languages.reduce((acc, lang) => ({ ...acc, [lang]: [''] }), {})
-
-    newItems.unshift({
-      id: _uniqueId('qna-'),
-      isNew: true,
-      data: {
-        enabled: true,
-        answers: _.cloneDeep(languageArrays),
-        questions: _.cloneDeep(languageArrays)
-      }
-    })
-
-    return {
-      ...state,
-      items: newItems
-    }
-  } else if (action.type === 'deleteQnA') {
-    const { index } = action.data
-    const newItems = state.items
-
-    newItems.splice(index, 1)
-
-    return {
-      ...state,
-      items: newItems
-    }
-  } else if (action.type === 'disableQnA') {
-    const { index } = action.data
-    const newItems = state.items
-
-    newItems[index].enabled = false
-
-    return {
-      ...state,
-      items: newItems
-    }
-  } else if (action.type === 'toggleEnabledQnA') {
-    const { index } = action.data
-    const newItems = state.items
-
-    newItems[index].data.enabled = !newItems[index].data.enabled
-
-    return {
-      ...state,
-      items: newItems
-    }
-  } else {
-    throw new Error(`That action type isn't supported.`)
-  }
-}
-
-interface Props {
-  bp: any
-  contentLang: string
-  defaultLanguage: string
-  languages: string[]
-}
-
 const QnAList: FC<Props> = props => {
   const [currentTab, setCurrentTab] = useState('qna')
-  const [expandedItems, setExpandedItems] = useState({})
   const [currentLang, setCurrentLang] = useState(props.contentLang)
+  const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
     loading: true,
-    page: 1
+    page: 1,
+    fetchMore: false,
+    expandedItems: {}
   })
-  const { items, loading } = state
-  const { languages } = props
+  const { items, loading, page, fetchMore, count, expandedItems } = state
+  const { bp, languages } = props
 
   useEffect(() => {
+    wrapperRef.current.addEventListener('scroll', handleScroll)
+
+    dispatch({ type: 'resetData' })
     fetchData()
       .then(() => {})
       .catch(() => {})
+
+    return () => wrapperRef.current.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    if (!loading && fetchMore && items.length < count) {
+      fetchData(page + 1)
+        .then(() => {})
+        .catch(() => {})
+    }
+  }, [fetchMore])
+
+  const handleScroll = () => {
+    if (wrapperRef.current.scrollHeight - wrapperRef.current.scrollTop !== wrapperRef.current.offsetHeight) {
+      return
+    }
+
+    dispatch({ type: 'fetchMore' })
+  }
   const tabs = [
     {
       id: 'qna',
@@ -165,43 +104,58 @@ const QnAList: FC<Props> = props => {
     {
       icon: allExpanded ? 'collapse-all' : 'expand-all',
       disabled: !items.length,
-      onClick: () => {
-        setExpandedItems(items.reduce((acc, item) => ({ ...acc, [item.id]: allExpanded ? false : true }), {}))
-      },
+      onClick: () => dispatch({ type: allExpanded ? 'collapseAll' : 'expandAll' }),
       tooltip: noItemsTooltip || lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
     },
     {
       icon: 'plus',
-      onClick: () => dispatch({ type: 'addQnA', data: { languages } }),
+      onClick: () => {
+        dispatch({ type: 'addQnA', data: { languages } })
+      },
       tooltip: lang.tr('module.qna.form.addQuestion')
     }
   ]
 
   const fetchData = async (page = 1) => {
+    dispatch({ type: 'loading' })
     const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
-    const { data } = await props.bp.axios.get('/mod/qna/questions', { params })
+    const { data } = await bp.axios.get('/mod/qna/questions', { params })
 
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
   }
 
+  const formErrors = getFormErrors(items, currentLang)
+
   return (
-    <MainContent.Wrapper>
+    <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
       <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
       <div className={cx(style.content, { [style.empty]: !items.length })}>
         {items.map((item, index) => (
           <QnA
-            updateQnA={data => dispatch({ type: 'updateQnA', data: { data, index } })}
+            updateQnA={data =>
+              dispatchMiddleware(dispatch, {
+                type: 'updateQnA',
+                data: { qnaItem: data, index, bp, qnaItems: items, currentLang }
+              })
+            }
             key={item.id}
-            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index } })}
+            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
             toggleEnabledQnA={() => dispatch({ type: 'toggleEnabledQnA', data: { index } })}
             contentLang={currentLang}
-            setExpanded={isExpanded => setExpandedItems({ ...expandedItems, [item.id]: isExpanded })}
+            errorMsg={itemHasError(item, formErrors)}
+            setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { [item.id]: isExpanded } })}
             expanded={expandedItems[item.id]}
             qnaItem={item}
           />
         ))}
         {!items.length && !loading && (
           <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.form.emptyState')} />
+        )}
+        {loading && (
+          <Spinner
+            className={cx({ [style.initialLoading]: !fetchMore, [style.loading]: fetchMore })}
+            size={fetchMore ? 20 : 50}
+          />
         )}
       </div>
     </MainContent.Wrapper>

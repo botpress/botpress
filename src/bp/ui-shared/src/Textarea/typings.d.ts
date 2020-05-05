@@ -3,7 +3,7 @@ export interface TextareaProps {
   className?: string
   placeholder?: string
   isFocused?: boolean
-  onChange: () => void
+  onChange: (value: string) => void
   onKeyDown: () => void
   value: string
 }

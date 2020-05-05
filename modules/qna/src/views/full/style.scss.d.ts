@@ -7,13 +7,14 @@ interface CssExports {
   'contentAnswer': string;
   'empty': string;
   'errorIcon': string;
-  'expanded': string;
   'hasError': string;
   'header': string;
   'headerWrapper': string;
   'incomplete': string;
+  'initialLoading': string;
   'items': string;
   'left': string;
+  'loading': string;
   'questionHeader': string;
   'questionWrapper': string;
   'right': string;

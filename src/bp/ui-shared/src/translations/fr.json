@@ -48,6 +48,7 @@
   "delete": "Supprimer",
   "description": "Description",
   "details": "Détails",
+  "disabled": "Désactivé",
   "duplicate": "Dupliquer",
   "edit": "Modifier",
   "email": "Adresse courriel",

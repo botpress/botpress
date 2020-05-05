@@ -45,6 +45,7 @@
   "delete": "Delete",
   "description": "Description",
   "details": "Details",
+  "disabled": "Disabled",
   "duplicate": "Duplicate",
   "edit": "Edit",
   "email": "E-mail",
@@ -61,6 +62,56 @@
   "image": "Image",
   "import": "Import",
   "insert": "Insert",
+  "isoLangs": {
+    "ar": {
+      "name": "Arabic",
+      "nativeName": "العربية"
+    },
+    "nl": {
+      "name": "Dutch",
+      "nativeName": "Nederlands, Vlaams"
+    },
+    "en": {
+      "name": "English",
+      "nativeName": "English"
+    },
+    "fr": {
+      "name": "French",
+      "nativeName": "Français"
+    },
+    "de": {
+      "name": "German",
+      "nativeName": "Deutsch"
+    },
+    "he": {
+      "name": "Hebrew",
+      "nativeName": "עברית"
+    },
+    "it": {
+      "name": "Italian",
+      "nativeName": "Italiano"
+    },
+    "ja": {
+      "name": "Japanese",
+      "nativeName": "日本語 (にほんご／にっぽんご)"
+    },
+    "pl": {
+      "name": "Polish",
+      "nativeName": "polski"
+    },
+    "pt": {
+      "name": "Portuguese",
+      "nativeName": "Português"
+    },
+    "ru": {
+      "name": "Russian",
+      "nativeName": "русский язык"
+    },
+    "es": {
+      "name": "Spanish",
+      "nativeName": "español"
+    }
+  },
   "label": "Label",
   "library": "Library",
   "line": "Line",

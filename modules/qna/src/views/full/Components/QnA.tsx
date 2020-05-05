@@ -4,7 +4,7 @@ import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import { QnaEntry, QnaItem } from '../../../backend/qna'
+import { QnaItem } from '../../../backend/qna'
 import style from '../style.scss'
 
 import TextAreaList from './TextAreaList'
@@ -14,7 +14,8 @@ interface Props {
   setExpanded: (expanded: boolean) => void
   qnaItem: QnaItem
   contentLang: string
-  updateQnA: (questions: QnaEntry) => void
+  errorMsg?: string
+  updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
 }
@@ -23,10 +24,11 @@ const QnA: FC<Props> = props => {
   const [showOption, setShowOption] = useState(false)
   const {
     contentLang,
-    qnaItem: { data },
+    qnaItem: { id, data },
     updateQnA,
     expanded,
-    setExpanded
+    setExpanded,
+    errorMsg
   } = props
   const questions = data.questions[contentLang]
   const answers = data.answers[contentLang]
@@ -92,6 +94,11 @@ const QnA: FC<Props> = props => {
             <Icon icon={!expanded ? 'chevron-right' : 'chevron-down'} /> <h1>{questions?.[0]}</h1>
           </div>
           <div className={style.right}>
+            {errorMsg && (
+              <Tooltip position={Position.BOTTOM} content={errorMsg}>
+                <span className={style.tag}>{lang.tr('module.qna.form.cantBeSaved')}</span>
+              </Tooltip>
+            )}
             {!expanded && (
               <span className={style.tag}>{`${questions.filter(answer => answer.trim()).length} ${lang.tr(
                 'module.qna.form.q'
@@ -99,45 +106,53 @@ const QnA: FC<Props> = props => {
             )}
             {!data.enabled && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.disabledTooltip')}>
-                <span className={style.tag}>Disabled</span>
+                <span className={style.tag}>{lang.tr('disabled')}</span>
               </Tooltip>
             )}
             {showIncomplete && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
-                <span className={cx(style.tag, style.incomplete)}>Incomplete</span>
+                <span className={cx(style.tag, style.incomplete)}>{lang.tr('module.qna.form.incomplete')}</span>
               </Tooltip>
             )}
           </div>
         </Button>
         <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />
       </div>
-      <div className={cx(style.collapsibleWrapper, { [style.expanded]: expanded })}>
-        <TextAreaList
-          key="questions"
-          items={questions}
-          updateItems={items =>
-            updateQnA({ ...data, questions: { ...data.questions, [contentLang]: items }, answers: data.answers })
-          }
-          keyPrefix="question-"
-          duplicateMsg={lang.tr('module.qna.form.duplicateQuestion')}
-          placeholder={index => getPlaceholder('question', index)}
-          label={lang.tr('module.qna.question')}
-          addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
-        />
-        <TextAreaList
-          key="answers"
-          items={answers}
-          duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
-          updateItems={items =>
-            updateQnA({ ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } })
-          }
-          keyPrefix="answer-"
-          placeholder={index => getPlaceholder('answer', index)}
-          label={lang.tr('module.qna.answer')}
-          canAddContent
-          addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
-        />
-      </div>
+      {expanded && (
+        <div className={style.collapsibleWrapper}>
+          <TextAreaList
+            key="questions"
+            items={questions}
+            updateItems={items =>
+              updateQnA({
+                id,
+                data: { ...data, questions: { ...data.questions, [contentLang]: items }, answers: data.answers }
+              })
+            }
+            keyPrefix="question-"
+            duplicateMsg={lang.tr('module.qna.form.duplicateQuestion')}
+            placeholder={index => getPlaceholder('question', index)}
+            label={lang.tr('module.qna.question')}
+            addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
+          />
+          <TextAreaList
+            key="answers"
+            items={answers}
+            duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
+            updateItems={items =>
+              updateQnA({
+                id,
+                data: { ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } }
+              })
+            }
+            keyPrefix="answer-"
+            placeholder={index => getPlaceholder('answer', index)}
+            label={lang.tr('module.qna.answer')}
+            canAddContent
+            addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
+          />
+        </div>
+      )}
     </div>
   )
 }
