@@ -29,7 +29,7 @@ const RollbackBotModal: FC<Props> = props => {
   const fetchRevisions = async () => {
     const { data } = await api.getSecured().get(`/admin/bots/${props.botId}/revisions`)
 
-    const revisions = data.payload.revisions.map(rev => {
+    const revisions = data.payload.revisions.reverse().map(rev => {
       const parts = rev.replace(/\.tgz$/i, '').split('++')
       parts[1] = new Date(parseInt(parts[1], 10)).toLocaleString()
       return {
