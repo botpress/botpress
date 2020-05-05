@@ -367,7 +367,7 @@ const TopicList: FC<Props> = props => {
           if (parent.id !== props.focusedText) {
             parent.label = (
               <div className={style.topicName}>
-                {parent.label}{' '}
+                `${parent.label} `
                 <span className={style.tag}>
                   {node.nodeData?.countByTopic} Q&A · {wfCount} WF
                 </span>
