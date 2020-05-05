@@ -99,7 +99,7 @@ const TopicList: FC<Props> = props => {
     }
   }
 
-  const deleteTopic = async (name: string, skipDialog: boolean = false) => {
+  const deleteTopic = async (name: string, skipDialog = false) => {
     const matcher = new RegExp(`^${name}/`)
     const flowsToDelete = props.flows.filter(x => matcher.test(x.name))
 
