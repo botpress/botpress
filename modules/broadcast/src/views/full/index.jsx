@@ -3,29 +3,28 @@
 import { toastFailure } from 'botpress/utils'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
 import {
   Nav,
   NavItem,
   Navbar,
-  Button,
   Glyphicon,
   Panel,
   Table,
   Modal,
   Form,
-  FormGroup,
   FormControl,
-  InputGroup,
   Checkbox,
   Col,
   ControlLabel,
   ListGroupItem,
   Label
 } from 'react-bootstrap'
+import { Button, FormGroup, InputGroup, ControlGroup } from '@blueprintjs/core'
+import { DateInput, TimePicker } from '@blueprintjs/datetime'
+import { Dialog } from 'botpress/shared'
 
-import DatePicker from 'react-bootstrap-date-picker'
-import TimePicker from 'react-bootstrap-time-picker'
 import moment from 'moment'
 import classnames from 'classnames'
 
@@ -98,12 +97,12 @@ export default class BroadcastModule extends React.Component {
       return
     }
 
+    const t = moment(time).format('HH:mm')
+    console.log(t)
+
     return {
       date: moment(date).format('YYYY-MM-DD'),
-      time: moment()
-        .startOf('day')
-        .add(time, 'seconds')
-        .format('HH:mm'),
+      time: t,
       content: content,
       timezone: userTimezone ? null : moment().format('Z'),
       filters: filteringConditions
@@ -176,7 +175,7 @@ export default class BroadcastModule extends React.Component {
       broadcast = {
         content: '',
         date: new Date().toISOString(),
-        time: 0,
+        time: new Date().setHours(12, 0, 0),
         progress: 0,
         userTimezone: true,
         filteringConditions: []
@@ -379,68 +378,49 @@ export default class BroadcastModule extends React.Component {
     const pickContent = () => window.botpress.pickContent({}, this.handleContentChange)
 
     return (
-      <FormGroup controlId="formContent">
-        <Col componentClass={ControlLabel} sm={2}>
-          Content
-        </Col>
-        <Col sm={10}>
-          <InputGroup>
-            <InputGroup.Button>
-              <Button onClick={pickContent}>Pick Content</Button>
-            </InputGroup.Button>
-            <FormControl type="text" readOnly value={this.state.broadcast.content} />
-          </InputGroup>
-        </Col>
+      <FormGroup label="Content">
+        <ControlGroup>
+          <Button onClick={pickContent} text="Pick Content" />
+          <InputGroup fill={true} id="input-content" readOnly={true} value={this.state.broadcast.content} />
+        </ControlGroup>
       </FormGroup>
     )
   }
 
   renderFormDate() {
-    const getISODate = date => {
-      if (date) {
-        return new Date(date).toISOString()
-      }
-      return new Date().toISOString()
+    const getDate = date => {
+      return new Date(date)
     }
 
     return (
-      <FormGroup controlId="formDate">
-        <Col componentClass={ControlLabel} sm={2}>
-          Date
-        </Col>
-        <Col sm={10}>
-          <DatePicker value={getISODate(this.state.broadcast.date)} onChange={this.handleDateChange} />
-        </Col>
+      <FormGroup label="Date">
+        <DateInput
+          fill={true}
+          onChange={this.handleDateChange}
+          parseDate={str => new Date(str)}
+          placeholder={'YYYY-MM-DD'}
+          formatDate={d => moment(d).format('YYYY-MM-DD')}
+          value={getDate(this.state.broadcast.date)}
+        />
       </FormGroup>
     )
   }
 
   renderFormTime() {
+    console.log(this.state.broadcast.time)
     return (
-      <FormGroup controlId="formTime">
-        <Col componentClass={ControlLabel} sm={2}>
-          Time
-        </Col>
-        <Col sm={10}>
-          <TimePicker step={15} onChange={this.handleTimeChange} value={this.state.broadcast.time} />
-        </Col>
+      <FormGroup label="Time">
+        <TimePicker fill={true} onChange={this.handleTimeChange} value={new Date(this.state.broadcast.time)} />
       </FormGroup>
     )
   }
 
   renderFormUserTimezone() {
     return (
-      <FormGroup controlId="formUserTimezone">
-        <Col componentClass={ControlLabel} sm={2}>
+      <FormGroup label="User time zone">
+        <Checkbox checked={this.state.broadcast.userTimezone} onChange={this.handleUserTimezoneChange}>
           User time zone
-        </Col>
-        <Col sm={10}>
-          <Checkbox
-            name="userTimezone"
-            checked={this.state.broadcast.userTimezone}
-            onChange={this.handleUserTimezoneChange}
-          />
-        </Col>
+        </Checkbox>
       </FormGroup>
     )
   }
@@ -510,22 +490,23 @@ export default class BroadcastModule extends React.Component {
 
   renderModalForm() {
     return (
-      <Modal
-        container={document.getElementById('app')}
-        show={this.state.showModalForm}
-        onHide={this.handleCloseModalForm}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{this.state.modifyBroadcast ? 'Modify broadcast...' : 'Create new broadcast...'}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{this.renderForm()}</Modal.Body>
-        <Modal.Footer>
-          {this.renderActionButton()}
-          <button className="bp-button bp-button-danger" onClick={this.handleCloseModalForm}>
-            Cancel
-          </button>
-        </Modal.Footer>
-      </Modal>
+      <div>
+        <Dialog.Wrapper
+          title={this.state.modifyBroadcast ? 'Modify broadcast...' : 'Create new broadcast...'}
+          usePortal={false}
+          isOpen={this.state.showModalForm}
+          onClose={this.closeModal}
+          size="md"
+        >
+          <Dialog.Body>{this.renderForm()}</Dialog.Body>
+          <Dialog.Footer>
+            {this.renderActionButton()}
+            <button className="bp-button bp-button-danger" onClick={this.handleCloseModalForm}>
+              Cancel
+            </button>
+          </Dialog.Footer>
+        </Dialog.Wrapper>
+      </div>
     )
   }
 

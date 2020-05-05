@@ -12,6 +12,7 @@
   "author": "Botpress",
   "license": "AGPL-3.0-only",
   "devDependencies": {
+    "@blueprintjs/core": "^3.26.1",
     "classnames": "^2.2.5",
     "core-js": "^2.4.1",
     "react-bootstrap": "^0.33.1",
@@ -19,6 +20,7 @@
     "react-bootstrap-time-picker": "^1.0.3"
   },
   "dependencies": {
+    "@blueprintjs/datetime": "^3.17.0",
     "bluebird": "^3.4.6",
     "bluebird-retry": "^0.8.0",
     "dateformat": "^1.0.12",
