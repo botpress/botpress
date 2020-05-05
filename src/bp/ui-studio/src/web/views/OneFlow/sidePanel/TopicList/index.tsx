@@ -93,7 +93,7 @@ const TopicList: FC<Props> = props => {
     setFlows([...qna, ...props.flows])
   }, [props.flows, props.topics, props.qnaCountByTopic])
 
-  const deleteFlow = async (name: string, skipDialog: boolean = false) => {
+  const deleteFlow = async (name: string, skipDialog = false) => {
     if (skipDialog || (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {}))) {
       props.deleteFlow(name)
     }
