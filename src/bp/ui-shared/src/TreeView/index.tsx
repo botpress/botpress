@@ -67,7 +67,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
     if (props.expandedPaths) {
       props.onExpandToggle?.(node.fullPath, isExpanded)
     } else {
-      isExpanded ? setExpanded([...expanded, node.fullPath]) : setExpanded(expanded.filter(x => x !== node.fullPath))
+      setExpanded(isExpanded ? [...expanded, node.fullPath] : expanded.filter(x => x !== node.fullPath))
     }
     node.isExpanded = isExpanded
   }
