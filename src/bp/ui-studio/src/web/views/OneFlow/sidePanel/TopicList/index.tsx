@@ -134,16 +134,16 @@ const TopicList: FC<Props> = props => {
     const isBuiltIn = folder === 'Built-In'
     const filterOrder = isBuiltIn ? 3 : isNew ? 2 : 1
 
-    const editTopic = async x => {
+    const editTopic = async newName => {
       props.setFocusedText(undefined)
       props.setNewPath(undefined)
-      if (x === '') {
+      if (newName === '') {
         await props.fetchFlows()
         await props.fetchTopics()
-      } else if (x !== folder) {
-        await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: x, description: undefined })
+      } else if (newName !== folder) {
+        await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: newName, description: undefined })
         if (props.expandedPaths.includes(folder)) {
-          props.onExpandToggle(x, true)
+          props.onExpandToggle(newName, true)
         }
         await props.fetchFlows()
         await props.fetchTopics()
@@ -277,14 +277,14 @@ const TopicList: FC<Props> = props => {
     const isQna = type === 'qna'
     const filterOrder = isNew ? 3 : !isQna ? 2 : 1
 
-    const editWorkflow = async x => {
+    const editWorkflow = async newName => {
       props.setFocusedText(undefined)
       props.setNewPath(undefined)
-      if (x === '') {
+      if (newName === '') {
         await props.fetchFlows()
         await props.fetchTopics()
-      } else if (x !== displayName) {
-        const fullName = buildFlowName({ topic: el.topic, workflow: x }, true)
+      } else if (newName !== displayName) {
+        const fullName = buildFlowName({ topic: el.topic, workflow: newName }, true)
         props.renameFlow({ targetFlow: name, name: fullName })
         props.updateFlow({ name: fullName })
       }
