@@ -13,14 +13,14 @@ describe('Slot tagger labels for utterance', () => {
   })
 
   test('with slots', () => {
-    const u = makeTestUtterance('Careful my friend, Alex W. is one of us')
-    //                           012345678901234567890123456789012345678
-    //                           ________---------__-------___________--
+    const u = makeTestUtterance('Careful my friend Alex W is one of us')
+    //                           0123456789012345678901234567890123456
+    //                           ________---------_-------__________--
 
-    u.tagSlot({ name: 'listener', source: 'my friend' } as ExtractedSlot, 8, 18) // 18 because we want to include the ',' (for testing purposes) since we're not tokenizing wisely
-    u.tagEntity({ value: 'my friend', type: 'friend' } as ExtractedEntity, 8, 18) // 18 because we want to include the ',' (for testing purposes) since we're not tokenizing wisely
-    u.tagSlot({ name: 'person', source: 'Alex W.' } as ExtractedSlot, 19, 26)
-    u.tagSlot({ name: 'group', source: 'us' } as ExtractedSlot, 37, 39)
+    u.tagSlot({ name: 'listener', source: 'my friend' } as ExtractedSlot, 8, 17)
+    u.tagEntity({ value: 'my friend', type: 'friend' } as ExtractedEntity, 8, 17)
+    u.tagSlot({ name: 'person', source: 'Alex W' } as ExtractedSlot, 18, 24)
+    u.tagSlot({ name: 'group', source: 'us' } as ExtractedSlot, 35, 37)
 
     const labels = labelizeUtterance(u)
 
@@ -50,7 +50,7 @@ describe('makeExtractedSlots', () => {
   } as Intent<Utterance>
 
   beforeEach(() => {
-    u = makeTestUtterance('No one is safe, big AI is watching')
+    u = makeTestUtterance('No one is safe big AI is watching')
     //                     0123456789012345678901234567890123
     tagResults = new Array(u.tokens.filter(t => !t.isSpace).length).fill(out)
   })
@@ -68,8 +68,8 @@ describe('makeExtractedSlots', () => {
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
     expect(extractedSlots[0].slot.value).toEqual('big AI')
-    expect(extractedSlots[0].start).toEqual(16)
-    expect(extractedSlots[0].end).toEqual(22)
+    expect(extractedSlots[0].start).toEqual(15)
+    expect(extractedSlots[0].end).toEqual(21)
   })
 
   test('consecutive different slots are not combined', () => {
@@ -87,12 +87,12 @@ describe('makeExtractedSlots', () => {
     expect(extractedSlots.length).toEqual(2)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
     expect(extractedSlots[0].slot.value).toEqual('big AI')
-    expect(extractedSlots[0].start).toEqual(16)
-    expect(extractedSlots[0].end).toEqual(22)
+    expect(extractedSlots[0].start).toEqual(15)
+    expect(extractedSlots[0].end).toEqual(21)
     expect(extractedSlots[1].slot.source).toEqual('is watching')
     expect(extractedSlots[1].slot.value).toEqual('is watching')
-    expect(extractedSlots[1].start).toEqual(23)
-    expect(extractedSlots[1].end).toEqual(34)
+    expect(extractedSlots[1].start).toEqual(22)
+    expect(extractedSlots[1].end).toEqual(33)
   })
 
   test('slot with associated entities adds proper value', () => {
@@ -103,7 +103,7 @@ describe('makeExtractedSlots', () => {
       { name: 'threath', probability: 1, tag: BIO.INSIDE }
     )
     const value = 'Artificial Intelligence'
-    u.tagEntity({ type: 'CS_Field', value } as ExtractedEntity, 20, 22)
+    u.tagEntity({ type: 'CS_Field', value } as ExtractedEntity, 19, 21)
 
     const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
 
@@ -119,7 +119,7 @@ describe('makeExtractedSlots', () => {
       { name: 'action', probability: 1, tag: BIO.BEGINNING },
       { name: 'action', probability: 1, tag: BIO.INSIDE }
     )
-    u.tagEntity({ type: 'verb', value: 'to watch' } as ExtractedEntity, 26, 34)
+    u.tagEntity({ type: 'verb', value: 'to watch' } as ExtractedEntity, 25, 33)
 
     const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
 

@@ -1,6 +1,8 @@
 {
   "name": "nlu-extras",
-  "version": "10.47.1",
+  "fullName": "NLU Extra Tools",
+  "version": "1.0.0",
+  "status": "stable",
   "description": "Extra NLU tools, such as external NLU engines",
   "private": true,
   "main": "dist/backend/index.js",

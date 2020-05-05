@@ -190,7 +190,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.get('/entities', async (req, res) => {
     const { botId } = req.params
     const entities = await state.nluByBot[botId].entityService.getEntities()
-    res.json(entities)
+    res.json(entities.map(x => ({ ...x, label: `${x.type}.${x.name}` })))
   })
 
   router.get('/entities/:entityName', async (req, res) => {

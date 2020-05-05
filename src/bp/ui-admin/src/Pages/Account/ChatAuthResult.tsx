@@ -8,7 +8,7 @@ const ChatAuthResult = props => {
 
   if (error) {
     return (
-      <LoginContainer title={lang.tr('authenticationFailed')}>
+      <LoginContainer title={lang.tr('admin.authenticationFailed')}>
         <p>{error}</p>
       </LoginContainer>
     )
@@ -20,7 +20,7 @@ const ChatAuthResult = props => {
 
   return (
     <LoginContainer title="Authentication">
-      <p>{lang.tr('successfullyAuthenticated')}</p>
+      <p>{lang.tr('admin.successfullyAuthenticated')}</p>
     </LoginContainer>
   )
 }

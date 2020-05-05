@@ -503,7 +503,8 @@ declare module 'botpress/sdk' {
     export interface Predictions {
       [context: string]: {
         confidence: number
-        intents: { label: string; confidence: number }[]
+        oos: number
+        intents: { label: string; confidence: number; slots: SlotCollection }[]
       }
     }
   }
@@ -517,6 +518,8 @@ declare module 'botpress/sdk' {
       type: 'workflow'
       workflowId: string
       nodeId: string
+      /** When true, the user must be inside the specified workflow for the trigger to be active */
+      activeWorkflow?: boolean
     }
 
     export interface FaqTrigger extends GenericTrigger {
@@ -545,7 +548,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue'
+      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode'
       data?: SendContent | FlowRedirect
     }
 
@@ -733,6 +736,8 @@ declare module 'botpress/sdk' {
       flow: string
       /** The name of the previous node to return to when we exit a subflow */
       node: string
+      /** When a jump point is used, it will be removed from the list on the next transition */
+      used?: boolean
     }
 
     export interface DialogContext {
@@ -1172,7 +1177,7 @@ declare module 'botpress/sdk' {
     /** The description holds placeholders for param values so they can be displayed in the view */
     description?: string
     /** The definition of all parameters used by this condition */
-    params?: ConditionParams
+    params?: { [paramName: string]: ConditionParam }
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
     /** This callback url is called when the condition is deleted or pasted in the flow */
@@ -1185,16 +1190,18 @@ declare module 'botpress/sdk' {
     evaluate: (event: IO.IncomingEvent, params: any) => number
   }
 
-  export interface ConditionParams {
-    [paramName: string]: {
-      label: string
-      /** Each type provides a different kind of editor */
-      type: 'string' | 'number' | 'boolean' | 'list'
-      required?: boolean
-      defaultValue?: any
-      /** When type is list, this variable must be configured */
-      list?: ConditionListOptions
-    }
+  export interface ConditionParam {
+    label: string
+    /** Each type provides a different kind of editor */
+    type: 'string' | 'number' | 'boolean' | 'list' | 'radio' | 'array' | 'content'
+    /** Different components can be used to display certain types (eg: boolean/list) */
+    subType?: 'switch' | 'radio'
+    required?: boolean
+    defaultValue?: any
+    /** Number of rows (for types which supports it, ex: string, array) */
+    rows?: number
+    /** When type is list, this variable must be configured */
+    list?: ConditionListOptions
   }
 
   export interface ConditionListOptions {
@@ -1204,9 +1211,9 @@ declare module 'botpress/sdk' {
     endpoint?: string
     /** The path to the list of elements (eg: language.available) */
     path?: string
-    /** Name of the field which will be used as the value */
+    /** Name of the field which will be used as the value. Default to value */
     valueField?: string
-    /** Friendly name displayed in the dropdown menu */
+    /** Friendly name displayed in the dropdown menu. Default to label */
     labelField?: string
   }
 
@@ -1247,10 +1254,22 @@ declare module 'botpress/sdk' {
    */
   export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
 
+  export type FlowNodeType =
+    | 'standard'
+    | 'skill-call'
+    | 'listen'
+    | 'say_something'
+    | 'success'
+    | 'failure'
+    | 'trigger'
+    | 'execute'
+    | 'router'
+    | 'action'
+
   export type FlowNode = {
     id?: string
     name: string
-    type?: any
+    type?: FlowNodeType
     timeoutNode?: string
     flow?: string
     /** Used internally by the flow editor */
@@ -1259,6 +1278,7 @@ declare module 'botpress/sdk' {
 
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]
+    activeWorkflow?: boolean
   }
 
   export type ListenNode = FlowNode & {
@@ -1298,6 +1318,12 @@ declare module 'botpress/sdk' {
     onReceive?: ActionBuilderProps[] | string[]
     /** An array of possible transitions once everything is completed */
     next?: NodeTransition[]
+    /** For node of type say_something, this contains the element to render */
+    content?: {
+      contentType: string
+      /** Every properties required by the content type, including translations */
+      formData: object
+    }
   }
 
   export interface ActionBuilderProps {

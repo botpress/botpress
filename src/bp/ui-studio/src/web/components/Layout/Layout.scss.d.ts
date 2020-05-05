@@ -11,6 +11,7 @@ interface CssExports {
   'main': string;
   'main-content': string;
   'mainLayout': string;
+  'mainSplitPaneWToolbar': string;
   'sidebar': string;
   'sidebar-tabs': string;
 }

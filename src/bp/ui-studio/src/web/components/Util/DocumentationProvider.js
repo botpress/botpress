@@ -23,8 +23,9 @@ class StatusBarDocumentationProvider extends Component {
 const _LinkDocumentationProvider = props => {
   const passthroughProps = _.omit(props, 'children', 'onClick', 'href', 'updateDocumentationModal')
   const onClick = e => {
-    props.updateDocumentationModal(props.file)
     e.preventDefault()
+
+    window.open(`https://botpress.com/docs/${props.file}`, '_blank')
   }
   return (
     <a {...passthroughProps} onClick={onClick}>

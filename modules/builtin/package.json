@@ -1,7 +1,9 @@
 {
   "name": "builtin",
+  "fullName": "Built-In",
   "version": "1.0.0",
-  "description": "Botpress Basic elements (content types, demo bot)",
+  "status": "stable",
+  "description": "Provides the base elements that are recommended to run Botpress",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {

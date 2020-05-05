@@ -1,7 +1,8 @@
 .mainLayout {
-  display: flex;
   align-items: flex-start;
-  height: calc(100vh - 30px);
+  height: calc(100vh - 28px);
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .container {
@@ -13,6 +14,12 @@
 .main {
   overflow-y: auto;
   width: 100%;
+}
+
+.mainSplitPaneWToolbar {
+  height: auto !important;
+  min-height: 0 !important;
+  top: 50px !important;
 }
 
 .aside {

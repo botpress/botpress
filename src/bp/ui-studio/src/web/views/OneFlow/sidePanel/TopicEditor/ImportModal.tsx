@@ -1,11 +1,10 @@
 import { Button, Checkbox, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import 'bluebird-global'
-import { lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
-import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils'
 
 import { ElementType } from '..'
@@ -142,7 +141,7 @@ const ImportModal: FC<Props> = props => {
 
     return (
       <div>
-        <DialogBody>
+        <Dialog.Body>
           {!!missing.length && (
             <div>
               <strong>{lang.tr('studio.flow.topicEditor.dontExisteWillCreate')}</strong>
@@ -178,8 +177,8 @@ const ImportModal: FC<Props> = props => {
               </div>
             </div>
           )}
-        </DialogBody>
-        <DialogFooter>
+        </Dialog.Body>
+        <Dialog.Footer>
           <Button id="btn-back" text={lang.tr('back')} disabled={isLoading} onClick={() => setActions(undefined)} />
           <Button
             id="btn-next"
@@ -187,7 +186,7 @@ const ImportModal: FC<Props> = props => {
             onClick={doImport}
             intent={Intent.PRIMARY}
           />
-        </DialogFooter>
+        </Dialog.Footer>
       </div>
     )
   }
@@ -253,7 +252,7 @@ const ImportModal: FC<Props> = props => {
           readFile(e.dataTransfer.files)
         }}
       >
-        <DialogBody>
+        <Dialog.Body>
           <FormGroup label={<span>{lang.tr('studio.flow.topicEditor.selectJson')}</span>} labelFor="input-archive">
             <FileInput
               text={filePath || lang.tr('chooseFile')}
@@ -263,8 +262,8 @@ const ImportModal: FC<Props> = props => {
           </FormGroup>
 
           {renderSummary()}
-        </DialogBody>
-        <DialogFooter>
+        </Dialog.Body>
+        <Dialog.Footer>
           {fileContent && (
             <Button
               id="btn-next"
@@ -274,7 +273,7 @@ const ImportModal: FC<Props> = props => {
               intent={Intent.PRIMARY}
             />
           )}
-        </DialogFooter>
+        </Dialog.Footer>
       </div>
     )
   }
@@ -282,24 +281,24 @@ const ImportModal: FC<Props> = props => {
   const renderNoChanges = () => {
     return (
       <Fragment>
-        <DialogBody>{lang.tr('studio.flow.topicEditor.noChangesToApply')}</DialogBody>
-        <DialogFooter>
+        <Dialog.Body>{lang.tr('studio.flow.topicEditor.noChangesToApply')}</Dialog.Body>
+        <Dialog.Footer>
           <Button id="btn-back" text={lang.tr('back')} onClick={() => setActions(undefined)} />
           <Button id="btn-close" text={lang.tr('close')} onClick={closeDialog} />
-        </DialogFooter>
+        </Dialog.Footer>
       </Fragment>
     )
   }
 
   return (
-    <BaseDialog
+    <Dialog.Wrapper
       title={lang.tr('studio.flow.topicEditor.importContent')}
       icon="import"
       isOpen={props.isOpen}
       onClose={closeDialog}
     >
       {actions !== undefined ? renderDetails() : renderUpload()}
-    </BaseDialog>
+    </Dialog.Wrapper>
   )
 }
 

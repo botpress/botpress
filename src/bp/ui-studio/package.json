@@ -25,6 +25,7 @@
     }
   },
   "resolutions": {
+    "socket.io/**/debug": "^3.2.6",
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.12"
   },
@@ -54,6 +55,7 @@
     "prop-types": "^15.6.0",
     "query-string": "^5.1.1",
     "react": "16.8.6",
+    "react-autosize-textarea": "^7.0.0",
     "react-bootstrap": "^0.33.1",
     "react-dock": "^0.2.4",
     "react-dom": "16.8.6",
@@ -79,6 +81,7 @@
     "redux-actions": "^2.2.1",
     "redux-thunk": "^2.2.0",
     "reselect": "^4.0.0",
+    "snarkdown": "^1.2.2",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "socketio-jwt": "^4.5.0",

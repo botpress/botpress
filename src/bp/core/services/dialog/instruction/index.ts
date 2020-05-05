@@ -9,6 +9,7 @@ export type Instruction = {
   type: InstructionType
   fn?: string
   node?: string
+  args?: any
 }
 
 export type FollowUpAction = 'none' | 'wait' | 'transition' | 'update'

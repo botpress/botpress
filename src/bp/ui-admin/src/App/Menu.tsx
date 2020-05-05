@@ -142,6 +142,7 @@ const Menu: FC<MenuProps> = props => {
               icon="globe-network"
               url="/server/languages"
             />
+            <MenuItem text={lang.tr('sideMenu.modules')} id="btn-menu-modules" icon="control" url="/modules" />
             <MenuItem
               text={lang.tr('admin.sideMenu.productionChecklist')}
               id="btn-menu-checklist"

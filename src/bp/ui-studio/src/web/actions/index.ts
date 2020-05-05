@@ -489,3 +489,11 @@ export const getModuleTranslations = () => dispatch => {
     dispatch(receiveModuleTranslations(data))
   })
 }
+
+export const botsReceived = createAction('BOTS/RECEIVED')
+export const fetchBotIds = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/workspaceBotsIds`).then(res => {
+    dispatch(botsReceived(res.data))
+  })
+}

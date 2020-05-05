@@ -28,3 +28,9 @@ export const toastFailure = message =>
     intent: Intent.DANGER,
     timeout: 3500
   })
+
+export const sanitizeName = (text: string) =>
+  text
+    .replace(/\s/g, '-')
+    .replace(/[^a-zA-Z0-9\/_.-]/g, '')
+    .replace(/\/\//, '/')

@@ -25,6 +25,14 @@
   }
 }
 
+.body {
+  padding: 20px 20px 0;
+
+  :global(.list-group) {
+    margin-bottom: 0
+  }
+}
+
 .contentInput {
   input {
     color: #000 !important;

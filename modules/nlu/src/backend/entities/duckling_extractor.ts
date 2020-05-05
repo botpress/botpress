@@ -120,7 +120,9 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     lang: string,
     useCache?: boolean
   ): Promise<EntityExtractionResult[][]> {
-    if (!DucklingEntityExtractor.enabled) return Array(inputs.length).fill([])
+    if (!DucklingEntityExtractor.enabled) {
+      return Array(inputs.length).fill([])
+    }
     const options = {
       lang,
       tz: this._getTz(),

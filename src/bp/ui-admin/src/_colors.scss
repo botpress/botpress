@@ -1,3 +1,5 @@
+@import '../../ui-shared/src/style/variables.scss';
+
 // Top header
 
 $logo-color: #fff;
@@ -8,11 +10,9 @@ $dark-light-text: #fff;
 
 $light-background: #f4f4f4;
 
-$fontFamily: Sans-Serif;
+$fontFamily: Roboto;
 
 :root {
-  --font-family: $fontFamily;
-
   --c-neutral--dark-2: #000;
   --c-neutral--dark-1: #4a4a4a;
   --c-neutral: #9b9b9b;
@@ -25,11 +25,13 @@ $fontFamily: Sans-Serif;
   --c-background--light-1: #626262;
   --c-background: #555556;
   --c-background--dark-1: #353535;
-  --c-background--dark-2: #1e1e1e;
+  --c-background--dark-2: #1a1e22;
   --c-background--dark-3: #000;
 
+  --c-text--light-gray: #5C7080;
+
   --header-height: 50px;
-  --statusbar-height: 30px;
+  --statusbar-height: 28px;
   --container-height: calc(100vh - var(--header-height) - var(--statusbar-height));
   // Super admin page header height and standard page header height
   --sa-page-header-height: 35px;

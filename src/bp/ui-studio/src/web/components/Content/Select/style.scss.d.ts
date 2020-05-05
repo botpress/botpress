@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'actionBtn': string;
+  'body': string;
   'contentInput': string;
   'createItem': string;
   'editButton': string;
