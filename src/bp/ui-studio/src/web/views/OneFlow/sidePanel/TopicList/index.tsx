@@ -294,7 +294,7 @@ const TopicList: FC<Props> = props => {
       label: (
         <div className={style.treeNode}>
           {!isQna ? (
-            <React.Fragment>
+            <Fragment>
               <EditableText
                 onConfirm={editWorkflow}
                 defaultValue={isNew ? '' : displayName}
@@ -307,11 +307,11 @@ const TopicList: FC<Props> = props => {
                 }
                 selectAllOnFocus={true}
               />
-            </React.Fragment>
+            </Fragment>
           ) : (
-            <React.Fragment>
+            <Fragment>
               <span>{displayName}</span>
-            </React.Fragment>
+            </Fragment>
           )}
         </div>
       ),
@@ -411,7 +411,7 @@ const TopicList: FC<Props> = props => {
 
   const activeFlow = props.currentFlow?.name
   return (
-    <React.Fragment>
+    <Fragment>
       {flows.length <= 3 && (
         <div className={style.topicsEmptyState}>
           <div className={style.topicsEmptyStateBlock}>
@@ -437,7 +437,7 @@ const TopicList: FC<Props> = props => {
           filterProps="name"
         />
       </div>
-    </React.Fragment>
+    </Fragment>
   )
 }
 
