@@ -39,7 +39,7 @@ function splitPath<T>(
 
   return {
     folders,
-    leafNode: { id, label, icon: icon || DOCUMENT_ICON, name: name, fullPath: id, type: 'node' }
+    leafNode: { id, label, icon: icon || DOCUMENT_ICON, name, fullPath: id, type: 'node' }
   }
 }
 

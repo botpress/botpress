@@ -157,7 +157,7 @@
   font-size: 12px;
   color: #1a1e22;
   margin: 0px 20px;
-  margin-top: var(--spacing-x-large);
+  margin: var(--spacing-x-large) var(--spacing-xx-large) 0;
 }
 
 .treeNode {
@@ -270,7 +270,7 @@
   $height: 34px;
 
   height: $height;
-  padding: 0px var(--spacing-large);
+  padding: 0 var(--spacing-large);
   box-shadow: unset;
   margin-bottom: 6px;
 

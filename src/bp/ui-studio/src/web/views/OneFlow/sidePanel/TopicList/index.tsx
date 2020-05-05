@@ -93,13 +93,13 @@ const TopicList: FC<Props> = props => {
     setFlows([...qna, ...props.flows])
   }, [props.flows, props.topics, props.qnaCountByTopic])
 
-  const deleteFlow = async (name: string, skipDialog: boolean = false) => {
+  const deleteFlow = async (name: string, skipDialog = false) => {
     if (skipDialog || (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {}))) {
       props.deleteFlow(name)
     }
   }
 
-  const deleteTopic = async (name: string, skipDialog: boolean = false) => {
+  const deleteTopic = async (name: string, skipDialog = false) => {
     const matcher = new RegExp(`^${name}/`)
     const flowsToDelete = props.flows.filter(x => matcher.test(x.name))
 
@@ -367,7 +367,7 @@ const TopicList: FC<Props> = props => {
           if (parent.id !== props.focusedText) {
             parent.label = (
               <div className={style.topicName}>
-                {parent.label}{' '}
+                `${parent.label} `
                 <span className={style.tag}>
                   {node.nodeData?.countByTopic} Q&A · {wfCount} WF
                 </span>
