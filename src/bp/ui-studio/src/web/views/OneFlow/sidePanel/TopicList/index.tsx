@@ -192,13 +192,15 @@ const TopicList: FC<Props> = props => {
             text={lang.tr('studio.flow.topicList.exportTopic')}
             onClick={() => props.exportTopic(folder)}
           />
-          <MenuItem
-            id="btn-delete"
-            icon="trash"
-            text={lang.tr('studio.flow.topicList.deleteTopic')}
-            intent={Intent.DANGER}
-            onClick={() => deleteTopic(folder)}
-          />
+          {folder !== 'Built-In' && (
+            <MenuItem
+              id="btn-delete"
+              icon="trash"
+              text={lang.tr('studio.flow.topicList.deleteTopic')}
+              intent={Intent.DANGER}
+              onClick={() => deleteTopic(folder)}
+            />
+          )}
           <MenuDivider />
           <MenuItem
             id="btn-create"
@@ -412,7 +414,7 @@ const TopicList: FC<Props> = props => {
   const activeFlow = props.currentFlow?.name
   return (
     <Fragment>
-      {props.topics.length <= 1 && (
+      {props.topics.length === 0 && (
         <div className={style.topicsEmptyState}>
           <div className={style.topicsEmptyStateBlock}>
             <img width="70" src="assets/ui-studio/public/img/empty-state.svg" alt="Empty folder" />
