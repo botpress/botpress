@@ -161,6 +161,8 @@ export default async (bp: typeof sdk) => {
     })
 
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
+    const accuracy = _.flatten(resultsBatch).filter(res => res.success).length / tests.length
+    bp.logger.forBot(req.params.botId).info(`finished running tests with ${accuracy} of accuracy`)
     res.send(testResults)
   })
 }
