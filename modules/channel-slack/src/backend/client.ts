@@ -103,7 +103,7 @@ export class SlackClient {
       await this.bp.events.updateEvent(event.id, { feedback })
     })
 
-    this.router.use(`/bots/${this.botId}/callback`, this.interactive.requestListener())
+    this.router.use(`/callback`, this.interactive.requestListener())
 
     await this.displayUrl('Interactive', 'callback')
   }
@@ -114,7 +114,7 @@ export class SlackClient {
       await this.rtm.start()
     } else {
       this.listenMessages(this.events)
-      this.router.post(`/bots/${this.botId}/events-callback`, this.events.requestListener())
+      this.router.post(`/events-callback`, this.events.requestListener())
       await this.displayUrl('Events', 'events-callback')
     }
   }
@@ -235,7 +235,7 @@ export class SlackClient {
     if (target && this.config.fetchUserInfo) {
       try {
         user = await this._getUserInfo(target.toString())
-      } catch (err) {}
+      } catch (err) { }
     }
 
     await this.bp.events.sendEvent(

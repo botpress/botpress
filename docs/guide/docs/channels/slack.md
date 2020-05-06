@@ -36,9 +36,9 @@ title: Slack
 
 3. Under `Subscribe to bot events` add `messages.im` and `messages.channels` (you can also add other types of messages if you want)
 
-4. Open the page `Interactive Components`, then turn the switch to `On`
+4. Open the page `Interactivity & Shortcuts`, then turn the switch to `On`
 
-5. Set the request URL to: `EXTERNAL_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-slack/bots/YOUR_BOT_ID/callback`
+5. Set the request URL to: `EXTERNAL_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-slack/callback`
 
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID by your bot ID
