@@ -226,6 +226,7 @@ export default class BroadcastModule extends React.Component {
   handleAddToFilteringConditions = () => {
     const input = ReactDOM.findDOMNode(this.filterInput)
     if (input && input.value !== '') {
+      ;``
       const newBroadcast = this.state.broadcast
       newBroadcast.filteringConditions = _.concat(newBroadcast.filteringConditions, input.value)
 
@@ -376,9 +377,8 @@ export default class BroadcastModule extends React.Component {
     }
 
     return (
-      <FormGroup label="Date">
+      <FormGroup label="Date" fill={true}>
         <DateInput
-          fill={true}
           onChange={this.handleDateChange}
           parseDate={str => new Date(str)}
           placeholder={'YYYY-MM-DD'}
@@ -392,7 +392,7 @@ export default class BroadcastModule extends React.Component {
   renderFormTime() {
     return (
       <FormGroup label="Time">
-        <TimePicker fill={true} onChange={this.handleTimeChange} value={new Date(this.state.broadcast.time)} />
+        <TimePicker onChange={this.handleTimeChange} value={new Date(this.state.broadcast.time)} />
       </FormGroup>
     )
   }
@@ -428,19 +428,13 @@ export default class BroadcastModule extends React.Component {
 
     return (
       <div>
-        <FormGroup controlId="filtering">
-          <Col componentClass={ControlLabel} sm={2}>
-            Filtering conditions
-          </Col>
-          <Col sm={10}>{filteringConditionElements}</Col>
-        </FormGroup>
-        <FormGroup>
-          <Col smOffset={2} sm={10}>
-            <ControlLabel>Add a new filter:</ControlLabel>
-            <FormControl ref={input => (this.filterInput = input)} type="text" />
+        <FormGroup label="Add a new filter:">
+          <ControlGroup>
+            <InputGroup fill={true} inputRef={input => (this.filterInput = input)} onin />
             <Button text="Add" onClick={() => this.handleAddToFilteringConditions()} />
-          </Col>
+          </ControlGroup>
         </FormGroup>
+        <FormGroup label="Filtering conditions">{filteringConditionElements}</FormGroup>
       </div>
     )
   }
@@ -449,8 +443,10 @@ export default class BroadcastModule extends React.Component {
     return (
       <Form horizontal>
         {this.renderFormContent()}
-        {this.renderFormDate()}
-        {this.renderFormTime()}
+        <ControlGroup>
+          {this.renderFormDate()}
+          {this.renderFormTime()}
+        </ControlGroup>
         {this.renderFormUserTimezone()}
         {this.renderFiltering()}
       </Form>
