@@ -1,4 +1,4 @@
-import path from 'path'
+/*import path from 'path'
 
 import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
 import { CONFIRM_DIALOG, expectBotApiCallSuccess, getElementCenter, gotoStudio, waitForBotApiResponse } from '../utils'
@@ -83,3 +83,4 @@ describe('Module - QNA', () => {
     await page.waitFor(300)
   })
 })
+*/
