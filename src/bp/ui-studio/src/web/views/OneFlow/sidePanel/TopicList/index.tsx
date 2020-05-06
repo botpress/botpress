@@ -207,7 +207,7 @@ const TopicList: FC<Props> = props => {
             disabled={props.readOnly}
             icon="add"
             text={lang.tr('studio.flow.topicList.createNewWorkflow')}
-            onClick={() => props.createWorkflow(name)}
+            onClick={() => props.createWorkflow(folder)}
           />
           <MenuItem
             id="btn-import"
