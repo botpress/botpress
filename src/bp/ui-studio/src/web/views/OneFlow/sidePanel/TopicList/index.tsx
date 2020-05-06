@@ -1,15 +1,12 @@
-import { EditableText, Icon, Intent, Menu, MenuDivider, MenuItem, Tooltip } from '@blueprintjs/core'
+import { EditableText, Intent, Menu, MenuDivider, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
-import { filter } from 'bluebird'
-import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, lang, TreeView } from 'botpress/shared'
 import cx from 'classnames'
-import { FlowView } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
-import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
+import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
+import { getFlowNamesList, RootReducer } from '~/reducers'
 
 import { buildFlowName } from '..//WorkflowEditor/utils'
 import style from '../style.scss'
@@ -28,31 +25,25 @@ export interface CountByTopic {
 }
 
 interface OwnProps {
-  filter: string
   readOnly: boolean
-  topics: Topic[]
   qnaCountByTopic: CountByTopic[]
-
-  canDelete: boolean
-  goToFlow: Function
-
-  duplicateFlow: Function
-  deleteFlow: Function
-  exportWorkflow: Function
-
-  importWorkflow: (topicId: string) => void
-  createWorkflow: (topicId: string) => void
-  editQnA: (topicName: string) => void
+  goToFlow: () => void
+  duplicateFlow: () => void
   editWorkflow: (wfId: any, data: any) => void
+  createWorkflow: (topicId: string) => void
+  exportWorkflow: () => void
+  importWorkflow: (topicId: string) => void
   editTopic: (topicName: string | NodeData) => void
+  editQnA: (topicName: string) => void
   exportTopic: (topicName: string | NodeData) => void
-  focusedText: string
-  newPath: string
-  setFocusedText: (name: string) => void
-  setNewPath: (path: string) => void
-
-  expandedPaths: string[]
   onExpandToggle: (node, isExpanded: boolean) => void
+  canDelete: boolean
+  filter: string
+  expandedPaths: string[]
+  newPath: string
+  setNewPath: (path: string) => void
+  focusedText: string
+  setFocusedText: (name: string) => void
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -74,11 +65,6 @@ interface NodeData {
 }
 
 type NodeType = 'workflow' | 'folder' | 'topic' | 'qna' | 'addWorkflow'
-
-interface IFlow {
-  name: string
-  label: string
-}
 
 const TopicList: FC<Props> = props => {
   const [flows, setFlows] = useState<NodeData[]>([])
@@ -413,7 +399,6 @@ const TopicList: FC<Props> = props => {
     return tree
   }
 
-  const activeFlow = props.currentFlow?.name
   return (
     <Fragment>
       {props.topics.length === 0 && (
@@ -446,15 +431,16 @@ const TopicList: FC<Props> = props => {
 }
 
 const mapStateToProps = (state: RootReducer) => ({
-  currentFlow: getCurrentFlow(state),
-  flowsName: getFlowNamesList(state)
+  flowsName: getFlowNamesList(state),
+  topics: state.ndu.topics
 })
 
 const mapDispatchToProps = {
   fetchTopics,
   fetchFlows,
   renameFlow,
-  updateFlow
+  updateFlow,
+  deleteFlow
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(TopicList)
