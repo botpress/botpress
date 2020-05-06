@@ -144,7 +144,10 @@ export default class Storage {
 
     const newQuestions = Object.values(newItem.questions).reduce((a, b) => a.concat(b), [])
     const dupes = qnaItems
-      .map(item => ({id: item.id, questions: Object.values(item.data.questions).reduce((acc, arr) => [...acc, ...arr], [])}))
+      .map(item => ({
+        id: item.id,
+        questions: Object.values(item.data.questions).reduce((acc, arr) => [...acc, ...arr], [])
+      }))
       .filter(existingQuestion => !!existingQuestion.questions.filter(q => newQuestions.includes(q)).length)
 
     if (dupes.length) {

@@ -1,8 +1,8 @@
-import { lang } from "botpress/shared"
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
-import { QnaItem } from "../../../backend/qna"
+import { QnaItem } from '../../../backend/qna'
 
 export const ITEMS_PER_PAGE = 20
 
@@ -24,12 +24,14 @@ export interface Props {
 }
 
 export interface FormErrors {
-  answers: {[key: string]: string}
-  questions: {[key: string]: string}
+  answers: { [key: string]: string }
+  questions: { [key: string]: string }
 }
 
 export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean => {
-  return !!Object.values(data).reduce((acc, arr) => [...acc, ...arr], []).filter(entry => !!entry.trim().length).length
+  return !!Object.values(data)
+    .reduce((acc, arr) => [...acc, ...arr], [])
+    .filter(entry => !!entry.trim().length).length
 }
 
 export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] => {
@@ -37,11 +39,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   const { data } = qnaItem
 
   const hasDupplicateQuestions = data.questions[currentLang].filter((item, index) =>
-    [
-      ...data.questions[currentLang]
-        .slice(0, index)
-        .filter(item2 => item2.length)
-    ].includes(item)
+    [...data.questions[currentLang].slice(0, index).filter(item2 => item2.length)].includes(item)
   )
 
   if (!hasPopulatedLang(data.questions)) {
@@ -85,13 +83,13 @@ export const dispatchMiddleware = async (dispatch, action) => {
           try {
             const res = await bp.axios.post('/mod/qna/questions', cleanData)
             itemId = res.data[0]
-          } catch ({response: {data}}) {
+          } catch ({ response: { data } }) {
             saveError = JSON.parse(data.message)
           }
         } else {
           try {
             await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, cleanData)
-          } catch ({response: {data}}) {
+          } catch ({ response: { data } }) {
             saveError = JSON.parse(data.message)
           }
         }
