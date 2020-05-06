@@ -222,25 +222,19 @@ const SidePanelContent: FC<Props> = props => {
               <TopicList
                 readOnly={props.readOnly}
                 canDelete={canDelete}
-                flows={props.flowsName}
                 qnaCountByTopic={props.qnaCountByTopic}
                 goToFlow={goToFlow}
                 deleteFlow={props.deleteFlow}
                 duplicateFlow={duplicateFlow}
-                currentFlow={props.currentFlow}
                 editWorkflow={editWorkflow}
                 createWorkflow={createWorkflow}
                 exportWorkflow={exportWorkflow}
                 importWorkflow={importWorkflow}
-                renameFlow={props.renameFlow}
-                updateFlow={props.updateFlow}
                 filter={topicFilter}
                 editTopic={editTopic}
                 editQnA={editQnA}
                 topics={props.topics}
                 exportTopic={exportTopic}
-                fetchTopics={props.fetchTopics}
-                fetchFlows={props.fetchFlows}
                 focusedText={focusedText}
                 expandedPaths={expandedPaths}
                 newPath={newPath}

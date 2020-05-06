@@ -7,6 +7,9 @@ import cx from 'classnames'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import { connect } from 'react-redux'
+import { fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
+import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
 
 import { buildFlowName } from '..//WorkflowEditor/utils'
 import style from '../style.scss'
@@ -24,24 +27,18 @@ export interface CountByTopic {
   [topicName: string]: number
 }
 
-interface Props {
+interface OwnProps {
   filter: string
   readOnly: boolean
-  currentFlow: Flow
   topics: Topic[]
   qnaCountByTopic: CountByTopic[]
 
   canDelete: boolean
   goToFlow: Function
-  flows: IFlow[]
 
   duplicateFlow: Function
   deleteFlow: Function
   exportWorkflow: Function
-  fetchTopics: () => void
-  fetchFlows: () => void
-  renameFlow: (flow: { targetFlow: string; name: string }) => void
-  updateFlow: (flow: Partial<FlowView>) => void
 
   importWorkflow: (topicId: string) => void
   createWorkflow: (topicId: string) => void
@@ -57,6 +54,11 @@ interface Props {
   expandedPaths: string[]
   onExpandToggle: (node, isExpanded: boolean) => void
 }
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+type Props = StateProps & DispatchProps & OwnProps
 
 interface NodeData {
   name: string
@@ -90,8 +92,8 @@ const TopicList: FC<Props> = props => {
       countByTopic: props.qnaCountByTopic?.[topic.name] || 0
     }))
 
-    setFlows([...qna, ...props.flows])
-  }, [props.flows, props.topics, props.qnaCountByTopic])
+    setFlows([...qna, ...props.flowsName])
+  }, [props.flowsName, props.topics, props.qnaCountByTopic])
 
   const deleteFlow = async (name: string, skipDialog = false) => {
     if (skipDialog || (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {}))) {
@@ -101,7 +103,7 @@ const TopicList: FC<Props> = props => {
 
   const deleteTopic = async (name: string, skipDialog = false) => {
     const matcher = new RegExp(`^${name}/`)
-    const flowsToDelete = props.flows.filter(x => matcher.test(x.name))
+    const flowsToDelete = props.flowsName.filter(x => matcher.test(x.name))
 
     if (
       skipDialog ||
@@ -443,4 +445,16 @@ const TopicList: FC<Props> = props => {
   )
 }
 
-export default TopicList
+const mapStateToProps = (state: RootReducer) => ({
+  currentFlow: getCurrentFlow(state),
+  flowsName: getFlowNamesList(state)
+})
+
+const mapDispatchToProps = {
+  fetchTopics,
+  fetchFlows,
+  renameFlow,
+  updateFlow
+}
+
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(TopicList)
