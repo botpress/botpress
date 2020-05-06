@@ -110,9 +110,15 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const createWorkflow = (topicName: string) => {
-    const idx = props.flows.filter(t => /Workflow\s\d/.test(t.name)).length + 1
-    const name = `Workflow ${idx}`
-    const fullName = buildFlowName({ topic: topicName, workflow: name }, true)
+    const originalName = 'Workflow'
+    let name = originalName
+    let fullName = buildFlowName({ topic: topicName, workflow: name }, true)
+    let index = 0
+    while (props.flows.find(f => f.name === fullName)) {
+      index++
+      name = `${originalName} ${index}`
+      fullName = buildFlowName({ topic: topicName, workflow: name }, true)
+    }
 
     setFocusedText(fullName)
     setNewPath(fullName)
@@ -120,8 +126,13 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const createTopic = async () => {
-    const idx = props.topics.filter(t => /Topic\s\d/.test(t.name)).length + 1
-    const name = `Topic ${idx}`
+    const originalName = 'Topic'
+    let name = originalName
+    let index = 0
+    while (props.topics.find(t => t.name === name)) {
+      index++
+      name = `${originalName} ${index}`
+    }
 
     await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })
     setNewPath(name)
