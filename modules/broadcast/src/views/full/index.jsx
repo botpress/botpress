@@ -12,16 +12,14 @@ import {
   Glyphicon,
   Panel,
   Table,
-  Modal,
   Form,
   FormControl,
-  Checkbox,
   Col,
   ControlLabel,
   ListGroupItem,
   Label
 } from 'react-bootstrap'
-import { Button, FormGroup, InputGroup, ControlGroup } from '@blueprintjs/core'
+import { Button, FormGroup, InputGroup, ControlGroup, Checkbox } from '@blueprintjs/core'
 import { DateInput, TimePicker } from '@blueprintjs/datetime'
 import { Dialog } from 'botpress/shared'
 
@@ -34,13 +32,11 @@ import DismissableAlert from './alert'
 
 import style from './style.scss'
 
-const convertHHmmToSeconds = time => {
+const convertHHmmToDate = time => {
   const HH = Number(time.split(':')[0])
-  const mm = Number(time.split(':')[1]) / 60
+  const mm = Number(time.split(':')[1])
 
-  const seconds = (HH + mm) * 3600
-
-  return seconds
+  return new Date().setHours(HH, mm, 0)
 }
 
 export default class BroadcastModule extends React.Component {
@@ -97,12 +93,9 @@ export default class BroadcastModule extends React.Component {
       return
     }
 
-    const t = moment(time).format('HH:mm')
-    console.log(t)
-
     return {
       date: moment(date).format('YYYY-MM-DD'),
-      time: t,
+      time: moment(time).format('HH:mm'),
       content: content,
       timezone: userTimezone ? null : moment().format('Z'),
       filters: filteringConditions
@@ -174,7 +167,7 @@ export default class BroadcastModule extends React.Component {
     if (!broadcast) {
       broadcast = {
         content: '',
-        date: new Date().toISOString(),
+        date: new Date(),
         time: new Date().setHours(12, 0, 0),
         progress: 0,
         userTimezone: true,
@@ -191,7 +184,7 @@ export default class BroadcastModule extends React.Component {
         content: broadcast.content,
         userTimezone: broadcast.userTimezone,
         date: broadcast.date,
-        time: _.isString(broadcast.time) ? convertHHmmToSeconds(broadcast.time) : broadcast.time,
+        time: _.isString(broadcast.time) ? convertHHmmToDate(broadcast.time) : broadcast.time,
         filteringConditions: broadcast.filteringConditions,
         progress: broadcast.progress
       }
@@ -407,7 +400,6 @@ export default class BroadcastModule extends React.Component {
   }
 
   renderFormTime() {
-    console.log(this.state.broadcast.time)
     return (
       <FormGroup label="Time">
         <TimePicker fill={true} onChange={this.handleTimeChange} value={new Date(this.state.broadcast.time)} />
@@ -417,11 +409,9 @@ export default class BroadcastModule extends React.Component {
 
   renderFormUserTimezone() {
     return (
-      <FormGroup label="User time zone">
-        <Checkbox checked={this.state.broadcast.userTimezone} onChange={this.handleUserTimezoneChange}>
-          User time zone
-        </Checkbox>
-      </FormGroup>
+      <Checkbox checked={this.state.broadcast.userTimezone} onChange={this.handleUserTimezoneChange}>
+        User time zone
+      </Checkbox>
     )
   }
 
