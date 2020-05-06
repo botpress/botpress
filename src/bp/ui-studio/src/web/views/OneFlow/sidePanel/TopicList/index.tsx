@@ -422,7 +422,7 @@ const TopicList: FC<Props> = props => {
           </div>
         </div>
       )}
-      <div className={cx(style.tree, props.filter ? '' : style.unfilteredTree)}>
+      <div className={cx(style.tree, { [style.unfilteredTree]: props.filter })}>
         <TreeView<NodeData>
           elements={flows}
           nodeRenderer={nodeRenderer}
