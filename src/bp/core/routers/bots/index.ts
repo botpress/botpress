@@ -91,12 +91,12 @@ export class BotsRouter extends CustomRouter {
     this.checkMethodPermissions = checkMethodPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
+    this.router.use(this.checkBotVisibility)
   }
 
   async initialize() {
     this.botpressConfig = await this.configProvider.getBotpressConfig()
     this.machineId = await machineUUID()
-    this.router.use(this.checkBotVisibility)
     this.setupRoutes()
   }
 
@@ -108,18 +108,22 @@ export class BotsRouter extends CustomRouter {
       return next()
     }
 
-    const config = await this.configProvider.getBotConfig(req.params.botId)
-    if (config.disabled) {
-      // The user must be able to get the config to change the bot status
-      if (req.originalUrl.endsWith(`/api/v1/bots/${req.params.botId}`)) {
-        return next()
+    try {
+      const config = await this.configProvider.getBotConfig(req.params.botId)
+      if (config.disabled) {
+        // The user must be able to get the config to change the bot status
+        if (req.originalUrl.endsWith(`/api/v1/bots/${req.params.botId}`)) {
+          return next()
+        }
+
+        return next(new NotFoundError('Bot is disabled'))
       }
 
-      return next(new NotFoundError('Bot is disabled'))
-    }
-
-    if (config.private && !this.mediaPathRegex.test(req.originalUrl)) {
-      return this.checkTokenHeader(req, res, next)
+      if (config.private && !this.mediaPathRegex.test(req.originalUrl)) {
+        return this.checkTokenHeader(req, res, next)
+      }
+    } catch (err) {
+      return next(new NotFoundError('Invalid Bot ID'))
     }
 
     next()

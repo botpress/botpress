@@ -293,6 +293,9 @@ export class DialogEngine {
       context = {
         currentFlow: flow.name,
         currentNode: startNode.name,
+        // Those two are not used in the backend logic, but keeping them since users rely on them
+        previousFlow: event.state.context.currentFlow,
+        previousNode: event.state.context.currentNode,
         jumpPoints: [
           ...(context.jumpPoints || []),
           {
@@ -380,6 +383,8 @@ export class DialogEngine {
     event.state.context = {
       currentFlow: subflow.name,
       currentNode: subflowStartNode.name,
+      previousFlow: parentFlow.name,
+      previousNode: parentNode.name,
       jumpPoints: [
         ...(event.state.context.jumpPoints || []),
         {

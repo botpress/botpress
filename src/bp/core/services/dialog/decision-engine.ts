@@ -241,7 +241,7 @@ export class DecisionEngine {
     const result: SendSuggestionResult = { executeFlows: true }
 
     if (payloads) {
-      await this._sendContent(reply, event)
+      await this._sendContent({ ...reply, payloads }, event)
       result.executeFlows = false
     }
 

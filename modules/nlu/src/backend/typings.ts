@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
+import LRUCache from 'lru-cache'
 
 export const BIO = {
   INSIDE: 'I',
@@ -60,6 +61,16 @@ export interface NLUEngine {
   predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
 }
 
+export interface EntityService {
+  getSystemEntities(): sdk.NLU.EntityDefinition[]
+  getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]>
+  getEntities(): Promise<sdk.NLU.EntityDefinition[]>
+  getEntity(x: string): Promise<sdk.NLU.EntityDefinition>
+  deleteEntity(x: string): Promise<void>
+  saveEntity(x: sdk.NLU.EntityDefinition): Promise<void>
+  updateEntity(x: string, y: sdk.NLU.EntityDefinition): Promise<void>
+}
+
 export interface NLUState {
   nluByBot: _.Dictionary<BotState>
   languageProvider?: LanguageProvider
@@ -76,6 +87,7 @@ export interface BotState {
   trainSessions: _.Dictionary<TrainingSession>
   cancelTraining: () => Promise<void>
   isTraining: () => Promise<boolean>
+  entityService: EntityService
 }
 
 export type TFIDF = _.Dictionary<number>
@@ -95,7 +107,10 @@ export type ListEntity = Readonly<{
   sensitive: boolean
 }>
 
-export type ListEntityModel = Readonly<{
+export type EntityCache = LRUCache<string, EntityExtractionResult[]>
+export type EntityCacheDump = LRUCache.Entry<string, EntityExtractionResult[]>[]
+
+export type ListEntityModel = {
   type: 'custom.list'
   id: string
   languageCode: string
@@ -104,7 +119,8 @@ export type ListEntityModel = Readonly<{
   sensitive: boolean
   /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
   mappingsTokens: _.Dictionary<string[][]>
-}>
+  cache?: EntityCache | EntityCacheDump
+}
 
 export type ExtractedSlot = { confidence: number; name: string; source: string; value: any }
 export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
@@ -140,8 +156,8 @@ export interface Tools {
 }
 
 export interface SystemEntityExtractor {
-  extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<sdk.NLU.Entity[][]>
-  extract(input: string, lang: string): Promise<sdk.NLU.Entity[]>
+  extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<EntityExtractionResult[][]>
+  extract(input: string, lang: string): Promise<EntityExtractionResult[]>
 }
 
 export type Intent<T> = Readonly<{

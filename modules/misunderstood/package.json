@@ -1,7 +1,9 @@
 {
   "name": "misunderstood",
+  "fullName": "Misunderstood",
   "version": "1.1.0",
-  "description": "",
+  "status": "stable",
+  "description": "Provides an interface to handle user messages that were not correctly understood by the NLU",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",

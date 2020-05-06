@@ -1,13 +1,12 @@
+import { lang, utils } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 import { Dropdown } from 'react-bootstrap'
-import { keyMap } from '~/keyboardShortcuts'
 
 import withLanguage from '../../Util/withLanguage'
 
+import style from './style.scss'
 import ActionItem from './ActionItem'
-import style from './StatusBar.styl'
-import { lang } from 'botpress/shared'
 
 const requireFlag = code => {
   try {
@@ -84,15 +83,14 @@ class LangSwitcher extends React.Component<Props> {
     return (
       <Fragment>
         <ActionItem
-          shortcut={keyMap['lang-switcher']}
+          shortcut={utils.keyMap['lang-switcher']}
           title={lang.tr('statusBar.contentLanguage')}
           description={lang.tr('statusBar.switchLang', { currentLang: this.props.contentLang.toUpperCase() })}
           onClick={this.props.toggleLangSwitcher}
         >
-          <span>
+          <span className={style.flagWrapper}>
             <img src={requireFlag(this.props.contentLang)} alt={this.props.contentLang} className={style.flag} />
-            &nbsp;
-            {this.props.contentLang.toUpperCase()}
+            <span>{this.props.contentLang.toUpperCase()}</span>
           </span>
         </ActionItem>
         <Dropdown

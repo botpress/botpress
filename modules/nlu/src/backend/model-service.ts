@@ -8,6 +8,7 @@ import tar from 'tar'
 import tmp from 'tmp'
 
 import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
+import { EntityCache } from './typings'
 
 export interface Model {
   hash: string
@@ -37,7 +38,11 @@ export function computeModelHash(intents: any, entities: any): string {
     .digest('hex')
 }
 
-function serializeModel(model: Model): string {
+function serializeModel(ref: Model): string {
+  const model = _.cloneDeep(ref)
+  for (const entity of model.data.artefacts.list_entities) {
+    entity.cache = (<EntityCache>entity.cache)?.dump() ?? []
+  }
   return JSON.stringify(_.omit(model, ['data.output', 'data.input.trainingSession']))
 }
 

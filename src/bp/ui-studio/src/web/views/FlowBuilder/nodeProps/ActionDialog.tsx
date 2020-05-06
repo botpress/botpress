@@ -1,11 +1,11 @@
 import { Button, FormGroup, HTMLSelect, Intent, NonIdealState } from '@blueprintjs/core'
 import { ItemRenderer, Select } from '@blueprintjs/select'
 import axios from 'axios'
-import { lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import { ActionDefinition, ActionParameterDefinition, ActionServer, ActionServerWithActions } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import { BaseDialog, DialogBody, DialogFooter, InfoTooltip } from '~/components/Shared/Interface'
+import { InfoTooltip } from '~/components/Shared/Interface'
 
 import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
 
@@ -183,71 +183,75 @@ const ActionDialog: FC<{
   }
 
   return (
-    <BaseDialog
+    <Dialog.Wrapper
       isOpen={isOpen}
       title={lang.tr('studio.flow.node.editAction')}
       icon="offline"
       onClose={closeDialog}
       onOpening={() => setOpening(true)}
     >
-      <DialogBody hidden={!isLoading}>
-        <div>{lang.tr('studio.flow.node.loadingActionServer')}</div>
-      </DialogBody>
-      <DialogBody hidden={isLoading}>
-        <div onMouseDown={e => e.stopPropagation()} onContextMenu={e => e.stopPropagation()}>
-          {!errorFetchingServers && (
-            <ActionServers
-              actionServers={actionServers}
-              actionServerId={actionServerId}
-              onUpdate={actionServerId => {
-                setActionServerId(actionServerId)
-                const actionServer = actionServers.find(s => s.id === actionServerId)
-                setName(actionServer.actions[0]?.name || '')
-              }}
-            />
-          )}
-
-          {errorFetchingServers && (
-            <NonIdealState
-              title={lang.tr('studio.flow.node.couldNotRetrieveActionServer')}
-              description={lang.tr('studio.flow.node.errorInServer')}
-              icon="warning-sign"
-            />
-          )}
-
-          {hasActionsError && (
-            <NonIdealState
-              title={lang.tr('studio.flow.node.errorListingActions')}
-              description={lang.tr('studio.flow.node.errorListingActionsMore')}
-              icon="warning-sign"
-            />
-          )}
-
-          {!hasActionsError && !hasActions && (
-            <NonIdealState icon="warning-sign" title={lang.tr('studio.flow.node.noActionsFound')} />
-          )}
-
-          {actionDef && (
-            <>
-              <ActionNameSelect
-                actions={currentServer.actions}
-                name={actionDef.name}
-                onUpdate={name => {
-                  setName(name)
+      {!isLoading && (
+        <Dialog.Body>
+          <div>{lang.tr('studio.flow.node.loadingActionServer')}</div>
+        </Dialog.Body>
+      )}
+      {isLoading && (
+        <Dialog.Body>
+          <div onMouseDown={e => e.stopPropagation()} onContextMenu={e => e.stopPropagation()}>
+            {!errorFetchingServers && (
+              <ActionServers
+                actionServers={actionServers}
+                actionServerId={actionServerId}
+                onUpdate={actionServerId => {
+                  setActionServerId(actionServerId)
+                  const actionServer = actionServers.find(s => s.id === actionServerId)
+                  setName(actionServer.actions[0]?.name || '')
                 }}
               />
+            )}
 
-              <ActionParametersComponent
-                actionDefinitionParams={actionDef.params}
-                actionParams={parameters}
-                onUpdate={parameters => setParameters(parameters)}
+            {errorFetchingServers && (
+              <NonIdealState
+                title={lang.tr('studio.flow.node.couldNotRetrieveActionServer')}
+                description={lang.tr('studio.flow.node.errorInServer')}
+                icon="warning-sign"
               />
-            </>
-          )}
-        </div>
-      </DialogBody>
+            )}
 
-      <DialogFooter>
+            {hasActionsError && (
+              <NonIdealState
+                title={lang.tr('studio.flow.node.errorListingActions')}
+                description={lang.tr('studio.flow.node.errorListingActionsMore')}
+                icon="warning-sign"
+              />
+            )}
+
+            {!hasActionsError && !hasActions && (
+              <NonIdealState icon="warning-sign" title={lang.tr('studio.flow.node.noActionsFound')} />
+            )}
+
+            {actionDef && (
+              <>
+                <ActionNameSelect
+                  actions={currentServer.actions}
+                  name={actionDef.name}
+                  onUpdate={name => {
+                    setName(name)
+                  }}
+                />
+
+                <ActionParametersComponent
+                  actionDefinitionParams={actionDef.params}
+                  actionParams={parameters}
+                  onUpdate={parameters => setParameters(parameters)}
+                />
+              </>
+            )}
+          </div>
+        </Dialog.Body>
+      )}
+
+      <Dialog.Footer>
         <Button text={lang.tr('cancel')} id="btn-cancel" onClick={closeDialog} />
         <Button
           text={lang.tr('save')}
@@ -255,8 +259,8 @@ const ActionDialog: FC<{
           onClick={() => onSave({ name, actionServerId, parameters })}
           disabled={!isActionValid || isLoading}
         />
-      </DialogFooter>
-    </BaseDialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

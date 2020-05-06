@@ -2,11 +2,11 @@ $status-bar-height: 30px;
 
 .container {
   position: relative;
-  height: calc(100vh - #{$status-bar-height});
+  height: 100%;
 }
 
-.fullsize {
-  height: calc(100vh - #{$status-bar-height});
+.fullsize, .fullsize > div {
+  height: 100%;
 }
 
 .yOverflowScroll {
@@ -87,6 +87,7 @@ $status-bar-height: 30px;
   flex-grow: 1;
   align-items: center;
   justify-content: center;
+  overflow: auto;
 
   svg {
     font-size: 250px;
@@ -97,7 +98,7 @@ $status-bar-height: 30px;
     width: 50%;
     text-align: center;
     font-size: 16px;
-    padding-bottom: 100px;
+    padding-bottom: 20px;
 
     p:first-of-type {
       margin-bottom: 20px;

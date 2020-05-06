@@ -199,7 +199,7 @@ class ContentView extends Component<Props, State> {
             <strong>{lang.tr('studio.content.noContentDefined')}</strong>{' '}
             {lang.tr('studio.content.pleaseReadDoc', {
               readTheDocs: (
-                <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
+                <a href="https://botpress.com/docs/main/content/" target="_blank" rel="noopener noreferrer">
                   <strong>{lang.tr('studio.content.readTheDocs')}</strong>
                 </a>
               )
@@ -225,6 +225,7 @@ class ContentView extends Component<Props, State> {
               ? _.sumBy(categories, 'count') || 0
               : _.find(categories, { id: this.state.selectedId }).count
           }
+          className={style.contentListWrapper}
           contentItems={this.props.contentItems ?? []}
           handleRefresh={this.handleRefresh}
           handleEdit={this.handleModalShowForEdit}
@@ -245,7 +246,7 @@ class ContentView extends Component<Props, State> {
             handleClose={this.handleCloseModal}
           />
         )}
-        <DocumentationProvider file="content" />
+        <DocumentationProvider file="main/content" />
       </Container>
     )
   }
