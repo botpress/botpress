@@ -49,14 +49,15 @@
     "enableQuestion": "Enable Question",
     "incomplete": "Incomplete",
     "incompleteTooltip": "This Q&A will use exact match only.",
-    "missingAnswer": "Letting answer field empty will disable this question.",
-    "missingQuestion": "Letting question field empty will disable this question.",
+    "missingAnswer": "Leaving answer field empty will disable this question.",
+    "missingQuestion": "Leaving question field empty will disable this question.",
     "onlyOneLanguage": "You only have one language",
     "q": "Q",
     "translate": "Translate",
     "writeAtLeastTwoMoreQuestions": "Write at least 2 question alternatives to enable machine learning",
     "writeFirstQuestion": "Write a sentence that your user could write to ask his/her question",
-    "writeTheAnswer": "Write the answer to the question"
+    "writeTheAnswer": "Write the answer to the question",
+    "writingSameQuestion": "Writing the same question twice will disable this Q&A."
   },
   "fullName": "Q&A",
   "hint": {

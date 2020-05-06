@@ -7,20 +7,22 @@ interface CssExports {
   'contentAnswer': string;
   'empty': string;
   'errorIcon': string;
+  'errorsList': string;
   'hasError': string;
   'header': string;
   'headerWrapper': string;
-  'incomplete': string;
   'initialLoading': string;
   'items': string;
   'left': string;
   'loading': string;
   'questionHeader': string;
   'questionWrapper': string;
+  'refTitle': string;
   'right': string;
   'tag': string;
   'textarea': string;
   'textareaWrapper': string;
+  'warning': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

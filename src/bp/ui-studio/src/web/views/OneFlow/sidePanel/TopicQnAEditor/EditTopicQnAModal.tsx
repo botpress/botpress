@@ -5,11 +5,14 @@ import withLanguage from '~/components/Util/withLanguage'
 interface Props {
   selectedTopic: string
   contentLang: string
+  languages: string[]
+  defaultLanguage: string
   isOpen: boolean
   toggle: () => void
 }
 
 const EditTopicQnAModal: FC<Props> = props => {
+  console.log(props)
   return (
     <Dialog.Wrapper
       title={lang.tr('studio.flow.editQna')}
@@ -24,7 +27,11 @@ const EditTopicQnAModal: FC<Props> = props => {
           moduleName="qna"
           componentName="LiteEditor"
           contentLang={props.contentLang}
-          extraProps={{ topicName: props.selectedTopic }}
+          extraProps={{
+            topicName: props.selectedTopic,
+            languages: props.languages,
+            defaultLanguage: props.defaultLanguage
+          }}
         />
       </Dialog.Body>
     </Dialog.Wrapper>

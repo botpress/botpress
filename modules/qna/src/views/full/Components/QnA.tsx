@@ -14,7 +14,8 @@ interface Props {
   setExpanded: (expanded: boolean) => void
   qnaItem: QnaItem
   contentLang: string
-  errorMsg?: string
+  defaultLanguage: string
+  errorMessages?: string[]
   updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
@@ -24,23 +25,25 @@ const QnA: FC<Props> = props => {
   const [showOption, setShowOption] = useState(false)
   const {
     contentLang,
-    qnaItem: { id, data },
+    qnaItem: { id, saveError, data },
     updateQnA,
     expanded,
     setExpanded,
-    errorMsg
+    errorMessages,
+    defaultLanguage
   } = props
-  const questions = data.questions[contentLang]
-  const answers = data.answers[contentLang]
+  let questions = data.questions[contentLang]
+  let answers = data.answers[contentLang]
+  const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
+  const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
 
-  // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
-  const questionKeys = useRef([])
-  const answerKeys = useRef([])
+  if (refQuestions && refQuestions.length > questions.length) {
+    questions = [...questions, ...Array(refQuestions.length - questions.length).fill('')]
+  }
 
-  useEffect(() => {
-    questionKeys.current = questions.map(x => _uniqueId())
-    answerKeys.current = answers.map(x => _uniqueId())
-  }, [])
+  if (refAnswers && refAnswers.length > answers.length) {
+    answers = [...answers, ...Array(refAnswers.length - answers.length).fill('')]
+  }
 
   const onDelete = async () => {
     if (
@@ -91,12 +94,25 @@ const QnA: FC<Props> = props => {
       <div className={style.headerWrapper}>
         <Button minimal small onClick={() => setExpanded(!expanded)} className={style.questionHeader}>
           <div className={style.left}>
-            <Icon icon={!expanded ? 'chevron-right' : 'chevron-down'} /> <h1>{questions?.[0]}</h1>
+            <Icon icon={!expanded ? 'chevron-right' : 'chevron-down'} />{' '}
+            <h1>{questions?.[0] || <span className={style.refTitle}>{refQuestions?.[0]}</span>}</h1>
           </div>
           <div className={style.right}>
-            {errorMsg && (
-              <Tooltip position={Position.BOTTOM} content={errorMsg}>
-                <span className={style.tag}>{lang.tr('module.qna.form.cantBeSaved')}</span>
+            {(!!errorMessages.length || saveError?.error === 'duplicated_question') && (
+              <Tooltip
+                position={Position.BOTTOM}
+                content={
+                  <ul className={style.errorsList}>
+                    {errorMessages.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                    {saveError?.error === 'duplicated_question' && (
+                      <li>{lang.tr('module.qna.form.writingSameQuestion')}</li>
+                    )}
+                  </ul>
+                }
+              >
+                <span className={cx(style.tag, style.warning)}>{lang.tr('module.qna.form.cantBeSaved')}</span>
               </Tooltip>
             )}
             {!expanded && (
@@ -111,7 +127,7 @@ const QnA: FC<Props> = props => {
             )}
             {showIncomplete && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
-                <span className={cx(style.tag, style.incomplete)}>{lang.tr('module.qna.form.incomplete')}</span>
+                <span className={cx(style.tag, style.warning)}>{lang.tr('module.qna.form.incomplete')}</span>
               </Tooltip>
             )}
           </div>
@@ -129,6 +145,7 @@ const QnA: FC<Props> = props => {
                 data: { ...data, questions: { ...data.questions, [contentLang]: items }, answers: data.answers }
               })
             }
+            refItems={refQuestions}
             keyPrefix="question-"
             duplicateMsg={lang.tr('module.qna.form.duplicateQuestion')}
             placeholder={index => getPlaceholder('question', index)}
@@ -145,6 +162,7 @@ const QnA: FC<Props> = props => {
                 data: { ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } }
               })
             }
+            refItems={refAnswers}
             keyPrefix="answer-"
             placeholder={index => getPlaceholder('answer', index)}
             label={lang.tr('module.qna.answer')}

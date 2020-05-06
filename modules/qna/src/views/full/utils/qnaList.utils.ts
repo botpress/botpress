@@ -17,6 +17,7 @@ export interface State {
 
 export interface Props {
   bp: any
+  topicName: string
   contentLang: string
   defaultLanguage: string
   languages: string[]
@@ -28,57 +29,42 @@ export interface FormErrors {
 }
 
 export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean => {
-  return !!Object.keys(data).reduce((acc, lang) => acc + data[lang].filter(entry => !!entry.trim().length).length, 0)
+  return !!Object.values(data).reduce((acc, arr) => [...acc, ...arr], []).filter(entry => !!entry.trim().length).length
 }
 
-export const getFormErrors = (qnaItems: QnaItem[], currentLang: string): FormErrors => {
-  return {
-    answers: isolateDuplicates(qnaItems, currentLang, 'answers'),
-    questions: isolateDuplicates(qnaItems, currentLang, 'questions')
-  }
-}
+export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] => {
+  const errors = []
+  const { data } = qnaItem
 
-const isolateDuplicates = (qnaItems: QnaItem[], currentLang: string, type: string): {[itemId: string]: string} => {
-  const errors = {}
-
-  qnaItems.reduce((acc, qnaItem) => {
-    qnaItem.data[type][currentLang].forEach(item => {
-      errors[qnaItem.id] = acc
+  const hasDupplicateQuestions = data.questions[currentLang].filter((item, index) =>
+    [
+      ...data.questions[currentLang]
+        .slice(0, index)
         .filter(item2 => item2.length)
-        .includes(item)
-        ? lang.tr(`module.qna.form.${type === 'answers' ? 'duplicateAnswer' : 'duplicateQuestion'}`)
-        : null
-
-      acc = [...acc, item]
-    })
-    return acc
-  }, [])
-
-  return errors
-}
-
-export const itemHasError = (qnaItem: QnaItem, formErrors: FormErrors): string => {
-  const { id, data } = qnaItem
+    ].includes(item)
+  )
 
   if (!hasPopulatedLang(data.questions)) {
-    return lang.tr('module.qna.form.missingQuestion')
-  } else if (!hasPopulatedLang(data.answers)) {
-    return lang.tr('module.qna.form.missingAnswer')
+    errors.push(lang.tr('module.qna.form.missingQuestion'))
+  }
+  if (!hasPopulatedLang(data.answers)) {
+    errors.push(lang.tr('module.qna.form.missingAnswer'))
+  }
+  if (hasDupplicateQuestions.length) {
+    errors.push(lang.tr('module.qna.form.writingSameQuestion'))
   }
 
-  console.log(id, formErrors, formErrors.questions[id], formErrors.answers[id])
-
-  return formErrors.questions[id] || formErrors.answers[id]
+  return errors
 }
 
 export const dispatchMiddleware = async (dispatch, action) => {
   switch (action.type) {
     case 'updateQnA':
       const { qnaItem, bp, qnaItems, currentLang } = action.data
-      const formErrors = getFormErrors(qnaItems, currentLang)
       let itemId = qnaItem.id
+      let saveError = null
 
-      if (!itemHasError(qnaItem, formErrors)) {
+      if (!itemHasError(qnaItem, currentLang).length) {
         const { answers, questions } = qnaItem.data
         const cleanData = {
           ...qnaItem.data,
@@ -96,14 +82,22 @@ export const dispatchMiddleware = async (dispatch, action) => {
           }
         }
         if (qnaItem.id.startsWith('qna-')) {
-          const res = await bp.axios.post('/mod/qna/questions', cleanData)
-          itemId = res.data[0]
+          try {
+            const res = await bp.axios.post('/mod/qna/questions', cleanData)
+            itemId = res.data[0]
+          } catch ({response: {data}}) {
+            saveError = JSON.parse(data.message)
+          }
         } else {
-          await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, cleanData)
+          try {
+            await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, cleanData)
+          } catch ({response: {data}}) {
+            saveError = JSON.parse(data.message)
+          }
         }
       }
 
-      dispatch({ ...action, data: { ...action.data, qnaItem: { ...qnaItem, id: itemId } } })
+      dispatch({ ...action, data: { ...action.data, qnaItem: { ...qnaItem, id: itemId, saveError } } })
       break
 
     default:
@@ -141,7 +135,7 @@ export const fetchReducer = (state: State, action): State => {
     const { qnaItem, index } = action.data
     const newItems = state.items
 
-    newItems[index] = { ...newItems[index], id: qnaItem.id, data: qnaItem.data }
+    newItems[index] = { ...newItems[index], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 
     return {
       ...state,
@@ -151,7 +145,7 @@ export const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'addQnA') {
     const newItems = state.items
     const id = _uniqueId('qna-')
-    const { languages } = action.data
+    const { languages, contexts } = action.data
     const { expandedItems } = state
     const languageArrays = languages.reduce((acc, lang) => ({ ...acc, [lang]: [''] }), {})
 
@@ -160,7 +154,7 @@ export const fetchReducer = (state: State, action): State => {
       isNew: true,
       data: {
         action: 'text',
-        contexts: ['global'],
+        contexts,
         enabled: true,
         answers: _.cloneDeep(languageArrays),
         questions: _.cloneDeep(languageArrays),

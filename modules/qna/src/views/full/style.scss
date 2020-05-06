@@ -19,6 +19,11 @@
   }
 }
 
+.errorsList {
+  padding: 0 0 0 20px;
+  margin: 0;
+}
+
 .initialLoading {
   height: 100%;
   width: 100%;
@@ -131,6 +136,10 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         width: 100%;
+
+        .refTitle {
+          color: var(--reef);
+        }
       }
     }
 
@@ -148,12 +157,13 @@
       line-height: 20px;
       padding: 1px 6px 0;
       text-transform: uppercase;
+      white-space: nowrap;
 
       & + .tag {
         margin-left: var(--spacing-medium);
       }
 
-      &.incomplete {
+      &.warning {
         color: var(--lighthouse);
         background: var(--hover-lighthouse-30);
       }

@@ -7,7 +7,7 @@ import { lang, ShortcutLabel, Textarea } from 'botpress/shared'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, useCallback, useRef, useState } from 'react'
+import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -17,6 +17,7 @@ interface Props {
   placeholder: (index: number) => void
   addItemLabel: string
   label: string
+  refItems: string[]
   keyPrefix: string
   showPicker?: boolean
   initialFocus?: string
@@ -26,8 +27,22 @@ interface Props {
 
 const TextAreaList: FC<Props> = props => {
   const [showPicker, setShowPicker] = useState(false)
-  const { duplicateMsg, updateItems, keyPrefix, canAddContent, addItemLabel, label, items, placeholder } = props
+  const {
+    items,
+    duplicateMsg,
+    updateItems,
+    keyPrefix,
+    canAddContent,
+    addItemLabel,
+    label,
+    refItems,
+    placeholder
+  } = props
   const focusedElement = useRef(props.initialFocus || '')
+
+  useEffect(() => {
+    keys.current = items.map(x => _uniqueId(keyPrefix))
+  }, [refItems])
 
   // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
   const keys = useRef(items.map(x => _uniqueId(keyPrefix)))
@@ -90,7 +105,7 @@ const TextAreaList: FC<Props> = props => {
               <Textarea
                 isFocused={focusedElement.current === `${keyPrefix}${index}`}
                 className={cx(style.textarea, { [style.hasError]: errors[index] })}
-                placeholder={placeholder(index)}
+                placeholder={refItems?.[index] ? refItems[index] : placeholder(index)}
                 onChange={value => debounceUpdateItem(index, value)}
                 onKeyDown={e => onKeyDown(e, index)}
                 value={item}

@@ -56,7 +56,8 @@
     "translate": "Traduire",
     "writeAtLeastTwoMoreQuestions": "Rédiger au moins 2 questions alternatives pour permettre l'apprentissage de l'agent conversationnel",
     "writeFirstQuestion": "Rédigez une phrase que votre utilisateur serait suceptible d'écrire pour poser sa question",
-    "writeTheAnswer": "Rédigez la réponse à la question"
+    "writeTheAnswer": "Rédigez la réponse à la question",
+    "writingSameQuestion": "Écrire deux fois la même question désactivera ce question-réponses"
   },
   "fullName": "Q&R",
   "hint": {

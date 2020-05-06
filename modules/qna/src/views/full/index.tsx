@@ -4,14 +4,7 @@ import cx from 'classnames'
 import React, { FC, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
-import {
-  dispatchMiddleware,
-  fetchReducer,
-  getFormErrors,
-  itemHasError,
-  ITEMS_PER_PAGE,
-  Props
-} from './utils/qnaList.utils'
+import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
@@ -28,7 +21,7 @@ const QnAList: FC<Props> = props => {
     expandedItems: {}
   })
   const { items, loading, page, fetchMore, count, expandedItems } = state
-  const { bp, languages } = props
+  const { bp, languages, defaultLanguage } = props
 
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
@@ -48,6 +41,12 @@ const QnAList: FC<Props> = props => {
         .catch(() => {})
     }
   }, [fetchMore])
+
+  const getQueryParams = () => {
+    return {
+      filteredContexts: [props.topicName]
+    }
+  }
 
   const handleScroll = () => {
     if (wrapperRef.current.scrollHeight - wrapperRef.current.scrollTop !== wrapperRef.current.offsetHeight) {
@@ -110,7 +109,7 @@ const QnAList: FC<Props> = props => {
     {
       icon: 'plus',
       onClick: () => {
-        dispatch({ type: 'addQnA', data: { languages } })
+        dispatch({ type: 'addQnA', data: { languages, contexts: [props.topicName || 'global'] } })
       },
       tooltip: lang.tr('module.qna.form.addQuestion')
     }
@@ -118,13 +117,11 @@ const QnAList: FC<Props> = props => {
 
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })
-    const params = { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE }
+    const params = !props.topicName ? { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE } : getQueryParams()
     const { data } = await bp.axios.get('/mod/qna/questions', { params })
 
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
   }
-
-  const formErrors = getFormErrors(items, currentLang)
 
   return (
     <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
@@ -139,10 +136,11 @@ const QnAList: FC<Props> = props => {
               })
             }
             key={item.id}
+            defaultLanguage={defaultLanguage}
             deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
             toggleEnabledQnA={() => dispatch({ type: 'toggleEnabledQnA', data: { index } })}
             contentLang={currentLang}
-            errorMsg={itemHasError(item, formErrors)}
+            errorMessages={itemHasError(item, currentLang)}
             setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { [item.id]: isExpanded } })}
             expanded={expandedItems[item.id]}
             qnaItem={item}
