@@ -19,7 +19,7 @@ import {
   ListGroupItem,
   Label
 } from 'react-bootstrap'
-import { Button, FormGroup, InputGroup, ControlGroup, Checkbox } from '@blueprintjs/core'
+import { Button, FormGroup, InputGroup, ControlGroup, Checkbox, Intent } from '@blueprintjs/core'
 import { DateInput, TimePicker } from '@blueprintjs/datetime'
 import { Dialog } from 'botpress/shared'
 
@@ -471,11 +471,7 @@ export default class BroadcastModule extends React.Component {
     const onClickAction = this.state.modifyBroadcast ? this.handleModifyBroadcast : this.handleAddBroadcast
     const buttonName = this.state.modifyBroadcast ? 'Modify' : 'Create'
 
-    return (
-      <button className="bp-button" action="" onClick={onClickAction}>
-        {buttonName}
-      </button>
-    )
+    return <Button intent={Intent.PRIMARY} text={buttonName} onClick={onClickAction} />
   }
 
   renderModalForm() {
@@ -490,10 +486,8 @@ export default class BroadcastModule extends React.Component {
         >
           <Dialog.Body>{this.renderForm()}</Dialog.Body>
           <Dialog.Footer>
+            <Button text="Cancel" onClick={this.handleCloseModalForm} />
             {this.renderActionButton()}
-            <button className="bp-button bp-button-danger" onClick={this.handleCloseModalForm}>
-              Cancel
-            </button>
           </Dialog.Footer>
         </Dialog.Wrapper>
       </div>
