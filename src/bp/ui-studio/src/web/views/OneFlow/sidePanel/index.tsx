@@ -200,7 +200,7 @@ const SidePanelContent: FC<Props> = props => {
                 <Tab id="library" title={lang.tr('library')} />
               </Tabs>
             </NavbarGroup>
-            {props.permissions.includes('create') && (
+            {props.permissions.includes('create') && currentTab === 'topics' && (
               <NavbarGroup align={Alignment.RIGHT}>
                 <Tooltip content={lang.tr('studio.flow.sidePanel.importTopic')}>
                   <Button icon="import" onClick={() => setImportModalOpen(true)} />
