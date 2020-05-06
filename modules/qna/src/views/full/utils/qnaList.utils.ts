@@ -56,9 +56,10 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
 }
 
 export const dispatchMiddleware = async (dispatch, action) => {
+  const { qnaItem, bp } = action.data
   switch (action.type) {
     case 'updateQnA':
-      const { qnaItem, bp, qnaItems, currentLang } = action.data
+      const { currentLang } = action.data
       let itemId = qnaItem.id
       let saveError = null
 
@@ -96,6 +97,17 @@ export const dispatchMiddleware = async (dispatch, action) => {
       }
 
       dispatch({ ...action, data: { ...action.data, qnaItem: { ...qnaItem, id: itemId, saveError } } })
+      break
+
+    case 'toggleEnabledQnA':
+      qnaItem.data.enabled = !qnaItem.data.enabled
+      try {
+        await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, qnaItem.data)
+      } catch {
+        qnaItem.data.enabled = qnaItem.data.enabled
+      }
+
+      dispatch(action)
       break
 
     default:
@@ -216,14 +228,9 @@ export const fetchReducer = (state: State, action): State => {
       fetchMore: true
     }
   } else if (action.type === 'toggleEnabledQnA') {
-    const { index } = action.data
-    const newItems = state.items
-
-    newItems[index].data.enabled = !newItems[index].data.enabled
-
     return {
       ...state,
-      items: newItems
+      items: state.items
     }
   } else {
     throw new Error(`That action type isn't supported.`)

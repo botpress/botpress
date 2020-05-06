@@ -132,13 +132,15 @@ const QnAList: FC<Props> = props => {
             updateQnA={data =>
               dispatchMiddleware(dispatch, {
                 type: 'updateQnA',
-                data: { qnaItem: data, index, bp, qnaItems: items, currentLang }
+                data: { qnaItem: data, index, bp, currentLang }
               })
             }
             key={item.id}
             defaultLanguage={defaultLanguage}
             deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
-            toggleEnabledQnA={() => dispatch({ type: 'toggleEnabledQnA', data: { index } })}
+            toggleEnabledQnA={() =>
+              dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
+            }
             contentLang={currentLang}
             errorMessages={itemHasError(item, currentLang)}
             setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { [item.id]: isExpanded } })}
