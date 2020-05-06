@@ -15,14 +15,6 @@ export interface Config {
   ducklingEnabled: boolean
 
   /**
-   * The interval at which to automatically sync the models in the background
-   * Set this value to "false" to disable background sync
-   * @deprecated > 12.2
-   * @default 30s
-   */
-  autoTrainInterval: string
-
-  /**
    * Whether or not you want your models to be trained and loaded on bot mounts
    * @default true
    * @deprecated > 12.2
