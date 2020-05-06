@@ -411,7 +411,9 @@ export default class BroadcastModule extends React.Component {
     return (
       <ListGroupItem key={filter}>
         {filter}
-        <Icon className="pull-right" icon="remove" onClick={removeHandler} />
+        <Button className="pull-right" onClick={removeHandler}>
+          <Icon icon="remove" />
+        </Button>
       </ListGroupItem>
     )
   }
@@ -436,9 +438,7 @@ export default class BroadcastModule extends React.Component {
           <Col smOffset={2} sm={10}>
             <ControlLabel>Add a new filter:</ControlLabel>
             <FormControl ref={input => (this.filterInput = input)} type="text" />
-            <Button className="bp-button" onClick={() => this.handleAddToFilteringConditions()}>
-              Add
-            </Button>
+            <Button text="Add" onClick={() => this.handleAddToFilteringConditions()} />
           </Col>
         </FormGroup>
       </div>
