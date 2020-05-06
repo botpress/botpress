@@ -164,7 +164,7 @@ export const dialogConditions: sdk.Condition[] = [
         }
       },
       ignoredWorkflows: {
-        label: 'List of workflows to ignore (their completion will not activate this trigger',
+        label: 'List of workflows to ignore (their completion will not activate this trigger)',
         type: 'array',
         rows: 5,
         defaultValue: ['misunderstood', 'workflow_ended', 'error']

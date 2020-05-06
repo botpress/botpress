@@ -351,7 +351,7 @@ const Analytics: FC<any> = ({ bp }) => {
               name={lang.tr('module.analytics.successfulWorkflowCompletions', {
                 nb: getMetricCount('workflow_completed_count')
               })}
-              value={_.round(
+              value={Math.round(
                 (getMetricCount('workflow_completed_count') / getMetricCount('workflow_started_count')) * 100
               )}
               className={style.quarter}

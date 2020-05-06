@@ -48,7 +48,8 @@ export class DialogEngine {
         event.state.session.currentWorkflow = workflowName
       }
 
-      if (currentNode.type === 'success' || currentNode.type === 'failure') {
+      const workflowEnded = currentNode.type === 'success' || currentNode.type === 'failure'
+      if (workflowEnded) {
         const wf = workflows?.find(x => x.workflow === workflowName)
         if (wf) {
           wf.success = currentNode.type === 'success'
@@ -132,7 +133,7 @@ export class DialogEngine {
     const { currentWorkflow, workflows } = event.state.session
 
     const currentFlowName = currentWorkflow?.replace('.flow.json', '')
-    const parentFlow = this._findFlow(event.botId, `${nextFlow}.flow.json`)?.parent
+    const parentFlow = this._findFlow(event.botId, `${nextFlow}.flow.json`).parent
     const isSubFlow = nextFlow.startsWith(currentFlowName || '__')
 
     BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: nextFlow })
@@ -357,7 +358,7 @@ export class DialogEngine {
       this._logTransition(event.botId, event.target, context.currentFlow, context.currentNode, transitionTo)
 
       event.state.__stacktrace.push({ flow: context.currentFlow!, node: transitionTo })
-      // When we're in a sub flow, we must remember the location of the main node for when we will exit
+      // When we're in a sub flow, we must remember the location of the parent node for when we will exit
       const flowInfo = this._findFlow(event.botId, context.currentFlow!)
       const isInSubFlow = context.currentFlow?.startsWith('skills/') || !!flowInfo.parent
       if (isInSubFlow) {
