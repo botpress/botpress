@@ -221,8 +221,8 @@ const SidePanelContent: FC<Props> = props => {
               />
               <TopicList
                 readOnly={props.readOnly}
-                canDelete={canDelete}
                 qnaCountByTopic={props.qnaCountByTopic}
+                topics={props.topics}
                 goToFlow={goToFlow}
                 deleteFlow={props.deleteFlow}
                 duplicateFlow={duplicateFlow}
@@ -230,20 +230,20 @@ const SidePanelContent: FC<Props> = props => {
                 createWorkflow={createWorkflow}
                 exportWorkflow={exportWorkflow}
                 importWorkflow={importWorkflow}
-                filter={topicFilter}
                 editTopic={editTopic}
                 editQnA={editQnA}
-                topics={props.topics}
                 exportTopic={exportTopic}
-                focusedText={focusedText}
+                onExpandToggle={onExpandToggle}
+                canDelete={canDelete}
+                filter={topicFilter}
                 expandedPaths={expandedPaths}
                 newPath={newPath}
+                setNewPath={setNewPath}
+                focusedText={focusedText}
                 setFocusedText={x => {
                   setFocusedText(x)
                   props.fetchTopics()
                 }}
-                setNewPath={setNewPath}
-                onExpandToggle={onExpandToggle}
               />
             </React.Fragment>
           )}
