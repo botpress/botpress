@@ -15,7 +15,7 @@ import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { filterDisabled } from '../action/utils'
 import { VmRunner } from '../action/vm'
-import { Incident } from '../alerting-service'
+import { Incident } from 'botpress/sdk'
 
 const debug = DEBUG('hooks')
 const DEBOUNCE_DELAY = ms('2s')
