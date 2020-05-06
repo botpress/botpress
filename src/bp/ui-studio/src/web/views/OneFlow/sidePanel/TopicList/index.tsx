@@ -412,7 +412,7 @@ const TopicList: FC<Props> = props => {
   const activeFlow = props.currentFlow?.name
   return (
     <Fragment>
-      {flows.length <= 3 && (
+      {props.topics.length <= 1 && (
         <div className={style.topicsEmptyState}>
           <div className={style.topicsEmptyStateBlock}>
             <img width="70" src="assets/ui-studio/public/img/empty-state.svg" alt="Empty folder" />
