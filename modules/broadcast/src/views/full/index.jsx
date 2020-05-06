@@ -9,7 +9,6 @@ import {
   Nav,
   NavItem,
   Navbar,
-  Glyphicon,
   Panel,
   Table,
   Form,
@@ -19,7 +18,7 @@ import {
   ListGroupItem,
   Label
 } from 'react-bootstrap'
-import { Button, FormGroup, InputGroup, ControlGroup, Checkbox, Intent } from '@blueprintjs/core'
+import { Button, FormGroup, InputGroup, ControlGroup, Checkbox, Intent, Icon } from '@blueprintjs/core'
 import { DateInput, TimePicker } from '@blueprintjs/datetime'
 import { Dialog } from 'botpress/shared'
 
@@ -292,12 +291,9 @@ export default class BroadcastModule extends React.Component {
 
     const renderModificationButton = value => {
       return (
-        <button
-          className={classnames('bp-button', style.smallButton)}
-          onClick={() => this.handleOpenModalForm(value, value.id)}
-        >
-          <Glyphicon glyph="file" />
-        </button>
+        <Button className={style.smallButton} onClick={() => this.handleOpenModalForm(value, value.id)}>
+          <Icon icon="edit" />
+        </Button>
       )
     }
 
@@ -323,18 +319,12 @@ export default class BroadcastModule extends React.Component {
           </td>
           <td style={{ width: '12%' }}>
             {!value.outboxed ? renderModificationButton(value) : null}
-            <button
-              className={classnames('bp-button', style.smallButton)}
-              onClick={() => this.handleOpenModalForm(value)}
-            >
-              <Glyphicon glyph="copy" />
-            </button>
-            <button
-              className={classnames('bp-button', style.smallButton)}
-              onClick={() => this.handleRemoveBroadcast(value.id)}
-            >
-              <Glyphicon glyph="trash" />
-            </button>
+            <Button className={style.smallButton} onClick={() => this.handleOpenModalForm(value)}>
+              <Icon icon="duplicate" />
+            </Button>
+            <Button className={style.smallButton} onClick={() => this.handleRemoveBroadcast(value.id)}>
+              <Icon icon="trash" />
+            </Button>
           </td>
         </tr>
       )
@@ -421,7 +411,7 @@ export default class BroadcastModule extends React.Component {
     return (
       <ListGroupItem key={filter}>
         {filter}
-        <Glyphicon className="pull-right" glyph="remove" onClick={removeHandler} />
+        <Icon className="pull-right" icon="remove" onClick={removeHandler} />
       </ListGroupItem>
     )
   }
@@ -500,12 +490,13 @@ export default class BroadcastModule extends React.Component {
         <Navbar.Collapse>
           <Nav pullRight>
             <NavItem>
-              <button
-                className={classnames('pull-right', 'bp-button', style.smallButton)}
+              <Button
+                intent={Intent.PRIMARY}
+                className={classnames('pull-right', style.smallButton)}
                 onClick={() => this.handleOpenModalForm()}
               >
-                <Glyphicon glyph="plus" />
-              </button>
+                <Icon icon="plus" />
+              </Button>
             </NavItem>
           </Nav>
         </Navbar.Collapse>
