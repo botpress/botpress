@@ -235,7 +235,7 @@ export class SlackClient {
     if (target && this.config.fetchUserInfo) {
       try {
         user = await this._getUserInfo(target.toString())
-      } catch (err) { }
+      } catch (err) {}
     }
 
     await this.bp.events.sendEvent(
