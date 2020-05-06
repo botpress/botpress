@@ -1,6 +1,5 @@
 import _ from 'lodash'
 
-import { DucklingEntityExtractor } from '../entities/duckling_extractor'
 import { computeNorm, scalarDivide, vectorAdd, zeroes } from '../tools/math'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 

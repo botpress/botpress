@@ -332,21 +332,10 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     true
   )
 
-  const customReferencedInSlots = _.chain(input.intents)
-    .flatMap('slot_entities')
-    .uniq()
-    .value()
-
-  // only extract list entities referenced in slots
-  // TODO: remove this once we merge in entity encoding
-  const listEntitiesToExtract = input.list_entities.filter(ent => customReferencedInSlots.includes(ent.entityName))
-  const pattenEntitiesToExtract = input.pattern_entities.filter(ent => customReferencedInSlots.includes(ent.name))
-
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      // TODO: remove this slot check once we merge in entity encoding
-      const listEntities = utt.slots.length ? extractListEntities(utt, listEntitiesToExtract) : []
-      const patternEntities = utt.slots.length ? extractPatternEntities(utt, pattenEntitiesToExtract) : []
+      const listEntities = extractListEntities(utt, input.list_entities)
+      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
