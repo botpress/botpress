@@ -12,7 +12,6 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   const [nodes, setNodes] = useState<TreeNode<T>[]>([])
   const [expanded, setExpanded] = useState(props.expandedPaths || [])
   const [, forceUpdate] = useReducer(x => x + 1, 0)
-  let timer: any = null
   let prevent = false
 
   const { elements, filterText, filterProps, nodeRenderer, folderRenderer, postProcessing, pathProps } = props
@@ -104,7 +103,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
       : props.waitDoubleClick?.(selectedNode.fullPath, 'folder')
 
     if (wait) {
-      timer = setTimeout(() => {
+      _.delay(() => {
         if (prevent) {
           prevent = false
           return
@@ -118,7 +117,6 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
   }
 
   const handleNodeDoubleClick = (selectedNode: TreeNode<T>) => {
-    clearTimeout(timer)
     prevent = true
 
     if (selectedNode.nodeData) {
