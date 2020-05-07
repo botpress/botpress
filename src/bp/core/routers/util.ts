@@ -1,6 +1,5 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, StrategyUser } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
-import { StrategyUser } from 'core/repositories/strategy_users'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
