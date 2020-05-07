@@ -3,7 +3,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
-import { Panel, Table, Label } from 'react-bootstrap'
+import { Panel, Label } from 'react-bootstrap'
 import {
   Navbar,
   Button,
@@ -14,10 +14,12 @@ import {
   Intent,
   Tooltip,
   Position,
-  Alignment
+  Alignment,
+  Card
 } from '@blueprintjs/core'
 import { DateInput, TimePicker } from '@blueprintjs/datetime'
 import { Dialog } from 'botpress/shared'
+import cx from 'classnames'
 
 import moment from 'moment'
 
@@ -286,14 +288,6 @@ export default class BroadcastModule extends React.Component {
       )
     }
 
-    const renderModificationButton = value => {
-      return (
-        <Tooltip content="Edit" position={Position.BOTTOM}>
-          <Button icon="edit" className={style.smallButton} onClick={() => this.handleOpenModalForm(value, value.id)} />
-        </Tooltip>
-      )
-    }
-
     const renderFilteringCondition = filters => {
       if (_.isEmpty(filters)) {
         return 'No filter'
@@ -315,13 +309,30 @@ export default class BroadcastModule extends React.Component {
             {formatProgress(value.progress, value.outboxed, value.errored)}
           </td>
           <td style={{ width: '12%' }}>
-            {!value.outboxed ? renderModificationButton(value) : null}
-            <Tooltip content="Duplicate" position={Position.BOTTOM}>
-              <Button icon="duplicate" className={style.smallButton} onClick={() => this.handleOpenModalForm(value)} />
-            </Tooltip>
-            <Tooltip content="Delete" position={Position.BOTTOM}>
-              <Button icon="trash" className={style.smallButton} onClick={() => this.handleRemoveBroadcast(value.id)} />
-            </Tooltip>
+            <div className={style.actions}>
+              <Tooltip content="Edit" position={Position.BOTTOM}>
+                <Button
+                  icon="edit"
+                  disabled={value.outboxed}
+                  className={style.smallButton}
+                  onClick={() => this.handleOpenModalForm(value, value.id)}
+                />
+              </Tooltip>
+              <Tooltip content="Duplicate" position={Position.BOTTOM}>
+                <Button
+                  icon="duplicate"
+                  className={style.smallButton}
+                  onClick={() => this.handleOpenModalForm(value)}
+                />
+              </Tooltip>
+              <Tooltip content="Delete" position={Position.BOTTOM}>
+                <Button
+                  icon="trash"
+                  className={style.smallButton}
+                  onClick={() => this.handleRemoveBroadcast(value.id)}
+                />
+              </Tooltip>
+            </div>
           </td>
         </tr>
       )
@@ -330,10 +341,10 @@ export default class BroadcastModule extends React.Component {
 
   renderTable(broadcasts) {
     return (
-      <Table striped bordered condensed hover className={style.scheduledTable}>
+      <table className={cx(style.table, 'bp3-html-table bp3-html-table-striped bp3-html-table-bordered')}>
         {this.renderTableHeader()}
         <tbody>{_.values(this.renderBroadcasts(broadcasts))}</tbody>
-      </Table>
+      </table>
     )
   }
 
@@ -347,10 +358,10 @@ export default class BroadcastModule extends React.Component {
 
   renderBroadcastsPanel(title, broadcasts) {
     return (
-      <Panel>
-        <Panel.Heading>{title}</Panel.Heading>
-        <Panel.Body>{_.isEmpty(broadcasts) ? this.renderEmptyMessage() : this.renderTable(broadcasts)}</Panel.Body>
-      </Panel>
+      <Card className={style.card} elevation={1}>
+        <h5>{title}</h5>
+        {_.isEmpty(broadcasts) ? this.renderEmptyMessage() : this.renderTable(broadcasts)}
+      </Card>
     )
   }
 
@@ -477,15 +488,11 @@ export default class BroadcastModule extends React.Component {
     )
   }
 
-  renderNavBar() {
+  renderNewButton() {
     return (
-      <Navbar>
-        <Navbar.Group align={Alignment.RIGHT}>
-          <Tooltip content="Create" position={Position.BOTTOM}>
-            <Button icon="plus" intent={Intent.PRIMARY} onClick={() => this.handleOpenModalForm()} />
-          </Tooltip>
-        </Navbar.Group>
-      </Navbar>
+      <div className={style.newButton}>
+        <Button text="New Broadcast" icon="plus" intent={Intent.PRIMARY} onClick={() => this.handleOpenModalForm()} />
+      </div>
     )
   }
 
@@ -513,13 +520,14 @@ export default class BroadcastModule extends React.Component {
 
     return (
       <div>
-        {this.renderNavBar()}
-        <Panel className={style.mainPanel}>
+        <h3 className={style.title}>Broadcasts</h3>
+        {this.renderNewButton()}
+        <div className={style.mainPanel}>
           {hasSomeError ? this.renderErrorBox() : null}
-          {this.renderBroadcastsPanel('Upcoming (next 3 days)', upcomingBroadcasts)}
-          {this.renderBroadcastsPanel('Past (last 3 days)', pastBroadcasts)}
+          {this.renderBroadcastsPanel('Upcoming broadcasts (next 3 days)', upcomingBroadcasts)}
+          {this.renderBroadcastsPanel('Past broadcasts (last 3 days)', pastBroadcasts)}
           {this.renderBroadcastsPanel('Other broadcasts', allBroadcasts)}
-        </Panel>
+        </div>
         {this.renderModalForm()}
       </div>
     )

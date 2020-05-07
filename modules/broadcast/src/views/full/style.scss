@@ -89,11 +89,40 @@
   }
 }
 
-:global {
-  .modal {
-    z-index: 19;
+.table {
+  width: 100%;
+}
+
+.card {
+  margin: 20px;
+}
+
+.newButton {
+  margin: 20px;
+  display: flex;
+  justify-content: flex-end;
+
+  :global {
+    .bp3-button {
+      right: 0;
+    }
   }
-  .modal-backdrop {
-    z-index: 18;
+}
+
+.title {
+  margin: 0;
+  position: fixed;
+  margin-top: 8px;
+  margin-left: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+
+  :global {
+    .bp3-button {
+      margin-right: 8px;
+    }
   }
 }
