@@ -5,8 +5,9 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
-import { Nav, NavItem, Navbar, Panel, Table, Label } from 'react-bootstrap'
+import { Panel, Table, Label } from 'react-bootstrap'
 import {
+  Navbar,
   Button,
   FormGroup,
   InputGroup,
@@ -15,7 +16,8 @@ import {
   Intent,
   Icon,
   Tooltip,
-  Position
+  Position,
+  Alignment
 } from '@blueprintjs/core'
 import { DateInput, TimePicker } from '@blueprintjs/datetime'
 import { Dialog } from 'botpress/shared'
@@ -489,22 +491,12 @@ export default class BroadcastModule extends React.Component {
 
   renderNavBar() {
     return (
-      <Navbar fluid collapseOnSelect className={style.navbar}>
-        <Navbar.Collapse>
-          <Nav pullRight>
-            <NavItem>
-              <Tooltip content="Create" position={Position.BOTTOM}>
-                <Button
-                  intent={Intent.PRIMARY}
-                  className={classnames('pull-right', style.smallButton)}
-                  onClick={() => this.handleOpenModalForm()}
-                >
-                  <Icon icon="plus" />
-                </Button>
-              </Tooltip>
-            </NavItem>
-          </Nav>
-        </Navbar.Collapse>
+      <Navbar>
+        <Navbar.Group align={Alignment.RIGHT}>
+          <Tooltip content="Create" position={Position.BOTTOM}>
+            <Button icon="plus" intent={Intent.PRIMARY} onClick={() => this.handleOpenModalForm()} />
+          </Tooltip>
+        </Navbar.Group>
       </Navbar>
     )
   }
