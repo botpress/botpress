@@ -15,7 +15,7 @@
     "lib": ["es7"],
     "types": ["reflect-metadata", "bluebird-global"],
     "paths": {
-      "botpress/common/typings": ["../../out/bp/common/typings.d.ts"],
+      "common/*": ["../../src/bp/common/*"],
       "botpress/sdk": ["../../src/bp/sdk/botpress.d.ts"]
     }
   },

@@ -24,6 +24,8 @@ const debugSuccess = DEBUG('audit:collab:success')
 const debugSuperSuccess = DEBUG('audit:admin:success')
 const debugSuperFailure = DEBUG('audit:admin:fail')
 
+// TODO: Remove BPRequest, AsyncMiddleware and asyncMiddleware from this file
+
 export type BPRequest = Request & {
   authUser: StrategyUser | undefined
   tokenUser: TokenUser | undefined

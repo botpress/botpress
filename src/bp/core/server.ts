@@ -321,9 +321,9 @@ export default class HTTPServer {
     })
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {
-      const statusCode = err.statusCode || 500
-      const errorCode = err.errorCode || 'BP_000'
-      const message = err.message || 'Unexpected error'
+      const statusCode = err.statusCode || 400
+      const errorCode = err.errorCode
+      const message = err.message || err || 'Unexpected error'
       const details = err.details || ''
       const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
