@@ -128,7 +128,8 @@ class ActionItem extends Component<Props> {
       )
     }
 
-    const textContent = (item && `${lang.tr(item.schema?.title)} | ${preview}`) || ''
+    const textContent =
+      item && this.props.layoutv2 ? preview : item ? `${lang.tr(item.schema?.title)} | ${preview}` : ''
     const vars = {}
 
     const stripDots = str => str.replace(/\./g, '--dot--')

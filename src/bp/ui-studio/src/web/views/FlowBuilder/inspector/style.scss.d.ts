@@ -3,6 +3,7 @@
 interface CssExports {
   'inspector': string;
   'noLineHeight': string;
+  'sideForm': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

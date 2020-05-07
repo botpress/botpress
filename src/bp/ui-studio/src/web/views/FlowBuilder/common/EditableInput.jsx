@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 
 const style = require('./style.scss')
+const KEY_A = 65
 
 export default class EditableInput extends Component {
   constructor(props) {
@@ -29,6 +30,10 @@ export default class EditableInput extends Component {
   }
 
   onKeyDown = event => {
+    if ((event.ctrlKey || event.metaKey) && event.keyCode === KEY_A) {
+      event.target.select()
+    }
+
     if (event.keyCode === 13) {
       // Enter
       event.target.blur()

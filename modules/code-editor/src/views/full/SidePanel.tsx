@@ -10,6 +10,7 @@ import { HOOK_SIGNATURES } from '../../typings/hooks'
 import FileStatus from './components/FileStatus'
 import NameModal from './components/NameModal'
 import NewFileModal from './components/NewFileModal'
+import { UploadModal } from './components/UploadModal'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import { EXAMPLE_FOLDER_LABEL } from './utils/tree'
@@ -28,6 +29,7 @@ class PanelContent extends React.Component<Props> {
     selectedFile: undefined,
     isMoveModalOpen: false,
     isCreateModalOpen: false,
+    isUploadModalOpen: false,
     fileType: undefined,
     hookType: undefined
   }
@@ -210,6 +212,12 @@ class PanelContent extends React.Component<Props> {
         label={lang.tr('module.code-editor.sidePanel.rawFileEditor')}
         actions={[
           {
+            id: 'btn-upload',
+            icon: <Icon icon="upload" />,
+            key: 'upload',
+            onClick: () => this.setState({ selectedFile: undefined, isUploadModalOpen: true })
+          },
+          {
             id: 'btn-add-action',
             icon: <Icon icon="add" />,
             key: 'add',
@@ -327,6 +335,12 @@ class PanelContent extends React.Component<Props> {
           hasPermission={this.hasPermission}
           files={this.props.files}
         />
+        <UploadModal
+          isOpen={this.state.isUploadModalOpen}
+          uploadFile={this.props.store.uploadFile}
+          toggle={() => this.setState({ isUploadModalOpen: !this.state.isUploadModalOpen })}
+          files={this.props.files}
+        />
       </SidePanel>
     )
   }
@@ -342,7 +356,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   permissions: store.permissions
 }))(observer(PanelContent))
 
-type Props = { store?: RootStore; editor?: EditorStore } & Pick<
+type Props = { store?: RootStore; editor?: EditorStore; uploadFile?: any } & Pick<
   StoreDef,
   'files' | 'permissions' | 'createFilePrompt' | 'setFilenameFilter'
 >

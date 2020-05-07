@@ -50,7 +50,7 @@ export const EntitySidePanelSection: FC<Props> = props => {
         props.setCurrentItem(undefined)
       }
 
-      await props.api.deleteEntity(entity.id)
+      await props.api.deleteEntity(entity.name)
       await props.reloadEntities()
     }
   }
