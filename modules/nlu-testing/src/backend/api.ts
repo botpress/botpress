@@ -13,6 +13,8 @@ import path from 'path'
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
 
+const NONE = 'none'
+
 const TestsSchema = Joi.array().items(
   Joi.object({
     id: Joi.string().required(),
@@ -159,16 +161,6 @@ export default async (bp: typeof sdk) => {
     })
 
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
-    // uncomment this when working on out of scope
-    // const f1Scorer = new MultiClassF1Scorer()
-    // _.zip(tests, _.flatten(resultsBatch)).forEach(([test, res]) => {
-    //   const expected = test.conditions[0][2].endsWith('none') ? 'out' : 'in'
-    //   // @ts-ignore
-    //   const actual = res.nlu.outOfScope[test.context].label
-    //   f1Scorer.record(expected, actual)
-    //   // @ts-ignore
-    // })
-    // testResults.OOSF1 = f1Scorer.getResults()
     res.send(testResults)
   })
 }
@@ -220,7 +212,7 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
 
 function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails {
   if (key === 'intent') {
-    expected = expected.endsWith('none') ? 'none' : expected
+    expected = expected.endsWith(NONE) ? NONE : expected
     const received = nlu.intent.name
     let success = expected === received
     if (expected.endsWith('disambiguation')) {
@@ -245,7 +237,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       .maxBy('1.confidence')
       .value()
 
-    received = received !== 'oos' ? received : 'none'
+    received = received !== 'oos' ? received : NONE
     const success = expected === received
     return {
       success,
@@ -268,16 +260,21 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     return checkSlotMatch(nlu, key.split(':')[1], expected)
   }
   if (key === 'context') {
-    if (expected === 'none') {
-      expected = 'oos'
-    }
-    const [received, { confidence }] = _.chain(nlu.predictions)
+    const [received, ctxPredObj] = _.chain(nlu.predictions)
       .toPairs()
       .maxBy('1.confidence')
       .value()
 
-    const success = expected === received
-    const conf = Math.round(confidence * 100)
+    let conf = ctxPredObj.confidence
+    let success = expected === received
+
+    if (expected === NONE) {
+      const inConf = ctxPredObj.confidence * ctxPredObj.intents.filter(i => i.label !== NONE)[0].confidence
+      const outConf = ctxPredObj.oos
+      success = outConf > inConf
+      conf = success ? outConf : conf
+    }
+
     return {
       success,
       reason: success
@@ -289,15 +286,17 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   }
 
   if (key === 'intent') {
-    const oosConfidence = nlu.predictions.oos.confidence
     const highestRankingIntent = _.chain(nlu.predictions)
-      .toPairs()
-      .flatMap(([ctx, ctxPredObj]) => {
-        return ctxPredObj.intents.map(intentPred => {
-          const oosFactor = ctx === 'oos' ? 1 : 1 - oosConfidence
+      .values()
+      .flatMap(ctxPreds => {
+        return ctxPreds.intents.map(intentPred => {
+          let confidence = intentPred.confidence * (1 - ctxPreds.oos) * ctxPreds.confidence
+          if (intentPred.label === NONE) {
+            confidence = Math.min(intentPred.confidence * ctxPreds.confidence * ctxPreds.oos, 1)
+          }
           return {
             label: intentPred.label,
-            confidence: intentPred.confidence * oosFactor * ctxPredObj.confidence // copy pasted from ndu conditions.ts (now how we elect intent)
+            confidence
           }
         })
       })
