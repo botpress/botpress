@@ -1,5 +1,3 @@
-//Errors
-
 import { toastFailure } from 'botpress/utils'
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -14,7 +12,6 @@ import {
   ControlGroup,
   Checkbox,
   Intent,
-  Icon,
   Tooltip,
   Position,
   Alignment
@@ -23,7 +20,6 @@ import { DateInput, TimePicker } from '@blueprintjs/datetime'
 import { Dialog } from 'botpress/shared'
 
 import moment from 'moment'
-import classnames from 'classnames'
 
 import _ from 'lodash'
 
@@ -293,9 +289,7 @@ export default class BroadcastModule extends React.Component {
     const renderModificationButton = value => {
       return (
         <Tooltip content="Edit" position={Position.BOTTOM}>
-          <Button className={style.smallButton} onClick={() => this.handleOpenModalForm(value, value.id)}>
-            <Icon icon="edit" />
-          </Button>
+          <Button icon="edit" className={style.smallButton} onClick={() => this.handleOpenModalForm(value, value.id)} />
         </Tooltip>
       )
     }
@@ -323,14 +317,10 @@ export default class BroadcastModule extends React.Component {
           <td style={{ width: '12%' }}>
             {!value.outboxed ? renderModificationButton(value) : null}
             <Tooltip content="Duplicate" position={Position.BOTTOM}>
-              <Button className={style.smallButton} onClick={() => this.handleOpenModalForm(value)}>
-                <Icon icon="duplicate" />
-              </Button>
+              <Button icon="duplicate" className={style.smallButton} onClick={() => this.handleOpenModalForm(value)} />
             </Tooltip>
             <Tooltip content="Delete" position={Position.BOTTOM}>
-              <Button className={style.smallButton} onClick={() => this.handleRemoveBroadcast(value.id)}>
-                <Icon icon="trash" />
-              </Button>
+              <Button icon="trash" className={style.smallButton} onClick={() => this.handleRemoveBroadcast(value.id)} />
             </Tooltip>
           </td>
         </tr>
@@ -421,9 +411,7 @@ export default class BroadcastModule extends React.Component {
     return (
       <ControlGroup>
         <InputGroup fill={true} defaultValue={filter} readOnly />
-        <Button className="pull-right" onClick={removeHandler}>
-          <Icon icon="remove" />
-        </Button>
+        <Button icon="remove" onClick={removeHandler} />
       </ControlGroup>
     )
   }
