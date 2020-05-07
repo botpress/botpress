@@ -27,11 +27,11 @@ export interface CountByTopic {
 interface OwnProps {
   readOnly: boolean
   qnaCountByTopic: CountByTopic[]
-  goToFlow: () => void
-  duplicateFlow: () => void
+  goToFlow: (flow: any) => void
+  duplicateFlow: (flowName: string) => void
   editWorkflow: (wfId: any, data: any) => void
   createWorkflow: (topicId: string) => void
-  exportWorkflow: () => void
+  exportWorkflow: (flowName: string) => void
   importWorkflow: (topicId: string) => void
   editTopic: (topicName: string | NodeData) => void
   editQnA: (topicName: string) => void
