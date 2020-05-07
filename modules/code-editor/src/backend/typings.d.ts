@@ -1,5 +1,5 @@
 import Editor from './editor'
-import { RequestWithUser } from 'botpress/common/typings'
+import { RequestWithUser } from 'common/typings'
 export type EditorByBot = { [botId: string]: Editor }
 
 export interface TypingDefinitions {
