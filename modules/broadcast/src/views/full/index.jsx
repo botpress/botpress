@@ -5,20 +5,18 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
+import { Nav, NavItem, Navbar, Panel, Table, Label } from 'react-bootstrap'
 import {
-  Nav,
-  NavItem,
-  Navbar,
-  Panel,
-  Table,
-  Form,
-  FormControl,
-  Col,
-  ControlLabel,
-  ListGroupItem,
-  Label
-} from 'react-bootstrap'
-import { Button, FormGroup, InputGroup, ControlGroup, Checkbox, Intent, Icon } from '@blueprintjs/core'
+  Button,
+  FormGroup,
+  InputGroup,
+  ControlGroup,
+  Checkbox,
+  Intent,
+  Icon,
+  Tooltip,
+  Position
+} from '@blueprintjs/core'
 import { DateInput, TimePicker } from '@blueprintjs/datetime'
 import { Dialog } from 'botpress/shared'
 
@@ -292,9 +290,11 @@ export default class BroadcastModule extends React.Component {
 
     const renderModificationButton = value => {
       return (
-        <Button className={style.smallButton} onClick={() => this.handleOpenModalForm(value, value.id)}>
-          <Icon icon="edit" />
-        </Button>
+        <Tooltip content="Edit" position={Position.BOTTOM}>
+          <Button className={style.smallButton} onClick={() => this.handleOpenModalForm(value, value.id)}>
+            <Icon icon="edit" />
+          </Button>
+        </Tooltip>
       )
     }
 
@@ -320,12 +320,16 @@ export default class BroadcastModule extends React.Component {
           </td>
           <td style={{ width: '12%' }}>
             {!value.outboxed ? renderModificationButton(value) : null}
-            <Button className={style.smallButton} onClick={() => this.handleOpenModalForm(value)}>
-              <Icon icon="duplicate" />
-            </Button>
-            <Button className={style.smallButton} onClick={() => this.handleRemoveBroadcast(value.id)}>
-              <Icon icon="trash" />
-            </Button>
+            <Tooltip content="Duplicate" position={Position.BOTTOM}>
+              <Button className={style.smallButton} onClick={() => this.handleOpenModalForm(value)}>
+                <Icon icon="duplicate" />
+              </Button>
+            </Tooltip>
+            <Tooltip content="Delete" position={Position.BOTTOM}>
+              <Button className={style.smallButton} onClick={() => this.handleRemoveBroadcast(value.id)}>
+                <Icon icon="trash" />
+              </Button>
+            </Tooltip>
           </td>
         </tr>
       )
@@ -391,7 +395,7 @@ export default class BroadcastModule extends React.Component {
 
   renderFormTime() {
     return (
-      <FormGroup label="Time">
+      <FormGroup className={style.formTime} label="Time">
         <TimePicker onChange={this.handleTimeChange} value={new Date(this.state.broadcast.time)} />
       </FormGroup>
     )
@@ -399,7 +403,11 @@ export default class BroadcastModule extends React.Component {
 
   renderFormUserTimezone() {
     return (
-      <Checkbox checked={this.state.broadcast.userTimezone} onChange={this.handleUserTimezoneChange}>
+      <Checkbox
+        className={style.formUserTimezone}
+        checked={this.state.broadcast.userTimezone}
+        onChange={this.handleUserTimezoneChange}
+      >
         User time zone
       </Checkbox>
     )
@@ -409,17 +417,17 @@ export default class BroadcastModule extends React.Component {
     const removeHandler = () => this.handleRemoveFromFilteringConditions(filter)
 
     return (
-      <ListGroupItem key={filter}>
-        {filter}
+      <ControlGroup>
+        <InputGroup fill={true} defaultValue={filter} readOnly />
         <Button className="pull-right" onClick={removeHandler}>
           <Icon icon="remove" />
         </Button>
-      </ListGroupItem>
+      </ControlGroup>
     )
   }
 
   renderFiltering() {
-    let filteringConditionElements = <ControlLabel>No filtering condition</ControlLabel>
+    let filteringConditionElements = <div></div>
 
     const filters = this.state.broadcast.filteringConditions
     if (filters && !_.isEmpty(filters)) {
@@ -428,28 +436,28 @@ export default class BroadcastModule extends React.Component {
 
     return (
       <div>
-        <FormGroup label="Add a new filter:">
+        <FormGroup className={style.addFilters} label="Filters">
           <ControlGroup>
-            <InputGroup fill={true} inputRef={input => (this.filterInput = input)} onin />
+            <InputGroup fill={true} inputRef={input => (this.filterInput = input)} />
             <Button text="Add" onClick={() => this.handleAddToFilteringConditions()} />
           </ControlGroup>
         </FormGroup>
-        <FormGroup label="Filtering conditions">{filteringConditionElements}</FormGroup>
+        <div className={style.filters}>{filteringConditionElements}</div>
       </div>
     )
   }
 
   renderForm() {
     return (
-      <Form horizontal>
+      <form>
         {this.renderFormContent()}
         <ControlGroup>
           {this.renderFormDate()}
           {this.renderFormTime()}
+          {this.renderFormUserTimezone()}
         </ControlGroup>
-        {this.renderFormUserTimezone()}
         {this.renderFiltering()}
-      </Form>
+      </form>
     )
   }
 
@@ -462,13 +470,12 @@ export default class BroadcastModule extends React.Component {
 
   renderModalForm() {
     return (
-      <div>
+      <div className={style.modal}>
         <Dialog.Wrapper
-          title={this.state.modifyBroadcast ? 'Modify broadcast...' : 'Create new broadcast...'}
+          title={this.state.modifyBroadcast ? 'Modify Broadcast' : 'Create Broadcast'}
           usePortal={false}
           isOpen={this.state.showModalForm}
           onClose={this.closeModal}
-          size="md"
         >
           <Dialog.Body>{this.renderForm()}</Dialog.Body>
           <Dialog.Footer>
@@ -486,13 +493,15 @@ export default class BroadcastModule extends React.Component {
         <Navbar.Collapse>
           <Nav pullRight>
             <NavItem>
-              <Button
-                intent={Intent.PRIMARY}
-                className={classnames('pull-right', style.smallButton)}
-                onClick={() => this.handleOpenModalForm()}
-              >
-                <Icon icon="plus" />
-              </Button>
+              <Tooltip content="Create" position={Position.BOTTOM}>
+                <Button
+                  intent={Intent.PRIMARY}
+                  className={classnames('pull-right', style.smallButton)}
+                  onClick={() => this.handleOpenModalForm()}
+                >
+                  <Icon icon="plus" />
+                </Button>
+              </Tooltip>
             </NavItem>
           </Nav>
         </Navbar.Collapse>

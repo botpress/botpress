@@ -60,6 +60,35 @@
   min-width: 40px;
 }
 
+.filters {
+  :global {
+    .bp3-control-group {
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.addFilters {
+  margin-bottom: 8px;
+}
+
+.formUserTimezone {
+  margin-top: 28px;
+  margin-left: 8px;
+}
+
+.formTime {
+  margin-left: 8px;
+}
+
+.modal {
+  :global {
+    .bp3-overlay-backdrop {
+      position: fixed !important;
+    }
+  }
+}
+
 :global {
   .modal {
     z-index: 19;
