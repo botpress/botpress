@@ -3,7 +3,7 @@ import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import BotpressContentPicker from 'botpress/content-picker'
 // @ts-ignore
 import BotpressContentTypePicker from 'botpress/content-type-picker'
-import { lang, ShortcutLabel, Textarea } from 'botpress/shared'
+import { lang, Textarea } from 'botpress/shared'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
@@ -120,11 +120,9 @@ const TextAreaList: FC<Props> = props => {
             </div>
           )
         )}
-        <Tooltip content={<ShortcutLabel light keys={['shift', 'enter']} />} position={Position.BOTTOM}>
-          <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
-            {addItemLabel}
-          </Button>
-        </Tooltip>
+        <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
+          {addItemLabel}
+        </Button>
 
         {canAddContent && (
           <Button className={style.addBtn} minimal icon="plus" onClick={() => setShowPicker(true)}>
