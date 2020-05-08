@@ -1,6 +1,6 @@
 import { Alignment, AnchorButton, Navbar, NavbarGroup, Position, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
-import React, { FC, useState } from 'react'
+import React, { FC, Fragment, useState } from 'react'
 
 import MoreOptions from '../../MoreOptions'
 
@@ -25,27 +25,35 @@ const Header: FC<HeaderProps> = props => {
           {props.buttons.map((button, index) => (
             <div key={index} className={style.btnWrapper}>
               <Tooltip position={Position.BOTTOM} content={button.tooltip}>
-                {!button.optionsItems?.length && (
-                  <AnchorButton minimal small onClick={button.onClick} icon={button.icon} disabled={button.disabled} />
-                )}
+                <Fragment>
+                  {!button.optionsItems?.length && (
+                    <AnchorButton
+                      minimal
+                      small
+                      onClick={button.onClick}
+                      icon={button.icon}
+                      disabled={button.disabled}
+                    />
+                  )}
 
-                {!!button.optionsItems?.length && (
-                  <MoreOptions
-                    element={
-                      <AnchorButton
-                        minimal
-                        small
-                        onClick={() => setShowingOption(index)}
-                        className={cx({ active: showingOption === index })}
-                        icon={button.icon}
-                        disabled={button.disabled}
-                      />
-                    }
-                    show={showingOption === index}
-                    onToggle={() => setShowingOption(null)}
-                    items={button.optionsItems}
-                  />
-                )}
+                  {!!button.optionsItems?.length && (
+                    <MoreOptions
+                      element={
+                        <AnchorButton
+                          minimal
+                          small
+                          onClick={() => setShowingOption(index)}
+                          className={cx({ active: showingOption === index })}
+                          icon={button.icon}
+                          disabled={button.disabled}
+                        />
+                      }
+                      show={showingOption === index}
+                      onToggle={() => setShowingOption(null)}
+                      items={button.optionsItems}
+                    />
+                  )}
+                </Fragment>
               </Tooltip>
             </div>
           ))}

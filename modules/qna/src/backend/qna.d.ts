@@ -21,10 +21,7 @@ export interface QnaEntry {
 export interface QnaItem {
   id: string
   isNew?: boolean
-  saveError?: {
-    error: string
-    items: string[]
-  }
+  saveError?: string
   data: QnaEntry
 }
 

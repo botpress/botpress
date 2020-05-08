@@ -98,7 +98,7 @@ const QnA: FC<Props> = props => {
             <h1>{questions?.[0] || <span className={style.refTitle}>{refQuestions?.[0]}</span>}</h1>
           </div>
           <div className={style.right}>
-            {(!!errorMessages.length || saveError?.error === 'duplicated_question') && (
+            {(!!errorMessages.length || saveError === 'duplicated_question') && (
               <Tooltip
                 position={Position.BOTTOM}
                 content={
@@ -106,9 +106,7 @@ const QnA: FC<Props> = props => {
                     {errorMessages.map((error, index) => (
                       <li key={index}>{error}</li>
                     ))}
-                    {saveError?.error === 'duplicated_question' && (
-                      <li>{lang.tr('module.qna.form.writingSameQuestion')}</li>
-                    )}
+                    {saveError === 'duplicated_question' && <li>{lang.tr('module.qna.form.writingSameQuestion')}</li>}
                   </ul>
                 }
               >

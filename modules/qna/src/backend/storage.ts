@@ -151,7 +151,7 @@ export default class Storage {
       .filter(existingQuestion => !!existingQuestion.questions.filter(q => newQuestions.includes(q)).length)
 
     if (dupes.length) {
-      throw new Error(JSON.stringify({ error: 'duplicated_question', items: dupes.map(item => item.id) }))
+      throw new Error('duplicated_question')
     }
   }
 

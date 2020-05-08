@@ -34,6 +34,9 @@ const Textarea: FC<TextareaProps> = props => {
 
   const onChange = value => {
     setValue(value)
+  }
+
+  const onBlur = () => {
     props.onChange(value)
   }
 
@@ -45,6 +48,7 @@ const Textarea: FC<TextareaProps> = props => {
       value={value}
       placeholder={props.placeholder}
       onChange={e => onChange(e.currentTarget.value)}
+      onBlur={onBlur}
       onKeyDown={props.onKeyDown}
       onInput={onInput}
     />

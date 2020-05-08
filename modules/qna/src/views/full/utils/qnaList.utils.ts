@@ -84,14 +84,14 @@ export const dispatchMiddleware = async (dispatch, action) => {
           try {
             const res = await bp.axios.post('/mod/qna/questions', cleanData)
             itemId = res.data[0]
-          } catch ({ response: { data } }) {
-            saveError = JSON.parse(data.message)
+          } catch ({ response: {data} }) {
+            saveError = data.message
           }
         } else {
           try {
             await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, cleanData)
-          } catch ({ response: { data } }) {
-            saveError = JSON.parse(data.message)
+          } catch ({ response: {data} }) {
+            saveError = data.message
           }
         }
       }
@@ -100,11 +100,13 @@ export const dispatchMiddleware = async (dispatch, action) => {
       break
 
     case 'toggleEnabledQnA':
-      qnaItem.data.enabled = !qnaItem.data.enabled
+      const originalValue = qnaItem.data.enabled
+
       try {
+        qnaItem.data.enabled = !originalValue
         await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, qnaItem.data)
       } catch {
-        qnaItem.data.enabled = qnaItem.data.enabled
+        qnaItem.data.enabled = originalValue
       }
 
       dispatch(action)
@@ -149,14 +151,12 @@ export const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      items: newItems,
-      expandedItems: { ...state.expandedItems, [qnaItem.id]: true }
+      items: newItems
     }
   } else if (action.type === 'addQnA') {
     const newItems = state.items
     const id = _uniqueId('qna-')
     const { languages, contexts } = action.data
-    const { expandedItems } = state
     const languageArrays = languages.reduce((acc, lang) => ({ ...acc, [lang]: [''] }), {})
 
     newItems.unshift({
@@ -175,8 +175,7 @@ export const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      items: newItems,
-      expandedItems: { ...expandedItems, [id]: true }
+      items: newItems
     }
   } else if (action.type === 'deleteQnA') {
     const { index, bp } = action.data
