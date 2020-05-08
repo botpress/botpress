@@ -88,10 +88,16 @@ export class StateManager {
     const session = await this.sessionRepo.get(sessionId)
 
     state.context = (session && session.context) || {}
-    state.session = (session && session.session_data) || { lastMessages: [], workflows: [] }
+    state.session = (session && session.session_data) || { lastMessages: [], workflows: {} }
     state.temp = (session && session.temp_data) || {}
     state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
+
+    Object.defineProperty(state, 'workflow', {
+      get() {
+        return state.session.workflows[state.session.currentWorkflow!]
+      }
+    })
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {

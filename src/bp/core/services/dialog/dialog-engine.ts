@@ -41,7 +41,8 @@ export class DialogEngine {
     if (event.ndu) {
       const workflowName = currentFlow.name?.replace('.flow.json', '')
 
-      const { currentWorkflow, workflows } = event.state.session
+      const { currentWorkflow } = event.state.session
+      const { workflow } = event.state
 
       if (currentWorkflow !== workflowName) {
         this.changeWorkflow(event, workflowName)
@@ -49,12 +50,9 @@ export class DialogEngine {
       }
 
       const workflowEnded = currentNode.type === 'success' || currentNode.type === 'failure'
-      if (workflowEnded) {
-        const wf = workflows?.find(x => x.workflow === workflowName)
-        if (wf) {
-          wf.success = currentNode.type === 'success'
-          wf.status = 'completed'
-        }
+      if (workflowEnded && workflow) {
+        workflow.success = currentNode.type === 'success'
+        workflow.status = 'completed'
       }
     }
 
@@ -131,46 +129,47 @@ export class DialogEngine {
 
   public changeWorkflow(event: IO.IncomingEvent, nextFlow: string) {
     const { currentWorkflow, workflows } = event.state.session
+    const { workflow } = event.state
 
-    const currentFlowName = currentWorkflow?.replace('.flow.json', '')
     const parentFlow = this._findFlow(event.botId, `${nextFlow}.flow.json`).parent
-    const isSubFlow = nextFlow.startsWith(currentFlowName || '__')
+    const isSubFlow = !!currentWorkflow && nextFlow.startsWith(currentWorkflow)
 
-    BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: nextFlow })
+    // This workflow doesn't already exist, so we add it
+    if (!workflow) {
+      BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: nextFlow })
 
-    const currentEntry = (event.state.session.workflows || []).find(x => x.workflow === currentFlowName)
-
-    // It's the first workflow in the session
-    if (!currentEntry) {
-      event.state.session.workflows.push({
-        workflow: nextFlow,
-        eventId: event.id,
-        status: 'active',
-        parent: parentFlow
-      })
+      event.state.session.workflows = {
+        ...event.state.session.workflows,
+        [nextFlow]: {
+          eventId: event.id,
+          status: 'active',
+          parent: parentFlow
+        }
+      }
       return
     }
 
     // We dive one level deeper (one more child)
     if (isSubFlow) {
-      // The parent flow is inactive for now
-      currentEntry.status = 'pending'
+      BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: nextFlow })
 
-      event.state.session.workflows.push({
-        workflow: nextFlow,
-        eventId: event.id,
-        status: 'active',
-        parent: currentWorkflow
-      })
+      // The parent flow is inactive for now
+      workflow.status = 'pending'
+
+      event.state.session.workflows = {
+        ...event.state.session.workflows,
+        [nextFlow]: {
+          eventId: event.id,
+          status: 'active',
+          parent: currentWorkflow
+        }
+      }
     } else {
-      currentEntry.status = 'completed'
+      workflow.status = 'completed'
 
       // If the current workflow has a parent, and we return there, we update its status
-      if (currentEntry.parent) {
-        const parentFlow = workflows.find(x => x.workflow === nextFlow)
-        if (parentFlow) {
-          parentFlow.status = 'active'
-        }
+      if (workflow.parent && workflows[nextFlow]) {
+        workflows[nextFlow].status = 'active'
       }
     }
   }

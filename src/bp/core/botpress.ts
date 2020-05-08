@@ -389,17 +389,18 @@ export class Botpress {
 
       const { workflows } = event.state.session
 
-      const activeWorkflow = workflows.find(x => x.status === 'active')
-      const completedWorkflows = workflows.filter(x => x.status === 'completed')
+      const activeWorkflow = Object.keys(workflows).find(x => workflows[x].status === 'active')
+      const completedWorkflows = Object.keys(workflows).filter(x => workflows[x].status === 'completed')
 
-      event.state.session.workflows = _.without(workflows, ...completedWorkflows)
-
-      this.eventCollector.storeEvent(event, activeWorkflow)
+      this.eventCollector.storeEvent(event, activeWorkflow ? workflows[activeWorkflow] : undefined)
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
 
-      completedWorkflows.forEach(async wf => {
+      completedWorkflows.forEach(async workflow => {
+        const wf = workflows[workflow]
         const metric = wf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
-        BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: wf.workflow })
+        BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: workflow })
+
+        delete event.state.session.workflows[workflow]
 
         if (!activeWorkflow && !wf.parent) {
           await this.eventEngine.sendEvent(
@@ -407,7 +408,7 @@ export class Botpress {
               ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
               direction: 'incoming',
               type: 'workflow_ended',
-              payload: wf
+              payload: { ...wf, workflow }
             })
           )
         }
