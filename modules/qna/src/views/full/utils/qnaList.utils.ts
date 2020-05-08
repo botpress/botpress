@@ -102,11 +102,14 @@ export const dispatchMiddleware = async (dispatch, action) => {
     case 'toggleEnabledQnA':
       const originalValue = qnaItem.data.enabled
 
-      try {
-        qnaItem.data.enabled = !originalValue
-        await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, qnaItem.data)
-      } catch {
-        qnaItem.data.enabled = originalValue
+      qnaItem.data.enabled = !originalValue
+
+      if (!qnaItem.id.startsWith('qna-')) {
+        try {
+          await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, qnaItem.data)
+        } catch {
+          qnaItem.data.enabled = originalValue
+        }
       }
 
       dispatch(action)
@@ -183,10 +186,12 @@ export const fetchReducer = (state: State, action): State => {
 
     const [deletedItem] = newItems.splice(index, 1)
 
-    bp.axios
-      .post(`/mod/qna/questions/${deletedItem.id}/delete`)
-      .then(() => {})
-      .catch(() => {})
+    if (!deletedItem.id.startsWith('qna-')) {
+      bp.axios
+        .post(`/mod/qna/questions/${deletedItem.id}/delete`)
+        .then(() => {})
+        .catch(() => {})
+    }
 
     return {
       ...state,
