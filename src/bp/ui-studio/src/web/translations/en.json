@@ -184,6 +184,7 @@
           "new": "New condition to transition",
           "noSpecific": "No specific node",
           "returnToCallingNode": "Return to calling node",
+          "returnToCallingNodeExecute": "Return to calling node & execute ",
           "returnToNodeCalled": "Return to node called",
           "showCondition": "Condition",
           "specifyCondition": "Specify a condition",

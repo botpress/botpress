@@ -182,6 +182,7 @@
           "new": "Nouvelle condition de transition",
           "noSpecific": "Pas de nœud spécifique",
           "returnToCallingNode": "Retour au noeud appelant",
+          "returnToCallingNodeExecute": "Retour au noeud appelant & exécuter",
           "returnToNodeCalled": "Retour au noeud appelé",
           "showCondition": "Condition",
           "specifyCondition": "Spécifiez une condition",
