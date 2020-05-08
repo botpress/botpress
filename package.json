@@ -56,6 +56,7 @@
     "lodash": "^4.17.11",
     "lodash-decorators": "^6.0.0",
     "lru-cache": "^5.1.1",
+    "mime-types": "^2.1.27",
     "ml-kmeans": "^5.0.0",
     "moment": "^2.24.0",
     "mout": "^1.1.0",
