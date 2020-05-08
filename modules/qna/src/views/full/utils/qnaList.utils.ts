@@ -84,13 +84,13 @@ export const dispatchMiddleware = async (dispatch, action) => {
           try {
             const res = await bp.axios.post('/mod/qna/questions', cleanData)
             itemId = res.data[0]
-          } catch ({ response: {data} }) {
+          } catch ({ response: { data } }) {
             saveError = data.message
           }
         } else {
           try {
             await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, cleanData)
-          } catch ({ response: {data} }) {
+          } catch ({ response: { data } }) {
             saveError = data.message
           }
         }
