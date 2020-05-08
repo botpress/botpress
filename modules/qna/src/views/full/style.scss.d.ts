@@ -12,6 +12,7 @@ interface CssExports {
   'header': string;
   'headerWrapper': string;
   'initialLoading': string;
+  'input': string;
   'items': string;
   'left': string;
   'loading': string;

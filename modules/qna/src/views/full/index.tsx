@@ -6,10 +6,12 @@ import React, { FC, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
+import ContextSelector from './Components/ContextSelector'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const QnAList: FC<Props> = props => {
+  const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(props.contentLang)
@@ -139,12 +141,20 @@ const QnAList: FC<Props> = props => {
 
       <div className={style.searchWrapper}>
         <input
+          className={style.input}
           type="text"
           value={questionSearch}
           onChange={e => onChange(e.currentTarget.value)}
           placeholder={lang.tr('module.qna.search')}
         />
-        <input type="text" placeholder={lang.tr('module.qna.context.filterByContexts')} />
+
+        <ContextSelector
+          className={style.input}
+          contexts={filterContexts}
+          saveContexts={contexts => setFilterContexts(contexts)}
+          bp={bp}
+          isSearch
+        />
       </div>
       <div className={cx(style.content, { [style.empty]: !items.length })}>
         {items.map((item, index) => (

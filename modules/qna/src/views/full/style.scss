@@ -62,7 +62,7 @@
   margin-top: var(--spacing-xxx-large);
   justify-content: flex-end;
 
-  input {
+  .input {
     border-radius: 3px;
     border: 1px solid var(--gray);
     color: var(--shark);
@@ -73,7 +73,7 @@
     transition: border 0.3s;
     width: 200px;
 
-    & + input {
+    & + .input {
       margin-left: var(--spacing-medium);
     }
 
