@@ -53,6 +53,7 @@
     "missingQuestion": "Si vous laissez le champ question vide, cette question sera désactivée.",
     "onlyOneLanguage": "Vous avez seulement une langue",
     "q": "Q",
+    "quickAddAlternative": "Appuyez sur {shortcut} lorsque dans le champ pour ajouter rapidement une nouvelle alternative",
     "translate": "Traduire",
     "writeAtLeastTwoMoreQuestions": "Rédiger au moins 2 questions alternatives pour permettre l'apprentissage de l'agent conversationnel",
     "writeFirstQuestion": "Rédigez une phrase que votre utilisateur serait suceptible d'écrire pour poser sa question",

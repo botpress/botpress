@@ -3,7 +3,7 @@ import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import BotpressContentPicker from 'botpress/content-picker'
 // @ts-ignore
 import BotpressContentTypePicker from 'botpress/content-type-picker'
-import { lang, Textarea } from 'botpress/shared'
+import { lang, ShortcutLabel, utils, Textarea } from 'botpress/shared'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
@@ -62,7 +62,7 @@ const TextAreaList: FC<Props> = props => {
   }
 
   const onKeyDown = (e: KeyboardEvent, index: number): void => {
-    if (e.key === 'Enter' && e.shiftKey) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       addItem()
     }
@@ -120,9 +120,16 @@ const TextAreaList: FC<Props> = props => {
             </div>
           )
         )}
-        <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
-          {addItemLabel}
-        </Button>
+        <Tooltip
+          content={lang.tr('module.qna.form.quickAddAlternative', {
+            shortcut: <ShortcutLabel light keys={[utils.controlKey, 'enter']} />
+          })}
+          position={Position.BOTTOM}
+        >
+          <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
+            {addItemLabel}
+          </Button>
+        </Tooltip>
 
         {canAddContent && (
           <Button className={style.addBtn} minimal icon="plus" onClick={() => setShowPicker(true)}>
