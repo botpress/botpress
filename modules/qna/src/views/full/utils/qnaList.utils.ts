@@ -127,7 +127,7 @@ export const fetchReducer = (state: State, action): State => {
     return {
       ...state,
       count,
-      items: [...state.items, ...items],
+      items: page === 1 ? items : [...state.items, ...items],
       loading: false,
       page,
       fetchMore: false

@@ -1,6 +1,7 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
+import _ from 'lodash'
 import React, { FC, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
@@ -9,9 +10,11 @@ import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const QnAList: FC<Props> = props => {
+  const [questionSearch, setQuestionSearch] = useState('')
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(props.contentLang)
   const wrapperRef = useRef<HTMLDivElement>()
+  const delayedQuery = useRef<(value: string) => void>(_.debounce(q => fetchData(1, { question: q }), 300)).current
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
@@ -22,7 +25,6 @@ const QnAList: FC<Props> = props => {
   })
   const { items, loading, page, fetchMore, count, expandedItems } = state
   const { bp, languages, defaultLanguage } = props
-
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
 
@@ -55,6 +57,7 @@ const QnAList: FC<Props> = props => {
 
     dispatch({ type: 'fetchMore' })
   }
+
   const tabs = [
     {
       id: 'qna',
@@ -115,17 +118,34 @@ const QnAList: FC<Props> = props => {
     }
   ]
 
-  const fetchData = async (page = 1) => {
+  const fetchData = async (page = 1, extraParams = {}) => {
     dispatch({ type: 'loading' })
     const params = !props.topicName ? { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE } : getQueryParams()
-    const { data } = await bp.axios.get('/mod/qna/questions', { params })
+    const { data } = await bp.axios.get('/mod/qna/questions', { params: { ...params, ...extraParams } })
 
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
   }
 
+  const onChange = value => {
+    setQuestionSearch(value)
+    value === '' ? fetchData(1) : delayedQuery(value)
+  }
+
+  const hasFilteredResults = questionSearch.length
+
   return (
     <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
       <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+
+      <div className={style.searchWrapper}>
+        <input
+          type="text"
+          value={questionSearch}
+          onChange={e => onChange(e.currentTarget.value)}
+          placeholder={lang.tr('module.qna.search')}
+        />
+        <input type="text" placeholder={lang.tr('module.qna.context.filterByContexts')} />
+      </div>
       <div className={cx(style.content, { [style.empty]: !items.length })}>
         {items.map((item, index) => (
           <QnA
@@ -149,7 +169,14 @@ const QnAList: FC<Props> = props => {
           />
         ))}
         {!items.length && !loading && (
-          <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.form.emptyState')} />
+          <EmptyState
+            icon={<EmptyStateIcon />}
+            text={
+              hasFilteredResults
+                ? lang.tr('module.qna.form.noResultsFromFilters')
+                : lang.tr('module.qna.form.emptyState')
+            }
+          />
         )}
         {loading && (
           <Spinner

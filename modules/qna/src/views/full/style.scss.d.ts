@@ -19,6 +19,7 @@ interface CssExports {
   'questionWrapper': string;
   'refTitle': string;
   'right': string;
+  'searchWrapper': string;
   'tag': string;
   'textarea': string;
   'textareaWrapper': string;

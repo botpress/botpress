@@ -35,7 +35,6 @@ const Header: FC<HeaderProps> = props => {
                       disabled={button.disabled}
                     />
                   )}
-
                   {!!button.optionsItems?.length && (
                     <MoreOptions
                       element={
