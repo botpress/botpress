@@ -86,7 +86,8 @@ export async function crossValidate(
   const [trainSet, testSet] = await splitSet(language, intents)
 
   const engine = new Engine(language, botId)
-  await engine.train(trainSet, entities, language)
+  const model = await engine.train(trainSet, entities, language)
+  await engine.loadModel(model)
 
   const allCtx = _.chain(intents)
     .flatMap(i => i.contexts)

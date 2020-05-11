@@ -13,6 +13,8 @@ import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './trai
 import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
 
+export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
+
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
@@ -64,12 +66,15 @@ const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 
 async function DetectLanguage(
   input: PredictInput,
-  supportedLanguages: string[],
+  predictorsByLang: _.Dictionary<Predictors>,
   tools: Tools
 ): Promise<{ detectedLanguage: string; usedLanguage: string }> {
+  const supportedLanguages = Object.keys(predictorsByLang)
+
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
   const lidRes = await langIdentifier.identify(input.sentence)
   const elected = lidRes.filter(pred => supportedLanguages.includes(pred.label))[0]
+  let score = elected?.value ?? 0
 
   // because with single-worded sentences, confidence is always very low
   // we assume that a input of 20 chars is more than a single word
@@ -80,8 +85,37 @@ async function DetectLanguage(
     detectedLanguage = NA_LANG
   }
 
-  const usedLanguage =
-    detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
+  // if ML-based language identifier didn't find a match
+  // we proceed with a custom vocabulary matching algorithm
+  // ie. the % of the sentence comprised of tokens in the training vocabulary
+  if (detectedLanguage === NA_LANG) {
+    try {
+      const match = _.chain(supportedLanguages)
+        .map(lang => ({
+          lang,
+          sentence: input.sentence.toLowerCase(),
+          tokens: _.orderBy(Object.keys(predictorsByLang[lang].vocabVectors), 'length', 'desc')
+        }))
+        .map(({ lang, sentence, tokens }) => {
+          for (const token of tokens) {
+            sentence = sentence.replace(token, '')
+          }
+          return { lang, confidence: 1 - sentence.length / input.sentence.length }
+        })
+        .filter(x => x.confidence >= threshold)
+        .orderBy('confidence', 'desc')
+        .first()
+        .value()
+
+      if (match) {
+        detectedLanguage = match.lang
+        score = match.confidence
+      }
+    } finally {
+    }
+  }
+
+  const usedLanguage = detectedLanguage !== NA_LANG && score > threshold ? detectedLanguage : input.defaultLanguage
 
   return { usedLanguage, detectedLanguage }
 }
@@ -90,7 +124,7 @@ async function preprocessInput(
   tools: Tools,
   predictorsBylang: _.Dictionary<Predictors>
 ): Promise<{ stepOutput: PredictStep; predictors: Predictors }> {
-  const { detectedLanguage, usedLanguage } = await DetectLanguage(input, Object.keys(predictorsBylang), tools)
+  const { detectedLanguage, usedLanguage } = await DetectLanguage(input, predictorsBylang, tools)
   const predictors = predictorsBylang[usedLanguage]
   if (_.isEmpty(predictors)) {
     // eventually better validation than empty check
@@ -506,12 +540,12 @@ export function findExactIntentForCtx(
   exactMatchIndex: ExactMatchIndex,
   utterance: Utterance,
   ctx: string
-): sdk.MLToolkit.SVM.Prediction | undefined {
+): ExactMatchResult {
   const candidateKey = utterance.toString(EXACT_MATCH_STR_OPTIONS)
 
   const maybeMatch = exactMatchIndex[candidateKey]
   if (_.get(maybeMatch, 'contexts', []).includes(ctx)) {
-    return { label: maybeMatch.intent, confidence: 1 }
+    return { label: maybeMatch.intent, confidence: 1, extractor: 'exact-matcher' }
   }
 }
 

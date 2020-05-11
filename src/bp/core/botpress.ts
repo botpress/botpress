@@ -21,6 +21,8 @@ import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
+import { WellKnownFlags } from './sdk/enums'
+import { Event } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
 import { ActionServersConfigSchema } from './services/action/action-servers-service'
@@ -350,6 +352,16 @@ export class Botpress {
         return
       }
 
+      if (event.ndu && event.type === 'workflow_ended') {
+        const hasWorkflowEndedTrigger = Object.keys(event.ndu.triggers).find(
+          x => event.ndu?.triggers[x].result['workflow_ended'] === 1
+        )
+
+        if (!hasWorkflowEndedTrigger) {
+          event.setFlag(WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+        }
+      }
+
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)
@@ -370,8 +382,37 @@ export class Botpress {
     }
 
     this.decisionEngine.onAfterEventProcessed = async (event: sdk.IO.IncomingEvent) => {
-      this.eventCollector.storeEvent(event)
+      if (!event.ndu) {
+        this.eventCollector.storeEvent(event)
+        return this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
+      }
+
+      const { workflows } = event.state.session
+
+      const activeWorkflow = Object.keys(workflows).find(x => workflows[x].status === 'active')
+      const completedWorkflows = Object.keys(workflows).filter(x => workflows[x].status === 'completed')
+
+      this.eventCollector.storeEvent(event, activeWorkflow ? workflows[activeWorkflow] : undefined)
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
+
+      completedWorkflows.forEach(async workflow => {
+        const wf = workflows[workflow]
+        const metric = wf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
+        BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: workflow })
+
+        delete event.state.session.workflows[workflow]
+
+        if (!activeWorkflow && !wf.parent) {
+          await this.eventEngine.sendEvent(
+            Event({
+              ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
+              direction: 'incoming',
+              type: 'workflow_ended',
+              payload: { ...wf, workflow }
+            })
+          )
+        }
+      })
     }
 
     this.botMonitor.onBotError = async (botId: string, events: sdk.LoggerEntry[]) => {
