@@ -17,6 +17,7 @@ export interface State {
 
 export interface Props {
   bp: any
+  isLite?: boolean
   topicName: string
   contentLang: string
   defaultLanguage: string

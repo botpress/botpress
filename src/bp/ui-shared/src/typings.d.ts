@@ -20,7 +20,7 @@ declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
     Wrapper(props: DialogProps): JSX.Element
-    Body(props: { children: any }): JSX.Element
+    Body(props: { children: any, className?: string }): JSX.Element
     Footer(props: { children: any }): JSX.Element
   }
   export const MainContent: {

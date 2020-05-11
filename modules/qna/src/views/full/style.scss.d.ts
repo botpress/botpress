@@ -5,6 +5,7 @@ interface CssExports {
   'collapsibleWrapper': string;
   'content': string;
   'contentAnswer': string;
+  'contextInput': string;
   'empty': string;
   'errorIcon': string;
   'errorsList': string;

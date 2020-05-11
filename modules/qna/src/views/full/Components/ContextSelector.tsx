@@ -82,7 +82,7 @@ const ContextSelector: FC<Props> = props => {
         onItemSelect={onItemSelect}
         tagRenderer={ctx => ctx}
         tagInputProps={{ tagProps: { minimal: true }, onRemove: removeCtx, inputProps: { id: 'select-context' } }}
-        popoverProps={{ minimal: true, fill: true }}
+        popoverProps={{ minimal: true, fill: true, usePortal: false }}
         selectedItems={props.contexts}
         createNewItemRenderer={!props.isSearch && createNewItemRenderer}
         createNewItemFromQuery={q => q}
