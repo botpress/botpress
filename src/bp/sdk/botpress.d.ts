@@ -241,6 +241,7 @@ declare module 'botpress/sdk' {
 
   export interface FlowGeneratorMetadata {
     botId: string
+    isOneFlow?: boolean
   }
 
   export interface ModulePluginEntry {
@@ -1308,7 +1309,7 @@ declare module 'botpress/sdk' {
     triggers: { conditions: DecisionTriggerCondition[] }[]
   }
 
-  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'>
+  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
 
   /**
    * Node Transitions are all the possible outcomes when a user's interaction on a node is completed. The possible destinations
