@@ -38,7 +38,7 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         node.isExpanded = true
       }
 
-      if (props.forceSelect && node?.[props.forceSelect.field] === props.forceSelect.value) {
+      if (props.forceSelect?.field && node?.[props.forceSelect.field] === props.forceSelect.value) {
         node.isSelected = true
       }
 

@@ -3,7 +3,7 @@ import axios from 'axios'
 import { confirmDialog, lang, TreeView } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
 import { connect } from 'react-redux'
 import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
@@ -69,7 +69,9 @@ type NodeType = 'workflow' | 'folder' | 'topic' | 'qna' | 'addWorkflow'
 
 const TopicList: FC<Props> = props => {
   const [flows, setFlows] = useState<NodeData[]>([])
-  const [forceSelect, setForceSelect] = useState({ field: '', value: '' })
+  const [forceSelect, setForceSelect] = useState({ field: undefined, value: undefined })
+  const [forcedSelect, setForcedSelect] = useState(false)
+  const [, forceUpdate] = useReducer(x => x + 1, 0)
 
   useEffect(() => {
     const qna = props.topics.map(topic => ({
@@ -84,9 +86,10 @@ const TopicList: FC<Props> = props => {
   }, [props.flowsName, props.topics, props.qnaCountByTopic])
 
   useEffect(() => {
-    if (props.currentFlow) {
+    if (!forcedSelect && props.currentFlow) {
       props.onExpandToggle(props.currentFlow.location.split('/')[0], true)
       setForceSelect({ field: 'fullPath', value: props.currentFlow.location })
+      setForcedSelect(true)
     }
   }, [props.currentFlow])
 
@@ -138,14 +141,17 @@ const TopicList: FC<Props> = props => {
     const editTopic = async newName => {
       props.setFocusedText(undefined)
       props.setNewPath(undefined)
+      setForceSelect(undefined)
       if (newName === '') {
         await props.fetchFlows()
         await props.fetchTopics()
       } else if (newName !== folder) {
         const sanitizedName = sanitize(newName)
-        await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: sanitizedName, description: undefined })
-        if (props.expandedPaths.includes(folder)) {
-          props.onExpandToggle(sanitizedName, true)
+        if (!props.topics.find(x => x.name == sanitizedName)) {
+          await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: sanitizedName, description: undefined })
+          if (props.expandedPaths.includes(folder)) {
+            props.onExpandToggle(sanitizedName, true)
+          }
         }
         await props.fetchFlows()
         await props.fetchTopics()
@@ -284,13 +290,19 @@ const TopicList: FC<Props> = props => {
     const editWorkflow = async newName => {
       props.setFocusedText(undefined)
       props.setNewPath(undefined)
+      setForceSelect(undefined)
       if (newName === '') {
         await props.fetchFlows()
         await props.fetchTopics()
       } else if (newName !== displayName) {
         const fullName = buildFlowName({ topic: el.topic, workflow: sanitize(newName) }, true)
-        props.renameFlow({ targetFlow: name, name: fullName })
-        props.updateFlow({ name: fullName })
+        if (!props.flowsName.find(x => x.name === fullName)) {
+          props.renameFlow({ targetFlow: name, name: fullName })
+          props.updateFlow({ name: fullName })
+        } else {
+          setFlows([...flows])
+          forceUpdate()
+        }
       }
     }
 
@@ -425,6 +437,7 @@ const TopicList: FC<Props> = props => {
           </div>
         </div>
       )}
+      {console.log(forceSelect)}
       <div className={cx(style.tree, { [style.unfilteredTree]: !props.filter })}>
         <TreeView<NodeData>
           elements={flows}
