@@ -666,10 +666,10 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventUnderstanding {
-      intent: NLU.Intent
+      intent?: NLU.Intent
       /** Predicted intents needs disambiguation */
       readonly ambiguous: boolean
-      intents: NLU.Intent[]
+      intents?: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
