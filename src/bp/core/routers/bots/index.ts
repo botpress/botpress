@@ -1,5 +1,6 @@
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
+import { UnexpectedError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
@@ -360,7 +361,7 @@ export class BotsRouter extends CustomRouter {
             return res.send(423) // Mutex locked
           }
 
-          res.status(400).send(err.message)
+          throw new UnexpectedError('Error saving flow', err)
         }
       })
     )

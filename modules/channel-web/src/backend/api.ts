@@ -1,6 +1,7 @@
 import apicache from 'apicache'
 import aws from 'aws-sdk'
 import * as sdk from 'botpress/sdk'
+import { asyncMiddleware as asyncMw } from 'common/http'
 import _ from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
@@ -19,6 +20,7 @@ const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 const USER_ID_MAX_LENGTH = 40
 
 export default async (bp: typeof sdk, db: Database) => {
+  const asyncMiddleware = asyncMw(bp.logger)
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
 
   const diskStorage = multer.diskStorage({
@@ -82,19 +84,10 @@ export default async (bp: typeof sdk, db: Database) => {
     statusCodes: { include: [200] }
   }).middleware
 
-  const asyncApi = fn => async (req, res, next) => {
-    try {
-      await fn(req, res, next)
-    } catch (err) {
-      bp.logger.attachError(err).error('HTTP Handling Error')
-      res.status(500).send(err && err.message)
-    }
-  }
-
   router.get(
     '/botInfo',
     perBotCache('1 minute'),
-    asyncApi(async (req, res) => {
+    asyncMiddleware(async (req, res) => {
       const { botId } = req.params
       const security = ((await bp.config.getModuleConfig('channel-web')) as Config).security // usage of global because a user could overwrite bot scoped configs
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
@@ -120,7 +113,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/messages/:userId',
     bp.http.extractExternalToken,
-    asyncApi(async (req, res) => {
+    asyncMiddleware(async (req, res) => {
       const { botId, userId = undefined } = req.params
 
       if (!validateUserId(userId)) {
@@ -172,7 +165,7 @@ export default async (bp: typeof sdk, db: Database) => {
     '/messages/:userId/files',
     upload.single('file'),
     bp.http.extractExternalToken,
-    asyncApi(async (req, res) => {
+    asyncMiddleware(async (req: any, res) => {
       const { botId = undefined, userId = undefined } = req.params || {}
 
       if (!validateUserId(userId)) {
@@ -292,7 +285,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/events/:userId',
     bp.http.extractExternalToken,
-    asyncApi(async (req, res) => {
+    asyncMiddleware(async (req, res) => {
       const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
       await bp.users.getOrCreateUser('web', userId, botId)
@@ -317,7 +310,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/saveFeedback',
     bp.http.extractExternalToken,
-    asyncApi(async (req, res) => {
+    asyncMiddleware(async (req, res) => {
       const { eventId, target, feedback } = req.body
 
       if (!target || !eventId || !feedback) {
@@ -336,7 +329,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/feedbackInfo',
     bp.http.extractExternalToken,
-    asyncApi(async (req, res) => {
+    asyncMiddleware(async (req, res) => {
       const { target, eventIds } = req.body
 
       if (!target || !eventIds) {
@@ -350,7 +343,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/conversations/:userId/:conversationId/reset',
     bp.http.extractExternalToken,
-    asyncApi(async (req, res) => {
+    asyncMiddleware(async (req, res) => {
       const { botId, userId, conversationId } = req.params
       await bp.users.getOrCreateUser('web', userId, botId)
 
