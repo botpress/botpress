@@ -42,7 +42,6 @@ export default class BroadcastModule extends React.Component {
   }
 
   state = {
-    loading: true,
     showModalForm: false,
     broadcast: {}
   }
@@ -61,19 +60,14 @@ export default class BroadcastModule extends React.Component {
   }
 
   fetchAllBroadcasts = () => {
-    this.setState({ loading: true })
-
     return this.getAxios()
       .get('/mod/broadcast/')
       .then(res => {
         this.setState({
-          loading: false,
           broadcasts: _.orderBy(res.data, ['date', 'time'])
         })
       })
       .catch(err => {
-        this.setState({ loading: false })
-
         console.error(err)
         toastFailure("Can't fetch broadcast list from the server.")
       })
@@ -105,13 +99,11 @@ export default class BroadcastModule extends React.Component {
   handleRequestError = err => {
     if (err && err.response) {
       return this.setState({
-        loading: false,
         error: err.response.data.message
       })
     }
 
     this.setState({
-      loading: false,
       error: err ? err.message : 'An unknown error occurred'
     })
   }
@@ -499,10 +491,6 @@ export default class BroadcastModule extends React.Component {
   }
 
   render() {
-    if (this.state.loading) {
-      return null
-    }
-
     const allBroadcasts = _.assign([], this.state.broadcasts)
     const hasSomeError = _.some(allBroadcasts, ['errored', true])
 
