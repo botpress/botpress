@@ -94,6 +94,10 @@ const generateFlow = async (
       onReceive: [],
       next: [{ condition: 'true', node: 'wait' }]
     },
+    /**
+     * We tell the dialog engine to stay on this node, since triggers will always score higher and will send the user on the correct node
+     * The onReceive ensures it doesn't go into an infinite loop
+     */
     {
       name: 'wait',
       onReceive: [],
