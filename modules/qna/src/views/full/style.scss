@@ -8,7 +8,13 @@
 }
 
 :global(.qna-dialog) {
+  display: flex;
   padding: 0 !important;
+
+  & > div {
+    flex-grow: 1;
+    height: auto;
+  }
 }
 
 .header :global(.more-options-selected-option) {

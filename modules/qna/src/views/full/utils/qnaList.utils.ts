@@ -10,6 +10,7 @@ export interface State {
   count: number
   items: any[]
   loading: boolean
+  firstUpdate: boolean
   page: number
   fetchMore: boolean
   expandedItems: { [key: string]: boolean }
@@ -130,6 +131,7 @@ export const fetchReducer = (state: State, action): State => {
       count,
       items: page === 1 ? items : [...state.items, ...items],
       loading: false,
+      firstUpdate: false,
       page,
       fetchMore: false
     }
@@ -139,6 +141,7 @@ export const fetchReducer = (state: State, action): State => {
       count: 0,
       items: [],
       page: 1,
+      firstUpdate: true,
       fetchMore: false,
       expandedItems: {}
     }

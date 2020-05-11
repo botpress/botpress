@@ -23,35 +23,44 @@ const QnAList: FC<Props> = props => {
     count: 0,
     items: [],
     loading: true,
+    firstUpdate: true,
     page: 1,
     fetchMore: false,
     expandedItems: {}
   })
-  const { items, loading, page, fetchMore, count, expandedItems } = state
+  const { items, loading, firstUpdate, page, fetchMore, count, expandedItems } = state
   const { bp, languages, defaultLanguage, isLite } = props
 
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
 
-    dispatch({ type: 'resetData' })
     fetchData()
       .then(() => {})
       .catch(() => {})
 
-    return () => wrapperRef.current.removeEventListener('scroll', handleScroll)
+    return () => {
+      wrapperRef.current.removeEventListener('scroll', handleScroll)
+      dispatch({ type: 'resetData' })
+      setFilterContexts([])
+      setQuestionSearch('')
+    }
   }, [])
 
   useEffect(() => {
-    fetchData(1)
-      .then(() => {})
-      .catch(() => {})
+    if (!firstUpdate) {
+      fetchData()
+        .then(() => {})
+        .catch(() => {})
+    }
   }, [filterContexts])
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchData(1)
-        .then(() => {})
-        .catch(() => {})
+      if (!firstUpdate) {
+        fetchData()
+          .then(() => {})
+          .catch(() => {})
+      }
     }, 300)
 
     return () => clearTimeout(timer)
@@ -237,7 +246,7 @@ const QnAList: FC<Props> = props => {
 
       <ImportModal
         axios={bp.axios}
-        onImportCompleted={() => fetchData(1)}
+        onImportCompleted={() => fetchData()}
         isOpen={showImportModal}
         toggle={() => setShowImportModal(!showImportModal)}
       />
