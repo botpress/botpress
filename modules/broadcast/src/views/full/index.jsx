@@ -521,6 +521,7 @@ export default class BroadcastModule extends React.Component {
         {hasSomeError ? this.renderErrorBox() : null}
         <h3 className={style.title}>Broadcasts</h3>
         {this.renderNewButton()}
+        {hasSomeError ? this.renderErrorBox() : null}
         <div className={style.mainPanel}>
           {this.renderBroadcastsPanel('Upcoming broadcasts (next 3 days)', upcomingBroadcasts)}
           {this.renderBroadcastsPanel('Past broadcasts (last 3 days)', pastBroadcasts)}
