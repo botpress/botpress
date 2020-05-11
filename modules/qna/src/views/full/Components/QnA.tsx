@@ -113,11 +113,6 @@ const QnA: FC<Props> = props => {
                 <span className={cx(style.tag, style.warning)}>{lang.tr('module.qna.form.cantBeSaved')}</span>
               </Tooltip>
             )}
-            {!expanded && (
-              <span className={style.tag}>{`${questions.filter(answer => answer.trim()).length} ${lang.tr(
-                'module.qna.form.q'
-              )} · ${answers.filter(answer => answer.trim()).length}  ${lang.tr('module.qna.form.a')}`}</span>
-            )}
             {!data.enabled && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.disabledTooltip')}>
                 <span className={style.tag}>{lang.tr('disabled')}</span>
@@ -125,8 +120,13 @@ const QnA: FC<Props> = props => {
             )}
             {showIncomplete && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
-                <span className={cx(style.tag, style.warning)}>{lang.tr('module.qna.form.incomplete')}</span>
+                <span className={cx(style.tag)}>{lang.tr('module.qna.form.incomplete')}</span>
               </Tooltip>
+            )}
+            {!expanded && (
+              <span className={style.tag}>{`${questions.filter(answer => answer.trim()).length} ${lang.tr(
+                'module.qna.form.q'
+              )} · ${answers.filter(answer => answer.trim()).length}  ${lang.tr('module.qna.form.a')}`}</span>
             )}
           </div>
         </Button>

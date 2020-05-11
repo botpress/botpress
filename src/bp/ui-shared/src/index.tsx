@@ -1,6 +1,6 @@
 import { lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
-import { keyMap } from './utils/keyboardShortcuts'
+import { controlKey, keyMap } from './utils/keyboardShortcuts'
 import { Commander } from './Commander'
 import confirmDialog from './ConfirmDialog'
 import { Body, Footer, Wrapper } from './Dialog'
@@ -36,4 +36,4 @@ exports.lang = {
   getAvailable: langAvaibale
 }
 exports.toast = toast
-exports.utils = { keyMap, isInputFocused }
+exports.utils = { controlKey, keyMap, isInputFocused }

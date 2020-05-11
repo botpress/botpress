@@ -53,7 +53,7 @@
     "@types/webpack": "^4.4.12",
     "babel-plugin-search-and-replace": "^0.3.0",
     "clean-webpack-plugin": "^2.0.1",
-    "webpack-bundle-analyzer": "^3.1.0"
+    "webpack-bundle-analyzer": "^3.6.1"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

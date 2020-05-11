@@ -52,6 +52,7 @@ declare module 'botpress/shared' {
   }
 
   export const utils: {
+    controlKey: string
     keyMap: { [key: string]: string }
     isInputFocused(): boolean
   }

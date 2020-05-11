@@ -110,7 +110,7 @@ body {
   font-size: 1rem;
   padding: 0.4rem 0.8rem;
   min-width: 5rem;
-  height: 40px;
+  min-height: 40px;
   text-align: center;
   border: 1px solid currentColor;
   border-radius: 0px;

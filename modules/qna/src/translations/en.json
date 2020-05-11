@@ -54,6 +54,7 @@
     "noResultsFromFilters": "No questions found",
     "onlyOneLanguage": "You only have one language",
     "q": "Q",
+    "quickAddAlternative": "Press {shortcut} while inline to add new alternative quickly",
     "translate": "Translate",
     "writeAtLeastTwoMoreQuestions": "Write at least 2 question alternatives to enable machine learning",
     "writeFirstQuestion": "Write a sentence that your user could write to ask his/her question",
