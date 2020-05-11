@@ -299,9 +299,10 @@ const TopicList: FC<Props> = props => {
         if (!props.flowsName.find(x => x.name === fullName)) {
           props.renameFlow({ targetFlow: name, name: fullName })
           props.updateFlow({ name: fullName })
+          setForceSelect({ field: 'fullPath', value: fullName })
         } else {
-          setFlows([...flows])
-          forceUpdate()
+          await props.fetchFlows()
+          await props.fetchTopics()
         }
       }
     }
