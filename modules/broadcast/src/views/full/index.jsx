@@ -506,7 +506,6 @@ export default class BroadcastModule extends React.Component {
 
     return (
       <div>
-        {hasSomeError ? this.renderErrorBox() : null}
         <h3 className={style.title}>Broadcasts</h3>
         {this.renderNewButton()}
         {hasSomeError ? this.renderErrorBox() : null}
