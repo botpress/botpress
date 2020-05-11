@@ -1,6 +1,9 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
+
 import api from './api'
 import Daemon from './daemon'
 import BroadcastDb from './db'
@@ -31,6 +34,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onBotMount,
+  translations: { en, fr },
   definition: {
     name: 'broadcast',
     menuIcon: 'settings_input_antenna',
