@@ -55,7 +55,7 @@ export class EventCollector {
     this.enabled = true
   }
 
-  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent) {
+  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent, activeWorkflow?: sdk.IO.WorkflowHistory) {
     if (!this.enabled || this.ignoredTypes.includes(event.type)) {
       return
     }
@@ -68,17 +68,6 @@ export class EventCollector {
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
-    const lastWf = (event as sdk.IO.IncomingEvent).state.session?.lastWorkflows?.[0]
-    const workflowId = lastWf?.active ? lastWf.eventId : undefined
-    const success = lastWf?.active ? lastWf?.success : undefined
-
-    // Once the workflow is a success or failure, it becomes inactive
-    if (lastWf?.success !== undefined) {
-      const metric = lastWf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
-      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: lastWf.workflow })
-
-      lastWf.active = false
-    }
 
     const ignoredProps = [...this.ignoredProperties, ...(event.debugger ? [] : this.debuggerProperties)]
     delete event.debugger
@@ -90,8 +79,8 @@ export class EventCollector {
       target,
       sessionId,
       direction,
-      workflowId,
-      success,
+      workflowId: activeWorkflow?.eventId,
+      success: activeWorkflow?.success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: this.knex.json.set(ignoredProps.length ? _.omit(event, ignoredProps) : event || {}),
       createdOn: this.knex.date.now()

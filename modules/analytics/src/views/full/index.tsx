@@ -309,7 +309,7 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <ItemsList
           name={lang.tr('module.analytics.mostUsedWorkflows')}
-          items={getTopItems('enter_flow_count', 'workflow')}
+          items={getTopItems('workflow_started_count', 'workflow')}
           itemLimit={10}
           className={cx(style.genericMetric, style.half, style.list)}
         />
@@ -360,7 +360,9 @@ const Analytics: FC<any> = ({ bp }) => {
               name={lang.tr('module.analytics.successfulWorkflowCompletions', {
                 nb: getMetricCount('workflow_completed_count')
               })}
-              value={getMetricCount('workflow_completed_count')}
+              value={Math.round(
+                (getMetricCount('workflow_completed_count') / getMetricCount('workflow_started_count')) * 100
+              )}
               className={style.quarter}
             />
             <RadialMetric

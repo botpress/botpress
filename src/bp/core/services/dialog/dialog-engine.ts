@@ -16,11 +16,13 @@ import { InstructionsQueueBuilder } from './queue-builder'
 
 const debug = DEBUG('dialog')
 
+type FlowWithParent = FlowView & { parent?: string }
+
 @injectable()
 export class DialogEngine {
   public onProcessingError: ((err: ProcessingError, hideStack: boolean) => void) | undefined
 
-  private _flowsByBot: Map<string, FlowView[]> = new Map()
+  private _flowsByBot: Map<string, FlowWithParent[]> = new Map()
 
   constructor(
     @inject(TYPES.FlowService) private flowService: FlowService,
@@ -35,6 +37,24 @@ export class DialogEngine {
     const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
     const currentFlow = this._findFlow(botId, context.currentFlow)
     const currentNode = this._findNode(botId, currentFlow, context.currentNode)
+
+    if (event.ndu) {
+      const workflowName = currentFlow.name?.replace('.flow.json', '')
+
+      const { currentWorkflow } = event.state.session
+      const { workflow } = event.state
+
+      if (currentWorkflow !== workflowName) {
+        this.changeWorkflow(event, workflowName)
+        event.state.session.currentWorkflow = workflowName
+      }
+
+      const workflowEnded = currentNode.type === 'success' || currentNode.type === 'failure'
+      if (workflowEnded && workflow) {
+        workflow.success = currentNode.type === 'success'
+        workflow.status = 'completed'
+      }
+    }
 
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
@@ -52,19 +72,6 @@ export class DialogEngine {
       context.hasJumped = false
     } else {
       queue = queueBuilder.build()
-    }
-
-    if (currentNode?.type === 'success') {
-      const wf = event.state.session.lastWorkflows.find(x => x.workflow === context.currentFlow)
-      wf && (wf.success = true)
-
-      queue.instructions = [
-        ...queue.instructions,
-        { type: 'transition', fn: 'true', node: 'Built-In/feedback.flow.json' }
-      ]
-    } else if (currentNode?.type === 'failure') {
-      const wf = event.state.session.lastWorkflows.find(x => x.workflow === context.currentFlow)
-      wf && (wf.success = false)
     }
 
     const instruction = queue.dequeue()
@@ -118,6 +125,53 @@ export class DialogEngine {
     }
 
     return event
+  }
+
+  public changeWorkflow(event: IO.IncomingEvent, nextFlow: string) {
+    const { currentWorkflow, workflows } = event.state.session
+    const { workflow } = event.state
+
+    const parentFlow = this._findFlow(event.botId, `${nextFlow}.flow.json`).parent
+    const isSubFlow = !!currentWorkflow && nextFlow.startsWith(currentWorkflow)
+
+    // This workflow doesn't already exist, so we add it
+    if (!workflow) {
+      BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: nextFlow })
+
+      event.state.session.workflows = {
+        ...event.state.session.workflows,
+        [nextFlow]: {
+          eventId: event.id,
+          status: 'active',
+          parent: parentFlow
+        }
+      }
+      return
+    }
+
+    // We dive one level deeper (one more child)
+    if (isSubFlow) {
+      BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: nextFlow })
+
+      // The parent flow is inactive for now
+      workflow.status = 'pending'
+
+      event.state.session.workflows = {
+        ...event.state.session.workflows,
+        [nextFlow]: {
+          eventId: event.id,
+          status: 'active',
+          parent: currentWorkflow
+        }
+      }
+    } else {
+      workflow.status = 'completed'
+
+      // If the current workflow has a parent, and we return there, we update its status
+      if (workflow.parent && workflows[nextFlow]) {
+        workflows[nextFlow].status = 'active'
+      }
+    }
   }
 
   public async jumpTo(sessionId: string, event: IO.IncomingEvent, targetFlowName: string, targetNodeName?: string) {
@@ -306,9 +360,10 @@ export class DialogEngine {
       this._logTransition(event.botId, event.target, context.currentFlow, context.currentNode, transitionTo)
 
       event.state.__stacktrace.push({ flow: context.currentFlow!, node: transitionTo })
-      // When we're in a skill, we must remember the location of the main node for when we will exit
-      const isInSkill = context.currentFlow && context.currentFlow.startsWith('skills/')
-      if (isInSkill) {
+      // When we're in a sub flow, we must remember the location of the parent node for when we will exit
+      const flowInfo = this._findFlow(event.botId, context.currentFlow!)
+      const isInSubFlow = context.currentFlow?.startsWith('skills/') || !!flowInfo.parent
+      if (isInSubFlow) {
         context = { ...context, currentNode: transitionTo }
       } else {
         context = { ...context, previousNode: context.currentNode, currentNode: transitionTo }
@@ -343,7 +398,18 @@ export class DialogEngine {
 
   protected async _loadFlows(botId: string) {
     const flows = await this.flowService.loadAll(botId)
-    this._flowsByBot.set(botId, flows)
+
+    const flowsWithParents = flows.map(flow => {
+      const flowName = flow.name.replace('.flow.json', '')
+      const parentFlow = flows.find(x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', '')))
+
+      return {
+        ...flow,
+        parent: parentFlow?.name.replace('.flow.json', '')
+      }
+    })
+
+    this._flowsByBot.set(botId, flowsWithParents)
   }
 
   private _detectInfiniteLoop(stacktrace: IO.JumpPoint[], botId: string) {
