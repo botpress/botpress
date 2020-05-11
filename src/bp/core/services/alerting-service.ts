@@ -1,15 +1,6 @@
 import { injectable } from 'inversify'
 import _ from 'lodash'
 
-export interface Incident {
-  id: string
-  ruleName: string
-  hostName: string
-  startTime: Date
-  endTime?: Date
-  triggerValue: number
-}
-
 export type Aggregation = 'avg' | 'sum' | 'min' | 'max' | 'last' | 'count'
 export type Operand = 'equalOrLessThan' | 'equalOrMoreThan'
 

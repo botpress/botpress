@@ -191,6 +191,7 @@ export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
         intent: i.name
       }))
     )
+    .filter(({ utterance }) => !!utterance)
     .reduce((index, { utterance, contexts, intent }) => {
       index[utterance] = { intent, contexts }
       return index

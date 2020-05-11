@@ -25,6 +25,29 @@ declare module 'botpress/sdk' {
     ): Promise<T>
   }
 
+  export interface Incident {
+    id: string
+    ruleName: string
+    hostName: string
+    startTime: Date
+    endTime?: Date
+    triggerValue: number
+  }
+
+  export type StrategyUser = {
+    id?: number
+    password?: string
+    salt?: string
+  } & UserInfo
+
+  export interface UserInfo {
+    email: string
+    strategy: string
+    createdOn?: string
+    updatedOn?: string
+    attributes: any
+  }
+
   export type KnexExtended = Knex & KnexExtension
 
   /**
