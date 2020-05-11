@@ -18,8 +18,7 @@ export default async (bp: typeof sdk, db: Db) => {
       const event: FlaggedEvent = req.body
 
       if (event.botId !== botId) {
-        res.status(403).send('Invalid bot ID')
-        return
+        throw new StandardError('Invalid bot ID')
       }
 
       try {

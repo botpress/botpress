@@ -1,7 +1,8 @@
 import apicache from 'apicache'
 import aws from 'aws-sdk'
 import * as sdk from 'botpress/sdk'
-import { asyncMiddleware as asyncMw } from 'common/http'
+import { asyncMiddleware as asyncMw, BPRequest } from 'common/http'
+import { Response } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
@@ -87,7 +88,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.get(
     '/botInfo',
     perBotCache('1 minute'),
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req: BPRequest, res: Response) => {
       const { botId } = req.params
       const security = ((await bp.config.getModuleConfig('channel-web')) as Config).security // usage of global because a user could overwrite bot scoped configs
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
@@ -113,7 +114,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/messages/:userId',
     bp.http.extractExternalToken,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req: BPRequest, res: Response) => {
       const { botId, userId = undefined } = req.params
 
       if (!validateUserId(userId)) {
@@ -165,7 +166,7 @@ export default async (bp: typeof sdk, db: Database) => {
     '/messages/:userId/files',
     upload.single('file'),
     bp.http.extractExternalToken,
-    asyncMiddleware(async (req: any, res) => {
+    asyncMiddleware(async (req: BPRequest & any, res: Response) => {
       const { botId = undefined, userId = undefined } = req.params || {}
 
       if (!validateUserId(userId)) {
@@ -198,7 +199,7 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.get('/conversations/:userId/:conversationId', async (req, res) => {
+  router.get('/conversations/:userId/:conversationId', async (req: BPRequest, res: Response) => {
     const { userId, conversationId, botId } = req.params
 
     if (!validateUserId(userId)) {
@@ -210,7 +211,7 @@ export default async (bp: typeof sdk, db: Database) => {
     return res.send(conversation)
   })
 
-  router.get('/conversations/:userId', async (req, res) => {
+  router.get('/conversations/:userId', async (req: BPRequest, res: Response) => {
     const { botId = undefined, userId = undefined } = req.params || {}
 
     if (!validateUserId(userId)) {
@@ -285,7 +286,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/events/:userId',
     bp.http.extractExternalToken,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req: BPRequest, res: Response) => {
       const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
       await bp.users.getOrCreateUser('web', userId, botId)
@@ -310,7 +311,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/saveFeedback',
     bp.http.extractExternalToken,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req: BPRequest, res: Response) => {
       const { eventId, target, feedback } = req.body
 
       if (!target || !eventId || !feedback) {
@@ -329,7 +330,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/feedbackInfo',
     bp.http.extractExternalToken,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req: BPRequest, res: Response) => {
       const { target, eventIds } = req.body
 
       if (!target || !eventIds) {
@@ -343,7 +344,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post(
     '/conversations/:userId/:conversationId/reset',
     bp.http.extractExternalToken,
-    asyncMiddleware(async (req, res) => {
+    asyncMiddleware(async (req: BPRequest, res: Response) => {
       const { botId, userId, conversationId } = req.params
       await bp.users.getOrCreateUser('web', userId, botId)
 
@@ -360,13 +361,13 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.post('/conversations/:userId/new', async (req, res) => {
+  router.post('/conversations/:userId/new', async (req: BPRequest, res: Response) => {
     const { userId, botId } = req.params
     const convoId = await db.createConversation(botId, userId)
     res.send({ convoId })
   })
 
-  router.post('/conversations/:userId/:conversationId/reference/:reference', async (req, res) => {
+  router.post('/conversations/:userId/:conversationId/reference/:reference', async (req: BPRequest, res: Response) => {
     try {
       const { botId, userId, reference } = req.params
       let { conversationId } = req.params
@@ -413,14 +414,14 @@ export default async (bp: typeof sdk, db: Database) => {
     }
   })
 
-  router.get('/preferences/:userId', async (req, res) => {
+  router.get('/preferences/:userId', async (req: BPRequest, res: Response) => {
     const { userId, botId } = req.params
     const { result } = await bp.users.getOrCreateUser('web', userId, botId)
 
     return res.send({ language: result.attributes.language })
   })
 
-  router.post('/preferences/:userId', async (req, res) => {
+  router.post('/preferences/:userId', async (req: BPRequest, res: Response) => {
     const { userId, botId } = req.params
     const payload = req.body || {}
     const preferredLanguage = payload.language
@@ -469,7 +470,7 @@ export default async (bp: typeof sdk, db: Database) => {
     return [metadata, ...messagesAsTxt].join('')
   }
 
-  router.get('/conversations/:userId/:conversationId/download/txt', async (req, res) => {
+  router.get('/conversations/:userId/:conversationId/download/txt', async (req: BPRequest, res: Response) => {
     const { userId, conversationId, botId } = req.params
 
     if (!validateUserId(userId)) {
