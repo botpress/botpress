@@ -6,6 +6,7 @@ interface CssExports {
   'card': string;
   'dot': string;
   'emptyMessage': string;
+  'error': string;
   'filters': string;
   'formTime': string;
   'formUserTimezone': string;

@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Callout, Button, Intent } from '@blueprintjs/core'
+import cx from 'classnames'
 import style from './style.scss'
 
 export default class DismissableAlert extends React.Component {
@@ -10,7 +11,12 @@ export default class DismissableAlert extends React.Component {
     const dismiss = () => this.setState({ alertVisible: false })
     if (this.state.alertVisible) {
       return (
-        <Callout title="An error occurred sending a broadcast" intent={Intent.DANGER} onDismiss={dismiss}>
+        <Callout
+          className={cx(style.error, 'bp3-elevation-1')}
+          title="An error occurred sending a broadcast"
+          intent={Intent.DANGER}
+          onDismiss={dismiss}
+        >
           <p>Have a look at the logs to see what happened</p>
           <p>
             <Button intent={Intent.DANGER} onClick={dismiss} text="Hide Alert" />
