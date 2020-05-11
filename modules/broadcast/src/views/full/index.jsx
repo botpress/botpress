@@ -3,9 +3,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
-import { Panel, Label } from 'react-bootstrap'
 import {
-  Navbar,
+  Tag,
   Button,
   FormGroup,
   InputGroup,
@@ -14,7 +13,6 @@ import {
   Intent,
   Tooltip,
   Position,
-  Alignment,
   Card
 } from '@blueprintjs/core'
 import { DateInput, TimePicker } from '@blueprintjs/datetime'
@@ -293,7 +291,7 @@ export default class BroadcastModule extends React.Component {
         return 'No filter'
       }
 
-      return <Label bsStyle="primary">{filters.length + ' filters'}</Label>
+      return <Tag>{filters.length + ' filters'}</Tag>
     }
 
     return _.mapValues(broadcasts, value => {
@@ -351,7 +349,7 @@ export default class BroadcastModule extends React.Component {
   renderEmptyMessage() {
     return (
       <div className={style.emptyMessage}>
-        <h5>You have no broadcasts...</h5>
+        <h5>You have no broadcasts</h5>
       </div>
     )
   }
@@ -520,10 +518,10 @@ export default class BroadcastModule extends React.Component {
 
     return (
       <div>
+        {hasSomeError ? this.renderErrorBox() : null}
         <h3 className={style.title}>Broadcasts</h3>
         {this.renderNewButton()}
         <div className={style.mainPanel}>
-          {hasSomeError ? this.renderErrorBox() : null}
           {this.renderBroadcastsPanel('Upcoming broadcasts (next 3 days)', upcomingBroadcasts)}
           {this.renderBroadcastsPanel('Past broadcasts (last 3 days)', pastBroadcasts)}
           {this.renderBroadcastsPanel('Other broadcasts', allBroadcasts)}
