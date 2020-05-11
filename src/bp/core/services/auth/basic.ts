@@ -32,6 +32,9 @@ export default class StrategyBasic {
         const { email, password, newPassword, channel, target } = req.body
         const { strategy } = req.params
 
+        // Random delay to prevent an attacker from determining if an account exists by the response time. Arbitrary numbers
+        await Promise.delay(_.random(15, 80))
+
         await this._login(email, password, strategy, newPassword, req.ip)
         let token
 
