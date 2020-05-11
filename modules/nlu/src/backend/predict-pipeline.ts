@@ -352,7 +352,7 @@ function electIntent(input: PredictOutput): PredictOutput {
       }
 
       if (predictionsReallyConfused(intentPreds)) {
-        intentPreds.unshift({ label: NONE_INTENT, context: ctx, confidence: 1 })
+        intentPreds.unshift({ label: NONE_INTENT, context: ctx, confidence: 1, slots: {} })
       }
 
       const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
@@ -438,7 +438,7 @@ function detectAmbiguity(input: PredictOutput): PredictOutput {
     (math.allInRange(confidenceVec, low, up) ||
       (preds[0].name === NONE_INTENT && math.allInRange(confidenceVec.slice(1), low, up)))
 
-  return _.merge(input, { intent_predictions: { ambiguous } })
+  return { ...input, ambiguous }
 }
 
 async function extractSlots(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
@@ -451,14 +451,14 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
   return { ...input, slot_predictions_per_intent: slots_per_intent }
 }
 
-async function tagElectedIntentSlots(input: PredictOutput, utt: Utterance, predictors: Predictors): Promise<void> {
-  const intent = !input.ambiguous && predictors.intents.find(i => i.name === input.intent.name)
-  if (intent && intent.slot_definitions.length > 0) {
-    const slots = await predictors.slot_tagger.extract(utt, intent)
-    slots.forEach(({ slot, start, end }) => {
-      utt.tagSlot(slot, start, end)
-    })
+async function extractElectedIntentSlots(input: PredictOutput): Promise<PredictOutput> {
+  const intentWasElectedWithoutAmbiguity = input?.intent?.name && !_.isEmpty(input.predictions) && !input.ambiguous
+  if (!intentWasElectedWithoutAmbiguity) {
+    return input
   }
+
+  const electedIntent = _.flatMap(input.predictions, p => p.intents).find(i => i.label === input.intent.name) // might find an intent with the correct name of an incorrect context... Chosen context should maybe be in PredictOuput
+  return { ...input, slots: electedIntent.slots } // no more range validation (in  utterance.tagSlot())
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
@@ -479,21 +479,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         }
       } as sdk.NLU.Entity)
   )
-  const slots = step.utterance.slots.reduce((slots, s) => {
-    return {
-      ...slots,
-      [s.name]: {
-        start: s.startPos,
-        end: s.endPos,
-        confidence: s.confidence,
-        name: s.name,
-        source: s.source,
-        value: s.value
-      } as sdk.NLU.Slot
-    }
-  }, {} as sdk.NLU.SlotCollection)
 
-  const predictions = step.ctx_predictions?.reduce(
+  const predictions: sdk.NLU.Predictions = step.ctx_predictions?.reduce(
     (preds, { label, confidence }) => {
       return {
         ...preds,
@@ -528,7 +515,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         intents: [
           {
             label: NONE_INTENT,
-            confidence: 1 // this will be be computed as
+            confidence: 1, // this will be be computed as
+            slots: {}
           }
         ],
         confidence: step.oos_predictions?.confidence ?? 0
@@ -548,7 +536,6 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       .value(),
     includedContexts: step.includedContexts,
     language: step.languageCode,
-    slots,
     ms: Date.now() - startTime
   }
 }
@@ -595,7 +582,7 @@ export const Predict = async (
     let predictionOutput = MapStepToOutput(stepOutput, t0)
     predictionOutput = electIntent(predictionOutput)
     predictionOutput = detectAmbiguity(predictionOutput)
-    await tagElectedIntentSlots(predictionOutput, stepOutput.utterance, predictors)
+    predictionOutput = await extractElectedIntentSlots(predictionOutput)
     return predictionOutput
   } catch (err) {
     if (err instanceof InvalidLanguagePredictorError) {

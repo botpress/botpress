@@ -526,7 +526,7 @@ declare module 'botpress/sdk' {
     export interface Predictions {
       [context: string]: {
         confidence: number
-        intents: { label: string; confidence: number }[]
+        intents: { label: string; confidence: number; slots: SlotCollection }[]
       }
     }
   }
@@ -675,7 +675,7 @@ declare module 'botpress/sdk' {
       /** Language detected from users input. */
       readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.SlotCollection
+      readonly slots?: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
