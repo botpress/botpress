@@ -30,8 +30,6 @@ const QnAList: FC<Props> = props => {
   const { items, loading, page, fetchMore, count, expandedItems } = state
   const { bp, languages, defaultLanguage, isLite } = props
 
-  console.log(props)
-
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
 
