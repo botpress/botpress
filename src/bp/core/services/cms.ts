@@ -597,10 +597,17 @@ export class CMSService implements IDisposeOnExit {
     }, {})
   }
 
-  async renderElement(contentId, args, eventDestination: IO.EventDestination) {
+  async renderElement(contentId: string, args, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
     let contentTypeRenderer: ContentType
+
+    const translateFormData = async (formData: object): Promise<object> => {
+      const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
+      const lang = _.get(args, 'event.state.user.language')
+
+      return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
+    }
 
     if (contentId.startsWith('!')) {
       const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
@@ -609,12 +616,7 @@ export class CMSService implements IDisposeOnExit {
       }
 
       contentTypeRenderer = this.getContentType(content.contentType)
-
-      const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
-      const lang = _.get(args, 'event.state.user.language')
-
-      const translated = this.getOriginalProps(content.formData, contentTypeRenderer, lang, defaultLang)
-      content.formData = translated
+      content.formData = await translateFormData(content.formData)
 
       _.set(content, 'formData', renderRecursive(content.formData, args))
 
@@ -629,6 +631,12 @@ export class CMSService implements IDisposeOnExit {
       args = {
         ...args,
         ...content.formData
+      }
+    } else if (contentId.startsWith('@')) {
+      contentTypeRenderer = this.getContentType(contentId.substr(1))
+      args = {
+        ...args,
+        ...(await translateFormData(args))
       }
     } else {
       contentTypeRenderer = this.getContentType(contentId)

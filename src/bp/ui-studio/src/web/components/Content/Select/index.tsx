@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { BaseDialog, DialogBody, lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React, { Component } from 'react'
 import { Alert, Button } from 'react-bootstrap'
@@ -256,7 +256,7 @@ class SelectContent extends Component<Props, State> {
       return (
         <Alert bsStyle="warning">
           <strong>We think you don&apos;t have any content types defined.</strong> Please&nbsp;
-          <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
+          <a href="https://botpress.com/docs/main/content" target="_blank" rel="noopener noreferrer">
             <strong>read the docs</strong>
           </a>
           &nbsp;to see how you can make use of this feature.
@@ -339,8 +339,8 @@ class SelectContent extends Component<Props, State> {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <BaseDialog title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
-        <DialogBody>{this.renderBody()}</DialogBody>
+      <Dialog.Wrapper title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
+        <Dialog.Body>{this.renderBody()}</Dialog.Body>
         <CreateOrEditModal
           show={!!newItemCategory}
           schema={schema.json}
@@ -350,7 +350,7 @@ class SelectContent extends Component<Props, State> {
           handleEdit={this.handleFormEdited}
           handleCreateOrUpdate={this.handleCreate}
         />
-      </BaseDialog>
+      </Dialog.Wrapper>
     )
   }
 }

@@ -201,6 +201,14 @@ class RootStore {
       await this.fetchFiles()
     }
   }
+
+  @action.bound
+  async uploadFile(data: FormData) {
+    if (await this.api.uploadFile(data)) {
+      toastSuccess(lang.tr('module.code-editor.store.fileUploaded'))
+      await this.fetchFiles()
+    }
+  }
 }
 
 export { RootStore }

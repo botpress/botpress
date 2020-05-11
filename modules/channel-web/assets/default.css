@@ -1,3 +1,5 @@
+@import url('/assets/ui-studio/public/external/font-roboto.css');
+
 :root {
   --main-bg-color: #ffffff;
   --main-bg-color-hover: rgba(255, 255, 255, 0.9);
@@ -7,7 +9,7 @@
 
 body {
   margin: 0 !important;
-  font-family: var(--font-family) !important;
+  font-family: Roboto !important;
   overflow: hidden;
 }
 
@@ -45,6 +47,19 @@ body {
 
 .bpw-widget-btn {
   background-color: #000000;
+}
+
+.bpw-message-read-more {
+  color: #00f;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 15px;
+  line-height: 23px;
+  margin: 5px 0 0;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
 }
 
 .bpw-widget-btn:focus,
@@ -95,7 +110,7 @@ body {
   font-size: 1rem;
   padding: 0.4rem 0.8rem;
   min-width: 5rem;
-  height: 40px;
+  min-height: 40px;
   text-align: center;
   border: 1px solid currentColor;
   border-radius: 0px;
@@ -300,6 +315,13 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+}
+
+.bpw-message-feedback button {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
 }
 
 .bpw-message-feedback i {

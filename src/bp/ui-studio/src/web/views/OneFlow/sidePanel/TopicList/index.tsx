@@ -355,12 +355,33 @@ const TopicList: FC<Props> = props => {
     }
   }
 
+  const postProcessing = tree => {
+    tree.forEach(parent => {
+      parent.childNodes?.forEach(node => {
+        if (node.id === `${parent.id}/qna`) {
+          const wfCount = parent.childNodes?.filter(parentNode => node.id !== parentNode.id).length
+          parent.label = (
+            <div className={style.topicName}>
+              {parent.label}{' '}
+              <span className={style.tag}>
+                {node.nodeData?.countByTopic} Q&A · {wfCount} WF
+              </span>
+            </div>
+          )
+        }
+      })
+    })
+
+    return tree
+  }
+
   const activeFlow = props.currentFlow?.name
   return (
     <TreeView<NodeData>
       elements={flows}
       nodeRenderer={nodeRenderer}
       folderRenderer={folderRenderer}
+      postProcessing={postProcessing}
       onContextMenu={handleContextMenu}
       onClick={onClick}
       visibleElements={activeFlow && [{ field: 'name', value: activeFlow }]}

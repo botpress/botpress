@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { extractListEntities, extractPatternEntities, mapE1toE2Entity } from './entities/custom-entity-extractor'
+import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './language/language-identifier'
 import { isPOSAvailable } from './language/pos-tagger'
@@ -13,10 +13,12 @@ import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './trai
 import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
 
+export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
+
 export type Predictors = TrainArtefacts & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-  oos_classifier: sdk.MLToolkit.SVM.Predictor
+  oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   kmeans: sdk.MLToolkit.KMeans.KmeansResult
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
   pattern_entities: PatternEntity[]
@@ -44,7 +46,7 @@ export type PredictStep = {
     elected?: E1IntentPred // only to comply with E1
     ambiguous?: boolean
   }
-  oos_predictions?: sdk.MLToolkit.SVM.Prediction
+  oos_predictions?: _.Dictionary<number>
   slot_predictions_per_intent?: _.Dictionary<SlotExtractionResult[]>
 }
 
@@ -59,15 +61,20 @@ type E1IntentPred = {
 
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
+const OOS_AS_NONE_TRESH = 0.4
+const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 
 async function DetectLanguage(
   input: PredictInput,
-  supportedLanguages: string[],
+  predictorsByLang: _.Dictionary<Predictors>,
   tools: Tools
 ): Promise<{ detectedLanguage: string; usedLanguage: string }> {
+  const supportedLanguages = Object.keys(predictorsByLang)
+
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
   const lidRes = await langIdentifier.identify(input.sentence)
   const elected = lidRes.filter(pred => supportedLanguages.includes(pred.label))[0]
+  let score = elected?.value ?? 0
 
   // because with single-worded sentences, confidence is always very low
   // we assume that a input of 20 chars is more than a single word
@@ -78,8 +85,37 @@ async function DetectLanguage(
     detectedLanguage = NA_LANG
   }
 
-  const usedLanguage =
-    detectedLanguage !== NA_LANG && elected.value > threshold ? detectedLanguage : input.defaultLanguage
+  // if ML-based language identifier didn't find a match
+  // we proceed with a custom vocabulary matching algorithm
+  // ie. the % of the sentence comprised of tokens in the training vocabulary
+  if (detectedLanguage === NA_LANG) {
+    try {
+      const match = _.chain(supportedLanguages)
+        .map(lang => ({
+          lang,
+          sentence: input.sentence.toLowerCase(),
+          tokens: _.orderBy(Object.keys(predictorsByLang[lang].vocabVectors), 'length', 'desc')
+        }))
+        .map(({ lang, sentence, tokens }) => {
+          for (const token of tokens) {
+            sentence = sentence.replace(token, '')
+          }
+          return { lang, confidence: 1 - sentence.length / input.sentence.length }
+        })
+        .filter(x => x.confidence >= threshold)
+        .orderBy('confidence', 'desc')
+        .first()
+        .value()
+
+      if (match) {
+        detectedLanguage = match.lang
+        score = match.confidence
+      }
+    } finally {
+    }
+  }
+
+  const usedLanguage = detectedLanguage !== NA_LANG && score > threshold ? detectedLanguage : input.defaultLanguage
 
   return { usedLanguage, detectedLanguage }
 }
@@ -88,7 +124,7 @@ async function preprocessInput(
   tools: Tools,
   predictorsBylang: _.Dictionary<Predictors>
 ): Promise<{ stepOutput: PredictStep; predictors: Predictors }> {
-  const { detectedLanguage, usedLanguage } = await DetectLanguage(input, Object.keys(predictorsBylang), tools)
+  const { detectedLanguage, usedLanguage } = await DetectLanguage(input, predictorsBylang, tools)
   const predictors = predictorsBylang[usedLanguage]
   if (_.isEmpty(predictors)) {
     // eventually better validation than empty check
@@ -128,19 +164,31 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 }
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  const { utterance } = input
-  const sysEntities = (await tools.duckling.extract(utterance.toString(), utterance.languageCode)).map(mapE1toE2Entity)
+  const { utterance, alternateUtterance } = input
 
   _.forEach(
     [
-      ...extractListEntities(input.utterance, predictors.list_entities),
+      ...extractListEntities(input.utterance, predictors.list_entities, true),
       ...extractPatternEntities(utterance, predictors.pattern_entities),
-      ...sysEntities
+      ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],
     entityRes => {
       input.utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
     }
   )
+
+  if (alternateUtterance) {
+    _.forEach(
+      [
+        ...extractListEntities(alternateUtterance, predictors.list_entities),
+        ...extractPatternEntities(alternateUtterance, predictors.pattern_entities),
+        ...(await tools.duckling.extract(alternateUtterance.toString(), utterance.languageCode))
+      ],
+      entityRes => {
+        input.alternateUtterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+      }
+    )
+  }
 
   return { ...input }
 }
@@ -197,22 +245,28 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       let preds = await predictor.predict(features)
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
+        const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
+        preds.splice(idxToRemove, 1)
         preds.unshift(exactPred)
       }
 
       if (input.alternateUtterance) {
-        // Do we want exact preds as well ?
         const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
         const alternatePreds = await predictor.predict(alternateFeats)
+        const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.alternateUtterance, ctx)
+        if (exactPred) {
+          const idxToRemove = alternatePreds.findIndex(p => p.label === exactPred.label)
+          alternatePreds.splice(idxToRemove, 1)
+          alternatePreds.unshift(exactPred)
+        }
 
-        // we might want to do this in intent election intead or in NDU
-        if ((alternatePreds && alternatePreds[0]?.confidence) ?? 0 > preds[0].confidence) {
-          // mean
+        if (
+          (alternatePreds && alternatePreds.filter(p => p.label !== NONE_INTENT)[0]?.confidence) ??
+          0 >= preds.filter(p => p.label !== NONE_INTENT)[0].confidence
+        ) {
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')
-            .mapValues(gr => _.meanBy(gr, 'confidence'))
-            .toPairs()
-            .map(([label, confidence]) => ({ label, confidence }))
+            .map(preds => _.maxBy(preds, 'confidence'))
             .value()
         }
       }
@@ -261,13 +315,12 @@ function electIntent(input: PredictStep): PredictStep {
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
       const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
         .thru(preds => {
-          const { oos_predictions } = input
-          if (oos_predictions && oos_predictions.label === 'out') {
+          if (input.oos_predictions[ctx] >= OOS_AS_NONE_TRESH) {
             return [
               ...preds,
               {
                 label: NONE_INTENT,
-                confidence: oos_predictions.confidence,
+                confidence: input.oos_predictions[ctx],
                 context: ctx,
                 l0Confidence: ctxConf
               }
@@ -278,7 +331,7 @@ function electIntent(input: PredictStep): PredictStep {
         })
         .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
         .orderBy('confidence', 'desc')
-        .value()
+        .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
       if (intentPreds[0].confidence === 1 || intentPreds.length === 1) {
         return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
       } // are we sure theres always at least two intents ? otherwise down there it may crash
@@ -313,13 +366,13 @@ function electIntent(input: PredictStep): PredictStep {
   const shouldConsiderOOS =
     predictions.length &&
     predictions[0].name !== NONE_INTENT &&
-    predictions[0].confidence < 0.4 &&
-    _.get(input, 'oos_predictions.label') === 'out'
+    predictions[0].confidence < LOW_INTENT_CONFIDENCE_TRESH &&
+    input.oos_predictions[ctx] > OOS_AS_NONE_TRESH
   if (!predictions.length || shouldConsiderOOS) {
     predictions = _.orderBy(
       [
         ...predictions.filter(p => p.name !== NONE_INTENT),
-        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions.confidence }
+        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions[ctx] || 1 }
       ],
       'confidence'
     )
@@ -330,21 +383,29 @@ function electIntent(input: PredictStep): PredictStep {
   })
 }
 
-async function predictOutOfScope(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  if (!isPOSAvailable(input.languageCode) || !predictors.oos_classifier) {
-    return input
+async function predictOutOfScope(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
+  const oos_predictions = {}
+  if (!isPOSAvailable(input.languageCode) || _.isEmpty(predictors.oos_classifier_per_ctx)) {
+    return {
+      ...input,
+      oos_predictions: Object.keys(predictors.contexts).reduce((preds, ctx) => ({ ...preds, [ctx]: 0 }), {})
+    }
   }
+
   const utt = input.alternateUtterance || input.utterance
-  const feats = getUtteranceFeatures(utt)
-  const preds = await predictors.oos_classifier.predict(feats)
-  const outConf = _.sumBy(
-    preds.filter(p => p.label.startsWith('out')),
-    'confidence'
-  )
-  const inConf = preds.filter(p => !p.label.startsWith('out'))[0].confidence
-  const confidence = Math.max(outConf, inConf)
-  const label = outConf > inConf ? 'out' : 'in'
-  const oos_predictions = { label, confidence }
+  const feats = getUtteranceFeatures(utt, predictors.vocabVectors)
+  for (const ctx of predictors.contexts) {
+    try {
+      const preds = await predictors.oos_classifier_per_ctx[ctx].predict(feats)
+      oos_predictions[ctx] = _.chain(preds)
+        .filter(p => p.label.startsWith('out'))
+        .maxBy('confidence')
+        .get('confidence', 0)
+        .value()
+    } catch (err) {
+      oos_predictions[ctx] = 0
+    }
+  }
 
   return {
     ...input,
@@ -389,6 +450,7 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
+  // legacy pre-ndu
   const entities = step.utterance.entities.map(
     e =>
       ({
@@ -406,6 +468,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         }
       } as sdk.NLU.Entity)
   )
+  // legacy pre-ndu
   const slots = step.utterance.slots.reduce((slots, s) => {
     return {
       ...slots,
@@ -420,51 +483,42 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     }
   }, {} as sdk.NLU.SlotCollection)
 
-  const predictions = step.ctx_predictions?.reduce(
-    (preds, { label, confidence }) => {
-      return {
-        ...preds,
-        [label]: {
-          confidence: confidence,
-          intents: step.intent_predictions.per_ctx[label].map(i => ({
-            ...i,
-            slots: (step.slot_predictions_per_intent[i.label] || []).reduce((slots, s) => {
-              if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
-                // we keep only the most confident slots
-                return slots
-              }
-
-              return {
-                ...slots,
-                [s.slot.name]: {
-                  start: s.start,
-                  end: s.end,
-                  confidence: s.slot.confidence,
-                  name: s.slot.name,
-                  source: s.slot.source,
-                  value: s.slot.value
-                } as sdk.NLU.Slot
-              }
-            }, {} as sdk.NLU.SlotCollection)
-          }))
-        }
-      }
-    },
-    {
-      oos: {
-        intents: [
-          {
-            label: NONE_INTENT,
-            confidence: 1 // this will be be computed as
-          }
-        ],
-        confidence: step.oos_predictions?.label === 'out' ? step.oos_predictions.confidence : 0
-      }
+  const slotsCollectionReducer = (slots: sdk.NLU.SlotCollection, s: SlotExtractionResult): sdk.NLU.SlotCollection => {
+    if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
+      // we keep only the most confident slots
+      return slots
     }
+
+    return {
+      ...slots,
+      [s.slot.name]: {
+        start: s.start,
+        end: s.end,
+        confidence: s.slot.confidence,
+        name: s.slot.name,
+        source: s.slot.source,
+        value: s.slot.value
+      } as sdk.NLU.Slot
+    }
+  }
+
+  const predictions: sdk.NLU.Predictions = step.ctx_predictions?.reduce(
+    (preds, { label, confidence }) => ({
+      ...preds,
+      [label]: {
+        confidence: confidence,
+        oos: step.oos_predictions[label] || 0,
+        intents: step.intent_predictions.per_ctx[label].map(i => ({
+          ...i,
+          slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
+        }))
+      }
+    }),
+    {}
   )
 
   return {
-    ambiguous: step.intent_predictions.ambiguous,
+    ambiguous: step.intent_predictions.ambiguous, // legacy pre-ndu
     detectedLanguage: step.detectedLanguage,
     entities,
     errored: false,
@@ -473,26 +527,25 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       .orderBy(x => x[1].confidence, 'desc')
       .fromPairs()
       .value(),
-    includedContexts: step.includedContexts,
-    intent: step.intent_predictions.elected,
-    intents: step.intent_predictions.combined,
+    includedContexts: step.includedContexts, // legacy pre-ndu
+    intent: step.intent_predictions.elected, // legacy pre-ndu
+    intents: step.intent_predictions.combined, // legacy pre-ndu
     language: step.languageCode,
-    slots,
+    slots, // legacy pre-ndu
     ms: Date.now() - startTime
   }
 }
 
-// TODO move this in exact match module
 export function findExactIntentForCtx(
   exactMatchIndex: ExactMatchIndex,
   utterance: Utterance,
   ctx: string
-): sdk.MLToolkit.SVM.Prediction | undefined {
+): ExactMatchResult {
   const candidateKey = utterance.toString(EXACT_MATCH_STR_OPTIONS)
 
   const maybeMatch = exactMatchIndex[candidateKey]
   if (_.get(maybeMatch, 'contexts', []).includes(ctx)) {
-    return { label: maybeMatch.intent, confidence: 1 }
+    return { label: maybeMatch.intent, confidence: 1, extractor: 'exact-matcher' }
   }
 }
 
@@ -515,7 +568,7 @@ export const Predict = async (
 
     stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-    stepOutput = await predictOutOfScope(stepOutput, predictors, tools)
+    stepOutput = await predictOutOfScope(stepOutput, predictors)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
     stepOutput = electIntent(stepOutput)

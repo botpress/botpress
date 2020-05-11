@@ -26,7 +26,7 @@
       "configureDebug": "Configurer le débogage",
       "helpText": "Cette page vous permet d'activer ou de désactiver certains éléments de débogage lors de l'utilisation de Botpress. Cette liste est populée pendant que les fonctionnalités sont utilisées, donc certains éléments peuvent être manquants.",
       "persist": "Persister",
-      "persistChecked": "Lorsqu'elle est cochée, les options de débogage sélectionnées seront activées après chaque redémarrage du serveur"
+      "persistChecked": "Lorsque cochées, les options de débogage sélectionnées seront activées après chaque redémarrage du serveur"
     },
     "errorUpdatingPassword": "Erreur lors de la mise à jour du mot de passe: {msg}",
     "errorUpdatingProfile": "Erreur lors de la mise à jour du profil: {msg}",
@@ -35,7 +35,7 @@
     "languages": {
       "addLanguages": "Ajouter des langues",
       "cannotBeEdited": "Les langues ne peuvent pas être modifiées car le serveur de langues est en lecture seule",
-      "confirmDelete": "Voulez-vous vraiment supprimer {language} du serveur?",
+      "confirmDelete": "Voulez-vous vraiment supprimer {language} du serveur ?",
       "inDocumentation": "dans la documentation",
       "installedLanguages": "Langues installées",
       "languageManagement": "Gestion des langues",
@@ -59,25 +59,25 @@
       },
       "status": {
         "allowedNodes": "Noeuds autorisés",
-        "areYouSure": "Êtes-vous sûr?",
+        "areYouSure": "Êtes-vous sûr ?",
         "clusterFingerprint": "Empreinte digitale du cluster",
         "copyToClipboard": "Copier dans le presse-papier",
         "enableMethod1": "Vous pouvez activer Botpress Pro en modifiant manuellement le fichier {file} et en définissant la valeur {field} à true.",
         "enablePro": "Activer Botpress Professional",
-        "enabledAndReboot": "Activer pro & redémarrer serveur",
+        "enabledAndReboot": "Activer Pro et redémarrer serveur",
         "enabledMethod2": "Cliquez sur le bouton ci-dessous. Cela activera la configuration requise et redémarrera automatiquement le serveur. Remarque: le redémarrage du serveur de cette façon vous empêchera de lire les journaux à l'écran (sauf si vous envoyez des journaux au système de fichiers).",
         "fingerprintNoMatch": "L'empreinte de votre licence ne correspond pas aux empreintes de votre machine / cluster.",
         "friendlyName": "Nom familier",
         "licensed": "Licencié",
         "limitsBreached": "Limites franchises",
         "method1": "Méthode 1",
-        "method2": "Method 2",
-        "official": "binaire botpress ou l'image docker officielle",
-        "officialBinary": "binaire botpress ou l'image docker officielle",
+        "method2": "Méthode 2",
+        "official": "binaire botpress ou l'image docker officiels",
+        "officialBinary": "binaire botpress ou l'image docker officiels",
         "policies": "Stratégies",
         "pro": "Pro",
         "renewDate": "Date de renouvellement",
-        "support": "Soutien",
+        "support": "Support",
         "thisIsSupport": "Ceci est le support offert par Botpress",
         "underLimits": "Les limites ne sont pas atteintes.",
         "unlicensed": "Aucun licence valide",
@@ -94,7 +94,7 @@
       "column": {
         "botId": "ID du bot",
         "date": "Date",
-        "hostname": "Nom d'hôte",
+        "hostname": "Nom de l'hôte",
         "level": "Niveau",
         "message": "Message",
         "scope": "Portée"
@@ -111,7 +111,7 @@
       "onlyBotsFromThisWorkspace": "Seuls les bots de cet espace de travail",
       "rangeLabel": "{start} à {end} - {timespan}",
       "refreshed": "Journaux rafraîchis",
-      "rowLimitReached": "Limite de ligne atteinte. Choisissez une plage de temps différente",
+      "rowLimitReached": "Limite de lignes atteinte. Choisissez une plage de temps différente",
       "timespan": {
         "last15m": "15 dernières minutes",
         "last24h": "24 dernières heures",
@@ -124,8 +124,19 @@
         "yesterday": "Hier"
       }
     },
+    "modules": {
+      "experimental": "Modules Expérimentaux",
+      "experimentalWarning": "Les modules ci-dessous sont expérimentaux et leur utilisation en production n'est pas recommandée, puisqu'ils sont sujet à être modifiés drastiquement d'ici à leur lancement officiel. La migration vers les nouvelles versions n'est pas automatique. Utilisez à vos risques.",
+      "helpText": "Lorsque vous modifiez l'état d'un module, ce changement est enregistré dans le fichier 'botpress.config.json'. Si le mode cluster est actif et que Botpress ne s'exécute pas en mode production, le module sera activé ou désactivé à chaud.",
+      "noDescription": "Aucune description disponible",
+      "rebootRequired": "La configuration a été modifiée avec succès. Le serveur doit redémarrer pour que les changements soient effectifs.",
+      "restartNow": "Redémarrer le serveur maintenant",
+      "stable": "Modules Stables",
+      "unpackModule": "Décompresser le module",
+      "unpackRequired": "Ce module est compressé. Veuillez le décompresser pour obtenir d'avantage d'informations."
+    },
     "monitoring": {
-      "areYouSure": "Êtes-vous sûr?",
+      "areYouSure": "Êtes-vous sûr ?",
       "column": {
         "criticals": "Critiques",
         "endTime": "Heure de fin",
@@ -139,7 +150,7 @@
         "rule": "Règle",
         "startTime": "Heure de début",
         "triggerValue": "Valeur de déclenchement",
-        "uptime": "Uptime",
+        "uptime": "Durée de fonctionnement",
         "warnings": "Avertissements"
       },
       "restart": "Redémarrez le serveur",
@@ -170,7 +181,7 @@
     },
     "setANewPassword": "Votre mot de passe a expiré ou était temporaire. Veuillez définir un nouveau mot de passe.",
     "sideMenu": {
-      "alerting": "Alertes et incidents",
+      "alerting": "Alertes",
       "announcements": "Annonces",
       "bots": "Bots",
       "collaborators": "Collaborateurs",
@@ -183,14 +194,14 @@
       "monitoring": "Surveillance",
       "productionChecklist": "Liste de contrôle de production",
       "roles": "Rôles",
-      "serverLicense": "Licence de serveur",
+      "serverLicense": "Licence du serveur",
       "sourceControl": "Contrôle de source",
       "workspace": "Espace de travail"
     },
     "signIn": "Se connecter",
     "signInWithLabel": "Connectez-vous avec {label}",
     "signInWithSSO": "Connectez-vous avec SSO ({strategyId})",
-    "signInWithUserPass": "Connectez-vous avec usager/mot de passe",
+    "signInWithUserPass": "Connectez-vous avec identifiant/mot de passe",
     "signedInAs": "Connecté en tant que {name}",
     "successfullyAuthenticated": "Authentification réussie. Vous pouvez fermer cette fenêtre.",
     "uiLanguage": "Langue de l'interface utilisateur",
@@ -198,11 +209,11 @@
     "updateProfile": "Mettre à jour le profil",
     "updateYourProfile": "Mettre à jour votre profil",
     "versioning": {
-      "archiveReady": "Prêt pour l'archivage",
-      "changesPushed": "Changements envoyés avec succès!",
+      "archiveReady": "Archive prête",
+      "changesPushed": "Changements envoyés avec succès !",
       "checkOutThe": "Consultez la",
       "clickToCopy": "Cliquez pour copier dans le presse-papiers",
-      "conflictMessage": "Distant présente des modifications qui ne sont pas synchronisées avec votre environnement. Sauvegardez vos modifications et utilisez \"pull\" pour obtenir ces modifications sur votre système de fichiers. Si vous souhaitez toujours écraser les modifications à distance, activez l'interrupteur \"Forcer à pousser mes changements\" puis appuyez sur le bouton",
+      "conflictMessage": "Le serveur distant présente des modifications qui ne sont pas synchronisées avec votre environnement. Sauvegardez vos modifications et utilisez \"pull\" pour obtenir ces modifications sur votre système de fichiers. Si vous souhaitez toujours écraser les modifications à distance, activez l'interrupteur \"Forcer à pousser mes changements\" puis appuyez sur le bouton",
       "conflictWarning": "Avertissement de conflit",
       "documentation": "documentation",
       "downloadArchive": "Télécharger l'archive",
@@ -218,14 +229,14 @@
       "sourceControl": "Contrôle de source",
       "uploadArchive": "Téléverser une archive",
       "useThisCommand": "Utilisez cette commande pour copier les données distantes sur votre système de fichiers local.",
-      "youCanPushWithThisCommand": "Si vous utilisez le stockage de base de données pour BPFS, vous pouvez également envoyer vos modifications locales à la base de données à l'aide de cette commande:"
+      "youCanPushWithThisCommand": "Si vous utilisez le stockage en base de données pour BPFS, vous pouvez également envoyer vos modifications locales à la base de données à l'aide de cette commande:"
     },
     "workspace": {
       "bots": {
         "alwaysAssignedToWorkspace": "Dans Botpress, les bots sont toujours affectés à un espace de travail.",
         "approvedPromotion": "Promotion du bot approuvée à l'étape suivante",
         "bots": "Bots",
-        "confirmDelete": "Voulez-vous vraiment supprimer ce bot? Cela ne peut pas être annulé.",
+        "confirmDelete": "Voulez-vous vraiment supprimer ce bot ? Cela ne peut pas être annulé.",
         "couldNotMount": "Impossible de monter le bot. Consultez les journaux du serveur pour plus de détails",
         "create": {
           "category": "Catégorie de bot",
@@ -272,8 +283,8 @@
           "disabled": "désactivé",
           "editInStudio": "Modifier dans Studio",
           "error": "erreur",
-          "export": "Exportation",
-          "languageIsMissing": "La langue du bot est manquante. Veuillez le définir dans la configuration du bot.",
+          "export": "Export",
+          "languageIsMissing": "La langue du bot est manquante. Veuillez la définir dans la configuration du bot.",
           "needsYourReview": "A besoin de votre avis",
           "onDate": "le {date}",
           "openChat": "Ouvrir le chat",
@@ -281,8 +292,8 @@
           "promoteToNextStage": "Passer à l'étape suivante",
           "reload": "Recharger",
           "requestedBy": "Demandé par {requester}",
-          "rollback": "Retour en arriere",
-          "viewLogs": "Regardes les connexions"
+          "rollback": "Restaurer",
+          "viewLogs": "Voir les journaux"
         },
         "needYourApproval": "Besoin de votre approbation",
         "new": "Nouveau Bot",
@@ -293,27 +304,27 @@
         "remounted": "Bot remonté avec succès",
         "revisionsCreated": "Révisions créées",
         "rollback": {
-          "confirm": "Voulez-vous vraiment restaurer le bot à cette révision? Tous les contenus, flux, questions, etc. existants seront écrasés. Cela ne peut pas être annulé.",
-          "confirmYes": "Oui, ramenez le bot à cette version",
+          "confirm": "Voulez-vous vraiment restaurer le bot à cette révision ? Tous les contenus, flux, questions, etc. existants seront écrasés. Cela ne peut pas être annulé.",
+          "confirmYes": "Oui, restaurer le bot à cette version",
           "error": "Erreur lors de la restauration d'une version précédente: {msg}",
           "rollback": "Rollback",
-          "rollbackBot": "Rollback le bot {bot}",
+          "rollbackBot": "Restaurer le bot {bot}",
           "selectRevision": "Sélectionnez la révision"
         },
-        "rollbackSuccess": "Retour en arriere réussi"
+        "rollbackSuccess": "Restauration réussie"
       },
       "roles": {
         "default": {
           "administrator": {
-            "description": "Les administrateur ont un accès complet à l'espace de travail, incluant l'ajout de membres et la création de bots.",
+            "description": "Les administrateurs ont un accès complet à l'espace de travail, y compris l'ajout de membres et la création de bots.",
             "name": "Administrateur"
           },
           "contentEditor": {
-            "description": "Les éditeur de contenu ont un accès en lecture et écriture au contenu et au NLU, et un accès en lecture seulement aux flows et aux actions.",
+            "description": "Les éditeur de contenu ont un accès en lecture et écriture au contenu et au NLU, et un accès en lecture seule aux flows et aux actions.",
             "name": "Éditeur de contenu"
           },
           "developer": {
-            "description": "Les développeurs ont un accès complet en lecture et en écriture aux bots, incluant les flows, le contenu, le NLU et les actions",
+            "description": "Les développeurs ont un accès complet en lecture et en écriture aux bots, y compris les flows, le contenu, le NLU et les actions",
             "name": "Développeur"
           }
         },
@@ -326,7 +337,7 @@
         "chatUsersHelp": "Les utilisateurs de chat ne sont autorisés à parler qu'avec des bots. Ils peuvent voir une liste de tous les bots dans l'espace de travail",
         "collaborators": {
           "accountCreated": "Compte créé",
-          "accountReady": "Votre compte botpress est prêt!",
+          "accountReady": "Votre compte botpress est prêt !",
           "action": "Action",
           "add": "Ajouter un collaborateur",
           "addToWorkspace": "Ajouter à l'espace de travail",

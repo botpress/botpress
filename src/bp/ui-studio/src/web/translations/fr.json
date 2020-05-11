@@ -7,7 +7,7 @@
     "botConfiguration": "Configuration du bot",
     "chooseFile": "Choisir fichier",
     "configUpdated": "La configuration du bot a été mise à jour avec succès",
-    "confirmChangeLanguage": "Voulez-vous vraiment changer la langue de votre bot de {currentName} à {newName}? Tous vos éléments de contenu seront copiés, assurez-vous de les traduire.",
+    "confirmChangeLanguage": "Voulez-vous vraiment changer la langue de votre bot de {currentName} à {newName} ? Tous vos éléments de contenu seront copiés, assurez-vous de les traduire.",
     "confirmUnmount": "Voulez-vous vraiment démonter ce bot? Toutes les fonctionnalités de ce bot deviendront indisponibles.",
     "contactEmail": "Adresse courriel de contact",
     "coverPicture": "Image de couverture",
@@ -43,27 +43,8 @@
     "public": "Publié"
   },
   "statusBar": {
-    "backToAdmin": "Retour à l'admin",
-    "bottomPanel": {
-      "clearHistory": "Effacer l'historique",
-      "closePanel": "Fermer le panneau",
-      "downloadLogs": "Télécharger",
-      "endOfLogs": "Fin des journaux",
-      "scrollToFollow": "Suivre les journaux"
-    },
     "contentLanguage": "Langue du contenu",
-    "documentationAvailable": "Cet écran possède de la documentation supplémentaire.",
-    "emulator": "Émulateur",
-    "logsPanel": "Panneau de journalisation",
-    "notifications": "Notifications",
-    "readDoc": "Lire la documentation",
-    "showEmulator": "Afficher l'émulateur",
-    "switchBot": "Changer de bot",
-    "switchBotWarning": "Changer de bot. Vous allez quitter cette interface.",
-    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
-    "toggleGuidedTour": "Basculer le tour guidé",
-    "toggleLogsPanel": "Basculer le panneau",
-    "viewNotifications": "Voir les notifications"
+    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}"
   },
   "studio": {
     "content": {
@@ -76,9 +57,9 @@
       "import": {
         "analysis": "Analyse",
         "clearExisting": "Effacez tous les éléments existants, puis importez ceux de mon fichier",
-        "compareNbElements": "Your file contains {fileCmsCount} content elements, while this bot contains {cmsCount} elements.",
+        "compareNbElements": "Votre fichier contient {fileCmsCount} éléments de contenu alors que votre bot contient {cmsCount} éléments.",
         "import": "Importer JSON",
-        "missingContentTypes": "Votre bot manque les types de contenu suivants: {types}.",
+        "missingContentTypes": "Il manque les types de contenu suivants à votre bot: {types}.",
         "notAbleToExtractData": "Nous n'avons pas pu extraire de données de votre fichier. Soit le fichier est vide, soit il ne correspond à aucun format connu.",
         "selectFile": "Sélectionnez votre fichier JSON",
         "selectFileMore": "Sélectionnez un fichier JSON. Il doit être exporté depuis la page Contenu. Vous verrez un résumé des modifications en cliquant sur Suivant",
@@ -87,6 +68,7 @@
         "uploadStatus": "Statut de téléversement",
         "whatLikeDo": "Qu'est-ce que vous aimeriez faire?"
       },
+      "insertVariable": "Insérer une variable",
       "mustBeDefaultLang": "L'élément doit d'abord être créé dans la langue par défaut.",
       "noContent": "Il n'y a pas de contenu ici.",
       "noContentDefined": "Nous pensons que vous n'avez défini aucun type de contenu.",
@@ -114,8 +96,21 @@
       "cantDeleteStart": "Vous ne pouvez pas supprimer le point d'entrée.",
       "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
       "chips": "Chips",
+      "condition": {
+        "addCondition": "Ajouter condition",
+        "backToList": "Retour à la liste",
+        "chooseElement": "Choisir un élément",
+        "confirmDeleteCondition": "Êtes-vus sûr de supprimer cette condition ?",
+        "editCondition": "Modifier Condition",
+        "editTriggers": "Modifier Déclencheurs",
+        "listenActiveWorkflow": "Écouter dans le workflow actif",
+        "listenActiveWorkflowHelp": "Lorsqu'il est activé, ce déclencheur sera uniquement actif lorsque l'utilisateur sera dans le workflow où il est situé.",
+        "noResults": "Aucun résultat.",
+        "savedAutomatically": "Les modification seront sauvegardées automatiquement",
+        "selectCondition": "Sélectionnez une condition"
+      },
       "copiedToBuffer": "Copié dans le presse-papier",
-      "disconnectNode": "Déconnecter l'élément",
+      "disconnectNode": "Déconnecter le nœud",
       "editQna": "Modifier Q&R",
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
       "flowWideOnReceives": "{count, plural, one {réception} other {réceptions}} à l'échelle du flow",
@@ -139,6 +134,7 @@
         "actionToExecute": "Action à exécuter",
         "actionToRun": "Action à exécuter {help}",
         "actionsRegisteredOnServer": "Les actions sont enregistrées côté serveur. Découvrez comment enregistrer de nouvelles actions en recherchant `bp.registerActions ()`.",
+        "add": "ajouter",
         "addAction": "Ajouter une nouvelle action",
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "confirmOverwriteParameters": "Voulez-vous remplacer les paramètres existants?",
@@ -159,10 +155,11 @@
         "missingLink": "Lien manquant",
         "noActionsFound": "Aucune action trouvée sur ce serveur d'actions",
         "noDescription": "Pas de description",
+        "nodeName": "Nom du node",
         "onEnter": "Sur Entrée",
         "onReceive": "Sur réception",
         "return": "Revenir",
-        "saySomething": "💬 Écrire quelque chose",
+        "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",
         "transition": {
           "action": {
@@ -186,7 +183,7 @@
           "noSpecific": "Pas de nœud spécifique",
           "returnToCallingNode": "Retour au noeud appelant",
           "returnToNodeCalled": "Retour au noeud appelé",
-          "showCondition": "État",
+          "showCondition": "Condition",
           "specifyCondition": "Spécifiez une condition",
           "whenMetDo": "Lorsque la condition est remplie, faire"
         },
@@ -219,7 +216,7 @@
       "setAsStart": "Définir comme point d'entrée",
       "sidePanel": {
         "confirmDeleteFlow": "Voulez-vous vraiment supprimer le flow {name}",
-        "createFlow": "Créer un nouveau flow",
+        "createFlow": "Créer un flow",
         "createNewFlow": "Créer nouveau flow",
         "createNewTopic": "Créer nouveau sujet",
         "duplicateFlow": "Dupliquer le flow",
@@ -232,7 +229,7 @@
         "importContent": "Importer contenu",
         "nameInUse": "Nom déjà utilisé",
         "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
-        "node": "Noeud",
+        "node": "Nœud",
         "renameFlow": "Renommer le flow"
       },
       "skills": {
@@ -280,7 +277,7 @@
         "createNewWorkflow": "Créer un nouveau workflow",
         "deleteTopic": "Supprimer le sujet",
         "deleteWorkflow": "Supprimer le workflow",
-        "editQna": "Modifier l'élément",
+        "editQna": "Modifier Q&R",
         "editTopic": "Modifier le sujet",
         "editWorkflow": "Modifier le workflow",
         "exportTopic": "Exporter le sujet",
@@ -303,6 +300,23 @@
       "config": "Configuration",
       "content": "Contenu",
       "flows": "Flows"
+    }
+  },
+  "toolbar": {
+    "emulator": "Émulateur",
+    "help": "Aide",
+    "logsPanel": "Panneau de journalisation",
+    "readDoc": "Lire la documentation",
+    "showEmulator": "Afficher l'émulateur",
+    "toggleLogsPanel": "Basculer le panneau de journalisation",
+    "toggleEmulator": "Basculer l'émulateur",
+    "toggleSidePanel": "Basculer le panneau latéral",
+    "bottomPanel": {
+      "scrollToFollow": "Suivre les journaux",
+      "downloadLogs": "Télécharger",
+      "clearHistory": "Effacer l'historique",
+      "closePanel": "Fermer le panneau",
+      "endOfLogs": "Fin des journaux"
     }
   }
 }

@@ -1,3 +1,107 @@
+## [12.9.1](https://github.com/botpress/botpress/compare/v12.9.0...v12.9.1) (2020-04-29)
+
+
+### Bug Fixes
+
+* **analytics:** fix wrong stats ([#3289](https://github.com/botpress/botpress/issues/3289)) ([c0c7125](https://github.com/botpress/botpress/commit/c0c7125))
+* **channel-web:** fix button height [#3200](https://github.com/botpress/botpress/issues/3200) ([#3288](https://github.com/botpress/botpress/issues/3288)) ([e110959](https://github.com/botpress/botpress/commit/e110959))
+* **core:** fix revision history [#3129](https://github.com/botpress/botpress/issues/3129) ([#3290](https://github.com/botpress/botpress/issues/3290)) ([01de6ee](https://github.com/botpress/botpress/commit/01de6ee))
+* **nlu:** fallback LID on vocab ([#3284](https://github.com/botpress/botpress/issues/3284)) ([aa8c453](https://github.com/botpress/botpress/commit/aa8c453))
+
+
+
+# [12.9.0](https://github.com/botpress/botpress/compare/v12.8.6...v12.9.0) (2020-04-27)
+
+
+### Bug Fixes
+
+* **core:** more details when error with actions required ([#3181](https://github.com/botpress/botpress/issues/3181)) ([173274e](https://github.com/botpress/botpress/commit/173274e))
+* **nlu:** model serialization of models prior 12.9 have no cache ([5551b2a](https://github.com/botpress/botpress/commit/5551b2a))
+* **ui:** minor fix to ui ([#3287](https://github.com/botpress/botpress/issues/3287)) ([56a0d66](https://github.com/botpress/botpress/commit/56a0d66))
+* **ui:** restore global styling to default ([#3241](https://github.com/botpress/botpress/issues/3241)) ([9ce0d6f](https://github.com/botpress/botpress/commit/9ce0d6f))
+
+
+### Features
+
+* **admin:** add module management page ([#3262](https://github.com/botpress/botpress/issues/3262)) ([ee9e47b](https://github.com/botpress/botpress/commit/ee9e47b))
+* **code-editor:** add file upload to advanced editor ([#3273](https://github.com/botpress/botpress/issues/3273)) ([6d5dc7a](https://github.com/botpress/botpress/commit/6d5dc7a))
+* **commander:** shared commands between admin and studio ([#3204](https://github.com/botpress/botpress/issues/3204)) ([6d1b13c](https://github.com/botpress/botpress/commit/6d1b13c))
+* **core:** added support for elements in flow nodes ([#3182](https://github.com/botpress/botpress/issues/3182)) ([11f1647](https://github.com/botpress/botpress/commit/11f1647))
+* **nlu:** custom entity caching ([71e7d75](https://github.com/botpress/botpress/commit/71e7d75))
+* **shared:** reusable 2nd toolbar, empty state and content wrapper ([#3229](https://github.com/botpress/botpress/issues/3229)) ([e0058e2](https://github.com/botpress/botpress/commit/e0058e2))
+* **studio:** improvements on the toolbar ([#3190](https://github.com/botpress/botpress/issues/3190)) ([5c4dbf1](https://github.com/botpress/botpress/commit/5c4dbf1))
+* **studio:** new toolbar and status bar ([#3172](https://github.com/botpress/botpress/issues/3172)) ([420578a](https://github.com/botpress/botpress/commit/420578a))
+* **studio:** oneflow has fixed size sidebar and topics have Q&A and WF counts ([#3221](https://github.com/botpress/botpress/issues/3221)) ([c32e4d1](https://github.com/botpress/botpress/commit/c32e4d1))
+* **studio:** say node sidebar form ([#3120](https://github.com/botpress/botpress/issues/3120)) ([00f0230](https://github.com/botpress/botpress/commit/00f0230))
+* **ui:** add a customizable blueprint theme ([#3186](https://github.com/botpress/botpress/issues/3186)) ([9cd9655](https://github.com/botpress/botpress/commit/9cd9655))
+* **ui:** change to roboto ([#3187](https://github.com/botpress/botpress/issues/3187)) ([54b9ad1](https://github.com/botpress/botpress/commit/54b9ad1))
+* **ui:** confirm dialog redesign ([#3208](https://github.com/botpress/botpress/issues/3208)) ([4e35865](https://github.com/botpress/botpress/commit/4e35865))
+
+
+
+## [12.8.6](https://github.com/botpress/botpress/compare/v12.8.4...v12.8.6) (2020-04-26)
+
+
+### Bug Fixes
+
+* **analytics:** added export data as csv ([#3268](https://github.com/botpress/botpress/issues/3268)) ([febb07e](https://github.com/botpress/botpress/commit/febb07e))
+* **bot-improvement:** search in dropdown & using radios ([#3260](https://github.com/botpress/botpress/issues/3260)) ([04da7bd](https://github.com/botpress/botpress/commit/04da7bd))
+* **channel-web:** support html in truncate ([#3259](https://github.com/botpress/botpress/issues/3259)) ([daf2c6f](https://github.com/botpress/botpress/commit/daf2c6f))
+* **core:** additional validations for bot & user id ([#3281](https://github.com/botpress/botpress/issues/3281)) ([f8a8bc6](https://github.com/botpress/botpress/commit/f8a8bc6))
+* **core:** bring back previous flow/node ([#3271](https://github.com/botpress/botpress/issues/3271)) ([a524fa3](https://github.com/botpress/botpress/commit/a524fa3))
+* **core:** clean paths ([#3277](https://github.com/botpress/botpress/issues/3277)) ([63891b5](https://github.com/botpress/botpress/commit/63891b5))
+* **core:** fix debugging for sub-processes ([#3258](https://github.com/botpress/botpress/issues/3258)) ([765aeb9](https://github.com/botpress/botpress/commit/765aeb9))
+* **core:** jwks auth for extenal users ([#3269](https://github.com/botpress/botpress/issues/3269)) ([193d22e](https://github.com/botpress/botpress/commit/193d22e))
+* **core:** remove misleading error when using qna redirect ([#3256](https://github.com/botpress/botpress/issues/3256)) ([14faca3](https://github.com/botpress/botpress/commit/14faca3))
+* **debugger:** expand inspector nodes easily ([#3278](https://github.com/botpress/botpress/issues/3278)) ([05f23e5](https://github.com/botpress/botpress/commit/05f23e5))
+* **ndu:** ignore trigger with no conditions ([#3276](https://github.com/botpress/botpress/issues/3276)) ([bfe5a96](https://github.com/botpress/botpress/commit/bfe5a96))
+* **nlu:** multiple fixes ([#3249](https://github.com/botpress/botpress/issues/3249)) ([1d438d8](https://github.com/botpress/botpress/commit/1d438d8))
+* **nlu:** train only if not disabled ([c65a5e0](https://github.com/botpress/botpress/commit/c65a5e0))
+* **skill-choice:** also match on choice value ([#3261](https://github.com/botpress/botpress/issues/3261)) ([272e8cf](https://github.com/botpress/botpress/commit/272e8cf))
+* **studio:** actions menu sometime empty ([#3266](https://github.com/botpress/botpress/issues/3266)) ([8bc2ce2](https://github.com/botpress/botpress/commit/8bc2ce2))
+* **webchat:** accessibility issues ([#3250](https://github.com/botpress/botpress/issues/3250)) ([f4b1809](https://github.com/botpress/botpress/commit/f4b1809))
+
+
+
+## [12.8.5](https://github.com/botpress/botpress/compare/v12.8.4...v12.8.5) (2020-04-22)
+
+
+### Bug Fixes
+
+* **nlu:** multiple fixes ([#3249](https://github.com/botpress/botpress/issues/3249)) ([1d438d8](https://github.com/botpress/botpress/commit/1d438d8))
+* **nlu:** train only if not disabled ([c65a5e0](https://github.com/botpress/botpress/commit/c65a5e0))
+* **webchat:** accessibility issues ([#3250](https://github.com/botpress/botpress/issues/3250)) ([f4b1809](https://github.com/botpress/botpress/commit/f4b1809))
+
+
+
+## [12.8.4](https://github.com/botpress/botpress/compare/v12.8.3...v12.8.4) (2020-04-20)
+
+
+### Bug Fixes
+
+* **core:** add informative logs for JSON parse error ([#2992](https://github.com/botpress/botpress/issues/2992)) ([f37d3a4](https://github.com/botpress/botpress/commit/f37d3a4))
+* **core:** continue chain when one mw times out ([#3211](https://github.com/botpress/botpress/issues/3211)) ([e3a17a9](https://github.com/botpress/botpress/commit/e3a17a9))
+* **core:** higher limit for node when packaged with binary ([#3236](https://github.com/botpress/botpress/issues/3236)) ([aac52b3](https://github.com/botpress/botpress/commit/aac52b3))
+* **core:** provide additional port for botpress ([#3210](https://github.com/botpress/botpress/issues/3210)) ([f2486cd](https://github.com/botpress/botpress/commit/f2486cd))
+* **core:** support multiple levels of sub flows ([#3198](https://github.com/botpress/botpress/issues/3198)) ([db3720c](https://github.com/botpress/botpress/commit/db3720c))
+* **ndu:** add action go to node ([#3196](https://github.com/botpress/botpress/issues/3196)) ([e468edf](https://github.com/botpress/botpress/commit/e468edf))
+* **ndu:** added min confidence configuration ([#3195](https://github.com/botpress/botpress/issues/3195)) ([1d984f6](https://github.com/botpress/botpress/commit/1d984f6))
+* **ndu:** tweak for conditions ([#3194](https://github.com/botpress/botpress/issues/3194)) ([3cfe86f](https://github.com/botpress/botpress/commit/3cfe86f))
+* **nlu:** default oos prediction when no intent ([#3240](https://github.com/botpress/botpress/issues/3240)) ([dfc389a](https://github.com/botpress/botpress/commit/dfc389a))
+* **nlu:** flag to disable training on server ([#3242](https://github.com/botpress/botpress/issues/3242)) ([3323df8](https://github.com/botpress/botpress/commit/3323df8))
+* **nlu:** ndu trigger for ambiguous intent ([040240e](https://github.com/botpress/botpress/commit/040240e))
+* **shared:** delay toast failure & added other toasts ([#3228](https://github.com/botpress/botpress/issues/3228)) ([b97e069](https://github.com/botpress/botpress/commit/b97e069))
+
+
+### Features
+
+* **channel-web:** improve accessibility of webchat for screen readers ([#3218](https://github.com/botpress/botpress/issues/3218)) ([7f19073](https://github.com/botpress/botpress/commit/7f19073))
+* **ndu:** activate trigger only on active workflow ([#3197](https://github.com/botpress/botpress/issues/3197)) ([f1403f9](https://github.com/botpress/botpress/commit/f1403f9))
+* **nlu:** added entity condition & prorate for misunderstood ([#3193](https://github.com/botpress/botpress/issues/3193)) ([4eb2101](https://github.com/botpress/botpress/commit/4eb2101))
+* **nlu:** ambiguity triggers ([#3191](https://github.com/botpress/botpress/issues/3191)) ([4a8fa4d](https://github.com/botpress/botpress/commit/4a8fa4d))
+
+
+
 ## [12.8.3](https://github.com/botpress/botpress/compare/v12.8.2...v12.8.3) (2020-04-10)
 
 

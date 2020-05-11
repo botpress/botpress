@@ -67,7 +67,9 @@ export const requireAtPaths = (module: string, locations: string[], scriptPath?:
         const pkgEntry = path.join(loc, pkg.main)
         return (requireCache[requireKey] = require(pkgEntry))
       }
-    } catch (err) {}
+    } catch (err) {
+      throw new Error(`Error while loading module "${module}" at location "${locations.join(', ')}": ${err}`)
+    }
   }
 
   try {

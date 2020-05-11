@@ -92,7 +92,9 @@ export function damerauLevenshtein(a: string, b: string) {
   const maxDist = an + bn
   const matrix = new Array(an + 2)
   const alphaMap = {}
-  for (let i = 0; i < an + 2; i++) matrix[i] = new Array(bn + 2)
+  for (let i = 0; i < an + 2; i++) {
+    matrix[i] = new Array(bn + 2)
+  }
   matrix[0][0] = maxDist
   for (let i = 0; i <= an; i++) {
     matrix[i + 1][1] = i

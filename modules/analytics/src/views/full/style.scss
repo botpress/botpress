@@ -3,13 +3,13 @@ $colorMessenger: #83aeee;
 $colorTelegram: #463cff;
 $colorSlack: #ff8989;
 $textColor: #182026;
-$lightText: #5C7080;
-$linkText: #1F8FFA;
+$lightText: #5c7080;
+$linkText: #1f8ffa;
 $danger-color: #d14319;
 $success-color: #56b149;
 
 .mainWrapper {
-  background: #EBF1F5;
+  background: #ebf1f5;
   height: 100%;
   overflow-y: scroll;
   padding: 25px;
@@ -68,6 +68,13 @@ $success-color: #56b149;
     justify-content: left;
     margin-left: 20px;
     width: 220px;
+  }
+
+  .exportButton {
+    height: 40px;
+    justify-content: left;
+    margin-left: 20px;
+    width: 110px;
   }
 
   .filterItem select {
@@ -239,7 +246,7 @@ $success-color: #56b149;
     a {
       &::before {
         color: $lightText;
-        content: counter(li) ".";
+        content: counter(li) '.';
         display: inline-block;
         margin-right: 4px;
       }
@@ -329,5 +336,5 @@ $success-color: #56b149;
     fill: $lightText;
     font-size: 12px;
     font-weight: 400;
-}
+  }
 }

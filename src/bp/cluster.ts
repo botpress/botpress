@@ -40,6 +40,9 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
 export const setupMasterNode = (logger: sdk.Logger) => {
   process.SERVER_ID = process.env.SERVER_ID || nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
 
+  // Fix an issue with pkg when passing custom options for v8
+  cluster.setupMaster({ execArgv: process.pkg ? [] : process.execArgv })
+
   registerMsgHandler('reboot_server', (_message, worker) => {
     logger.warn(`Restarting server...`)
     worker.disconnect()

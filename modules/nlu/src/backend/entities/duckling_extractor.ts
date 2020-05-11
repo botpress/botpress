@@ -11,6 +11,7 @@ import path from 'path'
 
 import { extractPattern } from '../tools/patterns-utils'
 import { SPACE } from '../tools/token-utils'
+import { EntityExtractionResult, SystemEntityExtractor } from '../typings'
 
 interface DucklingParams {
   tz: string
@@ -21,7 +22,7 @@ interface DucklingParams {
 interface KeyedItem {
   input: string
   idx: number
-  entities?: sdk.NLU.Entity[]
+  entities?: EntityExtractionResult[]
 }
 
 export const JOIN_CHAR = `::${SPACE}::`
@@ -50,14 +51,13 @@ const CACHE_PATH = path.join(process.APP_DATA_PATH || '', 'cache', 'sys_entities
 
 // Further improvements:
 // 1 - Duckling entity interface
-// 2- duckling entity results mapper (to map as E1 entity or E2 entities)
 // 3- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)
 
-export class DucklingEntityExtractor {
+export class DucklingEntityExtractor implements SystemEntityExtractor {
   public static enabled: boolean
   public static client: AxiosInstance
 
-  private static _cache: lru<string, sdk.NLU.Entity[]>
+  private static _cache: lru<string, EntityExtractionResult[]>
   private _cacheDumpEnabled = true
 
   constructor(private readonly logger?: sdk.Logger) {}
@@ -87,7 +87,7 @@ export class DucklingEntityExtractor {
         logger && logger.attachError(err).warn(`Couldn't reach the Duckling server ${DISABLED_MSG}`)
       }
 
-      this._cache = new lru<string, sdk.NLU.Entity[]>({
+      this._cache = new lru<string, EntityExtractionResult[]>({
         length: (val: any, key: string) => sizeof(val) + sizeof(key),
         max:
           1000 * // n bytes per entity
@@ -115,8 +115,14 @@ export class DucklingEntityExtractor {
     }
   }
 
-  public async extractMultiple(inputs: string[], lang: string, useCache?: boolean): Promise<sdk.NLU.Entity[][]> {
-    if (!DucklingEntityExtractor.enabled) return Array(inputs.length).fill([])
+  public async extractMultiple(
+    inputs: string[],
+    lang: string,
+    useCache?: boolean
+  ): Promise<EntityExtractionResult[][]> {
+    if (!DucklingEntityExtractor.enabled) {
+      return Array(inputs.length).fill([])
+    }
     const options = {
       lang,
       tz: this._getTz(),
@@ -146,7 +152,7 @@ export class DucklingEntityExtractor {
       .value()
   }
 
-  public async extract(input: string, lang: string, useCache?: boolean): Promise<sdk.NLU.Entity[]> {
+  public async extract(input: string, lang: string, useCache?: boolean): Promise<EntityExtractionResult[]> {
     return (await this.extractMultiple([input], lang, useCache))[0]
   }
 
@@ -178,14 +184,11 @@ export class DucklingEntityExtractor {
     const entities = splitLocations.map((to, idx, locs) => {
       const from = idx === 0 ? 0 : locs[idx - 1] + JOIN_CHAR.length
       return batchEntities
-        .filter(e => e.meta.start >= from && e.meta.end <= to)
+        .filter(e => e.start >= from && e.end <= to)
         .map(e => ({
           ...e,
-          meta: {
-            ...e.meta,
-            start: e.meta.start - from,
-            end: e.meta.end - from
-          }
+          start: e.start - from,
+          end: e.end - from
         }))
     })
     await this._cacheBatchResults(strBatch, entities)
@@ -193,7 +196,7 @@ export class DucklingEntityExtractor {
     return batch.map((batchItm, i) => ({ ...batchItm, entities: entities[i] }))
   }
 
-  private async _fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<sdk.NLU.Entity[]> {
+  private async _fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<EntityExtractionResult[]> {
     try {
       return await retry(async () => {
         const { data } = await DucklingEntityExtractor.client.post(
@@ -205,12 +208,7 @@ export class DucklingEntityExtractor {
           throw new Error('Unexpected response from Duckling. Expected an array.')
         }
 
-        return data.map(ent => ({
-          name: ent.dim,
-          type: 'system',
-          meta: this._mapMeta(ent),
-          data: this._mapBody(ent.dim, ent.value)
-        }))
+        return data.map(this._mapDuckToEntity.bind(this))
       }, RETRY_POLICY)
     } catch (err) {
       const error = err.response ? err.response.data : err
@@ -219,7 +217,7 @@ export class DucklingEntityExtractor {
     }
   }
 
-  private async _cacheBatchResults(inputs: string[], results: sdk.NLU.Entity[][]) {
+  private async _cacheBatchResults(inputs: string[], results: EntityExtractionResult[][]) {
     _.zip(inputs, results).forEach(([input, entities]) => {
       DucklingEntityExtractor._cache.set(input, entities)
     })
@@ -231,41 +229,34 @@ export class DucklingEntityExtractor {
     return Intl.DateTimeFormat().resolvedOptions().timeZone
   }
 
-  private _mapMeta(DEntity): sdk.NLU.EntityMeta {
+  private _mapDuckToEntity(duckEnt): EntityExtractionResult {
+    const dimensionData = this._getUnitAndValue(duckEnt.dim, duckEnt.value)
     return {
-      confidence: 1, // rule based extraction
-      provider: 'native',
-      source: DEntity.body,
-      start: DEntity.start,
-      end: DEntity.end,
-      raw: DEntity
-    }
+      confidence: 1,
+      start: duckEnt.start,
+      end: duckEnt.end,
+      type: duckEnt.dim,
+      value: dimensionData.value,
+      metadata: {
+        extractor: 'system',
+        source: duckEnt.body,
+        entityId: `system.${duckEnt.dim}`,
+        unit: dimensionData.unit
+      }
+    } as EntityExtractionResult
   }
 
-  private _mapBody(dimension, rawVal): sdk.NLU.EntityBody {
+  private _getUnitAndValue(dimension, rawVal) {
     switch (dimension) {
       case 'duration':
-        const normalized = rawVal.normalized
-        delete rawVal['normalized']
-        return {
-          ...normalized,
-          extras: rawVal
-        }
-      case 'quantity':
-        return {
-          value: rawVal.value,
-          unit: rawVal.unit,
-          extras: { product: rawVal.product }
-        }
+        return rawVal.normalized
       case 'time':
         return {
           value: rawVal.value,
-          unit: rawVal.grain,
-          extras: rawVal.values.length ? rawVal.values : {}
+          unit: rawVal.grain
         }
       default:
         return {
-          extras: {},
           value: rawVal.value,
           unit: rawVal.unit
         }

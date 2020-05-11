@@ -23,7 +23,7 @@ describe('Module - NLU', () => {
   it('Create new entity', async () => {
     await clickOn('span', { text: 'Entities' })
     await clickOn('button', { text: 'New entity' })
-    await fillField('input[placeholder="Entity name"]', 'cars')
+    await fillField('input[name="name"]', 'cars')
 
     await Promise.all([expectBotApiCallSuccess('mod/nlu/entities', 'POST'), clickOn('#entity-submit')])
   })

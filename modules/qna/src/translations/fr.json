@@ -4,7 +4,7 @@
   "confirmDelete": "Voulez-vous supprimer la question?",
   "context": {
     "canTypeToCreate": "Vous pouvez taper dans la barre de sélection pour créer de nouveaux contextes.",
-    "create": "Créer \"{query}\"",
+    "createQuery": "Créer le contexte",
     "filterByContexts": "Filtrer par contextes",
     "selectContext": "Sélectionnez le contexte...",
     "title": "Contextes"
@@ -21,7 +21,7 @@
     "incorrectRedirection": "Traductions manquantes",
     "inputsRequred": "Des entrées sont requises.",
     "missingTranslations": "Missing translations",
-    "node": "Noeud",
+    "node": "Nœud",
     "pasteQuestionHere": "Saisissez ou copier-coller vos questions ici, une question par ligne.",
     "questions": "Questions",
     "redirectToFlow": "Rediriger vers le flow",
@@ -31,7 +31,7 @@
   "fullName": "Q&R",
   "hint": {
     "addMoreQuestions": "Ajoutez {moreQuestions} pour rendre votre Q&R plus résilient.",
-    "exactMatchOnly": "correspondance exacte uniquement",
+    "exactMatchOnly": "correspondances exactes uniquement",
     "moreQuestions": "{remaining} {remaining, plural, one {question} other {questions}} de plus",
     "willBeExact": "Ce Q&R utilisera des {exactMatchOnly}. Pour activer l'apprentissage automatique, ajoutez au moins {remaining} {remaining, plural, one {question} other {questions}}",
     "willBeIgnored": "Cet élément sera ignoré. Ajoutez des questions pour débuter l'entraînement."
@@ -48,7 +48,7 @@
     "uploadFile": "Téléverser un fichier",
     "uploadStatus": "Statut de téléversement",
     "uploadSuccessful": "Téléchargement réussi",
-    "whatLikeDo": "Qu'aimeriez-vous faire?"
+    "whatLikeDo": "Qu'aimeriez-vous faire ?"
   },
   "importJson": "Importer JSON",
   "missingTranslations": "Traductions manquantes",

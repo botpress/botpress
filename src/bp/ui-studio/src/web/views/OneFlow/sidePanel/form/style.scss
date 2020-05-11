@@ -1,0 +1,291 @@
+@import '../../../../palette.scss';
+
+.formHeader {
+  position: relative;
+
+  h4 {
+    font-size: 22px;
+    font-weight: 500;
+    color: $main-dark-color;
+    margin: 0 0 5px;
+  }
+}
+
+.alignBtnRight {
+  display: block !important;
+  margin-left: auto;
+}
+
+:global(.form-group) {
+  margin-bottom: 0;
+}
+
+.fieldWrapper, :global(.form-group) {
+  display: block;
+  line-height: 0;
+  width: 100%;
+}
+
+.innerWrapper {
+  position: relative;
+
+  .insertBtn {
+    position: absolute;
+    right: 38px;
+    top: 4px;
+  }
+
+  .deleteBtn {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+  }
+}
+
+input[type="checkbox"], input[type="radio"] {
+  &:focus {
+    outline: 1px solid $border-active !important;
+    outline-offset: 1px !important;
+  }
+}
+
+.formSelect {
+  display: block;
+  padding: 0;
+  position: relative;
+
+  :global(.bp3-popover-target) {
+    width: 100%;
+  }
+
+  &, > * {
+    cursor: pointer;
+  }
+
+  button {
+    border: 1px solid $border !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    color: $main-dark-color !important;
+    background: #fff !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    justify-content: space-between !important;
+    height: 38px !important;
+    line-height: 1.25 !important;
+    padding: 8px 10px !important;
+    width: 100% !important;
+
+    &:focus, &:active {
+      outline: 0;
+      border-color: $border-active !important;
+    }
+  }
+}
+
+:global(.field-description) {
+  line-height: 1;
+}
+
+.formLabel, :global(.control-label) {
+  color: $main-dark-color;
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.28;
+  margin: 20px 0 6px;
+}
+
+.advancedSettingsBtn {
+  border-top: 1px solid $border;
+  color: $main-text-dark-color;
+  font-size: 18px;
+  font-weight: 500;
+  justify-content: space-between;
+  margin: 20px 0 15px;
+  padding: 0;
+  padding-top: 20px;
+  text-align: left;
+  width: 100%;
+
+  &:hover {
+    background: transparent !important;
+  }
+}
+
+.checkboxLabel {
+  font-weight: 400;
+
+  a {
+    display: block;
+  }
+}
+
+
+.fieldWrapper :global(.bp3-file-input) {
+  display: block;
+  height: 40px;
+
+  input {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.imgWrapper {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 3px;
+  height: 100px;
+  overflow: hidden;
+  position: relative;
+  width: 100px;
+
+  &Actions {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+
+  &:before {
+    background-color: rgba(30, 30, 30, 0.5);
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+.fieldWrapper :global(.bp3-file-input:focus-within .bp3-file-upload-input) {
+  background: #2A87C3;
+}
+
+.fieldWrapper :global(.bp3-file-upload-input) {
+  color: #fff;
+  background: #137CBD;
+  text-align: center;
+  padding: 0 !important;
+  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 1px 0 rgba(16, 22, 26, 0.2);
+  background-image: linear-gradient(to bottom, #2A87C3, #137CBD);
+  transition: background 0.3s;
+
+  &:hover {
+    background: #2A87C3;
+  }
+
+  &:after {
+    display: none;
+  }
+}
+
+.fieldError {
+  color: $main-warning;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.textInput, .textarea, :global(.form-control) {
+  background: #fff !important;
+  border: 1px solid $border !important;
+  border-radius: 3px !important;
+  color: $main-dark-color !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 1.25 !important;
+  padding: 8px 10px !important;
+  transition: border 0.3s !important;
+  width: 100% !important;
+
+  &:focus, &:focus-within {
+    border-color: $border-active !important;
+    box-shadow: none !important;
+  }
+}
+
+select:global(.form-control) {
+  box-shadow: none;
+  height: 38px;
+}
+
+.textarea, :global(.form-control) {
+  resize: none;
+}
+
+.multipleInputs {
+  margin-bottom: 8px;
+  position: relative;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 3px;
+  color: $main-dark-color;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  padding: 8px 10px;
+
+  :global(fieldset > .form-group:first-of-type .control-label) {
+    margin-top: 0;
+  }
+}
+
+:global(.form-group .checkbox label) {
+  display: flex;
+  align-items: center;
+
+  :global(input) {
+    margin-right: 5px;
+    position: relative !important;
+  }
+}
+
+.addContentBtn {
+  border: 1px solid $border !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  line-height: 1.25;
+  width: 100%;
+
+  &:focus {
+    border-color: $border-active !important;
+  }
+}
+
+.emptyState {
+  color: $sidebar-text-color;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.actionDialogContent {
+  padding: 10px;
+}
+
+.actionSelectItem {
+  transition: background-color 0.15s ease-in-out;
+  border-radius: 2px;
+  padding: 3px;
+  max-width: 450px;
+}
+
+.actionSelectItem:not(:last-child) {
+  margin-bottom: 5px;
+}
+
+.actionSelectItem:hover {
+  cursor: pointer;
+  background-color: rgba(167, 182, 194, 0.3);
+}
+
+.actionSelectItem .category {
+  font-weight: bold;
+}
+
+.actionSelectItem .description {
+  font-size: small;
+}
+
+.actionServer {
+  margin: 5px 6px 0 0;
+}
