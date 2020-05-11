@@ -1291,6 +1291,7 @@ declare module 'botpress/sdk' {
     | 'skill-call'
     | 'listen'
     | 'say_something'
+    | 'sub-workflow'
     | 'success'
     | 'failure'
     | 'trigger'
