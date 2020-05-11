@@ -7,6 +7,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
+import { sanitizeName } from '~/util'
 
 import { buildFlowName } from '..//WorkflowEditor/utils'
 import style from '../style.scss'
@@ -124,6 +125,10 @@ const TopicList: FC<Props> = props => {
     }
   }
 
+  const sanitize = (name: string) => {
+    return sanitizeName(name).replace(/\//g, '-')
+  }
+
   const folderRenderer = (folder: string) => {
     const isFocused = folder === props.focusedText
     const isNew = folder === props.newPath
@@ -137,9 +142,10 @@ const TopicList: FC<Props> = props => {
         await props.fetchFlows()
         await props.fetchTopics()
       } else if (newName !== folder) {
-        await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: newName, description: undefined })
+        const sanitizedName = sanitize(newName)
+        await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: sanitizedName, description: undefined })
         if (props.expandedPaths.includes(folder)) {
-          props.onExpandToggle(newName, true)
+          props.onExpandToggle(sanitizedName, true)
         }
         await props.fetchFlows()
         await props.fetchTopics()
@@ -282,7 +288,7 @@ const TopicList: FC<Props> = props => {
         await props.fetchFlows()
         await props.fetchTopics()
       } else if (newName !== displayName) {
-        const fullName = buildFlowName({ topic: el.topic, workflow: newName }, true)
+        const fullName = buildFlowName({ topic: el.topic, workflow: sanitize(newName) }, true)
         props.renameFlow({ targetFlow: name, name: fullName })
         props.updateFlow({ name: fullName })
       }
@@ -359,7 +365,9 @@ const TopicList: FC<Props> = props => {
   const postProcessing = tree => {
     tree.forEach(parent => {
       parent.childNodes?.forEach(node => {
-        node.nodeData.topic = parent.id
+        if (node.nodeData) {
+          node.nodeData.topic = parent.id
+        }
         if (node.id === `${parent.id}/qna`) {
           const wfCount = parent.childNodes?.filter(parentNode => node.id !== parentNode.id).length
           if (parent.id !== props.focusedText) {
