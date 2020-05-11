@@ -1,17 +1,13 @@
 import { Button, FormGroup, InputGroup, Intent, Tab, Tabs, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { Topic } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { Dialog, lang } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { fetchFlows, fetchTopics, renameFlow } from '~/actions'
-import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { BaseDialog, DialogBody, DialogFooter } from '~/components/Shared/Interface'
 import { sanitizeName } from '~/util'
-
-import style from '../style.scss'
 
 interface Props {
   selectedTopic: string
@@ -55,7 +51,7 @@ const EditTopicModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
+    <Dialog.Wrapper
       title={lang.tr('studio.flow.topicEditor.editTopic')}
       icon="edit"
       isOpen={props.isOpen}
@@ -63,7 +59,7 @@ const EditTopicModal: FC<Props> = props => {
       size="sm"
       onSubmit={submit}
     >
-      <DialogBody>
+      <Dialog.Body>
         <div>
           <FormGroup label={lang.tr('studio.flow.topicEditor.topicName')}>
             <InputGroup
@@ -88,12 +84,12 @@ const EditTopicModal: FC<Props> = props => {
             />
           </FormGroup>
         </div>
-      </DialogBody>
+      </Dialog.Body>
 
-      <DialogFooter>
+      <Dialog.Footer>
         <Button type="submit" id="btn-submit" text={lang.tr('saveChanges')} intent={Intent.PRIMARY} />
-      </DialogFooter>
-    </BaseDialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

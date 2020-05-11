@@ -1,5 +1,4 @@
-import { lang } from 'botpress/shared'
-import { toastFailure } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 
 import { EditableFile, FilePermissions, FilesDS } from '../../../backend/typings'
@@ -96,6 +95,17 @@ export default class CodeEditorApi {
     }
   }
 
+  async uploadFile(data: FormData): Promise<boolean> {
+    try {
+      await this.axios.post(`/mod/code-editor/upload`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      return true
+    } catch (err) {
+      this.handleApiError(err, 'module.code-editor.error.cannotUploadFile')
+    }
+  }
+
   handleApiError = (error, customMessage?: string) => {
     if (error.response && error.response.status === 403) {
       return // not enough permissions, nothing to do
@@ -104,7 +114,7 @@ export default class CodeEditorApi {
     const errorInfo = data.full || data.message
 
     customMessage
-      ? toastFailure(`${lang.tr(customMessage)}: ${lang.tr(errorInfo, { details: data.details })}`)
-      : toastFailure(errorInfo, data.details)
+      ? toast.failure(`${lang.tr(customMessage)}: ${lang.tr(errorInfo, { details: data.details })}`)
+      : toast.failure(errorInfo, data.details)
   }
 }

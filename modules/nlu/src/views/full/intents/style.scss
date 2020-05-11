@@ -206,6 +206,7 @@ p.utterance {
   max-width: 300px;
   border-left: solid 1px #eee;
   flex-grow: 0.2;
+  overflow: auto;
 }
 
 .centerContainer {

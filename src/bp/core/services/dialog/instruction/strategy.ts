@@ -68,14 +68,18 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error('Invalid text instruction. Expected an instruction along "say #text Something"')
     }
 
-    const outputType = chunks[1]
+    const outputType: string = chunks[1]
     let args: object = {}
 
-    if (params.length > 0) {
-      try {
-        args = JSON.parse(params)
-      } catch (err) {
-        throw new Error(`Say "${outputType}" has invalid arguments (not a valid JSON string): ${params}`)
+    if (outputType.startsWith('@')) {
+      args = instruction.args
+    } else {
+      if (params.length > 0) {
+        try {
+          args = JSON.parse(params)
+        } catch (err) {
+          throw new Error(`Say "${outputType}" has invalid arguments (not a valid JSON string): ${params}`)
+        }
       }
     }
 
@@ -207,6 +211,15 @@ export class TransitionStrategy implements InstructionStrategy {
   private async runCode(instruction: Instruction, sandbox): Promise<any> {
     if (instruction.fn === 'true') {
       return true
+    } else if (instruction.fn?.startsWith('lastNode')) {
+      const stack = sandbox.event.state.__stacktrace
+      if (!stack.length) {
+        return false
+      }
+
+      const lastEntry = stack.length === 1 ? stack[0] : stack[stack.length - 2] // -2 because we want the previous node (not the current one)
+
+      return instruction.fn === `lastNode=${lastEntry.node}`
     } else if (instruction.fn && instruction.fn.match(/^event\.nlu\.intent\.name === '([a-zA-Z0-9_-]+)'$/)) {
       const fn = new Function(...Object.keys(sandbox), `return ${instruction.fn}`)
       return fn(...Object.values(sandbox))

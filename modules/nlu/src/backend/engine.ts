@@ -1,17 +1,13 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-// YOU ARE BASICALLY AT TESTING IF TARGET CONTEXT SELECTOR WORKS
-// THEN YOU ARE AT TESTING THAT IT WORKS PRE-NDU
-// THEN YOU ARE AT TESTING THAT IT WORKS WITH NDU
-
-import { isPOSAvailable } from './language/pos-tagger'
+import * as CacheManager from './cache-manager'
 import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { ListEntity, NLUEngine, Tools, TrainingSession } from './typings'
+import { EntityCacheDump, ListEntity, ListEntityModel, NLUEngine, Tools, TrainingSession } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -103,13 +99,14 @@ export default class Engine implements NLUEngine {
     if (!model?.languageCode) {
       return false
     }
+    const lang = model.languageCode
 
     return (
-      this.predictorsByLang[model.languageCode] !== undefined &&
-      this.modelsByLang[model.languageCode] !== undefined &&
-      _.isEqual(this.modelsByLang[model.languageCode].data.input, model.data.input)
-      // TODO compare hash instead (need a migration)
-      // this.modelsByLang[model.languageCode].hash === model.hash
+      !!this.predictorsByLang[lang] &&
+      !!this.modelsByLang[lang] &&
+      !!this.modelsByLang[lang].hash &&
+      !!model.hash &&
+      this.modelsByLang[lang].hash === model.hash
     )
   }
 
@@ -132,9 +129,21 @@ export default class Engine implements NLUEngine {
       model.data.output = { intents } as TrainOutput
     }
 
-    // TODO if model or predictor not valid, throw and retry
+    this._warmEntitiesCaches(_.get(model, 'data.artefacts.list_entities', []))
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
+  }
+
+  private _warmEntitiesCaches(listEntities: ListEntityModel[]) {
+    for (const entity of listEntities) {
+      if (!entity.cache) {
+        // when loading a model trained in a previous version
+        entity.cache = CacheManager.getOrCreateCache(entity.entityName, this.botId)
+      }
+      if (CacheManager.isCacheDump(entity.cache)) {
+        entity.cache = CacheManager.loadCacheFromData(<EntityCacheDump>entity.cache, entity.entityName, this.botId)
+      }
+    }
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
@@ -153,7 +162,10 @@ export default class Engine implements NLUEngine {
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
-    const oos_classifier = isPOSAvailable(model.languageCode) ? new tools.mlToolkit.SVM.Predictor(oos_model) : undefined
+    const oos_classifier = _.toPairs(oos_model).reduce(
+      (c, [ctx, mod]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(mod) }),
+      {} as _.Dictionary<MLToolkit.SVM.Predictor>
+    )
     const slot_tagger = new SlotTagger(tools.mlToolkit)
     slot_tagger.load(artefacts.slots_model)
 
@@ -162,7 +174,7 @@ export default class Engine implements NLUEngine {
     return {
       ...artefacts,
       ctx_classifier,
-      oos_classifier,
+      oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
       slot_tagger,
       kmeans,

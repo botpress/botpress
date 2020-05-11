@@ -1,6 +1,7 @@
 import { Button, H4 } from '@blueprintjs/core'
+import cx from 'classnames'
 import _ from 'lodash'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
   closeFlowNodeProps,
@@ -14,6 +15,7 @@ import {
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
+import SaySomethingForm from '../../OneFlow/sidePanel/form/SaySomethingForm'
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
 import { SimpleNode } from '../nodeProps/SimpleNode'
@@ -22,60 +24,73 @@ import StandardNode from '../nodeProps/StandardNode'
 
 import style from './style.scss'
 
-interface Props {
-  currentFlowNode: any
-  closeFlowNodeProps: any
-  show: any
+interface OwnProps {
   history: any
+  onDeleteSelectedElements: () => void
+  pasteFlowNode: any
   readOnly: any
+  show: any
   updateFlowNode: any
-  refreshFlowsLinks: any
-  flows: any
-  currentFlow: any
-  requestEditSkill: any
-  copyFlowNodeElement: any
-  pasteFlowNodeElement: any
-  buffer: any
-  updateFlow: any
-  user: any
-  refreshParentFlow: any
 }
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+type Props = DispatchProps & StateProps & OwnProps
 
 class Inspector extends Component<Props> {
   render() {
+    const { currentFlowNode } = this.props
+
     const goBackToMain = () => {
       this.props.closeFlowNodeProps()
       this.props.refreshFlowsLinks()
     }
 
-    const node = this.props.currentFlowNode
+    const node = currentFlowNode
+    const nodeType = currentFlowNode?.type || (currentFlowNode ? 'standard' : null)
     return (
-      <div className={style.inspector}>
-        {node && (
-          <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small>
-            <i className="material-icons">keyboard_backspace</i>
-          </Button>
+      <div className={cx(style.inspector, { [style.sideForm]: nodeType === 'say_something' })}>
+        {nodeType !== 'say_something' && (
+          <Fragment>
+            {node && (
+              <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small={true}>
+                <i className="material-icons">keyboard_backspace</i>
+              </Button>
+            )}
+            <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
+          </Fragment>
         )}
-        <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
-        {this.renderNodeProperties()}
+        {this.renderNodeProperties(nodeType)}
       </div>
     )
   }
 
-  renderNodeProperties() {
-    const { readOnly } = this.props
+  renderNodeProperties(nodeType: string) {
+    const {
+      buffer,
+      currentFlow,
+      currentFlowNode,
+      onDeleteSelectedElements,
+      readOnly,
+      refreshFlowsLinks,
+      requestEditSkill,
+      updateFlow,
+      updateFlowNode,
+      flows,
+      user
+    } = this.props
+
     const subflows = _.filter(
-      _.map(this.props.flows, f => f.name),
-      f => f !== _.get(this.props, 'currentFlow.name')
+      _.map(flows, f => f.name),
+      f => f !== currentFlow?.name
     )
-    const flowType = _.get(this.props, 'currentFlowNode.type') || (this.props.currentFlowNode ? 'standard' : null)
 
     const updateNodeAndRefresh = (...args) => {
-      this.props.updateFlowNode(...args)
-      this.props.refreshFlowsLinks()
+      updateFlowNode(...args)
+      refreshFlowsLinks()
     }
 
-    if (['success', 'failure', 'sub-workflow'].includes(flowType)) {
+    if (['success', 'failure', 'sub-workflow'].includes(nodeType)) {
       return (
         <SimpleNode
           user={this.props.user}
@@ -88,37 +103,50 @@ class Inspector extends Component<Props> {
       )
     }
 
-    if (flowType === 'skill-call') {
+    if (nodeType === 'skill-call') {
       return (
         <SkillCallNode
           readOnly={readOnly}
-          user={this.props.user}
-          flow={this.props.currentFlow}
+          user={user}
+          flow={currentFlow}
           subflows={subflows}
-          node={this.props.currentFlowNode}
+          node={currentFlowNode}
           updateNode={updateNodeAndRefresh}
-          updateFlow={this.props.updateFlow}
-          requestEditSkill={this.props.requestEditSkill}
-          copyFlowNodeElement={this.props.copyFlowNodeElement}
-          pasteFlowNodeElement={this.props.pasteFlowNodeElement}
-          buffer={this.props.buffer}
+          updateFlow={updateFlow}
+          requestEditSkill={requestEditSkill}
+          copyFlowNodeElement={copyFlowNodeElement}
+          pasteFlowNodeElement={pasteFlowNodeElement}
+          buffer={buffer}
         />
       )
     }
 
-    if (nodeTypes.includes(flowType)) {
+    if (nodeType === 'say_something') {
+      return (
+        <SaySomethingForm
+          onDeleteSelectedElements={onDeleteSelectedElements}
+          contentType={currentFlowNode.content?.contentType}
+          formData={currentFlowNode.content?.formData}
+          updateNode={updateNodeAndRefresh}
+          readOnly={readOnly}
+          subflows={subflows}
+        />
+      )
+    }
+
+    if (nodeTypes.includes(nodeType)) {
       return (
         <StandardNode
           readOnly={readOnly}
-          flow={this.props.currentFlow}
+          flow={currentFlow}
           subflows={subflows}
-          node={this.props.currentFlowNode}
+          node={currentFlowNode}
           updateNode={updateNodeAndRefresh}
-          updateFlow={this.props.updateFlow}
-          copyFlowNodeElement={this.props.copyFlowNodeElement}
-          pasteFlowNodeElement={this.props.pasteFlowNodeElement}
-          transitionOnly={flowType === 'router'}
-          buffer={this.props.buffer}
+          updateFlow={updateFlow}
+          copyFlowNodeElement={copyFlowNodeElement}
+          pasteFlowNodeElement={pasteFlowNodeElement}
+          transitionOnly={nodeType === 'router'}
+          buffer={buffer}
         />
       )
     }
@@ -130,7 +158,7 @@ class Inspector extends Component<Props> {
 const mapStateToProps = state => ({
   flows: _.values(state.flows.flowsByName),
   currentFlow: getCurrentFlow(state),
-  currentFlowNode: getCurrentFlowNode(state),
+  currentFlowNode: getCurrentFlowNode(state) as any,
   buffer: state.flows.buffer,
   user: state.user
 })

@@ -1,4 +1,4 @@
-import { Button, ContextMenuTarget, Icon, Menu, MenuItem, Position, Spinner, Tooltip } from '@blueprintjs/core'
+import { Button, Icon, Spinner } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { Container, SplashScreen } from 'botpress/ui'
 import { toastFailure, toastSuccess } from 'botpress/utils'
@@ -10,9 +10,9 @@ import { computeSummary } from '../../shared/utils'
 
 import { makeApi } from './api'
 import style from './style.scss'
-import { TestModal } from './TestModal'
 import { CrossValidationResults } from './F1Metrics'
 import { ImportModal } from './ImportModal'
+import { TestModal } from './TestModal'
 import { TestTable } from './TestTable'
 
 interface State {

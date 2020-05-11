@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -135,7 +135,7 @@ export class UnderstandingEngine {
       }
     })
 
-    if (event.type !== 'text' && event.type !== 'quick_reply') {
+    if (event.type !== 'text' && event.type !== 'quick_reply' && event.type !== 'workflow_ended') {
       return
     }
 
@@ -366,6 +366,10 @@ export class UnderstandingEngine {
         continue
       }
 
+      if (!trigger.conditions.length) {
+        continue
+      }
+
       const id = this.getTriggerId(trigger)
       const result = this._testConditions(event, trigger.conditions)
       event.ndu.triggers[id] = { result, trigger }
@@ -429,7 +433,7 @@ export class UnderstandingEngine {
       this._allWfIds.add(flowName)
 
       for (const node of flow.nodes) {
-        if (node.type === 'listener') {
+        if (node.type === ('listener' as sdk.FlowNodeType)) {
           this._allNodeIds.add(node.id)
         }
 
@@ -438,7 +442,7 @@ export class UnderstandingEngine {
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions.map(x => ({
               ...x,
-              params: { ...x.params, topicName }
+              params: { ...x.params, topicName, wfName: flowName }
             })),
             type: 'workflow',
             workflowId: flowName,
@@ -454,7 +458,7 @@ export class UnderstandingEngine {
                   nodeId: ln.name,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { ...x.params, topicName }
+                    params: { ...x.params, topicName, wfName: flowName }
                   })),
                   type: 'node',
                   workflowId: flowName

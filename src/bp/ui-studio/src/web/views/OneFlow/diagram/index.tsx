@@ -11,8 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang, toastFailure } from 'botpress/shared'
-import { FlowView, LibraryElement } from 'common/typings'
+import { lang, MainContent, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -63,13 +62,14 @@ import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diag
 import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
-import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SaySomethingNode'
 import { SubWorkflowNodeModel, SubWorkflowWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SubWorkflowNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
+import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
 import TriggerEditor from './TriggerEditor'
+import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
   showSearch: boolean
@@ -254,7 +254,13 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition], ...moreProps })
     },
     sayNode: (point: Point, moreProps) => {
-      this.props.createFlowNode({ ...point, type: 'say_something', next: [defaultTransition], ...moreProps })
+      this.props.createFlowNode({
+        ...point,
+        type: 'say_something',
+        content: { contentType: 'builtin_text' },
+        next: [defaultTransition],
+        ...moreProps
+      })
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
@@ -462,6 +468,7 @@ class Diagram extends Component<Props> {
 
     const targetModel = target.model
     return (
+      targetModel instanceof SaySomethingNodeModel ||
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
       targetModel instanceof RouterNodeModel ||
@@ -533,12 +540,12 @@ class Diagram extends Component<Props> {
       nodeName === undefined ? false : !!this.props.outcomeUsage?.find(x => x.condition === `lastNode=${nodeName}`)
 
     if (isUsed) {
-      toastReason && toastFailure(`Cannot delete an outcome which is currently used in the parent flow`)
+      toastReason && toast.failure(`Cannot delete an outcome which is currently used in the parent flow`)
       return false
     }
 
     if ((type === 'success' && successCount === 1) || (type === 'failure' && failureCount === 1)) {
-      toastReason && toastFailure(`Workflows must have at least one success and one failure outcome`)
+      toastReason && toast.failure(`Workflows must have at least one success and one failure outcome`)
       return false
     }
 
@@ -573,6 +580,7 @@ class Diagram extends Component<Props> {
       this.deleteElement(element)
     }
 
+    this.props.closeFlowNodeProps()
     this.diagramWidget.forceUpdate()
     this.checkForProblems()
   }
@@ -700,6 +708,41 @@ class Diagram extends Component<Props> {
   }
 
   render() {
+    return (
+      <MainContent.Wrapper>
+        <WorkflowToolbar />
+        <Fragment>
+          <div
+            id="diagramContainer"
+            ref={ref => (this.diagramContainer = ref)}
+            tabIndex={1}
+            style={{ outline: 'none', width: '100%', height: '100%' }}
+            onContextMenu={this.handleContextMenu}
+            onDrop={this.handleToolDropped}
+            onDragOver={event => event.preventDefault()}
+          >
+            <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+            <DiagramWidget
+              ref={w => (this.diagramWidget = w)}
+              deleteKeys={[]}
+              diagramEngine={this.diagramEngine}
+              inverseZoom={true}
+            />
+          </div>
+
+          <TriggerEditor
+            node={this.state.currentTriggerNode}
+            isOpen={this.state.isTriggerEditOpen}
+            diagramEngine={this.diagramEngine}
+            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
+          />
+        </Fragment>
+      </MainContent.Wrapper>
+    )
+  }
+
+  render22() {
     return (
       <Fragment>
         <div

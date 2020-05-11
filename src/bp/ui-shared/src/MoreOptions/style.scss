@@ -1,0 +1,143 @@
+@import '../variables.scss';
+
+.moreBtn {
+  background: none;
+  padding: 0;
+  border: 0;
+  position: absolute;
+  top: 0;
+  right: -5px;
+  width: 26px;
+  height: 24px;
+
+  &:hover .moreBtnDots, &.active .moreBtnDots {
+    opacity: 1;
+  }
+}
+
+.moreBtnDots {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.6;
+
+  &, &:before, &:after {
+    background: $main-dark-color;
+    border-radius: 50%;
+    display: inline-block;
+    height: 4px;
+    transition: opacity 0.3s;
+    width: 4px;
+  }
+
+  &:before, &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+  }
+
+  &:before {
+    left: -6px;
+  }
+
+  &:after {
+    right: -6px;
+  }
+}
+
+.moreMenu {
+  background-color: #fff;
+  border-radius: 2px;
+  border: 1px solid #ccd8e0;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.25);
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 5px;
+  position: absolute;
+  right: -18px;
+  top: 100%;
+  min-width: 200px;
+  z-index: 9999;
+
+  &:before,
+  &:after {
+    content: "";
+    display: inline-block;
+    font-size: 0;
+    line-height: 1;
+    margin-left: -10px;
+    position: absolute;
+  }
+
+  &:before {
+    border-bottom: 10px solid #c1d0da;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    height: auto;
+    right: 15px;
+    top: -10px;
+    width: auto;
+  }
+
+  &:after {
+    border-bottom: 9px solid #fff;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    right: 16px;
+    top: -9px;
+  }
+
+  &Item {
+    background: transparent !important;
+    border-radius: 2px !important;
+    border: 0 !important;
+    color: $main-dark-color !important;
+    display: flex;
+    font-size: 16px !important;
+    justify-content: flex-start !important;
+    line-height: 1.25;
+    margin: 5px 0 0 !important;
+    min-width: 100%;
+    padding: 10px !important;
+    white-space: nowrap;
+    width: 100% !important;
+    transition: background 0.3s;
+
+    &:not(.noHover) {
+      cursor: pointer;
+    }
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:not(.noHover):hover {
+      background-color: #E5EAEC !important;
+    }
+
+    & > span {
+      margin-right: 10px;
+    }
+
+    svg, path {
+      fill: $main-dark-color !important;
+    }
+
+    &.delete {
+      color: $main-warning !important;
+
+      svg, path {
+        fill: $main-warning !important;
+      }
+    }
+  }
+}
+
+.overlay {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 9998;
+}

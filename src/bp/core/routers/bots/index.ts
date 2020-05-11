@@ -22,6 +22,7 @@ import { Express, RequestHandler, Router } from 'express'
 import { validate } from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import mime from 'mime-types'
 import moment from 'moment'
 import ms from 'ms'
 import multer from 'multer'
@@ -91,12 +92,12 @@ export class BotsRouter extends CustomRouter {
     this.checkMethodPermissions = checkMethodPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
+    this.router.use(this.checkBotVisibility)
   }
 
   async initialize() {
     this.botpressConfig = await this.configProvider.getBotpressConfig()
     this.machineId = await machineUUID()
-    this.router.use(this.checkBotVisibility)
     this.setupRoutes()
   }
 
@@ -108,18 +109,22 @@ export class BotsRouter extends CustomRouter {
       return next()
     }
 
-    const config = await this.configProvider.getBotConfig(req.params.botId)
-    if (config.disabled) {
-      // The user must be able to get the config to change the bot status
-      if (req.originalUrl.endsWith(`/api/v1/bots/${req.params.botId}`)) {
-        return next()
+    try {
+      const config = await this.configProvider.getBotConfig(req.params.botId)
+      if (config.disabled) {
+        // The user must be able to get the config to change the bot status
+        if (req.originalUrl.endsWith(`/api/v1/bots/${req.params.botId}`)) {
+          return next()
+        }
+
+        return next(new NotFoundError('Bot is disabled'))
       }
 
-      return next(new NotFoundError('Bot is disabled'))
-    }
-
-    if (config.private && !this.mediaPathRegex.test(req.originalUrl)) {
-      return this.checkTokenHeader(req, res, next)
+      if (config.private && !this.mediaPathRegex.test(req.originalUrl)) {
+        return this.checkTokenHeader(req, res, next)
+      }
+    } catch (err) {
+      return next(new NotFoundError('Invalid Bot ID'))
     }
 
     next()
@@ -439,17 +444,18 @@ export class BotsRouter extends CustomRouter {
     const mediaUploadMulter = multer({
       fileFilter: (_req, file, cb) => {
         let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
+        const extMimeType = mime.lookup(file.originalname)
 
         const uploadConfig = this.botpressConfig!.fileUpload
         if (uploadConfig?.allowedMimeTypes) {
           allowedMimeTypes = uploadConfig.allowedMimeTypes
         }
 
-        if (allowedMimeTypes.includes(file.mimetype)) {
+        if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
           return cb(undefined, true)
         }
 
-        cb(new Error(`Invalid mime type (${file.mimetype})`), false)
+        cb(new Error(`This type of file is not allowed (${file.mimetype})`), false)
       },
       limits: {
         fileSize: asBytes(_.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE))

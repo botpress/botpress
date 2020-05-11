@@ -1,7 +1,6 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, StrategyUser } from 'botpress/sdk'
 import { RequestWithUser } from 'common/typings'
 import { AuthStrategyBasic } from 'core/config/botpress.config'
-import { StrategyUser } from 'core/repositories/strategy_users'
 import { BadRequestError, ConflictError } from 'core/routers/errors'
 import { Request, Router } from 'express'
 import _ from 'lodash'
@@ -32,6 +31,9 @@ export default class StrategyBasic {
       this.asyncMiddleware(async (req: Request, res) => {
         const { email, password, newPassword, channel, target } = req.body
         const { strategy } = req.params
+
+        // Random delay to prevent an attacker from determining if an account exists by the response time. Arbitrary numbers
+        await Promise.delay(_.random(15, 80))
 
         await this._login(email, password, strategy, newPassword, req.ip)
         let token

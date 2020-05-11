@@ -2,11 +2,12 @@ import { DirectoryListingOptions, ListenHandle, Logger, UpsertOptions } from 'bo
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { BotConfig } from 'core/config/bot.config'
-import { asBytes, filterByGlobs, forceForwardSlashes } from 'core/misc/utils'
+import { asBytes, filterByGlobs, forceForwardSlashes, sanitize } from 'core/misc/utils'
 import { diffLines } from 'diff'
 import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
+import jsonlintMod from 'jsonlint-mod'
 import _ from 'lodash'
 import minimatch from 'minimatch'
 import mkdirp from 'mkdirp'
@@ -14,7 +15,6 @@ import path from 'path'
 import replace from 'replace-in-file'
 import tmp, { file } from 'tmp'
 import { VError } from 'verror'
-import jsonlintMod from 'jsonlint-mod'
 
 import { createArchive } from '../../misc/archive'
 import { TYPES } from '../../types'
@@ -41,7 +41,7 @@ export interface FileChange {
 
 export type FileChangeAction = 'add' | 'edit' | 'del'
 
-const MAX_GHOST_FILE_SIZE = '100mb'
+const MAX_GHOST_FILE_SIZE = process.core_env.BP_BPFS_MAX_FILE_SIZE || '100mb'
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
@@ -371,11 +371,13 @@ export class ScopedGhostService {
   }
 
   private _normalizeFolderName(rootFolder: string) {
-    return forceForwardSlashes(path.join(this.baseDir, rootFolder))
+    return sanitize(forceForwardSlashes(path.join(this.baseDir, rootFolder)), 'folder')
   }
 
   private _normalizeFileName(rootFolder: string, file: string) {
-    return forceForwardSlashes(path.join(this._normalizeFolderName(rootFolder), file))
+    const fullPath = path.join(rootFolder, file)
+    const folder = this._normalizeFolderName(path.dirname(fullPath))
+    return forceForwardSlashes(path.join(folder, sanitize(path.basename(fullPath))))
   }
 
   objectCacheKey = str => `object::${str}`

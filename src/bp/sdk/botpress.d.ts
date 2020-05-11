@@ -25,6 +25,29 @@ declare module 'botpress/sdk' {
     ): Promise<T>
   }
 
+  export interface Incident {
+    id: string
+    ruleName: string
+    hostName: string
+    startTime: Date
+    endTime?: Date
+    triggerValue: number
+  }
+
+  export type StrategyUser = {
+    id?: number
+    password?: string
+    salt?: string
+  } & UserInfo
+
+  export interface UserInfo {
+    email: string
+    strategy: string
+    createdOn?: string
+    updatedOn?: string
+    attributes: any
+  }
+
   export type KnexExtended = Knex & KnexExtension
 
   /**
@@ -218,6 +241,7 @@ declare module 'botpress/sdk' {
 
   export interface FlowGeneratorMetadata {
     botId: string
+    isOneFlow?: boolean
   }
 
   export interface ModulePluginEntry {
@@ -503,7 +527,8 @@ declare module 'botpress/sdk' {
     export interface Predictions {
       [context: string]: {
         confidence: number
-        intents: { label: string; confidence: number }[]
+        oos: number
+        intents: { label: string; confidence: number; slots: SlotCollection }[]
       }
     }
   }
@@ -713,6 +738,8 @@ declare module 'botpress/sdk' {
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
       context: DialogContext
+      /** This variable points to the currently active workflow */
+      workflow: WorkflowHistory
       /**
        * EXPERIMENTAL
        * This includes all the flow/nodes which were traversed for the current event
@@ -763,16 +790,20 @@ declare module 'botpress/sdk' {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
       nduContext?: NduContext
-      lastWorkflows: WorkflowHistory[]
+      workflows: {
+        [name: string]: WorkflowHistory
+      }
+      currentWorkflow?: string
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
     }
 
     export interface WorkflowHistory {
-      workflow: string
       eventId: string
+      parent?: string
+      /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
+      status: 'active' | 'pending' | 'completed'
       success?: boolean
-      active?: boolean
     }
 
     export type StoredEvent = {
@@ -1255,14 +1286,25 @@ declare module 'botpress/sdk' {
    */
   export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
 
+  export type FlowNodeType =
+    | 'standard'
+    | 'skill-call'
+    | 'listen'
+    | 'say_something'
+    | 'success'
+    | 'failure'
+    | 'trigger'
+    | 'execute'
+    | 'router'
+    | 'action'
+
   export type FlowNode = {
     /** An auto-generated ID used internally for the flow builder */
     id?: string
     /** The name used by the dialog engine to link to other nodes */
     name: string
-    /** A name to display instead of the internal name on the flow builder */
     friendlyName?: string
-    type?: any
+    type?: FlowNodeType
     timeoutNode?: string
     flow?: string
     /** Used internally by the flow editor */
@@ -1278,7 +1320,7 @@ declare module 'botpress/sdk' {
     triggers: { conditions: DecisionTriggerCondition[] }[]
   }
 
-  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'>
+  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
 
   /**
    * Node Transitions are all the possible outcomes when a user's interaction on a node is completed. The possible destinations
@@ -1311,6 +1353,12 @@ declare module 'botpress/sdk' {
     onReceive?: ActionBuilderProps[] | string[]
     /** An array of possible transitions once everything is completed */
     next?: NodeTransition[]
+    /** For node of type say_something, this contains the element to render */
+    content?: {
+      contentType: string
+      /** Every properties required by the content type, including translations */
+      formData: object
+    }
   }
 
   export interface ActionBuilderProps {

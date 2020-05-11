@@ -52,7 +52,7 @@ const list_entities: ListEntityModel[] = [
 describe('list entity extractor', () => {
   test('Data structure test', async () => {
     const utterance = textToUtterance('Blueberries are berries that are blue')
-    const results = extractListEntities(utterance, list_entities)
+    const results = extractListEntities(utterance, list_entities, false)
 
     expect(results).toHaveLength(1)
     expect(results[0].value).toBe('Blueberry')
@@ -162,7 +162,7 @@ function assertEntity(expression: string) {
   const parts = parsedSlots.map(p => p.value)
 
   const utterance = textToUtterance(text)
-  const results = extractListEntities(utterance, list_entities)
+  const results = extractListEntities(utterance, list_entities, false)
 
   for (const strConds of parsedSlots) {
     const { start, end } = strConds.cleanPosition
