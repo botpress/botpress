@@ -21,6 +21,8 @@ export interface TreeViewProps<T> {
   visibleElements?: { value: string; field: string }[]
   /** Whether or not to highlight the folder's name on click */
   highlightFolders?: boolean
+  /** Node having "field" set to "value" to select programmatically */
+  forceSelect?: { value: string; field: string }
 
   waitDoubleClick?: (element: T | string, elementType: ElementType) => number
   onDoubleClick?: (element: T | string, elementType: ElementType) => void

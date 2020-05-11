@@ -38,6 +38,10 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         node.isExpanded = true
       }
 
+      if (props.forceSelect && node?.[props.forceSelect.field] === props.forceSelect.value) {
+        node.isSelected = true
+      }
+
       const expandedNodes = props.expandedPaths || expanded
       if (filterText || expandedNodes.find(path => path === node.fullPath)) {
         node.isExpanded = true
@@ -82,16 +86,18 @@ const TreeView = <T extends {}>(props: TreeViewProps<T>) => {
         return
       }
 
+      const shouldSelectNode = props.highlightFolders || (!props.highlightFolders && selectedNode.type !== 'folder')
+
       traverseTree(nodes, node => {
         if (node === selectedNode) {
-          if (props.highlightFolders || (!props.highlightFolders && node.type !== 'folder')) {
+          if (shouldSelectNode) {
             node.isSelected = true
           }
 
           if (!node.nodeData) {
             changeNodeExpansion(node, !node.isExpanded)
           }
-        } else {
+        } else if (shouldSelectNode) {
           node.isSelected = false
         }
       })

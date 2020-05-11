@@ -6,7 +6,7 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
-import { getFlowNamesList, RootReducer } from '~/reducers'
+import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
 
 import { buildFlowName } from '..//WorkflowEditor/utils'
 import style from '../style.scss'
@@ -68,6 +68,7 @@ type NodeType = 'workflow' | 'folder' | 'topic' | 'qna' | 'addWorkflow'
 
 const TopicList: FC<Props> = props => {
   const [flows, setFlows] = useState<NodeData[]>([])
+  const [forceSelect, setForceSelect] = useState({ field: '', value: '' })
 
   useEffect(() => {
     const qna = props.topics.map(topic => ({
@@ -80,6 +81,13 @@ const TopicList: FC<Props> = props => {
 
     setFlows([...qna, ...props.flowsName])
   }, [props.flowsName, props.topics, props.qnaCountByTopic])
+
+  useEffect(() => {
+    if (props.currentFlow) {
+      props.onExpandToggle(props.currentFlow.location.split('/')[0], true)
+      setForceSelect({ field: 'fullPath', value: props.currentFlow.location })
+    }
+  }, [props.currentFlow])
 
   const deleteFlow = async (name: string, skipDialog = false) => {
     if (skipDialog || (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {}))) {
@@ -424,6 +432,7 @@ const TopicList: FC<Props> = props => {
           filterText={props.filter}
           pathProps="name"
           filterProps="name"
+          forceSelect={forceSelect}
         />
       </div>
     </Fragment>
@@ -432,7 +441,8 @@ const TopicList: FC<Props> = props => {
 
 const mapStateToProps = (state: RootReducer) => ({
   flowsName: getFlowNamesList(state),
-  topics: state.ndu.topics
+  topics: state.ndu.topics,
+  currentFlow: getCurrentFlow(state)
 })
 
 const mapDispatchToProps = {

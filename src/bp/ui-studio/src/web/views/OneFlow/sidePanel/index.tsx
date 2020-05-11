@@ -286,7 +286,6 @@ const SidePanelContent: FC<Props> = props => {
 }
 
 const mapStateToProps = (state: RootReducer) => ({
-  currentFlow: getCurrentFlow(state),
   flows: getAllFlows(state),
   flowsName: getFlowNamesList(state),
   showFlowNodeProps: state.flows.showFlowNodeProps,
