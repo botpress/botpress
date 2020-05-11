@@ -19,7 +19,7 @@
       "next": [
         {
           "condition": "true",
-          "node": "misunderstood_message"
+          "node": "say-misunderstood"
         }
       ],
       "onEnter": [],
@@ -37,19 +37,25 @@
       ]
     },
     {
-      "id": "4c9fd26453",
-      "name": "misunderstood_message",
+      "id": "5f54deb864",
+      "name": "say-misunderstood",
       "next": [
         {
           "condition": "true",
           "node": "success"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-fS7F8C"
-      ],
+      "onEnter": [],
       "onReceive": null,
-      "type": "say_something"
+      "type": "say_something",
+      "content": {
+        "contentType": "builtin_text",
+        "formData": {
+          "markdown$en": true,
+          "typing$en": true,
+          "text$en": "Sorry, I didn't understand"
+        }
+      }
     }
   ]
 }
