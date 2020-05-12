@@ -33,6 +33,7 @@ import {
   thisYear
 } from './dates'
 import style from './style.scss'
+import { fillMissingValues } from './utils'
 import FlatProgressChart from './FlatProgressChart'
 import ItemsList from './ItemsList'
 import NumberMetric from './NumberMetric'
@@ -268,6 +269,7 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderEngagement = () => {
     const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
     const activeUserCountDiff = getMetricCount('active_users_count') - getPreviousRangeMetricCount('active_users_count')
+    const activeUsers = fillMissingValues(getMetric('active_users_count'), state.dateRange[0], state.dateRange[1])
 
     return (
       <div className={style.metricsContainer}>
@@ -285,7 +287,7 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <TimeSeriesChart
           name={lang.tr('module.analytics.userActivities')}
-          data={getMetric('active_users_count')}
+          data={activeUsers}
           className={style.fullGrid}
           channels={channels}
         />
@@ -294,14 +296,11 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderConversations = () => {
+    const sessionsCount = fillMissingValues(getMetric('sessions_count'), state.dateRange[0], state.dateRange[1])
+
     return (
       <div className={style.metricsContainer}>
-        <TimeSeriesChart
-          name="Sessions"
-          data={getMetric('sessions_count')}
-          className={style.threeQuarterGrid}
-          channels={channels}
-        />
+        <TimeSeriesChart name="Sessions" data={sessionsCount} className={style.threeQuarterGrid} channels={channels} />
         <NumberMetric
           name={lang.tr('module.analytics.messageExchanged')}
           value={getAvgMsgPerSessions()}

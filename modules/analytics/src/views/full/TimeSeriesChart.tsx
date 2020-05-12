@@ -3,12 +3,13 @@ import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { MetricEntry } from '../../backend/typings'
 
 import { Channel, Extras } from './index'
 import style from './style.scss'
+import { mergeDataForCharts } from './utils'
 
 const CHANNEL_COLORS = {
   api: '#4A154B',
@@ -22,17 +23,6 @@ interface Props extends Extras {
   name: string
   data: MetricEntry[] | any
   channels: Channel[]
-}
-
-const mapDataForCharts = (data: MetricEntry[]) => {
-  const chartsData = data.map(metric => ({
-    time: moment(metric.date)
-      .startOf('day')
-      .unix(),
-    [metric.channel]: metric.value
-  }))
-
-  return _.sortBy(chartsData, 'time')
 }
 
 const formatTick = timestamp => moment.unix(timestamp).format('D')
@@ -50,7 +40,7 @@ const TimeSeriesChart: FC<Props> = props => {
         {!data.length && <p className={style.emptyState}>{lang.tr('module.analytics.noDataAvailable')}</p>}
         {!!data.length && (
           <ResponsiveContainer height={160}>
-            <AreaChart data={mapDataForCharts(data)}>
+            <AreaChart data={mergeDataForCharts(data)} margin={{ left: -30 }}>
               <defs>
                 {channels
                   .filter(x => x.value !== 'all')
@@ -75,6 +65,7 @@ const TimeSeriesChart: FC<Props> = props => {
                 tickFormatter={formatTick}
                 tickCount={data.length}
               />
+              <YAxis allowDecimals={false} />
               {channels
                 .filter(x => x.value !== 'all')
                 .map((channel, idx) => (
