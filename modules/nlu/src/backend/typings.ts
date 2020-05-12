@@ -59,6 +59,7 @@ export interface NLUEngine {
   loadModel: (m: any) => Promise<void>
   train: (...args) => Promise<any>
   predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
+  elect: (nlu: sdk.IO.EventUnderstanding) => Promise<sdk.IO.EventUnderstanding>
 }
 
 export interface EntityService {

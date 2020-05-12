@@ -104,7 +104,9 @@ export async function crossValidate(
 
   for (const ex of testSet) {
     for (const ctx of ex.ctxs) {
-      const res = await engine.predict(ex.utterance.toString(), [ctx])
+      // TODO: call converse API instead of calling legacy election by hand
+      let res = await engine.predict(ex.utterance.toString(), [ctx])
+      res = await engine.elect(res)
       intentF1Scorers[ctx].record(res.intent.name, ex.intent)
       const intentHasSlots = !!intentMap[ex.intent].slots.length
       if (intentHasSlots) {

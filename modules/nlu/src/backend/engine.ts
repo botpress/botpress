@@ -9,6 +9,7 @@ import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import { EntityCacheDump, ListEntity, ListEntityModel, NLUEngine, Tools, TrainingSession } from './typings'
+import elect from './legacy-election'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -191,5 +192,9 @@ export default class Engine implements NLUEngine {
 
     // error handled a level highr
     return Predict(input, Engine.tools, this.predictorsByLang)
+  }
+
+  async elect(predictionOutput: PredictOutput): Promise<PredictOutput> {
+    return elect(predictionOutput)
   }
 }
