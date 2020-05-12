@@ -30,6 +30,8 @@
     .bp3-editable-text.bp3-editable-text-editing {
       width: 100%;
       min-width: 0px !important;
+      padding-left: var(--spacing-medium);
+      padding-right: var(--spacing-medium);
     }
 
     .bp3-editable-text:hover::before {
