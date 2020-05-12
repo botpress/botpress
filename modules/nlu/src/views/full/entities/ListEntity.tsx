@@ -9,6 +9,7 @@ import style from './style.scss'
 import { Occurrence } from './ListEntityOccurrence'
 
 interface Props {
+  entities: NLU.EntityDefinition[]
   entity: NLU.EntityDefinition
   updateEntity: (targetEntity: string, entity: NLU.EntityDefinition) => void
 }
@@ -67,13 +68,16 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   const isNewOccurrenceEmpty = () => newOccurrence.trim().length === 0
 
+  const isUnique = newElement =>
+    !props.entities
+      .filter(entity => entity.type === 'list')
+      .some(({ occurrences }) => occurrences.some(({ name, synonyms }) => [name, ...synonyms].includes(newElement)))
+
   const addOccurrence = () => {
     if (isNewOccurrenceEmpty()) {
       return
     }
-
-    const uniqOcurrences = _.uniq(state.occurrences.map(occ => occ.name))
-    if (uniqOcurrences.includes(newOccurrence)) {
+    if (!isUnique(newOccurrence)) {
       return toastFailure('Occurrences duplication is not allowed')
     }
 
@@ -86,7 +90,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
     const newSynonym = _.last(occurrence.synonyms)
-    if (occurrence.synonyms.filter(synonym => synonym === newSynonym).length > 1) {
+    if (!isUnique(newSynonym)) {
       return toastFailure('Synonyms duplication is not allowed')
     }
 

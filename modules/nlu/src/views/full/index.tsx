@@ -153,6 +153,7 @@ const NLU: FC<Props> = props => {
         )}
         {currentItem && currentItem.type === 'entity' && (
           <EntityEditor
+            entities={entities}
             entity={entities.find(ent => ent.name === currentItem.name)}
             updateEntity={_.debounce(updateEntity, 2500)}
           />
