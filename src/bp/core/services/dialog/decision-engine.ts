@@ -71,19 +71,6 @@ export class DecisionEngine {
         const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
 
         await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
-
-        if (action === 'startWorkflow') {
-          event.state.session.lastWorkflows = [
-            {
-              workflow: flowName,
-              eventId: event.id,
-              active: true
-            },
-            ...(event.state.session.lastWorkflows || [])
-          ]
-
-          BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: flow })
-        }
       }
     }
 

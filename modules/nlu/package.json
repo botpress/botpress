@@ -29,7 +29,7 @@
     "bluebird-retry": "^0.11.0",
     "classnames": "^2.2.6",
     "fs-extra": "^8.0.1",
-    "https-proxy-agent": "^2.2.1",
+    "https-proxy-agent": "^2.2.3",
     "immutable": "^4.0.0-rc.12",
     "joi": "^13.6.0",
     "lodash": "^4.17.11",

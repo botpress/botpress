@@ -241,6 +241,7 @@ declare module 'botpress/sdk' {
 
   export interface FlowGeneratorMetadata {
     botId: string
+    isOneFlow?: boolean
   }
 
   export interface ModulePluginEntry {
@@ -737,6 +738,8 @@ declare module 'botpress/sdk' {
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
       context: DialogContext
+      /** This variable points to the currently active workflow */
+      workflow: WorkflowHistory
       /**
        * EXPERIMENTAL
        * This includes all the flow/nodes which were traversed for the current event
@@ -787,16 +790,20 @@ declare module 'botpress/sdk' {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
       nduContext?: NduContext
-      lastWorkflows: WorkflowHistory[]
+      workflows: {
+        [name: string]: WorkflowHistory
+      }
+      currentWorkflow?: string
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
     }
 
     export interface WorkflowHistory {
-      workflow: string
       eventId: string
+      parent?: string
+      /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
+      status: 'active' | 'pending' | 'completed'
       success?: boolean
-      active?: boolean
     }
 
     export type StoredEvent = {
@@ -1308,7 +1315,7 @@ declare module 'botpress/sdk' {
     triggers: { conditions: DecisionTriggerCondition[] }[]
   }
 
-  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'>
+  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
 
   /**
    * Node Transitions are all the possible outcomes when a user's interaction on a node is completed. The possible destinations
