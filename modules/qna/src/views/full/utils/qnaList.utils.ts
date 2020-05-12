@@ -179,7 +179,7 @@ export const fetchReducer = (state: State, action): State => {
     return {
       ...state,
       items: newItems,
-      expandedItems: {...state.expandedItems, [id]: true}
+      expandedItems: { ...state.expandedItems, [id]: true }
     }
   } else if (action.type === 'deleteQnA') {
     const { index, bp } = action.data
