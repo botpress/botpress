@@ -15,7 +15,7 @@ import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import { MetricEntry } from '../../backend/typings'
 
@@ -120,6 +120,7 @@ const defaultChannels = [
 ]
 
 const Analytics: FC<any> = ({ bp }) => {
+  const loadJson = useRef(null)
   const [channels, setChannels] = useState(defaultChannels)
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
@@ -460,11 +461,34 @@ const Analytics: FC<any> = ({ bp }) => {
     link.click()
   }
 
+  const readFile = (e: any) => {
+    const fr = new FileReader()
+    fr.readAsArrayBuffer((e.target as HTMLInputElement).files[0])
+    fr.onload = loadedEvent => {
+      try {
+        const dec = new TextDecoder('utf-8')
+        const content = JSON.parse(dec.decode(_.get(loadedEvent, 'target.result')))
+
+        const loadDateRange = (type, data) => {
+          const { startDate, endDate, metrics } = data
+          dispatch({ type, data: { dateRange: [startDate, endDate], metrics } })
+        }
+
+        loadDateRange('receivedMetrics', content[0])
+        loadDateRange('receivedPreviousRangeMetrics', content[1])
+      } catch (err) {
+        console.error(`Could not load metrics`, err)
+      }
+    }
+  }
+
   return (
     <div className={style.mainWrapper}>
       <div className={style.innerWrapper}>
         <div className={style.header}>
-          <h1 className={style.pageTitle}>{lang.tr('module.analytics.title')}</h1>
+          <h1 className={style.pageTitle} onDoubleClick={() => loadJson.current.click()}>
+            {lang.tr('module.analytics.title')}
+          </h1>
           <div className={style.filters}>
             <BpTooltip content={lang.tr('module.analytics.filterChannels')} position={Position.LEFT}>
               <HTMLSelect className={style.filterItem} onChange={handleChannelChange} value={state.selectedChannel}>
@@ -520,6 +544,7 @@ const Analytics: FC<any> = ({ bp }) => {
             {renderHandlingUnderstanding()}
           </div>
         </div>
+        <input type="file" ref={loadJson} onChange={readFile} style={{ visibility: 'hidden' }}></input>
       </div>
     </div>
   )
