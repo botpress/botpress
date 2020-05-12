@@ -272,7 +272,7 @@
   height: $height;
   padding: 0 var(--spacing-large);
   box-shadow: unset;
-  margin-bottom: 6px;
+  margin-bottom: var(--spacing-medium);
 
   :global {
     .bp3-button {
