@@ -760,6 +760,8 @@ declare module 'botpress/sdk' {
       node: string
       /** When a jump point is used, it will be removed from the list on the next transition */
       used?: boolean
+      /** When true, the node targeted by this jump point will be executed from the start (instead of only transitions) */
+      executeNode?: boolean
     }
 
     export interface DialogContext {
