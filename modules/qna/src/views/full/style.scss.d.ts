@@ -17,6 +17,7 @@ interface CssExports {
   'loading': string;
   'questionHeader': string;
   'questionWrapper': string;
+  'redirectTitle': string;
   'refTitle': string;
   'right': string;
   'tag': string;

@@ -1,5 +1,6 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
+import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import React, { FC, useEffect, useReducer, useRef, useState } from 'react'
 
@@ -9,6 +10,7 @@ import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const QnAList: FC<Props> = props => {
+  const [flows, setFlows] = useState([])
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(props.contentLang)
   const wrapperRef = useRef<HTMLDivElement>()
@@ -31,6 +33,8 @@ const QnAList: FC<Props> = props => {
       .then(() => {})
       .catch(() => {})
 
+    fetchFlows()
+
     return () => wrapperRef.current.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -41,6 +45,12 @@ const QnAList: FC<Props> = props => {
         .catch(() => {})
     }
   }, [fetchMore])
+
+  const fetchFlows = () => {
+    bp.axios.get('/flows').then(({ data }) => {
+      setFlows(reorderFlows(data.filter(flow => !flow.name.startsWith('skills/'))))
+    })
+  }
 
   const getQueryParams = () => {
     return {
@@ -55,6 +65,7 @@ const QnAList: FC<Props> = props => {
 
     dispatch({ type: 'fetchMore' })
   }
+
   const tabs = [
     {
       id: 'qna',
@@ -136,6 +147,7 @@ const QnAList: FC<Props> = props => {
               })
             }
             key={item.id}
+            flows={flows}
             defaultLanguage={defaultLanguage}
             deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
             toggleEnabledQnA={() =>
