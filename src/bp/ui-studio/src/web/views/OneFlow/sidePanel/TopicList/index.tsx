@@ -311,24 +311,18 @@ const TopicList: FC<Props> = props => {
       label: (
         <div className={style.treeNode}>
           {!isQna ? (
-            <Fragment>
-              <EditableText
-                onConfirm={editWorkflow}
-                defaultValue={isNew ? '' : displayName}
-                isEditing={isFocused}
-                disabled={!isFocused}
-                placeholder={
-                  isNew
-                    ? lang.tr('studio.flow.sidePanel.nameWorkflow')
-                    : lang.tr('studio.flow.sidePanel.renameWorkflow')
-                }
-                selectAllOnFocus={true}
-              />
-            </Fragment>
+            <EditableText
+              onConfirm={editWorkflow}
+              defaultValue={isNew ? '' : displayName}
+              isEditing={isFocused}
+              disabled={!isFocused}
+              placeholder={
+                isNew ? lang.tr('studio.flow.sidePanel.nameWorkflow') : lang.tr('studio.flow.sidePanel.renameWorkflow')
+              }
+              selectAllOnFocus={true}
+            />
           ) : (
-            <Fragment>
-              <span>{displayName}</span>
-            </Fragment>
+            <span>{displayName}</span>
           )}
         </div>
       ),
