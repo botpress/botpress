@@ -20,6 +20,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { MetricEntry } from '../../backend/typings'
 
 import {
+  last7days,
   lastMonthEnd,
   lastMonthStart,
   lastWeekEnd,
@@ -46,6 +47,11 @@ interface State {
   pageTitle: string
   selectedChannel: string
   shownSection: string
+}
+
+export interface Channel {
+  label: string
+  value: string
 }
 
 export interface Extras {
@@ -108,11 +114,13 @@ const fetchReducer = (state: State, action): State => {
   }
 }
 
+const defaultChannels = [
+  { value: 'all', label: lang.tr('module.analytics.channels.all') },
+  { value: 'api', label: lang.tr('module.analytics.channels.api') }
+]
+
 const Analytics: FC<any> = ({ bp }) => {
-  const [channels, setChannels] = useState([
-    lang.tr('module.analytics.channels.all'),
-    lang.tr('module.analytics.channels.api')
-  ])
+  const [channels, setChannels] = useState(defaultChannels)
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
@@ -120,7 +128,7 @@ const Analytics: FC<any> = ({ bp }) => {
     metrics: [],
     previousRangeMetrics: [],
     pageTitle: lang.tr('module.analytics.dashboard'),
-    selectedChannel: 'all',
+    selectedChannel: defaultChannels[0].value,
     shownSection: 'dashboard'
   })
 
@@ -129,12 +137,15 @@ const Analytics: FC<any> = ({ bp }) => {
       const channels = data
         .map(x => x.name)
         .filter(x => x.startsWith('channel'))
-        .map(x => x.replace('channel-', ''))
+        .map(x => {
+          const channel = x.replace('channel-', '')
+          return { value: channel, label: capitalize(channel) }
+        })
 
       setChannels(prevState => [...prevState, ...channels])
     })
 
-    dispatch({ type: 'datesSuccess', data: { dateRange: [thisWeek, now] } })
+    dispatch({ type: 'datesSuccess', data: { dateRange: [last7days, now] } })
   }, [])
 
   useEffect(() => {
@@ -159,7 +170,7 @@ const Analytics: FC<any> = ({ bp }) => {
     })
   }, [state.dateRange, state.selectedChannel])
 
-  const fetchAnalytics = async (channel, dateRange): Promise<MetricEntry[]> => {
+  const fetchAnalytics = async (channel: string, dateRange): Promise<MetricEntry[]> => {
     const startDate = moment(dateRange[0]).unix()
     const endDate = moment(dateRange[1]).unix()
 
@@ -273,7 +284,7 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <TimeSeriesChart
           name={lang.tr('module.analytics.userActivities')}
-          data={getMetric('new_users_count')}
+          data={getMetric('active_users_count')}
           className={style.fullGrid}
           channels={channels}
         />
@@ -326,6 +337,9 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const renderHandlingUnderstanding = () => {
     const { total, inside, outside } = getMisunderStoodData()
+    const positiveFeedback = getMetricCount('feedback_positive_qna')
+    const negativeFeedback = getMetricCount('feedback_negative_qna')
+    const positivePct = Math.round((positiveFeedback / (positiveFeedback + negativeFeedback)) * 100)
 
     return (
       <div className={cx(style.metricsContainer, style.fullWidth)}>
@@ -348,24 +362,26 @@ const Analytics: FC<any> = ({ bp }) => {
                 itemLimit={3}
                 className={style.list}
               />
-              <ItemsList
+              {/* <ItemsList
                 name={lang.tr('module.analytics.mostFailedQuestions')}
                 items={getTopItems('feedback_negative_qna', 'qna')}
                 itemLimit={3}
                 hasTooltip
                 className={style.list}
-              />
+              /> */}
             </div>
             <RadialMetric
               name={lang.tr('module.analytics.successfulWorkflowCompletions', {
                 nb: getMetricCount('workflow_completed_count')
               })}
-              value={getMetricCount('workflow_completed_count')}
+              value={Math.round(
+                (getMetricCount('workflow_completed_count') / getMetricCount('workflow_started_count')) * 100
+              )}
               className={style.quarter}
             />
             <RadialMetric
-              name={lang.tr('module.analytics.positiveQnaFeedback', { nb: getMetricCount('feedback_positive_qna') })}
-              value={getMetricCount('feedback_positive_qna')}
+              name={lang.tr('module.analytics.positiveQnaFeedback', { nb: positiveFeedback })}
+              value={isNaN(positivePct) ? 0 : positivePct}
               className={style.quarter}
             />
           </Fragment>
@@ -454,8 +470,8 @@ const Analytics: FC<any> = ({ bp }) => {
               <HTMLSelect className={style.filterItem} onChange={handleChannelChange} value={state.selectedChannel}>
                 {channels.map(channel => {
                   return (
-                    <option key={channel} value={channel}>
-                      {capitalize(channel)}
+                    <option key={channel.value} value={channel.value}>
+                      {channel.label}
                     </option>
                   )
                 })}

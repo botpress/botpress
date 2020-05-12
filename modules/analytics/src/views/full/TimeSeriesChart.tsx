@@ -7,10 +7,11 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 
 import { MetricEntry } from '../../backend/typings'
 
-import { Extras } from './index'
+import { Channel, Extras } from './index'
 import style from './style.scss'
 
 const CHANNEL_COLORS = {
+  api: '#4A154B',
   web: '#1F8FFA',
   messenger: '#0196FF',
   slack: '#4A154B',
@@ -20,7 +21,7 @@ const CHANNEL_COLORS = {
 interface Props extends Extras {
   name: string
   data: MetricEntry[] | any
-  channels: string[]
+  channels: Channel[]
 }
 
 const mapDataForCharts = (data: MetricEntry[]) => {
@@ -52,8 +53,8 @@ const TimeSeriesChart: FC<Props> = props => {
             <AreaChart data={mapDataForCharts(data)}>
               <defs>
                 {channels
-                  .filter(x => x !== 'all')
-                  .map((channel, idx) => (
+                  .filter(x => x.value !== 'all')
+                  .map(({ value: channel }, idx) => (
                     <linearGradient key={idx} id={`gradientBg-${channel}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.31} />
                       <stop offset="45%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.34} />
@@ -75,15 +76,16 @@ const TimeSeriesChart: FC<Props> = props => {
                 tickCount={data.length}
               />
               {channels
-                .filter(x => x !== 'all')
+                .filter(x => x.value !== 'all')
                 .map((channel, idx) => (
                   <Area
                     key={idx}
                     type="monotone"
-                    dataKey={channel}
+                    dataKey={channel.value}
+                    label={channel.label}
                     strokeWidth={3}
-                    stroke={CHANNEL_COLORS[channel] || '#000'}
-                    fill={`url(#gradientBg-${channel})`}
+                    stroke={CHANNEL_COLORS[channel.value] || '#000'}
+                    fill={`url(#gradientBg-${channel.value})`}
                   />
                 ))}
             </AreaChart>
