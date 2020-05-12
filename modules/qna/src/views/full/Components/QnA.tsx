@@ -201,7 +201,7 @@ const QnA: FC<Props> = props => {
             <Fragment>
               <h1 className={style.redirectTitle}>{lang.tr('module.qna.form.redirectQuestionTo')}</h1>
               <div>
-                <h2>{lang.tr('module.qna.form.redirectToWorkflow')}</h2>
+                <h2>{lang.tr('module.qna.form.workflow')}</h2>
 
                 <Select
                   tabIndex="-1"
@@ -217,7 +217,7 @@ const QnA: FC<Props> = props => {
                 />
               </div>
               <div>
-                <h2>{lang.tr('module.qna.form.pickNode')}</h2>
+                <h2>{lang.tr('module.qna.form.node')}</h2>
 
                 <Select
                   tabIndex="-1"
