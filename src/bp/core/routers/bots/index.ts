@@ -22,6 +22,7 @@ import { Express, RequestHandler, Router } from 'express'
 import { validate } from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import mime from 'mime-types'
 import moment from 'moment'
 import ms from 'ms'
 import multer from 'multer'
@@ -443,17 +444,18 @@ export class BotsRouter extends CustomRouter {
     const mediaUploadMulter = multer({
       fileFilter: (_req, file, cb) => {
         let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
+        const extMimeType = mime.lookup(file.originalname)
 
         const uploadConfig = this.botpressConfig!.fileUpload
         if (uploadConfig?.allowedMimeTypes) {
           allowedMimeTypes = uploadConfig.allowedMimeTypes
         }
 
-        if (allowedMimeTypes.includes(file.mimetype)) {
+        if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
           return cb(undefined, true)
         }
 
-        cb(new Error(`Invalid mime type (${file.mimetype})`), false)
+        cb(new Error(`This type of file is not allowed (${file.mimetype})`), false)
       },
       limits: {
         fileSize: asBytes(_.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE))
