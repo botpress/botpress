@@ -143,13 +143,12 @@ const QnA: FC<Props> = props => {
             <ContextSelector
               className={cx(style.contextSelector)}
               contexts={data.contexts}
-              saveContexts={contexts => {
-                console.log(contexts)
+              saveContexts={contexts =>
                 updateQnA({
                   id,
                   data: { ...data, contexts }
                 })
-              }}
+              }
               bp={bp}
             />
           )}
