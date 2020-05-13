@@ -43,7 +43,7 @@ const QnA: FC<Props> = props => {
     setExpanded,
     errorMessages,
     defaultLanguage,
-    flows
+    flows,
     isLite,
     bp
   } = props
