@@ -309,27 +309,38 @@ function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]):
 
 // TODO implement this algorithm properly / improve it
 // currently taken as is from svm classifier (engine 1) and doesn't make much sens
-function electIntent(input: PredictStep): PredictStep {
+function electIntent(input: PredictOutput): PredictOutput {
+  const allCtx = Object.keys(input.predictions)
+
+  const ctx_predictions = allCtx.map(label => {
+    const { confidence } = input.predictions[label]
+    return { label, confidence }
+  })
+
+  const perCtxIntentPrediction = _.mapValues(input.predictions, p => p.intents)
+
+  const oos_predictions = _.mapValues(input.predictions, p => p.oos)
+
   const totalConfidence = Math.min(
     1,
     _.sumBy(
-      input.ctx_predictions.filter(x => input.includedContexts.includes(x.label)),
+      ctx_predictions.filter(x => input.includedContexts.includes(x.label)),
       'confidence'
     )
   )
-  const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
+  const ctxPreds = ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
 
   // taken from svm classifier #349
   let predictions = _.chain(ctxPreds)
     .flatMap(({ label: ctx, confidence: ctxConf }) => {
-      const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
+      const intentPreds = _.chain(perCtxIntentPrediction[ctx] || [])
         .thru(preds => {
-          if (input.oos_predictions[ctx] >= OOS_AS_NONE_TRESH) {
+          if (oos_predictions[ctx] >= OOS_AS_NONE_TRESH) {
             return [
               ...preds,
               {
                 label: NONE_INTENT,
-                confidence: input.oos_predictions[ctx],
+                confidence: oos_predictions[ctx],
                 context: ctx,
                 l0Confidence: ctxConf
               }
@@ -381,20 +392,23 @@ function electIntent(input: PredictStep): PredictStep {
     predictions.length &&
     predictions[0].name !== NONE_INTENT &&
     predictions[0].confidence < LOW_INTENT_CONFIDENCE_TRESH &&
-    input.oos_predictions[ctx] > OOS_AS_NONE_TRESH
+    oos_predictions[ctx] > OOS_AS_NONE_TRESH
   if (!predictions.length || shouldConsiderOOS) {
     predictions = _.orderBy(
       [
         ...predictions.filter(p => p.name !== NONE_INTENT),
-        { name: NONE_INTENT, context: ctx, confidence: input.oos_predictions[ctx] || 1 }
+        { name: NONE_INTENT, context: ctx, confidence: oos_predictions[ctx] || 1 }
       ],
       'confidence'
     )
   }
 
-  return _.merge(input, {
-    intent_predictions: { combined: predictions, elected: _.maxBy(predictions, 'confidence') }
-  })
+  const elected = _.maxBy(predictions, 'confidence')
+  return {
+    ...input,
+    intent: elected,
+    intents: predictions
+  }
 }
 
 async function predictOutOfScope(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
@@ -427,9 +441,9 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors): Pr
   }
 }
 
-function detectAmbiguity(input: PredictStep): PredictStep {
+function detectAmbiguity(input: PredictOutput): PredictOutput {
   // +- 10% away from perfect median leads to ambiguity
-  const preds = input.intent_predictions.combined
+  const preds = input.intents
   const perfectConfusion = 1 / preds.length
   const low = perfectConfusion - 0.1
   const up = perfectConfusion + 0.1
@@ -440,20 +454,10 @@ function detectAmbiguity(input: PredictStep): PredictStep {
     (math.allInRange(confidenceVec, low, up) ||
       (preds[0].name === NONE_INTENT && math.allInRange(confidenceVec.slice(1), low, up)))
 
-  return _.merge(input, { intent_predictions: { ambiguous } })
+  return { ...input, ambiguous }
 }
 
 async function extractSlots(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
-  const intent =
-    !input.intent_predictions.ambiguous &&
-    predictors.intents.find(i => i.name === input.intent_predictions.elected.name)
-  if (intent && intent.slot_definitions.length > 0) {
-    const slots = await predictors.slot_tagger.extract(input.utterance, intent)
-    slots.forEach(({ slot, start, end }) => {
-      input.utterance.tagSlot(slot, start, end)
-    })
-  }
-
   const slots_per_intent: typeof input.slot_predictions_per_intent = {}
   for (const intent of predictors.intents.filter(x => x.slot_definitions.length > 0)) {
     const slots = await predictors.slot_tagger.extract(input.utterance, intent)
@@ -461,6 +465,16 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
   }
 
   return { ...input, slot_predictions_per_intent: slots_per_intent }
+}
+
+function extractElectedIntentSlot(input: PredictOutput): PredictOutput {
+  const intentWasElectedWithoutAmbiguity = input?.intent?.name && !_.isEmpty(input.predictions) && !input.ambiguous
+  if (!intentWasElectedWithoutAmbiguity) {
+    return input
+  }
+
+  const electedIntent = input.predictions[input.intent.context].intents.find(i => i.label === input.intent.name)
+  return { ...input, slots: electedIntent.slots }
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
@@ -539,7 +553,6 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
   }, {})
 
   return {
-    ambiguous: step.intent_predictions.ambiguous, // legacy pre-ndu
     detectedLanguage: step.detectedLanguage,
     entities,
     errored: false,
@@ -549,10 +562,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       .fromPairs()
       .value(),
     includedContexts: step.includedContexts, // legacy pre-ndu
-    intent: step.intent_predictions.elected, // legacy pre-ndu
-    intents: step.intent_predictions.combined, // legacy pre-ndu
     language: step.languageCode,
-    slots, // legacy pre-ndu
     ms: Date.now() - startTime
   }
 }
@@ -592,10 +602,13 @@ export const Predict = async (
     stepOutput = await predictOutOfScope(stepOutput, predictors)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
-    stepOutput = electIntent(stepOutput)
-    stepOutput = detectAmbiguity(stepOutput)
     stepOutput = await extractSlots(stepOutput, predictors)
-    return MapStepToOutput(stepOutput, t0)
+
+    let predictOutput = MapStepToOutput(stepOutput, t0)
+    predictOutput = electIntent(predictOutput)
+    predictOutput = detectAmbiguity(predictOutput)
+    predictOutput = extractElectedIntentSlot(predictOutput)
+    return predictOutput
   } catch (err) {
     if (err instanceof InvalidLanguagePredictorError) {
       throw err
