@@ -78,7 +78,7 @@ const QnA: FC<Props> = props => {
     }
   ]
 
-  if (expanded) {
+  if (expanded && !isLite) {
     moreOptionsItems.push({
       label: lang.tr(!showRedirectToFlow ? 'module.qna.form.enableRedirection' : 'module.qna.form.disableRedirection'),
       action: () => {
