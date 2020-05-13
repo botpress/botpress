@@ -5,7 +5,7 @@
   "context": {
     "canTypeToCreate": "You can type in the select bar to add new contexts.",
     "createQuery": "Create context",
-    "filterByContexts": "Filter by contexts",
+    "filterByContexts": "Search by context",
     "selectContext": "Select context...",
     "title": "Contexts"
   },
@@ -51,6 +51,7 @@
     "incompleteTooltip": "This Q&A will use exact match only.",
     "missingAnswer": "Leaving answer field empty will disable this question.",
     "missingQuestion": "Leaving question field empty will disable this question.",
+    "noResultsFromFilters": "No questions found",
     "onlyOneLanguage": "You only have one language",
     "q": "Q",
     "quickAddAlternative": "Press {shortcut} while inline to add new alternative quickly",
@@ -87,5 +88,5 @@
   "noQuestionsYet": "No questions have been added yet.",
   "question": "Question",
   "redirectsAssociated": "There are redirects associated to this questions, you can view them in the edit form",
-  "search": "Search for a question"
+  "search": "Search question"
 }

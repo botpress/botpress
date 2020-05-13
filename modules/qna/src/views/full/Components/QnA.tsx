@@ -7,12 +7,15 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 import { QnaItem } from '../../../backend/qna'
 import style from '../style.scss'
 
+import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
 
 interface Props {
+  isLite: boolean
   expanded: boolean
   setExpanded: (expanded: boolean) => void
   qnaItem: QnaItem
+  bp: any
   contentLang: string
   defaultLanguage: string
   errorMessages?: string[]
@@ -30,7 +33,9 @@ const QnA: FC<Props> = props => {
     expanded,
     setExpanded,
     errorMessages,
-    defaultLanguage
+    defaultLanguage,
+    isLite,
+    bp
   } = props
   let questions = data.questions[contentLang]
   let answers = data.answers[contentLang]
@@ -134,6 +139,19 @@ const QnA: FC<Props> = props => {
       </div>
       {expanded && (
         <div className={style.collapsibleWrapper}>
+          {!isLite && (
+            <ContextSelector
+              className={cx(style.contextSelector)}
+              contexts={data.contexts}
+              saveContexts={contexts =>
+                updateQnA({
+                  id,
+                  data: { ...data, contexts }
+                })
+              }
+              bp={bp}
+            />
+          )}
           <TextAreaList
             key="questions"
             items={questions}

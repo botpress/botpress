@@ -20,12 +20,13 @@ const EditTopicQnAModal: FC<Props> = props => (
     size="lg"
     style={{ width: 1000, minHeight: 550 }}
   >
-    <Dialog.Body>
+    <Dialog.Body className="qna-dialog">
       <InjectedModuleView
         moduleName="qna"
         componentName="LiteEditor"
         contentLang={props.contentLang}
         extraProps={{
+          isLite: true,
           topicName: props.selectedTopic,
           languages: props.languages,
           defaultLanguage: props.defaultLanguage
