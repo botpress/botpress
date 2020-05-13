@@ -82,7 +82,7 @@ const QnAList: FC<Props> = props => {
       setFlows(reorderFlows(data.filter(flow => !flow.name.startsWith('skills/'))))
     })
   }
-  
+
   const startDownload = () => {
     setUrl(`${window['BOT_API_PATH']}/mod/qna/export`)
   }
