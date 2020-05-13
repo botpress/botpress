@@ -5,7 +5,7 @@
   "context": {
     "canTypeToCreate": "You can type in the select bar to add new contexts.",
     "createQuery": "Create context",
-    "filterByContexts": "Filter by contexts",
+    "filterByContexts": "Search by context",
     "selectContext": "Select context...",
     "title": "Contexts"
   },
@@ -54,6 +54,7 @@
     "missingAnswer": "Leaving answer field empty will disable this question.",
     "missingQuestion": "Leaving question field empty will disable this question.",
     "node": "Node",
+    "noResultsFromFilters": "No questions found",
     "onlyOneLanguage": "You only have one language",
     "pickNode": "Pick a Node",
     "pickWorkflow": "Pick a Workflow",
@@ -95,5 +96,5 @@
   "noQuestionsYet": "No questions have been added yet.",
   "question": "Question",
   "redirectsAssociated": "There are redirects associated to this questions, you can view them in the edit form",
-  "search": "Search for a question"
+  "search": "Search question"
 }

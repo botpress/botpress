@@ -55,12 +55,14 @@
   "execute": "Execute",
   "expandAll": "Expand All",
   "export": "Export",
+  "exportToJson": "Export to JSON",
   "filterBy": "Filter By",
   "flows": "Flows",
   "general": "General",
   "id": "ID",
   "image": "Image",
   "import": "Import",
+  "importJson": "Import JSON",
   "insert": "Insert",
   "isoLangs": {
     "ar": {

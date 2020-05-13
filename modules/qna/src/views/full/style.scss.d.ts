@@ -5,6 +5,8 @@ interface CssExports {
   'collapsibleWrapper': string;
   'content': string;
   'contentAnswer': string;
+  'contextInput': string;
+  'contextSelector': string;
   'empty': string;
   'errorIcon': string;
   'errorsList': string;
@@ -12,6 +14,7 @@ interface CssExports {
   'header': string;
   'headerWrapper': string;
   'initialLoading': string;
+  'input': string;
   'items': string;
   'left': string;
   'loading': string;
@@ -20,6 +23,7 @@ interface CssExports {
   'redirectTitle': string;
   'refTitle': string;
   'right': string;
+  'searchWrapper': string;
   'tag': string;
   'textarea': string;
   'textareaWrapper': string;

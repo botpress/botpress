@@ -5,7 +5,7 @@
   "context": {
     "canTypeToCreate": "Vous pouvez taper dans la barre de sélection pour créer de nouveaux contextes.",
     "create": "Créer \"{query}\"",
-    "filterByContexts": "Filtrer par contextes",
+    "filterByContexts": "Chercher par contexte",
     "selectContext": "Sélectionnez le contexte...",
     "title": "Contextes"
   },
@@ -52,6 +52,7 @@
     "incomplete": "Incomplet",
     "incompleteTooltip": "Ce question-réponses utilisera uniquement la correspondance exacte.",
     "missingAnswer": "Si vous laissez le champ réponse vide, cette question sera désactivée.",
+    "noResultsFromFilters": "Aucune question trouvé",
     "missingQuestion": "Si vous laissez le champ question vide, cette question sera désactivée.",
     "node": "Nœud",
     "onlyOneLanguage": "Vous avez seulement une langue",

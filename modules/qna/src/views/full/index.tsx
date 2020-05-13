@@ -1,42 +1,73 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
-import { AccessControl, getFlowLabel, reorderFlows } from 'botpress/utils'
+import { AccessControl, Downloader, getFlowLabel, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import React, { FC, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
+import ContextSelector from './Components/ContextSelector'
+import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const QnAList: FC<Props> = props => {
   const [flows, setFlows] = useState([])
+  const [filterContexts, setFilterContexts] = useState([])
+  const [questionSearch, setQuestionSearch] = useState('')
+  const [showImportModal, setShowImportModal] = useState(false)
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(props.contentLang)
+  const [url, setUrl] = useState('')
   const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
     loading: true,
+    firstUpdate: true,
     page: 1,
     fetchMore: false,
     expandedItems: {}
   })
-  const { items, loading, page, fetchMore, count, expandedItems } = state
-  const { bp, languages, defaultLanguage } = props
+  const { items, loading, firstUpdate, page, fetchMore, count, expandedItems } = state
+  const { bp, languages, defaultLanguage, isLite } = props
 
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
 
-    dispatch({ type: 'resetData' })
     fetchData()
       .then(() => {})
       .catch(() => {})
 
     fetchFlows()
 
-    return () => wrapperRef.current.removeEventListener('scroll', handleScroll)
+    return () => {
+      wrapperRef.current.removeEventListener('scroll', handleScroll)
+      dispatch({ type: 'resetData' })
+      setFilterContexts([])
+      setQuestionSearch('')
+    }
   }, [])
+
+  useEffect(() => {
+    if (!firstUpdate) {
+      fetchData()
+        .then(() => {})
+        .catch(() => {})
+    }
+  }, [filterContexts])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!firstUpdate) {
+        fetchData()
+          .then(() => {})
+          .catch(() => {})
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [questionSearch])
 
   useEffect(() => {
     if (!loading && fetchMore && items.length < count) {
@@ -50,6 +81,10 @@ const QnAList: FC<Props> = props => {
     bp.axios.get('/flows').then(({ data }) => {
       setFlows(reorderFlows(data.filter(flow => !flow.name.startsWith('skills/'))))
     })
+  }
+  
+  const startDownload = () => {
+    setUrl(`${window['BOT_API_PATH']}/mod/qna/export`)
   }
 
   const getQueryParams = () => {
@@ -67,7 +102,7 @@ const QnAList: FC<Props> = props => {
   }
 
   const tabs = [
-    {
+    !isLite && {
       id: 'qna',
       title: lang.tr('module.qna.fullName')
     }
@@ -126,17 +161,61 @@ const QnAList: FC<Props> = props => {
     }
   ]
 
+  if (!isLite) {
+    buttons.unshift(
+      {
+        icon: 'import',
+        disabled: !items.length,
+        onClick: () => setShowImportModal(true),
+        tooltip: noItemsTooltip || lang.tr('importJson')
+      },
+      {
+        icon: 'export',
+        disabled: !items.length,
+        onClick: startDownload,
+        tooltip: noItemsTooltip || lang.tr('exportToJson')
+      }
+    )
+  }
+
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })
-    const params = !props.topicName ? { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE } : getQueryParams()
-    const { data } = await bp.axios.get('/mod/qna/questions', { params })
+    const params = !isLite
+      ? { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE, filteredContexts: filterContexts }
+      : getQueryParams()
+
+    const { data } = await bp.axios.get('/mod/qna/questions', {
+      params: { ...params, question: questionSearch }
+    })
 
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
   }
 
+  const hasFilteredResults = questionSearch.length || filterContexts.length
+
   return (
     <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
       <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+
+      <div className={style.searchWrapper}>
+        <input
+          className={style.input}
+          type="text"
+          value={questionSearch}
+          onChange={e => setQuestionSearch(e.currentTarget.value)}
+          placeholder={lang.tr('module.qna.search')}
+        />
+
+        {!isLite && (
+          <ContextSelector
+            className={style.contextInput}
+            contexts={filterContexts}
+            saveContexts={contexts => setFilterContexts(contexts)}
+            bp={bp}
+            isSearch
+          />
+        )}
+      </div>
       <div className={cx(style.content, { [style.empty]: !items.length })}>
         {items.map((item, index) => (
           <QnA
@@ -146,6 +225,8 @@ const QnAList: FC<Props> = props => {
                 data: { qnaItem: data, index, bp, currentLang }
               })
             }
+            bp={bp}
+            isLite={isLite}
             key={item.id}
             flows={flows}
             defaultLanguage={defaultLanguage}
@@ -161,7 +242,14 @@ const QnAList: FC<Props> = props => {
           />
         ))}
         {!items.length && !loading && (
-          <EmptyState icon={<EmptyStateIcon />} text={lang.tr('module.qna.form.emptyState')} />
+          <EmptyState
+            icon={<EmptyStateIcon />}
+            text={
+              hasFilteredResults
+                ? lang.tr('module.qna.form.noResultsFromFilters')
+                : lang.tr('module.qna.form.emptyState')
+            }
+          />
         )}
         {loading && (
           <Spinner
@@ -170,6 +258,15 @@ const QnAList: FC<Props> = props => {
           />
         )}
       </div>
+
+      <Downloader url={url} />
+
+      <ImportModal
+        axios={bp.axios}
+        onImportCompleted={() => fetchData()}
+        isOpen={showImportModal}
+        toggle={() => setShowImportModal(!showImportModal)}
+      />
     </MainContent.Wrapper>
   )
 }
