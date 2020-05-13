@@ -45,7 +45,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   if (!hasPopulatedLang(data.questions)) {
     errors.push(lang.tr('module.qna.form.missingQuestion'))
   }
-  if (!hasPopulatedLang(data.answers)) {
+  if (!hasPopulatedLang(data.answers) && !data.redirectFlow && !data.redirectNode) {
     errors.push(lang.tr('module.qna.form.missingAnswer'))
   }
   if (hasDupplicateQuestions.length) {
