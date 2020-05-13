@@ -16,7 +16,8 @@ const CHANNEL_COLORS = {
   web: '#1F8FFA',
   messenger: '#0196FF',
   slack: '#4A154B',
-  telegram: '#2EA6DA'
+  telegram: '#2EA6DA',
+  teams: '#8000ff'
 }
 
 interface Props extends Extras {
