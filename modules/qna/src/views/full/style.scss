@@ -386,6 +386,7 @@
   }
 
   .contentAnswer {
+    display: flex;
     padding: 0;
 
     :global {
@@ -407,6 +408,7 @@
 
       .bp3-control-group {
         height: 100%;
+        flex-grow: 1;
       }
     }
   }
