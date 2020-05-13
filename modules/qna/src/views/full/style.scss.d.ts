@@ -6,6 +6,7 @@ interface CssExports {
   'content': string;
   'contentAnswer': string;
   'contextInput': string;
+  'contextSelector': string;
   'empty': string;
   'errorIcon': string;
   'errorsList': string;

@@ -113,18 +113,6 @@ const QnAList: FC<Props> = props => {
   }
 
   const buttons: HeaderButtonProps[] = [
-    !isLite && {
-      icon: 'import',
-      disabled: !items.length,
-      onClick: () => setShowImportModal(true),
-      tooltip: noItemsTooltip || lang.tr('importJson')
-    },
-    !isLite && {
-      icon: 'export',
-      disabled: !items.length,
-      onClick: startDownload,
-      tooltip: noItemsTooltip || lang.tr('exportToJson')
-    },
     {
       icon: 'translate',
       optionsItems: languages?.map(language => ({
@@ -163,6 +151,23 @@ const QnAList: FC<Props> = props => {
       tooltip: lang.tr('module.qna.form.addQuestion')
     }
   ]
+
+  if (!isLite) {
+    buttons.unshift(
+      {
+        icon: 'import',
+        disabled: !items.length,
+        onClick: () => setShowImportModal(true),
+        tooltip: noItemsTooltip || lang.tr('importJson')
+      },
+      {
+        icon: 'export',
+        disabled: !items.length,
+        onClick: startDownload,
+        tooltip: noItemsTooltip || lang.tr('exportToJson')
+      }
+    )
+  }
 
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })
@@ -211,6 +216,8 @@ const QnAList: FC<Props> = props => {
                 data: { qnaItem: data, index, bp, currentLang }
               })
             }
+            bp={bp}
+            isLite={isLite}
             key={item.id}
             defaultLanguage={defaultLanguage}
             deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
