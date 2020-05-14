@@ -32,6 +32,7 @@ declare module 'botpress/shared' {
   export function MainContainer(props: MainContainerProps): JSX.Element
   export function MarkdownContent(props: MarkdownContentProps): JSX.Element
   export function MoreOptions(props: MoreOptionsProps): JSX.Element
+  export function RightSidebar(props: { children: any }): JSX.Element
   export function ShortcutLabel(props: ShortcutLabelProps): JSX.Element
   export function Textarea<T>(props: TextareaProps<T>): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element

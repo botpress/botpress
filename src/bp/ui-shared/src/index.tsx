@@ -8,6 +8,7 @@ import Dropdown from './Dropdown'
 import EmptyState from './EmptyState'
 import MainContainer from './MainContainer'
 import MainContent from './MainContent'
+import RightSidebar from './MainContent/RightSidebar'
 import MarkdownContent from './MarkdownContent'
 import MoreOptions from './MoreOptions'
 import ShortcutLabel from './ShortcutLabel'
@@ -21,6 +22,7 @@ exports.Dropdown = Dropdown
 exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
 exports.MainContent = MainContent
+exports.RightSidebar = RightSidebar
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.ShortcutLabel = ShortcutLabel
