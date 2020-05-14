@@ -386,7 +386,7 @@
     height: 39px;
     line-height: 1.25;
     margin: -1px 0 0;
-    padding: 2%;
+    padding: var(--spacing-large) 2%;
     padding-left: 0;
     resize: none;
     transition: border 0.3s;
@@ -404,7 +404,7 @@
         color: var(--shark) !important;
         font-size: 12px;
         height: 100%;
-        padding: 2%;
+        padding: var(--spacing-large) 2%;
         padding-left: 0;
       }
 
