@@ -1,8 +1,9 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
-import { AccessControl, Downloader, getFlowLabel, reorderFlows } from 'botpress/utils'
+import { Downloader, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
-import React, { FC, useEffect, useReducer, useRef, useState } from 'react'
+import { debounce } from 'lodash'
+import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
@@ -19,6 +20,7 @@ const QnAList: FC<Props> = props => {
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(props.contentLang)
   const [url, setUrl] = useState('')
+  const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
@@ -216,30 +218,33 @@ const QnAList: FC<Props> = props => {
         )}
       </div>
       <div className={cx(style.content, { [style.empty]: !items.length })}>
-        {items.map((item, index) => (
-          <QnA
-            updateQnA={data =>
-              dispatchMiddleware(dispatch, {
-                type: 'updateQnA',
-                data: { qnaItem: data, index, bp, currentLang }
-              })
-            }
-            bp={bp}
-            isLite={isLite}
-            key={item.id}
-            flows={flows}
-            defaultLanguage={defaultLanguage}
-            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
-            toggleEnabledQnA={() =>
-              dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
-            }
-            contentLang={currentLang}
-            errorMessages={itemHasError(item, currentLang)}
-            setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { [item.id]: isExpanded } })}
-            expanded={expandedItems[item.id]}
-            qnaItem={item}
-          />
-        ))}
+        {items.map((item, index) => {
+          console.log(expandedItems, item.id)
+          return (
+            <QnA
+              updateQnA={data =>
+                debounceDispatchMiddleware(dispatch, {
+                  type: 'updateQnA',
+                  data: { qnaItem: data, index, bp, currentLang }
+                })
+              }
+              bp={bp}
+              isLite={isLite}
+              key={item.key || item.id}
+              flows={flows}
+              defaultLanguage={defaultLanguage}
+              deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
+              toggleEnabledQnA={() =>
+                dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
+              }
+              contentLang={currentLang}
+              errorMessages={itemHasError(item, currentLang)}
+              setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { [item.id]: isExpanded } })}
+              expanded={expandedItems[item.id]}
+              qnaItem={item}
+            />
+          )
+        })}
         {!items.length && !loading && (
           <EmptyState
             icon={<EmptyStateIcon />}

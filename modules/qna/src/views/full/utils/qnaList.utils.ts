@@ -158,7 +158,8 @@ export const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      items: newItems
+      items: newItems,
+      expandedItems: { ...state.expandedItems, [qnaItem.id]: true }
     }
   } else if (action.type === 'addQnA') {
     const newItems = state.items
@@ -169,6 +170,7 @@ export const fetchReducer = (state: State, action): State => {
     newItems.unshift({
       id,
       isNew: true,
+      key: id,
       data: {
         action: 'text',
         contexts,
