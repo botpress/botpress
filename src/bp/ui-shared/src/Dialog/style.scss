@@ -9,6 +9,7 @@
   .form,
   :global(.bp3-dialog-body) {
     overflow: auto;
+    height: calc(100% - 34px);
   }
 
   :global {

@@ -26,7 +26,7 @@ export const Wrapper: FC<DialogProps> = props => {
       transitionDuration={0}
       canOutsideClickClose={false}
       enforceFocus={false}
-      style={{ width }}
+      style={{ width, height: props.height }}
       {...props}
     >
       {props.onSubmit ? (
