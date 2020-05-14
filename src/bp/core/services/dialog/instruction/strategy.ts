@@ -169,8 +169,7 @@ export class ActionStrategy implements InstructionStrategy {
       }
 
       const { onErrorFlowTo } = event.state.temp
-      const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
-      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
       return ProcessingResult.transition(errorFlow)
     }

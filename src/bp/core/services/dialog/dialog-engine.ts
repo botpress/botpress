@@ -112,8 +112,8 @@ export class DialogEngine {
           }
 
           const { onErrorFlowTo } = event.state.temp
-          const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
-          const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
+          const errorFlow =
+            typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
           return this._transition(sessionId, event, errorFlow)
         })
@@ -262,7 +262,7 @@ export class DialogEngine {
   }
 
   private initializeContext(event) {
-    const defaultFlow = this._findFlow(event.botId, event.ndu ? 'Built-In/welcome.flow.json' : 'main.flow.json')
+    const defaultFlow = this._findFlow(event.botId, event.ndu ? 'misunderstood.flow.json' : 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.__stacktrace.push({ flow: defaultFlow.name, node: startNode.name })
     event.state.context = {
