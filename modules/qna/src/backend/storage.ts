@@ -89,7 +89,6 @@ export default class Storage {
     }
 
     await axios.post('/mod/nlu/intents', intent, axiosConfig)
-    this.bp.logger.info(`${create ? `Created` : `Updated`} NLU intent for QNA ${qnaItem.id}`)
   }
 
   async update(data: QnaEntry, id: string): Promise<string> {
