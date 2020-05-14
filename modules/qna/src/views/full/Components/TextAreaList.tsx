@@ -3,7 +3,7 @@ import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import BotpressContentPicker from 'botpress/content-picker'
 // @ts-ignore
 import BotpressContentTypePicker from 'botpress/content-type-picker'
-import { lang, ShortcutLabel, utils, Textarea } from 'botpress/shared'
+import { lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'

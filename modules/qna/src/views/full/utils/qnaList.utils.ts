@@ -47,7 +47,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   if (!hasPopulatedLang(data.questions)) {
     errors.push(lang.tr('module.qna.form.missingQuestion'))
   }
-  if (!hasPopulatedLang(data.answers)) {
+  if (!hasPopulatedLang(data.answers) && !data.redirectFlow && !data.redirectNode) {
     errors.push(lang.tr('module.qna.form.missingAnswer'))
   }
   if (hasDupplicateQuestions.length) {
@@ -182,7 +182,8 @@ export const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      items: newItems
+      items: newItems,
+      expandedItems: { ...state.expandedItems, [id]: true }
     }
   } else if (action.type === 'deleteQnA') {
     const { index, bp } = action.data
