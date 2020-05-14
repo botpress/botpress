@@ -8,18 +8,35 @@
       font-size: 12px !important;
     }
 
+    .bp3-dialog-body {
+      display: flex;
+    }
+
     .bp3-button {
       box-shadow: unset !important;
       background-image: unset !important;
       border-radius: 5px !important;
+      padding-top: 6px;
     }
 
     .bp3-button.bp3-intent-warning {
-      background-color: $main-confirm-warning;
+      background-color: var(--lighthouse);
+
+      &:hover {
+        background-color: var(--hover-lighthouse);
+      }
+
+      &:focus {
+        background-color: var(--focus-lighthouse);
+      }
     }
 
     .bp3-button:not([class*='bp3-intent']) {
       background-color: white;
+
+      &:hover, &:focus {
+        background-color: var(--seashell);
+      }
     }
   }
 }
@@ -27,5 +44,5 @@
 .icon {
   float: left !important;
   margin-right: 16px;
-  color: $main-confirm-warning !important;
+  color: var(--lighthouse) !important;
 }
