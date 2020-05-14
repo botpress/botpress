@@ -218,35 +218,32 @@ const QnAList: FC<Props> = props => {
         )}
       </div>
       <div className={cx(style.content, { [style.empty]: !items.length })}>
-        {items.map((item, index) => {
-          console.log(expandedItems, item.id)
-          return (
-            <QnA
-              updateQnA={data =>
-                debounceDispatchMiddleware(dispatch, {
-                  type: 'updateQnA',
-                  data: { qnaItem: data, index, bp, currentLang }
-                })
-              }
-              bp={bp}
-              isLite={isLite}
-              key={item.key || item.id}
-              flows={flows}
-              defaultLanguage={defaultLanguage}
-              deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
-              toggleEnabledQnA={() =>
-                dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
-              }
-              contentLang={currentLang}
-              errorMessages={itemHasError(item, currentLang)}
-              setExpanded={isExpanded =>
-                dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
-              }
-              expanded={expandedItems[item.key || item.id]}
-              qnaItem={item}
-            />
-          )
-        })}
+        {items.map((item, index) => (
+          <QnA
+            updateQnA={data =>
+              debounceDispatchMiddleware(dispatch, {
+                type: 'updateQnA',
+                data: { qnaItem: data, index, bp, currentLang }
+              })
+            }
+            bp={bp}
+            isLite={isLite}
+            key={item.key || item.id}
+            flows={flows}
+            defaultLanguage={defaultLanguage}
+            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
+            toggleEnabledQnA={() =>
+              dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
+            }
+            contentLang={currentLang}
+            errorMessages={itemHasError(item, currentLang)}
+            setExpanded={isExpanded =>
+              dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
+            }
+            expanded={expandedItems[item.key || item.id]}
+            qnaItem={item}
+          />
+        ))}
         {!items.length && !loading && (
           <EmptyState
             icon={<EmptyStateIcon />}
