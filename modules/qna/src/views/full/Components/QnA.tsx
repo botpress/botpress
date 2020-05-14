@@ -119,6 +119,16 @@ const QnA: FC<Props> = props => {
     }
   }
 
+  const validateItemsList = (items, errorMsg) =>
+    items.map((item, index) =>
+      items
+        .slice(0, index)
+        .filter(item2 => item2.length)
+        .includes(item)
+        ? errorMsg
+        : ''
+    )
+
   const showIncomplete =
     questions.filter(q => !!q.trim()).length < 3 ||
     (answers.filter(q => !!q.trim()).length < 1 && !data.redirectFlow && !data.redirectNode)
@@ -196,6 +206,7 @@ const QnA: FC<Props> = props => {
             refItems={refQuestions}
             keyPrefix="question-"
             duplicateMsg={lang.tr('module.qna.form.duplicateQuestion')}
+            itemListValidator={validateItemsList}
             placeholder={index => getPlaceholder('question', index)}
             label={lang.tr('module.qna.question')}
             addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
@@ -204,6 +215,7 @@ const QnA: FC<Props> = props => {
             key="answers"
             items={answers}
             duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
+            itemListValidator={validateItemsList}
             updateItems={items =>
               updateQnA({
                 id,

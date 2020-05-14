@@ -5,9 +5,8 @@ import BotpressContentPicker from 'botpress/content-picker'
 import BotpressContentTypePicker from 'botpress/content-type-picker'
 import { lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
 import cx from 'classnames'
-import { debounce } from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -15,6 +14,7 @@ interface Props {
   updateItems: (items: string[]) => void
   items: string[]
   placeholder: (index: number) => void
+  itemListValidator: (items: string[], errorMsg: string) => string[]
   addItemLabel: string
   label: string
   refItems: string[]
@@ -27,38 +27,26 @@ interface Props {
 
 const TextAreaList: FC<Props> = props => {
   const [showPicker, setShowPicker] = useState(false)
-  const {
-    items,
-    duplicateMsg,
-    updateItems,
-    keyPrefix,
-    canAddContent,
-    addItemLabel,
-    label,
-    refItems,
-    placeholder
-  } = props
+  const [localItems, setLocalItems] = useState(props.items)
+  // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
+  const [keys, setKeys] = useState(localItems.map(x => _uniqueId(keyPrefix)))
+  const { duplicateMsg, updateItems, keyPrefix, canAddContent, addItemLabel, label, refItems, placeholder } = props
   const focusedElement = useRef(props.initialFocus || '')
 
   useEffect(() => {
-    keys.current = items.map(x => _uniqueId(keyPrefix))
+    setKeys(localItems.map(x => _uniqueId(keyPrefix)))
   }, [refItems])
 
-  // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
-  const keys = useRef(items.map(x => _uniqueId(keyPrefix)))
-
-  const updateItem = (index: number, value: string): void => {
-    items[index] = value
-    updateItems(items)
+  const updateLocalItem = (index: number, value: string): void => {
+    localItems[index] = value
+    setLocalItems([...localItems])
   }
 
-  const debounceUpdateItem = useCallback(debounce(updateItem, 300), [])
-
   const addItem = (value = ''): void => {
-    items.push(value)
-    keys.current.push(_uniqueId(keyPrefix))
-    focusedElement.current = `${keyPrefix}${items.length - 1}`
-    updateItems(items)
+    localItems.push(value)
+    setKeys([...keys, _uniqueId(keyPrefix)])
+    focusedElement.current = `${keyPrefix}${localItems.length - 1}`
+    updateItems(localItems)
   }
 
   const onKeyDown = (e: KeyboardEvent, index: number): void => {
@@ -67,46 +55,47 @@ const TextAreaList: FC<Props> = props => {
       addItem()
     }
 
-    if (e.key === 'Backspace' && items.length > 1 && !items[index].length) {
+    const shouldDelete = localItems.length > 1 && !localItems[index].length
+
+    if (e.key === 'Backspace' && shouldDelete) {
       e.preventDefault()
 
-      items.splice(index, 1)
-      keys.current.splice(index, 1)
-      focusedElement.current = `${keyPrefix}${index === 0 ? 0 : index - 1}`
-
-      updateItems(items)
+      deleteItem(index)
     }
   }
 
-  const errors = items.map((item, index) =>
-    items
-      .slice(0, index)
-      .filter(item2 => item2.length)
-      .includes(item)
-      ? duplicateMsg
-      : ''
-  )
+  const deleteItem = (index: number): void => {
+    localItems.splice(index, 1)
+    setKeys([...keys.filter((key, i) => index !== i)])
+    focusedElement.current = `${keyPrefix}${index === 0 ? 0 : index - 1}`
+
+    updateItems(localItems)
+  }
+
+  const errors = props.itemListValidator(localItems, duplicateMsg)
 
   return (
     <Fragment>
       <div className={style.items}>
         <h2>{label}</h2>
-        {items?.map((item, index) =>
+        {localItems?.map((item, index) =>
           canAddContent && item.startsWith('#!') ? (
-            <div key={keys.current[index]} className={style.contentAnswer}>
+            <div key={keys[index]} className={style.contentAnswer}>
               <BotpressContentPicker
                 itemId={item.replace('#!', '')}
                 onClickChange={() => this.toggleEditMode(index)}
                 onChange={this.onContentChange}
               />
+              <Button icon="trash" onClick={() => deleteItem(index)} />
             </div>
           ) : (
-            <div key={keys.current[index]} className={style.textareaWrapper}>
+            <div key={keys[index]} className={style.textareaWrapper}>
               <Textarea
                 isFocused={focusedElement.current === `${keyPrefix}${index}`}
                 className={cx(style.textarea, { [style.hasError]: errors[index] })}
                 placeholder={refItems?.[index] ? refItems[index] : placeholder(index)}
-                onChange={value => debounceUpdateItem(index, value)}
+                onChange={value => updateLocalItem(index, value)}
+                onBlur={() => updateItems(localItems)}
                 onKeyDown={e => onKeyDown(e, index)}
                 value={item}
               />

@@ -4,6 +4,7 @@ export interface TextareaProps {
   placeholder?: string
   isFocused?: boolean
   onChange: (value: string) => void
+  onBlur: () => void
   onKeyDown: () => void
   value: string
 }

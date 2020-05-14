@@ -5,7 +5,6 @@ import style from './style.scss'
 import { TextareaProps } from './typings'
 
 const Textarea: FC<TextareaProps> = props => {
-  const [value, setValue] = useState(props.value)
   const [forceUpdate, setForceUpdate] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const height = useRef(39)
@@ -33,10 +32,6 @@ const Textarea: FC<TextareaProps> = props => {
   }
 
   const onChange = value => {
-    setValue(value)
-  }
-
-  const onBlur = () => {
     props.onChange(value)
   }
 
@@ -45,10 +40,10 @@ const Textarea: FC<TextareaProps> = props => {
       style={{ height: height.current + 'px' }}
       ref={inputRef}
       className={cx(style.textarea, props.className)}
-      value={value}
+      value={props.value}
       placeholder={props.placeholder}
       onChange={e => onChange(e.currentTarget.value)}
-      onBlur={onBlur}
+      onBlur={props.onBlur}
       onKeyDown={props.onKeyDown}
       onInput={onInput}
     />
