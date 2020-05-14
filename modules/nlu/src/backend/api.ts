@@ -26,6 +26,14 @@ export const PredictSchema = Joi.object().keys({
   text: Joi.string().required()
 })
 
+const removeSlotFromAllUtterances = (utterances: { [key: string]: any }, slotName: string) =>
+  _.fromPairs(
+    Object.entries(utterances).map(([key, val]) => {
+      const regex = new RegExp(`\\[([^\\[\\]\\(\\)]+?)\\]\\(${slotName}\\)`, 'gi')
+      return [key, val.map(u => u.replace(regex, '$1'))]
+    })
+  )
+
 export default async (bp: typeof sdk, state: NLUState) => {
   const router = bp.http.createRouterForBot('nlu')
 
@@ -247,7 +255,21 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/entities/:id/delete', async (req, res) => {
     const { botId, id } = req.params
     try {
-      await state.nluByBot[botId].entityService.deleteEntity(id)
+      const entityService = state.nluByBot[botId].entityService
+      await entityService.deleteEntity(id)
+
+      const ghost = bp.ghost.forBot(botId)
+      const intents = await getIntents(ghost)
+
+      await Promise.map(intents, async intent => {
+        const entitySlots = intent.slots.filter(slot => slot.entities.includes(id))
+        await Promise.map(entitySlots, async (slot, index) => {
+          intent.slots.splice(index, 1)
+          intent.utterances = removeSlotFromAllUtterances(intent.utterances, slot.name)
+          await saveIntent(ghost, intent, entityService)
+        })
+      })
+
       res.sendStatus(204)
     } catch (err) {
       bp.logger
