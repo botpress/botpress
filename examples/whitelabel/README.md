@@ -10,10 +10,10 @@ Copy the files from the `assets` folder (next to this README file) to your Botpr
 
 ```
 ├── data
-├──── assets
-│    ├── custom
-│    │   └── logo.png
-│    └── custom-theme.css
+│   └─ assets
+│      ├── custom
+│      │   └── logo.png
+│      └── custom-theme.css
 ├── bp.exe
 ```
 
