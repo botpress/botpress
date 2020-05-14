@@ -165,9 +165,8 @@ const QnAList: FC<Props> = props => {
     buttons.unshift(
       {
         icon: 'import',
-        disabled: !items.length,
         onClick: () => setShowImportModal(true),
-        tooltip: noItemsTooltip || lang.tr('importJson')
+        tooltip: lang.tr('importJson')
       },
       {
         icon: 'export',
