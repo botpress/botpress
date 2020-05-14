@@ -239,7 +239,9 @@ const QnAList: FC<Props> = props => {
               }
               contentLang={currentLang}
               errorMessages={itemHasError(item, currentLang)}
-              setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { [item.id]: isExpanded } })}
+              setExpanded={isExpanded =>
+                dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
+              }
               expanded={expandedItems[item.key || item.id]}
               qnaItem={item}
             />
