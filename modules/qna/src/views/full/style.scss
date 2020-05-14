@@ -74,6 +74,14 @@
   padding: 0;
 }
 
+.redirectTitle {
+  margin-top: var(--spacing-x-large);
+  grid-column: 1 / 3;
+  font-size: 14px;
+  font-weight: 500;
+  flex-basis: 100%;
+}
+
 .initialLoading {
   height: 100%;
   width: 100%;

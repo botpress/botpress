@@ -1,14 +1,22 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Flow, FlowNode } from 'botpress/sdk'
 import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, useEffect, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
+import Select from 'react-select'
 
 import { QnaItem } from '../../../backend/qna'
 import style from '../style.scss'
 
 import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
+
+interface RedirectItem {
+  label: string
+  value: string
+}
 
 interface Props {
   isLite: boolean
@@ -19,6 +27,7 @@ interface Props {
   contentLang: string
   defaultLanguage: string
   errorMessages?: string[]
+  flows?: Flow[]
   updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
@@ -34,9 +43,11 @@ const QnA: FC<Props> = props => {
     setExpanded,
     errorMessages,
     defaultLanguage,
+    flows,
     isLite,
     bp
   } = props
+  const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
   let questions = data.questions[contentLang]
   let answers = data.answers[contentLang]
   const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
@@ -64,13 +75,29 @@ const QnA: FC<Props> = props => {
     {
       label: lang.tr(data.enabled ? 'module.qna.form.disableQuestion' : 'module.qna.form.enableQuestion'),
       action: props.toggleEnabledQnA
-    },
-    {
-      label: lang.tr('module.qna.form.deleteQuestion'),
-      type: 'delete',
-      action: onDelete
     }
   ]
+
+  if (expanded && !isLite) {
+    moreOptionsItems.push({
+      label: lang.tr(!showRedirectToFlow ? 'module.qna.form.enableRedirection' : 'module.qna.form.disableRedirection'),
+      action: () => {
+        if (showRedirectToFlow) {
+          updateQnA({
+            id,
+            data: { ...data, redirectNode: '', redirectFlow: '' }
+          })
+        }
+        setShowRedirectToFlow(!showRedirectToFlow)
+      }
+    })
+  }
+
+  moreOptionsItems.push({
+    label: lang.tr('module.qna.form.deleteQuestion'),
+    type: 'delete',
+    action: onDelete
+  })
 
   const getPlaceholder = (type: 'answer' | 'question', index: number): string => {
     if (type === 'question') {
@@ -92,7 +119,12 @@ const QnA: FC<Props> = props => {
     }
   }
 
-  const showIncomplete = questions.filter(q => !!q.trim()).length < 3 || answers.filter(q => !!q.trim()).length < 1
+  const showIncomplete =
+    questions.filter(q => !!q.trim()).length < 3 ||
+    (answers.filter(q => !!q.trim()).length < 1 && !data.redirectFlow && !data.redirectNode)
+  const currentFlow = flows ? flows.find(({ name }) => name === data.redirectFlow) || { nodes: [] } : { nodes: [] }
+  const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
+  const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
 
   return (
     <div className={style.questionWrapper}>
@@ -185,6 +217,43 @@ const QnA: FC<Props> = props => {
             canAddContent
             addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
           />
+          {showRedirectToFlow && (
+            <Fragment>
+              <h1 className={style.redirectTitle}>{lang.tr('module.qna.form.redirectQuestionTo')}</h1>
+              <div>
+                <h2>{lang.tr('module.qna.form.workflow')}</h2>
+
+                <Select
+                  tabIndex="-1"
+                  value={flowsList.find(item => item.value === data.redirectFlow)}
+                  options={flowsList}
+                  placeholder={lang.tr('module.qna.form.pickWorkflow')}
+                  onChange={(selected: RedirectItem) =>
+                    updateQnA({
+                      id,
+                      data: { ...data, redirectFlow: selected.value }
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <h2>{lang.tr('module.qna.form.node')}</h2>
+
+                <Select
+                  tabIndex="-1"
+                  value={nodeList.find(item => item.value === data.redirectNode)}
+                  options={nodeList}
+                  placeholder={lang.tr('module.qna.form.pickNode')}
+                  onChange={(selected: RedirectItem) =>
+                    updateQnA({
+                      id,
+                      data: { ...data, redirectNode: selected.value }
+                    })
+                  }
+                />
+              </div>
+            </Fragment>
+          )}
         </div>
       )}
     </div>

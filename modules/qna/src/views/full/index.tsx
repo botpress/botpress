@@ -1,6 +1,6 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
-import { Downloader } from 'botpress/utils'
+import { AccessControl, Downloader, getFlowLabel, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import React, { FC, useEffect, useReducer, useRef, useState } from 'react'
 
@@ -12,6 +12,7 @@ import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const QnAList: FC<Props> = props => {
+  const [flows, setFlows] = useState([])
   const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
   const [showImportModal, setShowImportModal] = useState(false)
@@ -37,6 +38,8 @@ const QnAList: FC<Props> = props => {
     fetchData()
       .then(() => {})
       .catch(() => {})
+
+    fetchFlows()
 
     return () => {
       wrapperRef.current.removeEventListener('scroll', handleScroll)
@@ -73,6 +76,12 @@ const QnAList: FC<Props> = props => {
         .catch(() => {})
     }
   }, [fetchMore])
+
+  const fetchFlows = () => {
+    bp.axios.get('/flows').then(({ data }) => {
+      setFlows(reorderFlows(data.filter(flow => !flow.name.startsWith('skills/'))))
+    })
+  }
 
   const startDownload = () => {
     setUrl(`${window['BOT_API_PATH']}/mod/qna/export`)
@@ -219,6 +228,7 @@ const QnAList: FC<Props> = props => {
             bp={bp}
             isLite={isLite}
             key={item.id}
+            flows={flows}
             defaultLanguage={defaultLanguage}
             deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
             toggleEnabledQnA={() =>
