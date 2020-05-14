@@ -14,6 +14,7 @@ interface Props {
   updateItems: (items: string[]) => void
   items: string[]
   placeholder: (index: number) => void
+  itemListValidator: (items: string[], errorMsg: string) => string[]
   addItemLabel: string
   label: string
   refItems: string[]
@@ -53,7 +54,10 @@ const TextAreaList: FC<Props> = props => {
       e.preventDefault()
       addItem()
     }
-    if (e.key === 'Backspace' && localItems.length > 1 && !localItems[index].length) {
+
+    const shouldDelete = localItems.length > 1 && !localItems[index].length
+
+    if (e.key === 'Backspace' && shouldDelete) {
       e.preventDefault()
 
       deleteItem(index)
@@ -68,14 +72,7 @@ const TextAreaList: FC<Props> = props => {
     updateItems(localItems)
   }
 
-  const errors = localItems.map((item, index) =>
-    localItems
-      .slice(0, index)
-      .filter(item2 => item2.length)
-      .includes(item)
-      ? duplicateMsg
-      : ''
-  )
+  const errors = props.itemListValidator(localItems, duplicateMsg)
 
   return (
     <Fragment>
