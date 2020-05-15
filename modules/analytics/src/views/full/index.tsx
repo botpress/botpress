@@ -320,7 +320,7 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <ItemsList
           name={lang.tr('module.analytics.mostUsedWorkflows')}
-          items={getTopItems('enter_flow_count', 'workflow')}
+          items={getTopItems('workflow_started_count', 'workflow')}
           itemLimit={10}
           className={cx(style.genericMetric, style.half, style.list)}
         />

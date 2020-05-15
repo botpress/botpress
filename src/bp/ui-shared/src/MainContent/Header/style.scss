@@ -8,6 +8,33 @@
     margin-top: 5px;
   }
 
+  .btnWrapper {
+    position: relative;
+
+    :global {
+      .bp3-button {
+        transition: background 0.3s;
+
+        &.bp3-disabled svg {
+          fill: var(--gray) !important;
+        }
+
+        &:not(.bp3-disabled):hover {
+          background: var(--gray) !important;
+        }
+
+        &:not(.bp3-disabled).active svg {
+          fill: var(--ocean) !important;
+        }
+      }
+    }
+
+    svg {
+      fill: var(--shark) !important;
+      transition: fill 0.3s;
+    }
+  }
+
   :global(.bp3-tab) {
     text-transform: uppercase;
     font-weight: bold;

@@ -12,12 +12,8 @@ const sendFeedback = async value => {
   if (feedback !== 1 && feedback !== -1) {
     throw `Unexpected value: ${value}`
   }
-  const previousWorkflow = event.state.session.lastWorkflows[0]
-  if (!previousWorkflow) {
-    return
-  }
 
-  await bp.events.saveUserFeedback(previousWorkflow.eventId, event.target, feedback, 'workflow')
+  await bp.events.saveUserFeedback(temp.eventId, event.target, feedback, 'workflow')
 }
 
 return sendFeedback(args.value)

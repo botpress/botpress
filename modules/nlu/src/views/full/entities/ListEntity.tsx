@@ -1,6 +1,7 @@
 import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
@@ -8,6 +9,7 @@ import style from './style.scss'
 import { Occurrence } from './ListEntityOccurrence'
 
 interface Props {
+  entities: NLU.EntityDefinition[]
   entity: NLU.EntityDefinition
   updateEntity: (targetEntity: string, entity: NLU.EntityDefinition) => void
 }
@@ -66,9 +68,17 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   const isNewOccurrenceEmpty = () => newOccurrence.trim().length === 0
 
+  const isUnique = newElement =>
+    !props.entities
+      .filter(entity => entity.type === 'list')
+      .some(({ occurrences }) => occurrences.some(({ name, synonyms }) => [name, ...synonyms].includes(newElement)))
+
   const addOccurrence = () => {
     if (isNewOccurrenceEmpty()) {
       return
+    }
+    if (!isUnique(newOccurrence)) {
+      return toastFailure('Occurrences duplication is not allowed')
     }
 
     dispatch({
@@ -79,6 +89,11 @@ export const ListEntityEditor: React.FC<Props> = props => {
   }
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
+    const newSynonym = _.last(occurrence.synonyms)
+    if (!isUnique(newSynonym)) {
+      return toastFailure('Synonyms duplication is not allowed')
+    }
+
     const occurrences = [...state.occurrences.slice(0, idx), occurrence, ...state.occurrences.slice(idx + 1)]
     dispatch({
       type: 'setOccurrences',
@@ -133,14 +148,16 @@ export const ListEntityEditor: React.FC<Props> = props => {
         </FormGroup>
         {state.occurrences.length > 0 && (
           <FormGroup label={lang.tr('module.nlu.entities.occurrenceLabel')}>
-            {state.occurrences.map((o, i) => (
-              <Occurrence
-                key={o.name}
-                occurrence={o}
-                remove={removeOccurrence.bind(null, i)}
-                onChange={editOccurrence.bind(null, i)}
-              />
-            ))}
+            <div className={style.occurrencesList}>
+              {state.occurrences.map((o, i) => (
+                <Occurrence
+                  key={o.name}
+                  occurrence={o}
+                  remove={removeOccurrence.bind(null, i)}
+                  onChange={editOccurrence.bind(null, i)}
+                />
+              ))}
+            </div>
           </FormGroup>
         )}
       </div>
