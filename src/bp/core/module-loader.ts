@@ -423,11 +423,7 @@ export class ModuleLoader {
       await extractArchive(archive, tmpFolder)
 
       const resolver = new ModuleResolver(this.logger)
-      const moduleInfo = await resolver.getModuleInfo(tmpFolder)
-
-      if (moduleInfo?.valid) {
-        return extractModuleInfo({ location: tmpFolder, enabled: false }, resolver)
-      }
+      return await extractModuleInfo({ location: tmpFolder, enabled: false }, resolver)
     } catch (err) {
       this.logger.attachError(err).warn(`Invalid module archive`)
     } finally {

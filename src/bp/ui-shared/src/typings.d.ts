@@ -20,7 +20,7 @@ declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
     Wrapper(props: DialogProps): JSX.Element
-    Body(props: { children: any, className?: string }): JSX.Element
+    Body(props: { children: any; className?: string }): JSX.Element
     Footer(props: { children: any }): JSX.Element
   }
   export const MainContent: {
@@ -47,9 +47,9 @@ declare module 'botpress/shared' {
   }
 
   export const toast: {
-    success: (message: string, details?: string, options?: ToastOptions) => void
-    failure: (message: string, details?: string, options?: ToastOptions) => void
-    info: (message: string, details?: string, options?: ToastOptions) => void
+    success: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
+    failure: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
+    info: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
   }
 
   export const utils: {

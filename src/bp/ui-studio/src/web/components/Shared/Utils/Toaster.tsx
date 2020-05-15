@@ -8,13 +8,13 @@ export enum Timeout {
 }
 
 export const toastSuccess = (
-  message: string,
+  message: string | React.ReactElement,
   timeout: Timeout = Timeout.SHORT,
   onDismiss?: (didTimeoutExpire: boolean) => void
 ) => toast(message, Intent.SUCCESS, timeout, onDismiss)
 
 export const toastFailure = (
-  message: string,
+  message: string | React.ReactElement,
   timeout: Timeout = Timeout.MEDIUM,
   onDismiss?: (didTimeoutExpire: boolean) => void,
   // Must be delayed when used in a lifecycle event (eg: useEffect)
@@ -22,7 +22,7 @@ export const toastFailure = (
 ) => toast(message, Intent.DANGER, timeout, onDismiss, options)
 
 export const toastInfo = (
-  message: string,
+  message: string | React.ReactElement,
   timeout: Timeout = Timeout.MEDIUM,
   onDismiss?: (didTimeoutExpire: boolean) => void
 ) => toast(message, Intent.PRIMARY, timeout, onDismiss)
