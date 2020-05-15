@@ -3,9 +3,11 @@ import { UnexpectedError } from 'common/http'
 import { ModuleInfo } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import ModuleResolver from 'core/modules/resolver'
+import { GhostService } from 'core/services'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
+import multer from 'multer'
 import yn from 'yn'
 
 import { ModuleLoader } from '../module-loader'
@@ -23,7 +25,8 @@ export class ModulesRouter extends CustomRouter {
     private authService: AuthService,
     private moduleLoader: ModuleLoader,
     private skillService: SkillService,
-    private configProvider: ConfigProvider
+    private configProvider: ConfigProvider,
+    private ghostService: GhostService
   ) {
     super('Modules', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -149,6 +152,20 @@ export class ModulesRouter extends CustomRouter {
         }
       })
     )
+
+    this.router.post('/import', multer().single('file'), async (req, res) => {
+      const file = req['file'].buffer
+
+      const moduleName = await this.moduleLoader.getArchiveModuleName(file)
+
+      if (moduleName) {
+        this.logger.info(`Uploaded module ${moduleName}`)
+        await this.ghostService.root().upsertFile('modules', `${moduleName}.tgz`, file)
+        return res.send({ moduleName })
+      }
+
+      res.sendStatus(400)
+    })
 
     this.router.get(
       '/translations',

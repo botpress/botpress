@@ -16,9 +16,11 @@ import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import path from 'path'
+import tmp from 'tmp'
 
 import { createForModule } from './api' // TODO
 import { ConfigProvider } from './config/config-loader'
+import { extractArchive } from './misc/archive'
 import { clearModuleScriptCache } from './modules/require'
 import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
@@ -405,5 +407,21 @@ export class ModuleLoader {
 
     const filtered = _.uniqBy(allModules.filter(Boolean), 'location')
     return _.orderBy(filtered, 'name') as ModuleInfo[]
+  }
+
+  public async getArchiveModuleName(archive: Buffer): Promise<string | undefined> {
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    const tmpFolder = tmpDir.name
+
+    try {
+      await extractArchive(archive, tmpFolder)
+      const packageJson = require(path.join(tmpFolder, 'package.json'))
+
+      return packageJson.name
+    } catch (err) {
+      this.logger.attachError(err).warn(`Invalid module archive`)
+    } finally {
+      tmpDir.removeCallback()
+    }
   }
 }
