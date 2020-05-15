@@ -1,9 +1,8 @@
-'use strict'
-
 var assert = require('assert')
-var _ = require('lodash')
+import _ from 'lodash'
+import { Data } from '../typings'
 
-module.exports = function(dataset, k = 5) {
+export default function(dataset: Data[], k = 5): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
   const n = dataset.length
 
@@ -44,4 +43,9 @@ module.exports = function(dataset, k = 5) {
       .flatten()
       .value()
   }))
+}
+
+type SplittedDataSet = {
+  train: Data[]
+  test: Data[]
 }

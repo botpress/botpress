@@ -1,13 +1,14 @@
-'use strict'
+import { AugmentedParameters } from '../addon'
+import _ from 'lodash'
 
-var _o = require('mout/object')
 var _l = require('mout/lang')
 
 var assert = require('assert')
 
-var defaults = require('./default-options')
-var svmTypes = require('./svm-types')
-var kernelTypes = require('./kernel-types')
+import defaults from './default-options'
+import svmTypes from './svm-types'
+import kernelTypes from './kernel-types'
+import { SvmConfig } from '../typings'
 
 function checkConfig(config) {
   assert(config.kFold > 0, 'k-fold must be >= 1')
@@ -91,9 +92,8 @@ function checkConfig(config) {
   return config
 }
 
-function defaultConfig(config) {
-  config = config || {}
-  return checkConfig(_o.merge(defaults, config))
+function defaultConfig(config?: Partial<SvmConfig>): SvmConfig {
+  return checkConfig(_.merge(defaults, config || {}))
 }
 
-module.exports = defaultConfig
+export default defaultConfig

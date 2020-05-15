@@ -38,7 +38,7 @@ function evaluate(testSet, clf) {
   return compute(predictions)
 }
 
-module.exports = {
+export default {
   evaluate: evaluate,
   compute: compute
 }

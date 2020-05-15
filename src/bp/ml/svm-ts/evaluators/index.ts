@@ -1,15 +1,13 @@
-'use strict'
+import svmTypes from '../core/svm-types'
+import classification from './classification'
+import regression from './regression'
+import { SvmConfig } from '../typings'
 
-var svmTypes = require('../core/svm-types')
-
-var classification = require('./classification')
-var regression = require('./regression')
-
-module.exports = {
+export default {
   classification: classification,
   regression: regression,
-  getDefault: function(config) {
-    switch (config.svmType) {
+  getDefault: function(config: SvmConfig) {
+    switch (config.svm_type) {
       case svmTypes.C_SVC:
       case svmTypes.NU_SVC:
       case svmTypes.ONE_CLASS:

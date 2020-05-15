@@ -1,33 +1,33 @@
-'use strict'
+import _ from 'lodash'
 
-var _l = require('mout/lang')
-var _o = require('mout/object')
 var _a = require('mout/array')
 var assert = require('assert')
 var Q = require('q')
 var numeric = require('numeric')
 
-var BaseSVM = require('./base-svm')
-var defaultConfig = require('./config')
+import BaseSVM from './base-svm'
+import defaultConfig from './config'
 
-var evaluators = require('../evaluators')
+import evaluators from '../evaluators'
 
-var splitDataset = require('../util/split-dataset')
-var crossCombinations = require('../util/cross-combinations')
+import splitDataset from '../util/split-dataset'
+import crossCombinations from '../util/cross-combinations'
+import { SvmConfig, Data } from '../typings'
+import { configToAddonParams } from '../util/options-mapping'
 
-module.exports = function(dataset, config) {
+export default function(dataset: Data[], config: SvmConfig) {
   var deferred = Q.defer()
   // default options
   var dims = numeric.dim(dataset)
 
   assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
 
-  var params = _l.deepClone(defaultConfig(config))
+  const params = { ...defaultConfig(config) }
 
-  var combs = crossCombinations([
-    params.c || [],
+  const combs = crossCombinations([
+    params.C || [],
     params.gamma || [],
-    params.epsilon || [],
+    params.eps || [],
     params.nu || [],
     params.degree || [],
     params.r || []
@@ -44,25 +44,28 @@ module.exports = function(dataset, config) {
   // perform k-fold cross-validation for
   // each combination of parameters
   var promises = combs.map(function(comb) {
-    var cParams = _o.merge(params, {
-      c: comb[0],
+    var cParams: SvmConfig = {
+      ...params,
+      C: comb[0],
       gamma: comb[1],
-      epsilon: comb[2],
+      eps: comb[2],
       nu: comb[3],
       degree: comb[4],
       r: comb[5]
-    })
+    }
     var cPromises = subsets.map(function(ss) {
       var clf = new BaseSVM()
 
+      const params = configToAddonParams(cParams)
+
       return clf
-        .train(ss.train, cParams) // train with train set
+        .train(ss.train, params) // train with train set
         .then(function() {
           // predict values for each example of the test set
           done += 1
           deferred.notify({ done: done, total: total })
           return _a.map(ss.test, function(test) {
-            return [clf.predictSync(test[0]), test[1]]
+            return [clf.predict(test[0]), test[1]]
           })
         })
     })

@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-const binding = require('./svm-js/index.js')
+import { OneClassSVM as OCSVM, kernelTypes as KTypes, svmTypes, SVM, restore } from './svm-ts'
 
-export const OneClassSVM = binding.OneClassSVM
-export const KernelTypes = binding.kernelTypes
+export const OneClassSVM = OCSVM
+export const KernelTypes = KTypes
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],
@@ -34,10 +34,10 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       args.probability = false // not supported
     }
 
-    this.clf = new binding.SVM({
-      svmType: args.classifier,
-      kernelType: args.kernel,
-      c: args.c,
+    this.clf = new SVM({
+      svm_type: args.classifier ? svmTypes[args.classifier] : undefined,
+      kernel_type: args.kernel ? KernelTypes[args.kernel] : undefined,
+      C: args.c,
       gamma: args.gamma,
       probability: args.probability,
       reduce: args.reduce,
@@ -99,8 +99,13 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
     const options = JSON.parse(model)
     this.labels = options.labels_idx
     delete options.labels_idx
-    this.config = options.params
-    this.clf = binding.restore({ ...options, kFold: 1 })
+
+    // TODO: check the whole scheme and prepare a error handling
+    if (!options.param) {
+      throw new Error('params is absent from config type')
+    }
+    this.config = options.param
+    this.clf = restore({ ...options, kFold: 1 })
   }
 
   private getLabelByIdx(idx): string {
