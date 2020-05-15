@@ -148,7 +148,7 @@ const Modules: FC<Props> = props => {
       <ImportModal
         isOpen={isImportOpen}
         close={() => setImportOpen(false)}
-        onImportCompleted={() => console.log('done')}
+        onImportCompleted={() => setRebootRequired(true)}
       />
     </PageContainer>
   )
