@@ -1,7 +1,7 @@
 import { Button, FileInput, FormGroup, Intent } from '@blueprintjs/core'
 import { Dialog } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
@@ -11,57 +11,76 @@ interface Props {
   close: () => void
 }
 
+interface State {
+  file: any
+  filePath: string
+  isLoading: boolean
+  hasError: boolean
+}
+
+const reducer = (state: State, action): State => {
+  if (action.type === 'clearState') {
+    return {
+      file: undefined,
+      filePath: '',
+      isLoading: false,
+      hasError: false
+    }
+  } else if (action.type === 'receivedFile') {
+    const { file, filePath } = action.data
+    return { ...state, file, filePath }
+  } else if (action.type === 'startUpload') {
+    return { ...state, isLoading: true }
+  } else if (action.type === 'showError') {
+    return { ...state, isLoading: false, hasError: true }
+  } else {
+    throw new Error(`That action type isn't supported.`)
+  }
+}
+
 export const ImportModal: FC<Props> = props => {
-  const [file, setFile] = useState<any>()
-  const [filePath, setFilePath] = useState<string>()
-  const [isLoading, setIsLoading] = useState(false)
-  const [hasError, setHasError] = useState(false)
+  const [state, dispatch] = React.useReducer(reducer, {
+    file: undefined,
+    filePath: '',
+    isLoading: false,
+    hasError: false
+  })
+
+  const { file, filePath, isLoading, hasError } = state
 
   const submitChanges = async () => {
-    setIsLoading(true)
+    dispatch({ type: 'startUpload' })
 
     try {
       const form = new FormData()
       form.append('file', file)
 
-      const { data } = await api.getSecured().post(`/modules/import`, form, {
+      await api.getSecured().post(`/modules/import`, form, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
-      importSuccess(data)
+
+      toastSuccess(`Successfully imported module`)
+      props.onImportCompleted()
+      closeDialog()
     } catch (err) {
-      setIsLoading(false)
-      setHasError(true)
+      dispatch({ type: 'hasError' })
       toastFailure(err.message)
     }
   }
 
-  const importSuccess = ({ nTests }) => {
-    setIsLoading(false)
-    toastSuccess(`Successfully imported module`)
-    props.onImportCompleted()
-    setTimeout(closeDialog, 750)
-  }
-
   const closeDialog = () => {
-    clearState()
+    dispatch({ type: 'clearState' })
     props.close()
-  }
-
-  const clearState = () => {
-    setFilePath(undefined)
-    setFile(undefined)
-    setHasError(false)
   }
 
   const readFile = (files: FileList | null) => {
     if (files) {
-      setFile(files[0])
-      setFilePath(files[0].name)
+      dispatch({ type: 'receivedFile', data: { file: files[0], filePath: files[0].name } })
     }
   }
 
   return (
-    <Dialog.Wrapper title={'Upload Module'} icon="import" isOpen={props.isOpen} onClose={closeDialog}>
+    <Dialog.Wrapper title="Upload Module" icon="upload" isOpen={props.isOpen} onClose={closeDialog}>
       <div
         onDragOver={e => e.preventDefault()}
         onDrop={e => {
