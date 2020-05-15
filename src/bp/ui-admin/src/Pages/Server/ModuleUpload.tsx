@@ -1,5 +1,7 @@
-import { Button, FileInput, FormGroup, Intent } from '@blueprintjs/core'
+import { Button, Callout, FileInput, FormGroup, Intent } from '@blueprintjs/core'
+import { ModuleDefinition } from 'botpress/sdk'
 import { Dialog } from 'botpress/shared'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import api from '~/api'
@@ -16,22 +18,27 @@ interface State {
   filePath: string
   isLoading: boolean
   hasError: boolean
+  moduleInfo?: ModuleDefinition & { version: string; description: string }
 }
 
 const reducer = (state: State, action): State => {
-  if (action.type === 'clearState') {
+  const { type, data } = action
+  if (type === 'clearState') {
     return {
       file: undefined,
+      moduleInfo: undefined,
       filePath: '',
       isLoading: false,
       hasError: false
     }
-  } else if (action.type === 'receivedFile') {
+  } else if (type === 'receivedFile') {
     const { file, filePath } = action.data
     return { ...state, file, filePath }
-  } else if (action.type === 'startUpload') {
+  } else if (type === 'startUpload') {
     return { ...state, isLoading: true }
-  } else if (action.type === 'showError') {
+  } else if (type === 'uploadSuccess') {
+    return { ...state, isLoading: false, moduleInfo: data }
+  } else if (type === 'showError') {
     return { ...state, isLoading: false, hasError: true }
   } else {
     throw new Error(`That action type isn't supported.`)
@@ -46,7 +53,7 @@ export const ImportModal: FC<Props> = props => {
     hasError: false
   })
 
-  const { file, filePath, isLoading, hasError } = state
+  const { file, filePath, isLoading, hasError, moduleInfo } = state
 
   const submitChanges = async () => {
     dispatch({ type: 'startUpload' })
@@ -55,15 +62,14 @@ export const ImportModal: FC<Props> = props => {
       const form = new FormData()
       form.append('file', file)
 
-      await api.getSecured().post(`/modules/import`, form, {
+      const { data } = await api.getSecured().post(`/modules/import`, form, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
 
-      toastSuccess(`Successfully imported module`)
+      dispatch({ type: 'uploadSuccess', data })
       props.onImportCompleted()
-      closeDialog()
     } catch (err) {
-      dispatch({ type: 'hasError' })
+      dispatch({ type: 'showError' })
       toastFailure(err.message)
     }
   }
@@ -80,7 +86,12 @@ export const ImportModal: FC<Props> = props => {
   }
 
   return (
-    <Dialog.Wrapper title="Upload Module" icon="upload" isOpen={props.isOpen} onClose={closeDialog}>
+    <Dialog.Wrapper
+      title={lang.tr('admin.modules.uploadModule')}
+      icon="upload"
+      isOpen={props.isOpen}
+      onClose={closeDialog}
+    >
       <div
         onDragOver={e => e.preventDefault()}
         onDrop={e => {
@@ -89,22 +100,36 @@ export const ImportModal: FC<Props> = props => {
         }}
       >
         <Dialog.Body>
-          <FormGroup label={<span>Select your module file</span>} labelFor="input-archive">
-            <FileInput
-              text={filePath || 'Choose file...'}
-              onChange={e => readFile((e.target as HTMLInputElement).files)}
-              fill
-            />
-          </FormGroup>
+          {moduleInfo ? (
+            <Callout intent={Intent.SUCCESS} title={lang.tr('admin.modules.uploadSuccess')}>
+              <strong> {moduleInfo.fullName}</strong> (v{moduleInfo.version}) <br></br>
+              {moduleInfo.description}
+            </Callout>
+          ) : (
+            <div>
+              <p>{lang.tr('admin.modules.uploadInfo')}</p>
+              <FormGroup label={<span>{lang.tr('admin.modules.selectArchive')}</span>} labelFor="input-archive">
+                <FileInput
+                  text={filePath || lang.tr('chooseFile')}
+                  onChange={e => readFile((e.target as HTMLInputElement).files)}
+                  fill
+                />
+              </FormGroup>
+            </div>
+          )}
         </Dialog.Body>
         <Dialog.Footer>
-          <Button
-            id="btn-submit"
-            text={isLoading ? 'Please wait...' : 'Submit'}
-            disabled={isLoading || hasError}
-            onClick={submitChanges}
-            intent={Intent.PRIMARY}
-          />
+          {moduleInfo ? (
+            <Button id="btn-close" text={lang.tr('close')} onClick={props.close} intent={Intent.DANGER} />
+          ) : (
+            <Button
+              id="btn-submit"
+              text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
+              disabled={isLoading || hasError}
+              onClick={submitChanges}
+              intent={Intent.PRIMARY}
+            />
+          )}
         </Dialog.Footer>
       </div>
     </Dialog.Wrapper>

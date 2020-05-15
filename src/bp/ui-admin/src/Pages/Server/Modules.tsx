@@ -116,9 +116,6 @@ const Modules: FC<Props> = props => {
       helpText={<div>{lang.tr('admin.modules.helpText')}</div>}
       superAdmin
     >
-      <div style={{ float: 'right' }}>
-        <Button text="Upload Module" icon="upload" onClick={() => setImportOpen(true)} />
-      </div>
       {rebootRequired && (
         <Callout intent={Intent.SUCCESS} style={{ marginBottom: 20 }}>
           {lang.tr('admin.modules.rebootRequired')}
@@ -135,14 +132,24 @@ const Modules: FC<Props> = props => {
         </Callout>
       )}
       <div>
+        <div style={{ float: 'right' }}>
+          <Button text={lang.tr('admin.modules.uploadModule')} icon="upload" onClick={() => setImportOpen(true)} />
+        </div>
         <h3>{lang.tr('admin.modules.stable')}</h3>
-        <div>{props.modules.filter(x => x.status !== 'experimental').map(module => showModule(module))}</div>
+        <div>
+          {props.modules.filter(x => x.status !== 'experimental' && !x.archived).map(module => showModule(module))}
+        </div>
       </div>
 
       <div>
         <h3>{lang.tr('admin.modules.experimental')}</h3>
         <p>{lang.tr('admin.modules.experimentalWarning')}</p>
         <div>{props.modules.filter(x => x.status === 'experimental').map(module => showModule(module))}</div>
+      </div>
+
+      <div>
+        <h3>{lang.tr('admin.modules.compressed')}</h3>
+        <div>{props.modules.filter(x => x.archived).map(module => showModule(module))}</div>
       </div>
 
       <ImportModal

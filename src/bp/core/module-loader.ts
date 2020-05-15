@@ -88,7 +88,13 @@ const extractModuleInfo = async ({ location, enabled }, resolver: ModuleResolver
 
     return {
       ...moduleInfo,
-      ..._.pick(require(path.resolve(status.path, 'package.json')), ['name', 'fullName', 'description', 'status'])
+      ..._.pick(require(path.resolve(status.path, 'package.json')), [
+        'name',
+        'fullName',
+        'description',
+        'status',
+        'version'
+      ])
     }
     // silent catch
   } catch (err) {}
@@ -409,15 +415,20 @@ export class ModuleLoader {
     return _.orderBy(filtered, 'name') as ModuleInfo[]
   }
 
-  public async getArchiveModuleName(archive: Buffer): Promise<string | undefined> {
+  public async getArchiveModuleInfo(
+    archive: Buffer
+  ): Promise<(ModuleDefinition & { version: string; description: string }) | undefined> {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFolder = tmpDir.name
 
     try {
       await extractArchive(archive, tmpFolder)
-      const packageJson = require(path.join(tmpFolder, 'package.json'))
+      const { version, description } = require(path.join(tmpFolder, 'package.json'))
 
-      return packageJson.name
+      const indexInfo = require(path.join(tmpFolder, 'dist/backend/index.js'))
+      const definition: ModuleDefinition = indexInfo?.default?.definition
+
+      return definition && { ...definition, version, description }
     } catch (err) {
       this.logger.attachError(err).warn(`Invalid module archive`)
     } finally {

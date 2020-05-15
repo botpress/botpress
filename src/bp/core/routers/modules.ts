@@ -156,12 +156,12 @@ export class ModulesRouter extends CustomRouter {
     this.router.post('/import', multer().single('file'), async (req, res) => {
       const file = req['file'].buffer
 
-      const moduleName = await this.moduleLoader.getArchiveModuleName(file)
+      const moduleInfo = await this.moduleLoader.getArchiveModuleInfo(file)
 
-      if (moduleName) {
-        this.logger.info(`Uploaded module ${moduleName}`)
-        await this.ghostService.root().upsertFile('modules', `${moduleName}.tgz`, file)
-        return res.send({ moduleName })
+      if (moduleInfo) {
+        this.logger.info(`Uploaded module ${moduleInfo.name}`)
+        await this.ghostService.root().upsertFile('modules', `${moduleInfo.name}.tgz`, file)
+        return res.send(moduleInfo)
       }
 
       res.sendStatus(400)
