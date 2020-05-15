@@ -415,20 +415,19 @@ export class ModuleLoader {
     return _.orderBy(filtered, 'name') as ModuleInfo[]
   }
 
-  public async getArchiveModuleInfo(
-    archive: Buffer
-  ): Promise<(ModuleDefinition & { version: string; description: string }) | undefined> {
+  public async getArchiveModuleInfo(archive: Buffer): Promise<ModuleInfo | undefined> {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFolder = tmpDir.name
 
     try {
       await extractArchive(archive, tmpFolder)
-      const { version, description } = require(path.join(tmpFolder, 'package.json'))
 
-      const indexInfo = require(path.join(tmpFolder, 'dist/backend/index.js'))
-      const definition: ModuleDefinition = indexInfo?.default?.definition
+      const resolver = new ModuleResolver(this.logger)
+      const moduleInfo = await resolver.getModuleInfo(tmpFolder)
 
-      return definition && { ...definition, version, description }
+      if (moduleInfo?.valid) {
+        return extractModuleInfo({ location: tmpFolder, enabled: false }, resolver)
+      }
     } catch (err) {
       this.logger.attachError(err).warn(`Invalid module archive`)
     } finally {

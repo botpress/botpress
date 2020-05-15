@@ -17,7 +17,6 @@ interface State {
   file: any
   filePath: string
   isLoading: boolean
-  hasError: boolean
   moduleInfo?: ModuleDefinition & { version: string; description: string }
 }
 
@@ -28,8 +27,7 @@ const reducer = (state: State, action): State => {
       file: undefined,
       moduleInfo: undefined,
       filePath: '',
-      isLoading: false,
-      hasError: false
+      isLoading: false
     }
   } else if (type === 'receivedFile') {
     const { file, filePath } = action.data
@@ -38,8 +36,6 @@ const reducer = (state: State, action): State => {
     return { ...state, isLoading: true }
   } else if (type === 'uploadSuccess') {
     return { ...state, isLoading: false, moduleInfo: data }
-  } else if (type === 'showError') {
-    return { ...state, isLoading: false, hasError: true }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
@@ -49,11 +45,10 @@ export const ImportModal: FC<Props> = props => {
   const [state, dispatch] = React.useReducer(reducer, {
     file: undefined,
     filePath: '',
-    isLoading: false,
-    hasError: false
+    isLoading: false
   })
 
-  const { file, filePath, isLoading, hasError, moduleInfo } = state
+  const { file, filePath, isLoading, moduleInfo } = state
 
   const submitChanges = async () => {
     dispatch({ type: 'startUpload' })
@@ -69,8 +64,7 @@ export const ImportModal: FC<Props> = props => {
       dispatch({ type: 'uploadSuccess', data })
       props.onImportCompleted()
     } catch (err) {
-      dispatch({ type: 'showError' })
-      toastFailure(err.message)
+      toastFailure(_.get(err, 'response.data', err.message))
     }
   }
 
@@ -120,12 +114,12 @@ export const ImportModal: FC<Props> = props => {
         </Dialog.Body>
         <Dialog.Footer>
           {moduleInfo ? (
-            <Button id="btn-close" text={lang.tr('close')} onClick={props.close} intent={Intent.DANGER} />
+            <Button id="btn-close" text={lang.tr('close')} onClick={closeDialog} intent={Intent.DANGER} />
           ) : (
             <Button
               id="btn-submit"
               text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
-              disabled={isLoading || hasError}
+              disabled={isLoading}
               onClick={submitChanges}
               intent={Intent.PRIMARY}
             />
