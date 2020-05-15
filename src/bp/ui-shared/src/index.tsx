@@ -15,12 +15,16 @@ import ShortcutLabel from './ShortcutLabel'
 import Textarea from './Textarea'
 import { toast } from './Toaster'
 import TreeView from './TreeView'
+import { contentTypesFields } from './ContentForms/utils/fields'
 
 exports.Commander = Commander
 exports.Dialog = { Wrapper, Footer, Body }
 exports.Dropdown = Dropdown
 exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
+exports.ContentForms = {
+  contentTypesFields
+}
 exports.MainContent = MainContent
 exports.RightSidebar = RightSidebar
 exports.MarkdownContent = MarkdownContent

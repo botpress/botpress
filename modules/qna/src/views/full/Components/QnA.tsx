@@ -1,6 +1,6 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
-import { confirmDialog, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
@@ -10,6 +10,7 @@ import Select from 'react-select'
 import { QnaItem } from '../../../backend/qna'
 import style from '../style.scss'
 
+import ContentAnswerForm from './ContentAnswerForm'
 import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
 
@@ -34,6 +35,7 @@ interface Props {
 }
 
 const QnA: FC<Props> = props => {
+  const [showContentForm, setShowContentForm] = useState(true)
   const [showOption, setShowOption] = useState(false)
   const {
     contentLang,
@@ -226,9 +228,12 @@ const QnA: FC<Props> = props => {
             keyPrefix="answer-"
             placeholder={index => getPlaceholder('answer', index)}
             label={lang.tr('module.qna.answer')}
-            canAddContent
             addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
-          />
+          >
+            <Button className={style.addBtn} minimal icon="plus" onClick={() => setShowContentForm(true)}>
+              {lang.tr('module.qna.form.addContent')}
+            </Button>
+          </TextAreaList>
           {showRedirectToFlow && (
             <Fragment>
               <h1 className={style.redirectTitle}>{lang.tr('module.qna.form.redirectQuestionTo')}</h1>
@@ -268,6 +273,8 @@ const QnA: FC<Props> = props => {
           )}
         </div>
       )}
+
+      {showContentForm && <ContentAnswerForm deleteContent={() => {}} close={() => setShowContentForm(false)} />}
     </div>
   )
 }

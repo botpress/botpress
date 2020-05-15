@@ -41,7 +41,7 @@ const Dropdown: FC<DropdownProps> = props => {
       className={className}
       items={items}
       activeItem={activeItem}
-      popoverProps={{ minimal: true }}
+      popoverProps={{ minimal: true, usePortal: false }}
       itemRenderer={itemRenderer}
       itemPredicate={filterOptions}
       onItemSelect={option => {
