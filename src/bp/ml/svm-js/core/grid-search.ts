@@ -73,7 +73,7 @@ export default function(dataset: Data[], config: SvmConfig) {
           done += 1
           deferred.notify({ done: done, total: total })
           return _a.map(ss.test, function(test) {
-            return [clf.predict(test[0]), test[1]]
+            return [clf.predictSync(test[0]), test[1]]
           })
         })
     })

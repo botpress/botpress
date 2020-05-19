@@ -1,5 +1,3 @@
-'use strict'
-
 export default {
   C_SVC: 0, // multi-class classification
   NU_SVC: 1, // multi-class classification

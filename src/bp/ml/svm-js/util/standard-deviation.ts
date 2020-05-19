@@ -1,5 +1,3 @@
-'use strict'
-
 import assert from 'assert'
 import _a from 'mout/array'
 import numeric from 'numeric'

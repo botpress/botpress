@@ -1,5 +1,3 @@
-'use strict'
-
 var _a = require('mout/array')
 var assert = require('assert')
 var numeric = require('numeric')

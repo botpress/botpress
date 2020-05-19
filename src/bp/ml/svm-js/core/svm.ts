@@ -1,5 +1,3 @@
-'use strict'
-
 var assert = require('assert')
 var numeric = require('numeric')
 var Q = require('q')

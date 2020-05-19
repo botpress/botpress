@@ -1,5 +1,3 @@
-'use strict'
-
 import { Data } from '../typings'
 
 var assert = require('assert')

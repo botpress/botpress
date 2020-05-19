@@ -1,5 +1,3 @@
-'use strict'
-
 export default {
   LINEAR: 0,
   POLY: 1,

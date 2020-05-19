@@ -1,5 +1,3 @@
-'use strict'
-
 var mout = require('mout'),
   _a = mout.array,
   _o = mout.object

@@ -1,5 +1,3 @@
-'use strict'
-
 var assert = require('assert')
 var numeric = require('numeric')
 
@@ -16,12 +14,7 @@ class BaseSVM {
 
   static restore = (model: Model) => {
     let clf = new addon.NSVM()
-    try {
-      clf.set_model(model)
-    } catch (err) {
-      console.log(model)
-      throw err
-    }
+    clf.set_model(model) // might throw
     return new BaseSVM(clf)
   }
 
