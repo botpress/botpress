@@ -23,21 +23,22 @@ export default function(dataset: Data[], config: SvmConfig) {
 
   assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
 
-  const params = { ...defaultConfig(config) }
+  config = { ...defaultConfig(config) }
 
+  const arr = (x?: number | number[]) => (x as number[]) || []
   const combs = crossCombinations([
-    params.C || [],
-    params.gamma || [],
-    params.eps || [],
-    params.nu || [],
-    params.degree || [],
-    params.r || []
+    arr(config.C),
+    arr(config.gamma),
+    arr(config.p),
+    arr(config.nu),
+    arr(config.degree),
+    arr(config.r)
   ])
 
   // split dataset for cross-validation
-  var subsets = splitDataset(dataset, params.kFold)
+  var subsets = splitDataset(dataset, config.kFold)
 
-  var evaluator = evaluators.getDefault(params)
+  var evaluator = evaluators.getDefault(config)
 
   var total = combs.length * subsets.length,
     done = 0
@@ -45,17 +46,17 @@ export default function(dataset: Data[], config: SvmConfig) {
   // perform k-fold cross-validation for
   // each combination of parameters
   var promises = combs.map(function(comb) {
-    var cParams: SvmConfig = {
-      ...params,
+    const cParams: SvmConfig = {
+      ...config,
       C: comb[0],
       gamma: comb[1],
-      eps: comb[2],
+      p: comb[2],
       nu: comb[3],
       degree: comb[4],
       r: comb[5]
     }
     var cPromises = subsets.map(function(ss) {
-      var clf = new BaseSVM()
+      const clf = new BaseSVM()
 
       const params = configToAddonParams(cParams)
 

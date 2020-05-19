@@ -3,7 +3,7 @@
 var assert = require('assert')
 var numeric = require('numeric')
 
-export default function(params) {
+export default function(params: number[][]): (number | undefined)[][] {
   var n = numeric.dim(params)[0] || 0,
     m = numeric.dim(params)[1] || 0
   assert(n > 0 && m >= 0, 'params must be a 2d array')
@@ -12,7 +12,7 @@ export default function(params) {
   params.forEach(function(values) {
     nbCombs *= values.length > 0 ? values.length : 1
   })
-  var result = numeric.rep([nbCombs, params.length], 0)
+  const result: (number | undefined)[][] = numeric.rep([nbCombs, params.length], 0)
 
   var i = 0,
     j = 0,
@@ -33,7 +33,7 @@ export default function(params) {
         }
       } else {
         for (l = 0; l < duration; l++) {
-          result[k][i] = null
+          result[k][i] = undefined
           k++
         }
       }

@@ -4,8 +4,6 @@ var assert = require('assert')
 var numeric = require('numeric')
 
 import _ from 'lodash'
-import svmTypes from './svm-types'
-import kernelTypes from './kernel-types'
 import addon, { Model, NSVM, Parameters } from '../addon'
 import { Data } from '../typings'
 
@@ -27,32 +25,9 @@ class BaseSVM {
     return new BaseSVM(clf)
   }
 
-  train = (dataset: Data[], config: Parameters): Promise<Model> => {
+  train = (dataset: Data[], params: Parameters): Promise<Model> => {
     var dims = numeric.dim(dataset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
-
-    const params = _.mergeWith(
-      {
-        svm_type: svmTypes.C_SVC,
-        kernel_type: kernelTypes.RBF,
-        degree: 3,
-        gamma: 1,
-        r: 0,
-        C: 1,
-        nu: 0.5,
-        eps: 0.1,
-        cache_size: 100,
-        coef0: 0.0,
-        p: 0.0,
-        nr_weight: 0,
-        weight_label: [0, 0],
-        weight: [0.0, 0.0],
-        shrinking: 1,
-        probability: 0
-      } as Parameters,
-      config || {},
-      (a, b) => (b === null ? a : b)
-    )
 
     this._clf = new addon.NSVM()
 

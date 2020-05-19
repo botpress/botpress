@@ -38,7 +38,7 @@ export interface Model {
   free_sv: number
 }
 
-export interface AugmentedParameters extends Parameters {
+interface AugmentedParameters extends Parameters {
   mute: number
 }
 

@@ -1,10 +1,12 @@
 'use strict'
 
+import { Data } from '../typings'
+
 var assert = require('assert')
 var _a = require('mout/array')
 var numeric = require('numeric')
 
-export default function(dataset, retainedVariance) {
+export default function(dataset: Data[], retainedVariance: number) {
   retainedVariance = retainedVariance || 0.99
   var dims = numeric.dim(dataset)
 
@@ -52,9 +54,7 @@ export default function(dataset, retainedVariance) {
     U: reducedU,
     oldDimension: n,
     newDimension: k,
-    dataset: dataset.map(function(ex) {
-      return [numeric.dot(ex[0], reducedU), ex[1]]
-    }),
+    dataset: dataset.map(ex => [numeric.dot(ex[0], reducedU), ex[1]]) as Data[],
     retainedVariance: retain
   }
 }

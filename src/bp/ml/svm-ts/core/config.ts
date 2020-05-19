@@ -1,91 +1,90 @@
-import { AugmentedParameters } from '../addon'
 import _ from 'lodash'
 
 var _l = require('mout/lang')
 
 var assert = require('assert')
 
-import defaults from './default-options'
+import defaults from './default-config'
 import svmTypes from './svm-types'
 import kernelTypes from './kernel-types'
 import { SvmConfig } from '../typings'
 
-function checkConfig(config) {
+function checkConfig(config: SvmConfig) {
   assert(config.kFold > 0, 'k-fold must be >= 1')
   // parameter C used for C-SVC, epsilon-SVR, and nu-SVR
-  if (_l.isString(config.svmType)) {
-    config.svmType = svmTypes[config.svmType]
+  if (_l.isString(config.svm_type)) {
+    config.svm_type = svmTypes[config.svm_type]
   }
   if (
-    config.svmType === svmTypes.C_SVC ||
-    config.svmType === svmTypes.EPSILON_SVR ||
-    config.svmType === svmTypes.NU_SVR
+    config.svm_type === svmTypes.C_SVC ||
+    config.svm_type === svmTypes.EPSILON_SVR ||
+    config.svm_type === svmTypes.NU_SVR
   ) {
-    if (_l.isNumber(config.c)) {
-      config.c = [config.c]
+    if (_l.isNumber(config.C)) {
+      config.C = [config.C as number]
     }
-    assert(config.c && config.c.length > 0, 'Require at least one value for C parameter')
+    assert(config.C && (config.C as number[]).length > 0, 'Require at least one value for C parameter')
   } else {
-    config.c = []
+    config.C = []
   }
 
-  if (_l.isString(config.kernelType)) {
-    config.kernelType = kernelTypes[config.kernelType]
+  if (_l.isString(config.kernel_type)) {
+    config.kernel_type = kernelTypes[config.kernel_type]
   }
   // parameter gamma used for POLY, RBF, and SIGMOID kernels
   if (
-    config.kernelType === kernelTypes.POLY ||
-    config.kernelType === kernelTypes.RBF ||
-    config.kernelType === kernelTypes.SIGMOID
+    config.kernel_type === kernelTypes.POLY ||
+    config.kernel_type === kernelTypes.RBF ||
+    config.kernel_type === kernelTypes.SIGMOID
   ) {
     if (_l.isNumber(config.gamma)) {
-      config.gamma = [config.gamma]
+      config.gamma = [config.gamma as number]
     }
-    assert(config.gamma && config.gamma.length > 0, 'Require at least one value for gamma parameter')
+    assert(config.gamma && (config.gamma as number[]).length > 0, 'Require at least one value for gamma parameter')
   } else {
     config.gamma = []
   }
 
   // parameter epsilon used for epsilon-SVR only
-  if (config.svmType === svmTypes.EPSILON_SVR) {
-    if (_l.isNumber(config.epsilon)) {
-      config.epsilon = [config.epsilon]
+  if (config.svm_type === svmTypes.EPSILON_SVR) {
+    if (_l.isNumber(config.p)) {
+      config.p = [config.p as number]
     }
-    assert(config.epsilon && config.epsilon.length > 0, 'Require at least one value for epsilon parameter')
+    assert(config.p && (config.p as number[]).length > 0, 'Require at least one value for epsilon parameter')
   } else {
-    config.epsilon = []
+    config.p = []
   }
 
   // parameter nu used for nu-SVC, one-class SVM, and nu-SVR
   if (
-    config.svmType === svmTypes.NU_SVC ||
-    config.svmType === svmTypes.ONE_CLASS ||
-    config.svmType === svmTypes.NU_SVR
+    config.svm_type === svmTypes.NU_SVC ||
+    config.svm_type === svmTypes.ONE_CLASS ||
+    config.svm_type === svmTypes.NU_SVR
   ) {
     if (_l.isNumber(config.nu)) {
-      config.nu = [config.nu]
+      config.nu = [config.nu as number]
     }
-    assert(config.nu && config.nu.length > 0, 'Require at least one value for nu parameter')
+    assert(config.nu && (config.nu as number[]).length > 0, 'Require at least one value for nu parameter')
   } else {
     config.nu = []
   }
 
   // parameter degree used only for POLY kernel
-  if (config.kernelType === kernelTypes.POLY) {
+  if (config.kernel_type === kernelTypes.POLY) {
     if (_l.isNumber(config.degree)) {
-      config.degree = [config.degree]
+      config.degree = [config.degree as number]
     }
-    assert(config.degree && config.degree.length > 0, 'Require at least one value for degree parameter')
+    assert(config.degree && (config.degree as number[]).length > 0, 'Require at least one value for degree parameter')
   } else {
     config.degree = []
   }
 
   // parameter r used for POLY kernel
-  if (config.kernelType === kernelTypes.POLY || config.kernelType === kernelTypes.SIGMOID) {
+  if (config.kernel_type === kernelTypes.POLY || config.kernel_type === kernelTypes.SIGMOID) {
     if (_l.isNumber(config.r)) {
-      config.r = [config.r]
+      config.r = [config.r as number]
     }
-    assert(config.r && config.r.length > 0, 'Require at least one value for r parameter')
+    assert(config.r && (config.r as number[]).length > 0, 'Require at least one value for r parameter')
   } else {
     config.r = []
   }

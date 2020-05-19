@@ -4,7 +4,6 @@ var assert = require('assert')
 var numeric = require('numeric')
 var Q = require('q')
 var _o = require('mout/object')
-var _l = require('mout/lang')
 var _a = require('mout/array')
 
 import defaultConfig from './config'

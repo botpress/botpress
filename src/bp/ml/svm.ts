@@ -1,11 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { OneClassSVM as OCSVM, kernelTypes as KTypes, svmTypes, SVM, restore } from './svm-ts'
+import { kernelTypes, svmTypes, SVM, restore } from './svm-ts'
 import { Data } from './svm-ts/typings'
-
-export const OneClassSVM = OCSVM
-export const KernelTypes = KTypes
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],
@@ -37,7 +34,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 
     this.clf = new SVM({
       svm_type: args.classifier ? svmTypes[args.classifier] : undefined,
-      kernel_type: args.kernel ? KernelTypes[args.kernel] : undefined,
+      kernel_type: args.kernel ? kernelTypes[args.kernel] : undefined,
       C: args.c,
       gamma: args.gamma,
       probability: args.probability,

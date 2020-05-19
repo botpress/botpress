@@ -5,23 +5,18 @@ import { SvmConfig } from '../typings'
 export default {
   kernel_type: kernels.LINEAR,
   svm_type: types.C_SVC,
-  coef0: 0,
-  p: 0,
-
   nr_weight: 0,
-
-  weight_label: [0], // TODO: lollll
-
-  weight: [0], // TODO: lollll
+  weight_label: [],
+  weight: [],
 
   degree: [2], // for POLY kernel
   gamma: [0.001, 0.01, 0.5], // for POLY, RBF and SIGMOID kernels
-  r: [0.125, 0.5], // for POLY and SIGMOID kernels
+  r: [0.125, 0.5], // for POLY and SIGMOID kernels (coef0)
 
   // SVM specific parameters
   C: [1, 2], // cost for C_SVC, EPSILON_SVR and NU_SVR
   nu: [0.01, 0.125, 0.5, 1], // for NU_SVC, ONE_CLASS and NU_SVR
-  epsilon: [0.01, 0.125, 0.5, 1], // for EPSILON-SVR
+  p: [0.01, 0.125, 0.5, 1], // for EPSILON-SVR
 
   // training options
   kFold: 4, // k parameter for k-fold cross validation
