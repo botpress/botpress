@@ -91,8 +91,8 @@ function checkConfig(config: SvmConfig) {
   return config
 }
 
-function defaultConfig(config?: Partial<SvmConfig>): SvmConfig {
-  return checkConfig(_.merge(defaults, config || {}))
+function defaultConfig(config: Partial<SvmConfig>): SvmConfig {
+  return checkConfig(_.merge(defaults, config))
 }
 
 export default defaultConfig

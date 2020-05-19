@@ -14,7 +14,7 @@ export class SVM extends _SVM {
   }
 }
 
-export function restore(model: Model): _SVM {
-  const conf = defaultConfig()
+export function restore(config: Partial<SvmConfig>, model: Model): _SVM {
+  const conf = defaultConfig(config)
   return new _SVM(conf, model)
 }

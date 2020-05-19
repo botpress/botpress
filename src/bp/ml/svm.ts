@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import { kernelTypes, svmTypes, SVM, restore } from './svm-js'
 import { Data } from './svm-js/typings'
+import { Model, Parameters } from './svm-js/addon'
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],
@@ -13,10 +14,14 @@ export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   reduce: false
 }
 
+type Serialized = Model & {
+  labels_idx: string[]
+}
+
 export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   private clf: SVM | undefined
   private labels: string[] = []
-  private model?: any
+  private model?: Model
   private report?: any
 
   constructor() {}
@@ -86,26 +91,41 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   }
 
   private serialize(): string {
-    return JSON.stringify({ ...this.model, labels_idx: this.labels })
+    const model = this.model as Model // model was trained
+    const serialized: Serialized = { ...model, labels_idx: this.labels }
+    return JSON.stringify(serialized)
   }
 }
 
 export class Predictor implements sdk.MLToolkit.SVM.Predictor {
-  private clf: SVM
+  private clf: SVM | undefined
   private labels: string[]
-  private config: any
+  private parameters: Parameters | undefined
 
-  constructor(model: string) {
-    const options = JSON.parse(model)
-    this.labels = options.labels_idx
-    delete options.labels_idx
+  constructor(json_model: string) {
+    const serialized: Serialized = JSON.parse(json_model)
+    this.labels = serialized.labels_idx
+    const model: Model = _.omit(serialized, 'labels_idx')
 
-    // TODO: check the whole scheme and prepare a error handling
-    if (!options.param) {
-      throw new Error('params is absent from config type')
+    if (!model.param) {
+      this.throwModelHasChanged()
     }
-    this.config = options.param
-    this.clf = restore({ ...options, kFold: 1 })
+
+    this.parameters = model.param
+    try {
+      // TODO: use model.param to the SvmConfig object even if not really used
+      this.clf = restore({ kFold: 1 }, model)
+    } catch (err) {
+      this.throwModelHasChanged(err)
+    }
+  }
+
+  private throwModelHasChanged(err?: Error) {
+    let errorMsg = 'SVM model format has changed. NLU needs to be retrained.'
+    if (err) {
+      errorMsg += ` Inner error is '${err}'.`
+    }
+    throw new Error(errorMsg)
   }
 
   private getLabelByIdx(idx): string {
@@ -118,7 +138,7 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
   }
 
   async predict(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
-    if (this.config.probability) {
+    if (this.parameters?.probability) {
       return this._predictProb(coordinates)
     } else {
       return await this._predictOne(coordinates)
@@ -126,7 +146,7 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
   }
 
   private async _predictProb(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
-    const results = await this.clf.predictProbabilities(coordinates)
+    const results = await (this.clf as SVM).predictProbabilities(coordinates)
     const reducedResults = _.reduce(
       Object.keys(results),
       (acc, curr) => {
@@ -146,7 +166,7 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
 
   private async _predictOne(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
     // might simply use oneclass instead
-    const results = await this.clf.predict(coordinates)
+    const results = await (this.clf as SVM).predict(coordinates)
     return [
       {
         label: this.getLabelByIdx(results),

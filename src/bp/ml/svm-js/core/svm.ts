@@ -87,7 +87,6 @@ export class SVM {
         const param = configToAddonParams(config)
         return self._baseSvm.train(dataset, param).then(function(model) {
           deferred.notify(1)
-          model.param = _o.merge(self._config, model.param)
 
           _o.mixIn(report, {
             reduce: self._config.reduce,
