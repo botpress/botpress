@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { kernelTypes, svmTypes, SVM, restore } from './svm-ts'
-import { Data } from './svm-ts/typings'
+import { kernelTypes, svmTypes, SVM, restore } from './svm-js'
+import { Data } from './svm-js/typings'
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],
