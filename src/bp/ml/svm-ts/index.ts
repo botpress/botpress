@@ -1,12 +1,12 @@
 import _svmTypes from './core/svm-types'
 import _kernelTypes from './core/kernel-types'
 import defaultConfig from './core/config'
-import _SVM from './core/svm'
+import { SVM as _SVM } from './core/svm'
 import { SvmConfig } from './typings'
+import { Model } from './addon'
 
 export const svmTypes = _svmTypes
 export const kernelTypes = _kernelTypes
-export const SVM = _SVM
 
 export class CSVC extends _SVM {
   constructor(config: SvmConfig, model) {
@@ -48,7 +48,14 @@ export class OneClassSVM extends _SVM {
   }
 }
 
-export function restore(model) {
+export class SVM extends _SVM {
+  constructor(config?: Partial<SvmConfig>, model?: Model) {
+    config = config || {}
+    super(config, model)
+  }
+}
+
+export function restore(model: Model): _SVM {
   const conf = defaultConfig()
   return new _SVM(conf, model)
 }

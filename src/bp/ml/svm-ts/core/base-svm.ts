@@ -7,7 +7,7 @@ import _ from 'lodash'
 import svmTypes from './svm-types'
 import kernelTypes from './kernel-types'
 import addon, { Model, NSVM, Parameters } from '../addon'
-import { SvmConfig, Data } from '../typings'
+import { Data } from '../typings'
 
 class BaseSVM {
   private _clf: NSVM | undefined
@@ -105,7 +105,7 @@ class BaseSVM {
     return svm.predict_probability(inputs).probabilities
   }
 
-  predictProbabilities = (inputs: number[]): Promise<any> => {
+  predictProbabilities = (inputs: number[]): Promise<number[]> => {
     assert(!!this._clf, 'train classifier first')
     var dims = numeric.dim(inputs)
     assert((dims[0] || 0) > 0 && (dims[1] || 0) === 0, 'input must be a 1d array')

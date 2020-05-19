@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { OneClassSVM as OCSVM, kernelTypes as KTypes, svmTypes, SVM, restore } from './svm-ts'
+import { Data } from './svm-ts/typings'
 
 export const OneClassSVM = OCSVM
 export const KernelTypes = KTypes
@@ -16,7 +17,7 @@ export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
 }
 
 export class Trainer implements sdk.MLToolkit.SVM.Trainer {
-  private clf: any
+  private clf: SVM | undefined
   private labels: string[] = []
   private model?: any
   private report?: any
@@ -55,8 +56,10 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
     this.labels = []
 
     return new Promise((resolve, reject) => {
-      const dataset = points.map(c => [c.coordinates, this.getLabelIdx(c.label)])
-      this.clf
+      const dataset: Data[] = points.map(c => [c.coordinates, this.getLabelIdx(c.label)])
+
+      const svm = this.clf as SVM
+      svm
         .train(dataset)
         .progress(progress => {
           if (callback && typeof callback === 'function') {
@@ -91,7 +94,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 }
 
 export class Predictor implements sdk.MLToolkit.SVM.Predictor {
-  private clf: any
+  private clf: SVM
   private labels: string[]
   private config: any
 
@@ -149,7 +152,7 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
     const results = await this.clf.predict(coordinates)
     return [
       {
-        label: results,
+        label: this.getLabelByIdx(results),
         confidence: 0
       }
     ]

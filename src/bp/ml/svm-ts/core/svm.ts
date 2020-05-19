@@ -21,7 +21,7 @@ import { SvmConfig, Data } from '../typings'
 import { Model } from '../addon'
 import { configToAddonParams } from '../util/options-mapping'
 
-class SVM {
+export class SVM {
   private _config: SvmConfig
   private _baseSvm: BaseSVM | undefined
   private _training: boolean = false
@@ -157,7 +157,7 @@ class SVM {
     return this._training
   }
 
-  predict = (x: number[]) => {
+  predict = (x: number[]): Promise<number> => {
     assert(this.isTrained())
     return (this._baseSvm as BaseSVM).predict(this._format(x))
   }
@@ -180,5 +180,3 @@ class SVM {
     return numeric.dot(xNorm, this._config.u)
   }
 }
-
-export default SVM

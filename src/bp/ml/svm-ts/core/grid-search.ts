@@ -14,6 +14,7 @@ import splitDataset from '../util/split-dataset'
 import crossCombinations from '../util/cross-combinations'
 import { SvmConfig, Data } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
+import { svmTypes } from '..'
 
 export default function(dataset: Data[], config: SvmConfig) {
   var deferred = Q.defer()
@@ -57,6 +58,12 @@ export default function(dataset: Data[], config: SvmConfig) {
       var clf = new BaseSVM()
 
       const params = configToAddonParams(cParams)
+
+      // TODO: find a workaround for this supper weird patch.
+      // I don't believe this occurs at runtime, but it does in at least one unit test.
+      // If so, maybe the splitDataset logic should be modify so training sets are always balanced.
+      const n_class = _.uniq(ss.train.map(s => s[1])).length
+      params.svm_type = n_class == 1 ? svmTypes['ONE_CLASS'] : params.svm_type
 
       return clf
         .train(ss.train, params) // train with train set

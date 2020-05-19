@@ -14,7 +14,7 @@ test('Trainer', async () => {
   ]
 
   const trainer = new Trainer()
-  const mod = await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: 1 })
+  const mod = await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: 1, probability: false })
 
   const predictor = new Predictor(mod)
 
