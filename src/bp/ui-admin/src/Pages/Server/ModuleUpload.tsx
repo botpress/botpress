@@ -65,6 +65,8 @@ export const ImportModal: FC<Props> = props => {
       props.onImportCompleted()
     } catch (err) {
       toast.failure(_.get(err, 'response.data', err.message))
+    } finally {
+      dispatch({ type: 'clearState' })
     }
   }
 

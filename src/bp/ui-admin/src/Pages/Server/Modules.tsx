@@ -136,7 +136,6 @@ const Modules: FC<Props> = props => {
           <Button text={lang.tr('admin.modules.uploadModule')} icon="upload" onClick={() => setImportOpen(true)} />
         </div>
         <h3>{lang.tr('admin.modules.stable')}</h3>
-        <div>{props.modules.filter(x => x.status !== 'experimental').map(module => showModule(module))}</div>
         <div>
           {props.modules.filter(x => x.status !== 'experimental' && !x.archived).map(module => showModule(module))}
         </div>
