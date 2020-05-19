@@ -10,36 +10,39 @@ export interface ToastOptions {
   onDismiss?: (didTimeoutExpire: boolean) => void
 }
 
+const prepareMessage = (message: string | React.ReactElement, details?: string) =>
+  typeof message === 'string' ? lang(message, { details }) : message
+
 const success = (
-  message: string,
+  message: string | React.ReactElement,
   details?: string,
   options: ToastOptions = {
     delayed: false,
     timeout: 'short'
   }
-) => showToast(lang(message, { details }), Intent.SUCCESS, options)
+) => showToast(prepareMessage(message, details), Intent.SUCCESS, options)
 
 const failure = (
-  message: string,
+  message: string | React.ReactElement,
   details?: string,
   options: ToastOptions = {
     delayed: true,
     timeout: 'medium'
   }
 ) => {
-  showToast(lang(message, { details }), Intent.DANGER, options)
+  showToast(prepareMessage(message, details), Intent.DANGER, options)
 }
 
 const info = (
-  message: string,
+  message: string | React.ReactElement,
   details?: string,
   options: ToastOptions = {
     delayed: false,
     timeout: 'short'
   }
-) => showToast(lang(message, { details }), Intent.PRIMARY, options)
+) => showToast(prepareMessage(message, details), Intent.PRIMARY, options)
 
-const showToast = (message: string, intent, options?: ToastOptions) => {
+const showToast = (message: string | React.ReactElement, intent, options?: ToastOptions) => {
   let timeout = 1000
   if (options?.timeout === 'medium') {
     timeout = 3000
@@ -49,7 +52,7 @@ const showToast = (message: string, intent, options?: ToastOptions) => {
 
   const showToast = () => {
     Toaster.create({ className: 'recipe-toaster', position: Position.TOP_RIGHT }).show({
-      message,
+      message: typeof message === 'string' ? lang(message) : message,
       intent,
       timeout,
       onDismiss: options?.onDismiss

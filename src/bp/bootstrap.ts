@@ -116,6 +116,8 @@ async function start() {
 
   const logger = await getLogger('Launcher')
 
+  await Ghost.root().syncDatabaseFilesToDisk('modules')
+
   const globalConfig = await Config.getBotpressConfig()
   const enabledModules = globalConfig.modules.filter(m => m.enabled)
   const disabledModules = globalConfig.modules.filter(m => !m.enabled)

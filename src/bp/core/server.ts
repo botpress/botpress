@@ -146,7 +146,8 @@ export default class HTTPServer {
       this.authService,
       moduleLoader,
       skillService,
-      this.configProvider
+      this.configProvider,
+      this.ghostService
     )
 
     this.authRouter = new AuthRouter(
