@@ -1,5 +1,5 @@
 import { Tab, Tabs } from '@blueprintjs/core'
-import { Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, useState } from 'react'
 
@@ -30,8 +30,10 @@ const ContentAnswerForm: FC<Props> = ({ close, deleteContent }) => {
     { value: 'image', label: 'Image' },
     { value: 'card', label: 'Card' },
     { value: 'carousel', label: 'Carousel' },
-    { value: 'suggestion', label: 'Suggestion' }
+    { value: 'suggestions', label: 'Suggestions' }
   ]
+
+  const formData = ContentForms.getEmptyFormData(contentType)
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={false} close={close}>
@@ -57,18 +59,7 @@ const ContentAnswerForm: FC<Props> = ({ close, deleteContent }) => {
         )}
       </div>
 
-      {/*currentContentType && (
-        <ContentForm
-          schema={currentContentType?.schema.json}
-          uiSchema={currentContentType?.schema.ui}
-          formData={currentFlowNode?.content?.formData}
-          customKey={currentFlowNode?.name}
-          isEditing={true}
-          onChange={handleEdit}
-        >
-          <br />
-        </ContentForm>
-      )*/}
+      <ContentForms.Form formData={formData} contentType={contentType} onUpdate={e => console.log(e)} />
     </RightSidebar>
   )
 }

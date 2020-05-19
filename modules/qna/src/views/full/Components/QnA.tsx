@@ -1,6 +1,6 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
-import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+import { confirmDialog, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
@@ -230,9 +230,10 @@ const QnA: FC<Props> = props => {
             label={lang.tr('module.qna.answer')}
             addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
           >
-            <Button className={style.addBtn} minimal icon="plus" onClick={() => setShowContentForm(true)}>
-              {lang.tr('module.qna.form.addContent')}
-            </Button>
+            <FormFields.AddButton
+              text={lang.tr('module.qna.form.addContent')}
+              onClick={() => setShowContentForm(true)}
+            />
           </TextAreaList>
           {showRedirectToFlow && (
             <Fragment>

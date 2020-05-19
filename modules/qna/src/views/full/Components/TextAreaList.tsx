@@ -1,7 +1,7 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 // @ts-ignore
 import BotpressContentPicker from 'botpress/content-picker'
-import { lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
+import { FormFields, lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -112,9 +112,7 @@ const TextAreaList: FC<Props> = props => {
           })}
           position={Position.BOTTOM}
         >
-          <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
-            {addItemLabel}
-          </Button>
+          <FormFields.AddButton text={addItemLabel} onClick={() => addItem()} />
         </Tooltip>
         {props.children}
       </div>

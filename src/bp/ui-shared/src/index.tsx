@@ -3,6 +3,9 @@ import { isInputFocused } from './utils/inputs'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
 import { Commander } from './Commander'
 import confirmDialog from './ConfirmDialog'
+import { contentTypesFields, getEmptyFormData } from './ContentForms/utils/fields'
+import AddButton from './ContentForms/Components/Fields/AddButton'
+import Form from './ContentForms/Components/Form'
 import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
 import EmptyState from './EmptyState'
@@ -15,7 +18,6 @@ import ShortcutLabel from './ShortcutLabel'
 import Textarea from './Textarea'
 import { toast } from './Toaster'
 import TreeView from './TreeView'
-import { contentTypesFields } from './ContentForms/utils/fields'
 
 exports.Commander = Commander
 exports.Dialog = { Wrapper, Footer, Body }
@@ -23,7 +25,12 @@ exports.Dropdown = Dropdown
 exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
 exports.ContentForms = {
-  contentTypesFields
+  Form,
+  contentTypesFields,
+  getEmptyFormData
+}
+exports.FormFields = {
+  AddButton
 }
 exports.MainContent = MainContent
 exports.RightSidebar = RightSidebar

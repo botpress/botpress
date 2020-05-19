@@ -16,6 +16,8 @@ import { WrapperProps } from './MainContent/Wrapper/typings'
 import { EmptyStateProps } from './EmptyState/typings'
 import { TextareaProps } from './Textarea/typings'
 import { RightSidebarProps } from './MainContent/RightSidebar/typings'
+import { FormProps } from './ContentForms/Components/Form/typings'
+import { AddButtonProps } from './ContentForms/Components/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -29,7 +31,12 @@ declare module 'botpress/shared' {
     Wrapper(props: WrapperProps): JSX.Element
   }
   export const ContentForms: {
+    Form(props: FormProps): JSX.Element
     contentTypesFields: any
+    getEmptyFormData: (contentType: string, isPartOfGroup?: boolean) => any
+  }
+  export const FormFields: {
+    AddButton(props: AddButtonProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element
@@ -63,4 +70,10 @@ declare module 'botpress/shared' {
   }
 
   export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut }
+}
+
+declare global {
+  interface Window {
+    BOT_API_PATH: string
+  }
 }
