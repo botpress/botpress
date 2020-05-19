@@ -12,7 +12,7 @@ interface Props {
 
 interface State {
   file: any
-  filePath: string
+  filePath?: string
   isLoading: boolean
 }
 
@@ -21,7 +21,7 @@ const reducer = (state: State, action): State => {
   if (type === 'clearState') {
     return {
       file: undefined,
-      filePath: '',
+      filePath: undefined,
       isLoading: false
     }
   } else if (type === 'receivedFile') {
@@ -37,7 +37,7 @@ const reducer = (state: State, action): State => {
 export const ImportModal: FC<Props> = props => {
   const [state, dispatch] = React.useReducer(reducer, {
     file: undefined,
-    filePath: '',
+    filePath: undefined,
     isLoading: false
   })
 
@@ -50,9 +50,11 @@ export const ImportModal: FC<Props> = props => {
       const form = new FormData()
       form.append('file', file)
 
-      const { data } = await api.getSecured({ timeout: 50000 }).post(`/admin/server/modules/upload`, form, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      const { data } = await api
+        .getSecured({ timeout: 50000, toastErrors: false })
+        .post(`/admin/server/modules/upload`, form, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
 
       toast.success(
         <span>
@@ -64,7 +66,7 @@ export const ImportModal: FC<Props> = props => {
       closeDialog()
       props.onImportCompleted()
     } catch (err) {
-      toast.failure(_.get(err, 'response.data', err.message))
+      toast.failure('admin.modules.invalidModule')
     } finally {
       dispatch({ type: 'clearState' })
     }

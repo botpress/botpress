@@ -129,6 +129,7 @@
       "experimental": "Experimental Modules",
       "experimentalWarning": "The modules below are experimental, and may change drastically before their official release. Their use in production is not recommended. Migration will not be automatic for version upgrades",
       "helpText": "Enabling/disabling a module will update its status in the configuration files. If running a cluster in production, a restart of each node will be required for the change to take effect. Otherwise, the change will be immediate.",
+      "invalidModule": "The module archive appears to be invalid",
       "noDescription": "No description available",
       "rebootRequired": "Your Botpress configuration file was updated successfully. The server must be restarted for changes to take effect.",
       "restartNow": "Restart server now",
