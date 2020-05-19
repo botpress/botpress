@@ -50,7 +50,7 @@ export const ImportModal: FC<Props> = props => {
       const form = new FormData()
       form.append('file', file)
 
-      const { data } = await api.getSecured({ timeout: 50000 }).post(`/modules/import`, form, {
+      const { data } = await api.getSecured({ timeout: 50000 }).post(`/server/modules/upload`, form, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
 
