@@ -181,12 +181,6 @@ export class ActionStrategy implements InstructionStrategy {
 
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
-  constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'Transition')
-    private logger: Logger
-  ) {}
-
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     const conditionSuccessful = await this.runCode(instruction, {
       event,
