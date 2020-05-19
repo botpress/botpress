@@ -8,10 +8,28 @@ import Knex from 'knex'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
+import yn from 'yn'
 
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
+export const LAST_EVENT_STEP = 'completed'
+
+const eventsFields = [
+  'id',
+  'botId',
+  'channel',
+  'threadId',
+  'target',
+  'sessionId',
+  'direction',
+  'incomingEventId',
+  'workflowId',
+  'feedback',
+  'success',
+  'event',
+  'createdOn'
+]
 
 @injectable()
 export class EventCollector {
@@ -25,6 +43,7 @@ export class EventCollector {
   private lastPruneTs: number = 0
 
   private enabled = false
+  private discardEventSteps = yn(process.env.BP_DISCARD_EVENT_STEPS)
   private interval!: number
   private retentionPeriod!: number
   private batch: BatchEvent[] = []
@@ -55,13 +74,17 @@ export class EventCollector {
     this.enabled = true
   }
 
-  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent) {
+  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent, step?: string) {
     if (!this.enabled || this.ignoredTypes.includes(event.type)) {
       return
     }
 
     if (!event.botId || !event.channel || !event.direction) {
       throw new Error(`Can't store event missing required fields (botId, channel, direction)`)
+    }
+
+    if (this.discardEventSteps && step !== LAST_EVENT_STEP) {
+      return
     }
 
     const { id, botId, channel, threadId, target, direction } = event
@@ -80,10 +103,14 @@ export class EventCollector {
       lastWf.active = false
     }
 
-    const ignoredProps = [...this.ignoredProperties, ...(event.debugger ? [] : this.debuggerProperties)]
-    delete event.debugger
+    if (!this.discardEventSteps && step) {
+      event.processing = { ...(event.processing || {}), [step]: new Date() }
+    }
 
-    this.batch.push({
+    const ignoredProps = [...this.ignoredProperties, ...(event.debugger ? [] : this.debuggerProperties), 'debugger']
+
+    const entry: sdk.IO.StoredEvent = {
+      id,
       botId,
       channel,
       threadId,
@@ -93,9 +120,16 @@ export class EventCollector {
       workflowId,
       success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
-      event: this.knex.json.set(ignoredProps.length ? _.omit(event, ignoredProps) : event || {}),
+      event: ignoredProps.length ? (_.omit(event, ignoredProps) as sdk.IO.Event) : event,
       createdOn: this.knex.date.now()
-    })
+    }
+
+    const exists = this.batch.findIndex(x => x.id === id)
+    if (exists !== -1) {
+      this.batch.splice(exists, 1, entry)
+    } else {
+      this.batch.push(entry)
+    }
   }
 
   public start() {
@@ -111,6 +145,25 @@ export class EventCollector {
     this.logger.info('Stopped')
   }
 
+  private buildQuery = (elements: BatchEvent[]) => {
+    const values = elements
+      .map(entry => {
+        // tslint:disable-next-line: no-null-keyword
+        const mappedValues = eventsFields.map(x => (x === 'event' ? JSON.stringify(entry[x]) : entry[x]) ?? null)
+        return this.knex.raw(`(${eventsFields.map(() => '?').join(',')})`, mappedValues).toQuery()
+      })
+      .join(',')
+
+    return this.knex
+      .raw(
+        `INSERT INTO ${this.TABLE_NAME}
+      (${eventsFields.map(x => `"${x}"`).join(',')}) values ${values}
+        ON CONFLICT("id")
+        DO UPDATE SET event = EXCLUDED.event`
+      )
+      .toQuery()
+  }
+
   private _runTask = async () => {
     if (this.currentPromise || !this.batch.length) {
       return
@@ -120,11 +173,9 @@ export class EventCollector {
     const elements = this.batch.splice(0, batchCount)
 
     this.currentPromise = this.knex
-      .batchInsert(
-        this.TABLE_NAME,
-        elements.map(x => _.omit(x, 'retry')),
-        this.BATCH_SIZE
-      )
+      .transaction(async trx => {
+        await trx.raw(this.buildQuery(elements))
+      })
       .then(() => {
         if (Date.now() - this.lastPruneTs >= this.PRUNE_INTERVAL) {
           this.lastPruneTs = Date.now()

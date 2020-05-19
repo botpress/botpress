@@ -12,6 +12,7 @@ import { TYPES } from '../../types'
 import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
+import { EventCollector } from './event-collector'
 import { MiddlewareChain } from './middleware'
 
 const directionRegex = /^(incoming|outgoing)$/
@@ -95,7 +96,8 @@ export class EventEngine {
     @tagged('name', 'EventEngine')
     private logger: sdk.Logger,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
-    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
+    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue,
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector
   ) {
     this.incomingQueue.subscribe(async event => {
       await this._infoMiddleware(event)
@@ -169,6 +171,7 @@ export class EventEngine {
 
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
+    this.eventCollector.storeEvent(event, 'received')
 
     if (event.direction === 'incoming') {
       debugIncoming.forBot(event.botId, 'send ', event)
@@ -203,15 +206,15 @@ export class EventEngine {
   }
 
   private async getBotMiddlewareChains(botId: string) {
-    const incoming = new MiddlewareChain()
-    const outgoing = new MiddlewareChain()
+    const incoming = new MiddlewareChain(this.eventCollector)
+    const outgoing = new MiddlewareChain(this.eventCollector)
 
     for (const mw of this.incomingMiddleware) {
-      incoming.use(mw.handler)
+      incoming.use(mw)
     }
 
     for (const mw of this.outgoingMiddleware) {
-      outgoing.use(mw.handler)
+      outgoing.use(mw)
     }
 
     return { incoming, outgoing }

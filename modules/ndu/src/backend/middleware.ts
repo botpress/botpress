@@ -11,9 +11,10 @@ export const registerMiddleware = async (bp: typeof sdk, bots: MountedBots) => {
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
       if (bots[event.botId]) {
         await bots[event.botId].processEvent(event)
+        return next()
       }
 
-      next()
+      next(undefined, false, true)
     }
   })
 }

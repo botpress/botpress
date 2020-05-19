@@ -8,7 +8,7 @@ import { TYPES } from '../types'
 export interface EventRepository {
   findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams): Promise<sdk.IO.StoredEvent[]>
   pruneUntil(date: Date): Promise<void>
-  updateEvent(id: number, fields: Partial<sdk.IO.StoredEvent>): Promise<void>
+  updateEvent(id: string, fields: Partial<sdk.IO.StoredEvent>): Promise<void>
   saveUserFeedback(incomingEventId: string, target: string, feedback: number, type?: string): Promise<boolean>
 }
 
@@ -60,7 +60,7 @@ export class KnexEventRepository implements EventRepository {
     )
   }
 
-  async updateEvent(id: number, fields: Partial<sdk.IO.StoredEvent>): Promise<void> {
+  async updateEvent(id: string, fields: Partial<sdk.IO.StoredEvent>): Promise<void> {
     await this.database
       .knex(this.TABLE_NAME)
       .where({ id })
@@ -86,7 +86,7 @@ export class KnexEventRepository implements EventRepository {
 
     if (type) {
       const metric = feedback === 1 ? 'bp_core_feedback_positive' : 'bp_core_feedback_negative'
-      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, type, eventId: event.id })
+      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, type, eventId: Number(event.id) })
     }
 
     return true

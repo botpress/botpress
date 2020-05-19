@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
+import { Incident } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
@@ -15,7 +16,7 @@ import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { filterDisabled } from '../action/utils'
 import { VmRunner } from '../action/vm'
-import { Incident } from 'botpress/sdk'
+import { EventCollector } from '../middleware/event-collector'
 
 const debug = DEBUG('hooks')
 const DEBOUNCE_DELAY = ms('2s')
@@ -39,6 +40,8 @@ export namespace Hooks {
     }
   }
 
+  export class EventHook extends BaseHook {}
+
   export class AfterServerStart extends BaseHook {
     constructor(private bp: typeof sdk) {
       super('after_server_start', { bp })
@@ -57,37 +60,37 @@ export namespace Hooks {
     }
   }
 
-  export class BeforeIncomingMiddleware extends BaseHook {
+  export class BeforeIncomingMiddleware extends EventHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('before_incoming_middleware', { bp, event })
     }
   }
 
-  export class AfterIncomingMiddleware extends BaseHook {
+  export class AfterIncomingMiddleware extends EventHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('after_incoming_middleware', { bp, event })
     }
   }
 
-  export class BeforeOutgoingMiddleware extends BaseHook {
+  export class BeforeOutgoingMiddleware extends EventHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('before_outgoing_middleware', { bp, event })
     }
   }
 
-  export class AfterEventProcessed extends BaseHook {
+  export class AfterEventProcessed extends EventHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('after_event_processed', { bp, event })
     }
   }
 
-  export class BeforeSessionTimeout extends BaseHook {
+  export class BeforeSessionTimeout extends EventHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('before_session_timeout', { bp, event })
     }
   }
 
-  export class BeforeSuggestionsElection extends BaseHook {
+  export class BeforeSuggestionsElection extends EventHook {
     constructor(bp: typeof sdk, sessionId: string, event: IO.Event, suggestions: IO.Suggestion[]) {
       super('before_suggestions_election', { bp, sessionId, event, suggestions })
     }
@@ -150,7 +153,8 @@ export class HookService {
     @tagged('name', 'HookService')
     private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ObjectCache) private cache: ObjectCache
+    @inject(TYPES.ObjectCache) private cache: ObjectCache,
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector
   ) {
     this._listenForCacheInvalidation()
     this._invalidateDebounce = _.debounce(this._invalidateRequire, DEBOUNCE_DELAY, { leading: true, trailing: false })
@@ -177,7 +181,15 @@ export class HookService {
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
     const botId = hook.args?.event?.botId || hook.args?.botId
     const scripts = await this.extractScripts(hook, botId)
-    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script, hook))
+    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => {
+      try {
+        return this.runScript(script, hook)
+      } finally {
+        if (hook instanceof Hooks.EventHook && hook.args?.event) {
+          this.eventCollector.storeEvent(hook.args.event, 'hook:' + script.filename)
+        }
+      }
+    })
   }
 
   async disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean> {
