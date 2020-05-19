@@ -147,7 +147,9 @@ export default class Storage {
       .filter(q => newQuestions.includes(q))
 
     if (dupes.length) {
-      throw new Error(`These questions already exist in another entry: ${dupes.join(', ')}`)
+      this.bp.logger
+        .forBot(this.botId)
+        .warn(`These questions already exist in another entry: ${dupes.join(', ')}. Please remove duplicates`)
     }
   }
 
