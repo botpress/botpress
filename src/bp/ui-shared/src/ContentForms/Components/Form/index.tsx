@@ -93,7 +93,7 @@ const formReducer = (state: State, action): State => {
   }
 }
 
-const Form: FC<FormProps> = ({ formData, contentType, onUpdate }) => {
+const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
   const [state, dispatch] = useReducer(formReducer, _.cloneDeep(formData))
 
   const printField = (field, data, parent?) => {
@@ -120,14 +120,18 @@ const Form: FC<FormProps> = ({ formData, contentType, onUpdate }) => {
           </Fragment>
         )
       case 'select':
+        const value = data[field.key] || field.defaultValue || field.options[0]?.value
+        const currentOption = field.options.find(option => option.value === value)
+
         return (
           <FieldWrapper key={field.key} label={printLabel(field)}>
             <Select
               options={field.options}
-              value={data[field.key] || field.defaultValue || field.options[0]?.value}
+              value={value}
               placeholder={field.placeholder}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
             />
+            {currentOption.related && printField(currentOption.related, data, parent)}
           </FieldWrapper>
         )
       case 'textarea':
@@ -144,6 +148,7 @@ const Form: FC<FormProps> = ({ formData, contentType, onUpdate }) => {
         return (
           <FieldWrapper key={field.key} label={printLabel(field)}>
             <Upload
+              axios={bp.axios}
               placeholder={field.placeholder}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}

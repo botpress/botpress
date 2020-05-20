@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'addBtn': string;
+  'deleteImg': string;
   'fieldError': string;
   'fieldWrapper': string;
   'formSelect': string;

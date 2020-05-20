@@ -1,12 +1,15 @@
 import { Button, FileInput, Icon, Intent, Position, Tooltip } from '@blueprintjs/core'
-import axios from 'axios'
 import React, { FC, Fragment, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
 
-const Upload: FC<FieldProps> = props => {
+interface UploadFieldProps extends FieldProps {
+  axios: any
+}
+
+const Upload: FC<UploadFieldProps> = props => {
   const uploadReducer = (state, action) => {
     if (action.type === 'uploadStart') {
       return {
@@ -59,8 +62,8 @@ const Upload: FC<FieldProps> = props => {
     data.append('file', event.target.files[0])
 
     dispatch({ type: 'uploadStart' })
-    await axios
-      .post(`${window.BOT_API_PATH}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+    await props.axios
+      .post(`media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
         const { url } = response.data
 
@@ -79,7 +82,14 @@ const Upload: FC<FieldProps> = props => {
         <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
           <div className={style.imgWrapperActions}>
             <Tooltip content={lang('delete')} position={Position.TOP}>
-              <Button minimal small intent={Intent.DANGER} icon="trash" onClick={deleteFile}></Button>
+              <Button
+                className={style.deleteImg}
+                minimal
+                small
+                intent={Intent.DANGER}
+                icon="trash"
+                onClick={deleteFile}
+              ></Button>
             </Tooltip>
           </div>
         </div>

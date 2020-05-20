@@ -7,12 +7,13 @@ import React, { FC, useCallback, useState } from 'react'
 import style from './style.scss'
 
 interface Props {
+  bp: any
   deleteContent: () => void
   close: () => void
   onUpdate: (data: any) => void
 }
 
-const ContentAnswerForm: FC<Props> = ({ close, onUpdate, deleteContent }) => {
+const ContentAnswerForm: FC<Props> = ({ bp, close, onUpdate, deleteContent }) => {
   const [contentType, setContentType] = useState('image')
   const [showOptions, setShowOptions] = useState(false)
   const debounceUpdate = useCallback(debounce(onUpdate, 300), [])
@@ -62,7 +63,12 @@ const ContentAnswerForm: FC<Props> = ({ close, onUpdate, deleteContent }) => {
         )}
       </div>
 
-      <ContentForms.Form formData={formData} contentType={contentType} onUpdate={data => debounceUpdate(data)} />
+      <ContentForms.Form
+        bp={bp}
+        formData={formData}
+        contentType={contentType}
+        onUpdate={data => debounceUpdate(data)}
+      />
     </RightSidebar>
   )
 }
