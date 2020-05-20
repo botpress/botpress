@@ -1,6 +1,7 @@
-import React, { FC, Fragment } from 'react'
+import _ from 'lodash'
+import React, { FC, Fragment, useReducer } from 'react'
 
-import { contentTypesFields } from '../../utils/fields'
+import { contentTypesFields, getEmptyFormData } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -21,8 +22,81 @@ const printLabel = field => {
   return field.label
 }
 
+interface State {}
+
+const formReducer = (state: State, action): State => {
+  if (action.type === 'add') {
+    const { field, parent } = action.data
+    const newData = getEmptyFormData(field, true)
+    if (parent) {
+      const { key, index } = parent
+      const updatedItem = state[key]
+
+      updatedItem[index][field] = [...updatedItem[index][field], newData]
+
+      return {
+        ...state,
+        [key]: updatedItem
+      }
+    }
+
+    return {
+      ...state,
+      [field]: [...state[field], newData]
+    }
+  } else if (action.type === 'deleteGroupItem') {
+    const { deleteIndex, field, parent } = action.data
+    if (parent) {
+      const { key, index } = parent
+      const updatedItem = state[key]
+
+      updatedItem[index][field] = [...updatedItem[index][field].filter((item, index) => index !== deleteIndex)]
+
+      return {
+        ...state,
+        [key]: updatedItem
+      }
+    }
+
+    return {
+      ...state,
+      [field]: [...state[field].filter((item, index) => index !== deleteIndex)]
+    }
+  } else if (action.type === 'updateField') {
+    const { value, field, parent, onUpdate } = action.data
+    if (parent) {
+      const { key, index } = parent
+      const getArray = [key, index, field]
+
+      if (parent.parent) {
+        // Needs recursion if we end up having more than one level of groups
+        getArray.unshift(parent.parent.key, parent.parent.index)
+      }
+
+      _.set(state, getArray, value)
+
+      onUpdate(state)
+      return {
+        ...state
+      }
+    }
+
+    const newState = {
+      ...state,
+      [field]: value
+    }
+
+    onUpdate(newState)
+    return { ...newState }
+  } else {
+    throw new Error(`That action type isn't supported.`)
+  }
+}
+
 const Form: FC<FormProps> = ({ formData, contentType, onUpdate }) => {
-  const printField = (field, data) => {
+  const [state, dispatch] = useReducer(formReducer, _.cloneDeep(formData))
+
+  const printField = (field, data, parent?) => {
     switch (field.type) {
       case 'group':
         return (
@@ -31,12 +105,18 @@ const Form: FC<FormProps> = ({ formData, contentType, onUpdate }) => {
               <GroupItemWrapper
                 key={`${field.key}${index}`}
                 contextMenu={(!field.minimum || data[field.key]?.length > field.minimum) && field.contextMenu}
+                onDelete={() =>
+                  dispatch({ type: 'deleteGroupItem', data: { deleteIndex: index, field: field.key, parent } })
+                }
                 label={printLabel(field)}
               >
-                {field.fields.map(groupField => printField(groupField, fieldData))}
+                {field.fields.map(groupField => printField(groupField, fieldData, { key: field.key, index, parent }))}
               </GroupItemWrapper>
             ))}
-            <AddButton text={field.addLabel} onClick={() => console.log('add')} />
+            <AddButton
+              text={field.addLabel}
+              onClick={() => dispatch({ type: 'add', data: { field: field.key, parent } })}
+            />
           </Fragment>
         )
       case 'select':
@@ -46,32 +126,45 @@ const Form: FC<FormProps> = ({ formData, contentType, onUpdate }) => {
               options={field.options}
               value={data[field.key] || field.defaultValue || field.options[0]?.value}
               placeholder={field.placeholder}
+              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
             />
           </FieldWrapper>
         )
       case 'textarea':
         return (
           <FieldWrapper key={field.key} label={printLabel(field)}>
-            <TextArea placeholder={field.placeholder} value={data[field.key]} />
+            <TextArea
+              placeholder={field.placeholder}
+              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
+              value={data[field.key]}
+            />
           </FieldWrapper>
         )
       case 'upload':
         return (
           <FieldWrapper key={field.key} label={printLabel(field)}>
-            <Upload placeholder={field.placeholder} value={data[field.key]} />
+            <Upload
+              placeholder={field.placeholder}
+              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
+              value={data[field.key]}
+            />
           </FieldWrapper>
         )
-      case 'text':
-      case 'url':
+      default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field)}>
-            <Text placeholder={field.placeholder} type={field.type} value={data[field.key]} />
+            <Text
+              placeholder={field.placeholder}
+              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
+              type={field.type}
+              value={data[field.key]}
+            />
           </FieldWrapper>
         )
     }
   }
 
-  return contentTypesFields[contentType].fields.map(field => printField(field, formData))
+  return contentTypesFields[contentType].fields.map(field => printField(field, state))
 }
 
 export default Form

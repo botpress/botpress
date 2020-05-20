@@ -221,6 +221,7 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false) => 
         title: ''
       }
     case 'card':
+    case 'cards':
       const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
       return {
         ...advanced,
@@ -240,12 +241,16 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false) => 
         onTopOfKeyboard: true,
         typingIndicator: true,
         suggestions: [
-          {
-            label: '',
-            value: ''
-          }
+          {}
         ]
       }
+    case 'buttons':
+      return {
+        buttonText: '',
+        action: 'say'
+      }
+    default:
+      return {}
   }
 }
 

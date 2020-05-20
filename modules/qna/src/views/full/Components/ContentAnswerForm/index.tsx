@@ -1,18 +1,21 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
-import React, { FC, useState } from 'react'
+import { debounce } from 'lodash'
+import React, { FC, useCallback, useState } from 'react'
 
 import style from './style.scss'
 
 interface Props {
   deleteContent: () => void
   close: () => void
+  onUpdate: (data: any) => void
 }
 
-const ContentAnswerForm: FC<Props> = ({ close, deleteContent }) => {
+const ContentAnswerForm: FC<Props> = ({ close, onUpdate, deleteContent }) => {
   const [contentType, setContentType] = useState('image')
   const [showOptions, setShowOptions] = useState(false)
+  const debounceUpdate = useCallback(debounce(onUpdate, 300), [])
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       icon: 'trash',
@@ -59,7 +62,7 @@ const ContentAnswerForm: FC<Props> = ({ close, deleteContent }) => {
         )}
       </div>
 
-      <ContentForms.Form formData={formData} contentType={contentType} onUpdate={e => console.log(e)} />
+      <ContentForms.Form formData={formData} contentType={contentType} onUpdate={data => debounceUpdate(data)} />
     </RightSidebar>
   )
 }

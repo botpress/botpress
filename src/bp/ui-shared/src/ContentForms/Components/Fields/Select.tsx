@@ -8,16 +8,14 @@ interface SelectProps extends FieldProps {
   options: { value: string; label: string }[]
 }
 
-const Select: FC<SelectProps> = ({ options, value }) => (
+const Select: FC<SelectProps> = ({ onChange, options, value }) => (
   <Dropdown
     filterable={false}
     className={style.formSelect}
     items={options}
     defaultItem={value}
     rightIcon="chevron-down"
-    onChange={option => {
-      console.log(option.value)
-    }}
+    onChange={option => onChange?.(option.value)}
   />
 )
 

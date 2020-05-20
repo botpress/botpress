@@ -4,12 +4,12 @@ import Textarea from '../../../Textarea'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
 
-const TextArea: FC<FieldProps> = ({ placeholder, value }) => (
+const TextArea: FC<FieldProps> = ({ onChange, placeholder, value }) => (
   <Textarea
     className={style.textarea}
     placeholder={placeholder}
     rows={1}
-    onChange={e => console.log(e)}
+    onChange={value => onChange?.(value)}
     value={value}
   />
 )

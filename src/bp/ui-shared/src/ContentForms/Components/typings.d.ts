@@ -20,6 +20,6 @@ export interface GroupItemWrapperProps {
     type: string
     label: string
   }[]
-  minimum?: number
+  onDelete?: () => void
   label?: string
 }

@@ -7,12 +7,17 @@ import { MoreOptionsItems } from '../../MoreOptions/typings'
 import style from './style.scss'
 import { GroupItemWrapperProps } from './typings'
 
-const GroupItemWrapper: FC<GroupItemWrapperProps> = ({ label, contextMenu, minimum, children }) => {
+const GroupItemWrapper: FC<GroupItemWrapperProps> = ({ label, contextMenu, onDelete, children }) => {
   const [collapsed, setCollapsed] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
 
   const processMoreOptions = (): MoreOptionsItems[] => {
-    return contextMenu.map(({ label, type }) => ({ icon: 'trash', type: type === 'delete' ? type : undefined, label }))
+    return contextMenu.map(({ label, type }) => ({
+      icon: 'trash',
+      type: type === 'delete' ? type : undefined,
+      label,
+      action: type === 'delete' ? onDelete : undefined
+    }))
   }
 
   return (

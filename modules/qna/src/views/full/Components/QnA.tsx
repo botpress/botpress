@@ -275,7 +275,13 @@ const QnA: FC<Props> = props => {
         </div>
       )}
 
-      {showContentForm && <ContentAnswerForm deleteContent={() => {}} close={() => setShowContentForm(false)} />}
+      {showContentForm && (
+        <ContentAnswerForm
+          deleteContent={() => {}}
+          onUpdate={data => console.log(data)}
+          close={() => setShowContentForm(false)}
+        />
+      )}
     </div>
   )
 }
