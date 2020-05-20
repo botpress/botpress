@@ -286,8 +286,6 @@ export class HookService {
     hook.debug.forBot(botId, 'after execute')
   }
 
-  private shouldStore = (hook: Hooks.BaseHook) => hook instanceof Hooks.EventHook && hook.args?.event
-
   private storeEvent = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook) => {
     if (hook instanceof Hooks.EventHook && hook.args?.event) {
       this.eventCollector.storeEvent(hook.args.event, `hook:${hookName}:${status}`)
