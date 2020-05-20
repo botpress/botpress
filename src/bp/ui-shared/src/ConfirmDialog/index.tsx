@@ -41,6 +41,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
           id="confirm-dialog-accept"
           className={Classes.BUTTON}
           type="button"
+          autoFocus
           onClick={onAccept}
           text={props.acceptLabel || lang('ok')}
           tabIndex={3}
