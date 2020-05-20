@@ -140,7 +140,13 @@ export namespace Hooks {
 }
 
 class HookScript {
-  constructor(public path: string, public filename: string, public code: string, public botId?: string) {}
+  constructor(
+    public path: string,
+    public filename: string,
+    public code: string,
+    public name: string,
+    public botId?: string
+  ) {}
 }
 
 @injectable()
@@ -181,15 +187,7 @@ export class HookService {
   async executeHook(hook: Hooks.BaseHook): Promise<void> {
     const botId = hook.args?.event?.botId || hook.args?.botId
     const scripts = await this.extractScripts(hook, botId)
-    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => {
-      try {
-        return this.runScript(script, hook)
-      } finally {
-        if (hook instanceof Hooks.EventHook && hook.args?.event) {
-          this.eventCollector.storeEvent(hook.args.event, 'hook:' + script.filename)
-        }
-      }
-    })
+    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script, hook))
   }
 
   async disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean> {
@@ -247,7 +245,7 @@ export class HookService {
     }
 
     const filename = path.replace(/^.*[\\\/]/, '')
-    return new HookScript(path, filename, script, botId)
+    return new HookScript(path, filename, script, filename.replace('.js', ''), botId)
   }
 
   private _prepareRequire(fullPath: string, hookType: string) {
@@ -288,6 +286,14 @@ export class HookService {
     hook.debug.forBot(botId, 'after execute')
   }
 
+  private shouldStore = (hook: Hooks.BaseHook) => hook instanceof Hooks.EventHook && hook.args?.event
+
+  private storeEvent = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook) => {
+    if (hook instanceof Hooks.EventHook && hook.args?.event) {
+      this.eventCollector.storeEvent(hook.args.event, `hook:${hookName}:${status}`)
+    }
+  }
+
   private async runWithoutVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
     const args = {
       ...hook.args,
@@ -299,9 +305,10 @@ export class HookService {
     try {
       const fn = new Function(...Object.keys(args), hookScript.code)
       await fn(...Object.values(args))
-
+      this.storeEvent(hookScript.name, 'completed', hook)
       return
     } catch (err) {
+      this.storeEvent(hookScript.name, 'error', hook)
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     }
   }
@@ -331,9 +338,13 @@ export class HookService {
 
     const vmRunner = new VmRunner()
 
-    await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
-      this.logScriptError(err, botId, hookScript.path, hook.folder)
-    })
+    await vmRunner
+      .runInVm(vm, hookScript.code, hookScript.path)
+      .then(() => this.storeEvent(hookScript.name, 'completed', hook))
+      .catch(err => {
+        this.storeEvent(hookScript.name, 'error', hook)
+        this.logScriptError(err, botId, hookScript.path, hook.folder)
+      })
   }
 
   private logScriptError(err, botId, path, folder) {
