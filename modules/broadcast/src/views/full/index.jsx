@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
 import {
+  AnchorButton,
   Tag,
   Button,
   FormGroup,
@@ -303,7 +304,7 @@ export default class BroadcastModule extends React.Component {
           <td style={{ width: '12%' }}>
             <div className={style.actions}>
               <Tooltip content={lang.tr('edit')} position={Position.BOTTOM}>
-                <Button
+                <AnchorButton
                   icon="edit"
                   disabled={value.outboxed}
                   className={style.smallButton}
@@ -311,14 +312,14 @@ export default class BroadcastModule extends React.Component {
                 />
               </Tooltip>
               <Tooltip content={lang.tr('duplicate')} position={Position.BOTTOM}>
-                <Button
+                <AnchorButton
                   icon="duplicate"
                   className={style.smallButton}
                   onClick={() => this.handleOpenModalForm(value)}
                 />
               </Tooltip>
               <Tooltip content={lang.tr('delete')} position={Position.BOTTOM}>
-                <Button
+                <AnchorButton
                   icon="trash"
                   className={style.smallButton}
                   onClick={() => this.handleRemoveBroadcast(value.id)}
