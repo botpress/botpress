@@ -14,7 +14,8 @@ import {
   Intent,
   Tooltip,
   Position,
-  Card
+  Card,
+  Icon
 } from '@blueprintjs/core'
 import { DateInput, TimePicker } from '@blueprintjs/datetime'
 import { Dialog, lang } from 'botpress/shared'
@@ -430,7 +431,21 @@ export default class BroadcastModule extends React.Component {
 
     return (
       <div>
-        <FormGroup className={style.addFilters} label={lang.tr('module.broadcast.form.filters')}>
+        <FormGroup
+          className={style.addFilters}
+          label={
+            <div>
+              {lang.tr('module.broadcast.form.filters')}{' '}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/botpress/botpress/blob/master/modules/broadcast/README.md#filtering"
+              >
+                <Icon icon="help" />
+              </a>
+            </div>
+          }
+        >
           <ControlGroup>
             <InputGroup fill={true} inputRef={input => (this.filterInput = input)} />
             <Button text={lang.tr('add')} onClick={() => this.handleAddToFilteringConditions()} />
