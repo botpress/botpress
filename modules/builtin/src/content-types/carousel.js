@@ -1,6 +1,5 @@
 const base = require('./_base')
 const Card = require('./card')
-const url = require('url')
 
 function render(data) {
   const events = []
@@ -20,7 +19,7 @@ function render(data) {
       collectFeedback: data.collectFeedback,
       elements: data.items.map(card => ({
         title: card.title,
-        picture: card.image ? url.resolve(data.BOT_URL, card.image) : null,
+        picture: card.image ? `${data.BOT_URL}${card.image}` : null,
         subtitle: card.subtitle,
         buttons: (card.actions || []).map(a => {
           if (a.action === 'Say something') {
@@ -58,7 +57,7 @@ function renderMessenger(data) {
 
     return data.items.map(card => ({
       title: card.title,
-      image_url: card.image ? url.resolve(data.BOT_URL, card.image) : null,
+      image_url: card.image ? `${data.BOT_URL}${card.image}` : null,
       subtitle: card.subtitle,
       buttons: (card.actions || []).map(a => {
         if (a.action === 'Say something') {
@@ -129,7 +128,7 @@ function renderSlack(data) {
           },
           accessory: card.image && {
             type: 'image',
-            image_url: url.resolve(data.BOT_URL, card.image),
+            image_url: `${data.BOT_URL}${card.image}`,
             alt_text: 'image'
           }
         },
