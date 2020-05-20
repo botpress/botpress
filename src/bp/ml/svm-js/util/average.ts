@@ -1,9 +1,9 @@
-var assert = require('assert')
-var _a = require('mout/array')
-var numeric = require('numeric')
+const assert = require('assert')
+const _a = require('mout/array')
+const numeric = require('numeric')
 
 export default function(arr) {
-  var n = numeric.dim(arr)[0] || 0
+  const n = numeric.dim(arr)[0] || 0
   assert(n > 0, 'array cannot be empty')
   return (
     _a.reduce(

@@ -1,7 +1,7 @@
-var assert = require('assert')
-var mout = require('mout'),
+const assert = require('assert')
+const mout = require('mout'),
   _a = mout.array
-var numeric = require('numeric')
+const numeric = require('numeric')
 
 import avg from './average'
 import std from './standard-deviation'
@@ -11,7 +11,7 @@ export default function(dataset, mu?, sigma?) {
   assert(dataset instanceof Array, 'dataset must be an list of [X,y] tuples')
   assert(dataset.length > 0, 'dataset cannot be empty')
 
-  var X = dataset.map(function(ex) {
+  const X = dataset.map(function(ex) {
       return ex[0]
     }),
     n = numeric.dim(X)[0] || 0,

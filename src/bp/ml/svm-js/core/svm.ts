@@ -1,8 +1,8 @@
-var assert = require('assert')
-var numeric = require('numeric')
-var Q = require('q')
-var _o = require('mout/object')
-var _a = require('mout/array')
+const assert = require('assert')
+const numeric = require('numeric')
+const Q = require('q')
+const _o = require('mout/object')
+const _a = require('mout/array')
 
 import defaultConfig from './config'
 import BaseSVM from './base-svm'
@@ -34,7 +34,7 @@ export class SVM {
   }
 
   private _restore = (model: Model) => {
-    var self = this
+    const self = this
     this._baseSvm = BaseSVM.restore(model)
     _o.forOwn(model.param, function(val, key) {
       self._config[key] = val
@@ -42,10 +42,10 @@ export class SVM {
   }
 
   train = (dataset: Data[]) => {
-    var deferred = Q.defer()
-    var self = this
+    const deferred = Q.defer()
+    const self = this
     this._training = true
-    var dims = numeric.dim(dataset)
+    const dims = numeric.dim(dataset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be an list of [X,y] tuples')
 
     if (!this._config.normalize) {
@@ -56,7 +56,7 @@ export class SVM {
         return 1
       })
     } else {
-      var norm = normalizeDataset(dataset)
+      const norm = normalizeDataset(dataset)
       this._config.mu = norm.mu
       this._config.sigma = norm.sigma
       dataset = norm.dataset
@@ -68,7 +68,7 @@ export class SVM {
       this._retainedDimension = dims[2]
       this._initialDimension = dims[2]
     } else {
-      var red = reduce(dataset, this._config.retainedVariance)
+      const red = reduce(dataset, this._config.retainedVariance)
       this._config.u = red.U
       this._retainedVariance = red.retainedVariance
       this._retainedDimension = red.newDimension
@@ -108,11 +108,11 @@ export class SVM {
 
   evaluate = testset => {
     assert(this.isTrained(), 'train classifier first')
-    var dims = numeric.dim(testset)
+    const dims = numeric.dim(testset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'testset must be an list of [X,y] tuples')
 
-    var self = this
-    var predictions = _a.map(testset, function(ex) {
+    const self = this
+    const predictions = _a.map(testset, function(ex) {
       return [self.predictSync(ex[0]), ex[1]]
     })
 
@@ -172,7 +172,7 @@ export class SVM {
   }
 
   private _format = x => {
-    var xNorm = normalizeInput(x, this._config.mu, this._config.sigma)
+    const xNorm = normalizeInput(x, this._config.mu, this._config.sigma)
     return numeric.dot(xNorm, this._config.u)
   }
 }

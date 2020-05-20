@@ -1,8 +1,8 @@
 import _ from 'lodash'
 
-var _l = require('mout/lang')
+const _l = require('mout/lang')
 
-var assert = require('assert')
+const assert = require('assert')
 
 import defaults from './default-config'
 import svmTypes from './svm-types'

@@ -1,5 +1,5 @@
-var assert = require('assert')
-var numeric = require('numeric')
+const assert = require('assert')
+const numeric = require('numeric')
 
 import _ from 'lodash'
 import addon, { Model, NSVM, Parameters } from '../addon'
@@ -13,13 +13,13 @@ class BaseSVM {
   }
 
   static restore = (model: Model) => {
-    let clf = new addon.NSVM()
+    const clf = new addon.NSVM()
     clf.set_model(model) // might throw
     return new BaseSVM(clf)
   }
 
   train = (dataset: Data[], params: Parameters): Promise<Model> => {
-    var dims = numeric.dim(dataset)
+    const dims = numeric.dim(dataset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
 
     this._clf = new addon.NSVM()
@@ -40,14 +40,14 @@ class BaseSVM {
 
   predictSync = (inputs: number[]): number => {
     assert(!!this._clf, 'train classifier first')
-    var dims = numeric.dim(inputs)
+    const dims = numeric.dim(inputs)
     assert((dims[0] || 0) > 0 && (dims[1] || 0) === 0, 'input must be a 1d array')
     return (this._clf as NSVM).predict(inputs)
   }
 
   predict = (inputs: number[]): Promise<number> => {
     assert(!!this._clf, 'train classifier first')
-    var dims = numeric.dim(inputs)
+    const dims = numeric.dim(inputs)
     assert((dims[0] || 0) > 0 && (dims[1] || 0) === 0, 'input must be a 1d array')
 
     const svm = this._clf as NSVM
@@ -66,7 +66,7 @@ class BaseSVM {
    */
   predictProbabilitiesSync = (inputs: number[]): number[] => {
     assert(!!this._clf, 'train classifier first')
-    var dims = numeric.dim(inputs)
+    const dims = numeric.dim(inputs)
     assert((dims[0] || 0) > 0 && (dims[1] || 0) === 0, 'input must be a 1d array')
 
     const svm = this._clf as NSVM
@@ -75,7 +75,7 @@ class BaseSVM {
 
   predictProbabilities = (inputs: number[]): Promise<number[]> => {
     assert(!!this._clf, 'train classifier first')
-    var dims = numeric.dim(inputs)
+    const dims = numeric.dim(inputs)
     assert((dims[0] || 0) > 0 && (dims[1] || 0) === 0, 'input must be a 1d array')
 
     const svm = this._clf as NSVM

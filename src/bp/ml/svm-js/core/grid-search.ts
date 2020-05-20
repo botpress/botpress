@@ -1,9 +1,9 @@
 import _ from 'lodash'
 
-var _a = require('mout/array')
-var assert = require('assert')
-var Q = require('q')
-var numeric = require('numeric')
+const _a = require('mout/array')
+const assert = require('assert')
+const Q = require('q')
+const numeric = require('numeric')
 
 import BaseSVM from './base-svm'
 import defaultConfig from './config'
@@ -17,9 +17,9 @@ import { configToAddonParams } from '../util/options-mapping'
 import { svmTypes } from '..'
 
 export default function(dataset: Data[], config: SvmConfig) {
-  var deferred = Q.defer()
+  const deferred = Q.defer()
   // default options
-  var dims = numeric.dim(dataset)
+  const dims = numeric.dim(dataset)
 
   assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
 
@@ -36,16 +36,16 @@ export default function(dataset: Data[], config: SvmConfig) {
   ])
 
   // split dataset for cross-validation
-  var subsets = splitDataset(dataset, config.kFold)
+  const subsets = splitDataset(dataset, config.kFold)
 
-  var evaluator = evaluators.getDefault(config)
+  const evaluator = evaluators.getDefault(config)
 
-  var total = combs.length * subsets.length,
-    done = 0
+  const total = combs.length * subsets.length
+  let done = 0
 
   // perform k-fold cross-validation for
   // each combination of parameters
-  var promises = combs.map(function(comb) {
+  const promises = combs.map(function(comb) {
     const cParams: SvmConfig = {
       ...config,
       C: comb[0],
@@ -55,7 +55,7 @@ export default function(dataset: Data[], config: SvmConfig) {
       degree: comb[4],
       r: comb[5]
     }
-    var cPromises = subsets.map(function(ss) {
+    const cPromises = subsets.map(function(ss) {
       const clf = new BaseSVM()
 
       const params = configToAddonParams(cParams)
@@ -85,7 +85,7 @@ export default function(dataset: Data[], config: SvmConfig) {
         //        both training and evaluation but never at the same time
         .then(function(predictions) {
           predictions = _a.flatten(predictions, 1)
-          var report = evaluator.compute(predictions)
+          const report = evaluator.compute(predictions)
 
           return {
             config: cParams,
@@ -99,7 +99,7 @@ export default function(dataset: Data[], config: SvmConfig) {
   })
 
   Q.all(promises).then(function(results) {
-    var best
+    let best
     if (evaluator === evaluators.classification) {
       best = _a.max(results, function(r) {
         return r.report.fscore

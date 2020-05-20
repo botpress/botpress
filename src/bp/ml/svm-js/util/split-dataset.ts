@@ -1,4 +1,4 @@
-var assert = require('assert')
+const assert = require('assert')
 import _ from 'lodash'
 import { Data } from '../typings'
 
@@ -21,12 +21,12 @@ export default function(dataset: Data[], k = 5): SplittedDataSet[] {
   const nbExPerGroup = Math.floor(n / kFold)
   const rest = n % kFold
   let gDelta = 0
-  var shuffled = _.chain(dataset).shuffle()
+  const shuffled = _.chain(dataset).shuffle()
 
   const sets = nIndexes.map(i => {
-    var delta = i < rest ? 1 : 0
+    const delta = i < rest ? 1 : 0
 
-    var subset = shuffled
+    const subset = shuffled
       .drop(i * nbExPerGroup + gDelta)
       .take(nbExPerGroup + delta)
       .value()

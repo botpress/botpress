@@ -1,7 +1,7 @@
-var mout = require('mout'),
+const mout = require('mout'),
   _a = mout.array,
   _o = mout.object
-var assert = require('assert')
+const assert = require('assert')
 
 function computeFScore(precision, recall) {
   if (recall === 0 && precision === 0) {
@@ -11,13 +11,13 @@ function computeFScore(precision, recall) {
 }
 
 function compute(predictions) {
-  var sumPredicted = {},
+  const sumPredicted = {},
     sumExpected = {}
 
-  var classScores = _a.reduce(
+  const classScores = _a.reduce(
     predictions,
     function(res, arr) {
-      var predicted = arr[0],
+      const predicted = arr[0],
         expected = arr[1]
 
       sumPredicted[predicted] = (sumPredicted[predicted] || 0) + 1.0
@@ -29,10 +29,10 @@ function compute(predictions) {
     {}
   )
 
-  var classReports = _o.map(classScores, function(scores, label) {
-    var tp = scores[label] || 0,
-      precision = 0,
-      recall = 0
+  const classReports = _o.map(classScores, function(scores, label) {
+    const tp = scores[label] || 0
+    let precision = 0
+    let recall = 0
     if (tp !== 0) {
       precision = tp / sumPredicted[label]
       recall = tp / sumExpected[label]
@@ -44,7 +44,7 @@ function compute(predictions) {
       size: sumExpected[label]
     }
   })
-  var nbGood = _o.reduce(
+  const nbGood = _o.reduce(
     classScores,
     function(sum, scores, label) {
       return sum + (scores[label] || 0)
@@ -66,12 +66,13 @@ function compute(predictions) {
     size: predictions.length
   }
 }
-/**
- NOTICE : this function assumes your predictor is already trained
- */
+
+/*
+  NOTICE : this function assumes your predictor is already trained
+  */
 function evaluate(testSet, clf) {
   assert(testSet.length > 0, 'test set cannot be empty')
-  var predictions = testSet.map(function(test) {
+  const predictions = testSet.map(function(test) {
     return [clf.predictSync(test[0]), test[1]]
   })
   return compute(predictions)
