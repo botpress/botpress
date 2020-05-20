@@ -52,6 +52,10 @@ function render(data) {
 
 function renderMessenger(data) {
   const renderElements = data => {
+    if (data.items.find(({ actions }) => !actions || actions.length === 0)) {
+      throw new Error('Channel-Messenger carousel does not support cards without actions')
+    }
+
     return data.items.map(card => ({
       title: card.title,
       image_url: card.image ? url.resolve(data.BOT_URL, card.image) : null,
