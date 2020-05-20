@@ -1,4 +1,4 @@
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import path from 'path'
@@ -54,7 +54,7 @@ class EditorStore {
   @action.bound
   async openFile(file: EditableFile) {
     if (NO_EDIT_EXTENSIONS.includes(path.extname(file.location))) {
-      console.warn(`Cannot open a file with that extension`)
+      toast.warning('module.code-editor.error.cannotOpenFile')
       return
     }
 

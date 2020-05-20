@@ -46,6 +46,7 @@ declare module 'botpress/shared' {
   export const toast: {
     success: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
     failure: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
+    warning: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
     info: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
   }
 

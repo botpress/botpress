@@ -42,6 +42,15 @@ const info = (
   }
 ) => showToast(prepareMessage(message, details), Intent.PRIMARY, options)
 
+const warning = (
+  message: string | React.ReactElement,
+  details?: string,
+  options: ToastOptions = {
+    delayed: false,
+    timeout: 'medium'
+  }
+) => showToast(prepareMessage(message, details), Intent.WARNING, options)
+
 const showToast = (message: string | React.ReactElement, intent, options?: ToastOptions) => {
   let timeout = 1000
   if (options?.timeout === 'medium') {
@@ -68,4 +77,4 @@ const showToast = (message: string | React.ReactElement, intent, options?: Toast
   }
 }
 
-export const toast = { success, failure, info }
+export const toast = { success, failure, warning, info }
