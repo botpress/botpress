@@ -1,9 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { kernelTypes, svmTypes, SVM, restore } from './svm-js'
-import { Data } from './svm-js/typings'
-import { Model, Parameters } from './svm-js/addon'
+import { Data, SvmModel, SvmParameters as Parameters } from './svm-js/typings'
+import { SVM } from './svm-js/core/svm'
+import svmTypes from './svm-js/core/svm-types'
+import kernelTypes from './svm-js/core/kernel-types'
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],
@@ -14,14 +15,14 @@ export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   reduce: false
 }
 
-type Serialized = Model & {
+type Serialized = SvmModel & {
   labels_idx: string[]
 }
 
 export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   private clf: SVM | undefined
   private labels: string[] = []
-  private model?: Model
+  private model?: SvmModel
   private report?: any
 
   constructor() {}
@@ -91,7 +92,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   }
 
   private serialize(): string {
-    const model = this.model as Model // model was trained
+    const model = this.model as SvmModel // model was trained
     const serialized: Serialized = { ...model, labels_idx: this.labels }
     return JSON.stringify(serialized)
   }
@@ -105,16 +106,11 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
   constructor(json_model: string) {
     const serialized: Serialized = JSON.parse(json_model)
     this.labels = serialized.labels_idx
-    const model: Model = _.omit(serialized, 'labels_idx')
 
-    if (!model.param) {
-      this.throwModelHasChanged()
-    }
-
-    this.parameters = model.param
     try {
-      // TODO: use model.param to the SvmConfig object even if not really used
-      this.clf = restore({ kFold: 1 }, model)
+      const model = _.omit(serialized, 'labels_idx')
+      this.parameters = model.param
+      this.clf = new SVM({ kFold: 1 }, model)
     } catch (err) {
       this.throwModelHasChanged(err)
     }

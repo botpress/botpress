@@ -56,6 +56,6 @@ export interface Parameters {
   weight: number[]
   nu: number
   p: number
-  shrinking: number
-  probability: number
+  shrinking: boolean
+  probability: boolean
 }

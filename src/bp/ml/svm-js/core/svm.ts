@@ -14,8 +14,7 @@ import regression from '../evaluators/regression'
 import normalizeDataset from '../util/normalize-dataset'
 import normalizeInput from '../util/normalize-input'
 import reduce from '../util/reduce-dataset'
-import { SvmConfig, Data } from '../typings'
-import { Model } from '../addon'
+import { SvmConfig, Data, SvmModel as Model, SvmModel } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
 
 export class SVM {
@@ -87,6 +86,7 @@ export class SVM {
         const param = configToAddonParams(config)
         return self._baseSvm.train(dataset, param).then(function(model) {
           deferred.notify(1)
+          const fullModel: SvmModel = { ...model, param: _o.merge(self._config, model.param) }
 
           _o.mixIn(report, {
             reduce: self._config.reduce,
@@ -94,7 +94,7 @@ export class SVM {
             retainedDimension: self._retainedDimension,
             initialDimension: self._initialDimension
           })
-          deferred.resolve([model, report])
+          deferred.resolve([fullModel, report])
         })
       })
       .fail(function(err) {
@@ -153,7 +153,7 @@ export class SVM {
     return this._training
   }
 
-  predict = (x: number[]): Promise<number> => {
+  predict = (x: number[]) => {
     assert(this.isTrained())
     return (this._baseSvm as BaseSVM).predict(this._format(x))
   }
@@ -164,7 +164,7 @@ export class SVM {
   }
   predictProbabilities = (x: number[]) => {
     assert(this.isTrained())
-    return (this._baseSvm as BaseSVM).predictProbabilities(this._format(x))
+    return (this._baseSvm as BaseSVM).predictProbabilities(this._format(x)) // ici
   }
   predictProbabilitiesSync = (x: number[]) => {
     assert(this.isTrained())

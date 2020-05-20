@@ -11,7 +11,7 @@ export default {
 
   degree: [2], // for POLY kernel
   gamma: [0.001, 0.01, 0.5], // for POLY, RBF and SIGMOID kernels
-  r: [0.125, 0.5], // for POLY and SIGMOID kernels (coef0)
+  coef0: [0.125, 0.5], // for POLY and SIGMOID kernels (coef0)
 
   // SVM specific parameters
   C: [1, 2], // cost for C_SVC, EPSILON_SVR and NU_SVR

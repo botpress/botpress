@@ -14,7 +14,7 @@ import splitDataset from '../util/split-dataset'
 import crossCombinations from '../util/cross-combinations'
 import { SvmConfig, Data } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
-import { svmTypes } from '..'
+import svmTypes from './svm-types'
 
 export default function(dataset: Data[], config: SvmConfig) {
   const deferred = Q.defer()
@@ -32,7 +32,7 @@ export default function(dataset: Data[], config: SvmConfig) {
     arr(config.p),
     arr(config.nu),
     arr(config.degree),
-    arr(config.r)
+    arr(config.coef0)
   ])
 
   // split dataset for cross-validation
@@ -53,7 +53,7 @@ export default function(dataset: Data[], config: SvmConfig) {
       p: comb[2],
       nu: comb[3],
       degree: comb[4],
-      r: comb[5]
+      coef0: comb[5]
     }
     const cPromises = subsets.map(function(ss) {
       const clf = new BaseSVM()

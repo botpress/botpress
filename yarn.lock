@@ -805,6 +805,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.4.tgz#1c586b991457cbb58fef51bc4e0cfcfa347714b5"
   integrity sha512-DT25xX/YgyPKiHFOpNuANIQIVvYEwCWXgK2jYYwqgaMrYE6+tq+DtmMwlD3drl6DJbUwtlIDnn0d7tIn/EbXBg==
 
+"@types/numeric@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@types/numeric/-/numeric-1.2.1.tgz#6bce5d0c4f1b20f2cbd4a3d47922b8fe6e36ad56"
+  integrity sha512-30gQPisgZW5+ErkDVTZkoVKmwIWdjf2O6HmgKr3E1FJBdMYFldOPSJlQYP2VMafHuhOKvbLFA4Hf+ohvArz1+w==
+
 "@types/passport@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/passport/-/passport-1.0.0.tgz#747fa127a747a145ff279f3df3e07c425e5ff297"
@@ -825,6 +830,11 @@
   integrity sha512-QPHXIcaPcijMbvizoM7PRL97Rm+aM8J2DmgTz2tt79b15PqbyeaCppYonvPLHQ/Q5ea92BUHDpv4bsqtiTy8kQ==
   dependencies:
     "@types/node" "*"
+
+"@types/q@^1.5.4":
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/@types/q/-/q-1.5.4.tgz#15925414e0ad2cd765bfef58842f7e26a7accb24"
+  integrity sha512-1HcDas8SEj4z1Wc696tH56G8OlRaH/sqZOynNNB+HF0WOeXPaxTtbYzJY2oEfiUxjSKjhCKr+MvR7dCHcEelug==
 
 "@types/range-parser@*":
   version "1.2.3"

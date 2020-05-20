@@ -81,12 +81,12 @@ function checkConfig(config: SvmConfig) {
 
   // parameter r used for POLY kernel
   if (config.kernel_type === kernelTypes.POLY || config.kernel_type === kernelTypes.SIGMOID) {
-    if (_l.isNumber(config.r)) {
-      config.r = [config.r as number]
+    if (_l.isNumber(config.coef0)) {
+      config.coef0 = [config.coef0 as number]
     }
-    assert(config.r && (config.r as number[]).length > 0, 'Require at least one value for r parameter')
+    assert(config.coef0 && (config.coef0 as number[]).length > 0, 'Require at least one value for r parameter')
   } else {
-    config.r = []
+    config.coef0 = []
   }
   return config
 }

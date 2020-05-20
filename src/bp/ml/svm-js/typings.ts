@@ -1,3 +1,5 @@
+import { Parameters, Model } from './addon'
+
 export interface SvmConfig {
   C?: number | number[]
   gamma?: number | number[]
@@ -17,13 +19,29 @@ export interface SvmConfig {
   p?: number | number[]
   shrinking: boolean
   probability: boolean
-  r?: number | number[]
+  coef0?: number | number[]
   reduce: boolean
   retainedVariance: number
 
-  mu?: number
-  sigma?: number
-  u?: number
+  mu?: number[]
+  sigma?: number[]
+  u?: number[][]
+}
+
+export interface SvmModel extends Omit<Model, 'param'> {
+  param: SvmParameters
+}
+
+export interface SvmParameters extends Parameters {
+  kFold: number
+  normalize: boolean
+  color: boolean
+  interactive: boolean
+  reduce: boolean
+  retainedVariance: number
+  mu?: number[]
+  sigma?: number[]
+  u?: number[][]
 }
 
 export type Data = [number[], number]
