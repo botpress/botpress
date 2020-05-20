@@ -52,18 +52,21 @@ export default async (botId: string, bp: SDK, db: Database) => {
       if (user!.result!.attributes!.language) {
         language = user.result.attributes.language
       }
-      const content = await bp.cms.getContentElement(botId, row.text, language)
 
-      return bp.events.sendEvent(
-        bp.IO.Event({
-          botId,
-          channel: row.platform,
-          target: row.userId,
-          type: 'text',
-          direction: 'outgoing',
-          payload: content.formData
-        })
-      )
+      const event = { state: { user: { language: language } } }
+      const eventDestination = { channel: row.platform, botId, target: row.userId }
+      const payloads = await bp.cms.renderElement(`!${row.text}`, { event }, eventDestination)
+
+      for (const payload of payloads) {
+        await bp.events.sendEvent(
+          bp.IO.Event({
+            ...eventDestination,
+            direction: 'outgoing',
+            type: _.get(payload, 'type', 'default'),
+            payload
+          })
+        )
+      }
     })
   })
 
