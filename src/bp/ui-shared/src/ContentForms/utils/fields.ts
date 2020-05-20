@@ -26,7 +26,7 @@ const image = {
       key: 'title',
       label: 'Title',
       placeholder: 'Optional'
-    },
+    }
   ]
 }
 
@@ -164,7 +164,7 @@ const suggestions = {
     {
       key: 'onTopOfKeyboard',
       defaultValue: true,
-      label: 'Display on top of the keyboard',
+      label: 'Display on top of the keyboard'
     },
     {
       key: 'typingIndicator',
@@ -240,9 +240,7 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false) => 
       return {
         onTopOfKeyboard: true,
         typingIndicator: true,
-        suggestions: [
-          {}
-        ]
+        suggestions: [{}]
       }
     case 'buttons':
       return {
