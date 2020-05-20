@@ -9,28 +9,13 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
-import { container } from '../../../app.inversify'
 import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import { VmRunner } from '../../action/vm'
 
-import { Instruction, InstructionType, ProcessingResult } from '.'
+import { Instruction, ProcessingResult } from '.'
 
 const debug = DEBUG('dialog')
-
-@injectable()
-export class StrategyFactory {
-  create(type: InstructionType): InstructionStrategy {
-    if (type === 'on-enter' || type === 'on-receive') {
-      return container.get<ActionStrategy>(TYPES.ActionStrategy)
-    } else if (type === 'transition') {
-      return container.get<TransitionStrategy>(TYPES.TransitionStrategy)
-    } else if (type === 'wait') {
-      return container.get<WaitStrategy>(TYPES.WaitStrategy)
-    }
-    throw new Error(`Undefined instruction type "${type}"`)
-  }
-}
 
 export interface InstructionStrategy {
   processInstruction(botId: string, instruction: Instruction, event): Promise<ProcessingResult>
@@ -228,12 +213,5 @@ export class TransitionStrategy implements InstructionStrategy {
     }
     `
     return await runner.runInVm(vm, code)
-  }
-}
-
-@injectable()
-export class WaitStrategy implements InstructionStrategy {
-  async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    return ProcessingResult.wait()
   }
 }

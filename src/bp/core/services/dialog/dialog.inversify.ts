@@ -9,7 +9,7 @@ import { FlowNavigator } from './flow/navigator'
 import { FlowService } from './flow/service'
 import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
-import { ActionStrategy, StrategyFactory, TransitionStrategy, WaitStrategy } from './instruction/strategy'
+import { ActionStrategy, TransitionStrategy } from './instruction/strategy'
 import { DialogJanitor } from './janitor'
 
 export const DialogContainerModule = new ContainerModule((bind: interfaces.Bind) => {
@@ -31,17 +31,11 @@ export const DialogContainerModule = new ContainerModule((bind: interfaces.Bind)
   bind<InstructionProcessor>(TYPES.InstructionProcessor)
     .to(InstructionProcessor)
     .inSingletonScope()
-  bind<StrategyFactory>(TYPES.StrategyFactory)
-    .to(StrategyFactory)
-    .inSingletonScope()
   bind<ActionStrategy>(TYPES.ActionStrategy)
     .to(ActionStrategy)
     .inRequestScope()
   bind<TransitionStrategy>(TYPES.TransitionStrategy)
     .to(TransitionStrategy)
-    .inRequestScope()
-  bind<WaitStrategy>(TYPES.WaitStrategy)
-    .to(WaitStrategy)
     .inRequestScope()
   bind<DialogJanitor>(TYPES.DialogJanitorRunner)
     .to(DialogJanitor)
