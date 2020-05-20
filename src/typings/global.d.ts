@@ -234,6 +234,13 @@ declare type BotpressEnvironmentVariables = {
    * @default false
    */
   readonly BP_CODE_EDITOR_DISABLE_ADVANCED?: boolean
+
+  /**
+   * When enabled, it will avoid storing the event after each steps, improving performances.
+   * This will be very useful during development
+   * @default false
+   */
+  readonly BP_DISCARD_EVENT_STEPS?: boolean
 }
 
 interface IDebug {
