@@ -1,10 +1,13 @@
-const _a = require('mout/array')
-const assert = require('assert')
-const numeric = require('numeric')
-const average = require('../util/average')
+import { Data } from '../typings'
+import BaseSVM from '../core/base-svm'
+import _ from 'lodash'
 
-function compute(predictions) {
-  const errors = _a.map(predictions, function(p) {
+const assert = require('assert')
+import numeric from 'numeric'
+import average from '../util/average'
+
+function compute(predictions: number[][]) {
+  const errors = _.map(predictions, function(p) {
       return p[0] - p[1]
     }),
     avgError = average(errors),
@@ -26,7 +29,7 @@ function compute(predictions) {
   }
 }
 
-function evaluate(testSet, clf) {
+function evaluate(testSet: Data[], clf: BaseSVM) {
   const dims = numeric.dim(testSet)
   assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'test set must be a list of [X,y] tuples')
 

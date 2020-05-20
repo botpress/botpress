@@ -45,3 +45,21 @@ export interface SvmParameters extends Parameters {
 }
 
 export type Data = [number[], number]
+
+export type Report = ClassificationReport | RegressionReport
+
+export interface ClassificationReport {
+  accuracy: number
+  fscore: any
+  recall: any
+  precision: any
+  class: any
+  size: any
+}
+
+export interface RegressionReport {
+  mse: any
+  std: number
+  mean: any
+  size: any
+}

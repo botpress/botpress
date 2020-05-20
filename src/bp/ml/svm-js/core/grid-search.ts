@@ -1,9 +1,9 @@
 import _ from 'lodash'
 
-const _a = require('mout/array')
 const assert = require('assert')
-const Q = require('q')
-const numeric = require('numeric')
+
+import Q from 'q'
+import numeric from 'numeric'
 
 import BaseSVM from './base-svm'
 import defaultConfig from './config'
@@ -12,7 +12,7 @@ import evaluators from '../evaluators'
 
 import splitDataset from '../util/split-dataset'
 import crossCombinations from '../util/cross-combinations'
-import { SvmConfig, Data } from '../typings'
+import { SvmConfig, Data, Report, ClassificationReport, RegressionReport } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
 import svmTypes from './svm-types'
 
@@ -45,6 +45,7 @@ export default function(dataset: Data[], config: SvmConfig) {
 
   // perform k-fold cross-validation for
   // each combination of parameters
+  type Res = { config: SvmConfig; report: Report }
   const promises = combs.map(function(comb) {
     const cParams: SvmConfig = {
       ...config,
@@ -72,7 +73,7 @@ export default function(dataset: Data[], config: SvmConfig) {
           // predict values for each example of the test set
           done += 1
           deferred.notify({ done: done, total: total })
-          return _a.map(ss.test, function(test) {
+          return _.map(ss.test, function(test) {
             return [clf.predictSync(test[0]), test[1]]
           })
         })
@@ -83,35 +84,38 @@ export default function(dataset: Data[], config: SvmConfig) {
         // group all predictions together and compute configuration's accuracy
         // Note : Due to k-fold CV, each example of the dataset has been used for
         //        both training and evaluation but never at the same time
-        .then(function(predictions) {
-          predictions = _a.flatten(predictions, 1)
-          const report = evaluator.compute(predictions)
+        .then(
+          p => {
+            const predictions = _.flatten(p)
+            const report = evaluator.compute(predictions)
 
-          return {
-            config: cParams,
-            report: report
+            return {
+              config: cParams,
+              report: report
+            } as Res
+          },
+          err => {
+            throw err
           }
-        })
-        .fail(function(err) {
-          throw err
-        })
+        )
     )
   })
 
   Q.all(promises).then(function(results) {
-    let best
+    let best: Res | undefined
     if (evaluator === evaluators.classification) {
-      best = _a.max(results, function(r) {
-        return r.report.fscore
+      best = _.maxBy(results, function(r) {
+        return (r.report as ClassificationReport).fscore
       })
     } else if (evaluator === evaluators.regression) {
-      best = _a.min(results, function(r) {
-        return r.report.mse
+      best = _.minBy(results, function(r) {
+        return (r.report as RegressionReport).mse
       })
     } else {
       throw new Error('Not implemented')
     }
 
+    best = best as Res
     deferred.resolve([best.config, best.report])
   })
 

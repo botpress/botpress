@@ -1,8 +1,9 @@
 const assert = require('assert')
-const numeric = require('numeric')
-const Q = require('q')
+
 const _o = require('mout/object')
-const _a = require('mout/array')
+
+import numeric from 'numeric'
+import Q from 'q'
 
 import defaultConfig from './config'
 import BaseSVM from './base-svm'
@@ -16,6 +17,7 @@ import normalizeInput from '../util/normalize-input'
 import reduce from '../util/reduce-dataset'
 import { SvmConfig, Data, SvmModel as Model, SvmModel } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
+import _ from 'lodash'
 
 export class SVM {
   private _config: SvmConfig
@@ -48,12 +50,8 @@ export class SVM {
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be an list of [X,y] tuples')
 
     if (!this._config.normalize) {
-      this._config.mu = _a.take(dims[2], function() {
-        return 0
-      })
-      this._config.sigma = _a.take(dims[2], function() {
-        return 1
-      })
+      this._config.mu = Array(dims[2]).fill(0)
+      this._config.sigma = Array(dims[2]).fill(0)
     } else {
       const norm = normalizeDataset(dataset)
       this._config.mu = norm.mu
@@ -106,13 +104,13 @@ export class SVM {
     return deferred.promise
   }
 
-  evaluate = testset => {
+  evaluate = (testset: Data[]) => {
     assert(this.isTrained(), 'train classifier first')
     const dims = numeric.dim(testset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'testset must be an list of [X,y] tuples')
 
     const self = this
-    const predictions = _a.map(testset, function(ex) {
+    const predictions = _.map(testset, function(ex) {
       return [self.predictSync(ex[0]), ex[1]]
     })
 
@@ -162,17 +160,22 @@ export class SVM {
     assert(this.isTrained())
     return (this._baseSvm as BaseSVM).predictSync(this._format(x))
   }
+
   predictProbabilities = (x: number[]) => {
     assert(this.isTrained())
     return (this._baseSvm as BaseSVM).predictProbabilities(this._format(x)) // ici
   }
+
   predictProbabilitiesSync = (x: number[]) => {
     assert(this.isTrained())
     return (this._baseSvm as BaseSVM).predictProbabilitiesSync(this._format(x))
   }
 
-  private _format = x => {
-    const xNorm = normalizeInput(x, this._config.mu, this._config.sigma)
-    return numeric.dot(xNorm, this._config.u)
+  private _format = (x: number[]) => {
+    const mu = this._config.mu as number[]
+    const sigma = this._config.sigma as number[]
+    const u = this._config.u as number[][]
+    const xNorm = normalizeInput(x, mu, sigma)
+    return numeric.dot(xNorm, u) as number[]
   }
 }

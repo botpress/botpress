@@ -1,5 +1,5 @@
 const assert = require('assert')
-const numeric = require('numeric')
+import numeric from 'numeric'
 
 import _ from 'lodash'
 import Q from 'q'

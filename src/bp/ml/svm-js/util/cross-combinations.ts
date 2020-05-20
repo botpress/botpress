@@ -1,5 +1,5 @@
 const assert = require('assert')
-const numeric = require('numeric')
+import numeric from 'numeric'
 
 export default function(params: number[][]): (number | undefined)[][] {
   const n = numeric.dim(params)[0] || 0,
@@ -10,7 +10,7 @@ export default function(params: number[][]): (number | undefined)[][] {
   params.forEach(function(values) {
     nbCombs *= values.length > 0 ? values.length : 1
   })
-  const result: (number | undefined)[][] = numeric.rep([nbCombs, params.length], 0)
+  const result: (number | undefined)[][] = numeric.rep([nbCombs, params.length], 0) as number[][]
 
   let i = 0,
     j = 0,

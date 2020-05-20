@@ -1,17 +1,10 @@
-const assert = require('assert')
-const _a = require('mout/array')
-const numeric = require('numeric')
+import _ from 'lodash'
 
-export default function(arr) {
+const assert = require('assert')
+import numeric from 'numeric'
+
+export default function(arr: number[]) {
   const n = numeric.dim(arr)[0] || 0
   assert(n > 0, 'array cannot be empty')
-  return (
-    _a.reduce(
-      arr,
-      function(sum, v) {
-        return sum + v
-      },
-      0
-    ) / n
-  )
+  return _.reduce(arr, (sum, v) => sum + v, 0) / n
 }

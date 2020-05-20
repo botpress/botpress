@@ -1,7 +1,5 @@
 import _ from 'lodash'
 
-const _l = require('mout/lang')
-
 const assert = require('assert')
 
 import defaults from './default-config'
@@ -12,7 +10,7 @@ import { SvmConfig } from '../typings'
 function checkConfig(config: SvmConfig) {
   assert(config.kFold > 0, 'k-fold must be >= 1')
   // parameter C used for C-SVC, epsilon-SVR, and nu-SVR
-  if (_l.isString(config.svm_type)) {
+  if (_.isString(config.svm_type)) {
     config.svm_type = svmTypes[config.svm_type]
   }
   if (
@@ -20,7 +18,7 @@ function checkConfig(config: SvmConfig) {
     config.svm_type === svmTypes.EPSILON_SVR ||
     config.svm_type === svmTypes.NU_SVR
   ) {
-    if (_l.isNumber(config.C)) {
+    if (_.isNumber(config.C)) {
       config.C = [config.C as number]
     }
     assert(config.C && (config.C as number[]).length > 0, 'Require at least one value for C parameter')
@@ -28,7 +26,7 @@ function checkConfig(config: SvmConfig) {
     config.C = []
   }
 
-  if (_l.isString(config.kernel_type)) {
+  if (_.isString(config.kernel_type)) {
     config.kernel_type = kernelTypes[config.kernel_type]
   }
   // parameter gamma used for POLY, RBF, and SIGMOID kernels
@@ -37,7 +35,7 @@ function checkConfig(config: SvmConfig) {
     config.kernel_type === kernelTypes.RBF ||
     config.kernel_type === kernelTypes.SIGMOID
   ) {
-    if (_l.isNumber(config.gamma)) {
+    if (_.isNumber(config.gamma)) {
       config.gamma = [config.gamma as number]
     }
     assert(config.gamma && (config.gamma as number[]).length > 0, 'Require at least one value for gamma parameter')
@@ -47,7 +45,7 @@ function checkConfig(config: SvmConfig) {
 
   // parameter epsilon used for epsilon-SVR only
   if (config.svm_type === svmTypes.EPSILON_SVR) {
-    if (_l.isNumber(config.p)) {
+    if (_.isNumber(config.p)) {
       config.p = [config.p as number]
     }
     assert(config.p && (config.p as number[]).length > 0, 'Require at least one value for epsilon parameter')
@@ -61,7 +59,7 @@ function checkConfig(config: SvmConfig) {
     config.svm_type === svmTypes.ONE_CLASS ||
     config.svm_type === svmTypes.NU_SVR
   ) {
-    if (_l.isNumber(config.nu)) {
+    if (_.isNumber(config.nu)) {
       config.nu = [config.nu as number]
     }
     assert(config.nu && (config.nu as number[]).length > 0, 'Require at least one value for nu parameter')
@@ -71,7 +69,7 @@ function checkConfig(config: SvmConfig) {
 
   // parameter degree used only for POLY kernel
   if (config.kernel_type === kernelTypes.POLY) {
-    if (_l.isNumber(config.degree)) {
+    if (_.isNumber(config.degree)) {
       config.degree = [config.degree as number]
     }
     assert(config.degree && (config.degree as number[]).length > 0, 'Require at least one value for degree parameter')
@@ -81,7 +79,7 @@ function checkConfig(config: SvmConfig) {
 
   // parameter r used for POLY kernel
   if (config.kernel_type === kernelTypes.POLY || config.kernel_type === kernelTypes.SIGMOID) {
-    if (_l.isNumber(config.coef0)) {
+    if (_.isNumber(config.coef0)) {
       config.coef0 = [config.coef0 as number]
     }
     assert(config.coef0 && (config.coef0 as number[]).length > 0, 'Require at least one value for r parameter')
