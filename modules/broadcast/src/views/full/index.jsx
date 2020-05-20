@@ -377,6 +377,9 @@ export default class BroadcastModule extends React.Component {
       return new Date(date)
     }
 
+    var maxDate = new Date()
+    maxDate.setFullYear(maxDate.getFullYear() + 20)
+
     return (
       <FormGroup label={lang.tr('module.broadcast.form.date')} fill={true}>
         <DateInput
@@ -384,6 +387,8 @@ export default class BroadcastModule extends React.Component {
           parseDate={str => new Date(str)}
           placeholder={'YYYY-MM-DD'}
           formatDate={d => moment(d).format('YYYY-MM-DD')}
+          maxDate={maxDate}
+          minDate={new Date()}
           value={getDate(this.state.broadcast.date)}
         />
       </FormGroup>
