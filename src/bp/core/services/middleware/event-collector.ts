@@ -16,7 +16,6 @@ type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
 @injectable()
 export class EventCollector {
   private readonly MAX_RETRY_ATTEMPTS = 3
-  private readonly BATCH_SIZE = 100
   private readonly PRUNE_INTERVAL = ms('30s')
   private readonly TABLE_NAME = 'events'
   private knex!: Knex & sdk.KnexExtension
@@ -27,6 +26,7 @@ export class EventCollector {
   private enabled = false
   private interval!: number
   private retentionPeriod!: number
+  private batchSize: number = 100
   private batch: BatchEvent[] = []
   private ignoredTypes: string[] = []
   private ignoredProperties: string[] = []
@@ -44,6 +44,11 @@ export class EventCollector {
     const config = (await this.configProvider.getBotpressConfig()).eventCollector
     if (!config || !config.enabled) {
       return
+    }
+
+    // SQLite supports max 999 variables (13 fields * batch size). Being conservative
+    if (database.knex.isLite) {
+      this.batchSize = 50
     }
 
     this.knex = database.knex
@@ -116,14 +121,14 @@ export class EventCollector {
       return
     }
 
-    const batchCount = this.batch.length >= this.BATCH_SIZE ? this.BATCH_SIZE : this.batch.length
+    const batchCount = this.batch.length >= this.batchSize ? this.batchSize : this.batch.length
     const elements = this.batch.splice(0, batchCount)
 
     this.currentPromise = this.knex
       .batchInsert(
         this.TABLE_NAME,
         elements.map(x => _.omit(x, 'retry')),
-        this.BATCH_SIZE
+        this.batchSize
       )
       .then(() => {
         if (Date.now() - this.lastPruneTs >= this.PRUNE_INTERVAL) {
