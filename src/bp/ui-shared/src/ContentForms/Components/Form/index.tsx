@@ -1,6 +1,8 @@
+import { Checkbox } from '@blueprintjs/core'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer } from 'react'
+import React, { FC, Fragment, useReducer } from 'react'
 
+import { lang } from '../../../translations'
 import { contentTypesFields, getEmptyFormData } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
@@ -157,6 +159,20 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
             />
           </FieldWrapper>
         )
+      case 'checkbox':
+        return (
+          <Checkbox
+            checked={data[field.key]}
+            key={field.key}
+            label={printLabel(field, data[field.key])}
+            onChange={e =>
+              dispatch({
+                type: 'updateField',
+                data: { field: field.key, onUpdate, value: e.currentTarget.checked }
+              })
+            }
+          />
+        )
       default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
@@ -171,7 +187,14 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
     }
   }
 
-  return contentTypesFields[contentType].fields.map(field => printField(field, state))
+  return (
+    <Fragment>
+      {contentTypesFields[contentType].fields.map(field => printField(field, state))}
+      <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
+        {contentTypesFields[contentType].advancedSettings.map(field => printField(field, state))}
+      </GroupItemWrapper>
+    </Fragment>
+  )
 }
 
 export default Form

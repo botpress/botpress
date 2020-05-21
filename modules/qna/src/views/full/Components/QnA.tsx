@@ -150,6 +150,8 @@ const QnA: FC<Props> = props => {
   }
 
   const deleteContentAnswer = () => {
+    setShowContentForm(false)
+
     if (editingContent.current === null) {
       return
     }
@@ -270,6 +272,7 @@ const QnA: FC<Props> = props => {
             />
           </TextAreaList>
           {contentAnswers?.map((content, index) => {
+            // TODO implement actual design for this in the next PR
             return (
               <div key={index}>
                 {content.title}

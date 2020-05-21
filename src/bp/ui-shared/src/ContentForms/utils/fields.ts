@@ -2,8 +2,8 @@ const image = {
   advancedSettings: [
     {
       key: 'markdown',
-      defaultValue: true,
       label: 'Use Markdown',
+      type: 'checkbox',
       moreInfo: {
         label: 'Learn more',
         url: 'https://daringfireball.net/projects/markdown/'
@@ -11,7 +11,7 @@ const image = {
     },
     {
       key: 'typingIndicator',
-      defaultValue: true,
+      type: 'checkbox',
       label: 'Display typing indicator'
     }
   ],
@@ -34,8 +34,8 @@ const card = {
   advancedSettings: [
     {
       key: 'markdown',
-      defaultValue: true,
       label: 'Use Markdown',
+      type: 'checkbox',
       moreInfo: {
         label: 'Learn more',
         url: 'https://daringfireball.net/projects/markdown/'
@@ -43,7 +43,7 @@ const card = {
     },
     {
       key: 'typingIndicator',
-      defaultValue: true,
+      type: 'checkbox',
       label: 'Display typing indicator'
     }
   ],
@@ -128,8 +128,8 @@ const carousel = {
   advancedSettings: [
     {
       key: 'markdown',
-      defaultValue: true,
       label: 'Use Markdown',
+      type: 'checkbox',
       moreInfo: {
         label: 'Learn more',
         url: 'https://daringfireball.net/projects/markdown/'
@@ -137,7 +137,7 @@ const carousel = {
     },
     {
       key: 'typingIndicator',
-      defaultValue: true,
+      type: 'checkbox',
       label: 'Display typing indicator'
     }
   ],
@@ -163,20 +163,22 @@ const suggestions = {
   advancedSettings: [
     {
       key: 'onTopOfKeyboard',
-      defaultValue: true,
+      type: 'checkbox',
       label: 'Display on top of the keyboard'
     },
     {
       key: 'typingIndicator',
-      defaultValue: true,
+      type: 'checkbox',
       label: 'Display typing indicator'
     },
     {
       key: 'canAdd',
+      type: 'checkbox',
       label: 'Allow user to add suggestions'
     },
     {
       key: 'multiple',
+      type: 'checkbox',
       label: 'Allow user to pick multiple suggestions'
     }
   ],
@@ -246,6 +248,8 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false) => 
       return {
         onTopOfKeyboard: true,
         typingIndicator: true,
+        canAdd: false,
+        multiple: false,
         suggestions: [getEmptyFormData('suggestions', true)]
       }
     case 'buttons':

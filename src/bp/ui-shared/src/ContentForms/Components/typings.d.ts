@@ -16,7 +16,8 @@ export interface FieldWrapperProps {
 
 export interface GroupItemWrapperProps {
   children: any
-  contextMenu: {
+  defaultCollapsed?: boolean
+  contextMenu?: {
     type: string
     label: string
   }[]
