@@ -11,7 +11,7 @@
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
-    "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=../../modules:../../internal-modules node index.js",
+    "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules node index.js",
     "cmd": "yarn run gulp",
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",
