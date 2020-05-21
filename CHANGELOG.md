@@ -1,3 +1,23 @@
+## [12.9.3](https://github.com/botpress/botpress/compare/v12.9.2...v12.9.3) (2020-05-21)
+
+
+### Bug Fixes
+
+* **analytics:** ensure standard date format ([#3351](https://github.com/botpress/botpress/issues/3351)) ([5471ed0](https://github.com/botpress/botpress/commit/5471ed0))
+* **channel-messenger:** remove invalid keys ([#3091](https://github.com/botpress/botpress/issues/3091)) ([553fb25](https://github.com/botpress/botpress/commit/553fb25))
+* **core:** fix jumpTo in actions [#1772](https://github.com/botpress/botpress/issues/1772) ([#3014](https://github.com/botpress/botpress/issues/3014)) ([bc61a49](https://github.com/botpress/botpress/commit/bc61a49))
+* **core:** img link with custom path & preview ([#3337](https://github.com/botpress/botpress/issues/3337)) ([e5563a4](https://github.com/botpress/botpress/commit/e5563a4))
+* **core:** limit sqlite batch size ([#3350](https://github.com/botpress/botpress/issues/3350)) ([a631f4d](https://github.com/botpress/botpress/commit/a631f4d))
+* **core:** moved heavy operation ([#3339](https://github.com/botpress/botpress/issues/3339)) ([0a0fec0](https://github.com/botpress/botpress/commit/0a0fec0))
+* **core:** prevent race condition for instances ([#3343](https://github.com/botpress/botpress/issues/3343)) ([067348a](https://github.com/botpress/botpress/commit/067348a))
+* **core:** sessions not expiring ([#3341](https://github.com/botpress/botpress/issues/3341)) ([1e8822b](https://github.com/botpress/botpress/commit/1e8822b))
+* **core:** small speed improvement & less gc work ([#3340](https://github.com/botpress/botpress/issues/3340)) ([7002a4a](https://github.com/botpress/botpress/commit/7002a4a))
+* **hitl:** fix rendering issue with messages from messenger ([#3104](https://github.com/botpress/botpress/issues/3104)) ([5f54fdc](https://github.com/botpress/botpress/commit/5f54fdc))
+* **qna:** warn instead of block for duplicates ([#3338](https://github.com/botpress/botpress/issues/3338)) ([49337ac](https://github.com/botpress/botpress/commit/49337ac))
+* **studio:** add the content arrays reorder ([#3352](https://github.com/botpress/botpress/issues/3352)) ([07da5ff](https://github.com/botpress/botpress/commit/07da5ff))
+
+
+
 ## [12.9.2](https://github.com/botpress/botpress/compare/v12.9.1...v12.9.2) (2020-05-12)
 
 
