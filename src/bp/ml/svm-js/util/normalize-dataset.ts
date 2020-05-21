@@ -19,8 +19,8 @@ export default function(dataset: Data[], mu?, sigma?) {
 
   assert(m > 0, 'number of features must be gt 0')
 
-  mu = mu || _.range(m - 1).map(i => avg(X.map(x => x[i] || 0)))
-  sigma = sigma || _.range(m - 1).map(i => std(X.map(x => x[i] || 0)))
+  mu = mu || _.range(m).map(i => avg(X.map(x => x[i] || 0)))
+  sigma = sigma || _.range(m).map(i => std(X.map(x => x[i] || 0)))
 
   return {
     dataset: dataset.map(l => [normalizeInput(l[0], mu, sigma), l[1]] as Data),

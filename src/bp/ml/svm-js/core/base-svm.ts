@@ -57,7 +57,8 @@ class BaseSVM {
     const svm = this._clf as NSVM
 
     try {
-      deferred.resolve(svm.predict(inputs))
+      const res = svm.predict(inputs)
+      deferred.resolve(res)
     } catch (err) {
       deferred.reject(err)
     }
