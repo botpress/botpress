@@ -108,6 +108,7 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
     this.labels = serialized.labels_idx
 
     try {
+      // TODO: actually check the model format
       const model = _.omit(serialized, 'labels_idx')
       this.parameters = model.param
       this.clf = new SVM({ kFold: 1 }, model)

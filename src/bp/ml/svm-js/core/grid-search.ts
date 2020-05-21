@@ -61,11 +61,11 @@ export default function(dataset: Data[], config: SvmConfig) {
 
       const params = configToAddonParams(cParams)
 
-      // TODO: find a workaround for this supper weird patch.
-      // I don't believe this occurs at runtime, but it does in at least one unit test.
-      // If so, maybe the splitDataset logic should be modify so training sets are always balanced.
       const n_class = _.uniq(ss.train.map(s => s[1])).length
-      params.svm_type = n_class == 1 ? svmTypes['ONE_CLASS'] : params.svm_type
+      if (n_class == 1) {
+        // this should not happened anymore...
+        throw new Error('There should not be a training set with only one class...')
+      }
 
       return clf
         .train(ss.train, params) // train with train set
