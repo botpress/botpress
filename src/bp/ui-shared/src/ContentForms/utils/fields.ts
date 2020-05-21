@@ -237,10 +237,16 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false) => 
         cards: [getEmptyFormData('card', true)]
       }
     case 'suggestions':
+      if (isPartOfGroup) {
+        return {
+          label: '',
+          value: ''
+        }
+      }
       return {
         onTopOfKeyboard: true,
         typingIndicator: true,
-        suggestions: [{}]
+        suggestions: [getEmptyFormData('suggestions', true)]
       }
     case 'buttons':
       return {

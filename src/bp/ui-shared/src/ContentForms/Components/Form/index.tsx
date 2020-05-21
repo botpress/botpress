@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import React, { FC, Fragment, useReducer } from 'react'
+import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { contentTypesFields, getEmptyFormData } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
@@ -12,11 +12,11 @@ import GroupItemWrapper from '../GroupItemWrapper'
 
 import { FormProps } from './typings'
 
-const printLabel = field => {
+const printLabel = (field, data) => {
   if (field.label.startsWith('fields::') && field.fields?.length) {
     const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
 
-    return labelField.value || labelField.label
+    return data[labelField.key] || labelField.label
   }
 
   return field.label
@@ -28,6 +28,7 @@ const formReducer = (state: State, action): State => {
   if (action.type === 'add') {
     const { field, parent } = action.data
     const newData = getEmptyFormData(field, true)
+
     if (parent) {
       const { key, index } = parent
       const updatedItem = state[key]
@@ -46,6 +47,7 @@ const formReducer = (state: State, action): State => {
     }
   } else if (action.type === 'deleteGroupItem') {
     const { deleteIndex, field, parent } = action.data
+
     if (parent) {
       const { key, index } = parent
       const updatedItem = state[key]
@@ -108,7 +110,7 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
                 onDelete={() =>
                   dispatch({ type: 'deleteGroupItem', data: { deleteIndex: index, field: field.key, parent } })
                 }
-                label={printLabel(field)}
+                label={printLabel(field, fieldData)}
               >
                 {field.fields.map(groupField => printField(groupField, fieldData, { key: field.key, index, parent }))}
               </GroupItemWrapper>
@@ -124,7 +126,7 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
         const currentOption = field.options.find(option => option.value === value)
 
         return (
-          <FieldWrapper key={field.key} label={printLabel(field)}>
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Select
               options={field.options}
               value={value}
@@ -136,7 +138,7 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
         )
       case 'textarea':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field)}>
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <TextArea
               placeholder={field.placeholder}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
@@ -146,7 +148,7 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
         )
       case 'upload':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field)}>
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Upload
               axios={bp.axios}
               placeholder={field.placeholder}
@@ -157,7 +159,7 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
         )
       default:
         return (
-          <FieldWrapper key={field.key} label={printLabel(field)}>
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Text
               placeholder={field.placeholder}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}

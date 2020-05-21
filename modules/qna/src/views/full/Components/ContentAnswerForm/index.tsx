@@ -2,7 +2,7 @@ import { Tab, Tabs } from '@blueprintjs/core'
 import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { debounce } from 'lodash'
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback, useRef, useState } from 'react'
 
 import style from './style.scss'
 
@@ -11,10 +11,12 @@ interface Props {
   deleteContent: () => void
   close: () => void
   onUpdate: (data: any) => void
+  // TODO max add typings in future PR
+  formData: any
 }
 
-const ContentAnswerForm: FC<Props> = ({ bp, close, onUpdate, deleteContent }) => {
-  const [contentType, setContentType] = useState('image')
+const ContentAnswerForm: FC<Props> = ({ bp, close, formData, onUpdate, deleteContent }) => {
+  const contentType = useRef(formData?.contentType || 'image')
   const [showOptions, setShowOptions] = useState(false)
   const debounceUpdate = useCallback(debounce(onUpdate, 300), [])
   const moreOptionsItems: MoreOptionsItems[] = [
@@ -27,7 +29,8 @@ const ContentAnswerForm: FC<Props> = ({ bp, close, onUpdate, deleteContent }) =>
   ]
 
   const handleContentTypeChange = value => {
-    setContentType(value)
+    contentType.current = value
+    onUpdate({ ...ContentForms.getEmptyFormData(value), contentType: value, id: formData?.id })
   }
 
   const contentTypes = [
@@ -37,10 +40,10 @@ const ContentAnswerForm: FC<Props> = ({ bp, close, onUpdate, deleteContent }) =>
     { value: 'suggestions', label: 'Suggestions' }
   ]
 
-  const formData = ContentForms.getEmptyFormData(contentType)
+  const newFormData = ContentForms.getEmptyFormData(contentType.current)
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={false} close={close}>
+    <RightSidebar className={style.wrapper} canOutsideClickClose close={close}>
       <div className={style.formHeader}>
         <Tabs id="contentFormTabs">
           <Tab id="content" title="Content" />
@@ -54,7 +57,7 @@ const ContentAnswerForm: FC<Props> = ({ bp, close, onUpdate, deleteContent }) =>
             filterable={false}
             className={style.formSelect}
             items={contentTypes}
-            defaultItem={contentType}
+            defaultItem={contentType.current}
             rightIcon="chevron-down"
             onChange={option => {
               handleContentTypeChange(option.value)
@@ -65,9 +68,9 @@ const ContentAnswerForm: FC<Props> = ({ bp, close, onUpdate, deleteContent }) =>
 
       <ContentForms.Form
         bp={bp}
-        formData={formData}
-        contentType={contentType}
-        onUpdate={data => debounceUpdate(data)}
+        formData={formData || newFormData}
+        contentType={contentType.current}
+        onUpdate={data => debounceUpdate({ ...data, contentType: contentType.current })}
       />
     </RightSidebar>
   )

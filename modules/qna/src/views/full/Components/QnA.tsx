@@ -4,7 +4,7 @@ import { confirmDialog, FormFields, lang, MoreOptions, MoreOptionsItems } from '
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, useState } from 'react'
+import React, { FC, Fragment, useRef, useState } from 'react'
 import Select from 'react-select'
 
 import { QnaItem } from '../../../backend/qna'
@@ -35,7 +35,8 @@ interface Props {
 }
 
 const QnA: FC<Props> = props => {
-  const [showContentForm, setShowContentForm] = useState(true)
+  const [showContentForm, setShowContentForm] = useState(false)
+  const editingContent = useRef(null)
   const [showOption, setShowOption] = useState(false)
   const {
     contentLang,
@@ -52,6 +53,7 @@ const QnA: FC<Props> = props => {
   const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
   let questions = data.questions[contentLang]
   let answers = data.answers[contentLang]
+  const contentAnswers = data.contentAnswers?.[contentLang] || []
   const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
   const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
 
@@ -130,6 +132,35 @@ const QnA: FC<Props> = props => {
         ? errorMsg
         : ''
     )
+
+  const updateContentAnswers = newData => {
+    const newContentAnswers = [...contentAnswers]
+
+    if (editingContent.current === null) {
+      newContentAnswers.push({ ...newData })
+      editingContent.current = newContentAnswers.length - 1
+    } else {
+      newContentAnswers[editingContent.current] = newData
+    }
+
+    updateQnA({
+      id,
+      data: { ...data, contentAnswers: { ...data.contentAnswers, [contentLang]: newContentAnswers } }
+    })
+  }
+
+  const deleteContentAnswer = () => {
+    if (editingContent.current === null) {
+      return
+    }
+
+    const newContentAnswers = [...contentAnswers.filter((content, index) => editingContent.current !== index)]
+
+    updateQnA({
+      id,
+      data: { ...data, contentAnswers: { ...data.contentAnswers, [contentLang]: newContentAnswers } }
+    })
+  }
 
   const showIncomplete =
     questions.filter(q => !!q.trim()).length < 3 ||
@@ -232,9 +263,26 @@ const QnA: FC<Props> = props => {
           >
             <FormFields.AddButton
               text={lang.tr('module.qna.form.addContent')}
-              onClick={() => setShowContentForm(true)}
+              onClick={() => {
+                setShowContentForm(true)
+                editingContent.current = null
+              }}
             />
           </TextAreaList>
+          {contentAnswers?.map((content, index) => {
+            return (
+              <div key={index}>
+                {content.title}
+                <Button
+                  icon="edit"
+                  onClick={() => {
+                    editingContent.current = index
+                    setShowContentForm(true)
+                  }}
+                />
+              </div>
+            )
+          })}
           {showRedirectToFlow && (
             <Fragment>
               <h1 className={style.redirectTitle}>{lang.tr('module.qna.form.redirectQuestionTo')}</h1>
@@ -278,8 +326,9 @@ const QnA: FC<Props> = props => {
       {showContentForm && (
         <ContentAnswerForm
           bp={bp}
-          deleteContent={() => {}}
-          onUpdate={data => console.log(data)}
+          deleteContent={() => deleteContentAnswer()}
+          formData={contentAnswers[editingContent.current]}
+          onUpdate={data => updateContentAnswers(data)}
           close={() => setShowContentForm(false)}
         />
       )}

@@ -14,6 +14,10 @@ export interface QnaEntry {
   answers: {
     [lang: string]: string[]
   }
+  contentAnswers: {
+    // TODO max change typing in future PR
+    [lang: string]: any[]
+  }
   redirectFlow: string
   redirectNode: string
 }

@@ -19,6 +19,9 @@ export const QnaDefSchema = Joi.object().keys({
     .default({}),
   answers: Joi.object()
     .pattern(/.*/, Joi.array().items(Joi.string()))
+    .default({}),
+  // TODO add validation when the typings are done to validate the content types
+  contentAnswers: Joi.object()
     .default({})
 })
 
