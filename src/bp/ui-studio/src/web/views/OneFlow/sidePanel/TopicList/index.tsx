@@ -1,10 +1,15 @@
-import { AnchorButton, Button, Intent, Menu, MenuDivider, MenuItem, Position, Tooltip } from '@blueprintjs/core'
+import { EditableText, Intent, Menu, MenuDivider, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
-import { Flow, Topic } from 'botpress/sdk'
 import { confirmDialog, lang, TreeView } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
+import { connect } from 'react-redux'
+import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
+import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
+import { sanitizeName } from '~/util'
 
+import { buildFlowName } from '..//WorkflowEditor/utils'
 import style from '../style.scss'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']
@@ -20,29 +25,32 @@ export interface CountByTopic {
   [topicName: string]: number
 }
 
-interface Props {
-  filter: string
+interface OwnProps {
   readOnly: boolean
-  currentFlow: Flow
-  topics: Topic[]
   qnaCountByTopic: CountByTopic[]
-
-  canDelete: boolean
-  goToFlow: Function
-  flows: IFlow[]
-
-  duplicateFlow: Function
-  deleteFlow: Function
-  exportWorkflow: Function
-  fetchTopics: () => void
-
-  importWorkflow: (topicId: string) => void
-  createWorkflow: (topicId: string) => void
-  editQnA: (topicName: string) => void
+  goToFlow: (flow: any) => void
+  duplicateFlow: (flowName: string) => void
   editWorkflow: (wfId: any, data: any) => void
+  createWorkflow: (topicId: string) => void
+  exportWorkflow: (flowName: string) => void
+  importWorkflow: (topicId: string) => void
   editTopic: (topicName: string | NodeData) => void
+  editQnA: (topicName: string) => void
   exportTopic: (topicName: string | NodeData) => void
+  onExpandToggle: (node, isExpanded: boolean) => void
+  canDelete: boolean
+  filter: string
+  expandedPaths: string[]
+  newPath: string
+  setNewPath: (path: string) => void
+  focusedText: string
+  setFocusedText: (name: string) => void
 }
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+type Props = StateProps & DispatchProps & OwnProps
 
 interface NodeData {
   name: string
@@ -51,20 +59,19 @@ interface NodeData {
   id?: any
   icon?: string
   triggerCount?: number
+  topic?: string
   /** List of workflows which have a reference to it */
   referencedIn?: string[]
   countByTopic?: CountByTopic
 }
 
-type NodeType = 'workflow' | 'folder' | 'topic' | 'qna'
-
-interface IFlow {
-  name: string
-  label: string
-}
+type NodeType = 'workflow' | 'folder' | 'topic' | 'qna' | 'addWorkflow'
 
 const TopicList: FC<Props> = props => {
   const [flows, setFlows] = useState<NodeData[]>([])
+  const [forceSelect, setForceSelect] = useState({ field: undefined, value: undefined })
+  const [forcedSelect, setForcedSelect] = useState(false)
+  const [, forceUpdate] = useReducer(x => x + 1, 0)
 
   useEffect(() => {
     const qna = props.topics.map(topic => ({
@@ -75,21 +82,30 @@ const TopicList: FC<Props> = props => {
       countByTopic: props.qnaCountByTopic?.[topic.name] || 0
     }))
 
-    setFlows([...qna, ...props.flows])
-  }, [props.flows, props.topics, props.qnaCountByTopic])
+    setFlows([...qna, ...props.flowsName])
+  }, [props.flowsName, props.topics, props.qnaCountByTopic])
 
-  const deleteFlow = async (name: string) => {
-    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {})) {
+  useEffect(() => {
+    if (!forcedSelect && props.currentFlow) {
+      props.onExpandToggle(props.currentFlow.location.split('/')[0], true)
+      setForceSelect({ field: 'fullPath', value: props.currentFlow.location })
+      setForcedSelect(true)
+    }
+  }, [props.currentFlow])
+
+  const deleteFlow = async (name: string, skipDialog = false) => {
+    if (skipDialog || (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow', { name }), {}))) {
       props.deleteFlow(name)
     }
   }
 
-  const deleteTopic = async (name: string) => {
+  const deleteTopic = async (name: string, skipDialog = false) => {
     const matcher = new RegExp(`^${name}/`)
-    const flowsToDelete = props.flows.filter(x => matcher.test(x.name))
+    const flowsToDelete = props.flowsName.filter(x => matcher.test(x.name))
 
     if (
-      await confirmDialog(
+      skipDialog ||
+      (await confirmDialog(
         <span>
           {lang.tr('studio.flow.topicList.confirmDeleteTopic', { name })}
           <br />
@@ -104,7 +120,7 @@ const TopicList: FC<Props> = props => {
           )}
         </span>,
         {}
-      )
+      ))
     ) {
       await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
       flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
@@ -112,44 +128,62 @@ const TopicList: FC<Props> = props => {
     }
   }
 
-  const folderRenderer = (folder: string) => {
-    const createWorkflow = e => {
-      e.stopPropagation()
-      props.createWorkflow(folder)
-    }
+  const sanitize = (name: string) => {
+    return sanitizeName(name).replace(/\//g, '-')
+  }
 
-    const editTopic = e => {
-      e.stopPropagation()
-      props.editTopic(folder)
+  const folderRenderer = (folder: string) => {
+    const isFocused = folder === props.focusedText
+    const isNew = folder === props.newPath
+    const isBuiltIn = folder === 'Built-In'
+    const filterOrder = isBuiltIn ? 3 : isNew ? 2 : 1
+
+    const editTopic = async newName => {
+      props.setFocusedText(undefined)
+      props.setNewPath(undefined)
+      setForceSelect(undefined)
+      if (newName === '') {
+        await props.fetchFlows()
+        await props.fetchTopics()
+      } else if (newName !== folder) {
+        const sanitizedName = sanitize(newName)
+        if (!props.topics.find(x => x.name == sanitizedName)) {
+          await axios.post(`${window.BOT_API_PATH}/topic/${folder}`, { name: sanitizedName, description: undefined })
+          if (props.expandedPaths.includes(folder)) {
+            props.onExpandToggle(sanitizedName, true)
+          }
+        }
+        await props.fetchFlows()
+        await props.fetchTopics()
+      }
     }
 
     return {
       label: (
         <div className={style.treeNode}>
-          <span>{folder}</span>
-          <div className={style.overhidden} id="actions">
-            <Tooltip
-              content={<span>{lang.tr('studio.flow.topicList.editTopic')}</span>}
-              hoverOpenDelay={500}
-              position={Position.BOTTOM}
-            >
-              <Button icon="edit" minimal onClick={editTopic} />
-            </Tooltip>
-            <Tooltip
-              content={<span>{lang.tr('studio.flow.topicList.createNewWorkflow')}</span>}
-              hoverOpenDelay={500}
-              position={Position.BOTTOM}
-            >
-              <Button icon="insert" minimal onClick={createWorkflow} />
-            </Tooltip>
-          </div>
+          {!isBuiltIn ? (
+            <EditableText
+              onConfirm={editTopic}
+              defaultValue={isNew ? '' : folder}
+              isEditing={isFocused}
+              disabled={!isFocused}
+              placeholder={
+                isNew ? lang.tr('studio.flow.sidePanel.nameTopic') : lang.tr('studio.flow.sidePanel.renameTopic')
+              }
+              selectAllOnFocus={true}
+            />
+          ) : (
+            <span>{folder}</span>
+          )}
         </div>
-      )
+      ),
+      icon: 'none',
+      name: `${filterOrder}/${folder}`
     }
   }
 
   const handleContextMenu = (element: NodeData | string, elementType) => {
-    if (elementType === 'folder') {
+    if (elementType === 'folder' && (element as NodeData).type !== 'addWorkflow') {
       const folder = element as string
       return (
         <Menu>
@@ -166,20 +200,22 @@ const TopicList: FC<Props> = props => {
             text={lang.tr('studio.flow.topicList.exportTopic')}
             onClick={() => props.exportTopic(folder)}
           />
-          <MenuItem
-            id="btn-delete"
-            icon="trash"
-            text={lang.tr('studio.flow.topicList.deleteTopic')}
-            intent={Intent.DANGER}
-            onClick={() => deleteTopic(folder)}
-          />
+          {folder !== 'Built-In' && (
+            <MenuItem
+              id="btn-delete"
+              icon="trash"
+              text={lang.tr('studio.flow.topicList.deleteTopic')}
+              intent={Intent.DANGER}
+              onClick={() => deleteTopic(folder)}
+            />
+          )}
           <MenuDivider />
           <MenuItem
             id="btn-create"
             disabled={props.readOnly}
             icon="add"
             text={lang.tr('studio.flow.topicList.createNewWorkflow')}
-            onClick={() => props.createWorkflow(name)}
+            onClick={() => props.createWorkflow(folder)}
           />
           <MenuItem
             id="btn-import"
@@ -204,7 +240,7 @@ const TopicList: FC<Props> = props => {
           />
         </Menu>
       )
-    } else {
+    } else if (elementType === 'document') {
       const { name } = element as NodeData
 
       return (
@@ -245,100 +281,73 @@ const TopicList: FC<Props> = props => {
 
   const nodeRenderer = (el: NodeData) => {
     const { name, label, icon, type, triggerCount, referencedIn, countByTopic } = el
-
-    const editWorkflow = e => {
-      e.stopPropagation()
-      props.editWorkflow(name, el)
-    }
-    const deleteWorkflow = async e => {
-      e.stopPropagation()
-      await deleteFlow(name)
-    }
-    const editQnA = e => {
-      e.stopPropagation()
-      props.editQnA(name.replace('/qna', ''))
-    }
-
     const displayName = label || name.substr(name.lastIndexOf('/') + 1).replace(/\.flow\.json$/, '')
+    const isFocused = name === props.focusedText
+    const isNew = name === props.newPath
+    const isQna = type === 'qna'
+    const filterOrder = isNew ? 3 : !isQna ? 2 : 1
 
-    const qnaTooltip = (
-      <Tooltip content={lang.tr('studio.flow.topicList.nbQuestionsInTopic')} hoverOpenDelay={500}>
-        <small>({countByTopic})</small>
-      </Tooltip>
-    )
-
-    const tooltip = (
-      <>
-        <Tooltip content={lang.tr('studio.flow.topicList.nbTriggersInWorkflow')} hoverOpenDelay={500}>
-          <small>({triggerCount})</small>
-        </Tooltip>
-        &nbsp;&nbsp;
-        {!!referencedIn?.length && (
-          <Tooltip
-            content={
-              <div>
-                {lang.tr('studio.flow.topicList.workflowReceiving')}{' '}
-                <ul>
-                  {referencedIn.map(x => (
-                    <li key={x}>{x}</li>
-                  ))}
-                </ul>
-              </div>
-            }
-            hoverOpenDelay={500}
-          >
-            <small>
-              <span className={style.referencedWorkflows}>({referencedIn?.length})</span>
-            </small>
-          </Tooltip>
-        )}
-      </>
-    )
+    const editWorkflow = async newName => {
+      props.setFocusedText(undefined)
+      props.setNewPath(undefined)
+      setForceSelect(undefined)
+      if (newName === '') {
+        await props.fetchFlows()
+        await props.fetchTopics()
+      } else if (newName !== displayName) {
+        const fullName = buildFlowName({ topic: el.topic, workflow: sanitize(newName) }, true)
+        if (!props.flowsName.find(x => x.name === fullName)) {
+          props.renameFlow({ targetFlow: name, name: fullName })
+          props.updateFlow({ name: fullName })
+          setForceSelect({ field: 'fullPath', value: fullName })
+        } else {
+          await props.fetchFlows()
+          await props.fetchTopics()
+        }
+      }
+    }
 
     return {
       label: (
         <div className={style.treeNode}>
-          <span>
-            {displayName} {type !== 'qna' ? tooltip : qnaTooltip}
-          </span>
-          <div className={style.overhidden} id="actions">
-            {type !== 'qna' && (
-              <Fragment>
-                <Tooltip
-                  content={<span>{lang.tr('studio.flow.topicList.editWorkflow')}</span>}
-                  hoverOpenDelay={500}
-                  position={Position.BOTTOM}
-                >
-                  <Button icon="edit" minimal onClick={editWorkflow} />
-                </Tooltip>
-                <Tooltip
-                  content={<span>{lang.tr('studio.flow.topicList.deleteWorkflow')}</span>}
-                  hoverOpenDelay={500}
-                  position={Position.BOTTOM}
-                >
-                  <AnchorButton icon="trash" minimal onClick={deleteWorkflow} disabled={lockedFlows.includes(name)} />
-                </Tooltip>
-              </Fragment>
-            )}
-            {type === 'qna' && (
-              <Tooltip
-                content={<span>{lang.tr('studio.flow.topicList.editQna')}</span>}
-                hoverOpenDelay={500}
-                position={Position.BOTTOM}
-              >
-                <Button icon="edit" minimal onClick={editQnA} />
-              </Tooltip>
-            )}
-          </div>
+          {!isQna ? (
+            <EditableText
+              onConfirm={editWorkflow}
+              defaultValue={isNew ? '' : displayName}
+              isEditing={isFocused}
+              disabled={!isFocused}
+              placeholder={
+                isNew ? lang.tr('studio.flow.sidePanel.nameWorkflow') : lang.tr('studio.flow.sidePanel.renameWorkflow')
+              }
+              selectAllOnFocus={true}
+            />
+          ) : (
+            <span>{displayName}</span>
+          )}
         </div>
       ),
-      icon
+      icon: 'none',
+      name: `${filterOrder}/${displayName}`
+    }
+  }
+
+  const waitDoubleClick = (el: NodeData | string, type) => {
+    if (type === 'folder') {
+      return 200
     }
   }
 
   const onClick = (el: NodeData | string, type) => {
-    if ((el as NodeData)?.type === 'qna') {
+    if (el === props.focusedText) {
+      return true
+    }
+
+    const nodeData = el as NodeData
+    if (nodeData?.type === 'qna') {
       // Return true will mimic preventDefault for TreeView's onClick
+      return true
+    } else if (nodeData?.type === 'addWorkflow') {
+      props.createWorkflow(nodeData.topic)
       return true
     }
 
@@ -347,50 +356,116 @@ const TopicList: FC<Props> = props => {
     }
   }
 
-  const onDoubleClick = (el: NodeData, type) => {
-    if (el.type === 'qna') {
-      props.editQnA(el.name.replace('/qna', ''))
-    } else if (type === 'document') {
-      props.editWorkflow(el.name, el)
+  const onDoubleClick = (el: NodeData | string, type) => {
+    if (typeof el === 'string') {
+      props.setFocusedText(el)
+    } else {
+      const nodeData = el as NodeData
+      if (nodeData?.type === 'qna') {
+        props.editQnA(nodeData.name.replace('/qna', ''))
+      } else if (nodeData?.type !== 'addWorkflow' && type === 'document') {
+        props.setFocusedText(nodeData.name)
+      }
     }
   }
 
   const postProcessing = tree => {
     tree.forEach(parent => {
       parent.childNodes?.forEach(node => {
+        if (node.nodeData) {
+          node.nodeData.topic = parent.id
+        }
         if (node.id === `${parent.id}/qna`) {
           const wfCount = parent.childNodes?.filter(parentNode => node.id !== parentNode.id).length
-          parent.label = (
-            <div className={style.topicName}>
-              {parent.label}{' '}
-              <span className={style.tag}>
-                {node.nodeData?.countByTopic} Q&A · {wfCount} WF
-              </span>
-            </div>
-          )
+          if (parent.id !== props.focusedText) {
+            parent.label = (
+              <div className={style.topicName}>
+                {parent.label}
+                <span className={style.tag}>
+                  {node.nodeData?.countByTopic} Q&A · {wfCount} WF
+                </span>
+              </div>
+            )
+          }
         }
       })
+
+      if (parent.id !== 'Built-In') {
+        parent.childNodes?.push({
+          id: 'addWorkflow',
+          name: '4/addWorkflow',
+          label: (
+            <div className={cx(style.treeNode, style.addWorkflowNode)}>
+              <span>{lang.tr('studio.flow.sidePanel.addWorkflow')}</span>
+            </div>
+          ),
+          parent,
+          icon: 'plus',
+          type: 'addWorkflow',
+          nodeData: {
+            type: 'addWorkflow',
+            topic: parent.id
+          }
+        })
+      }
     })
+
+    if (!props.filter) {
+      const separator = {
+        id: 'separator',
+        label: <hr />
+      }
+
+      tree.splice(tree.length - 1, 0, separator)
+    }
 
     return tree
   }
 
-  const activeFlow = props.currentFlow?.name
   return (
-    <TreeView<NodeData>
-      elements={flows}
-      nodeRenderer={nodeRenderer}
-      folderRenderer={folderRenderer}
-      postProcessing={postProcessing}
-      onContextMenu={handleContextMenu}
-      onClick={onClick}
-      visibleElements={activeFlow && [{ field: 'name', value: activeFlow }]}
-      onDoubleClick={onDoubleClick}
-      filterText={props.filter}
-      pathProps="name"
-      filterProps="name"
-    />
+    <Fragment>
+      {props.topics.length === 0 && (
+        <div className={style.topicsEmptyState}>
+          <div className={style.topicsEmptyStateBlock}>
+            <img width="70" src="assets/ui-studio/public/img/empty-state.svg" alt="Empty folder" />
+            <div className={style.topicsEmptyStateText}>{lang.tr('studio.flow.sidePanel.tapIconsToAdd')}</div>
+          </div>
+        </div>
+      )}
+      <div className={cx(style.tree, { [style.unfilteredTree]: !props.filter })}>
+        <TreeView<NodeData>
+          elements={flows}
+          nodeRenderer={nodeRenderer}
+          folderRenderer={folderRenderer}
+          postProcessing={postProcessing}
+          onContextMenu={handleContextMenu}
+          onClick={onClick}
+          expandedPaths={props.expandedPaths}
+          onExpandToggle={props.onExpandToggle}
+          onDoubleClick={onDoubleClick}
+          waitDoubleClick={waitDoubleClick}
+          filterText={props.filter}
+          pathProps="name"
+          filterProps="name"
+          forceSelect={forceSelect}
+        />
+      </div>
+    </Fragment>
   )
 }
 
-export default TopicList
+const mapStateToProps = (state: RootReducer) => ({
+  flowsName: getFlowNamesList(state),
+  topics: state.ndu.topics,
+  currentFlow: getCurrentFlow(state)
+})
+
+const mapDispatchToProps = {
+  fetchTopics,
+  fetchFlows,
+  renameFlow,
+  updateFlow,
+  deleteFlow
+}
+
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(TopicList)
