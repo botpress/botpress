@@ -187,12 +187,16 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
     }
   }
 
+  const contentFields = contentTypesFields[contentType]
+
   return (
     <Fragment>
-      {contentTypesFields[contentType].fields.map(field => printField(field, state))}
-      <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
-        {contentTypesFields[contentType].advancedSettings.map(field => printField(field, state))}
-      </GroupItemWrapper>
+      {contentFields.fields.map(field => printField(field, state))}
+      {!!contentFields.advancedSettings?.length && (
+        <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
+          {contentFields.advancedSettings.map(field => printField(field, state))}
+        </GroupItemWrapper>
+      )}
     </Fragment>
   )
 }
