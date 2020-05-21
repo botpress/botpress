@@ -65,11 +65,11 @@ export class DialogEngine {
     const queueBuilder = new InstructionsQueueBuilder(currentNode, currentFlow)
     let queue: InstructionQueue
 
-    if (context.queue) {
-      queue = InstructionsQueueBuilder.fromInstructions(context.queue.instructions)
-    } else if (context.hasJumped) {
+    if (context.hasJumped) {
       queue = queueBuilder.hasJumped().build()
       context.hasJumped = false
+    } else if (context.queue) {
+      queue = InstructionsQueueBuilder.fromInstructions(context.queue.instructions)
     } else {
       queue = queueBuilder.build()
     }

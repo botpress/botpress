@@ -74,6 +74,8 @@
   "message": "Message",
   "modifiedOn": "Modifié le",
   "move": "Déplacer",
+  "moveDown": "Déplacer vers le bas",
+  "moveUp": "Déplacer vers le haut",
   "name": "Nom",
   "never": "Jamais",
   "next": "Suivant",

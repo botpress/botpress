@@ -48,6 +48,13 @@ interface State {
   pageTitle: string
   selectedChannel: string
   shownSection: string
+  disableAnalyticsFetching?: boolean
+}
+
+interface ExportPeriod {
+  startDate: string
+  endDate: string
+  metrics: MetricEntry[]
 }
 
 export interface Channel {
@@ -78,7 +85,8 @@ const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      dateRange
+      dateRange,
+      disableAnalyticsFetching: false
     }
   } else if (action.type === 'receivedMetrics') {
     const { metrics } = action.data
@@ -109,6 +117,14 @@ const fetchReducer = (state: State, action): State => {
       ...state,
       shownSection,
       pageTitle
+    }
+  } else if (action.type === 'setManualDate') {
+    const { dateRange } = action.data
+
+    return {
+      ...state,
+      dateRange,
+      disableAnalyticsFetching: true
     }
   } else {
     throw new Error(`That action type isn't supported.`)
@@ -151,7 +167,7 @@ const Analytics: FC<any> = ({ bp }) => {
   }, [])
 
   useEffect(() => {
-    if (!state.dateRange?.[0] || !state.dateRange?.[1]) {
+    if (!state.dateRange?.[0] || !state.dateRange?.[1] || state.disableAnalyticsFetching) {
       return
     }
 
@@ -441,16 +457,16 @@ const Analytics: FC<any> = ({ bp }) => {
     const { dateRange, metrics, previousDateRange, previousRangeMetrics } = state
     const formatDate = date => moment(date).format('YYYY-MM-DD')
 
-    const json = [
+    const json: ExportPeriod[] = [
       {
         startDate: formatDate(dateRange?.[0]),
         endDate: formatDate(dateRange?.[1]),
-        metrics
+        metrics: _.sortBy(metrics, ['metric', 'date'])
       },
       {
         startDate: formatDate(previousDateRange?.[0]),
         endDate: formatDate(previousDateRange?.[1]),
-        metrics: previousRangeMetrics
+        metrics: _.sortBy(previousRangeMetrics, ['metric', 'date'])
       }
     ]
 
@@ -466,15 +482,22 @@ const Analytics: FC<any> = ({ bp }) => {
     fr.onload = loadedEvent => {
       try {
         const dec = new TextDecoder('utf-8')
-        const content = JSON.parse(dec.decode(_.get(loadedEvent, 'target.result')))
+        const content = JSON.parse(dec.decode(_.get(loadedEvent, 'target.result'))) as ExportPeriod[]
 
         const loadDateRange = (type, data) => {
           const { startDate, endDate, metrics } = data
           dispatch({ type, data: { dateRange: [startDate, endDate], metrics } })
         }
 
-        loadDateRange('receivedMetrics', content[0])
-        loadDateRange('receivedPreviousRangeMetrics', content[1])
+        const [currentPeriod, prevPeriod] = content
+
+        loadDateRange('receivedMetrics', currentPeriod)
+        loadDateRange('receivedPreviousRangeMetrics', prevPeriod)
+
+        dispatch({
+          type: 'setManualDate',
+          data: { dateRange: [moment(currentPeriod.startDate).toDate(), moment(currentPeriod.endDate).toDate()] }
+        })
       } catch (err) {
         console.error(`Could not load metrics`, err)
       }

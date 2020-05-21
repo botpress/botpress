@@ -123,6 +123,8 @@
   "message": "Message",
   "modifiedOn": "Modified On",
   "move": "Move",
+  "moveDown": "Move Down",
+  "moveUp": "Move Up",
   "name": "Name",
   "never": "Never",
   "next": "Next",
