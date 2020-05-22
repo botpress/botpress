@@ -1,8 +1,7 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
-import { debounce } from 'lodash'
-import React, { FC, useCallback, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import style from './style.scss'
 
@@ -18,7 +17,6 @@ interface Props {
 const ContentAnswerForm: FC<Props> = ({ bp, close, formData, onUpdate, deleteContent }) => {
   const contentType = useRef(formData?.contentType || 'image')
   const [showOptions, setShowOptions] = useState(false)
-  const debounceUpdate = useCallback(debounce(onUpdate, 300), [])
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       icon: 'trash',
@@ -40,7 +38,11 @@ const ContentAnswerForm: FC<Props> = ({ bp, close, formData, onUpdate, deleteCon
     { value: 'suggestions', label: 'Suggestions' }
   ]
 
-  const newFormData = ContentForms.getEmptyFormData(contentType.current)
+  useEffect(() => {
+    console.log('test2')
+  }, [])
+
+  const contentFields = ContentForms.contentTypesFields[contentType.current]
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose close={close}>
@@ -65,12 +67,14 @@ const ContentAnswerForm: FC<Props> = ({ bp, close, formData, onUpdate, deleteCon
           />
         )}
       </div>
-
       <ContentForms.Form
+        key={contentType.current}
+        fields={contentFields.fields}
+        advancedSettings={contentFields.advancedSettings}
         bp={bp}
-        formData={formData || newFormData}
+        formData={formData}
         contentType={contentType.current}
-        onUpdate={data => debounceUpdate({ ...data, contentType: contentType.current })}
+        onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
       />
     </RightSidebar>
   )

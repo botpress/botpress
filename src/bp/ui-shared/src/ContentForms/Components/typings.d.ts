@@ -1,6 +1,7 @@
 export interface FieldProps {
   placeholder?: string
   onChange?: (value: null | number | string) => void
+  onBlur?: () => void
   value: string
 }
 

@@ -1,6 +1,6 @@
 import { Checkbox } from '@blueprintjs/core'
 import _ from 'lodash'
-import React, { FC, Fragment, useReducer } from 'react'
+import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import { contentTypesFields, getEmptyFormData } from '../../utils/fields'
@@ -24,9 +24,7 @@ const printLabel = (field, data) => {
   return field.label
 }
 
-interface State {}
-
-const formReducer = (state: State, action): State => {
+const formReducer = (state, action) => {
   if (action.type === 'add') {
     const { field, parent } = action.data
     const newData = getEmptyFormData(field, true)
@@ -48,7 +46,7 @@ const formReducer = (state: State, action): State => {
       [field]: [...state[field], newData]
     }
   } else if (action.type === 'deleteGroupItem') {
-    const { deleteIndex, field, parent } = action.data
+    const { deleteIndex, field, onUpdate, parent } = action.data
 
     if (parent) {
       const { key, index } = parent
@@ -62,10 +60,12 @@ const formReducer = (state: State, action): State => {
       }
     }
 
-    return {
+    const newState = {
       ...state,
       [field]: [...state[field].filter((item, index) => index !== deleteIndex)]
     }
+    onUpdate?.(newState)
+    return newState
   } else if (action.type === 'updateField') {
     const { value, field, parent, onUpdate } = action.data
     if (parent) {
@@ -79,7 +79,7 @@ const formReducer = (state: State, action): State => {
 
       _.set(state, getArray, value)
 
-      onUpdate(state)
+      onUpdate?.(state)
       return {
         ...state
       }
@@ -90,15 +90,26 @@ const formReducer = (state: State, action): State => {
       [field]: value
     }
 
-    onUpdate(newState)
+    onUpdate?.(newState)
     return { ...newState }
+  } else if (action.type === 'setData') {
+    return {
+      ...state,
+      ...action.data
+    }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
 }
 
-const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
-  const [state, dispatch] = useReducer(formReducer, _.cloneDeep(formData))
+const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettings, onUpdate }) => {
+  const newFormData = getEmptyFormData(contentType || 'image')
+  const [state, dispatch] = useReducer(formReducer, newFormData)
+
+  useEffect(() => {
+    console.log('test')
+    dispatch({ type: 'setData', data: formData })
+  }, [])
 
   const printField = (field, data, parent?) => {
     switch (field.type) {
@@ -110,7 +121,10 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
                 key={`${field.key}${index}`}
                 contextMenu={(!field.minimum || data[field.key]?.length > field.minimum) && field.contextMenu}
                 onDelete={() =>
-                  dispatch({ type: 'deleteGroupItem', data: { deleteIndex: index, field: field.key, parent } })
+                  dispatch({
+                    type: 'deleteGroupItem',
+                    data: { deleteIndex: index, onUpdate, field: field.key, parent }
+                  })
                 }
                 label={printLabel(field, fieldData)}
               >
@@ -143,7 +157,8 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <TextArea
               placeholder={field.placeholder}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
+              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
+              onBlur={() => onUpdate(state)}
               value={data[field.key]}
             />
           </FieldWrapper>
@@ -152,7 +167,7 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Upload
-              axios={bp.axios}
+              axios={bp?.axios}
               placeholder={field.placeholder}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}
@@ -178,7 +193,8 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Text
               placeholder={field.placeholder}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
+              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
+              onBlur={() => onUpdate(state)}
               type={field.type}
               value={data[field.key]}
             />
@@ -187,14 +203,12 @@ const Form: FC<FormProps> = ({ bp, formData, contentType, onUpdate }) => {
     }
   }
 
-  const contentFields = contentTypesFields[contentType]
-
   return (
     <Fragment>
-      {contentFields.fields.map(field => printField(field, state))}
-      {!!contentFields.advancedSettings?.length && (
+      {fields.map(field => printField(field, state))}
+      {!!advancedSettings?.length && (
         <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
-          {contentFields.advancedSettings.map(field => printField(field, state))}
+          {advancedSettings.map(field => printField(field, state))}
         </GroupItemWrapper>
       )}
     </Fragment>

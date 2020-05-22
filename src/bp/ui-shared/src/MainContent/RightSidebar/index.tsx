@@ -1,37 +1,38 @@
 import { useEffect } from 'react'
 import React, { FC } from 'react'
-import { createPortal } from 'react-dom'
 
 import style from './style.scss'
 import { RightSidebarProps } from './typings'
 
 const RightSidebar: FC<RightSidebarProps> = ({ className, canOutsideClickClose, close, children }) => {
-  const mount = document.getElementById('sidebar-portal')
+  let container
   const contentWrapper = document.getElementById('main-content-wrapper')
-  const el = document.createElement('div')
   const classList = [style.show, className || ''].filter(Boolean)
 
   useEffect(() => {
-    mount?.appendChild(el)
-    mount?.classList.add(...classList)
+    container = document.getElementById('sidebar-container')
     contentWrapper?.classList.add(style.wRightSidebar)
+    container?.classList.add(...classList)
     document.addEventListener('mousedown', handleClickOutside)
 
     return () => {
-      mount?.removeChild(el)
-      mount?.classList.remove(...classList)
       contentWrapper?.classList.remove(style.wRightSidebar)
+      container?.classList.remove(...classList)
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [el, mount])
+  }, [children])
 
   const handleClickOutside = event => {
-    if (!mount?.contains(event.target) && canOutsideClickClose) {
+    if (!container?.contains(event.target) && canOutsideClickClose) {
       close?.()
     }
   }
 
-  return createPortal(children, el)
+  return (
+    <div className={style.rightSidebar} id="sidebar-container">
+      {children}
+    </div>
+  )
 }
 
 export default RightSidebar

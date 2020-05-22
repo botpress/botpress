@@ -7,12 +7,13 @@ interface TextPorps extends FieldProps {
   type: string
 }
 
-const Text: FC<TextPorps> = ({ onChange, placeholder, type, value }) => (
+const Text: FC<TextPorps> = ({ onBlur, onChange, placeholder, type, value }) => (
   <input
     className={style.input}
     type={type}
     placeholder={placeholder}
     onChange={e => onChange?.(e.target.value)}
+    onBlur={onBlur}
     value={value}
   />
 )
