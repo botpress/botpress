@@ -1,23 +1,23 @@
-// @ts-ignore
 import { Promise } from 'bluebird'
 import retry from 'bluebird-retry'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import { SDK } from '.'
 import Database from './db'
+import { Broadcast } from './typings'
 
 const INTERVAL_BASE = 10 * 1000
 const SCHEDULE_TO_OUTBOX_INTERVAL = INTERVAL_BASE * 1
 const SEND_BROADCAST_INTERVAL = INTERVAL_BASE * 1
 
-export default async (botId: string, bp: SDK, db: Database) => {
+export default async (botId: string, bp: typeof sdk, db: Database) => {
   const emitChanged = _.throttle(() => {
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('broadcast.changed', {}))
   }, 1000)
 
-  const _sendBroadcast = Promise.method((botId, row) => {
+  const _sendBroadcast = Promise.method((botId: string, row: Broadcast) => {
     let dropPromise = Promise.resolve(false)
 
     if (row.filters) {
@@ -70,7 +70,9 @@ export default async (botId: string, bp: SDK, db: Database) => {
     })
   })
 
-  const trySendBroadcast = async (broadcast, { scheduleUser, scheduleId }) => {
+  const trySendBroadcast = async (broadcast: Broadcast) => {
+    const { scheduleId, scheduleUser } = broadcast
+
     await retry(() => _sendBroadcast(botId, broadcast), {
       max_tries: 3,
       interval: 1000,
@@ -78,11 +80,10 @@ export default async (botId: string, bp: SDK, db: Database) => {
     })
 
     await db.deleteBroadcastOutbox(scheduleUser, scheduleId)
-
     await db.increaseBroadcastSentCount(scheduleId)
   }
 
-  const handleFailedSending = async (err, scheduleId) => {
+  const handleFailedSending = async (err: Error, scheduleId: number) => {
     bp.logger.error(`Broadcast #${scheduleId}' failed. Broadcast aborted. Reason: ${err.message}`)
 
     await bp.notifications.create(botId, {
@@ -92,14 +93,12 @@ export default async (botId: string, bp: SDK, db: Database) => {
     })
 
     await db.updateErrorField(scheduleId)
-
     await db.deleteBroadcastOutboxById(scheduleId)
   }
 
-  async function scheduleToOutbox(botId) {
-    const schedulingLock = await bp.distributed.acquireLock('broadcast/lock/scheduling', ms('5m'))
-
-    if (!db.knex || !schedulingLock) {
+  const scheduleToOutbox = async (botId: string) => {
+    const schedulingLock = await bp.distributed.acquireLock(`broadcast/lock/scheduling_${botId}`, ms('5m'))
+    if (!schedulingLock) {
       return
     }
 
@@ -121,14 +120,14 @@ export default async (botId: string, bp: SDK, db: Database) => {
 
         await Promise.mapSeries(timezones, async tz => {
           await db.setBroadcastOutbox(botId, schedule, tz)
-          const { count } = await db.getOutboxCount(botId, schedule)
 
+          const count = await db.getOutboxCount(botId, schedule)
           await db.updateTotalCount(schedule, count)
 
-          bp.logger.info('Scheduled broadcast #' + schedule['id'], '. [' + count + ' messages]')
+          bp.logger.info('Scheduled broadcast #' + schedule.id, '. [' + count + ' messages]')
 
-          if (schedule['filters'] && JSON.parse(schedule['filters']).length > 0) {
-            bp.logger.info(`Filters found on broadcast #${schedule['id']}. Filters are applied at sending time.`)
+          if (schedule.filters && JSON.parse(schedule.filters).length > 0) {
+            bp.logger.info(`Filters found on broadcast #${schedule.id}. Filters are applied at sending time.`)
           }
 
           emitChanged()
@@ -139,33 +138,28 @@ export default async (botId: string, bp: SDK, db: Database) => {
     }
   }
 
-  async function sendBroadcasts(botId) {
+  const sendBroadcasts = async (botId: string) => {
     try {
-      const sendingLock = await bp.distributed.acquireLock('broadcast/lock/sending', ms('5m'))
-
-      if (!db.knex || !sendingLock) {
+      const sendingLock = await bp.distributed.acquireLock(`broadcast/lock/sending_${botId}`, ms('5m'))
+      if (!sendingLock) {
         return
       }
 
       try {
-        const isPast = db.knex.date.isBefore(db.knex.raw('"broadcast_outbox"."ts"'), db.knex.date.now())
-
-        const broadcasts = await db.getBroadcastOutbox(botId, isPast)
+        const broadcasts = await db.getBroadcastOutbox(botId)
         let abort = false
 
-        await Promise.mapSeries(broadcasts, async broadcast => {
+        await Promise.mapSeries(broadcasts, async (broadcast: Broadcast) => {
           if (abort) {
             return
           }
-          // @ts-ignore
-          const { scheduleId, scheduleUser } = broadcast
 
           try {
-            await trySendBroadcast(broadcast, { scheduleUser, scheduleId })
+            await trySendBroadcast(broadcast)
           } catch (err) {
             abort = true
 
-            await handleFailedSending(err, scheduleId)
+            await handleFailedSending(err, broadcast.scheduleId)
           } finally {
             emitChanged()
           }

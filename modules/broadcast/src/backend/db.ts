@@ -1,26 +1,23 @@
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
 
-import { SDK } from '.'
+import { Broadcast, Schedule, ScheduleRow } from './typings'
 
 function padDigits(number, digits) {
   return Array(Math.max(digits - String(number).length + 1, 0)).join('0') + number
 }
 
 export default class BroadcastDb {
-  knex: any
+  knex: sdk.KnexExtended
 
-  constructor(private bp: SDK) {
+  constructor(bp: typeof sdk) {
     this.knex = bp.database
   }
 
   initialize() {
-    if (!this.knex) {
-      throw new Error('you must initialize the database before')
-    }
-
     return this.knex
-      .createTableIfNotExists('broadcast_schedules', function(table) {
+      .createTableIfNotExists('broadcast_schedules', table => {
         table.increments('id').primary()
         table.string('botId')
         table.string('date_time')
@@ -35,7 +32,7 @@ export default class BroadcastDb {
         table.string('filters')
       })
       .then(() => {
-        return this.knex.createTableIfNotExists('broadcast_outbox', function(table) {
+        return this.knex.createTableIfNotExists('broadcast_outbox', table => {
           table
             .integer('scheduleId')
             .references('broadcast_schedules.id')
@@ -53,7 +50,7 @@ export default class BroadcastDb {
       })
   }
 
-  addSchedule({ botId, date, time, timezone, content, type, filters }) {
+  addSchedule({ botId, date, time, timezone, content, type, filters }: Schedule) {
     const dateTime = date + ' ' + time
     let ts = undefined
 
@@ -61,7 +58,7 @@ export default class BroadcastDb {
       ts = moment(new Date(dateTime + ' ' + timezone)).toDate()
     }
 
-    const row = {
+    const row: ScheduleRow = {
       botId,
       date_time: dateTime,
       ts: ts ? this.knex.date.format(ts) : undefined,
@@ -81,14 +78,14 @@ export default class BroadcastDb {
       .get(0)
   }
 
-  updateSchedule({ id, date, time, timezone, content, type, filters }) {
+  async updateSchedule({ id, botId, date, time, timezone, content, type, filters }: Schedule): Promise<void> {
     const dateTime = date + ' ' + time
     let ts = undefined
     if (timezone) {
       ts = moment(new Date(dateTime + ' ' + timezone)).toDate()
     }
 
-    const row = {
+    const row: Partial<ScheduleRow> = {
       date_time: dateTime,
       ts: ts ? this.knex.date.format(ts) : undefined,
       text: content,
@@ -96,34 +93,26 @@ export default class BroadcastDb {
       filters: JSON.stringify(filters)
     }
 
-    return this.knex('broadcast_schedules')
-      .where({
-        id,
-        outboxed: this.knex.bool.false()
-      })
+    await this.knex('broadcast_schedules')
+      .where({ id, botId, outboxed: this.knex.bool.false() })
       .update(row)
-      .then()
   }
 
-  deleteSchedule(id) {
-    return this.knex('broadcast_schedules')
+  async deleteSchedule(id: number): Promise<void> {
+    await this.knex('broadcast_schedules')
       .where({ id })
       .delete()
-      .then(() => {
-        return this.knex('broadcast_outbox')
-          .where({ scheduleId: id })
-          .delete()
-          .then(() => true)
-      })
+
+    await this.knex('broadcast_outbox')
+      .where({ scheduleId: id })
+      .delete()
   }
 
-  listSchedules(botId) {
-    return this.knex('broadcast_schedules')
-      .where({ botId })
-      .then()
+  async listSchedules(botId: string): Promise<ScheduleRow[]> {
+    return this.knex('broadcast_schedules').where({ botId })
   }
 
-  getBroadcastSchedulesByTime(botId, upcomingFixedTime, upcomingVariableTime) {
+  async getBroadcastSchedulesByTime(botId: string, upcomingFixedTime, upcomingVariableTime): Promise<Schedule[]> {
     return this.knex('broadcast_schedules')
       .where({
         botId,
@@ -172,29 +161,27 @@ export default class BroadcastDb {
       .then()
   }
 
-  // TODO: check naming
-  getOutboxCount(botId, schedule) {
-    return this.knex('broadcast_outbox')
-      .where({ botId, scheduleId: schedule['id'] })
-      .select(this.knex.raw('count(*) as count'))
-      .then()
-      .get(0)
+  async getOutboxCount(botId: string, schedule: Schedule): Promise<number> {
+    const result = await this.knex('broadcast_outbox')
+      .where({ botId, scheduleId: schedule.id })
+      .count<Record<string, number>>('* as qty')
+      .first()
+      .then(result => result!.qty)
+
+    // @ts-ignore
+    return parseInt(result)
   }
 
-  updateTotalCount(schedule, count) {
+  updateTotalCount(schedule: Schedule, count: number) {
     return this.knex('broadcast_schedules')
-      .where({ id: schedule['id'] })
-      .update({
-        outboxed: this.knex.bool.true(),
-        total_count: count
-      })
+      .where({ id: schedule.id })
+      .update({ outboxed: this.knex.bool.true(), total_count: count })
   }
 
-  getBroadcastOutbox(botId, isPast) {
+  async getBroadcastOutbox(botId: string): Promise<Broadcast[]> {
     return this.knex('broadcast_outbox')
-      .where(function() {
-        this.where(isPast).andWhere('broadcast_outbox.botId', botId)
-      })
+      .where(this.knex.date.isBefore('broadcast_outbox.ts', new Date()))
+      .andWhere('broadcast_outbox.botId', botId)
       .join('srv_channel_users', 'srv_channel_users.id', 'broadcast_outbox.userId')
       .join('broadcast_schedules', 'scheduleId', 'broadcast_schedules.id')
       .limit(1000)
@@ -210,29 +197,27 @@ export default class BroadcastDb {
       ])
   }
 
-  deleteBroadcastOutbox(userId, scheduleId) {
+  async deleteBroadcastOutbox(userId: string, scheduleId: number): Promise<void> {
     return this.knex('broadcast_outbox')
       .where({ userId, scheduleId })
       .delete()
   }
 
-  deleteBroadcastOutboxById(scheduleId) {
+  async deleteBroadcastOutboxById(scheduleId: number): Promise<void> {
     return this.knex('broadcast_outbox')
       .where({ scheduleId })
       .delete()
   }
 
-  increaseBroadcastSentCount(id) {
+  async increaseBroadcastSentCount(id: number): Promise<void> {
     return this.knex('broadcast_schedules')
       .where({ id })
       .update({ sent_count: this.knex.raw('sent_count + 1') })
   }
 
-  updateErrorField(scheduleId) {
+  async updateErrorField(scheduleId: number): Promise<void> {
     return this.knex('broadcast_schedules')
       .where({ id: scheduleId })
-      .update({
-        errored: this.knex.bool.true()
-      })
+      .update({ errored: this.knex.bool.true() })
   }
 }

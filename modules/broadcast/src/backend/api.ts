@@ -1,16 +1,18 @@
-import { SDK } from '.'
+import * as sdk from 'botpress/sdk'
+import { asyncMiddleware as asyncMw } from 'common/http'
+
 import Database from './db'
 
-export default async (bp: SDK, db: Database) => {
+export default async (bp: typeof sdk, db: Database) => {
+  const asyncMiddleware = asyncMw(bp.logger)
   const router = bp.http.createRouterForBot('broadcast')
 
-  router.get('/', (req, res, next) => {
-    const { botId } = req.params
-
-    db.listSchedules(botId).then(rows => {
-      const broadcasts = rows.map(row => {
+  router.get(
+    '/',
+    asyncMiddleware(async (req, res) => {
+      const schedules = await db.listSchedules(req.params.botId)
+      const broadcasts = schedules.map(row => {
         const [date, time] = row.date_time.split(' ')
-
         const progress = row.total_count ? row.sent_count / row.total_count : db.knex.bool.parse(row.outboxed) ? 1 : 0
 
         return {
@@ -26,35 +28,37 @@ export default async (bp: SDK, db: Database) => {
           filteringConditions: row.filters && JSON.parse(row.filters)
         }
       })
-
       res.send(broadcasts)
     })
-  })
+  )
 
-  router.put('/', (req, res, next) => {
-    const { date, time, timezone, content, type, filters } = req.body
-    const { botId } = req.params
+  router.put(
+    '/',
+    asyncMiddleware(async (req, res) => {
+      const { date, time, timezone, content, type, filters } = req.body
+      const { botId } = req.params
 
-    db.addSchedule({ botId, date, time, timezone, content, type, filters }).then(id => res.send({ id: id }))
-  })
+      const { id } = await db.addSchedule({ botId, date, time, timezone, content, type, filters })
+      res.send({ id })
+    })
+  )
 
-  router.post('/', (req, res, next) => {
-    const { id, date, time, timezone, content, type, filters } = req.body
+  router.post(
+    '/',
+    asyncMiddleware(async (req, res) => {
+      const { id, date, time, timezone, content, type, filters } = req.body
+      const { botId } = req.params
 
-    db.updateSchedule({ id, date, time, timezone, content, type, filters })
-      .then(() => res.sendStatus(200))
-      .catch(err => {
-        res.status(500).send({ message: err.message })
-      })
-  })
+      await db.updateSchedule({ id, date, time, timezone, content, type, filters, botId })
+      res.sendStatus(200)
+    })
+  )
 
-  router.delete('/:id', (req, res, next) => {
-    db.deleteSchedule(req.params.id)
-      .then(() => {
-        res.sendStatus(200)
-      })
-      .catch(err => {
-        res.status(500).send({ message: err.message })
-      })
-  })
+  router.delete(
+    '/:id',
+    asyncMiddleware(async (req, res) => {
+      await db.deleteSchedule(req.params.id)
+      res.sendStatus(200)
+    })
+  )
 }
