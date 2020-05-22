@@ -299,6 +299,20 @@ export default class HTTPServer {
       res.send(process.BOTPRESS_VERSION)
     })
 
+    this.app.get('/env.js', async (req, res) => {
+      const branding = await this.configProvider.getBrandingConfig('admin')
+
+      res.contentType('text/javascript')
+      res.send(`
+      (function(window) {
+          window.APP_VERSION = "${process.BOTPRESS_VERSION}";
+          window.APP_NAME = "${branding.title}";
+          window.APP_FAVICON = "${branding.favicon}";
+          window.APP_CUSTOM_CSS = "${branding.customCss}";
+        })(typeof window != 'undefined' ? window : {})
+      `)
+    })
+
     this.app.use('/assets', this.guardWhiteLabel(), express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
@@ -321,9 +335,9 @@ export default class HTTPServer {
     })
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {
-      const statusCode = err.statusCode || 500
-      const errorCode = err.errorCode || 'BP_000'
-      const message = err.message || 'Unexpected error'
+      const statusCode = err.statusCode || 400
+      const errorCode = err.errorCode
+      const message = err.message || err || 'Unexpected error'
       const details = err.details || ''
       const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }

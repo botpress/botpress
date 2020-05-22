@@ -1,7 +1,7 @@
 import { Colors, Icon, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
 import { lang } from 'botpress/shared'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 interface Props {
   contexts: string[]
@@ -11,7 +11,7 @@ interface Props {
   saveContexts: (ctx: string[]) => void
 }
 
-export const ContextSelector: FC<Props> = props => {
+const ContextSelector: FC<Props> = props => {
   const [availableContexts, setContexts] = useState([])
 
   useEffect(() => {
@@ -62,13 +62,13 @@ export const ContextSelector: FC<Props> = props => {
     <div className={props.className}>
       <div>
         {!props.isSearch && (
-          <>
+          <Fragment>
             <label htmlFor="selectContext">{lang.tr('module.qna.context.title')}</label>
             &nbsp;
             <Tooltip content={lang.tr('module.qna.context.canTypeToCreate')} position={Position.RIGHT}>
               <Icon color={Colors.GRAY2} icon="info-sign" />
             </Tooltip>
-          </>
+          </Fragment>
         )}
       </div>
 
@@ -82,7 +82,7 @@ export const ContextSelector: FC<Props> = props => {
         onItemSelect={onItemSelect}
         tagRenderer={ctx => ctx}
         tagInputProps={{ tagProps: { minimal: true }, onRemove: removeCtx, inputProps: { id: 'select-context' } }}
-        popoverProps={{ minimal: true, fill: true }}
+        popoverProps={{ minimal: true, fill: true, usePortal: false }}
         selectedItems={props.contexts}
         createNewItemRenderer={!props.isSearch && createNewItemRenderer}
         createNewItemFromQuery={q => q}
@@ -90,3 +90,5 @@ export const ContextSelector: FC<Props> = props => {
     </div>
   )
 }
+
+export default ContextSelector

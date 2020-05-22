@@ -9,9 +9,12 @@ declare global {
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
     botpressWebChat: any
     APP_NAME: string
+    APP_VERSION: string
+    APP_FAVICON: string
+    APP_CUSTOM_CSS: string
     BOT_API_PATH: string
     API_PATH: string
-    BOTPRESS_VERSION: string
+
     ROOT_PATH: string
     BOT_NAME: string
     BOT_ID: string

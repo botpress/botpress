@@ -1,3 +1,56 @@
+## [12.9.3](https://github.com/botpress/botpress/compare/v12.9.2...v12.9.3) (2020-05-21)
+
+
+### Bug Fixes
+
+* **analytics:** ensure standard date format ([#3351](https://github.com/botpress/botpress/issues/3351)) ([5471ed0](https://github.com/botpress/botpress/commit/5471ed0))
+* **channel-messenger:** remove invalid keys ([#3091](https://github.com/botpress/botpress/issues/3091)) ([553fb25](https://github.com/botpress/botpress/commit/553fb25))
+* **core:** fix jumpTo in actions [#1772](https://github.com/botpress/botpress/issues/1772) ([#3014](https://github.com/botpress/botpress/issues/3014)) ([bc61a49](https://github.com/botpress/botpress/commit/bc61a49))
+* **core:** img link with custom path & preview ([#3337](https://github.com/botpress/botpress/issues/3337)) ([e5563a4](https://github.com/botpress/botpress/commit/e5563a4))
+* **core:** limit sqlite batch size ([#3350](https://github.com/botpress/botpress/issues/3350)) ([a631f4d](https://github.com/botpress/botpress/commit/a631f4d))
+* **core:** moved heavy operation ([#3339](https://github.com/botpress/botpress/issues/3339)) ([0a0fec0](https://github.com/botpress/botpress/commit/0a0fec0))
+* **core:** prevent race condition for instances ([#3343](https://github.com/botpress/botpress/issues/3343)) ([067348a](https://github.com/botpress/botpress/commit/067348a))
+* **core:** sessions not expiring ([#3341](https://github.com/botpress/botpress/issues/3341)) ([1e8822b](https://github.com/botpress/botpress/commit/1e8822b))
+* **core:** small speed improvement & less gc work ([#3340](https://github.com/botpress/botpress/issues/3340)) ([7002a4a](https://github.com/botpress/botpress/commit/7002a4a))
+* **hitl:** fix rendering issue with messages from messenger ([#3104](https://github.com/botpress/botpress/issues/3104)) ([5f54fdc](https://github.com/botpress/botpress/commit/5f54fdc))
+* **qna:** warn instead of block for duplicates ([#3338](https://github.com/botpress/botpress/issues/3338)) ([49337ac](https://github.com/botpress/botpress/commit/49337ac))
+* **studio:** add the content arrays reorder ([#3352](https://github.com/botpress/botpress/issues/3352)) ([07da5ff](https://github.com/botpress/botpress/commit/07da5ff))
+
+
+
+## [12.9.2](https://github.com/botpress/botpress/compare/v12.9.1...v12.9.2) (2020-05-12)
+
+
+### Bug Fixes
+
+* **auth:** random delay during auth ([#3306](https://github.com/botpress/botpress/issues/3306)) ([75aed18](https://github.com/botpress/botpress/commit/75aed18))
+* **builtin:** fix image element's url [#3163](https://github.com/botpress/botpress/issues/3163) ([#3312](https://github.com/botpress/botpress/issues/3312)) ([34e590a](https://github.com/botpress/botpress/commit/34e590a))
+* **code-editor:** fix hooks' arguments types ([#3303](https://github.com/botpress/botpress/issues/3303)) ([6ed030d](https://github.com/botpress/botpress/commit/6ed030d))
+* **code-editor:** fix signatures of hooks and actions ([#3295](https://github.com/botpress/botpress/issues/3295)) ([62431a2](https://github.com/botpress/botpress/commit/62431a2))
+* **core:** ajusting more errors ([#3311](https://github.com/botpress/botpress/issues/3311)) ([b505035](https://github.com/botpress/botpress/commit/b505035))
+* **core:** base implementation for global error handling ([#3307](https://github.com/botpress/botpress/issues/3307)) ([93a7c6d](https://github.com/botpress/botpress/commit/93a7c6d))
+* **core:** validate extension ([#3305](https://github.com/botpress/botpress/issues/3305)) ([1cf6a98](https://github.com/botpress/botpress/commit/1cf6a98))
+* **dialog:** add return & execute ([#3310](https://github.com/botpress/botpress/issues/3310)) ([3208bea](https://github.com/botpress/botpress/commit/3208bea))
+* **module-builder:** remove warning for acorn ([#3296](https://github.com/botpress/botpress/issues/3296)) ([caca8c0](https://github.com/botpress/botpress/commit/caca8c0))
+* **nlu:** cross validation ([96794bb](https://github.com/botpress/botpress/commit/96794bb))
+* **nlu:** prevent empty string in exact index ([#3300](https://github.com/botpress/botpress/issues/3300)) ([f1d879b](https://github.com/botpress/botpress/commit/f1d879b))
+* **qna:** use same lang as cms ([#3319](https://github.com/botpress/botpress/issues/3319)) ([9d93f0e](https://github.com/botpress/botpress/commit/9d93f0e))
+* **ui-studio:** don't close create element modal on enter ([#3313](https://github.com/botpress/botpress/issues/3313)) ([b855d60](https://github.com/botpress/botpress/commit/b855d60))
+
+
+
+## [12.9.1](https://github.com/botpress/botpress/compare/v12.9.0...v12.9.1) (2020-04-29)
+
+
+### Bug Fixes
+
+* **analytics:** fix wrong stats ([#3289](https://github.com/botpress/botpress/issues/3289)) ([c0c7125](https://github.com/botpress/botpress/commit/c0c7125))
+* **channel-web:** fix button height [#3200](https://github.com/botpress/botpress/issues/3200) ([#3288](https://github.com/botpress/botpress/issues/3288)) ([e110959](https://github.com/botpress/botpress/commit/e110959))
+* **core:** fix revision history [#3129](https://github.com/botpress/botpress/issues/3129) ([#3290](https://github.com/botpress/botpress/issues/3290)) ([01de6ee](https://github.com/botpress/botpress/commit/01de6ee))
+* **nlu:** fallback LID on vocab ([#3284](https://github.com/botpress/botpress/issues/3284)) ([aa8c453](https://github.com/botpress/botpress/commit/aa8c453))
+
+
+
 # [12.9.0](https://github.com/botpress/botpress/compare/v12.8.6...v12.9.0) (2020-04-27)
 
 

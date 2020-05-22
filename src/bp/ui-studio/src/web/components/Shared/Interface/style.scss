@@ -5,7 +5,8 @@ $status-bar-height: 30px;
   height: 100%;
 }
 
-.fullsize, .fullsize > div {
+.fullsize,
+.fullsize > div {
   height: 100%;
 }
 
@@ -38,7 +39,7 @@ $status-bar-height: 30px;
 }
 
 .sidePanel {
-  background-color: #fcfcfc;
+  background-color: #ffffff;
   height: 100%;
   overflow-y: auto;
   padding-bottom: 20px;

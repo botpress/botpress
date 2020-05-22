@@ -1,111 +1,98 @@
-@import '../../palette.scss';
-
-.sidebarReact {
-  bottom: 0px !important;
-}
-
 .link {
   cursor: pointer;
 }
 
+.tooltipContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tag {
+  background: var(--ocean);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 10px;
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 3px 0;
+}
+
 .sidebar {
-  background-color: var(--c-background--dark-2);
-  color: $sidebar-text-color;
+  background-color: var(--shark);
+  color: var(--seashell);
   height: 100%;
-  max-width: 200px;
   position: relative;
-  width: 50px;
+  width: 40px;
   z-index: 999;
+  overflow: hidden;
 
   .logo {
     display: block;
     overflow-x: hidden;
-    padding: 8px 13px;
-    width: 50px;
-  }
-}
+    padding: 15px 10px;
+    width: 40px;
 
-.sidebar ul {
-  list-style: none;
-  overflow-x: visible;
-}
-
-.sidebar ul li {
-  font-size: 16px;
-  line-height: 44px;
-  width: 50px;
-  overflow-x: hidden;
-
-  transition-property: width;
-  transition-duration: 100ms;
-  transition-timing-function: ease-in-out;
-
-  &:hover {
-    width: 190px;
-    border-radius: 0 5px 5px 0;
-  }
-
-  .experimental {
-    margin-left: 10px;
-    height: 15px;
-    color: #f9e32d;
-    font-size: 70%;
-  }
-
-  a {
-    text-decoration: none;
-    padding: 0 15px;
-    white-space: nowrap;
-
-    :global(.icon) {
-      display: inline;
-      vertical-align: middle;
-      padding: 0 10px 0 0;
-      font-size: 18px;
+    img {
+      margin-left: 1px;
     }
   }
-}
 
-.sidebar ul li a {
-  border-left: solid 5px transparent;
+  ul {
+    box-sizing: content-box !important;
+    width: 100%;
+    height: calc(100% - 52px);
+    overflow: hidden;
+    overflow-y: auto;
+    padding-right: 25px;
+    list-style: none;
 
-  &:hover,
-  &:focus,
-  &:active {
-    background-color: $sidebar-hover-color;
+    li {
+      margin-top: 10px;
+      overflow: visible;
+      width: 40px;
+
+      a {
+        align-items: center;
+        border-left: solid 2px transparent;
+        box-sizing: unset !important;
+        color: var(--seashell);
+        display: flex;
+        height: 30px;
+        justify-content: center;
+        padding: 0 5px;
+        position: relative;
+        transition: border 0.3s;
+        text-decoration: none;
+        width: 30px;
+
+        :global(.icon) {
+          display: inline;
+          vertical-align: middle;
+          padding: 0;
+          font-size: 18px;
+        }
+
+        &:hover,
+        &:focus,
+        &:active {
+          background: none !important;
+
+          &:not(.active) {
+            border-color: var(--gray);
+          }
+        }
+
+        &.active {
+          border-color: var(--ocean);
+        }
+      }
+    }
   }
-
-  color: $sidebar-text-color;
-}
-
-.active {
-  background-color: $sidebar-hover-color;
-  border-left: 5px solid var(--c-brand--light-1) !important;
 }
 
 .customIcon {
   width: 28px;
   height: 18px;
   padding-right: 10px;
-}
-
-.empty {
-  height: 120px;
-}
-
-.sidebar .mainMenu {
-  padding: 0;
-
-  &__item {
-    font-size: 14px;
-  }
-
-  &__link {
-    display: block;
-    padding-left: 44px;
-  }
-
-  &_level2 {
-    padding: 0;
-  }
 }

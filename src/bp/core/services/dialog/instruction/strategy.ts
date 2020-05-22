@@ -9,28 +9,13 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
-import { container } from '../../../app.inversify'
 import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import { VmRunner } from '../../action/vm'
 
-import { Instruction, InstructionType, ProcessingResult } from '.'
+import { Instruction, ProcessingResult } from '.'
 
 const debug = DEBUG('dialog')
-
-@injectable()
-export class StrategyFactory {
-  create(type: InstructionType): InstructionStrategy {
-    if (type === 'on-enter' || type === 'on-receive') {
-      return container.get<ActionStrategy>(TYPES.ActionStrategy)
-    } else if (type === 'transition') {
-      return container.get<TransitionStrategy>(TYPES.TransitionStrategy)
-    } else if (type === 'wait') {
-      return container.get<WaitStrategy>(TYPES.WaitStrategy)
-    }
-    throw new Error(`Undefined instruction type "${type}"`)
-  }
-}
 
 export interface InstructionStrategy {
   processInstruction(botId: string, instruction: Instruction, event): Promise<ProcessingResult>
@@ -169,8 +154,7 @@ export class ActionStrategy implements InstructionStrategy {
       }
 
       const { onErrorFlowTo } = event.state.temp
-      const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
-      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
       return ProcessingResult.transition(errorFlow)
     }
@@ -181,12 +165,6 @@ export class ActionStrategy implements InstructionStrategy {
 
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
-  constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'Transition')
-    private logger: Logger
-  ) {}
-
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     const conditionSuccessful = await this.runCode(instruction, {
       event,
@@ -211,6 +189,15 @@ export class TransitionStrategy implements InstructionStrategy {
   private async runCode(instruction: Instruction, sandbox): Promise<any> {
     if (instruction.fn === 'true') {
       return true
+    } else if (instruction.fn?.startsWith('lastNode')) {
+      const stack = sandbox.event.state.__stacktrace
+      if (!stack.length) {
+        return false
+      }
+
+      const lastEntry = stack.length === 1 ? stack[0] : stack[stack.length - 2] // -2 because we want the previous node (not the current one)
+
+      return instruction.fn === `lastNode=${lastEntry.node}`
     } else if (instruction.fn && instruction.fn.match(/^event\.nlu\.intent\.name === '([a-zA-Z0-9_-]+)'$/)) {
       const fn = new Function(...Object.keys(sandbox), `return ${instruction.fn}`)
       return fn(...Object.values(sandbox))
@@ -234,12 +221,5 @@ export class TransitionStrategy implements InstructionStrategy {
     }
     `
     return await runner.runInVm(vm, code)
-  }
-}
-
-@injectable()
-export class WaitStrategy implements InstructionStrategy {
-  async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    return ProcessingResult.wait()
   }
 }

@@ -1,0 +1,114 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "label": "Workflow Ended",
+  "description": "Users are redirected here at the end of a workflow when they need to provide feedback",
+  "nodes": [
+    {
+      "id": "skill-b71567",
+      "type": "skill-call",
+      "skill": "choice",
+      "name": "feedbackChoice",
+      "flow": "skills/choice-b71567.flow.json",
+      "next": [
+        {
+          "caption": "User picked [yes]",
+          "condition": "temp['skill-choice-ret-k0tqq3ze5d'] == \"yes\"",
+          "node": "node-c127"
+        },
+        {
+          "caption": "User picked [no]",
+          "condition": "temp['skill-choice-ret-k0tqq3ze5d'] == \"no\"",
+          "node": "node-60f0"
+        },
+        {
+          "caption": "On failure",
+          "condition": "true",
+          "node": "node-049a"
+        }
+      ],
+      "onEnter": null,
+      "onReceive": null
+    },
+    {
+      "id": "451f60deab",
+      "name": "node-049a",
+      "next": [],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "success"
+    },
+    {
+      "id": "f69abffa5b",
+      "name": "node-1ff1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "node-6721"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "id": "workflow_ended",
+          "params": {
+            "outcome": "success",
+            "ignoredWorkflows": [
+              "misunderstood",
+              "workflow_ended",
+              "error"
+            ]
+          }
+        }
+      ],
+      "activeWorkflow": false
+    },
+    {
+      "id": "9e942a28fb",
+      "name": "node-6721",
+      "next": [
+        {
+          "condition": "true",
+          "node": "feedbackChoice"
+        }
+      ],
+      "onEnter": [
+        "builtin/setVariable {\"type\":\"temp\",\"name\":\"eventId\",\"value\":\"{{event.payload.eventId}}\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    },
+    {
+      "id": "53c079f447",
+      "name": "node-c127",
+      "next": [
+        {
+          "condition": "true",
+          "node": "node-049a"
+        }
+      ],
+      "onEnter": [
+        "builtin/sendFeedback {\"value\":\"1\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    },
+    {
+      "id": "3cfb59a35f",
+      "name": "node-60f0",
+      "next": [
+        {
+          "condition": "true",
+          "node": "node-049a"
+        }
+      ],
+      "onEnter": [
+        "builtin/sendFeedback {\"value\":\"-1\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    }
+  ]
+}

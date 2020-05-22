@@ -50,6 +50,8 @@ class ModuleView extends React.Component {
         componentName={componentName}
         onNotFound={this.renderNotFound}
         contentLang={this.props.contentLang}
+        defaultLanguage={this.props.defaultLanguage}
+        languages={this.props.languages}
       />
     ) : (
       this.renderNotFound()
@@ -59,7 +61,9 @@ class ModuleView extends React.Component {
 
 const mapStateToProps = state => ({
   modules: state.modules,
-  contentLang: state.language.contentLang
+  contentLang: state.language.contentLang,
+  defaultLanguage: state.bot.defaultLanguage,
+  languages: state.bot.languages
 })
 
 export default connect(mapStateToProps)(ModuleView)

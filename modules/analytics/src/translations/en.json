@@ -11,6 +11,9 @@
   "dateFormat": "MMMM Do YYYY",
   "dateRange": "Date Range",
   "engagement": "Engagement",
+  "export": "Export",
+  "exportCsv": "Export as CSV",
+  "exportJson": "Export as JSON",
   "filterChannels": "Filter channels",
   "fullName": "Analytics",
   "handlingAndUnderstanding": "Handling and Understanding",
@@ -41,6 +44,6 @@
   "title": "Analytics",
   "understoodMessages": "Understood Messages",
   "understoodTopLevelMessages": "Understood Top-Level Messages",
-  "userActivities": "User Activities",
+  "userActivities": "Daily active users",
   "workflowsInitiated": "Workflows Initiated"
 }
