@@ -23,6 +23,7 @@ import ReactDOM from 'react-dom'
 import { initializeTranslations } from '~/translations'
 import './index.css'
 import { makeMainRoutes } from './routes'
+import { setupTelemetry } from './telemetry'
 
 const routes = makeMainRoutes()
 
@@ -31,3 +32,5 @@ window['BlueprintJsSelect'] = BlueprintJsSelect
 
 initializeTranslations()
 ReactDOM.render(<div>{routes}</div>, document.getElementById('root'))
+
+setupTelemetry()
