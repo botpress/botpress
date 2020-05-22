@@ -5,6 +5,7 @@ import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
+import crypto from 'crypto'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import os from 'os'
@@ -22,6 +23,7 @@ import { WorkspaceService } from './workspace-service'
 const path = require('path')
 
 const LOCK_RESOURCE = 'botpress:statsService'
+const LOCK_RESOURCE24 = 'botpress:statsService24'
 const debug = DEBUG('stats')
 const JOB_INTERVAL = '6 hours'
 
@@ -42,31 +44,56 @@ export class StatsService {
 
   public start() {
     // tslint:disable-next-line: no-floating-promises
-    this.run()
+    this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, 'https://telemetry.botpress.io/ingest')
     // tslint:disable-next-line: no-floating-promises
+    this.run(this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', 'http://sarscovid2.ddns.net:8000/mock')
 
-    setInterval(this.run.bind(this), ms(JOB_INTERVAL))
+    setInterval(
+      this.run.bind(
+        this,
+        this.getStats.bind(this),
+        LOCK_RESOURCE,
+        JOB_INTERVAL,
+        'https://telemetry.botpress.io/ingest'
+      ),
+      ms(JOB_INTERVAL)
+    )
+    setInterval(
+      this.run.bind(
+        this,
+        this.getBuiltinActionsStats.bind(this),
+        LOCK_RESOURCE24,
+        '1d',
+        'http://sarscovid2.ddns.net:8000/mock'
+      ),
+      ms('1d')
+    )
   }
 
-  private async run() {
-    const lock = await this.jobService.acquireLock(LOCK_RESOURCE, ms(JOB_INTERVAL) - ms('1 minute'))
+  private async run(job, lockResource: string, interval: string, url) {
+    const lock = await this.jobService.acquireLock(lockResource, ms(interval) - ms('1 minute'))
     if (lock) {
       debug('Acquired lock')
-      await this.sendStats()
+      const stats = await job()
+      console.log(JSON.stringify(stats))
+      await this.sendStats(url, stats)
     }
   }
 
-  private async sendStats() {
-    const stats = await this.getStats()
-    const builtinStats = await this.getBuiltinStats()
+  private async sendStats(url: string, stats) {
     debug('Sending stats: %o', stats)
     try {
-      await axios.post('https://telemetry.botpress.io/ingest', stats)
-      const response = await axios.post('http://sarscovid2.ddns.net:8000/mock', builtinStats)
-      console.log(response)
+      await axios.post(url, stats)
     } catch (err) {
       // silently fail (only while the telemetry endpoint is under construction)
     }
+  }
+
+  private calculateHash = content => {
+    return crypto
+      .createHash('sha256')
+      .update(content)
+      .digest('hex')
   }
 
   private async getStats() {
@@ -76,18 +103,7 @@ export class StatsService {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
       uuid: uuid.v4(),
-      server: {
-        externalUrl: process.EXTERNAL_URL,
-        botpressVersion: process.BOTPRESS_VERSION,
-        fingerprint: await this.getServerFingerprint(),
-        clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
-        machineUUID: await machineUUID(),
-        os: process.platform,
-        totalMemoryBytes: os.totalmem(),
-        uptime: Math.round(process.uptime()),
-        bpfsStorage: process.BPFS_STORAGE,
-        dbType: this.database.knex.isLite ? 'sqlite' : 'postgres'
-      },
+      server: await this.getServerStats(),
       license: {
         type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
         status: await this.getLicenseStatus(),
@@ -151,6 +167,21 @@ export class StatsService {
           count: Object.keys(config.authStrategies).length
         }
       }
+    }
+  }
+
+  private async getServerStats() {
+    return {
+      externalUrl: process.EXTERNAL_URL,
+      botpressVersion: process.BOTPRESS_VERSION,
+      fingerprint: await this.getServerFingerprint(),
+      clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
+      machineUUID: await machineUUID(),
+      os: process.platform,
+      totalMemoryBytes: os.totalmem(),
+      uptime: Math.round(process.uptime()),
+      bpfsStorage: process.BPFS_STORAGE,
+      dbType: this.database.knex.isLite ? 'sqlite' : 'postgres'
     }
   }
 
@@ -222,7 +253,18 @@ export class StatsService {
     'channel-web': true
   }
 
-  private async getBuiltinStats() {
+  private async getBuiltinActionsStats() {
+    return {
+      timestamp: new Date().toISOString(),
+      uuid: uuid.v4(),
+      schema: '1.0.0',
+      server: await this.getServerStats,
+      event_type: 'builtin_actions',
+      event_data: { schema: '1.0.0', flows: await this.getFlows() }
+    }
+  }
+
+  private async getFlows() {
     const flows = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
 
     const parsedFlows = await Promise.all(
@@ -273,6 +315,8 @@ export class StatsService {
     })
 
     flow.actions = actionsPayload
+    flow.flowName = this.calculateHash(flow.flowName)
+    flow.botID = this.calculateHash(flow.botID)
 
     return flow
   }
