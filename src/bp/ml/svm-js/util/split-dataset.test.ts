@@ -28,7 +28,7 @@ describe('split-dataset', () => {
 
     expect(res.length).toBe(expectedNbOfSplit)
 
-    for (let ss of res) {
+    for (const ss of res) {
       const { train, test } = ss
       expect(test.length).toBe(expectedNbOfTestSamplesPerSplit)
       expect(train.length).toBe(expectedNbOfTrainSamplesPerSplit)
@@ -58,7 +58,7 @@ describe('split-dataset', () => {
 
     expect(res.length).toBe(expectedNbOfSplit)
 
-    for (let ss of res) {
+    for (const ss of res) {
       const { train, test } = ss
       expect(test.length).toBe(expectedNbOfTestSamplesPerSplit)
       expect(train.length).toBe(expectedNbOfTrainSamplesPerSplit)
@@ -92,7 +92,7 @@ describe('split-dataset', () => {
     const res = split(dataset, kfold)
 
     // assert
-    for (let ss of res) {
+    for (const ss of res) {
       const { train } = ss
       const nClass = _(train)
         .map(t => t[1])

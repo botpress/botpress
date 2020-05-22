@@ -38,7 +38,7 @@ function countEachClass(dataset: Data[]) {
     .value()
 
   const nSamplesPerLabel = uniqLabels.reduce((o, l) => ({ ...o, [l]: 0 }), {} as { [key: number]: number })
-  for (let s of dataset) {
+  for (const s of dataset) {
     nSamplesPerLabel[s[1]]++
   }
   return nSamplesPerLabel
