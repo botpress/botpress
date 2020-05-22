@@ -1,6 +1,7 @@
 const assert = require('assert')
 import _ from 'lodash'
 import { Data } from '../typings'
+import { getMostRepresentedClass } from './count-class'
 
 export default function(dataset: Data[], k = 5): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
@@ -17,7 +18,18 @@ export default function(dataset: Data[], k = 5): SplittedDataSet[] {
     ]
   }
 
+  const { label, occurence } = getMostRepresentedClass(dataset)
+
   const nTestSample = Math.floor(n / kFold)
+  const nTrainSample = n - nTestSample
+
+  if (nTrainSample <= occurence) {
+    const percent = (occurence / n) * 100
+
+    throw new SplitDataSetError(
+      `Class of label ${label} represents ${percent} % of the whole dataset. Either add samples of other classes or try a higher kFold.`
+    )
+  }
 
   let available_test_samples = [...dataset]
 
@@ -39,6 +51,21 @@ export default function(dataset: Data[], k = 5): SplittedDataSet[] {
   }
 
   return res
+}
+
+export function getMinKFold(dataset: Data[]) {
+  const n = dataset.length
+  const { occurence } = getMostRepresentedClass(dataset)
+
+  const nTestSample = Math.ceil((n + 1) / (n - occurence))
+  return nTestSample
+}
+
+class SplitDataSetError extends Error {
+  constructor(msg: string) {
+    super(msg)
+    super.name = 'SplitDataSetError'
+  }
 }
 
 type SplittedDataSet = {

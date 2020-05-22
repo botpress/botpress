@@ -5,6 +5,7 @@ import { Data, SvmModel, SvmParameters as Parameters } from './svm-js/typings'
 import { SVM } from './svm-js/core/svm'
 import svmTypes from './svm-js/core/svm-types'
 import kernelTypes from './svm-js/core/kernel-types'
+import { getMinKFold } from './svm-js/util/split-dataset'
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],
@@ -38,6 +39,16 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       args.probability = false // not supported
     }
 
+    this.labels = []
+    const dataset: Data[] = points.map(c => [c.coordinates, this.getLabelIdx(c.label)])
+
+    if (this.labels.length < 2) {
+      throw new Error("SVM can't train on a dataset of only one class")
+    }
+
+    const minKFold = getMinKFold(dataset)
+    const kFold = Math.max(minKFold, 4)
+
     this.clf = new SVM({
       svm_type: args.classifier ? svmTypes[args.classifier] : undefined,
       kernel_type: args.kernel ? kernelTypes[args.kernel] : undefined,
@@ -45,22 +56,15 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       gamma: args.gamma,
       probability: args.probability,
       reduce: args.reduce,
-      kFold: 4
+      kFold
     })
 
-    await this._train(points, callback)
+    await this._train(dataset, callback)
     return this.serialize()
   }
 
-  private async _train(
-    points: sdk.MLToolkit.SVM.DataPoint[],
-    callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
-  ): Promise<any> {
-    this.labels = []
-
+  private async _train(dataset: Data[], callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined): Promise<any> {
     return new Promise((resolve, reject) => {
-      const dataset: Data[] = points.map(c => [c.coordinates, this.getLabelIdx(c.label)])
-
       const svm = this.clf as SVM
       svm
         .train(dataset)
