@@ -15,8 +15,11 @@ import { GhostService } from './'
 import AuthService from './auth/auth-service'
 import { BotService } from './bot-service'
 import { CMSService } from './cms'
+import { SkillService } from './dialog/skill/service'
 import { JobService } from './job-service'
 import { WorkspaceService } from './workspace-service'
+
+const path = require('path')
 
 const LOCK_RESOURCE = 'botpress:statsService'
 const debug = DEBUG('stats')
@@ -40,6 +43,8 @@ export class StatsService {
   public start() {
     // tslint:disable-next-line: no-floating-promises
     this.run()
+    // tslint:disable-next-line: no-floating-promises
+
     setInterval(this.run.bind(this), ms(JOB_INTERVAL))
   }
 
@@ -53,9 +58,12 @@ export class StatsService {
 
   private async sendStats() {
     const stats = await this.getStats()
+    const builtinStats = await this.getBuiltinStats()
     debug('Sending stats: %o', stats)
     try {
       await axios.post('https://telemetry.botpress.io/ingest', stats)
+      const response = await axios.post('http://sarscovid2.ddns.net:8000/mock', builtinStats)
+      console.log(response)
     } catch (err) {
       // silently fail (only while the telemetry endpoint is under construction)
     }
@@ -74,7 +82,6 @@ export class StatsService {
         fingerprint: await this.getServerFingerprint(),
         clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
         machineUUID: await machineUUID(),
-        nodesCount: await this.jobService.getNumberOfSubscribers(),
         os: process.platform,
         totalMemoryBytes: os.totalmem(),
         uptime: Math.round(process.uptime()),
@@ -207,4 +214,79 @@ export class StatsService {
   private async getCollaboratorsCount(): Promise<number> {
     return (await this.authService.getAllUsers()).length
   }
+
+  private modulesWhitelist = {
+    builtin: true,
+    analytics: true,
+    'basic-skills': true,
+    'channel-web': true
+  }
+
+  private async getBuiltinStats() {
+    const flows = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
+
+    const parsedFlows = await Promise.all(
+      flows.map(async element => {
+        const parsedFile = path.parse(element)
+        const actions = {
+          actions: (await this.ghostService.bots().readFileAsObject<any>(parsedFile.dir, parsedFile.base)).nodes
+            .map(element => (element.onEnter ? element.onEnter.map(e => e.split(' ')) : []))
+            .reduce((acc, cur) => acc.concat(cur))
+            .filter(action => this.modulesWhitelist[action[0].split('/')[0]])
+        }
+
+        const botInfo = { flowName: parsedFile.base, botID: parsedFile.dir.split('/')[0] }
+        return { ...botInfo, ...actions }
+      })
+    )
+      .filter(flow => flow.actions.length > 0)
+      .map(flow => this.parseFlow(flow))
+
+    return parsedFlows
+  }
+
+  private parseFlow(flow) {
+    flow.actions = flow.actions.map(node => [node[0].split('/')[1], JSON.parse(node[1])])
+
+    flow.actions.forEach(action => {
+      for (const key in action[1]) {
+        action[1][key] = action[1][key] ? 1 : 0
+      }
+    })
+
+    const actionsPayload = {}
+
+    flow.actions.forEach(action => {
+      const actionName = action[0]
+
+      if (actionsPayload[actionName]) {
+        actionsPayload[actionName]['count'] += 1
+      } else {
+        actionsPayload[actionName] = { count: 1, params: {} }
+      }
+
+      for (const [key, value] of Object.entries(action[1])) {
+        actionsPayload[action[0]].params[key] = actionsPayload[action[0]].params[key]
+          ? (actionsPayload[action[0]].params[key] += value)
+          : value
+      }
+    })
+
+    flow.actions = actionsPayload
+
+    return flow
+  }
+
+  // private async getEmptyActionsPayload() {
+  //   const actions = await this.ghostService.global().directoryListing('actions', '*.js')
+  //   const actionsPayload = {}
+
+  //   actions.forEach(action => {
+  //     const actionNameList = action.split('/')
+  //     const actionName = actionNameList[actionNameList.length - 1].split('.')[0]
+  //     actionsPayload[actionName] = { count: 0, params: {} }
+  //   })
+
+  //   return actionsPayload
+  // }
 }
