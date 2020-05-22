@@ -32,19 +32,19 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.put(
-    '/',
+  router.post(
+    '/create',
     asyncMiddleware(async (req, res) => {
       const { date, time, timezone, content, type, filters } = req.body
       const { botId } = req.params
 
-      const { id } = await db.addSchedule({ botId, date, time, timezone, content, type, filters })
-      res.send({ id })
+      await db.addSchedule({ botId, date, time, timezone, content, type, filters })
+      res.sendStatus(200)
     })
   )
 
   router.post(
-    '/',
+    '/update',
     asyncMiddleware(async (req, res) => {
       const { id, date, time, timezone, content, type, filters } = req.body
       const { botId } = req.params
@@ -54,8 +54,8 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.delete(
-    '/:id',
+  router.post(
+    '/delete/:id',
     asyncMiddleware(async (req, res) => {
       await db.deleteSchedule(req.params.id)
       res.sendStatus(200)

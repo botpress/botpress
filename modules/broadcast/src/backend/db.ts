@@ -50,7 +50,7 @@ export default class BroadcastDb {
       })
   }
 
-  addSchedule({ botId, date, time, timezone, content, type, filters }: Schedule) {
+  async addSchedule({ botId, date, time, timezone, content, type, filters }: Schedule): Promise<ScheduleRow> {
     const dateTime = date + ' ' + time
     let ts = undefined
 
@@ -72,10 +72,7 @@ export default class BroadcastDb {
       filters: JSON.stringify(filters)
     }
 
-    return this.knex('broadcast_schedules')
-      .insert(row, 'id')
-      .then()
-      .get(0)
+    return this.knex('broadcast_schedules').insert(row)
   }
 
   async updateSchedule({ id, botId, date, time, timezone, content, type, filters }: Schedule): Promise<void> {
@@ -168,8 +165,7 @@ export default class BroadcastDb {
       .first()
       .then(result => result!.qty)
 
-    // @ts-ignore
-    return parseInt(result)
+    return typeof result === 'number' ? result : parseInt(result)
   }
 
   updateTotalCount(schedule: Schedule, count: number) {
