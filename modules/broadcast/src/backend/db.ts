@@ -176,7 +176,7 @@ export default class BroadcastDb {
 
   async getBroadcastOutbox(botId: string): Promise<Broadcast[]> {
     return this.knex('broadcast_outbox')
-      .where(this.knex.date.isBefore('broadcast_outbox.ts', new Date()))
+      .whereRaw('broadcast_outbox.ts < ?', [this.knex.date.now()])
       .andWhere('broadcast_outbox.botId', botId)
       .join('srv_channel_users', 'srv_channel_users.id', 'broadcast_outbox.userId')
       .join('broadcast_schedules', 'scheduleId', 'broadcast_schedules.id')
