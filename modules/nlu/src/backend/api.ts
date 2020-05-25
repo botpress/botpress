@@ -259,8 +259,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
       await entityService.deleteEntity(id)
 
       const ghost = bp.ghost.forBot(botId)
-      const affectedIntents = (await getIntents(ghost))
-        .filter(intent => intent.slots.some(slot => slot.entities.includes(id)))
+      const affectedIntents = (await getIntents(ghost)).filter(intent =>
+        intent.slots.some(slot => slot.entities.includes(id))
+      )
 
       await Promise.map(affectedIntents, intent => {
         const [affectedSlots, unaffectedSlots] = _.partition(intent.slots, slot => slot.entities.includes(id))
@@ -271,7 +272,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
             ...unaffectedSlots,
             ...slotsToKeep.map(slot => ({ ...slot, entities: _.without(slot.entities, id) }))
           ],
-          utterances: removeSlotsFromUtterances(intent.utterances, slotsToDelete.map(slot => slot.name))
+          utterances: removeSlotsFromUtterances(
+            intent.utterances,
+            slotsToDelete.map(slot => slot.name)
+          )
         }
         return saveIntent(ghost, updatedIntent, entityService)
       })
