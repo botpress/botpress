@@ -118,7 +118,7 @@ export default class BroadcastModule extends React.Component {
     }
 
     this.getAxios()
-      .put(`/mod/broadcast/`, broadcast)
+      .post(`/mod/broadcast/create`, broadcast)
       .then(this.fetchAllBroadcasts)
       .then(this.closeModal)
       .catch(this.handleRequestError)
@@ -133,7 +133,7 @@ export default class BroadcastModule extends React.Component {
     }
 
     this.getAxios()
-      .post('/mod/broadcast/', { id, ...broadcast })
+      .post('/mod/broadcast/update', { id, ...broadcast })
       .then(this.fetchAllBroadcasts)
       .then(this.closeModal)
       .catch(this.handleRequestError)
@@ -141,7 +141,7 @@ export default class BroadcastModule extends React.Component {
 
   handleRemoveBroadcast = id => {
     this.getAxios()
-      .delete('/mod/broadcast/' + id)
+      .post('/mod/broadcast/delete/' + id)
       .then(this.fetchAllBroadcasts)
       .catch(this.handleRequestError)
   }
