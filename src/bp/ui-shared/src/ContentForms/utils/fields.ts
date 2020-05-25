@@ -1,4 +1,8 @@
-const image = {
+import { FormData } from "common/typings"
+
+import { FormEntity } from "./typings"
+
+const image: FormEntity = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -30,7 +34,7 @@ const image = {
   ]
 }
 
-const card = {
+const card: FormEntity = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -124,7 +128,7 @@ const card = {
   ]
 }
 
-const carousel = {
+const carousel: FormEntity = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -159,7 +163,7 @@ const carousel = {
   ]
 }
 
-const suggestions = {
+const suggestions: FormEntity = {
   advancedSettings: [
     {
       key: 'onTopOfKeyboard',
@@ -213,21 +217,22 @@ const suggestions = {
   ]
 }
 
-export const getEmptyFormData = (contentType: string, isPartOfGroup = false) => {
+export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
   switch (contentType) {
     case 'image':
       return {
         markdown: true,
         typingIndicator: true,
-        image: null,
+        image: undefined,
         title: ''
       }
     case 'card':
     case 'cards':
       const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
+
       return {
         ...advanced,
-        image: null,
+        image: undefined,
         title: '',
         text: '',
         buttons: []

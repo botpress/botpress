@@ -3,7 +3,7 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
-import { contentTypesFields, getEmptyFormData } from '../../utils/fields'
+import { getEmptyFormData } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -107,7 +107,6 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
-    console.log('test')
     dispatch({ type: 'setData', data: formData })
   }, [])
 
