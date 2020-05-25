@@ -103,6 +103,7 @@ try {
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
         process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
+        process.DISABLE_BOT_SANDBOX = yn(process.env.DISABLE_BOT_SANDBOX)
         process.IS_LICENSED = true
         process.ASSERT_LICENSED = () => {}
         process.BOTPRESS_VERSION = metadataContent.version
