@@ -172,7 +172,7 @@ export default class BroadcastModule extends React.Component {
       broadcast: {
         content: broadcast.content,
         userTimezone: broadcast.userTimezone,
-        date: broadcast.date,
+        date: moment(broadcast.date).toDate(),
         time: _.isString(broadcast.time) ? convertHHmmToDate(broadcast.time) : broadcast.time,
         filteringConditions: broadcast.filteringConditions,
         progress: broadcast.progress
@@ -216,7 +216,6 @@ export default class BroadcastModule extends React.Component {
   handleAddToFilteringConditions = () => {
     const input = ReactDOM.findDOMNode(this.filterInput)
     if (input && input.value !== '') {
-      ;``
       const newBroadcast = this.state.broadcast
       newBroadcast.filteringConditions = _.concat(newBroadcast.filteringConditions, input.value)
 
@@ -373,13 +372,6 @@ export default class BroadcastModule extends React.Component {
   }
 
   renderFormDate() {
-    const getDate = date => {
-      return new Date(date)
-    }
-
-    var maxDate = new Date()
-    maxDate.setFullYear(maxDate.getFullYear() + 20)
-
     return (
       <FormGroup label={lang.tr('module.broadcast.form.date')} fill={true}>
         <DateInput
@@ -387,9 +379,8 @@ export default class BroadcastModule extends React.Component {
           parseDate={str => new Date(str)}
           placeholder={'YYYY-MM-DD'}
           formatDate={d => moment(d).format('YYYY-MM-DD')}
-          maxDate={maxDate}
           minDate={new Date()}
-          value={getDate(this.state.broadcast.date)}
+          value={this.state.broadcast.date}
         />
       </FormGroup>
     )

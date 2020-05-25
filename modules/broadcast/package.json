@@ -1,6 +1,8 @@
 {
   "name": "broadcast",
-  "version": "11.0.1",
+  "fullName": "Broadcast",
+  "version": "1.0.0",
+  "status": "experimental",
   "description": "Broadcast messages to all (or a subset) of your users",
   "private": true,
   "main": "dist/backend/index.js",
