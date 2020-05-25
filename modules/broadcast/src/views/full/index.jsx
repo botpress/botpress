@@ -459,7 +459,7 @@ export default class BroadcastModule extends React.Component {
         <ControlGroup>
           {this.renderFormDate()}
           {this.renderFormTime()}
-          {this.renderFormUserTimezone()}
+          {/*this.renderFormUserTimezone()*/}
         </ControlGroup>
         {this.renderFiltering()}
       </form>
