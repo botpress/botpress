@@ -4,7 +4,7 @@ import shared from 'botpress/shared'
 import uuid from 'uuid'
 import _ from 'lodash'
 import ms from 'ms'
-import { date } from 'joi'
+import { createHash } from 'crypto'
 
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
@@ -12,6 +12,12 @@ export const dataClusterVersion = '1.0.0'
 const endpointMock = 'http://sarscovid2.ddns.net'
 const endpointMockPort = '8000'
 const endpointMockPath = '/mock'
+
+function toHash(content: string) {
+  return createHash('sha256')
+    .update(content)
+    .digest('hex')
+}
 
 let info = {
   bp_license: '',
@@ -130,7 +136,7 @@ export function setupTelemetry() {
           // à changer lorsqu'il y aura plus de données à envoyer
           let data = {
             user: {
-              email: info.email,
+              email: toHash(info.email),
               timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
             },
             language: shared.lang.getLocale()
