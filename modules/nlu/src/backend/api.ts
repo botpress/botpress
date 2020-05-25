@@ -78,7 +78,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
     try {
       let nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts)
-      // TODO: call converse API instead of calling legacy election by hand
       nlu = legacyElectionPipeline(nlu)
       res.send({ nlu })
     } catch (err) {
