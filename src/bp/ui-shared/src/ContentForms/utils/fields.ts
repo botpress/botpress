@@ -1,6 +1,6 @@
-import { FormData } from "common/typings"
+import { FormData } from 'common/typings'
 
-import { FormEntity } from "./typings"
+import { FormEntity } from './typings'
 
 const image: FormEntity = {
   advancedSettings: [

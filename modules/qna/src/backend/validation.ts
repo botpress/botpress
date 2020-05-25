@@ -5,7 +5,10 @@ const QnaItemContentAnswerSchema = Joi.object().pattern(
   Joi.alternatives().try(
     Joi.number(),
     Joi.boolean(),
-    Joi.string().allow(null).allow(''),
+    // tslint:disable-next-line
+    Joi.allow(null),
+    Joi.string()
+      .allow(''),
     Joi.array().items(Joi.object())
   )
 )
