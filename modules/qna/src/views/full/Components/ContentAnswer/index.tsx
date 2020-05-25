@@ -22,7 +22,8 @@ const ContentAnswer: FC<Props> = ({ content, onEdit, active }) => {
 
   const ellipsisText = (text: string): string => {
     if (text.length > 51) {
-      text = `${text.substr(0, 51)}${text.substr(-1) !== '.' ? '...' : ''}`
+      const shortText = text.substr(0, 51)
+      text = `${shortText}${shortText.substr(-1) !== '.' ? '...' : ''}`
     }
 
     return text
