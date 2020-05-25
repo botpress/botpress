@@ -10,6 +10,7 @@ import Select from 'react-select'
 import { QnaItem } from '../../../backend/qna'
 import style from '../style.scss'
 
+import ContentAnswer from './ContentAnswer'
 import ContentAnswerForm from './ContentAnswerForm'
 import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
@@ -246,23 +247,37 @@ const QnA: FC<Props> = props => {
             label={lang.tr('module.qna.question')}
             addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
           />
-          <TextAreaList
-            key="answers"
-            items={answers}
-            duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
-            itemListValidator={validateItemsList}
-            updateItems={items =>
-              updateQnA({
-                id,
-                data: { ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } }
-              })
-            }
-            refItems={refAnswers}
-            keyPrefix="answer-"
-            placeholder={index => getPlaceholder('answer', index)}
-            label={lang.tr('module.qna.answer')}
-            addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
-          >
+          <div>
+            <TextAreaList
+              key="answers"
+              items={answers}
+              duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
+              itemListValidator={validateItemsList}
+              updateItems={items =>
+                updateQnA({
+                  id,
+                  data: { ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } }
+                })
+              }
+              refItems={refAnswers}
+              keyPrefix="answer-"
+              placeholder={index => getPlaceholder('answer', index)}
+              label={lang.tr('module.qna.answer')}
+              addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
+            />
+            <div className={style.contentAnswerWrapper}>
+              {contentAnswers?.map((content, index) => (
+                <ContentAnswer
+                  key={index}
+                  content={content}
+                  active={editingContent.current === index}
+                  onEdit={() => {
+                    editingContent.current = index
+                    setShowContentForm(true)
+                  }}
+                />
+              ))}
+            </div>
             <FormFields.AddButton
               text={lang.tr('module.qna.form.addContent')}
               onClick={() => {
@@ -270,22 +285,7 @@ const QnA: FC<Props> = props => {
                 editingContent.current = null
               }}
             />
-          </TextAreaList>
-          {contentAnswers?.map((content, index) => {
-            // TODO implement actual design for this in the next PR
-            return (
-              <div key={index}>
-                {content.title}
-                <Button
-                  icon="edit"
-                  onClick={() => {
-                    editingContent.current = index
-                    setShowContentForm(true)
-                  }}
-                />
-              </div>
-            )
-          })}
+          </div>
           {showRedirectToFlow && (
             <Fragment>
               <h1 className={style.redirectTitle}>{lang.tr('module.qna.form.redirectQuestionTo')}</h1>
@@ -332,7 +332,10 @@ const QnA: FC<Props> = props => {
           deleteContent={() => deleteContentAnswer()}
           formData={contentAnswers[editingContent.current]}
           onUpdate={data => updateContentAnswers(data)}
-          close={() => setShowContentForm(false)}
+          close={() => {
+            editingContent.current = null
+            setShowContentForm(false)
+          }}
         />
       )}
     </div>
