@@ -29,7 +29,7 @@ export const registerMiddleware = async (bp: typeof sdk, classifiers: Classifier
 
       next()
     },
-    order: 16,
+    order: 150,
     description: 'Finds content from Knowledge base files'
   })
 }

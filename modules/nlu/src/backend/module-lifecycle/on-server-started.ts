@@ -97,9 +97,9 @@ const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEven
 
 const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
   bp.events.registerMiddleware({
-    name: 'nlu.incoming',
+    name: 'nlu-predict.incoming',
     direction: 'incoming',
-    order: 10,
+    order: 100,
     description:
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
@@ -152,9 +152,9 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
   }
 
   bp.events.registerMiddleware({
-    name: 'nlu-election.incoming',
+    name: 'nlu-elect.incoming',
     direction: 'incoming',
-    order: 11,
+    order: 120,
     description: 'Perform intent election for the outputed NLU.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
       if (ignoreEvent(bp, state, event) || !event.nlu) {
@@ -162,8 +162,9 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       }
 
       try {
-        const nluResults = legacyElectionPipeline(event.nlu)
-        _.merge(event, { nlu: nluResults })
+        // TODO: use the 'intent-is' condition logic when bot uses NDU
+        const nlu = legacyElectionPipeline(event.nlu)
+        _.merge(event, { nlu })
       } catch (err) {
         bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)
       } finally {
