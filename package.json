@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.9.2",
+  "version": "12.9.3",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -11,7 +11,7 @@
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
-    "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=../../modules:../../internal-modules node index.js",
+    "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules node index.js",
     "cmd": "yarn run gulp",
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",

@@ -169,8 +169,9 @@ module.exports = {
     if (fileName.includes('-')) {
       fileName = tail(fileName.split('-')).join('-')
     }
+    const link = `${formData.BOT_URL}${formData.image}`
     const title = formData.title ? ' | ' + formData.title : ''
-    return `Image: [![${formData.title || ''}](<${formData.image}>)](<${formData.image}>) - (${fileName}) ${title}`
+    return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
   },
 
   renderElement: renderElement

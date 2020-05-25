@@ -1,6 +1,7 @@
 ---
-id: about-pro
+id: version-12.9.3-about-pro
 title: About
+original_id: about-pro
 ---
 
 ## Additional Features
