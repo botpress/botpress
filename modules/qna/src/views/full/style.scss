@@ -251,6 +251,12 @@
     }
   }
 
+  .contentAnswerWrapper {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
   .questionHeader {
     justify-content: flex-start;
     padding: var(--spacing-x-large) 57px var(--spacing-x-large) var(--spacing-x-large);
