@@ -34,13 +34,13 @@ let locks: Lock = {}
 export type dataType = string | boolean | number | object
 
 export interface EventData {
-  schema_version: string
+  schema: string
   [key: string]: dataType
 }
 
 export interface TelemetryPackage {
-  schema_version: string
-  event_id: string
+  schema: string
+  uuid: string
   timestamp: string
   bp_release: string
   bp_license: string
@@ -133,7 +133,6 @@ export function setupTelemetry() {
       eventsType.forEach(event => {
         if (!locks[event]) {
           changeLock(event)
-          // à changer lorsqu'il y aura plus de données à envoyer
           let data = {
             user: {
               email: toHash(info.email),
@@ -151,15 +150,15 @@ export function setupTelemetry() {
 
 function getDataCluster(data: dataType): EventData {
   let baseCluster: EventData = {
-    schema_version: dataClusterVersion
+    schema: dataClusterVersion
   }
   return _.assign(baseCluster, data)
 }
 
 export function getTelemetryPackage(event_type: string, data: dataType, name: string = 'data'): TelemetryPackage {
   return {
-    schema_version: telemetryPackageVersion,
-    event_id: uuid.v4(),
+    schema: telemetryPackageVersion,
+    uuid: uuid.v4(),
     timestamp: new Date().toISOString(),
     bp_release: info.bp_release,
     bp_license: info.bp_license,
@@ -169,9 +168,6 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
 }
 
 function sendTelemetry(data: TelemetryPackage, event: string) {
-  console.log(data)
-  console.log(JSON.stringify(data))
-  console.log(new Date().toUTCString())
   axios
     .post(endpointMock.concat(':', endpointMockPort, endpointMockPath), data, {
       headers: {
