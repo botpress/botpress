@@ -51,6 +51,7 @@ declare namespace NodeJS {
     SERVER_ID: string
     DISABLE_GLOBAL_SANDBOX: boolean
     DISABLE_BOT_SANDBOX: boolean
+    DISABLE_TRANSITION_SANDBOX: boolean
     WEB_WORKER: number
     ML_WORKERS: number[]
   }
@@ -191,6 +192,9 @@ declare type BotpressEnvironmentVariables = {
 
   /** When true, bot-scoped actions and hooks are executed outside of the sandbox  */
   readonly DISABLE_BOT_SANDBOX?: boolean
+
+  /** When true, transitions are executed outside of the sandbox  */
+  readonly DISABLE_TRANSITION_SANDBOX?: boolean
 
   /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
   readonly TESTMIG_ALL?: boolean

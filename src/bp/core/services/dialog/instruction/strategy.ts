@@ -195,12 +195,6 @@ export class TransitionStrategy implements InstructionStrategy {
       return fn(...Object.values(sandbox))
     }
 
-    const vm = new NodeVM({
-      wrapper: 'none',
-      sandbox: sandbox,
-      timeout: 5000
-    })
-    const runner = new VmRunner()
     const code = `
     try {
       return ${instruction.fn};
@@ -210,8 +204,19 @@ export class TransitionStrategy implements InstructionStrategy {
         return false
       }
       throw err
+    }`
+
+    if (process.DISABLE_TRANSITION_SANDBOX) {
+      const fn = new Function(...Object.keys(sandbox), code)
+      return fn(...Object.values(sandbox))
     }
-    `
+
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: sandbox,
+      timeout: 5000
+    })
+    const runner = new VmRunner()
     return await runner.runInVm(vm, code)
   }
 }
