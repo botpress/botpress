@@ -2,6 +2,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
+import { FormData } from '../../../../../../out/bp/common/typings'
 import { QnaItem } from '../../../backend/qna'
 
 export const ITEMS_PER_PAGE = 20
@@ -36,6 +37,10 @@ export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean =>
     .filter(entry => !!entry.trim().length).length
 }
 
+export const hasContentAnswer = (data: { [lang: string]: FormData[] }): boolean => {
+  return data && !!Object.values(data).reduce((acc, arr) => [...acc, ...arr], []).length
+}
+
 export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] => {
   const errors = []
   const { data } = qnaItem
@@ -49,7 +54,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   }
   if (
     !hasPopulatedLang(data.answers) &&
-    !Object.values(data.contentAnswers).reduce((acc, arr) => [...acc, ...arr], []).length &&
+    !hasContentAnswer(data.contentAnswers) &&
     !data.redirectFlow &&
     !data.redirectNode
   ) {
