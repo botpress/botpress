@@ -233,7 +233,15 @@
         "nameInUse": "Name already in use",
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
         "node": "Node",
-        "renameFlow": "Rename Flow"
+        "renameFlow": "Rename Flow",
+        "importTopic": "Import Topic",
+        "addTopic": "Add Topic",
+        "addWorkflow": "Add Workflow",
+        "tapIconsToAdd": "Tap icons in the toolbar to import or add your first topic.",
+        "renameWorkflow": "Rename Workflow",
+        "renameTopic": "Rename Topic",
+        "nameWorkflow": "Name Workflow",
+        "nameTopic": "Name Topic"
       },
       "skills": {
         "couldNotLoad": "Could not load skills view",

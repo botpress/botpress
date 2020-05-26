@@ -54,7 +54,7 @@ const ACTION_SERVER_RESPONSE_SCHEMA = joi.object({
 
 @injectable()
 export default class ActionService {
-  private _scopedActions: Map<string, ScopedActionService> = new Map()
+  private _scopedActions: Map<string, Promise<ScopedActionService>> = new Map()
   private _invalidateDebounce
 
   constructor(
@@ -76,20 +76,15 @@ export default class ActionService {
       return this._scopedActions.get(botId)!
     }
 
-    if (!(await this.botService.botExists(botId, true))) {
-      throw new NotFoundError(`This bot does not exist`)
-    }
+    const service = new Promise<ScopedActionService>(async cb => {
+      if (!(await this.botService.botExists(botId, true))) {
+        throw new NotFoundError(`This bot does not exist`)
+      }
 
-    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+      const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+      cb(new ScopedActionService(this.ghost, this.logger, botId, this.cache, this.tasksRepository, workspaceId))
+    })
 
-    const service = new ScopedActionService(
-      this.ghost,
-      this.logger,
-      botId,
-      this.cache,
-      this.tasksRepository,
-      workspaceId
-    )
     this._scopedActions.set(botId, service)
     return service
   }
