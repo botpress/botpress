@@ -40,9 +40,9 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   const errors = []
   const { data } = qnaItem
 
-  const hasDupplicateQuestions = data.questions[currentLang].filter((item, index) =>
+  const hasDupplicateQuestions = data.questions[currentLang]?.filter((item, index) =>
     [...data.questions[currentLang].slice(0, index).filter(item2 => item2.length)].includes(item)
-  )
+  ) || []
 
   if (!hasPopulatedLang(data.questions)) {
     errors.push(lang.tr('module.qna.form.missingQuestion'))
