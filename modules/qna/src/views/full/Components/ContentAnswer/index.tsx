@@ -31,12 +31,12 @@ const ContentAnswer: FC<Props> = ({ content, onEdit, active }) => {
 
   const renderContent = (): JSX.Element | string => {
     switch (content.contentType) {
-      case 'image':
-      case 'card':
+      case 'builtin_image':
+      case 'builtin_card':
         return renderCardOrImg(content)
-      case 'carousel':
+      case 'builtin_carousel':
         return renderCardOrImg(content.cards?.[0])
-      case 'suggestions':
+      case 'builtin_single-choice':
         return ellipsisText((content.suggestions as FormData[]).map(suggestion => suggestion.label).join(' · '))
 
       default:
@@ -48,7 +48,7 @@ const ContentAnswer: FC<Props> = ({ content, onEdit, active }) => {
     <button
       className={cx(style.contentWrapper, {
         [style.active]: active,
-        [style.carousel]: content.contentType === 'carousel'
+        [style.carousel]: content.contentType === 'builtin_carousel'
       })}
       onClick={onEdit}
     >

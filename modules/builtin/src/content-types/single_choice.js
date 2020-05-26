@@ -140,6 +140,62 @@ module.exports = {
       'ui:field': 'i18n_array'
     }
   },
+
+  newSchema: {
+    advancedSettings: [
+      {
+        key: 'onTopOfKeyboard',
+        type: 'checkbox',
+        label: 'Display on top of the keyboard'
+      },
+      {
+        key: 'typingIndicator',
+        type: 'checkbox',
+        label: 'Display typing indicator'
+      },
+      {
+        key: 'canAdd',
+        type: 'checkbox',
+        label: 'Allow user to add suggestions'
+      },
+      {
+        key: 'multiple',
+        type: 'checkbox',
+        label: 'Allow user to pick multiple suggestions'
+      }
+    ],
+    fields: [
+      {
+        group: {
+          addLabel: 'Add Suggestion',
+          minimum: 1,
+          contextMenu: [
+            {
+              type: 'delete',
+              label: 'Delete Suggestion'
+            }
+          ]
+        },
+        type: 'group',
+        key: 'suggestions',
+        label: 'fields::label',
+        fields: [
+          {
+            type: 'text',
+            key: 'label',
+            label: 'Suggestion Label',
+            placeholder: 'What is the suggestion displayed?'
+          },
+          {
+            type: 'text',
+            key: 'value',
+            label: 'Value',
+            placeholder: 'What will your chatbot receive?'
+          }
+        ]
+      }
+    ]
+  },
   computePreviewText: formData =>
     formData.choices && formData.text && `Choices (${formData.choices.length}) ${formData.text}`,
   renderElement: renderElement,

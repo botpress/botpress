@@ -193,6 +193,42 @@ module.exports = {
       ...base.typingIndicators
     }
   },
+  newSchema:{
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'Use Markdown',
+        type: 'checkbox',
+        moreInfo: {
+          label: 'Learn more',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typingIndicator',
+        type: 'checkbox',
+        label: 'Display typing indicator'
+      }
+    ],
+    fields: [
+      {
+        group: {
+          addLabel: 'Add Card',
+          minimum: 1,
+          contextMenu: [
+            {
+              type: 'delete',
+              label: 'Delete Card'
+            }
+          ]
+        },
+        type: 'group',
+        key: 'cards',
+        label: 'fields::title',
+        fields: Card.newSchema.fields
+      }
+    ]
+  },
   computePreviewText: formData => formData.items && `Carousel: (${formData.items.length}) ${formData.items[0].title}`,
   renderElement: renderElement
 }

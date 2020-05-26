@@ -160,6 +160,38 @@ module.exports = {
     }
   },
 
+  newSchema: {
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'Use Markdown',
+        type: 'checkbox',
+        moreInfo: {
+          label: 'Learn more',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typingIndicator',
+        type: 'checkbox',
+        label: 'Display typing indicator'
+      }
+    ],
+    fields: [
+      {
+        type: 'upload',
+        key: 'image',
+        label: 'Upload Image'
+      },
+      {
+        type: 'text',
+        key: 'title',
+        label: 'Title',
+        placeholder: 'Optional'
+      }
+    ]
+  },
+
   computePreviewText: formData => {
     if (!formData.image) {
       return

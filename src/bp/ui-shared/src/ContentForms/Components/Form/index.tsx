@@ -4,6 +4,7 @@ import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import { getEmptyFormData } from '../../utils/fields'
+import { MoreInfo } from '../../utils/typings'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -12,6 +13,7 @@ import Upload from '../Fields/Upload'
 import FieldWrapper from '../FieldWrapper'
 import GroupItemWrapper from '../GroupItemWrapper'
 
+import style from './style.scss'
 import { FormProps } from './typings'
 
 const printLabel = (field, data) => {
@@ -22,6 +24,19 @@ const printLabel = (field, data) => {
   }
 
   return field.label
+}
+
+const printMoreInfo = (moreInfo: MoreInfo): JSX.Element => {
+  const { url, label } = moreInfo
+  if (url) {
+    return (
+      <a className={style.moreInfo} href={url} target="_blank">
+        {label}
+      </a>
+    )
+  }
+
+  return <p className={style.moreInfo}>{label}</p>
 }
 
 const formReducer = (state, action) => {
@@ -103,7 +118,7 @@ const formReducer = (state, action) => {
 }
 
 const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettings, onUpdate }) => {
-  const newFormData = getEmptyFormData(contentType || 'image')
+  const newFormData = getEmptyFormData(contentType || 'builtin_image')
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
@@ -151,6 +166,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
             />
             {currentOption.related && printField(currentOption.related, data, parent)}
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'textarea':
@@ -162,6 +178,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               onBlur={() => onUpdate(state)}
               value={data[field.key]}
             />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'upload':
@@ -173,21 +190,25 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}
             />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'checkbox':
         return (
-          <Checkbox
-            checked={data[field.key]}
-            key={field.key}
-            label={printLabel(field, data[field.key])}
-            onChange={e =>
-              dispatch({
-                type: 'updateField',
-                data: { field: field.key, onUpdate, value: e.currentTarget.checked }
-              })
-            }
-          />
+          <div className={style.checkboxWrapper}>
+            <Checkbox
+              checked={data[field.key]}
+              key={field.key}
+              label={printLabel(field, data[field.key])}
+              onChange={e =>
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, onUpdate, value: e.currentTarget.checked }
+                })
+              }
+            />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
+          </div>
         )
       default:
         return (
@@ -199,6 +220,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               type={field.type}
               value={data[field.key]}
             />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
     }
