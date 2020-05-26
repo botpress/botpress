@@ -32,8 +32,7 @@ export interface FormErrors {
 }
 
 export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean => {
-  return !!_.flatMap(data)
-    .filter(entry => !!entry.trim().length).length
+  return !!_.flatMap(data).filter(entry => !!entry.trim().length).length
 }
 
 export const hasContentAnswer = (data: { [lang: string]: FormData[] }): boolean => {
