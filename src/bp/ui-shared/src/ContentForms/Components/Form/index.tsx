@@ -107,7 +107,6 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
-    console.log('test')
     dispatch({ type: 'setData', data: formData })
   }, [])
 

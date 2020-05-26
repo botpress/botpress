@@ -8,15 +8,23 @@ import style from './style.scss'
 interface Props {
   bp: any
   deleteContent: () => void
-  close: () => void
+  editingContent: number
+  close: (closingKey: number) => void
   onUpdate: (data: any) => void
   // TODO max add typings in future PR
   formData: any
 }
 
-const ContentAnswerForm: FC<Props> = ({ bp, close, formData, onUpdate, deleteContent }) => {
+const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {
   const contentType = useRef(formData?.contentType || 'image')
   const [showOptions, setShowOptions] = useState(false)
+  const [forceUpdate, setForceUpdate] = useState(false)
+
+  useEffect(() => {
+    contentType.current = formData?.contentType || 'image'
+    setForceUpdate(!forceUpdate)
+  }, [editingContent])
+
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       icon: 'trash',
@@ -38,44 +46,41 @@ const ContentAnswerForm: FC<Props> = ({ bp, close, formData, onUpdate, deleteCon
     { value: 'suggestions', label: 'Suggestions' }
   ]
 
-  useEffect(() => {
-    console.log('test2')
-  }, [])
-
   const contentFields = ContentForms.contentTypesFields[contentType.current]
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose close={close}>
-      <div className={style.formHeader}>
-        <Tabs id="contentFormTabs">
-          <Tab id="content" title="Content" />
-        </Tabs>
-        <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
-      </div>
-      <div className={cx(style.fieldWrapper, style.contentTypeField)}>
-        <span className={style.formLabel}>{lang.tr('studio.content.contentType')}</span>
-        {contentTypes && (
-          <Dropdown
-            filterable={false}
-            className={style.formSelect}
-            items={contentTypes}
-            defaultItem={contentType.current}
-            rightIcon="chevron-down"
-            onChange={option => {
-              handleContentTypeChange(option.value)
-            }}
-          />
-        )}
-      </div>
-      <ContentForms.Form
-        key={contentType.current}
-        fields={contentFields.fields}
-        advancedSettings={contentFields.advancedSettings}
-        bp={bp}
-        formData={formData}
-        contentType={contentType.current}
-        onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
-      />
+    <RightSidebar className={style.wrapper} canOutsideClickClose close={() => close(editingContent)}>
+      <Fragment key={`${contentType.current}-${editingContent}`}>
+        <div className={style.formHeader}>
+          <Tabs id="contentFormTabs">
+            <Tab id="content" title="Content" />
+          </Tabs>
+          <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
+        </div>
+        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+          <span className={style.formLabel}>{lang.tr('studio.content.contentType')}</span>
+          {contentTypes && (
+            <Dropdown
+              filterable={false}
+              className={style.formSelect}
+              items={contentTypes}
+              defaultItem={contentType.current}
+              rightIcon="chevron-down"
+              onChange={option => {
+                handleContentTypeChange(option.value)
+              }}
+            />
+          )}
+        </div>
+        <ContentForms.Form
+          fields={contentFields.fields}
+          advancedSettings={contentFields.advancedSettings}
+          bp={bp}
+          formData={formData}
+          contentType={contentType.current}
+          onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
+        />
+      </Fragment>
     </RightSidebar>
   )
 }

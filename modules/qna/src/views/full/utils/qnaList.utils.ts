@@ -47,7 +47,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   if (!hasPopulatedLang(data.questions)) {
     errors.push(lang.tr('module.qna.form.missingQuestion'))
   }
-  if (!hasPopulatedLang(data.answers) && !data.redirectFlow && !data.redirectNode) {
+  if (!hasPopulatedLang(data.answers) && !Object.values(data.contentAnswers).reduce((acc, arr) => [...acc, ...arr], []).length && !data.redirectFlow && !data.redirectNode) {
     errors.push(lang.tr('module.qna.form.missingAnswer'))
   }
   if (hasDupplicateQuestions.length) {
@@ -176,6 +176,7 @@ export const fetchReducer = (state: State, action): State => {
         enabled: true,
         answers: _.cloneDeep(languageArrays),
         questions: _.cloneDeep(languageArrays),
+        contentAnswers: languages.reduce((acc, lang) => ({ ...acc, [lang]: [] }), {}),
         redirectFlow: '',
         redirectNode: ''
       }
