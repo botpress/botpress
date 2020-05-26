@@ -1,5 +1,5 @@
-import { FormAdvancedSetting, FormField } from "../../utils/typings";
-import { FormData } from "common/typings"
+import { FormAdvancedSetting, FormField } from '../../utils/typings'
+import { FormData } from 'common/typings'
 
 export interface FormProps {
   bp?: any

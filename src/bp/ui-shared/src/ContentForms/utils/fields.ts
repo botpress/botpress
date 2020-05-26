@@ -1,8 +1,8 @@
 import { FormData } from 'common/typings'
 
-import { FormEntity } from './typings'
+import { FormDefinition } from './typings'
 
-const image: FormEntity = {
+const image: FormDefinition = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -34,7 +34,7 @@ const image: FormEntity = {
   ]
 }
 
-const card: FormEntity = {
+const card: FormDefinition = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -128,7 +128,7 @@ const card: FormEntity = {
   ]
 }
 
-const carousel: FormEntity = {
+const carousel: FormDefinition = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -163,7 +163,7 @@ const carousel: FormEntity = {
   ]
 }
 
-const suggestions: FormEntity = {
+const suggestions: FormDefinition = {
   advancedSettings: [
     {
       key: 'onTopOfKeyboard',

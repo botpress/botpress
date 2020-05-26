@@ -22,18 +22,18 @@ export interface ContextMenu {
 }
 
 export interface FormField {
-  type: 'checkbox' | 'group' | 'group' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
+  type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
   key: string
   label: string
   placeholder?: string
-  addLabel?: string
+  addLabel?: string // when in a group, you have to specify the add button label
   options?: Option[]
   fields?: FormField[]
-  minimum?: number;
-  contextMenu?: ContextMenu[]
+  minimum?: number // when in a group, you can specify a minimum so the delete button won't show if there isn't more than the minimum
+  contextMenu?: ContextMenu[] // when in a group, you can add a contextual menu to add extra options
 }
 
-export interface FormEntity {
+export interface FormDefinition {
   advancedSettings: FormAdvancedSetting[]
   fields: FormField[]
 }
