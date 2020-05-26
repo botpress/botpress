@@ -260,6 +260,10 @@ export class Botpress {
     if (process.CLUSTER_ENABLED && !process.env.REDIS_URL) {
       this._killServer('The environment variable REDIS_URL is required when cluster is enabled')
     }
+
+    if (!process.IS_PRO_ENABLED && this.config?.pro.branding) {
+      this.logger.warn('Botpress Pro must be enabled to use a custom theme and customize the branding.')
+    }
   }
 
   async deployAssets() {

@@ -1,9 +1,11 @@
-import { Icon } from '@blueprintjs/core'
+import { Alignment, Button, Icon, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import axios from 'axios'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import {
+  createFlow,
   deleteFlow,
   duplicateFlow,
   fetchFlows,
@@ -11,7 +13,8 @@ import {
   getQnaCountByTopic,
   refreshConditions,
   renameFlow,
-  switchFlow
+  switchFlow,
+  updateFlow
 } from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
@@ -20,6 +23,7 @@ import { getAllFlows, getCurrentFlow, getFlowNamesList, RootReducer } from '~/re
 import Inspector from '../../FlowBuilder/inspector'
 import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
 
+import style from './style.scss'
 import Library from './Library'
 import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
@@ -29,6 +33,7 @@ import TopicList, { CountByTopic } from './TopicList'
 import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 import WorkflowEditor from './WorkflowEditor'
 import { exportCompleteWorkflow } from './WorkflowEditor/export'
+import { buildFlowName } from './WorkflowEditor/utils'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -71,6 +76,12 @@ const SidePanelContent: FC<Props> = props => {
   const [topicFilter, setTopicFilter] = useState('')
   const [libraryFilter, setLibraryFilter] = useState('')
 
+  const [currentTab, setCurrentTab] = useState('topics')
+  const [focusedText, setFocusedText] = useState('')
+  const [newPath, setNewPath] = useState('')
+
+  const [expandedPaths, setExpandedPaths] = useState<string[]>([])
+
   useEffect(() => {
     props.refreshConditions()
     props.fetchTopics()
@@ -78,22 +89,6 @@ const SidePanelContent: FC<Props> = props => {
   }, [])
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
-
-  const createTopicAction = {
-    id: 'btn-add-flow',
-    icon: <Icon icon="add" />,
-    key: 'create',
-    tooltip: lang.tr('studio.flow.sidePanel.createNewTopic'),
-    onClick: () => setCreateTopicOpen(true)
-  }
-
-  const importAction = {
-    id: 'btn-import',
-    icon: <Icon icon="import" />,
-    key: 'import',
-    tooltip: lang.tr('studio.flow.sidePanel.importContent'),
-    onClick: () => setImportModalOpen(true)
-  }
 
   const editQnA = (topicName: string) => {
     setSelectedTopic(topicName)
@@ -115,9 +110,35 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const createWorkflow = (topicName: string) => {
-    setSelectedTopic(topicName)
-    setSelectedWorkflow('')
-    setEditWorkflowModalOpen(true)
+    const originalName = 'Workflow'
+    let name = originalName
+    let fullName = buildFlowName({ topic: topicName, workflow: name }, true)
+    let index = 0
+    while (props.flows.find(f => f.name === fullName)) {
+      index++
+      name = `${originalName} ${index}`
+      fullName = buildFlowName({ topic: topicName, workflow: name }, true)
+    }
+
+    setFocusedText(fullName)
+    setNewPath(fullName)
+    props.createFlow(fullName)
+  }
+
+  const createTopic = async () => {
+    const originalName = 'Topic'
+    let name = originalName
+    let index = 0
+    while (props.topics.find(t => t.name === name)) {
+      index++
+      name = `${originalName} ${index}`
+    }
+
+    await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })
+    setNewPath(name)
+    setFocusedText(name)
+    onExpandToggle(name, true)
+    props.fetchTopics()
   }
 
   const downloadTextFile = (text, fileName) => {
@@ -151,52 +172,81 @@ const SidePanelContent: FC<Props> = props => {
     setTopicQnAModalOpen(!topicQnAModalOpen)
   }
 
-  const topicActions = props.permissions.includes('create') && [importAction, createTopicAction]
   const importWorkflow = () => setImportWorkflowModalOpen(!importWorkflowModalOpen)
   const canDelete = props.permissions.includes('delete')
 
+  const onTabChanged = tabId => {
+    setCurrentTab(tabId)
+  }
+
+  const onExpandToggle = (path, isExpanded) => {
+    if (isExpanded) {
+      setExpandedPaths([path, ...expandedPaths])
+    } else {
+      setExpandedPaths(expandedPaths.filter(x => x !== path))
+    }
+  }
+
   return (
-    <SidePanel>
+    <div className={style.sidePanel}>
       {props.showFlowNodeProps ? (
         <Inspector onDeleteSelectedElements={props?.onDeleteSelectedElements} />
       ) : (
         <React.Fragment>
-          <SidePanelSection label={lang.tr('topics')} actions={topicActions}>
-            <SearchBar
-              icon="filter"
-              placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
-              onChange={setTopicFilter}
-            />
-            <TopicList
-              readOnly={props.readOnly}
-              canDelete={canDelete}
-              flows={props.flowsName}
-              qnaCountByTopic={props.qnaCountByTopic}
-              goToFlow={goToFlow}
-              deleteFlow={props.deleteFlow}
-              duplicateFlow={duplicateFlow}
-              currentFlow={props.currentFlow}
-              editWorkflow={editWorkflow}
-              createWorkflow={createWorkflow}
-              exportWorkflow={exportWorkflow}
-              importWorkflow={importWorkflow}
-              filter={topicFilter}
-              editTopic={editTopic}
-              editQnA={editQnA}
-              topics={props.topics}
-              exportTopic={exportTopic}
-              fetchTopics={props.fetchTopics}
-            />
-          </SidePanelSection>
+          <Navbar className={style.topicsNavbar}>
+            <NavbarGroup>
+              <Tabs onChange={onTabChanged}>
+                <Tab id="topics" title={lang.tr('topics')} />
+                <Tab id="library" title={lang.tr('library')} />
+              </Tabs>
+            </NavbarGroup>
+            {props.permissions.includes('create') && currentTab === 'topics' && (
+              <NavbarGroup align={Alignment.RIGHT}>
+                <Tooltip content={lang.tr('studio.flow.sidePanel.importTopic')}>
+                  <Button icon="import" onClick={() => setImportModalOpen(true)} />
+                </Tooltip>
+                <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
+                  <Button icon="plus" onClick={() => createTopic()} />
+                </Tooltip>
+              </NavbarGroup>
+            )}
+          </Navbar>
 
-          <SidePanelSection label={lang.tr('library')}>
-            <SearchBar
-              icon="filter"
-              placeholder={lang.tr('studio.flow.sidePanel.filterLibrary')}
-              onChange={setLibraryFilter}
-            />
-            <Library filter={libraryFilter} />
-          </SidePanelSection>
+          {currentTab === 'topics' && (
+            <React.Fragment>
+              <SearchBar
+                icon="filter"
+                placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
+                onChange={setTopicFilter}
+              />
+              <TopicList
+                readOnly={props.readOnly}
+                qnaCountByTopic={props.qnaCountByTopic}
+                goToFlow={goToFlow}
+                duplicateFlow={duplicateFlow}
+                editWorkflow={editWorkflow}
+                createWorkflow={createWorkflow}
+                exportWorkflow={exportWorkflow}
+                importWorkflow={importWorkflow}
+                editTopic={editTopic}
+                editQnA={editQnA}
+                exportTopic={exportTopic}
+                onExpandToggle={onExpandToggle}
+                canDelete={canDelete}
+                filter={topicFilter}
+                expandedPaths={expandedPaths}
+                newPath={newPath}
+                setNewPath={setNewPath}
+                focusedText={focusedText}
+                setFocusedText={x => {
+                  setFocusedText(x)
+                  props.fetchTopics()
+                }}
+              />
+            </React.Fragment>
+          )}
+
+          {currentTab === 'library' && <Library filter={libraryFilter} />}
         </React.Fragment>
       )}
 
@@ -231,12 +281,11 @@ const SidePanelContent: FC<Props> = props => {
         flows={props.flows}
         topics={props.topics}
       />
-    </SidePanel>
+    </div>
   )
 }
 
 const mapStateToProps = (state: RootReducer) => ({
-  currentFlow: getCurrentFlow(state),
   flows: getAllFlows(state),
   flowsName: getFlowNamesList(state),
   showFlowNodeProps: state.flows.showFlowNodeProps,
@@ -245,10 +294,12 @@ const mapStateToProps = (state: RootReducer) => ({
 })
 
 const mapDispatchToProps = {
+  createFlow,
   switchFlow,
   deleteFlow,
   duplicateFlow,
   renameFlow,
+  updateFlow,
   refreshConditions,
   fetchTopics,
   fetchFlows,
