@@ -1,6 +1,6 @@
 {
   "docs": {
-    "Release Notes": ["releases/release-notes", "releases/migrate"],
+    "Release Notes": ["releases/migrate", "releases/release-notes", "releases/v12_10_0"],
     "Getting Started": ["introduction", "installation", "quickstart", "updating", "troubleshoot"],
     "Main Concepts": [
       "main/overview",
