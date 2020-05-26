@@ -1,3 +1,4 @@
+import { FormData } from 'botpress/common/typings'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
@@ -31,9 +32,11 @@ export interface FormErrors {
 }
 
 export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean => {
-  return !!Object.values(data)
-    .reduce((acc, arr) => [...acc, ...arr], [])
-    .filter(entry => !!entry.trim().length).length
+  return !!_.flatMap(data).filter(entry => !!entry.trim().length).length
+}
+
+export const hasContentAnswer = (data: { [lang: string]: FormData[] }): boolean => {
+  return data && !!_.flatMap(data).length
 }
 
 export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] => {
@@ -47,7 +50,12 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   if (!hasPopulatedLang(data.questions)) {
     errors.push(lang.tr('module.qna.form.missingQuestion'))
   }
-  if (!hasPopulatedLang(data.answers) && !data.redirectFlow && !data.redirectNode) {
+  if (
+    !hasPopulatedLang(data.answers) &&
+    !hasContentAnswer(data.contentAnswers) &&
+    !data.redirectFlow &&
+    !data.redirectNode
+  ) {
     errors.push(lang.tr('module.qna.form.missingAnswer'))
   }
   if (hasDupplicateQuestions.length) {
@@ -176,7 +184,7 @@ export const fetchReducer = (state: State, action): State => {
         enabled: true,
         answers: _.cloneDeep(languageArrays),
         questions: _.cloneDeep(languageArrays),
-        contentAnswers: _.cloneDeep(languageArrays),
+        contentAnswers: languages.reduce((acc, lang) => ({ ...acc, [lang]: [] }), {}),
         redirectFlow: '',
         redirectNode: ''
       }

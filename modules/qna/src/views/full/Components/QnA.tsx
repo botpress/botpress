@@ -36,6 +36,7 @@ interface Props {
 }
 
 const QnA: FC<Props> = props => {
+  const [forceUpdate, setForceUpdate] = useState(false)
   const [showContentForm, setShowContentForm] = useState(false)
   const editingContent = useRef(null)
   const [showOption, setShowOption] = useState(false)
@@ -330,11 +331,18 @@ const QnA: FC<Props> = props => {
         <ContentAnswerForm
           bp={bp}
           deleteContent={() => deleteContentAnswer()}
+          editingContent={editingContent.current}
           formData={contentAnswers[editingContent.current]}
           onUpdate={data => updateContentAnswers(data)}
-          close={() => {
-            editingContent.current = null
-            setShowContentForm(false)
+          close={closingKey => {
+            setTimeout(() => {
+              if (closingKey === editingContent.current) {
+                editingContent.current = null
+                setShowContentForm(false)
+              } else {
+                setForceUpdate(!forceUpdate)
+              }
+            }, 200)
           }}
         />
       )}
