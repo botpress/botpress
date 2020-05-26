@@ -19,7 +19,7 @@ import {
 
 export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 
-const RAW_FILES_FILTERS = ['**/*.map']
+const RAW_FILES_FILTERS = ['**/*.map', 'modules/.cache/**/*', 'modules/*.cache', 'modules/*.temp_cache']
 
 export default class Editor {
   private bp: typeof sdk
