@@ -1,8 +1,8 @@
+import { FormData } from 'botpress/common/typings'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
-import { FormData } from '../../../../../../out/bp/common/typings'
 import { QnaItem } from '../../../backend/qna'
 
 export const ITEMS_PER_PAGE = 20
