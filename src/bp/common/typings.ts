@@ -252,7 +252,7 @@ export type ActionServerWithActions = ActionServer & {
 }
 
 export interface FormData {
-  [key: string]: undefined | number | boolean | string | FormData[]
   id?: string
   contentType?: string
+  [key: string]: undefined | number | boolean | string | FormData[]
 }
