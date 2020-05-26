@@ -118,7 +118,9 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
             {data[field.key]?.map((fieldData, index) => (
               <GroupItemWrapper
                 key={`${field.key}${index}`}
-                contextMenu={(!field.minimum || data[field.key]?.length > field.minimum) && field.contextMenu}
+                contextMenu={
+                  (!field.group?.minimum || data[field.key]?.length > field.group?.minimum) && field.group?.contextMenu
+                }
                 onDelete={() =>
                   dispatch({
                     type: 'deleteGroupItem',
@@ -131,7 +133,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               </GroupItemWrapper>
             ))}
             <AddButton
-              text={field.addLabel}
+              text={field.group?.addLabel}
               onClick={() => dispatch({ type: 'add', data: { field: field.key, parent } })}
             />
           </Fragment>

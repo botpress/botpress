@@ -70,7 +70,15 @@ const card: FormDefinition = {
       placeholder: 'Optional'
     },
     {
-      addLabel: 'Add Button',
+      group: {
+        addLabel: 'Add Button',
+        contextMenu: [
+          {
+            type: 'delete',
+            label: 'Delete Button'
+          }
+        ]
+      },
       type: 'group',
       key: 'buttons',
       label: 'fields::buttonText',
@@ -117,12 +125,6 @@ const card: FormDefinition = {
             }
           ]
         }
-      ],
-      contextMenu: [
-        {
-          type: 'delete',
-          label: 'Delete Button'
-        }
       ]
     }
   ]
@@ -147,18 +149,20 @@ const carousel: FormDefinition = {
   ],
   fields: [
     {
-      addLabel: 'Add Card',
+      group: {
+        addLabel: 'Add Card',
+        minimum: 1,
+        contextMenu: [
+          {
+            type: 'delete',
+            label: 'Delete Card'
+          }
+        ]
+      },
       type: 'group',
       key: 'cards',
       label: 'fields::title',
-      fields: card.fields,
-      minimum: 1,
-      contextMenu: [
-        {
-          type: 'delete',
-          label: 'Delete Card'
-        }
-      ]
+      fields: card.fields
     }
   ]
 }
@@ -188,11 +192,19 @@ const suggestions: FormDefinition = {
   ],
   fields: [
     {
-      addLabel: 'Add Suggestion',
+      group: {
+        addLabel: 'Add Suggestion',
+        minimum: 1,
+        contextMenu: [
+          {
+            type: 'delete',
+            label: 'Delete Suggestion'
+          }
+        ]
+      },
       type: 'group',
       key: 'suggestions',
       label: 'fields::label',
-      minimum: 1,
       fields: [
         {
           type: 'text',
@@ -205,12 +217,6 @@ const suggestions: FormDefinition = {
           key: 'value',
           label: 'Value',
           placeholder: 'What will your chatbot receive?'
-        }
-      ],
-      contextMenu: [
-        {
-          type: 'delete',
-          label: 'Delete Suggestion'
         }
       ]
     }

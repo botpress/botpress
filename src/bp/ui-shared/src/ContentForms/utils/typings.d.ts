@@ -26,11 +26,13 @@ export interface FormField {
   key: string
   label: string
   placeholder?: string
-  addLabel?: string // when in a group, you have to specify the add button label
   options?: Option[]
   fields?: FormField[]
-  minimum?: number // when in a group, you can specify a minimum so the delete button won't show if there isn't more than the minimum
-  contextMenu?: ContextMenu[] // when in a group, you can add a contextual menu to add extra options
+  group?: {
+    addLabel?: string // you have to specify the add button label
+    minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
+    contextMenu?: ContextMenu[] // you can add a contextual menu to add extra options
+  }
 }
 
 export interface FormDefinition {
