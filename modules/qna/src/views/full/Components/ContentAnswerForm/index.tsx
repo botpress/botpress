@@ -1,4 +1,5 @@
 import { Tab, Tabs } from '@blueprintjs/core'
+import { FormData } from 'botpress/common/typings'
 import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -11,8 +12,7 @@ interface Props {
   editingContent: number
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
-  // TODO max add typings in future PR
-  formData: any
+  formData: FormData
 }
 
 const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {

@@ -8,7 +8,7 @@ export const ITEMS_PER_PAGE = 20
 
 export interface State {
   count: number
-  items: any[]
+  items: QnaItem[]
   loading: boolean
   firstUpdate: boolean
   page: number
@@ -227,16 +227,6 @@ export const fetchReducer = (state: State, action): State => {
     return {
       ...state,
       expandedItems: {}
-    }
-  } else if (action.type === 'disableQnA') {
-    const { index } = action.data
-    const newItems = state.items
-
-    newItems[index].enabled = false
-
-    return {
-      ...state,
-      items: newItems
     }
   } else if (action.type === 'fetchMore') {
     return {

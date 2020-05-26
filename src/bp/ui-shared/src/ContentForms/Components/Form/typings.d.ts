@@ -1,9 +1,11 @@
+import { FormAdvancedSetting, FormField } from '../../utils/typings'
+import { FormData } from 'common/typings'
+
 export interface FormProps {
   bp?: any
-  // TODO add typings
-  fields: any
-  advancedSettings?: any
-  formData?: { [key: string]: string }
+  fields: FormField[]
+  advancedSettings?: FormAdvancedSetting[]
+  formData?: FormData
   contentType?: string
   onUpdate: (data: { [key: string]: string }) => void
 }

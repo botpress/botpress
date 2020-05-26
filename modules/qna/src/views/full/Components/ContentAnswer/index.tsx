@@ -1,17 +1,17 @@
+import { FormData } from 'botpress/common/typings'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 
 import style from './style.scss'
 
 interface Props {
-  // TODO change once typings are implemented
-  content: any
+  content: FormData
   active: boolean
   onEdit: () => void
 }
 
 const ContentAnswer: FC<Props> = ({ content, onEdit, active }) => {
-  const renderCardOrImg = ({ image, title }): JSX.Element => {
+  const renderCardOrImg = ({ image, title }: FormData): JSX.Element => {
     return (
       <Fragment>
         {image && <div style={{ backgroundImage: `url('${image}')` }} className={style.img}></div>}
@@ -37,7 +37,7 @@ const ContentAnswer: FC<Props> = ({ content, onEdit, active }) => {
       case 'carousel':
         return renderCardOrImg(content.cards?.[0])
       case 'suggestions':
-        return ellipsisText(content.suggestions.map(suggestion => suggestion.label).join(' · '))
+        return ellipsisText((content.suggestions as FormData[]).map(suggestion => suggestion.label).join(' · '))
 
       default:
         return null
