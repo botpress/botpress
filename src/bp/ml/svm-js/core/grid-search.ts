@@ -61,12 +61,6 @@ export default function(dataset: Data[], config: SvmConfig) {
 
       const params = configToAddonParams(cParams)
 
-      const n_class = _.uniq(ss.train.map(s => s[1])).length
-      if (n_class == 1) {
-        // this should not happen anymore...
-        throw new Error('There should not be a training set with only one class...')
-      }
-
       return clf
         .train(ss.train, params) // train with train set
         .then(function() {
