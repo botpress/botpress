@@ -1,4 +1,8 @@
-const image = {
+import { FormData } from 'common/typings'
+
+import { FormDefinition } from './typings'
+
+const image: FormDefinition = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -30,7 +34,7 @@ const image = {
   ]
 }
 
-const card = {
+const card: FormDefinition = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -66,7 +70,15 @@ const card = {
       placeholder: 'Optional'
     },
     {
-      addLabel: 'Add Button',
+      group: {
+        addLabel: 'Add Button',
+        contextMenu: [
+          {
+            type: 'delete',
+            label: 'Delete Button'
+          }
+        ]
+      },
       type: 'group',
       key: 'buttons',
       label: 'fields::buttonText',
@@ -113,18 +125,12 @@ const card = {
             }
           ]
         }
-      ],
-      contextMenu: [
-        {
-          type: 'delete',
-          label: 'Delete Button'
-        }
       ]
     }
   ]
 }
 
-const carousel = {
+const carousel: FormDefinition = {
   advancedSettings: [
     {
       key: 'markdown',
@@ -143,23 +149,25 @@ const carousel = {
   ],
   fields: [
     {
-      addLabel: 'Add Card',
+      group: {
+        addLabel: 'Add Card',
+        minimum: 1,
+        contextMenu: [
+          {
+            type: 'delete',
+            label: 'Delete Card'
+          }
+        ]
+      },
       type: 'group',
       key: 'cards',
       label: 'fields::title',
-      fields: card.fields,
-      minimum: 1,
-      contextMenu: [
-        {
-          type: 'delete',
-          label: 'Delete Card'
-        }
-      ]
+      fields: card.fields
     }
   ]
 }
 
-const suggestions = {
+const suggestions: FormDefinition = {
   advancedSettings: [
     {
       key: 'onTopOfKeyboard',
@@ -184,11 +192,19 @@ const suggestions = {
   ],
   fields: [
     {
-      addLabel: 'Add Suggestion',
+      group: {
+        addLabel: 'Add Suggestion',
+        minimum: 1,
+        contextMenu: [
+          {
+            type: 'delete',
+            label: 'Delete Suggestion'
+          }
+        ]
+      },
       type: 'group',
       key: 'suggestions',
       label: 'fields::label',
-      minimum: 1,
       fields: [
         {
           type: 'text',
@@ -202,32 +218,27 @@ const suggestions = {
           label: 'Value',
           placeholder: 'What will your chatbot receive?'
         }
-      ],
-      contextMenu: [
-        {
-          type: 'delete',
-          label: 'Delete Suggestion'
-        }
       ]
     }
   ]
 }
 
-export const getEmptyFormData = (contentType: string, isPartOfGroup = false) => {
+export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
   switch (contentType) {
     case 'image':
       return {
         markdown: true,
         typingIndicator: true,
-        image: null,
+        image: undefined,
         title: ''
       }
     case 'card':
     case 'cards':
       const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
+
       return {
         ...advanced,
-        image: null,
+        image: undefined,
         title: '',
         text: '',
         buttons: []

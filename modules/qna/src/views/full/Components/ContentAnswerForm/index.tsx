@@ -1,7 +1,8 @@
 import { Tab, Tabs } from '@blueprintjs/core'
+import { FormData } from 'botpress/common/typings'
 import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
-import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 
 import style from './style.scss'
 
@@ -9,9 +10,8 @@ interface Props {
   bp: any
   deleteContent: () => void
   close: () => void
-  onUpdate: (data: any) => void
-  // TODO max add typings in future PR
-  formData: any
+  onUpdate: (data: FormData) => void
+  formData: FormData
 }
 
 const ContentAnswerForm: FC<Props> = ({ bp, close, formData, onUpdate, deleteContent }) => {

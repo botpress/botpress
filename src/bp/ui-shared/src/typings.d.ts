@@ -18,6 +18,7 @@ import { TextareaProps } from './Textarea/typings'
 import { RightSidebarProps } from './MainContent/RightSidebar/typings'
 import { FormProps } from './ContentForms/Components/Form/typings'
 import { AddButtonProps } from './ContentForms/Components/typings'
+import { FormDefinition } from './ContentForms/utils/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -70,7 +71,7 @@ declare module 'botpress/shared' {
     isInputFocused(): boolean
   }
 
-  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut }
+  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut, FormDefinition }
 }
 
 declare global {
