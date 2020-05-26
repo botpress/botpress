@@ -32,13 +32,12 @@ export interface FormErrors {
 }
 
 export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean => {
-  return !!Object.values(data)
-    .reduce((acc, arr) => [...acc, ...arr], [])
+  return !!_.flatMap(data)
     .filter(entry => !!entry.trim().length).length
 }
 
 export const hasContentAnswer = (data: { [lang: string]: FormData[] }): boolean => {
-  return data && !!Object.values(data).reduce((acc, arr) => [...acc, ...arr], []).length
+  return data && !!_.flatMap(data).length
 }
 
 export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] => {
