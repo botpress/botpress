@@ -47,7 +47,12 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   if (!hasPopulatedLang(data.questions)) {
     errors.push(lang.tr('module.qna.form.missingQuestion'))
   }
-  if (!hasPopulatedLang(data.answers) && !Object.values(data.contentAnswers).reduce((acc, arr) => [...acc, ...arr], []).length && !data.redirectFlow && !data.redirectNode) {
+  if (
+    !hasPopulatedLang(data.answers) &&
+    !Object.values(data.contentAnswers).reduce((acc, arr) => [...acc, ...arr], []).length &&
+    !data.redirectFlow &&
+    !data.redirectNode
+  ) {
     errors.push(lang.tr('module.qna.form.missingAnswer'))
   }
   if (hasDupplicateQuestions.length) {
