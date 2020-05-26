@@ -167,7 +167,7 @@ export class ActionStrategy implements InstructionStrategy {
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
   // Avoid using the sandbox for code deemed "safe" and simple expressions
-  private safeRegex = new RegExp(/^[a-zA-Z0-9\s\[\]'"\-<>=]+$/)
+  private safeRegex = new RegExp(/^[a-zA-Z0-9\s\[\]'"\-_<>=\.]+$/)
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     const conditionSuccessful = await this.runCode(instruction, {
