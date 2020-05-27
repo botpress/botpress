@@ -166,8 +166,8 @@ export class ActionStrategy implements InstructionStrategy {
 
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
-  // Avoid using the sandbox for code deemed "safe" and simple expressions
-  private safeRegex = new RegExp(/^[a-zA-Z0-9\s\[\]'"\-_<>=\.]+$/)
+  // Characters considered unsafe which will cause the transition to run in the sandbox
+  private unsafeRegex = new RegExp(/[\(\)\`]/)
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     const conditionSuccessful = await this.runCode(instruction, {
@@ -206,7 +206,7 @@ export class TransitionStrategy implements InstructionStrategy {
       throw err
     }`
 
-    if (process.DISABLE_TRANSITION_SANDBOX || this.safeRegex.test(instruction.fn!)) {
+    if (process.DISABLE_TRANSITION_SANDBOX || !this.unsafeRegex.test(instruction.fn!)) {
       const fn = new Function(...Object.keys(sandbox), code)
       return fn(...Object.values(sandbox))
     }
