@@ -29,13 +29,25 @@ class BaseSVM {
     const y = dataset.map(d => d[1])
 
     const deferred = Q.defer<Model>()
-    try {
-      const svm = this._clf as NSVM
-      svm.train({ ...params, mute: 1 }, X, y)
-      deferred.resolve(svm.get_model())
-    } catch (err) {
-      deferred.reject(err)
-    }
+    const svm = this._clf as NSVM
+
+    // try {
+    //   svm.train({ ...params, mute: 1 }, X, y)
+    //   deferred.resolve(svm.get_model())
+    // } catch (err) {
+    //   deferred.reject(err)
+    // }
+    // svm
+    //   .train_async({ ...params, mute: 1 }, X, y)
+    //   .then(() => deferred.resolve(svm.get_model()))
+    //   .catch(msg => deferred.reject(new Error(msg)))
+    svm.train_async({ ...params, mute: 1 }, X, y, msg => {
+      if (msg) {
+        deferred.reject(new Error(msg))
+      } else {
+        deferred.resolve(svm.get_model())
+      }
+    })
 
     return deferred.promise
   }
@@ -100,6 +112,10 @@ class BaseSVM {
 
   isTrained = () => {
     return !!this._clf ? this._clf.is_trained() : false
+  }
+
+  free = () => {
+    this._clf?.free_model()
   }
 }
 

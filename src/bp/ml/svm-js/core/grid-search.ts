@@ -67,9 +67,12 @@ export default function(dataset: Data[], config: SvmConfig) {
           // predict values for each example of the test set
           done += 1
           deferred.notify({ done: done, total: total })
-          return _.map(ss.test, function(test) {
+          const res = _.map(ss.test, function(test) {
             return [clf.predictSync(test[0]), test[1]]
           })
+
+          clf.free()
+          return res
         })
     })
 

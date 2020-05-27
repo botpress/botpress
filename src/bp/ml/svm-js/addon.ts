@@ -10,6 +10,8 @@ type BindingType = {
 
 export interface NSVM {
   train(params: AugmentedParameters, x: number[][], y: number[]): void
+  // train_async(params: AugmentedParameters, x: number[][], y: number[]): Promise<void>
+  train_async(params: AugmentedParameters, x: number[][], y: number[], cb: (e: null | string) => void): void
   predict(x: number[]): number
   predict_probability(x: number[]): ProbabilityResult
   set_model(model: Model): void

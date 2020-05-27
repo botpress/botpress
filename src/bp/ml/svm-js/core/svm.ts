@@ -93,6 +93,7 @@ export class SVM {
             initialDimension: self._initialDimension
           })
           deferred.resolve([fullModel, report])
+          self._baseSvm?.free()
         })
       })
       .fail(function(err) {
