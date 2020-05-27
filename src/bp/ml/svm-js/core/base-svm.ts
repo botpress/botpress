@@ -68,12 +68,13 @@ class BaseSVM {
 
     const svm = this._clf as NSVM
 
-    try {
-      const res = svm.predict(inputs)
-      deferred.resolve(res)
-    } catch (err) {
-      deferred.reject(err)
-    }
+    // try {
+    //   const res = svm.predict(inputs)
+    //   deferred.resolve(res)
+    // } catch (err) {
+    //   deferred.reject(err)
+    // }
+    svm.predict_async(inputs, res => deferred.resolve(res))
 
     return deferred.promise
   }
@@ -100,22 +101,19 @@ class BaseSVM {
 
     const svm = this._clf as NSVM
 
-    try {
-      const res = svm.predict_probability(inputs)
-      deferred.resolve(res.probabilities)
-    } catch (err) {
-      deferred.reject(err)
-    }
+    // try {
+    //   const res = svm.predict_probability(inputs)
+    //   deferred.resolve(res.probabilities)
+    // } catch (err) {
+    //   deferred.reject(err)
+    // }
+    svm.predict_probability_async(inputs, res => deferred.resolve(res.probabilities))
 
     return deferred.promise
   }
 
   isTrained = () => {
     return !!this._clf ? this._clf.is_trained() : false
-  }
-
-  free = () => {
-    this._clf?.free_model()
   }
 }
 
