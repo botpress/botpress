@@ -1,33 +1,27 @@
-//Errors
-
 import { toastFailure } from 'botpress/utils'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
 import {
-  Nav,
-  NavItem,
-  Navbar,
+  AnchorButton,
+  Tag,
   Button,
-  Glyphicon,
-  Panel,
-  Table,
-  Modal,
-  Form,
   FormGroup,
-  FormControl,
   InputGroup,
+  ControlGroup,
   Checkbox,
-  Col,
-  ControlLabel,
-  ListGroupItem,
-  Label
-} from 'react-bootstrap'
+  Intent,
+  Tooltip,
+  Position,
+  Card,
+  Icon
+} from '@blueprintjs/core'
+import { DateInput, TimePicker } from '@blueprintjs/datetime'
+import { Dialog, lang } from 'botpress/shared'
+import cx from 'classnames'
 
-import DatePicker from 'react-bootstrap-date-picker'
-import TimePicker from 'react-bootstrap-time-picker'
 import moment from 'moment'
-import classnames from 'classnames'
 
 import _ from 'lodash'
 
@@ -35,13 +29,11 @@ import DismissableAlert from './alert'
 
 import style from './style.scss'
 
-const convertHHmmToSeconds = time => {
+const convertHHmmToDate = time => {
   const HH = Number(time.split(':')[0])
-  const mm = Number(time.split(':')[1]) / 60
+  const mm = Number(time.split(':')[1])
 
-  const seconds = (HH + mm) * 3600
-
-  return seconds
+  return new Date().setHours(HH, mm, 0)
 }
 
 export default class BroadcastModule extends React.Component {
@@ -52,7 +44,6 @@ export default class BroadcastModule extends React.Component {
   }
 
   state = {
-    loading: true,
     showModalForm: false,
     broadcast: {}
   }
@@ -71,21 +62,16 @@ export default class BroadcastModule extends React.Component {
   }
 
   fetchAllBroadcasts = () => {
-    this.setState({ loading: true })
-
     return this.getAxios()
       .get('/mod/broadcast/')
       .then(res => {
         this.setState({
-          loading: false,
           broadcasts: _.orderBy(res.data, ['date', 'time'])
         })
       })
       .catch(err => {
-        this.setState({ loading: false })
-
         console.error(err)
-        toastFailure("Can't fetch broadcast list from the server.")
+        toastFailure(lang.tr('module.broadcast.cantFetchFromServer'))
       })
   }
 
@@ -93,17 +79,14 @@ export default class BroadcastModule extends React.Component {
     const { content, date, userTimezone, time, filteringConditions } = this.state.broadcast
 
     if (!content) {
-      toastFailure('Content field is required.')
+      toastFailure(lang.tr('module.broadcast.contentFieldRequired'))
 
       return
     }
 
     return {
       date: moment(date).format('YYYY-MM-DD'),
-      time: moment()
-        .startOf('day')
-        .add(time, 'seconds')
-        .format('HH:mm'),
+      time: moment(time).format('HH:mm'),
       content: content,
       timezone: userTimezone ? null : moment().format('Z'),
       filters: filteringConditions
@@ -118,14 +101,12 @@ export default class BroadcastModule extends React.Component {
   handleRequestError = err => {
     if (err && err.response) {
       return this.setState({
-        loading: false,
         error: err.response.data.message
       })
     }
 
     this.setState({
-      loading: false,
-      error: err ? err.message : 'An unknown error occurred'
+      error: err ? err.message : lang.tr('module.broadcast.unknownErrorOccurred')
     })
   }
 
@@ -137,7 +118,7 @@ export default class BroadcastModule extends React.Component {
     }
 
     this.getAxios()
-      .put(`/mod/broadcast/`, broadcast)
+      .post(`/mod/broadcast/create`, broadcast)
       .then(this.fetchAllBroadcasts)
       .then(this.closeModal)
       .catch(this.handleRequestError)
@@ -152,7 +133,7 @@ export default class BroadcastModule extends React.Component {
     }
 
     this.getAxios()
-      .post('/mod/broadcast/', { id, ...broadcast })
+      .post('/mod/broadcast/update', { id, ...broadcast })
       .then(this.fetchAllBroadcasts)
       .then(this.closeModal)
       .catch(this.handleRequestError)
@@ -160,7 +141,7 @@ export default class BroadcastModule extends React.Component {
 
   handleRemoveBroadcast = id => {
     this.getAxios()
-      .delete('/mod/broadcast/' + id)
+      .post('/mod/broadcast/delete/' + id)
       .then(this.fetchAllBroadcasts)
       .catch(this.handleRequestError)
   }
@@ -175,8 +156,8 @@ export default class BroadcastModule extends React.Component {
     if (!broadcast) {
       broadcast = {
         content: '',
-        date: new Date().toISOString(),
-        time: 0,
+        date: new Date(),
+        time: new Date().setHours(12, 0, 0),
         progress: 0,
         userTimezone: true,
         filteringConditions: []
@@ -191,8 +172,8 @@ export default class BroadcastModule extends React.Component {
       broadcast: {
         content: broadcast.content,
         userTimezone: broadcast.userTimezone,
-        date: broadcast.date,
-        time: _.isString(broadcast.time) ? convertHHmmToSeconds(broadcast.time) : broadcast.time,
+        date: moment(broadcast.date).toDate(),
+        time: _.isString(broadcast.time) ? convertHHmmToDate(broadcast.time) : broadcast.time,
         filteringConditions: broadcast.filteringConditions,
         progress: broadcast.progress
       }
@@ -259,11 +240,11 @@ export default class BroadcastModule extends React.Component {
       <thead>
         <tr>
           <th>#</th>
-          <th>Date</th>
-          <th>Content</th>
-          <th>Filters</th>
-          <th>Progress</th>
-          <th>Action</th>
+          <th>{lang.tr('module.broadcast.table.date')}</th>
+          <th>{lang.tr('module.broadcast.table.content')}</th>
+          <th>{lang.tr('module.broadcast.table.filters')}</th>
+          <th>{lang.tr('module.broadcast.table.progress')}</th>
+          <th>{lang.tr('module.broadcast.table.action')}</th>
         </tr>
       </thead>
     )
@@ -272,22 +253,24 @@ export default class BroadcastModule extends React.Component {
   renderBroadcasts(broadcasts) {
     const getDateFormatted = (time, date, userTimezone) => {
       const calendar = moment(date + ' ' + time, 'YYYY-MM-DD HH:mm').calendar()
-      return calendar + (userTimezone ? ' (users time)' : ' (your time)')
+      return (
+        calendar + ` (${userTimezone ? lang.tr('module.broadcast.usersTime') : lang.tr('module.broadcast.yourTime')})`
+      )
     }
 
     const formatProgress = (progress, outboxed, errored) => {
       let color = '#90a9f4'
       let text = (progress * 100).toFixed(2) + '%'
       if (progress === 0) {
-        text = outboxed ? 'Processing' : 'Not started'
+        text = outboxed ? lang.tr('module.broadcast.processing') : lang.tr('module.broadcast.notStarted')
         color = outboxed ? '#90a9f4' : '#e4e4e4'
       }
       if (progress === 1) {
-        text = 'Done'
+        text = lang.tr('module.broadcast.done')
         color = '#6ee681'
       }
       if (errored) {
-        text = 'Error'
+        text = lang.tr('error')
         color = '#eb6f6f'
       }
       return (
@@ -298,23 +281,12 @@ export default class BroadcastModule extends React.Component {
       )
     }
 
-    const renderModificationButton = value => {
-      return (
-        <button
-          className={classnames('bp-button', style.smallButton)}
-          onClick={() => this.handleOpenModalForm(value, value.id)}
-        >
-          <Glyphicon glyph="file" />
-        </button>
-      )
-    }
-
     const renderFilteringCondition = filters => {
       if (_.isEmpty(filters)) {
-        return 'No filter'
+        return lang.tr('module.broadcast.noFilter')
       }
 
-      return <Label bsStyle="primary">{filters.length + ' filters'}</Label>
+      return <Tag>{filters.length + ' ' + lang.tr('module.broadcast.filters')}</Tag>
     }
 
     return _.mapValues(broadcasts, value => {
@@ -330,19 +302,30 @@ export default class BroadcastModule extends React.Component {
             {formatProgress(value.progress, value.outboxed, value.errored)}
           </td>
           <td style={{ width: '12%' }}>
-            {!value.outboxed ? renderModificationButton(value) : null}
-            <button
-              className={classnames('bp-button', style.smallButton)}
-              onClick={() => this.handleOpenModalForm(value)}
-            >
-              <Glyphicon glyph="copy" />
-            </button>
-            <button
-              className={classnames('bp-button', style.smallButton)}
-              onClick={() => this.handleRemoveBroadcast(value.id)}
-            >
-              <Glyphicon glyph="trash" />
-            </button>
+            <div className={style.actions}>
+              <Tooltip content={lang.tr('edit')} position={Position.BOTTOM}>
+                <AnchorButton
+                  icon="edit"
+                  disabled={value.outboxed}
+                  className={style.smallButton}
+                  onClick={() => this.handleOpenModalForm(value, value.id)}
+                />
+              </Tooltip>
+              <Tooltip content={lang.tr('duplicate')} position={Position.BOTTOM}>
+                <AnchorButton
+                  icon="duplicate"
+                  className={style.smallButton}
+                  onClick={() => this.handleOpenModalForm(value)}
+                />
+              </Tooltip>
+              <Tooltip content={lang.tr('delete')} position={Position.BOTTOM}>
+                <AnchorButton
+                  icon="trash"
+                  className={style.smallButton}
+                  onClick={() => this.handleRemoveBroadcast(value.id)}
+                />
+              </Tooltip>
+            </div>
           </td>
         </tr>
       )
@@ -351,27 +334,27 @@ export default class BroadcastModule extends React.Component {
 
   renderTable(broadcasts) {
     return (
-      <Table striped bordered condensed hover className={style.scheduledTable}>
+      <table className={cx(style.table, 'bp3-html-table bp3-html-table-striped bp3-html-table-bordered')}>
         {this.renderTableHeader()}
         <tbody>{_.values(this.renderBroadcasts(broadcasts))}</tbody>
-      </Table>
+      </table>
     )
   }
 
   renderEmptyMessage() {
     return (
       <div className={style.emptyMessage}>
-        <h5>You have no broadcasts...</h5>
+        <h5>{lang.tr('module.broadcast.youHaveNoBroadcasts')}</h5>
       </div>
     )
   }
 
   renderBroadcastsPanel(title, broadcasts) {
     return (
-      <Panel>
-        <Panel.Heading>{title}</Panel.Heading>
-        <Panel.Body>{_.isEmpty(broadcasts) ? this.renderEmptyMessage() : this.renderTable(broadcasts)}</Panel.Body>
-      </Panel>
+      <Card className={style.card} elevation={1}>
+        <h5>{title}</h5>
+        {_.isEmpty(broadcasts) ? this.renderEmptyMessage() : this.renderTable(broadcasts)}
+      </Card>
     )
   }
 
@@ -379,69 +362,47 @@ export default class BroadcastModule extends React.Component {
     const pickContent = () => window.botpress.pickContent({}, this.handleContentChange)
 
     return (
-      <FormGroup controlId="formContent">
-        <Col componentClass={ControlLabel} sm={2}>
-          Content
-        </Col>
-        <Col sm={10}>
-          <InputGroup>
-            <InputGroup.Button>
-              <Button onClick={pickContent}>Pick Content</Button>
-            </InputGroup.Button>
-            <FormControl type="text" readOnly value={this.state.broadcast.content} />
-          </InputGroup>
-        </Col>
+      <FormGroup label={lang.tr('module.broadcast.form.content')}>
+        <ControlGroup>
+          <Button onClick={pickContent} text={lang.tr('module.broadcast.form.pickContent')} />
+          <InputGroup fill={true} id="input-content" readOnly={true} value={this.state.broadcast.content} />
+        </ControlGroup>
       </FormGroup>
     )
   }
 
   renderFormDate() {
-    const getISODate = date => {
-      if (date) {
-        return new Date(date).toISOString()
-      }
-      return new Date().toISOString()
-    }
-
     return (
-      <FormGroup controlId="formDate">
-        <Col componentClass={ControlLabel} sm={2}>
-          Date
-        </Col>
-        <Col sm={10}>
-          <DatePicker value={getISODate(this.state.broadcast.date)} onChange={this.handleDateChange} />
-        </Col>
+      <FormGroup label={lang.tr('module.broadcast.form.date')} fill={true}>
+        <DateInput
+          onChange={this.handleDateChange}
+          parseDate={str => new Date(str)}
+          placeholder={'YYYY-MM-DD'}
+          formatDate={d => moment(d).format('YYYY-MM-DD')}
+          minDate={new Date()}
+          value={this.state.broadcast.date}
+        />
       </FormGroup>
     )
   }
 
   renderFormTime() {
     return (
-      <FormGroup controlId="formTime">
-        <Col componentClass={ControlLabel} sm={2}>
-          Time
-        </Col>
-        <Col sm={10}>
-          <TimePicker step={15} onChange={this.handleTimeChange} value={this.state.broadcast.time} />
-        </Col>
+      <FormGroup className={style.formTime} label={lang.tr('module.broadcast.form.time')}>
+        <TimePicker onChange={this.handleTimeChange} value={new Date(this.state.broadcast.time)} />
       </FormGroup>
     )
   }
 
   renderFormUserTimezone() {
     return (
-      <FormGroup controlId="formUserTimezone">
-        <Col componentClass={ControlLabel} sm={2}>
-          User time zone
-        </Col>
-        <Col sm={10}>
-          <Checkbox
-            name="userTimezone"
-            checked={this.state.broadcast.userTimezone}
-            onChange={this.handleUserTimezoneChange}
-          />
-        </Col>
-      </FormGroup>
+      <Checkbox
+        className={style.formUserTimezone}
+        checked={this.state.broadcast.userTimezone}
+        onChange={this.handleUserTimezoneChange}
+      >
+        {lang.tr('module.broadcast.form.userTimeZone')}
+      </Checkbox>
     )
   }
 
@@ -449,15 +410,15 @@ export default class BroadcastModule extends React.Component {
     const removeHandler = () => this.handleRemoveFromFilteringConditions(filter)
 
     return (
-      <ListGroupItem key={filter}>
-        {filter}
-        <Glyphicon className="pull-right" glyph="remove" onClick={removeHandler} />
-      </ListGroupItem>
+      <ControlGroup>
+        <InputGroup fill={true} defaultValue={filter} readOnly />
+        <Button icon="remove" onClick={removeHandler} />
+      </ControlGroup>
     )
   }
 
   renderFiltering() {
-    let filteringConditionElements = <ControlLabel>No filtering condition</ControlLabel>
+    let filteringConditionElements = <div></div>
 
     const filters = this.state.broadcast.filteringConditions
     if (filters && !_.isEmpty(filters)) {
@@ -466,85 +427,87 @@ export default class BroadcastModule extends React.Component {
 
     return (
       <div>
-        <FormGroup controlId="filtering">
-          <Col componentClass={ControlLabel} sm={2}>
-            Filtering conditions
-          </Col>
-          <Col sm={10}>{filteringConditionElements}</Col>
+        <FormGroup
+          className={style.addFilters}
+          label={
+            <div>
+              {lang.tr('module.broadcast.form.filters')}{' '}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/botpress/botpress/blob/master/modules/broadcast/README.md#filtering"
+              >
+                <Icon icon="help" />
+              </a>
+            </div>
+          }
+        >
+          <ControlGroup>
+            <InputGroup fill={true} inputRef={input => (this.filterInput = input)} />
+            <Button text={lang.tr('add')} onClick={() => this.handleAddToFilteringConditions()} />
+          </ControlGroup>
         </FormGroup>
-        <FormGroup>
-          <Col smOffset={2} sm={10}>
-            <ControlLabel>Add a new filter:</ControlLabel>
-            <FormControl ref={input => (this.filterInput = input)} type="text" />
-            <Button className="bp-button" onClick={() => this.handleAddToFilteringConditions()}>
-              Add
-            </Button>
-          </Col>
-        </FormGroup>
+        <div className={style.filters}>{filteringConditionElements}</div>
       </div>
     )
   }
 
   renderForm() {
     return (
-      <Form horizontal>
+      <form>
         {this.renderFormContent()}
-        {this.renderFormDate()}
-        {this.renderFormTime()}
-        {this.renderFormUserTimezone()}
+        <ControlGroup>
+          {this.renderFormDate()}
+          {this.renderFormTime()}
+          {/*this.renderFormUserTimezone()*/}
+        </ControlGroup>
         {this.renderFiltering()}
-      </Form>
+      </form>
     )
   }
 
   renderActionButton() {
     const onClickAction = this.state.modifyBroadcast ? this.handleModifyBroadcast : this.handleAddBroadcast
-    const buttonName = this.state.modifyBroadcast ? 'Modify' : 'Create'
+    const buttonName = this.state.modifyBroadcast
+      ? lang.tr('module.broadcast.form.modify')
+      : lang.tr('module.broadcast.form.create')
 
-    return (
-      <button className="bp-button" action="" onClick={onClickAction}>
-        {buttonName}
-      </button>
-    )
+    return <Button intent={Intent.PRIMARY} text={buttonName} onClick={onClickAction} />
   }
 
   renderModalForm() {
     return (
-      <Modal
-        container={document.getElementById('app')}
-        show={this.state.showModalForm}
-        onHide={this.handleCloseModalForm}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{this.state.modifyBroadcast ? 'Modify broadcast...' : 'Create new broadcast...'}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{this.renderForm()}</Modal.Body>
-        <Modal.Footer>
-          {this.renderActionButton()}
-          <button className="bp-button bp-button-danger" onClick={this.handleCloseModalForm}>
-            Cancel
-          </button>
-        </Modal.Footer>
-      </Modal>
+      <div className={style.modal}>
+        <Dialog.Wrapper
+          title={
+            this.state.modifyBroadcast
+              ? lang.tr('module.broadcast.form.modifyBroadcast')
+              : lang.tr('module.broadcast.form.createBroadcast')
+          }
+          usePortal={false}
+          isOpen={this.state.showModalForm}
+          onClose={this.closeModal}
+        >
+          <Dialog.Body>{this.renderForm()}</Dialog.Body>
+          <Dialog.Footer>
+            <Button text={lang.tr('cancel')} onClick={this.handleCloseModalForm} />
+            {this.renderActionButton()}
+          </Dialog.Footer>
+        </Dialog.Wrapper>
+      </div>
     )
   }
 
-  renderNavBar() {
+  renderNewButton() {
     return (
-      <Navbar fluid collapseOnSelect className={style.navbar}>
-        <Navbar.Collapse>
-          <Nav pullRight>
-            <NavItem>
-              <button
-                className={classnames('pull-right', 'bp-button', style.smallButton)}
-                onClick={() => this.handleOpenModalForm()}
-              >
-                <Glyphicon glyph="plus" />
-              </button>
-            </NavItem>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
+      <div className={style.newButton}>
+        <Button
+          text={lang.tr('module.broadcast.newBroadcast')}
+          icon="plus"
+          intent={Intent.PRIMARY}
+          onClick={() => this.handleOpenModalForm()}
+        />
+      </div>
     )
   }
 
@@ -553,10 +516,6 @@ export default class BroadcastModule extends React.Component {
   }
 
   render() {
-    if (this.state.loading) {
-      return null
-    }
-
     const allBroadcasts = _.assign([], this.state.broadcasts)
     const hasSomeError = _.some(allBroadcasts, ['errored', true])
 
@@ -572,13 +531,14 @@ export default class BroadcastModule extends React.Component {
 
     return (
       <div>
-        {this.renderNavBar()}
-        <Panel className={style.mainPanel}>
-          {hasSomeError ? this.renderErrorBox() : null}
-          {this.renderBroadcastsPanel('Upcoming (next 3 days)', upcomingBroadcasts)}
-          {this.renderBroadcastsPanel('Past (last 3 days)', pastBroadcasts)}
-          {this.renderBroadcastsPanel('Other broadcasts', allBroadcasts)}
-        </Panel>
+        <h3 className={style.title}>{lang.tr('module.broadcast.title')}</h3>
+        {this.renderNewButton()}
+        {hasSomeError ? this.renderErrorBox() : null}
+        <div className={style.mainPanel}>
+          {this.renderBroadcastsPanel(lang.tr('module.broadcast.section.upcoming'), upcomingBroadcasts)}
+          {this.renderBroadcastsPanel(lang.tr('module.broadcast.section.past'), pastBroadcasts)}
+          {this.renderBroadcastsPanel(lang.tr('module.broadcast.section.other'), allBroadcasts)}
+        </div>
         {this.renderModalForm()}
       </div>
     )

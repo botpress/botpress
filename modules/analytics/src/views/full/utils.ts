@@ -4,10 +4,11 @@ import moment from 'moment'
 import { MetricEntry } from '../../backend/typings'
 
 const enumerateDaysBetweenDates = (startDate: moment.Moment, endDate: moment.Moment) => {
-  const dates = []
+  const dates = [startDate.format('YYYY-MM-DD')]
+
   while (startDate <= endDate) {
-    dates.push(startDate.format('YYYY-MM-DD'))
     startDate = startDate.add(1, 'days')
+    dates.push(startDate.format('YYYY-MM-DD'))
   }
   return dates
 }

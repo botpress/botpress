@@ -1,6 +1,7 @@
 import { RedisLock } from 'botpress/sdk'
 import { injectable } from 'inversify'
 import { Redis } from 'ioredis'
+import moment from 'moment'
 
 export interface JobService {
   /**
@@ -25,19 +26,39 @@ export interface JobService {
 
 @injectable()
 export class CEJobService implements JobService {
+  private locks: { [key: string]: Date } = {}
+
   async broadcast<T>(fn: Function): Promise<Function> {
     return fn
   }
 
-  // TODO: Implement this correctly so we can also lock resources on a single node (ghost writes)
   async acquireLock(resource: string, duration: number): Promise<RedisLock | undefined> {
+    if (this.locks[resource]) {
+      if (this.locks[resource] <= new Date()) {
+        delete this.locks[resource]
+      } else {
+        return
+      }
+    }
+
+    this.locks[resource] = moment()
+      .add(duration)
+      .toDate()
+
     return {
-      unlock: async () => {},
-      extend: async (duration: number) => {}
+      unlock: async () => {
+        delete this.locks[resource]
+      },
+      extend: async (duration: number) => {
+        this.locks[resource] = moment(this.locks[resource])
+          .add(duration)
+          .toDate()
+      }
     }
   }
 
   async clearLock(resource: string): Promise<boolean> {
+    delete this.locks[resource]
     return true
   }
 

@@ -48,10 +48,10 @@ const QnA: FC<Props> = props => {
     bp
   } = props
   const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
-  let questions = data.questions[contentLang]
-  let answers = data.answers[contentLang]
-  const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
-  const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
+  let questions = data.questions[contentLang] || ['']
+  let answers = data.answers[contentLang] || ['']
+  const refQuestions = (contentLang !== defaultLanguage && data.questions[defaultLanguage]) || ['']
+  const refAnswers = (contentLang !== defaultLanguage && data.answers[defaultLanguage]) || ['']
 
   if (refQuestions && refQuestions.length > questions.length) {
     questions = [...questions, ...Array(refQuestions.length - questions.length).fill('')]

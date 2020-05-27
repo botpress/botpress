@@ -253,7 +253,7 @@
 
   .questionHeader {
     justify-content: flex-start;
-    padding: var(--spacing-x-large) 57px var(--spacing-x-large) var(--spacing-x-large);
+    padding: var(--spacing-x-large) 57px var(--spacing-x-large) var(--spacing-x-large) !important;
     width: 100%;
 
     &:hover {

@@ -1,17 +1,17 @@
+import jsonlintMod from 'jsonlint-mod'
 import _ from 'lodash'
 
 import { FileDefinition, FileTypes } from './definitions'
 import { FILENAME_REGEX } from './editor'
 import { EditorError } from './editorError'
 import { EditableFile, FilePermissions, FileType } from './typings'
-import jsonlintMod from 'jsonlint-mod'
 
 export const RAW_TYPE: FileType = 'raw'
 
 export const BUILTIN_MODULES = [
   'analytics',
   'basic-skills',
-  'builtin',
+  'bot-improvement',
   'builtin',
   'channel-messenger',
   'channel-slack',
@@ -21,6 +21,7 @@ export const BUILTIN_MODULES = [
   'code-editor',
   'examples',
   'extensions',
+  'misunderstood',
   'history',
   'hitl',
   'nlu',

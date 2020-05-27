@@ -1,14 +1,27 @@
-import { injectable } from 'inversify'
+import { TYPES } from 'core/types'
+import { inject, injectable } from 'inversify'
 
 import { ProcessingResult } from '.'
-import { StrategyFactory } from './strategy'
+import { ActionStrategy, TransitionStrategy } from './strategy'
 
 @injectable()
 export class InstructionProcessor {
-  constructor(private strategyFactory: StrategyFactory) {}
+  constructor(
+    @inject(TYPES.ActionStrategy) private actionStrategy: ActionStrategy,
+    @inject(TYPES.TransitionStrategy) private transitionStrategy: TransitionStrategy
+  ) {}
 
   async process(botId, instruction, event): Promise<ProcessingResult> {
-    const instructionStrategy = this.strategyFactory.create(instruction.type)
-    return instructionStrategy.processInstruction(botId, instruction, event)
+    const { type } = instruction
+
+    if (type === 'on-enter' || type === 'on-receive') {
+      return this.actionStrategy.processInstruction(botId, instruction, event)
+    } else if (type === 'transition') {
+      return this.transitionStrategy.processInstruction(botId, instruction, event)
+    } else if (type === 'wait') {
+      return ProcessingResult.wait()
+    }
+
+    throw new Error(`Undefined instruction type "${type}"`)
   }
 }
