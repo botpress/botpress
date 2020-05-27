@@ -65,77 +65,41 @@ describe('split-dataset', () => {
     }
   })
 
-  // test('split-dataset never gives a training set of one class', async () => {
-  //   // arrange
-  //   const dataset: Data[] = [
-  //     [[0, 0, 0, 0], 1],
-  //     [[0, 0, 0, 1], 0],
-  //     [[0, 0, 1, 0], 0],
-  //     [[0, 0, 1, 1], 0],
-  //     [[0, 1, 0, 0], 0],
-  //     [[0, 1, 0, 1], 0],
-  //     [[0, 1, 1, 0], 0],
-  //     [[0, 1, 1, 1], 0],
-  //     [[1, 0, 0, 0], 0],
-  //     [[1, 0, 0, 1], 0],
-  //     [[1, 0, 1, 0], 0],
-  //     [[1, 0, 1, 1], 0],
-  //     [[1, 1, 0, 0], 0],
-  //     [[1, 1, 0, 1], 0],
-  //     [[1, 1, 1, 0], 0],
-  //     [[1, 1, 1, 1], 1]
-  //   ]
+  test('split-dataset never gives a training set of one class', async () => {
+    // arrange
+    const dataset: Data[] = [
+      [[0, 0, 0, 0], 1],
+      [[0, 0, 0, 1], 0],
+      [[0, 0, 1, 0], 0],
+      [[0, 0, 1, 1], 0],
+      [[0, 1, 0, 0], 0],
+      [[0, 1, 0, 1], 0],
+      [[0, 1, 1, 0], 0],
+      [[0, 1, 1, 1], 0],
+      [[1, 0, 0, 0], 0],
+      [[1, 0, 0, 1], 0],
+      [[1, 0, 1, 0], 0],
+      [[1, 0, 1, 1], 0],
+      [[1, 1, 0, 0], 0],
+      [[1, 1, 0, 1], 0],
+      [[1, 1, 1, 0], 0],
+      [[1, 1, 1, 1], 1]
+    ]
 
-  //   const kfold = 16
+    const kfold = 16
 
-  //   // act
-  //   const res = split(dataset, kfold)
+    // act
+    const res = split(dataset, kfold)
 
-  //   // assert
-  //   for (const ss of res) {
-  //     const { train } = ss
-  //     const nClass = _(train)
-  //       .map(t => t[1])
-  //       .uniq()
-  //       .value().length
+    // assert
+    for (const ss of res) {
+      const { train } = ss
+      const nClass = _(train)
+        .map(t => t[1])
+        .uniq()
+        .value().length
 
-  //     expect(nClass).toBe(2)
-  //   }
-  // })
-
-  // test('split-dataset should throw if not enough samples of each class', async () => {
-  //   // arrange
-  //   const dataset: Data[] = [
-  //     [[0, 0, 0, 0], 1],
-  //     [[0, 0, 0, 1], 0],
-  //     [[0, 0, 1, 0], 0],
-  //     [[0, 0, 1, 1], 0],
-  //     [[0, 1, 0, 0], 0],
-  //     [[0, 1, 0, 1], 0],
-  //     [[0, 1, 1, 0], 0],
-  //     [[0, 1, 1, 1], 0],
-  //     [[1, 0, 0, 0], 0],
-  //     [[1, 0, 0, 1], 0],
-  //     [[1, 0, 1, 0], 0],
-  //     [[1, 0, 1, 1], 0],
-  //     [[1, 1, 0, 0], 0],
-  //     [[1, 1, 0, 1], 0],
-  //     [[1, 1, 1, 0], 0],
-  //     [[1, 1, 1, 1], 1]
-  //   ]
-
-  //   const kfold = 8
-
-  //   // act
-  //   let error: Error | undefined
-  //   try {
-  //     split(dataset, kfold)
-  //   } catch (err) {
-  //     error = err
-  //   }
-
-  //   // assert
-  //   expect(error).toBeDefined()
-  //   expect(error?.name).toBe('SplitDataSetError')
-  // })
+      expect(nClass).toBe(2)
+    }
+  })
 })

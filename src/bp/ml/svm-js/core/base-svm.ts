@@ -37,10 +37,6 @@ class BaseSVM {
     // } catch (err) {
     //   deferred.reject(err)
     // }
-    // svm
-    //   .train_async({ ...params, mute: 1 }, X, y)
-    //   .then(() => deferred.resolve(svm.get_model()))
-    //   .catch(msg => deferred.reject(new Error(msg)))
     svm.train_async({ ...params, mute: 1 }, X, y, msg => {
       if (msg) {
         deferred.reject(new Error(msg))
