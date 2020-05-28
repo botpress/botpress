@@ -22,7 +22,6 @@ interface CssExports {
   'topicsNavbar': string;
   'tree': string;
   'treeNode': string;
-  'unfilteredTree': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

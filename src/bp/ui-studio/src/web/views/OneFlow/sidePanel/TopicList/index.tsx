@@ -410,47 +410,28 @@ const TopicList: FC<Props> = props => {
       }
     })
 
-    if (!props.filter) {
-      const separator = {
-        id: 'separator',
-        label: <hr />
-      }
-
-      tree.splice(tree.length - 1, 0, separator)
-    }
-
     return tree
   }
 
   return (
-    <Fragment>
-      {props.topics.length === 0 && (
-        <div className={style.topicsEmptyState}>
-          <div className={style.topicsEmptyStateBlock}>
-            <img width="70" src="assets/ui-studio/public/img/empty-state.svg" alt="Empty folder" />
-            <div className={style.topicsEmptyStateText}>{lang.tr('studio.flow.sidePanel.tapIconsToAdd')}</div>
-          </div>
-        </div>
-      )}
-      <div className={cx(style.tree, { [style.unfilteredTree]: !props.filter })}>
-        <TreeView<NodeData>
-          elements={flows}
-          nodeRenderer={nodeRenderer}
-          folderRenderer={folderRenderer}
-          postProcessing={postProcessing}
-          onContextMenu={handleContextMenu}
-          onClick={onClick}
-          expandedPaths={props.expandedPaths}
-          onExpandToggle={props.onExpandToggle}
-          onDoubleClick={onDoubleClick}
-          waitDoubleClick={waitDoubleClick}
-          filterText={props.filter}
-          pathProps="name"
-          filterProps="name"
-          forceSelect={forceSelect}
-        />
-      </div>
-    </Fragment>
+    <div className={cx(style.tree)}>
+      <TreeView<NodeData>
+        elements={flows}
+        nodeRenderer={nodeRenderer}
+        folderRenderer={folderRenderer}
+        postProcessing={postProcessing}
+        onContextMenu={handleContextMenu}
+        onClick={onClick}
+        expandedPaths={props.expandedPaths}
+        onExpandToggle={props.onExpandToggle}
+        onDoubleClick={onDoubleClick}
+        waitDoubleClick={waitDoubleClick}
+        filterText={props.filter}
+        pathProps="name"
+        filterProps="name"
+        forceSelect={forceSelect}
+      />
+    </div>
   )
 }
 
