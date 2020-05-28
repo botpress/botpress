@@ -162,8 +162,9 @@ const Analytics: FC<any> = ({ bp }) => {
     // tslint:disable-next-line: no-floating-promises
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
-      const newChannels = metrics.map(x => {
-        return { value: x.channel, label: capitalize(x.channel) }
+
+      const newChannels = _.uniq(_.map(metrics, 'channel')).map(x => {
+        return { value: x, label: capitalize(x) }
       })
       setChannels(_.uniq([...channels, ...newChannels]))
 
