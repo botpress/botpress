@@ -11,14 +11,7 @@ import { Channel, Extras } from './index'
 import style from './style.scss'
 import { mergeDataForCharts } from './utils'
 
-const CHANNEL_COLORS = {
-  api: '#4A154B',
-  web: '#1F8FFA',
-  messenger: '#0196FF',
-  slack: '#4A154B',
-  telegram: '#2EA6DA',
-  teams: '#8000ff'
-}
+const CHANNEL_COLORS = ['#1F8FFA', '#0196FF', '#4A154B', '#2EA6DA', '#4A154B']
 
 interface Props extends Extras {
   name: string
@@ -47,10 +40,10 @@ const TimeSeriesChart: FC<Props> = props => {
                   .filter(x => x.value !== 'all')
                   .map(({ value: channel }, idx) => (
                     <linearGradient key={idx} id={`gradientBg-${channel}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.31} />
-                      <stop offset="45%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.34} />
-                      <stop offset="73%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.15} />
-                      <stop offset="100%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0} />
+                      <stop offset="0%" stopColor={CHANNEL_COLORS[idx] || '#000'} stopOpacity={0.31} />
+                      <stop offset="45%" stopColor={CHANNEL_COLORS[idx] || '#000'} stopOpacity={0.34} />
+                      <stop offset="73%" stopColor={CHANNEL_COLORS[idx] || '#000'} stopOpacity={0.15} />
+                      <stop offset="100%" stopColor={CHANNEL_COLORS[idx] || '#000'} stopOpacity={0} />
                     </linearGradient>
                   ))}
               </defs>
@@ -76,7 +69,7 @@ const TimeSeriesChart: FC<Props> = props => {
                     dataKey={channel.value}
                     label={channel.label}
                     strokeWidth={3}
-                    stroke={CHANNEL_COLORS[channel.value] || '#000'}
+                    stroke={CHANNEL_COLORS[idx] || '#000'}
                     fill={`url(#gradientBg-${channel.value})`}
                   />
                 ))}
