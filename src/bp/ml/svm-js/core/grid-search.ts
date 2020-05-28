@@ -36,7 +36,7 @@ export default function(dataset: Data[], config: SvmConfig) {
   ])
 
   // split dataset for cross-validation
-  const subsets = splitDataset(dataset, config.kFold)
+  const subsets = splitDataset([...dataset], config.kFold)
 
   const evaluator = evaluators.getDefault(config)
 
