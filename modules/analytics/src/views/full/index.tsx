@@ -151,18 +151,6 @@ const Analytics: FC<any> = ({ bp }) => {
   })
 
   useEffect(() => {
-    void axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
-      const channels = data
-        .map(x => x.name)
-        .filter(x => x.startsWith('channel'))
-        .map(x => {
-          const channel = x.replace('channel-', '')
-          return { value: channel, label: capitalize(channel) }
-        })
-
-      setChannels(prevState => [...prevState, ...channels])
-    })
-
     dispatch({ type: 'datesSuccess', data: { dateRange: [last7days, now] } })
   }, [])
 
@@ -174,6 +162,8 @@ const Analytics: FC<any> = ({ bp }) => {
     // tslint:disable-next-line: no-floating-promises
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
+      const channels = _.uniq(_.map(metrics, 'channel'))
+      setChannels(prevState => _.uniq([...prevState, ...channels]))
     })
 
     /* Get the previous range data so we can compare them and see what changed */
