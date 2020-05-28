@@ -8,7 +8,7 @@ There are some concepts that you need to understand before you can build a chatb
 ## Glossary
 
 **Intent**: It signifies what the user wants to accomplish. Ex: I want to book a flight.
-**Entities**: It's a variable that complements the intent. Ex: I want to book a flight from _Montreal_ to _Paris_ / Cities are entities because they are variable that can be extracted from the intent.
+**Entities**: It's a variable that complements the intent. Ex: I want to book a flight from _Montreal_ to _Paris_ / Cities are entities because they are variables that can be extracted from the intent.
 **Slots**: When you create an intent, you can tag different slots that can be used to extract information required to act on the intent successfully. Ex: I want to book a flight from New York to San Francisco for tomorrow. Your slots are the departing city, New York, the arrival city, San Francisco and the date of departure, tomorrow. 
 **Utterances**: They represent the different ways an intent can be written by a user. It can take the form of a question, a command or a statement. Ex: Can you book me a flight? Book flight. I want to book a flight.
 **Flow**: A series of logical steps put together to help a user to accomplish a goal.
