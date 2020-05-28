@@ -58,6 +58,8 @@ import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diag
 import style from '~/views/FlowBuilder/diagram/style.scss'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
+import { BlockNodeModel, BlockWidgetFactory } from './nodes/Block'
+import ContentForm from './ContentForm'
 import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
@@ -94,7 +96,8 @@ class Diagram extends Component<Props> {
   state = {
     highlightFilter: '',
     currentTriggerNode: null,
-    isTriggerEditOpen: false
+    isTriggerEditOpen: false,
+    editingNodeContent: null
   }
 
   constructor(props) {
@@ -103,6 +106,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
+    this.diagramEngine.registerNodeFactory(new BlockWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
@@ -242,11 +246,14 @@ class Diagram extends Component<Props> {
     triggerNode: (point: Point, moreProps) => {
       this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition], ...moreProps })
     },
-    sayNode: (point: Point, moreProps) => {
+    block: (point: Point, moreProps) => {
       this.props.createFlowNode({
         ...point,
-        type: 'say_something',
-        content: { contentType: 'builtin_text' },
+        type: 'block',
+        contents: [{ contentType: 'builtin_text' }],
+        editContent: (node, index) => {
+          this.setState({ editingNodeContent: { node, index } })
+        },
         next: [defaultTransition],
         ...moreProps
       })
@@ -304,7 +311,7 @@ class Diagram extends Component<Props> {
         )}
         <MenuItem
           text={lang.tr('studio.flow.nodeType.sendMessage')}
-          onClick={wrap(this.add.sayNode, point)}
+          onClick={wrap(this.add.block, point)}
           icon="comment"
         />
         <MenuItem
@@ -351,7 +358,10 @@ class Diagram extends Component<Props> {
 
     const isNodeTargeted = targetModel instanceof NodeModel
     const isTriggerNode = targetModel instanceof TriggerNodeModel
-    const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
+    const isLibraryNode =
+      targetModel instanceof SaySomethingNodeModel ||
+      targetModel instanceof ExecuteNodeModel ||
+      targetModel instanceof BlockNodeModel
 
     const isSuccessNode = targetModel instanceof SuccessNodeModel
     const isFailureNode = targetModel instanceof FailureNodeModel
@@ -608,8 +618,7 @@ class Diagram extends Component<Props> {
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'say_something':
-          const contentId = data.contentId?.startsWith('#!') ? data.contentId : `#!${data.contentId}`
-          this.add.sayNode(point, contentId ? { onEnter: [`say ${contentId}`] } : {})
+          this.add.block(point, {})
           break
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
@@ -647,33 +656,45 @@ class Diagram extends Component<Props> {
     return (
       <MainContent.Wrapper>
         <WorkflowToolbar />
-        <Fragment>
-          <div
-            id="diagramContainer"
-            ref={ref => (this.diagramContainer = ref)}
-            tabIndex={1}
-            style={{ outline: 'none', width: '100%', height: '100%' }}
-            onContextMenu={this.handleContextMenu}
-            onDrop={this.handleToolDropped}
-            onDragOver={event => event.preventDefault()}
-          >
-            <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+        <div
+          id="diagramContainer"
+          ref={ref => (this.diagramContainer = ref)}
+          tabIndex={1}
+          style={{ outline: 'none', width: '100%', height: '100%' }}
+          onContextMenu={this.handleContextMenu}
+          onDrop={this.handleToolDropped}
+          onDragOver={event => event.preventDefault()}
+        >
+          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
 
-            <DiagramWidget
-              ref={w => (this.diagramWidget = w)}
-              deleteKeys={[]}
-              diagramEngine={this.diagramEngine}
-              inverseZoom={true}
-            />
-          </div>
-
-          <TriggerEditor
-            node={this.state.currentTriggerNode}
-            isOpen={this.state.isTriggerEditOpen}
+          <DiagramWidget
+            ref={w => (this.diagramWidget = w)}
+            deleteKeys={[]}
             diagramEngine={this.diagramEngine}
-            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
+            inverseZoom={true}
           />
-        </Fragment>
+        </div>
+
+        <TriggerEditor
+          node={this.state.currentTriggerNode}
+          isOpen={this.state.isTriggerEditOpen}
+          diagramEngine={this.diagramEngine}
+          toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
+        />
+
+        {this.state.editingNodeContent && (
+          <ContentForm
+            deleteContent={() => console.log('test')}
+            editingContent={this.state.editingNodeContent.index}
+            formData={this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]}
+            onUpdate={data => console.log(data)}
+            close={closingKey => {
+              setTimeout(() => {
+                this.setState({ editingNodeContent: null })
+              }, 200)
+            }}
+          />
+        )}
       </MainContent.Wrapper>
     )
   }
