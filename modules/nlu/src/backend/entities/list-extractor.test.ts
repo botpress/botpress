@@ -1,7 +1,7 @@
 import 'bluebird-global'
 
 import { EntityExtractionResult, ListEntityModel } from '../typings'
-import Utterance from '../utterance/utterance'
+import { makeTestUtterance } from '../utterance/utterance'
 import { parseUtterance } from '../utterance/utterance-parser'
 
 import { extractListEntities } from './custom-entity-extractor'
@@ -21,7 +21,7 @@ const list_entities: ListEntityModel[] = [
       Raspberry: ['raspberries', 'raspberry', 'rasp berries', 'rasp berry'].map(T),
       Apple: ['apple', 'apples', 'red apple', 'yellow apple'].map(T)
     },
-    sensitive: false,
+    sensitive: true,
     type: 'custom.list'
   },
   {
@@ -50,8 +50,15 @@ const list_entities: ListEntityModel[] = [
   }
 ]
 describe('list entity extractor', () => {
+  test('Sensitivity flag', () => {
+    const utt = makeTestUtterance('YQB is as bad as that poisonous blueberry')
+    const res = extractListEntities(utt, list_entities, false)
+    expect(res.find(e => e.type === 'fruit').sensitive).toBeTruthy()
+    expect(res.find(e => e.type === 'airport').sensitive).not.toBeTruthy()
+  })
+
   test('Data structure test', async () => {
-    const utterance = textToUtterance('Blueberries are berries that are blue')
+    const utterance = makeTestUtterance('Blueberries are berries that are blue')
     const results = extractListEntities(utterance, list_entities, false)
 
     expect(results).toHaveLength(1)
@@ -161,7 +168,7 @@ function assertEntity(expression: string) {
   const { utterance: text, parsedSlots } = parseUtterance(expression)
   const parts = parsedSlots.map(p => p.value)
 
-  const utterance = textToUtterance(text)
+  const utterance = makeTestUtterance(text)
   const results = extractListEntities(utterance, list_entities, false)
 
   for (const strConds of parsedSlots) {
@@ -202,11 +209,4 @@ function assertEntity(expression: string) {
       }
     })
   }
-}
-
-function textToUtterance(txt: string): Utterance {
-  const tokens = T(txt)
-  const vectors = tokens.map(() => new Array(100).fill(0))
-  const posTags = tokens.map(_ => '_')
-  return new Utterance(tokens, vectors, posTags, 'en')
 }

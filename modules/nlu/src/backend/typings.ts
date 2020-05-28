@@ -134,6 +134,7 @@ export type ExtractedEntity = {
     unit?: string
     occurrence?: string
   }
+  sensitive?: boolean
   value: string
 }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
