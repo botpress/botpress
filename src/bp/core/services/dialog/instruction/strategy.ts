@@ -166,6 +166,9 @@ export class ActionStrategy implements InstructionStrategy {
 
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
+  // Characters considered unsafe which will cause the transition to run in the sandbox
+  private unsafeRegex = new RegExp(/[\(\)\`]/)
+
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     const conditionSuccessful = await this.runCode(instruction, {
       event,
@@ -190,17 +193,8 @@ export class TransitionStrategy implements InstructionStrategy {
   private async runCode(instruction: Instruction, sandbox): Promise<any> {
     if (instruction.fn === 'true') {
       return true
-    } else if (instruction.fn && instruction.fn.match(/^event\.nlu\.intent\.name === '([a-zA-Z0-9_-]+)'$/)) {
-      const fn = new Function(...Object.keys(sandbox), `return ${instruction.fn}`)
-      return fn(...Object.values(sandbox))
     }
 
-    const vm = new NodeVM({
-      wrapper: 'none',
-      sandbox: sandbox,
-      timeout: 5000
-    })
-    const runner = new VmRunner()
     const code = `
     try {
       return ${instruction.fn};
@@ -210,8 +204,19 @@ export class TransitionStrategy implements InstructionStrategy {
         return false
       }
       throw err
+    }`
+
+    if (process.DISABLE_TRANSITION_SANDBOX || !this.unsafeRegex.test(instruction.fn!)) {
+      const fn = new Function(...Object.keys(sandbox), code)
+      return fn(...Object.values(sandbox))
     }
-    `
+
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: sandbox,
+      timeout: 5000
+    })
+    const runner = new VmRunner()
     return await runner.runInVm(vm, code)
   }
 }
