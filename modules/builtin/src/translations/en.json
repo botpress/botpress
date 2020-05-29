@@ -1,15 +1,29 @@
 {
   "actionButton": "Action Button",
   "fullName": "Basic Skills",
+  "optional": "Optional",
   "types": {
     "actionButton": {
+      "add": "Add Button",
+      "actionLabel": "Action Button",
       "buttonTitle": "Title of the button",
+      "delete": "Delete Button",
       "description": "A button that triggers an action, often used in cards",
+      "sayLabel": "Say",
+      "sayTextLabel": "Text",
+      "sayPlaceholder": "What will your chatbot say?",
+      "postLabel": "Post Back",
+      "postFieldLabel": "Payload",
       "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
-      "title": "Action Button"
+      "textLabel": "Button Text",
+      "textPlaceholder": "What is written on the button?",
+      "title": "Action Button",
+      "urlLabel": "Open URL",
+      "urlPlaceholder": "Write a valid URL"
     },
     "card": {
-      "description": "A card message with a title with optional subtitle, image and action buttons."
+      "description": "A card message with a title with optional subtitle, image and action buttons.",
+      "cardSubject": "What is your card subject?"
     },
     "carousel": {
       "cards": "Carousel cards",
@@ -37,6 +51,6 @@
       "message": "Message"
     }
   },
-  "typingIndicator": "Show typing indicators",
+  "typingIndicator": "Display typing indicator",
   "useMarkdown": "Use markdown"
 }

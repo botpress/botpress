@@ -151,7 +151,7 @@ module.exports = {
       {
         key: 'typingIndicator',
         type: 'checkbox',
-        label: 'Display typing indicator'
+        label: 'module.builtin.typingIndicator'
       },
       {
         key: 'canAdd',

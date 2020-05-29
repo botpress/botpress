@@ -197,17 +197,17 @@ module.exports = {
     advancedSettings: [
       {
         key: 'markdown',
-        label: 'Use Markdown',
+        label: 'module.builtin.useMarkdown',
         type: 'checkbox',
         moreInfo: {
-          label: 'Learn more',
+          label: 'learnMore',
           url: 'https://daringfireball.net/projects/markdown/'
         }
       },
       {
         key: 'typingIndicator',
         type: 'checkbox',
-        label: 'Display typing indicator'
+        label: 'module.builtin.typingIndicator'
       }
     ],
     fields: [
