@@ -68,10 +68,6 @@
       cursor: pointer;
     }
 
-    .bp3-tree-root > .bp3-tree-node > .bp3-tree-node-content:hover {
-      background-color: var(--white);
-    }
-
     .bp3-tree-root {
       display: flex;
       flex-direction: column;
@@ -109,22 +105,6 @@
 .tree {
   overflow: auto;
   height: calc(100% - 98px);
-}
-
-.unfilteredTree {
-  :global {
-    .bp3-tree-root > :nth-last-child(2) {
-      pointer-events: none;
-      margin-top: auto;
-
-      .bp3-tree-node-content {
-        height: 18px;
-      }
-      hr {
-        color: var(--gray);
-      }
-    }
-  }
 }
 
 .topicsEmptyState {
