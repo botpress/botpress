@@ -102,40 +102,4 @@ describe('split-dataset', () => {
       expect(nClass).toBe(2)
     }
   })
-
-  test('split-dataset should throw if not enough samples of each class', async () => {
-    // arrange
-    const dataset: Data[] = [
-      [[0, 0, 0, 0], 1],
-      [[0, 0, 0, 1], 0],
-      [[0, 0, 1, 0], 0],
-      [[0, 0, 1, 1], 0],
-      [[0, 1, 0, 0], 0],
-      [[0, 1, 0, 1], 0],
-      [[0, 1, 1, 0], 0],
-      [[0, 1, 1, 1], 0],
-      [[1, 0, 0, 0], 0],
-      [[1, 0, 0, 1], 0],
-      [[1, 0, 1, 0], 0],
-      [[1, 0, 1, 1], 0],
-      [[1, 1, 0, 0], 0],
-      [[1, 1, 0, 1], 0],
-      [[1, 1, 1, 0], 0],
-      [[1, 1, 1, 1], 1]
-    ]
-
-    const kfold = 8
-
-    // act
-    let error: Error | undefined
-    try {
-      split(dataset, kfold)
-    } catch (err) {
-      error = err
-    }
-
-    // assert
-    expect(error).toBeDefined()
-    expect(error?.name).toBe('SplitDataSetError')
-  })
 })
