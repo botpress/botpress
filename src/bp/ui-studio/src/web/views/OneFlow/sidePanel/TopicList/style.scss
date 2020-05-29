@@ -1,0 +1,37 @@
+.emptyState {
+  margin-top: auto;
+}
+
+.treeItem {
+  display: block !important;
+  transition: background 0.3s;
+  width: 100% !important;
+
+  &.isTopic:hover {
+    background: none !important;
+  }
+
+  &:not(.isTopic) {
+    &:hover {
+      background: var(--seashell);
+    }
+
+    &.active {
+      background: var(--hover-ocean);
+    }
+  }
+}
+
+.tree {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 98px);
+  overflow: auto;
+  padding: var(--spacing-medium) var(--spacing-medium) 0 var(--spacing-small);
+
+  :global {
+    .default {
+      margin-top: auto;
+    }
+  }
+}

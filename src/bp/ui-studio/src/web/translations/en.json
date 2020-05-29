@@ -286,6 +286,7 @@
         "confirmDeleteFlow": "Are you sure you want to delete the flow {name}?",
         "confirmDeleteTopic": "Are you sure you want to delete the topic {name}?",
         "createNewWorkflow": "Create new workflow",
+        "defaultWorkflows": "Default Workflows",
         "deleteTopic": "Delete Topic",
         "deleteWorkflow": "Delete Workflow",
         "editQna": "Edit Q&A",
