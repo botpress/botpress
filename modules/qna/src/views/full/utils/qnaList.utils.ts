@@ -216,7 +216,7 @@ export const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      expandedItems: items.reduce((acc, item) => ({ ...acc, [item.id]: true }), {})
+      expandedItems: items.reduce((acc, item) => ({ ...acc, [item.key || item.id]: true }), {})
     }
   } else if (action.type === 'collapseAll') {
     return {
