@@ -18,7 +18,7 @@ function render(data) {
     {
       type: 'file',
       title: data.title,
-      url: url.resolve(data.BOT_URL, data.image),
+      url: `${data.BOT_URL}${data.image}`,
       collectFeedback: data.collectFeedback
     }
   ]
@@ -41,7 +41,7 @@ function renderMessenger(data) {
         type: 'image',
         payload: {
           is_reusable: true,
-          url: url.resolve(data.BOT_URL, data.image)
+          url: `${data.BOT_URL}${data.image}`
         }
       }
     }
@@ -62,7 +62,7 @@ function renderTelegram(data) {
     ...events,
     {
       type: 'image',
-      url: url.resolve(data.BOT_URL, data.image)
+      url: `${data.BOT_URL}${data.image}`
     }
   ]
 }
@@ -85,7 +85,7 @@ function renderSlack(data) {
         type: 'plain_text',
         text: data.title
       },
-      image_url: url.resolve(data.BOT_URL, data.image),
+      image_url: `${data.BOT_URL}${data.image}`,
       alt_text: 'image'
     }
   ]
@@ -108,7 +108,7 @@ function renderTeams(data) {
         {
           name: data.title,
           contentType: 'image/png',
-          contentUrl: url.resolve(data.BOT_URL, data.image)
+          contentUrl: `${data.BOT_URL}${data.image}`
         }
       ]
     }
@@ -169,8 +169,9 @@ module.exports = {
     if (fileName.includes('-')) {
       fileName = tail(fileName.split('-')).join('-')
     }
+    const link = `${formData.BOT_URL}${formData.image}`
     const title = formData.title ? ' | ' + formData.title : ''
-    return `Image: [![${formData.title || ''}](<${formData.image}>)](<${formData.image}>) - (${fileName}) ${title}`
+    return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
   },
 
   renderElement: renderElement

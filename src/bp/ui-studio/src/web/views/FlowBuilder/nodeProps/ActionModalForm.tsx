@@ -225,6 +225,7 @@ class ActionModalForm extends Component<Props, State> {
   render() {
     return (
       <Dialog.Wrapper
+        height={625}
         title={this.state.isEdit ? lang.tr('studio.flow.node.editAction') : lang.tr('studio.flow.node.addAction')}
         isOpen={this.props.show}
         onClose={this.onClose}

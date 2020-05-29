@@ -1,0 +1,133 @@
+.navbar {
+  margin-bottom: 0px;
+  border-radius: 0px;
+
+  li > a {
+    padding: 8px !important;
+  }
+
+  background-color: #fff;
+  border: none;
+  border-bottom: 1px solid #f1f4f7;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.mainPanel {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}
+
+.scheduledTable {
+  text-align: center;
+  tbody > tr > td {
+    vertical-align: middle;
+    button {
+      margin: 1px;
+    }
+  }
+
+  thead > tr > th {
+    text-align: center;
+  }
+
+  .progress {
+    text-align: left;
+  }
+}
+
+.scheduledDate {
+  text-align: left;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  float: left;
+  margin-top: 4px;
+  margin-right: 6px;
+  margin-left: 4px;
+}
+
+.emptyMessage {
+  width: 100%;
+  text-align: center;
+}
+
+.smallButton {
+  min-width: 40px;
+}
+
+.filters {
+  :global {
+    .bp3-control-group {
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.addFilters {
+  margin-bottom: 8px;
+}
+
+.formUserTimezone {
+  margin-top: 28px;
+  margin-left: 8px;
+}
+
+.formTime {
+  margin-left: 8px;
+}
+
+.modal {
+  :global {
+    .bp3-overlay-backdrop {
+      position: fixed !important;
+    }
+  }
+}
+
+.table {
+  width: 100%;
+}
+
+.card {
+  margin: 20px;
+}
+
+.newButton {
+  margin: 20px;
+  display: flex;
+  justify-content: flex-end;
+
+  :global {
+    .bp3-button {
+      right: 0;
+    }
+  }
+}
+
+.error {
+  margin: 20px;
+  width: unset !important;
+}
+
+.title {
+  margin: 0;
+  margin-top: 8px;
+  margin-left: 20px;
+  float: left;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+
+  :global {
+    .bp3-button {
+      margin-right: 8px;
+    }
+  }
+}

@@ -106,7 +106,7 @@ class SelectContent extends Component<Props, State> {
       this.setState({ activeItemIndex: index < itemsCount - 1 ? index + 1 : index })
     } else if (e.key === 'Enter' && this.state.step === formSteps.PICK_CATEGORY) {
       this.setCurrentCategory(this.props.categories.filter(cat => !cat.hidden)[this.state.activeItemIndex].id)
-    } else if (e.key === 'Enter') {
+    } else if (e.key === 'Enter' && !this.state.newItemCategory) {
       this.handlePick(this.props.contentItems[this.state.activeItemIndex])
     }
   }

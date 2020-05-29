@@ -1,7 +1,7 @@
 {
   "autoTrain": "Auto Training",
   "cancelTraining": "Cancel Training",
-  "description": "Use Botpress native Natural language understanding engine to make your bot smarter.",
+  "description": "Use Botpress native Natural Language Understanding engine to make your bot smarter.",
   "entities": {
     "deleteMessage": "Are you sure you want to delete the entity \"{entityName}\" ?",
     "duplicate": "Duplicate Entity",
@@ -73,6 +73,6 @@
     "tagSelectionLabel": "Tag selection",
     "tagSelectionMessage": "Click on a slot or use numbers as keyboard shortcuts"
   },
-  "title": "Language Undertanding",
+  "title": "Language Understanding",
   "trainNow": "Train now"
 }

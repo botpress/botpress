@@ -65,11 +65,11 @@ export class DialogEngine {
     const queueBuilder = new InstructionsQueueBuilder(currentNode, currentFlow)
     let queue: InstructionQueue
 
-    if (context.queue) {
-      queue = InstructionsQueueBuilder.fromInstructions(context.queue.instructions)
-    } else if (context.hasJumped) {
+    if (context.hasJumped) {
       queue = queueBuilder.hasJumped().build()
       context.hasJumped = false
+    } else if (context.queue) {
+      queue = InstructionsQueueBuilder.fromInstructions(context.queue.instructions)
     } else {
       queue = queueBuilder.build()
     }
@@ -112,8 +112,8 @@ export class DialogEngine {
           }
 
           const { onErrorFlowTo } = event.state.temp
-          const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
-          const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
+          const errorFlow =
+            typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
           return this._transition(sessionId, event, errorFlow)
         })
@@ -262,7 +262,7 @@ export class DialogEngine {
   }
 
   private initializeContext(event) {
-    const defaultFlow = this._findFlow(event.botId, event.ndu ? 'Built-In/welcome.flow.json' : 'main.flow.json')
+    const defaultFlow = this._findFlow(event.botId, event.ndu ? 'misunderstood.flow.json' : 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.__stacktrace.push({ flow: defaultFlow.name, node: startNode.name })
     event.state.context = {
@@ -322,11 +322,17 @@ export class DialogEngine {
         return event
       }
 
+      const executeParentNode = transitionTo.startsWith('##')
+      const specificNode = transitionTo.split(executeParentNode ? '##' : '#')[1]
+
+      if (executeParentNode) {
+        prevJumpPoint.executeNode = true
+      }
+
       // Multiple transitions on a node triggers each a processEvent, if we simply remove it, the second transition is no longer "exiting a subflow"
       prevJumpPoint.used = true
 
       const parentFlow = this._findFlow(event.botId, prevJumpPoint.flow)
-      const specificNode = transitionTo.split('#')[1]
       const parentNode = this._findNode(event.botId, parentFlow, specificNode || prevJumpPoint.node)
 
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
@@ -474,9 +480,14 @@ export class DialogEngine {
 
   private _exitingSubflow(event: IO.IncomingEvent) {
     const { currentFlow, currentNode, jumpPoints } = event.state.context
-    const recentUsed = jumpPoints?.find(j => j.used)
+    const lastJump = jumpPoints?.find(j => j.used)
+    const isExiting = lastJump?.flow === currentFlow && lastJump?.node === currentNode
 
-    return recentUsed?.flow === currentFlow && recentUsed?.node === currentNode
+    // When we want to re-process the node, we need to return false so the dialog engine processes the node from the start
+    if (lastJump?.executeNode) {
+      return false
+    }
+    return isExiting
   }
 
   private _debug(botId: string, target: string, action: string, args?: any) {

@@ -76,13 +76,6 @@ export class DialogJanitor extends Janitor {
       const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
       const session = await this.sessionRepo.get(sessionId)
 
-      // Don't process the timeout when the context is empty.
-      // This means the conversation has not began.
-      if (_.isEmpty(session.context)) {
-        dialogDebug.forBot(botId, 'Skipping. No changes in context', sessionId)
-        return
-      }
-
       // This event only exists so that processTimeout can call processEvent
       const fakeEvent = Event({
         type: 'timeout',

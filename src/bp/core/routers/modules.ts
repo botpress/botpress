@@ -1,4 +1,5 @@
 import { FlowGeneratorMetadata, Logger } from 'botpress/sdk'
+import { UnexpectedError } from 'common/http'
 import { ModuleInfo } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import ModuleResolver from 'core/modules/resolver'
@@ -56,8 +57,7 @@ export class ModulesRouter extends CustomRouter {
 
           res.sendStatus(200)
         } catch (err) {
-          this.logger.attachError(err).error(`Could not unpack module`)
-          res.sendStatus(500)
+          throw new UnexpectedError('Could not unpack module', err)
         }
       })
     )
@@ -145,7 +145,7 @@ export class ModulesRouter extends CustomRouter {
           const metadata: FlowGeneratorMetadata = { botId: req.query.botId, isOneFlow: req.query.isOneFlow }
           res.send(this.skillService.finalizeFlow(await flowGenerator(req.body, metadata)))
         } catch (err) {
-          res.status(400).send(`Error while trying to generate the flow: ${err}`)
+          throw new UnexpectedError('Could not generate flow', err)
         }
       })
     )
