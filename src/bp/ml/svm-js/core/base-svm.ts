@@ -31,12 +31,6 @@ class BaseSVM {
     const deferred = Q.defer<Model>()
     const svm = this._clf as NSVM
 
-    // try {
-    //   svm.train({ ...params, mute: 1 }, X, y)
-    //   deferred.resolve(svm.get_model())
-    // } catch (err) {
-    //   deferred.reject(err)
-    // }
     svm.train_async({ ...params, mute: 1 }, X, y, msg => {
       if (msg) {
         deferred.reject(new Error(msg))
@@ -64,12 +58,6 @@ class BaseSVM {
 
     const svm = this._clf as NSVM
 
-    // try {
-    //   const res = svm.predict(inputs)
-    //   deferred.resolve(res)
-    // } catch (err) {
-    //   deferred.reject(err)
-    // }
     svm.predict_async(inputs, res => deferred.resolve(res))
 
     return deferred.promise
@@ -97,12 +85,6 @@ class BaseSVM {
 
     const svm = this._clf as NSVM
 
-    // try {
-    //   const res = svm.predict_probability(inputs)
-    //   deferred.resolve(res.probabilities)
-    // } catch (err) {
-    //   deferred.reject(err)
-    // }
     svm.predict_probability_async(inputs, res => deferred.resolve(res.probabilities))
 
     return deferred.promise

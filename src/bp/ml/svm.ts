@@ -46,9 +46,8 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       throw new Error("SVM can't train on a dataset of only one class")
     }
 
-    // const minKFold = getMinKFold(dataset)
-    // const kFold = Math.max(minKFold, 4)
-    const kFold = 4
+    const minKFold = getMinKFold(dataset)
+    const kFold = Math.max(minKFold, 4)
 
     this.clf = new SVM({
       svm_type: args.classifier ? svmTypes[args.classifier] : undefined,
