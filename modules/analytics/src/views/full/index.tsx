@@ -151,6 +151,17 @@ const Analytics: FC<any> = ({ bp }) => {
   })
 
   useEffect(() => {
+    void axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
+      const channels = data
+        .map(x => x.name)
+        .filter(x => x.startsWith('channel'))
+        .map(x => {
+          const channel = x.replace('channel-', '')
+          return { value: channel, label: capitalize(channel) }
+        })
+
+      setChannels(prevState => [...prevState, ...channels])
+    })
     dispatch({ type: 'datesSuccess', data: { dateRange: [last7days, now] } })
   }, [])
 
@@ -166,7 +177,7 @@ const Analytics: FC<any> = ({ bp }) => {
       const newChannels = _.uniq(_.map(metrics, 'channel')).map(x => {
         return { value: x, label: capitalize(x) }
       })
-      setChannels(_.uniq([...channels, ...newChannels]))
+      setChannels(_.uniqBy([...channels, ...newChannels], 'value'))
 
     })
 
