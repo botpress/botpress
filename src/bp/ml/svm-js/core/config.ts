@@ -90,7 +90,7 @@ function checkConfig(config: SvmConfig) {
 }
 
 function defaultConfig(config: Partial<SvmConfig>): SvmConfig {
-  return checkConfig(_.merge({}, defaults, config))
+  return checkConfig(_.merge({ ...defaults }, config))
 }
 
 export default defaultConfig
