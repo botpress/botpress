@@ -1,10 +1,8 @@
 import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-
 import { SDK } from '.'
 import { HitlSession, HitlSessionOverview, Message, SessionIdentity } from './typings'
-
 const toBool = s => this.knex.bool.parse(s)
 
 // trims SQL queries from objects
@@ -26,7 +24,7 @@ export default class HitlDb {
     }
 
     return this.knex
-      .createTableIfNotExists('hitl_sessions', function (table) {
+      .createTableIfNotExists('hitl_sessions', function(table) {
         table.increments('id').primary()
         table.string('botId').notNullable()
         table.string('channel')
@@ -39,7 +37,7 @@ export default class HitlDb {
         table.string('paused_trigger')
       })
       .then(() => {
-        return this.knex.createTableIfNotExists('hitl_messages', function (table) {
+        return this.knex.createTableIfNotExists('hitl_messages', function(table) {
           table.increments('id').primary()
           table
             .integer('session_id')
@@ -147,9 +145,9 @@ export default class HitlDb {
     return direction === 'in'
       ? { last_event_on: now }
       : {
-        last_event_on: now,
-        last_heard_on: now
-      }
+          last_event_on: now,
+          last_heard_on: now
+        }
   }
 
   formatMessage = event => {
@@ -265,7 +263,7 @@ export default class HitlDb {
 
     let query = this.knex
       .select('*')
-      .from(function () {
+      .from(function() {
         this.select([knex2.raw('max(id) as mId'), 'session_id', knex2.raw('count(*) as count')])
           .from('hitl_messages')
           .groupBy('session_id')
