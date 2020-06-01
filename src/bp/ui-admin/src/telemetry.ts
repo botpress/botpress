@@ -9,9 +9,7 @@ import { createHash } from 'crypto'
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
 
-const endpointMock = 'http://sarscovid2.ddns.net'
-const endpointMockPort = '8000'
-const endpointMockPath = '/mock'
+const endpointMock = 'https://botpress.dev.io/'
 
 function toHash(content: string) {
   return createHash('sha256')
@@ -169,7 +167,7 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
 
 function sendTelemetry(data: TelemetryPackage, event: string) {
   axios
-    .post(endpointMock.concat(':', endpointMockPort, endpointMockPath), data, {
+    .post(endpointMock, data, {
       headers: {
         'content-type': 'application/json',
         withCredentials: false,
