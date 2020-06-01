@@ -131,7 +131,7 @@ const SidePanelContent: FC<Props> = props => {
     let index = 0
     while (props.topics.find(t => t.name === name)) {
       index++
-      name = `${originalName} ${index}`
+      name = `${originalName}-${index}`
     }
 
     await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })

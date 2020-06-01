@@ -3,7 +3,12 @@
 }
 
 .treeItem {
+  color: var(--shark) !important;
+  font-size: 12px !important;
   display: block !important;
+  line-height: 1.25 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
   transition: background 0.3s;
   width: 100% !important;
 
@@ -27,11 +32,99 @@
   flex-direction: column;
   height: calc(100% - 98px);
   overflow: auto;
-  padding: var(--spacing-medium) var(--spacing-medium) 0 var(--spacing-small);
+  padding: var(--spacing-small) var(--spacing-x-large) 0 var(--spacing-large);
 
   :global {
     .default {
+      border-top: 1px solid var(--gray);
       margin-top: auto;
+      padding-top: var(--spacing-medium);
     }
+  }
+}
+
+.inlineEditing {
+  display: flex !important;
+
+  &:not(.isTopic) {
+    margin-left: -7px !important;
+
+    input {
+      padding: 6px 6px 5px;
+    }
+  }
+
+  :global {
+    .bp3-icon {
+      margin-right: 0 !important;
+    }
+
+    .bp3-button-text {
+      flex-grow: 1;
+    }
+  }
+
+  &:hover, &.active {
+    background: #fff !important;
+  }
+
+  input {
+    background-color: #fff;
+    border-radius: 5px;
+    border: solid 1px var(--ocean);
+    color: var(--shark);
+    font-size: 12px;
+    line-height: 1.25;
+    padding: 8px 6px 5px;
+    width: 100%;
+
+    &::placeholder {
+      opacity: 1;
+      color: var(--reef);
+    }
+  }
+}
+
+.contextMenu {
+  border-radius: 2px;
+  box-shadow: 0 8px 24px 0 rgba(16, 22, 26, 0.4);
+
+  :global {
+    .bp3-text-overflow-ellipsis {
+      display: none;
+    }
+
+    .bp3-intent-danger {
+      .bp3-menu-item-label {
+        color: var(--lighthouse) !important;
+      }
+
+      &:hover {
+        background: var(--hover-lighthouse) !important;
+      }
+    }
+  }
+}
+
+.addBtn {
+  color: var(--ocean) !important;
+  display: block !important;
+  font-size: 12px !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1.25;
+  padding-left: var(--spacing-small) !important;
+  margin-top: 0;
+  transition: background 0.3s;
+  width: 100%;
+
+  svg {
+    fill: var(--ocean) !important;
+    width: 12px !important;
+  }
+
+  &:hover, &:focus {
+    color: var(--ocean) !important;
+    background:  var(--hover-ocean) !important;
   }
 }

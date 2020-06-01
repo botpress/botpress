@@ -2,7 +2,10 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
+  'addBtn': string;
+  'contextMenu': string;
   'emptyState': string;
+  'inlineEditing': string;
   'isTopic': string;
   'tree': string;
   'treeItem': string;

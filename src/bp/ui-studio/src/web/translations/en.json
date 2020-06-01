@@ -283,8 +283,8 @@
       },
       "topicList": {
         "bigWarning": "WARNING:",
-        "confirmDeleteFlow": "Are you sure you want to delete the flow {name}?",
-        "confirmDeleteTopic": "Are you sure you want to delete the topic {name}?",
+        "confirmDeleteFlow": "Are you sure you want to delete this workflow?",
+        "confirmDeleteTopic": "Are you sure you want to delete this topic? Its Q&A and workflows will be deleted as well.",
         "createNewWorkflow": "Create new workflow",
         "defaultWorkflows": "Default Workflows",
         "deleteTopic": "Delete Topic",
