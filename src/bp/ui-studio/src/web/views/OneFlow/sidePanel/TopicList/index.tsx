@@ -65,7 +65,6 @@ interface NodeData {
   topic?: string
   /** List of workflows which have a reference to it */
   referencedIn?: string[]
-  countByTopic?: CountByTopic
 }
 
 type NodeType = 'workflow' | 'folder' | 'topic' | 'qna' | 'addWorkflow'
@@ -76,17 +75,18 @@ const TopicList: FC<Props> = props => {
   const [expanded, setExpanded] = useState<any>({})
   const [editing, setEditing] = useState<string>()
 
+  const filterByText = item => item.name.toLowerCase().includes(props.filter.toLowerCase())
+
   useEffect(() => {
-    const qna = props.topics.map(topic => ({
+    const qna = props.topics.filter(filterByText).map(topic => ({
       name: `${topic.name}/qna`,
       label: lang.tr('module.qna.fullName'),
       type: 'qna' as NodeType,
-      icon: 'chat',
-      countByTopic: props.qnaCountByTopic?.[topic.name] || 0
+      icon: 'chat'
     }))
 
-    setFlows([...qna, ...props.flowsName])
-  }, [props.flowsName, props.topics, props.qnaCountByTopic])
+    setFlows([...qna, ...props.flowsName.filter(filterByText)])
+  }, [props.flowsName, props.filter, props.topics, props.qnaCountByTopic])
 
   useEffect(() => {
     if (!forcedSelect && props.currentFlow) {
@@ -341,6 +341,7 @@ const TopicList: FC<Props> = props => {
           contextMenu={handleContextMenu(item, isTopic, path)}
           onDoubleClick={() => (item.type === 'qna' ? props.editQnA(item.name.replace('/qna', '')) : null)}
           onClick={() => handleClick({ ...item, isTopic, path })}
+          qnaCount={props.qnaCountByTopic?.[item.id] || 0}
         />
         {expanded[path] && (
           <Fragment>

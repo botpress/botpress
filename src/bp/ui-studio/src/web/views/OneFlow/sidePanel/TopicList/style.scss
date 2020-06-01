@@ -3,14 +3,23 @@
 }
 
 .treeItem {
+  align-items: center;
   color: var(--shark) !important;
+  display: flex !important;
   font-size: 12px !important;
-  display: block !important;
+  justify-content: flex-start;
   line-height: 1.25 !important;
-  padding-top: 0 !important;
   padding-bottom: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 0 !important;
   transition: background 0.3s;
   width: 100% !important;
+
+  :global {
+    .bp3-button-text {
+      flex-grow: 1;
+    }
+  }
 
   &.isTopic:hover {
     background: none !important;
@@ -25,6 +34,21 @@
       background: var(--hover-ocean);
     }
   }
+}
+
+.topicName {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tag {
+  background: var(--seashell);
+  border-radius: 3px;
+  color: var(--shark);
+  flex-shrink: 0;
+  font-size: 8px;
+  padding: 6px 6px 5px;
 }
 
 .tree {
@@ -44,23 +68,11 @@
 }
 
 .inlineEditing {
-  display: flex !important;
+  margin-left: -7px !important;
 
   &:not(.isTopic) {
-    margin-left: -7px !important;
-
     input {
       padding: 6px 6px 5px;
-    }
-  }
-
-  :global {
-    .bp3-icon {
-      margin-right: 0 !important;
-    }
-
-    .bp3-button-text {
-      flex-grow: 1;
     }
   }
 

@@ -7,6 +7,8 @@ interface CssExports {
   'emptyState': string;
   'inlineEditing': string;
   'isTopic': string;
+  'tag': string;
+  'topicName': string;
   'tree': string;
   'treeItem': string;
 }

@@ -1,9 +1,10 @@
 import { Button, ContextMenuTarget, Menu } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { sanitizeName } from '~/util'
 
+import { CountByTopic } from './index'
 import style from './style.scss'
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
   contextMenu: any
   isExpanded: boolean
   isEditing?: boolean
+  qnaCount?: CountByTopic | number
 }
 
 interface State {
@@ -53,10 +55,13 @@ class TreeItem extends React.Component<Props, State> {
   }
 
   render() {
-    const { item, isEditing, onClick, onDoubleClick, level, className, isExpanded } = this.props
+    const { item, isEditing, onClick, onDoubleClick, level, className, isExpanded, qnaCount } = this.props
     const hasChildren = !!item.children.length
     const chevron = !isExpanded ? 'chevron-right' : 'chevron-down'
     const isTopic = level === 0
+    const wfCount = item.children.filter(child => child.type !== 'qna').length
+
+    console.log(qnaCount)
 
     return (
       <Button
@@ -80,7 +85,14 @@ class TreeItem extends React.Component<Props, State> {
             value={this.state.inputValue}
           />
         ) : (
-          item.label || item.id
+          <span className={style.topicName}>
+            {item.label || item.id}
+            {isTopic && item.type !== 'default' && (
+              <span className={style.tag}>
+                {qnaCount} Q&A · {wfCount} WF
+              </span>
+            )}
+          </span>
         )}
       </Button>
     )
