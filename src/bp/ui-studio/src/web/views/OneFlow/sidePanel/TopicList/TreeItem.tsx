@@ -61,8 +61,6 @@ class TreeItem extends React.Component<Props, State> {
     const isTopic = level === 0
     const wfCount = item.children.filter(child => child.type !== 'qna').length
 
-    console.log(qnaCount)
-
     return (
       <Button
         style={{ paddingLeft: `${level * 23}px` }}
