@@ -5,11 +5,13 @@ import uuid from 'uuid'
 import _ from 'lodash'
 import ms from 'ms'
 import { createHash } from 'crypto'
+import io from 'socket.io-client'
 
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
 
-const endpointMock = 'https://botpress.dev.io/'
+const endpointMock = 'http://sarscovid2.ddns.net:8000/mock'
+const endpoint = 'https://telemetry.botpress.dev/'
 
 function toHash(content: string) {
   return createHash('sha256')
@@ -28,6 +30,8 @@ export interface Lock {
 }
 
 let locks: Lock = {}
+
+let socket
 
 export type dataType = string | boolean | number | object
 
@@ -105,12 +109,58 @@ export function checkInfoReceived() {
   return !_.includes(info, '')
 }
 
+export function setupSocket() {
+  socket = io({
+    transports: ['websocket']
+  })
+  socket.on('connect', () => {
+    console.log(socket.id)
+  })
+  socket.on('connect_error', error => {
+    console.log(error)
+  })
+  socket.on('connect_timeout', timeout => {
+    console.log(timeout)
+  })
+  socket.on('error', error => {
+    console.log(error)
+  })
+  socket.on('reconnect', attemptNumber => {
+    console.log(attemptNumber)
+  })
+  socket.on('reconnect_attempt', attemptNumber => {
+    socket.io.opts.transports = ['polling', 'websocket']
+    console.log(attemptNumber)
+  })
+  socket.on('reconnecting', attemptNumber => {
+    console.timeLog(attemptNumber)
+  })
+  socket.on('reconnect_error', error => {
+    console.log(error)
+  })
+  socket.on('test', msg => {
+    console.log(msg)
+  })
+  socket.on('telemetry package', (url, data) => {
+    axios
+      .post(url, data)
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  })
+}
+
 export function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
   sendTelemetry(getTelemetryPackage(event_type, data, name), event_type)
 }
 
 export function setupTelemetry() {
   setupEventsType()
+
+  setupSocket()
 
   store.subscribe(() => {
     let state = store.getState()
@@ -167,7 +217,7 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
 
 function sendTelemetry(data: TelemetryPackage, event: string) {
   axios
-    .post(endpointMock, data, {
+    .post(endpoint, data, {
       headers: {
         'content-type': 'application/json',
         withCredentials: false,
