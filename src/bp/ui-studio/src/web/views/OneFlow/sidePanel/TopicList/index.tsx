@@ -3,7 +3,7 @@ import axios from 'axios'
 import { confirmDialog, EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
@@ -136,8 +136,8 @@ const TopicList: FC<Props> = props => {
     return sanitizeName(name).replace(/\//g, '-')
   }
 
-  const handleContextMenu = (element: NodeData, level: number, path: string) => {
-    if (level === 0) {
+  const handleContextMenu = (element: NodeData, isTopic: boolean, path: string) => {
+    if (isTopic) {
       const folder = element.id
       if (folder === 'default') {
         return null
@@ -278,12 +278,12 @@ const TopicList: FC<Props> = props => {
     }, [])
   }
 
-  const handleClick = ({ path, level, ...item }): void => {
+  const handleClick = ({ path, isTopic, ...item }): void => {
     if (item.children.length) {
       setExpanded({ ...expanded, [path]: !expanded[path] })
     }
 
-    if (level !== 0) {
+    if (!isTopic) {
       props.goToFlow(item.name)
     }
   }
@@ -324,27 +324,28 @@ const TopicList: FC<Props> = props => {
   const printTree = (item, level, parentId = '') => {
     const hasChildren = !!item.children.length
     const path = `${parentId}${parentId && '/'}${item.id}`
+    const isTopic = level === 0
 
     return (
       <div className={item.type} key={path}>
         <TreeItem
           className={cx(style.treeItem, {
-            [style.isTopic]: level === 0,
+            [style.isTopic]: isTopic,
             [style.active]: item.name === props.currentFlow?.name
           })}
           isExpanded={expanded[path]}
           item={item}
           level={level}
           isEditing={editing === path}
-          onSave={value => handleSave(item, level === 0, value)}
-          contextMenu={handleContextMenu(item, level, path)}
+          onSave={value => handleSave(item, isTopic, value)}
+          contextMenu={handleContextMenu(item, isTopic, path)}
           onDoubleClick={() => (item.type === 'qna' ? props.editQnA(item.name.replace('/qna', '')) : null)}
-          onClick={() => handleClick({ ...item, level, path })}
+          onClick={() => handleClick({ ...item, isTopic, path })}
         />
         {expanded[path] && (
           <Fragment>
             {hasChildren && item.children.map(child => printTree(child, level + 1, path))}
-            {level === 0 && item.id !== 'default' && (
+            {isTopic && item.id !== 'default' && (
               <Button
                 minimal
                 onClick={() => props.createWorkflow(item.id)}
