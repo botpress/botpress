@@ -215,6 +215,7 @@ const SidePanelContent: FC<Props> = props => {
           {currentTab === 'topics' && (
             <React.Fragment>
               <SearchBar
+                className={style.searchBar}
                 icon="filter"
                 placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
                 onChange={setTopicFilter}

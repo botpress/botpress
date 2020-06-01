@@ -187,6 +187,39 @@
   justify-content: space-between;
 }
 
+.searchBar {
+  input {
+    background-color: #fff;
+    border-radius: 5px;
+    border: solid 1px var(--gray);
+    box-shadow: none !important;
+    color: var(--shark);
+    font-size: 12px;
+    line-height: 1.25;
+    padding: 8px 6px 5px;
+    transition: border 0.3s;
+    width: 100%;
+
+    &:hover {
+      border: solid 1px var(--reef);
+    }
+
+    &:focus {
+      border: solid 1px var(--ocean);
+      outline: none;
+    }
+
+    &::placeholder {
+      opacity: 1;
+      color: var(--reef);
+    }
+  }
+
+  svg {
+    fill: var(--gray) !important;
+  }
+}
+
 .tag {
   background: var(--c-neutral--light-2);
   border-radius: 3px;
