@@ -62,13 +62,13 @@ module.exports = {
       {
         type: 'text',
         key: 'title',
-        label: 'Title',
+        label: 'title',
         placeholder: 'module.builtin.types.card.cardSubject'
       },
       {
         type: 'text',
         key: 'text',
-        label: 'Text',
+        label: 'text',
         placeholder: 'module.builtin.optional'
       },
       {

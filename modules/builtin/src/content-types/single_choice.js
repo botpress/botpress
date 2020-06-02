@@ -146,7 +146,7 @@ module.exports = {
       {
         key: 'onTopOfKeyboard',
         type: 'checkbox',
-        label: 'Display on top of the keyboard'
+        label: 'module.builtin.types.suggestions.displayOnTop'
       },
       {
         key: 'typingIndicator',
@@ -156,23 +156,23 @@ module.exports = {
       {
         key: 'canAdd',
         type: 'checkbox',
-        label: 'Allow user to add suggestions'
+        label: 'module.builtin.types.suggestions.allowToAdd'
       },
       {
         key: 'multiple',
         type: 'checkbox',
-        label: 'Allow user to pick multiple suggestions'
+        label: 'module.builtin.types.suggestions.allowMultiplePick'
       }
     ],
     fields: [
       {
         group: {
-          addLabel: 'Add Suggestion',
+          addLabel: 'module.builtin.types.suggestions.add',
           minimum: 1,
           contextMenu: [
             {
               type: 'delete',
-              label: 'Delete Suggestion'
+              label: 'module.builtin.types.suggestions.delete'
             }
           ]
         },
@@ -183,14 +183,14 @@ module.exports = {
           {
             type: 'text',
             key: 'label',
-            label: 'Suggestion Label',
-            placeholder: 'What is the suggestion displayed?'
+            label: 'module.builtin.types.suggestions.label',
+            placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
           },
           {
             type: 'text',
             key: 'value',
-            label: 'Value',
-            placeholder: 'What will your chatbot receive?'
+            label: 'module.builtin.types.suggestions.value',
+            placeholder: 'module.builtin.types.suggestions.valuePlaceholder'
           }
         ]
       }

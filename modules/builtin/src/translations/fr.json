@@ -22,6 +22,8 @@
       "urlPlaceholder": "Écrivez un URL valide"
     },
     "card": {
+      "add": "Ajouter une carte",
+      "delete": "Supprimer cette carte",
       "description": "Une carte est un message avec un titre, sous-titre optionel, une image et des boutons d'actions.",
       "cardSubject": "Quel est le sujet de votre carte?"
     },
@@ -44,6 +46,18 @@
       "itemTitle": "Le titre du choix (ce que verra l'utilisateur)",
       "itemValue": "La valeur que recevra le bot lorsque l'utilisateur choisi cet item (habituellement caché de l'utilisateur)",
       "title": "Choix Unique"
+    },
+    "suggestions": {
+      "add": "Ajouter une suggestion",
+      "allowMultiplePick": "Permettre à l'utilisateur de sélectionner plusieurs suggestions",
+      "allowToAdd": "Permettre à l'utilisateur d'ajouter des suggestions",
+      "delete": "Supprimer la suggestion",
+      "displayOnTop": "Affichage au-dessus du clavier",
+      "label": "Étiquette de suggestion",
+      "labelPlaceholder": "Quelle est la suggestion affichée?",
+      "title": "Suggestions",
+      "value": "Valeur",
+      "valuePlaceholder": "Que recevra votre agent conversationnel?"
     },
     "text": {
       "alternatives": "Alternatives",

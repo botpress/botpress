@@ -19,9 +19,13 @@ const fetchReducer = (state, action) => {
   switch (action.type) {
     case 'fetchSuccess':
       const { data } = action
+
       return {
         ...state,
-        contentTypes: data.map(type => ({ value: type.id, label: lang.tr(type.title) })),
+        contentTypes: data.map(type => ({
+          value: type.id,
+          label: lang.tr(type.id === 'builtin_single-choice' ? 'module.builtin.types.suggestions.title' : type.title)
+        })),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
     default:

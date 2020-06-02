@@ -186,7 +186,7 @@ module.exports = {
       {
         type: 'text',
         key: 'title',
-        label: 'Title',
+        label: 'title',
         placeholder: 'module.builtin.optional'
       }
     ]

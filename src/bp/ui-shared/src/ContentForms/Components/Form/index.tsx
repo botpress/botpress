@@ -20,10 +20,10 @@ const printLabel = (field, data) => {
   if (field.label.startsWith('fields::') && field.fields?.length) {
     const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
 
-    return data[labelField.key] || labelField.label
+    return data[labelField.key] || lang(labelField.label)
   }
 
-  return field.label
+  return lang(field.label)
 }
 
 const printMoreInfo = (moreInfo: MoreInfo): JSX.Element => {
@@ -31,12 +31,12 @@ const printMoreInfo = (moreInfo: MoreInfo): JSX.Element => {
   if (url) {
     return (
       <a className={style.moreInfo} href={url} target="_blank">
-        {label}
+        {lang(label)}
       </a>
     )
   }
 
-  return <p className={style.moreInfo}>{label}</p>
+  return <p className={style.moreInfo}>{lang(label)}</p>
 }
 
 const formReducer = (state, action) => {
@@ -148,7 +148,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               </GroupItemWrapper>
             ))}
             <AddButton
-              text={field.group?.addLabel}
+              text={lang(field.group?.addLabel)}
               onClick={() => dispatch({ type: 'add', data: { field: field.key, parent } })}
             />
           </Fragment>
@@ -160,9 +160,9 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Select
-              options={field.options}
+              options={field.options.map(option => ({ ...option, label: lang(option.label) }))}
               value={value}
-              placeholder={field.placeholder}
+              placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
             />
             {currentOption.related && printField(currentOption.related, data, parent)}
@@ -173,7 +173,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <TextArea
-              placeholder={field.placeholder}
+              placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
               onBlur={() => onUpdate(state)}
               value={data[field.key]}
@@ -186,7 +186,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Upload
               axios={bp?.axios}
-              placeholder={field.placeholder}
+              placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}
             />
@@ -214,7 +214,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Text
-              placeholder={field.placeholder}
+              placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
               onBlur={() => onUpdate(state)}
               type={field.type}

@@ -1,6 +1,7 @@
 import { Button } from '@blueprintjs/core'
 import React, { FC, useState } from 'react'
 
+import { lang } from '../../translations'
 import MoreOptions from '../../MoreOptions'
 import { MoreOptionsItems } from '../../MoreOptions/typings'
 
@@ -19,7 +20,7 @@ const GroupItemWrapper: FC<GroupItemWrapperProps> = ({ label, contextMenu, defau
     return contextMenu.map(({ label, type }) => ({
       icon: 'trash',
       type: type === 'delete' ? type : undefined,
-      label,
+      label: lang(label),
       action: type === 'delete' ? onDelete : undefined
     }))
   }

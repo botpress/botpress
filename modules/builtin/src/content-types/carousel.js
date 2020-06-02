@@ -213,12 +213,12 @@ module.exports = {
     fields: [
       {
         group: {
-          addLabel: 'Add Card',
+          addLabel: 'module.builtin.types.card.add',
           minimum: 1,
           contextMenu: [
             {
               type: 'delete',
-              label: 'Delete Card'
+              label: 'module.builtin.types.card.delete'
             }
           ]
         },
