@@ -1,6 +1,10 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
+<<<<<<< HEAD
 import { confirmDialog, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+=======
+import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+>>>>>>> dev
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
@@ -59,12 +63,12 @@ const QnA: FC<Props> = props => {
   const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
   const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
 
-  if (refQuestions && refQuestions.length > questions.length) {
-    questions = [...questions, ...Array(refQuestions.length - questions.length).fill('')]
+  if (refQuestions?.length > questions?.length || (!questions?.length && refQuestions?.length)) {
+    questions = [...(questions || []), ...Array(refQuestions.length - (questions?.length || 0)).fill('')]
   }
 
-  if (refAnswers && refAnswers.length > answers.length) {
-    answers = [...answers, ...Array(refAnswers.length - answers.length).fill('')]
+  if (refAnswers?.length > answers?.length || (!answers?.length && refAnswers?.length)) {
+    answers = [...(answers || []), ...Array(refAnswers.length - (answers?.length || 0)).fill('')]
   }
 
   const onDelete = async () => {
@@ -167,8 +171,8 @@ const QnA: FC<Props> = props => {
   }
 
   const showIncomplete =
-    questions.filter(q => !!q.trim()).length < 3 ||
-    (answers.filter(q => !!q.trim()).length < 1 && !data.redirectFlow && !data.redirectNode)
+    questions?.filter(q => !!q.trim()).length < 3 ||
+    (answers?.filter(q => !!q.trim()).length < 1 && !data.redirectFlow && !data.redirectNode)
   const currentFlow = flows ? flows.find(({ name }) => name === data.redirectFlow) || { nodes: [] } : { nodes: [] }
   const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
@@ -208,16 +212,16 @@ const QnA: FC<Props> = props => {
               </Tooltip>
             )}
             {!expanded && (
-              <span className={style.tag}>{`${questions.filter(answer => answer.trim()).length} ${lang.tr(
+              <span className={style.tag}>{`${questions?.filter(q => q.trim()).length || 0} ${lang.tr(
                 'module.qna.form.q'
-              )} · ${answers.filter(answer => answer.trim()).length}  ${lang.tr('module.qna.form.a')}`}</span>
+              )} · ${answers?.filter(a => a.trim()).length || 0}  ${lang.tr('module.qna.form.a')}`}</span>
             )}
           </div>
         </Button>
         <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />
       </div>
       {expanded && (
-        <div className={style.collapsibleWrapper}>
+        <div key={contentLang} className={style.collapsibleWrapper}>
           {!isLite && (
             <ContextSelector
               className={cx(style.contextSelector)}
@@ -233,7 +237,7 @@ const QnA: FC<Props> = props => {
           )}
           <TextAreaList
             key="questions"
-            items={questions}
+            items={questions || ['']}
             updateItems={items =>
               updateQnA({
                 id,
@@ -251,7 +255,7 @@ const QnA: FC<Props> = props => {
           <div>
             <TextAreaList
               key="answers"
-              items={answers}
+              items={answers || ['']}
               duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
               itemListValidator={validateItemsList}
               updateItems={items =>

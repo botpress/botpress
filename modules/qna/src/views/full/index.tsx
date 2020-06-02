@@ -136,7 +136,7 @@ const QnAList: FC<Props> = props => {
       disabled: !items.length || languages?.length <= 1,
       tooltip: noItemsTooltip || languesTooltip
     },
-    {
+    /*{
       icon: 'filter',
       disabled: true,
       onClick: () => {},
@@ -147,37 +147,38 @@ const QnAList: FC<Props> = props => {
       disabled: true,
       onClick: () => {},
       tooltip: noItemsTooltip || lang.tr('sortBy')
-    },
+    },*/
     {
       icon: allExpanded ? 'collapse-all' : 'expand-all',
       disabled: !items.length,
       onClick: () => dispatch({ type: allExpanded ? 'collapseAll' : 'expandAll' }),
       tooltip: noItemsTooltip || lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
-    },
-    {
-      icon: 'plus',
-      onClick: () => {
-        dispatch({ type: 'addQnA', data: { languages, contexts: [props.topicName || 'global'] } })
-      },
-      tooltip: lang.tr('module.qna.form.addQuestion')
     }
   ]
 
   if (!isLite) {
-    buttons.unshift(
-      {
-        icon: 'import',
-        onClick: () => setShowImportModal(true),
-        tooltip: lang.tr('importJson')
-      },
+    buttons.push(
       {
         icon: 'export',
         disabled: !items.length,
         onClick: startDownload,
         tooltip: noItemsTooltip || lang.tr('exportToJson')
+      },
+      {
+        icon: 'import',
+        onClick: () => setShowImportModal(true),
+        tooltip: lang.tr('importJson')
       }
     )
   }
+
+  buttons.push({
+    icon: 'plus',
+    onClick: () => {
+      dispatch({ type: 'addQnA', data: { languages, contexts: [props.topicName || 'global'] } })
+    },
+    tooltip: lang.tr('module.qna.form.addQuestion')
+  })
 
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })
