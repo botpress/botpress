@@ -1,10 +1,6 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
-<<<<<<< HEAD
 import { confirmDialog, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
-=======
-import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
->>>>>>> dev
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'

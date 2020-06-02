@@ -197,28 +197,28 @@ module.exports = {
     advancedSettings: [
       {
         key: 'markdown',
-        label: 'Use Markdown',
+        label: 'module.builtin.useMarkdown',
         type: 'checkbox',
         moreInfo: {
-          label: 'Learn more',
+          label: 'learnMore',
           url: 'https://daringfireball.net/projects/markdown/'
         }
       },
       {
         key: 'typingIndicator',
         type: 'checkbox',
-        label: 'Display typing indicator'
+        label: 'module.builtin.typingIndicator'
       }
     ],
     fields: [
       {
         group: {
-          addLabel: 'Add Card',
+          addLabel: 'module.builtin.types.card.add',
           minimum: 1,
           contextMenu: [
             {
               type: 'delete',
-              label: 'Delete Card'
+              label: 'module.builtin.types.card.delete'
             }
           ]
         },

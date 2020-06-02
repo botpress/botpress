@@ -40,44 +40,44 @@ module.exports = {
     advancedSettings: [
       {
         key: 'markdown',
-        label: 'Use Markdown',
+        label: 'module.builtin.useMarkdown',
         type: 'checkbox',
         moreInfo: {
-          label: 'Learn more',
+          label: 'learnMore',
           url: 'https://daringfireball.net/projects/markdown/'
         }
       },
       {
         key: 'typingIndicator',
         type: 'checkbox',
-        label: 'Display typing indicator'
+        label: 'module.builtin.typingIndicator'
       }
     ],
     fields: [
       {
         type: 'upload',
         key: 'image',
-        label: 'Upload Image'
+        label: 'module.builtin.types.image.uploadImage'
       },
       {
         type: 'text',
         key: 'title',
-        label: 'Title',
-        placeholder: 'What is your card subject?'
+        label: 'title',
+        placeholder: 'module.builtin.types.card.cardSubject'
       },
       {
         type: 'text',
         key: 'text',
-        label: 'Text',
-        placeholder: 'Optional'
+        label: 'text',
+        placeholder: 'module.builtin.optional'
       },
       {
         group: {
-          addLabel: 'Add Button',
+          addLabel: 'module.builtin.actionButton',
           contextMenu: [
             {
               type: 'delete',
-              label: 'Delete Button'
+              label: 'module.builtin.types.actionButton.delete'
             }
           ]
         },
@@ -88,29 +88,29 @@ module.exports = {
           {
             type: 'text',
             key: 'buttonText',
-            label: 'Button Text',
-            placeholder: 'What is written on the button?'
+            label: 'module.builtin.types.actionButton.textLabel',
+            placeholder: 'module.builtin.types.actionButton.textPlaceholder'
           },
           {
             type: 'select',
             key: 'action',
-            label: 'Button Action',
+            label: 'module.builtin.types.actionButton.actionLabel',
             options: [
               {
                 value: 'say',
-                label: 'Say',
+                label: 'module.builtin.types.actionButton.sayLabel',
                 related: {
-                  placeholder: 'What will your chatbot say ?',
+                  placeholder: 'module.builtin.types.actionButton.sayPlaceholder',
                   type: 'text',
                   key: 'text',
-                  label: 'Text'
+                  label: 'module.builtin.types.actionButton.sayTextLabel'
                 }
               },
               {
                 value: 'openUrl',
-                label: 'Open Url',
+                label: 'module.builtin.types.actionButton.urlLabel',
                 related: {
-                  placeholder: 'Write a valid URL',
+                  placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
                   type: 'url',
                   key: 'text',
                   label: 'URL'
@@ -118,11 +118,11 @@ module.exports = {
               },
               {
                 value: 'postBack',
-                label: 'Post Back',
+                label: 'module.builtin.types.actionButton.postLabel',
                 related: {
                   type: 'textarea',
                   key: 'text',
-                  label: 'Payload'
+                  label: 'module.builtin.types.actionButton.postFieldLabel'
                 }
               }
             ]
