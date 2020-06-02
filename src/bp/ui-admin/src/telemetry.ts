@@ -6,6 +6,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import { createHash } from 'crypto'
 import io from 'socket.io-client'
+import { type } from 'os'
 
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
@@ -25,16 +26,19 @@ let info = {
   email: ''
 }
 
+const serverUrl = window.location + '/telemetry'
+
+const corsConfig = {
+  withCredentials: false
+}
+
 export interface Lock {
   [key: string]: boolean
 }
 
 let locks: Lock = {}
 
-let socket
-
-export type dataType = string | boolean | number | object
-
+export type dataType = string | number | boolean | object
 export interface EventData {
   schema: string
   [key: string]: dataType
@@ -109,48 +113,73 @@ export function checkInfoReceived() {
   return !_.includes(info, '')
 }
 
-export function setupSocket() {
-  socket = io({
-    transports: ['websocket']
+export function getServerFeedback() {
+  let pkgStr = window.localStorage.getItem('packageToSend')
+  let packages: Array<object> = []
+  if (pkgStr !== null) {
+    packages = JSON.parse(pkgStr)
+  }
+  return packages
+}
+
+export function feedback(pkg) {
+  axios
+    .post(serverUrl, pkg, corsConfig)
+    .then(res => {
+      let packages = getServerFeedback()
+      if (packages.indexOf(pkg) !== -1) {
+        packages.splice(packages.indexOf(pkg), 1)
+        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
+      }
+      console.log(res)
+    })
+    .catch(err => {
+      let packages = getServerFeedback()
+      if (packages.indexOf(pkg) === -1) {
+        packages.push(pkg)
+        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
+      }
+      console.log(err)
+    })
+}
+
+export function sendServerPackage() {
+  if (window.localStorage.getItem('packageToSend') === null) {
+    window.localStorage.setItem('packageToSend', JSON.stringify([]))
+  }
+
+  let packages = getServerFeedback()
+  packages.forEach((value, index) => {
+    feedback(value)
   })
-  socket.on('connect', () => {
-    console.log(socket.id)
-  })
-  socket.on('connect_error', error => {
-    console.log(error)
-  })
-  socket.on('connect_timeout', timeout => {
-    console.log(timeout)
-  })
-  socket.on('error', error => {
-    console.log(error)
-  })
-  socket.on('reconnect', attemptNumber => {
-    console.log(attemptNumber)
-  })
-  socket.on('reconnect_attempt', attemptNumber => {
-    socket.io.opts.transports = ['polling', 'websocket']
-    console.log(attemptNumber)
-  })
-  socket.on('reconnecting', attemptNumber => {
-    console.timeLog(attemptNumber)
-  })
-  socket.on('reconnect_error', error => {
-    console.log(error)
-  })
-  socket.on('test', msg => {
-    console.log(msg)
-  })
-  socket.on('telemetry package', (url, data) => {
-    axios
-      .post(url, data)
-      .then(res => {
-        console.log(res)
-      })
-      .catch(err => {
-        console.log(err)
-      })
-  })
+
+  axios
+    .get(serverUrl, corsConfig)
+    .then(res => {
+      if (_.has(res, 'data')) {
+        let payload = res.data.payload
+        let url = res.data.url
+        axios
+          .post(url, payload, corsConfig)
+          .then(res => {
+            feedback({ status: 'OK', data: payload })
+          })
+          .catch(err => {
+            feedback({ status: 'INACCESSIBLE', data: payload })
+            console.log(err)
+          })
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
+
+export function setupServerPackageLoop() {
+  sendServerPackage()
+  setInterval(() => {
+    sendServerPackage()
+  }, ms('1h'))
 }
 
 export function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
@@ -160,7 +189,7 @@ export function startTelemetry(event_type: string, data: dataType, name: string 
 export function setupTelemetry() {
   setupEventsType()
 
-  setupSocket()
+  setupServerPackageLoop()
 
   store.subscribe(() => {
     let state = store.getState()
@@ -217,7 +246,7 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
 
 function sendTelemetry(data: TelemetryPackage, event: string) {
   axios
-    .post(endpoint, data, {
+    .post(endpointMock, data, {
       headers: {
         'content-type': 'application/json',
         withCredentials: false,
