@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "catchAll": {},
   "startNode": "entry",
-  "label": "Error handling",
+  "label": "Error Handling",
   "description": "Users are redirected here when they encounter errors during their discussions",
   "nodes": [
     {
