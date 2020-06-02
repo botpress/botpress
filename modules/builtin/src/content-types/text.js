@@ -110,6 +110,52 @@ module.exports = {
       }
     }
   },
+  newSchema: {
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'module.builtin.useMarkdown',
+        type: 'checkbox',
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typingIndicator',
+        type: 'checkbox',
+        label: 'module.builtin.typingIndicator'
+      }
+    ],
+    fields: [
+      {
+        type: 'text',
+        key: 'text',
+        label: 'module.builtin.types.text.message'
+      },
+      {
+        group: {
+          addLabel: 'module.builtin.types.text.add',
+          contextMenu: [
+            {
+              type: 'delete',
+              label: 'module.builtin.types.text.delete'
+            }
+          ]
+        },
+        type: 'group',
+        key: 'variations',
+        label: 'module.builtin.types.text.alternative',
+        fields: [
+          {
+            type: 'text',
+            key: 'item',
+            label: 'module.builtin.types.text.alternativeLabel'
+          }
+        ]
+      }
+    ]
+  },
   computePreviewText: formData => formData.text,
 
   renderElement: renderElement

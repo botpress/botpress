@@ -186,6 +186,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Upload
               axios={bp?.axios}
+              customPath={bp?.mediaPath}
               placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}
@@ -195,7 +196,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
         )
       case 'checkbox':
         return (
-          <div className={style.checkboxWrapper}>
+          <div key={field.key} className={style.checkboxWrapper}>
             <Checkbox
               checked={data[field.key]}
               key={field.key}

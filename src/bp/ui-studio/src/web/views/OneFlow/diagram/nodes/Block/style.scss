@@ -1,68 +1,91 @@
 .nodeWrapper {
-  background-color: #fff;
-  border-radius: 3px;
-  border: 1px solid var(--gray);
-  min-height: 80px;
-  padding: 8px 18px;
-  width: 200px;
+  background: #fff;
+  min-width: 150px;
 
   :global(.port) {
-    border-radius: 3px;
-    height: 10px;
-    width: 10px;
+    border-radius: 100%;
+    height: 6px;
+    width: 6px;
     background: var(--say);
 
     &:global(.selected) {
-      background: rgba(19, 124, 189, 0.5);
+      background: var(--say);
     }
   }
 
-  .header {
-    background: var(--say);
-    border-radius: 15px;
+  .contentsWrapper {
+    padding: 0 var(--spacing-medium) var(--spacing-medium);
+  }
+
+  .blockHeader {
+    background: #fff;
+    border: none;
+    border-top: 2px solid var(--say);
+    box-shadow: none;
+    border-radius: 0;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     color: var(--shark);
-    display: flex;
     font-size: 12px;
-    line-height: 1;
-    height: 20px;
-    justify-content: space-between;
-    padding: 3px 8px 2px;
+    font-weight: bold;
+    justify-content: flex-start;
+    line-height: 1.08;
+    margin: 0;
+    min-height: 32px;
+    padding: 0 var(--spacing-medium);
+    position: relative;
+    width: 100%;
 
-    & > span + span {
-      margin-left: 4px;
+    &:hover {
+      background: #fff;
+      border: none;
+      border-top: 2px solid var(--say);
+      box-shadow: none;
     }
+  }
 
-    span {
-      display: inline-block;
-      vertical-align: middle;
-    }
+  .extraItems {
+    color: var(--reef);
+    display: block;
+    font-size: 7px;
+    margin-top: 2px;
+    text-align: left;
+    width: 100%;
   }
 
   .content {
-    font-size: 12px;
+    align-items: center;
+    background: #fff;
+    border-radius: 5px;
+    border: 1px solid var(--gray);
+    display: flex;
+    font-size: 8px;
+    flex-wrap: wrap;
+    height: 100%;
+    min-height: 18px;
     line-height: 1.4;
-    padding: 10px 0 0;
-    word-break: break-word;
-    word-wrap: break-word;
+    margin: 0;
+    padding: var(--spacing-small);
+    transition: background 0.3s, border 0.3s;
+    width: 100%;
+    word-break: break-all;
   }
 
-  .ports {
-    .in {
-      position: absolute;
-      bottom: 20%;
-      left: 0;
-      transform: translate(-50%, 0);
-    }
-    .out {
-      position: absolute;
-      bottom: 20%;
-      right: 0;
-      transform: translate(50%, 0);
-    }
-    .outRouting {
-      position: absolute;
-      right: 0;
-      transform: translate(50%, 25%);
-    }
+  .in {
+    position: absolute;
+    bottom: calc(50% - 2px);
+    left: 0;
+    transform: translate(-50%, 0);
+  }
+  .out {
+    position: absolute;
+    bottom: calc(50% - 2px);
+    right: 0;
+    transform: translate(50%, 0);
+  }
+  .outRouting {
+    position: absolute;
+    right: 0;
+    transform: translate(50%, 25%);
   }
 }

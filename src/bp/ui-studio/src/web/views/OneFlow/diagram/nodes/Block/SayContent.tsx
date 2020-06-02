@@ -1,16 +1,15 @@
 import { MarkdownContent } from 'botpress/shared'
+import { FormData } from 'common/typings'
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { FC, Fragment } from 'react'
 import withLanguage from '~/components/Util/withLanguage'
-import { getFormData } from '~/util/NodeFormData'
-import commonStyle from '~/views/FlowBuilder/common/style.scss'
 
 import style from '../style.scss'
 
-import { BlockNodeModel } from './index'
+import contentStyle from './style.scss'
 
 interface Props {
-  node: BlockNodeModel
+  content: FormData
   contentType: string
   data: any
   onClick: () => void
@@ -19,13 +18,9 @@ interface Props {
 }
 
 const SayNodeContent: FC<Props> = props => {
-  const { node, contentLang, defaultLanguage, onClick } = props
-  const { text, variations, contentType, markdown, items, ...nodeContent } = getFormData(
-    node.contents || [{}],
-    contentLang,
-    defaultLanguage
-  )
-  const variationsCount = variations?.filter(Boolean)?.length
+  const { content, onClick } = props
+
+  const variationsCount = (content.variations as FormData[])?.filter(v => v.item)?.length
 
   const renderCard = (item, index?) => {
     const { image, title, subtitle } = item
@@ -42,23 +37,27 @@ const SayNodeContent: FC<Props> = props => {
   }
 
   const renderContent = () => {
-    switch (contentType) {
+    switch (content.contentType) {
       case 'builtin_image':
       case 'builtin_card':
-        return renderCard(nodeContent)
+        return renderCard(content)
       case 'builtin_carousel':
-        return items?.map((item, index) => renderCard(item, index)) || null
+        return (content.cards as FormData[])?.map((item, index) => renderCard(item, index)) || null
       default:
         return (
-          <div className={style.text}>
-            <MarkdownContent markdown={markdown} content={text} />
-            {!!variationsCount && <span className={commonStyle.extraItems}>+ {variationsCount} variations</span>}
-          </div>
+          <Fragment>
+            <MarkdownContent markdown={content.markdown as boolean} content={content.text as string} />
+            {!!variationsCount && <span className={contentStyle.extraItems}>+ {variationsCount} variations</span>}
+          </Fragment>
         )
     }
   }
 
-  return <button onClick={onClick}>{renderContent()}</button>
+  return (
+    <button className={contentStyle.content} onClick={onClick}>
+      {renderContent()}
+    </button>
+  )
 }
 
 export default withLanguage(SayNodeContent)

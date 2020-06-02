@@ -106,7 +106,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
-    this.diagramEngine.registerNodeFactory(new BlockWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new BlockWidgetFactory(this.editContent.bind(this)))
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
@@ -251,9 +251,6 @@ class Diagram extends Component<Props> {
         ...point,
         type: 'block',
         contents: [{ contentType: 'builtin_text' }],
-        editContent: (node, index) => {
-          this.setState({ editingNodeContent: { node, index } })
-        },
         next: [defaultTransition],
         ...moreProps
       })
@@ -311,7 +308,7 @@ class Diagram extends Component<Props> {
         )}
         <MenuItem
           text={lang.tr('studio.flow.nodeType.sendMessage')}
-          onClick={wrap(this.add.block, point)}
+          onClick={wrap(this.add.block, point, { blockType: 'say' })}
           icon="comment"
         />
         <MenuItem
@@ -505,6 +502,10 @@ class Diagram extends Component<Props> {
     })
   }
 
+  editContent(node, index) {
+    this.setState({ editingNodeContent: { node, index } })
+  }
+
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
 
@@ -652,6 +653,33 @@ class Diagram extends Component<Props> {
     return target && target.model instanceof RouterNodeModel
   }
 
+  updateNodeContent(data) {
+    const {
+      node: { contents },
+      index
+    } = this.state.editingNodeContent
+    const newContents = [...contents]
+
+    newContents[index] = data
+    this.props.updateFlowNode({ contents: newContents })
+  }
+
+  deleteNodeContent() {
+    const {
+      node: { contents },
+      index
+    } = this.state.editingNodeContent
+    const newContents = [...contents.filter((content, contentIndex) => contentIndex !== index)]
+
+    if (newContents.length === 0) {
+      this.deleteSelectedElements()
+    } else {
+      this.props.updateFlowNode({ contents: newContents })
+    }
+
+    this.setState({ editingNodeContent: null })
+  }
+
   render() {
     return (
       <MainContent.Wrapper>
@@ -684,14 +712,12 @@ class Diagram extends Component<Props> {
 
         {this.state.editingNodeContent && (
           <ContentForm
-            deleteContent={() => console.log('test')}
+            deleteContent={() => this.deleteNodeContent()}
             editingContent={this.state.editingNodeContent.index}
             formData={this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]}
-            onUpdate={data => console.log(data)}
-            close={closingKey => {
-              setTimeout(() => {
-                this.setState({ editingNodeContent: null })
-              }, 200)
+            onUpdate={this.updateNodeContent.bind(this)}
+            close={() => {
+              this.setState({ editingNodeContent: null })
             }}
           />
         )}

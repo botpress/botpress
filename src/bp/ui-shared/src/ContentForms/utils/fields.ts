@@ -9,6 +9,13 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
         image: undefined,
         title: ''
       }
+    case 'builtin_text':
+      return {
+        markdown: true,
+        typingIndicator: true,
+        text: '',
+        variations: []
+      }
     case 'cards':
     case 'builtin_card':
       const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
@@ -46,6 +53,8 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
         buttonText: '',
         action: 'say'
       }
+    case 'variations':
+      return {item: ''}
     default:
       return {}
   }

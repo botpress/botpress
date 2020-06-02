@@ -65,11 +65,11 @@ const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, del
 
   const handleContentTypeChange = value => {
     contentType.current = value
+    setForceUpdate(!forceUpdate)
     onUpdate({ ...ContentForms.getEmptyFormData(value), contentType: value, id: formData?.id })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
-  console.log(contentTypesFields, contentType.current)
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose close={() => close(editingContent)}>
@@ -97,6 +97,7 @@ const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, del
         </div>
         {!!contentFields && (
           <ContentForms.Form
+            bp={{ axios, mediaPath: `${window.BOT_API_PATH}/media` }}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}

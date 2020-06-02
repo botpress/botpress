@@ -1292,6 +1292,7 @@ declare module 'botpress/sdk' {
     | 'skill-call'
     | 'listen'
     | 'say_something'
+    | 'block'
     | 'success'
     | 'failure'
     | 'trigger'
@@ -1357,6 +1358,11 @@ declare module 'botpress/sdk' {
       /** Every properties required by the content type, including translations */
       formData: object
     }
+    contents?: {
+      contentType: string
+      /** Every properties required by the content type, including translations */
+      formData: object
+    }[]
   }
 
   export interface ActionBuilderProps {
