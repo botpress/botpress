@@ -54,7 +54,7 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
         action: 'say'
       }
     case 'variations':
-      return {item: ''}
+      return { item: '' }
     default:
       return {}
   }
