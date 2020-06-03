@@ -112,7 +112,7 @@ export function checkInfoReceived() {
 }
 
 export function getServerFeedback() {
-  const pkgStr = window.localStorage.getItem('feedBackToSend')
+  const pkgStr = window.localStorage.getItem('feedbackToSend')
   let packages: Array<object> = []
   if (pkgStr !== null) {
     packages = JSON.parse(pkgStr)
@@ -130,22 +130,22 @@ export function feedback(pkg, feedBacks) {
     .then((res) => {
       if (index !== -1) {
         feedBacks.splice(index, 1)
-        window.localStorage.setItem('feedBackToSend', JSON.stringify(feedBacks))
+        window.localStorage.setItem('feedbackToSend', JSON.stringify(feedBacks))
       }
       console.log(res)
     })
     .catch((err) => {
       if (index === -1) {
         feedBacks.push(pkg)
-        window.localStorage.setItem('feedBackToSend', JSON.stringify(feedBacks))
+        window.localStorage.setItem('feedbackToSend', JSON.stringify(feedBacks))
       }
       console.log(err)
     })
 }
 
 export function sendServerPackage() {
-  if (window.localStorage.getItem('feedBackToSend') === null) {
-    window.localStorage.setItem('feedBackToSend', JSON.stringify([]))
+  if (window.localStorage.getItem('feedbackToSend') === null) {
+    window.localStorage.setItem('feedbackToSend', JSON.stringify([]))
   }
 
   const feedBacks = getServerFeedback()
