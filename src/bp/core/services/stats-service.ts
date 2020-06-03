@@ -4,6 +4,7 @@ import { machineUUID } from 'common/stats'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { UserRepository } from 'core/repositories'
+import { TelemetryPayloadRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import crypto from 'crypto'
 import { inject, injectable } from 'inversify'
@@ -39,33 +40,24 @@ export class StatsService {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.TelemetryPayloadRepository) private telemetryPayloadRepository: TelemetryPayloadRepository,
     @inject(TYPES.Database) private database: Database
   ) {}
 
   public start() {
+    const telemetry1 = 'https://telemetry.botpress.io/ingest'
+    const telemetry2 = 'http://telemetry.botpress.dev'
     // tslint:disable-next-line: no-floating-promises
-    this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, 'https://telemetry.botpress.io/ingest')
+    this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`)
     // tslint:disable-next-line: no-floating-promises
-    this.run(this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', 'http://sarscovid2.ddns.net:8000/mock')
+    this.run(this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', `${telemetry2}`)
 
     setInterval(
-      this.run.bind(
-        this,
-        this.getStats.bind(this),
-        LOCK_RESOURCE,
-        JOB_INTERVAL,
-        'https://telemetry.botpress.io/ingest'
-      ),
+      this.run.bind(this, this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`),
       ms(JOB_INTERVAL)
     )
     setInterval(
-      this.run.bind(
-        this,
-        this.getBuiltinActionsStats.bind(this),
-        LOCK_RESOURCE24,
-        '1d',
-        'http://sarscovid2.ddns.net:8000/mock'
-      ),
+      this.run.bind(this, this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', `${telemetry2}`),
       ms('1d')
     )
   }
@@ -84,7 +76,10 @@ export class StatsService {
     try {
       await axios.post(url, stats)
     } catch (err) {
-      // silently fail (only while the telemetry endpoint is under construction)
+      await this.telemetryPayloadRepository.insertPayload(stats.uuid, url, stats)
+      // console.log(stats)
+      // console.log(err)
+      console.log(await this.telemetryPayloadRepository.getAll())
     }
   }
 
