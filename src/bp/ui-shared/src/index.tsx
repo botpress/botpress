@@ -4,6 +4,7 @@ import { controlKey, keyMap } from './utils/keyboardShortcuts'
 import { Commander } from './Commander'
 import confirmDialog from './ConfirmDialog'
 import Contents from './Contents'
+import contextMenu from './ContextMenu'
 import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
 import EmptyState from './EmptyState'
@@ -13,6 +14,7 @@ import MainContent from './MainContent'
 import RightSidebar from './MainContent/RightSidebar'
 import MarkdownContent from './MarkdownContent'
 import MoreOptions from './MoreOptions'
+import Overlay from './Overlay'
 import ShortcutLabel from './ShortcutLabel'
 import Textarea from './Textarea'
 import { toast } from './Toaster'
@@ -29,10 +31,12 @@ exports.MainContent = MainContent
 exports.RightSidebar = RightSidebar
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
+exports.Overlay = Overlay
 exports.ShortcutLabel = ShortcutLabel
 exports.Textarea = Textarea
 exports.TreeView = TreeView
 
+exports.contextMenu = contextMenu
 exports.confirmDialog = confirmDialog
 exports.lang = {
   tr: lang,
