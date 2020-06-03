@@ -12,6 +12,7 @@ export interface TelemetryPayloadRepository {
   insertPayload(uuid: string, url: string, payload: JSON): Promise<void>
   removePayload(uuid: string): Promise<any>
   getAll(): Promise<any>
+  getN(n: number): Promise<any>
 }
 
 @injectable()
@@ -19,6 +20,13 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
   private readonly tableName = 'telemetry_table'
 
   constructor(@inject(TYPES.Database) private database: Database) {}
+
+  async getN(n: number): Promise<any> {
+    return await this.database.knex
+      .from(this.tableName)
+      .select('*')
+      .limit(n)
+  }
 
   async getAll(): Promise<any> {
     return await this.database.knex.from(this.tableName).select('*')
@@ -37,6 +45,9 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
   }
 
   async removePayload(uuid: string): Promise<any> {
-    throw new Error('Method not implemented.')
+    await this.database
+      .knex(this.tableName)
+      .where({ uuid: uuid })
+      .del()
   }
 }
