@@ -112,7 +112,7 @@ export function checkInfoReceived() {
 }
 
 export function getServerFeedback() {
-  const pkgStr = window.localStorage.getItem('packageToSend')
+  const pkgStr = window.localStorage.getItem('feedBackToSend')
   let packages: Array<object> = []
   if (pkgStr !== null) {
     packages = JSON.parse(pkgStr)
@@ -120,55 +120,64 @@ export function getServerFeedback() {
   return packages
 }
 
-export function feedback(pkg) {
+export function feedback(pkg, feedBacks) {
+  const index = feedBacks.findIndex((obj) => {
+    return obj['uuid'] == pkg.uuid
+  })
+
   axios
     .post(serverUrl, pkg, corsConfig)
     .then((res) => {
-      const packages = getServerFeedback()
-      if (packages.indexOf(pkg) !== -1) {
-        packages.splice(packages.indexOf(pkg), 1)
-        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
+      if (index !== -1) {
+        feedBacks.splice(index, 1)
+        window.localStorage.setItem('feedBackToSend', JSON.stringify(feedBacks))
       }
       console.log(res)
     })
     .catch((err) => {
-      const packages = getServerFeedback()
-      if (packages.indexOf(pkg) === -1) {
-        packages.push(pkg)
-        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
+      if (index === -1) {
+        feedBacks.push(pkg)
+        window.localStorage.setItem('feedBackToSend', JSON.stringify(feedBacks))
       }
       console.log(err)
     })
 }
 
 export function sendServerPackage() {
-  if (window.localStorage.getItem('packageToSend') === null) {
-    window.localStorage.setItem('packageToSend', JSON.stringify([]))
+  if (window.localStorage.getItem('feedBackToSend') === null) {
+    window.localStorage.setItem('feedBackToSend', JSON.stringify([]))
   }
 
-  const packages = getServerFeedback()
-  packages.forEach((value, index) => {
-    feedback(value)
+  const feedBacks = getServerFeedback()
+
+  feedBacks.forEach((value, index) => {
+    feedback(value, feedBacks)
   })
 
-  axios
+  let feedBackUUID = ''
+
+  const poster = axios
     .get(serverUrl, corsConfig)
     .then((res) => {
       if (_.has(res, 'data')) {
         const payload = res.data.payload
         const url = res.data.url
-        axios
-          .post(url, payload, corsConfig)
-          .then((res) => {
-            feedback({ status: 'OK', data: payload })
-          })
-          .catch((err) => {
-            feedback({ status: 'INACCESSIBLE', data: payload })
-            console.log(err)
-          })
+
+        feedBackUUID = payload.uuid
+
+        return axios.post(url, payload, corsConfig)
       }
     })
     .catch((err) => {
+      console.log(err)
+    })
+
+  poster
+    .then((res) => {
+      feedback({ status: 'OK', uuid: feedBackUUID }, feedBacks)
+    })
+    .catch((err) => {
+      feedback({ status: 'INACCESSIBLE', uuid: feedBackUUID }, feedBacks)
       console.log(err)
     })
 }
