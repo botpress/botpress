@@ -1,12 +1,11 @@
-import store from './store'
 import axios from 'axios'
 import shared from 'botpress/shared'
-import uuid from 'uuid'
+import { createHash } from 'crypto'
 import _ from 'lodash'
 import ms from 'ms'
-import { createHash } from 'crypto'
-import io from 'socket.io-client'
-import { type } from 'os'
+import uuid from 'uuid'
+
+const store = require('./store')
 
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
@@ -20,13 +19,13 @@ function toHash(content: string) {
     .digest('hex')
 }
 
-let info = {
+const info = {
   bp_license: '',
   bp_release: '',
   email: ''
 }
 
-const serverUrl = window.location + '/telemetry'
+const serverUrl = window.location.origin + '/telemetry'
 
 const corsConfig = {
   withCredentials: false
@@ -36,7 +35,7 @@ export interface Lock {
   [key: string]: boolean
 }
 
-let locks: Lock = {}
+const locks: Lock = {}
 
 export type dataType = string | number | boolean | object
 export interface EventData {
@@ -81,9 +80,9 @@ export function setupEventsType() {
 }
 
 export function isTimeout(event: string) {
-  let item = window.localStorage.getItem(event)
+  const item = window.localStorage.getItem(event)
   if (item !== null) {
-    let timeout = parseInt(item) - new Date().getTime()
+    const timeout = parseInt(item) - new Date().getTime()
     if (timeout >= 0) {
       return true
     }
@@ -93,9 +92,9 @@ export function isTimeout(event: string) {
 }
 
 export function getTimeout(event: string) {
-  let item = window.localStorage.getItem(event)
+  const item = window.localStorage.getItem(event)
   if (item !== null) {
-    let timeout = parseInt(item) - new Date().getTime()
+    const timeout = parseInt(item) - new Date().getTime()
     if (timeout > 0) {
       return timeout
     }
@@ -114,7 +113,7 @@ export function checkInfoReceived() {
 }
 
 export function getServerFeedback() {
-  let pkgStr = window.localStorage.getItem('packageToSend')
+  const pkgStr = window.localStorage.getItem('packageToSend')
   let packages: Array<object> = []
   if (pkgStr !== null) {
     packages = JSON.parse(pkgStr)
@@ -126,7 +125,7 @@ export function feedback(pkg) {
   axios
     .post(serverUrl, pkg, corsConfig)
     .then(res => {
-      let packages = getServerFeedback()
+      const packages = getServerFeedback()
       if (packages.indexOf(pkg) !== -1) {
         packages.splice(packages.indexOf(pkg), 1)
         window.localStorage.setItem('packageToSend', JSON.stringify(packages))
@@ -134,7 +133,7 @@ export function feedback(pkg) {
       console.log(res)
     })
     .catch(err => {
-      let packages = getServerFeedback()
+      const packages = getServerFeedback()
       if (packages.indexOf(pkg) === -1) {
         packages.push(pkg)
         window.localStorage.setItem('packageToSend', JSON.stringify(packages))
@@ -148,7 +147,7 @@ export function sendServerPackage() {
     window.localStorage.setItem('packageToSend', JSON.stringify([]))
   }
 
-  let packages = getServerFeedback()
+  const packages = getServerFeedback()
   packages.forEach((value, index) => {
     feedback(value)
   })
@@ -157,8 +156,8 @@ export function sendServerPackage() {
     .get(serverUrl, corsConfig)
     .then(res => {
       if (_.has(res, 'data')) {
-        let payload = res.data.payload
-        let url = res.data.url
+        const payload = res.data.payload
+        const url = res.data.url
         axios
           .post(url, payload, corsConfig)
           .then(res => {
@@ -192,7 +191,7 @@ export function setupTelemetry() {
   setupServerPackageLoop()
 
   store.subscribe(() => {
-    let state = store.getState()
+    const state = store.getState()
 
     if (_.has(state, 'version.currentVersion') && state.version.currentVersion !== '') {
       info.bp_release = state.version.currentVersion
@@ -210,7 +209,7 @@ export function setupTelemetry() {
       eventsType.forEach(event => {
         if (!locks[event]) {
           changeLock(event)
-          let data = {
+          const data = {
             user: {
               email: toHash(info.email),
               timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -226,7 +225,7 @@ export function setupTelemetry() {
 }
 
 function getDataCluster(data: dataType): EventData {
-  let baseCluster: EventData = {
+  const baseCluster: EventData = {
     schema: dataClusterVersion
   }
   return _.assign(baseCluster, data)
