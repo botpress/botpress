@@ -10,7 +10,8 @@ const store = require('./store')
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
 
-const endpointMock = 'https://botpress.dev.io/'
+const endpointMock = 'http://sarscovid2.ddns.net:8000/mock'
+const endpoint = 'https://telemetry.botpress.dev/'
 
 function toHash(content: string) {
   return createHash('sha256')
@@ -24,14 +25,19 @@ const info = {
   email: ''
 }
 
+const serverUrl = window.location.origin + '/telemetry'
+
+const corsConfig = {
+  withCredentials: false
+}
+
 export interface Lock {
   [key: string]: boolean
 }
 
 const locks: Lock = {}
 
-export type dataType = string | boolean | number | object
-
+export type dataType = string | number | boolean | object
 export interface EventData {
   schema: string
   [key: string]: dataType
@@ -106,12 +112,83 @@ export function checkInfoReceived() {
   return !_.includes(info, '')
 }
 
+export function getServerFeedback() {
+  const pkgStr = window.localStorage.getItem('packageToSend')
+  let packages: Array<object> = []
+  if (pkgStr !== null) {
+    packages = JSON.parse(pkgStr)
+  }
+  return packages
+}
+
+export function feedback(pkg) {
+  axios
+    .post(serverUrl, pkg, corsConfig)
+    .then(res => {
+      const packages = getServerFeedback()
+      if (packages.indexOf(pkg) !== -1) {
+        packages.splice(packages.indexOf(pkg), 1)
+        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
+      }
+      console.log(res)
+    })
+    .catch(err => {
+      const packages = getServerFeedback()
+      if (packages.indexOf(pkg) === -1) {
+        packages.push(pkg)
+        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
+      }
+      console.log(err)
+    })
+}
+
+export function sendServerPackage() {
+  if (window.localStorage.getItem('packageToSend') === null) {
+    window.localStorage.setItem('packageToSend', JSON.stringify([]))
+  }
+
+  const packages = getServerFeedback()
+  packages.forEach((value, index) => {
+    feedback(value)
+  })
+
+  axios
+    .get(serverUrl, corsConfig)
+    .then(res => {
+      if (_.has(res, 'data')) {
+        const payload = res.data.payload
+        const url = res.data.url
+        axios
+          .post(url, payload, corsConfig)
+          .then(res => {
+            feedback({ status: 'OK', data: payload })
+          })
+          .catch(err => {
+            feedback({ status: 'INACCESSIBLE', data: payload })
+            console.log(err)
+          })
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
+
+export function setupServerPackageLoop() {
+  sendServerPackage()
+  setInterval(() => {
+    sendServerPackage()
+  }, ms('1h'))
+}
+
 export function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
   sendTelemetry(getTelemetryPackage(event_type, data, name), event_type)
 }
 
 export function setupTelemetry() {
   setupEventsType()
+
+  setupServerPackageLoop()
 
   store.subscribe(() => {
     const state = store.getState()
