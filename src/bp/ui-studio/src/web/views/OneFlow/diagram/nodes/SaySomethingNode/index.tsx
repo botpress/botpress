@@ -1,3 +1,4 @@
+import { contextMenu } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -9,6 +10,7 @@ import { showHeader } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import { BaseNodeModel } from '../../../../FlowBuilder/diagram/nodes/BaseNodeModel'
 
 import SayNodeContent from './SayNodeContent'
+import { Menu, MenuItem } from '@blueprintjs/core'
 
 export class SaySomethingWidget extends Component<{
   node: SaySomethingNodeModel
@@ -22,6 +24,15 @@ export class SaySomethingWidget extends Component<{
     return (
       <div
         onClick={() => this.props.diagramEngine.flowBuilder.props.switchFlowNode(this.props.node.id)}
+        onContextMenu={e => {
+          contextMenu(
+            e,
+            <Menu>
+              <MenuItem text="Rename" onClick={() => console.log('delete')} />
+              <MenuItem text="Delete" onClick={() => console.log('delete')} />
+            </Menu>
+          )
+        }}
         className={classnames(style.baseNode, style.nodeSaySomething, { [style.highlightedNode]: node.isHighlighted })}
       >
         {showHeader({ nodeType: 'Say', nodeName: node.name, isStartNode: node.isStartNode })}
