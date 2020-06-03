@@ -14,9 +14,7 @@ const endpointMock = 'http://sarscovid2.ddns.net:8000/mock'
 const endpoint = 'https://telemetry.botpress.dev/'
 
 function toHash(content: string) {
-  return createHash('sha256')
-    .update(content)
-    .digest('hex')
+  return createHash('sha256').update(content).digest('hex')
 }
 
 const info = {
@@ -73,7 +71,7 @@ export function setupLockTimeout(event: string) {
 }
 
 export function setupEventsType() {
-  eventsType.forEach(it => {
+  eventsType.forEach((it) => {
     addLock(it)
     setupLockTimeout(it)
   })
@@ -124,7 +122,7 @@ export function getServerFeedback() {
 export function feedback(pkg) {
   axios
     .post(serverUrl, pkg, corsConfig)
-    .then(res => {
+    .then((res) => {
       const packages = getServerFeedback()
       if (packages.indexOf(pkg) !== -1) {
         packages.splice(packages.indexOf(pkg), 1)
@@ -132,7 +130,7 @@ export function feedback(pkg) {
       }
       console.log(res)
     })
-    .catch(err => {
+    .catch((err) => {
       const packages = getServerFeedback()
       if (packages.indexOf(pkg) === -1) {
         packages.push(pkg)
@@ -154,22 +152,22 @@ export function sendServerPackage() {
 
   axios
     .get(serverUrl, corsConfig)
-    .then(res => {
+    .then((res) => {
       if (_.has(res, 'data')) {
         const payload = res.data.payload
         const url = res.data.url
         axios
           .post(url, payload, corsConfig)
-          .then(res => {
+          .then((res) => {
             feedback({ status: 'OK', data: payload })
           })
-          .catch(err => {
+          .catch((err) => {
             feedback({ status: 'INACCESSIBLE', data: payload })
             console.log(err)
           })
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err)
     })
 }
@@ -206,7 +204,7 @@ export function setupTelemetry() {
     }
 
     if (checkInfoReceived()) {
-      eventsType.forEach(event => {
+      eventsType.forEach((event) => {
         if (!locks[event]) {
           changeLock(event)
           const data = {
@@ -257,10 +255,10 @@ function sendTelemetry(data: TelemetryPackage, event: string) {
         ]
       }
     })
-    .then(res => {
+    .then((res) => {
       addTimeout(event, ms('8h'))
     })
-    .catch(err => {
+    .catch((err) => {
       changeLock(event)
     })
 }
