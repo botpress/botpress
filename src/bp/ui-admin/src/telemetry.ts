@@ -23,7 +23,7 @@ const info = {
   email: ''
 }
 
-const serverUrl = 'http://localhost:3010' + '/telemetry'
+const serverUrl = window.location.origin + '/telemetry'
 
 const corsConfig = {
   withCredentials: false
