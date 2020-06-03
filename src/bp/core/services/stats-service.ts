@@ -77,9 +77,6 @@ export class StatsService {
       await axios.post(url, stats)
     } catch (err) {
       await this.telemetryPayloadRepository.insertPayload(stats.uuid, url, stats)
-      // console.log(stats)
-      // console.log(err)
-      console.log(await this.telemetryPayloadRepository.getAll())
     }
   }
 
