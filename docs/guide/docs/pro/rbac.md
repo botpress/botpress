@@ -11,7 +11,7 @@ By default, Botpress ships with three roles (administrator, developer and conten
 
 ## Assigning a role to a collaborator
 
-From the Administration dashboard, navigate to the "Collaborators" tab and click the "more" arrow on any collaborator to change its role to an existing role.
+From the Administration dashboard, navigate to the "Collaborators" tab and click the **Action** button on any collaborator to change its role to an existing role.
 
 ![RBAC](assets/rbac.png)
 
@@ -29,7 +29,7 @@ For example the following rules:
 2. `+w` on `bot.content`
 3. `-r` on `bot.flows`
 
-Means the user will _see_ everything but the flows, and won't be able to _change_ anything but flows.
+Means the user will _see_ everything but the flows, and won't be able to _change_ anything but content.
 
 ### Operations (op)
 
