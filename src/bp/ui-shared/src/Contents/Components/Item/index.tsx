@@ -1,16 +1,14 @@
-import { FormData } from 'botpress/common/typings'
 import cx from 'classnames'
+import { FormData } from 'common/typings'
 import React, { FC, Fragment } from 'react'
 
+import { lang } from '../../../translations'
+import MarkdownContent from '../../../MarkdownContent'
+
 import style from './style.scss'
+import { ItemProps } from './typings'
 
-interface Props {
-  content: FormData
-  active: boolean
-  onEdit: () => void
-}
-
-const ContentAnswer: FC<Props> = ({ content, onEdit, active }) => {
+const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
   const renderCardOrImg = ({ image, title }: FormData): JSX.Element => {
     return (
       <Fragment>
@@ -38,21 +36,30 @@ const ContentAnswer: FC<Props> = ({ content, onEdit, active }) => {
         return renderCardOrImg(content.cards?.[0])
       case 'builtin_single-choice':
         return ellipsisText((content.suggestions as FormData[]).map(suggestion => suggestion.label).join(' · '))
-
       default:
-        return null
+        const variationsCount = (content.variations as FormData[])?.filter(v => v.item)?.length
+        return (
+          <Fragment>
+            <MarkdownContent markdown={content.markdown as boolean} content={content.text as string} />
+            {!!variationsCount && (
+              <span className={style.extraItems}>
+                + {variationsCount} {lang('module.builtin.types.text.alternatives')}
+              </span>
+            )}
+          </Fragment>
+        )
     }
   }
 
   return (
     <button
-      className={cx(style.contentWrapper, {
-        [style.active]: active,
+      className={cx('content-wrapper', style.contentWrapper, {
+        [`${style.active} active`]: active,
         [style.carousel]: content.contentType === 'builtin_carousel'
       })}
       onClick={onEdit}
     >
-      <span className={style.content}>{renderContent()}</span>
+      <span className={cx(style.content, 'content')}>{renderContent()}</span>
     </button>
   )
 }

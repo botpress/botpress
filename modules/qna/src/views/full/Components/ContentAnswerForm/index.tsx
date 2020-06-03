@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import { FormData } from 'botpress/common/typings'
-import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
@@ -66,7 +66,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const handleContentTypeChange = value => {
     contentType.current = value
-    onUpdate({ ...ContentForms.getEmptyFormData(value), contentType: value, id: formData?.id })
+    onUpdate({ ...Contents.getEmptyFormData(value), contentType: value, id: formData?.id })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
@@ -96,7 +96,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
           )}
         </div>
         {contentFields && (
-          <ContentForms.Form
+          <Contents.Form
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             bp={bp}

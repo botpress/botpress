@@ -5,6 +5,7 @@ interface CssExports {
   'carousel': string;
   'content': string;
   'contentWrapper': string;
+  'extraItems': string;
   'img': string;
 }
 declare var cssExports: CssExports;

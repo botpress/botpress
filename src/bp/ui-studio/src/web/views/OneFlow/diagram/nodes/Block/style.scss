@@ -15,6 +15,22 @@
 
   .contentsWrapper {
     padding: 0 var(--spacing-medium) var(--spacing-medium);
+
+    :global {
+      .content-wrapper {
+        margin-right: 0 !important;
+
+        &:first-of-type {
+          margin-top: 0 !important;
+        }
+
+        &.active, &:hover {
+          .content {
+            background: #fff !important;
+          }
+        }
+      }
+    }
   }
 
   .blockHeader {
@@ -42,33 +58,6 @@
       border-top: 2px solid var(--say);
       box-shadow: none;
     }
-  }
-
-  .extraItems {
-    color: var(--reef);
-    display: block;
-    font-size: 7px;
-    margin-top: 2px;
-    text-align: left;
-    width: 100%;
-  }
-
-  .content {
-    align-items: center;
-    background: #fff;
-    border-radius: 5px;
-    border: 1px solid var(--gray);
-    display: flex;
-    font-size: 8px;
-    flex-wrap: wrap;
-    height: 100%;
-    min-height: 18px;
-    line-height: 1.4;
-    margin: 0;
-    padding: var(--spacing-small);
-    transition: background 0.3s, border 0.3s;
-    width: 100%;
-    word-break: break-all;
   }
 
   .in {

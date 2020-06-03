@@ -90,6 +90,7 @@ class Diagram extends Component<Props> {
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
   private manager: DiagramManager
+  private timeout
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
 
@@ -106,7 +107,9 @@ class Diagram extends Component<Props> {
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
-    this.diagramEngine.registerNodeFactory(new BlockWidgetFactory(this.editContent.bind(this)))
+    this.diagramEngine.registerNodeFactory(
+      new BlockWidgetFactory(this.editContent.bind(this), this.isContentSelected.bind(this))
+    )
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
@@ -503,7 +506,12 @@ class Diagram extends Component<Props> {
   }
 
   editContent(node, index) {
+    clearTimeout(this.timeout)
     this.setState({ editingNodeContent: { node, index } })
+  }
+
+  isContentSelected(node, index) {
+    return this.state.editingNodeContent?.node === node && this.state.editingNodeContent?.index === index
   }
 
   deleteSelectedElements() {
@@ -712,12 +720,15 @@ class Diagram extends Component<Props> {
 
         {this.state.editingNodeContent && (
           <ContentForm
+            customKey={`${this.state.editingNodeContent.node.name}${this.state.editingNodeContent.index}`}
             deleteContent={() => this.deleteNodeContent()}
             editingContent={this.state.editingNodeContent.index}
             formData={this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]}
             onUpdate={this.updateNodeContent.bind(this)}
             close={() => {
-              this.setState({ editingNodeContent: null })
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeContent: null })
+              }, 200)
             }}
           />
         )}

@@ -49,6 +49,7 @@
   "studio": {
     "content": {
       "cloneElements": "Clone selected elements",
+      "confirmChangeContentType": "Are you sure you want to change this content type? All fields will be erased.",
       "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Content Type",
       "createNew": "Create new {title}",
@@ -161,6 +162,7 @@
         "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",
+        "renameBlock": "Rename Block",
         "return": "Return",
         "saySomething": "Say Something",
         "theBotWill": "The bot will",

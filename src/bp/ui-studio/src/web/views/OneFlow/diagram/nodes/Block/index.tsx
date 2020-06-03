@@ -1,31 +1,50 @@
-import { Button } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { Button, ContextMenu, Menu, MenuItem } from '@blueprintjs/core'
+import { Contents, lang } from 'botpress/shared'
 import { FormData } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
-import { showHeader } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 
 import { BaseNodeModel } from '../../../../FlowBuilder/diagram/nodes/BaseNodeModel'
 
 import style from './style.scss'
-import SayContent from './SayContent'
 
 interface Props {
   node: BlockNodeModel
   editContent: (node, index) => void
+  isContentSelected: (node, index) => boolean
 }
 
-const BlockWidget: FC<Props> = ({ node, editContent }) => {
+const BlockWidget: FC<Props> = ({ node, editContent, isContentSelected }) => {
   const [expanded, setExpanded] = useState(false)
 
+  const handleContextMenu = e => {
+    console.log(e.currentTarget.getBoundingClientRect())
+    e.stopPropagation()
+    e.preventDefault()
+    ContextMenu.show(
+      <Menu>
+        <MenuItem text={lang.tr('studio.content.renameBlock')} onClick={() => console.log('delete')} />
+        <MenuItem text={lang.tr('delete')} onClick={() => console.log('delete')} />
+      </Menu>,
+      { left: e.clientX, top: e.clientY }
+    )
+  }
+
   return (
-    <div className={style.nodeWrapper}>
+    <div
+      className={style.nodeWrapper}
+      onContextMenu={e => {
+        e.stopPropagation()
+        e.preventDefault()
+      }}
+    >
       <Button
         icon={expanded ? 'chevron-down' : 'chevron-right'}
         onClick={() => setExpanded(!expanded)}
         className={style.blockHeader}
+        onContextMenu={handleContextMenu}
       >
         {lang.tr('studio.flow.node.chatbotSays')}
         <StandardPortWidget name="in" node={node} className={style.in} />
@@ -34,11 +53,11 @@ const BlockWidget: FC<Props> = ({ node, editContent }) => {
       {expanded && (
         <div className={style.contentsWrapper}>
           {node.contents?.map((content, index) => (
-            <SayContent
+            <Contents.Item
+              active={isContentSelected(node, index)}
               key={index}
-              onClick={() => editContent?.(node, index)}
+              onEdit={() => editContent?.(node, index)}
               content={content}
-              contentType={content.contentType}
             />
           ))}
         </div>
@@ -80,15 +99,17 @@ export class BlockNodeModel extends BaseNodeModel {
 
 export class BlockWidgetFactory extends AbstractNodeFactory {
   private editContent: (node, index) => void
+  private isContentSelected: (node, index) => boolean
 
-  constructor(editContent: (node, index) => void) {
+  constructor(editContent, isContentSelected) {
     super('block')
 
     this.editContent = editContent
+    this.isContentSelected = isContentSelected
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: BlockNodeModel) {
-    return <BlockWidget node={node} editContent={this.editContent} />
+    return <BlockWidget node={node} editContent={this.editContent} isContentSelected={this.isContentSelected} />
   }
 
   getNewInstance() {

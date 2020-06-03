@@ -2,9 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'blockHeader': string;
-  'content': string;
   'contentsWrapper': string;
-  'extraItems': string;
   'in': string;
   'nodeWrapper': string;
   'out': string;

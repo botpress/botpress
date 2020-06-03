@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { FormData } from 'common/typings'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
@@ -10,6 +10,7 @@ import style from './style.scss'
 interface Props {
   deleteContent: () => void
   editingContent: number
+  customKey: string
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   formData: FormData
@@ -29,12 +30,13 @@ const fetchReducer = (state, action) => {
   }
 }
 
-const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, deleteContent }) => {
+const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, onUpdate, deleteContent }) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
     contentTypesFields: {}
   })
   const contentType = useRef(formData?.contentType || 'builtin_text')
+  const [isConfirming, setIsConfirming] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
   const shownCategories = ['builtin_text', 'builtin_image', 'builtin_carousel', 'builtin_card', 'builtin_single-choice']
@@ -52,7 +54,7 @@ const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, del
   useEffect(() => {
     contentType.current = formData?.contentType || 'builtin_text'
     setForceUpdate(!forceUpdate)
-  }, [editingContent])
+  }, [editingContent, customKey])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -65,15 +67,14 @@ const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, del
 
   const handleContentTypeChange = value => {
     contentType.current = value
-    setForceUpdate(!forceUpdate)
-    onUpdate({ ...ContentForms.getEmptyFormData(value), contentType: value, id: formData?.id })
+    onUpdate({ ...Contents.getEmptyFormData(value), contentType: value, id: formData?.id })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose close={() => close(editingContent)}>
-      <Fragment key={`${contentType.current}-${editingContent}`}>
+    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingContent)}>
+      <Fragment key={`${contentType.current}-${customKey || editingContent}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title="Say" />
@@ -89,6 +90,11 @@ const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, del
               items={contentTypes}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
+              confirmChange={{
+                message: lang.tr('studio.content.confirmChangeContentType'),
+                acceptLabel: lang.tr('change'),
+                callback: setIsConfirming
+              }}
               onChange={option => {
                 handleContentTypeChange(option.value)
               }}
@@ -96,7 +102,7 @@ const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, del
           )}
         </div>
         {!!contentFields && (
-          <ContentForms.Form
+          <Contents.Form
             bp={{ axios, mediaPath: `${window.BOT_API_PATH}/media` }}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}

@@ -4,6 +4,11 @@ export interface Option {
 }
 
 export interface DropdownProps {
+  confirmChange?: {
+    message: string
+    acceptLabel?: string
+    callback?: (value?: any) => void
+  }
   filterable?: boolean
   className?: string
   items: Option[]
