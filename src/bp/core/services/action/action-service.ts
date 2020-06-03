@@ -32,7 +32,8 @@ import {
   getBaseLookupPaths,
   isTrustedAction,
   prepareRequire,
-  prepareRequireTester
+  prepareRequireTester,
+  runOutsideVm
 } from './utils'
 import { VmRunner } from './vm'
 
@@ -284,7 +285,7 @@ export class ScopedActionService {
   ) {
     const { actionName, actionArgs, incomingEvent, runType } = props
 
-    const { code, _require, dirPath } = await this.loadLocalAction(actionName)
+    const { code, _require, dirPath, action } = await this.loadLocalAction(actionName)
 
     const args = {
       event: incomingEvent,
@@ -302,6 +303,9 @@ export class ScopedActionService {
         return this._runWithoutVm(code, { bp: await createForAction(), ...args }, _require)
       }
       case 'legacy': {
+        if (runOutsideVm(action.scope)) {
+          return this._runWithoutVm(code, { bp: await createForAction(), ...args }, _require)
+        }
         // bp is created here because it cannot be created in the Local Action Server thread
         return this._runInVm(code, dirPath, { bp: await createForAction(), ...args }, _require)
       }
@@ -352,11 +356,11 @@ export class ScopedActionService {
       await this._checkActionRequires(actionName)
     }
 
-    const { code, dirPath, lookups } = await this._getActionDetails(actionName)
+    const { code, dirPath, lookups, action } = await this._getActionDetails(actionName)
 
     const _require = prepareRequire(dirPath, lookups)
 
-    return { code, _require, dirPath }
+    return { code, _require, dirPath, action }
   }
 
   private _listenForCacheInvalidation() {
