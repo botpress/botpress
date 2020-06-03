@@ -1,10 +1,11 @@
-import store from './store'
 import axios from 'axios'
 import shared from 'botpress/shared'
-import uuid from 'uuid'
+import { createHash } from 'crypto'
 import _ from 'lodash'
 import ms from 'ms'
-import { createHash } from 'crypto'
+import uuid from 'uuid'
+
+const store = require('./store')
 
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
@@ -17,7 +18,7 @@ function toHash(content: string) {
     .digest('hex')
 }
 
-let info = {
+const info = {
   bp_license: '',
   bp_release: '',
   email: ''
@@ -27,7 +28,7 @@ export interface Lock {
   [key: string]: boolean
 }
 
-let locks: Lock = {}
+const locks: Lock = {}
 
 export type dataType = string | boolean | number | object
 
@@ -73,9 +74,9 @@ export function setupEventsType() {
 }
 
 export function isTimeout(event: string) {
-  let item = window.localStorage.getItem(event)
+  const item = window.localStorage.getItem(event)
   if (item !== null) {
-    let timeout = parseInt(item) - new Date().getTime()
+    const timeout = parseInt(item) - new Date().getTime()
     if (timeout >= 0) {
       return true
     }
@@ -85,9 +86,9 @@ export function isTimeout(event: string) {
 }
 
 export function getTimeout(event: string) {
-  let item = window.localStorage.getItem(event)
+  const item = window.localStorage.getItem(event)
   if (item !== null) {
-    let timeout = parseInt(item) - new Date().getTime()
+    const timeout = parseInt(item) - new Date().getTime()
     if (timeout > 0) {
       return timeout
     }
@@ -113,7 +114,7 @@ export function setupTelemetry() {
   setupEventsType()
 
   store.subscribe(() => {
-    let state = store.getState()
+    const state = store.getState()
 
     if (_.has(state, 'version.currentVersion') && state.version.currentVersion !== '') {
       info.bp_release = state.version.currentVersion
@@ -131,7 +132,7 @@ export function setupTelemetry() {
       eventsType.forEach(event => {
         if (!locks[event]) {
           changeLock(event)
-          let data = {
+          const data = {
             user: {
               email: toHash(info.email),
               timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -147,7 +148,7 @@ export function setupTelemetry() {
 }
 
 function getDataCluster(data: dataType): EventData {
-  let baseCluster: EventData = {
+  const baseCluster: EventData = {
     schema: dataClusterVersion
   }
   return _.assign(baseCluster, data)
