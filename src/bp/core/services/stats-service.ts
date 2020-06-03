@@ -75,7 +75,6 @@ export class StatsService {
     if (lock) {
       debug('Acquired lock')
       const stats = await job()
-      console.log(JSON.stringify(stats))
       await this.sendStats(url, stats)
     }
   }

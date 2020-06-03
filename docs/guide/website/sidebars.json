@@ -4,6 +4,7 @@
     "Getting Started": ["introduction", "installation", "quickstart", "updating", "troubleshoot"],
     "Main Concepts": [
       "main/overview",
+      "main/glossary",
       "main/content",
       "main/dialog",
       "main/code",
