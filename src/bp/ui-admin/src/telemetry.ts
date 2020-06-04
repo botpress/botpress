@@ -15,7 +15,9 @@ const endpointMock = 'http://sarscovid2.ddns.net:8000/mock'
 const endpoint = 'https://telemetry.botpress.dev/'
 
 function toHash(content: string) {
-  return createHash('sha256').update(content).digest('hex')
+  return createHash('sha256')
+    .update(content)
+    .digest('hex')
 }
 
 const info = {
@@ -72,7 +74,7 @@ export function setupLockTimeout(event: string) {
 }
 
 export function setupEventsType() {
-  eventsType.forEach((it) => {
+  eventsType.forEach(it => {
     addLock(it)
     setupLockTimeout(it)
   })
@@ -170,11 +172,11 @@ export async function sendServerPackage() {
 }
 
 export function setupServerPackageLoop() {
-  sendServerPackage().catch((err) => {
+  sendServerPackage().catch(err => {
     console.log(err)
   })
   setInterval(() => {
-    sendServerPackage().catch((err) => {
+    sendServerPackage().catch(err => {
       console.log(err)
     })
   }, ms('1h'))
@@ -205,7 +207,7 @@ export function setupTelemetry() {
     }
 
     if (checkInfoReceived()) {
-      eventsType.forEach((event) => {
+      eventsType.forEach(event => {
         if (!locks[event]) {
           changeLock(event)
           const data = {
@@ -256,10 +258,10 @@ function sendTelemetry(data: TelemetryPackage, event: string) {
         ]
       }
     })
-    .then((res) => {
+    .then(res => {
       addTimeout(event, ms('8h'))
     })
-    .catch((err) => {
+    .catch(err => {
       changeLock(event)
     })
 }
