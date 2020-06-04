@@ -1155,6 +1155,7 @@ declare module 'botpress/sdk' {
      * The jsonSchema used to validate the form data of the Content Elements.
      */
     jsonSchema: object
+    newSchema?: object
     uiSchema?: object
 
     /**
