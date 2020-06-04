@@ -38,3 +38,5 @@ export const mergeDataForCharts = (metrics: MetricEntry[]) => {
 
   return _.sortBy(chartsData, 'time')
 }
+
+export const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${Math.round(value)}${suffix}`)

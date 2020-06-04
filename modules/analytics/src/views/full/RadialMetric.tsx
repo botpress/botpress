@@ -4,6 +4,7 @@ import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from '
 
 import { Extras } from './index'
 import style from './style.scss'
+import { getNotNaN } from './utils'
 
 interface Props extends Extras {
   name: string
@@ -31,7 +32,7 @@ const RadialMetric: FC<Props> = props => {
           <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
           <RadialBar background clockWise dataKey="value" cornerRadius={circleSize / 2} fill="#0F9960" />
           <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className={style.radialChartLabel}>
-            {value}%
+            {getNotNaN(value, '%')}
           </text>
         </RadialBarChart>
       </ResponsiveContainer>
