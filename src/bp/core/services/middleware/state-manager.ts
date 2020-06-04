@@ -93,12 +93,13 @@ export class StateManager {
     state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
 
-    delete state.workflow
-    Object.defineProperty(state, 'workflow', {
-      get() {
-        return state.session.workflows[state.session.currentWorkflow!]
-      }
-    })
+    if (!state.workflow) {
+      Object.defineProperty(state, 'workflow', {
+        get() {
+          return state.session.workflows[state.session.currentWorkflow!]
+        }
+      })
+    }
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
