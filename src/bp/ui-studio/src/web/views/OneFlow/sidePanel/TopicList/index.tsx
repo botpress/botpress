@@ -325,7 +325,7 @@ const TopicList: FC<Props> = props => {
           isEditing={editing === path}
           isEditingNew={isEditingNew}
           onSave={value => handleSave(item, isTopic, value)}
-          contextMenu={handleContextMenu(item, isTopic, path)}
+          contextMenuContent={handleContextMenu(item, isTopic, path)}
           onDoubleClick={() => (item.type === 'qna' ? props.editQnA(item.name.replace('/qna', '')) : null)}
           onClick={() => handleClick({ ...item, isTopic, path })}
           qnaCount={props.qnaCountByTopic?.[item.id] || 0}
@@ -353,7 +353,7 @@ const TopicList: FC<Props> = props => {
 
   return (
     <div className={cx(style.tree)}>
-      {!isEmpty && !filter && (
+      {!!(!isEmpty || filter.length) && (
         <SearchBar
           className={style.searchBar}
           icon="filter"

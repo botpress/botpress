@@ -1,7 +1,7 @@
-import { Button, ContextMenuTarget, Icon, Menu } from '@blueprintjs/core'
+import { Button, ContextMenu, Icon, Menu } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { sanitizeName } from '~/util'
 
 import { CountByTopic } from './index'
@@ -14,7 +14,7 @@ interface Props {
   onDoubleClick?: () => void
   onSave?: (value: string) => void
   level: number
-  contextMenu: any
+  contextMenuContent: any
   isExpanded: boolean
   isEditingNew?: boolean
   isEditing?: boolean
@@ -22,7 +22,7 @@ interface Props {
 }
 
 const TreeItem: FC<Props> = ({
-  contextMenu,
+  contextMenuContent,
   item,
   isEditing,
   isEditingNew,
@@ -36,7 +36,17 @@ const TreeItem: FC<Props> = ({
 }) => {
   const [inputValue, setInputValue] = useState(isEditingNew ? '' : item?.id)
 
-  const onContextMenu = () => <Menu className={style.contextMenu}>{contextMenu}</Menu>
+  const onContextMenu = e => {
+    e.preventDefault()
+    ContextMenu.show(<Menu className={style.contextMenu}>{contextMenuContent}</Menu>, {
+      left: e.clientX,
+      top: e.clientY
+    })
+  }
+
+  useEffect(() => {
+    setInputValue(isEditingNew ? '' : item?.id)
+  }, [isEditingNew])
 
   const sanitize = (name: string) => {
     return sanitizeName(name).replace(/\//g, '-')
@@ -48,7 +58,6 @@ const TreeItem: FC<Props> = ({
     }
 
     if (event.key === 'Enter') {
-      // Enter
       event.target.blur()
     }
   }

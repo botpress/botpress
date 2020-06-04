@@ -3,6 +3,8 @@
 }
 
 .searchBar {
+  padding: 0 0 var(--spacing-medium) !important;
+
   input {
     background-color: #fff;
     border-radius: 5px;
