@@ -5,7 +5,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import uuid from 'uuid'
 
-const store = require('./store')
+import store from './store'
 
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
