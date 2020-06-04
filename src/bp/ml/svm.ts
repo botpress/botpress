@@ -1,10 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-const binding = require('./svm-js/index.js')
-
-export const OneClassSVM = binding.OneClassSVM
-export const KernelTypes = binding.kernelTypes
+import { Data, SvmModel, SvmParameters as Parameters } from './svm-js/typings'
+import { SVM } from './svm-js/core/svm'
+import svmTypes from './svm-js/core/svm-types'
+import kernelTypes from './svm-js/core/kernel-types'
+import { getMinKFold } from './svm-js/util/split-dataset'
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],
@@ -15,10 +16,14 @@ export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   reduce: false
 }
 
+type Serialized = SvmModel & {
+  labels_idx: string[]
+}
+
 export class Trainer implements sdk.MLToolkit.SVM.Trainer {
-  private clf: any
+  private clf: SVM | undefined
   private labels: string[] = []
-  private model?: any
+  private model?: SvmModel
   private report?: any
 
   constructor() {}
@@ -34,29 +39,34 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       args.probability = false // not supported
     }
 
-    this.clf = new binding.SVM({
-      svmType: args.classifier,
-      kernelType: args.kernel,
-      c: args.c,
+    this.labels = []
+    const dataset: Data[] = points.map(c => [c.coordinates, this.getLabelIdx(c.label)])
+
+    if (this.labels.length < 2) {
+      throw new Error("SVM can't train on a dataset of only one class")
+    }
+
+    const minKFold = getMinKFold(dataset)
+    const kFold = Math.max(minKFold, 4)
+
+    this.clf = new SVM({
+      svm_type: args.classifier ? svmTypes[args.classifier] : undefined,
+      kernel_type: args.kernel ? kernelTypes[args.kernel] : undefined,
+      C: args.c,
       gamma: args.gamma,
       probability: args.probability,
       reduce: args.reduce,
-      kFold: 4
+      kFold
     })
 
-    await this._train(points, callback)
+    await this._train(dataset, callback)
     return this.serialize()
   }
 
-  private async _train(
-    points: sdk.MLToolkit.SVM.DataPoint[],
-    callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
-  ): Promise<any> {
-    this.labels = []
-
+  private async _train(dataset: Data[], callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined): Promise<any> {
     return new Promise((resolve, reject) => {
-      const dataset = points.map(c => [c.coordinates, this.getLabelIdx(c.label)])
-      this.clf
+      const svm = this.clf as SVM
+      svm
         .train(dataset)
         .progress(progress => {
           if (callback && typeof callback === 'function') {
@@ -86,21 +96,37 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   }
 
   private serialize(): string {
-    return JSON.stringify({ ...this.model, labels_idx: this.labels })
+    const model = this.model as SvmModel // model was trained
+    const serialized: Serialized = { ...model, labels_idx: this.labels }
+    return JSON.stringify(serialized)
   }
 }
 
 export class Predictor implements sdk.MLToolkit.SVM.Predictor {
-  private clf: any
+  private clf: SVM | undefined
   private labels: string[]
-  private config: any
+  private parameters: Parameters | undefined
 
-  constructor(model: string) {
-    const options = JSON.parse(model)
-    this.labels = options.labels_idx
-    delete options.labels_idx
-    this.config = options.params
-    this.clf = binding.restore({ ...options, kFold: 1 })
+  constructor(json_model: string) {
+    const serialized: Serialized = JSON.parse(json_model)
+    this.labels = serialized.labels_idx
+
+    try {
+      // TODO: actually check the model format
+      const model = _.omit(serialized, 'labels_idx')
+      this.parameters = model.param
+      this.clf = new SVM({ kFold: 1 }, model)
+    } catch (err) {
+      this.throwModelHasChanged(err)
+    }
+  }
+
+  private throwModelHasChanged(err?: Error) {
+    let errorMsg = 'SVM model format has changed. NLU needs to be retrained.'
+    if (err) {
+      errorMsg += ` Inner error is '${err}'.`
+    }
+    throw new Error(errorMsg)
   }
 
   private getLabelByIdx(idx): string {
@@ -113,7 +139,7 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
   }
 
   async predict(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
-    if (this.config.probability) {
+    if (this.parameters?.probability) {
       return this._predictProb(coordinates)
     } else {
       return await this._predictOne(coordinates)
@@ -121,7 +147,7 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
   }
 
   private async _predictProb(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
-    const results = await this.clf.predictProbabilities(coordinates)
+    const results = await (this.clf as SVM).predictProbabilities(coordinates)
     const reducedResults = _.reduce(
       Object.keys(results),
       (acc, curr) => {
@@ -141,10 +167,10 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
 
   private async _predictOne(coordinates: number[]): Promise<sdk.MLToolkit.SVM.Prediction[]> {
     // might simply use oneclass instead
-    const results = await this.clf.predict(coordinates)
+    const results = await (this.clf as SVM).predict(coordinates)
     return [
       {
-        label: results,
+        label: this.getLabelByIdx(results),
         confidence: 0
       }
     ]
