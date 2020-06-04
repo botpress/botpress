@@ -1204,7 +1204,7 @@ declare module 'botpress/sdk' {
     isInput?: boolean
     isOutput?: boolean
     description?: string
-    typeData?: any
+    params?: any
   }
 
   export interface DecisionTriggerCondition {
