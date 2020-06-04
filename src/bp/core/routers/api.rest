@@ -21,7 +21,7 @@ X-BP-Workspace: default
 ###
 
 
-@botId = gog
+@botId = YOUR_BOT
 
 
 # List all flows
@@ -32,8 +32,8 @@ X-BP-Workspace: default
 ###
 
 
-@flowName = Workflow Ended
-@flowFile = workflow_ended.flow.json
+@flowName = YOUR_WORKFLOW_NAME
+@flowFile = YOUR_WORKFLOW_FILE.flow.json
 
 
 # Edit a flow
