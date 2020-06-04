@@ -1195,6 +1195,16 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
+    variables?: FlowVariable[]
+  }
+
+  export interface FlowVariable {
+    type: 'string' | 'number' | 'boolean' | 'date'
+    name: string
+    isInput?: boolean
+    isOutput?: boolean
+    description?: string
+    typeData?: any
   }
 
   export interface DecisionTriggerCondition {
