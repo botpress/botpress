@@ -4,6 +4,7 @@ import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import { getEmptyFormData } from '../../utils/fields'
+import { MoreInfo } from '../../utils/typings'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -12,16 +13,30 @@ import Upload from '../Fields/Upload'
 import FieldWrapper from '../FieldWrapper'
 import GroupItemWrapper from '../GroupItemWrapper'
 
+import style from './style.scss'
 import { FormProps } from './typings'
 
 const printLabel = (field, data) => {
   if (field.label.startsWith('fields::') && field.fields?.length) {
     const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
 
-    return data[labelField.key] || labelField.label
+    return data[labelField.key] || lang(labelField.label)
   }
 
-  return field.label
+  return lang(field.label)
+}
+
+const printMoreInfo = (moreInfo: MoreInfo): JSX.Element => {
+  const { url, label } = moreInfo
+  if (url) {
+    return (
+      <a className={style.moreInfo} href={url} target="_blank">
+        {lang(label)}
+      </a>
+    )
+  }
+
+  return <p className={style.moreInfo}>{lang(label)}</p>
 }
 
 const formReducer = (state, action) => {
@@ -103,7 +118,7 @@ const formReducer = (state, action) => {
 }
 
 const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettings, onUpdate }) => {
-  const newFormData = getEmptyFormData(contentType || 'image')
+  const newFormData = getEmptyFormData(contentType || 'builtin_image')
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
@@ -133,7 +148,7 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               </GroupItemWrapper>
             ))}
             <AddButton
-              text={field.group?.addLabel}
+              text={lang(field.group?.addLabel)}
               onClick={() => dispatch({ type: 'add', data: { field: field.key, parent } })}
             />
           </Fragment>
@@ -145,23 +160,25 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Select
-              options={field.options}
+              options={field.options.map(option => ({ ...option, label: lang(option.label) }))}
               value={value}
-              placeholder={field.placeholder}
+              placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
             />
             {currentOption.related && printField(currentOption.related, data, parent)}
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'textarea':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <TextArea
-              placeholder={field.placeholder}
+              placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
               onBlur={() => onUpdate(state)}
               value={data[field.key]}
             />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'upload':
@@ -169,36 +186,41 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Upload
               axios={bp?.axios}
-              placeholder={field.placeholder}
+              placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}
             />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'checkbox':
         return (
-          <Checkbox
-            checked={data[field.key]}
-            key={field.key}
-            label={printLabel(field, data[field.key])}
-            onChange={e =>
-              dispatch({
-                type: 'updateField',
-                data: { field: field.key, onUpdate, value: e.currentTarget.checked }
-              })
-            }
-          />
+          <div className={style.checkboxWrapper}>
+            <Checkbox
+              checked={data[field.key]}
+              key={field.key}
+              label={printLabel(field, data[field.key])}
+              onChange={e =>
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, onUpdate, value: e.currentTarget.checked }
+                })
+              }
+            />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
+          </div>
         )
       default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Text
-              placeholder={field.placeholder}
+              placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
               onBlur={() => onUpdate(state)}
               type={field.type}
               value={data[field.key]}
             />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
     }

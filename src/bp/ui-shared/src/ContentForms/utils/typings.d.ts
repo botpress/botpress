@@ -1,6 +1,6 @@
 export interface MoreInfo {
   label: string
-  url: string
+  url?: string
 }
 
 export interface FormAdvancedSetting {
