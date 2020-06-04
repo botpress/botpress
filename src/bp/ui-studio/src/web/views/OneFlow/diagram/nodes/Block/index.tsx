@@ -1,5 +1,5 @@
-import { Button, ContextMenu, Menu, MenuItem } from '@blueprintjs/core'
-import { Contents, lang } from 'botpress/shared'
+import { Button, Menu, MenuItem } from '@blueprintjs/core'
+import { Contents, contextMenu, lang } from 'botpress/shared'
 import { FormData } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
@@ -23,12 +23,12 @@ const BlockWidget: FC<Props> = ({ node, editContent, isContentSelected }) => {
     console.log(e.currentTarget.getBoundingClientRect())
     e.stopPropagation()
     e.preventDefault()
-    ContextMenu.show(
+    contextMenu(
+      e,
       <Menu>
-        <MenuItem text={lang.tr('studio.content.renameBlock')} onClick={() => console.log('delete')} />
+        <MenuItem text={lang.tr('studio.flow.node.renameBlock')} onClick={() => console.log('delete')} />
         <MenuItem text={lang.tr('delete')} onClick={() => console.log('delete')} />
-      </Menu>,
-      { left: e.clientX, top: e.clientY }
+      </Menu>
     )
   }
 
