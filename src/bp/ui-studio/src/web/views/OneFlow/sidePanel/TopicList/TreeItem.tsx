@@ -79,6 +79,7 @@ const TreeItem: FC<Props> = ({
         <input
           type="text"
           autoFocus
+          onFocus={e => e.currentTarget.select()}
           onBlur={() => onSave(inputValue || item.id)}
           onKeyDown={onKeyDown}
           placeholder={placeholder}

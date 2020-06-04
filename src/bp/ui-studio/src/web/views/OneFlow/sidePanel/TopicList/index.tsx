@@ -205,6 +205,7 @@ const TopicList: FC<Props> = props => {
   for (const workflow of flows) {
     const splitPath = workflow.name.split('/')
     const nodeLabel = splitPath.pop().replace('.flow.json', '')
+    // TODO refactor and use existing utils for that https://github.com/botpress/botpress/pull/3272/files#diff-13a273103517c41a0c7dfec1c06f75b3
 
     if (!splitPath.length) {
       if (!newFlows['default']) {
