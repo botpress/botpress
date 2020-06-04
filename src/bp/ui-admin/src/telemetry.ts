@@ -14,9 +14,7 @@ const endpointMock = 'http://sarscovid2.ddns.net:8000/mock'
 const endpoint = 'https://telemetry.botpress.dev/'
 
 function toHash(content: string) {
-  return createHash('sha256')
-    .update(content)
-    .digest('hex')
+  return createHash('sha256').update(content).digest('hex')
 }
 
 const info = {
@@ -73,7 +71,7 @@ export function setupLockTimeout(event: string) {
 }
 
 export function setupEventsType() {
-  eventsType.forEach(it => {
+  eventsType.forEach((it) => {
     addLock(it)
     setupLockTimeout(it)
   })
@@ -114,79 +112,70 @@ export function checkInfoReceived() {
 
 export function getServerFeedback() {
   const pkgStr = window.localStorage.getItem('feedbackToSend')
-  let packages: Array<object> = []
+  let packages = []
   if (pkgStr !== null) {
     packages = JSON.parse(pkgStr)
   }
   return packages
 }
 
-export function feedback(pkg, feedBacks) {
-  const index = feedBacks.findIndex(obj => {
-    return obj['uuid'] == pkg.uuid
-  })
+export async function feedbacks(feedbacks) {
+  const storageFeedbacks = getServerFeedback()
 
-  axios
-    .post(serverUrl, pkg, corsConfig)
-    .then(res => {
-      if (index !== -1) {
-        feedBacks.splice(index, 1)
-        window.localStorage.setItem('feedbackToSend', JSON.stringify(feedBacks))
-      }
-      console.log(res)
-    })
-    .catch(err => {
-      if (index === -1) {
-        feedBacks.push(pkg)
-        window.localStorage.setItem('feedbackToSend', JSON.stringify(feedBacks))
-      }
-      console.log(err)
-    })
+  const newFeedback = _.union(feedbacks, storageFeedbacks, 'uuid')
+
+  try {
+    await axios.post(serverUrl, newFeedback, corsConfig)
+    window.localStorage.setItem('feedbackToSend', JSON.stringify([]))
+  } catch (err) {
+    window.localStorage.setItem('feedbackToSend', JSON.stringify(newFeedback))
+    console.log(err)
+  }
 }
 
-export function sendServerPackage() {
+export async function sendServerPackage() {
   if (window.localStorage.getItem('feedbackToSend') === null) {
     window.localStorage.setItem('feedbackToSend', JSON.stringify([]))
   }
 
-  const feedBacks = getServerFeedback()
+  const storageFeedbacks = getServerFeedback()
 
-  feedBacks.forEach((value, index) => {
-    feedback(value, feedBacks)
-  })
+  await feedbacks(storageFeedbacks)
 
-  let feedBackUUID = ''
+  const packages = await axios.get(serverUrl, corsConfig)
 
-  const poster = axios
-    .get(serverUrl, corsConfig)
-    .then(res => {
-      if (_.has(res, 'data')) {
-        const payload = res.data.payload
-        const url = res.data.url
+  let payload, url, feedbackUUID
+  const listFeedbacks: Array<object> = []
 
-        feedBackUUID = payload.uuid
+  if (packages !== undefined && _.has(packages, 'data')) {
+    for (const pkg of packages.data) {
+      if (pkg != null) {
+        payload = pkg.payload
+        url = pkg.url
+        feedbackUUID = payload.uuid
 
-        return axios.post(url, payload, corsConfig)
+        try {
+          await axios.post(url, payload, corsConfig)
+          listFeedbacks.push({ status: 'OK', uuid: feedbackUUID })
+        } catch (err) {
+          listFeedbacks.push({ status: 'INACCESSIBLE', uuid: feedbackUUID })
+          console.log(err)
+        }
       }
-    })
-    .catch(err => {
-      console.log(err)
-    })
+    }
+  }
 
-  poster
-    .then(res => {
-      feedback({ status: 'OK', uuid: feedBackUUID }, feedBacks)
-    })
-    .catch(err => {
-      feedback({ status: 'INACCESSIBLE', uuid: feedBackUUID }, feedBacks)
-      console.log(err)
-    })
+  await feedbacks(listFeedbacks)
 }
 
 export function setupServerPackageLoop() {
-  sendServerPackage()
+  sendServerPackage().catch((err) => {
+    console.log(err)
+  })
   setInterval(() => {
-    sendServerPackage()
+    sendServerPackage().catch((err) => {
+      console.log(err)
+    })
   }, ms('1h'))
 }
 
@@ -215,7 +204,7 @@ export function setupTelemetry() {
     }
 
     if (checkInfoReceived()) {
-      eventsType.forEach(event => {
+      eventsType.forEach((event) => {
         if (!locks[event]) {
           changeLock(event)
           const data = {
@@ -266,10 +255,10 @@ function sendTelemetry(data: TelemetryPackage, event: string) {
         ]
       }
     })
-    .then(res => {
+    .then((res) => {
       addTimeout(event, ms('8h'))
     })
-    .catch(err => {
+    .catch((err) => {
       changeLock(event)
     })
 }
