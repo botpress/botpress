@@ -1,0 +1,18 @@
+.contextMenuWrapper {
+  position: absolute;
+  z-index: 9999;
+  border-radius: 2px;
+  box-shadow: 0 8px 24px 0 rgba(16, 22, 26, 0.4);
+  background-color: #fff;
+  transform: translate(-23px, 8px);
+
+  &:before {
+    content: "";
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #fff;
+    position: absolute;
+    top: -8px;
+    left: 15px;
+  }
+}

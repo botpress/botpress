@@ -1,15 +1,17 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
-import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+import { confirmDialog, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, useState } from 'react'
+import React, { FC, Fragment, useRef, useState } from 'react'
 import Select from 'react-select'
 
 import { QnaItem } from '../../../backend/qna'
 import style from '../style.scss'
 
+import ContentAnswer from './ContentAnswer'
+import ContentAnswerForm from './ContentAnswerForm'
 import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
 
@@ -34,6 +36,9 @@ interface Props {
 }
 
 const QnA: FC<Props> = props => {
+  const [forceUpdate, setForceUpdate] = useState(false)
+  const [showContentForm, setShowContentForm] = useState(false)
+  const editingContent = useRef(null)
   const [showOption, setShowOption] = useState(false)
   const {
     contentLang,
@@ -50,6 +55,7 @@ const QnA: FC<Props> = props => {
   const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
   let questions = data.questions[contentLang]
   let answers = data.answers[contentLang]
+  const contentAnswers = data.contentAnswers?.[contentLang] || []
   const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
   const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
 
@@ -128,6 +134,37 @@ const QnA: FC<Props> = props => {
         ? errorMsg
         : ''
     )
+
+  const updateContentAnswers = newData => {
+    const newContentAnswers = [...contentAnswers]
+
+    if (editingContent.current === null) {
+      newContentAnswers.push({ ...newData })
+      editingContent.current = newContentAnswers.length - 1
+    } else {
+      newContentAnswers[editingContent.current] = newData
+    }
+
+    updateQnA({
+      id,
+      data: { ...data, contentAnswers: { ...data.contentAnswers, [contentLang]: newContentAnswers } }
+    })
+  }
+
+  const deleteContentAnswer = () => {
+    setShowContentForm(false)
+
+    if (editingContent.current === null) {
+      return
+    }
+
+    const newContentAnswers = [...contentAnswers.filter((content, index) => editingContent.current !== index)]
+
+    updateQnA({
+      id,
+      data: { ...data, contentAnswers: { ...data.contentAnswers, [contentLang]: newContentAnswers } }
+    })
+  }
 
   const showIncomplete =
     questions?.filter(q => !!q.trim()).length < 3 ||
@@ -211,24 +248,45 @@ const QnA: FC<Props> = props => {
             label={lang.tr('module.qna.question')}
             addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
           />
-          <TextAreaList
-            key="answers"
-            items={answers || ['']}
-            duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
-            itemListValidator={validateItemsList}
-            updateItems={items =>
-              updateQnA({
-                id,
-                data: { ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } }
-              })
-            }
-            refItems={refAnswers}
-            keyPrefix="answer-"
-            placeholder={index => getPlaceholder('answer', index)}
-            label={lang.tr('module.qna.answer')}
-            canAddContent
-            addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
-          />
+          <div>
+            <TextAreaList
+              key="answers"
+              items={answers || ['']}
+              duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
+              itemListValidator={validateItemsList}
+              updateItems={items =>
+                updateQnA({
+                  id,
+                  data: { ...data, questions: data.questions, answers: { ...data.answers, [contentLang]: items } }
+                })
+              }
+              refItems={refAnswers}
+              keyPrefix="answer-"
+              placeholder={index => getPlaceholder('answer', index)}
+              label={lang.tr('module.qna.answer')}
+              addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
+            />
+            <div className={style.contentAnswerWrapper}>
+              {contentAnswers?.map((content, index) => (
+                <ContentAnswer
+                  key={index}
+                  content={content}
+                  active={editingContent.current === index}
+                  onEdit={() => {
+                    editingContent.current = index
+                    setShowContentForm(true)
+                  }}
+                />
+              ))}
+            </div>
+            <FormFields.AddButton
+              text={lang.tr('module.qna.form.addContent')}
+              onClick={() => {
+                setShowContentForm(true)
+                editingContent.current = null
+              }}
+            />
+          </div>
           {showRedirectToFlow && (
             <Fragment>
               <h1 className={style.redirectTitle}>{lang.tr('module.qna.form.redirectQuestionTo')}</h1>
@@ -267,6 +325,26 @@ const QnA: FC<Props> = props => {
             </Fragment>
           )}
         </div>
+      )}
+
+      {showContentForm && (
+        <ContentAnswerForm
+          bp={bp}
+          deleteContent={() => deleteContentAnswer()}
+          editingContent={editingContent.current}
+          formData={contentAnswers[editingContent.current]}
+          onUpdate={data => updateContentAnswers(data)}
+          close={closingKey => {
+            setTimeout(() => {
+              if (closingKey === editingContent.current) {
+                editingContent.current = null
+                setShowContentForm(false)
+              } else {
+                setForceUpdate(!forceUpdate)
+              }
+            }, 200)
+          }}
+        />
       )}
     </div>
   )
