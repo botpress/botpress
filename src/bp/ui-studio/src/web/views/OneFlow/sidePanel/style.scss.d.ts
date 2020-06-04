@@ -8,7 +8,6 @@ interface CssExports {
   'modalHeader': string;
   'overhidden': string;
   'referencedWorkflows': string;
-  'searchBar': string;
   'section': string;
   'sidePanel': string;
   'tabs': string;

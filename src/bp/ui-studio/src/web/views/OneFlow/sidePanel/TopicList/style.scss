@@ -1,5 +1,38 @@
 .emptyState {
-  margin-top: auto;
+  margin: auto 0;
+}
+
+.searchBar {
+  input {
+    background-color: #fff;
+    border-radius: 5px;
+    border: solid 1px var(--gray);
+    box-shadow: none !important;
+    color: var(--shark);
+    font-size: 12px;
+    line-height: 1.25;
+    padding: 8px 6px 5px;
+    transition: border 0.3s;
+    width: 100%;
+
+    &:hover {
+      border: solid 1px var(--reef);
+    }
+
+    &:focus {
+      border: solid 1px var(--ocean);
+      outline: none;
+    }
+
+    &::placeholder {
+      opacity: 1;
+      color: var(--reef);
+    }
+  }
+
+  svg {
+    fill: var(--gray) !important;
+  }
 }
 
 .treeItem {
@@ -54,25 +87,31 @@
 .tree {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 98px);
+  height: calc(100% - 42px);
   overflow: auto;
   padding: var(--spacing-small) var(--spacing-x-large) 0 var(--spacing-large);
 
   :global {
     .default {
       border-top: 1px solid var(--gray);
-      margin-top: auto;
-      padding-top: var(--spacing-medium);
+      padding: var(--spacing-medium) 0;
+
+      &:not(.empty) {
+        margin-top: auto;
+      }
     }
   }
 }
 
 .inlineEditing {
-  margin-left: -7px !important;
+
+  :global(.bp3-icon) {
+    margin-right: 7px;
+  }
 
   &:not(.isTopic) {
     input {
-      padding: 6px 6px 5px;
+      padding: 7px 6px 6px;
     }
   }
 
@@ -87,7 +126,8 @@
     color: var(--shark);
     font-size: 12px;
     line-height: 1.25;
-    padding: 8px 6px 5px;
+    margin-left: -7px;
+    padding: 7px 6px 6px;
     width: 100%;
 
     &::placeholder {
@@ -135,7 +175,12 @@
     width: 12px !important;
   }
 
-  &:hover, &:focus {
+  &:focus {
+    color: var(--ocean) !important;
+    background:  #fff !important;
+  }
+
+  &:hover {
     color: var(--ocean) !important;
     background:  var(--hover-ocean) !important;
   }
