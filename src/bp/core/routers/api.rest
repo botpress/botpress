@@ -58,7 +58,7 @@ Content-Type: application/json
         "type": "number",
         "name": "score",
         "description": "",
-        "typeData": {
+        "params": {
           "defaultValue": 2
         }
       }
