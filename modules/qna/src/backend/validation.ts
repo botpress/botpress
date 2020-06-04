@@ -33,7 +33,7 @@ export const QnaDefSchema = Joi.object().keys({
     .pattern(/.*/, Joi.array().items(Joi.string()))
     .default({}),
   contentAnswers: Joi.object()
-    .pattern(/.*/, Joi.array().items(QnaItemContentAnswerSchema))
+    .pattern(/^[a-z]{2}$/, Joi.array().items(QnaItemContentAnswerSchema))
     .default({})
 })
 

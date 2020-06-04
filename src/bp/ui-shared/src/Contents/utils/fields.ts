@@ -53,8 +53,11 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
         buttonText: '',
         action: 'say'
       }
+<<<<<<< HEAD
     case 'variations':
       return { item: '' }
+=======
+>>>>>>> dev
     default:
       return {}
   }
