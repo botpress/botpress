@@ -1199,12 +1199,12 @@ declare module 'botpress/sdk' {
   }
 
   export interface FlowVariable {
-    type: 'string' | 'number' | 'boolean' | 'date'
+    type: string
     name: string
     isInput?: boolean
     isOutput?: boolean
     description?: string
-    typeData?: any
+    params?: any
   }
 
   export interface DecisionTriggerCondition {
