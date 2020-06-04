@@ -30,7 +30,7 @@ const ContextSelector: FC<Props> = props => {
   }
 
   const onItemSelect = (ctx: string) => {
-    const idx = props.contexts.indexOf(ctx)
+    const idx = props.contexts?.indexOf(ctx)
     if (idx !== -1) {
       removeCtx(ctx, idx)
     } else {
@@ -44,7 +44,7 @@ const ContextSelector: FC<Props> = props => {
       key={ctx}
       onClick={handleClick}
       active={modifiers.active}
-      icon={props.contexts.indexOf(ctx) !== -1 ? 'tick' : 'blank'}
+      icon={props.contexts?.indexOf(ctx) !== -1 ? 'tick' : 'blank'}
     />
   )
 

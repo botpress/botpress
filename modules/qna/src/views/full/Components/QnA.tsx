@@ -4,7 +4,7 @@ import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/sha
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, useState } from 'react'
+import React, { createRef, FC, Fragment, useEffect, useState } from 'react'
 import Select from 'react-select'
 
 import { QnaItem } from '../../../backend/qna'
@@ -31,9 +31,12 @@ interface Props {
   updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
+  isActive: boolean
+  setIsActive: (id: string) => void
 }
 
 const QnA: FC<Props> = props => {
+  const wrapperEl = createRef<HTMLDivElement>()
   const [showOption, setShowOption] = useState(false)
   const {
     contentLang,
@@ -45,6 +48,8 @@ const QnA: FC<Props> = props => {
     defaultLanguage,
     flows,
     isLite,
+    isActive,
+    setIsActive,
     bp
   } = props
   const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
@@ -137,7 +142,7 @@ const QnA: FC<Props> = props => {
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
 
   return (
-    <div className={style.questionWrapper}>
+    <div onClick={() => setIsActive(id)} ref={wrapperEl} className={style.questionWrapper}>
       <div className={style.headerWrapper}>
         <Button minimal small onClick={() => setExpanded(!expanded)} className={style.questionHeader}>
           <div className={style.left}>
@@ -195,6 +200,7 @@ const QnA: FC<Props> = props => {
             />
           )}
           <TextAreaList
+            readonly={!isActive}
             key="questions"
             items={questions || ['']}
             updateItems={items =>
@@ -212,6 +218,7 @@ const QnA: FC<Props> = props => {
             addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
           />
           <TextAreaList
+            readonly={!isActive}
             key="answers"
             items={answers || ['']}
             duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}

@@ -13,6 +13,7 @@ import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const QnAList: FC<Props> = props => {
+  const [isActive, setIsActive] = useState(null)
   const [flows, setFlows] = useState([])
   const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
@@ -42,6 +43,9 @@ const QnAList: FC<Props> = props => {
       .catch(() => {})
 
     fetchFlows()
+    fetchHighlightedQna('rkmsylph53_hello')
+      .then()
+      .catch()
 
     return () => {
       wrapperRef.current.removeEventListener('scroll', handleScroll)
@@ -193,6 +197,12 @@ const QnAList: FC<Props> = props => {
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
   }
 
+  const fetchHighlightedQna = async id => {
+    const { data } = await bp.axios.get(`/mod/qna/questions/${id}`)
+
+    console.log(data)
+  }
+
   const hasFilteredResults = questionSearch.length || filterContexts.length
 
   return (
@@ -236,6 +246,8 @@ const QnAList: FC<Props> = props => {
             toggleEnabledQnA={() =>
               dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
             }
+            isActive={isActive === item.id}
+            setIsActive={setIsActive}
             contentLang={currentLang}
             errorMessages={itemHasError(item, currentLang)}
             setExpanded={isExpanded =>

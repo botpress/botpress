@@ -4,7 +4,7 @@ import _uniqueId from 'lodash/uniqueId'
 
 import { QnaItem } from '../../../backend/qna'
 
-export const ITEMS_PER_PAGE = 20
+export const ITEMS_PER_PAGE = 50
 
 export interface State {
   count: number
