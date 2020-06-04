@@ -282,7 +282,7 @@
       "topicList": {
         "bigWarning": "ATTENTION:",
         "confirmDeleteFlow": "Souhaitez-vous vraiment supprimer ce workflow?",
-        "confirmDeleteTopic": "Souhaitez-vous vraiment supprimer ce sujet? Ses questions-réponses et ses flows seront également supprimés.",
+        "confirmDeleteTopic": "Souhaitez-vous vraiment supprimer ce sujet? Ses questions-réponses et ses workflows seront également supprimés.",
         "createNewWorkflow": "Créer un nouveau workflow",
         "defaultWorkflows": "Workflows par défaut",
         "deleteTopic": "Supprimer le sujet",
