@@ -2,8 +2,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { EventCollector } from './event-collector'
-
 type MiddlewareChainOptions = {
   timeoutInMs: number
 }
@@ -15,7 +13,7 @@ const defaultOptions = {
 export class MiddlewareChain {
   private stack: { mw: sdk.IO.MiddlewareHandler; name: string }[] = []
 
-  constructor(private eventCollector: EventCollector, private options: MiddlewareChainOptions = defaultOptions) {
+  constructor(private options: MiddlewareChainOptions = defaultOptions) {
     this.options = { ...defaultOptions, ...options }
   }
 
@@ -33,20 +31,20 @@ export class MiddlewareChain {
       const result = await Promise.race<Boolean[]>([timePromise, mwPromise])
 
       if (timedOut) {
-        this.eventCollector.storeEvent(event, `mw:${name}:timedOut`)
+        event.addStep(`mw:${name}:timedOut`)
         continue
       } else if (typeof result !== 'undefined') {
         const [swallow, skipped] = result as Boolean[]
 
         if (swallow) {
-          this.eventCollector.storeEvent(event, `mw:${name}:swallowed`)
+          event.addStep(`mw:${name}:swallowed`)
           break
         }
 
         if (skipped) {
-          this.eventCollector.storeEvent(event, `mw:${name}:skipped`)
+          event.addStep(`mw:${name}:skipped`)
         } else {
-          this.eventCollector.storeEvent(event, `mw:${name}:completed`)
+          event.addStep(`mw:${name}:completed`)
         }
       }
     }

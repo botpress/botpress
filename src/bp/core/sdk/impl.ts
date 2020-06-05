@@ -48,6 +48,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly incomingEventId?: string
   private readonly flags: any
   private readonly nlu?: sdk.IO.EventUnderstanding
+  public processing?: { [activity: string]: Date }
 
   constructor(args: sdk.IO.EventCtorArgs) {
     this.type = args.type
@@ -102,6 +103,10 @@ export class IOEvent implements sdk.IO.Event {
     }
 
     return this.payload.__preview || this.payload.preview || this.payload.text
+  }
+
+  public addStep(step: string) {
+    this.processing = { ...(this.processing || {}), [step]: new Date() }
   }
 }
 

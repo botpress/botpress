@@ -159,6 +159,8 @@ export class DecisionEngine {
           }
         })
         const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+        event.addStep('dialog:completed')
+
         // In case there are no unknown errors, remove skills/ flow from the stacktrace
         processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
@@ -170,6 +172,8 @@ export class DecisionEngine {
           .forBot(event.botId)
           .attachError(err)
           .error('An unexpected error occurred.')
+
+        event.addStep('dialog:error')
 
         await this._processErrorFlow(sessionId, event)
       }

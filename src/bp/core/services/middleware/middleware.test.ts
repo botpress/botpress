@@ -10,10 +10,12 @@ import { MiddlewareChain } from './middleware'
 describe('Middleware', () => {
   let middleware: MiddlewareChain
   let eventCollector: MockObject<EventCollector>
+  let event: MockObject<IO.Event>
 
   beforeEach(() => {
     eventCollector = createSpyObject<EventCollector>()
-    middleware = new MiddlewareChain(eventCollector.T, { timeoutInMs: 5 })
+    middleware = new MiddlewareChain({ timeoutInMs: 5 })
+    event = createSpyObject<IO.Event>()
   })
 
   it('should call middleware in order', async () => {
@@ -33,7 +35,7 @@ describe('Middleware', () => {
     middleware.use({ handler: fn1, name: 'fn1' })
     middleware.use({ handler: fn2, name: 'fn2' })
 
-    await middleware.run({} as IO.Event)
+    await middleware.run(event.T)
 
     expect(mock1).toHaveBeenCalledBefore(mock2)
   })
@@ -50,8 +52,7 @@ describe('Middleware', () => {
     middleware.use({ handler: fn1, name: 'fn1' })
     middleware.use({ handler: mock2, name: 'mock2' })
 
-    const event = {} as IO.Event
-    await middleware.run(event)
+    await middleware.run(event.T)
 
     expect(mock1).toHaveBeenCalled()
     expect(mock2).not.toHaveBeenCalled()
@@ -69,13 +70,12 @@ describe('Middleware', () => {
     middleware.use({ handler: fn1, name: 'fn1' })
     middleware.use({ handler: mock2, name: 'mock2' })
 
-    const event = {} as IO.Event
-    await middleware.run(event)
+    await middleware.run(event.T)
 
     expect(mock1).toHaveBeenCalled()
     expect(mock2).toHaveBeenCalled()
-    expect(eventCollector.storeEvent).toHaveBeenNthCalledWith(1, event, 'mw:fn1:skipped')
-    expect(eventCollector.storeEvent).toHaveBeenNthCalledWith(2, event, 'mw:mock2:timedOut')
+    expect(event.addStep).toHaveBeenNthCalledWith(1, 'mw:fn1:skipped')
+    expect(event.addStep).toHaveBeenNthCalledWith(2, 'mw:mock2:timedOut')
   })
 
   it('should pass event to middleware', async () => {
@@ -89,9 +89,8 @@ describe('Middleware', () => {
       name: 'event'
     })
 
-    const event = {} as IO.Event
-    await middleware.run(event)
-    expect(mock).toHaveBeenCalledWith(event)
+    await middleware.run(event.T)
+    expect(mock).toHaveBeenCalled()
   })
 
   it('if mw throws, the chain throws the error', async () => {

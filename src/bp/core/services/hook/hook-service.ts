@@ -286,9 +286,10 @@ export class HookService {
     hook.debug.forBot(botId, 'after execute')
   }
 
-  private storeEvent = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook) => {
+  private addEventStep = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook) => {
     if (hook instanceof Hooks.EventHook && hook.args?.event) {
-      this.eventCollector.storeEvent(hook.args.event, `hook:${hookName}:${status}`)
+      const event = hook.args.event as IO.Event
+      event.addStep(`hook:${hookName}:${status}`)
     }
   }
 
@@ -303,10 +304,10 @@ export class HookService {
     try {
       const fn = new Function(...Object.keys(args), hookScript.code)
       await fn(...Object.values(args))
-      this.storeEvent(hookScript.name, 'completed', hook)
+      this.addEventStep(hookScript.name, 'completed', hook)
       return
     } catch (err) {
-      this.storeEvent(hookScript.name, 'error', hook)
+      this.addEventStep(hookScript.name, 'error', hook)
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     }
   }
@@ -338,9 +339,9 @@ export class HookService {
 
     await vmRunner
       .runInVm(vm, hookScript.code, hookScript.path)
-      .then(() => this.storeEvent(hookScript.name, 'completed', hook))
+      .then(() => this.addEventStep(hookScript.name, 'completed', hook))
       .catch(err => {
-        this.storeEvent(hookScript.name, 'error', hook)
+        this.addEventStep(hookScript.name, 'error', hook)
         this.logScriptError(err, botId, hookScript.path, hook.folder)
       })
   }

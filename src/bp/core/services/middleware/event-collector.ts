@@ -8,7 +8,6 @@ import Knex from 'knex'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import yn from 'yn'
 
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
@@ -43,7 +42,6 @@ export class EventCollector {
   private lastPruneTs: number = 0
 
   private enabled = false
-  private discardEventSteps = yn(process.env.BP_DISCARD_EVENT_STEPS)
   private interval!: number
   private retentionPeriod!: number
   private batch: BatchEvent[] = []
@@ -83,10 +81,6 @@ export class EventCollector {
       throw new Error(`Can't store event missing required fields (botId, channel, direction)`)
     }
 
-    if (this.discardEventSteps && step !== LAST_EVENT_STEP) {
-      return
-    }
-
     const { id, botId, channel, threadId, target, direction } = event
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
@@ -103,8 +97,8 @@ export class EventCollector {
       lastWf.active = false
     }
 
-    if (!this.discardEventSteps && step) {
-      event.processing = { ...(event.processing || {}), [step]: new Date() }
+    if (step) {
+      event.addStep(step)
     }
 
     const ignoredProps = [...this.ignoredProperties, ...(event.debugger ? [] : this.debuggerProperties), 'debugger']

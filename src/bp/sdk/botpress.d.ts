@@ -635,6 +635,10 @@ declare module 'botpress/sdk' {
       readonly credentials?: any
       /** When false, some properties used by the debugger are stripped from the event before storing */
       debugger?: boolean
+      /** Track processing steps during the lifetime of the event  */
+      processing?: {
+        [activity: string]: Date
+      }
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -649,10 +653,8 @@ declare module 'botpress/sdk' {
        * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
        */
       setFlag(flag: symbol, value: boolean): void
-      /** Track processing steps during the lifetime of the event  */
-      processing?: {
-        [activity: string]: Date
-      }
+      /** Add a new step to the processing of this event (with timestamp) */
+      addStep(step: string): void
     }
 
     /**

@@ -185,13 +185,13 @@ export class ScopedActionService {
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
-      this.eventCollector.storeEvent(incomingEvent, `action:${actionName}:completed`)
+      incomingEvent.addStep(`action:${actionName}:completed`)
     } catch (err) {
       this.logger
         .forBot(this.botId)
         .attachError(err)
         .error(`An error occurred while executing the action "${actionName}`)
-      this.eventCollector.storeEvent(incomingEvent, `action:${actionName}:error`)
+      incomingEvent.addStep(`action:${actionName}:error`)
       throw new ActionExecutionError(err.message, actionName, err.stack)
     }
   }
