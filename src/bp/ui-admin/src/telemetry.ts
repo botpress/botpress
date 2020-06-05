@@ -51,6 +51,7 @@ export interface TelemetryPackage {
   bp_release: string
   bp_license: string
   event_type: string
+  source: string
   event_data: EventData
 }
 
@@ -113,72 +114,62 @@ export function checkInfoReceived() {
   return !_.includes(info, '')
 }
 
-export function getServerFeedback() {
-  const pkgStr = window.localStorage.getItem('packageToSend')
-  let packages: Array<object> = []
-  if (pkgStr !== null) {
-    packages = JSON.parse(pkgStr)
+export async function feedbacks(feedbacks) {
+  try {
+    await axios.post(serverUrl, feedbacks, corsConfig)
+  } catch (err) {
+    console.log(err)
   }
-  return packages
 }
 
-export function feedback(pkg) {
-  axios
-    .post(serverUrl, pkg, corsConfig)
-    .then(res => {
-      const packages = getServerFeedback()
-      if (packages.indexOf(pkg) !== -1) {
-        packages.splice(packages.indexOf(pkg), 1)
-        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
-      }
-      console.log(res)
-    })
-    .catch(err => {
-      const packages = getServerFeedback()
-      if (packages.indexOf(pkg) === -1) {
-        packages.push(pkg)
-        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
-      }
-      console.log(err)
-    })
+export interface FeedbackType {
+  uuid: string
 }
 
-export function sendServerPackage() {
-  if (window.localStorage.getItem('packageToSend') === null) {
-    window.localStorage.setItem('packageToSend', JSON.stringify([]))
+export interface Feedback {
+  OK: Array<FeedbackType | null>
+  INACCESSIBLE: Array<FeedbackType | null>
+}
+
+export async function sendServerPackage() {
+  const packages = await axios.get(serverUrl, corsConfig)
+
+  let payload, url, feedbackUUID
+  const listFeedbacks: Feedback = {
+    OK: [],
+    INACCESSIBLE: []
   }
 
-  const packages = getServerFeedback()
-  packages.forEach((value, index) => {
-    feedback(value)
-  })
+  if (packages !== undefined && _.has(packages, 'data')) {
+    for (const pkg of packages.data) {
+      if (pkg != null) {
+        payload = pkg.payload
+        payload.source = 'client'
+        url = pkg.url
+        feedbackUUID = payload.uuid
 
-  axios
-    .get(serverUrl, corsConfig)
-    .then(res => {
-      if (_.has(res, 'data')) {
-        const payload = res.data.payload
-        const url = res.data.url
-        axios
-          .post(url, payload, corsConfig)
-          .then(res => {
-            feedback({ status: 'OK', data: payload })
-          })
-          .catch(err => {
-            feedback({ status: 'INACCESSIBLE', data: payload })
-            console.log(err)
-          })
+        try {
+          await axios.post(url, payload, corsConfig)
+          listFeedbacks.OK.push({ uuid: feedbackUUID })
+        } catch (err) {
+          listFeedbacks.INACCESSIBLE.push({ uuid: feedbackUUID })
+          console.log(err)
+        }
       }
-    })
-    .catch(err => {
-      console.log(err)
-    })
+    }
+  }
+
+  await feedbacks(listFeedbacks)
 }
 
 export function setupServerPackageLoop() {
-  sendServerPackage()
+  sendServerPackage().catch(err => {
+    console.log(err)
+  })
   setInterval(() => {
-    sendServerPackage()
+    sendServerPackage().catch(err => {
+      console.log(err)
+    })
   }, ms('1h'))
 }
 
@@ -240,6 +231,7 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
     bp_release: info.bp_release,
     bp_license: info.bp_license,
     event_type: event_type,
+    source: 'client',
     event_data: getDataCluster(data)
   }
 }
