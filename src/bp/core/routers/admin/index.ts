@@ -133,6 +133,7 @@ export class AdminRouter extends CustomRouter {
       '/telemetry',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
+        console.log(req.body)
         if (req.body.status === 'ok') {
           await this.telemetryPayloadRepository.removeArray(req.body.events)
         } else if (req.body.status === 'fail') {

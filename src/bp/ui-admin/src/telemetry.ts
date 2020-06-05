@@ -6,7 +6,6 @@ import ms from 'ms'
 import uuid from 'uuid'
 import api from '~/api'
 
-import api from './api'
 import store from './store'
 
 export const telemetryPackageVersion = '1.0.0'
@@ -118,6 +117,7 @@ export function checkInfoReceived() {
 export async function sendServerPackage() {
   try {
     const packages = await api.getSecured().get(serverUrl)
+    console.log(packages)
 
     const feedback = {}
 
