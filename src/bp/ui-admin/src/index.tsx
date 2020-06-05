@@ -33,4 +33,4 @@ window['BlueprintJsSelect'] = BlueprintJsSelect
 initializeTranslations()
 ReactDOM.render(<div>{routes}</div>, document.getElementById('root'))
 
-setupTelemetry()
+setupTelemetry().catch()
