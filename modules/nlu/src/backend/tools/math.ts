@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { log, std, mean } from 'mathjs'
+import { log, mean, std } from 'mathjs'
 
 /**
  * Vectorial distance between two N-dimentional points
