@@ -77,11 +77,7 @@ export class EventCollector {
     this.enabled = true
   }
 
-  public storeEvent(
-    event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent,
-    activeWorkflow?: sdk.IO.WorkflowHistory,
-    step?: string
-  ) {
+  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent, activeWorkflow?: sdk.IO.WorkflowHistory) {
     if (!this.enabled || this.ignoredTypes.includes(event.type)) {
       return
     }
@@ -94,10 +90,6 @@ export class EventCollector {
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
-
-    if (step) {
-      event.addStep(step)
-    }
 
     const ignoredProps = [...this.ignoredProperties, ...(event.debugger ? [] : this.debuggerProperties), 'debugger']
 

@@ -369,10 +369,13 @@ export class Botpress {
 
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
-      this.eventCollector.storeEvent(event, undefined, 'dialog:start')
+
+      event.addStep('dialog:start')
+      this.eventCollector.storeEvent(event)
 
       await this.decisionEngine.processEvent(sessionId, event)
-      this.eventCollector.storeEvent(event, undefined, LAST_EVENT_STEP)
+      event.addStep(LAST_EVENT_STEP)
+      this.eventCollector.storeEvent(event)
 
       await converseApiEvents.emitAsync(`done.${event.target}`, event)
     }
