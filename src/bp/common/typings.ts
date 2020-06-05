@@ -1,8 +1,8 @@
 import { BotDetails, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
+import { StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
-import { StrategyUser } from 'botpress/sdk'
 
 export interface IDisposeOnExit {
   disposeOnExit(): void
