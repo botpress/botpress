@@ -33,7 +33,6 @@ const eventsFields = [
 @injectable()
 export class EventCollector {
   private readonly MAX_RETRY_ATTEMPTS = 3
-  private readonly BATCH_SIZE = 100
   private readonly PRUNE_INTERVAL = ms('30s')
   private readonly TABLE_NAME = 'events'
   private knex!: Knex & sdk.KnexExtension
@@ -44,6 +43,7 @@ export class EventCollector {
   private enabled = false
   private interval!: number
   private retentionPeriod!: number
+  private batchSize: number = 100
   private batch: BatchEvent[] = []
   private ignoredTypes: string[] = []
   private ignoredProperties: string[] = []
@@ -63,6 +63,11 @@ export class EventCollector {
       return
     }
 
+    // SQLite supports max 999 variables (13 fields * batch size). Being conservative
+    if (database.knex.isLite) {
+      this.batchSize = 50
+    }
+
     this.knex = database.knex
     this.interval = ms(config.collectionInterval)
     this.retentionPeriod = ms(config.retentionPeriod)
@@ -72,7 +77,11 @@ export class EventCollector {
     this.enabled = true
   }
 
-  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent, step?: string) {
+  public storeEvent(
+    event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent,
+    activeWorkflow?: sdk.IO.WorkflowHistory,
+    step?: string
+  ) {
     if (!this.enabled || this.ignoredTypes.includes(event.type)) {
       return
     }
@@ -85,17 +94,6 @@ export class EventCollector {
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
-    const lastWf = (event as sdk.IO.IncomingEvent).state.session?.lastWorkflows?.[0]
-    const workflowId = lastWf?.active ? lastWf.eventId : undefined
-    const success = lastWf?.active ? lastWf?.success : undefined
-
-    // Once the workflow is a success or failure, it becomes inactive
-    if (lastWf?.success !== undefined) {
-      const metric = lastWf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
-      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: lastWf.workflow })
-
-      lastWf.active = false
-    }
 
     if (step) {
       event.addStep(step)
@@ -111,8 +109,8 @@ export class EventCollector {
       target,
       sessionId,
       direction,
-      workflowId,
-      success,
+      workflowId: activeWorkflow?.eventId,
+      success: activeWorkflow?.success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: ignoredProps.length ? (_.omit(event, ignoredProps) as sdk.IO.Event) : event,
       createdOn: this.knex.date.now()
@@ -163,7 +161,7 @@ export class EventCollector {
       return
     }
 
-    const batchCount = this.batch.length >= this.BATCH_SIZE ? this.BATCH_SIZE : this.batch.length
+    const batchCount = this.batch.length >= this.batchSize ? this.batchSize : this.batch.length
     const elements = this.batch.splice(0, batchCount)
 
     this.currentPromise = this.knex

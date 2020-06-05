@@ -8,14 +8,14 @@ import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
 import { Botpress, Config, Db, Ghost, LocalActionServer, Logger } from 'core/app'
+import { ModuleConfigEntry } from 'core/config/botpress.config'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
+
 import _ from 'lodash'
 import os from 'os'
-
-import { ModuleConfigEntry } from 'core/config/botpress.config'
 
 import { setupMasterNode, WORKER_TYPES } from './cluster'
 
@@ -92,6 +92,21 @@ async function resolveModules(moduleConfigs: ModuleConfigEntry[], resolver: Modu
   return { loadedModules, erroredModules }
 }
 
+async function prepareLocalModules(logger: sdk.Logger) {
+  if (!Ghost.useDbDriver) {
+    return
+  }
+
+  try {
+    // We remove the local copy in case something is deleted from the database
+    await Ghost.root(false).deleteFolder('modules')
+  } catch (err) {
+    logger.attachError(err).warn(`Could not clear local modules cache`)
+  }
+
+  await Ghost.root().syncDatabaseFilesToDisk('modules')
+}
+
 async function start() {
   await setupDebugLogger()
 
@@ -115,6 +130,8 @@ async function start() {
   await setupEnv()
 
   const logger = await getLogger('Launcher')
+
+  await prepareLocalModules(logger)
 
   const globalConfig = await Config.getBotpressConfig()
   const enabledModules = globalConfig.modules.filter(m => m.enabled)

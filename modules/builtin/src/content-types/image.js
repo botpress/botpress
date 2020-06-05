@@ -160,6 +160,38 @@ module.exports = {
     }
   },
 
+  newSchema: {
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'module.builtin.useMarkdown',
+        type: 'checkbox',
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typingIndicator',
+        type: 'checkbox',
+        label: 'module.builtin.typingIndicator'
+      }
+    ],
+    fields: [
+      {
+        type: 'upload',
+        key: 'image',
+        label: 'module.builtin.types.image.uploadImage'
+      },
+      {
+        type: 'text',
+        key: 'title',
+        label: 'title',
+        placeholder: 'module.builtin.optional'
+      }
+    ]
+  },
+
   computePreviewText: formData => {
     if (!formData.image) {
       return
@@ -169,8 +201,9 @@ module.exports = {
     if (fileName.includes('-')) {
       fileName = tail(fileName.split('-')).join('-')
     }
+    const link = `${formData.BOT_URL}${formData.image}`
     const title = formData.title ? ' | ' + formData.title : ''
-    return `Image: [![${formData.title || ''}](<${formData.image}>)](<${formData.image}>) - (${fileName}) ${title}`
+    return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
   },
 
   renderElement: renderElement

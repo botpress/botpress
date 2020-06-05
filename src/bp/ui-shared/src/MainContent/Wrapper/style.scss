@@ -3,5 +3,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: auto;
+  overflow-x: hidden;
   padding: 0 var(--spacing-x-large);
+  position: relative;
+  transition: padding 0.3s;
 }

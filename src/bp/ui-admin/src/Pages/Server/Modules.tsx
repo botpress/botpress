@@ -9,6 +9,8 @@ import PageContainer from '~/App/PageContainer'
 import api from '../../api'
 import { fetchModules } from '../../reducers/modules'
 
+import { ImportModal } from './ModuleUpload'
+
 interface Props {
   modules: ModuleInfo[]
   fetchModules: () => void
@@ -17,6 +19,7 @@ interface Props {
 const Modules: FC<Props> = props => {
   const [rebootRequired, setRebootRequired] = useState(false)
   const [isRestarting, setRestart] = useState(false)
+  const [isImportOpen, setImportOpen] = useState(false)
 
   useEffect(() => {
     props.fetchModules()
@@ -129,8 +132,13 @@ const Modules: FC<Props> = props => {
         </Callout>
       )}
       <div>
+        <div style={{ float: 'right' }}>
+          <Button text={lang.tr('admin.modules.uploadModule')} icon="upload" onClick={() => setImportOpen(true)} />
+        </div>
         <h3>{lang.tr('admin.modules.stable')}</h3>
-        <div>{props.modules.filter(x => x.status !== 'experimental').map(module => showModule(module))}</div>
+        <div>
+          {props.modules.filter(x => x.status !== 'experimental' && !x.archived).map(module => showModule(module))}
+        </div>
       </div>
 
       <div>
@@ -138,6 +146,17 @@ const Modules: FC<Props> = props => {
         <p>{lang.tr('admin.modules.experimentalWarning')}</p>
         <div>{props.modules.filter(x => x.status === 'experimental').map(module => showModule(module))}</div>
       </div>
+
+      <div>
+        <h3>{lang.tr('admin.modules.compressed')}</h3>
+        <div>{props.modules.filter(x => x.archived).map(module => showModule(module))}</div>
+      </div>
+
+      <ImportModal
+        isOpen={isImportOpen}
+        close={() => setImportOpen(false)}
+        onImportCompleted={() => setRebootRequired(true)}
+      />
     </PageContainer>
   )
 }

@@ -535,11 +535,13 @@ export class CMSService implements IDisposeOnExit {
         result[lang] = 'No preview'
       } else {
         const translated = this.getOriginalProps(formData, contentType, lang)
-        let preview = contentType.computePreviewText(translated)
+        let preview = contentType.computePreviewText({ ...translated, ...this._getAdditionalData() })
 
         if (!preview) {
           const defaultTranslation = this.getOriginalProps(formData, contentType, defaultLang)
-          preview = '(missing translation) ' + contentType.computePreviewText(defaultTranslation)
+          preview =
+            '(missing translation) ' +
+            contentType.computePreviewText({ ...defaultTranslation, ...this._getAdditionalData() })
         }
 
         result[lang] = preview
@@ -597,6 +599,10 @@ export class CMSService implements IDisposeOnExit {
     }, {})
   }
 
+  private _getAdditionalData() {
+    return { BOT_URL: process.EXTERNAL_URL }
+  }
+
   async renderElement(contentId: string, args, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
@@ -648,9 +654,7 @@ export class CMSService implements IDisposeOnExit {
       }
     }
 
-    const additionalData = { BOT_URL: process.EXTERNAL_URL }
-
-    let payloads = contentTypeRenderer.renderElement({ ...additionalData, ...args }, channel)
+    let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
     if (!_.isArray(payloads)) {
       payloads = [payloads]
     }

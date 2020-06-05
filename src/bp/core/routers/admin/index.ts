@@ -68,11 +68,11 @@ export class AdminRouter extends CustomRouter {
     this.serverRouter = new ServerRouter(
       logger,
       monitoringService,
-      workspaceService,
       alertingService,
       configProvider,
       ghostService,
-      jobService
+      jobService,
+      moduleLoader
     )
     this.languagesRouter = new LanguagesRouter(logger, moduleLoader, this.workspaceService, configProvider)
     this.loadUser = loadUser(this.authService)

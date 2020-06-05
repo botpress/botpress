@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { IO } from 'botpress/sdk'
 import { Incident } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { ActionScope } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { WorkspaceUserAttributes } from 'core/repositories/workspace_users'
@@ -14,7 +15,7 @@ import { NodeVM } from 'vm2'
 import { GhostService } from '..'
 import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
-import { filterDisabled } from '../action/utils'
+import { filterDisabled, runOutsideVm } from '../action/utils'
 import { VmRunner } from '../action/vm'
 
 const debug = DEBUG('hooks')
@@ -263,7 +264,7 @@ export class HookService {
   }
 
   private async runScript(hookScript: HookScript, hook: Hooks.BaseHook) {
-    const scope = hookScript.botId ? `bots/${hookScript.botId}` : 'global'
+    const scope = (hookScript.botId ? `bots/${hookScript.botId}` : 'global') as ActionScope
     const hookPath = `/data/${scope}/hooks/${hook.folder}/${hookScript.path}.js`
 
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, hookPath))
@@ -275,7 +276,7 @@ export class HookService {
     hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
     process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
 
-    if (process.DISABLE_GLOBAL_SANDBOX) {
+    if (runOutsideVm(scope)) {
       await this.runWithoutVm(hookScript, hook, botId, _require)
     } else {
       await this.runInVm(hookScript, hook, botId, _require)

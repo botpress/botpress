@@ -180,4 +180,32 @@ export class ConfigProvider {
       throw new FatalError(e, `Error reading configuration file "${fileName}"`)
     }
   }
+
+  public async getBrandingConfig(appName: 'admin' | 'studio') {
+    const defaultConfig = {
+      admin: {
+        title: 'Botpress Admin Panel',
+        favicon: 'assets/ui-admin/public/favicon.ico',
+        customCss: ''
+      },
+      studio: {
+        title: 'Botpress Studio',
+        favicon: 'assets/ui-studio/public/img/favicon.png',
+        customCss: ''
+      }
+    }
+
+    if (!process.IS_PRO_ENABLED) {
+      return defaultConfig[appName]
+    }
+
+    const config = await this.getBotpressConfig()
+    const { title, favicon, customCss } = config.pro?.branding?.[appName] ?? {}
+
+    return {
+      title: title || '',
+      favicon: favicon || '',
+      customCss: customCss || ''
+    }
+  }
 }

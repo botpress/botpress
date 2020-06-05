@@ -1,0 +1,18 @@
+.wRightSidebar {
+  padding-right: var(--right-sidebar-width);
+}
+
+.rightSidebar {
+  width: var(--right-sidebar-width);
+  position: fixed;
+  right: 0;
+  top: 50px;
+  bottom: 28px;
+  overflow: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s;
+
+  &.show {
+    transform: translateX(0);
+  }
+}

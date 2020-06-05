@@ -5,11 +5,18 @@
   },
   "startNode": "entry",
   "skillData": {
+    "randomId": "duxi7lul7e",
     "contentId": "builtin_single-choice-feedback",
     "invalidContentId": "",
     "keywords": {
-      "yes": ["yes", "Yes 👍"],
-      "no": ["no", "No 👎"]
+      "yes": [
+        "yes",
+        "Yes 👍"
+      ],
+      "no": [
+        "no",
+        "No 👎"
+      ]
     },
     "config": {
       "nbMaxRetries": 0,
@@ -19,58 +26,177 @@
   "nodes": [
     {
       "name": "entry",
-      "onEnter": ["say #!builtin_single-choice-feedback {\"skill\":\"choice\"}"],
+      "onEnter": [
+        "say #!builtin_single-choice-feedback {\"skill\":\"choice\"}"
+      ],
+      "onReceive": [],
       "next": [
         {
           "condition": "true",
-          "node": "parse"
+          "node": "wait"
         }
       ],
-      "id": "050285"
+      "id": "382880"
     },
     {
-      "name": "parse",
-      "onReceive": [
-        "basic-skills/choice_parse_answer {\"contentId\":\"builtin_single-choice-feedback\",\"invalidContentId\":\"\",\"keywords\":{\"yes\":[\"yes\",\"Yes 👍\"],\"no\":[\"no\",\"No 👎\"]},\"config\":{\"nbMaxRetries\":0,\"repeatChoicesOnInvalid\":false},\"randomId\":\"k0tqq3ze5d\"}"
-      ],
+      "name": "wait",
+      "onReceive": [],
       "next": [
         {
-          "condition": "temp['skill-choice-valid-k0tqq3ze5d'] === true",
+          "condition": "true",
+          "node": "wait"
+        }
+      ],
+      "onEnter": [],
+      "id": "394829"
+    },
+    {
+      "name": "failure",
+      "type": "trigger",
+      "conditions": [
+        {
+          "id": "custom_confidence",
+          "params": {
+            "confidence": "0.3"
+          }
+        }
+      ],
+      "onEnter": [
+        "basic-skills/choice_invalid_answer {\"randomId\":\"duxi7lul7e\"}"
+      ],
+      "onReceive": [],
+      "next": [
+        {
+          "condition": "Number(temp['skill-choice-invalid-count-duxi7lul7e']) > Number(0)",
           "node": "#"
         },
         {
           "condition": "true",
-          "node": "invalid"
+          "node": "failure"
         }
       ],
-      "onEnter": [],
-      "id": "264685"
+      "activeWorkflow": true,
+      "id": "745270"
     },
     {
-      "name": "invalid",
-      "onEnter": ["basic-skills/choice_invalid_answer {\"randomId\":\"k0tqq3ze5d\"}"],
+      "name": "trigger-1-entity",
+      "type": "trigger",
+      "activeWorkflow": true,
+      "onEnter": [],
       "next": [
         {
-          "condition": "Number(temp['skill-choice-invalid-count-k0tqq3ze5d']) > Number(0)",
+          "condition": "true",
+          "node": "success-1"
+        }
+      ],
+      "conditions": [
+        {
+          "id": "extracted_entity",
+          "params": {
+            "type": "system.number",
+            "comparison": "equal",
+            "expectedValue": 1
+          }
+        }
+      ],
+      "id": "032254"
+    },
+    {
+      "name": "trigger-1-text",
+      "type": "trigger",
+      "activeWorkflow": true,
+      "onEnter": [],
+      "next": [
+        {
+          "condition": "true",
+          "node": "success-1"
+        }
+      ],
+      "conditions": [
+        {
+          "id": "type_text",
+          "params": {
+            "candidate": [
+              "yes",
+              "Yes 👍"
+            ],
+            "exactMatch": false
+          }
+        }
+      ],
+      "id": "530146"
+    },
+    {
+      "name": "success-1",
+      "type": "success",
+      "next": [
+        {
+          "condition": "true",
           "node": "#"
-        },
-        {
-          "condition": "true",
-          "node": "sorry"
         }
       ],
-      "id": "523761"
+      "onEnter": [],
+      "id": "124994"
     },
     {
-      "name": "sorry",
+      "name": "trigger-2-entity",
+      "type": "trigger",
+      "activeWorkflow": true,
       "onEnter": [],
       "next": [
         {
           "condition": "true",
-          "node": "parse"
+          "node": "success-2"
         }
       ],
-      "id": "399044"
+      "conditions": [
+        {
+          "id": "extracted_entity",
+          "params": {
+            "type": "system.number",
+            "comparison": "equal",
+            "expectedValue": 2
+          }
+        }
+      ],
+      "id": "214574"
+    },
+    {
+      "name": "trigger-2-text",
+      "type": "trigger",
+      "activeWorkflow": true,
+      "onEnter": [],
+      "next": [
+        {
+          "condition": "true",
+          "node": "success-2"
+        }
+      ],
+      "conditions": [
+        {
+          "id": "type_text",
+          "params": {
+            "candidate": [
+              "no",
+              "No 👎"
+            ],
+            "exactMatch": false
+          }
+        }
+      ],
+      "id": "943525"
+    },
+    {
+      "name": "success-2",
+      "type": "success",
+      "next": [
+        {
+          "condition": "true",
+          "node": "#"
+        }
+      ],
+      "onEnter": [],
+      "id": "823970"
     }
   ]
 }

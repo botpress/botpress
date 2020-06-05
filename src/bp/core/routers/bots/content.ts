@@ -53,6 +53,7 @@ export class ContentRouter extends CustomRouter {
             hidden: type.hidden,
             schema: {
               json: type.jsonSchema,
+              newJson: type.newSchema,
               ui: type.uiSchema,
               title: type.title,
               renderer: type.id
@@ -301,6 +302,7 @@ export class ContentRouter extends CustomRouter {
       ...element,
       schema: {
         json: contentType.jsonSchema,
+        newJson: contentType.newSchema,
         ui: contentType.uiSchema,
         title: contentType.title,
         renderer: contentType.id

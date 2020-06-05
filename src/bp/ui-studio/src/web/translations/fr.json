@@ -231,7 +231,15 @@
         "nameInUse": "Nom déjà utilisé",
         "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
         "node": "Nœud",
-        "renameFlow": "Renommer le flow"
+        "renameFlow": "Renommer le flow",
+        "importTopic": "Importer sujet",
+        "addTopic": "Ajouter sujet",
+        "addWorkflow": "Ajouter workflow",
+        "tapIconsToAdd": "Appuyez sur les icônes de la barre d'outils pour importer ou ajouter votre premier sujet.",
+        "renameWorkflow": "Renommer workflow",
+        "renameTopic": "Renommer sujet",
+        "nameWorkflow": "Name Workflow",
+        "nameTopic": "Name Topic"
       },
       "skills": {
         "couldNotLoad": "Impossible de charger la vue des compétences",
