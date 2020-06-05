@@ -285,6 +285,7 @@ const QnAList: FC<Props> = props => {
                 data: { qnaItem: data, index, bp, currentLang }
               })
             }
+            key={item.key || item.id}
             bp={bp}
             isLite={isLite}
             flows={flows}

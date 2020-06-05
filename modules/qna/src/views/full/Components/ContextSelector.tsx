@@ -6,6 +6,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 interface Props {
   contexts: string[]
   isSearch?: boolean
+  customIdSuffix?: string | number
   className?: string
   bp: any
   saveContexts: (ctx: string[]) => void
@@ -81,7 +82,11 @@ const ContextSelector: FC<Props> = props => {
         itemPredicate={(q: string, ctx: string) => !q || ctx.includes(q)}
         onItemSelect={onItemSelect}
         tagRenderer={ctx => ctx}
-        tagInputProps={{ tagProps: { minimal: true }, onRemove: removeCtx, inputProps: { id: 'select-context' } }}
+        tagInputProps={{
+          tagProps: { minimal: true },
+          onRemove: removeCtx,
+          inputProps: { id: `select-context${props.customIdSuffix ? props.customIdSuffix : ''}` }
+        }}
         popoverProps={{ minimal: true, fill: true, usePortal: false }}
         selectedItems={props.contexts}
         createNewItemRenderer={!props.isSearch && createNewItemRenderer}

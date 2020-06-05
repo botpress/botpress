@@ -191,6 +191,7 @@ const QnA: FC<Props> = props => {
             <ContextSelector
               className={cx(style.contextSelector)}
               contexts={data.contexts}
+              customIdSuffix={id}
               saveContexts={contexts =>
                 updateQnA({
                   id,
