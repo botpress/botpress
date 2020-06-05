@@ -153,7 +153,6 @@ const SidePanelContent: FC<Props> = props => {
     setTopicQnAModalOpen(!topicQnAModalOpen)
   }
 
-  const importWorkflow = () => setImportWorkflowModalOpen(!importWorkflowModalOpen)
   const canDelete = props.permissions.includes('delete')
 
   const onTabChanged = tabId => {

@@ -38,6 +38,10 @@ const TreeItem: FC<Props> = ({
 
   const onContextMenu = e => {
     e.preventDefault()
+    if (item.type === 'qna') {
+      return
+    }
+
     ContextMenu.show(<Menu className={style.contextMenu}>{contextMenuContent}</Menu>, {
       left: e.clientX,
       top: e.clientY
@@ -101,7 +105,7 @@ const TreeItem: FC<Props> = ({
       icon={hasChildren ? chevron : null}
     >
       <span className={style.topicName}>
-        {item.id}
+        {item.label || item.id}
         {isTopic && item.type !== 'default' && (
           <span className={style.tag}>
             {qnaCount} Q&A · {wfCount} WF

@@ -91,7 +91,10 @@ const TopicList: FC<Props> = props => {
   }, [props.currentFlow])
 
   const deleteFlow = async (name: string, skipDialog = false) => {
-    if (skipDialog || (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow'), {}))) {
+    if (
+      skipDialog ||
+      (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow'), { acceptLabel: lang.tr('delete') }))
+    ) {
       props.deleteFlow(name)
     }
   }
@@ -116,7 +119,7 @@ const TopicList: FC<Props> = props => {
             </Fragment>
           )}
         </span>,
-        {}
+        { acceptLabel: lang.tr('delete') }
       ))
     ) {
       await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
@@ -357,7 +360,6 @@ const TopicList: FC<Props> = props => {
       {!!(!isEmpty || filter.length) && (
         <SearchBar
           className={style.searchBar}
-          icon="filter"
           placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
           onChange={setFilter}
         />

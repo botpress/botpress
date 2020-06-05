@@ -292,7 +292,7 @@
         "editQna": "Edit Q&A",
         "editTopic": "Edit topic",
         "editWorkflow": "Edit Workflow",
-        "exportTopic": "Export topic",
+        "exportTopic": "Export Topic",
         "flowsAssociatedDelete": "{warning} {count} flows associated with the topic will be deleted",
         "importExisting": "Import existing workflow",
         "nbQuestionsInTopic": "Number of questions in that topic",

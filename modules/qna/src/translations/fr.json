@@ -72,7 +72,7 @@
     "writeTheAnswer": "Rédigez la réponse à la question",
     "writingSameQuestion": "Écrire deux fois la même question désactivera ce question-réponses"
   },
-  "fullName": "Q&R",
+  "fullName": "Questions-Réponses",
   "hint": {
     "addMoreQuestions": "Ajoutez {moreQuestions} pour rendre votre Q&R plus résilient.",
     "exactMatchOnly": "correspondances exactes uniquement",
