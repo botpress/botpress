@@ -26,7 +26,7 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
 
   async refreshAvailability(): Promise<void> {
     const time = moment(new Date())
-      .subtract(1, 'minute')
+      .subtract(5, 'minute')
       .toISOString()
 
     const events = await this.database.knex

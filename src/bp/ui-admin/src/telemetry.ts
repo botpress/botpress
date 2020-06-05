@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { json } from 'body-parser'
 import shared from 'botpress/shared'
 import { createHash } from 'crypto'
 import _ from 'lodash'
@@ -116,16 +117,16 @@ export function checkInfoReceived() {
 
 export async function sendServerPackage() {
   try {
-    const packages = await api.getSecured().get(serverUrl)
+    const packages = (await api.getSecured().get(serverUrl)).data
     console.log(packages)
 
-    const feedback = {}
+    const feedback = { events: [], status: '' }
 
     if ((packages !== undefined && _.has(packages, 'url'), _.has(packages, 'events'))) {
-      const url = packages['url']
-      const events = packages['events']
+      const url = packages.url
+      const events = packages.events.map(event => JSON.parse(event))
 
-      feedback['events'] = events.map(obj => obj.uuid)
+      feedback.events = events.map(obj => obj.uuid)
 
       try {
         await axios.post(url, events, corsConfig)
