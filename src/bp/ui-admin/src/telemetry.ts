@@ -5,6 +5,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import uuid from 'uuid'
 
+import api from './api'
 import store from './store'
 
 export const telemetryPackageVersion = '1.0.0'
@@ -25,7 +26,7 @@ const info = {
   email: ''
 }
 
-const serverUrl = window.location.origin + '/telemetry'
+const serverUrl = '/admin/telemetry'
 
 const corsConfig = {
   withCredentials: false
@@ -113,73 +114,49 @@ export function checkInfoReceived() {
   return !_.includes(info, '')
 }
 
-export async function feedbacks(feedbacks) {
-  try {
-    await axios.post(serverUrl, feedbacks, corsConfig)
-  } catch (err) {
-    console.log(err)
-  }
-}
-
-export interface FeedbackType {
-  uuid: string
-}
-
-export interface Feedback {
-  OK: Array<FeedbackType | null>
-  INACCESSIBLE: Array<FeedbackType | null>
-}
-
 export async function sendServerPackage() {
-  const packages = await axios.get(serverUrl, corsConfig)
+  try {
+    const packages = await api.getSecured().get(serverUrl)
 
-  let payload, url, feedbackUUID
-  const listFeedbacks: Feedback = {
-    OK: [],
-    INACCESSIBLE: []
-  }
+    const feedback = {}
 
-  if (packages !== undefined && _.has(packages, 'data')) {
-    for (const pkg of packages.data) {
-      if (pkg != null) {
-        payload = pkg.payload
-        payload.source = 'client'
-        url = pkg.url
-        feedbackUUID = payload.uuid
+    if ((packages !== undefined && _.has(packages, 'url'), _.has(packages, 'events'))) {
+      const url = packages['url']
+      const events = packages['events']
 
-        try {
-          await axios.post(url, payload, corsConfig)
-          listFeedbacks.OK.push({ uuid: feedbackUUID })
-        } catch (err) {
-          listFeedbacks.INACCESSIBLE.push({ uuid: feedbackUUID })
-          console.log(err)
-        }
+      feedback['events'] = events.map(obj => obj.uuid)
+
+      try {
+        await axios.post(url, events, corsConfig)
+        feedback['status'] = 'ok'
+      } catch (err) {
+        feedback['status'] = 'fail'
+        console.log('Could not send the telemetry packages to the storage server', err)
       }
     }
-  }
 
-  await feedbacks(listFeedbacks)
+    await api
+      .getSecured()
+      .post(serverUrl, feedback)
+      .catch(err => console.log('Could not send the feedbacks to the botpress server', err))
+  } catch (err) {
+    console.log('Could not access the botpress server', err)
+  }
 }
 
-export function setupServerPackageLoop() {
-  sendServerPackage().catch(err => {
-    console.log(err)
-  })
-  setInterval(() => {
-    sendServerPackage().catch(err => {
-      console.log(err)
-    })
-  }, ms('1h'))
+export async function setupServerPackageLoop() {
+  await sendServerPackage()
+  // TODO: async interval to add
 }
 
 export function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
   sendTelemetry(getTelemetryPackage(event_type, data, name), event_type)
 }
 
-export function setupTelemetry() {
+export async function setupTelemetry() {
   setupEventsType()
 
-  setupServerPackageLoop()
+  await setupServerPackageLoop()
 
   store.subscribe(() => {
     const state = store.getState()
@@ -237,7 +214,7 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
 
 function sendTelemetry(data: TelemetryPackage, event: string) {
   axios
-    .post(endpointMock, data, {
+    .post(endpoint, data, {
       headers: {
         'content-type': 'application/json',
         withCredentials: false,
