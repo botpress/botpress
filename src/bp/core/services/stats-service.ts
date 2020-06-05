@@ -61,6 +61,12 @@ export class StatsService {
       this.run.bind(this, this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', `${telemetry2}`),
       ms('1d')
     )
+
+    setInterval(this.run.bind(this, this.refreshDB()), ms('15m'))
+  }
+
+  private async refreshDB() {
+    await this.telemetryPayloadRepository.refreshAvailability()
   }
 
   private async run(job, lockResource: string, interval: string, url) {
@@ -77,7 +83,9 @@ export class StatsService {
     try {
       await axios.post(url, stats)
     } catch (err) {
-      await this.telemetryPayloadRepository.insertPayload(stats.uuid, url, stats)
+      if (url === 'http://telemetry.botpress.dev') {
+        await this.telemetryPayloadRepository.insertPayload(stats.uuid, stats)
+      }
     }
   }
 
@@ -250,6 +258,7 @@ export class StatsService {
       timestamp: new Date().toISOString(),
       uuid: uuid.v4(),
       schema: '1.0.0',
+      source: 'server',
       server: await this.getServerStats,
       event_type: 'builtin_actions',
       event_data: { schema: '1.0.0', flows: await this.getFlows() }
