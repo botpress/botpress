@@ -38,5 +38,23 @@
     }
   },
   "typingIndicator": "Show typing indicators",
-  "useMarkdown": "Use markdown"
+  "useMarkdown": "Use markdown",
+  "variables": {
+    "boolean": {
+      "label": "Boolean",
+      "params": {
+        "defaultValue": {
+          "label": "Default Value"
+        }
+      }
+    },
+    "date": {
+      "label": "Date",
+      "params": {
+        "format": {
+          "label": "Format"
+        }
+      }
+    }
+  }
 }
