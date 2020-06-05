@@ -51,6 +51,7 @@ export interface TelemetryPackage {
   bp_release: string
   bp_license: string
   event_type: string
+  source: string
   event_data: EventData
 }
 
@@ -113,55 +114,45 @@ export function checkInfoReceived() {
   return !_.includes(info, '')
 }
 
-export function getServerFeedback() {
-  const pkgStr = window.localStorage.getItem('feedbackToSend')
-  let packages = []
-  if (pkgStr !== null) {
-    packages = JSON.parse(pkgStr)
-  }
-  return packages
-}
-
 export async function feedbacks(feedbacks) {
-  const storageFeedbacks = getServerFeedback()
-
-  const newFeedback = _.union(feedbacks, storageFeedbacks, 'uuid')
-
   try {
-    await axios.post(serverUrl, newFeedback, corsConfig)
-    window.localStorage.setItem('feedbackToSend', JSON.stringify([]))
+    await axios.post(serverUrl, feedbacks, corsConfig)
   } catch (err) {
-    window.localStorage.setItem('feedbackToSend', JSON.stringify(newFeedback))
     console.log(err)
   }
 }
 
+export interface FeedbackType {
+  uuid: string
+}
+
+export interface Feedback {
+  OK: Array<FeedbackType | null>
+  INACCESSIBLE: Array<FeedbackType | null>
+}
+
 export async function sendServerPackage() {
-  if (window.localStorage.getItem('feedbackToSend') === null) {
-    window.localStorage.setItem('feedbackToSend', JSON.stringify([]))
-  }
-
-  const storageFeedbacks = getServerFeedback()
-
-  await feedbacks(storageFeedbacks)
-
   const packages = await axios.get(serverUrl, corsConfig)
 
   let payload, url, feedbackUUID
-  const listFeedbacks: Array<object> = []
+  const listFeedbacks: Feedback = {
+    OK: [],
+    INACCESSIBLE: []
+  }
 
   if (packages !== undefined && _.has(packages, 'data')) {
     for (const pkg of packages.data) {
       if (pkg != null) {
         payload = pkg.payload
+        payload.source = 'client'
         url = pkg.url
         feedbackUUID = payload.uuid
 
         try {
           await axios.post(url, payload, corsConfig)
-          listFeedbacks.push({ status: 'OK', uuid: feedbackUUID })
+          listFeedbacks.OK.push({ uuid: feedbackUUID })
         } catch (err) {
-          listFeedbacks.push({ status: 'INACCESSIBLE', uuid: feedbackUUID })
+          listFeedbacks.INACCESSIBLE.push({ uuid: feedbackUUID })
           console.log(err)
         }
       }
@@ -240,6 +231,7 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
     bp_release: info.bp_release,
     bp_license: info.bp_license,
     event_type: event_type,
+    source: 'client',
     event_data: getDataCluster(data)
   }
 }
