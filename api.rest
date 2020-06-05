@@ -14,6 +14,10 @@ GET {{baseUrl}}/api/v1/admin/bots
 Authorization: Bearer {{authToken}}
 X-BP-Workspace: default
 
+### Get all variables
+GET {{baseUrl}}/api/v1/modules/variables
+Authorization: Bearer {{authToken}}
+
 ### Send a request using Converse
 POST {{baseUrl}}/api/v1/bots/welcome-bot/converse/benchmarkUser
 Content-Type: application/json
