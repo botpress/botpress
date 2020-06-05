@@ -46,7 +46,8 @@ export class StatsService {
 
   public start() {
     const telemetry1 = 'https://telemetry.botpress.io/ingest'
-    const telemetry2 = 'https://telemetry.botpress.dev'
+    const telemetry2 = 'http://telemetry.botpress.dev'
+
     // tslint:disable-next-line: no-floating-promises
     this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`)
     // tslint:disable-next-line: no-floating-promises

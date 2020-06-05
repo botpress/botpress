@@ -10,6 +10,8 @@ export class TelemetryPayloadTable extends Table {
       table.uuid('uuid').notNullable()
       table.text('url').notNullable()
       table.json('payload').notNullable()
+      table.boolean('available').notNullable()
+      table.timestamp('lastChanged').notNullable()
       created = true
     })
     return created
