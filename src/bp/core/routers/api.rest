@@ -1,0 +1,68 @@
+@api = {{baseUrl}}/api/v1
+
+
+# Login on the Admin UI
+# @name login
+POST {{api}}/auth/login/basic/default
+Content-Type: application/x-www-form-urlencoded
+
+email={{email}}&password={{password}}
+###
+
+
+@authToken = {{login.response.body.payload.token}}
+
+
+# List all bots
+# @name listBots
+GET {{api}}/admin/bots
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
+###
+
+
+@botId = YOUR_BOT
+
+
+# List all flows
+# @name listFlows
+GET {{api}}/bots/{{botId}}/flows
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
+###
+
+
+@flowName = YOUR_WORKFLOW_NAME
+@flowFile = YOUR_WORKFLOW_FILE.flow.json
+
+
+# Edit a flow
+# @name editFlow
+POST {{api}}/bots/{{botId}}/flow/{{flowFile}}
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
+Content-Type: application/json
+
+{
+  "flow": {
+    "catchAll": {},
+    "flow": "{{flowFile}}",
+    "label": "{{flowName}}",
+    "links": [],
+    "location": "{{flowFile}}",
+    "name": "{{flowFile}}",
+    "nodes": [],
+    "version": "0.0.1",
+    "variables": [
+      {
+        "type": "number",
+        "name": "score",
+        "description": "",
+        "params": {
+          "defaultValue": 2
+        }
+      }
+    ]
+  }
+}
+###
